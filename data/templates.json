@@ -1,0 +1,3120 @@
+[
+  {
+    "page": "id-4466260146",
+    "title": "Dashboard Report",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Management Reporting",
+    "purpose": "This spreadsheet is a quick and low-cost way to introduce your clients to management reporting. The sheet provides 15 or more financial ratios in a graph/ graphic view to help explain the importance of financial management to your clients.",
+    "tags": [
+      "Financial Ratios",
+      "Financial Reporting",
+      "Quarterly",
+      "Monthly Reporting",
+      "Management Reporting",
+      "Winning Management Work",
+      "new"
+    ],
+    "includedInClient": true,
+    "position": 1
+  },
+  {
+    "page": "id-7154906006",
+    "title": "E.O.Y Meeting",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Client Meetings",
+    "purpose": "This framework is an excellent way to provide your clients with an 'experience' of facilitation. This enables them to understand the additional value you can provide, over core compliance services.",
+    "tags": [
+      "Start",
+      "Stop",
+      "Keep",
+      "Financial Accounts Agenda",
+      "End of Year Meeting",
+      "Volatility"
+    ],
+    "includedInClient": false,
+    "position": 2
+  },
+  {
+    "page": "id-9515196091",
+    "title": "General Meeting Agenda",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Client Meetings",
+    "purpose": "This template makes it easy to record the notes of meetings and directs the review of task success and key points of interest for the client.",
+    "tags": [
+      "Meeting",
+      "Notes",
+      "Records"
+    ],
+    "includedInClient": true,
+    "position": 3
+  },
+  {
+    "page": "id-3779095414",
+    "title": "PDF Storage",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "PDF Storage",
+    "purpose": "This page makes it easy to host or store valuable pdf documents.",
+    "tags": [
+      "Filed Accounts",
+      "Lease Agreements",
+      "Trust Deeds",
+      "Shareholder Agreements"
+    ],
+    "includedInClient": true,
+    "position": 4
+  },
+  {
+    "page": "id-904072826",
+    "title": "FBT Questionnaire",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "FBT Questionnaire",
+    "purpose": "This page makes it easy for your client to complete their answers to questions relating to Fringe Benefits",
+    "tags": [
+      "Client End of Year Tax Forms"
+    ],
+    "includedInClient": true,
+    "position": 5
+  },
+  {
+    "page": "id-6607114703",
+    "title": "Growth Framework",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Consultancy Framework",
+    "purpose": "The Growth Fundamentals Curve is a superb way to create 'self relevance' for your clients. In a nutshell, it's the fastest (& easiest) way to capture your clients attention, align your mutual understanding of their contextual position and assess their desire for change.",
+    "tags": [
+      "Devil's Toilet",
+      "Growth Curve",
+      "Growth Stages",
+      "Split Point",
+      "Design",
+      "Launch",
+      "Break-even",
+      "Lifestyle",
+      "Leverage",
+      "Reach",
+      "Leapfrog",
+      "Maturity",
+      "Exit/Decline",
+      "7 Growth Tactics",
+      "9 Growth Stages",
+      "5 Psyche Errors",
+      "9 Growth Aspects"
+    ],
+    "includedInClient": true,
+    "position": 6
+  },
+  {
+    "page": "id-4277160310",
+    "title": "Client pre Meeting",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Covid 19",
+    "purpose": "This page contains a video and a presentation that explains the way people cope with adversity. It's the most practical way you can serve the topic of 'Wellness' for a business person as it helps them identify their dominant coping style so they can 'catch themselves' when fixated. 'Seeing themselves' is the critical first step in changing behaviour.",
+    "tags": [
+      "Sales",
+      "Awareness",
+      "Interest",
+      "Desire",
+      "Credibility",
+      "Product Fit",
+      "marketing",
+      "messaging",
+      "stress"
+    ],
+    "includedInClient": true,
+    "position": 7
+  },
+  {
+    "page": "id-5773184106",
+    "title": "Covid Agendas",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Covid 19",
+    "purpose": "This template guides you through a 4 step business recovery plan. In New Zealand, the plan qualifies for NZTE (New Zealand Trade & Enterprise) funding support as it includes Critical Learning Points. The 4 point plan broadly covers Feasibility, Scenario Planning, Contingency Planning and Business Fundamentals Review.",
+    "tags": [
+      "Business Contingency planning",
+      "Resurgence plan",
+      "Business Continuence plan"
+    ],
+    "includedInClient": false,
+    "position": 8
+  },
+  {
+    "page": "id-7069873149",
+    "title": "Receivership vs Liquidation",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Financial Solvency",
+    "purpose": "Andrew Oorshot explains the difference between Receivership & Liquidation & offers the Creditor Compromise Regime as another option for those in severe business hardship. The key 'take-away' for many clients is the 'removing of negative stigma'; making it easier for clients to 'let go' and take immediate action.",
+    "tags": [
+      "Creditor action",
+      "Bankruptcy",
+      "Bankrupt",
+      "Insolvency",
+      "Insolvent",
+      "Receivership",
+      "Liquidation",
+      "Voluntary Administration",
+      "Creditor Compromise Regime",
+      "stress"
+    ],
+    "includedInClient": true,
+    "position": 9
+  },
+  {
+    "page": "id-3314827163",
+    "title": "Quick & Worst",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Financial Solvency",
+    "purpose": "This page contains the Quick Position model - used to identify the immediate finance position in relation to trading cycles and the Worst Case Valuation model - a Liquidation based review of the business net worth. (By the way, the Worst Case model is an EXCELLENT model to help business owners understand the best use of profits and clarify their investment risk position)",
+    "tags": [
+      "Covid",
+      "Recovery Plan"
+    ],
+    "includedInClient": false,
+    "position": 10
+  },
+  {
+    "page": "id-6257902186",
+    "title": "Insurance",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Insurance",
+    "purpose": "This page allows your Client's Insurance advisor to complete a 'Summary Position' view of your mutual client's risk exposure.",
+    "tags": [
+      "Insurance",
+      "Broker",
+      "Premiums",
+      "Risk Assessment"
+    ],
+    "includedInClient": true,
+    "position": 11
+  },
+  {
+    "page": "id-2913118225",
+    "title": "Legal",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Legal",
+    "purpose": "This page allows your Client's Legal advisor to complete a 'Summary Position' view of your mutual client's legal exposure.",
+    "tags": [
+      "Trusts",
+      "Wills",
+      "Estate Planning"
+    ],
+    "includedInClient": true,
+    "position": 12
+  },
+  {
+    "page": "id-6817897422",
+    "title": "Loan Estimator",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Banking & Finance",
+    "purpose": "This page allows your Client's Finance advisor/ Banker to complete a 'Summary Position' view of your mutual client's credit lines. Again, this model helps you client to understand which assets provide easy liquidity and aids in your discussion of weather wealth should be captured inside the business, or outside. (or both)",
+    "tags": [
+      "Mortgage Assessment",
+      "Loan Assessment",
+      "Lending Facilities",
+      "Credit Rating",
+      "Bank",
+      "Bank Manager",
+      "Overdraft Facility",
+      "Life-line Capital",
+      "Funding",
+      "Overdraft"
+    ],
+    "includedInClient": true,
+    "position": 13
+  },
+  {
+    "page": "id-3094237070",
+    "title": "Retirement Calcs",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Superannuation; Pension",
+    "purpose": "This page allows your Client's Financial advisor to complete a 'Summary Position' view of your mutual client's retirement exposure. The 'Use of Assets in Retirement' page supports End of Year meetings for non-trading clients.",
+    "tags": [
+      "Financial Planner",
+      "Wealth Management",
+      "Retirement Funding",
+      "Empire Forecast",
+      "Investor",
+      "Investor Cash Inflow/Outflow",
+      "Shares",
+      "Bitcoin"
+    ],
+    "includedInClient": true,
+    "position": 14
+  },
+  {
+    "page": "id-482414900",
+    "title": "Time Matters",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Free Client Content",
+    "purpose": "This session provides practical tips on how to identify 'time leakage', how to prioritise and focus on the 20% of tasks that drive 80% of the profits and how to protect the time that's been reserved for 'critical tasks'.",
+    "tags": [
+      "Time Management",
+      "Effectiveness",
+      "Efficiency"
+    ],
+    "includedInClient": true,
+    "position": 15
+  },
+  {
+    "page": "id-6071441423",
+    "title": "Control Matters",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Free Client Content",
+    "purpose": "This session guides a review of how the owner 'divides' their business mentally; how they segment the business in their mind when they're feeling overwhelmed. Knowing this is important when attempting to problem solve since the 'framework guides the focus'.",
+    "tags": [
+      "Overwhelm",
+      "Stress",
+      "Control",
+      "Certainty",
+      "Problem solving"
+    ],
+    "includedInClient": true,
+    "position": 16
+  },
+  {
+    "page": "id-5195288668",
+    "title": "Money Matters",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Free Client Content",
+    "purpose": "This session explains the 3 uses of profits which is useful for your client to remember when purchasing stock or assets; how previous profits have been utilised (as evidenced via a liquidation value review) and the summary of how bad debtors might be an indicator of failings outside the financial procedures.",
+    "tags": [
+      "Profits",
+      "Debtors"
+    ],
+    "includedInClient": true,
+    "position": 17
+  },
+  {
+    "page": "capacity-capability-opportunity",
+    "title": "Capacity, Capability, Opportunity",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Fault Diagnosis",
+    "purpose": "This framework helps you quickly disect the 'legitimate constraints' that are holding a business back. From here you can start to drill down into greater detail. A great conversation starter and a quick way to get a new prospect 'collaborating' with you, which is a powerful sales aid.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 18
+  },
+  {
+    "page": "id-679676385",
+    "title": "App Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Application Solutions",
+    "purpose": "This template is designed to shift you into a 'Total needs approach' rather than a 'Campaign approach' when discussing software application solutions. This will better position you as a 'trusted advisor' and reduce the feeling of being an app' salesperson.",
+    "tags": [
+      "Efficiency vs",
+      "Effectiveness",
+      "Software Solution Areas",
+      "App Selection",
+      "Debtors",
+      "Cashflow",
+      "Overdraft",
+      "Funding",
+      "Apps",
+      "Plugins",
+      "Administration",
+      "Admin"
+    ],
+    "includedInClient": true,
+    "position": 19
+  },
+  {
+    "page": "advanced-fundamentals-delivery-tools",
+    "title": "Assumptions",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Cash Forecast",
+    "purpose": "This template is designed to help add the 'flesh' to the conversation when collecting data to generate a cash forecast.(By aligning key business assumptions to financial KPI's or reports) It's a great way to help encourage clients to add the review component to their forecast solution and gets your team out of simply regurgitating data (which is then provided to a financial institution)",
+    "tags": [
+      "Difference between Hypothesis",
+      "Theory & Sceientific Law",
+      "Align Assumptions to Financial Reports",
+      "Assumptions are often Invisible",
+      "Avoiding Confirmation Bias",
+      "Business Beliefs"
+    ],
+    "includedInClient": true,
+    "position": 20
+  },
+  {
+    "page": "id-4361586555",
+    "title": "Customer Journey",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Sales & Marketing",
+    "purpose": "This template is a 'lite' version of other sales related documents and chooses to focus on the customer journey (from first awareness to decision to purchase) and a basic problem solving flow-chart to help you find the source of your clients failing sales. You can use this document as a stand alone discussion (in less than 1 hr) or as an introduction to a more complete sales review if needed.",
+    "tags": [
+      "Sales",
+      "Awareness",
+      "Interest",
+      "Desire",
+      "Credibility",
+      "Product Fit",
+      "marketing",
+      "messaging"
+    ],
+    "includedInClient": true,
+    "position": 21
+  },
+  {
+    "page": "strategic-review",
+    "title": "Debtor Protocols",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Debtor Issues",
+    "purpose": "This material aids in 'ramming the point home' to clients for the need to have disciplined procedures to recover their working capital. The message is aided by a spreadsheet model to highlight the long term affects of ignoring the message. Once the 'message is received' there are a range of practical suggestions that your client can employ to get paid quicker.",
+    "tags": [
+      "Terms of Trade",
+      "Debtors",
+      "Debt Recovery",
+      "Debtors",
+      "Overdue Accounts",
+      "Cashflow",
+      "Tight"
+    ],
+    "includedInClient": true,
+    "position": 22
+  },
+  {
+    "page": "id-9212012331",
+    "title": "Demings Volatility",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Cashflow - Cash Management - Interpreting Data",
+    "purpose": "This template discusses Edwards Demings Theory of Volatility - it encourages people to accept that business goes up and down and to learn to properly interpret the data they're reviewing. Use this template to explain the clients cash volatility report so they can understand the vital importance of cash forecasts / budgets and regular cash management reviews. This tool is also extremely helpful in identifying and supporting the calculation of required working capital; use it to aid in the application for finance and to help the owners get clear on the dangers of running the business too low in cash reserves.",
+    "tags": [],
+    "includedInClient": true,
+    "position": 23
+  },
+  {
+    "page": "id-9601408536",
+    "title": "1 pg Bizz Case",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Support the application for funding OR   Fault Diagnosis",
+    "purpose": "This template guides your client via a simple 'Q&A' framework to articulate their business assumptions in regards to the Opportunity, The Model and The Proof. This same template could be easily modified to help you clarify the underlying 'faults' for a business in distress. (It differs from the 'Assumptions' template in that it doesn't seek to directly relate business beliefs to financial indicators.)",
+    "tags": [
+      "1 page business plan",
+      "Planning",
+      "Goals",
+      "Dreams",
+      "Ambitions",
+      "Vision"
+    ],
+    "includedInClient": true,
+    "position": 24
+  },
+  {
+    "page": "id-1031914952",
+    "title": "Lite Strategy",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Business Planning",
+    "purpose": "This template is a Google Doc version (like Microsoft Word) of a basic strategic plan. The most compelling aspects are the use of contrast models to identify the business owners expectations and the business development stages; these contrast models are the fastest way to achieve a sense of clarity and belief for your clients.",
+    "tags": [
+      "Porters 5 forces",
+      "Strategic Planning",
+      "Business Owners Expectations",
+      "Business Development stages",
+      "Business Ethos",
+      "Business Values"
+    ],
+    "includedInClient": true,
+    "position": 25
+  },
+  {
+    "page": "id-6324353645",
+    "title": "People vs. Process",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Efficiency, Effectiveness, Business Systems",
+    "purpose": "This template seeks to guide you through the process of identifying the business practices, protocols, procedures (call them what you prefer) that need to be improved. Just as importantly, the template helps to define the overarching systems philosophy of your client SO THAT they can embark on an improvement process that best suits their existing habits, preferences and understanding. You will find the content a little m ore advanced but don't be put-off - just take the time to rehearse and you'll find it all makes practical sense in the end. (Especially when you flow-chart your client's practices and break-down the issues, one by one.).",
+    "tags": [
+      "Emotional reaction to learning",
+      "the progressive learning path",
+      "5 Drivers of human output/productivity",
+      "5 Steps to building new habits",
+      "Lean Theory",
+      "Constraint Theory",
+      "Six Sigma",
+      "Admin",
+      "Administration"
+    ],
+    "includedInClient": true,
+    "position": 26
+  },
+  {
+    "page": "id-1034348000",
+    "title": "Powerful Goal Setting",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Goals",
+    "purpose": "This template explains the 'correct' use of the S.M.A.R.T acronym for goal setting and explores how you can introduce it to your clients (who are) in need of a 'mental pick up'.",
+    "tags": [
+      "Setting goals",
+      "fueling desire and belief",
+      "SMART"
+    ],
+    "includedInClient": true,
+    "position": 27
+  },
+  {
+    "page": "farmers-model",
+    "title": "Productive Habits",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Team Engagement / Productivity",
+    "purpose": "This template is designed to help individuals 'catch themselves' when repeating negative behaviours or to understand what drives the mental state and productivity of themselves and their peers.",
+    "tags": [
+      "Emotional reaction to learning",
+      "the progressive learning path",
+      "5 Drivers of human output/productivity",
+      "5 Steps to building new habits"
+    ],
+    "includedInClient": true,
+    "position": 28
+  },
+  {
+    "page": "8-profit-levers",
+    "title": "8 Profit Levers",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Fault Diagnosis/ Growth Framework",
+    "purpose": "This template encourages your client to 'walk the customer's journey' and recognise the 'mini decisions' required to gain their business and deliver (profitably) to their expectations. It's also a FUNDAMENTAL framework to identify business growth potential by incremental changes, rather than drastic movements.",
+    "tags": [
+      "Footraffic",
+      "Prospects",
+      "Customer Average Spend",
+      "Customer Frequency",
+      "Sales Margin",
+      "Activity Costs",
+      "Fixed Costs",
+      "Customer Journey",
+      "Market Exposure",
+      "Market Awareness",
+      "Product Fit",
+      "Prospect Conversion Ratio",
+      "Lifetime Customer Value",
+      "Over Trading",
+      "Profit Plateau",
+      "Profit Sweet Spot"
+    ],
+    "includedInClient": true,
+    "position": 29
+  },
+  {
+    "page": "id-480549223",
+    "title": "Org Chart Only",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Organisational Structure",
+    "purpose": "This template is an easy way to formulate an Organisation chart for your client as it uses a basic Role/ Reporting Line model to generate the chart. The template also explains the key reason to have 'lines of communication/Reporting' in the first place. (What it's for, and what it's NOT for)",
+    "tags": [
+      "Organisational Chart",
+      "Communication lines",
+      "Reporting structure"
+    ],
+    "includedInClient": true,
+    "position": 30
+  },
+  {
+    "page": "id-3444141596",
+    "title": "Quick Fire Diagnosis",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Fault Diagnosis",
+    "purpose": "This template will form the basis of learning how to quickly diagnose the SOURCE of the business issue OR, the prioritised growth focus area. In short - if the business is in Distress perform triage in the session; if not, move forward with the rest of the template.",
+    "tags": [
+      "Business distress vs",
+      "Growth mode",
+      "Business model vs",
+      "Operator",
+      "Salvage Probability",
+      "Viability Timeline"
+    ],
+    "includedInClient": true,
+    "position": 31
+  },
+  {
+    "page": "learning-to-deliver-advanced-fundamentals",
+    "title": "Rubbish In - Rubbish Out",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Management Reporting Basics",
+    "purpose": "This template focuses on the Chart of Accounts as a foundation for Reporting and Interpretation; it challenges the business owner to consider what's important for them to measure.",
+    "tags": [
+      "Correlation",
+      "Coincidence",
+      "Causation",
+      "Measure what matters",
+      "Variable costs",
+      "Activity costs",
+      "Chart of Accounts",
+      "Fixed costs",
+      "Admin",
+      "Administration"
+    ],
+    "includedInClient": true,
+    "position": 32
+  },
+  {
+    "page": "bizz360",
+    "title": "Working Capital Cycle",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Financial Management Basics",
+    "purpose": "This template often achieves an 'A-ha' moment for th client as they understand the 'money in movement' and 'use of profits' principles. This is THE BEST FOUNDATION discussion you can have with a business owner that fails to understand the importance of regularly reviewing their financial accounts / performance.",
+    "tags": [
+      "Activity Ratios",
+      "Fixed Capital",
+      "Cost of Being in Business vs",
+      "Money that Makes Money",
+      "Discounting Table",
+      "Effects of Discounting",
+      "Over-trading",
+      "Capital Intensive",
+      "Liquid Debt",
+      "Profit Plateau",
+      "Scale in Business",
+      "Financial Category Secrets",
+      "Over Trading",
+      "Liquid Debt",
+      "Capital Intensive",
+      "Sweet Spot"
+    ],
+    "includedInClient": true,
+    "position": 33
+  },
+  {
+    "page": "planning-session",
+    "title": "Planning Session",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Planning / Orientation",
+    "purpose": "This section seeks to help your client align their income, risk and work hours expectations to their business model and lay a foundation of understanding between you both. The supporting document explains strategic language for those new to business planning.",
+    "tags": [
+      "Owners income expectations",
+      "Business development stages",
+      "How to make money",
+      "capital gain",
+      "subscription model",
+      "product margin",
+      "sellinghours",
+      "Operational objective",
+      "Tactical action plans",
+      "Vision",
+      "Mission",
+      "Goals"
+    ],
+    "includedInClient": true,
+    "position": 34
+  },
+  {
+    "page": "data-session",
+    "title": "Data Session",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Developing KPI's",
+    "purpose": "This section seeks to educate your client on the interpretation of data (Causation vs. Correlation) and provides foundation knowledge of accounting terminology, which allows you to expand the topic to meet the comprehension of your client and the complexity of their business. (You match the detail to the client) This template also helps you clarify the KPI's to use when working with this client going forward.",
+    "tags": [
+      "Financial principles Reading Financials",
+      "Financial Ratios",
+      "Key Performance Indicators",
+      "KPI's",
+      "EBIT",
+      "Balance Sheet",
+      "Profit & Loss",
+      "Retained Earnings",
+      "Current Ratio",
+      "Quick Ratio",
+      "ROI",
+      "ROA",
+      "Return on Ivestment",
+      "Return on Assets",
+      "Current Assets",
+      "Current Liabilities",
+      "Owners Equity",
+      "Over Trading Sweetspot"
+    ],
+    "includedInClient": true,
+    "position": 35
+  },
+  {
+    "page": "marketing-session",
+    "title": "Lite Marketing",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Marketing",
+    "purpose": "This section helps your client to identify their target customer and articulate how they add value; the very essence of Marketing is discussed by breaking it into its key components of \"Who do you want to talk to?\" - \"What do you need to tell them?\" - \"How will you get your message to them?\" and \"How will you know they've heard you?\" (The template also explains the foundation marketing concepts of Diffusion Theory & Product Lifecycle)",
+    "tags": [
+      "6 Key Marketing questions",
+      "Market Diffussion Theory",
+      "Product Life Cycle",
+      "Consumer Awareness",
+      "Digital Sales Funnel",
+      "Positioning Statement",
+      "Value Proposition",
+      "Visibility Statement",
+      "Product Fit",
+      "Vaguely Aware",
+      "General Awareness",
+      "Motivated Awareness",
+      "Purchase Decision Process",
+      "Client on-boarding",
+      "One page marketing plan",
+      "Advertising"
+    ],
+    "includedInClient": true,
+    "position": 36
+  },
+  {
+    "page": "sales-session",
+    "title": "Sales Session",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Increasing Sales",
+    "purpose": "This section guides your client to break down the customer's journey, identify the logical decision points and to ensure that the sales process matches their industry or product. Whilst sales training basics are covered, you are not expected to be the next 'sales guru' but rather, provide the frameworks that let your client modify their sales tactics over time.",
+    "tags": [
+      "Correct Sales Arena",
+      "Achieving Congruence",
+      "4 stages in psychology of the sale",
+      "4 Processing Styles",
+      "Logical Decision Points",
+      "flowchart sales process",
+      "Tender notes",
+      "Sales Tension Points"
+    ],
+    "includedInClient": true,
+    "position": 37
+  },
+  {
+    "page": "people-session",
+    "title": "People Session",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Staff Engagement/ Delegation",
+    "purpose": "This section explores the underlying drivers of employee satisfaction; how people naturally respond to learning new material, a proven model to assist with giving staff feedback correctly and, a challenging review of the leadership style that best meets the temperament of your client AND the industry/business requirements.",
+    "tags": [
+      "5 Drivers of Human performance",
+      "Emotional Reaction to Learning",
+      "Feedback Model",
+      "Sociology Lessons",
+      "80/20 of Employee Motivation",
+      "Testing Leadership Style",
+      "Delegate",
+      "Delegation",
+      "Performance Review"
+    ],
+    "includedInClient": true,
+    "position": 38
+  },
+  {
+    "page": "process-session",
+    "title": "Process Session",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Process Improvement",
+    "purpose": "This section explores the 'philosophy' of process improvement that may best serve your client and reminds them that 'just because it's tending, doesn't make it the best approach for you'. The section also explores practical ways to develop flowcharts to help clarify the system component that needs prioritised attention.",
+    "tags": [
+      "Dave Nave systems review",
+      "Improving Process",
+      "Systems Thinking"
+    ],
+    "includedInClient": true,
+    "position": 39
+  },
+  {
+    "page": "alignment-statements",
+    "title": "Alignment Statements",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Finding Your 'Why'",
+    "purpose": "Ever wondered why business statements such as the 'Vision' statement or 'Mission' statement used to be popular and yet now, it seems to be about 'Your Why'? This template helps your client know 'Who' they're trying to talk to and WHAT they feel they need to 'say'.",
+    "tags": [
+      "Maslow's Hierarchy",
+      "Clayton Aldefer's Model",
+      "5 Domains Formula",
+      "Alignment Statements"
+    ],
+    "includedInClient": true,
+    "position": 40
+  },
+  {
+    "page": "id-4919294252",
+    "title": "4 Part Bizz Plan",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Business Plan to Support Funding Application",
+    "purpose": "This easy to complete business plan challenges your client to record their business assumptions, income & activity goals, Best World (Probable) capacity and then finishes with the 8 Profit Levers to drive their action plan going forward.",
+    "tags": [
+      "Business plan",
+      "VC Funding",
+      "Raising Capital",
+      "Securing Finance",
+      "Bank Finance",
+      "Goals",
+      "Dreams",
+      "Vision",
+      "Ambitions"
+    ],
+    "includedInClient": true,
+    "position": 41
+  },
+  {
+    "page": "swot-prompts",
+    "title": "SWOT / PEST",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Business Planning",
+    "purpose": "This template provides a range of question prompts to support a SWOT review. The PEST (Political, Economic, Social & Technology) based questions ensure a comprehensive review of Internal Strengths & Weakness + External Opportunities & Threats.",
+    "tags": [
+      "Strengths",
+      "Weaknesses",
+      "Opportunities",
+      "Threats"
+    ],
+    "includedInClient": true,
+    "position": 42
+  },
+  {
+    "page": "id-2201525362",
+    "title": "Phone Techniques",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Customer Service Standards",
+    "purpose": "This template begins with the question 'As a team, how do we wish to be judged in the marketplace?' - it goes on to explore the way a business communicates via phone to ensure the correct culture and business  etiquette is demonstrated.",
+    "tags": [
+      "HEAT Method",
+      "Angry Customer Calls",
+      "Customer Service",
+      "Reception",
+      "First Impressions"
+    ],
+    "includedInClient": true,
+    "position": 43
+  },
+  {
+    "page": "planning-outcomes-review",
+    "title": "Planning Outcomes Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Business Planning Overview",
+    "purpose": "Use this document to help sell the planning session but also, to make sure the planning framework is focused on the correct business OUTCOMES. This document examines the 4 main planning domains; Business Model, Strategic Orientation, Organisational Function and Sales & Marketing.",
+    "tags": [
+      "Business Plan",
+      "Strategic Plan",
+      "Planning Discovery",
+      "strategy",
+      "product review",
+      "sales",
+      "process"
+    ],
+    "includedInClient": true,
+    "position": 44
+  },
+  {
+    "page": "business-targets",
+    "title": "Business Targets",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Clear Targets",
+    "purpose": "This document is a complete replica of the Lite Fundamentals Planning doc - it just doesn't make any reference to the Lite Fundamentals programme to reduce confusion if you deliver it in isolation.",
+    "tags": [
+      "Owners income expectations",
+      "Business development stages",
+      "How to make money",
+      "capital gain",
+      "subscription model",
+      "product margin",
+      "sellinghours",
+      "Operational objective",
+      "Tactical action plans",
+      "Business Plan",
+      "Strategic Plan"
+    ],
+    "includedInClient": true,
+    "position": 45
+  },
+  {
+    "page": "strategic-orientation-pt-1",
+    "title": "Orientation Part 1",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Strategic Planning",
+    "purpose": "This document explains the formal strategic planning process and the associated terminology. You may choose to provide it as 'pre-session reading' for your client or review it together prior to the Strategic Orientation 2 template.",
+    "tags": [
+      "Strategic Planning Process",
+      "Strategy Meaning",
+      "Objective Meaning",
+      "Examples of Military Strategies",
+      "Tactics",
+      "Collaborative Thinking",
+      "Field Intelligence"
+    ],
+    "includedInClient": true,
+    "position": 46
+  },
+  {
+    "page": "strategic-orientation-pt-2",
+    "title": "Orientation Part 2",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Strategic Planning",
+    "purpose": "This document is designed to help your client take a challenging review of their business and its ability to cope with future threats and opportunities. Topics explored include Porter's 5 Forces, Progression of Economic Value, Vertical & Horizontal Integration, Market Diffussion Theory, Product Lifecycle, Technology Points, Sigmoid Curve, Blue Ocean Strategy, Revenue Streams, Risk Reward Matrix, Senge's Circles of Causality and the 8 Profit Levers.",
+    "tags": [
+      "Boston Model",
+      "Pricing",
+      "Competitve Position"
+    ],
+    "includedInClient": true,
+    "position": 47
+  },
+  {
+    "page": "profit-levers-blue-ocean",
+    "title": "Profit Levers & Blue Ocean",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Strategic Differentiation",
+    "purpose": "This template explores the Profit Levers and Blue Ocean strategy as a means to help your client identify their 'competition / differentiation' points. It's a smaller document than the others found in this section so suits those pushed for time or just 'dipping their toes in' to the task of strategic planning.",
+    "tags": [
+      "Standard Competition Fronts",
+      "Red Water",
+      "Blue Ocean",
+      "Strategy",
+      "Strategic"
+    ],
+    "includedInClient": true,
+    "position": 48
+  },
+  {
+    "page": "organisation-review",
+    "title": "Organisational Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Business Culture",
+    "purpose": "A specific review of Communication & Reporting Channels, Divisional Roles and Individual’s Responsibilities in order to improve Efficiencies and Team Engagement. This is often supported with Business Culture, Core Values, Internal Insights Data and Cascaded Operational Objectives (Broken down into each layer  of team, then person)",
+    "tags": [
+      "Leadership",
+      "Roles",
+      "Responsibilities",
+      "Culture",
+      "Org Chart",
+      "Staff"
+    ],
+    "includedInClient": true,
+    "position": 49
+  },
+  {
+    "page": "advanced-sales-marketing-review",
+    "title": "Sales & Marketing Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Growing Revenue",
+    "purpose": "A specific review of How You Attract Attention to your Product or Service, How you then CONVERT Attention into Interest & Action so that finally, you secure their Custom. This includes Product features/improvement, Pricing, Packaging, Messaging Mediums (Social Media vs. Mainstream), Target  Customer Review, Brand Imagery, Distribution Options (Alliances), Customer Loyalty Programme",
+    "tags": [
+      "Advertising",
+      "Sales Funnel",
+      "Digital Funnel",
+      "Salesperson Remuneration",
+      "Incentives",
+      "Product Fit",
+      "Competition Fronts",
+      "Channel Options",
+      "Messaging",
+      "Digital Funnel",
+      "Landing Page",
+      "Website",
+      "E Commerce",
+      "Persona",
+      "Avatar"
+    ],
+    "includedInClient": true,
+    "position": 50
+  },
+  {
+    "page": "id-6756274046",
+    "title": "80/20 Farm Plan",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Farm Planning",
+    "purpose": "This template is designed to position the accountant within the 'Farm Advisor' discussions from the perspective of ensuring that Profitability is at the centre of decision making. (It is NOT designed to put you in a specialist role, nor create conflict between you and the farm consultant) The ideal outcome is the Farmer, Consultant and You sitting around the table together...",
+    "tags": [
+      "Dairy Farming",
+      "Farm Management"
+    ],
+    "includedInClient": true,
+    "position": 51
+  },
+  {
+    "page": "id-3009841766",
+    "title": "Nine Growth Aspects",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Detailed Review of Key Functions",
+    "purpose": "The Nine Growth Aspects aim to balance the business owner's focus during intense periods of growth. You are encouraged to explore Process Improvement, Customer Focus, Sales, Authenticity, Inventory & Equipment, Team Focus, Innovation, Governance, Harmony & Balance.",
+    "tags": [],
+    "includedInClient": true,
+    "position": 52
+  },
+  {
+    "page": "learning-to-deliver-elite-fundamentals",
+    "title": "Specialist Content 1",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Add Your Own Brilliance",
+    "purpose": "This is where you get to stamp your mark; a series of hosted pages specifically to help you tailor your service delivery to your clients...",
+    "tags": [],
+    "includedInClient": false,
+    "position": 53
+  },
+  {
+    "page": "formal-risk-management",
+    "title": "Formal Risk Management",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Risk Management",
+    "purpose": "This model walks you through (step by step) the procedure of identifying, classifying and determining action steps to manage business risks for your clients. Critical steps include establishing context and is made 'simpler' by the graphic 'Heat Map' of risks; all of which makes for best practice procedures for the majority of your clients.",
+    "tags": [
+      "Establish Risk Context",
+      "Minimise Risks",
+      "Risk Management",
+      "Accept",
+      "Avoid",
+      "Reduce",
+      "Transfer"
+    ],
+    "includedInClient": true,
+    "position": 54
+  },
+  {
+    "page": "id-8466205046",
+    "title": "Governance Introduction",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Governance",
+    "purpose": "This template makes it easier to help your clients on their 'Governance Journey' by explaining the advantages/disadvantages of an Advisory Board (pay particular attention to terms of reference here) vs. a Formal Board Structure.",
+    "tags": [
+      "Board Plan",
+      "Advisory Board vs Formal Board"
+    ],
+    "includedInClient": true,
+    "position": 55
+  },
+  {
+    "page": "lite-fundamental-resource",
+    "title": "Programme Pages",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "A Place to Share Your Own I.P",
+    "purpose": "This section is a series of (12) hosted pages so you can add your own material and share it with the world... Not sure how to build a programme for your clients? No problem, there's plaenty of information to help you with that...",
+    "tags": [],
+    "includedInClient": false,
+    "position": 56
+  },
+  {
+    "page": "employee-incentives",
+    "title": "Remuneration & Incentives",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Key People Motivation",
+    "purpose": "This section makes it easier for you to facilitate a discussion about a business owner passing shares to an employee or, developing a profit share arrangement with staff. Pay particular notice to the 'pro's and con's page that relates to share transfer to staff - very helpful!",
+    "tags": [
+      "Staff",
+      "Team",
+      "Remuneration",
+      "Rewards",
+      "Profit Share",
+      "Equity Share",
+      "Payrise"
+    ],
+    "includedInClient": true,
+    "position": 57
+  },
+  {
+    "page": "id-8974944498",
+    "title": "Partner Accountability",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Governance",
+    "purpose": "This template uses a 'points weighted matrix' to hold partners accountable in the areas of Ethics, Skills, Motivation and Work On vs In Performance. The system ultimately relies on a 'de-merit system' to help divide partnership profits - as a means to motivate & reward specific behaviours.",
+    "tags": [
+      "Accountability",
+      "Partner Rewards",
+      "Partner dealings",
+      "Partnership Income"
+    ],
+    "includedInClient": true,
+    "position": 58
+  },
+  {
+    "page": "due-diligence",
+    "title": "Stg. 1 Due Diligence",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Diligence",
+    "purpose": "A short form due diligence option; perfect for small business purchases or as an initial board assessment prior to detailed investigation,",
+    "tags": [
+      "Value Drivers",
+      "Sale & Purchase"
+    ],
+    "includedInClient": true,
+    "position": 59
+  },
+  {
+    "page": "financial-systems-review",
+    "title": "Financial Systems Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Financial Administration",
+    "purpose": "The templates in this section begin by highlighting weak points within the financial systems of a business. It's designed to help the business owner better administrate their business and reduce 'business shrinkage'. Your firm may require audit division assistance to deliver this service in entirety.",
+    "tags": [
+      "Inventory Management",
+      "Stock Turn",
+      "Financial Controls",
+      "Data Integrity",
+      "Staff Theft",
+      "Product Shrinkage",
+      "Misappropriation of funds",
+      "Stealing",
+      "Admin",
+      "Apps",
+      "Administration",
+      "Fraud",
+      "Theft",
+      "Dispute",
+      "Shareholder Dispute"
+    ],
+    "includedInClient": true,
+    "position": 60
+  },
+  {
+    "page": "growth-projects-delivery-tools-spare",
+    "title": "Stock Policies",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Getting Stock Levels Under Control",
+    "purpose": "This is a 'Weighted Average' model to help your clients identify the criteria by which they prioritise their stock purchasing. Importantly, this model still allows for the 'Trader' skill-set of your client but attemnpts to 'reign-in' their stock purchasing towards items that drive the most profits...",
+    "tags": [
+      "Inventory Management",
+      "Stock Turn"
+    ],
+    "includedInClient": true,
+    "position": 61
+  },
+  {
+    "page": "succession-planning",
+    "title": "Succession Planning",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Business Succession",
+    "purpose": "This section provides a framework to help you navigate the process of succession planning for your client. The process starts with a few 'pre-meeting' questions which the client completes and submits (via the portal) prior to your first meeting. One of the key differences about this framework is the use of a 'planning metaphor' to enable the respective parties to visualise the logical process and timelines ahead.",
+    "tags": [
+      "Succession Planning",
+      "Passing the Business Forward",
+      "Preparing for Business Sale",
+      "quiz"
+    ],
+    "includedInClient": true,
+    "position": 62
+  },
+  {
+    "page": "id-5291277413",
+    "title": "Farm Succession",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Farm Succession",
+    "purpose": "As above but has 2 pages, more specific to the common points of disagreement for farmers and of course, the section refers to 'Farming' instead of 'Business' throughout.",
+    "tags": [
+      "Farm Succession",
+      "Farmers",
+      "Siblings Dispute",
+      "quiz"
+    ],
+    "includedInClient": true,
+    "position": 63
+  },
+  {
+    "page": "id-7790271877",
+    "title": "Lease vs. Buy",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Revenue Models",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial difference between an outright purchase using cash or finance, vs an operating lease.",
+    "tags": [
+      "Finance",
+      "Interest",
+      "Depreciation",
+      "Lease",
+      "Purchase",
+      "Cost of Borrowings",
+      "Funding",
+      "Cashflow",
+      "Overdraft"
+    ],
+    "includedInClient": true,
+    "position": 64
+  },
+  {
+    "page": "id-8315250902",
+    "title": "Labour Only",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Charging By The Hour",
+      "Hrly Chargeout",
+      "Services"
+    ],
+    "includedInClient": true,
+    "position": 65
+  },
+  {
+    "page": "id-8835402008",
+    "title": "Labour, Margin",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Hourly Rate",
+      "Margin on Parts",
+      "Materials",
+      "Services Plus Supply"
+    ],
+    "includedInClient": true,
+    "position": 66
+  },
+  {
+    "page": "id-4271103145",
+    "title": "Labour, Margin, Sales",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Hourly Rate",
+      "Services",
+      "Margin on Parts",
+      "Components",
+      "Materials",
+      "Commission"
+    ],
+    "includedInClient": true,
+    "position": 67
+  },
+  {
+    "page": "id-2687849712",
+    "title": "Back Costing",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Job Costing Review"
+    ],
+    "includedInClient": true,
+    "position": 68
+  },
+  {
+    "page": "id-6335013800",
+    "title": "Break-Even",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Minimum Sales Required or Needed"
+    ],
+    "includedInClient": true,
+    "position": 69
+  },
+  {
+    "page": "id-3892948252",
+    "title": "Audio-Opto",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Audiologist",
+      "Optometrist",
+      "Radiologist"
+    ],
+    "includedInClient": true,
+    "position": 70
+  },
+  {
+    "page": "id-329534784",
+    "title": "Cafe",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Lunch Bar",
+      "Coffee Cart",
+      "Icecream Parlour",
+      "Fast Food",
+      "Takeaway",
+      "Diner",
+      "Juice Bar"
+    ],
+    "includedInClient": true,
+    "position": 71
+  },
+  {
+    "page": "id-448611359",
+    "title": "Cake Shop",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Specialty Foods",
+      "Delicatessen"
+    ],
+    "includedInClient": true,
+    "position": 72
+  },
+  {
+    "page": "id-7325651781",
+    "title": "Car Importer",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Used Car Dealer"
+    ],
+    "includedInClient": true,
+    "position": 73
+  },
+  {
+    "page": "id-6386895650",
+    "title": "Childcare Ctr",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Creche",
+      "Kindergarton",
+      "Early Childhood",
+      "Kindy"
+    ],
+    "includedInClient": true,
+    "position": 74
+  },
+  {
+    "page": "id-2656438043",
+    "title": "Construction",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Builder",
+      "Plumber",
+      "Electrician",
+      "Roofer",
+      "Sparky",
+      "Chippy",
+      "Building"
+    ],
+    "includedInClient": true,
+    "position": 75
+  },
+  {
+    "page": "id-4336328485",
+    "title": "Cost per Mtr",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Underground Thrusting",
+      "Laying Pipes",
+      "Laying Turf",
+      "Roading",
+      "Asphalt",
+      "Bitumix"
+    ],
+    "includedInClient": true,
+    "position": 76
+  },
+  {
+    "page": "id-8171543327",
+    "title": "Earth Moving Hrs",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Bobcat",
+      "Digger",
+      "Site Preparation",
+      "Roading"
+    ],
+    "includedInClient": true,
+    "position": 77
+  },
+  {
+    "page": "id-2363382326",
+    "title": "Engineering",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Precision",
+      "Tooling",
+      "Plastics",
+      "Manufacturing"
+    ],
+    "includedInClient": true,
+    "position": 78
+  },
+  {
+    "page": "id-4393936700",
+    "title": "Food & Remedy Product'n",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Health Products",
+      "Cosmetic Production",
+      "Natural Foods"
+    ],
+    "includedInClient": true,
+    "position": 79
+  },
+  {
+    "page": "id-1799860252",
+    "title": "Forecasting",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "3 Way Forecast",
+      "Cashflow",
+      "Budget",
+      "Loan Application",
+      "Working Capital",
+      "Funding",
+      "Finance",
+      "Overdraft"
+    ],
+    "includedInClient": true,
+    "position": 80
+  },
+  {
+    "page": "id-9500594254",
+    "title": "Gym & Trainer",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Personal Trainer",
+      "PT",
+      "Fitness",
+      "Coaching",
+      "Sports"
+    ],
+    "includedInClient": true,
+    "position": 81
+  },
+  {
+    "page": "id-9850884917",
+    "title": "Home Services Feasibility",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Microblading",
+      "Lashes",
+      "Tints",
+      "Tattoos",
+      "Finger Nails",
+      "Massage"
+    ],
+    "includedInClient": true,
+    "position": 82
+  },
+  {
+    "page": "id-4976805070",
+    "title": "Hospitality",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Pub",
+      "Bar",
+      "Nightclub",
+      "Food & Alcohol",
+      "Restaurants"
+    ],
+    "includedInClient": true,
+    "position": 83
+  },
+  {
+    "page": "id-7833593692",
+    "title": "Hairdressing",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Stylist",
+      "Hairdresser",
+      "Hairdressing",
+      "Shampoo",
+      "Barber",
+      "Hair Salon"
+    ],
+    "includedInClient": true,
+    "position": 84
+  },
+  {
+    "page": "id-2924428930",
+    "title": "IT Services",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Computer Services",
+      "Hardware Repairs",
+      "Software sales",
+      "Computer Networking"
+    ],
+    "includedInClient": true,
+    "position": 85
+  },
+  {
+    "page": "id-3908104417",
+    "title": "Joiner",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Cabinet Maker",
+      "Kitchen Designer",
+      "Shop Fitout",
+      "Bathroom Repairs"
+    ],
+    "includedInClient": true,
+    "position": 86
+  },
+  {
+    "page": "id-196230307",
+    "title": "Motel & Lodge",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Backpackers",
+      "Hostel",
+      "Motorcamp",
+      "Camping Ground"
+    ],
+    "includedInClient": true,
+    "position": 87
+  },
+  {
+    "page": "id-8797736868",
+    "title": "Online Sales",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Indent Marketing"
+    ],
+    "includedInClient": true,
+    "position": 88
+  },
+  {
+    "page": "id-6812423554",
+    "title": "Production Output",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "CNC Lathe",
+      "Rotational Casting",
+      "Moulds"
+    ],
+    "includedInClient": true,
+    "position": 89
+  },
+  {
+    "page": "id-9464472464",
+    "title": "Professional Services Firm",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Accounting",
+      "Architect",
+      "Lawyer",
+      "Solicitor",
+      "Barrister",
+      "Civil Engineer",
+      "HR Consultants",
+      "Health & Safety",
+      "Geo Technical",
+      "Draughtsperson"
+    ],
+    "includedInClient": true,
+    "position": 90
+  },
+  {
+    "page": "id-2939904328",
+    "title": "Quick Position",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Liquidity",
+      "Cash to Debt Ratio"
+    ],
+    "includedInClient": true,
+    "position": 91
+  },
+  {
+    "page": "id-3263743632",
+    "title": "Rental Property",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Property"
+    ],
+    "includedInClient": true,
+    "position": 92
+  },
+  {
+    "page": "id-2874439569",
+    "title": "Retail",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Sales Conversions"
+    ],
+    "includedInClient": true,
+    "position": 93
+  },
+  {
+    "page": "id-2031013565",
+    "title": "Rural Volatility",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Farming",
+      "Milk Payout",
+      "Rainfall"
+    ],
+    "includedInClient": true,
+    "position": 94
+  },
+  {
+    "page": "id-8581344527",
+    "title": "Sales Forecaster",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Estimating Future Sales"
+    ],
+    "includedInClient": true,
+    "position": 95
+  },
+  {
+    "page": "id-3071922878",
+    "title": "Shop",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Retail",
+      "Sales"
+    ],
+    "includedInClient": true,
+    "position": 96
+  },
+  {
+    "page": "id-3443941670",
+    "title": "Tour Operators",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Adventure Tourism",
+      "Bus Tours",
+      "Cycle Tours",
+      "Guides"
+    ],
+    "includedInClient": true,
+    "position": 97
+  },
+  {
+    "page": "id-4671298680",
+    "title": "Tours + Shop",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Bungee",
+      "Jet Boating",
+      "Abseiling",
+      "Caving",
+      "Diving",
+      "Mountain Biking",
+      "Quad",
+      "4x4 Adventures",
+      "Fishing"
+    ],
+    "includedInClient": true,
+    "position": 98
+  },
+  {
+    "page": "id-739082913",
+    "title": "Trucking/ Haulage",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Courier",
+      "Freight",
+      "Deliveries"
+    ],
+    "includedInClient": true,
+    "position": 99
+  },
+  {
+    "page": "id-483900379",
+    "title": "Volatility Scenario",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Edward Deming"
+    ],
+    "includedInClient": true,
+    "position": 100
+  },
+  {
+    "page": "id-6834300729",
+    "title": "Wages Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Staff Productivity",
+      "Hourly Costs",
+      "Pay Rates",
+      "Pay Rise"
+    ],
+    "includedInClient": true,
+    "position": 101
+  },
+  {
+    "page": "id-9055555447",
+    "title": "Workshop / Program Sales",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Coaching",
+      "Bootcamps",
+      "Training",
+      "Masterclasses"
+    ],
+    "includedInClient": true,
+    "position": 102
+  },
+  {
+    "page": "id-6276187822",
+    "title": "Worst Case Scenario",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Insolvent",
+      "Receivership",
+      "Liquidation",
+      "Voluntary Administration",
+      "Creditor Compromise Regime",
+      "Insolvency",
+      "Bankruptcy",
+      "Bankrupt"
+    ],
+    "includedInClient": true,
+    "position": 103
+  },
+  {
+    "page": "id-9440392920",
+    "title": "Physiotherapy",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Osteotherapist",
+      "Kinesiologist",
+      "Massage",
+      "Therapy",
+      "Cranial",
+      "Aromatherapy",
+      "Chiropractor",
+      "Podiatrist",
+      "Physio"
+    ],
+    "includedInClient": true,
+    "position": 104
+  },
+  {
+    "page": "id-2363028463",
+    "title": "Dentist",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Specialist",
+      "Medical",
+      "Surgeon",
+      "Orthodontist",
+      "Health Professional",
+      "GP",
+      "Doctor"
+    ],
+    "includedInClient": true,
+    "position": 105
+  },
+  {
+    "page": "id-520637887",
+    "title": "Finance & Depreciation",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Revenue Models",
+    "purpose": "This model makes it easy to calculate the finance costs and schedule the expected depreciation for your client.",
+    "tags": [
+      "Finance",
+      "Interest Cost",
+      "Depreciation",
+      "Cost of Borrowings"
+    ],
+    "includedInClient": true,
+    "position": 106
+  },
+  {
+    "page": "id-1637972585",
+    "title": "Personal Budget",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Finance",
+    "purpose": "Use this model to identify household expenses that may qualify for tax deductions and to quantify the income needed to maintain a healthy home existence.",
+    "tags": [
+      "Funding",
+      "Cashflow",
+      "Overdraft",
+      "Loan",
+      "Debt",
+      "Finance"
+    ],
+    "includedInClient": true,
+    "position": 107
+  },
+  {
+    "page": "id-5397004441",
+    "title": "High Level Budget",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Finance",
+    "purpose": "This model provides a quick and easy format to record key sales targets and major expenses. Great for 'first timers' who are building their financial confidence.",
+    "tags": [
+      "Forecast",
+      "Cashflow",
+      "Budget",
+      "Funding",
+      "Overdraft"
+    ],
+    "includedInClient": true,
+    "position": 108
+  },
+  {
+    "page": "id-7465208849",
+    "title": "Hiring Winners",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "HR",
+    "purpose": "This framework is an excellent way to review your client's hiring and team structure assumptions. The content drops into advanced topics but maintains a 'practical' view in order to make it more workable for a wider range of clients. A must for anyone struggling with staff issues.",
+    "tags": [
+      "Staff trouble",
+      "Stress",
+      "Culture",
+      "Organisational Structure",
+      "Recruitment",
+      "Job Sharing",
+      "Delegation",
+      "Character traits"
+    ],
+    "includedInClient": true,
+    "position": 109
+  },
+  {
+    "page": "id-4785641745",
+    "title": "Landscaping & Maintainence",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Services",
+    "purpose": "Use the model to calculate your business earnings potential.",
+    "tags": [
+      "Lawnmowing",
+      "Arborist",
+      "Tree Felling",
+      "Garden",
+      "Handy Man",
+      "Lawn",
+      "Care"
+    ],
+    "includedInClient": true,
+    "position": 110
+  },
+  {
+    "page": "id-7083515495",
+    "title": "Midwife",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Health & Wellness",
+    "purpose": "",
+    "tags": [
+      "Birthing",
+      "Birth Clinic",
+      "Midwifery",
+      "Newborn",
+      "Child Birth"
+    ],
+    "includedInClient": true,
+    "position": 111
+  },
+  {
+    "page": "id-4212038247",
+    "title": "Homeware Sales",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Retail/ Wholesale",
+    "purpose": "Use this revenue model to determine the growth potential of your client's business.",
+    "tags": [
+      "Blinds",
+      "Carpets",
+      "Curtains",
+      "Alarms",
+      "Tiles",
+      "Lighting",
+      "Security Systems"
+    ],
+    "includedInClient": true,
+    "position": 112
+  },
+  {
+    "page": "id-4491265764",
+    "title": "Porters & Pine",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Strategy",
+    "purpose": "The Porters 5 forces framework is an excellent model to guide a strategic review of your client's business. The Progression of Value (by Joseph Pine) is an excellent supporting framework for this same discussion.",
+    "tags": [
+      "Pivot",
+      "Market Imperative"
+    ],
+    "includedInClient": true,
+    "position": 113
+  },
+  {
+    "page": "id-3251922216",
+    "title": "Pivot",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Strategy",
+    "purpose": "The Pivot template will guide you through the Strategic considerations required to determine if a shift in strategy is the best option for your client. This template is a collection of frameworks, some of which your client may have already completed elsewhere within Advisor-e.",
+    "tags": [
+      "Porters 5 forces",
+      "Blue ocean strategy",
+      "competition fronts",
+      "product development",
+      "innovation"
+    ],
+    "includedInClient": true,
+    "position": 114
+  },
+  {
+    "page": "id-4307038570",
+    "title": "E Mails",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Client Set Up",
+    "purpose": "The emails found on this page can be used to invite new clients to the portal and advise them of the login authentication email they can expect to receive.",
+    "tags": [
+      "On boarding emails",
+      "Invitation",
+      "Client Set up",
+      "Client Login",
+      "Authentication"
+    ],
+    "includedInClient": false,
+    "position": 115
+  },
+  {
+    "page": "id-1283439703",
+    "title": "Section Overview",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Scenario models",
+    "purpose": "To aid in the calculation of activity and financial variables. From a facilitative point of view, how to use Revenue Models to shift the ‘burden of proof’ away from you and towards the client’s business model.",
+    "tags": [
+      "Financial Planner",
+      "Mortgage Broker",
+      "Life Insurance Broker",
+      "Financial Advisor",
+      "Fire & General Broker"
+    ],
+    "includedInClient": false,
+    "position": 116
+  },
+  {
+    "page": "id-102938972",
+    "title": "Manufacturing",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Production",
+    "purpose": "Explore this model as a means to determine peak production capabilities and the effects of shut down periods on your manufacturing business.",
+    "tags": [],
+    "includedInClient": true,
+    "position": 117
+  },
+  {
+    "page": "id-6883609726",
+    "title": "Force Field Analysis",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Facilitation",
+    "purpose": "This 'behind the scenes' template is designed to show you how to facilitate a session that requires people to 'let go' of previous positions, behaviours and decisions.\nIf you want people to adopt a new approach or improve business relations, this template may be just what you need!",
+    "tags": [
+      "Conflict Resolution",
+      "Facilitation",
+      "Relations",
+      "Poor Relationships",
+      "Dispute",
+      "Shareholders",
+      "Owners",
+      "Argument",
+      "Fight",
+      "Shareholder Dispute"
+    ],
+    "includedInClient": true,
+    "position": 118
+  },
+  {
+    "page": "id-9915362116",
+    "title": "Advisory Pricing Model",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Pricing Services",
+    "purpose": "The advisory pricing model provides guidance on a range of advisory service solutions in terms of communicating the objectives of the session, estimating time for said engagement and calculating the fee for services offered.",
+    "tags": [
+      "Price Estimates",
+      "Time estimates",
+      "Charges",
+      "Fee Cost"
+    ],
+    "includedInClient": false,
+    "position": 119
+  },
+  {
+    "page": "id-8456555412",
+    "title": "5 Layers Questionnaire",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Scoping Document",
+    "purpose": "The 5 Layers Questionnaire is a base document to help you conduct a client discovery meeting for the purpose of identifying underlying issues, to support your advisory service proposal. This discovery document forms part of the Total Needs sales approach.",
+    "tags": [
+      "Fact find",
+      "Scoping document",
+      "Client Questionnaire",
+      "Needs Analysis"
+    ],
+    "includedInClient": false,
+    "position": 120
+  },
+  {
+    "page": "id-4774716093",
+    "title": "Advisory Proposal",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Service Proposal",
+    "purpose": "This (general purpose) advisory service proposal is designed to help you communicate your service offer in a manner that aligns with the psychology of the sale.",
+    "tags": [
+      "Advisory proposal",
+      "Communicating service benefits"
+    ],
+    "includedInClient": false,
+    "position": 121
+  },
+  {
+    "page": "id-3640303064",
+    "title": "Mgt Annual Plan",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Management Meetings",
+    "purpose": "This template is designed to help you introduce more structure to your regular management meetings. Whilst similar to an annual board plan, this template is more focused towards business improvement areas, rather than board/director performance.",
+    "tags": [
+      "Meeting Plan",
+      "Annual Plan",
+      "Reporting",
+      "Financial",
+      "Reporting",
+      "KPI's",
+      "Performance",
+      "Advisory Board"
+    ],
+    "includedInClient": true,
+    "position": 122
+  },
+  {
+    "page": "mail-chimp-automation",
+    "title": "Outbound Emails",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Marketing Emails",
+    "purpose": "These emails provide a range of suggestions for how you might respond to a request for additional services; how you might propose your service offer in stages and how you can use a feasibility process to initiate the engagement process. (Get paid while you scope the job)",
+    "tags": [
+      "Feasibility Process",
+      "Scoping",
+      "Discovery"
+    ],
+    "includedInClient": false,
+    "position": 123
+  },
+  {
+    "page": "individual-fee-growth-plan",
+    "title": "Coaching Content",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Advisor Skills/ Career Development",
+    "purpose": "The notes contained in this document are a summary of the training notes that relate to skills based coaching sessions. Many of the notes may also be found in other documents throughout Advisor-e but this makes it easier to find and reference. Content includes Sales Training & Conflict Facilitation.",
+    "tags": [
+      "Coaching",
+      "Facilitation Training",
+      "Sales Training",
+      "Phone Skills"
+    ],
+    "includedInClient": false,
+    "position": 124
+  },
+  {
+    "page": "service-matrix",
+    "title": "My Improvement Plan",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Advisor Career Development",
+    "purpose": "This template is designed to enable a discussion to help advance the culture of the firm by soliciting team member's thoughts regarding the future risks, considerations and strategy of the firm. This template suits those team members who are NOT expected to grow a fee base.",
+    "tags": [
+      "Culture",
+      "advisory career",
+      "staff feedback"
+    ],
+    "includedInClient": false,
+    "position": 125
+  },
+  {
+    "page": "id-4234098724",
+    "title": "Lite Fundamentals Proposal",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Client On Boarding",
+    "purpose": "The Lite Fundamentals proposal document is a merge table (enabled) template that explains what the programme covers, how it helps your client and presents both the fee and the variation to scope agreement to reduce 'job creep'.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 126
+  },
+  {
+    "page": "winning-the-job-tools",
+    "title": "Sales Psychology",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Learning to Sell",
+    "purpose": "This page highlights the sales psychology basics that allow you to develop your sales skills and structure your proceedings (and review in hindsight) to win more business.",
+    "tags": [
+      "Sales psychology"
+    ],
+    "includedInClient": false,
+    "position": 127
+  },
+  {
+    "page": "id-2057808138",
+    "title": "Advisor Prep",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Covid 19",
+    "purpose": "This advisor prep page reveals how you register for funding with the NZTE Business Support Funding Programme and provides ideas for how you can package, price and present a 'coaching' based programme in order to qualify for (financial) Govt' support for your clients.",
+    "tags": [
+      "NZTA",
+      "Funding Application",
+      "Course Design"
+    ],
+    "includedInClient": false,
+    "position": 128
+  },
+  {
+    "page": "seminar-delivery",
+    "title": "Messaging Plan",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Marketing",
+    "purpose": "This template helps you design your outbound messaging plan to help you attract more 'A' clients.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 129
+  },
+  {
+    "page": "id-7757688681",
+    "title": "Lite Feasibility",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Feasibility",
+    "purpose": "This template is a short-form template (just 7 questions) to help clarify the assumptions of your client. This template can be used in isolation but is most likely to be relevant for clients that have requested a cashflow forecast to support their finance application.",
+    "tags": [
+      "Cash Forecast",
+      "Loan Application",
+      "Financing",
+      "Debt Review",
+      "Quickpack",
+      "Bundled Solutions",
+      "Assessment"
+    ],
+    "includedInClient": true,
+    "position": 130
+  },
+  {
+    "page": "id-4007209261",
+    "title": "Dashboard Discussions",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "$ Management Reporting",
+    "purpose": "This template helps you to explore the different performance and activity ratio reports (available in the Advisor-e financial dashboard) with your clients.\n\nThis page also includes the 7 Cash Drivers template which is another tool to help prepare your clients for finan management reporting services.",
+    "tags": [
+      "Cash management",
+      "7 cash drivers",
+      "Performance reports",
+      "Management",
+      "VCFO",
+      "Virtual CFO"
+    ],
+    "includedInClient": true,
+    "position": 131
+  },
+  {
+    "page": "id-7924565511",
+    "title": "Ratio Analysis",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Financial Management",
+    "purpose": "This template explores the plus and minus of benchmark data and raises the concerns about 'when data doesn't count'.  This template may also assist in developing KPI's.\n\nThe same page includes a spreadsheet to introduce your client to the concept of Common Size trend analysis",
+    "tags": [
+      "Reporting",
+      "Cash Management",
+      "external benchmark data",
+      "internal",
+      "performance",
+      "KPI's"
+    ],
+    "includedInClient": true,
+    "position": 132
+  },
+  {
+    "page": "id-7015138225",
+    "title": "Key Interviews",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Due Diligence",
+    "purpose": "This template provides a range of questions to interview Staff, Financial Controller, Key Customers & Key Supplier. You can use this resource as part of your DD process or you can use them as stand alone feedback questionnaires.",
+    "tags": [
+      "Customer survey",
+      "Staff",
+      "Employee",
+      "Client interviews"
+    ],
+    "includedInClient": true,
+    "position": 133
+  },
+  {
+    "page": "id-9984769921",
+    "title": "Asset Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Due Diligence",
+    "purpose": "This model helps you identify the assets of merging businesses and assess the value to the combined operation going forward.",
+    "tags": [
+      "Assets realised"
+    ],
+    "includedInClient": true,
+    "position": 134
+  },
+  {
+    "page": "id-9984769921",
+    "title": "Porter's Revenue",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Due Diligence",
+    "purpose": "This framework explores the revenue potential and risk from alternative (revenue generating) activities. You can use this as part of your DD process or use it as a supporting framework for your strategic planning or feasibility engagements.",
+    "tags": [],
+    "includedInClient": true,
+    "position": 135
+  },
+  {
+    "page": "id-2228360143",
+    "title": "Purchase Assessment Report 3",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Valuation",
+    "purpose": "This assessment report provides an indicative business value for your client and explores the multiple aspects to be considered prior to purchase. The report raises the issue of payback period, super profits and margin of error calculations for cash surplus.",
+    "tags": [
+      "Valuation",
+      "Sale & Purchase"
+    ],
+    "includedInClient": true,
+    "position": 136
+  },
+  {
+    "page": "id-3487353495",
+    "title": "Coaching Outcome Statements",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Advisory Roles",
+    "purpose": "This template helps you define the outcome expectations of those undertaking advisory coaching within your firm and breaks the advisory journey into progressive learning layers.",
+    "tags": [
+      "Roles",
+      "Advisory Coaching",
+      "Learning",
+      "Training",
+      "Development"
+    ],
+    "includedInClient": false,
+    "position": 137
+  },
+  {
+    "page": "coi-planning",
+    "title": "Planning Templates Directory",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Planning & Coaching",
+    "purpose": "This document highlights the numerous templates, models and software features within Advisor-e that relate to the Strategic Planning and Team Development of your firm.",
+    "tags": [
+      "Glossary",
+      "Directory",
+      "Summary",
+      "Planning",
+      "Coaching",
+      "HR",
+      "Development",
+      "Learning",
+      "Role Play"
+    ],
+    "includedInClient": false,
+    "position": 138
+  },
+  {
+    "page": "id-5001782177",
+    "title": "Pitch Deck",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Capital Raising",
+    "purpose": "This (blank) Pitch Deck is designed to help guide you in the communication of your solution advantages to prospective investors to help secure business capital.",
+    "tags": [
+      "Investment",
+      "Share Capital"
+    ],
+    "includedInClient": true,
+    "position": 139
+  },
+  {
+    "page": "coi-planning",
+    "title": "Planning Tools Directory",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Planning & Team Development",
+    "purpose": "This template guides you to the range of templates, models and software features that specifically relate to the internal planning and team development needs of your business.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 140
+  },
+  {
+    "page": "id-1108511320",
+    "title": "Structure Options",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Business Structure",
+    "purpose": "This template is an entry level introduction to clients wishing to learn about their business structure options. The template introduces the concept of risk mitigation and future saleability but does not go into detailed explanation of topics such as tax or estate protection.",
+    "tags": [
+      "Forming a company",
+      "sole trader",
+      "trusts",
+      "limited liability"
+    ],
+    "includedInClient": true,
+    "position": 141
+  },
+  {
+    "page": "id-5642754592",
+    "title": "90 Day Best Practice Accounting",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Accounting Training",
+    "purpose": "This template (and resource section) is about coaching your clients to be more confident and robust in their accounting methods. The template provides a broad outline of how you might present your coaching, via a series of meetngs, and provides an environment to host support videos.",
+    "tags": [
+      "Xero training",
+      "MYOB training",
+      "Accounting",
+      "Invoicing",
+      "Chart of accounts",
+      "Reconciling"
+    ],
+    "includedInClient": true,
+    "position": 142
+  },
+  {
+    "page": "bizz360",
+    "title": "Activity Ratios",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Financial Reporting",
+    "purpose": "This template can be found at the bottom of the Working Capital Cycle page. The template explores a range of cash management ratios and explains both theory and 'real world' implications.",
+    "tags": [
+      "KPI's",
+      "Reporting",
+      "Financial Performance"
+    ],
+    "includedInClient": true,
+    "position": 143
+  },
+  {
+    "page": "id-1908658752",
+    "title": "Business Sale Assessment 1",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Valuation",
+    "purpose": "This 'landing page' describes the process of selling a business and gives business owners insight into what lies ahead, should they choose to sell their business.",
+    "tags": [
+      "Business Sale Process"
+    ],
+    "includedInClient": true,
+    "position": 144
+  },
+  {
+    "page": "id-8913859328",
+    "title": "Indicative Value Questions",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Valuation",
+    "purpose": "This questionnaire helps to orient you in the process of determining an indicative value and is a valuable first step in the valuation process.",
+    "tags": [
+      "Valuation",
+      "Business data",
+      "Owner's price"
+    ],
+    "includedInClient": true,
+    "position": 145
+  },
+  {
+    "page": "id-136069218",
+    "title": "Business Purchase Assessment 1",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Valuation",
+    "purpose": "This 'landing page' describes the process of purchasing a business and gives business owners insight into what lies ahead. It's a great way to 'prime' your client for an inital feasibility meeting.",
+    "tags": [
+      "Valuation",
+      "Business Sale",
+      "Liquidation",
+      "Going Concern",
+      "Succession Planning"
+    ],
+    "includedInClient": true,
+    "position": 146
+  },
+  {
+    "page": "id-5168118171",
+    "title": "Purchase Assessment Model 2",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Valuation",
+    "purpose": "This indicative value model applies to someone who is thinking of BUYING a business - the model layout is similar to that of the business sale assessment model but it ONLY links to the business purchase assessment report.",
+    "tags": [
+      "Valuation",
+      "Going Concern",
+      "Feasibility"
+    ],
+    "includedInClient": false,
+    "position": 147
+  },
+  {
+    "page": "id-9261761081",
+    "title": "Business Insurance Model",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Business Insurance",
+    "purpose": "This model helps to calculate the Share transfer and Key Person  insurance levels to make it easier for business owners to determine an appropriate cover for their needs.",
+    "tags": [
+      "Share transfer",
+      "Attributable Revenue"
+    ],
+    "includedInClient": false,
+    "position": 148
+  },
+  {
+    "page": "id-3131916997",
+    "title": "Gift Approach Letters",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Approach Letters",
+    "purpose": "These pre approach letters utilise a gift to help with the positioning of your intial approach.",
+    "tags": [
+      "pre-approach letter",
+      "Gift Letter",
+      "Selling",
+      "Marketing"
+    ],
+    "includedInClient": false,
+    "position": 149
+  },
+  {
+    "page": "the-sales-theory",
+    "title": "Phone Scripts",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Outbound Phone Scripts",
+    "purpose": "These phone script templates provide suggestions for how you could deal with targeted approaches.",
+    "tags": [
+      "Cold calling",
+      "Selling",
+      "Marketing"
+    ],
+    "includedInClient": false,
+    "position": 150
+  },
+  {
+    "page": "rehearsal-action-plan",
+    "title": "Total Needs Sales Scripts",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Sales Scripts",
+    "purpose": "These templates help you understand the psychology behind the total needs sales process, and provide practical scripts for you to rehearse and edit (when comfortable) to ensure your delivery is authentic. Rehearsing these is the fastest way to learn to sell professionally.",
+    "tags": [
+      "Selling",
+      "Marketing"
+    ],
+    "includedInClient": false,
+    "position": 151
+  },
+  {
+    "page": "winning-the-job-tools",
+    "title": "Sales Psychology (Basics)",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Positioning for Advisory",
+    "purpose": "This video provides a foundational understanding of the psychology of the sale. A 'must view' for those who have not been formally trained in selling advisory services.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 152
+  },
+  {
+    "page": "id-4570105459",
+    "title": "Lite Fundamentals",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Selling Lite Fundamentals Programme",
+    "purpose": "How to secure on-going management/ business improvement engagements using the Lite Fundamentals framework. Step by step instructions show you the use of pre-approach quizzes and all the visual aids and sales scripts to help you win! (note: the video is the same video as shown in the concept meeting)",
+    "tags": [],
+    "includedInClient": false,
+    "position": 153
+  },
+  {
+    "page": "winning-the-job-tools",
+    "title": "The Nature of Engagement",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Positioning for Advisory",
+    "purpose": "This video explains the relationship dynamics and client awareness (levels) that drive the different types of engagements that you'll secure. Understanding the difference will help guide you in your dealings when selling or scoping.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 154
+  },
+  {
+    "page": "winning-the-job-tools",
+    "title": "The 5 Steps in the Advisory Staircase",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Positioning for Advisory",
+    "purpose": "The progressive stages of engaging with a client; how to present 'solution layers'.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 155
+  },
+  {
+    "page": "spare-5",
+    "title": "The Heald Matrix",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Facilitation Skills",
+    "purpose": "How to re-frame business planning in the mind of your client and (at the same time) position yourself as a strategic advisor. (This is a perfect framework for learning how to facilitate effectively)",
+    "tags": [
+      "Facilitation skills"
+    ],
+    "includedInClient": false,
+    "position": 156
+  },
+  {
+    "page": "id-1283439703",
+    "title": "Section Brief",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Feasibility Assessment",
+    "purpose": "How to use Revenue Models to shift the ‘burden of proof’ away from you and towards the client’s business model.",
+    "tags": [
+      "Feasibility",
+      "Facilitation",
+      "Financial models"
+    ],
+    "includedInClient": false,
+    "position": 157
+  },
+  {
+    "page": "learning",
+    "title": "Your Sales Process Decision Tree",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Sales Training",
+    "purpose": "Understand the different approach options and how to modify your approach to suit existing relationship dynamics.",
+    "tags": [
+      "Sales training"
+    ],
+    "includedInClient": false,
+    "position": 158
+  },
+  {
+    "page": "id-3560081422",
+    "title": "Business Clock vs Body Clock",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Mental Well Being",
+    "purpose": "This template explores the difference between efficiency and effectiveness, what blocks your creativity, how to work within your own body rythm and cope with feelings of overwhelm. (All the stuff that comes with being a business owner.)",
+    "tags": [],
+    "includedInClient": true,
+    "position": 159
+  },
+  {
+    "page": "id-3444141596",
+    "title": "Quick Fire Diagnosis",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Creative Problem Solving",
+    "purpose": "This template helps to 'flush out' the problem areas within a business by providing a 'process of elimination' approach to clarifying the core issue/s. The basic triage framework starts with Get Organised, Get the Job and Do the Job and cascades down from there.",
+    "tags": [],
+    "includedInClient": true,
+    "position": 160
+  },
+  {
+    "page": "id-5038284749",
+    "title": "6 Hats",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Collaborative Problem Solving",
+    "purpose": "This template is an (essential) foundation template to improve team problem solving techniques and meeting conduct. You can use this framework in the board room one day, and with a small start up team the next. ",
+    "tags": [],
+    "includedInClient": true,
+    "position": 161
+  },
+  {
+    "page": "id-4570105459",
+    "title": "Lite Fundamentals Visual Aids",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Sales Training",
+    "purpose": "How to use on-line quizzes to 'prime' clients; how to frame a sales meeting and use visual aids & scenario models to follow the psychology of the sale, whilst reducing tension.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 162
+  },
+  {
+    "page": "id-9293972213",
+    "title": "Business Dating",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Acquisition & Merging",
+    "purpose": "How to help your client approach a merger or aquisition with a more progressive, longer term outlook to improve the chances of successful (combined) team and management culture.",
+    "tags": [],
+    "includedInClient": true,
+    "position": 163
+  },
+  {
+    "page": "capacity-capability-opportunity",
+    "title": "Capacity, Capability, Opportunity",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Strategic Facilitation",
+    "purpose": "Your clients can't see this page as it's designed to help you build your confidence and ultimately - help you position in the eyes of your client. Take the time to rehearse the framework with others; together your rate of learning will grow...",
+    "tags": [
+      "positioning",
+      "facilitation",
+      "diagnosis"
+    ],
+    "includedInClient": false,
+    "position": 164
+  },
+  {
+    "page": "id-679676385",
+    "title": "What's Applicable",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Technology",
+    "purpose": "This session is designed to stimulate a review of how technology can be COMBINED with existing business procedures to achieve more effctive outcomes for all.",
+    "tags": [],
+    "includedInClient": true,
+    "position": 165
+  },
+  {
+    "page": "id-1946196200",
+    "title": "HOPE Recession Model",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Strategic Planning",
+    "purpose": "This template explores the observable traits of a failing economy so that you and your clients can discuss the macro position and the implications to their business. (It's a great way to 'talk your client down' from taking large risks in a depressed economy.)",
+    "tags": [],
+    "includedInClient": true,
+    "position": 166
+  },
+  {
+    "page": "id-3306202362",
+    "title": "Advisor Prep",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Valuation",
+    "purpose": "This advisor preparation page helps you to explore the business sale assessment section so you can become familiar with the indicative value model, the report, and the sensitivity calculations that guide you in your indicative value assessment.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 167
+  },
+  {
+    "page": "id-4138307831",
+    "title": "Sale Assessment Model 2",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Valuation",
+    "purpose": "This indicative value model applies to someone who is thinking of SELLING a business - the model layout is similar to that of the business sale assessment model but it ONLY links to the business sale assessment report.",
+    "tags": [
+      "valuation",
+      "indicative value",
+      "sale & purchase"
+    ],
+    "includedInClient": false,
+    "position": 168
+  },
+  {
+    "page": "id-452735813",
+    "title": "Sale Assessment Report 3",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Valuation",
+    "purpose": "This sale assessment report provides an indicative business value for your client and explores the multiple aspects to be considered prior to sale. The report raises the issue of payback period, super profits and margin of error calculations for cash surplus, from a purchaser's perspective so your c",
+    "tags": [],
+    "includedInClient": true,
+    "position": 169
+  },
+  {
+    "page": "seminar-delivery",
+    "title": "Messaging Plan",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Outbound Messaging",
+    "purpose": "This template helps you design your outbound messaging plan to help attract more 'A' clients. The framework explores common client problems, your solution, the medium, frequency and content layers as part of an annual plan to communicate your value to new and existing clients.",
+    "tags": [
+      "seminar development",
+      "Public speaking",
+      "Platform presentation"
+    ],
+    "includedInClient": false,
+    "position": 170
+  },
+  {
+    "page": "id-1449558534",
+    "title": "Paper Tower",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Team Building",
+    "purpose": "These (team) problem solving templates provide a practical means to observe members work together and allows you to introduce a structured approach to dealing with problems in future.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 171
+  },
+  {
+    "page": "get-focused-support",
+    "title": "Hire Winners",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Hiring",
+    "purpose": "This (internal) template explores the process of identifying winning and diverse temperament, skills and character traits. For many, the idea of diversity has been generally accepted. Few however, comprehend that it's only with an understanding of personality types, can it prove effective.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 172
+  },
+  {
+    "page": "individual-fee-growth-plan",
+    "title": "My Fee Growth Plan",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Partnership Pathway",
+    "purpose": "This template is designed to help those on the Partnership Pathway to be clear on who to target, what to communicate and the sheer level of activity required to (organically) grow a fee base. 'A' client profile, logistics and marketing statements (BBQ statements) are all part of the content covered",
+    "tags": [],
+    "includedInClient": false,
+    "position": 173
+  },
+  {
+    "page": "id-6203812261",
+    "title": "My Network/Entertainment Schedule",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Networking",
+    "purpose": "This template works on the belief that a clear allocation of resources can aid in the planning of pro-active networking tactics. In short, the allocation of both time and budget will then help define WHO best to target, WHAT outcomes are expected and HOW MUCH resource should be used to be effective.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 174
+  },
+  {
+    "page": "spare-4",
+    "title": "Online Quiz Summary",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Quiz",
+    "purpose": "This template highlights the purpose behind the online quiz options provided. Quizzes provide a useful 'Priming' role to help shape the understanding of your client and additionally, helps to build the DESIRE to act.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 175
+  },
+  {
+    "page": "tracking-your-progress",
+    "title": "Video Hyperlinks",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Messaging",
+    "purpose": "This document provides a brief description of the video and its (paired) hyperlink to help you decide which video could best help to shape the nature of discussion with your client. Excellent PRIMING resource! \n(The video hyperlinks relate to unbranded 'concept' videos.)",
+    "tags": [],
+    "includedInClient": false,
+    "position": 176
+  },
+  {
+    "page": "id-4678322776",
+    "title": "Website Blurbs",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Website Creation",
+    "purpose": "This document provides 'tips n tricks' to aid in the design of your firm's website. The tactics suggested here may, in turn, be passed to your clients as an additional resource.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 177
+  },
+  {
+    "page": "spare-2",
+    "title": "The Helicopter Story",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Positioning",
+    "purpose": "This delivery is a superb way to plant the seed for a client and is really useful if presented in a seminar environment to aid in the positioning of you as a strategic advisor. It takes time to learn but works - (69% of the time - everytime! :)",
+    "tags": [
+      "platform presentation",
+      "public speaking",
+      "seminar design"
+    ],
+    "includedInClient": false,
+    "position": 178
+  },
+  {
+    "page": "id-6785367543",
+    "title": "Call Reluctance Psychology",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Sales Psychology",
+    "purpose": "This video explains the psychology of call reluctance; what it is, what causes it and what you can do about it. A must watch for anyone new to selling.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 179
+  },
+  {
+    "page": "id-5063596715",
+    "title": "Winning Management Reporting",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Selling Management Reporting",
+    "purpose": "This document explores why clients struggle to get excited about management reporting services and what you can do about it. In particular, it explores the 5 'current states' your clients could be in and the appropriate template to help move them forward.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 180
+  },
+  {
+    "page": "id-2297533587",
+    "title": "Campaign Intro Options",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Sales Training",
+    "purpose": "This page holds 3 templates; each of which could prove useful to aid in the positioning of you as an advisor to a new client/prospect. Learn them all and be ready to 'change up' if the meeting environment requires.",
+    "tags": [
+      "strategic advisor"
+    ],
+    "includedInClient": false,
+    "position": 181
+  },
+  {
+    "page": "id-477955253",
+    "title": "Centre of Influence Scripts",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Networking",
+    "purpose": "This page holds 4 templates that explain both the process and provides specific (word for word examples) for you to develop your business networks. Everything you need to know is here - you just have to practice!",
+    "tags": [],
+    "includedInClient": false,
+    "position": 182
+  },
+  {
+    "page": "adve-lf-6-keys",
+    "title": "Platinum Case Study",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Client Case Study",
+    "purpose": "This template provides the meeting structure to help team members prepare and present their client case study material. Organising structured reviews enables a visible learning culture which is critical to a firm's advisory journey.",
+    "tags": [
+      "team building",
+      "team culture",
+      "personal development",
+      "career development"
+    ],
+    "includedInClient": false,
+    "position": 183
+  },
+  {
+    "page": "lite-data-pre-meeting",
+    "title": "Quickfire Advisory Directory",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Software Help",
+    "purpose": "Use this quick fire directory to identify the 80/20 templates to help you serve your clients. If, as an advisor, you became proficient in just the templates listed in this directory, you would be significantly better trained to deliver advisory services to your clients than 90% of accountants.",
+    "tags": [
+      "advisor help",
+      "advisor learning"
+    ],
+    "includedInClient": false,
+    "position": 184
+  },
+  {
+    "page": "my-fee-growth-plan-old",
+    "title": "My CPD Log",
+    "section": "Get Organised",
+    "menuSection": "get-organised",
+    "topic": "Tracking CPD Hours",
+    "purpose": "Use this content table to track the learning time you've invested. You can add your own content to the table and easily produce a report for management or association bodies to show your learning progress.",
+    "tags": [
+      "CPD Hours",
+      "Tracking Learning",
+      "Professional Development"
+    ],
+    "includedInClient": false,
+    "position": 185
+  },
+  {
+    "page": "id-8349162326",
+    "title": "Advisory Playsheets",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Content Logic",
+    "purpose": "The advisory playsheets help guide you through the 'thought logic' to determine which template is more appropriate to your client's circumstance, and your own personal experience & confidence levels. These playsheets assist with your diagnosis and service solution.",
+    "tags": [
+      "Content Logic",
+      "Thought Logic",
+      "Template choice",
+      "Diagnose",
+      "Problem Solve"
+    ],
+    "includedInClient": false,
+    "position": 186
+  },
+  {
+    "page": "lite-data-pre-meeting",
+    "title": "Learning Graphics",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Graphical Concepts",
+    "purpose": "This is a collection of concept graphics that relate to an advisor's learning journey.\nThe 5 Steps in the Advisory Staircase, The Professional's Journey, The 3 Types of Engagement, The Progressive Learning Path (to Wisdom) and The Emotional Reaction to Learning are all included.",
+    "tags": [
+      "concepts",
+      "conceptual hierarchy"
+    ],
+    "includedInClient": false,
+    "position": 187
+  },
+  {
+    "page": "id-7982468813",
+    "title": "Growth Curve Checklist",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Template Selection",
+    "purpose": "The growth curve checklist is your team's reference (list) to identify service (template) solutions for clients at each stage of the growth curve. It's about anticipating your client's issues and getting the right team member resourced, trained (& confident) in advance.",
+    "tags": [
+      "Template selection",
+      "Leveraged advisory"
+    ],
+    "includedInClient": false,
+    "position": 188
+  },
+  {
+    "page": "id-9763482347",
+    "title": "Free Draw 3x3",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Revealing Growth Framework",
+    "purpose": "This template and the tutorial video (underneath) will make it easy for you to reveal the growth (fundamentals) framework to your clients in a low pressure manner. (Especially useful for you to draw on a napkin at a coffee shop!)",
+    "tags": [
+      "Freedraw",
+      "free draw",
+      "reveal growth curve",
+      "freedraw"
+    ],
+    "includedInClient": false,
+    "position": 189
+  },
+  {
+    "page": "id-631140983",
+    "title": "EOY Quiz",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Quiz",
+    "purpose": "The EOY quiz is a great way to 'prime' your client for their end of year meeting. For starters, it gets them thinking about their strengths, weaknesses & satisfaction levels (& you learn what they are) but more importanly, it signals your intention to discuss more than just their accounts.",
+    "tags": [
+      "quiz",
+      "satisfaction"
+    ],
+    "includedInClient": false,
+    "position": 190
+  },
+  {
+    "page": "id-629955404",
+    "title": "Turnaround Behaviours",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Staff Training",
+    "purpose": "This framework helps the team to decide how they want to be 'talked about' in their marketplace. The framework then explores practical steps for service improvement. (This example showcases a cafe but many in retail will find it applicable)",
+    "tags": [
+      "service improvement"
+    ],
+    "includedInClient": false,
+    "position": 191
+  },
+  {
+    "page": "id-1015676757",
+    "title": "BNZ Templates",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "BNZ",
+    "purpose": "These templates are specific to the BNZ in support of loan applications. If your client is needing a template as a requirement for a loan, perhaps check with their bank if they have a strict format to follow.",
+    "tags": [
+      "BNZ Business Plan"
+    ],
+    "includedInClient": false,
+    "position": 192
+  },
+  {
+    "page": "id-458386486",
+    "title": "Baking Apple Pie",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Cooking",
+    "purpose": "Build closer relations by helping your client bake an apple pie",
+    "tags": [
+      "wellness",
+      "healthy eating",
+      "cooking"
+    ],
+    "includedInClient": false,
+    "position": 193
+  },
+  {
+    "page": "id-8990592804",
+    "title": "EBITDA",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "EBITDA & Discounted Cashflows",
+    "purpose": "This model is used to help calculate EBITDA and Discounted Future Cashflows to assess share values. Whilst both calculations carry a degree of controvesy when compared to 'real-world' values, understanding the methods will prove educational when completing your indicative value engagements.",
+    "tags": [
+      "EBITDA",
+      "Discounted Future Cashflows"
+    ],
+    "includedInClient": false,
+    "position": 194
+  },
+  {
+    "page": "id-2297533587",
+    "title": "Common Problem Stories",
+    "section": "Get the Job",
+    "menuSection": "get-the-job",
+    "topic": "Sales & Facilitation",
+    "purpose": "Use the Event, Cause & Effect framework to develop your Common Problem Stories for use with sales prospects who are reluctant to engage. This framework serves as a Facilitative approach to probem solving and/or a soft sales method for introduction (first) meetings.",
+    "tags": [
+      "Event",
+      "Cause",
+      "Effect"
+    ],
+    "includedInClient": false,
+    "position": 195
+  }
+]

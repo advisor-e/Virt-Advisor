@@ -1,0 +1,179 @@
+[
+  {
+    "template": "Growth Fundamentals Framework",
+    "howItHelps": "The Growth Fundamentals Curve is a superb way to create self-relevance for your clients. It's the fastest and easiest way to capture your client's attention, align mutual understanding of their contextual position and assess their desire for change.",
+    "whatToLookFor": "Any client that can fog a mirror. Use with any business client experiencing market changes who seeks growth or improvement opportunities. Particularly effective when a client is unsure where to start or what advisory services they need.",
+    "whereMayLead": "Advisory services — acts as the gateway to recommending further templates and services.",
+    "deliveryNotes": "Free-draw is best. Growth Curve Story presentation is next best. Takes practice — watch the video and rehearse the story. Typically suggested during year-end meetings but applicable anytime.",
+    "scenarios": [
+      "Client is unsure what advisory services would help their business",
+      "Advisor has historically struggled to suggest additional services",
+      "Client is at a crossroads and needs to understand their growth position",
+      "First advisory conversation with a new client"
+    ]
+  },
+  {
+    "template": "EOY Meeting",
+    "howItHelps": "This template and matching meeting script enables you to facilitate a Global and Local reference to support your meeting. These references give you two bites at the cherry to secure additional services from your client, without high pressure tactics.",
+    "whatToLookFor": "Any client you have historically struggled to suggest additional services to. Clients who only engage around compliance work and have not yet explored advisory services.",
+    "whereMayLead": "Advisory services — opens the door to a broader advisory relationship.",
+    "scenarios": [
+      "Advisor wants to introduce advisory services at the annual accounts meeting",
+      "Client only engages for compliance but advisor wants to expand the relationship",
+      "Advisor needs a structured way to facilitate an end of year review"
+    ]
+  },
+  {
+    "template": "Working Capital Cycle",
+    "howItHelps": "This template often achieves an 'A-ha' moment for the client as they understand the money in movement and use of profits principles. This is the best foundation discussion you can have with a business owner that fails to understand the importance of regularly reviewing their financial accounts and performance.",
+    "whatToLookFor": "Clients who make comments like 'How come I have no money or a big tax bill but don't have any cash in the bank?' Clients who don't understand the relationship between profit and cash.",
+    "whereMayLead": "Regular management reporting services.",
+    "scenarios": [
+      "Client is confused about why they are profitable but have no cash",
+      "Client has a large tax bill and is surprised by it",
+      "Client doesn't understand where their money goes",
+      "Client wants to understand cash flow basics"
+    ]
+  },
+  {
+    "template": "8 Profit Levers",
+    "howItHelps": "This template encourages your client to walk the customer's journey and recognise the mini decisions required to gain their business and deliver profitably to their expectations. It's a fundamental framework to identify business growth potential by incremental changes rather than drastic movements.",
+    "whatToLookFor": "Clients who show signs of jumping-all-in on ideas like dropping prices or putting them up versus customer loyalty programmes or new product lines WITHOUT exploring the impact of the idea on the rest of their business.",
+    "whereMayLead": "Regular management reporting.",
+    "scenarios": [
+      "Client wants to grow revenue but is only thinking about one lever (e.g. dropping prices)",
+      "Client is considering a drastic business change without understanding the full impact",
+      "Client wants to increase profitability and needs a structured framework",
+      "Client is struggling to grow and needs to identify where the opportunities are"
+    ]
+  },
+  {
+    "template": "Deming's Theory of Volatility",
+    "howItHelps": "This template discusses Deming's Theory of Volatility — it encourages people to accept that business goes up and down and to learn to properly interpret the data they're reviewing. Extremely helpful in identifying and supporting the calculation of required working capital; use it to aid in applications for finance and help owners get clear on the dangers of running the business too low in cash reserves.",
+    "whatToLookFor": "Clients who show an overreaction to success or failure without taking the time to assess Causality vs Correlation vs Coincidence. Clients who are jumping from one chaos to another.",
+    "whereMayLead": "Regular management reporting — cash forecasts, budgets, cash management reviews.",
+    "scenarios": [
+      "Client panics after a bad month and makes reactive decisions",
+      "Client over-celebrates a good month and over-spends",
+      "Client needs to apply for finance and needs to understand their working capital",
+      "Client is running dangerously low on cash reserves and doesn't understand why"
+    ]
+  },
+  {
+    "template": "Rubbish In - Rubbish Out",
+    "howItHelps": "This template focuses on the Chart of Accounts as a foundation for Reporting and Interpretation; it challenges the business owner to consider what's important for them to measure.",
+    "whatToLookFor": "Clients who don't engage much around the numbers when you're presenting their year end accounts. Clients who discuss the end result but don't relate specific business decisions to any performance metric in their accounts.",
+    "whereMayLead": "Regular management reporting.",
+    "scenarios": [
+      "Client is disengaged during financial reporting conversations",
+      "Client's accounts are not set up to give them useful management information",
+      "Client doesn't know what to measure in their business",
+      "Accounts data is poor quality and not fit for management reporting"
+    ]
+  },
+  {
+    "template": "Revenue Model",
+    "howItHelps": "Revenue models aid in the calculation of activity and financial variables and serve to quantify the business owner's expectations. From a facilitative point of view, Revenue Models shift the burden of proof away from you and back towards the client's business model.",
+    "whatToLookFor": "Clients who have ambitious revenue targets but no clear model for how they will achieve them. Clients who need to understand the drivers behind their revenue.",
+    "whereMayLead": "Regular management reporting.",
+    "scenarios": [
+      "Client wants to grow revenue but hasn't modelled how to get there",
+      "Client is seeking funding and needs to demonstrate revenue projections",
+      "Client's revenue is unpredictable and they don't understand the drivers",
+      "Advisor needs to shift the conversation from opinion to data"
+    ]
+  },
+  {
+    "template": "Dashboard Discussions",
+    "howItHelps": "This template helps you explore the different performance and activity ratio reports available in the Advisor-e financial dashboard with your clients. Also includes the 7 Cash Drivers template to help prepare clients for financial management reporting services.",
+    "whatToLookFor": "Clients who are ready to move into regular management reporting and need to understand what metrics matter. Clients who need help interpreting their dashboard data.",
+    "whereMayLead": "Regular management reporting.",
+    "scenarios": [
+      "Client has been set up with management reporting but doesn't know how to use it",
+      "Advisor wants to introduce a client to the concept of KPIs and dashboards",
+      "Client wants to understand what financial ratios mean for their business"
+    ]
+  },
+  {
+    "template": "Ratio Analysis",
+    "howItHelps": "This template explores the plus and minus of benchmark data and raises concerns about when data doesn't count. Also assists in developing KPIs and introduces the concept of Common Size trend analysis.",
+    "whatToLookFor": "Clients who need to benchmark their performance or develop meaningful KPIs. Clients who are over-relying on industry benchmarks without understanding their relevance.",
+    "whereMayLead": "Regular management reporting.",
+    "scenarios": [
+      "Client wants to know how they compare to industry benchmarks",
+      "Advisor needs to develop KPIs with a client",
+      "Client needs to understand trend analysis in their financial data"
+    ]
+  },
+  {
+    "template": "Loan Estimator",
+    "howItHelps": "This template allows your client's finance advisor or banker to complete a Summary Position view of your mutual client's credit lines. Helps clients understand which assets provide easy liquidity and aids discussion of whether wealth should be captured inside or outside the business.",
+    "whatToLookFor": "Clients who explain they are under financial duress and need to go to the bank to secure finance. Clients who don't have a clear picture of their borrowing position.",
+    "whereMayLead": "Regular management reporting — understanding the full financial picture.",
+    "scenarios": [
+      "Client needs to apply for a business loan",
+      "Client is under financial pressure and needs to review their credit position",
+      "Client doesn't know their total borrowing exposure",
+      "Advisor needs to prepare a client for a bank meeting"
+    ]
+  },
+  {
+    "template": "Customer Journey",
+    "howItHelps": "A lite version of sales-related documents focused on the customer journey from first awareness to decision to purchase, plus a basic problem solving flowchart to help find the source of failing sales. Can be used as a standalone discussion in under an hour or as an introduction to a more complete sales review.",
+    "whatToLookFor": "Clients who are struggling to secure sales and wish to explore their options. Clients who don't understand why their sales pipeline is not converting.",
+    "whereMayLead": "Strategic Planning, Regular Development Meetings, Advisory Board level Governance.",
+    "scenarios": [
+      "Client's sales have dropped and they don't know why",
+      "Client is getting enquiries but not converting them to sales",
+      "Client wants a quick review of their sales process",
+      "Client is losing customers and doesn't understand where in the journey"
+    ]
+  },
+  {
+    "template": "Planning Outcomes Review",
+    "howItHelps": "Use this document to help sell the planning session and to make sure the planning framework is focused on the correct business outcomes. Examines 4 main planning domains: Business Model, Strategic Orientation, Organisational Function and Sales and Marketing.",
+    "whatToLookFor": "Clients who ask for a planning session but when asked what their core issue is, struggle to stay in any single lane — jumping across business functions without showing clear cause and effect.",
+    "whereMayLead": "Strategic Planning, Governance, Management Reporting.",
+    "scenarios": [
+      "Client wants a planning session but has no clear focus",
+      "Client's issues span multiple areas of the business",
+      "Advisor needs to scope a planning engagement properly before starting",
+      "Client keeps changing direction and priorities"
+    ]
+  },
+  {
+    "template": "Porter's & Pine",
+    "howItHelps": "Porter's 5 Forces framework guides a strategic review of your client's business. The Progression of Value by Joseph Pine is an excellent supporting framework for the same discussion.",
+    "whatToLookFor": "Clients who need to consider a redesign of their business offer or solution as part of their drive toward more sales. Clients facing competitive pressure.",
+    "whereMayLead": "Strategic Planning, Regular Development Meetings, Advisory Board level Governance.",
+    "scenarios": [
+      "Client is losing market share to competitors",
+      "Client wants to reposition their business offering",
+      "Client is entering a new market and needs a strategic framework",
+      "Client's business model is under threat from market changes"
+    ]
+  },
+  {
+    "template": "Blue Ocean Strategy & 8 Profit Levers",
+    "howItHelps": "Explores the Profit Levers and Blue Ocean strategy to help clients identify their competition and differentiation points. A smaller document that suits those pushed for time or dipping their toes into strategic planning.",
+    "whatToLookFor": "Clients who need to consider a redesign of their business offer as part of their drive toward more sales but don't have time for a deep strategic review.",
+    "whereMayLead": "Strategic Planning, Regular Development Meetings, Advisory Board level Governance.",
+    "scenarios": [
+      "Client wants a quick strategic review without a deep dive",
+      "Client needs to differentiate their business but doesn't know how",
+      "Client is competing on price and needs to find other differentiators"
+    ]
+  },
+  {
+    "template": "Covid 19 Client Pre-Meeting",
+    "howItHelps": "Contains a video and presentation that explains the way people cope with adversity. The most practical way to serve the topic of wellness for a business person — helps clients identify their dominant coping style so they can catch themselves when fixated.",
+    "whatToLookFor": "Clients who explain they are struggling in business — especially husband and wife teams. Clients showing signs of stress, anxiety, or reactive decision-making driven by fear rather than logic.",
+    "whereMayLead": "Strategic Planning, Financial Management Reporting.",
+    "scenarios": [
+      "Client is visibly stressed and making poor decisions under pressure",
+      "Business owners who are in conflict with each other (especially couples)",
+      "Client is in crisis and needs to be grounded before a planning conversation",
+      "Client keeps talking about feeling overwhelmed rather than focusing on solutions"
+    ]
+  }
+]
