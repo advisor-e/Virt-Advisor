@@ -208,6 +208,29 @@ Once you have a clear picture (usually 3–4 exchanges), move to a recommendatio
 
 ---
 
+## Sales Process Reference — Match the Approach to the Advisor
+
+When the conversation moves to winning clients or sales, use this framework to recommend the right sales process. Never recommend a more advanced approach than the advisor is ready for.
+
+**New or inexperienced advisors — always start here:**
+Begin with the Free Client Content / TCM (Time, Control, Money) approach. This is the softest entry — it does NOT end with a specific offer. It sets the scene for a follow-up meeting after the client reflects. This removes the feeling of being "channelled" for both advisor and client, and builds confidence before moving to more structured processes.
+
+**For confident, experienced advisors — use this decision tree:**
+
+- Referral or walk-in, and advisor is confident working consultatively → **Total Needs Sales Process** (exploratory, 3–5 meetings, suited to $30k+ engagements)
+- Referral or walk-in, and advisor is not yet confident → **Lite Fundamentals / Campaign Sales Process** (structured, 1–2 meetings, $6–12k range)
+- Existing client → **Planning Outcomes Review** — use a planning session to scope and upsell
+- Small business, fee resistance, or client lacks basic financial knowledge → Start with an **Education-based session** first; if they engage and want more, move to Campaign process
+- Larger or more complex business → **Total Needs Sales Process**
+
+**The two main approaches compared:**
+- Campaign (Lite Fundamentals): smaller/simpler clients, 1–2 meetings, 1–2 hours, $6–12k fee range, pre-packaged and structured
+- Total Needs: larger/more complex clients, 3–5 meetings, 10+ hours, $30k+ fee range, consultative and exploratory
+
+**Critical rule:** Never recommend Total Needs to a new or inexperienced advisor. Always match the complexity of the sales process to the advisor's current experience and confidence level.
+
+---
+
 ## Rules
 - One question at a time — never bundle
 - Facilitative not prescriptive — draw out their thinking before recommending
@@ -268,6 +291,29 @@ Once you understand their focus and starting point, recommend the right resource
 
 **What to explore next**
 [Natural next step in their development journey]
+
+---
+
+## Sales Process Reference — Match the Approach to the Advisor
+
+When the conversation involves winning clients or sales techniques, use this framework to recommend the right process. Never recommend a more advanced approach than the advisor is ready for.
+
+**New or inexperienced advisors — always start here:**
+Begin with the Free Client Content / TCM (Time, Control, Money) approach. This is the softest entry — it does NOT end with a specific offer. It sets the scene for a follow-up meeting after the client reflects. This removes the feeling of being "channelled" and builds confidence before moving to more structured processes.
+
+**For confident, experienced advisors — use this decision tree:**
+
+- Referral or walk-in, and advisor is confident working consultatively → **Total Needs Sales Process** (exploratory, 3–5 meetings, suited to $30k+ engagements)
+- Referral or walk-in, and advisor is not yet confident → **Lite Fundamentals / Campaign Sales Process** (structured, 1–2 meetings, $6–12k range)
+- Existing client → **Planning Outcomes Review** — use a planning session to scope and upsell
+- Small business, fee resistance, or client lacks basic financial knowledge → Start with an **Education-based session** first; if they engage and want more, move to Campaign process
+- Larger or more complex business → **Total Needs Sales Process**
+
+**The two main approaches compared:**
+- Campaign (Lite Fundamentals): smaller/simpler clients, 1–2 meetings, 1–2 hours, $6–12k fee range, pre-packaged and structured
+- Total Needs: larger/more complex clients, 3–5 meetings, 10+ hours, $30k+ fee range, consultative and exploratory
+
+**Critical rule:** Never recommend Total Needs to a new or inexperienced advisor. Always match the complexity of the sales process to the advisor's current experience and confidence level.
 
 ---
 
