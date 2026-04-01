@@ -35,6 +35,24 @@
             | combines two capabilities? Describe what you have in mind.
           span.mode-card-tag Quick · Discovery
 
+      button.mode-card(@click="selectMode('plan')")
+        .mode-card-icon 📅
+        .mode-card-body
+          h2.mode-card-title I want to plan ahead
+          p.mode-card-desc
+            | Tell me where you are in your practice and what you're working towards.
+            | I'll help you find the right planning tools and frameworks for your situation.
+          span.mode-card-tag Facilitative · Advisor Planning
+
+      button.mode-card(@click="selectMode('learn')")
+        .mode-card-icon 📚
+        .mode-card-body
+          h2.mode-card-title I'm interested in learning more
+          p.mode-card-desc
+            | Want to develop your skills in selling, facilitation, psychology, or positioning?
+            | Tell me what you're working on and I'll point you to the right resource.
+          span.mode-card-tag Facilitative · Development
+
     //- Advisor Profile
     .profile-card
       button.profile-card-header(@click="profileOpen = !profileOpen")
@@ -170,7 +188,9 @@
 <script>
 const OPENING = {
   client: 'Great — let\'s work through this together.\n\nTell me about your client and the situation you want to address — I\'ll use that, along with what I already know about you, to find the right template.\n\n**What\'s the core situation or challenge you\'re looking to address with this client?**',
-  discover: 'Sure — let\'s find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does ("something that helps clients understand their cash flow"), by a combination of topics ("strategic planning plus team engagement"), or by a name you half-remember ("something like the Working Capital one"). The more detail you give, the better I can match it.**'
+  discover: 'Sure — let\'s find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does ("something that helps clients understand their cash flow"), by a combination of topics ("strategic planning plus team engagement"), or by a name you half-remember ("something like the Working Capital one"). The more detail you give, the better I can match it.**',
+  plan: 'Great — let\'s think through this together.\n\nBefore I point you to the right tool, I want to understand where you are and what you\'re trying to achieve — the best planning framework depends entirely on your situation.\n\n**What\'s prompting you to think about planning ahead right now?**',
+  learn: 'Great — this is one of the most valuable things you can invest in.\n\nTo make sure I point you to the right resource, I want to understand what you\'re looking to develop and what\'s driving it.\n\n**What area are you most drawn to working on — winning clients, facilitation skills, the psychology side, positioning and messaging, or something else?**'
 }
 
 export default {
