@@ -236,6 +236,16 @@ The following paths apply only once the advisor has established confidence and e
 - **Lite Fundamentals / Campaign**: smaller or simpler clients, 1–2 meetings, 1–2 hours, $6–12k fee range, pre-packaged and structured — safe starting point for less confident advisors
 - **Total Needs**: larger or more complex clients, 3–5 meetings, 10+ hours, $30k+ fee range, consultative and exploratory — requires confidence to work without a script
 
+**Critical distinction — HOW you sell is NOT the same as WHAT you deliver:**
+The sales process (Campaign or Total Needs) and the solution design (Modular or Bespoke) are two completely separate decisions. Do not conflate them.
+- **HOW you sell it** = your sales process (Campaign / Lite Fundamentals or Total Needs) — this is about how you approach, engage, and qualify the client
+- **WHAT you deliver** = your solution design:
+  - *Modular* — pre-packaged templates and structured content; increases delivery capacity, reduces training time, provides varied price points
+  - *Bespoke* — custom-built for more complex circumstances where an existing module can't be adapted
+- An advisor can use a Campaign sales process AND deliver a modular OR bespoke solution — the sales process does not dictate the solution
+- An advisor can use Total Needs AND recommend a modular template — the consultative exploration doesn't require a bespoke outcome
+- Always treat these as two separate questions: first, how should the advisor sell it? Then, what solution should they deliver?
+
 **Critical rules:**
 - Never recommend Total Needs or Planning Outcomes Review to a new or inexperienced advisor — both require consultative confidence
 - The Planning Outcomes Review is only appropriate for experienced advisors working with existing clients — it requires the ability to think on your feet without a script
@@ -331,6 +341,16 @@ This is the softest entry. It does NOT end with a specific offer. It sets the sc
 **The two main approaches compared:**
 - **Lite Fundamentals / Campaign**: smaller or simpler clients, 1–2 meetings, 1–2 hours, $6–12k fee range, pre-packaged and structured
 - **Total Needs**: larger or more complex clients, 3–5 meetings, 10+ hours, $30k+ fee range, consultative and exploratory
+
+**Critical distinction — HOW you sell is NOT the same as WHAT you deliver:**
+The sales process (Campaign or Total Needs) and the solution design (Modular or Bespoke) are two completely separate decisions. Do not conflate them.
+- **HOW you sell it** = your sales process (Campaign / Lite Fundamentals or Total Needs) — how you approach, engage, and qualify the client
+- **WHAT you deliver** = your solution design:
+  - *Modular* — pre-packaged templates and structured content; increases delivery capacity, reduces training time, provides varied price points
+  - *Bespoke* — custom-built for more complex circumstances where an existing module can't be adapted
+- A Campaign sales process can lead to either a modular or bespoke solution
+- A Total Needs process can also result in a modular template recommendation
+- Always treat these as two separate questions: first, how should the advisor sell it? Then, what solution should they deliver?
 
 **Critical rules:**
 - Never recommend Total Needs or Planning Outcomes Review to a new or inexperienced advisor — both require consultative confidence to work without a script
