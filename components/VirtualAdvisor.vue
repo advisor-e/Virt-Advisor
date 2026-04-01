@@ -8,7 +8,9 @@
         div
           h1.advisor-title Virtual Advisor
           p.advisor-subtitle Powered by Advisor-e
-      button.btn-clear(v-if="mode" @click="reset") Start over
+      .header-actions
+        button.btn-clear(v-if="mode" @click="reset") ← Main menu
+        button.btn-close(@click="closeSession" title="Close") ✕
 
   //- Mode selection
   .mode-screen(v-if="!mode")
@@ -32,6 +34,62 @@
             | Looking for a template similar to something you know, or one that
             | combines two capabilities? Describe what you have in mind.
           span.mode-card-tag Quick · Discovery
+
+    //- Advisor Profile
+    .profile-card
+      button.profile-card-header(@click="profileOpen = !profileOpen")
+        .profile-card-icon 🎯
+        .profile-card-body
+          h2.profile-card-title Your advisor profile
+          p.profile-card-desc(v-if="!profileSaved") Answer a few questions once — I'll use your background in every recommendation, without asking again.
+          p.profile-card-desc(v-else) Saved · tap to review or update
+        span.profile-card-tag(v-if="profileSaved") Profile active
+        span.profile-card-tag.tag-empty(v-else) Not set up
+        span.profile-chevron {{ profileOpen ? '▲' : '▼' }}
+
+      .profile-questions(v-if="profileOpen")
+        .profile-q(v-for="q in profileQuestions" :key="q.field")
+          p.profile-q-label {{ q.question }}
+
+          //- Voice bar (mirrors main chat pattern)
+          .profile-voice-bar(v-if="speechSupported")
+
+            //- State 1: Idle
+            .voice-state.voice-idle(v-if="profileRecordingField !== q.field && !advisorProfile[q.field]")
+              button.voice-btn.voice-btn-idle(@click="toggleProfileListening(q.field)")
+                svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
+                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
+                | Tap to speak
+
+            //- State 2: Recording
+            .voice-state.voice-recording(v-else-if="profileRecordingField === q.field")
+              span.recording-dot
+              span.recording-label Recording — speak now
+              button.voice-btn.voice-btn-stop(@click="toggleProfileListening(q.field)")
+                svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
+                  rect(x="6" y="6" width="12" height="12" rx="2")
+                | Stop recording
+
+            //- State 3: Captured
+            .voice-state.voice-ready(v-else)
+              svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
+                path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
+              span.ready-label Captured — edit below or record again
+              button.voice-btn.voice-btn-redo(@click="toggleProfileListening(q.field)")
+                svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
+                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
+                | Record again
+
+          textarea.profile-q-textarea(
+            v-if="advisorProfile[q.field] || profileRecordingField === q.field"
+            v-model="advisorProfile[q.field]"
+            rows="2"
+            :class="{ 'pq-recording': profileRecordingField === q.field }"
+          )
+
+        .profile-q-actions
+          button.profile-save-btn(@click="saveProfile") Save profile
+          button.profile-clear-btn(v-if="profileSaved" @click="clearProfile") Clear
 
   //- Conversation
   .messages-area(v-else ref="messagesArea")
@@ -110,7 +168,7 @@
 
 <script>
 const OPENING = {
-  client: 'Great — let\'s work through this together.\n\nTo find the right template, I need to understand your client first, then we\'ll look at you as the advisor.\n\n**What\'s the core situation or challenge you\'re looking to address with this client?**',
+  client: 'Great — let\'s work through this together.\n\nTell me about your client and the situation you want to address — I\'ll use that, along with what I already know about you, to find the right template.\n\n**What\'s the core situation or challenge you\'re looking to address with this client?**',
   discover: 'Sure — let\'s find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does ("something that helps clients understand their cash flow"), by a combination of topics ("strategic planning plus team engagement"), or by a name you half-remember ("something like the Working Capital one"). The more detail you give, the better I can match it.**'
 }
 
@@ -133,7 +191,33 @@ export default {
       streamingText: '',
       isListening: false,
       speechSupported: false,
-      recognition: null
+      recognition: null,
+      profileOpen: false,
+      profileSaved: false,
+      profileRecordingField: null,
+      advisorProfile: { experience: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' },
+      profileQuestions: [
+        {
+          field: 'experience',
+          question: 'How long have you been delivering advisory work?'
+        },
+        {
+          field: 'enjoyment',
+          question: 'What kind of advisory conversations do you enjoy most or feel you do best?'
+        },
+        {
+          field: 'technicalStrengths',
+          question: 'What are the areas you feel technically strong in?'
+        },
+        {
+          field: 'toolsComfort',
+          question: 'How comfortable are you using structured tools and frameworks?'
+        },
+        {
+          field: 'notes',
+          question: 'Is there anything else about how you work that would help me tailor my recommendations to you?'
+        }
+      ]
     }
   },
 
@@ -145,10 +229,25 @@ export default {
     },
     conversationHistory () {
       return this.messages.map(m => ({ role: m.role, content: m.content }))
+    },
+    hasAdvisorProfile () {
+      return this.profileSaved && (this.advisorProfile.experience || this.advisorProfile.strengths)
+    },
+    profileSummary () {
+      const text = this.advisorProfile.experience || this.advisorProfile.enjoyment || ''
+      return text.length > 70 ? text.slice(0, 70) + '…' : text
     }
   },
 
   mounted () {
+    const saved = localStorage.getItem('va_advisor_profile')
+    if (saved) {
+      try {
+        this.advisorProfile = JSON.parse(saved)
+        this.profileSaved = true
+      } catch (e) {}
+    }
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (SpeechRecognition) {
       this.speechSupported = true
@@ -161,10 +260,16 @@ export default {
         for (let i = 0; i < e.results.length; i++) {
           transcript += e.results[i][0].transcript
         }
-        this.inputText = transcript
+        if (this.profileRecordingField) {
+          this.$set(this.advisorProfile, this.profileRecordingField, transcript)
+        } else {
+          this.inputText = transcript
+        }
       }
       this.recognition.onend = () => {
         if (this.isListening) {
+          this.recognition.start()
+        } else if (this.profileRecordingField) {
           this.recognition.start()
         }
       }
@@ -190,15 +295,49 @@ export default {
       this.streamingText = ''
     },
 
+    closeSession () {
+      window.close()
+    },
+
+    saveProfile () {
+      localStorage.setItem('va_advisor_profile', JSON.stringify(this.advisorProfile))
+      this.profileSaved = true
+      this.profileOpen = false
+    },
+
+    clearProfile () {
+      this.advisorProfile = { experience: '', toolsComfort: '', strengths: '', notes: '' }
+      localStorage.removeItem('va_advisor_profile')
+      this.profileSaved = false
+    },
+
     toggleListening () {
       if (!this.recognition) return
       if (this.isListening) {
         this.recognition.stop()
         this.isListening = false
       } else {
+        if (this.profileRecordingField) {
+          this.recognition.stop()
+          this.profileRecordingField = null
+        }
         this.inputText = ''
         this.recognition.start()
         this.isListening = true
+      }
+    },
+
+    toggleProfileListening (field) {
+      if (!this.recognition) return
+      if (this.profileRecordingField === field) {
+        this.recognition.stop()
+        this.profileRecordingField = null
+      } else {
+        if (this.isListening) {
+          this.isListening = false
+        }
+        this.profileRecordingField = field
+        this.recognition.start()
       }
     },
 
@@ -222,7 +361,8 @@ export default {
             query,
             mode: this.mode,
             orgTemplateIds: this.orgTemplateIds,
-            conversationHistory: this.conversationHistory.slice(0, -1)
+            conversationHistory: this.conversationHistory.slice(0, -1),
+            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null
           })
         })
 
@@ -312,6 +452,7 @@ export default {
 }
 .advisor-title { font-size: 18px; font-weight: 700; color: #ffffff; margin: 0; }
 .advisor-subtitle { font-size: 12px; color: #bfdbfe; margin: 0; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
 .btn-clear {
   font-size: 13px;
   color: #bfdbfe;
@@ -322,6 +463,21 @@ export default {
   cursor: pointer;
 }
 .btn-clear:hover { background: rgba(255,255,255,0.2); color: #ffffff; }
+.btn-close {
+  font-size: 14px;
+  color: #bfdbfe;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+.btn-close:hover { background: rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.5); color: #ffffff; }
 
 /* Mode selection */
 .mode-screen {
@@ -386,6 +542,100 @@ export default {
   padding: 3px 10px;
   width: fit-content;
 }
+
+/* Advisor Profile */
+.profile-card {
+  width: 100%;
+  max-width: 580px;
+  background: #ffffff;
+  border: 2px solid #dbeafe;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(30, 64, 175, 0.06);
+  margin-top: 6px;
+  overflow: hidden;
+}
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  padding: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+.profile-card-header:hover { background: #f9fafb; }
+.profile-card-icon { font-size: 30px; flex-shrink: 0; margin-top: 2px; }
+.profile-card-body { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+.profile-card-title { font-size: 16px; font-weight: 700; color: #111827; margin: 0; }
+.profile-card-desc { font-size: 13px; color: #4b5563; line-height: 1.5; margin: 0; }
+.profile-card-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1e40af;
+  background: #eff6ff;
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tag-empty { color: #6b7280; background: #f3f4f6; }
+.profile-chevron { font-size: 10px; color: #9ca3af; flex-shrink: 0; }
+
+.profile-questions {
+  border-top: 1px solid #dbeafe;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fafbff;
+}
+.profile-q { display: flex; flex-direction: column; gap: 6px; }
+.profile-q-label { font-size: 13px; font-weight: 600; color: #1e40af; margin: 0; }
+.profile-voice-bar { display: flex; align-items: center; }
+.profile-q-textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #111827;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  background: #ffffff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+.profile-q-textarea:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
+.pq-recording { border-color: #dc2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.1) !important; }
+
+.profile-q-actions { display: flex; gap: 8px; padding-top: 4px; }
+.profile-save-btn {
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.profile-save-btn:hover { background: #1d3a98; }
+.profile-clear-btn {
+  background: none;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.profile-clear-btn:hover { color: #dc2626; border-color: #fecaca; }
 
 /* Messages */
 .messages-area { flex: 1; overflow-y: auto; padding: 24px; }

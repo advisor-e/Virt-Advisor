@@ -23,6 +23,39 @@ You have been provided with:
 
 ---
 
+## The 3 Engagement Types
+
+Every client interaction falls into one of three engagement types. Identifying the correct type shapes everything — how the advisor positions themselves, how they deliver the work, and how the client will receive it. Use this framework to diagnose the client's state during Phases 1 and 2, then name it explicitly in your Phase 3 recommendation.
+
+**1. Advice** — For the aware and ready client
+- The client already knows they have a problem, understands the consequences, and wants a solution
+- Trigger: the client actively seeks the advisor out with a specific, known issue
+- Advisor position: hierarchical (the expert with the answer)
+- Delivery imperative: accuracy — the work is essentially pre-sold; focus entirely on a clean, correct outcome
+- Watch for: clients who raise the issue themselves, are commercially experienced, and want execution not exploration
+
+**2. Facilitation** — For complex behavioural change
+- The client needs to make significant changes but is emotionally attached to their current behaviours — they often "don't know what they don't know" at the start
+- Trigger: a trigger event combining a global reference (broad reasons to change) and a local reference (a personal, immediate impact the client feels)
+- Advisor position: professionally detached — not the expert telling them what to do, but the guide managing how information lands
+- Delivery imperative: the reveal — pace information carefully, like "feeding a baby steak"; overwhelming the client causes avoidance or defensiveness
+- Requires: a visible, long-term structure (6–12 months) the client fully buys into from the start — without it, they are likely to bail when the process gets difficult
+- Watch for: clients who understand they need to change but are stuck, overwhelmed, or emotionally resistant
+
+**3. Education** — For closing knowledge gaps
+- The client lacks the knowledge to make informed decisions; the goal is to grow them into a position where they can
+- Trigger: a knowledge gap — importantly, the client must have some baseline awareness to even recognise the gap
+- Advisor position: feedback loop — consistently identify what the client doesn't know, provide the missing piece, and assess understanding without making them feel judged
+- Delivery imperative: chunking — break content into logical, sequential pieces and show how they connect; the client needs to see the whole picture assembling
+- Watch for: clients who are new to strategic thinking, not commercially experienced, or who need concepts explained before they can engage with solutions
+
+**Diagnostic hierarchy (use this order when assessing a new situation):**
+1. Does the client lack basic understanding of their business or financial position? → Start with Education
+2. Does the client understand they need to change but are stuck, overwhelmed, or emotionally attached to old habits? → Use Facilitation
+3. Does the client have a specific, clearly defined issue they simply need executed well? → Deliver Advice
+
+---
+
 ## Phase 1 — Understand the client
 
 Ask warm, conversational questions — ONE OR TWO at a time — to build a picture of the business owner. Cover these areas across the conversation:
@@ -66,6 +99,9 @@ Once you have enough context, transition: "Great — I think I have what I need.
 
 **My recommendation**
 [Template name(s) in the right sequence]
+
+**Engagement type**
+[Name the engagement type — Advice, Facilitation, or Education — and explain why it applies to this situation. Specifically address: (a) what this means for how the advisor should position themselves with the client, and (b) why correctly identifying this type matters for the client relationship and the likelihood of a good outcome. Reference the signals from the conversation that led to this diagnosis.]
 
 **Why this fits your client**
 [Reference what the advisor told you about the client — their awareness, personality, whether they asked for help, etc.]
@@ -202,8 +238,18 @@ After giving delivery advice, always close by offering to draft an email or open
 }
 
 const OPENING_MSG = {
-  client: 'Great — let\'s work through this together.\n\nTo find the right template, I need to understand your client first, then we\'ll look at you as the advisor.\n\n**What\'s the core situation or challenge you\'re looking to address with this client?**',
+  client: 'Great — let\'s work through this together.\n\nTell me about your client and the situation you want to address — I\'ll use that, along with what I already know about you, to find the right template.\n\n**What\'s the core situation or challenge you\'re looking to address with this client?**',
   discover: 'Sure — let\'s find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does ("something that helps clients understand their cash flow"), by a combination of topics ("strategic planning plus team engagement"), or by a name you half-remember ("something like the Working Capital one"). The more detail you give, the better I can match it.**'
+}
+
+function formatAdvisorProfile (profile) {
+  const lines = []
+  if (profile.experience && profile.experience.trim()) lines.push(`Experience: ${profile.experience.trim()}`)
+  if (profile.enjoyment && profile.enjoyment.trim()) lines.push(`Advisory conversations they enjoy most: ${profile.enjoyment.trim()}`)
+  if (profile.technicalStrengths && profile.technicalStrengths.trim()) lines.push(`Technical strengths: ${profile.technicalStrengths.trim()}`)
+  if (profile.toolsComfort && profile.toolsComfort.trim()) lines.push(`Comfort with tools and frameworks: ${profile.toolsComfort.trim()}`)
+  if (profile.notes && profile.notes.trim()) lines.push(`Additional context: ${profile.notes.trim()}`)
+  return lines.join('\n')
 }
 
 let openaiClient = null
@@ -243,7 +289,7 @@ async function handleQuery (rawBody, res) {
     return
   }
 
-  const { query, mode = 'client', orgTemplateIds, conversationHistory = [] } = parsed
+  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile } = parsed
 
   if (!query || !query.trim()) {
     res.writeHead(400, { 'Content-Type': 'application/json' })
@@ -253,14 +299,19 @@ async function handleQuery (rawBody, res) {
 
   const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client
   const orgTemplates = getOrgTemplates(orgTemplateIds || null)
-  const relevantTemplates = filterTemplatesByQuery(orgTemplates, query, 40)
-  const templatesToUse = relevantTemplates.length > 0 ? relevantTemplates : orgTemplates.slice(0, 40)
+  const relevantTemplates = filterTemplatesByQuery(orgTemplates, query, 25)
+  const templatesToUse = relevantTemplates.length > 0 ? relevantTemplates : orgTemplates.slice(0, 25)
 
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = formatCoachingForPrompt()
 
-  const relevantSummaries = filterSummariesByQuery(query, 15)
+  // Only inject detailed summaries once the conversation is deep enough to be
+  // approaching a recommendation — skip them during early Phase 1/2 questioning
+  // to keep input tokens low.
+  const relevantSummaries = conversationHistory.length >= 6 ? filterSummariesByQuery(query, 10) : []
   const summariesText = formatSummariesForPrompt(relevantSummaries)
+
+  const advisorProfileText = advisorProfile ? formatAdvisorProfile(advisorProfile) : null
 
   const contextMessage = [
     `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)`,
@@ -272,7 +323,10 @@ async function handleQuery (rawBody, res) {
     '## Coaching Reference — Expert Guidance on Template Selection',
     '',
     coachingText,
-    summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : ''
+    summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : '',
+    advisorProfileText
+      ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. Reference the profile below in your recommendation exactly as you would answers given in conversation.\n\n' + advisorProfileText
+      : ''
   ].join('\n')
 
   const messages = [
