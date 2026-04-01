@@ -1,14 +1,38 @@
-import OpenAI from 'openai'
-import { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } from '../../utils/templates.js'
-import { formatCoachingForPrompt } from '../../utils/coaching.js'
+/**
+ * RESTIFY ROUTE REFERENCE — for the backend team to implement on the Node.js/Restify server.
+ *
+ * This replaces the old Nuxt 3 server API (server/api/advisor/query.post.js).
+ * OpenAI must NOT be called from the Nuxt 2 frontend — it must live here.
+ *
+ * DEPENDENCIES (install on the Restify server):
+ *   npm install openai@^4.x
+ *
+ * DATA FILES required (copy from this project):
+ *   data/templates.json
+ *   data/coaching-reference.json
+ *   server/utils/templates.js
+ *   server/utils/coaching.js
+ *
+ * REGISTER in your Restify server setup:
+ *   server.post('/api/advisor/query', advisorQuery)
+ *
+ * CORS: Ensure the Restify server allows requests from the Nuxt 2 app origin.
+ *
+ * The Nuxt 2 app proxies to this route via server-middleware/advisor.js.
+ * Set API_BASE_URL in the Nuxt 2 .env to point to this Restify server.
+ */
 
-const client = new OpenAI({
+const OpenAI = require('openai')
+const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('./utils/templates')
+const { formatCoachingForPrompt } = require('./utils/coaching')
+
+const openaiClient = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 })
 
 const SYSTEM_PROMPTS = {
 
-client: `You are the Virtual Advisor for Advisor-e, an advisory platform used by accounting firms to deliver business advisory services to their clients.
+  client: `You are the Virtual Advisor for Advisor-e, an advisory platform used by accounting firms to deliver business advisory services to their clients.
 
 Your role is to guide the advisor through a structured conversation — understanding their client first, then the advisor themselves — before recommending any template. This order matters: the right template depends on who it's being delivered to, and how capable the advisor is of delivering it.
 
@@ -118,7 +142,7 @@ End every response with ONE specific, direct follow-up such as:
 - "Is there another client situation you'd like to work through?"
 - "Are you ready to go, or would you like to rehearse the opening?"`,
 
-discover: `You are the Virtual Advisor for Advisor-e, an advisory platform used by accounting firms to deliver business advisory services to their clients.
+  discover: `You are the Virtual Advisor for Advisor-e, an advisory platform used by accounting firms to deliver business advisory services to their clients.
 
 The advisor wants to find a specific template — by concept, capability, or a name they half-remember. Your job is to match it, then help them deliver it. Follow these steps in strict order.
 
@@ -196,43 +220,36 @@ After giving delivery advice, always close by offering to draft an email or open
 
 }
 
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const { query, mode = 'client', orgTemplateIds, conversationHistory = [] } = body
-  const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client
+const OPENING_MSG = {
+  client: 'Great — let\'s work through this together.\n\nTo find the right template, I need to understand your client first, then we\'ll look at you as the advisor.\n\n**What\'s the core situation or challenge you\'re looking to address with this client?**',
+  discover: 'Sure — let\'s find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does ("something that helps clients understand their cash flow"), by a combination of topics ("strategic planning plus team engagement"), or by a name you half-remember ("something like the Working Capital one"). The more detail you give, the better I can match it.**'
+}
 
-  if (!query?.trim()) {
-    throw createError({ statusCode: 400, statusMessage: 'Query is required' })
+/**
+ * Restify route handler for POST /api/advisor/query
+ *
+ * @param {object} req - Restify request
+ * @param {object} res - Restify response
+ * @param {function} next - Restify next
+ */
+async function advisorQuery (req, res, next) {
+  const { query, mode = 'client', orgTemplateIds, conversationHistory = [] } = req.body
+
+  if (!query || !query.trim()) {
+    res.send(400, { error: 'Query is required' })
+    return next()
   }
 
-  // Get templates scoped to this org
+  const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client
   const orgTemplates = getOrgTemplates(orgTemplateIds || null)
-
-  // Pre-filter by relevance to avoid sending all 195 templates
   const relevantTemplates = filterTemplatesByQuery(orgTemplates, query, 40)
-
-  // Fall back to all org templates if no keyword matches (broad question)
   const templatesToUse = relevantTemplates.length > 0 ? relevantTemplates : orgTemplates.slice(0, 40)
 
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = formatCoachingForPrompt()
 
-  const contextMessage = `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)
+  const contextMessage = `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)\n\n${templatesText}\n\n---\n\n## Coaching Reference — Expert Guidance on Template Selection\n\n${coachingText}`
 
-${templatesText}
-
----
-
-## Coaching Reference — Expert Guidance on Template Selection
-
-${coachingText}`
-
-  const OPENING_MSG = {
-    client: `Great — let's work through this together.\n\nTo find the right template, I need to understand your client first, then we'll look at you as the advisor.\n\n**What's the core situation or challenge you're looking to address with this client?**`,
-    discover: `Sure — let's find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does ("something that helps clients understand their cash flow"), by a combination of topics ("strategic planning plus team engagement"), or by a name you half-remember ("something like the Working Capital one"). The more detail you give, the better I can match it.**`
-  }
-
-  // Build message history for multi-turn conversation
   const messages = [
     { role: 'user', content: contextMessage },
     { role: 'assistant', content: OPENING_MSG[mode] || OPENING_MSG.client },
@@ -240,38 +257,46 @@ ${coachingText}`
     { role: 'user', content: query }
   ]
 
-  // Stream the response
-  setHeader(event, 'Content-Type', 'text/event-stream')
-  setHeader(event, 'Cache-Control', 'no-cache')
-  setHeader(event, 'Connection', 'keep-alive')
+  // Set SSE headers for streaming
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
 
-  const stream = await client.chat.completions.create({
-    model: 'gpt-4o',
-    max_tokens: 1024,
-    stream: true,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      ...messages
-    ]
-  })
+  try {
+    const stream = await openaiClient.chat.completions.create({
+      model: 'gpt-4o',
+      max_tokens: 1024,
+      stream: true,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ]
+    })
 
-  const encoder = new TextEncoder()
-  const responseStream = new ReadableStream({
-    async start(controller) {
-      for await (const chunk of stream) {
-        const text = chunk.choices[0]?.delta?.content || ''
-        if (text) {
-          const data = JSON.stringify({ type: 'delta', text })
-          controller.enqueue(encoder.encode(`data: ${data}\n\n`))
-        }
-        if (chunk.choices[0]?.finish_reason === 'stop') {
-          const done = JSON.stringify({ type: 'done' })
-          controller.enqueue(encoder.encode(`data: ${done}\n\n`))
-        }
+    for await (const chunk of stream) {
+      const text = chunk.choices[0] && chunk.choices[0].delta && chunk.choices[0].delta.content
+        ? chunk.choices[0].delta.content
+        : ''
+      if (text) {
+        res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
       }
-      controller.close()
+      if (chunk.choices[0] && chunk.choices[0].finish_reason === 'stop') {
+        res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
+      }
     }
-  })
 
-  return sendStream(event, responseStream)
-})
+    res.end()
+  } catch (err) {
+    console.error('[advisorQuery] OpenAI error:', err.message)
+    if (!res.headersSent) {
+      res.send(500, { error: 'AI service error' })
+    } else {
+      res.write('data: ' + JSON.stringify({ type: 'error', message: 'AI service error' }) + '\n\n')
+      res.end()
+    }
+  }
+
+  return next()
+}
+
+module.exports = { advisorQuery }

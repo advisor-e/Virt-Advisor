@@ -1,0 +1,634 @@
+[
+  {
+    "name": "1st Response Email",
+    "section": "Client On-Boarding",
+    "purpose": "This template establishes a structured, \"Agile Theory\" project management approach right from the initial inquiry. It breaks the engagement into Feasibility, Planning, and Implementation stages.",
+    "helpsOwner": "It reduces the business owner's risk and upfront costs by using a metaphor of \"assessing structural integrity\" before committing to final budgets, ensuring they only pay for a targeted feasibility stage initially.",
+    "helpsAdvisor": "It helps the advisor qualify prospects and secure an upfront fee (e.g., $5,000 + GST) for the initial discovery and feasibility work, rather than doing this work for free. It also sets clear expectations for the client's time commitment (e.g., 5 hours and 3 meetings).",
+    "indicators": "Advisors or consultants responding to a prospect's initial tender, project inquiry, or request for time."
+  },
+  {
+    "name": "Advisory Pricing Model",
+    "section": "Client On-Boarding",
+    "purpose": "This comprehensive spreadsheet template provides a modular pricing and scoping framework for a wide variety of advisory services, ranging from strategic planning and marketing reviews to detailed M&A due diligence.",
+    "helpsOwner": "It provides the client with extreme transparency, showing exactly what objectives are being tackled, the number of meetings, and the specific time and value allocated to each component of their business development.",
+    "helpsAdvisor": "It allows the firm to calculate profitable pricing by assigning specific hourly rates to different team members and tracking travel, prep, and advisory time. It also includes a robust scoping model to ensure complex jobs, like due diligence, are sequenced and costed thoroughly.",
+    "indicators": "Accounting and advisory firms that need to standardize their pricing structure, delegate tasks to a team, and scope complex multi-stage consulting projects."
+  },
+  {
+    "name": "Advisory Proposal",
+    "section": "Client On-Boarding",
+    "purpose": "This slide deck template visually and logically structures a service pitch following a discovery meeting.",
+    "helpsOwner": "It clearly links the owner's desired \"Milestones\" and goals with their specific \"Legitimate Constraints\" (what is holding them back), ensuring they feel heard and understood. It also breaks down the investment into manageable monthly payments.",
+    "helpsAdvisor": "It creates a professional, persuasive narrative that guides the prospect from their problems to the advisor's recommended solutions and required investment. It also includes a standardized \"Variation to Scope of Works\" to cleanly handle future out-of-scope requests.",
+    "indicators": "Advisors presenting a formal plan of attack and fee structure to a prospect after an initial discovery session."
+  },
+  {
+    "name": "Get. TCM.Quiz Link Email",
+    "section": "Client On-Boarding",
+    "purpose": "A brief, low-friction communication designed to generate immediate client engagement.",
+    "helpsOwner": "It respects their time by taking less than 3 minutes to complete on a smartphone and helps them immediately focus on what needs attention in their business over the next 90 days.",
+    "helpsAdvisor": "It acts as a quick lead-generation or diagnostic tool, allowing the advisor to collect preliminary data and follow up with highly targeted guidance.",
+    "indicators": "Advisors looking to re-engage their existing client base or warm up prospects with a simple interactive assessment."
+  },
+  {
+    "name": "Get. 5 Layers Questionnaire",
+    "section": "Client On-Boarding",
+    "purpose": "An extensive, color-coded diagnostic tool (Green, Yellow, Orange, Red, Grey) that covers the entire business lifecycle from launch to maturity and exit.",
+    "helpsOwner": "It prompts deep critical thinking, asking the owner to evaluate their financial models, marketing awareness, team functionality, risk management, and succession plans, helping them identify operational blind spots.",
+    "helpsAdvisor": "It provides a structured agenda for a discovery meeting (focused on identifying problems, not immediate solutions). By the end of the questionnaire, the advisor has a clear understanding of the client's readiness, budget, and timeline to begin a business development program.",
+    "indicators": "Advisors conducting deep-dive strategic planning sessions or formal discovery meetings to uncover wide-ranging business issues."
+  },
+  {
+    "name": "Get. Invitation Email",
+    "section": "Client On-Boarding",
+    "purpose": "Provides three different tonal options (Enthusiastic, Conservative, and a \"Mental Gym\" metaphor) for inviting clients to a cloud-based business improvement portal.",
+    "helpsOwner": "It clearly explains the value of the new portal (24/7 access, centralized meeting notes, action plans, and problem-solving templates) and provides simple, step-by-step registration instructions.",
+    "helpsAdvisor": "It streamlines the onboarding process for new tech tools, frames the portal as a high-value service, and includes automated steps (like unlocking resources only after the client registers) to drive client compliance.",
+    "indicators": "Firms rolling out a new client-facing software platform or business improvement portal and needing to drive user adoption."
+  },
+  {
+    "name": "New Client Details Form",
+    "section": "Client On-Boarding",
+    "purpose": "A standardized administrative document to capture structural, contact, and financial information.",
+    "helpsOwner": "Ensures all of their primary and additional trading entities, shareholding splits, and preferred income types (salary, PAYE, drawings) are documented accurately for compliance and billing.",
+    "helpsAdvisor": "Centralizes critical onboarding data, preventing administrative errors and ensuring the firm has all necessary tax numbers, billing addresses, and digital profiles (website, Facebook) on file.",
+    "indicators": "Administrative staff and advisors formally onboarding a new business client."
+  },
+  {
+    "name": "Schedule Based Pricing",
+    "section": "Client On-Boarding",
+    "purpose": "Provides a framework and presentation to explain workload management, priority service fees, and necessary fee increases.",
+    "helpsOwner": "It gives them the option to pay a \"Priority Schedule Fee\" to jump the queue if they have urgent deadlines (like bank covenants or trust payments), treating it like \"business class\" priority baggage.",
+    "helpsAdvisor": "It allows the firm to smooth out their 12-month compliance workload by categorizing clients, monetizing rush jobs to cover staff overtime, and provides a scripted email template to justify fee increases using logical reasons (cost of living, compliance intensity).",
+    "indicators": "Accounting firms facing seasonal bottlenecks, needing to implement priority pricing, or preparing to communicate a price hike to their client base."
+  },
+  {
+    "name": "E.O.Y Client Review Sheet - Input",
+    "section": "End of Year Content",
+    "purpose": "A comprehensive diagnostic checklist used to review a client's business across multiple dimensions, including Governance, Ownership, Structure, Management Reporting, Financials, Technology, Taxation, and HR.",
+    "helpsOwner": "It provides a holistic health check of their business, uncovering blind spots related to business value, risk management, succession planning, and technology usage.",
+    "helpsAdvisor": "It acts as a structured framework to assess the client's current status and deliberately identify \"Opportunities for Further Assistance\" (advisory services or cross-selling).",
+    "indicators": "The client has a multi-faceted business, is asking questions about structural or tax efficiency, or the advisor wants to conduct a thorough pre-meeting audit to spot advisory opportunities."
+  },
+  {
+    "name": "EOY Presentation Decks (Frame, Agenda, V2, and Rural)",
+    "section": "End of Year Content",
+    "purpose": "A series of visual slide decks designed to structure the EOY meeting. They smoothly transition the conversation from reviewing historical accounts to discussing advisory concepts like the \"Growth Curve,\" \"Volatility,\" and creating a \"Start, Stop, Keep\" action plan. The \"Rural\" deck is specifically tailored for farming clients, while \"V2\" focuses on exploring revenue capacity.",
+    "helpsOwner": "It helps them visualize complex business concepts, such as where they sit on the 9-stage Growth Curve, and guides them in creating tangible action steps for the future. For farmers, it aligns their timeframe with strategic spending (e.g., new tractors vs. overseas holidays).",
+    "helpsAdvisor": "It provides a visual, step-by-step agenda that controls the meeting's pace, handles psychological framing (bridging the \"Personal Zone\" to the \"Business Zone\"), and standardizes the delivery of advisory concepts.",
+    "indicators": "The client is scheduled for an annual accounts review. You would use the *Rural* deck for agribusiness clients, the *V2* deck for clients needing to focus on revenue probability, and the standard *Agenda* for clients experiencing cash or sales volatility."
+  },
+  {
+    "name": "EOY Scripts Only",
+    "section": "End of Year Content",
+    "purpose": "A dedicated document containing the psychological framing structures, rehearsal reminders, and specific dialogue prompts for introducing concepts like the Growth Curve or Volatility Report.",
+    "helpsOwner": "It ensures the meeting is communicated in a way that resonates with their specific mindset (macro-vision vs. micro-vision) and keeps them engaged.",
+    "helpsAdvisor": "It provides exact wording to assert status, assume permission, and navigate difficult client temperaments (e.g., an \"Angry Couple,\" a \"Depressed Guy,\" or an \"Extremely withdrawn\" client).",
+    "indicators": "The advisor is preparing for a meeting with a challenging or emotional client, or the advisor needs to rehearse how to seamlessly introduce complex advisory concepts without sounding unprepared."
+  },
+  {
+    "name": "General Agenda",
+    "section": "End of Year Content",
+    "purpose": "A recurring meeting agenda template used to document session objectives, track specific agenda items, and record future action points.",
+    "helpsOwner": "It holds them accountable by tracking whether previous action plan tasks were completed and keeps the current meeting focused on specific, written goals (e.g., \"failed to secure enough sales\").",
+    "helpsAdvisor": "It standardizes meeting documentation and provides a reliable paper trail of client progress and task completion across multiple coaching or advisory sessions.",
+    "indicators": "The client is engaged in an ongoing coaching or advisory relationship that requires regular, structured follow-up meetings."
+  },
+  {
+    "name": "Management Reporting Annual Plan (Advisory Board Plan)",
+    "section": "End of Year Content",
+    "purpose": "A 12-month calendar template scheduling specific operational and strategic topics for an Advisory Board or management team (e.g., Strategic Planning in Feb, Budgets in April, Tech/Risk in Sept).",
+    "helpsOwner": "It instills a disciplined, year-round corporate governance structure, ensuring that all vital areas of the business are reviewed annually without being overwhelming.",
+    "helpsAdvisor": "It creates a clear roadmap for recurring advisory revenue, detailing exactly what board packs and reports (e.g., Sales Manager Report, KPI Reports) need to be prepared each month.",
+    "indicators": "The client's business is mature enough to require an Advisory Board, or the client needs structured, monthly management reporting and governance."
+  },
+  {
+    "name": "EOY Quiz Questions",
+    "section": "End of Year Content",
+    "purpose": "A brief questionnaire template designed to test the client's knowledge of fundamental business metrics, such as customer acquisition costs, variable vs. fixed costs, and shareholder loan accounts.",
+    "helpsOwner": "It forces them to reflect on their financial literacy and highlights specific blind spots in their understanding of their own business costs.",
+    "helpsAdvisor": "It quickly identifies gaps in the client's financial knowledge, allowing the advisor to tailor the upcoming meeting to those specific educational needs.",
+    "indicators": "The client struggles with pricing, cash flow, or understanding their fixed vs. variable costs, or the advisor wants a quick assessment of a new prospect's financial acumen."
+  },
+  {
+    "name": "6 Hats Thinking",
+    "section": "General Tools",
+    "purpose": "To introduce a framework for collaborative \"parallel thinking\" over traditional \"argument thinking,\" helping teams avoid confirmation bias and cross-purpose discussions.",
+    "helpsOwner": "It directs the minds of the team using a shared structure and language, ensuring everyone focuses on the same topic and views issues from multiple perspectives (creative, critical, emotional, etc.), which enhances problem-solving and innovation.",
+    "helpsAdvisor": "It increases the effectiveness of business planning sessions 10-fold by getting all participants focused and using the same terminology.",
+    "indicators": "The client’s team frequently experiences conflict, confusion, ego-clashes, or \"trips over each other\" during meetings."
+  },
+  {
+    "name": "90 Day Accounting Best Practice Plan",
+    "section": "General Tools",
+    "purpose": "A 90-day training program covering four key sessions (Coding, Transactions, Quality Control, and Close Off) to teach best practices for using financial software like Xero.",
+    "helpsOwner": "It prevents costly mistakes, \"surprise\" tax bills, and ensures the business's chart of accounts is aligned with what the owner actually wants to measure.",
+    "helpsAdvisor": "It creates a paid, structured engagement ($1,500 - $1,800) and prevents the advisor from having to untangle \"birds-nest nightmares\" caused by untrained staff.",
+    "indicators": "The client's financial administrator is out of their depth, the accounts require constant clean-up, or the client needs actionable KPI reports rather than just tax data."
+  },
+  {
+    "name": "Dashboard Discussions",
+    "section": "General Tools",
+    "purpose": "A framework for evaluating financial ratios (e.g., Sales to Gross Profit, Wages to Sales) by breaking down costs into Variable (Do the Job), Activity (Get the Job), and Fixed (Get Organised) categories.",
+    "helpsOwner": "It helps them identify the root causes of their financial data (Cause - Event - Effect) and determine which tactical options will have the greatest influence on their business.",
+    "helpsAdvisor": "It sets the advisor's role to \"Challenge What You Believe To Be True,\" positioning them as a strategic partner who guides the client to look beyond just the numbers.",
+    "indicators": "The client relies on assumptions instead of facts, struggles to interpret financial metrics, or needs help understanding how operational decisions impact profitability."
+  },
+  {
+    "name": "One Page Supposition (Accme Business Case)",
+    "section": "General Tools",
+    "purpose": "A condensed business case template designed to evaluate the viability of a new idea by assessing the \"Big Idea\", target customers, revenue models, and the \"Acid Test\" (key obstacles and risks).",
+    "helpsOwner": "It forces them to identify potential competitive advantages, infrastructure requirements, and a \"Ripcord\" strategy to collapse the business quickly if it fails.",
+    "helpsAdvisor": "It provides a rapid, structured way to assess a client's new venture without needing a 50-page business plan.",
+    "indicators": "The client wants to launch a new product, pivot their service, or start a completely new business enterprise."
+  },
+  {
+    "name": "The 8 Profit Levers",
+    "section": "General Tools",
+    "purpose": "To break down the components of profitability into 8 controllable levers: Foot-traffic, Prospects, Customers, Customer Spend, Customer Frequency, Sales Margin, Activity Costs, and Fixed Costs.",
+    "helpsOwner": "It visually demonstrates how small, incremental improvements across multiple levers (e.g., converting 20% of prospects instead of 8%) can lead to massive profit increases.",
+    "helpsAdvisor": "It transitions abstract financial goals into a concrete Action Plan where the advisor can assign specific tasks and deadlines to improve specific business functions.",
+    "indicators": "The client wants to increase profits but doesn't know where to focus, or they are suffering from a \"Profit Plateau\"."
+  },
+  {
+    "name": "Working Capital Cycle",
+    "section": "General Tools",
+    "purpose": "To explain the flow of \"Money in Movement\" (Working Capital) versus \"The cost of being in business\" (Fixed Capital), highlighting how time delays affect cashflow.",
+    "helpsOwner": "It shows how delayed collection cycles (e.g., 60 days vs 30 days) drastically reduce stock turn and available cash, and demonstrates the danger of discounting prices.",
+    "helpsAdvisor": "It allows the advisor to model scenarios showing exactly how much working capital is needed to support growth, warning clients away from dangerous \"over-trading\" (funding growth primarily via debt).",
+    "indicators": "The client is growing rapidly but running out of cash, considering discounting to win work, or using long-term debt to fund short-term stock cycles."
+  },
+  {
+    "name": "4 Part Business Plan",
+    "section": "General Tools",
+    "purpose": "A comprehensive planning tool combining Market Assumptions, Business Owner Expectations, an 8 Lever Action Plan, and a Revenue Model.",
+    "helpsOwner": "It aligns the business's growth stages with the owner's personal goals (e.g., desired income, weekly hours, weeks of annual leave) and clearly tracks business development over multiple years.",
+    "helpsAdvisor": "It secures long-term engagement by breaking growth into manageable stages (Stage 1, 2, 3) and mapping out the specific tasks required.",
+    "indicators": "The client feels overworked (seeking \"Ikigai\" or purpose), wants to significantly scale up, or lacks a long-term strategic direction."
+  },
+  {
+    "name": "Debtor Protocols & Business Drag Model",
+    "section": "General Tools",
+    "purpose": "Provides a step-by-step system, phone scripts, and communication templates (like the 'Lolly Letter') to recover outstanding debts, alongside a spreadsheet to model the financial \"drag\" of unpaid invoices.",
+    "helpsOwner": "It overcomes the psychological barriers (like role-identification and fear of confrontation) that stop owners from demanding payment, providing them with structured, polite, but firm methods to get their cash back.",
+    "helpsAdvisor": "It allows the advisor to implement immediate, tangible cash-flow improvements for the client, proving the value of the advisory relationship.",
+    "indicators": "The client relies heavily on a few large customers who pay late, the person doing admin avoids calling debtors, or the client feels they have \"no right\" to demand payment."
+  },
+  {
+    "name": "Rubbish in - Rubbish Out",
+    "section": "General Tools",
+    "purpose": "To establish clean financial data management by correctly organizing the Chart of Accounts into Variable, Activity, and Fixed costs (using a \"Filing Cabinet\" analogy).",
+    "helpsOwner": "It ensures they are gathering accurate data so they can measure the effects of major decisions (e.g., expanding premises or hiring) and know early enough if a decision was wrong.",
+    "helpsAdvisor": "It cleans up the client's books, allowing the advisor to generate accurate KPIs and measure what actually matters to the business's success.",
+    "indicators": "The client cannot measure the impact of recent business changes, or their accounts are \"jumbled up\" and unhelpful for decision-making."
+  },
+  {
+    "name": "What's Applicable (Technology)",
+    "section": "General Tools",
+    "purpose": "A review to identify where software and technology can be applied across business areas (Inbound, Outbound, Sales, Workflow, Inventory, etc.) to improve either efficiency or effectiveness.",
+    "helpsOwner": "It helps them identify repetitive, everyday tasks that can be automated without reducing their effectiveness with customers.",
+    "helpsAdvisor": "It provides a structured way to audit a client's operational software and recommend tools (like CRM, workflow management, or OCR receipt feeds).",
+    "indicators": "The client's administration is heavily manual, they struggle to track job costing, or their sales engagement is unorganized."
+  },
+  {
+    "name": "The Customer Journey",
+    "section": "General Tools",
+    "purpose": "To map out the \"Revenue Story\"—how customers find, trust, and buy from the business—tracking the journey from Total Available Market down to Lifetime Customer Value.",
+    "helpsOwner": "It helps identify exactly where the marketing or sales journey is \"breaking down\" and prompts them to address the specific frustrations or frictions stopping target profiles from purchasing.",
+    "helpsAdvisor": "It broadens the advisory scope into sales and marketing, allowing the advisor to help construct outbound messaging and product reviews.",
+    "indicators": "The client has high exposure but few prospects, or lots of initial sales but no loyal customers or referrals."
+  },
+  {
+    "name": "Demings Volatility",
+    "section": "General Tools",
+    "purpose": "Explains that calculating simple averages is flawed for predicting performance; introduces Standard Deviation to plot natural business volatility.",
+    "helpsOwner": "It establishes a \"likely range\" of performance, helping them avoid making knee-jerk decisions when sales naturally dip, or becoming complacent when sales naturally spike.",
+    "helpsAdvisor": "It provides a more sophisticated tool for forecasting and performance review, separating normal variation from actual business decline.",
+    "indicators": "The client has a highly seasonal business, or frequently panics over month-to-month sales fluctuations."
+  },
+  {
+    "name": "Quick Fire Diagnosis",
+    "section": "General Tools",
+    "purpose": "A rapid, 30-minute triage tool to determine if a business is in \"Distress\" or \"Growth\" mode, and to pinpoint the biggest problem areas across Getting Organised, Getting the Job, or Doing the Job.",
+    "helpsOwner": "It makes the problem-solving logic \"visible\", moving them out of denial or confusion and empowering them with a clear path forward (whether that is salvage, liquidation, or growth).",
+    "helpsAdvisor": "It acts as a diagnostic roadmap, telling the advisor exactly which templates (e.g., Quick Position, Revenue Model, Lite Fundamentals) to use based on the client's current crisis or goal.",
+    "indicators": "The client states \"I'm unhappy about our business performance\" or \"I'm worried we might go under,\" but doesn't know the specific root cause."
+  },
+  {
+    "name": "The HOPE Recession Model",
+    "section": "General Tools",
+    "purpose": "To map the standard economic cycle and explain the sequence of an economic slowdown: Housing, Orders, Profits, Employment.",
+    "helpsOwner": "It forces them to consider macroeconomic threats and develop a Strategic Withdrawal Plan (e.g., identifying assets to sell or staff redundancies) before emotional distress sets in.",
+    "helpsAdvisor": "It positions the advisor as a critical sounding board for risk management and contingency planning.",
+    "indicators": "The broader economy is facing inflation or rising interest rates, or the client operates in a highly cyclical industry with no defensive strategy."
+  },
+  {
+    "name": "KPI's",
+    "section": "General Tools",
+    "purpose": "A selection menu of Financial and Non-Financial Key Performance Indicators (e.g., WIP Days, Customer Satisfaction, Return on Assets).",
+    "helpsOwner": "Allows them to intentionally choose what they want to \"Pay Attention To\" and ensure their software is tracking it accurately.",
+    "helpsAdvisor": "It helps build standardized management reporting dashboards tailored to the client's goals.",
+    "indicators": "The client is not tracking their performance, or they are tracking vanity metrics instead of actionable data."
+  },
+  {
+    "name": "Lite Feasibility",
+    "section": "General Tools",
+    "purpose": "A tool for assessing the payback, risk, and break-even requirements of a specific asset purchase or funding request.",
+    "helpsOwner": "Helps calculate the required utilization rate of new equipment and identify a \"Ripcord\" strategy (how to sell the asset if the venture fails).",
+    "helpsAdvisor": "Provides a quick framework to validate or challenge a client's capital expenditure plans before they commit financially.",
+    "indicators": "The client wants to buy new machinery, expand operations, or take out a business loan."
+  },
+  {
+    "name": "People vs. Process",
+    "section": "General Tools",
+    "purpose": "A diagnostic tool to determine if operational failures are due to the People (Do they Know, Do, and Care?) or the Process (Six Sigma, Lean, Constraint Theory).",
+    "helpsOwner": "It clarifies exactly where the bottleneck is, preventing them from unfairly blaming staff for a broken system, or trying to fix a system when staff lack basic skills or motivation.",
+    "helpsAdvisor": "It provides an objective framework to analyze operational efficiency and customer promise alignment.",
+    "indicators": "The client complains about staff performance, quality control issues, or frequent production bottlenecks."
+  },
+  {
+    "name": "Business Structure Options",
+    "section": "General Tools",
+    "purpose": "Reviews the primary legal structures (Sole Trader, Partnership, Company, Trust) and explains the concept of the \"Corporate Veil\" and separate legal entities.",
+    "helpsOwner": "Ensures they understand how to protect what they build, how liability works, and how their structure impacts their ability to sell the business in the future.",
+    "helpsAdvisor": "Allows the advisor to have a proactive conversation about asset protection, succession, and risk without giving formal legal advice.",
+    "indicators": "The client is starting a new business, operating in a highly litigious industry, taking on a partner, or amassing significant working assets."
+  },
+  {
+    "name": "80/20 Farm Plan",
+    "section": "Strategic Tools",
+    "purpose": "Applies the Pareto Principle (80% of results come from 20% of activities) specifically to agricultural businesses. It breaks the farm down into four focus areas: Financial, Herd, People, and Land Management.",
+    "helpsOwner": "Allows the farmer to choose specific focus periods (30, 60, 90 days), set realistic tasks, and map specific daily practices (e.g., herd hydration, pasture management, machinery maintenance) directly to financial consequences and key points of measurement.",
+    "helpsAdvisor": "Provides a structured, industry-specific framework to consult on farm metrics and translate physical farming activities into financial discussions.",
+    "indicators": "The client operates an agricultural or farming business and needs help prioritizing daily operations to improve financial yield."
+  },
+  {
+    "name": "9 Growth Aspect Questions & Graphic",
+    "section": "Strategic Tools",
+    "purpose": "A diagnostic tool that divides a business into nine holistic aspects: Process Improvement, Customer Focus, Sales, Authenticity, Inventory & Equipment, Team Focus, Innovation, Governance, and Harmony/Balance.",
+    "helpsOwner": "Prompts deep reflection via specific questions on all facets of their business—from checking their ideal client profile to assessing their own physical fitness and work-life balance.",
+    "helpsAdvisor": "Acts as a comprehensive \"health check\" to uncover hidden bottlenecks, allowing the advisor to pinpoint exactly where the client needs the most strategic intervention.",
+    "indicators": "A new client onboarding process, or when an existing client feels \"stuck\" but cannot articulate exactly which part of the business is failing."
+  },
+  {
+    "name": "ADV.0. Planning Outcomes",
+    "section": "Strategic Tools",
+    "purpose": "Sets the agenda, collaborative rules, and scope for a strategic planning session across four domains: Business Targets, Strategic Orientation, Organisational Review, and Sales & Marketing.",
+    "helpsOwner": "Prepares them mentally to explore issues with an \"open heart and an open mind,\" clarifying exactly what deliverables they will walk away with.",
+    "helpsAdvisor": "Defines the advisor’s role clearly (to \"Challenge What You Believe To Be True!\") and provides a roadmap to structure the planning session without getting derailed.",
+    "indicators": "The beginning of any major strategic planning cycle or workshop."
+  },
+  {
+    "name": "Advance.1. Bizz Targets & BO Expectations",
+    "section": "Strategic Tools",
+    "purpose": "Helps define and map out tangible business targets (revenue, profit, debt) and aligns them with Business Owner (BO) lifestyle expectations (income, weekly hours, annual leave) across current and future stages. It also explores the 8 Profit Levers to tacticalize growth.",
+    "helpsOwner": "Forces owners to quantify their end-game and lifestyle goals, map their current business development stage (from Design to Maturity/Exit), and clearly see how their personal time must shift from technician duties to strategic duties.",
+    "helpsAdvisor": "Translates a client's abstract desires into a numerical roadmap, providing a clear mathematical and tactical gap analysis to consult against.",
+    "indicators": "Business owners who are burnt out, partners who have misaligned goals, or businesses needing to translate goals into mathematical targets."
+  },
+  {
+    "name": "Advance.2 & 2B. Strategic Orientation (Part 1 & 2)",
+    "section": "Strategic Tools",
+    "purpose": "Explores high-level strategic frameworks to review the business model. It utilizes tools like Porter’s 5 Forces, Joseph Pine’s Progression of Economic Value, the Sigmoid Curve, Blue Ocean Strategy, and Deming's Volatility Theory.",
+    "helpsOwner": "Challenges market assumptions, helps anticipate competitor/supplier movements, identifies when a product might become obsolete, and helps shift offerings from commodities to premium experiences. It also helps owners recognize their own \"Psyche Errors\" like Optimism Bias or Complacency.",
+    "helpsAdvisor": "Elevates the conversation from operational tactics to high-level market strategy, providing robust frameworks to guide clients through complex market environments.",
+    "indicators": "Clients facing heavy competition, market disruption, stagnant product sales, or those needing to rethink their fundamental value proposition."
+  },
+  {
+    "name": "Advance.4. S.W.O.T PEST",
+    "section": "Strategic Tools",
+    "purpose": "A traditional internal/external analysis matrix (Strengths, Weaknesses, Opportunities, Threats) combined with P.E.S.T. (Political, Economic, Social, Technological) prompts.",
+    "helpsOwner": "Provides a straightforward way to assess their current market position, internal resource gaps, and external regulatory or economic impacts.",
+    "helpsAdvisor": "Quickly captures a snapshot of the client’s situational awareness and environmental risks.",
+    "indicators": "Clients needing a foundational baseline assessment before making a major strategic decision."
+  },
+  {
+    "name": "Advance.5. Sales & Marketing Review",
+    "section": "Strategic Tools",
+    "purpose": "Reviews the entire customer acquisition and retention journey using frameworks like the A.I.D.C.R.A model, 10 Critical Marketing Messages, Digital Funnel Storyboarding, and Packaging/Pricing options.",
+    "helpsOwner": "Shifts their focus from loving their product to understanding customer friction. It helps build a structured digital funnel to onboard clients and create sticky, concise marketing messages.",
+    "helpsAdvisor": "Provides a step-by-step diagnostic tool to find \"leaks\" in the client's sales pipeline and build a cohesive, multi-channel marketing plan.",
+    "indicators": "Clients with great products but poor sales, high customer acquisition costs, or those transitioning to digital marketing."
+  },
+  {
+    "name": "Advance.6. Organisational Review & Org Chart",
+    "section": "Strategic Tools",
+    "purpose": "Focuses on internal efficiencies and team engagement by mapping communication channels, defining cultural core values, and building formal Organizational Charts with clear reporting lines and KPIs.",
+    "helpsOwner": "Clarifies \"who is responsible for what,\" helps define a safe social contract (culture) for the team, and establishes a military-style chain of command to ensure consistent actions under pressure.",
+    "helpsAdvisor": "Exposes structural bottlenecks, toxic cultural habits, or overlapping leadership roles that are hindering business execution.",
+    "indicators": "Companies experiencing rapid team growth, high staff turnover, operational chaos, or owners struggling to delegate."
+  },
+  {
+    "name": "Business Dating",
+    "section": "Strategic Tools",
+    "purpose": "Uses the metaphor of relationships (One Night Stand, Dating, Engaged, Married) to evaluate Alliance vs. Acquisition strategies based on the matrix of Attraction vs. Security/Commitment.",
+    "helpsOwner": "Prevents owners from rushing into a \"marriage\" (acquisition/merger) without proper due diligence or alignment of cultures.",
+    "helpsAdvisor": "Provides a non-threatening, easily understood metaphor to facilitate complex conversations about the risks of M&A and joint ventures.",
+    "indicators": "Clients considering buying a competitor, merging, or forming a deep strategic partnership."
+  },
+  {
+    "name": "Force Field Analysis",
+    "section": "Strategic Tools",
+    "purpose": "A conflict resolution and brainstorming tool to identify the forces pushing a group toward a goal and the forces holding them back.",
+    "helpsOwner": "Visually separates the people from the problem (\"play the ball, not the player\"), reducing guilt/shame while building urgency by defining the \"Worst Case\" scenario.",
+    "helpsAdvisor": "Acts as an excellent \"bloodletting\" exercise to manage a group with potential for conflict, enabling the advisor to unblock stalled planning.",
+    "indicators": "Teams facing internal resistance to change, conflict between directors, or a failure to execute past plans due to hidden fears."
+  },
+  {
+    "name": "Lite Strategy",
+    "section": "Strategic Tools",
+    "purpose": "A highly condensed, agile business plan encompassing the growth curve, target customer, ethos, profit levers, and a three-part market assumption test (Situation, Business Model, Acid Test).",
+    "helpsOwner": "Gets the core business strategy down on paper quickly without being overwhelmed by excessive theoretical models.",
+    "helpsAdvisor": "Allows for rapid deployment of a strategic plan for clients who lack the time, budget, or complexity for a massive strategic overhaul.",
+    "indicators": "Startups, small businesses, or agile clients needing a fast strategic roadmap."
+  },
+  {
+    "name": "Pivot",
+    "section": "Strategic Tools",
+    "purpose": "A rapid framework (Identify Resistance -> Choose Fronts -> Rehearse Message -> Trial Prototype -> Review) designed for agile business owners to test new directions.",
+    "helpsOwner": "Encourages testing ideas and messaging on a strict budget and timeline before committing massive capital to a full strategic shift.",
+    "helpsAdvisor": "Provides a structured way to guide an entrepreneurial client out of a crisis or into a new market iteratively.",
+    "indicators": "Clients facing a sudden market shock, an obsolete product line, or needing to quickly test a new idea."
+  },
+  {
+    "name": "Porter's & Pine",
+    "section": "Strategic Tools",
+    "purpose": "Fuses Michael Porter's 5 Competitive Forces with Joseph Pine's Progression of Economic Value (Extracting Commodities -> Making Goods -> Delivering Services -> Staging Experiences).",
+    "helpsOwner": "Shows them how to escape price wars (commoditization) by elevating their product into a premium, authentic customer experience (like Starbucks did with coffee beans).",
+    "helpsAdvisor": "Provides a powerful visual narrative to convince clients that they must invest in customer connection and experience, rather than just lowering prices to fight competitors.",
+    "indicators": "Clients whose margins are being squeezed by competitors, or businesses struggling to differentiate their standard services."
+  },
+  {
+    "name": "Asset Review 1",
+    "section": "Specialist Tools",
+    "purpose": "To audit and rate business assets based on their operational necessity (Vital, Necessary, Useful) and calculate their net value, debt, and utilization.",
+    "helpsOwner": "It provides clarity on which assets are generating enough utilization to service their debt payments and identifies items that should be held or released to free up capital.",
+    "helpsAdvisor": "It gives the advisor a structured, mathematical way to analyze a client's asset register and advise on capital release potential.",
+    "indicators": "The client has cash flow issues, underutilized equipment, high debt tied to physical assets, or needs to restructure their balance sheet."
+  },
+  {
+    "name": "Bizz Sale Assessment Model",
+    "section": "Specialist Tools",
+    "purpose": "A comprehensive financial modeling spreadsheet used to calculate a business's adjusted asset values, goodwill, payback periods, and return on investment (ROI) for a sale or purchase.",
+    "helpsOwner": "It grounds their expectations in data, showing both \"fair market\" and \"worst-case\" realization values, helping them objectively view what their business is worth.",
+    "helpsAdvisor": "It provides robust financial calculations—such as EBPITDA multipliers, depreciation, and debt serviceability—to distance valuation advice from arbitrary market guesswork.",
+    "indicators": "The client is actively looking to buy a business, sell their business, or needs a data-driven valuation for succession planning."
+  },
+  {
+    "name": "Business Assessment Report",
+    "section": "Specialist Tools",
+    "purpose": "A presentation template designed for a purchaser, breaking down the fair market value, margin for error, and investment scenarios of a prospective business acquisition.",
+    "helpsOwner": "It highlights the potential fragility of the business's ability to service the purchase price during economic declines and outlines risks like lease expiry or staff transferability.",
+    "helpsAdvisor": "It serves as a structured deliverable to present due diligence findings using \"3-Point Sensitivities\" (serviceability, goodwill repayment, and performance variance) to ground the buyer's decisions in reality.",
+    "indicators": "A client is evaluating a specific business to purchase and needs help assessing the risks and securing bank financing."
+  },
+  {
+    "name": "Business Sale Assessment Report",
+    "section": "Specialist Tools",
+    "purpose": "A presentation template designed for a vendor, demonstrating how a potential purchaser will view their business's value, risks, and future maintainable earnings.",
+    "helpsOwner": "It empowers the seller to maximize their return by understanding the \"bankable price\" a purchaser can afford, helping them prepare for negotiations and due diligence.",
+    "helpsAdvisor": "It provides a framework to manage a seller's \"Confirmation Bias\" and emotional attachment, bringing their asking price in line with realistic market and funding constraints.",
+    "indicators": "A client intends to sell their business, needs to establish a defensible asking price, or is seeking a market valuation."
+  },
+  {
+    "name": "Cafe Turnaround Behaviours",
+    "section": "Specialist Tools",
+    "purpose": "To provide structural considerations and communication scripts designed to improve customer engagement and handle complaints in a hospitality setting.",
+    "helpsOwner": "It gives them actionable, scenario-based scripts for their staff (e.g., handling a queue vs. a single customer) to improve the customer experience and increase upselling.",
+    "helpsAdvisor": "It serves as a practical, ready-made training tool for the advisor to run role-play sessions and facilitate behavioral change among the client's frontline team.",
+    "indicators": "A hospitality client is suffering from poor customer service, low average transaction values (lack of upselling), or negative online reviews."
+  },
+  {
+    "name": "Client Survey",
+    "section": "Specialist Tools",
+    "purpose": "A conversational phone script and guide for gathering honest feedback from a client's customer base regarding service expectations and communication.",
+    "helpsOwner": "It cuts through polite \"coded language\" to uncover real data on service bottlenecks, market differentiation, and areas for immediate improvement.",
+    "helpsAdvisor": "It allows the advisor to act as an objective, third-party researcher, building trust with the client's market and gathering unbiased data to drive strategic consulting.",
+    "indicators": "The client is experiencing customer churn, is unsure of their competitive advantage, or is considering changing their billing/service models."
+  },
+  {
+    "name": "Coping with the types at their worst",
+    "section": "Specialist Tools",
+    "purpose": "A psychological guide mapping the 9 Enneagram personality types to their disruptive workplace behaviors, providing specific coping and management strategies.",
+    "helpsOwner": "It provides targeted management techniques (e.g., setting clear boundaries for \"Helpers\" or separating behavior from the person for \"Achievers\") to reduce conflict and improve team dynamics.",
+    "helpsAdvisor": "It helps the advisor navigate client personality clashes and tailor their own consulting approach based on the client's \"Finder, Minder, or Grinder\" social style.",
+    "indicators": "The workplace suffers from high conflict, poor communication, or the business owner is struggling to manage specific, difficult employees."
+  },
+  {
+    "name": "DD Customer Review",
+    "section": "Specialist Tools",
+    "purpose": "A data analysis framework to segment a client's customer base by fee ranges, engagement levels, and individual salesperson performance.",
+    "helpsOwner": "It provides a stark visualization of customer concentration, showing exactly where revenue comes from and highlighting the effectiveness (or underperformance) of specific sales staff.",
+    "helpsAdvisor": "It gives the advisor hard empirical data to support recommendations on sales training, restructuring fee models, or pruning unprofitable clients.",
+    "indicators": "The client has a bloated customer roster, doesn't know their average client fee, or is struggling to manage underperforming sales team members."
+  },
+  {
+    "name": "Farm Succession Metaphor",
+    "section": "Specialist Tools",
+    "purpose": "A visual presentation that uses the metaphor of \"building a dream home\" to explain the steps of the farm succession process.",
+    "helpsOwner": "It simplifies a daunting, emotionally charged transition into logical, non-threatening steps (wish lists, concept drawings, final design), reducing family friction.",
+    "helpsAdvisor": "It gives the advisor a collaborative, visual framework that appeals to both the left and right sides of the brain, minimizing instinctual \"argumentative\" reactions from stakeholders.",
+    "indicators": "Rural or farming clients are preparing to transition the business to the next generation and are experiencing communication breakdowns or entitlement issues."
+  },
+  {
+    "name": "Financial Systems Review",
+    "section": "Specialist Tools",
+    "purpose": "A \"helicopter view\" audit checklist for evaluating a business's internal controls across revenue, expenditure, inventory, IT systems, and payroll.",
+    "helpsOwner": "It identifies operational vulnerabilities to fraud, shrinkage, and inefficiencies, ensuring basic financial safeguards (like blind cash counts or password rotations) are in place.",
+    "helpsAdvisor": "It acts as a structured discovery tool to assess client risk quickly and recommend deep-dive audits or new system implementations.",
+    "indicators": "The business relies heavily on manual cash handling, lacks formal delegated authorities, or is experiencing unexplained inventory shrinkage."
+  },
+  {
+    "name": "GE.SMART & FAST Goals",
+    "section": "Specialist Tools",
+    "purpose": "A guide to setting SMART goals that emphasizes the psychological importance of \"Affect\" (emotional connection) and strict timeframes.",
+    "helpsOwner": "It transforms vague daydreams into concrete, actionable steps, ensuring goals are rooted in deep intrinsic motivation rather than simple repetition.",
+    "helpsAdvisor": "It provides a structured workshop format to elicit a client's true life desires across various categories (financial, physical, spiritual) and align them with their business strategy.",
+    "indicators": "The client lacks strategic direction, continually fails to execute on stated business plans, or sets unachievable, open-ended targets."
+  },
+  {
+    "name": "Indicative Value Questions",
+    "section": "Specialist Tools",
+    "purpose": "A preliminary questionnaire to gather essential context on a business’s history, competitors, threats, opportunities, and key dependencies prior to a valuation.",
+    "helpsOwner": "It forces them to critically assess their market position, their reliance on key people or suppliers, and the true nature of their past expenditures.",
+    "helpsAdvisor": "It collects the raw, qualitative data required to perform an accurate comparative or asset-based business valuation.",
+    "indicators": "A client requests a business valuation for the purposes of succession, a partner buyout, or a potential sale."
+  },
+  {
+    "name": "L.Suppt.Alignment",
+    "section": "Specialist Tools",
+    "purpose": "Explains human motivation theories (Maslow, Alderfer's ERG) and the \"5 Domains\" to help craft effective Vision, Purpose, Values, Mission, and Strategy statements.",
+    "helpsOwner": "It helps leadership align their \"What We Say\" with \"What We Mean,\" unifying the team, customers, and community under a coherent culture.",
+    "helpsAdvisor": "It provides tools to facilitate a strategic retreat, preventing clients from creating hollow, \"narcissistic\" corporate statements by grounding them in cognitive patterns.",
+    "indicators": "The company lacks a clear culture, the team is misaligned, or leadership wants to formally redefine their strategic direction."
+  },
+  {
+    "name": "LS.Phone Techniques",
+    "section": "Specialist Tools",
+    "purpose": "A training presentation on standardized phone etiquette, shaping business culture, and handling difficult customers using the \"H.E.A.T\" method.",
+    "helpsOwner": "It establishes a minimum communication standard for the team, empowering them to manage \"hotheads\" effectively and create a memorable customer experience.",
+    "helpsAdvisor": "It provides a ready-to-deliver training session, complete with role-play exercises, to immediately add value to a client's frontline staff.",
+    "indicators": "The business has a high rate of customer complaints over the phone, inconsistent team greetings, or frontline staff struggling with angry callers."
+  },
+  {
+    "name": "Managing Poor Performance",
+    "section": "Specialist Tools",
+    "purpose": "A formal human resources guide—complete with Performance Improvement Plans (PIPs) and warning letter templates—for legally and fairly managing employee underperformance.",
+    "helpsOwner": "It protects the business from legal risks (such as unjustified dismissal or bullying claims) while providing a structured pathway to either improve or exit the staff member.",
+    "helpsAdvisor": "It equips the advisor to guide clients through highly stressful HR processes, offering objective steps, sample letters, and advice on handling stress-related claims.",
+    "indicators": "The client is frustrated by an underperforming employee, facing staff stress or bullying claims, or is unsure how to legally issue formal warnings."
+  },
+  {
+    "name": "Ratio Analysis",
+    "section": "Specialist Tools",
+    "purpose": "A guide on properly assimilating and interpreting financial data using ratio analysis, common size balance sheets, and external benchmarking.",
+    "helpsOwner": "It enables them to understand their true year-on-year performance without being misled by one-off events, seasonal cycles, or starting cash advantages.",
+    "helpsAdvisor": "It provides a strict methodology to ensure data is \"comparing apples with apples\" before the advisor formulates strategic recommendations.",
+    "indicators": "The client is making decisions based on skewed external benchmark data, misunderstands their financial reports, or experiences highly seasonal business cycles."
+  },
+  {
+    "name": "Remuneration & Incentives",
+    "section": "Specialist Tools",
+    "purpose": "A framework for exploring staff reward options (bonuses, profit share, equity, perks) and aligning incentives with desired business behaviors.",
+    "helpsOwner": "It helps them build fair, transparent incentive schemes that drive profitability without accidentally giving away equity or creating an expectation of unearned bonuses.",
+    "helpsAdvisor": "It allows the advisor to challenge a client's ad-hoc bonus habits and guide them toward structured, measurable output or efficiency rewards.",
+    "indicators": "The client wants to stop staff from discounting, needs to retain key talent, or is dangerously considering offering shares to an employee without understanding the pros and cons."
+  },
+  {
+    "name": "Succession Planning",
+    "section": "Specialist Tools",
+    "purpose": "An advisor preparation guide for facilitating succession planning, focusing on managing entitlement, conflict, and establishing a collaborative visual framework.",
+    "helpsOwner": "It smooths the transition of power and assets, ensuring that complex issues—like fair market wages for successors, trigger events, and funding requirements—are discussed openly.",
+    "helpsAdvisor": "It reminds the advisor to act as a *facilitator* rather than an expert dictating advice, using metaphors to bypass the client's instinctual \"Argumentative Theory\" defense mechanisms.",
+    "indicators": "An aging business owner is looking to pass the business to family or key staff, bringing a high potential for emotional conflict or complex funding needs."
+  },
+  {
+    "name": "Supplier Survey",
+    "section": "Specialist Tools",
+    "purpose": "A conversational phone script and guide to solicit feedback from a business's suppliers regarding communication, industry trends, and product utilization.",
+    "helpsOwner": "It uncovers supply chain inefficiencies, highlights new industry trends the business is missing, and identifies untapped promotional or training opportunities.",
+    "helpsAdvisor": "It acts as a tool to perform third-party supply chain analysis, helping the advisor build a broader, more objective picture of the client's operational health.",
+    "indicators": "The client has strained supplier relationships, is missing out on market trends, or is experiencing inventory and supply chain bottlenecks."
+  },
+  {
+    "name": "Team Survey",
+    "section": "Specialist Tools",
+    "purpose": "A confidential questionnaire designed to uncover internal workflow bottlenecks, delegation opportunities, and gauge overall employee alignment and satisfaction.",
+    "helpsOwner": "It provides uncensored feedback on management performance, role clarity, and cultural health straight from the team.",
+    "helpsAdvisor": "It serves as a powerful diagnostic tool to kick off a consulting engagement, highlighting immediate operational or HR issues that need addressing.",
+    "indicators": "The business suffers from high staff turnover, the owner feels overwhelmed and needs to delegate, or there is general operational inefficiency and poor communication."
+  },
+  {
+    "name": "6 Hats Thinking",
+    "section": "Governance Tools",
+    "purpose": "A collaborative framework designed by Edward De Bono to guide \"parallel thinking\" and overcome argumentative theory and confirmation bias. It uses different \"hats\" to focus discussions on logic, emotion, caution, optimism, creativity, and organization.",
+    "helpsOwner": "It aligns the team to focus on the same topic from the same perspective simultaneously, increasing the effectiveness of planning sessions tenfold and preventing well-meaning individuals from working at cross purposes.",
+    "helpsAdvisor": "It provides a structured, guided tool to facilitate client discussions, ensuring everyone contributes and discussions remain focused and productive.",
+    "indicators": "The client indicates a need to improve their \"decision quality\" rather than rule adherence, or meetings frequently derail due to conflicting problem-solving approaches."
+  },
+  {
+    "name": "Agenda & Notes",
+    "section": "Governance Tools",
+    "purpose": "A simple, recurring meeting template to allocate time for specific topics, track action plan progress, and note key takeaways.",
+    "helpsOwner": "Allows leaders to routinely check financial performance, assess what has gone well or less well, and formalize the main lessons from the meeting.",
+    "helpsAdvisor": "Offers a straightforward mechanism for holding clients accountable during regular touchpoints by structuring review sessions.",
+    "indicators": "The client struggles with tracking task status between meetings, or their basic management meetings lack a consistent feedback loop."
+  },
+  {
+    "name": "Annual Board Plan",
+    "section": "Governance Tools",
+    "purpose": "A yearly matrix mapping out strategic meeting topics (e.g., Scenario Planning, CEO Performance Review, Budgets) month-by-month, alongside required reports and board pack requirements.",
+    "helpsOwner": "Ensures that no critical element of strategic governance or compliance is missed over the financial year.",
+    "helpsAdvisor": "Provides a roadmap to assist the client in transitioning from ad-hoc meetings to a structured, professional governance rhythm.",
+    "indicators": "The client suffers from a lack of formal protocols, or their board needs to improve \"rule adherence and accountability\"."
+  },
+  {
+    "name": "Board Member Conduct",
+    "section": "Governance Tools",
+    "purpose": "A framework to identify a team’s functioning levels, highlight boardroom manipulation tactics (like the \"Bully\" or \"Turtle Mentality\"), and establish a firm code of conduct.",
+    "helpsOwner": "Promotes self-awareness and helps directors check their egos, align with common goals, and embrace healthy brainstorming and respect.",
+    "helpsAdvisor": "Gives the advisor an objective tool to address toxic boardroom dynamics, implement \"safe words\" to manage conduct, and foster authentic contribution.",
+    "indicators": "The board suffers from \"Poor Member Conduct,\" internal drama, manipulation, or entrenched ego-driven conflicts."
+  },
+  {
+    "name": "Board Pack Tables",
+    "section": "Governance Tools",
+    "purpose": "A checklist designed to track meeting agendas, previous minutes, CEO/Financial reports, and major correspondence, ensuring materials are read and understood.",
+    "helpsOwner": "Enforces accountability for meeting preparation, ensuring directors don't waste time reading during the session.",
+    "helpsAdvisor": "Helps establish a pre-meeting preparation discipline for clients moving toward formal governance.",
+    "indicators": "The client complains about unprepared directors, or the business lacks reliable protocols for distributing and reviewing board papers."
+  },
+  {
+    "name": "BoardPack.Agenda",
+    "section": "Governance Tools",
+    "purpose": "A highly detailed board meeting agenda breaking down exactly how many minutes are allocated to each item (e.g., PI Notifications, Matters Arising, CEO Report).",
+    "helpsOwner": "Professionalizes the board meeting structure and keeps discussions strictly within the total allocated time.",
+    "helpsAdvisor": "Allows the advisor to teach the client (or Chair) how to effectively corral meeting time and guide discussions efficiently.",
+    "indicators": "The client's meetings regularly run over time, or they are just beginning to formalize board meeting procedures and lack protocols."
+  },
+  {
+    "name": "BoardPack.WP Guide (White Paper Guidelines)",
+    "section": "Governance Tools",
+    "purpose": "A structural guide for writing white papers, outlining how to format executive summaries, define the problem/opportunity, provide historical context, suggest solutions, and measure benefits.",
+    "helpsOwner": "Helps them clearly articulate business cases, secure vendor agreements, or pitch strategic solutions supported by feasibility data.",
+    "helpsAdvisor": "Provides a tool to help the client clarify their thinking and draft sound strategic proposals.",
+    "indicators": "The client needs to improve decision quality and needs to present well-researched, feasible solutions or alternatives to the board."
+  },
+  {
+    "name": "Conflicts of Interest Disclosure",
+    "section": "Governance Tools",
+    "purpose": "A legal tracking template for directors to declare outside financial interests, directorships, or relationships with suppliers.",
+    "helpsOwner": "Safeguards the company from biased decision-making and ensures compliance by formally documenting potential conflicts.",
+    "helpsAdvisor": "Facilitates the implementation of essential risk management and compliance procedures within the client's board.",
+    "indicators": "The client lacks formal board protocols, or they are onboarding new directors to a formal board."
+  },
+  {
+    "name": "Governance Introduction",
+    "section": "Governance Tools",
+    "purpose": "An educational presentation explaining the pillars of governance, the difference between an advisory board and a board of directors, and the basics of CEO reporting.",
+    "helpsOwner": "Demystifies governance concepts, helping them decide if they need an advisory board (as a stepping stone) or a formal board of directors.",
+    "helpsAdvisor": "Serves as a perfect onboarding or pitching tool to help clients understand what governance is, and the systems required for business success.",
+    "indicators": "The client states \"We need to improve our Governance\" focusing on adherence and accountability, but currently has little to no formal understanding of the subject."
+  },
+  {
+    "name": "Governance Playsheet",
+    "section": "Governance Tools",
+    "purpose": "A diagnostic map that guides users to the correct framework depending on the client’s specific governance problems (Decision Quality vs. Adherence).",
+    "helpsOwner": "Ensures their core problem is diagnosed correctly so that the interventions applied actually solve their underlying issues.",
+    "helpsAdvisor": "Acts as an operational flowchart, visually directing the advisor to deploy tools like 6 Hats, White Papers, or Board Plans based on client feedback.",
+    "indicators": "To be used internally by the advisor when first assessing a client's need to improve governance or if a client shows signs that management is too ineffective for governance to begin."
+  },
+  {
+    "name": "Leadership Review",
+    "section": "Governance Tools",
+    "purpose": "A self-reflection questionnaire examining leadership style, cultural alignment (creativity vs. discipline), and inclusivity.",
+    "helpsOwner": "Encourages deep introspection about how their ego and personal traits influence team diversity, meetings, and business culture.",
+    "helpsAdvisor": "Opens up strategic coaching conversations with the business owner regarding their management style and handling of conflict.",
+    "indicators": "The client struggles with staff retention, low team morale, lacks diversity in thought, or insists on being right over finding the best solution."
+  },
+  {
+    "name": "Quality Decisions",
+    "section": "Governance Tools",
+    "purpose": "A comprehensive training presentation exploring common \"psyche errors\" (like optimism bias and confirmation bias), how to properly interpret data (causation vs. correlation), and how to create frameworks for robust testing.",
+    "helpsOwner": "Teaches them to avoid relying on faulty memory or bias, enabling them to test assumptions through methods like double-blind surveys, and ultimately turning quality decision-making into a habit.",
+    "helpsAdvisor": "Allows the advisor to deeply educate clients on statistical interpretation (common vs. special causes) and the psychological pitfalls of business expansion.",
+    "indicators": "The client's business is experiencing complex growth phases, they regularly misinterpret feedback data, or they need structured mechanisms to evaluate \"quality decisions\"."
+  },
+  {
+    "name": "Resolutions",
+    "section": "Governance Tools",
+    "purpose": "Formal legal templates to document board votes on major actions, such as purchasing a helicopter or private jet, launching a company, paying dividends, or raising capital.",
+    "helpsOwner": "Keeps the company legally compliant by securing signed proof of unanimous or majority authorization for significant financial events.",
+    "helpsAdvisor": "Provides pre-formatted language to help clients efficiently execute required corporate documentation.",
+    "indicators": "The client operates a formal board and is preparing to authorize high-stakes financial movements, capital raises, or major asset acquisitions."
+  },
+  {
+    "name": "EF.Risk Mgt Cover",
+    "section": "Governance Tools",
+    "purpose": "A formal 5-step risk management process and visual matrix designed to help teams establish context, identify, evaluate, and determine strategies for business risks.",
+    "helpsOwner": "Enables them to systematically assess risks based on probability (likelihood) and consequence (loss). It helps them apply targeted strategies—such as reducing, avoiding, accepting, or transferring the risk to a third party—and formulate concrete contingency and disaster recovery plans.",
+    "helpsAdvisor": "Provides a structured framework to guide clients through brainstorming and evaluating risks. It allows the advisor to tie risks back to the client's strategic plan or SWOT analysis and hold them accountable by developing an action plan detailing the task, who is responsible, and when it will be completed.",
+    "indicators": "The client needs to develop contingency or disaster recovery plans, or they require a structured way to evaluate and mitigate emerging threats and liabilities based on their potential impact."
+  }
+]

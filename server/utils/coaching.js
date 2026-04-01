@@ -1,20 +1,21 @@
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+/**
+ * Coaching reference loader — CommonJS version for the Restify backend.
+ * Loads data/coaching-reference.json and formats it for the AI prompt.
+ */
+
+const { readFileSync } = require('fs')
+const { resolve } = require('path')
 
 let _coaching = null
 
-function loadCoaching() {
+function loadCoaching () {
   if (_coaching) return _coaching
   const filePath = resolve(process.cwd(), 'data/coaching-reference.json')
   _coaching = JSON.parse(readFileSync(filePath, 'utf8'))
   return _coaching
 }
 
-/**
- * Format the coaching reference into a concise string for the Claude prompt.
- * Includes template name, what to look for, and sequencing hints.
- */
-export function formatCoachingForPrompt() {
+function formatCoachingForPrompt () {
   const coaching = loadCoaching()
   return coaching.map(c => {
     const scenarios = (c.scenarios || []).map(s => `  - ${s}`).join('\n')
@@ -24,3 +25,5 @@ Scenarios: \n${scenarios}
 Where it leads: ${c.whereMayLead}`
   }).join('\n\n')
 }
+
+module.exports = { formatCoachingForPrompt }
