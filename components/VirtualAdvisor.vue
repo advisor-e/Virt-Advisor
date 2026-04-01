@@ -90,6 +90,7 @@
         .profile-q-actions
           button.profile-save-btn(@click="saveProfile") Save profile
           button.profile-clear-btn(v-if="profileSaved" @click="clearProfile") Clear
+          button.profile-clear-btn(@click="profileOpen = false") ← Main menu
 
   //- Conversation
   .messages-area(v-else ref="messagesArea")
