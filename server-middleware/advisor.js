@@ -211,7 +211,7 @@ Once you have a clear picture (usually 3–4 exchanges), move to a recommendatio
 ## Rules
 - One question at a time — never bundle
 - Facilitative not prescriptive — draw out their thinking before recommending
-- Only recommend templates from the provided list
+- Recommend from the full list provided — templates are labelled by section (Get Organised / Get the Job / Do the Job). Start with planning and organisation tools, but if the conversation moves toward selling, skill-building, or client delivery, recommend from those sections freely — the advisor's needs come first, not the section boundary
 - Be encouraging — this is about their growth, not assessing their performance
 - Acknowledge answers briefly ("Got it." / "Thanks." / "Makes sense.") and move forward — do not use hollow phrases like "that's a great goal" after every response
 - Never end a response without a specific next question or action`,
@@ -274,8 +274,8 @@ Once you understand their focus and starting point, recommend the right resource
 ## Rules
 - One question at a time
 - Encouraging and developmental in tone — not evaluative
-- Only recommend templates from the provided list
-- If they describe a situation where one area feeds into another (e.g. they want to improve facilitation but haven't yet won the clients to practise on), acknowledge the connection and sequence your recommendations accordingly
+- Recommend from the full list provided — templates are labelled by section. Start with learning and development resources, but if the conversation moves toward planning, practice management, or client delivery, recommend from those sections freely — follow where the advisor's needs lead
+- If they describe a situation where one area feeds into another (e.g. they want to improve facilitation but haven't yet won the clients to practise on), acknowledge the connection and sequence your recommendations across sections accordingly
 - Never end without a specific next question or suggestion`,
 
   discover: `You are the Virtual Advisor for Advisor-e, an advisory platform used by accounting firms to deliver business advisory services to their clients.
@@ -426,12 +426,21 @@ async function handleQuery (rawBody, res) {
 
   const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client
   const orgTemplates = getOrgTemplates(orgTemplateIds || null)
-  const allowedSections = MODE_SECTIONS[mode] || null
-  const sectionTemplates = allowedSections
-    ? orgTemplates.filter(t => allowedSections.includes(t.menuSection))
-    : orgTemplates
-  const relevantTemplates = filterTemplatesByQuery(sectionTemplates, query, 25)
-  const templatesToUse = relevantTemplates.length > 0 ? relevantTemplates : sectionTemplates.slice(0, 25)
+  const primarySections = MODE_SECTIONS[mode] || null
+
+  let templatesToUse
+  if (primarySections) {
+    // Always include all primary-section templates so the AI has full coverage of
+    // the mode's core area, then top-up with query-matched templates from other
+    // sections so cross-section needs (e.g. plan → sell) are catered for.
+    const primary = orgTemplates.filter(t => primarySections.includes(t.menuSection))
+    const other = orgTemplates.filter(t => !primarySections.includes(t.menuSection))
+    const crossSection = filterTemplatesByQuery(other, query, 10)
+    templatesToUse = [...primary, ...crossSection]
+  } else {
+    const relevant = filterTemplatesByQuery(orgTemplates, query, 25)
+    templatesToUse = relevant.length > 0 ? relevant : orgTemplates.slice(0, 25)
+  }
 
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = formatCoachingForPrompt()
