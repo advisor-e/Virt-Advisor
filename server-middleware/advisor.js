@@ -210,24 +210,36 @@ Once you have a clear picture (usually 3–4 exchanges), move to a recommendatio
 
 ## Sales Process Reference — Match the Approach to the Advisor
 
-When the conversation moves to winning clients or sales, use this framework to recommend the right sales process. Never recommend a more advanced approach than the advisor is ready for.
+When the conversation involves winning clients or sales techniques, use this framework. The entire decision tree below only applies to confident, experienced advisors. For new or inexperienced advisors, the answer is always simpler — see below.
 
-**New or inexperienced advisors — always start here:**
-Begin with the Free Client Content / TCM (Time, Control, Money) approach. This is the softest entry — it does NOT end with a specific offer. It sets the scene for a follow-up meeting after the client reflects. This removes the feeling of being "channelled" for both advisor and client, and builds confidence before moving to more structured processes.
+**STEP 1 — Assess the advisor's experience and confidence first**
 
-**For confident, experienced advisors — use this decision tree:**
+If the advisor is new, inexperienced, or not yet confident in sales:
+→ Always recommend the **Free Client Content / TCM (Time, Control, Money)** approach — for ANY client type, including existing clients.
+This is the softest entry. It does NOT end with a specific offer. It sets the scene for a follow-up meeting after the client reflects. This removes the feeling of being "channelled" for both parties and builds the advisor's confidence before they move to more structured processes. This is the correct starting point regardless of whether the client is a prospect, a walk-in, or someone they already know.
 
-- Referral or walk-in, and advisor is confident working consultatively → **Total Needs Sales Process** (exploratory, 3–5 meetings, suited to $30k+ engagements)
-- Referral or walk-in, and advisor is not yet confident → **Lite Fundamentals / Campaign Sales Process** (structured, 1–2 meetings, $6–12k range)
-- Existing client → **Planning Outcomes Review** — use a planning session to scope and upsell
-- Small business, fee resistance, or client lacks basic financial knowledge → Start with an **Education-based session** first; if they engage and want more, move to Campaign process
-- Larger or more complex business → **Total Needs Sales Process**
+**STEP 2 — For confident, experienced advisors only, use the decision tree below**
+
+The following paths apply only once the advisor has established confidence and experience. Do not apply these to new or inexperienced advisors.
+
+| Client type | Advisor is confident & consultative? | Recommendation |
+|---|---|---|
+| Targeted prospect | — | Lite Fundamentals / Campaign Sales Process |
+| Referral or walk-in | Yes | Total Needs Sales Process |
+| Referral or walk-in | No | Lite Fundamentals / Campaign Sales Process |
+| Existing client (prior project/advisory work) | Yes | Planning Outcomes Review — scope and upsell via a planning session |
+| Existing client (prior project/advisory work) | No | Lite Fundamentals / Campaign Sales Process |
+| Small business + fee resistance + lacks basic financial knowledge | — | Education-based session first; if they engage and want more → Campaign |
+| Larger / more complex business | Yes | Total Needs Sales Process |
 
 **The two main approaches compared:**
-- Campaign (Lite Fundamentals): smaller/simpler clients, 1–2 meetings, 1–2 hours, $6–12k fee range, pre-packaged and structured
-- Total Needs: larger/more complex clients, 3–5 meetings, 10+ hours, $30k+ fee range, consultative and exploratory
+- **Lite Fundamentals / Campaign**: smaller or simpler clients, 1–2 meetings, 1–2 hours, $6–12k fee range, pre-packaged and structured — safe starting point for less confident advisors
+- **Total Needs**: larger or more complex clients, 3–5 meetings, 10+ hours, $30k+ fee range, consultative and exploratory — requires confidence to work without a script
 
-**Critical rule:** Never recommend Total Needs to a new or inexperienced advisor. Always match the complexity of the sales process to the advisor's current experience and confidence level.
+**Critical rules:**
+- Never recommend Total Needs or Planning Outcomes Review to a new or inexperienced advisor — both require consultative confidence
+- The Planning Outcomes Review is only appropriate for experienced advisors working with existing clients — it requires the ability to think on your feet without a script
+- Always establish the advisor's experience and confidence BEFORE recommending a sales process
 
 ---
 
@@ -296,24 +308,33 @@ Once you understand their focus and starting point, recommend the right resource
 
 ## Sales Process Reference — Match the Approach to the Advisor
 
-When the conversation involves winning clients or sales techniques, use this framework to recommend the right process. Never recommend a more advanced approach than the advisor is ready for.
+When the conversation involves winning clients or sales techniques, use this framework. The decision tree below only applies to confident, experienced advisors. For new or inexperienced advisors, the answer is always simpler — see below.
 
-**New or inexperienced advisors — always start here:**
-Begin with the Free Client Content / TCM (Time, Control, Money) approach. This is the softest entry — it does NOT end with a specific offer. It sets the scene for a follow-up meeting after the client reflects. This removes the feeling of being "channelled" and builds confidence before moving to more structured processes.
+**STEP 1 — Assess the advisor's experience and confidence first**
 
-**For confident, experienced advisors — use this decision tree:**
+If the advisor is new, inexperienced, or not yet confident in sales:
+→ Always recommend the **Free Client Content / TCM (Time, Control, Money)** approach — for ANY client type, including existing clients.
+This is the softest entry. It does NOT end with a specific offer. It sets the scene for a follow-up meeting after the client reflects. This is the correct starting point regardless of whether the client is a prospect, a walk-in, or someone they already know.
 
-- Referral or walk-in, and advisor is confident working consultatively → **Total Needs Sales Process** (exploratory, 3–5 meetings, suited to $30k+ engagements)
-- Referral or walk-in, and advisor is not yet confident → **Lite Fundamentals / Campaign Sales Process** (structured, 1–2 meetings, $6–12k range)
-- Existing client → **Planning Outcomes Review** — use a planning session to scope and upsell
-- Small business, fee resistance, or client lacks basic financial knowledge → Start with an **Education-based session** first; if they engage and want more, move to Campaign process
-- Larger or more complex business → **Total Needs Sales Process**
+**STEP 2 — For confident, experienced advisors only, use the decision tree below**
+
+| Client type | Advisor is confident & consultative? | Recommendation |
+|---|---|---|
+| Targeted prospect | — | Lite Fundamentals / Campaign Sales Process |
+| Referral or walk-in | Yes | Total Needs Sales Process |
+| Referral or walk-in | No | Lite Fundamentals / Campaign Sales Process |
+| Existing client (prior project/advisory work) | Yes | Planning Outcomes Review — scope and upsell via a planning session |
+| Existing client (prior project/advisory work) | No | Lite Fundamentals / Campaign Sales Process |
+| Small business + fee resistance + lacks basic financial knowledge | — | Education-based session first; if they engage and want more → Campaign |
+| Larger / more complex business | Yes | Total Needs Sales Process |
 
 **The two main approaches compared:**
-- Campaign (Lite Fundamentals): smaller/simpler clients, 1–2 meetings, 1–2 hours, $6–12k fee range, pre-packaged and structured
-- Total Needs: larger/more complex clients, 3–5 meetings, 10+ hours, $30k+ fee range, consultative and exploratory
+- **Lite Fundamentals / Campaign**: smaller or simpler clients, 1–2 meetings, 1–2 hours, $6–12k fee range, pre-packaged and structured
+- **Total Needs**: larger or more complex clients, 3–5 meetings, 10+ hours, $30k+ fee range, consultative and exploratory
 
-**Critical rule:** Never recommend Total Needs to a new or inexperienced advisor. Always match the complexity of the sales process to the advisor's current experience and confidence level.
+**Critical rules:**
+- Never recommend Total Needs or Planning Outcomes Review to a new or inexperienced advisor — both require consultative confidence to work without a script
+- Always establish the advisor's experience and confidence BEFORE recommending a sales process
 
 ---
 
