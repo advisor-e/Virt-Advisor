@@ -1,0 +1,72 @@
+{
+  "header": {
+    "title": "Consultor Virtual",
+    "subtitle": "Desenvolvido por Advisor-e",
+    "backToMenu": "← Menu principal",
+    "close": "Fechar"
+  },
+  "mode": {
+    "intro": "Como você gostaria de começar?",
+    "sub": "Escolha uma opção abaixo e eu o guiarei a partir daí",
+    "client": {
+      "title": "Tenho uma situação com cliente",
+      "desc": "Conte-me sobre um desafio que seu cliente está enfrentando. Farei algumas perguntas para entender o contexto — depois recomendarei o(s) template(s) certo(s) na ordem correta.",
+      "tag": "Guiado · Facilitativo"
+    },
+    "discover": {
+      "title": "Quero encontrar algo específico",
+      "desc": "Procurando um template semelhante a algo que você conhece, ou que combine duas capacidades? Descreva o que você tem em mente.",
+      "tag": "Rápido · Descoberta"
+    },
+    "plan": {
+      "title": "Quero planejar com antecedência",
+      "desc": "Diga-me onde você está em sua prática e para onde está trabalhando. Vou ajudá-lo a encontrar as ferramentas de planejamento certas para sua situação.",
+      "tag": "Facilitativo · Planejamento"
+    },
+    "learn": {
+      "title": "Tenho interesse em aprender mais",
+      "desc": "Quer desenvolver suas habilidades em vendas, facilitação, psicologia ou posicionamento? Diga-me no que está trabalhando e vou apontá-lo para o recurso certo.",
+      "tag": "Facilitativo · Desenvolvimento"
+    }
+  },
+  "profile": {
+    "title": "Seu perfil de consultor",
+    "descEmpty": "Responda algumas perguntas uma vez — usarei seu contexto em cada recomendação, sem perguntar novamente.",
+    "descSaved": "Salvo · toque para revisar ou atualizar",
+    "tagActive": "Perfil ativo",
+    "tagEmpty": "Não configurado",
+    "questions": {
+      "experience": "Há quanto tempo você realiza trabalho de consultoria?",
+      "enjoyment": "Que tipo de conversas de consultoria você mais aprecia ou sente que faz melhor?",
+      "technicalStrengths": "Em quais áreas você se sente tecnicamente forte?",
+      "toolsComfort": "Quão confortável você se sente usando ferramentas e estruturas estruturadas?",
+      "notes": "Há mais alguma coisa sobre como você trabalha que me ajudaria a personalizar minhas recomendações?"
+    },
+    "save": "Salvar perfil",
+    "clear": "Limpar",
+    "back": "← Menu principal"
+  },
+  "voice": {
+    "tapToSpeak": "Toque para falar",
+    "recording": "Gravando — fale agora",
+    "stopRecording": "Parar gravação",
+    "capturedEdit": "Capturado — edite abaixo ou grave novamente",
+    "capturedReview": "Capturado — revise e depois envie",
+    "recordAgain": "Gravar novamente"
+  },
+  "input": {
+    "placeholderDiscover": "Descreva o que você está procurando...",
+    "placeholderDefault": "Digite sua resposta...",
+    "send": "Enviar",
+    "sending": "...",
+    "hint": "Enter para enviar · Shift+Enter para nova linha",
+    "listening": "🎤 Ouvindo..."
+  },
+  "opening": {
+    "client": "Ótimo — vamos trabalhar isso juntos.\n\nConte-me sobre seu cliente e a situação que você quer abordar — usarei isso, junto com o que já sei sobre você, para encontrar o template certo.\n\n**Qual é a situação ou desafio central que você quer abordar com este cliente?**",
+    "discover": "Claro — vamos encontrar o template certo para você.\n\n**Diga-me o que você tem em mente. Você pode descrever pelo que faz (\"algo que ajuda clientes a entender seu fluxo de caixa\"), por uma combinação de tópicos (\"planejamento estratégico mais engajamento da equipe\"), ou por um nome que você meio que lembra (\"algo como o de Capital de Giro\"). Quanto mais detalhes você der, melhor posso encontrá-lo.**",
+    "plan": "Ótimo — vamos pensar nisso juntos.\n\nAntes de apontá-lo para a ferramenta certa, quero entender onde você está e o que está tentando alcançar — o melhor framework de planejamento depende inteiramente da sua situação.\n\n**O que está levando você a pensar em planejar com antecedência agora?**",
+    "learn": "Ótimo — esta é uma das coisas mais valiosas nas quais você pode investir.\n\nPara garantir que eu aponte você para o recurso certo, quero entender o que você quer desenvolver e o que está motivando isso.\n\n**Em qual área você se sente mais atraído/a a trabalhar — ganhar clientes, habilidades de facilitação, o lado psicológico, posicionamento e mensagens, ou outra coisa?**"
+  },
+  "error": "Desculpe, algo deu errado. Por favor, tente novamente."
+}

@@ -1,0 +1,72 @@
+{
+  "header": {
+    "title": "Wirtualny Doradca",
+    "subtitle": "Obsługiwany przez Advisor-e",
+    "backToMenu": "← Menu główne",
+    "close": "Zamknij"
+  },
+  "mode": {
+    "intro": "Od czego chciałbyś/chciałabyś zacząć?",
+    "sub": "Wybierz opcję poniżej, a poprowadzę Cię dalej",
+    "client": {
+      "title": "Mam sytuację z klientem",
+      "desc": "Powiedz mi o wyzwaniu, przed którym stoi Twój klient. Zadam kilka pytań, aby zrozumieć kontekst — następnie polecę odpowiednie szablony we właściwej kolejności.",
+      "tag": "Prowadzony · Facylitacyjny"
+    },
+    "discover": {
+      "title": "Chcę znaleźć coś konkretnego",
+      "desc": "Szukasz szablonu podobnego do czegoś, co znasz, lub łączącego dwie możliwości? Opisz, co masz na myśli.",
+      "tag": "Szybki · Odkrycie"
+    },
+    "plan": {
+      "title": "Chcę zaplanować z wyprzedzeniem",
+      "desc": "Powiedz mi, gdzie jesteś w swojej praktyce i do czego dążysz. Pomogę Ci znaleźć odpowiednie narzędzia planowania dla Twojej sytuacji.",
+      "tag": "Facylitacyjny · Planowanie"
+    },
+    "learn": {
+      "title": "Interesuje mnie dowiedzenie się więcej",
+      "desc": "Chcesz rozwijać umiejętności w sprzedaży, facylitacji, psychologii lub pozycjonowaniu? Powiedz mi, nad czym pracujesz, a skieruję Cię do odpowiedniego zasobu.",
+      "tag": "Facylitacyjny · Rozwój"
+    }
+  },
+  "profile": {
+    "title": "Twój profil doradcy",
+    "descEmpty": "Odpowiedz raz na kilka pytań — będę używać Twojego tła w każdej rekomendacji, bez ponownego pytania.",
+    "descSaved": "Zapisano · dotknij, aby przejrzeć lub zaktualizować",
+    "tagActive": "Profil aktywny",
+    "tagEmpty": "Nie skonfigurowano",
+    "questions": {
+      "experience": "Od jak dawna prowadzisz działalność doradczą?",
+      "enjoyment": "Jaki rodzaj rozmów doradczych najbardziej lubisz lub czujesz, że prowadzisz najlepiej?",
+      "technicalStrengths": "W jakich obszarach czujesz się technicznie silny/silna?",
+      "toolsComfort": "Jak komfortowo czujesz się używając ustrukturyzowanych narzędzi i frameworków?",
+      "notes": "Czy jest coś jeszcze w Twoim sposobie pracy, co pomogłoby mi dostosować moje rekomendacje do Ciebie?"
+    },
+    "save": "Zapisz profil",
+    "clear": "Wyczyść",
+    "back": "← Menu główne"
+  },
+  "voice": {
+    "tapToSpeak": "Dotknij, aby mówić",
+    "recording": "Nagrywanie — mów teraz",
+    "stopRecording": "Zatrzymaj nagrywanie",
+    "capturedEdit": "Nagrano — edytuj poniżej lub nagraj ponownie",
+    "capturedReview": "Nagrano — sprawdź, a następnie wyślij",
+    "recordAgain": "Nagraj ponownie"
+  },
+  "input": {
+    "placeholderDiscover": "Opisz, czego szukasz...",
+    "placeholderDefault": "Wpisz swoją odpowiedź...",
+    "send": "Wyślij",
+    "sending": "...",
+    "hint": "Enter, aby wysłać · Shift+Enter dla nowej linii",
+    "listening": "🎤 Słucham..."
+  },
+  "opening": {
+    "client": "Świetnie — przepracujmy to razem.\n\nPowiedz mi o swoim kliencie i sytuacji, którą chcesz omówić — użyję tego, wraz z tym, co już o Tobie wiem, aby znaleźć odpowiedni szablon.\n\n**Jaka jest główna sytuacja lub wyzwanie, które chcesz omówić z tym klientem?**",
+    "discover": "Oczywiście — znajdźmy dla Ciebie odpowiedni szablon.\n\n**Powiedz mi, co masz na myśli. Możesz to opisać przez to, co robi (\"coś, co pomaga klientom zrozumieć ich przepływy pieniężne\"), przez kombinację tematów (\"planowanie strategiczne plus zaangażowanie zespołu\"), lub przez nazwę, którą w połowie pamiętasz (\"coś jak to dotyczące Kapitału Obrotowego\"). Im więcej szczegółów podasz, tym lepiej mogę to znaleźć.**",
+    "plan": "Świetnie — przemyślmy to razem.\n\nZanim wskażę Ci odpowiednie narzędzie, chcę zrozumieć, gdzie jesteś i co próbujesz osiągnąć — najlepszy framework planowania zależy całkowicie od Twojej sytuacji.\n\n**Co skłania Cię do myślenia o planowaniu z wyprzedzeniem właśnie teraz?**",
+    "learn": "Świetnie — to jedna z najcenniejszych inwestycji, jakie możesz zrobić.\n\nAby upewnić się, że wskażę Ci odpowiedni zasób, chcę zrozumieć, co chcesz rozwijać i co Cię do tego skłania.\n\n**W jakim obszarze najbardziej chcesz pracować — zdobywanie klientów, umiejętności facylitacji, psychologiczna strona, pozycjonowanie i komunikaty, czy coś innego?**"
+  },
+  "error": "Przepraszamy, coś poszło nie tak. Spróbuj ponownie."
+}

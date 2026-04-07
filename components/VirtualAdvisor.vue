@@ -6,63 +6,79 @@
       .advisor-logo
         span.advisor-logo-icon VA
         div
-          h1.advisor-title Virtual Advisor
-          p.advisor-subtitle Powered by Advisor-e
+          h1.advisor-title {{ $t('header.title') }}
+          p.advisor-subtitle {{ $t('header.subtitle') }}
       .header-actions
-        button.btn-clear(v-if="mode" @click="reset") ← Main menu
-        button.btn-close(@click="closeSession" title="Close") ✕
+        .lang-picker(ref="langPicker")
+          button.lang-btn(@click="toggleLangPicker")
+            span {{ currentLanguageName }}
+            svg(xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6" fill="currentColor" style="opacity:0.7;flex-shrink:0")
+              path(d="M0 0l5 6 5-6z")
+          .lang-panel(v-show="langPickerOpen")
+            input.lang-search(
+              ref="langSearch"
+              v-model="langSearch"
+              placeholder="Search language..."
+              @keydown.esc="closeLangPicker"
+            )
+            .lang-list
+              button.lang-opt(
+                v-for="lang in filteredLanguages"
+                :key="lang.code"
+                @click="changeLocale(lang)"
+                :class="{ 'lang-opt-active': $i18n.locale === lang.code, 'lang-opt-loading': loadingLang === lang.code }"
+                :disabled="loadingLang !== null"
+              )
+                span.lang-opt-name {{ lang.name }}
+                span.lang-opt-badge(v-if="loadingLang === lang.code") ⟳
+                span.lang-opt-badge(v-else-if="$i18n.locale === lang.code") ✓
+              p.lang-error(v-if="langError") {{ langError }}
+        button.btn-clear(v-if="mode" @click="reset") {{ $t('header.backToMenu') }}
+        button.btn-close(@click="closeSession" :title="$t('header.close')") ✕
 
   //- Mode selection
   .mode-screen(v-if="!mode")
-    p.mode-intro How would you like to start?
-    p.mode-sub Choose an option below and I'll guide you from there
+    p.mode-intro {{ $t('mode.intro') }}
+    p.mode-sub {{ $t('mode.sub') }}
     .mode-cards
       button.mode-card(@click="selectMode('client')")
         .mode-card-icon 🧑‍💼
         .mode-card-body
-          h2.mode-card-title I have a client situation
-          p.mode-card-desc
-            | Tell me about a challenge your client is facing. I'll ask a few questions
-            | to understand the context — then recommend the right template(s) in the right order.
-          span.mode-card-tag Guided · Facilitative
+          h2.mode-card-title {{ $t('mode.client.title') }}
+          p.mode-card-desc {{ $t('mode.client.desc') }}
+          span.mode-card-tag {{ $t('mode.client.tag') }}
 
       button.mode-card(@click="selectMode('discover')")
         .mode-card-icon 🔍
         .mode-card-body
-          h2.mode-card-title I want to find something specific
-          p.mode-card-desc
-            | Looking for a template similar to something you know, or one that
-            | combines two capabilities? Describe what you have in mind.
-          span.mode-card-tag Quick · Discovery
+          h2.mode-card-title {{ $t('mode.discover.title') }}
+          p.mode-card-desc {{ $t('mode.discover.desc') }}
+          span.mode-card-tag {{ $t('mode.discover.tag') }}
 
       button.mode-card(@click="selectMode('plan')")
         .mode-card-icon 📅
         .mode-card-body
-          h2.mode-card-title I want to plan ahead
-          p.mode-card-desc
-            | Tell me where you are in your practice and what you're working towards.
-            | I'll help you find the right planning tools and frameworks for your situation.
-          span.mode-card-tag Facilitative · Advisor Planning
+          h2.mode-card-title {{ $t('mode.plan.title') }}
+          p.mode-card-desc {{ $t('mode.plan.desc') }}
+          span.mode-card-tag {{ $t('mode.plan.tag') }}
 
       button.mode-card(@click="selectMode('learn')")
         .mode-card-icon 📚
         .mode-card-body
-          h2.mode-card-title I'm interested in learning more
-          p.mode-card-desc
-            | Want to develop your skills in selling, facilitation, psychology, or positioning?
-            | Tell me what you're working on and I'll point you to the right resource.
-          span.mode-card-tag Facilitative · Development
+          h2.mode-card-title {{ $t('mode.learn.title') }}
+          p.mode-card-desc {{ $t('mode.learn.desc') }}
+          span.mode-card-tag {{ $t('mode.learn.tag') }}
 
     //- Advisor Profile
     .profile-card
       button.profile-card-header(@click="profileOpen = !profileOpen")
         .profile-card-icon 🎯
         .profile-card-body
-          h2.profile-card-title Your advisor profile
-          p.profile-card-desc(v-if="!profileSaved") Answer a few questions once — I'll use your background in every recommendation, without asking again.
-          p.profile-card-desc(v-else) Saved · tap to review or update
-        span.profile-card-tag(v-if="profileSaved") Profile active
-        span.profile-card-tag.tag-empty(v-else) Not set up
+          h2.profile-card-title {{ $t('profile.title') }}
+          p.profile-card-desc(v-if="!profileSaved") {{ $t('profile.descEmpty') }}
+          p.profile-card-desc(v-else) {{ $t('profile.descSaved') }}
+        span.profile-card-tag(v-if="profileSaved") {{ $t('profile.tagActive') }}
+        span.profile-card-tag.tag-empty(v-else) {{ $t('profile.tagEmpty') }}
         span.profile-chevron {{ profileOpen ? '▲' : '▼' }}
 
       .profile-questions(v-if="profileOpen")
@@ -77,26 +93,26 @@
               button.voice-btn.voice-btn-idle(@click="toggleProfileListening(q.field)")
                 svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
                   path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                | Tap to speak
+                | {{ $t('voice.tapToSpeak') }}
 
             //- State 2: Recording
             .voice-state.voice-recording(v-else-if="profileRecordingField === q.field")
               span.recording-dot
-              span.recording-label Recording — speak now
+              span.recording-label {{ $t('voice.recording') }}
               button.voice-btn.voice-btn-stop(@click="toggleProfileListening(q.field)")
                 svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
                   rect(x="6" y="6" width="12" height="12" rx="2")
-                | Stop recording
+                | {{ $t('voice.stopRecording') }}
 
             //- State 3: Captured
             .voice-state.voice-ready(v-else)
               svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
                 path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-              span.ready-label Captured — edit below or record again
+              span.ready-label {{ $t('voice.capturedEdit') }}
               button.voice-btn.voice-btn-redo(@click="toggleProfileListening(q.field)")
                 svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
                   path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                | Record again
+                | {{ $t('voice.recordAgain') }}
 
           textarea.profile-q-textarea(
             v-if="advisorProfile[q.field] || profileRecordingField === q.field"
@@ -106,9 +122,9 @@
           )
 
         .profile-q-actions
-          button.profile-save-btn(@click="saveProfile") Save profile
-          button.profile-clear-btn(v-if="profileSaved" @click="clearProfile") Clear
-          button.profile-clear-btn(@click="profileOpen = false") ← Main menu
+          button.profile-save-btn(@click="saveProfile") {{ $t('profile.save') }}
+          button.profile-clear-btn(v-if="profileSaved" @click="clearProfile") {{ $t('profile.clear') }}
+          button.profile-clear-btn(@click="profileOpen = false") {{ $t('profile.back') }}
 
   //- Conversation
   .messages-area(v-else ref="messagesArea")
@@ -144,33 +160,33 @@
         button.voice-btn.voice-btn-idle(@click="toggleListening" :disabled="isStreaming")
           svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
             path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-          | Tap to speak
+          | {{ $t('voice.tapToSpeak') }}
 
       //- State 2: Recording
       .voice-state.voice-recording(v-else-if="isListening")
         span.recording-dot
-        span.recording-label Recording — speak now
+        span.recording-label {{ $t('voice.recording') }}
         button.voice-btn.voice-btn-stop(@click="toggleListening")
           svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
             rect(x="6" y="6" width="12" height="12" rx="2")
-          | Stop recording
+          | {{ $t('voice.stopRecording') }}
 
       //- State 3: Ready to send
       .voice-state.voice-ready(v-else-if="inputText.trim()")
         svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
           path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-        span.ready-label Captured — review then Send
+        span.ready-label {{ $t('voice.capturedReview') }}
         button.voice-btn.voice-btn-redo(@click="toggleListening")
           svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
             path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-          | Record again
+          | {{ $t('voice.recordAgain') }}
 
     //- Text input + send
     .input-inner
       textarea.message-input(
         v-model="inputText"
         @keydown.enter.exact.prevent="sendMessage"
-        :placeholder="isListening ? '🎤 Listening...' : inputPlaceholder"
+        :placeholder="isListening ? $t('input.listening') : inputPlaceholder"
         rows="3"
         :disabled="isStreaming"
         :class="{ 'input-listening': isListening, 'input-ready': !isListening && inputText.trim() }"
@@ -179,18 +195,39 @@
         @click="sendMessage"
         :disabled="!inputText.trim() || isStreaming || isListening"
       )
-        span(v-if="isStreaming") ...
-        span(v-else) Send
+        span(v-if="isStreaming") {{ $t('input.sending') }}
+        span(v-else) {{ $t('input.send') }}
 
-    p.input-hint(v-if="!speechSupported") Press Enter to send · Shift+Enter for new line
+    p.input-hint(v-if="!speechSupported") {{ $t('input.hint') }}
 </template>
 
 <script>
-const OPENING = {
-  client: 'Great — let\'s work through this together.\n\nTell me about your client and the situation you want to address — I\'ll use that, along with what I already know about you, to find the right template.\n\n**What\'s the core situation or challenge you\'re looking to address with this client?**',
-  discover: 'Sure — let\'s find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does ("something that helps clients understand their cash flow"), by a combination of topics ("strategic planning plus team engagement"), or by a name you half-remember ("something like the Working Capital one"). The more detail you give, the better I can match it.**',
-  plan: 'Great — let\'s think through this together.\n\nBefore I point you to the right tool, I want to understand where you are and what you\'re trying to achieve — the best planning framework depends entirely on your situation.\n\n**What\'s prompting you to think about planning ahead right now?**',
-  learn: 'Great — this is one of the most valuable things you can invest in.\n\nTo make sure I point you to the right resource, I want to understand what you\'re looking to develop and what\'s driving it.\n\n**What area are you most drawn to working on — winning clients, facilitation skills, the psychology side, positioning and messaging, or something else?**'
+import { LANGUAGES } from '~/data/languages'
+
+function flattenObj (obj, prefix = '') {
+  return Object.keys(obj).reduce((acc, k) => {
+    const key = prefix ? `${prefix}.${k}` : k
+    if (typeof obj[k] === 'object' && obj[k] !== null) {
+      Object.assign(acc, flattenObj(obj[k], key))
+    } else {
+      acc[key] = obj[k]
+    }
+    return acc
+  }, {})
+}
+
+function unflattenObj (flat) {
+  const result = {}
+  for (const key of Object.keys(flat)) {
+    const parts = key.split('.')
+    let cur = result
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (!cur[parts[i]]) cur[parts[i]] = {}
+      cur = cur[parts[i]]
+    }
+    cur[parts[parts.length - 1]] = flat[key]
+  }
+  return result
 }
 
 export default {
@@ -217,36 +254,46 @@ export default {
       profileSaved: false,
       profileRecordingField: null,
       advisorProfile: { experience: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' },
-      profileQuestions: [
-        {
-          field: 'experience',
-          question: 'How long have you been delivering advisory work?'
-        },
-        {
-          field: 'enjoyment',
-          question: 'What kind of advisory conversations do you enjoy most or feel you do best?'
-        },
-        {
-          field: 'technicalStrengths',
-          question: 'What are the areas you feel technically strong in?'
-        },
-        {
-          field: 'toolsComfort',
-          question: 'How comfortable are you using structured tools and frameworks?'
-        },
-        {
-          field: 'notes',
-          question: 'Is there anything else about how you work that would help me tailor my recommendations to you?'
-        }
-      ]
+      langPickerOpen: false,
+      langSearch: '',
+      loadingLang: null,
+      langError: null
+    }
+  },
+
+  watch: {
+    '$i18n.locale' (newLocale, oldLocale) {
+      if (this.mode) {
+        const currentMode = this.mode
+        this.reset()
+        this.$nextTick(() => this.selectMode(currentMode))
+      }
     }
   },
 
   computed: {
+    currentLanguageName () {
+      const lang = LANGUAGES.find(l => l.code === this.$i18n.locale)
+      return lang ? lang.name : this.$i18n.locale
+    },
+    filteredLanguages () {
+      if (!this.langSearch) return LANGUAGES
+      const q = this.langSearch.toLowerCase()
+      return LANGUAGES.filter(l => l.name.toLowerCase().includes(q) || l.code.includes(q))
+    },
+    profileQuestions () {
+      return [
+        { field: 'experience', question: this.$t('profile.questions.experience') },
+        { field: 'enjoyment', question: this.$t('profile.questions.enjoyment') },
+        { field: 'technicalStrengths', question: this.$t('profile.questions.technicalStrengths') },
+        { field: 'toolsComfort', question: this.$t('profile.questions.toolsComfort') },
+        { field: 'notes', question: this.$t('profile.questions.notes') }
+      ]
+    },
     inputPlaceholder () {
       return this.mode === 'discover'
-        ? "Describe what you're looking for..."
-        : 'Type your answer...'
+        ? this.$t('input.placeholderDiscover')
+        : this.$t('input.placeholderDefault')
     },
     conversationHistory () {
       return this.messages.map(m => ({ role: m.role, content: m.content }))
@@ -260,7 +307,18 @@ export default {
     }
   },
 
+  beforeDestroy () {
+    document.removeEventListener('click', this._onDocClick)
+  },
+
   mounted () {
+    this._onDocClick = (e) => {
+      if (this.$refs.langPicker && !this.$refs.langPicker.contains(e.target)) {
+        this.closeLangPicker()
+      }
+    }
+    document.addEventListener('click', this._onDocClick)
+
     const saved = localStorage.getItem('va_advisor_profile')
     if (saved) {
       try {
@@ -303,9 +361,65 @@ export default {
   },
 
   methods: {
+    toggleLangPicker () {
+      this.langPickerOpen = !this.langPickerOpen
+      if (this.langPickerOpen) {
+        this.$nextTick(() => this.$refs.langSearch && this.$refs.langSearch.focus())
+      } else {
+        this.langSearch = ''
+        this.langError = null
+      }
+    },
+
+    closeLangPicker () {
+      this.langPickerOpen = false
+      this.langSearch = ''
+      this.langError = null
+    },
+
+    async changeLocale (lang) {
+      if (this.loadingLang) return
+      if (this.$i18n.locale === lang.code) { this.closeLangPicker(); return }
+      if (!this.$i18n.messages[lang.code]) {
+        this.loadingLang = lang.code
+        this.langError = null
+        try {
+          await this.loadDynamicLocale(lang)
+        } catch (e) {
+          this.langError = 'Translation failed — check DEEPL_API_KEY is set.'
+          this.loadingLang = null
+          return
+        }
+        this.loadingLang = null
+      }
+      this.$i18n.locale = lang.code
+      this.closeLangPicker()
+    },
+
+    async loadDynamicLocale (lang) {
+      const cacheKey = `va_locale_${lang.code}`
+      const cached = localStorage.getItem(cacheKey)
+      if (cached) {
+        this.$i18n.setLocaleMessage(lang.code, JSON.parse(cached))
+        return
+      }
+      const flat = flattenObj(this.$i18n.messages.en)
+      const res = await fetch('/api/translate/locale', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texts: flat, langCode: lang.code })
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const translated = await res.json()
+      if (translated.error) throw new Error(translated.error)
+      const nested = unflattenObj(translated)
+      this.$i18n.setLocaleMessage(lang.code, nested)
+      localStorage.setItem(cacheKey, JSON.stringify(nested))
+    },
+
     selectMode (selected) {
       this.mode = selected
-      this.messages = [{ role: 'assistant', content: OPENING[selected] }]
+      this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
       this.$nextTick(() => this.scrollToBottom())
     },
 
@@ -381,6 +495,8 @@ export default {
           body: JSON.stringify({
             query,
             mode: this.mode,
+            language: this.$i18n.locale,
+            languageName: this.currentLanguageName,
             orgTemplateIds: this.orgTemplateIds,
             conversationHistory: this.conversationHistory.slice(0, -1),
             advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null
@@ -410,7 +526,7 @@ export default {
           }
         }
       } catch (e) {
-        this.messages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' })
+        this.messages.push({ role: 'assistant', content: this.$t('error') })
         this.isStreaming = false
         this.streamingText = ''
       }
@@ -474,6 +590,78 @@ export default {
 .advisor-title { font-size: 18px; font-weight: 700; color: #ffffff; margin: 0; }
 .advisor-subtitle { font-size: 12px; color: #bfdbfe; margin: 0; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
+
+.lang-picker { position: relative; }
+.lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.lang-btn:hover { background: rgba(255,255,255,0.2); }
+.lang-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  width: 220px;
+  background: #1e3a8a;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  overflow: hidden;
+}
+.lang-search {
+  width: 100%;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  color: #ffffff;
+  font-size: 13px;
+  padding: 10px 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+.lang-search::placeholder { color: rgba(255,255,255,0.45); }
+.lang-list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.lang-list::-webkit-scrollbar { width: 4px; }
+.lang-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+.lang-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #bfdbfe;
+  font-size: 13px;
+  padding: 9px 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+.lang-opt:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: #ffffff; }
+.lang-opt:disabled { opacity: 0.5; cursor: not-allowed; }
+.lang-opt-active { color: #ffffff; font-weight: 600; }
+.lang-opt-loading { color: #ffffff; }
+.lang-opt-badge { font-size: 12px; color: rgba(255,255,255,0.6); }
+.lang-opt-loading .lang-opt-badge { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.lang-error { font-size: 11px; color: #fca5a5; padding: 8px 14px; margin: 0; }
+
 .btn-clear {
   font-size: 13px;
   color: #bfdbfe;

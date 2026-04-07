@@ -1,0 +1,72 @@
+{
+  "header": {
+    "title": "Virtual Advisor",
+    "subtitle": "Powered by Advisor-e",
+    "backToMenu": "← Main menu",
+    "close": "Close"
+  },
+  "mode": {
+    "intro": "How would you like to start?",
+    "sub": "Choose an option below and I'll guide you from there",
+    "client": {
+      "title": "I have a client situation",
+      "desc": "Tell me about a challenge your client is facing. I'll ask a few questions to understand the context — then recommend the right template(s) in the right order.",
+      "tag": "Guided · Facilitative"
+    },
+    "discover": {
+      "title": "I want to find something specific",
+      "desc": "Looking for a template similar to something you know, or one that combines two capabilities? Describe what you have in mind.",
+      "tag": "Quick · Discovery"
+    },
+    "plan": {
+      "title": "I want to plan ahead",
+      "desc": "Tell me where you are in your practice and what you're working towards. I'll help you find the right planning tools and frameworks for your situation.",
+      "tag": "Facilitative · Advisor Planning"
+    },
+    "learn": {
+      "title": "I'm interested in learning more",
+      "desc": "Want to develop your skills in selling, facilitation, psychology, or positioning? Tell me what you're working on and I'll point you to the right resource.",
+      "tag": "Facilitative · Development"
+    }
+  },
+  "profile": {
+    "title": "Your advisor profile",
+    "descEmpty": "Answer a few questions once — I'll use your background in every recommendation, without asking again.",
+    "descSaved": "Saved · tap to review or update",
+    "tagActive": "Profile active",
+    "tagEmpty": "Not set up",
+    "questions": {
+      "experience": "How long have you been delivering advisory work?",
+      "enjoyment": "What kind of advisory conversations do you enjoy most or feel you do best?",
+      "technicalStrengths": "What are the areas you feel technically strong in?",
+      "toolsComfort": "How comfortable are you using structured tools and frameworks?",
+      "notes": "Is there anything else about how you work that would help me tailor my recommendations to you?"
+    },
+    "save": "Save profile",
+    "clear": "Clear",
+    "back": "← Main menu"
+  },
+  "voice": {
+    "tapToSpeak": "Tap to speak",
+    "recording": "Recording — speak now",
+    "stopRecording": "Stop recording",
+    "capturedEdit": "Captured — edit below or record again",
+    "capturedReview": "Captured — review then Send",
+    "recordAgain": "Record again"
+  },
+  "input": {
+    "placeholderDiscover": "Describe what you're looking for...",
+    "placeholderDefault": "Type your answer...",
+    "send": "Send",
+    "sending": "...",
+    "hint": "Press Enter to send · Shift+Enter for new line",
+    "listening": "🎤 Listening..."
+  },
+  "opening": {
+    "client": "Great — let's work through this together.\n\nTell me about your client and the situation you want to address — I'll use that, along with what I already know about you, to find the right template.\n\n**What's the core situation or challenge you're looking to address with this client?**",
+    "discover": "Sure — let's find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does (\"something that helps clients understand their cash flow\"), by a combination of topics (\"strategic planning plus team engagement\"), or by a name you half-remember (\"something like the Working Capital one\"). The more detail you give, the better I can match it.**",
+    "plan": "Great — let's think through this together.\n\nBefore I point you to the right tool, I want to understand where you are and what you're trying to achieve — the best planning framework depends entirely on your situation.\n\n**What's prompting you to think about planning ahead right now?**",
+    "learn": "Great — this is one of the most valuable things you can invest in.\n\nTo make sure I point you to the right resource, I want to understand what you're looking to develop and what's driving it.\n\n**What area are you most drawn to working on — winning clients, facilitation skills, the psychology side, positioning and messaging, or something else?**"
+  },
+  "error": "Sorry, something went wrong. Please try again."
+}

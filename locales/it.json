@@ -1,0 +1,72 @@
+{
+  "header": {
+    "title": "Consulente Virtuale",
+    "subtitle": "Sviluppato da Advisor-e",
+    "backToMenu": "← Menu principale",
+    "close": "Chiudi"
+  },
+  "mode": {
+    "intro": "Come desidera iniziare?",
+    "sub": "Scelga un'opzione qui sotto e la guiderò da lì",
+    "client": {
+      "title": "Ho una situazione cliente",
+      "desc": "Mi parli di una sfida del suo cliente. Porrò alcune domande per capire il contesto — poi consiglierò i modelli giusti nell'ordine corretto.",
+      "tag": "Guidato · Facilitativo"
+    },
+    "discover": {
+      "title": "Voglio trovare qualcosa di specifico",
+      "desc": "Cerca un modello simile a qualcosa che conosce, o che combini due capacità? Descriva cosa ha in mente.",
+      "tag": "Rapido · Scoperta"
+    },
+    "plan": {
+      "title": "Voglio pianificare in anticipo",
+      "desc": "Mi dica dove si trova nella sua pratica e verso cosa sta lavorando. La aiuterò a trovare gli strumenti di pianificazione giusti per la sua situazione.",
+      "tag": "Facilitativo · Pianificazione"
+    },
+    "learn": {
+      "title": "Mi interessa apprendere di più",
+      "desc": "Vuole sviluppare le sue competenze nella vendita, facilitazione, psicologia o posizionamento? Mi dica su cosa sta lavorando e la indirizzerò alla risorsa giusta.",
+      "tag": "Facilitativo · Sviluppo"
+    }
+  },
+  "profile": {
+    "title": "Il suo profilo di consulente",
+    "descEmpty": "Risponda a poche domande una volta sola — userò il suo background in ogni raccomandazione, senza chiedere di nuovo.",
+    "descSaved": "Salvato · toccare per rivedere o aggiornare",
+    "tagActive": "Profilo attivo",
+    "tagEmpty": "Non configurato",
+    "questions": {
+      "experience": "Da quanto tempo svolge attività di consulenza?",
+      "enjoyment": "Che tipo di conversazioni di consulenza apprezza di più o si sente di fare meglio?",
+      "technicalStrengths": "In quali aree si sente tecnicamente forte?",
+      "toolsComfort": "Quanto si sente a proprio agio nell'usare strumenti e framework strutturati?",
+      "notes": "C'è altro sul suo modo di lavorare che mi aiuterebbe ad adattare le mie raccomandazioni?"
+    },
+    "save": "Salva profilo",
+    "clear": "Cancella",
+    "back": "← Menu principale"
+  },
+  "voice": {
+    "tapToSpeak": "Tocca per parlare",
+    "recording": "Registrazione — parli ora",
+    "stopRecording": "Ferma registrazione",
+    "capturedEdit": "Acquisito — modifichi qui sotto o registri di nuovo",
+    "capturedReview": "Acquisito — riveda poi invii",
+    "recordAgain": "Registra di nuovo"
+  },
+  "input": {
+    "placeholderDiscover": "Descriva cosa sta cercando...",
+    "placeholderDefault": "Scriva la sua risposta...",
+    "send": "Invia",
+    "sending": "...",
+    "hint": "Invio per inviare · Maiusc+Invio per nuova riga",
+    "listening": "🎤 In ascolto..."
+  },
+  "opening": {
+    "client": "Ottimo — lavoriamo insieme su questo.\n\nMi parli del suo cliente e della situazione che vuole affrontare — userò queste informazioni, insieme a ciò che già so di lei, per trovare il modello giusto.\n\n**Qual è la situazione o la sfida principale che desidera affrontare con questo cliente?**",
+    "discover": "Certo — troviamo il modello giusto per lei.\n\n**Mi dica cosa ha in mente. Può descriverlo per quello che fa (\"qualcosa che aiuta i clienti a capire il loro flusso di cassa\"), per una combinazione di argomenti (\"pianificazione strategica più coinvolgimento del team\"), o per un nome che ricorda a metà (\"qualcosa come quello del Capitale Circolante\"). Più dettagli fornisce, meglio posso trovarlo.**",
+    "plan": "Ottimo — riflettiamo insieme su questo.\n\nPrima di indicarle lo strumento giusto, voglio capire dove si trova e cosa sta cercando di raggiungere — il miglior framework di pianificazione dipende interamente dalla sua situazione.\n\n**Cosa la spinge a pensare alla pianificazione anticipata proprio ora?**",
+    "learn": "Ottimo — questo è uno degli investimenti più preziosi che possa fare.\n\nPer assicurarmi di indicarle la risorsa giusta, voglio capire cosa vuole sviluppare e cosa la motiva.\n\n**In quale area si sente più attratto/a a lavorare — acquisire clienti, competenze di facilitazione, il lato psicologico, posizionamento e messaggi, o qualcos'altro?**"
+  },
+  "error": "Siamo spiacenti, si è verificato un errore. Riprovi."
+}

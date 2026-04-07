@@ -1,0 +1,72 @@
+{
+  "header": {
+    "title": "Conseiller Virtuel",
+    "subtitle": "Propulsé par Advisor-e",
+    "backToMenu": "← Menu principal",
+    "close": "Fermer"
+  },
+  "mode": {
+    "intro": "Par où souhaitez-vous commencer ?",
+    "sub": "Choisissez une option ci-dessous et je vous guiderai",
+    "client": {
+      "title": "J'ai une situation client",
+      "desc": "Parlez-moi d'un défi auquel fait face votre client. Je poserai quelques questions pour comprendre le contexte — puis je recommanderai le(s) bon(s) outil(s) dans le bon ordre.",
+      "tag": "Guidé · Facilitatif"
+    },
+    "discover": {
+      "title": "Je cherche quelque chose de précis",
+      "desc": "Vous cherchez un outil similaire à quelque chose que vous connaissez, ou qui combine deux capacités ? Décrivez ce que vous avez en tête.",
+      "tag": "Rapide · Découverte"
+    },
+    "plan": {
+      "title": "Je veux planifier à l'avance",
+      "desc": "Dites-moi où vous en êtes dans votre pratique et ce vers quoi vous travaillez. Je vous aiderai à trouver les bons outils de planification pour votre situation.",
+      "tag": "Facilitatif · Planification"
+    },
+    "learn": {
+      "title": "Je souhaite en apprendre davantage",
+      "desc": "Vous souhaitez développer vos compétences en vente, facilitation, psychologie ou positionnement ? Dites-moi sur quoi vous travaillez et je vous orienterai vers la bonne ressource.",
+      "tag": "Facilitatif · Développement"
+    }
+  },
+  "profile": {
+    "title": "Votre profil de conseiller",
+    "descEmpty": "Répondez une seule fois à quelques questions — j'utiliserai votre contexte dans chaque recommandation, sans vous le redemander.",
+    "descSaved": "Enregistré · appuyez pour réviser ou mettre à jour",
+    "tagActive": "Profil actif",
+    "tagEmpty": "Non configuré",
+    "questions": {
+      "experience": "Depuis combien de temps exercez-vous des activités de conseil ?",
+      "enjoyment": "Quels types de conversations de conseil appréciez-vous le plus ou pensez-vous mener le mieux ?",
+      "technicalStrengths": "Dans quels domaines vous sentez-vous techniquement fort(e) ?",
+      "toolsComfort": "Dans quelle mesure êtes-vous à l'aise avec l'utilisation d'outils et de cadres structurés ?",
+      "notes": "Y a-t-il autre chose sur votre façon de travailler qui m'aiderait à personnaliser mes recommandations ?"
+    },
+    "save": "Enregistrer le profil",
+    "clear": "Effacer",
+    "back": "← Menu principal"
+  },
+  "voice": {
+    "tapToSpeak": "Appuyer pour parler",
+    "recording": "Enregistrement — parlez maintenant",
+    "stopRecording": "Arrêter l'enregistrement",
+    "capturedEdit": "Capturé — modifiez ci-dessous ou recommencez",
+    "capturedReview": "Capturé — vérifiez puis envoyez",
+    "recordAgain": "Enregistrer à nouveau"
+  },
+  "input": {
+    "placeholderDiscover": "Décrivez ce que vous cherchez...",
+    "placeholderDefault": "Tapez votre réponse...",
+    "send": "Envoyer",
+    "sending": "...",
+    "hint": "Entrée pour envoyer · Maj+Entrée pour nouvelle ligne",
+    "listening": "🎤 En écoute..."
+  },
+  "opening": {
+    "client": "Parfait — travaillons cela ensemble.\n\nParlez-moi de votre client et de la situation que vous souhaitez aborder — j'utiliserai cela, ainsi que ce que je sais déjà de vous, pour trouver le bon outil.\n\n**Quelle est la situation ou le défi principal que vous souhaitez adresser avec ce client ?**",
+    "discover": "Bien sûr — trouvons le bon outil pour vous.\n\n**Dites-moi ce que vous avez en tête. Vous pouvez le décrire par ce qu'il fait (\"quelque chose qui aide les clients à comprendre leur flux de trésorerie\"), par une combinaison de sujets (\"planification stratégique plus engagement d'équipe\"), ou par un nom dont vous vous souvenez à moitié (\"quelque chose comme celui du Fonds de roulement\"). Plus vous donnez de détails, mieux je peux le trouver.**",
+    "plan": "Parfait — réfléchissons à cela ensemble.\n\nAvant de vous orienter vers le bon outil, je veux comprendre où vous en êtes et ce que vous essayez d'accomplir — le meilleur cadre de planification dépend entièrement de votre situation.\n\n**Qu'est-ce qui vous amène à penser à planifier à l'avance en ce moment ?**",
+    "learn": "Parfait — c'est l'une des choses les plus précieuses dans lesquelles vous pouvez investir.\n\nPour m'assurer de vous orienter vers la bonne ressource, je veux comprendre ce que vous cherchez à développer et ce qui le motive.\n\n**Sur quel domaine êtes-vous le plus attiré(e) à travailler — gagner des clients, compétences en facilitation, la dimension psychologique, positionnement et messages, ou autre chose ?**"
+  },
+  "error": "Désolé, une erreur s'est produite. Veuillez réessayer."
+}

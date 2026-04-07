@@ -503,7 +503,7 @@ async function handleQuery (rawBody, res) {
     return
   }
 
-  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile } = parsed
+  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile, language = 'en', languageName = 'English' } = parsed
 
   if (!query || !query.trim()) {
     res.writeHead(400, { 'Content-Type': 'application/json' })
@@ -511,7 +511,10 @@ async function handleQuery (rawBody, res) {
     return
   }
 
-  const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client
+  const languageInstruction = language !== 'en'
+    ? `\n\nIMPORTANT: The advisor is using the ${languageName} interface. Always respond entirely in ${languageName}, regardless of what language the advisor writes in.`
+    : ''
+  const systemPrompt = (SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client) + languageInstruction
   const orgTemplates = getOrgTemplates(orgTemplateIds || null)
   const primarySections = MODE_SECTIONS[mode] || null
 

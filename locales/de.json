@@ -1,0 +1,72 @@
+{
+  "header": {
+    "title": "Virtueller Berater",
+    "subtitle": "Powered by Advisor-e",
+    "backToMenu": "← Hauptmenü",
+    "close": "Schließen"
+  },
+  "mode": {
+    "intro": "Wie möchten Sie beginnen?",
+    "sub": "Wählen Sie eine Option unten und ich führe Sie von dort",
+    "client": {
+      "title": "Ich habe eine Kundensituation",
+      "desc": "Erzählen Sie mir von einer Herausforderung Ihres Kunden. Ich stelle einige Fragen, um den Kontext zu verstehen — dann empfehle ich die richtigen Vorlagen in der richtigen Reihenfolge.",
+      "tag": "Geführt · Facilitativ"
+    },
+    "discover": {
+      "title": "Ich suche etwas Bestimmtes",
+      "desc": "Suchen Sie eine Vorlage ähnlich wie etwas, das Sie kennen, oder eine, die zwei Fähigkeiten kombiniert? Beschreiben Sie, was Sie im Sinn haben.",
+      "tag": "Schnell · Entdeckung"
+    },
+    "plan": {
+      "title": "Ich möchte vorausplanen",
+      "desc": "Sagen Sie mir, wo Sie in Ihrer Praxis stehen und worauf Sie hinarbeiten. Ich helfe Ihnen, die richtigen Planungswerkzeuge für Ihre Situation zu finden.",
+      "tag": "Facilitativ · Beraterplanung"
+    },
+    "learn": {
+      "title": "Ich möchte mehr lernen",
+      "desc": "Möchten Sie Ihre Fähigkeiten in Verkauf, Facilitation, Psychologie oder Positionierung entwickeln? Sagen Sie mir, woran Sie arbeiten, und ich weise Sie auf die richtige Ressource hin.",
+      "tag": "Facilitativ · Entwicklung"
+    }
+  },
+  "profile": {
+    "title": "Ihr Beraterprofil",
+    "descEmpty": "Beantworten Sie einige Fragen einmalig — ich nutze Ihren Hintergrund in jeder Empfehlung, ohne erneut zu fragen.",
+    "descSaved": "Gespeichert · zum Überprüfen oder Aktualisieren tippen",
+    "tagActive": "Profil aktiv",
+    "tagEmpty": "Nicht eingerichtet",
+    "questions": {
+      "experience": "Wie lange sind Sie schon in der Beratung tätig?",
+      "enjoyment": "Welche Art von Beratungsgesprächen genießen Sie am meisten oder führen Sie am besten?",
+      "technicalStrengths": "In welchen Bereichen fühlen Sie sich technisch stark?",
+      "toolsComfort": "Wie wohl fühlen Sie sich bei der Verwendung strukturierter Tools und Frameworks?",
+      "notes": "Gibt es sonst etwas über Ihre Arbeitsweise, das mir helfen würde, meine Empfehlungen anzupassen?"
+    },
+    "save": "Profil speichern",
+    "clear": "Löschen",
+    "back": "← Hauptmenü"
+  },
+  "voice": {
+    "tapToSpeak": "Zum Sprechen tippen",
+    "recording": "Aufnahme — bitte sprechen",
+    "stopRecording": "Aufnahme stoppen",
+    "capturedEdit": "Aufgenommen — unten bearbeiten oder erneut aufnehmen",
+    "capturedReview": "Aufgenommen — überprüfen und dann senden",
+    "recordAgain": "Erneut aufnehmen"
+  },
+  "input": {
+    "placeholderDiscover": "Beschreiben Sie, was Sie suchen...",
+    "placeholderDefault": "Geben Sie Ihre Antwort ein...",
+    "send": "Senden",
+    "sending": "...",
+    "hint": "Enter zum Senden · Umschalt+Enter für neue Zeile",
+    "listening": "🎤 Höre zu..."
+  },
+  "opening": {
+    "client": "Gut — lassen Sie uns das gemeinsam durcharbeiten.\n\nErzählen Sie mir von Ihrem Kunden und der Situation, die Sie ansprechen möchten — ich verwende das, zusammen mit dem, was ich bereits über Sie weiß, um die richtige Vorlage zu finden.\n\n**Was ist die Kernsituation oder Herausforderung, die Sie mit diesem Kunden angehen möchten?**",
+    "discover": "Natürlich — lassen Sie uns die richtige Vorlage für Sie finden.\n\n**Sagen Sie mir, was Sie im Sinn haben. Sie können es beschreiben durch was es tut (\"etwas, das Kunden hilft, ihren Cashflow zu verstehen\"), durch eine Kombination von Themen (\"strategische Planung plus Teamengagement\"), oder durch einen halb erinnerten Namen (\"so etwas wie das Betriebskapital-Thema\"). Je mehr Details Sie geben, desto besser kann ich es finden.**",
+    "plan": "Gut — lassen Sie uns das gemeinsam durchdenken.\n\nBevor ich Sie zum richtigen Werkzeug führe, möchte ich verstehen, wo Sie stehen und was Sie erreichen möchten — der beste Planungsrahmen hängt ganz von Ihrer Situation ab.\n\n**Was veranlasst Sie gerade jetzt, über vorausschauende Planung nachzudenken?**",
+    "learn": "Gut — das ist eine der wertvollsten Investitionen, die Sie machen können.\n\nUm sicherzustellen, dass ich Sie zur richtigen Ressource führe, möchte ich verstehen, was Sie entwickeln möchten und was Sie antreibt.\n\n**In welchem Bereich fühlen Sie sich am meisten hingezogen zu arbeiten — Kunden gewinnen, Facilitationsfähigkeiten, die psychologische Seite, Positionierung und Botschaften oder etwas anderes?**"
+  },
+  "error": "Es tut uns leid, etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+}

@@ -1,0 +1,72 @@
+{
+  "header": {
+    "title": "Virtuele Adviseur",
+    "subtitle": "Aangedreven door Advisor-e",
+    "backToMenu": "← Hoofdmenu",
+    "close": "Sluiten"
+  },
+  "mode": {
+    "intro": "Hoe wilt u beginnen?",
+    "sub": "Kies een optie hieronder en ik begeleid u verder",
+    "client": {
+      "title": "Ik heb een klantensituatie",
+      "desc": "Vertel me over een uitdaging van uw klant. Ik stel enkele vragen om de context te begrijpen — dan aanbeveel ik de juiste template(s) in de juiste volgorde.",
+      "tag": "Begeleid · Facilitatief"
+    },
+    "discover": {
+      "title": "Ik wil iets specifieks vinden",
+      "desc": "Zoekt u een template vergelijkbaar met iets dat u kent, of een die twee mogelijkheden combineert? Beschrijf wat u in gedachten heeft.",
+      "tag": "Snel · Ontdekking"
+    },
+    "plan": {
+      "title": "Ik wil vooruit plannen",
+      "desc": "Vertel me waar u staat in uw praktijk en waaraan u werkt. Ik help u de juiste planningstools voor uw situatie te vinden.",
+      "tag": "Facilitatief · Adviesplanning"
+    },
+    "learn": {
+      "title": "Ik wil meer leren",
+      "desc": "Wilt u uw vaardigheden ontwikkelen in verkoop, facilitatie, psychologie of positionering? Vertel me waaraan u werkt en ik wijs u op de juiste bron.",
+      "tag": "Facilitatief · Ontwikkeling"
+    }
+  },
+  "profile": {
+    "title": "Uw adviseursprofiel",
+    "descEmpty": "Beantwoord een paar vragen eenmalig — ik gebruik uw achtergrond in elke aanbeveling, zonder opnieuw te vragen.",
+    "descSaved": "Opgeslagen · tik om te bekijken of bij te werken",
+    "tagActive": "Profiel actief",
+    "tagEmpty": "Niet ingesteld",
+    "questions": {
+      "experience": "Hoe lang levert u al adviesdiensten?",
+      "enjoyment": "Welk soort adviesgesprekken vindt u het leukst of doet u het beste?",
+      "technicalStrengths": "Op welke gebieden voelt u zich technisch sterk?",
+      "toolsComfort": "Hoe comfortabel bent u met het gebruik van gestructureerde tools en frameworks?",
+      "notes": "Is er nog iets over uw manier van werken dat me zou helpen mijn aanbevelingen op u af te stemmen?"
+    },
+    "save": "Profiel opslaan",
+    "clear": "Wissen",
+    "back": "← Hoofdmenu"
+  },
+  "voice": {
+    "tapToSpeak": "Tik om te spreken",
+    "recording": "Opname — spreek nu",
+    "stopRecording": "Opname stoppen",
+    "capturedEdit": "Opgenomen — bewerk hieronder of neem opnieuw op",
+    "capturedReview": "Opgenomen — controleer dan Verzenden",
+    "recordAgain": "Opnieuw opnemen"
+  },
+  "input": {
+    "placeholderDiscover": "Beschrijf wat u zoekt...",
+    "placeholderDefault": "Typ uw antwoord...",
+    "send": "Verzenden",
+    "sending": "...",
+    "hint": "Enter om te verzenden · Shift+Enter voor nieuwe regel",
+    "listening": "🎤 Luisteren..."
+  },
+  "opening": {
+    "client": "Uitstekend — laten we dit samen doorwerken.\n\nVertel me over uw klant en de situatie die u wilt aanpakken — ik gebruik dat, samen met wat ik al over u weet, om de juiste template te vinden.\n\n**Wat is de kernsituatie of uitdaging die u met deze klant wilt aanpakken?**",
+    "discover": "Zeker — laten we de juiste template voor u vinden.\n\n**Vertel me wat u in gedachten heeft. U kunt het beschrijven door wat het doet (\"iets dat klanten helpt hun cashflow te begrijpen\"), door een combinatie van onderwerpen (\"strategische planning plus teambetrokkenheid\"), of door een naam die u half herinnert (\"zoiets als het Werkkapitaal-onderwerp\"). Hoe meer details u geeft, hoe beter ik het kan vinden.**",
+    "plan": "Uitstekend — laten we dit samen doordenken.\n\nVoordat ik u naar het juiste instrument wijs, wil ik begrijpen waar u staat en wat u probeert te bereiken — het beste planningskader hangt volledig af van uw situatie.\n\n**Wat brengt u ertoe nu na te denken over vooruit plannen?**",
+    "learn": "Uitstekend — dit is een van de meest waardevolle investeringen die u kunt maken.\n\nOm er zeker van te zijn dat ik u naar de juiste bron wijs, wil ik begrijpen wat u wilt ontwikkelen en wat u drijft.\n\n**Op welk gebied bent u het meest geneigd te werken — klanten winnen, facilitatievaardigheden, de psychologische kant, positionering en berichten, of iets anders?**"
+  },
+  "error": "Sorry, er is iets misgegaan. Probeer het opnieuw."
+}
