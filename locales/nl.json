@@ -5,6 +5,11 @@
     "backToMenu": "← Hoofdmenu",
     "close": "Sluiten"
   },
+  "hero": {
+    "eyebrow": "Welkom terug",
+    "title": "Wat wilt u vandaag doen?",
+    "sub": "Uw intelligente adviesassistent — kies een modus om te beginnen."
+  },
   "mode": {
     "intro": "Hoe wilt u beginnen?",
     "sub": "Kies een optie hieronder en ik begeleid u verder",

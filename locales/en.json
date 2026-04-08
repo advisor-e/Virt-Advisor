@@ -5,6 +5,11 @@
     "backToMenu": "← Main menu",
     "close": "Close"
   },
+  "hero": {
+    "eyebrow": "Welcome back",
+    "title": "What would you like to do today?",
+    "sub": "Your intelligent advisory companion — pick a mode to get started."
+  },
   "mode": {
     "intro": "How would you like to start?",
     "sub": "Choose an option below and I'll guide you from there",

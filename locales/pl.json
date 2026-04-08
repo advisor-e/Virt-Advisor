@@ -5,6 +5,11 @@
     "backToMenu": "← Menu główne",
     "close": "Zamknij"
   },
+  "hero": {
+    "eyebrow": "Witaj ponownie",
+    "title": "Co chciałbyś dziś zrobić?",
+    "sub": "Twój inteligentny asystent doradczy — wybierz tryb, aby zacząć."
+  },
   "mode": {
     "intro": "Od czego chciałbyś/chciałabyś zacząć?",
     "sub": "Wybierz opcję poniżej, a poprowadzę Cię dalej",

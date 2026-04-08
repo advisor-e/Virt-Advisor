@@ -533,12 +533,26 @@ async function handleQuery (rawBody, res) {
   }
 
   const templatesText = formatTemplatesForPrompt(templatesToUse)
-  const coachingText = formatCoachingForPrompt()
+
+  // Trim conversation history to prevent context bloat in long sessions
+  const trimmedHistory = conversationHistory.length > 12
+    ? conversationHistory.slice(-12)
+    : conversationHistory
+
+  // Coaching reference: only needed when approaching or making a recommendation.
+  // Discover mode always needs it (first response IS a recommendation).
+  // Other modes: defer until conversation is deep enough (4+ exchanges).
+  const includeCoaching = mode === 'discover' || trimmedHistory.length >= 4
+  const coachingText = includeCoaching ? formatCoachingForPrompt() : null
+
+  // Use gpt-4o-mini throughout — fast and more than capable for conversational Q&A.
+  // Only switch to gpt-4o for the final recommendation (deep conversation, 10+ messages).
+  const model = trimmedHistory.length < 10 ? 'gpt-4o-mini' : 'gpt-4o'
 
   // Summaries only apply to Do the Job templates — skip for plan/learn modes.
   // Also defer until conversation is deep enough to be approaching a recommendation.
   const summariesApply = mode === 'client' || mode === 'discover'
-  const relevantSummaries = summariesApply && conversationHistory.length >= 6 ? filterSummariesByQuery(query, 10) : []
+  const relevantSummaries = summariesApply && trimmedHistory.length >= 6 ? filterSummariesByQuery(query, 10) : []
   const summariesText = formatSummariesForPrompt(relevantSummaries)
 
   const advisorProfileText = advisorProfile ? formatAdvisorProfile(advisorProfile) : null
@@ -572,12 +586,9 @@ async function handleQuery (rawBody, res) {
     `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)`,
     '',
     templatesText,
-    '',
-    '---',
-    '',
-    '## Coaching Reference — Expert Guidance on Template Selection',
-    '',
-    coachingText,
+    coachingText
+      ? '\n---\n\n## Coaching Reference — Expert Guidance on Template Selection\n\n' + coachingText
+      : '',
     summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : '',
     advisorProfileText
       ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. Reference the profile below in your recommendation exactly as you would answers given in conversation.\n\n' + advisorProfileText
@@ -588,7 +599,7 @@ async function handleQuery (rawBody, res) {
   const messages = [
     { role: 'user', content: contextMessage },
     { role: 'assistant', content: OPENING_MSG[mode] || OPENING_MSG.client },
-    ...conversationHistory,
+    ...trimmedHistory,
     { role: 'user', content: query }
   ]
 
@@ -605,7 +616,7 @@ async function handleQuery (rawBody, res) {
   }
 
   const stream = await getOpenAI().chat.completions.create({
-    model: 'gpt-4o',
+    model,
     max_tokens: 1024,
     stream: true,
     messages: [
