@@ -33,6 +33,10 @@
                 span.lang-opt-badge(v-if="loadingLang === lang.code") ⟳
                 span.lang-opt-badge(v-else-if="$i18n.locale === lang.code") ✓
               p.lang-error(v-if="langError") {{ langError }}
+        button.btn-cases(v-if="myCases.length > 0" @click="showCasesPanel = true" title="My saved cases")
+          | 📋
+          span.cases-badge(v-if="myCases.length") {{ myCases.length }}
+        button.btn-save(v-if="canSave" @click="showSavePanel = true" title="Save session as case study") 💾
         button.btn-clear(v-if="mode" @click="reset") {{ $t('header.backToMenu') }}
         button.btn-close(@click="closeSession" :title="$t('header.close')") ✕
 
@@ -199,10 +203,112 @@
         span(v-else) {{ $t('input.send') }}
 
     p.input-hint(v-if="!speechSupported") {{ $t('input.hint') }}
+
+  //- Save case study panel
+  .save-overlay(v-if="showSavePanel" @click.self="showSavePanel = false")
+    .save-modal
+      h2.save-title Save as case study
+      p.save-desc Give this session a title and choose who can see it.
+
+      label.save-label Session title
+      input.save-input(
+        v-model="saveTitle"
+        placeholder="e.g. Cash flow challenge — retail client"
+        maxlength="100"
+        ref="saveTitleInput"
+      )
+
+      label.save-label Visibility
+      .save-visibility
+        label.vis-opt(:class="{ 'vis-active': saveVisibility === 'shared' }")
+          input(type="radio" v-model="saveVisibility" value="shared")
+          .vis-body
+            span.vis-icon 🏢
+            div
+              strong Share with my firm
+              p Advisors in your firm can see this and the AI will reference it in their sessions
+        label.vis-opt(:class="{ 'vis-active': saveVisibility === 'private' }")
+          input(type="radio" v-model="saveVisibility" value="private")
+          .vis-body
+            span.vis-icon 🔒
+            div
+              strong My eyes only
+              p Only you can see this — the AI will reference it only in your sessions
+
+      p.save-success(v-if="saveSuccess") ✓ Saved successfully
+      p.save-error(v-if="saveError") {{ saveError }}
+
+      .save-actions
+        button.save-btn-confirm(@click="saveSession" :disabled="!saveTitle.trim()") Save case study
+        button.save-btn-cancel(@click="showSavePanel = false") Cancel
+
+  //- My Cases panel
+  .cases-overlay(v-if="showCasesPanel" @click.self="closeCasesPanel")
+    .cases-modal
+      .cases-modal-header
+        div
+          h2.cases-modal-title My Saved Cases
+          p.cases-modal-sub {{ myCases.length }} session{{ myCases.length === 1 ? '' : 's' }} saved
+        button.cases-close(@click="closeCasesPanel") ✕
+
+      .cases-empty(v-if="myCases.length === 0")
+        p No saved cases yet. Save a session using the 💾 button during a conversation.
+
+      .cases-list(v-else)
+        .case-item(v-for="c in myCases" :key="c.id")
+          .case-header(@click="toggleCase(c.id)")
+            .case-meta
+              span.case-title {{ c.title }}
+              .case-tags
+                span.case-mode-tag {{ modeName(c.mode) }}
+                span.case-vis-tag {{ c.visibility === 'shared' ? '🏢 Shared' : '🔒 Private' }}
+            .case-header-right
+              span.case-date {{ formatDate(c.createdAt) }}
+              span.case-chevron {{ expandedCaseId === c.id ? '▲' : '▼' }}
+
+          .case-body(v-if="expandedCaseId === c.id")
+            .case-summary
+              p.case-summary-label AI Recommendation Summary
+              p.case-summary-text {{ c.summary }}
+
+            .case-review-section
+              h3.review-heading Post-Delivery Review
+              p.review-sub After delivering this session to your client, record what actually happened. The AI will use this to improve future recommendations.
+
+              .review-field
+                label.review-label ✓ What went well?
+                textarea.review-textarea(
+                  v-model="reviewDraft.wentWell"
+                  rows="3"
+                  placeholder="What worked? What did the client respond well to?"
+                )
+              .review-field
+                label.review-label ⚠ What could have gone better?
+                textarea.review-textarea(
+                  v-model="reviewDraft.wentLess"
+                  rows="3"
+                  placeholder="What was harder than expected? What didn't land well?"
+                )
+              .review-field
+                label.review-label → Recommended changes for similar cases
+                textarea.review-textarea(
+                  v-model="reviewDraft.changesRecommended"
+                  rows="3"
+                  placeholder="What would you do differently next time?"
+                )
+
+              .review-actions
+                button.review-save-btn(@click="saveReview(c.id)") {{ reviewSavedId === c.id ? '✓ Saved' : 'Save review' }}
+                button.review-delete-btn(
+                  @click="confirmDeleteId === c.id ? deleteCaseAndRefresh(c.id) : confirmDeleteId = c.id"
+                )
+                  | {{ confirmDeleteId === c.id ? 'Confirm delete' : 'Delete case' }}
+                button.review-cancel-btn(v-if="confirmDeleteId === c.id" @click="confirmDeleteId = null") Cancel
 </template>
 
 <script>
 import { LANGUAGES } from '~/data/languages'
+import { saveCase, getRelevantCases, updateCaseReview, deleteCase, getCases } from '~/utils/cases'
 
 function flattenObj (obj, prefix = '') {
   return Object.keys(obj).reduce((acc, k) => {
@@ -237,6 +343,14 @@ export default {
     orgTemplateIds: {
       type: Array,
       default: null
+    },
+    advisorId: {
+      type: String,
+      default: 'local-advisor'
+    },
+    firmId: {
+      type: String,
+      default: 'local-firm'
     }
   },
 
@@ -257,7 +371,18 @@ export default {
       langPickerOpen: false,
       langSearch: '',
       loadingLang: null,
-      langError: null
+      langError: null,
+      showSavePanel: false,
+      saveTitle: '',
+      saveVisibility: 'shared',
+      saveSuccess: false,
+      saveError: null,
+      myCases: [],
+      showCasesPanel: false,
+      expandedCaseId: null,
+      reviewDraft: { wentWell: '', wentLess: '', changesRecommended: '' },
+      reviewSavedId: null,
+      confirmDeleteId: null
     }
   },
 
@@ -304,6 +429,14 @@ export default {
     profileSummary () {
       const text = this.advisorProfile.experience || this.advisorProfile.enjoyment || ''
       return text.length > 70 ? text.slice(0, 70) + '…' : text
+    },
+    canSave () {
+      // At least one full exchange (user message + AI response)
+      return !!this.mode && this.messages.filter(m => m.role === 'user').length >= 1
+    },
+    relevantCases () {
+      if (!this.mode) return []
+      return getRelevantCases(this.advisorId, this.firmId, this.mode)
     }
   },
 
@@ -318,6 +451,8 @@ export default {
       }
     }
     document.addEventListener('click', this._onDocClick)
+
+    this.refreshMyCases()
 
     const saved = localStorage.getItem('va_advisor_profile')
     if (saved) {
@@ -417,6 +552,82 @@ export default {
       localStorage.setItem(cacheKey, JSON.stringify(nested))
     },
 
+    refreshMyCases () {
+      this.myCases = getCases().filter(c => c.advisorId === this.advisorId)
+    },
+
+    saveSession () {
+      this.saveError = null
+      if (!this.saveTitle.trim()) return
+      try {
+        const lastAI = [...this.messages].reverse().find(m => m.role === 'assistant')
+        const summary = lastAI ? lastAI.content.slice(0, 600) + (lastAI.content.length > 600 ? '…' : '') : ''
+        saveCase({
+          advisorId: this.advisorId,
+          firmId: this.firmId,
+          title: this.saveTitle.trim(),
+          mode: this.mode,
+          transcript: this.messages,
+          summary,
+          visibility: this.saveVisibility
+        })
+        this.refreshMyCases()
+        this.saveSuccess = true
+        this.saveTitle = ''
+        setTimeout(() => {
+          this.saveSuccess = false
+          this.showSavePanel = false
+        }, 1500)
+      } catch (e) {
+        this.saveError = 'Could not save. Please try again.'
+      }
+    },
+
+    closeCasesPanel () {
+      this.showCasesPanel = false
+      this.expandedCaseId = null
+      this.reviewDraft = { wentWell: '', wentLess: '', changesRecommended: '' }
+      this.reviewSavedId = null
+      this.confirmDeleteId = null
+    },
+
+    toggleCase (id) {
+      if (this.expandedCaseId === id) {
+        this.expandedCaseId = null
+        return
+      }
+      this.expandedCaseId = id
+      this.confirmDeleteId = null
+      this.reviewSavedId = null
+      const c = this.myCases.find(c => c.id === id)
+      this.reviewDraft = c && c.review
+        ? { wentWell: c.review.wentWell || '', wentLess: c.review.wentLess || '', changesRecommended: c.review.changesRecommended || '' }
+        : { wentWell: '', wentLess: '', changesRecommended: '' }
+    },
+
+    saveReview (caseId) {
+      updateCaseReview(caseId, { ...this.reviewDraft, reviewedAt: new Date().toISOString() })
+      this.refreshMyCases()
+      this.reviewSavedId = caseId
+      setTimeout(() => { this.reviewSavedId = null }, 2000)
+    },
+
+    deleteCaseAndRefresh (id) {
+      deleteCase(id)
+      this.refreshMyCases()
+      this.expandedCaseId = null
+      this.confirmDeleteId = null
+    },
+
+    modeName (mode) {
+      return { client: 'Client situation', discover: 'Discovery', plan: 'Planning', learn: 'Learning' }[mode] || mode
+    },
+
+    formatDate (iso) {
+      if (!iso) return ''
+      return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    },
+
     selectMode (selected) {
       this.mode = selected
       this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
@@ -428,6 +639,10 @@ export default {
       this.messages = []
       this.inputText = ''
       this.streamingText = ''
+      this.showSavePanel = false
+      this.saveTitle = ''
+      this.saveSuccess = false
+      this.saveError = null
     },
 
     closeSession () {
@@ -499,7 +714,14 @@ export default {
             languageName: this.currentLanguageName,
             orgTemplateIds: this.orgTemplateIds,
             conversationHistory: this.conversationHistory.slice(0, -1),
-            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null
+            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
+            caseSummaries: this.relevantCases.map(c => ({
+              title: c.title,
+              mode: c.mode,
+              visibility: c.visibility,
+              summary: c.summary,
+              date: c.createdAt
+            }))
           })
         })
 
@@ -993,4 +1215,287 @@ export default {
   font-size: 12px;
 }
 .voice-btn-redo:hover { background: #f9fafb; }
+
+/* Save button */
+.btn-save {
+  font-size: 16px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+.btn-save:hover { background: rgba(255,255,255,0.2); }
+
+/* Save panel overlay */
+.save-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 24px;
+}
+.save-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.save-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+}
+.save-desc {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 20px;
+}
+.save-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.save-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #111827;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+.save-input:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
+
+.save-visibility { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.vis-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.vis-opt input { display: none; }
+.vis-opt:hover { border-color: #93c5fd; }
+.vis-active { border-color: #1e40af; background: #eff6ff; }
+.vis-body { display: flex; align-items: flex-start; gap: 12px; }
+.vis-icon { font-size: 22px; flex-shrink: 0; }
+.vis-body div { display: flex; flex-direction: column; gap: 2px; }
+.vis-body strong { font-size: 14px; font-weight: 600; color: #111827; }
+.vis-body p { font-size: 12px; color: #6b7280; margin: 0; line-height: 1.4; }
+
+.save-success { font-size: 13px; color: #16a34a; font-weight: 600; margin: 0 0 12px; }
+.save-error { font-size: 13px; color: #dc2626; margin: 0 0 12px; }
+
+.save-actions { display: flex; gap: 10px; }
+.save-btn-confirm {
+  flex: 1;
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.save-btn-confirm:hover:not(:disabled) { background: #1d3a98; }
+.save-btn-confirm:disabled { background: #9ca3af; cursor: not-allowed; }
+.save-btn-cancel {
+  background: none;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 11px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.save-btn-cancel:hover { color: #111827; border-color: #d1d5db; }
+
+/* Cases button */
+.btn-cases {
+  position: relative;
+  font-size: 16px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+.btn-cases:hover { background: rgba(255,255,255,0.2); }
+.cases-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #dc2626;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Cases panel */
+.cases-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 300;
+  padding: 24px;
+  overflow-y: auto;
+}
+.cases-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 620px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  overflow: hidden;
+  margin: auto;
+}
+.cases-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.cases-modal-title { font-size: 18px; font-weight: 700; color: #111827; margin: 0 0 2px; }
+.cases-modal-sub { font-size: 13px; color: #6b7280; margin: 0; }
+.cases-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+.cases-close:hover { color: #374151; }
+.cases-empty { padding: 32px 24px; text-align: center; color: #6b7280; font-size: 14px; }
+.cases-list { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.case-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.case-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  background: #f9fafb;
+  gap: 12px;
+}
+.case-header:hover { background: #f3f4f6; }
+.case-meta { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 0; }
+.case-title { font-size: 14px; font-weight: 600; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.case-tags { display: flex; gap: 6px; }
+.case-mode-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1e40af;
+  background: #eff6ff;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+.case-vis-tag {
+  font-size: 11px;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+.case-header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.case-date { font-size: 12px; color: #9ca3af; }
+.case-chevron { font-size: 10px; color: #9ca3af; }
+
+.case-body { padding: 16px; border-top: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 16px; }
+.case-summary-label { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 4px; }
+.case-summary-text { font-size: 13px; color: #374151; line-height: 1.5; margin: 0; max-height: 80px; overflow-y: auto; }
+
+.case-review-section { background: #fafbff; border: 1px solid #dbeafe; border-radius: 10px; padding: 16px; }
+.review-heading { font-size: 14px; font-weight: 700; color: #1e40af; margin: 0 0 4px; }
+.review-sub { font-size: 12px; color: #6b7280; margin: 0 0 14px; line-height: 1.4; }
+.review-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.review-label { font-size: 12px; font-weight: 600; color: #374151; }
+.review-textarea {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #111827;
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+}
+.review-textarea:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
+.review-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.review-save-btn {
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.review-save-btn:hover { background: #1d3a98; }
+.review-delete-btn {
+  background: none;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.review-delete-btn:hover { background: #fef2f2; }
+.review-cancel-btn {
+  background: none;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
 </style>

@@ -503,7 +503,7 @@ async function handleQuery (rawBody, res) {
     return
   }
 
-  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile, language = 'en', languageName = 'English' } = parsed
+  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile, language = 'en', languageName = 'English', caseSummaries = [] } = parsed
 
   if (!query || !query.trim()) {
     res.writeHead(400, { 'Content-Type': 'application/json' })
@@ -543,6 +543,31 @@ async function handleQuery (rawBody, res) {
 
   const advisorProfileText = advisorProfile ? formatAdvisorProfile(advisorProfile) : null
 
+  function formatCaseSummaries (cases) {
+    if (!cases || cases.length === 0) return null
+    const lines = ['## Past Case Studies']
+    lines.push('')
+    lines.push('These are real sessions saved by advisors in your firm. Reference them where relevant to show pattern recognition and build on prior experience — but only if genuinely applicable. Do not force references.')
+    lines.push('')
+    cases.forEach(c => {
+      const date = c.date ? new Date(c.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+      const scope = c.visibility === 'shared' ? 'Shared with firm' : 'Advisor\'s own'
+      lines.push(`### ${c.title} (${date} · ${scope})`)
+      lines.push(c.summary || '')
+      if (c.review) {
+        lines.push('')
+        lines.push('**Post-delivery review (what actually happened when this was delivered to a real client):**')
+        if (c.review.wentWell) lines.push(`✓ Went well: ${c.review.wentWell}`)
+        if (c.review.wentLess) lines.push(`⚠ Could have been better: ${c.review.wentLess}`)
+        if (c.review.changesRecommended) lines.push(`→ Recommended changes: ${c.review.changesRecommended}`)
+      }
+      lines.push('')
+    })
+    return lines.join('\n')
+  }
+
+  const caseSummariesText = formatCaseSummaries(caseSummaries)
+
   const contextMessage = [
     `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)`,
     '',
@@ -556,7 +581,8 @@ async function handleQuery (rawBody, res) {
     summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : '',
     advisorProfileText
       ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. Reference the profile below in your recommendation exactly as you would answers given in conversation.\n\n' + advisorProfileText
-      : ''
+      : '',
+    caseSummariesText ? '\n---\n\n' + caseSummariesText : ''
   ].join('\n')
 
   const messages = [
