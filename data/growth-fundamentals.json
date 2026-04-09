@@ -1,0 +1,104 @@
+{
+  "philosophy": "Growth is a philosophy — a fundamental requirement of life, but it only emerges AFTER the conditions and sustenance are present. You can't work on growth; only on the inputs that contribute to it. Each growth stage requires new mindsets, skill sets, resources and habits.",
+  "stages": [
+    {
+      "name": "Design",
+      "description": "Developing the business concept, getting ready to leave their job.",
+      "whatGotYouHere": "Frustrated with current income, lack of autonomy or time freedom — combined with the desire to see what they're capable of.",
+      "whatHoldsYouBack": "Current job security and fear of the unknown. Times of complete clarity clashed with doubt and resource fears.",
+      "complexityLayer": "Foundation",
+      "psycheError": "Confirmation Bias — accepting information that supports current beliefs, avoiding truths that confront them.",
+      "growthTactic": "Enthusiasm & Creativity — pushing hard, putting their head down, doing the hard yards. Momentum and learning through doing."
+    },
+    {
+      "name": "Launch",
+      "description": "Opening the doors and sharing their dream with the world.",
+      "whatGotYouHere": "Determined to have a go, armed with enough information to believe it's possible.",
+      "whatHoldsYouBack": "Realisation of the task enormity and financial risks of failure. Legitimate timing or resource obstacles.",
+      "complexityLayer": "Foundation",
+      "psycheError": "Confirmation Bias — maintaining singular focus on goals while suppressing growing fears.",
+      "growthTactic": "Enthusiasm & Creativity — this is about the fun of being in business and the focused effort required to gain momentum."
+    },
+    {
+      "name": "Break-even",
+      "description": "The business makes enough money to cover costs.",
+      "whatGotYouHere": "Significant work and effort, combined with a strong focus on customer delivery.",
+      "whatHoldsYouBack": "Lack of financial management or sales/marketing basics, strained resources, and fatigue.",
+      "complexityLayer": "Orientation",
+      "psycheError": "Complacency — the mind requiring recovery after sustained exhaustion; losing focus on external environment or proven processes.",
+      "growthTactic": "Clarity & Strategy — realising that 'sometimes, less is more'. Identifying the difference between being a great artisan vs. a great business owner. Thinking first, doing second."
+    },
+    {
+      "name": "Lifestyle",
+      "description": "The business makes enough profit to allow the owner/s to draw sufficient funds to meet their lifestyle and save money each month.",
+      "whatGotYouHere": "A clear understanding of the value offered to customers and financial awareness of what makes a difference and what doesn't.",
+      "whatHoldsYouBack": "Lack of clarity around business numerics, or lack of discipline in completing the tasks that matter, on time.",
+      "complexityLayer": "Orientation",
+      "psycheError": "Complacency — perceived security leads to inability to maintain focus on external environment. High risk of the Devil's Toilet here.",
+      "growthTactic": "Clarity & Strategy — stepping back to reflect on past efforts, learning from good and bad, identifying new focus and activities required."
+    },
+    {
+      "name": "Leverage",
+      "description": "The business can sustain the lifestyle of the owner/s without them being directly hands-on on a daily basis.",
+      "whatGotYouHere": "Recognition of market demand and the need to meet it in order to stay competitive, combined with desire to have the business less reliant on the owner/s.",
+      "whatHoldsYouBack": "Lack of faith in key staff (may be well founded), poor delegation/visibility/review procedures. Reluctance to let go. Business model built around the specialist service provider. Governance not yet ingrained.",
+      "complexityLayer": "Intelligence",
+      "psycheError": "Optimism Bias — deleting negative information to hold on to existing beliefs, even when those beliefs threaten future growth. Learning but choosing to ignore it.",
+      "growthTactic": "Delegation, Replication & Quantification — dissecting activities so team members can complete parts or all of the process. Multiplying value by scaling people, systems or fees.",
+      "keyNote": "The Devil's Toilet: The transition from Lifestyle to Leverage is the most treacherous on the Growth Curve. High complacency combined with fatigue from achieving Lifestyle creates a dangerous 'sucking force'. Advisors must encourage clients to bank profits and improve systems before attempting this transition."
+    },
+    {
+      "name": "Reach",
+      "description": "The business is now enjoying multiple locations as the brand is beginning to spread. New products are also part of the picture.",
+      "whatGotYouHere": "Proven systems and market acceptance of product/service, combined with brand awareness in local marketplace. Key staff capable of stepping up.",
+      "whatHoldsYouBack": "Lack of knowledge around consumer dynamics as they relate to the new marketplace or new product/service being adopted.",
+      "complexityLayer": "Expansion",
+      "psycheError": "Over-Exposure (Mere-Exposure Effect) — preferring the familiar and safe; avoiding commitment or minimising exposure. 'Keeping what we have' rather than 'achieving what we need'.",
+      "growthTactic": "Market Extension & Product Divergence — finding greater revenue to feed the machine. Confronting new frontiers: new markets or new products. Requires a major mindset shift."
+    },
+    {
+      "name": "Leapfrog",
+      "description": "The business enjoys the ability to purchase or merge with like-minded competitors. Market share is now substantial.",
+      "whatGotYouHere": "Sound business model with clarity of customer drivers and opportunity for ancillary services/products. Opportunity to capture market share with alternative distribution.",
+      "whatHoldsYouBack": "Lack of understanding of the epistemology behind a potential alliance or acquisition partner. Fragile governance protocols. Numbers that simply don't add up.",
+      "complexityLayer": "Expansion",
+      "psycheError": "Over-Exposure — 'going along to get along' out of fear of damaging early relations, which sets the scene for future personality clashes and political games.",
+      "growthTactic": "Alliances & Acquisition — using the skills and resources of others (primarily distribution and market penetration) to achieve expansive growth. Understanding the difference between compromising and collaborating is critical."
+    },
+    {
+      "name": "Maturity",
+      "description": "The business commands a sizeable market-share and creates a barrier to entry for any business looking to compete against it.",
+      "whatGotYouHere": "Vision, discipline and willingness to adapt to the needs of the business and marketplace; combined with sound knowledge of financial and business fundamentals.",
+      "whatHoldsYouBack": "Lack of financial management expertise; focus shifted from being customer-centric to becoming absorbed with internal and political issues. Lost contact with the marketplace.",
+      "complexityLayer": "Succession",
+      "psycheError": "Role-Identification (Over-Identification) — acting how a 'boss should', manufacturing appearances to be consistent with the ego's ideals. Poor decision making and inability to get out of their own way.",
+      "growthTactic": "Presence & Scale — maintaining and communicating consistently. Connecting and aligning teams to stay alert. Not a time to relax — arrogance is the key threat here."
+    },
+    {
+      "name": "Exit / Decline",
+      "description": "The owners realise their capital gain via sale, MBO, or succession. (If successful.) Or the business dwindles as the owner/s seek retirement. (If they missed the mark.)",
+      "whatGotYouHere": "Recognition that either the business has outgrown the owner, or it's opportunistic to realise the goodwill created with customers and staff alike.",
+      "whatHoldsYouBack": "Failure to have developed inherent value beyond personal involvement. Perhaps a lack of vision for life after business.",
+      "complexityLayer": "Succession",
+      "psycheError": "Over-Identification — stepping out of an organisation they personally identify with requires significant personal growth. The feelings of the 'lost self' are very confronting.",
+      "growthTactic": "Realisation — growth must be central to every aspect of business culture. You can't stage an impression of growth as you dress for sale; it must be part of everything the business has ever done.",
+      "keyNote": "The Split Point: This is the stage at which the business suddenly becomes far greater than just the owner. They must shift from 'doing everything' to 'knowing enough to make informed decisions about who to hire and what to need them to do'. Focus shifts from Visionary to Cheerleader."
+    }
+  ],
+  "growthAspects": [
+    { "name": "Process Improvement", "description": "Operations, work in progress, transactional volume, quality control, internal statistics and data collection." },
+    { "name": "Customer Focus", "description": "Their experience, product/service delivery and development." },
+    { "name": "Sales (Process)", "description": "Achieving critical revenue objectives consistently, securing resources, managing critical external relations." },
+    { "name": "Authenticity", "description": "Values (cultural), marketing (outbound messaging), aesthetics, feel/vibe/morale, packaging." },
+    { "name": "Inventory & Equipment", "description": "Consumable stock, materials, tools, machinery, vehicles, non-consumable working assets." },
+    { "name": "Team Focus", "description": "Skills development, internal communication, change management, recruitment, knowledge management, rewards and incentives." },
+    { "name": "Innovation", "description": "Technology, disruption, external research and development, reinvention." },
+    { "name": "Governance", "description": "Vision, strategic planning, sound financial decision making, leadership, communication lines, risk management." },
+    { "name": "Harmony / Balance", "description": "Removing distractions, health and fitness, wellbeing, financial recovery." }
+  ],
+  "keyConceptsForAdvisors": {
+    "devilsToilet": "The most dangerous transition on the Growth Curve is Lifestyle to Leverage. Like a rapid on the Zambezi river, it will suck the business owner backwards if they're not careful. High complacency (from achieving Lifestyle) combined with fatigue creates a dangerous pulling force. Advisors must encourage clients to bank profits and improve systems BEFORE attempting the Leverage transition.",
+    "splitPoint": "The Split Point is when the business suddenly becomes greater than just the owner. 'What got you here, won't get you there.' The owner must step aside and let the team drive future growth. Their focus must shift from Visionary to Cheerleader — from doing everything to getting the best out of those around them.",
+    "liteVsFull": "The Lite Fundamentals version limits scope for 3 reasons: it keeps discussions focused (more effective for both advisor and client), reduces the sales process to 1 meeting with a lower fee range, and builds confidence gradually. The Full Growth Fundamentals Framework involves 3–5 meetings, 10+ hours, $30k+ fees, and is designed for larger, more complex businesses."
+  }
+}

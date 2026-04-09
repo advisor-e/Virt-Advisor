@@ -10,6 +10,7 @@ const OpenAI = require('openai')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, formatSummariesForPrompt } = require('../server/utils/summaries')
+const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 
 const SYSTEM_PROMPTS = {
 
@@ -58,11 +59,29 @@ Every client interaction falls into one of three engagement types. Identifying t
 
 ## Phase 1 — Understand the client
 
-Ask warm, conversational questions — ONE OR TWO at a time — to build a picture of the business owner. Cover these areas across the conversation:
+Ask warm, conversational questions — ONE at a time — to build a picture of the business owner. The first three questions below are MANDATORY and must always be asked in this order before moving on to other topics:
 
-**The problem or situation**
-- What is the core challenge or situation the advisor wants to address?
-- Is this something the client has raised themselves, or is this the advisor's idea?
+1. What is the core challenge or situation the advisor wants to address? *(this is the opening question — already asked)*
+2. Has the client specifically raised this issue themselves, or is it something the advisor has noticed and wants to address with them?
+3. Is the business privately owned, a not-for-profit, or publicly listed?
+
+**Branch logic — mandatory for privately owned businesses:**
+If the advisor answers that the business is privately owned, your very next response MUST ask: "Where would you place them on the Growth Curve?" and include the token [GROWTH_CURVE_SELECTOR] on its own line at the very end of your response. The interface will render a visual stage selector automatically — do not list the stages yourself.
+
+The Growth Curve stages (for your reference when interpreting the advisor's selection):
+- **Design** — Developing the business concept, getting ready to leave their job
+- **Launch** — Opening the doors and sharing the dream with the world
+- **Break-even** — The business makes enough money to cover costs
+- **Lifestyle** — Enough profit for the owner/s to draw funds to meet their lifestyle and save each month
+- **Leverage** — The business sustains the owner/s lifestyle without them being hands-on daily
+- **Reach** — Multiple locations, brand spreading, new products in the mix
+- **Leapfrog** — Able to purchase or merge with competitors; substantial market share
+- **Maturity** — Sizeable market-share; creates a barrier to entry for competitors
+- **Exit / Decline** — Capital gain via sale, MBO, or succession (if successful); or dwindling toward retirement (if they missed the mark)
+
+**IMPORTANT: The growth stage answer does NOT complete Phase 1.** After receiving the growth stage, acknowledge it briefly and continue with the remaining Phase 1 questions below — starting with client business awareness.
+
+After the mandatory questions, continue building context across these areas (ask ONE question at a time):
 
 **The client's business awareness**
 - Is the business owner experienced and commercially savvy, or are they relatively new to thinking strategically about their business?
@@ -76,7 +95,7 @@ Ask warm, conversational questions — ONE OR TWO at a time — to build a pictu
 - Have they asked for this kind of help before, or is this new territory for them?
 - What other services have they engaged the advisor for in the past?
 
-Once you have a clear enough picture of the client (usually 3-4 exchanges), transition naturally: "That's a really helpful picture of your client. Now, tell me a bit about yourself as the advisor — I want to make sure I recommend something that plays to your strengths."
+Once you have covered client awareness, personality, and engagement history, check the context for a pre-supplied Advisor Profile. If one is present, skip Phase 2 entirely and go straight to Phase 3 — do not ask any advisor questions. If no profile is present, transition naturally: "That's a really helpful picture of your client. Now, tell me a bit about yourself as the advisor — I want to make sure I recommend something that plays to your strengths."
 
 ---
 
@@ -514,7 +533,6 @@ async function handleQuery (rawBody, res) {
   const languageInstruction = language !== 'en'
     ? `\n\nIMPORTANT: The advisor is using the ${languageName} interface. Always respond entirely in ${languageName}, regardless of what language the advisor writes in.`
     : ''
-  const systemPrompt = (SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client) + languageInstruction
   const orgTemplates = getOrgTemplates(orgTemplateIds || null)
   const primarySections = MODE_SECTIONS[mode] || null
 
@@ -556,6 +574,10 @@ async function handleQuery (rawBody, res) {
   const summariesText = formatSummariesForPrompt(relevantSummaries)
 
   const advisorProfileText = advisorProfile ? formatAdvisorProfile(advisorProfile) : null
+  const profileSystemInstruction = advisorProfileText
+    ? '\n\nCRITICAL INSTRUCTION — ADVISOR PROFILE PRE-SUPPLIED: The advisor\'s profile is already available in the context below. You MUST NOT ask any Phase 2 questions under any circumstances. Do not ask about their experience, confidence, enjoyment, comfort with tools, or anything else covered by Phase 2. Treat the profile as complete and definitive. Once Phase 1 is complete, go directly to Phase 3.'
+    : ''
+  const systemPrompt = (SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client) + profileSystemInstruction + languageInstruction
 
   function formatCaseSummaries (cases) {
     if (!cases || cases.length === 0) return null
@@ -582,6 +604,10 @@ async function handleQuery (rawBody, res) {
 
   const caseSummariesText = formatCaseSummaries(caseSummaries)
 
+  // Include Growth Fundamentals reference once the advisor has selected a growth stage
+  const includeGrowth = mode === 'client' && conversationHasGrowthStage(trimmedHistory)
+  const growthText = includeGrowth ? formatGrowthFundamentalsForPrompt(trimmedHistory) : null
+
   const contextMessage = [
     `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)`,
     '',
@@ -589,6 +615,7 @@ async function handleQuery (rawBody, res) {
     coachingText
       ? '\n---\n\n## Coaching Reference — Expert Guidance on Template Selection\n\n' + coachingText
       : '',
+    growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : '',
     advisorProfileText
       ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. Reference the profile below in your recommendation exactly as you would answers given in conversation.\n\n' + advisorProfileText
@@ -632,7 +659,7 @@ async function handleQuery (rawBody, res) {
     if (text) {
       res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
     }
-    if (chunk.choices[0] && chunk.choices[0].finish_reason === 'stop') {
+    if (chunk.choices[0] && chunk.choices[0].finish_reason) {
       res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
     }
   }

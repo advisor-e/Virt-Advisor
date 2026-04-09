@@ -141,6 +141,24 @@
             span
             span
 
+      //- Growth Curve selector — shown when AI signals privately owned branch
+      .growth-curve-card(v-if="showGrowthCurveSelector")
+        p.growth-curve-title Where would you place them on the Growth Curve?
+        .growth-stage-list
+          label.growth-stage-opt(
+            v-for="stage in growthStages"
+            :key="stage.name"
+            :class="{ 'growth-stage-selected': selectedGrowthStage === stage.name }"
+          )
+            input(type="radio" :value="stage.name" v-model="selectedGrowthStage")
+            .growth-stage-body
+              span.growth-stage-name {{ stage.name }}
+              span.growth-stage-desc {{ stage.description }}
+        button.growth-curve-submit(
+          @click="submitGrowthStage"
+          :disabled="!selectedGrowthStage"
+        ) Confirm selection
+
       //- Save prompt — shown once after first full exchange, dismissed on save or skip
       .save-prompt-card(v-if="showSavePrompt")
         .save-prompt-text
@@ -500,6 +518,19 @@ export default {
       myCases: [],
       showCasesPanel: false,
       savePromptDismissed: false,
+      showGrowthCurveSelector: false,
+      selectedGrowthStage: null,
+      growthStages: [
+        { name: 'Design', description: 'Developing the business concept, getting ready to leave their job.' },
+        { name: 'Launch', description: 'Opening the doors and sharing their dream with the world.' },
+        { name: 'Break-even', description: 'The business makes enough money to cover costs.' },
+        { name: 'Lifestyle', description: 'The business makes enough profit to allow the owner/s to draw sufficient funds to meet their lifestyle and save money each month.' },
+        { name: 'Leverage', description: 'The business can sustain the lifestyle of the owner/s without them being directly hands-on on a daily basis.' },
+        { name: 'Reach', description: 'The business is now enjoying multiple locations as the brand is beginning to spread. New products are also part of the picture.' },
+        { name: 'Leapfrog', description: 'The business enjoys the ability to purchase or merge with like-minded competitors. Market share is now substantial.' },
+        { name: 'Maturity', description: 'The business commands a sizeable market-share and creates a barrier to entry for any business looking to compete against it.' },
+        { name: 'Exit / Decline', description: 'The owners realise their capital gain via sale, MBO, or succession to family. (If successful.) Or the business dwindles as the owner/s seek retirement. (If they missed the mark.)' }
+      ],
       expandedCaseId: null,
       reviewRecordingField: null,
       reviewDraft: { wentWell: '', wentLess: '', changesRecommended: '' },
@@ -546,7 +577,13 @@ export default {
       return this.messages.map(m => ({ role: m.role, content: m.content }))
     },
     hasAdvisorProfile () {
-      return this.profileSaved && (this.advisorProfile.experience || this.advisorProfile.strengths)
+      return this.profileSaved && (
+        this.advisorProfile.experience ||
+        this.advisorProfile.technicalStrengths ||
+        this.advisorProfile.enjoyment ||
+        this.advisorProfile.toolsComfort ||
+        this.advisorProfile.notes
+      )
     },
     profileSummary () {
       const text = this.advisorProfile.experience || this.advisorProfile.enjoyment || ''
@@ -777,6 +814,17 @@ export default {
       this.saveSuccess = false
       this.saveError = null
       this.savePromptDismissed = false
+      this.showGrowthCurveSelector = false
+      this.selectedGrowthStage = null
+    },
+
+    submitGrowthStage () {
+      if (!this.selectedGrowthStage) return
+      const stage = this.growthStages.find(s => s.name === this.selectedGrowthStage)
+      this.inputText = `${stage.name} — ${stage.description}`
+      this.showGrowthCurveSelector = false
+      this.selectedGrowthStage = null
+      this.sendMessage()
     },
 
     closeSession () {
@@ -876,23 +924,50 @@ export default {
 
         const reader = response.body.getReader()
         const decoder = new TextDecoder()
+        let buffer = ''
 
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
-          const lines = decoder.decode(value).split('\n').filter(l => l.startsWith('data: '))
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() // retain any incomplete trailing line
           for (const line of lines) {
-            const data = JSON.parse(line.slice(6))
-            if (data.type === 'delta') {
-              this.streamingText += data.text
-              await this.$nextTick()
-              this.scrollToBottom()
-            } else if (data.type === 'done') {
-              this.messages.push({ role: 'assistant', content: this.streamingText })
-              this.streamingText = ''
-              this.isStreaming = false
+            if (!line.startsWith('data: ')) continue
+            try {
+              const data = JSON.parse(line.slice(6))
+              if (data.type === 'delta') {
+                this.streamingText += data.text
+                await this.$nextTick()
+                this.scrollToBottom()
+              } else if (data.type === 'done') {
+                let content = this.streamingText
+                if (content.includes('[GROWTH_CURVE_SELECTOR]')) {
+                  content = content.replace('[GROWTH_CURVE_SELECTOR]', '').trim()
+                  this.showGrowthCurveSelector = true
+                }
+                this.messages.push({ role: 'assistant', content })
+                this.streamingText = ''
+                this.isStreaming = false
+              }
+            } catch (parseErr) {
+              // malformed SSE line — skip silently
             }
           }
+        }
+
+        // Fallback: if stream ended without a done event (e.g. finish_reason !== 'stop')
+        if (this.isStreaming) {
+          if (this.streamingText) {
+            let content = this.streamingText
+            if (content.includes('[GROWTH_CURVE_SELECTOR]')) {
+              content = content.replace('[GROWTH_CURVE_SELECTOR]', '').trim()
+              this.showGrowthCurveSelector = true
+            }
+            this.messages.push({ role: 'assistant', content })
+            this.streamingText = ''
+          }
+          this.isStreaming = false
         }
       } catch (e) {
         this.messages.push({ role: 'assistant', content: this.$t('error') })
@@ -1465,6 +1540,55 @@ export default {
 .voice-btn-redo:hover { background: #f9fafb; }
 
 /* Save prompt card */
+.growth-curve-card {
+  margin: 8px 16px 4px;
+  padding: 16px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+}
+.growth-curve-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #14532d;
+  margin: 0 0 12px;
+}
+.growth-stage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.growth-stage-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #d1fae5;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fff;
+  transition: background 0.15s, border-color 0.15s;
+}
+.growth-stage-opt input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: #16a34a; }
+.growth-stage-opt:hover { background: #f0fdf4; border-color: #86efac; }
+.growth-stage-selected { background: #dcfce7 !important; border-color: #16a34a !important; }
+.growth-stage-body { display: flex; flex-direction: column; gap: 2px; }
+.growth-stage-name { font-size: 13px; font-weight: 600; color: #15803d; }
+.growth-stage-desc { font-size: 12px; color: #4b5563; line-height: 1.4; }
+.growth-curve-submit {
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.growth-curve-submit:hover:not(:disabled) { background: #15803d; }
+.growth-curve-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+
 .save-prompt-card {
   display: flex;
   align-items: center;
