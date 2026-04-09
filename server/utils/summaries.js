@@ -7,6 +7,7 @@ const { readFileSync } = require('fs')
 const { resolve } = require('path')
 
 let _summaries = null
+let _sectionDescriptions = null
 
 function loadSummaries () {
   if (_summaries) return _summaries
@@ -54,6 +55,27 @@ function getAllSummaries () {
   return loadSummaries()
 }
 
+function loadSectionDescriptions () {
+  if (_sectionDescriptions) return _sectionDescriptions
+  const filePath = resolve(process.cwd(), 'data/section-descriptions.json')
+  _sectionDescriptions = JSON.parse(readFileSync(filePath, 'utf8'))
+  return _sectionDescriptions
+}
+
+function formatSectionDescriptionsForPrompt () {
+  const sections = loadSectionDescriptions()
+  const lines = ['### Template Section Guide — Use this to match client and advisor profile to the right complexity tier\n']
+  for (const s of sections) {
+    lines.push(`**${s.section}** (Complexity: ${s.complexity})`)
+    lines.push(`Client profile: ${s.clientProfile}`)
+    lines.push(`Advisor profile: ${s.advisorProfile}`)
+    lines.push(`Engagement style: ${s.engagementStyle}`)
+    lines.push(`When to use: ${s.whenToUse}`)
+    lines.push('')
+  }
+  return lines.join('\n')
+}
+
 function formatSummariesForPrompt (summaries) {
   if (!summaries || summaries.length === 0) return ''
   return summaries.map(s => {
@@ -77,4 +99,4 @@ const STOP_WORDS = new Set([
   'about', 'client', 'clients', 'business', 'advisor', 'template'
 ])
 
-module.exports = { filterSummariesByQuery, getAllSummaries, formatSummariesForPrompt }
+module.exports = { filterSummariesByQuery, getAllSummaries, formatSummariesForPrompt, formatSectionDescriptionsForPrompt }

@@ -1,0 +1,56 @@
+[
+  {
+    "section": "Client On-Boarding",
+    "complexity": "Low",
+    "clientProfile": "Any new or prospective client regardless of experience or business type",
+    "advisorProfile": "Any advisor — these are process templates, not facilitation tools",
+    "engagementStyle": "Administrative and relational — sets up the engagement structure, pricing, and first impression",
+    "description": "Templates used to initiate and formalise the advisory relationship. Covers emails, proposals, pricing models, and intake forms. Not client-facing in a facilitation sense — these are the advisor's operational tools for starting an engagement professionally. Suitable at any stage of the client relationship and for any level of advisor.",
+    "whenToUse": "Whenever an advisor is onboarding a new client, responding to an enquiry, or formalising the scope and pricing of an engagement."
+  },
+  {
+    "section": "End of Year Content",
+    "complexity": "Low to Medium",
+    "clientProfile": "Any existing client — particularly suited to clients who are already engaged and have an established relationship with the advisor",
+    "advisorProfile": "Any advisor — structured and agenda-driven, reduces the need for improvisation",
+    "engagementStyle": "Structured review — annual rhythm, agenda-based, retrospective and forward-looking",
+    "description": "Templates designed for the end-of-year client review cycle. Covers review sheets, presentation decks, scripts, agendas, and annual planning content. These are relationship-reinforcing tools — they reward existing clients with a structured, professional review experience and naturally surface new advisory opportunities. Lower risk for the advisor as the format is guided.",
+    "whenToUse": "Annual or semi-annual client reviews. Also useful for reactivating clients who have drifted or for demonstrating advisory value to clients who haven't yet engaged beyond compliance work."
+  },
+  {
+    "section": "General Tools",
+    "complexity": "Low to Medium",
+    "clientProfile": "Less experienced or commercially unsophisticated clients. Clients who are new to advisory thinking or have never engaged with structured frameworks before. Also suitable as entry points for any client.",
+    "advisorProfile": "Any advisor, including those newer to advisory delivery — these templates are educative and structured, reducing the facilitation burden",
+    "engagementStyle": "Educative and exploratory — introduces concepts, builds awareness, and creates the conditions for deeper advisory work",
+    "description": "The accessible end of the template library. General Tools are designed to educate and orient clients around foundational business concepts — profit, cashflow, planning, customer flow, KPIs, technology, and structure. They are easier for both the client to understand and the advisor to deliver. They are the right starting point for clients with limited business awareness, and a safe default when the advisor is less experienced or less confident. These templates create the 'aha moment' that opens the door to more technical work.",
+    "whenToUse": "When the client lacks business or financial awareness. When the advisor is newer or less confident. When the relationship is still being established. When the topic involves cashflow, profit fundamentals, planning basics, or customer understanding and the client is not commercially sophisticated. When in doubt, start here."
+  },
+  {
+    "section": "Strategic Tools",
+    "complexity": "Medium to High",
+    "clientProfile": "Commercially aware or experienced clients who are ready to think strategically about their business direction, growth, competitive position, or future planning. Clients at Leverage stage and above on the Growth Curve are typically ready for this.",
+    "advisorProfile": "Advisors with some experience in advisory delivery who are comfortable facilitating strategic conversations and handling ambiguity",
+    "engagementStyle": "Facilitative and strategic — draws out the client's own thinking, challenges assumptions, and helps them set direction",
+    "description": "Templates for business owners who are ready to work on the strategic dimension of their business — where they're going, how they'll get there, and what's standing in the way. Covers planning tools, orientation frameworks, market analysis, sales and marketing review, and organisational structure. These templates require the client to engage with more abstract concepts and the advisor to guide a richer, less scripted conversation. Best used once a foundation of trust and commercial awareness has been established.",
+    "whenToUse": "When the client is commercially savvy or has prior advisory experience. When the client is at Leverage stage or above on the Growth Curve. When the presenting problem involves direction, strategy, competitive positioning, or planning for growth. When the advisor is confident facilitating open-ended strategic conversations."
+  },
+  {
+    "section": "Specialist Tools",
+    "complexity": "High",
+    "clientProfile": "Clients with specific, defined problems that require technical depth — succession, asset management, valuation, financial systems, people management, or due diligence. These clients are typically experienced and commercially aware.",
+    "advisorProfile": "Experienced advisors who are comfortable in technical advisory territory and can handle detailed, nuanced client conversations without a script",
+    "engagementStyle": "Technical and advisory — expert-led, often involves analysis, assessment, or structured diagnosis of a specific problem",
+    "description": "The most technically demanding section of the template library. Specialist Tools address specific, often complex business problems — business sale preparation, succession planning, ratio analysis, remuneration design, performance management, financial systems review, and client/team diagnostics. These are not entry-level tools. They assume the client has a clear and conscious need, and the advisor has sufficient experience to guide the conversation with confidence. Using these prematurely with the wrong client can overwhelm or alienate them.",
+    "whenToUse": "When the client has a specific, clearly defined technical problem. When the client is experienced and commercially aware. When the advisor is confident and has prior experience in this type of engagement. Do not use with clients who are new to advisory thinking or who have not established a strong relationship with the advisor."
+  },
+  {
+    "section": "Governance Tools",
+    "complexity": "High",
+    "clientProfile": "Larger, more complex businesses — typically at Maturity or Leapfrog stage on the Growth Curve. Businesses with multiple stakeholders, boards, or investors. Not-for-profits and publicly listed entities are also well served here.",
+    "advisorProfile": "Experienced advisors, ideally with some exposure to governance, board-level advisory, or larger business environments",
+    "engagementStyle": "Formal and structural — board-level communication, decision-making frameworks, risk management, and leadership accountability",
+    "description": "Templates for businesses that have outgrown informal management and need structured governance frameworks. Covers board agendas, board packs, governance introductions, risk management, leadership review, quality decision-making, and conduct protocols. These tools are particularly relevant for not-for-profit and publicly listed entities, as well as privately owned businesses at scale. They signal to the client that the advisor operates at a sophisticated level and is thinking about long-term organisational health, not just immediate problems.",
+    "whenToUse": "When the client is a not-for-profit, publicly listed entity, or a privately owned business at Maturity or above. When the presenting issue involves board structure, decision-making, risk, leadership accountability, or multi-stakeholder communication. When the advisor has experience operating at a governance or board advisory level."
+  }
+]

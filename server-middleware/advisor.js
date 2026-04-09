@@ -9,7 +9,7 @@
 const OpenAI = require('openai')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
-const { filterSummariesByQuery, formatSummariesForPrompt } = require('../server/utils/summaries')
+const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 
 const SYSTEM_PROMPTS = {
@@ -170,9 +170,17 @@ When making your recommendation in Phase 3:
 - The "What this typically leads to" section must use the exact next step from the coaching data (e.g. "Regular management reporting", "Strategic Planning / Advisory Board level Governance") — not a vague paraphrase
 - Every part of the recommendation should connect back to something specific the advisor told you — quote or paraphrase their actual words
 
-## Closing each response
+## Closing a Phase 3 recommendation
+After every Phase 3 recommendation, always close with:
+"Are you happy with what I've suggested, or would you prefer we explore some alternatives?"
+
+If the advisor says no, they're not happy, or indicates they want to explore other options, respond with:
+"Do you have any keywords that could describe the nature of the service you had in mind?"
+Then use their answer to search for alternative templates. Keep track of every template already suggested and do not repeat them.
+
+## Closing all other responses
 Never end with vague offers like "feel free to ask", "let me know if you need more", or "would you like more details?".
-End every response with ONE specific, direct follow-up such as:
+End every non-recommendation response with ONE specific, direct follow-up such as:
 - "Would you like help thinking through how to introduce this to the client?"
 - "Once you've run this, the natural next step is [X] — want me to walk you through that?"
 - "Is there another client situation you'd like to work through?"
@@ -438,8 +446,13 @@ Once you know the advisor's experience and confidence, give tailored delivery ad
 - If experienced/confident: concise, trust their judgement, focus on nuance
 - Never suggest broad marketing tactics (newsletters, blogs, seminars)
 
-After giving delivery advice, always close by offering to draft an email or opening script — do not wait for the advisor to ask. For example:
-"Want me to draft an email or opening script you could use to introduce this to the client?"
+After giving delivery advice, always close with two things in this order:
+1. Offer to draft an email or opening script: "Want me to draft an email or opening script you could use to introduce this to the client?"
+2. Then on a new line, ask: "Are you happy with what I've suggested, or would you prefer we explore some alternatives?"
+
+If the advisor says no, they're not happy, or indicates they want to explore other options, respond with:
+"Do you have any keywords that could describe the nature of the service you had in mind?"
+Then use their answer to search for alternative templates — treat it like a new discovery request. Keep track of every template already suggested and do not repeat them.
 
 ---
 
@@ -608,10 +621,14 @@ async function handleQuery (rawBody, res) {
   const includeGrowth = mode === 'client' && conversationHasGrowthStage(trimmedHistory)
   const growthText = includeGrowth ? formatGrowthFundamentalsForPrompt(trimmedHistory) : null
 
+  // Section descriptions always included for client/discover modes so AI can tier-match from the start
+  const sectionDescText = (mode === 'client' || mode === 'discover') ? formatSectionDescriptionsForPrompt() : null
+
   const contextMessage = [
     `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)`,
     '',
     templatesText,
+    sectionDescText ? '\n---\n\n' + sectionDescText : '',
     coachingText
       ? '\n---\n\n## Coaching Reference — Expert Guidance on Template Selection\n\n' + coachingText
       : '',
