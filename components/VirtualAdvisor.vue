@@ -219,6 +219,14 @@
 
     p.input-hint(v-if="!speechSupported") {{ $t('input.hint') }}
 
+    //- Save case study button — always visible once conversation has started
+    .input-save-row(v-if="canSave && !saveSuccess")
+      button.btn-save-inline(@click="showSavePanel = true; savePromptDismissed = true" :disabled="isStreaming")
+        svg(xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="13" height="13")
+          path(stroke-linecap="round" stroke-linejoin="round" d="M17 16v2a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h2m3-3h6l3 3v10a2 2 0 01-2 2h-1M9 3h6l3 3")
+        | Save as case study
+      span.save-inline-saved(v-if="saveSuccess") ✓ Saved
+
   //- Save case study panel
   .save-overlay(v-if="showSavePanel" @click.self="showSavePanel = false")
     .save-modal
@@ -1629,6 +1637,29 @@ export default {
   cursor: pointer;
 }
 .save-prompt-no:hover { background: #f9fafb; color: #374151; }
+
+.input-save-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 4px 0;
+}
+.btn-save-inline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn-save-inline:hover:not(:disabled) { background: #f0fdf4; color: #16a34a; border-color: #86efac; }
+.btn-save-inline:disabled { opacity: 0.4; cursor: not-allowed; }
+.save-inline-saved { font-size: 12px; color: #16a34a; font-weight: 500; }
 
 /* Save panel overlay */
 .save-overlay {
