@@ -7,10 +7,17 @@
  */
 
 const OpenAI = require('openai')
+const fs = require('fs')
+const path = require('path')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
+
+function loadPrompt (name) {
+  const filePath = path.resolve(process.cwd(), 'data/prompts', name + '.txt')
+  return fs.readFileSync(filePath, 'utf8')
+}
 
 const SYSTEM_PROMPTS = {
 
@@ -65,6 +72,14 @@ Ask warm, conversational questions — ONE at a time — to build a picture of t
 2. Has the client specifically raised this issue themselves, or is it something the advisor has noticed and wants to address with them?
 3. Is the business privately owned, a not-for-profit, or publicly listed?
 
+**PROFIT AND COST INTERRUPT — fires immediately after the advisor's first answer**
+As soon as the advisor's first response reveals a situation involving profitability, margin pressure, rising costs, or cost management — STOP the normal Phase 1 sequence. Before asking question 2 or any other question, you MUST ask:
+"Does the client use financial management reports on a regular basis?"
+Wait for the answer. Then ask:
+"Do you think the client could benefit from a detailed review of their business variables and profit drivers?"
+Wait for the answer. Only then resume the normal Phase 1 sequence (question 2 onwards).
+Once both diagnostic answers are received, lock in internally that the Phase 3 recommendation MUST include a revenue model or what-if analysis model as part of the solution.
+
 **Branch logic — mandatory for privately owned businesses:**
 If the advisor answers that the business is privately owned, your very next response MUST ask: "Where would you place them on the Growth Curve?" and include the token [GROWTH_CURVE_SELECTOR] on its own line at the very end of your response. The interface will render a visual stage selector automatically — do not list the stages yourself.
 
@@ -79,11 +94,11 @@ The Growth Curve stages (for your reference when interpreting the advisor's sele
 - **Maturity** — Sizeable market-share; creates a barrier to entry for competitors
 - **Exit / Decline** — Capital gain via sale, MBO, or succession (if successful); or dwindling toward retirement (if they missed the mark)
 
-**IMPORTANT: The growth stage answer does NOT complete Phase 1.** After receiving the growth stage, acknowledge it briefly and continue with the remaining Phase 1 questions below — starting with client business awareness.
+**IMPORTANT: The growth stage answer does NOT complete Phase 1.** After receiving the growth stage, acknowledge it briefly and continue with the remaining Phase 1 questions below — starting with client business acumen.
 
 After the mandatory questions, continue building context across these areas (ask ONE question at a time):
 
-**The client's business awareness**
+**The client's business acumen**
 - Is the business owner experienced and commercially savvy, or are they relatively new to thinking strategically about their business?
 - Are they academically inclined — do they read business books, follow frameworks, engage with ideas? Or are they more instinctive and practical?
 
@@ -95,7 +110,7 @@ After the mandatory questions, continue building context across these areas (ask
 - Have they asked for this kind of help before, or is this new territory for them?
 - What other services have they engaged the advisor for in the past?
 
-Once you have covered client awareness, personality, and engagement history, check the context for a pre-supplied Advisor Profile. If one is present, skip Phase 2 entirely and go straight to Phase 3 — do not ask any advisor questions. If no profile is present, transition naturally: "That's a really helpful picture of your client. Now, tell me a bit about yourself as the advisor — I want to make sure I recommend something that plays to your strengths."
+Once you have covered client acumen, personality, and engagement history, check the context for a pre-supplied Advisor Profile. If one is present, skip Phase 2 entirely and go straight to Phase 3 — do not ask any advisor questions. If no profile is present, transition naturally: "That's a really helpful picture of your client. Now, tell me a bit about yourself as the advisor — I want to make sure I recommend something that plays to your strengths."
 
 ---
 
@@ -123,7 +138,7 @@ Once you have enough context, transition: "Great — I think I have what I need.
 [Name the engagement type — Advice, Facilitation, or Education — and explain why it applies to this situation. Specifically address: (a) what this means for how the advisor should position themselves with the client, and (b) why correctly identifying this type matters for the client relationship and the likelihood of a good outcome. Reference the signals from the conversation that led to this diagnosis.]
 
 **Why this fits your client**
-[Reference what the advisor told you about the client — their awareness, personality, whether they asked for help, etc.]
+[Reference what the advisor told you about the client — their acumen, personality, whether they asked for help, etc.]
 
 **Why this suits you as the advisor**
 [Reference the advisor's experience and confidence level]
@@ -151,9 +166,14 @@ Keep the email short — 3 short paragraphs maximum. Busy clients don't read lon
 - Adapt your language and depth of explanation to the advisor's experience level
 - If the advisor says "just give me the answer", respect that and go straight to Phase 3
 - Never end a response with a weak trailing statement — always close with one specific, direct follow-up question or suggestion
+- **Industry gate**: If the advisor requests a revenue model, financial model, or any industry-specific template, you MUST ask what industry the client is in before making any recommendation — even if you think you already know. Do not skip this step.
+- **Phase 2 is mandatory**: You MUST complete Phase 2 (advisor profiling) before delivering any Phase 3 recommendation. No exceptions — not even if the advisor seems experienced, not even if the situation feels obvious. If you have not asked about the advisor's experience and confidence in this conversation, ask those questions before recommending.
+- **Profit/cost recommendation rule**: If the profit and cost diagnostic was triggered during Phase 1, the Phase 3 recommendation MUST include a revenue model or what-if analysis model as part of the solution — regardless of what other templates are recommended.
+- **Never stall before Phase 3**: When you are ready to make a recommendation, produce it immediately in the same response. Never say "hold on", "give me a moment", "let me find", "please wait", or any other stalling phrase followed by nothing. The full recommendation must appear in a single response — not split across two turns.
 
 ## Saving case studies
 If the advisor asks how to save, record, or keep this conversation as a case study, do NOT provide manual instructions. Simply tell them: "Use the Save button that appears at the bottom of the chat — it will let you give the session a title and choose whether to share it with your firm or keep it private." Do not elaborate or provide any further steps.
+Never proactively ask or suggest saving during a conversation — not mid-conversation, not after a recommendation, not at any point unless the advisor specifically raises it. The save prompt is handled by the interface, not by you.
 
 ## Handling voice-to-text input
 Advisors are often using voice-to-text which produces phonetic errors (e.g. "face" instead of "phase", "lightheaded" instead of "light-hearted", or random words that sound like names). Rules:
@@ -538,11 +558,324 @@ async function handleQuery (rawBody, res) {
     return
   }
 
-  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile, language = 'en', languageName = 'English', caseSummaries = [] } = parsed
+  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile, language = 'en', languageName = 'English', caseSummaries = [], conversationState = {} } = parsed
 
   if (!query || !query.trim()) {
     res.writeHead(400, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ error: 'Query is required' }))
+    return
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // CLIENT MODE SEQUENCER
+  // Code controls the question sequence entirely.
+  // AI is only called for Phase 3 recommendation.
+  // ─────────────────────────────────────────────────────────────────
+  if (mode === 'client') {
+    const state = Object.assign({
+      profitSituation: false,
+      clientRaisedIssue: false,
+      usesReports: false,
+      wouldBenefitFromReview: false,
+      industry: null,
+      ownership: null,
+      growthStage: null,
+      acumen: null,
+      academic: null,
+      trust: null,
+      engagementHistory: null,
+      readyForRecommendation: false,
+      recommendationDelivered: false,
+      happyConfirmed: false,
+      clientApproachAsked: false
+    }, conversationState)
+
+    // Always re-detect profit situation from the first user message — never trust state for this flag.
+    // The first message never changes, so this is 100% reliable on every turn.
+    const profitKeywords = /profit|margin|margins|fuel cost|fuel costs|rising cost|rising costs|cost increase|increasing cost|expenses|cost pressure|squeez/i
+    const firstMsg = conversationHistory.length > 0
+      ? (conversationHistory.find(m => m.role === 'user') || { content: query }).content
+      : query
+    state.profitSituation = profitKeywords.test(firstMsg)
+
+    // Helper: stream a hardcoded question directly to the client
+    const sendQuestion = (text, newState) => {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no'
+      })
+      res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
+      res.write('data: ' + JSON.stringify({ type: 'state', state: newState }) + '\n\n')
+      res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
+      res.end()
+    }
+
+    // ── PROFIT DIAGNOSTIC SEQUENCE ──
+    if (state.profitSituation) {
+      if (!state.clientRaisedIssue) {
+        state.clientRaisedIssue = 'pending'
+        return sendQuestion('Has the client specifically raised this issue themselves, or is it something you\'ve noticed and want to address with them?', state)
+      }
+      if (state.clientRaisedIssue === 'pending') {
+        state.clientRaisedIssue = query
+      }
+      if (!state.usesReports) {
+        state.usesReports = 'pending'
+        return sendQuestion('Does the client use financial management reports on a regular basis?', state)
+      }
+      if (state.usesReports === 'pending') {
+        state.usesReports = query
+      }
+      if (!state.wouldBenefitFromReview) {
+        state.wouldBenefitFromReview = 'pending'
+        return sendQuestion('Do you think the client could benefit from a detailed review of their business variables and profit drivers?', state)
+      }
+      if (state.wouldBenefitFromReview === 'pending') {
+        state.wouldBenefitFromReview = query
+      }
+      if (!state.industry) {
+        state.industry = 'pending'
+        return sendQuestion('What industry is the client in?', state)
+      }
+      if (state.industry === 'pending') {
+        state.industry = query
+      }
+    }
+
+    // ── PHASE 1 SEQUENCE ──
+    // Skip "has client raised this" if already asked in diagnostic
+    if (!state.profitSituation && !state.clientRaisedIssue) {
+      state.clientRaisedIssue = 'pending'
+      return sendQuestion('Has the client specifically raised this issue themselves, or is it something you\'ve noticed and want to address with them?', state)
+    }
+    if (!state.profitSituation && state.clientRaisedIssue === 'pending') {
+      state.clientRaisedIssue = query
+    }
+
+    if (!state.ownership) {
+      state.ownership = 'pending'
+      return sendQuestion('Is the business privately owned, a not-for-profit, or publicly listed?', state)
+    }
+    if (state.ownership === 'pending') {
+      state.ownership = query
+    }
+
+    // Growth curve — only for privately owned
+    const isPrivate = state.ownership && !/not.for.profit|nfp|non.profit|public|listed/i.test(state.ownership)
+    if (isPrivate && !state.growthStage) {
+      state.growthStage = 'pending'
+      return sendQuestion('Where would you place them on the Growth Curve?\n[GROWTH_CURVE_SELECTOR]', state)
+    }
+    if (state.growthStage === 'pending') {
+      state.growthStage = query
+    }
+
+    if (!state.acumen) {
+      state.acumen = 'pending'
+      return sendQuestion('How would you describe the business owner\'s acumen — are they experienced and commercially savvy, or relatively new to thinking strategically about their business?', state)
+    }
+    if (state.acumen === 'pending') {
+      state.acumen = query
+    }
+
+    if (!state.academic) {
+      state.academic = 'pending'
+      return sendQuestion('Are they academically inclined — do they read business books, follow frameworks, engage with ideas? Or are they more instinctive and practical?', state)
+    }
+    if (state.academic === 'pending') {
+      state.academic = query
+    }
+
+    if (!state.trust) {
+      state.trust = 'pending'
+      return sendQuestion('How would you describe their relationship with you — is there strong trust already, or is it still being built?', state)
+    }
+    if (state.trust === 'pending') {
+      state.trust = query
+    }
+
+    if (!state.engagementHistory) {
+      state.engagementHistory = 'pending'
+      return sendQuestion('Have they asked for this kind of help before, or is this new territory for them?', state)
+    }
+    if (state.engagementHistory === 'pending') {
+      state.engagementHistory = query
+    }
+
+    // ── PHASE 2 — skip entirely if profile exists ──
+    if (!advisorProfile) {
+      if (!state.advisorExperience) {
+        state.advisorExperience = 'pending'
+        return sendQuestion('How long have you been delivering advisory work, and are you comfortable using tools and frameworks with clients?', state)
+      }
+      if (state.advisorExperience === 'pending') {
+        state.advisorExperience = query
+      }
+      if (!state.advisorConfidence) {
+        state.advisorConfidence = 'pending'
+        return sendQuestion('How confident do you feel about this type of situation — is this familiar territory, or more of a stretch?', state)
+      }
+      if (state.advisorConfidence === 'pending') {
+        state.advisorConfidence = query
+      }
+    }
+
+    // ── POST-RECOMMENDATION FLOW ──
+    // If the AI has already delivered the Phase 3 recommendation, intercept the advisor's response
+    if (state.recommendationDelivered) {
+      if (!state.clientApproachAsked) {
+        // First message after recommendation — check if advisor is happy
+        const happyPattern = /\b(yes|yeah|yep|happy|great|perfect|love it|sounds good|looks good|that works|go ahead|all good|excellent|brilliant|i.?m happy|those are good|that.?s good|thats good)\b/i
+        if (happyPattern.test(query)) {
+          state.happyConfirmed = true
+          state.clientApproachAsked = true
+          return sendQuestion('Great. Would you like some help thinking through how to approach this with your client?', state)
+        } else {
+          // Advisor wants alternatives — mark as decided, fall through to AI
+          state.clientApproachAsked = true
+        }
+      }
+
+      // AI handles: either alternatives exploration or client approach guidance
+      const basePromptPost = loadPrompt('client')
+      const orgTemplatesPost = getOrgTemplates(orgTemplateIds || null)
+      const relevantPost = filterTemplatesByQuery(orgTemplatesPost, query, 25)
+      const templatesToUsePost = relevantPost.length > 0 ? relevantPost : orgTemplatesPost.slice(0, 25)
+      const templatesTextPost = formatTemplatesForPrompt(templatesToUsePost)
+      const coachingTextPost = formatCoachingForPrompt()
+      const profileNotePost = advisorProfile
+        ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}`
+        : ''
+      const contextMsgPost = [
+        `## Available Templates (${templatesToUsePost.length} most relevant)`,
+        '', templatesTextPost,
+        '\n---\n\n## Coaching Reference\n\n' + coachingTextPost
+      ].join('\n')
+
+      const messagesPost = [
+        { role: 'user', content: contextMsgPost + profileNotePost },
+        { role: 'assistant', content: OPENING_MSG.client },
+        ...conversationHistory,
+        { role: 'user', content: query }
+      ]
+
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no'
+      })
+      if (res.socket) res.socket.setNoDelay(true)
+
+      const streamPost = await getOpenAI().chat.completions.create({
+        model: 'gpt-4o',
+        max_tokens: 1500,
+        stream: true,
+        messages: [{ role: 'system', content: basePromptPost }, ...messagesPost]
+      })
+
+      for await (const chunk of streamPost) {
+        const text = chunk.choices[0]?.delta?.content || ''
+        if (text) res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
+        if (chunk.choices[0]?.finish_reason === 'stop') {
+          res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
+          res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
+        }
+      }
+      res.end()
+      return
+    }
+
+    // ── PHASE 3 — all questions done, call AI for first recommendation ──
+    state.readyForRecommendation = true
+    state.recommendationDelivered = true
+
+    // Build a summary of collected answers for the AI
+    const collectedAnswers = [
+      `Opening situation: ${(conversationHistory.find(m => m.role === 'user') || { content: query }).content}`,
+      state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' ? `Whether client raised it: ${state.clientRaisedIssue}` : '',
+      state.profitSituation && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
+      state.profitSituation && state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' ? `Would benefit from profit driver review: ${state.wouldBenefitFromReview}` : '',
+      state.profitSituation && state.industry && state.industry !== 'pending' ? `Industry: ${state.industry}` : '',
+      state.ownership && state.ownership !== 'pending' ? `Business ownership: ${state.ownership}` : '',
+      state.growthStage && state.growthStage !== 'pending' ? `Growth stage: ${state.growthStage}` : '',
+      state.acumen && state.acumen !== 'pending' ? `Business acumen: ${state.acumen}` : '',
+      state.academic && state.academic !== 'pending' ? `Academic vs instinctive: ${state.academic}` : '',
+      state.trust && state.trust !== 'pending' ? `Relationship/trust: ${state.trust}` : '',
+      state.engagementHistory && state.engagementHistory !== 'pending' ? `Engagement history: ${state.engagementHistory}` : '',
+      state.advisorExperience && state.advisorExperience !== 'pending' ? `Advisor experience: ${state.advisorExperience}` : '',
+      state.advisorConfidence && state.advisorConfidence !== 'pending' ? `Advisor confidence: ${state.advisorConfidence}` : ''
+    ].filter(Boolean).join('\n')
+
+    const profitInstruction = state.profitSituation && state.industry && state.industry !== 'pending'
+      ? `\n\nPROFIT SITUATION: This client has a profitability/cost problem. Your recommendation MUST include a revenue model or what-if analysis model matched specifically to their industry: ${state.industry}. Do not recommend a generic revenue model.`
+      : ''
+
+    const profileNote = advisorProfile
+      ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nUse this profile in place of Phase 2 answers when writing "Why this suits you as the advisor".`
+      : ''
+
+    // Override query with the collected answers summary for the AI recommendation call
+    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${profitInstruction}${profileNote}\n\nNow produce the Phase 3 recommendation.`
+
+    // Fall through to AI call below with recommendationQuery
+    const languageInstruction2 = language !== 'en'
+      ? `\n\nIMPORTANT: Always respond entirely in ${languageName}.`
+      : ''
+    const orgTemplates2 = getOrgTemplates(orgTemplateIds || null)
+    const relevant2 = filterTemplatesByQuery(orgTemplates2, collectedAnswers, 25)
+    const templatesToUse2 = relevant2.length > 0 ? relevant2 : orgTemplates2.slice(0, 25)
+    const templatesText2 = formatTemplatesForPrompt(templatesToUse2)
+    const coachingText2 = formatCoachingForPrompt()
+    const summaries2 = filterSummariesByQuery(collectedAnswers, 10)
+    const summariesText2 = formatSummariesForPrompt(summaries2)
+    const sectionDescText2 = formatSectionDescriptionsForPrompt()
+    const growthText2 = state.growthStage ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: state.growthStage }]) : null
+
+    const contextMsg2 = [
+      `## Available Templates (${templatesToUse2.length} most relevant)`,
+      '', templatesText2,
+      sectionDescText2 ? '\n---\n\n' + sectionDescText2 : '',
+      '\n---\n\n## Coaching Reference\n\n' + coachingText2,
+      growthText2 ? '\n---\n\n' + growthText2 : '',
+      summariesText2 ? '\n---\n\n## Template Summaries\n\n' + summariesText2 : ''
+    ].join('\n')
+
+    const basePrompt2 = loadPrompt('client')
+    const systemPrompt2 = basePrompt2 + languageInstruction2
+
+    const messages2 = [
+      { role: 'user', content: contextMsg2 },
+      { role: 'assistant', content: OPENING_MSG.client },
+      { role: 'user', content: recommendationQuery }
+    ]
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no'
+    })
+    if (res.socket) res.socket.setNoDelay(true)
+
+    const stream2 = await getOpenAI().chat.completions.create({
+      model: 'gpt-4o',
+      max_tokens: 1500,
+      stream: true,
+      messages: [{ role: 'system', content: systemPrompt2 }, ...messages2]
+    })
+
+    for await (const chunk of stream2) {
+      const text = chunk.choices[0]?.delta?.content || ''
+      if (text) res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
+      if (chunk.choices[0]?.finish_reason === 'stop') {
+        res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
+        res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
+      }
+    }
+    res.end()
     return
   }
 
@@ -591,9 +924,11 @@ async function handleQuery (rawBody, res) {
 
   const advisorProfileText = advisorProfile ? formatAdvisorProfile(advisorProfile) : null
   const profileSystemInstruction = advisorProfileText
-    ? '\n\nCRITICAL INSTRUCTION — ADVISOR PROFILE PRE-SUPPLIED: The advisor\'s profile is already available in the context below. You MUST NOT ask any Phase 2 questions under any circumstances. Do not ask about their experience, confidence, enjoyment, comfort with tools, or anything else covered by Phase 2. Treat the profile as complete and definitive. Once Phase 1 is complete, go directly to Phase 3.'
+    ? '\n\nADVISOR PROFILE PRE-SUPPLIED: Use the profile in the context when writing the "Why this suits you as the advisor" section.'
     : ''
-  const systemPrompt = (SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client) + profileSystemInstruction + languageInstruction
+
+  const basePrompt = mode === 'client' ? loadPrompt('client') : (SYSTEM_PROMPTS[mode] || loadPrompt('client'))
+  const systemPrompt = basePrompt + profileSystemInstruction + languageInstruction
 
   function formatCaseSummaries (cases) {
     if (!cases || cases.length === 0) return null
@@ -642,6 +977,39 @@ async function handleQuery (rawBody, res) {
       : '',
     caseSummariesText ? '\n---\n\n' + caseSummariesText : ''
   ].join('\n')
+
+  // PHASE 2 INTERCEPT — fires before the AI runs.
+  // If a profile exists and the last AI message was a Phase 2 question, return a
+  // hardcoded bridge response directly — AI never runs for this turn.
+  if (advisorProfileText && trimmedHistory.length > 0) {
+    const lastAssistant = [...trimmedHistory].reverse().find(m => m.role === 'assistant')
+    const phase2Patterns = [
+      'how long have you been delivering',
+      'how long have you been',
+      'are you comfortable using tools',
+      'comfortable using tools and frameworks',
+      'how confident do you feel',
+      'what kinds of advisory conversations',
+      'delivered anything like this to a client before',
+      'delivered similar content to this client',
+      'how confident are you',
+      'tell me a bit about yourself as the advisor',
+      'tell me about yourself as the advisor'
+    ]
+    const isPhase2Question = lastAssistant && phase2Patterns.some(p => lastAssistant.content.toLowerCase().includes(p))
+    if (isPhase2Question) {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no'
+      })
+      res.write('data: ' + JSON.stringify({ type: 'delta', text: 'Your advisor profile covers that — here\'s my recommendation.' }) + '\n\n')
+      res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
+      res.end()
+      return
+    }
+  }
 
   const messages = [
     { role: 'user', content: contextMessage },

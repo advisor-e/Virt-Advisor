@@ -159,7 +159,7 @@
           :disabled="!selectedGrowthStage"
         ) Confirm selection
 
-      //- Save prompt — shown once after first full exchange, dismissed on save or skip
+      //- Save prompt — only shown after Phase 3 recommendation, never alongside a VA question
       .save-prompt-card(v-if="showSavePrompt")
         .save-prompt-text
           strong Save this session?
@@ -278,26 +278,18 @@
           p.profile-q-label {{ q.question }}
 
           .profile-voice-bar(v-if="speechSupported")
-            .voice-state.voice-idle(v-if="profileRecordingField !== q.field && !advisorProfile[q.field]")
+            .voice-state.voice-idle(v-if="profileRecordingField !== q.field")
               button.voice-btn.voice-btn-idle(@click="toggleProfileListening(q.field)")
                 svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
                   path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
                 | {{ $t('voice.tapToSpeak') }}
-            .voice-state.voice-recording(v-else-if="profileRecordingField === q.field")
+            .voice-state.voice-recording(v-else)
               span.recording-dot
               span.recording-label {{ $t('voice.recording') }}
               button.voice-btn.voice-btn-stop(@click="toggleProfileListening(q.field)")
                 svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
                   rect(x="6" y="6" width="12" height="12" rx="2")
                 | {{ $t('voice.stopRecording') }}
-            .voice-state.voice-ready(v-else)
-              svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
-                path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-              span.ready-label {{ $t('voice.capturedEdit') }}
-              button.voice-btn.voice-btn-redo(@click="toggleProfileListening(q.field)")
-                svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
-                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                | {{ $t('voice.recordAgain') }}
 
           textarea.profile-q-textarea(
             v-if="advisorProfile[q.field] || profileRecordingField === q.field"
@@ -526,6 +518,7 @@ export default {
       myCases: [],
       showCasesPanel: false,
       savePromptDismissed: false,
+      conversationState: {},
       showGrowthCurveSelector: false,
       selectedGrowthStage: null,
       growthStages: [
@@ -585,7 +578,7 @@ export default {
       return this.messages.map(m => ({ role: m.role, content: m.content }))
     },
     hasAdvisorProfile () {
-      return this.profileSaved && (
+      return !!(
         this.advisorProfile.experience ||
         this.advisorProfile.technicalStrengths ||
         this.advisorProfile.enjoyment ||
@@ -601,12 +594,11 @@ export default {
       return !!this.mode && this.messages.filter(m => m.role === 'user').length >= 1
     },
     showSavePrompt () {
-      // Show once after the first full exchange (opening + user msg + AI response = 3 messages)
-      // Hide while streaming, after dismissed, or after saving
-      return this.messages.length >= 3 &&
-        !this.isStreaming &&
-        !this.savePromptDismissed &&
-        !this.saveSuccess
+      if (this.isStreaming || this.savePromptDismissed || this.saveSuccess) return false
+      // Only show after a Phase 3 recommendation — detected by presence of "My recommendation" in the last VA message
+      const lastAssistant = [...this.messages].reverse().find(m => m.role === 'assistant')
+      if (!lastAssistant) return false
+      return lastAssistant.content.includes('My recommendation')
     },
     relevantCases () {
       if (!this.mode) return []
@@ -817,6 +809,7 @@ export default {
       this.messages = []
       this.inputText = ''
       this.streamingText = ''
+      this.conversationState = {}
       this.showSavePanel = false
       this.saveTitle = ''
       this.saveSuccess = false
@@ -917,6 +910,7 @@ export default {
             languageName: this.currentLanguageName,
             orgTemplateIds: this.orgTemplateIds,
             conversationHistory: this.conversationHistory.slice(0, -1),
+            conversationState: this.conversationState,
             advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
             caseSummaries: this.relevantCases.map(c => ({
               title: c.title,
@@ -944,7 +938,9 @@ export default {
             if (!line.startsWith('data: ')) continue
             try {
               const data = JSON.parse(line.slice(6))
-              if (data.type === 'delta') {
+              if (data.type === 'state') {
+                this.conversationState = data.state
+              } else if (data.type === 'delta') {
                 this.streamingText += data.text
                 await this.$nextTick()
                 this.scrollToBottom()

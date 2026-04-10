@@ -1,6 +1,11 @@
 export default {
   target: 'server',
 
+  server: {
+    port: 4000,
+    host: 'localhost'
+  },
+
   head: {
     title: 'Virtual Advisor',
     htmlAttrs: { lang: 'en' },
