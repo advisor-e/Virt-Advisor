@@ -594,7 +594,9 @@ async function handleQuery (rawBody, res) {
       readyForRecommendation: false,
       recommendationDelivered: false,
       happyConfirmed: false,
-      clientApproachAsked: false
+      clientApproachAsked: false,
+      movingForwardAsked: false,
+      movingForwardDone: false
     }, conversationState)
 
     // Always re-detect profit situation from the first user message — never trust state for this flag.
@@ -735,16 +737,28 @@ async function handleQuery (rawBody, res) {
     // If the AI has already delivered the Phase 3 recommendation, intercept the advisor's response
     if (state.recommendationDelivered) {
       if (!state.clientApproachAsked) {
-        // First message after recommendation — check if advisor is happy
-        const happyPattern = /\b(yes|yeah|yep|happy|great|perfect|love it|sounds good|looks good|that works|go ahead|all good|excellent|brilliant|i.?m happy|those are good|that.?s good|thats good)\b/i
-        if (happyPattern.test(query)) {
+        // First message after recommendation — check if advisor explicitly wants alternatives
+        const wantsAlternatives = /\b(alternative|alternatives|different|other option|not sure|not happy|not convinced|something else|explore|prefer something|instead|not quite right|change|not right)\b/i
+        if (wantsAlternatives.test(query)) {
+          // Advisor wants alternatives — fall through to AI
+          state.clientApproachAsked = true
+        } else {
+          // Advisor is happy (or gave any other response) — always ask Moving Forward question
           state.happyConfirmed = true
           state.clientApproachAsked = true
-          return sendQuestion('Great. Would you like some help thinking through how to approach this with your client?', state)
-        } else {
-          // Advisor wants alternatives — mark as decided, fall through to AI
-          state.clientApproachAsked = true
+          state.movingForwardAsked = true
+          return sendQuestion('Would you like help developing your approach to the client for this session?', state)
         }
+      }
+
+      // Phase 4 — response to Moving Forward question
+      if (state.movingForwardAsked && !state.movingForwardDone) {
+        state.movingForwardDone = true
+        const noPattern = /\b(no|nope|nah|not now|not right now|i.?m fine|i.?m good|got it|ready to go|all good|i.?ll be fine)\b/i
+        if (noPattern.test(query)) {
+          return sendQuestion("You're ready to go. Good luck with it.", state)
+        }
+        // Yes — fall through to AI to help prepare talking points / framing
       }
 
       // AI handles: either alternatives exploration or client approach guidance
