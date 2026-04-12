@@ -596,7 +596,8 @@ async function handleQuery (rawBody, res) {
       happyConfirmed: false,
       clientApproachAsked: false,
       movingForwardAsked: false,
-      movingForwardDone: false
+      movingForwardDone: false,
+      movingForwardHelped: false
     }, conversationState)
 
     // Always re-detect profit situation from the first user message — never trust state for this flag.
@@ -751,6 +752,16 @@ async function handleQuery (rawBody, res) {
         }
       }
 
+      // Alternatives path — detect when advisor confirms an alternative → fire Moving Forward
+      if (state.clientApproachAsked && !state.happyConfirmed && !state.movingForwardAsked) {
+        const confirmsAlternative = /\b(yes|yeah|yep|great|perfect|that works|sounds good|let.?s run|run with|that.?s better|looks better|go with|happy with|that.?ll do|good idea|let.?s go|makes sense|that.?s right|that one)\b/i
+        if (confirmsAlternative.test(query)) {
+          state.happyConfirmed = true
+          state.movingForwardAsked = true
+          return sendQuestion('Would you like help developing your approach to the client for this session?', state)
+        }
+      }
+
       // Phase 4 — response to Moving Forward question
       if (state.movingForwardAsked && !state.movingForwardDone) {
         state.movingForwardDone = true
@@ -759,6 +770,14 @@ async function handleQuery (rawBody, res) {
           return sendQuestion("You're ready to go. Good luck with it.", state)
         }
         // Yes — fall through to AI to help prepare talking points / framing
+      }
+
+      // After AI delivered Moving Forward help — close cleanly on advisor sign-off
+      if (state.movingForwardHelped) {
+        const signOffPattern = /\b(thanks|thank you|cheers|great|perfect|looks good|that.?s great|that.?ll do|got it|appreciate|brilliant|all good|wonderful|lovely)\b/i
+        if (signOffPattern.test(query)) {
+          return sendQuestion("You're ready to go. Good luck with it.", state)
+        }
       }
 
       // AI handles: either alternatives exploration or client approach guidance
@@ -803,6 +822,9 @@ async function handleQuery (rawBody, res) {
         const text = chunk.choices[0]?.delta?.content || ''
         if (text) res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
         if (chunk.choices[0]?.finish_reason === 'stop') {
+          if (state.movingForwardDone && !state.movingForwardHelped) {
+            state.movingForwardHelped = true
+          }
           res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
         }
