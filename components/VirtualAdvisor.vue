@@ -281,12 +281,16 @@
         )
           p.profile-q-label {{ q.question }}
 
-          //- Completed question — show answer as read-only
-          .profile-q-done(v-if="index < profileStep && advisorProfile[q.field]")
-            p.profile-q-answer {{ advisorProfile[q.field] }}
+          //- Completed question — show answer as editable
+          textarea.profile-q-textarea.profile-q-textarea-done(
+            v-if="index < profileStep"
+            v-model="advisorProfile[q.field]"
+            rows="2"
+            @change="saveField"
+          )
 
           //- Current question — interactive
-          template(v-else-if="index === profileStep")
+          template(v-if="index === profileStep")
             .voice-bar(v-if="speechSupported")
               .voice-state.voice-idle(v-if="profileRecordingField !== q.field && !advisorProfile[q.field]")
                 button.voice-btn.voice-btn-idle(@click="toggleProfileListening(q.field)")
@@ -1441,6 +1445,8 @@ export default {
   box-sizing: border-box;
 }
 .profile-q-textarea:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
+.profile-q-textarea-done { background: #f8faff; border-color: #c7d7f5; }
+.profile-q-textarea-done:focus { border-color: #1e40af; background: #ffffff; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
 .pq-recording { border-color: #dc2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.1) !important; }
 
 .profile-q-advance { display: flex; justify-content: flex-end; margin-top: 8px; }

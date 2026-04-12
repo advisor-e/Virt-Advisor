@@ -53,9 +53,9 @@
     "back": "← Main menu"
   },
   "voice": {
-    "tapToSpeak": "Tap to speak",
+    "tapToSpeak": "Tap to Speak",
     "recording": "Recording — speak now",
-    "stopRecording": "Stop recording",
+    "stopRecording": "Stop Recording",
     "capturedEdit": "Captured — edit below or record again",
     "capturedReview": "Captured — review then Save",
     "recordAgain": "Record again"
@@ -63,7 +63,7 @@
   "input": {
     "placeholderDiscover": "Describe what you're looking for...",
     "placeholderDefault": "Type your answer...",
-    "send": "Send",
+    "send": "Save & Continue",
     "sending": "...",
     "hint": "Press Enter to send · Shift+Enter for new line",
     "listening": "🎤 Listening..."
