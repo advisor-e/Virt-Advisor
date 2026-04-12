@@ -281,13 +281,27 @@
         )
           p.profile-q-label {{ q.question }}
 
-          //- Completed question — show answer as editable
-          textarea.profile-q-textarea.profile-q-textarea-done(
-            v-if="index < profileStep"
-            v-model="advisorProfile[q.field]"
-            rows="2"
-            @change="saveField"
-          )
+          //- Completed question — voice bar + editable textarea
+          .profile-q-completed(v-if="index < profileStep")
+            .voice-bar(v-if="speechSupported")
+              .voice-state.voice-idle(v-if="profileRecordingField !== q.field")
+                button.voice-btn.voice-btn-idle(@click="toggleProfileListening(q.field)")
+                  svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
+                    path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
+                  | {{ $t('voice.tapToSpeak') }}
+              .voice-state.voice-recording(v-else-if="profileRecordingField === q.field")
+                span.recording-dot
+                span.recording-label {{ $t('voice.recording') }}
+                button.voice-btn.voice-btn-stop(@click="toggleProfileListening(q.field)")
+                  svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
+                    rect(x="6" y="6" width="12" height="12" rx="2")
+                  | {{ $t('voice.stopRecording') }}
+            textarea.profile-q-textarea.profile-q-textarea-done(
+              v-model="advisorProfile[q.field]"
+              rows="2"
+              :class="{ 'pq-recording': profileRecordingField === q.field }"
+              @change="saveField"
+            )
 
           //- Current question — interactive
           template(v-if="index === profileStep")
@@ -1445,6 +1459,7 @@ export default {
   box-sizing: border-box;
 }
 .profile-q-textarea:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
+.profile-q-completed { display: flex; flex-direction: column; gap: 6px; }
 .profile-q-textarea-done { background: #f8faff; border-color: #c7d7f5; }
 .profile-q-textarea-done:focus { border-color: #1e40af; background: #ffffff; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
 .pq-recording { border-color: #dc2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.1) !important; }

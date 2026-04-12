@@ -2,7 +2,7 @@ export default {
   target: 'server',
 
   server: {
-    port: 4000,
+    port: 4001,
     host: 'localhost'
   },
 
