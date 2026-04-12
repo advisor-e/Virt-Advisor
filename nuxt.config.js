@@ -48,5 +48,9 @@ export default {
     apiBaseUrl: process.env.API_BASE_URL || ''
   },
 
-  build: {}
+  build: {
+    cache: true,
+    parallel: true,
+    hardSourcePlugin: true
+  }
 }

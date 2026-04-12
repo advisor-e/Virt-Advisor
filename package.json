@@ -4,6 +4,8 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=8192 nuxt",
+    "dev:clean": "dev.bat",
+    "serve": "serve.bat",
     "start": "nuxt start",
     "generate": "nuxt generate"
   },
