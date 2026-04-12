@@ -371,6 +371,20 @@
               p.case-summary-label AI Recommendation Summary
               p.case-summary-text {{ c.summary }}
 
+            .case-transcript-toggle(v-if="c.transcript && c.transcript.length")
+              button.transcript-btn(@click="transcriptOpenId = transcriptOpenId === c.id ? null : c.id")
+                | {{ transcriptOpenId === c.id ? '▲ Hide conversation' : '▼ Read Case Study Conversation' }}
+
+            .case-transcript(v-if="transcriptOpenId === c.id && c.transcript && c.transcript.length")
+              .transcript-msg(
+                v-for="(msg, i) in c.transcript"
+                :key="i"
+                :class="msg.role === 'user' ? 'transcript-msg-user' : 'transcript-msg-va'"
+              )
+                span.transcript-role {{ msg.role === 'user' ? 'You' : 'VA' }}
+                div(v-if="msg.role === 'assistant'" v-html="renderMarkdown(msg.content)" class="prose transcript-prose")
+                p.transcript-text(v-else) {{ msg.content }}
+
             .case-review-section
               h3.review-heading Post-Delivery Review
               p.review-sub After delivering this session to your client, record what actually happened. The AI will use this to improve future recommendations.
@@ -573,6 +587,7 @@ export default {
         { name: 'Exit / Decline', description: 'The owners realise their capital gain via sale, MBO, or succession to family. (If successful.) Or the business dwindles as the owner/s seek retirement. (If they missed the mark.)' }
       ],
       expandedCaseId: null,
+      transcriptOpenId: null,
       reviewRecordingField: null,
       reviewDraft: { wentWell: '', wentLess: '', changesRecommended: '' },
       reviewSavedId: null,
@@ -2049,6 +2064,51 @@ export default {
   cursor: pointer;
 }
 .review-save-btn:hover { background: #1d3a98; }
+.case-transcript-toggle { margin: 12px 0 4px; }
+.transcript-btn {
+  background: none;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  color: #1e40af;
+  cursor: pointer;
+  font-weight: 500;
+}
+.transcript-btn:hover { background: #eff6ff; }
+.case-transcript {
+  margin: 8px 0 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.transcript-msg {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f3f4f6;
+  align-items: flex-start;
+}
+.transcript-msg:last-child { border-bottom: none; }
+.transcript-msg-va { background: #f8faff; }
+.transcript-msg-user { background: #ffffff; }
+.transcript-role {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  min-width: 28px;
+  padding-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.transcript-msg-va .transcript-role { color: #1e40af; }
+.transcript-text { font-size: 13px; color: #374151; margin: 0; line-height: 1.5; }
+.transcript-prose { font-size: 13px; color: #374151; line-height: 1.5; }
+.transcript-prose p { margin: 0 0 6px; }
+.transcript-prose p:last-child { margin: 0; }
+.transcript-prose strong { font-weight: 600; }
+.transcript-prose ul { margin: 4px 0 4px 16px; padding: 0; }
+
 .review-delete-btn {
   background: none;
   color: #dc2626;
