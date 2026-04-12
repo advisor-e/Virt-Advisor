@@ -108,7 +108,7 @@
 
     //- Advisor Profile card (click opens overlay)
     .profile-card
-      button.profile-card-header(@click="profileOpen = true")
+      button.profile-card-header(@click="openProfile")
         .profile-card-icon 🎯
         .profile-card-body
           h2.profile-card-title {{ $t('profile.title') }}
@@ -274,34 +274,55 @@
       button.profile-modal-close(@click="profileOpen = false") ✕
 
     .profile-modal-body
-        .profile-q(v-for="q in profileQuestions" :key="q.field")
+        .profile-q(
+          v-for="(q, index) in profileQuestions"
+          :key="q.field"
+          v-if="index <= profileStep"
+        )
           p.profile-q-label {{ q.question }}
 
-          .profile-voice-bar(v-if="speechSupported")
-            .voice-state.voice-idle(v-if="profileRecordingField !== q.field")
-              button.voice-btn.voice-btn-idle(@click="toggleProfileListening(q.field)")
-                svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
-                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                | {{ $t('voice.tapToSpeak') }}
-            .voice-state.voice-recording(v-else)
-              span.recording-dot
-              span.recording-label {{ $t('voice.recording') }}
-              button.voice-btn.voice-btn-stop(@click="toggleProfileListening(q.field)")
-                svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
-                  rect(x="6" y="6" width="12" height="12" rx="2")
-                | {{ $t('voice.stopRecording') }}
+          //- Completed question — show answer as read-only
+          .profile-q-done(v-if="index < profileStep && advisorProfile[q.field]")
+            p.profile-q-answer {{ advisorProfile[q.field] }}
 
-          textarea.profile-q-textarea(
-            v-if="advisorProfile[q.field] || profileRecordingField === q.field"
-            v-model="advisorProfile[q.field]"
-            rows="2"
-            :class="{ 'pq-recording': profileRecordingField === q.field }"
-          )
+          //- Current question — interactive
+          template(v-else-if="index === profileStep")
+            .voice-bar(v-if="speechSupported")
+              .voice-state.voice-idle(v-if="profileRecordingField !== q.field && !advisorProfile[q.field]")
+                button.voice-btn.voice-btn-idle(@click="toggleProfileListening(q.field)")
+                  svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
+                    path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
+                  | {{ $t('voice.tapToSpeak') }}
+              .voice-state.voice-recording(v-else-if="profileRecordingField === q.field")
+                span.recording-dot
+                span.recording-label {{ $t('voice.recording') }}
+                button.voice-btn.voice-btn-stop(@click="toggleProfileListening(q.field)")
+                  svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
+                    rect(x="6" y="6" width="12" height="12" rx="2")
+                  | {{ $t('voice.stopRecording') }}
+              .voice-state.voice-ready(v-else)
+                svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
+                  path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
+                span.ready-label {{ $t('voice.capturedReview') }}
+                button.voice-btn.voice-btn-redo(@click="toggleProfileListening(q.field)")
+                  svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
+                    path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
+                  | {{ $t('voice.recordAgain') }}
+
+            textarea.profile-q-textarea(
+              v-if="advisorProfile[q.field] || profileRecordingField === q.field"
+              v-model="advisorProfile[q.field]"
+              rows="2"
+              :class="{ 'pq-recording': profileRecordingField === q.field }"
+            )
+
+            .profile-q-advance(v-if="advisorProfile[q.field] && advisorProfile[q.field].trim()")
+              button.profile-advance-btn(@click="saveFieldAndAdvance")
+                | {{ index < profileQuestions.length - 1 ? 'Save & continue →' : 'Save profile' }}
 
         .profile-q-actions
-          button.profile-save-btn(@click="saveProfile") {{ $t('profile.save') }}
-          button.profile-clear-btn(v-if="profileSaved" @click="clearProfile") {{ $t('profile.clear') }}
-          button.profile-clear-btn(@click="profileOpen = false") {{ $t('profile.back') }}
+          button.profile-clear-btn(v-if="profileSaved" @click="clearProfile") Clear
+          button.profile-clear-btn(@click="profileOpen = false") Main menu
 
   //- My Cases panel
   .cases-overlay(v-if="showCasesPanel" @click.self="closeCasesPanel")
@@ -343,18 +364,18 @@
                     button.voice-btn.voice-btn-idle(@click="toggleReviewListening('wentLess')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
                         path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                      | Tap to speak
+                      | {{ $t('voice.tapToSpeak') }}
                   .voice-state.voice-recording(v-else-if="reviewRecordingField === 'wentLess'")
                     span.recording-dot
-                    span.recording-label Recording...
+                    span.recording-label {{ $t('voice.recording') }}
                     button.voice-btn.voice-btn-stop(@click="toggleReviewListening('wentLess')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
                         rect(x="6" y="6" width="12" height="12" rx="2")
-                      | Stop
+                      | {{ $t('voice.stopRecording') }}
                   .voice-state.voice-ready(v-else)
                     svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
                       path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-                    span.ready-label Captured — edit below or
+                    span.ready-label {{ $t('voice.capturedReview') }}
                     button.voice-btn.voice-btn-redo(@click="toggleReviewListening('wentLess')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
                         path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
@@ -374,18 +395,18 @@
                     button.voice-btn.voice-btn-idle(@click="toggleReviewListening('wentWell')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
                         path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                      | Tap to speak
+                      | {{ $t('voice.tapToSpeak') }}
                   .voice-state.voice-recording(v-else-if="reviewRecordingField === 'wentWell'")
                     span.recording-dot
-                    span.recording-label Recording...
+                    span.recording-label {{ $t('voice.recording') }}
                     button.voice-btn.voice-btn-stop(@click="toggleReviewListening('wentWell')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
                         rect(x="6" y="6" width="12" height="12" rx="2")
-                      | Stop
+                      | {{ $t('voice.stopRecording') }}
                   .voice-state.voice-ready(v-else)
                     svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
                       path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-                    span.ready-label Captured — edit below or
+                    span.ready-label {{ $t('voice.capturedReview') }}
                     button.voice-btn.voice-btn-redo(@click="toggleReviewListening('wentWell')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
                         path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
@@ -405,18 +426,18 @@
                     button.voice-btn.voice-btn-idle(@click="toggleReviewListening('changesRecommended')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
                         path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                      | Tap to speak
+                      | {{ $t('voice.tapToSpeak') }}
                   .voice-state.voice-recording(v-else-if="reviewRecordingField === 'changesRecommended'")
                     span.recording-dot
-                    span.recording-label Recording...
+                    span.recording-label {{ $t('voice.recording') }}
                     button.voice-btn.voice-btn-stop(@click="toggleReviewListening('changesRecommended')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
                         rect(x="6" y="6" width="12" height="12" rx="2")
-                      | Stop
+                      | {{ $t('voice.stopRecording') }}
                   .voice-state.voice-ready(v-else)
                     svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
                       path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-                    span.ready-label Captured — edit below or
+                    span.ready-label {{ $t('voice.capturedReview') }}
                     button.voice-btn.voice-btn-redo(@click="toggleReviewListening('changesRecommended')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
                         path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
@@ -504,8 +525,9 @@ export default {
       recognition: null,
       profileOpen: false,
       profileSaved: false,
+      profileStep: 0,
       profileRecordingField: null,
-      advisorProfile: { experience: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' },
+      advisorProfile: { experience: '', clientDemographic: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' },
       langPickerOpen: false,
       langSearch: '',
       loadingLang: null,
@@ -561,13 +583,21 @@ export default {
       return LANGUAGES.filter(l => l.name.toLowerCase().includes(q) || l.code.includes(q))
     },
     profileQuestions () {
-      return [
-        { field: 'experience', question: this.$t('profile.questions.experience') },
+      const experiencedPattern = /\b(yes|yeah|yep|years?|months?|weeks?|since|20\d\d|19\d\d|have been|i've been|been doing|been delivering|been working|been advising)\b/i
+      const hasExperience = experiencedPattern.test(this.advisorProfile.experience || '')
+      const questions = [
+        { field: 'experience', question: this.$t('profile.questions.experience') }
+      ]
+      if (hasExperience) {
+        questions.push({ field: 'clientDemographic', question: this.$t('profile.questions.clientDemographic') })
+      }
+      questions.push(
         { field: 'enjoyment', question: this.$t('profile.questions.enjoyment') },
         { field: 'technicalStrengths', question: this.$t('profile.questions.technicalStrengths') },
         { field: 'toolsComfort', question: this.$t('profile.questions.toolsComfort') },
         { field: 'notes', question: this.$t('profile.questions.notes') }
-      ]
+      )
+      return questions
     },
     inputPlaceholder () {
       return this.mode === 'discover'
@@ -620,18 +650,13 @@ export default {
 
     this.refreshMyCases()
 
-    const saved = localStorage.getItem('va_advisor_profile')
-    if (saved) {
-      try {
-        this.advisorProfile = JSON.parse(saved)
-        this.profileSaved = true
-      } catch (e) {}
-    }
+    this._loadProfile()
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (SpeechRecognition) {
       this.speechSupported = true
       this.recognition = new SpeechRecognition()
+      this._recognitionRunning = false
       this.recognition.continuous = true
       this.recognition.interimResults = true
       this.recognition.lang = 'en-US'
@@ -649,12 +674,10 @@ export default {
         }
       }
       this.recognition.onend = () => {
-        if (this.isListening) {
-          this.recognition.start()
-        } else if (this.profileRecordingField) {
-          this.recognition.start()
-        } else if (this.reviewRecordingField) {
-          this.recognition.start()
+        this._recognitionRunning = false
+        if (this.isListening || this.profileRecordingField || this.reviewRecordingField) {
+          this._recognitionRunning = true
+          try { this.recognition.start() } catch (e) {}
         }
       }
       this.recognition.onerror = (e) => {
@@ -666,6 +689,16 @@ export default {
   },
 
   methods: {
+    _loadProfile () {
+      const saved = localStorage.getItem('va_advisor_profile')
+      if (saved) {
+        try {
+          this.advisorProfile = { ...this.advisorProfile, ...JSON.parse(saved) }
+          this.profileSaved = true
+        } catch (e) {}
+      }
+    },
+
     toggleLangPicker () {
       this.langPickerOpen = !this.langPickerOpen
       if (this.langPickerOpen) {
@@ -801,6 +834,9 @@ export default {
     selectMode (selected) {
       this.mode = selected
       this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
+      this.conversationState = {}
+      this.showGrowthCurveSelector = false
+      this.selectedGrowthStage = null
       this.$nextTick(() => this.scrollToBottom())
     },
 
@@ -832,6 +868,25 @@ export default {
       window.close()
     },
 
+    openProfile () {
+      this.profileStep = 0
+      this.profileOpen = true
+    },
+
+    saveField () {
+      localStorage.setItem('va_advisor_profile', JSON.stringify(this.advisorProfile))
+      this.profileSaved = true
+    },
+
+    saveFieldAndAdvance () {
+      this.saveField()
+      if (this.profileStep < this.profileQuestions.length - 1) {
+        this.profileStep++
+      } else {
+        this.profileOpen = false
+      }
+    },
+
     saveProfile () {
       localStorage.setItem('va_advisor_profile', JSON.stringify(this.advisorProfile))
       this.profileSaved = true
@@ -839,9 +894,10 @@ export default {
     },
 
     clearProfile () {
-      this.advisorProfile = { experience: '', toolsComfort: '', strengths: '', notes: '' }
+      this.advisorProfile = { experience: '', clientDemographic: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' }
       localStorage.removeItem('va_advisor_profile')
       this.profileSaved = false
+      this.profileStep = 0
     },
 
     toggleListening () {
@@ -850,13 +906,16 @@ export default {
         this.recognition.stop()
         this.isListening = false
       } else {
-        if (this.profileRecordingField) {
-          this.recognition.stop()
-          this.profileRecordingField = null
-        }
+        // Switch mode flags — if recognition is already running, it keeps going
+        // and onresult will route to inputText since the other flags are now clear
+        this.profileRecordingField = null
+        this.reviewRecordingField = null
         this.inputText = ''
-        this.recognition.start()
         this.isListening = true
+        if (!this._recognitionRunning) {
+          this._recognitionRunning = true
+          try { this.recognition.start() } catch (e) {}
+        }
       }
     },
 
@@ -866,11 +925,14 @@ export default {
         this.recognition.stop()
         this.profileRecordingField = null
       } else {
-        if (this.isListening) {
-          this.isListening = false
-        }
+        // Switch mode flags — if recognition is already running, just reroute it
+        this.isListening = false
+        this.reviewRecordingField = null
         this.profileRecordingField = field
-        this.recognition.start()
+        if (!this._recognitionRunning) {
+          this._recognitionRunning = true
+          try { this.recognition.start() } catch (e) {}
+        }
       }
     },
 
@@ -880,10 +942,14 @@ export default {
         this.recognition.stop()
         this.reviewRecordingField = null
       } else {
+        // Switch mode flags — if recognition is already running, just reroute it
         this.isListening = false
         this.profileRecordingField = null
         this.reviewRecordingField = field
-        this.recognition.start()
+        if (!this._recognitionRunning) {
+          this._recognitionRunning = true
+          try { this.recognition.start() } catch (e) {}
+        }
       }
     },
 
@@ -1351,9 +1417,14 @@ export default {
   gap: 16px;
   background: #fafbff;
 }
-.profile-q { display: flex; flex-direction: column; gap: 6px; }
+.profile-progress { margin-bottom: 16px; }
+.profile-step-label { font-size: 12px; color: #6b7280; font-weight: 500; display: block; margin-bottom: 6px; }
+.profile-progress-bar { height: 4px; background: #e5e7eb; border-radius: 2px; }
+.profile-progress-fill { height: 4px; background: #1e40af; border-radius: 2px; transition: width 0.3s ease; }
+.profile-q { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.profile-q-done { background: #f0f4ff; border-radius: 6px; padding: 8px 10px; }
+.profile-q-answer { font-size: 13px; color: #374151; margin: 0; line-height: 1.5; }
 .profile-q-label { font-size: 13px; font-weight: 600; color: #1e40af; margin: 0; }
-.profile-voice-bar { display: flex; align-items: center; }
 .profile-q-textarea {
   width: 100%;
   border: 1px solid #d1d5db;
@@ -1371,6 +1442,19 @@ export default {
 }
 .profile-q-textarea:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
 .pq-recording { border-color: #dc2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.1) !important; }
+
+.profile-q-advance { display: flex; justify-content: flex-end; margin-top: 8px; }
+.profile-advance-btn {
+  background: #1e40af;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.profile-advance-btn:hover { background: #1d3a98; }
 
 .profile-q-actions { display: flex; gap: 8px; padding-top: 4px; }
 .profile-save-btn {
@@ -1542,6 +1626,14 @@ export default {
   font-size: 12px;
 }
 .voice-btn-redo:hover { background: #f9fafb; }
+.voice-btn-save {
+  background: #1e40af;
+  color: #ffffff;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+}
+.voice-btn-save:hover { background: #1d3a98; }
 
 /* Save prompt card */
 .growth-curve-card {

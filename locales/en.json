@@ -42,6 +42,7 @@
     "tagEmpty": "Not set up",
     "questions": {
       "experience": "How long have you been delivering advisory work?",
+      "clientDemographic": "Describe your average advisory client in terms of staff numbers, industry, years in business, number of branches and annual turnover — but please don't mention names.",
       "enjoyment": "What kind of advisory conversations do you enjoy most or feel you do best?",
       "technicalStrengths": "What are the areas you feel technically strong in?",
       "toolsComfort": "How comfortable are you using structured tools and frameworks?",
@@ -56,7 +57,7 @@
     "recording": "Recording — speak now",
     "stopRecording": "Stop recording",
     "capturedEdit": "Captured — edit below or record again",
-    "capturedReview": "Captured — review then Send",
+    "capturedReview": "Captured — review then Save",
     "recordAgain": "Record again"
   },
   "input": {

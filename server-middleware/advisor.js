@@ -514,6 +514,7 @@ const MODE_SECTIONS = {
 function formatAdvisorProfile (profile) {
   const lines = []
   if (profile.experience && profile.experience.trim()) lines.push(`Experience: ${profile.experience.trim()}`)
+  if (profile.clientDemographic && profile.clientDemographic.trim()) lines.push(`Typical client profile: ${profile.clientDemographic.trim()}`)
   if (profile.enjoyment && profile.enjoyment.trim()) lines.push(`Advisory conversations they enjoy most: ${profile.enjoyment.trim()}`)
   if (profile.technicalStrengths && profile.technicalStrengths.trim()) lines.push(`Technical strengths: ${profile.technicalStrengths.trim()}`)
   if (profile.toolsComfort && profile.toolsComfort.trim()) lines.push(`Comfort with tools and frameworks: ${profile.toolsComfort.trim()}`)
@@ -530,7 +531,13 @@ function getOpenAI () {
   return openaiClient
 }
 
+const _fs = require('fs')
+const _os = require('os')
+const _dbgLog = _os.tmpdir() + '/va-debug.log'
+function dbg (msg) { try { _fs.appendFileSync(_dbgLog, new Date().toISOString() + ' ' + msg + '\n') } catch (e) {} }
+
 module.exports = function advisorMiddleware (req, res, next) {
+  dbg('MW: method=' + req.method + ' url=' + req.url)
   if (req.method !== 'POST' || req.url !== '/query') {
     return next()
   }
@@ -705,6 +712,7 @@ async function handleQuery (rawBody, res) {
     }
 
     // ── PHASE 2 — skip entirely if profile exists ──
+    dbg('PHASE2: hasProfile=' + !!advisorProfile + ' exp=' + JSON.stringify(state.advisorExperience) + ' demo=' + JSON.stringify(state.clientDemographicAsked))
     if (!advisorProfile) {
       if (!state.advisorExperience) {
         state.advisorExperience = 'pending'
@@ -713,6 +721,7 @@ async function handleQuery (rawBody, res) {
       if (state.advisorExperience === 'pending') {
         state.advisorExperience = query
       }
+
       if (!state.advisorConfidence) {
         state.advisorConfidence = 'pending'
         return sendQuestion('How confident do you feel about this type of situation — is this familiar territory, or more of a stretch?', state)
