@@ -902,7 +902,10 @@ export default {
     },
 
     openProfile () {
-      this.profileStep = 0
+      // NEVER reset to 0 — restore to the number of already-answered questions
+      // so completed answers stay visible and editable when reopening the panel.
+      // Resetting to 0 was causing all answers to collapse on every open.
+      this.profileStep = this.profileQuestions.filter(q => this.advisorProfile[q.field]).length
       this.profileOpen = true
     },
 

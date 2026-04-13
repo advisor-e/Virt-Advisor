@@ -50,7 +50,12 @@ export default {
 
   build: {
     cache: true,
-    parallel: true,
-    hardSourcePlugin: true
+    parallel: true
+  },
+
+  watchers: {
+    webpack: {
+      poll: 1000
+    }
   }
 }
