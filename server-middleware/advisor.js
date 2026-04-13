@@ -528,6 +528,42 @@ function formatAdvisorProfile (profile) {
   return lines.join('\n')
 }
 
+// ── Phase 4 — AI picks the most natural Moving Forward question ──
+// Uses gpt-4o-mini with a 50-token cap — fast and cheap.
+// Falls back to the first option if the AI returns something unexpected.
+const MOVING_FORWARD_OPTIONS = [
+  'Would you like help developing your approach to the client for this session?',
+  'Would you like to rehearse how you\'d open this conversation?',
+  'Shall I help you think through how to introduce this to the client?'
+]
+
+async function getMovingForwardQuestion (conversationHistory) {
+  const systemPrompt = `You are deciding which single question to ask an advisor after delivering a template recommendation.
+
+Choose exactly one of the following based on the conversation — pick whichever feels most natural given the client situation, the advisor's experience, and what was discussed:
+- "Would you like help developing your approach to the client for this session?"
+- "Would you like to rehearse how you'd open this conversation?"
+- "Shall I help you think through how to introduce this to the client?"
+
+Return ONLY the chosen question — no preamble, no explanation, no additional text.`
+
+  try {
+    const response = await getOpenAI().chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 50,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory.slice(-6),
+        { role: 'user', content: 'Choose and return the single most appropriate question.' }
+      ]
+    })
+    const returned = (response.choices[0]?.message?.content || '').trim()
+    return MOVING_FORWARD_OPTIONS.find(q => returned.includes(q.slice(0, 20))) || MOVING_FORWARD_OPTIONS[0]
+  } catch (e) {
+    return MOVING_FORWARD_OPTIONS[0]
+  }
+}
+
 // ── Shared context builder for all client-mode AI calls ──
 // Centralises template/coaching/summary fetching so Phase 3 and post-rec
 // don't duplicate the same logic independently.
@@ -635,6 +671,7 @@ async function handleQuery (rawBody, res) {
       academic: null,
       trust: null,
       engagementHistory: null,
+      clientPersonality: null,
       readyForRecommendation: false,
       recommendationDelivered: false,
       happyConfirmed: false,
@@ -642,7 +679,8 @@ async function handleQuery (rawBody, res) {
       movingForwardAsked: false,
       movingForwardDone: false,
       movingForwardHelped: false,
-      conversationComplete: false
+      conversationComplete: false,
+      postRecAiResponses: 0
     }, conversationState)
 
     // Always re-detect profit situation from the first user message — never trust state for this flag.
@@ -714,6 +752,12 @@ async function handleQuery (rawBody, res) {
         text: 'How would you describe their relationship with you — is there strong trust already, or is it still being built?'
       },
       {
+        field: 'clientPersonality',
+        text: 'Are they light-hearted and open to being challenged, or are they more discerning and careful about how they receive advice?',
+        // Skip if the trust answer already signals a warm, casual relationship — the answer is implied
+        skip: s => s.trust && s.trust !== 'pending' && /\b(great|friend|laugh|fun|relax|get on|love|close|enjoy|really well|very well|good rapport|like them|good mates|good mate)\b/i.test(s.trust)
+      },
+      {
         field: 'engagementHistory',
         text: 'Have they asked for this kind of help before, or is this new territory for them?'
       },
@@ -753,18 +797,24 @@ async function handleQuery (rawBody, res) {
       }
 
       if (!state.clientApproachAsked) {
-        // First message after recommendation — check if advisor explicitly wants alternatives
         const wantsAlternatives = /\b(alternative|alternatives|different|other option|not sure|not happy|not convinced|something else|explore|prefer something|instead|not quite right|change|not right)\b/i
+        const confirmsHappy = /\b(yes|yeah|yep|looks good|that.?s great|happy with that|happy with|perfect|sounds good|love it|that works|brilliant|excellent|great suggestion|that.?s perfect|go with that)\b/i
+
         if (wantsAlternatives.test(query)) {
-          // Advisor wants alternatives — fall through to AI
+          // Advisor wants alternatives — fall through to AI, then re-check next turn
           state.clientApproachAsked = true
-        } else {
-          // Advisor is happy (or gave any other response) — always ask Moving Forward question
+        } else if (state.postRecAiResponses === 0 && confirmsHappy.test(query)) {
+          // First response after recommendation AND explicit happiness — fire Moving Forward
+          // If postRecAiResponses > 0 we're deep in a follow-up conversation and "yes"
+          // might be answering an AI question — let the AI handle the conclusion instead
           state.happyConfirmed = true
           state.clientApproachAsked = true
           state.movingForwardAsked = true
-          return sendQuestion('Would you like help developing your approach to the client for this session?', state)
+          const mfQuestion = await getMovingForwardQuestion(conversationHistory)
+          return sendQuestion(mfQuestion, state)
         }
+        // else: follow-up question, or multi-turn conversation — fall through to AI
+        // without setting clientApproachAsked so the same check runs again next turn
       }
 
       // Alternatives path — detect when advisor confirms an alternative → fire Moving Forward
@@ -773,14 +823,15 @@ async function handleQuery (rawBody, res) {
         if (confirmsAlternative.test(query)) {
           state.happyConfirmed = true
           state.movingForwardAsked = true
-          return sendQuestion('Would you like help developing your approach to the client for this session?', state)
+          const mfQuestion = await getMovingForwardQuestion(conversationHistory)
+          return sendQuestion(mfQuestion, state)
         }
       }
 
       // Phase 4 — response to Moving Forward question
       if (state.movingForwardAsked && !state.movingForwardDone) {
         state.movingForwardDone = true
-        const noPattern = /\b(no|nope|nah|not now|not right now|i.?m fine|i.?m good|got it|ready to go|all good|i.?ll be fine)\b/i
+        const noPattern = /\b(no|nope|nah|not now|not right now|i.?m fine|i.?m good|got it|ready to go|all good|i.?ll be fine|that.?s all|all done|i.?m done|that.?ll do|i.?m good to go|good to go)\b/i
         if (noPattern.test(query)) {
           state.conversationComplete = true
           return sendQuestion("You're ready to go. Good luck with it.", state)
@@ -829,6 +880,7 @@ async function handleQuery (rawBody, res) {
           if (state.movingForwardDone && !state.movingForwardHelped) {
             state.movingForwardHelped = true
           }
+          state.postRecAiResponses = (state.postRecAiResponses || 0) + 1
           res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
         }
@@ -853,6 +905,7 @@ async function handleQuery (rawBody, res) {
       state.acumen && state.acumen !== 'pending' ? `Business acumen: ${state.acumen}` : '',
       state.academic && state.academic !== 'pending' ? `Academic vs instinctive: ${state.academic}` : '',
       state.trust && state.trust !== 'pending' ? `Relationship/trust: ${state.trust}` : '',
+      state.clientPersonality && state.clientPersonality !== 'pending' ? `Client personality/style: ${state.clientPersonality}` : '',
       state.engagementHistory && state.engagementHistory !== 'pending' ? `Engagement history: ${state.engagementHistory}` : '',
       state.advisorExperience && state.advisorExperience !== 'pending' ? `Advisor experience: ${state.advisorExperience}` : '',
       state.advisorConfidence && state.advisorConfidence !== 'pending' ? `Advisor confidence: ${state.advisorConfidence}` : ''
