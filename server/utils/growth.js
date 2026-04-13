@@ -5,7 +5,12 @@ let _data = null
 
 function loadGrowthData () {
   if (_data) return _data
-  _data = JSON.parse(readFileSync(resolve(process.cwd(), 'data/growth-fundamentals.json'), 'utf8'))
+  try {
+    _data = JSON.parse(readFileSync(resolve(process.cwd(), 'data/growth-fundamentals.json'), 'utf8'))
+  } catch (err) {
+    console.error('[growth] Failed to load growth-fundamentals.json:', err.message)
+    _data = { philosophy: '', stages: [], growthAspects: [], keyConceptsForAdvisors: {} }
+  }
   return _data
 }
 

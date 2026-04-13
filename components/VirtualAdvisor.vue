@@ -991,7 +991,7 @@ export default {
 
     async sendMessage () {
       const query = this.inputText.trim()
-      if (!query || this.isStreaming) return
+      if (!query || this.isStreaming || this.showGrowthCurveSelector) return
 
       this.messages.push({ role: 'user', content: query })
       this.inputText = ''

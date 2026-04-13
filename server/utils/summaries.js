@@ -5,6 +5,7 @@
 
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
+const { STOP_WORDS } = require('./stop-words')
 
 let _summaries = null
 let _sectionDescriptions = null
@@ -12,7 +13,12 @@ let _sectionDescriptions = null
 function loadSummaries () {
   if (_summaries) return _summaries
   const filePath = resolve(process.cwd(), 'data/content-summaries.json')
-  _summaries = JSON.parse(readFileSync(filePath, 'utf8'))
+  try {
+    _summaries = JSON.parse(readFileSync(filePath, 'utf8'))
+  } catch (err) {
+    console.error('[summaries] Failed to load content-summaries.json:', err.message)
+    _summaries = []
+  }
   return _summaries
 }
 
@@ -58,7 +64,12 @@ function getAllSummaries () {
 function loadSectionDescriptions () {
   if (_sectionDescriptions) return _sectionDescriptions
   const filePath = resolve(process.cwd(), 'data/section-descriptions.json')
-  _sectionDescriptions = JSON.parse(readFileSync(filePath, 'utf8'))
+  try {
+    _sectionDescriptions = JSON.parse(readFileSync(filePath, 'utf8'))
+  } catch (err) {
+    console.error('[summaries] Failed to load section-descriptions.json:', err.message)
+    _sectionDescriptions = []
+  }
   return _sectionDescriptions
 }
 
@@ -88,15 +99,5 @@ function formatSummariesForPrompt (summaries) {
   }).join('\n\n')
 }
 
-const STOP_WORDS = new Set([
-  'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'has',
-  'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his',
-  'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who',
-  'with', 'have', 'this', 'will', 'your', 'from', 'they', 'know', 'want',
-  'been', 'good', 'much', 'some', 'time', 'very', 'when', 'come', 'here',
-  'just', 'like', 'long', 'make', 'many', 'more', 'only', 'over', 'such',
-  'take', 'than', 'them', 'well', 'were', 'what', 'help', 'need', 'their',
-  'about', 'client', 'clients', 'business', 'advisor', 'template'
-])
 
 module.exports = { filterSummariesByQuery, getAllSummaries, formatSummariesForPrompt, formatSectionDescriptionsForPrompt }

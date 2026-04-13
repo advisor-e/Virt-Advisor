@@ -25,6 +25,7 @@
 const OpenAI = require('openai')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('./utils/templates')
 const { formatCoachingForPrompt } = require('./utils/coaching')
+const { detectScenario, buildScenarioBlock } = require('./utils/scenarios')
 
 const openaiClient = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -83,11 +84,8 @@ Ask warm, conversational questions — ONE OR TWO at a time — to build a pictu
 - What is the core challenge or situation the advisor wants to address?
 - Is this something the client has raised themselves, or is this the advisor's idea?
 
-**Profit and cost diagnostic (MANDATORY when the problem involves profitability or rising costs)**
-If the advisor describes a situation involving profit decline, margin pressure, rising costs, or cost management, you MUST work through the following sequence before moving on — one question at a time:
-1. Ask: "Does the client use financial management reports on a regular basis?"
-2. Then ask: "Do you think the client could benefit from a detailed review of their business variables and profit drivers?"
-These two questions are not optional — ask them in order and wait for each answer. Once answered, flag internally that the final recommendation MUST include a revenue model or what-if analysis model as part of the service solution, in addition to any other templates recommended.
+**Scenario diagnostic**
+A scenario-specific diagnostic block may be injected below the phase structure. If one is present, follow its instructions exactly — ask the questions in order (1a, 1b, 1c) after Q1 and before Q2, one at a time. If no scenario block is present, proceed directly to Q2 after Q1.
 
 **The client's business awareness**
 - Is the business owner experienced and commercially savvy, or are they relatively new to thinking strategically about their business?
@@ -295,13 +293,25 @@ async function advisorQuery (req, res, next) {
     return next()
   }
 
-  const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client
+  const basePrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.client
   const orgTemplates = getOrgTemplates(orgTemplateIds || null)
   const relevantTemplates = filterTemplatesByQuery(orgTemplates, query, 40)
   const templatesToUse = relevantTemplates.length > 0 ? relevantTemplates : orgTemplates.slice(0, 40)
 
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = formatCoachingForPrompt()
+
+  // Detect scenario from the advisor's first message only (conversationHistory empty = first turn)
+  let scenarioBlock = ''
+  if (mode === 'client') {
+    const firstMessage = conversationHistory.length === 0
+      ? query
+      : (conversationHistory.find(m => m.role === 'user') || {}).content || query
+    const detection = detectScenario(firstMessage)
+    scenarioBlock = buildScenarioBlock(detection)
+  }
+
+  const systemPrompt = scenarioBlock ? basePrompt + scenarioBlock : basePrompt
 
   const contextMessage = `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)\n\n${templatesText}\n\n---\n\n## Coaching Reference — Expert Guidance on Template Selection\n\n${coachingText}`
 

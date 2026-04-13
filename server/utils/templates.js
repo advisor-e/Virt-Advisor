@@ -5,20 +5,27 @@
 
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
+const { STOP_WORDS } = require('./stop-words')
 
 let _templates = null
 
 function loadTemplates () {
   if (_templates) return _templates
   const filePath = resolve(process.cwd(), 'data/templates.json')
-  _templates = JSON.parse(readFileSync(filePath, 'utf8'))
+  try {
+    _templates = JSON.parse(readFileSync(filePath, 'utf8'))
+  } catch (err) {
+    console.error('[templates] Failed to load templates.json:', err.message)
+    _templates = []
+  }
   return _templates
 }
 
 function getOrgTemplates (orgTemplateIds) {
   const all = loadTemplates()
-  if (!orgTemplateIds || orgTemplateIds.length === 0) return all
-  return all.filter(t => orgTemplateIds.includes(t.page))
+  if (!orgTemplateIds || !Array.isArray(orgTemplateIds) || orgTemplateIds.length === 0) return all
+  const validIds = orgTemplateIds.filter(id => typeof id === 'string').slice(0, 500)
+  return all.filter(t => validIds.includes(t.page))
 }
 
 function filterTemplatesByQuery (templates, query, maxResults) {
@@ -64,15 +71,5 @@ function formatTemplatesForPrompt (templates) {
   }).join('\n\n')
 }
 
-const STOP_WORDS = new Set([
-  'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'has',
-  'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his',
-  'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who',
-  'with', 'have', 'this', 'will', 'your', 'from', 'they', 'know', 'want',
-  'been', 'good', 'much', 'some', 'time', 'very', 'when', 'come', 'here',
-  'just', 'like', 'long', 'make', 'many', 'more', 'only', 'over', 'such',
-  'take', 'than', 'them', 'well', 'were', 'what', 'help', 'need', 'their',
-  'about', 'client', 'clients', 'business', 'advisor', 'template'
-])
 
 module.exports = { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt }

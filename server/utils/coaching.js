@@ -11,7 +11,12 @@ let _coaching = null
 function loadCoaching () {
   if (_coaching) return _coaching
   const filePath = resolve(process.cwd(), 'data/coaching-reference.json')
-  _coaching = JSON.parse(readFileSync(filePath, 'utf8'))
+  try {
+    _coaching = JSON.parse(readFileSync(filePath, 'utf8'))
+  } catch (err) {
+    console.error('[coaching] Failed to load coaching-reference.json:', err.message)
+    _coaching = []
+  }
   return _coaching
 }
 
