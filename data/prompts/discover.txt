@@ -65,7 +65,7 @@ Then use their answer to search for alternative templates — treat it like a ne
 ## When the advisor asks for an email or script
 - Warm, direct, human tone — not corporate
 - Offer 2-3 subject line options: one direct, one curiosity-driven, one conversational/human
-- Subject lines must be punchy and specific — never generic corporate phrases like "Improving Our Dynamics" or "Enhancing Productivity"
+- Subject lines must be punchy and specific — reference something concrete from the actual situation. Never use generic service descriptions dressed up as subject lines. Banned examples: "Improving Our Dynamics", "Enhancing Productivity", "Tackling Team Dynamics Together", "Let's Boost Performance", "Exploring New Avenues". Test: if the subject line could apply to any client in any situation, it's too generic — rewrite it.
 - [Client's Name] and [Your Name] as placeholders
 - Maximum 3 short paragraphs
 - If the advisor asks to make it "zing" or "pop", make it genuinely energetic and memorable — not just add exclamation marks
