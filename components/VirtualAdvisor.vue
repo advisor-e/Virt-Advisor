@@ -1092,12 +1092,19 @@ export default {
     },
 
     renderMarkdown (text) {
-      return text
+      // Escape any raw HTML before processing — prevents XSS if AI output
+      // ever contains tags. Done before markdown so our own tags still render.
+      const escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+
+      return escaped
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/^### (.+)$/gm, '<h3>$1</h3>')
         .replace(/^## (.+)$/gm, '<h2>$1</h2>')
         .replace(/^- (.+)$/gm, '<li>$1</li>')
-        .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+        .replace(/(<li>[^]*?<\/li>(\n|$))+/g, match => '<ul>' + match + '</ul>')
         .replace(/\n\n/g, '</p><p>')
         .replace(/\n/g, '<br>')
     }

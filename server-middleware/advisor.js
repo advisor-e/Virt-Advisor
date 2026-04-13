@@ -14,11 +14,17 @@ const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 
+// Prompt cache — loaded once per process, never re-read from disk
+const _promptCache = {}
 function loadPrompt (name) {
+  if (_promptCache[name]) return _promptCache[name]
   const filePath = path.resolve(process.cwd(), 'data/prompts', name + '.txt')
-  return fs.readFileSync(filePath, 'utf8')
+  _promptCache[name] = fs.readFileSync(filePath, 'utf8')
+  return _promptCache[name]
 }
 
+// DEPRECATED — all prompts now loaded from data/prompts/*.txt via loadPrompt().
+// This object is no longer referenced and can be deleted once confirmed stable.
 const SYSTEM_PROMPTS = {
 
   client: `You are the Virtual Advisor for Advisor-e, an advisory platform used by accounting firms to deliver business advisory services to their clients.
@@ -522,6 +528,43 @@ function formatAdvisorProfile (profile) {
   return lines.join('\n')
 }
 
+// ── Shared context builder for all client-mode AI calls ──
+// Centralises template/coaching/summary fetching so Phase 3 and post-rec
+// don't duplicate the same logic independently.
+function buildClientContext (orgTemplateIds, searchQuery, options) {
+  const {
+    includeCoaching = true,
+    includeSummaries = false,
+    includeGrowthStage = null,
+    includeSectionDesc = false,
+    advisorProfile = null
+  } = options || {}
+
+  const orgTemplates = getOrgTemplates(orgTemplateIds || null)
+  const relevant = filterTemplatesByQuery(orgTemplates, searchQuery, 25)
+  const templatesToUse = relevant.length > 0 ? relevant : orgTemplates.slice(0, 25)
+  const templatesText = formatTemplatesForPrompt(templatesToUse)
+  const coachingText = includeCoaching ? formatCoachingForPrompt() : null
+  const summariesText = includeSummaries ? formatSummariesForPrompt(filterSummariesByQuery(searchQuery, 10)) : null
+  const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
+  const growthText = includeGrowthStage
+    ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }])
+    : null
+  const profileText = advisorProfile
+    ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}`
+    : ''
+
+  return [
+    `## Available Templates (${templatesToUse.length} most relevant)`,
+    '',
+    templatesText,
+    sectionDescText ? '\n---\n\n' + sectionDescText : '',
+    coachingText ? '\n---\n\n## Coaching Reference\n\n' + coachingText : '',
+    growthText ? '\n---\n\n' + growthText : '',
+    summariesText ? '\n---\n\n## Template Summaries\n\n' + summariesText : ''
+  ].filter(Boolean).join('\n') + profileText
+}
+
 let openaiClient = null
 
 function getOpenAI () {
@@ -531,10 +574,11 @@ function getOpenAI () {
   return openaiClient
 }
 
-const _fs = require('fs')
-const _os = require('os')
-const _dbgLog = _os.tmpdir() + '/va-debug.log'
-function dbg (msg) { try { _fs.appendFileSync(_dbgLog, new Date().toISOString() + ' ' + msg + '\n') } catch (e) {} }
+const _dbgLog = require('os').tmpdir() + '/va-debug.log'
+function dbg (msg) {
+  if (!process.env.VA_DEBUG) return
+  try { fs.appendFileSync(_dbgLog, new Date().toISOString() + ' ' + msg + '\n') } catch (e) {}
+}
 
 module.exports = function advisorMiddleware (req, res, next) {
   dbg('MW: method=' + req.method + ' url=' + req.url)
@@ -565,7 +609,7 @@ async function handleQuery (rawBody, res) {
     return
   }
 
-  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile, language = 'en', languageName = 'English', caseSummaries = [], conversationState = {} } = parsed
+  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile, language = 'en', languageName = 'English', caseSummaries: caseContext = [], conversationState = {} } = parsed
 
   if (!query || !query.trim()) {
     res.writeHead(400, { 'Content-Type': 'application/json' })
@@ -597,7 +641,8 @@ async function handleQuery (rawBody, res) {
       clientApproachAsked: false,
       movingForwardAsked: false,
       movingForwardDone: false,
-      movingForwardHelped: false
+      movingForwardHelped: false,
+      conversationComplete: false
     }, conversationState)
 
     // Always re-detect profit situation from the first user message — never trust state for this flag.
@@ -622,121 +667,91 @@ async function handleQuery (rawBody, res) {
       res.end()
     }
 
-    // ── PROFIT DIAGNOSTIC SEQUENCE ──
-    if (state.profitSituation) {
-      if (!state.clientRaisedIssue) {
-        state.clientRaisedIssue = 'pending'
-        return sendQuestion('Has the client specifically raised this issue themselves, or is it something you\'ve noticed and want to address with them?', state)
-      }
-      if (state.clientRaisedIssue === 'pending') {
-        state.clientRaisedIssue = query
-      }
-      if (!state.usesReports) {
-        state.usesReports = 'pending'
-        return sendQuestion('Does the client use financial management reports on a regular basis?', state)
-      }
-      if (state.usesReports === 'pending') {
-        state.usesReports = query
-      }
-      if (!state.wouldBenefitFromReview) {
-        state.wouldBenefitFromReview = 'pending'
-        return sendQuestion('Do you think the client could benefit from a detailed review of their business variables and profit drivers?', state)
-      }
-      if (state.wouldBenefitFromReview === 'pending') {
-        state.wouldBenefitFromReview = query
-      }
-      if (!state.industry) {
-        state.industry = 'pending'
-        return sendQuestion('What industry is the client in?', state)
-      }
-      if (state.industry === 'pending') {
-        state.industry = query
-      }
-    }
+    // ── QUESTION PIPELINE ──
+    // Full sequence of questions in order. Each has an optional skip() condition.
+    // The sequencer asks the first unanswered, non-skipped question, then stops.
+    const isNFPorPublic = s => s.ownership && /not.for.profit|nfp|non.profit|public|listed/i.test(s.ownership)
 
-    // ── PHASE 1 SEQUENCE ──
-    // Skip "has client raised this" if already asked in diagnostic
-    if (!state.profitSituation && !state.clientRaisedIssue) {
-      state.clientRaisedIssue = 'pending'
-      return sendQuestion('Has the client specifically raised this issue themselves, or is it something you\'ve noticed and want to address with them?', state)
-    }
-    if (!state.profitSituation && state.clientRaisedIssue === 'pending') {
-      state.clientRaisedIssue = query
-    }
-
-    if (!state.ownership) {
-      state.ownership = 'pending'
-      return sendQuestion('Is the business privately owned, a not-for-profit, or publicly listed?', state)
-    }
-    if (state.ownership === 'pending') {
-      state.ownership = query
-    }
-
-    // Growth curve — only for privately owned
-    const isPrivate = state.ownership && !/not.for.profit|nfp|non.profit|public|listed/i.test(state.ownership)
-    if (isPrivate && !state.growthStage) {
-      state.growthStage = 'pending'
-      return sendQuestion('Where would you place them on the Growth Curve?\n[GROWTH_CURVE_SELECTOR]', state)
-    }
-    if (state.growthStage === 'pending') {
-      state.growthStage = query
-    }
-
-    if (!state.acumen) {
-      state.acumen = 'pending'
-      return sendQuestion('How would you describe the business owner\'s acumen — are they experienced and commercially savvy, or relatively new to thinking strategically about their business?', state)
-    }
-    if (state.acumen === 'pending') {
-      state.acumen = query
-    }
-
-    if (!state.academic) {
-      state.academic = 'pending'
-      return sendQuestion('Are they academically inclined — do they read business books, follow frameworks, engage with ideas? Or are they more instinctive and practical?', state)
-    }
-    if (state.academic === 'pending') {
-      state.academic = query
-    }
-
-    if (!state.trust) {
-      state.trust = 'pending'
-      return sendQuestion('How would you describe their relationship with you — is there strong trust already, or is it still being built?', state)
-    }
-    if (state.trust === 'pending') {
-      state.trust = query
-    }
-
-    if (!state.engagementHistory) {
-      state.engagementHistory = 'pending'
-      return sendQuestion('Have they asked for this kind of help before, or is this new territory for them?', state)
-    }
-    if (state.engagementHistory === 'pending') {
-      state.engagementHistory = query
-    }
-
-    // ── PHASE 2 — skip entirely if profile exists ──
-    dbg('PHASE2: hasProfile=' + !!advisorProfile + ' exp=' + JSON.stringify(state.advisorExperience) + ' demo=' + JSON.stringify(state.clientDemographicAsked))
-    if (!advisorProfile) {
-      if (!state.advisorExperience) {
-        state.advisorExperience = 'pending'
-        return sendQuestion('How long have you been delivering advisory work, and are you comfortable using tools and frameworks with clients?', state)
+    const QUESTIONS = [
+      {
+        field: 'clientRaisedIssue',
+        text: 'Has the client specifically raised this issue themselves, or is it something you\'ve noticed and want to address with them?'
+      },
+      {
+        field: 'usesReports',
+        text: 'Does the client use financial management reports on a regular basis?',
+        skip: s => !s.profitSituation
+      },
+      {
+        field: 'wouldBenefitFromReview',
+        text: 'Do you think the client could benefit from a detailed review of their business variables and profit drivers?',
+        skip: s => !s.profitSituation
+      },
+      {
+        field: 'industry',
+        text: 'What industry is the client in?',
+        skip: s => !s.profitSituation
+      },
+      {
+        field: 'ownership',
+        text: 'Is the business privately owned, a not-for-profit, or publicly listed?'
+      },
+      {
+        field: 'growthStage',
+        text: 'Where would you place them on the Growth Curve?\n[GROWTH_CURVE_SELECTOR]',
+        skip: s => isNFPorPublic(s)
+      },
+      {
+        field: 'acumen',
+        text: 'How would you describe the business owner\'s acumen — are they experienced and commercially savvy, or relatively new to thinking strategically about their business?'
+      },
+      {
+        field: 'academic',
+        text: 'Are they academically inclined — do they read business books, follow frameworks, engage with ideas? Or are they more instinctive and practical?'
+      },
+      {
+        field: 'trust',
+        text: 'How would you describe their relationship with you — is there strong trust already, or is it still being built?'
+      },
+      {
+        field: 'engagementHistory',
+        text: 'Have they asked for this kind of help before, or is this new territory for them?'
+      },
+      {
+        field: 'advisorExperience',
+        text: 'How long have you been delivering advisory work, and are you comfortable using tools and frameworks with clients?',
+        skip: () => !!advisorProfile
+      },
+      {
+        field: 'advisorConfidence',
+        text: 'How confident do you feel about this type of situation — is this familiar territory, or more of a stretch?',
+        skip: () => !!advisorProfile
       }
-      if (state.advisorExperience === 'pending') {
-        state.advisorExperience = query
-      }
+    ]
 
-      if (!state.advisorConfidence) {
-        state.advisorConfidence = 'pending'
-        return sendQuestion('How confident do you feel about this type of situation — is this familiar territory, or more of a stretch?', state)
+    dbg('SEQUENCER: checking pipeline, profitSituation=' + state.profitSituation)
+
+    for (const q of QUESTIONS) {
+      if (q.skip && q.skip(state)) continue
+      if (!state[q.field]) {
+        // Not yet asked — ask it now
+        state[q.field] = 'pending'
+        return sendQuestion(q.text, state)
       }
-      if (state.advisorConfidence === 'pending') {
-        state.advisorConfidence = query
+      if (state[q.field] === 'pending') {
+        // Was asked last turn — record the answer and continue to next question
+        state[q.field] = query
       }
     }
 
     // ── POST-RECOMMENDATION FLOW ──
     // If the AI has already delivered the Phase 3 recommendation, intercept the advisor's response
     if (state.recommendationDelivered) {
+      // Hard stop — conversation is done, nothing further to process
+      if (state.conversationComplete) {
+        return sendQuestion("You're ready to go. Good luck with it.", state)
+      }
+
       if (!state.clientApproachAsked) {
         // First message after recommendation — check if advisor explicitly wants alternatives
         const wantsAlternatives = /\b(alternative|alternatives|different|other option|not sure|not happy|not convinced|something else|explore|prefer something|instead|not quite right|change|not right)\b/i
@@ -767,6 +782,7 @@ async function handleQuery (rawBody, res) {
         state.movingForwardDone = true
         const noPattern = /\b(no|nope|nah|not now|not right now|i.?m fine|i.?m good|got it|ready to go|all good|i.?ll be fine)\b/i
         if (noPattern.test(query)) {
+          state.conversationComplete = true
           return sendQuestion("You're ready to go. Good luck with it.", state)
         }
         // Yes — fall through to AI to help prepare talking points / framing
@@ -776,28 +792,16 @@ async function handleQuery (rawBody, res) {
       if (state.movingForwardHelped) {
         const signOffPattern = /\b(thanks|thank you|cheers|great|perfect|looks good|that.?s great|that.?ll do|got it|appreciate|brilliant|all good|wonderful|lovely)\b/i
         if (signOffPattern.test(query)) {
+          state.conversationComplete = true
           return sendQuestion("You're ready to go. Good luck with it.", state)
         }
       }
 
       // AI handles: either alternatives exploration or client approach guidance
-      const basePromptPost = loadPrompt('client')
-      const orgTemplatesPost = getOrgTemplates(orgTemplateIds || null)
-      const relevantPost = filterTemplatesByQuery(orgTemplatesPost, query, 25)
-      const templatesToUsePost = relevantPost.length > 0 ? relevantPost : orgTemplatesPost.slice(0, 25)
-      const templatesTextPost = formatTemplatesForPrompt(templatesToUsePost)
-      const coachingTextPost = formatCoachingForPrompt()
-      const profileNotePost = advisorProfile
-        ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}`
-        : ''
-      const contextMsgPost = [
-        `## Available Templates (${templatesToUsePost.length} most relevant)`,
-        '', templatesTextPost,
-        '\n---\n\n## Coaching Reference\n\n' + coachingTextPost
-      ].join('\n')
+      const contextMsgPost = buildClientContext(orgTemplateIds, query, { advisorProfile })
 
       const messagesPost = [
-        { role: 'user', content: contextMsgPost + profileNotePost },
+        { role: 'user', content: contextMsgPost },
         { role: 'assistant', content: OPENING_MSG.client },
         ...conversationHistory,
         { role: 'user', content: query }
@@ -815,7 +819,7 @@ async function handleQuery (rawBody, res) {
         model: 'gpt-4o',
         max_tokens: 1500,
         stream: true,
-        messages: [{ role: 'system', content: basePromptPost }, ...messagesPost]
+        messages: [{ role: 'system', content: loadPrompt('client') }, ...messagesPost]
       })
 
       for await (const chunk of streamPost) {
@@ -865,31 +869,18 @@ async function handleQuery (rawBody, res) {
     // Override query with the collected answers summary for the AI recommendation call
     const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${profitInstruction}${profileNote}\n\nNow produce the Phase 3 recommendation.`
 
-    // Fall through to AI call below with recommendationQuery
+    // Fall through to AI call for Phase 3 recommendation
     const languageInstruction2 = language !== 'en'
       ? `\n\nIMPORTANT: Always respond entirely in ${languageName}.`
       : ''
-    const orgTemplates2 = getOrgTemplates(orgTemplateIds || null)
-    const relevant2 = filterTemplatesByQuery(orgTemplates2, collectedAnswers, 25)
-    const templatesToUse2 = relevant2.length > 0 ? relevant2 : orgTemplates2.slice(0, 25)
-    const templatesText2 = formatTemplatesForPrompt(templatesToUse2)
-    const coachingText2 = formatCoachingForPrompt()
-    const summaries2 = filterSummariesByQuery(collectedAnswers, 10)
-    const summariesText2 = formatSummariesForPrompt(summaries2)
-    const sectionDescText2 = formatSectionDescriptionsForPrompt()
-    const growthText2 = state.growthStage ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: state.growthStage }]) : null
 
-    const contextMsg2 = [
-      `## Available Templates (${templatesToUse2.length} most relevant)`,
-      '', templatesText2,
-      sectionDescText2 ? '\n---\n\n' + sectionDescText2 : '',
-      '\n---\n\n## Coaching Reference\n\n' + coachingText2,
-      growthText2 ? '\n---\n\n' + growthText2 : '',
-      summariesText2 ? '\n---\n\n## Template Summaries\n\n' + summariesText2 : ''
-    ].join('\n')
+    const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
+      includeSummaries: true,
+      includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
+      includeSectionDesc: true
+    })
 
-    const basePrompt2 = loadPrompt('client')
-    const systemPrompt2 = basePrompt2 + languageInstruction2
+    const systemPrompt2 = loadPrompt('client') + languageInstruction2
 
     const messages2 = [
       { role: 'user', content: contextMsg2 },
@@ -972,7 +963,7 @@ async function handleQuery (rawBody, res) {
     ? '\n\nADVISOR PROFILE PRE-SUPPLIED: Use the profile in the context when writing the "Why this suits you as the advisor" section.'
     : ''
 
-  const basePrompt = mode === 'client' ? loadPrompt('client') : (SYSTEM_PROMPTS[mode] || loadPrompt('client'))
+  const basePrompt = loadPrompt(mode) || loadPrompt('client')
   const systemPrompt = basePrompt + profileSystemInstruction + languageInstruction
 
   function formatCaseSummaries (cases) {
@@ -998,7 +989,8 @@ async function handleQuery (rawBody, res) {
     return lines.join('\n')
   }
 
-  const caseSummariesText = formatCaseSummaries(caseSummaries)
+  // Case studies are only relevant in client and discover modes
+  const caseSummariesText = (mode === 'client' || mode === 'discover') ? formatCaseSummaries(caseContext) : null
 
   // Include Growth Fundamentals reference once the advisor has selected a growth stage
   const includeGrowth = mode === 'client' && conversationHasGrowthStage(trimmedHistory)

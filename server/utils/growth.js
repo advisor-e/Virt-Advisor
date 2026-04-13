@@ -19,7 +19,7 @@ const GROWTH_STAGE_NAMES = [
  */
 function conversationHasGrowthStage (conversationHistory) {
   const text = conversationHistory.map(m => m.content || '').join(' ')
-  return GROWTH_STAGE_NAMES.some(name => text.includes(name + ' —') || text.includes(name + ' -'))
+  return GROWTH_STAGE_NAMES.some(name => text.toLowerCase().includes(name.toLowerCase()))
 }
 
 /**
@@ -30,10 +30,9 @@ function formatGrowthFundamentalsForPrompt (conversationHistory) {
   const data = loadGrowthData()
   const historyText = (conversationHistory || []).map(m => m.content || '').join(' ')
 
-  // Find which stage was selected
-  const selectedStage = data.stages.find(s =>
-    historyText.includes(s.name + ' —') || historyText.includes(s.name + ' -')
-  )
+  // Find which stage was selected — case-insensitive, no suffix required
+  const lowerHistory = historyText.toLowerCase()
+  const selectedStage = data.stages.find(s => lowerHistory.includes(s.name.toLowerCase()))
 
   const lines = []
   lines.push('## Growth Fundamentals Reference')
