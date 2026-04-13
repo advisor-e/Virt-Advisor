@@ -661,10 +661,14 @@ async function handleQuery (rawBody, res) {
   if (mode === 'client') {
     const state = Object.assign({
       profitSituation: false,
+      staffSituation: false,
       clientRaisedIssue: false,
       usesReports: false,
       wouldBenefitFromReview: false,
       industry: null,
+      staffScope: null,
+      staffOrigin: null,
+      staffCategory: null,
       ownership: null,
       growthStage: null,
       acumen: null,
@@ -683,13 +687,16 @@ async function handleQuery (rawBody, res) {
       postRecAiResponses: 0
     }, conversationState)
 
-    // Always re-detect profit situation from the first user message — never trust state for this flag.
+    // Always re-detect scenario from the first user message — never trust state for these flags.
     // The first message never changes, so this is 100% reliable on every turn.
-    const profitKeywords = /profit|margin|margins|fuel cost|fuel costs|rising cost|rising costs|cost increase|increasing cost|expenses|cost pressure|squeez/i
+    // Option A: profit takes priority — if both detected, profit diagnostic runs.
+    const profitKeywords = /profit|profitability|margin|margins|fuel cost|fuel costs|rising cost|rising costs|cost increase|increasing cost|expenses|cost pressure|squeeze/i
+    const staffKeywords = /\b(staff|employees|team|efficiency|productivity|effectiveness|leadership|HR|morale|culture|disharmony|poor communication)\b/i
     const firstMsg = conversationHistory.length > 0
       ? (conversationHistory.find(m => m.role === 'user') || { content: query }).content
       : query
     state.profitSituation = profitKeywords.test(firstMsg)
+    state.staffSituation = !state.profitSituation && staffKeywords.test(firstMsg)
 
     // Helper: stream a hardcoded question directly to the client
     const sendQuestion = (text, newState) => {
@@ -729,6 +736,21 @@ async function handleQuery (rawBody, res) {
         field: 'industry',
         text: 'What industry is the client in?',
         skip: s => !s.profitSituation
+      },
+      {
+        field: 'staffScope',
+        text: 'Does this issue relate to one or two specific employees, or is it a wider team issue across the business?',
+        skip: s => !s.staffSituation
+      },
+      {
+        field: 'staffOrigin',
+        text: 'Has this issue surfaced in response to a specific event, or has it just developed over time — and if so, how long has it been building?',
+        skip: s => !s.staffSituation
+      },
+      {
+        field: 'staffCategory',
+        text: 'In your opinion, is this a potential employment law matter, or does it fall into the broader category of team and leadership improvement?',
+        skip: s => !s.staffSituation
       },
       {
         field: 'ownership',
@@ -900,6 +922,9 @@ async function handleQuery (rawBody, res) {
       state.profitSituation && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
       state.profitSituation && state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' ? `Would benefit from profit driver review: ${state.wouldBenefitFromReview}` : '',
       state.profitSituation && state.industry && state.industry !== 'pending' ? `Industry: ${state.industry}` : '',
+      state.staffSituation && state.staffScope && state.staffScope !== 'pending' ? `Staff issue scope (individual vs team): ${state.staffScope}` : '',
+      state.staffSituation && state.staffOrigin && state.staffOrigin !== 'pending' ? `Staff issue origin (event vs gradual): ${state.staffOrigin}` : '',
+      state.staffSituation && state.staffCategory && state.staffCategory !== 'pending' ? `Staff issue category (employment law vs team improvement): ${state.staffCategory}` : '',
       state.ownership && state.ownership !== 'pending' ? `Business ownership: ${state.ownership}` : '',
       state.growthStage && state.growthStage !== 'pending' ? `Growth stage: ${state.growthStage}` : '',
       state.acumen && state.acumen !== 'pending' ? `Business acumen: ${state.acumen}` : '',
@@ -915,12 +940,22 @@ async function handleQuery (rawBody, res) {
       ? `\n\nPROFIT SITUATION: This client has a profitability/cost problem. Your recommendation MUST include a revenue model or what-if analysis model matched specifically to their industry: ${state.industry}. Do not recommend a generic revenue model.`
       : ''
 
+    const staffInstruction = state.staffSituation && state.staffCategory && state.staffCategory !== 'pending'
+      ? `\n\nSTAFF SITUATION: This is a staff/team issue. Use the three diagnostic answers to shape the recommendation:
+- Scope (individual vs team): ${state.staffScope}
+- Origin (event-driven vs gradual): ${state.staffOrigin}
+- Category: ${state.staffCategory}
+
+If the category indicates a potential employment law matter: you MUST flag clearly that this may require an HR or legal specialist before any advisory template is used. However, if the scope indicates one or two specific employees, you may also suggest a Performance Improvement Plan — this is available in the Advisor-e library under Get Organised / Team Coaching & Culture.
+If the category indicates team and leadership improvement: tailor the recommendation to match the scope (individual vs whole team) and the origin (event-driven vs gradual development).`
+      : ''
+
     const profileNote = advisorProfile
       ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nUse this profile in place of Phase 2 answers when writing "Why this suits you as the advisor".`
       : ''
 
     // Override query with the collected answers summary for the AI recommendation call
-    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${profitInstruction}${profileNote}\n\nNow produce the Phase 3 recommendation.`
+    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${profitInstruction}${staffInstruction}${profileNote}\n\nNow produce the Phase 3 recommendation.`
 
     // Fall through to AI call for Phase 3 recommendation
     const languageInstruction2 = language !== 'en'
