@@ -1,0 +1,46 @@
+{
+  "themes": [
+    {
+      "name": "Stuck in the Mud",
+      "problem": "Clients are 'withdrawn' from business development due to fatigue, fear of loss or lack of clarity & belief.",
+      "solution": "Create self relevance by identifying with a persona; let them 'see themselves' within the Heald matrix & see that progress is easily within their reach.",
+      "template": "Heald Matrix"
+    },
+    {
+      "name": "The Knowledge Gap",
+      "problem": "Clients understand 'money in vs money out' in a linear fashion; they do not understand the true effects of time and discounting.",
+      "solution": "Create the ah-ha moment; let clients see their business in cyclic terms. Clients will then piece together the role of forecasting & budgeting in their business.",
+      "template": "Working Capital Cycle"
+    },
+    {
+      "name": "The Wake Up Call",
+      "problem": "Clients accept 'ups & downs' but don't have any way of quantifying their range; leading to poor data conclusions.",
+      "solution": "Allow clients to see that a business is a system (collection of processes) & that a reduction in volatility can only come after refining the business procedures.",
+      "template": "Volatility Model"
+    },
+    {
+      "name": "Eyes On The Prize",
+      "problem": "Clients carry too many ideas in their 'neck-top computer'; they need a place to 'unpack their thoughts' so future moves become clear.",
+      "solution": "Encourage clients to see problems & opportunities as a series of 'what-if' events; logic supports ideas & quantifies what's needed to be successful.",
+      "template": "Revenue Model"
+    },
+    {
+      "name": "Test & Learn",
+      "problem": "If clients view a financial forecast as a 'static prediction' they fall victim to feelings of judgement & frustration. They miss the joy that comes from learning.",
+      "solution": "A 3 way forecast combined with 'revenue model sensitivity' gives very strong clues as to what to expect going forward. Finally, the owner can feel in control.",
+      "template": "Forecast & Action Plan"
+    },
+    {
+      "name": "Measure What Matters",
+      "problem": "Clients view financial reporting as being somewhat disconnected from how their business 'works'. Accordingly most of their business decisions are simply based on current bank balance and inventory levels.",
+      "solution": "The dashboard discussion enables the advisor to act as a 'financial translator'. The accounts are explained as 'Variable' + Activity Based + Fixed (to keep things simple) and relate to Winning Jobs, Doing Jobs and Being Resourced.",
+      "template": "Dashboard Discussions"
+    },
+    {
+      "name": "Under the Microscope",
+      "problem": "If clients aren't sure what they can do (in practical terms) upon reviewing their performance, there's little point agreeing to regular meetings (or they won't last long even if they do agree).",
+      "solution": "Once we remove the notion of judgement from our financial management discussions, we're free to embrace systematic improvement based on data.",
+      "template": "Ratio/Common Cause Analysis"
+    }
+  ]
+}

@@ -159,6 +159,24 @@
           :disabled="!selectedGrowthStage"
         ) Confirm selection
 
+      //- Fin Mgt Theme selector — shown when Forecasting/Management Reporting scenario detected
+      .fin-mgt-card(v-if="showFinMgtThemeSelector")
+        p.fin-mgt-title Where is your client starting from? Select the theme that best reflects their current relationship with financial management.
+        .fin-mgt-theme-list
+          label.fin-mgt-theme-opt(
+            v-for="theme in finMgtThemes"
+            :key="theme.name"
+            :class="{ 'fin-mgt-theme-selected': selectedFinMgtTheme === theme.name }"
+          )
+            input(type="radio" :value="theme.name" v-model="selectedFinMgtTheme")
+            .fin-mgt-theme-body
+              span.fin-mgt-theme-name {{ theme.name }}
+              span.fin-mgt-theme-desc {{ theme.problem }}
+        button.fin-mgt-submit(
+          @click="submitFinMgtTheme"
+          :disabled="!selectedFinMgtTheme"
+        ) Confirm selection
+
       //- Save prompt — only shown after Phase 3 recommendation, never alongside a VA question
       .save-prompt-card(v-if="showSavePrompt")
         .save-prompt-text
@@ -575,6 +593,17 @@ export default {
       conversationState: {},
       showGrowthCurveSelector: false,
       selectedGrowthStage: null,
+      showFinMgtThemeSelector: false,
+      selectedFinMgtTheme: null,
+      finMgtThemes: [
+        { name: 'Stuck in the Mud', problem: 'Clients are \'withdrawn\' from business development due to fatigue, fear of loss or lack of clarity & belief.' },
+        { name: 'The Knowledge Gap', problem: 'Clients understand \'money in vs money out\' in a linear fashion; they do not understand the true effects of time and discounting.' },
+        { name: 'The Wake Up Call', problem: 'Clients accept \'ups & downs\' but don\'t have any way of quantifying their range; leading to poor data conclusions.' },
+        { name: 'Eyes On The Prize', problem: 'Clients carry too many ideas in their \'neck-top computer\'; they need a place to \'unpack their thoughts\' so future moves become clear.' },
+        { name: 'Test & Learn', problem: 'If clients view a financial forecast as a \'static prediction\' they fall victim to feelings of judgement & frustration. They miss the joy that comes from learning.' },
+        { name: 'Measure What Matters', problem: 'Clients view financial reporting as being somewhat disconnected from how their business \'works\'. Most decisions are based on current bank balance and inventory levels.' },
+        { name: 'Under the Microscope', problem: 'If clients aren\'t sure what they can do (in practical terms) upon reviewing their performance, there\'s little point agreeing to regular meetings.' }
+      ],
       growthStages: [
         { name: 'Design', description: 'Developing the business concept, getting ready to leave their job.' },
         { name: 'Launch', description: 'Opening the doors and sharing their dream with the world.' },
@@ -870,6 +899,8 @@ export default {
       this.conversationState = {}
       this.showGrowthCurveSelector = false
       this.selectedGrowthStage = null
+      this.showFinMgtThemeSelector = false
+      this.selectedFinMgtTheme = null
       this.$nextTick(() => this.scrollToBottom())
     },
 
@@ -886,6 +917,17 @@ export default {
       this.savePromptDismissed = false
       this.showGrowthCurveSelector = false
       this.selectedGrowthStage = null
+      this.showFinMgtThemeSelector = false
+      this.selectedFinMgtTheme = null
+    },
+
+    submitFinMgtTheme () {
+      if (!this.selectedFinMgtTheme) return
+      const theme = this.finMgtThemes.find(t => t.name === this.selectedFinMgtTheme)
+      this.inputText = `${theme.name} — ${theme.problem}`
+      this.showFinMgtThemeSelector = false
+      this.selectedFinMgtTheme = null
+      this.sendMessage()
     },
 
     submitGrowthStage () {
@@ -991,7 +1033,7 @@ export default {
 
     async sendMessage () {
       const query = this.inputText.trim()
-      if (!query || this.isStreaming || this.showGrowthCurveSelector) return
+      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showFinMgtThemeSelector) return
 
       this.messages.push({ role: 'user', content: query })
       this.inputText = ''
@@ -1052,6 +1094,10 @@ export default {
                   content = content.replace('[GROWTH_CURVE_SELECTOR]', '').trim()
                   this.showGrowthCurveSelector = true
                 }
+                if (content.includes('[FIN_MGT_THEME_SELECTOR]')) {
+                  content = content.replace('[FIN_MGT_THEME_SELECTOR]', '').trim()
+                  this.showFinMgtThemeSelector = true
+                }
                 this.messages.push({ role: 'assistant', content })
                 this.streamingText = ''
                 this.isStreaming = false
@@ -1069,6 +1115,10 @@ export default {
             if (content.includes('[GROWTH_CURVE_SELECTOR]')) {
               content = content.replace('[GROWTH_CURVE_SELECTOR]', '').trim()
               this.showGrowthCurveSelector = true
+            }
+            if (content.includes('[FIN_MGT_THEME_SELECTOR]')) {
+              content = content.replace('[FIN_MGT_THEME_SELECTOR]', '').trim()
+              this.showFinMgtThemeSelector = true
             }
             this.messages.push({ role: 'assistant', content })
             this.streamingText = ''
@@ -1730,6 +1780,56 @@ export default {
 }
 .growth-curve-submit:hover:not(:disabled) { background: #15803d; }
 .growth-curve-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+
+/* Fin Mgt Theme selector */
+.fin-mgt-card {
+  margin: 8px 16px 4px;
+  padding: 16px;
+  background: #faf5ff;
+  border: 1px solid #c4b5fd;
+  border-radius: 10px;
+}
+.fin-mgt-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3b0764;
+  margin: 0 0 12px;
+}
+.fin-mgt-theme-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.fin-mgt-theme-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #ddd6fe;
+  border-radius: 7px;
+  cursor: pointer;
+  background: #fff;
+  transition: background 0.15s, border-color 0.15s;
+}
+.fin-mgt-theme-opt input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
+.fin-mgt-theme-opt:hover { background: #faf5ff; border-color: #a78bfa; }
+.fin-mgt-theme-selected { background: #ede9fe !important; border-color: #7c3aed !important; }
+.fin-mgt-theme-body { display: flex; flex-direction: column; gap: 2px; }
+.fin-mgt-theme-name { font-size: 13px; font-weight: 600; color: #5b21b6; }
+.fin-mgt-theme-desc { font-size: 12px; color: #4b5563; line-height: 1.4; }
+.fin-mgt-submit {
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.fin-mgt-submit:hover:not(:disabled) { background: #6d28d9; }
+.fin-mgt-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 
 .save-prompt-card {
   display: flex;

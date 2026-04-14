@@ -3,7 +3,7 @@
  *
  * Each scenario covers a common advisory situation. When the advisor's opening
  * message contains matching trigger keywords, the relevant scenario's diagnostic
- * questions (1a, 1b, 1c) are injected into the system prompt before the AI call.
+ * questions (1a–1c) are injected into the system prompt before the AI call.
  *
  * Detection logic (in restify-route.js):
  *   - Count keyword matches per scenario
@@ -19,8 +19,9 @@ const SCENARIOS = [
     id: 'profit',
     label: 'profitability and cost management',
     triggerKeywords: [
-      'profit', 'margin', 'margins', 'expenses', 'rising costs',
-      'cost increase', 'cost pressure', 'fuel costs', 'squeeze', 'profitability'
+      'profit', 'profitability', 'margin', 'margins', 'expenses',
+      'rising costs', 'cost increase', 'cost pressure', 'fuel costs',
+      'squeeze'
     ],
     questions: {
       q1a: 'Does the client use financial management reports on a regular basis?',
@@ -44,25 +45,65 @@ const SCENARIOS = [
       q1c: 'In your opinion, is this a potential employment law matter, or does it fall into the broader category of team and leadership improvement?'
     },
     phase3Rule: `If 1c indicates employment law: flag clearly that this may require an HR or legal specialist before any advisory template is used. However, a performance improvement plan can still be suggested if the issue relates to just one or two staff — this is available in Advisor-e under Get Organised / Team Coaching & Culture.
-If 1c indicates team and leadership improvement: match the recommendation scope to 1a (individual vs whole team) and the origin to 1b (event-driven vs gradual).`
+If 1c indicates team and leadership improvement: match the recommendation scope to 1a (individual vs whole team) and the origin to 1b (event-driven vs gradual). Solutions may be up to 4 templates if required. Refer to the People Power Template to guide suggestions.`
   },
 
   {
-    id: 'data-financials',
-    label: 'data integrity and financial management',
+    id: 'data-systems',
+    label: 'data integrity and financial systems',
     triggerKeywords: [
-      'data integrity', 'financials', 'kpis', "kpi's", 'financial management',
-      'ratio analysis', 'financial dashboard', 'reporting',
-      'financial literacy', 'understanding their financials'
+      'data integrity', 'data', 'inaccurate', 'not accurate', "can't rely", 'cannot rely',
+      'not reliable', 'accurate data', 'financial data', 'data quality',
+      'quality reports', 'financial reports', 'financial reporting', 'management reports',
+      'their financials', 'the financials', 'the figures', 'their figures', 'the numbers',
+      'the books', 'chart of accounts', 'financial literacy', 'generating reports',
+      'monthly reporting', 'financial systems', 'accounting systems', 'bookkeeping',
+      'unreliable', 'clean accounts', 'bad data', 'poor data', 'trust the numbers'
     ],
     questions: {
       q1a: 'Which of the following, if any, does the client currently utilise — (a) a chart of accounts aligned to business practices for reporting purposes, (b) knowledge of their break-even requirements, (c) comprehension of the Working Capital Cycle? Please speak to each of the three points.',
       q1b: 'Describe the staff numbers, experience, and capabilities of the business admin and accounting team.',
-      q1c: 'In your opinion, is the issue related to the complexity of their business administration, or technology and software shortfalls?'
+      q1c: 'In your opinion, is the issue related to the complexity of their business administration and technology/software shortfalls?'
     },
     phase3Rule: `If 1a indicates poor understanding or non-use of any of the three points raised: ensure templates related to those specific topics are included in the recommendation. The final solution may include 4 or 5 templates if necessary.
 If 1b indicates lack of experience or education in accounting: recommendation may also include the Accounting Best Practices section.
 If 1c indicates complexity or software issues AND the business is at Leverage, Reach, Leapfrog, or Maturity on the Growth Curve: recommendation may also include the Financial Systems Review.`
+  },
+
+  {
+    id: 'sales-marketing',
+    label: 'sales and marketing',
+    triggerKeywords: [
+      'sales', 'drop in revenue', 'drop in sales', 'drop in income',
+      'low sales', 'marketing', 'messaging', 'media campaigns',
+      'advertising', 'brand awareness'
+    ],
+    questions: {
+      q1a: 'Has your client accurately determined if their key problem is lack of sales vs. the profitability from the sales they do make?',
+      q1b: 'Does your client track the conversion ratio from prospect to customer or messaging campaign to prospects? If so — which of these and how do they record the data?',
+      q1c: "In your opinion, is the issue related to 'Product Fit' — is your client's product or service still competitive?"
+    },
+    phase3Rule: `If 1a indicates the client does not know whether their issue is sales volume or sales profitability: suggest the Customer Journey template to create clarity first.
+If the client has problems with sales volume or conversion: for smaller businesses or where the advisor is newer to this topic, suggest Lite Sales. If the business is more complex, the owner is more open to input, and the advisor is more experienced, suggest the Sales & Marketing Review. The final solution may include up to 4 or 5 templates if necessary.
+If 1b indicates the client does not track any conversion data or does a poor job of it: suggest Lite Marketing together with the 8 Profit Levers.
+If 1c indicates a product fit issue: refer to pages 7–9 (Product Fit section) of the Sales & Marketing Review template. Refer to the Sales & Marketing Slides table for the full framework index of that template.`
+  },
+
+  {
+    id: 'forecasting',
+    label: 'forecasting and management reporting',
+    triggerKeywords: [
+      'cash forecast', 'budgets', 'dashboard discussions', 'dashboard',
+      'ratio analysis', 'financial management report'
+    ],
+    questions: {
+      q1a: 'These themes reflect different levels of client awareness and readiness. Select the one that best describes where your client is starting from with financial management. [FIN_MGT_THEME_SELECTOR]'
+    },
+    phase3Rule: `The advisor has selected a theme from the Financial Management Table. Use the selected theme to drive the recommendation:
+- The suggested template is determined by the theme selected — recommend it as the primary template.
+- The "How to approach it" section should be framed using the solution description for that theme.
+- The "Why this fits your client" section should reference the problem description of the selected theme.
+- Do NOT recommend templates outside the theme's suggested template unless there is a strong secondary need identified from Phase 2 answers.`
   }
 ]
 
@@ -95,23 +136,24 @@ function detectScenario (message) {
  * Builds the scenario block to inject into the system prompt.
  *
  * For a single match: injects the scenario's questions and Phase 3 rule.
- * For a tie: injects a disambiguation instruction plus both scenarios' questions and rules.
+ * For a tie: injects a disambiguation instruction plus all tied scenarios' questions and rules.
  */
 function buildScenarioBlock (detection) {
   if (detection.type === 'none') return ''
 
   if (detection.type === 'match') {
     const s = detection.scenario
+    const questionsText = Object.entries(s.questions)
+      .map(([key, val]) => `**Question ${key.replace('q', '')}:** ${val}`)
+      .join('\n')
     return `
 ---
 
 ## Scenario Diagnostic — ${s.label}
 
-The advisor's opening message contains signals related to **${s.label}**. After asking Q1 ("Has the client specifically raised this issue themselves..."), work through the following three questions in strict order — one at a time — before moving to Q2:
+The advisor's opening message contains signals related to **${s.label}**. After asking Q1 ("Has the client specifically raised this issue themselves..."), work through the following diagnostic questions in strict order — one at a time — before moving to Q2:
 
-**Question 1a:** ${s.questions.q1a}
-**Question 1b:** ${s.questions.q1b}
-**Question 1c:** ${s.questions.q1c}
+${questionsText}
 
 **Phase 3 rule for this scenario:**
 ${s.phase3Rule}
@@ -121,26 +163,31 @@ ${s.phase3Rule}
   }
 
   if (detection.type === 'tie') {
-    const [a, b] = detection.scenarios
-    const blocks = detection.scenarios.map(s => `
+    const labels = detection.scenarios.map(s => s.label)
+    const labelList = labels.slice(0, -1).join(', ') + ' and ' + labels[labels.length - 1]
+
+    const blocks = detection.scenarios.map(s => {
+      const questionsText = Object.entries(s.questions)
+        .map(([key, val]) => `**Question ${key.replace('q', '')}:** ${val}`)
+        .join('\n')
+      return `
 ### If the advisor confirms: ${s.label}
 
-**Question 1a:** ${s.questions.q1a}
-**Question 1b:** ${s.questions.q1b}
-**Question 1c:** ${s.questions.q1c}
+${questionsText}
 
 **Phase 3 rule:**
 ${s.phase3Rule}
-`).join('\n')
+`
+    }).join('\n')
 
     return `
 ---
 
 ## Scenario Disambiguation Required
 
-The advisor's opening message contains signals for both **${a.label}** and **${b.label}**. After asking Q1 ("Has the client specifically raised this issue themselves..."), ask this clarifying question before proceeding:
+The advisor's opening message contains signals for multiple areas: **${labelList}**. After asking Q1 ("Has the client specifically raised this issue themselves..."), ask this clarifying question before proceeding:
 
-"At present I'm reading your core issue as ${a.label} — is that right, or would you prefer we focus more on ${b.label} in this scenario?"
+"I'm picking up signals related to ${labelList} in what you've described — which of these would you say is the primary focus for this client?"
 
 Once the advisor confirms their focus, proceed with the relevant diagnostic questions below — one at a time — before moving to Q2.
 ${blocks}

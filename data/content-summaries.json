@@ -248,6 +248,54 @@
     "indicators": "The client complains about staff performance, quality control issues, or frequent production bottlenecks."
   },
   {
+    "name": "Planning Session",
+    "section": "Lite Fundamentals",
+    "purpose": "Part of the Lite Fundamentals programme (Lite.1 Planning). Helps the client align their income, risk, and work hours expectations to their business model and lays a foundation of shared understanding between advisor and client. The supporting document explains strategic language for those new to business planning.",
+    "helpsOwner": "Clarifies what they are actually trying to build — income expectations, capital gain, how the business generates money, and what stage of development they are at. Covers Vision, Mission, and Goals in plain language.",
+    "helpsAdvisor": "A clean entry point for a Lite Fundamentals engagement. Sets the agenda for the programme and gives the advisor a structured way to establish planning credibility early, especially with clients who are new to structured advisory.",
+    "indicators": "Client is new to advisory, lacks a clear plan or targets, or the advisor is starting a Lite Fundamentals programme. Also useful standalone when the client needs orientation before deeper work begins."
+  },
+  {
+    "name": "Data Session",
+    "section": "Lite Fundamentals",
+    "purpose": "Part of the Lite Fundamentals programme (Lite.2 Data). Educates the client on the interpretation of financial data (Causation vs. Correlation) and provides foundational knowledge of accounting terminology. The advisor matches the level of detail to the client's comprehension and business complexity. Also clarifies which KPIs to track going forward.",
+    "helpsOwner": "Builds financial literacy — reading a P&L, understanding ratios (Current Ratio, Quick Ratio, ROI, ROA), EBIT, Balance Sheet basics, and avoiding over-trading. Helps them connect financial data to real business decisions.",
+    "helpsAdvisor": "Provides a scalable education framework — simple for unsophisticated clients, detailed for more complex businesses. Positions the advisor as a trusted financial interpreter rather than just a compliance provider. Sets up the KPI conversation for ongoing advisory.",
+    "indicators": "Client struggles to read or interpret their financials, does not track KPIs, has poor financial literacy, or relies on assumptions instead of data. Also used as Lite.2 within a Lite Fundamentals programme."
+  },
+  {
+    "name": "Lite Marketing",
+    "section": "Lite Fundamentals",
+    "purpose": "Part of the Lite Fundamentals programme (Lite.3 Marketing). Helps the client identify their target customer and articulate how they add value. Breaks marketing into four key components: Who do you want to talk to? What do you need to tell them? How will you get your message to them? How will you know they've heard you? Also covers Diffusion Theory and Product Lifecycle.",
+    "helpsOwner": "Builds a foundational marketing framework without overwhelming complexity. Helps them create a Positioning Statement, Value Proposition, and Visibility Statement, and map their Digital Sales Funnel.",
+    "helpsAdvisor": "A practical, structured marketing session suitable for advisors who are not marketing specialists. Covers Product Fit, consumer awareness stages, and a one-page marketing plan. Use with Lite Sales when the client has both a marketing and sales gap.",
+    "indicators": "Client has unclear messaging, undefined target customer, poor awareness of how customers find them, or a marketing spend with no tracking. Also used as Lite.3 within a Lite Fundamentals programme."
+  },
+  {
+    "name": "Sales Session",
+    "section": "Lite Fundamentals",
+    "purpose": "Part of the Lite Fundamentals programme (Lite.4 Sales). Guides the client to break down the customer's journey, identify logical decision points, and ensure their sales process matches their industry or product. Covers sales training basics without requiring the advisor to be a sales specialist — instead, it provides frameworks the client can refine over time.",
+    "helpsOwner": "Helps them understand the psychology of the sale (4 stages, 4 Processing Styles), map their actual sales process via flowchart, and identify where conversions are being lost. Covers Sales Tension Points and tender/quoting notes.",
+    "helpsAdvisor": "Provides a structured sales coaching session with ready-made frameworks. Suitable for advisors who are not sales specialists. Use for clients with sales volume issues where the advisor and client are not yet ready for the full Sales & Marketing Review.",
+    "indicators": "Client has a sales volume problem, a poor or informal sales process, or low conversion rates. Advisor is newer to sales advisory or client is not yet ready for a full Sales & Marketing Review. Also used as Lite.4 within a Lite Fundamentals programme."
+  },
+  {
+    "name": "People Session",
+    "section": "Lite Fundamentals",
+    "purpose": "Part of the Lite Fundamentals programme (Lite.5 People). Explores the underlying drivers of employee satisfaction; how people naturally respond to learning new material; a proven model for giving staff feedback correctly; and a review of the leadership style that best meets the temperament of the client and their industry/business requirements.",
+    "helpsOwner": "Helps business owners understand WHY staff behave as they do, how to give effective feedback without triggering defensive reactions, and how to match their leadership style to the needs of the team and business. Covers the 5 Drivers of Human Performance, the Emotional Reaction to Learning curve, the 80/20 of Employee Motivation, and delegation frameworks.",
+    "helpsAdvisor": "A structured, educational framework for the human and psychological side of staff management. Self-contained and suitable for advisors who are newer to people and leadership advisory work. This is a FOUNDATIONAL people tool — not an advanced one. Use this BEFORE the Organisational Review when the issue is staff motivation, engagement, or feedback rather than structural or reporting issues.",
+    "indicators": "Client experiencing staff motivation, morale, or engagement issues. Staff not responding well to feedback or direction. Owner struggling to understand what drives their team or how to adapt their leadership style. Advisor wanting to address the human/psychological side of staff issues before tackling structural or organisational changes."
+  },
+  {
+    "name": "Process Session",
+    "section": "Lite Fundamentals",
+    "purpose": "Part of the Lite Fundamentals programme (Lite.6 Process). Explores the philosophy of process improvement that may best serve the client — reminding them that just because something is trending does not make it the best approach for their business. Covers practical ways to develop flowcharts to clarify which system component needs prioritised attention.",
+    "helpsOwner": "Introduces process improvement thinking (Dave Nave's Systems Review, Lean, Six Sigma, Constraints Theory) in plain language and helps them map and prioritise the specific process that is causing the most pain.",
+    "helpsAdvisor": "Provides a structured process review framework that does not require the advisor to be an operations specialist. Helps identify whether operational problems are process-driven vs. people-driven (use alongside People vs. Process diagnostic).",
+    "indicators": "Client experiencing recurring operational failures, quality control issues, bottlenecks, or inefficiency. Issue has been diagnosed as process-driven rather than people-driven. Also used as Lite.6 within a Lite Fundamentals programme."
+  },
+  {
     "name": "Business Structure Options",
     "section": "General Tools",
     "purpose": "Reviews the primary legal structures (Sole Trader, Partnership, Company, Trust) and explains the concept of the \"Corporate Veil\" and separate legal entities.",

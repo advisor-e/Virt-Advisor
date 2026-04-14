@@ -1,0 +1,101 @@
+{
+  "description": "Sales & Marketing Review template — framework index with page references",
+  "frameworks": [
+    {
+      "page": 5,
+      "name": "6 Marketing Questions",
+      "summary": "Explores 6 key questions to ensure the advisor has considered value from the customer's perspective.",
+      "helps": "Get clear on who you serve, how you add value and what makes you special."
+    },
+    {
+      "page": 7,
+      "name": "Product Fit",
+      "summary": "Explores the trade-offs between business profitability and customer acceptance. Pages 7–9.",
+      "helps": "Increase sales conversions from marketing leads generated. Even below-average salespeople should be able to win sales with the right product/service fit."
+    },
+    {
+      "page": 10,
+      "name": "10 Marketing Messages",
+      "summary": "Explores 10 marketing statements that speak to the purchase decision points of the customer.",
+      "helps": "Convert what's been defined in the marketing questions into sticky outbound marketing messages."
+    },
+    {
+      "page": 12,
+      "name": "Customer Type Table",
+      "summary": "Summarises customer types mapped to product fit.",
+      "helps": "Identify specific messaging for customer types vs general messaging for wider market coverage."
+    },
+    {
+      "page": 14,
+      "name": "A.I.D.C.R.A Advertisement Framework",
+      "summary": "Explains the logical order to construct an advertisement.",
+      "helps": "Build more effective adverts and have a review framework for A and B testing."
+    },
+    {
+      "page": 17,
+      "name": "Digital Funnel Storyboard",
+      "summary": "Explores sequential offerings, messaging and responses to entice target customers from their couch to the cash register.",
+      "helps": "Get clear on how to utilise all marketing assets in one comprehensive plan."
+    },
+    {
+      "page": 22,
+      "name": "(Outbound) Messaging Plan",
+      "summary": "Helps schedule messaging activities and explores Medium, Platform, Time & Cost as planning considerations.",
+      "helps": "Execute an effective campaign amongst all other business activities and responsibilities."
+    },
+    {
+      "page": 26,
+      "name": "(Inbound) Landing Page Review",
+      "summary": "Defines the reader's logic and landing page logic to help sequence text, graphics & widgets.",
+      "helps": "Build an effective landing page to convert more marketing leads into sales opportunity."
+    },
+    {
+      "page": 31,
+      "name": "Sparketing (Friction) Review",
+      "summary": "Reviews the product from a 'what stops people from buying it?' vs features/profitability perspective.",
+      "helps": "Get clear on what the customer will happily pay for, what they don't care about, and what they don't want."
+    },
+    {
+      "page": 33,
+      "name": "Branding Review",
+      "summary": "Helps align logo, graphics, message, market promise and story so they stick in the customer's mind.",
+      "helps": "Build powerful mental associations that create lasting influence in the mind of the target customer."
+    },
+    {
+      "page": 35,
+      "name": "Customer Loyalty Programme",
+      "summary": "Clarifies the purpose of a customer loyalty programme and ensures it translates into profits.",
+      "helps": "Stop giving things away if they don't make a measurable improvement in business profits."
+    },
+    {
+      "page": 37,
+      "name": "Pricing",
+      "summary": "Encourages a review of pricing beyond simply lifting or dropping it. Price should reflect the value provided.",
+      "helps": "Money is an exchange of value; be clear on the value you offer to price in a sustainable fashion."
+    },
+    {
+      "page": 39,
+      "name": "Packaging/Bundling",
+      "summary": "Guides a review of how packaging supports the big promise and client perception.",
+      "helps": "Use packaging and bundled solutions to influence the purchasing decision, price point and quality perceptions."
+    },
+    {
+      "page": 41,
+      "name": "Sales Channel Options",
+      "summary": "Explores different sales channel options and encourages a pros and cons discussion.",
+      "helps": "Identify a variety of ways to engage salespeople to sell products or services to a wider market."
+    },
+    {
+      "page": 43,
+      "name": "Sales Process Review",
+      "summary": "Encourages a review of the sales process from both customer and salesperson perspectives.",
+      "helps": "Know what to say and when to say it to help a customer choose to do business with you."
+    },
+    {
+      "page": 52,
+      "name": "Drafting Tender Proposals",
+      "summary": "Notes and ideas to incorporate in tender applications. General reading rather than a focused session.",
+      "helps": "General guidance for improving tender application success."
+    }
+  ]
+}

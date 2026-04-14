@@ -13,7 +13,7 @@
     "complexity": "Low to Medium",
     "clientProfile": "Any existing client — particularly suited to clients who are already engaged and have an established relationship with the advisor",
     "advisorProfile": "Any advisor — structured and agenda-driven, reduces the need for improvisation",
-    "engagementStyle": "Structured review — annual rhythm, agenda-based, retrospective and forward-looking",
+    "engagementStyle": "Structured review — annual review, agenda-based, retrospective and forward-looking",
     "description": "Templates designed for the end-of-year client review cycle. Covers review sheets, presentation decks, scripts, agendas, and annual planning content. These are relationship-reinforcing tools — they reward existing clients with a structured, professional review experience and naturally surface new advisory opportunities. Lower risk for the advisor as the format is guided.",
     "whenToUse": "Annual or semi-annual client reviews. Also useful for reactivating clients who have drifted or for demonstrating advisory value to clients who haven't yet engaged beyond compliance work."
   },
@@ -25,6 +25,15 @@
     "engagementStyle": "Educative and exploratory — introduces concepts, builds awareness, and creates the conditions for deeper advisory work",
     "description": "The accessible end of the template library. General Tools are designed to educate and orient clients around foundational business concepts — profit, cashflow, planning, customer flow, KPIs, technology, and structure. They are easier for both the client to understand and the advisor to deliver. They are the right starting point for clients with limited business awareness, and a safe default when the advisor is less experienced or less confident. These templates create the 'aha moment' that opens the door to more technical work.",
     "whenToUse": "When the client lacks business or financial awareness. When the advisor is newer or less confident. When the relationship is still being established. When the topic involves cashflow, profit fundamentals, planning basics, or customer understanding and the client is not commercially sophisticated. When in doubt, start here."
+  },
+  {
+    "section": "Lite Fundamentals",
+    "complexity": "Medium",
+    "clientProfile": "Privately owned businesses — 'Mum and Dad' style operators — who are open to regular advisory engagement and ready to build foundational business skills. Covers the 80/20 of what every business needs to be profitable over time.",
+    "advisorProfile": "Advisors with previous experience running client meetings without supervision. The programme is structured and self-contained, but it still requires the advisor to be comfortable facilitating sessions independently. Not suitable for first-time advisors.",
+    "engagementStyle": "Education and Facilitation — structured programme delivery across 6 sessions covering Planning, Data, Marketing, Sales, People, and Process. Designed as a recurring advisory engagement, not a one-off.",
+    "description": "The Lite Fundamentals programme is the 80/20 foundation of business advisory — a collection of six structured sessions covering the core concepts every business owner needs to run a profitable, well-managed business. The sessions are self-contained and delivered in sequence (Planning → Data → Marketing → Sales → People → Process), though individual sessions can be used standalone when the situation warrants it. Content is a blend of education and facilitation — more structured than General Tools, but less demanding than Strategic or Specialist work. Suitable for a wide range of client types. An ideal vehicle for establishing a regular, paid advisory relationship.",
+    "whenToUse": "When the advisor wants to establish a recurring advisory engagement with a client. When the client is a privately owned business that needs foundational business skills but is not yet ready for strategic or specialist advisory work. When individual sessions are needed to address a specific foundational gap — e.g., People Session for staff motivation, Data Session for financial literacy."
   },
   {
     "section": "Strategic Tools",

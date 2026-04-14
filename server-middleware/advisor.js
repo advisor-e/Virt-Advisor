@@ -14,6 +14,22 @@ const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 
+// Reference data for scenario-specific Phase 3 instructions
+const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
+const SALES_MARKETING_SLIDES = require('../data/sales-marketing-slides.json')
+
+function formatFinMgtTable () {
+  return FIN_MGT_TABLE.themes.map(t =>
+    `Theme: ${t.name}\nProblem: ${t.problem}\nSolution: ${t.solution}\nSuggested Template: ${t.template}`
+  ).join('\n\n')
+}
+
+function formatSalesMarketingSlides () {
+  return SALES_MARKETING_SLIDES.frameworks.map(f =>
+    `Page ${f.page} — ${f.name}: ${f.summary}`
+  ).join('\n')
+}
+
 // Prompt cache — loaded once per process, never re-read from disk
 const _promptCache = {}
 function loadPrompt (name) {
@@ -188,17 +204,36 @@ async function handleQuery (rawBody, res) {
   // ─────────────────────────────────────────────────────────────────
   if (mode === 'client') {
     const state = Object.assign({
+      // Scenario flags
       profitSituation: false,
       staffSituation: false,
+      dataSystemsSituation: false,
+      salesMarketingSituation: false,
+      forecastingSituation: false,
       disambiguationNeeded: false,
+      disambiguationScenarios: [],
+      // Universal questions
       disambiguationAnswer: null,
       clientRaisedIssue: false,
+      // Profit scenario questions
       usesReports: false,
       wouldBenefitFromReview: false,
       industry: null,
+      // Staff scenario questions
       staffScope: null,
       staffOrigin: null,
       staffCategory: null,
+      // Data/Systems scenario questions
+      dataSystemsChartAccounts: null,
+      dataSystemsTeam: null,
+      dataSystemsComplexity: null,
+      // Sales/Marketing scenario questions
+      salesDiagnosis: null,
+      salesTracking: null,
+      salesProductFit: null,
+      // Forecasting scenario question (droptab)
+      forecastingTheme: null,
+      // Shared Phase 1 questions
       ownership: null,
       growthStage: null,
       acumen: null,
@@ -206,6 +241,10 @@ async function handleQuery (rawBody, res) {
       trust: null,
       engagementHistory: null,
       clientPersonality: null,
+      // Phase 2 questions
+      advisorExperience: null,
+      advisorConfidence: null,
+      // Flow state
       readyForRecommendation: false,
       recommendationDelivered: false,
       happyConfirmed: false,
@@ -218,32 +257,75 @@ async function handleQuery (rawBody, res) {
     }, conversationState)
 
     // Always re-detect scenario from the first user message — never trust state for these flags.
-    // Count matches per scenario: most matches wins. On a tie, ask disambiguation.
-    const profitPattern = /profit|profitability|margin|margins|fuel cost|fuel costs|rising cost|rising costs|cost increase|increasing cost|expenses|cost pressure|squeeze/gi
-    const staffPattern = /\b(staff|employees|team|efficiency|productivity|effectiveness|leadership|HR|morale|culture|disharmony|poor communication)\b/gi
+    // Score all 5 scenarios by keyword match count. Most matches wins.
+    // On a tie between any two or more, ask disambiguation.
+    const SCENARIO_PATTERNS = [
+      {
+        id: 'profit',
+        label: 'profitability and cost management',
+        pattern: /profit|profitability|margin|margins|fuel cost|fuel costs|rising cost|rising costs|cost increase|increasing cost|expenses|cost pressure|squeeze/gi
+      },
+      {
+        id: 'staff',
+        label: 'staff, productivity and leadership',
+        pattern: /\b(staff|employees|team|efficiency|productivity|effectiveness|leadership|HR|morale|culture|disharmony|poor communication)\b/gi
+      },
+      {
+        id: 'data-systems',
+        label: 'data integrity and financial systems',
+        pattern: /data integrity|\bdata\b|inaccurate|not accurate|can't rely|cannot rely|not reliable|accurate data|financial data|data quality|quality reports|financial reports|financial reporting|management reports|their financials|the financials|the figures|their figures|the numbers|the books|chart of accounts|financial literacy|generating reports|monthly reporting|financial systems|accounting systems|bookkeeping|unreliable|clean accounts|bad data|poor data|trust the numbers/gi
+      },
+      {
+        id: 'sales-marketing',
+        label: 'sales and marketing',
+        pattern: /\b(sales|marketing|messaging|advertising)\b|drop in revenue|drop in sales|drop in income|low sales|media campaigns|brand awareness/gi
+      },
+      {
+        id: 'forecasting',
+        label: 'forecasting and management reporting',
+        pattern: /cash forecast|budgets|dashboard discussions|dashboard|ratio analysis|financial management report/gi
+      }
+    ]
+
     const firstMsg = conversationHistory.length > 0
       ? (conversationHistory.find(m => m.role === 'user') || { content: query }).content
       : query
-    const profitMatches = (firstMsg.match(profitPattern) || []).length
-    const staffMatches = (firstMsg.match(staffPattern) || []).length
 
-    if (profitMatches > staffMatches) {
-      state.profitSituation = true
-      state.staffSituation = false
-      state.disambiguationNeeded = false
-    } else if (staffMatches > profitMatches) {
-      state.staffSituation = true
-      state.profitSituation = false
-      state.disambiguationNeeded = false
-    } else if (profitMatches > 0 && staffMatches > 0) {
-      // Genuine tie — disambiguation question fires after Q1
-      state.disambiguationNeeded = true
-      state.profitSituation = false
-      state.staffSituation = false
-    } else {
-      state.profitSituation = false
-      state.staffSituation = false
-      state.disambiguationNeeded = false
+    const scenarioScores = SCENARIO_PATTERNS.map(s => ({
+      id: s.id,
+      label: s.label,
+      count: (firstMsg.match(s.pattern) || []).length
+    })).filter(s => s.count > 0)
+
+    // Helper: set exactly one situation flag, clear the rest
+    function setSituationFlag (id) {
+      state.profitSituation = id === 'profit'
+      state.staffSituation = id === 'staff'
+      state.dataSystemsSituation = id === 'data-systems'
+      state.salesMarketingSituation = id === 'sales-marketing'
+      state.forecastingSituation = id === 'forecasting'
+    }
+
+    // Reset all situation flags before re-detecting
+    state.profitSituation = false
+    state.staffSituation = false
+    state.dataSystemsSituation = false
+    state.salesMarketingSituation = false
+    state.forecastingSituation = false
+    state.disambiguationNeeded = false
+    state.disambiguationScenarios = []
+
+    if (scenarioScores.length > 0) {
+      const maxCount = Math.max(...scenarioScores.map(s => s.count))
+      const topMatches = scenarioScores.filter(s => s.count === maxCount)
+
+      if (topMatches.length === 1) {
+        setSituationFlag(topMatches[0].id)
+      } else {
+        // Genuine tie — disambiguation question fires after Q1
+        state.disambiguationNeeded = true
+        state.disambiguationScenarios = topMatches.map(s => ({ id: s.id, label: s.label }))
+      }
     }
 
     // Helper: stream a hardcoded question directly to the client
@@ -272,16 +354,32 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'disambiguationAnswer',
-        text: 'At present I\'m reading your core issue as profitability and cost management — is that right, or would you prefer we focus more on staff, productivity and leadership in this scenario?',
+        textFn: s => {
+          const scenarios = s.disambiguationScenarios || []
+          if (scenarios.length === 2) {
+            return `I'm picking up signals for both ${scenarios[0].label} and ${scenarios[1].label} in what you've described — which of these is the primary focus for this client?`
+          }
+          const list = scenarios.map(sc => sc.label).join(', ')
+          return `I'm picking up signals across multiple areas — ${list}. Which would you say is the primary focus for this client?`
+        },
         skip: s => !s.disambiguationNeeded,
         onAnswer: (answer, s) => {
-          if (/\b(staff|leadership|team|productivity|people|employees)\b/i.test(answer)) {
-            s.staffSituation = true
-            s.profitSituation = false
-          } else {
-            s.profitSituation = true
-            s.staffSituation = false
+          const lower = answer.toLowerCase()
+          if (/profit|margin|cost|expense|squeeze/i.test(lower)) {
+            setSituationFlag('profit')
+          } else if (/staff|team|employee|leadership|hr|morale|culture/i.test(lower)) {
+            setSituationFlag('staff')
+          } else if (/data|system|chart.*account|financial literacy|accounting/i.test(lower)) {
+            setSituationFlag('data-systems')
+          } else if (/sales|marketing|revenue|advertising|brand|conversion/i.test(lower)) {
+            setSituationFlag('sales-marketing')
+          } else if (/forecast|budget|dashboard|ratio/i.test(lower)) {
+            setSituationFlag('forecasting')
+          } else if (s.disambiguationScenarios && s.disambiguationScenarios.length > 0) {
+            // Can't determine from answer — default to first tied scenario
+            setSituationFlag(s.disambiguationScenarios[0].id)
           }
+          s.disambiguationNeeded = false
         }
       },
       {
@@ -313,6 +411,44 @@ async function handleQuery (rawBody, res) {
         field: 'staffCategory',
         text: 'In your opinion, is this a potential employment law matter, or does it fall into the broader category of team and leadership improvement?',
         skip: s => !s.staffSituation
+      },
+      // ── Data Integrity / Financial Systems scenario questions ──
+      {
+        field: 'dataSystemsChartAccounts',
+        text: 'Which of the following, if any, does the client currently utilise — (a) a chart of accounts aligned to business practices for reporting purposes, (b) knowledge of their break-even requirements, (c) comprehension of the Working Capital Cycle? Please speak to each of the three points.',
+        skip: s => !s.dataSystemsSituation
+      },
+      {
+        field: 'dataSystemsTeam',
+        text: 'Describe the staff numbers, experience and capabilities of the business admin and accounting team.',
+        skip: s => !s.dataSystemsSituation
+      },
+      {
+        field: 'dataSystemsComplexity',
+        text: 'In your opinion, is the issue related to the complexity of their business administration and technology/software shortfalls?',
+        skip: s => !s.dataSystemsSituation
+      },
+      // ── Sales / Marketing scenario questions ──
+      {
+        field: 'salesDiagnosis',
+        text: 'Has your client accurately determined if their key problem is lack of sales vs. the profitability from the sales they do make?',
+        skip: s => !s.salesMarketingSituation
+      },
+      {
+        field: 'salesTracking',
+        text: 'Does your client track the conversion ratio from prospect to customer or messaging campaign to prospects? If so — which of these and how do they record the data?',
+        skip: s => !s.salesMarketingSituation
+      },
+      {
+        field: 'salesProductFit',
+        text: "In your opinion, is the issue related to 'Product Fit' — is your client's product or service still competitive?",
+        skip: s => !s.salesMarketingSituation
+      },
+      // ── Forecasting / Management Reporting scenario — droptab ──
+      {
+        field: 'forecastingTheme',
+        text: 'These themes reflect different levels of client awareness and readiness. Select the one that best describes where your client is starting from with financial management.\n[FIN_MGT_THEME_SELECTOR]',
+        skip: s => !s.forecastingSituation
       },
       {
         field: 'ownership',
@@ -364,7 +500,8 @@ async function handleQuery (rawBody, res) {
       if (!state[q.field]) {
         // Not yet asked — ask it now
         state[q.field] = 'pending'
-        return sendQuestion(q.text, state)
+        const questionText = q.textFn ? q.textFn(state) : q.text
+        return sendQuestion(questionText, state)
       }
       if (state[q.field] === 'pending') {
         // Was asked last turn — record the answer
@@ -384,15 +521,15 @@ async function handleQuery (rawBody, res) {
 
       if (!state.clientApproachAsked) {
         const wantsAlternatives = /\b(alternative|alternatives|different|other option|not sure|not happy|not convinced|something else|explore|prefer something|instead|not quite right|change|not right)\b/i
-        const confirmsHappy = /\b(yes|yeah|yep|looks good|that.?s great|happy with that|happy with|perfect|sounds good|love it|that works|brilliant|excellent|great suggestion|that.?s perfect|go with that)\b/i
+        const confirmsHappy = /\b(yes|yeah|yep|yep|looks good|look.*good|pretty good|good enough|that.?s great|that.?s fine|that.?s right|that.?s perfect|happy with that|happy with|i.?m happy|perfect|sounds good|love it|that works|that.?ll work|that.?ll do|that.?s good|brilliant|excellent|great suggestion|go with that|looks right|fair enough|alright|all right)\b/i
 
         if (wantsAlternatives.test(query)) {
           // Advisor wants alternatives — fall through to AI, then re-check next turn
           state.clientApproachAsked = true
-        } else if (state.postRecAiResponses === 0 && confirmsHappy.test(query)) {
-          // First response after recommendation AND explicit happiness — fire Moving Forward
-          // If postRecAiResponses > 0 we're deep in a follow-up conversation and "yes"
-          // might be answering an AI question — let the AI handle the conclusion instead
+        } else if (confirmsHappy.test(query)) {
+          // Advisor confirms happy — fire Moving Forward
+          // The AI always closes with "Are you happy with what I've suggested?" so a
+          // happiness signal here is always a direct response to that question
           state.happyConfirmed = true
           state.clientApproachAsked = true
           state.movingForwardAsked = true
@@ -491,12 +628,25 @@ async function handleQuery (rawBody, res) {
     const collectedAnswers = [
       `Opening situation: ${(conversationHistory.find(m => m.role === 'user') || { content: query }).content}`,
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' ? `Whether client raised it: ${state.clientRaisedIssue}` : '',
+      // Profit scenario answers
       state.profitSituation && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
       state.profitSituation && state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' ? `Would benefit from profit driver review: ${state.wouldBenefitFromReview}` : '',
       state.profitSituation && state.industry && state.industry !== 'pending' ? `Industry: ${state.industry}` : '',
+      // Staff scenario answers
       state.staffSituation && state.staffScope && state.staffScope !== 'pending' ? `Staff issue scope (individual vs team): ${state.staffScope}` : '',
       state.staffSituation && state.staffOrigin && state.staffOrigin !== 'pending' ? `Staff issue origin (event vs gradual): ${state.staffOrigin}` : '',
       state.staffSituation && state.staffCategory && state.staffCategory !== 'pending' ? `Staff issue category (employment law vs team improvement): ${state.staffCategory}` : '',
+      // Data/Systems scenario answers
+      state.dataSystemsSituation && state.dataSystemsChartAccounts && state.dataSystemsChartAccounts !== 'pending' ? `Chart of accounts / break-even / working capital: ${state.dataSystemsChartAccounts}` : '',
+      state.dataSystemsSituation && state.dataSystemsTeam && state.dataSystemsTeam !== 'pending' ? `Admin and accounting team: ${state.dataSystemsTeam}` : '',
+      state.dataSystemsSituation && state.dataSystemsComplexity && state.dataSystemsComplexity !== 'pending' ? `Complexity vs technology issue: ${state.dataSystemsComplexity}` : '',
+      // Sales/Marketing scenario answers
+      state.salesMarketingSituation && state.salesDiagnosis && state.salesDiagnosis !== 'pending' ? `Sales volume vs profitability diagnosis: ${state.salesDiagnosis}` : '',
+      state.salesMarketingSituation && state.salesTracking && state.salesTracking !== 'pending' ? `Conversion tracking: ${state.salesTracking}` : '',
+      state.salesMarketingSituation && state.salesProductFit && state.salesProductFit !== 'pending' ? `Product fit assessment: ${state.salesProductFit}` : '',
+      // Forecasting scenario answer (droptab selection)
+      state.forecastingSituation && state.forecastingTheme && state.forecastingTheme !== 'pending' ? `Selected financial management theme: ${state.forecastingTheme}` : '',
+      // Shared Phase 1 answers
       state.ownership && state.ownership !== 'pending' ? `Business ownership: ${state.ownership}` : '',
       state.growthStage && state.growthStage !== 'pending' ? `Growth stage: ${state.growthStage}` : '',
       state.acumen && state.acumen !== 'pending' ? `Business acumen: ${state.acumen}` : '',
@@ -525,7 +675,47 @@ Your recommendation MUST include a revenue model or what-if analysis template fr
 - Category: ${state.staffCategory}
 
 If the category indicates a potential employment law matter: you MUST flag clearly that this may require an HR or legal specialist before any advisory template is used. However, if the scope indicates one or two specific employees, you may also suggest a Performance Improvement Plan — this is available in the Advisor-e library under Get Organised / Team Coaching & Culture.
-If the category indicates team and leadership improvement: tailor the recommendation to match the scope (individual vs whole team) and the origin (event-driven vs gradual development).`
+If the category indicates team and leadership improvement: tailor the recommendation to match the scope (individual vs whole team) and the origin (event-driven vs gradual development). Solutions may be up to 4 templates if required. Refer to the People Power Template to guide suggestions.`
+      : ''
+
+    const dataSystemsInstruction = state.dataSystemsSituation && state.dataSystemsChartAccounts && state.dataSystemsChartAccounts !== 'pending'
+      ? `\n\nDATA INTEGRITY / FINANCIAL SYSTEMS SITUATION: Use the three diagnostic answers to shape the recommendation:
+- Chart of accounts / break-even / working capital: ${state.dataSystemsChartAccounts}
+- Admin and accounting team: ${state.dataSystemsTeam}
+- Complexity vs technology issue: ${state.dataSystemsComplexity}
+
+If the answer to (a) indicates poor understanding or non-use of any of the three points (chart of accounts, break-even, working capital): ensure templates related to those specific topics are included. The final solution may include 4 or 5 templates if necessary.
+If the team answer indicates lack of experience or education in accounting: the recommendation may also include the Accounting Best Practices section.
+If the complexity/technology answer indicates software issues AND the business is at Leverage, Reach, Leapfrog, or Maturity on the Growth Curve: the recommendation may also include the Financial Systems Review.`
+      : ''
+
+    const salesMarketingInstruction = state.salesMarketingSituation && state.salesDiagnosis && state.salesDiagnosis !== 'pending'
+      ? `\n\nSALES / MARKETING SITUATION: Use the three diagnostic answers to shape the recommendation:
+- Sales volume vs profitability diagnosis: ${state.salesDiagnosis}
+- Conversion tracking: ${state.salesTracking}
+- Product fit assessment: ${state.salesProductFit}
+
+If the diagnosis answer indicates the client does not know whether their issue is sales volume or profitability: suggest the Customer Journey template to create clarity first.
+If the client has problems with sales volume or conversion: for smaller businesses or where the advisor is newer to this topic, suggest Lite Sales. If the business is more complex, the owner is more open to input, and the advisor is more experienced, suggest the Sales & Marketing Review. The final solution may include up to 4 or 5 templates if necessary.
+If the tracking answer indicates the client does not track any conversion data or does a poor job of it: suggest Lite Marketing together with the 8 Profit Levers.
+If the product fit answer indicates a product fit issue: refer to pages 7–9 (Product Fit section) of the Sales & Marketing Review template.
+
+SALES & MARKETING REVIEW — FRAMEWORK INDEX (for reference when recommending specific sections):
+${formatSalesMarketingSlides()}`
+      : ''
+
+    const forecastingInstruction = state.forecastingSituation && state.forecastingTheme && state.forecastingTheme !== 'pending'
+      ? `\n\nFORECASTING / MANAGEMENT REPORTING SITUATION: The advisor has selected the following theme from the Financial Management Table:
+Selected theme: ${state.forecastingTheme}
+
+Use this theme to drive the recommendation:
+- The "My recommendation" section: recommend the template mapped to this theme as the primary template.
+- The "Why this fits your client" section: reference the problem description of the selected theme.
+- The "How to approach it" section: frame the approach using the solution description for that theme.
+- Do NOT recommend templates outside the theme's suggested template unless there is a clear secondary need from Phase 2 answers.
+
+FINANCIAL MANAGEMENT TABLE — all themes for reference:
+${formatFinMgtTable()}`
       : ''
 
     const profileNote = advisorProfile
@@ -533,7 +723,7 @@ If the category indicates team and leadership improvement: tailor the recommenda
       : ''
 
     // Override query with the collected answers summary for the AI recommendation call
-    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${profitInstruction}${staffInstruction}${profileNote}\n\nNow produce the Phase 3 recommendation.`
+    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${profitInstruction}${staffInstruction}${dataSystemsInstruction}${salesMarketingInstruction}${forecastingInstruction}${profileNote}\n\nNow produce the Phase 3 recommendation.`
 
     // Fall through to AI call for Phase 3 recommendation
     const languageInstruction2 = language !== 'en'
