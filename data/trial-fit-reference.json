@@ -1,0 +1,111 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on the Trial Fit Method — a staged approach to introducing a revenue model to a motivated client without causing overwhelm (map shock).",
+  "objective": "To introduce a revenue model to a client who already has a high degree of awareness or motivation, using a staged approach that builds familiarity and ownership without causing map shock.",
+  "core_principle": "Get it down, then get it good. Use best guesses and outlandish numbers to build familiarity first — accuracy comes later through the fittings process.",
+
+  "why_advisors_use_revenue_models": {
+    "summary": "Revenue models are not just delivery tools — they are authority-building and confidence-building instruments. Understanding why they work helps advisors use them with conviction.",
+    "benefits": [
+      "Shifts the burden of proof from the advisor's personal credibility to objective, data-driven scenarios — particularly valuable for newer or less experienced advisors",
+      "Acts as a neutral proof point during initial consultations — the model validates the opportunity, not the advisor",
+      "Aligns expectations between advisor and client by quantifying exactly how specific variables (margin, customer numbers, turnaround times) impact total growth",
+      "Quantifies the opportunity in tangible numbers — e.g. identifying $70,000 to $90,000 in potential growth makes the case far more compelling than any verbal pitch",
+      "Motivates client action — when business owners can see the numbers show growth is possible, they are far more likely to follow through on recommended actions",
+      "Allows accurate pricing of advisory services based on the projected financial improvements identified in the model"
+    ],
+    "key_script": "When presenting the model's projections, use this framing to build confidence without overpromising: 'I'm not saying it'll be easy, just suggesting the numbers say it's possible.'",
+    "advisor_confidence_note": "If the advisor feels uncertain about presenting a model, remind them: the model does the heavy lifting. Their job is to facilitate the conversation, not to personally guarantee the numbers. The model is the proof point — they are the guide."
+  },
+
+  "when_to_use": {
+    "client_profile": "High degree of awareness or motivation — the client is already primed to engage with a model.",
+    "indicators": [
+      "External requirement: the bank requires them to get a cash forecast",
+      "Planning need: they want to plan business expenditure or test the feasibility of an idea",
+      "Strategic discussion: you are working on a strategic plan and want to introduce scenario modelling",
+      "Direct request: they have proactively phoned you after completing a pre-meeting quiz or watching an introductory video"
+    ],
+    "caution": "Even motivated clients may still experience map shock when they first see a complex spreadsheet. The Trial Fit method is designed to manage this — do not skip the framing stage even with enthusiastic clients."
+  },
+
+  "stages": [
+    {
+      "stage": 1,
+      "name": "Priming and Framing the Tailored Suit Metaphor",
+      "key_principle": "Set realistic expectations before the client sees a single number. The metaphor creates permission for the model to be imperfect — and explains why that is actually better for them.",
+      "coaching_points": [
+        "Even a motivated client may need 'priming' before the meeting — consider sending an introductory video (e.g. Phil's a plumber) to frame the concept in advance.",
+        "Open the meeting with the tailored suit metaphor: 'Think of this like buying a suit off the rack — it fits reasonably well from the start, but it will need a few fittings before it's perfect. That's exactly how we'll approach this model.'",
+        "The metaphor does two things: it saves the client the time and cost of building a completely bespoke model from scratch, AND it creates a degree of permission for initial imperfections.",
+        "Reinforce the 'get it down, then get it good' principle upfront — you will not be hunting for exact data today. Best guesses are the starting point.",
+        "This framing reduces anxiety. The client knows the model isn't meant to be perfect yet, so they won't feel embarrassed or resistant when the numbers look rough."
+      ]
+    },
+    {
+      "stage": 2,
+      "name": "Providing a Global Overview",
+      "key_principle": "Show the client the big picture quickly — what the model does and what pages it contains — without lingering on any detail. The goal is conceptual understanding, not information transfer.",
+      "coaching_points": [
+        "Give a quick tour of the model — show what the different pages do (job types, revenue, seasonal wages, material calculations, etc.).",
+        "Do NOT linger on detail at this point. Move through it quickly.",
+        "The purpose is to give the client a mental map of the tool so they are not bewildered when you drop down to a specific section.",
+        "This step prevents map shock — the feeling of being overwhelmed by a complex spreadsheet — by providing a conceptual anchor before any numbers are touched.",
+        "Keep it conversational: 'Over here we track revenue by job type... this page shows wage and capacity... this one handles materials.' Then move on."
+      ]
+    },
+    {
+      "stage": 3,
+      "name": "Getting Them in the Water",
+      "key_principle": "Immediately after the overview, drop down to a specific section and ask the client to make a change. Getting them actively interacting with the model builds familiarity faster than any explanation.",
+      "coaching_points": [
+        "Pick a specific page or cell in advance — one that is easy to interact with and visually meaningful.",
+        "Ask the client for their 'best guess' on a metric: 'How many hours would your team typically spend on footings for a mid-sized build? Just a rough guess is fine.'",
+        "Use outlandish or crazy numbers if needed — the goal is interaction, not accuracy. E.g. inputting $263,000 as a job cost when it should be $80,000. This shows the model reacts dynamically without the client feeling pressure to find real data.",
+        "Rule: 'Get it down, then get it good.' Do not stop the session to chase down exact figures. Keep moving.",
+        "Each interaction builds the client's familiarity with how the tool functions. Ownership begins here.",
+        "If you use the client's actual data too early, you rob them of the experience of finding and inputting it themselves — which is how they take ownership."
+      ]
+    },
+    {
+      "stage": 4,
+      "name": "Testing Assumptions Against Reality",
+      "key_principle": "Once best guesses are in the model, compare them against actual financial performance. The gap between what the client assumed and what the numbers show is the most powerful moment in the session.",
+      "coaching_points": [
+        "Compare the client's inputted estimates against their actual financial performance data.",
+        "If there is a massive gap, that reveals that the everyday assumptions the client is using for quoting, hiring, or purchasing are fundamentally flawed.",
+        "This is a pivotal insight moment — not a criticism of the client. Frame it as: 'The model is showing us something interesting here...'",
+        "Use this moment to run realistic scenarios: what happens if we adjust productivity from 85% to 92%? What charge-out rate do we actually need to break even?",
+        "Common flaws the model uncovers: uncharged overtime, paid wet days not factored into rates, unbillable hours dragging down profitability, pricing based on gut feel rather than cost.",
+        "The goal is to transition the client from operating on inaccurate guesswork to understanding the precise metrics required to generate a true profit margin."
+      ]
+    },
+    {
+      "stage": 5,
+      "name": "Assigning Homework and Tailoring",
+      "key_principle": "Send the client away with the model and a clear brief. Their engagement with it between sessions is what drives ownership — and what gives you the data to tailor the final version.",
+      "coaching_points": [
+        "Ask the client to 'have a bit of a play with the model' before the next meeting.",
+        "Give them four specific prompts to reflect on: (1) What data can they actually measure? (2) What data matters most to their business? (3) How would knowing specific answers improve their decision-making? (4) Is the data actually actionable — would you bother tracking it?",
+        "The homework is about reflection, not data entry. You want them thinking about what makes the model useful for THEM.",
+        "When you reconvene, use their feedback to guide the final tailoring — modify the model to fit their strategic planning needs precisely.",
+        "Each modification they suggest is a sign of growing ownership. The more they contribute, the more embedded the model becomes in how they run their business.",
+        "The end result: the client transitions away from guesswork and has a customised tool for data-driven management and accurate profit generation."
+      ]
+    }
+  ],
+
+  "key_concepts": {
+    "map_shock": "The feeling of being overwhelmed that a client experiences when presented with a complex revenue model all at once. The brain goes into immediate judgment and assessment mode — leading to resistance, embarrassment, or rejection. Avoided by the tailored suit metaphor, quick global overview, and starting with outlandish conceptual numbers.",
+    "tailored_suit_metaphor": "Off-the-rack suit = the existing model. Fittings = the iterative process of refining it to fit the client's specific needs. This metaphor sets realistic expectations, creates permission for imperfection, and explains the value of starting with a baseline rather than building from scratch.",
+    "outlandish_numbers": "Intentionally unrealistic figures used during the first interaction to show how the model works dynamically without the client feeling pressure to find accurate data. E.g. $263,000 for a residential build where the real number might be $80,000. The point is interaction and familiarity, not accuracy.",
+    "get_it_down_then_get_it_good": "The core operating principle for the session. Do not halt progress to chase exact data. Use best guesses to populate the model, demonstrate how it responds, then refine accuracy over subsequent fittings.",
+    "flawed_assumptions": "The gap between what the client guessed and what the actual financial data shows. This is the core insight the model delivers — revealing that the business owner has been making pricing, hiring, and purchasing decisions based on assumptions completely disconnected from reality."
+  },
+
+  "additional_guidance": {
+    "homework_rationale": "Do not skip the homework step. The client finding and inputting their own data is what converts them from a passive observer to an active owner of the model. If you do all the data work yourself, you rob them of that transition.",
+    "multiple_sessions": "The Trial Fit method is inherently multi-session. Session 1: framing, overview, getting them in the water. Session 2: review homework, test assumptions, begin tailoring. Do not try to complete everything in one meeting.",
+    "sequence": "Always follow the sequence. The metaphor must come before the overview. The overview must come before the interaction. Assumptions testing cannot happen until conceptual numbers are in. Each stage builds on the one before."
+  }
+}

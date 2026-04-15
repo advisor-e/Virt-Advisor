@@ -100,4 +100,110 @@ function formatSummariesForPrompt (summaries) {
 }
 
 
-module.exports = { filterSummariesByQuery, getAllSummaries, formatSummariesForPrompt, formatSectionDescriptionsForPrompt }
+/**
+ * Static alias map: logic tree template names → content summary names.
+ * Used when the fuzzy matcher can't bridge naming differences (e.g. "Nine" vs "9",
+ * abbreviated section prefixes, or completely different naming conventions).
+ */
+const TEMPLATE_SUMMARY_ALIASES = {
+  'Nine Growth Aspects': '9 Growth Aspect Questions & Graphic',
+  'Growth Framework': '9 Growth Aspect Questions & Graphic',
+  'Powerful Goal Setting': 'GE.SMART & FAST Goals',
+  'Profit Levers & Blue Ocean': 'Advance.1. Bizz Targets & BO Expectations',
+  'Business Targets': 'Advance.1. Bizz Targets & BO Expectations',
+  'Orientation Part 1': 'Advance.2 & 2B. Strategic Orientation (Part 1 & 2)',
+  'Orientation Part 2': 'Advance.2 & 2B. Strategic Orientation (Part 1 & 2)',
+  'Planning Outcomes Review': 'ADV.0. Planning Outcomes',
+  '1 pg Bizz Case': 'One Page Supposition (Accme Business Case)',
+  'Alignment Statements': 'L.Suppt.Alignment',
+  'Porters & Pine': "Porter's & Pine",
+  'Governance Introduction': 'Governance Introduction',
+  'Organisational Review': 'Advance.6. Organisational Review & Org Chart',
+  'Sales & Marketing Review': 'Advance.5. Sales & Marketing Review',
+  'Turnaround Behaviours': 'Cafe Turnaround Behaviours',
+  'Partner Accountability': 'Annual Board Plan',
+  'Mgt Annual Plan': 'Management Reporting Annual Plan (Advisory Board Plan)',
+  'General Meeting Agenda': 'Agenda & Notes',
+  '6 Hats': '6 Hats Thinking',
+  'Customer Journey': 'The Customer Journey',
+  '8 Profit Levers': 'The 8 Profit Levers',
+  'Rubbish In - Rubbish Out': 'Rubbish in - Rubbish Out',
+  'Debtor Protocols': 'Debtor Protocols & Business Drag Model',
+  '90 Day Best Practice Accounting': '90 Day Accounting Best Practice Plan',
+  'Hire Winners': 'Managing Poor Performance',
+  'Hiring Winners': 'Managing Poor Performance',
+  'E.O.Y Meeting': 'E.O.Y Client Review Sheet - Input',
+  'Capacity, Capability, Opportunity': 'Business Assessment Report'
+}
+
+/**
+ * Find the best matching summary for a given template name.
+ * Tries alias map → exact match → contains match → word-overlap match.
+ * Returns the summary object or null if nothing is close enough.
+ */
+function matchSummaryByTemplateName (summaries, templateName) {
+  const nameLower = templateName.toLowerCase().trim()
+
+  // 0. Static alias map (bridges known naming mismatches)
+  const aliasTarget = TEMPLATE_SUMMARY_ALIASES[templateName]
+  if (aliasTarget) {
+    const aliasMatch = summaries.find(s => s.name === aliasTarget)
+    if (aliasMatch) return aliasMatch
+  }
+
+  // 1. Exact match
+  const exact = summaries.find(s => s.name.toLowerCase() === nameLower)
+  if (exact) return exact
+
+  // 2. Summary name contains the full template name
+  const contained = summaries.find(s => s.name.toLowerCase().includes(nameLower))
+  if (contained) return contained
+
+  // 3. Template name contains the full summary name (guards against very short names)
+  const contains = summaries.find(s => s.name.length > 6 && nameLower.includes(s.name.toLowerCase()))
+  if (contains) return contains
+
+  // 4. Word-overlap: at least 60% of the template's meaningful words appear in the summary name
+  const stopWords = new Set(['the', 'and', 'for', 'with', 'from', 'into', 'your', 'this', 'that'])
+  const templateWords = nameLower.split(/[\s&.()+,/-]+/).filter(w => w.length > 3 && !stopWords.has(w))
+  if (templateWords.length === 0) return null
+
+  const threshold = Math.max(1, Math.ceil(templateWords.length * 0.6))
+  const candidates = summaries
+    .map(s => {
+      const sLower = s.name.toLowerCase()
+      const matches = templateWords.filter(w => sLower.includes(w)).length
+      return { summary: s, matches }
+    })
+    .filter(c => c.matches >= threshold)
+    .sort((a, b) => b.matches - a.matches)
+
+  return candidates.length > 0 ? candidates[0].summary : null
+}
+
+/**
+ * Given a list of template names from the logic tree terminal nodes,
+ * return matching summaries using fuzzy name matching.
+ * De-duplicates by summary name.
+ */
+function getSummariesForTemplateNames (templateNames) {
+  const summaries = loadSummaries()
+  const seen = new Set()
+  const results = []
+  for (const name of templateNames) {
+    const match = matchSummaryByTemplateName(summaries, name)
+    if (match && !seen.has(match.name)) {
+      seen.add(match.name)
+      results.push(match)
+    }
+  }
+  return results
+}
+
+module.exports = {
+  filterSummariesByQuery,
+  getAllSummaries,
+  getSummariesForTemplateNames,
+  formatSummariesForPrompt,
+  formatSectionDescriptionsForPrompt
+}

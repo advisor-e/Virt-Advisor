@@ -1,0 +1,1530 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-15",
+  "description": "Diagnostic logic trees for guiding advisor conversations. Each tree maps a client presenting problem to a recommended template pathway. Walk the nodes using the IF conditions and ask the question at each branch point. Terminal nodes (type: 'recommendation') output the templates to suggest.",
+  "usage_notes": [
+    "Use 'quickfire' as the default top-level entry point when the presenting problem is general or vague.",
+    "Use 'frameworks_find' as a secondary triage when the client cannot articulate a specific problem type.",
+    "Revenue Model is noted as a support tool throughout — choose the appropriate What-if Analysis template based on the client's industry.",
+    "Template names map directly to titles in templates.json.",
+    "Nodes of type 'assessment' are gate checks — evaluate before asking the initial question.",
+    "Nodes of type 'question' require advisor to ask the stated question and branch based on response.",
+    "Nodes of type 'recommendation' are terminal — output the listed templates."
+  ],
+
+  "trees": [
+
+    {
+      "id": "quickfire",
+      "name": "Quickfire Logic",
+      "description": "Top-level entry point for general business performance concerns. Splits between survival risk and growth aspiration.",
+      "entry_triggers": [
+        "unhappy about business performance",
+        "business not doing well",
+        "worried about the business",
+        "general performance concern",
+        "business struggling",
+        "business performance",
+        "going under",
+        "survival",
+        "viability",
+        "business not performing",
+        "doing badly",
+        "wish it could do better"
+      ],
+      "nodes": [
+        {
+          "id": "qf_initial",
+          "branch_name": "Initial Assessment",
+          "type": "question",
+          "condition": "Client states: 'I'm unhappy about our business performance'",
+          "question": "Do you mean you're worried about the business 'going under' or just wish it could do better?",
+          "notes": "This establishes the primary divergence. Both branches can be supported with a Revenue Model.",
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "branches": [
+            {
+              "answer_pattern": "worried about going under / survival / business failing",
+              "next_node": "qf_branch1_survival"
+            },
+            {
+              "answer_pattern": "wish it could do better / growth / improvement",
+              "next_node": "qf_branch2_growth"
+            }
+          ]
+        },
+        {
+          "id": "qf_branch1_survival",
+          "branch_name": "Branch 1: Survival",
+          "type": "question",
+          "condition": "Client responds: 'I'm worried we might go under'",
+          "action": "Start with the Quick Position model, followed by the Worst Case model.",
+          "templates": ["Quick Position", "Worst Case Scenario"],
+          "notes": "Calculate the number of trading cycles to determine if there is time to adapt.",
+          "branches": [
+            {
+              "answer_pattern": "situation is dire but client is in denial or reluctant to make tough decisions",
+              "next_node": "qf_branch1a_dire"
+            },
+            {
+              "answer_pattern": "Quick Position model shows no time — imminent failure",
+              "next_node": "qf_branch1b_imminent"
+            },
+            {
+              "answer_pattern": "Quick Position model shows at risk but salvage is possible",
+              "next_node": "qf_branch1c_salvageable"
+            }
+          ]
+        },
+        {
+          "id": "qf_branch1a_dire",
+          "branch_name": "Branch 1A: Dire Exception",
+          "type": "recommendation",
+          "condition": "Situation is dire BUT client seems to be in denial or struggling to make tough decisions",
+          "action": "Take them through the Worst Case (Liquidation) model.",
+          "templates": ["Worst Case Scenario"],
+          "notes": "This provides 'Contrast Perspective' — helps the client see that acting quickly will result in less pain later."
+        },
+        {
+          "id": "qf_branch1b_imminent",
+          "branch_name": "Branch 1B: Imminent Failure",
+          "type": "recommendation",
+          "condition": "Quick Position model determines there is 'No time — Imminent Failure'",
+          "action": "Direct the client towards the Receivership vs Liquidation video.",
+          "templates": ["Receivership vs Liquidation"],
+          "notes": "Determine if a Creditor Compromise is possible."
+        },
+        {
+          "id": "qf_branch1c_salvageable",
+          "branch_name": "Branch 1C: Salvageable",
+          "type": "recommendation",
+          "condition": "Quick Position model determines the business is 'At Risk but Salvage Possible'",
+          "action": "Complete the Covid Agenda Programme (Feasibility, Scenarios, Contingency, Fundamentals).",
+          "templates": ["Covid Agendas"],
+          "notes": "Following this, set KPIs and arrange regular financial performance reviews."
+        },
+        {
+          "id": "qf_branch2_growth",
+          "branch_name": "Branch 2: Growth",
+          "type": "question",
+          "condition": "Client responds: 'I mean I wish it could do better'",
+          "action": "Start with the Quickfire Diagnosis Template.",
+          "templates": ["Quick Fire Diagnosis"],
+          "notes": "The template makes problem-solving logic visible to the client, empowering them and teaching them a logic pathway. Focus areas: Get Organised, Get the Job, Do the Job.",
+          "branches": [
+            {
+              "answer_pattern": "needs foundational improvement / just getting started with advisory",
+              "next_node": "qf_branch2a_fundamentals"
+            },
+            {
+              "answer_pattern": "diagnosis needs to continue / ongoing review required",
+              "next_node": "qf_branch2b_ongoing"
+            }
+          ]
+        },
+        {
+          "id": "qf_branch2a_fundamentals",
+          "branch_name": "Branch 2A: Fundamentals",
+          "type": "recommendation",
+          "condition": "Proceeding down the 'wish it could do better' pathway",
+          "action": "Consider the Lite Fundamentals Programme (in whole or in parts).",
+          "templates": ["Lite Fundamentals"],
+          "notes": "This is the easiest place to start and often provides the best value for money for the client."
+        },
+        {
+          "id": "qf_branch2b_ongoing",
+          "branch_name": "Branch 2B: Ongoing Diagnosis",
+          "type": "recommendation",
+          "condition": "Need to continue the diagnosis on the 'wish it could do better' pathway",
+          "action": "Consider using the Pivot template.",
+          "templates": ["Pivot"],
+          "notes": "Check progress against Revenue Model variables. Discuss with the team or an Advisor-e coach if required.",
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"]
+        }
+      ]
+    },
+
+    {
+      "id": "client_sales",
+      "name": "Client Sales Logic",
+      "description": "Diagnoses sales problems by first splitting between volume of sales and profitability, then drilling into the specific cause.",
+      "entry_triggers": [
+        "not making enough sales",
+        "sales are down",
+        "need more sales",
+        "revenue is low",
+        "not enough customers"
+      ],
+      "nodes": [
+        {
+          "id": "cs_initial",
+          "branch_name": "Initial Assessment",
+          "type": "question",
+          "condition": "Client states: 'I'm not making enough Sales'",
+          "question": "Do you mean the number of Sales or do you mean the Profit left over afterwards?",
+          "notes": "Both branches can be supported with a Revenue Model.",
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "branches": [
+            {
+              "answer_pattern": "number of sales / volume / not enough customers",
+              "next_node": "cs_branch1_number"
+            },
+            {
+              "answer_pattern": "profit / margin / money left over",
+              "next_node": "cs_branch2_profit"
+            }
+          ]
+        },
+        {
+          "id": "cs_branch1_number",
+          "branch_name": "Branch 1: Number of Sales",
+          "type": "question",
+          "condition": "Client responds: 'I mean the number of sales'",
+          "action": "Start with the Customer Journey to determine if the issue is Marketing or Selling.",
+          "templates": ["Customer Journey", "Covid Agendas"],
+          "notes": "Support with a Revenue Model. Covid Agendas combines the Customer Journey with Lite Fundamentals Marketing & Selling for a comprehensive review.",
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "question": "Looking at your Customer Journey — where does the breakdown seem to be: attracting people to you (Marketing) or converting them once they're in front of you (Selling)?",
+          "branches": [
+            {
+              "answer_pattern": "marketing / attracting customers / getting found / awareness",
+              "next_node": "cs_branch1a_marketing"
+            },
+            {
+              "answer_pattern": "selling / conversion / closing / presenting value",
+              "next_node": "cs_branch1b_selling"
+            },
+            {
+              "answer_pattern": "beyond fundamentals / advanced / already doing the basics",
+              "next_node": "cs_branch1c_advanced"
+            }
+          ]
+        },
+        {
+          "id": "cs_branch1a_marketing",
+          "branch_name": "Branch 1a: Marketing Focus",
+          "type": "recommendation",
+          "condition": "Issue is identified as Marketing",
+          "action": "Proceed to Lite Fundamentals Marketing.",
+          "templates": ["Lite Marketing"],
+          "notes": "Ascertain if the challenge is knowing WHO to target, or knowing WHAT to say and which channel to say it on."
+        },
+        {
+          "id": "cs_branch1b_selling",
+          "branch_name": "Branch 1b: Selling Focus",
+          "type": "recommendation",
+          "condition": "Issue is identified as Selling",
+          "action": "Proceed to Lite Fundamentals Selling.",
+          "templates": ["Sales Session"],
+          "notes": "Focuses strictly on sales fundamentals."
+        },
+        {
+          "id": "cs_branch1c_advanced",
+          "branch_name": "Branch 1c: Advanced Review",
+          "type": "recommendation",
+          "condition": "Moving beyond fundamentals into advanced strategies",
+          "action": "Conduct an Advanced Sales & Marketing Review.",
+          "templates": ["Sales & Marketing Review"],
+          "notes": "Involves reviewing AIDCRA, Branding Digital Funnel & Storyboard Pages, alongside Pricing, Packaging, Bundling & Distribution Pages."
+        },
+        {
+          "id": "cs_branch2_profit",
+          "branch_name": "Branch 2: Profit Left Over",
+          "type": "question",
+          "condition": "Client responds: 'I mean the profit left over'",
+          "action": "Start with the 8 Profit Levers or Profit Levers & Blue Ocean.",
+          "templates": ["8 Profit Levers", "Profit Levers & Blue Ocean"],
+          "notes": "Use to determine if the issue relates to Variable, Activity or Fixed Expenses. 'Profit Levers & Blue Ocean' is suited for more advanced advisors and discerning clients.",
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "question": "Is the profit issue mainly coming from your variable costs and activity, or are you not sure where the leak is?",
+          "branches": [
+            {
+              "answer_pattern": "variable activity / cost of sales / variable expenses",
+              "next_node": "cs_branch2a_variable"
+            },
+            {
+              "answer_pattern": "not sure / don't know / unclear about numbers",
+              "next_node": "cs_branch2b_uncertainty"
+            }
+          ]
+        },
+        {
+          "id": "cs_branch2a_variable",
+          "branch_name": "Branch 2a: Variable Activity",
+          "type": "recommendation",
+          "condition": "Profit issue involves Variable Activity",
+          "action": "Focus the review on variable activities.",
+          "templates": ["8 Profit Levers", "Sales & Marketing Review"],
+          "notes": "Maps toward the advanced pricing and packaging review pages."
+        },
+        {
+          "id": "cs_branch2b_uncertainty",
+          "branch_name": "Branch 2b: Uncertainty",
+          "type": "recommendation",
+          "condition": "Client is 'Not Sure?' about their profit levers or expense types",
+          "action": "Acknowledge a 'Rubbish in Rubbish Out' scenario.",
+          "templates": ["Rubbish In - Rubbish Out"],
+          "notes": "Clarification of business data and inputs is likely needed before applying specific models."
+        }
+      ]
+    },
+
+    {
+      "id": "cashflow",
+      "name": "Cashflow Logic",
+      "description": "Diagnoses cash management problems by splitting between slow cash arrival and a lack of financial clarity.",
+      "entry_triggers": [
+        "cash management problem",
+        "cash flow problem",
+        "running out of cash",
+        "money is tight",
+        "don't know where the money goes",
+        "never have enough cash"
+      ],
+      "nodes": [
+        {
+          "id": "cf_initial",
+          "branch_name": "Initial Assessment",
+          "type": "question",
+          "condition": "Client states: 'I think I have a Cash Management problem'",
+          "question": "Do you mean the money is slow to arrive, or you don't know where you stand?",
+          "notes": "This establishes whether the issue is timing of cash flow vs operating margin and fixed costs.",
+          "branches": [
+            {
+              "answer_pattern": "money is slow / timing / cash comes in eventually but disappears / no reserve",
+              "next_node": "cf_branch1_slow"
+            },
+            {
+              "answer_pattern": "don't know where I stand / no visibility / unclear on finances",
+              "next_node": "cf_branch2_clarity"
+            }
+          ]
+        },
+        {
+          "id": "cf_branch1_slow",
+          "branch_name": "Branch 1: Slow Money",
+          "type": "question",
+          "condition": "Client responds: 'The money is slow to arrive — I catch up eventually but then it's gone again. I never have a safe reserve.'",
+          "action": "Start with the Working Capital Cycle and support with a Revenue Model.",
+          "templates": ["Working Capital Cycle"],
+          "notes": "The Working Capital Cycle helps layer the message for clients. For newer owners it explains money movement. For advanced owners it leads to just-in-time stock control, lean systems, etc.",
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "question": "Is the root cause that you simply don't have enough capital, or is it more about how you're managing the cash you do have?",
+          "branches": [
+            {
+              "answer_pattern": "lack of capital / not enough money to begin with / funding gap",
+              "next_node": "cf_branch1a_capital"
+            },
+            {
+              "answer_pattern": "poor cash management / timing / debtors / spending habits",
+              "next_node": "cf_branch1b_management"
+            }
+          ]
+        },
+        {
+          "id": "cf_branch1a_capital",
+          "branch_name": "Sub-Branch 1A: Lack of Capital",
+          "type": "recommendation",
+          "condition": "Root cause identified as lack of Capital",
+          "action": "Utilise the Loan Estimator model, Personal Budget, and Forecast models.",
+          "templates": ["Loan Estimator", "Personal Budget", "Forecasting", "Assumptions"],
+          "notes": "Brainstorm as a team to add cash management tactics to the support page in the Working Capital Cycle template (Firm Manager mode)."
+        },
+        {
+          "id": "cf_branch1b_management",
+          "branch_name": "Sub-Branch 1B: Poor Cash Management",
+          "type": "recommendation",
+          "condition": "Root cause identified as poor cash management",
+          "action": "Brainstorm cash tactics, use Debtor Protocols and Lite Fundamentals Data.",
+          "templates": ["Debtor Protocols", "Data Session"],
+          "notes": "Brainstorm as a team to add cash management tactics to the support page in the Working Capital Cycle template (Firm Manager mode)."
+        },
+        {
+          "id": "cf_branch2_clarity",
+          "branch_name": "Branch 2: Lack of Clarity",
+          "type": "question",
+          "condition": "Client responds: 'I can't say where I stand with complete confidence.'",
+          "action": "Start by generating a Financial Dashboard and support with a Revenue Model.",
+          "templates": ["Dashboard Report"],
+          "notes": "Generating a dashboard quickly identifies if current accounting systems provide accurate data and if the owner understands performance and activity ratios. This reveals how deep you need to explore their systems, finance team, or owner education.",
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "question": "Is the issue that your accounting systems aren't giving you reliable data, or is it that there's just no regular process for reviewing the numbers?",
+          "branches": [
+            {
+              "answer_pattern": "accounting systems are flawed / unreliable data / bad records",
+              "next_node": "cf_branch2a_flawed"
+            },
+            {
+              "answer_pattern": "no structured review / not reviewing regularly / numbers exist but not used",
+              "next_node": "cf_branch2b_no_review"
+            }
+          ]
+        },
+        {
+          "id": "cf_branch2a_flawed",
+          "branch_name": "Sub-Branch 2A: Flawed Systems",
+          "type": "recommendation",
+          "condition": "Accounting systems/procedures are flawed",
+          "action": "Implement Accounting best practice (newer business owners or junior finance teams) or a Financial Systems Review (more complex business cases).",
+          "templates": ["90 Day Best Practice Accounting", "Financial Systems Review"],
+          "notes": "Can also refer to the Working Capital Cycle explanation with the client if required."
+        },
+        {
+          "id": "cf_branch2b_no_review",
+          "branch_name": "Sub-Branch 2B: No Structured Review",
+          "type": "recommendation",
+          "condition": "There's no structured/regular review of financial performance",
+          "action": "Initiate Dashboard Discussions and Ratio Analysis.",
+          "templates": ["Dashboard Discussions", "Ratio Analysis"],
+          "notes": "Can also refer to the Working Capital Cycle explanation with the client if required."
+        }
+      ]
+    },
+
+    {
+      "id": "governance",
+      "name": "Governance Logic",
+      "description": "Diagnoses governance improvement needs, with a readiness gate to check if foundational management is in place first.",
+      "entry_triggers": [
+        "need to improve governance",
+        "governance issues",
+        "decision making problems",
+        "accountability issues",
+        "board issues",
+        "management structure problems",
+        "governance",
+        "accountability",
+        "board meeting",
+        "board structure",
+        "decision making"
+      ],
+      "nodes": [
+        {
+          "id": "gov_pre_assessment",
+          "branch_name": "Pre-Assessment: Readiness",
+          "type": "assessment",
+          "condition": "Client has no clear business objectives, accepts task failure as 'normal', or lacks feedback loops",
+          "action": "Determine that management is ineffective — it is 'Too Early For Governance'.",
+          "templates": ["Productive Habits", "People vs. Process"],
+          "notes": "Objectives lacking priority/measurement, or a culture where mistakes aren't shared, indicates foundational management issues must be solved first. Do not proceed to formal governance tools until this is resolved.",
+          "gate_question": "Before diving into governance, do they have clear objectives, do they track task outcomes, and do they have a culture of honest feedback?"
+        },
+        {
+          "id": "gov_initial",
+          "branch_name": "Initial Assessment",
+          "type": "question",
+          "condition": "Client states: 'We need to improve our Governance'",
+          "question": "Do you mean improve your decision making process or improve rule adherence and accountability?",
+          "notes": "Consider basic templates like 'Productive Habits' or 'People vs. Process' if decision quality/implementation is lacking. If they feel they've 'done pretty well on their own,' consider Porter's & Pine or Blue Ocean & 8 Profit Levers to create productive disturbance.",
+          "branches": [
+            {
+              "answer_pattern": "decision making / quality of decisions / making better choices",
+              "next_node": "gov_branch1_decision"
+            },
+            {
+              "answer_pattern": "adherence / accountability / people not following through / rule compliance",
+              "next_node": "gov_branch2_adherence"
+            }
+          ]
+        },
+        {
+          "id": "gov_branch1_decision",
+          "branch_name": "Branch 1: Decision Quality",
+          "type": "question",
+          "condition": "Client responds: 'I mean our decision quality'",
+          "action": "Start with the 6 Hats tool.",
+          "templates": ["6 Hats", "Nine Growth Aspects"],
+          "notes": "Both branches can be supported with a Review of the Growth Curve (9 Growth Stages, 7 Growth Tactics, 5 Complexity Layers, Devil's Toilet & Split Point).",
+          "question": "Is the issue making decisions in the first place, or reviewing and learning from decisions afterwards?",
+          "branches": [
+            {
+              "answer_pattern": "making decisions / quality of choices going forward",
+              "next_node": "gov_branch1a_quality"
+            },
+            {
+              "answer_pattern": "reviewing decisions / learning from outcomes / post-decision reflection",
+              "next_node": "gov_branch1a_quality"
+            }
+          ]
+        },
+        {
+          "id": "gov_branch1a_quality",
+          "branch_name": "Branch 1a: Quality Decisions",
+          "type": "recommendation",
+          "condition": "Ongoing focus is on Quality Decisions",
+          "action": "Support with Draft White Papers and Growth Curve review.",
+          "templates": ["Nine Growth Aspects", "Growth Framework"],
+          "notes": "Can be additionally supported by reviewing the Growth Curve (9 Growth Aspects)."
+        },
+        {
+          "id": "gov_branch2_adherence",
+          "branch_name": "Branch 2: Adherence & Accountability",
+          "type": "question",
+          "condition": "Client responds: 'I mean adherence and accountability'",
+          "action": "Start with Introduction to Governance.",
+          "templates": ["Governance Introduction", "Nine Growth Aspects"],
+          "notes": "Ideal starting point for owners who are receptive or have little prior understanding of formal governance. Both branches can be supported with a Review of the Growth Curve.",
+          "question": "Is the core issue that you don't have the right protocols and structures in place, or is it that the structures exist but people aren't following them?",
+          "branches": [
+            {
+              "answer_pattern": "protocols lacking / no structures / no documented processes or agendas",
+              "next_node": "gov_branch2a_protocols"
+            },
+            {
+              "answer_pattern": "poor conduct / people not following rules / behavioural issues",
+              "next_node": "gov_branch2b_conduct"
+            }
+          ]
+        },
+        {
+          "id": "gov_branch2a_protocols",
+          "branch_name": "Branch 2a: Protocols Lacking",
+          "type": "recommendation",
+          "condition": "Underlying issue is Protocols Lacking",
+          "action": "Explore Board Plan, Pre Meeting Pack, Agendas & Minutes, Conflict Disclosure.",
+          "templates": ["Mgt Annual Plan", "General Meeting Agenda", "Partner Accountability"],
+          "notes": "Directs focus to establishing procedural structures and documentation."
+        },
+        {
+          "id": "gov_branch2b_conduct",
+          "branch_name": "Branch 2b: Poor Conduct",
+          "type": "recommendation",
+          "condition": "Underlying issue is Poor Member Conduct",
+          "action": "Focus on Board Member Conduct.",
+          "templates": ["Partner Accountability"],
+          "notes": "Directs focus to managing behavioral expectations and adherence."
+        }
+      ]
+    },
+
+    {
+      "id": "client_planning",
+      "name": "Client Planning Logic",
+      "description": "Routes business planning needs based on the maturity of the business and owner's planning experience.",
+      "entry_triggers": [
+        "need a business plan",
+        "want to do some planning",
+        "need to plan for the future",
+        "setting goals",
+        "strategic planning",
+        "business direction",
+        "business plan",
+        "business planning",
+        "need a plan",
+        "planning session",
+        "strategy"
+      ],
+      "nodes": [
+        {
+          "id": "cp_initial",
+          "branch_name": "Initial Assessment",
+          "type": "question",
+          "condition": "Client states: 'I need a business plan'",
+          "question": "Is this for a Startup, or is it a Well Established Business?",
+          "notes": "Both paths can be supported with a Revenue Model.",
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "branches": [
+            {
+              "answer_pattern": "startup / new business / just starting / new to planning",
+              "next_node": "cp_branch1_startup"
+            },
+            {
+              "answer_pattern": "established business / been operating for years / existing business",
+              "next_node": "cp_branch2_established"
+            }
+          ]
+        },
+        {
+          "id": "cp_branch1_startup",
+          "branch_name": "Branch 1: Startup / New to Planning",
+          "type": "question",
+          "condition": "Client indicates they are a Startup Business or Owner New to Planning",
+          "action": "Determine whether they are a pure Startup or just New to Planning.",
+          "notes": "The 1 page and 4 page plans are excellent for quick reviews of business issues but are mostly void of educative content.",
+          "question": "Are you an entirely new business, or have you been operating for a while but just haven't done structured planning before?",
+          "branches": [
+            {
+              "answer_pattern": "entirely new / startup / pre-revenue / brand new",
+              "next_node": "cp_branch1a_startup"
+            },
+            {
+              "answer_pattern": "operating but new to planning / never done formal planning / want to start planning",
+              "next_node": "cp_branch1b_new"
+            }
+          ]
+        },
+        {
+          "id": "cp_branch1a_startup",
+          "branch_name": "Branch 1a: Startup Business",
+          "type": "recommendation",
+          "condition": "Client is a Startup",
+          "action": "Use the 1pg or 4pg Bizz Case, and support with a Revenue Model.",
+          "templates": ["1 pg Bizz Case", "4 Part Bizz Plan"],
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"]
+        },
+        {
+          "id": "cp_branch1b_new",
+          "branch_name": "Branch 1b: New to Planning",
+          "type": "recommendation",
+          "condition": "Client is an owner New to Planning",
+          "action": "Use the 1pg or 4pg Bizz Case OR the Lite Strategy (Lite Fundamentals Planning), and support with a Revenue Model.",
+          "templates": ["1 pg Bizz Case", "4 Part Bizz Plan", "Lite Strategy", "Planning Session"],
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "notes": "Use the Lite Fundamentals Planning template if you wish to develop ongoing strategic reviews. It provides a basic introduction to planning and features a pre-meeting video to put the client at ease."
+        },
+        {
+          "id": "cp_branch2_established",
+          "branch_name": "Branch 2: Established Business",
+          "type": "question",
+          "condition": "Client indicates it is a Well Established Business",
+          "action": "Start with the Planning Outcomes Review to choose the specific focus area, and support with a Revenue Model.",
+          "templates": ["Planning Outcomes Review"],
+          "notes": "The Planning Outcomes Review helps you choose between: Business Targets, Strategic Orientation 1&2, Organisational Review, or Sales & Marketing Review.",
+          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "question": "Using the Planning Outcomes Review — does the focus land on Business Targets and Strategic Orientation, or on Organisational and Sales & Marketing?",
+          "branches": [
+            {
+              "answer_pattern": "business targets / strategic orientation / where we want to go / goals",
+              "next_node": "cp_branch2a_targets"
+            },
+            {
+              "answer_pattern": "organisational review / sales and marketing review / structure and revenue",
+              "next_node": "cp_branch2b_org"
+            }
+          ]
+        },
+        {
+          "id": "cp_branch2a_targets",
+          "branch_name": "Branch 2a: Targets & Strategic Orientation",
+          "type": "recommendation",
+          "condition": "Planning Outcomes Review points to Business Targets or Strategic Orientation 1&2",
+          "action": "Utilise Powerful Goal Setting or Profit Levers & Blue Ocean templates.",
+          "templates": ["Powerful Goal Setting", "Profit Levers & Blue Ocean", "Business Targets", "Orientation Part 1", "Orientation Part 2"],
+          "notes": "Profit Levers & Blue Ocean are short-form templates found in advanced Strategic templates. They help explore strategic issues or position Management Reporting or Governance Services."
+        },
+        {
+          "id": "cp_branch2b_org",
+          "branch_name": "Branch 2b: Organisational & Sales Focus",
+          "type": "recommendation",
+          "condition": "Planning Outcomes Review points to Organisational Review or Sales & Marketing Review",
+          "action": "Utilise Alignment Statements or Porter's & Pine templates.",
+          "templates": ["Alignment Statements", "Porters & Pine", "Organisational Review", "Sales & Marketing Review"],
+          "notes": "Porter's & Pine are short-form templates that can be used to explore strategic issues or create demand for structured management review services."
+        }
+      ]
+    },
+
+    {
+      "id": "staff_performance",
+      "name": "Staff Performance Logic",
+      "description": "Diagnoses staff problems by separating attitude (engagement) from competency (effectiveness), then drilling into root cause.",
+      "entry_triggers": [
+        "staff problems",
+        "employees driving me nuts",
+        "team issues",
+        "staff not performing",
+        "people problems",
+        "hiring problems",
+        "productivity issues",
+        "my staff",
+        "the staff",
+        "my team",
+        "the team",
+        "employees",
+        "staff performance",
+        "team performance",
+        "people issues",
+        "staff driving me",
+        "driving me nuts",
+        "staff are",
+        "employees are"
+      ],
+      "nodes": [
+        {
+          "id": "sp_initial",
+          "branch_name": "Initial Assessment",
+          "type": "question",
+          "condition": "Client states: 'My staff are driving me nuts!'",
+          "question": "Is it their Engagement (attitude) or their Effectiveness (competency) that's the problem?",
+          "notes": "If they say they don't know, start with the People vs Process Template and support it with the Wages Review What-if Model. Consider the Remuneration & Incentives template also.",
+          "templates_if_unsure": ["People vs. Process", "Wages Review", "Remuneration & Incentives"],
+          "branches": [
+            {
+              "answer_pattern": "engagement / attitude / motivation / don't care / wrong people",
+              "next_node": "sp_branch1_engagement"
+            },
+            {
+              "answer_pattern": "effectiveness / competency / skill / capability / can't do the job",
+              "next_node": "sp_branch2_effectiveness"
+            }
+          ]
+        },
+        {
+          "id": "sp_branch1_engagement",
+          "branch_name": "Branch 1: Engagement (Attitude)",
+          "type": "recommendation",
+          "condition": "Client responds: 'Their Engagement (attitude) is the problem'",
+          "action": "Review the Lite Fundamentals 'PEOPLE' template. If you don't have the right team in the canoe, consider the Hiring Winners template also.",
+          "templates": ["People Session", "Hiring Winners", "Hire Winners"],
+          "notes": "If engagement is an issue on a wider basis, consider using the Leadership Review to determine if the problem comes from the top. If the attitude issue is related to a single person or a few troublemakers, consider using a formal PIP (Performance Improvement Plan) in accordance with HR laws to record specific behavioural adjustments."
+        },
+        {
+          "id": "sp_branch2_effectiveness",
+          "branch_name": "Branch 2: Effectiveness (Competency)",
+          "type": "question",
+          "condition": "Client responds: 'Their Effectiveness (competency) is the problem'",
+          "question": "Is their Effectiveness a result of poor systems or lacking skill sets?",
+          "notes": "This establishes a secondary divergence to pinpoint the exact root cause of the effectiveness issue.",
+          "branches": [
+            {
+              "answer_pattern": "lacking skill sets / don't know how / need training / inexperienced",
+              "next_node": "sp_branch2a_skills"
+            },
+            {
+              "answer_pattern": "poor systems / bad processes / no clear process / systems failing them",
+              "next_node": "sp_branch2b_systems"
+            }
+          ]
+        },
+        {
+          "id": "sp_branch2a_skills",
+          "branch_name": "Branch 2A: Lacking Skill Sets",
+          "type": "recommendation",
+          "condition": "Client responds: 'Lacking Skill sets'",
+          "action": "Focus on the Delegation & Feedback protocols in the Lite Fundamentals 'People' template. Consider also the Turnaround Behaviours template.",
+          "templates": ["People Session", "Turnaround Behaviours", "Hiring Winners"],
+          "notes": "If staff give 100% but lack experience, determine if current staff are capable (by temperament and IQ) to reach required levels. If they are, develop learning paths based on OBSERVABLE SKILLS. If not, explore the Hiring Winners template."
+        },
+        {
+          "id": "sp_branch2b_systems",
+          "branch_name": "Branch 2B: Poor Systems",
+          "type": "recommendation",
+          "condition": "Client responds: 'Poor Systems'",
+          "action": "Review the Lite Fundamentals 'Process' template. For a more advanced organisation, explore the Organisational Review template.",
+          "templates": ["Process Session", "Organisational Review"],
+          "notes": "This branch is used when staff effectiveness is hindered by operational processes rather than individual capabilities."
+        }
+      ]
+    },
+
+    {
+      "id": "frameworks_find",
+      "name": "Frameworks Find Logic",
+      "description": "Secondary triage for broad or vague presenting problems. Seven branches cover the most common business challenges where the right framework is unclear. Use this when a client cannot articulate a specific problem or when the Quickfire tree does not produce a clear path.",
+      "entry_triggers": [
+        "don't know what the business will look like",
+        "uncertain about the future",
+        "not sure which framework to use",
+        "general business challenge",
+        "can't figure out the problem",
+        "losing the battle",
+        "stagnant",
+        "don't understand finances",
+        "revenue all over the place",
+        "struggling to deliver",
+        "stagnant growth",
+        "failing to grow",
+        "famine to feast",
+        "customer acquisition",
+        "revenue volatile",
+        "not growing",
+        "can't grow",
+        "meet demand",
+        "financial disengagement",
+        "business will look like",
+        "does not know what the business"
+      ],
+      "nodes": [
+        {
+          "id": "ff_initial",
+          "branch_name": "Initial Assessment",
+          "type": "question",
+          "condition": "Client states: 'I don't know what my business will look like in 5 or 10 years'",
+          "question": "Do you mean you're worried about the business facing massive disruption, or do you mean you're unclear what you want?",
+          "notes": "This establishes the primary divergence. From here, identify which of the 7 branches best fits the underlying problem.",
+          "branches": [
+            {
+              "answer_pattern": "unclear on milestones / don't know where the business is heading / no vision",
+              "next_node": "ff_branch1_milestones"
+            },
+            {
+              "answer_pattern": "stagnant growth / failing to grow / frustrated / losing the battle",
+              "next_node": "ff_branch2_stagnant"
+            },
+            {
+              "answer_pattern": "struggling to win new customers / customer acquisition / can't find clients",
+              "next_node": "ff_branch3_acquisition"
+            },
+            {
+              "answer_pattern": "revenue volatile / feast and famine / inconsistent income / up and down",
+              "next_node": "ff_branch4_volatility"
+            },
+            {
+              "answer_pattern": "doesn't engage with financials / no budget / gut feel decisions / ignores numbers",
+              "next_node": "ff_branch5_financial"
+            },
+            {
+              "answer_pattern": "concerned about viability / is the business viable / will it survive",
+              "next_node": "ff_branch6_viability"
+            },
+            {
+              "answer_pattern": "struggling to deliver / can't meet demand / overwhelmed by workload / fulfilment issues",
+              "next_node": "ff_branch7_delivery"
+            }
+          ]
+        },
+        {
+          "id": "ff_branch1_milestones",
+          "branch_name": "Branch 1: Clarifying Milestones",
+          "type": "recommendation",
+          "condition": "Client is lacking clarity about business milestones",
+          "action": "Use the Growth Fundamentals Framework.",
+          "templates": ["Growth Framework"],
+          "notes": "Quick and simple. Uses contrast to reduce confusion — 'Pick a spot on the curve vs Define your Vision in a sentence'."
+        },
+        {
+          "id": "ff_branch2_stagnant",
+          "branch_name": "Branch 2: Stagnant Growth",
+          "type": "recommendation",
+          "condition": "Business is failing to grow and the owner is frustrated, feeling like they're losing the battle",
+          "action": "Use the Capacity, Capability, Opportunity template.",
+          "templates": ["Capacity, Capability, Opportunity"],
+          "notes": "Easy to facilitate, memorable for clients, and opens the discovery pathway."
+        },
+        {
+          "id": "ff_branch3_acquisition",
+          "branch_name": "Branch 3: Customer Acquisition",
+          "type": "recommendation",
+          "condition": "Client is struggling to win new customers",
+          "action": "Use the Customer Journey template.",
+          "templates": ["Customer Journey"],
+          "notes": "Makes it easy to identify the primary issue and downstream effects."
+        },
+        {
+          "id": "ff_branch4_volatility",
+          "branch_name": "Branch 4: Revenue Volatility",
+          "type": "recommendation",
+          "condition": "Revenue is volatile and the owner feels exhausted bouncing from famine to feast",
+          "action": "Use the E.O.Y Meeting and Demings Volatility templates.",
+          "templates": ["E.O.Y Meeting", "Demings Volatility"],
+          "notes": "Explains the volatility range, encourages a more balanced understanding of data, and provides 4 remedy options to consider."
+        },
+        {
+          "id": "ff_branch5_financial",
+          "branch_name": "Branch 5: Financial Disengagement",
+          "type": "recommendation",
+          "condition": "Client doesn't engage with financials, lacks an expense budget, doesn't retain profits, and hires staff or purchases assets by gut-feel",
+          "action": "Use the Working Capital Cycle Model.",
+          "templates": ["Working Capital Cycle"],
+          "notes": "Provides a plain-English explanation of 'money in movement' related to their job/trading cycles to show how financial management achieves better outcomes."
+        },
+        {
+          "id": "ff_branch6_viability",
+          "branch_name": "Branch 6: Business Viability Concerns",
+          "type": "recommendation",
+          "condition": "Owner is concerned about overall business viability",
+          "action": "Use the Quick Fire Diagnosis template.",
+          "templates": ["Quick Fire Diagnosis"],
+          "notes": "Provides a concise triage-logic to identify the severity of the issue and deliver the relevant action plan."
+        },
+        {
+          "id": "ff_branch7_delivery",
+          "branch_name": "Branch 7: Delivery & Demand Fulfillment",
+          "type": "recommendation",
+          "condition": "Business is struggling to meet demand and deliver products/services in a timely, profitable manner",
+          "action": "Use People vs Process, Lite Fundamentals People + Lite Fundamentals Process, or an Organisational Review.",
+          "templates": ["People vs. Process", "People Session", "Process Session", "Organisational Review"],
+          "notes": "'People vs Process' helps diagnose the issues. The Lite templates provide simple remedy options. The Organisational Review offers more in-depth suggestions."
+        }
+      ]
+    },
+
+    {
+      "id": "sales_process",
+      "name": "Sales Process Decision Tree",
+      "description": "Guides the advisor to the right sales process and approach method based on client type, sophistication, and relationship warmth. Terminal nodes output a recommended sales process (not a template). After identifying the process, use the approach_guidance table to determine HOW to reach out based on the advisor-client relationship.",
+      "mode": "learn",
+      "entry_triggers": [
+        "how do i approach",
+        "how to approach",
+        "how should i approach",
+        "approach this client",
+        "approaching a client",
+        "thinking about approaching",
+        "client opportunity",
+        "want to bring them on",
+        "advisory services",
+        "sell advisory",
+        "get them into advisory",
+        "introduce advisory",
+        "win a client",
+        "pitch advisory",
+        "start advisory with",
+        "new advisory client",
+        "sales process",
+        "how to sell",
+        "approach and engage",
+        "get the conversation started",
+        "referral received",
+        "referral walk",
+        "walk-in",
+        "walk in client",
+        "targeted prospect",
+        "existing client opportunity",
+        "bring on as",
+        "get them started"
+      ],
+      "approach_guidance": [
+        {
+          "method": "Direct Phone Call",
+          "relationship_status": "Warm & Receptive — easily passes the 'How was your weekend?' test",
+          "steps": 1,
+          "discovery_style": "Growth Curve, EOY/Volatility Review, Revenue Model, How You Rate tables, Strategic Planning Template"
+        },
+        {
+          "method": "Pre-Approach Email (Quiz or Video Link) then Phone Call",
+          "relationship_status": "Warm but Wary — still guarded around advisory arena",
+          "steps": 3,
+          "step_detail": "1. Phone to ask for permission to send quiz or video link. 2. Prime the client via online quiz or video. 3. Phone to ask for the meeting.",
+          "discovery_style": "Growth Curve, EOY/Volatility Review, Revenue Model, How You Rate tables"
+        },
+        {
+          "method": "Pre-Approach Email Sequence then Phone Call then Intro Meeting before Discovery Meeting",
+          "relationship_status": "Cool but Engages — perhaps multiple decision makers; needs to 'see before they move'",
+          "steps": 3,
+          "step_detail": "1. Educate via multiple emails or webinar. 2. Position the meeting during phone call. 3. Run a taster meeting before the Deep Dive Discovery/Alignment meeting.",
+          "discovery_style": "Growth Curve, EOY/Volatility Review, Revenue Model"
+        },
+        {
+          "method": "Group Positioning — Seminar to introduce concept",
+          "relationship_status": "Cool to new ideas — needs time to reflect",
+          "steps": 2,
+          "step_detail": "1. Invite to seminar, conduct the event and follow up to invite to a 2. personal discovery session.",
+          "discovery_style": "Growth Curve, EOY/Volatility Review, Revenue Model, How You Rate tables"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "sp_entry",
+          "branch_name": "Initial Assessment — Client Type",
+          "type": "question",
+          "condition": "Advisor wants to approach a client about advisory services",
+          "question": "Is this an existing client, a targeted prospect you've identified, or a referral or walk-in?",
+          "notes": "This is the primary split. Each path has different logic for how to engage.",
+          "branches": [
+            {
+              "answer_pattern": "existing client",
+              "next_node": "sp_existing_prior"
+            },
+            {
+              "answer_pattern": "targeted prospect",
+              "next_node": "sp_prospect_sophistication"
+            },
+            {
+              "answer_pattern": "referral / walk-in",
+              "next_node": "sp_referral_issue"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_existing_prior",
+          "branch_name": "Existing Client — Prior Advisory Work",
+          "type": "question",
+          "condition": "Client is an existing client",
+          "question": "Has this client done any project or advisory work with you before — beyond compliance, tax, or basic forecasting?",
+          "branches": [
+            {
+              "answer_pattern": "yes — has done project or advisory work",
+              "next_node": "sp_existing_consultative"
+            },
+            {
+              "answer_pattern": "no — only compliance, tax, or basic work",
+              "next_node": "sp_existing_profile"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_existing_consultative",
+          "branch_name": "Existing Client — Consultative Confidence",
+          "type": "question",
+          "condition": "Existing client has done prior advisory work",
+          "question": "Are you confident enough to start in a more consultative manner — thinking on your feet, scoping their situation, and drawing the conversation to a conclusion without a script?",
+          "notes": "Requires being less structured; the advisor must be able to scope and upsell without a safety net.",
+          "branches": [
+            {
+              "answer_pattern": "yes — confident, consultative",
+              "next_node": "sp_rec_planning_outcomes"
+            },
+            {
+              "answer_pattern": "no — not confident enough yet",
+              "next_node": "sp_rec_lite_existing_yes"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_rec_planning_outcomes",
+          "branch_name": "Recommendation: Planning Outcomes Review",
+          "type": "recommendation",
+          "condition": "Existing client, prior advisory work, advisor is confident and consultative",
+          "action": "Use the Planning Outcomes Review to approach and engage. This allows the advisor to scope the client's situation and select an appropriate planning session as the means to upsell into broader advisory work.",
+          "sales_process": "Planning Outcomes Review — consultative scoping and upsell",
+          "notes": "Leads directly to engagement. The advisor runs the Planning Outcomes Review as a discovery/alignment meeting to frame the opportunity."
+        },
+
+        {
+          "id": "sp_rec_lite_existing_yes",
+          "branch_name": "Recommendation: Lite Fundamentals (Existing, Prior Work, Less Confident)",
+          "type": "recommendation",
+          "condition": "Existing client, prior advisory work, but advisor not yet confident going consultative",
+          "action": "Approach using the Lite Fundamentals (Campaign) sales process — more structured and scripted than a consultative approach. Use this to safely introduce the next level of advisory engagement.",
+          "sales_process": "Lite Fundamentals / Campaign Sales Process",
+          "notes": "Safely transitions to engagement without requiring consultative confidence."
+        },
+
+        {
+          "id": "sp_existing_profile",
+          "branch_name": "Existing Client — Fee Resistance & Financial Sophistication",
+          "type": "question",
+          "condition": "Existing client, no prior advisory work",
+          "question": "Does the client fit a small business profile where you suspect fee resistance, and they lack a solid understanding of basic financial management principles?",
+          "branches": [
+            {
+              "answer_pattern": "yes — small, fee resistant, lacks basic financial knowledge",
+              "next_node": "sp_rec_education"
+            },
+            {
+              "answer_pattern": "no — not fee resistant or financially more sophisticated",
+              "next_node": "sp_existing_size"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_rec_education",
+          "branch_name": "Recommendation: Education-Based Session",
+          "type": "recommendation",
+          "condition": "Existing client, no prior advisory work, small business profile, fee resistance, lacks basic financial knowledge",
+          "action": "Approach with an education-based session first. The goal is to build the client's understanding of advisory value before pitching services. After the session, check whether the client enjoyed it and wants more — if yes, re-evaluate their profile and move toward the Lite Fundamentals (Campaign) process. If no, park the process until a client project or external event creates the need.",
+          "sales_process": "Education-Based Session — build value first, then evaluate",
+          "notes": "Educates the client before pitching. If the client engages and wants more, loop back through profile evaluation."
+        },
+
+        {
+          "id": "sp_existing_size",
+          "branch_name": "Existing Client — Business Size & Usage",
+          "type": "question",
+          "condition": "Existing client, no prior advisory work, not fee resistant",
+          "question": "Is the client smaller in size and growth-focused, but has only ever used you for compliance work, basic forecasting, or tax issues?",
+          "branches": [
+            {
+              "answer_pattern": "yes — smaller, growth-focused, compliance/tax only",
+              "next_node": "sp_rec_lite_existing_no"
+            },
+            {
+              "answer_pattern": "no — larger or more complex needs",
+              "next_node": "sp_rec_total_existing"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_rec_lite_existing_no",
+          "branch_name": "Recommendation: Lite Fundamentals Campaign (Existing, Smaller)",
+          "type": "recommendation",
+          "condition": "Existing client, smaller, growth-focused, compliance/tax only",
+          "action": "Approach and engage using the Lite Fundamentals (Campaign) sales process. This is the right fit for smaller clients who are growth-focused but haven't yet been introduced to advisory services.",
+          "sales_process": "Lite Fundamentals / Campaign Sales Process",
+          "notes": "Pre-packaged, structured, 1–2 meetings, $6–12k fee range."
+        },
+
+        {
+          "id": "sp_rec_total_existing",
+          "branch_name": "Recommendation: Total Needs (Existing, Larger/Complex)",
+          "type": "recommendation",
+          "condition": "Existing client, larger or more complex needs",
+          "action": "Approach and engage using the Total Needs sales process. This client has the scale and complexity to warrant a more exploratory, consultative engagement.",
+          "sales_process": "Total Needs Sales Process",
+          "notes": "Consultative and exploratory, 3–5 meetings, 10+ hours, $30k+ fee range."
+        },
+
+        {
+          "id": "sp_prospect_sophistication",
+          "branch_name": "Targeted Prospect — Sophistication Check",
+          "type": "question",
+          "condition": "Client is a targeted prospect",
+          "question": "Based on your first meeting, how would you describe this client's level of business sophistication — are they already thinking strategically, or are they more operationally focused and less experienced with advisory concepts?",
+          "notes": "Initial discovery to determine the appropriate engagement pathway.",
+          "branches": [
+            {
+              "answer_pattern": "sophisticated / strategic thinker",
+              "next_node": "sp_prospect_soph_size"
+            },
+            {
+              "answer_pattern": "not sophisticated / more operational / less experienced",
+              "next_node": "sp_prospect_not_soph_size"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_prospect_soph_size",
+          "branch_name": "Targeted Prospect — Sophisticated, Business Size",
+          "type": "question",
+          "condition": "Sophisticated targeted prospect",
+          "question": "Do they fit the larger business profile — more complexity, higher revenue, potentially multiple decision makers?",
+          "branches": [
+            {
+              "answer_pattern": "yes — larger business",
+              "next_node": "sp_rec_total_prospect_soph"
+            },
+            {
+              "answer_pattern": "no — smaller business",
+              "next_node": "sp_rec_lite_modified"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_rec_total_prospect_soph",
+          "branch_name": "Recommendation: Total Needs (Sophisticated + Larger)",
+          "type": "recommendation",
+          "condition": "Sophisticated targeted prospect with larger business profile",
+          "action": "Approach and engage using the Total Needs sales process — the most comprehensive pathway, suited for a client with both the sophistication to engage at that level and the scale to warrant it.",
+          "sales_process": "Total Needs Sales Process",
+          "notes": "Deploys the most comprehensive sales process."
+        },
+
+        {
+          "id": "sp_rec_lite_modified",
+          "branch_name": "Recommendation: Lite Fundamentals Modified (Sophisticated + Smaller)",
+          "type": "recommendation",
+          "condition": "Sophisticated targeted prospect but smaller business",
+          "action": "Use the Lite Fundamentals sales process, but modify your offer to include shorter or longer session times for certain content to match this client's sophistication level. Don't apply the standard campaign template verbatim — adapt the delivery.",
+          "sales_process": "Lite Fundamentals — modified for sophistication",
+          "notes": "Leads into the standard Lite Fundamentals engagement but requires custom modifications to session depth."
+        },
+
+        {
+          "id": "sp_prospect_not_soph_size",
+          "branch_name": "Targeted Prospect — Not Sophisticated, Business Size",
+          "type": "question",
+          "condition": "Not sophisticated targeted prospect",
+          "question": "Do they fit the smaller business profile?",
+          "branches": [
+            {
+              "answer_pattern": "yes — smaller business",
+              "next_node": "sp_rec_lite_prospect"
+            },
+            {
+              "answer_pattern": "no — larger business despite lower sophistication",
+              "next_node": "sp_rec_total_prospect_not_soph"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_rec_lite_prospect",
+          "branch_name": "Recommendation: Lite Fundamentals Campaign (Not Sophisticated + Smaller)",
+          "type": "recommendation",
+          "condition": "Not sophisticated targeted prospect with smaller business profile",
+          "action": "Approach and engage using the Lite Fundamentals (Campaign) sales process. This is the right fit for a less sophisticated client at the smaller end of the market.",
+          "sales_process": "Lite Fundamentals / Campaign Sales Process",
+          "notes": "Deploys the streamlined campaign process."
+        },
+
+        {
+          "id": "sp_rec_total_prospect_not_soph",
+          "branch_name": "Recommendation: Total Needs (Not Sophisticated + Larger)",
+          "type": "recommendation",
+          "condition": "Not sophisticated targeted prospect but larger business",
+          "action": "Despite lower sophistication, the business complexity warrants the Total Needs sales process. You may need to invest more time in educating the client on the value of advisory as part of the engagement.",
+          "sales_process": "Total Needs Sales Process",
+          "notes": "Defaults to the comprehensive sales approach due to business size and complexity."
+        },
+
+        {
+          "id": "sp_referral_issue",
+          "branch_name": "Referral / Walk-In — Specific Issue",
+          "type": "question",
+          "condition": "Client is a referral or walk-in",
+          "question": "Does the client have a specific issue or service interest they've come with, or are they open and general in their interest?",
+          "branches": [
+            {
+              "answer_pattern": "yes — specific issue or service interest",
+              "next_node": "sp_rec_solve_issue"
+            },
+            {
+              "answer_pattern": "no — open, general interest, no specific issue",
+              "next_node": "sp_referral_size"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_rec_solve_issue",
+          "branch_name": "Recommendation: Solve Specific Issue + Seed Wider",
+          "type": "recommendation",
+          "condition": "Referral or walk-in with a specific issue",
+          "action": "Address the client's immediate issue first — but position wider. Solve this specific problem well, then loop other service offers into the relationship over time. Trust is being built; don't try to sell advisory broadly in the first engagement.",
+          "sales_process": "Solve specific issue — seed wider advisory in future",
+          "notes": "Addresses the immediate pain point while creating a platform for future advisory work."
+        },
+
+        {
+          "id": "sp_referral_size",
+          "branch_name": "Referral / Walk-In — Business Size",
+          "type": "question",
+          "condition": "Referral or walk-in with no specific issue",
+          "question": "Does the client fit the smaller business profile?",
+          "branches": [
+            {
+              "answer_pattern": "yes — smaller business",
+              "next_node": "sp_rec_lite_referral"
+            },
+            {
+              "answer_pattern": "no — larger business",
+              "next_node": "sp_rec_total_referral"
+            }
+          ]
+        },
+
+        {
+          "id": "sp_rec_lite_referral",
+          "branch_name": "Recommendation: Lite Fundamentals Campaign (Referral + Smaller)",
+          "type": "recommendation",
+          "condition": "Referral or walk-in, no specific issue, smaller business",
+          "action": "Approach and engage using the Lite Fundamentals (Campaign) sales process.",
+          "sales_process": "Lite Fundamentals / Campaign Sales Process",
+          "notes": "Deploys the streamlined campaign process for smaller referrals."
+        },
+
+        {
+          "id": "sp_rec_total_referral",
+          "branch_name": "Recommendation: Total Needs (Referral + Larger)",
+          "type": "recommendation",
+          "condition": "Referral or walk-in, no specific issue, larger business",
+          "action": "Approach and engage using the Total Needs sales process.",
+          "sales_process": "Total Needs Sales Process",
+          "notes": "Deploys the comprehensive sales approach for larger referrals."
+        }
+      ]
+    },
+
+    {
+      "id": "public_speaking",
+      "name": "Seminar & Presentation Design and Delivery",
+      "mode": "learn",
+      "description": "Sequential coaching guide for designing and delivering a seminar, workshop, or presentation. Unlike other trees, this is not a one-shot recommendation — it is ongoing stage-by-stage coaching. Always ask where the advisor is in the process before starting, and jump to the relevant stage. Use the Powerful Seminars reference content (injected separately) for detailed coaching at each stage.",
+      "sequential": true,
+      "entry_triggers": [
+        "seminar",
+        "presentation",
+        "workshop",
+        "public speaking",
+        "want to present",
+        "run an event",
+        "putting together a talk",
+        "building a presentation",
+        "design a seminar",
+        "deliver a workshop",
+        "speaking event",
+        "client event",
+        "need to present",
+        "host a seminar",
+        "run a workshop",
+        "preparing a presentation",
+        "plan a seminar",
+        "organise an event",
+        "boot-camp",
+        "bootcamp",
+        "keynote",
+        "speaking engagement"
+      ],
+      "stage_entry_question": "Where are you in the process right now — just starting to design the content, already have content and preparing to deliver, or are you close to the event and working on logistics?",
+      "nodes": [
+        {
+          "id": "ps_stage1",
+          "branch_name": "Stage 1 — Design Foundation",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor is at the beginning of the design phase",
+          "question": "Before we build anything — who is your exact target audience, and what are the desired outcomes? Write them down before we go further. This is the most important step and the one most people skip.",
+          "action": "Do not move forward until the audience and outcomes are defined in writing. Writing forces clarity. A great design makes delivery easy.",
+          "notes": "Objective of any public speaking engagement: to position the speaker favourably so the audience would seek or confirm their decision to engage their services. Once outcomes are written, summarise them into principles, then select the single concept that best describes the content.",
+          "next_stage": 2
+        },
+        {
+          "id": "ps_stage2",
+          "branch_name": "Stage 2 — C.P.D. Content Structure",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor has defined audience and outcomes and is ready to build content structure",
+          "question": "Great — now let's build the content structure. What's the one overarching concept or theme for the whole session? Once you have that, we'll break it into principles and then into detail points.",
+          "action": "Guide them through the C.P.D. (Concept–Principle–Detail) hierarchy: 1. One overarching Concept. 2. Break into Principles (3–5). 3. Up to 3 Detail points per Principle. Limit Detail to 3 points to avoid overwhelming the audience.",
+          "notes": "Each Principle should explain how it relates to the Concept and why it matters before delivering Detail. End each Principle with 'where to from here' action steps. For full-day events, each module has its own C.P.D. but all concepts fit an overarching theme.",
+          "next_stage": 3
+        },
+        {
+          "id": "ps_stage3",
+          "branch_name": "Stage 3 — Audience Engagement & Learning Styles",
+          "type": "question",
+          "stage": 3,
+          "condition": "C.P.D. structure is outlined and advisor is considering how to engage the room",
+          "question": "How are you planning to keep the audience engaged? Have you thought about how different people in the room prefer to learn — some need proof and facts, others need time to reflect, some want to understand the logic first, others just want to get stuck in?",
+          "action": "Guide them to build in content and activities that speak to all four learning styles: Pragmatists (facts, case studies, testimonials), Reflectors (thinking time, note-taking), Theorists (logic, input, understanding why), Activists (hands-on, energising). Also prompt them to plan 'turn to the person next to you' breaks to maintain energy.",
+          "notes": "The brain can only absorb what the backside can endure. Break content into chunks. Use peer interaction to lift room energy when attendees seem flat. Be strong and directive when instructing audience breaks.",
+          "next_stage": 4
+        },
+        {
+          "id": "ps_stage4",
+          "branch_name": "Stage 4 — Event Planning & Timeline",
+          "type": "question",
+          "stage": 4,
+          "condition": "Content structure is finalised and advisor is planning the physical event",
+          "question": "Let's build your event timeline — the 5-6 week plan that gets everything done without a last-minute scramble. Do you have a venue confirmed and an invitation list ready?",
+          "action": "Walk through the 5-6 week plan: Week 1 confirm venue and MC. Week 2 send hardcopy 'First' invitation, build C.P.D. for all presenters. Week 3 invitations arrive, send 'Second' email invitation, presenters meet to align content. Week 4 first full rehearsal, phone contacts for RSVPs. Week 5 'Can't wait to see you' email, pack handouts and name tags. Week 6 final rehearsal, final reminder text. 30 days after: thank you email.",
+          "notes": "Always send TWO invitations — hardcopy first (stands out, creates tangibility), email second. Appoint an MC for housekeeping (agenda, breaks, phones, toilets) — these should NOT be covered by the platform speaker. Always capture attendee details in advance.",
+          "next_stage": 5
+        },
+        {
+          "id": "ps_stage5",
+          "branch_name": "Stage 5 — Delivery Style Selection",
+          "type": "question",
+          "stage": 5,
+          "condition": "Advisor is thinking about how to present — their style and approach",
+          "question": "What is your primary intent for this audience at each stage of your presentation — are you trying to inspire action, impart skills, share information, or solve problems together?",
+          "action": "Match delivery style to intent: Motivator (inspire action — use at opening), Coach (impart skills or instruct — use when authority is established), Educator (share information — structured, logical), Collegiate/Facilitator (solve problems together — use at close or for team sessions). You can jump between styles in a single presentation. The sequence is typically: Motivator to connect → Coach to position → Educator to deliver → Coach/Collegiate to close.",
+          "notes": "Each style has a different tone, pace, and non-verbal approach. The trick is to be consciously aware of which style you are using and why. Never stay in Educator mode too long — it becomes mono-tone. Always return to Motivator energy at the close.",
+          "next_stage": 6
+        },
+        {
+          "id": "ps_stage6",
+          "branch_name": "Stage 6 — Structuring the Rehearsal",
+          "type": "question",
+          "stage": 6,
+          "condition": "Advisor is preparing to rehearse and wants to structure the delivery",
+          "question": "Let's map out your rehearsal. There are 8 delivery steps that need to be practised in sequence — starting with your opening. Have you thought through your psychological prep and how you're going to connect with the room from the moment you walk on?",
+          "action": "Walk through the 8 delivery steps in order: 1. Psychological Preparation (intent, energy, presence). 2. Connect with the Audience (stance, voice, Universals/Truisms/Calling out the ghosts). 3. Honey & Mumford Relevance Statement (W.I.I.F.M. — speak to all 4 learning styles). 4. Describe the Concept/Theme. 5. Self Introduction (brief, punchy, under 1 minute). 6. Set the Scene (rules of engagement, PARK board). 7. Layout the Agenda. 8. Go to Work (3-way engagement, reveal content, use stories and activities).",
+          "notes": "There are no shortcuts. Follow 'get it down then get it good' — perfectionism causes writer's block. The Evolution Process: design first, then rehearsal refines feel and audience connection. Run at least 2-3 full rehearsals before the event.",
+          "next_stage": 7
+        },
+        {
+          "id": "ps_stage7",
+          "branch_name": "Stage 7 — Multi-Speaker Coordination",
+          "type": "question",
+          "stage": 7,
+          "condition": "There are multiple presenters or guest speakers involved",
+          "question": "With multiple presenters, the most important thing is that everyone understands the overarching C.P.D. structure before anyone prepares independently. Do all presenters have a clear single-page showing their Principles and Detail and how it connects to the whole?",
+          "action": "Establish a single-page C.P.D. layout for all presenters before anyone goes too far in preparation. First presenter frames the concept and introduces subsequent speakers. Middle presenters link to the first and introduce those following. End presenter summarises core principles (bullet points only) and gives a clear call to action and forward look. Presenters must meet to compare content and test anchors early.",
+          "notes": "The link between presenters doesn't need to be direct. Don't get frustrated if topics are varied — a creative bridge always works. Be wary of multiple presenters all playing the 4 Values W.I.I.F.M. back-to-back — it loses impact. If using a client as a guest speaker, brief them thoroughly and manage post-event enquiry through your office.",
+          "next_stage": 8
+        },
+        {
+          "id": "ps_stage8",
+          "branch_name": "Stage 8 — Final Logistics & Technical Check",
+          "type": "question",
+          "stage": 8,
+          "condition": "Event is 1 week out or day-of and final preparation is needed",
+          "question": "Have you tested the light and sound in the venue? Assume nothing works until you've tested it yourself. Have you walked the stage with the mic and had someone listen from the back of the room?",
+          "action": "Run through the full technical checklist: Walk the stage with the mic — speak loud and soft as you will on the day. Test for drop-out spots. Check mic type (unidirectional = hold at sternum level, body follows head). Check headset mic positioning and ensure belt-pack antennae hangs upside down. Check overhead lighting — covers the speaker, not the plants. Arrange seating so you can walk between attendees. Brief any sound operator on loud/quiet moments.",
+          "notes": "Do not do a cursory 'testing 123' and walk off. Speak the full range as you will in the actual presentation. Always have a back-up mic. Make sure the venue matches the theme and ambition of the event. Handouts should include full contact details for all presenters at front or back. Refreshments help slow the pace and create networking opportunities.",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "trial_fit",
+      "name": "Trial Fit Method — Revenue Model Presentation",
+      "mode": "learn",
+      "sequential": true,
+      "description": "A staged coaching approach for advisors learning how to introduce a revenue model to a client who already has high awareness or motivation. Coaches through 5 stages: framing, overview, interaction, assumptions testing, and homework.",
+      "stage_entry_question": "Where are you in the Trial Fit process right now — are you about to introduce the model for the first time, already in a session and wanting to know what to do next, or preparing to reconvene after assigning homework?",
+      "entry_triggers": [
+        "trial fit",
+        "revenue model",
+        "revenue modelling",
+        "financial model",
+        "tailored suit",
+        "off the rack",
+        "get it down then get it good",
+        "outlandish number",
+        "cash forecast",
+        "scenario model",
+        "scenario modelling",
+        "profit model",
+        "business feasibility",
+        "fittings",
+        "map shock",
+        "introduce a model",
+        "show a model",
+        "present a model",
+        "client model",
+        "revenue forecast",
+        "business model session",
+        "flawed assumptions"
+      ],
+      "nodes": [
+        {
+          "id": "tf_stage1",
+          "branch_name": "Stage 1 — Priming and Framing",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor is about to introduce the revenue model to a motivated client for the first time",
+          "question": "Before we get into the model itself — have you framed the session for the client yet? The tailored suit metaphor is the critical first move. Have you introduced that idea, or are you still at the pre-meeting stage?",
+          "action": "Coach the advisor to open with the tailored suit metaphor: 'Think of this like buying a suit off the rack — it fits reasonably well from the start, but it will need a few fittings before it's perfect.' This sets realistic expectations, creates permission for imperfection, and explains why starting with a baseline saves significant time and cost. Reinforce the 'get it down, then get it good' principle — no hunting for exact data today, best guesses are the starting point.",
+          "notes": "Even motivated clients may still experience map shock. Never skip the framing stage, regardless of the client's enthusiasm level. The metaphor is the psychological foundation for everything that follows.",
+          "next_stage": 2
+        },
+        {
+          "id": "tf_stage2",
+          "branch_name": "Stage 2 — Global Overview",
+          "type": "question",
+          "stage": 2,
+          "condition": "Framing is done and advisor is ready to show the client the model",
+          "question": "Good. Now for the global overview — have you shown the client the big picture of what the model contains? The goal here is speed, not detail. What pages or sections are in the model you're working with?",
+          "action": "Coach the advisor to give a quick tour of the model's pages — what each section does (job types, revenue tracking, wage and capacity, materials, etc.) — without lingering on any individual cell or formula. Keep it moving. The purpose is to give the client a mental map so they are not bewildered when you drop into a specific section. Avoid explaining anything in depth here — that is not the goal of this stage.",
+          "notes": "Map shock often happens at this stage if the advisor lingers too long. Move through the overview quickly and confidently. The client does not need to understand the detail yet — they just need to know the tool exists and roughly what it contains.",
+          "next_stage": 3
+        },
+        {
+          "id": "tf_stage3",
+          "branch_name": "Stage 3 — Getting Them in the Water",
+          "type": "question",
+          "stage": 3,
+          "condition": "Global overview is complete and it's time to get the client interacting with the model",
+          "question": "Now we get them in the water. Have you picked a specific section to drop into — one where you can ask the client for a best guess on a number? What section are you thinking, and what question will you ask them?",
+          "action": "Coach the advisor to immediately drop down to a specific, easy-to-interact-with section and ask the client for a best guess: 'How many hours would your team typically spend on X?' or 'What's your rough estimate for Y?' Use outlandish numbers if needed — e.g. $263,000 for a build that should cost $80,000 — to show the model reacts dynamically without pressure to find real data. Each change the client makes builds familiarity and ownership. Never stop to chase exact figures at this stage.",
+          "notes": "The outlandish number technique is deliberate — it removes the emotional pressure of accuracy and shows the model working in an obviously conceptual way. The client realises: this is about understanding how it works, not getting it right yet. That realisation is the goal of this stage.",
+          "next_stage": 4
+        },
+        {
+          "id": "tf_stage4",
+          "branch_name": "Stage 4 — Testing Assumptions Against Reality",
+          "type": "question",
+          "stage": 4,
+          "condition": "Conceptual numbers are in and it's time to compare them against actual performance",
+          "question": "Now for the revealing part — comparing the guesses against actual financial performance. Have you pulled up the real numbers to put next to the estimates? What gap are you seeing — and what do you think it's telling the client about how they've been making decisions?",
+          "action": "Coach the advisor to compare the client's inputted estimates against actual financial performance data. If there is a large gap, frame it constructively: 'The model is showing us something interesting here — the assumptions you've been using for pricing/hiring/quoting may not be reflecting what's actually happening in the numbers.' Use this to run scenarios: what happens if productivity adjusts from 85% to 92%? What charge-out rate is actually needed to break even? Common findings: uncharged overtime, paid wet days not factored into rates, unbillable hours dragging profitability.",
+          "notes": "This is the most powerful moment in the session — the 'aha' where the client realises their everyday assumptions are disconnected from reality. Handle it with care — it can feel confronting. Frame as discovery, not criticism.",
+          "next_stage": 5
+        },
+        {
+          "id": "tf_stage5",
+          "branch_name": "Stage 5 — Homework and Tailoring",
+          "type": "question",
+          "stage": 5,
+          "condition": "Initial session is wrapping up and it's time to set the client up for the next meeting",
+          "question": "Last stage — setting them up with homework. Have you given them a clear brief on what to do with the model between sessions? What do you want them to come back with?",
+          "action": "Coach the advisor to assign focused homework: ask the client to 'have a bit of a play with the model' and reflect on four things: (1) What data can they actually measure in their business? (2) What data matters most to their decisions? (3) How would knowing specific answers improve their decision-making? (4) Is the data actionable — would they actually bother tracking it? When they reconvene, use their feedback to guide the final tailoring — modify the model to fit their strategic planning needs precisely. The more the client contributes, the more ownership they take.",
+          "notes": "Do not do the data work for them. The client finding and inputting their own data is what converts them from a passive observer to an active owner of the model. Multiple sessions are inherent to this method — do not try to complete everything in one meeting.",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "cautious_reveal",
+      "name": "Cautious Reveal Method — Introducing Revenue Models to Resistant Clients",
+      "mode": "learn",
+      "sequential": true,
+      "description": "A staged coaching approach for advisors learning how to introduce the idea of a revenue model to a client who has low awareness or motivation. Works by establishing the 'why' before showing any complexity, using unrelated industry examples and a deliberate time gap before revealing the client's own model.",
+      "stage_entry_question": "Where are you in the Cautious Reveal process right now — are you preparing for a meeting with a client who hasn't heard of revenue modelling before, are you in the concept anchoring stage, or have you already introduced the idea and are now ready to show them more?",
+      "entry_triggers": [
+        "cautious reveal",
+        "overtrading",
+        "profit sweet spot",
+        "phils a plumber",
+        "phil's a plumber",
+        "plumber video",
+        "teaser model",
+        "low motivation",
+        "low awareness",
+        "not interested in models",
+        "resistant client",
+        "buying signal",
+        "unrelated industry",
+        "entry level model",
+        "break even model",
+        "time gap",
+        "mental ownership",
+        "concept anchoring",
+        "fee resistant model",
+        "client not engaged",
+        "how do i introduce",
+        "where do i start with models"
+      ],
+      "nodes": [
+        {
+          "id": "cr_step1",
+          "branch_name": "Step 1 — Pre-Meeting Outreach",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor is preparing for a meeting with a low-awareness client and wants to warm them up beforehand",
+          "question": "Before the meeting — have you considered sending anything to warm the client up to the idea beforehand? What's the client situation — is this a regular compliance review, or do you have a specific reason for wanting to introduce modelling?",
+          "action": "Coach the advisor to use the 'Phil's a plumber' video as pre-meeting outreach — send it via email before the meeting to frame the concept of why a business would need a model. To find it in the platform: Get the Job → search 'video' → select Video Hyperlinks. Alternatively, a brief priming email works: 'One thing I'd like to explore with you this time is how some of our clients are making better decisions with a simple modelling tool.' Pre-meeting outreach is optional but highly effective when you know the client has zero awareness.",
+          "notes": "If the meeting is already happening now or tomorrow, skip this step and start from Step 2. Pre-meeting outreach only applies when there is lead time before the meeting.",
+          "next_stage": 2
+        },
+        {
+          "id": "cr_step2",
+          "branch_name": "Step 2 — Concept Anchoring",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor is in the meeting and wants to introduce the concept of modelling without opening a spreadsheet",
+          "question": "In the meeting — how are you planning to open the revenue model conversation? The key is to establish the 'why' before showing anything. Have you thought about how you'll introduce the overtrading concept and the profit sweet spot?",
+          "action": "Coach the advisor to open with a question: 'Have you heard the term overtrading before?' Then use a simple visual aid (whiteboard sketch or printed diagram) to explain the profit sweet spot — the ideal operating level where a business is profitable without excessive risk. Explain overtrading: growing too fast, funding it through debt, taking on costs before guaranteed demand, ending up less profitable than before. Let the client feel the uncertainty: 'How much would be required? What are the chances it works? How many extra customers just to break even?' The goal is for the client to feel the problem, not just hear about it.",
+          "notes": "Do not open a spreadsheet at this stage. No models, no numbers from their business. Concepts only. This is the foundational step — if the client does not feel the problem, the rest of the strategy has nothing to build on.",
+          "next_stage": 3
+        },
+        {
+          "id": "cr_step3",
+          "branch_name": "Step 3 — Unrelated Industry Story",
+          "type": "question",
+          "stage": 3,
+          "condition": "Client understands the overtrading concept and is ready to see how a model helps",
+          "question": "Now you want to show them how a model solves that problem — but using a completely different industry. Have you got an unrelated industry story ready? The cafe owner is a classic one. What industry does your client work in, so I can suggest the best contrast?",
+          "action": "Coach the advisor to use a story set in a completely different industry from the client's own. Classic example: a cafe owner who is lean and profitable at current scale, wants to expand — how do they know if it's actually worth it? Keep the client focused on the underlying logic, not on mapping it to their own numbers. Ask: 'Does that scenario make sense? Can you see how that applies to any business trying to grow?' Let them arrive at the connection themselves — do not force it.",
+          "notes": "The unrelated industry is deliberate. The moment you use their own industry, the client immediately starts analysing their own business — which hijacks the conceptual conversation and risks premature judgment. Keep it unrelated until after the teaser model stage.",
+          "next_stage": 4
+        },
+        {
+          "id": "cr_step4",
+          "branch_name": "Step 4 — Teaser Model",
+          "type": "question",
+          "stage": 4,
+          "condition": "Client understands the concept through the unrelated story and is ready for a simple demonstration",
+          "question": "Time for a small taste of how the model works. What type of business does your client run — product/sales-based, or hours-based (trades, construction, professional services)? That will determine which entry-level model to use.",
+          "action": "For product or sales-based businesses: use a simple break-even model with the unrelated industry example. E.g. 'How many extra coffees does the cafe need to sell each day just to cover the cost of the new staff member?' Show the maths simply — one variable, one output. For hours-based businesses: use a simple wages model. Show how quickly profitability disappears when sick leave, downtime, and unbillable hours are factored in. Keep it simple — one meaningful insight only. Watch and listen for buying signals: 'Yes, that's really useful' or 'That's kind of intriguing.' A buying signal means you can move to the complex model flash.",
+          "notes": "Less is more at this stage. One clear insight is more powerful than a full demonstration. If the client is not yet engaged after the teaser, go back to the concept anchoring — probe their situation, find the angle that resonates for them specifically.",
+          "next_stage": 5
+        },
+        {
+          "id": "cr_step5",
+          "branch_name": "Step 5 — Complex Model Flash",
+          "type": "question",
+          "stage": 5,
+          "condition": "Client has given a positive buying signal and is ready to see what a full model looks like",
+          "question": "You've got a buying signal. Now the complex model flash — briefly opening a fully built model to show the power, without explaining any detail. Have you got a built example from an unrelated industry ready to show? What does it look like?",
+          "action": "Open a fully built complex industry model briefly — still using an unrelated industry. Show how multiple variables work together dynamically: marketing costs, customer types, seasonal patterns, staffing, pricing. Keep it strictly high-level. Suggested framing: 'This is what a fully built version looks like for a hospitality business. You can see how changing one variable — like the number of seatings — flows through everything else.' Then close it. Do not explain individual cells or formulas. The goal is a 'wow' moment of curiosity, not understanding.",
+          "notes": "Only move here after a buying signal. Do not flash the complex model out of eagerness if the client is still uncertain. Brevity is intentional — you want curiosity, not overwhelm. Close it before the client has time to start asking granular questions.",
+          "next_stage": 6
+        },
+        {
+          "id": "cr_step6",
+          "branch_name": "Step 6 — Propose Trial Fit and Create a Time Gap",
+          "type": "question",
+          "stage": 6,
+          "condition": "Client is engaged and it's time to secure agreement and book the next meeting",
+          "question": "Last step — securing agreement and creating the time gap. How are you planning to close this conversation and propose the next meeting? Have you thought about how to frame the proposal without opening their model today?",
+          "action": "Ask: 'Can you see the value of having something like this built specifically for your business — for decisions like hiring, equipment, or planning your growth?' If they say yes — do NOT open their model in this meeting. Explain: 'What I'd like to do is prepare a version for your business and walk you through it properly in our next session.' Enforce the time gap deliberately — the client needs time to take mental ownership of the idea before seeing their own complex data. The second meeting is run using the Trial Fit method.",
+          "notes": "Skipping the time gap and showing the client their own model in the same meeting is one of the most common mistakes advisors make. The gap is not a delay — it is a psychological necessity. Without it, the client has not had time to want the model yet, and map shock risk is high. The Cautious Reveal ends here; the next meeting begins the Trial Fit.",
+          "next_stage": null
+        }
+      ]
+    }
+
+  ]
+}

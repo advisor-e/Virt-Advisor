@@ -11,8 +11,9 @@ const fs = require('fs')
 const path = require('path')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
-const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
+const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
+const { detectLogicTree, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt } = require('../server/utils/logicTrees')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -109,6 +110,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     includeGrowthStage = null,
     includeSectionDesc = false,
     advisorProfile = null,
+    logicTree = null,
     maxTemplates = 25
   } = options || {}
 
@@ -117,7 +119,6 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const templatesToUse = relevant.length > 0 ? relevant : orgTemplates.slice(0, maxTemplates)
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = includeCoaching ? formatCoachingForPrompt() : null
-  const summariesText = includeSummaries ? formatSummariesForPrompt(filterSummariesByQuery(searchQuery, 10)) : null
   const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
   const growthText = includeGrowthStage
     ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }])
@@ -126,6 +127,27 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}`
     : ''
 
+  // Build summaries: keyword match + tree terminal-node templates (merged, de-duped, capped at 25)
+  let summariesText = null
+  if (includeSummaries) {
+    const querySummaries = filterSummariesByQuery(searchQuery, 12)
+    const treeTemplateNames = logicTree
+      ? logicTree.nodes.filter(n => n.type === 'recommendation').flatMap(n => n.templates || [])
+      : []
+    const treeSummaries = getSummariesForTemplateNames(treeTemplateNames)
+    const summaryMap = new Map()
+    for (const s of [...querySummaries, ...treeSummaries]) {
+      if (!summaryMap.has(s.name)) summaryMap.set(s.name, s)
+    }
+    const summariesToUse = Array.from(summaryMap.values()).slice(0, 25)
+    summariesText = summariesToUse.length > 0
+      ? `## Do the Job Content Summaries (${summariesToUse.length} most relevant)\n\nUse these for Phase 3. Each entry contains: Purpose, When to use, Helps the owner, Helps the advisor.\n\n` + formatSummariesForPrompt(summariesToUse)
+      : null
+  }
+
+  // Logic tree — diagnostic pathway that led to this situation
+  const logicTreeText = logicTree ? formatLogicTreeForPrompt(logicTree) : null
+
   return [
     `## Available Templates (${templatesToUse.length} most relevant)`,
     '',
@@ -133,7 +155,8 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     sectionDescText ? '\n---\n\n' + sectionDescText : '',
     coachingText ? '\n---\n\n## Coaching Reference\n\n' + coachingText : '',
     growthText ? '\n---\n\n' + growthText : '',
-    summariesText ? '\n---\n\n## Template Summaries\n\n' + summariesText : ''
+    summariesText ? '\n---\n\n' + summariesText : '',
+    logicTreeText ? '\n---\n\n' + logicTreeText : ''
   ].filter(Boolean).join('\n') + profileText
 }
 
@@ -730,8 +753,10 @@ ${formatFinMgtTable()}`
       ? `\n\nIMPORTANT: Always respond entirely in ${languageName}.`
       : ''
 
+    const matchedTree = detectLogicTree(firstMsg)
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: true,
+      logicTree: matchedTree,
       includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
       includeSectionDesc: true,
       maxTemplates: 40
@@ -859,6 +884,27 @@ ${formatFinMgtTable()}`
   // Case studies are only relevant in client and discover modes
   const caseSummariesText = (mode === 'client' || mode === 'discover') ? formatCaseSummaries(caseContext) : null
 
+  // Learn mode logic trees — detect from conversation for sales_process and public_speaking trees
+  let learnSalesTreeText = null
+  if (mode === 'learn') {
+    const allLearnMessages = [...trimmedHistory.map(m => m.content), query].join(' ')
+    const learnTree = detectLogicTree(allLearnMessages)
+    if (learnTree && learnTree.mode === 'learn') {
+      learnSalesTreeText = formatLogicTreeForPrompt(learnTree)
+      // Inject companion reference content for sequential coaching trees
+      if (learnTree.id === 'public_speaking') {
+        const seminarsRef = formatSeminarsReferenceForPrompt()
+        if (seminarsRef) learnSalesTreeText += '\n\n---\n\n' + seminarsRef
+      } else if (learnTree.id === 'trial_fit') {
+        const trialFitRef = formatTrialFitReferenceForPrompt()
+        if (trialFitRef) learnSalesTreeText += '\n\n---\n\n' + trialFitRef
+      } else if (learnTree.id === 'cautious_reveal') {
+        const cautiousRevealRef = formatCautiousRevealReferenceForPrompt()
+        if (cautiousRevealRef) learnSalesTreeText += '\n\n---\n\n' + cautiousRevealRef
+      }
+    }
+  }
+
   // Include Growth Fundamentals reference once the advisor has selected a growth stage
   const includeGrowth = mode === 'client' && conversationHasGrowthStage(trimmedHistory)
   const growthText = includeGrowth ? formatGrowthFundamentalsForPrompt(trimmedHistory) : null
@@ -879,13 +925,16 @@ ${formatFinMgtTable()}`
     advisorProfileText
       ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. Reference the profile below in your recommendation exactly as you would answers given in conversation.\n\n' + advisorProfileText
       : '',
-    caseSummariesText ? '\n---\n\n' + caseSummariesText : ''
+    caseSummariesText ? '\n---\n\n' + caseSummariesText : '',
+    learnSalesTreeText ? '\n---\n\n' + learnSalesTreeText : ''
   ].join('\n')
 
   // PHASE 2 INTERCEPT — fires before the AI runs.
   // If a profile exists and the last AI message was a Phase 2 question, return a
   // hardcoded bridge response directly — AI never runs for this turn.
-  if (advisorProfileText && trimmedHistory.length > 0) {
+  // Only applies to client/discover modes — never learn/plan (those modes ask different
+  // questions that would otherwise match Phase 2 patterns and short-circuit the conversation).
+  if (advisorProfileText && trimmedHistory.length > 0 && (mode === 'client' || mode === 'discover')) {
     const lastAssistant = [...trimmedHistory].reverse().find(m => m.role === 'assistant')
     const phase2Patterns = [
       'how long have you been delivering',

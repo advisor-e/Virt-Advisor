@@ -1,0 +1,189 @@
+{
+  "version": "1.0",
+  "description": "Reference content for seminar and presentation coaching. Use alongside the public_speaking logic tree when advising advisors on designing and delivering seminars, workshops, or presentations.",
+  "objective": "To position the speaker favourably in the mind of the audience such that they would seek or confirm their decision to have that speaker deliver strategic services to their business.",
+  "core_principle": "Design first, delivery second. A great design makes delivery easy. Many presentations suffer poor delivery because of poor design.",
+
+  "stages": [
+    {
+      "stage": 1,
+      "name": "Design Foundation",
+      "key_principle": "Do not move forward until target audience and desired outcomes are defined in writing. Writing forces clarity. A great design makes delivery easy.",
+      "coaching_points": [
+        "Who exactly is the target audience? Be specific — not 'business owners' but 'owner-operators of trades businesses turning over $500k–$2m'.",
+        "What are the desired outcomes? Write them down. This forces clarity over both design and content.",
+        "The objective of any public speaking engagement: to position the speaker favourably so the audience would seek or confirm a decision to engage their services.",
+        "Once outcomes are defined, summarise them into principles, then select the single concept that best describes the content."
+      ]
+    },
+    {
+      "stage": 2,
+      "name": "Core Content Structure — C.P.D. Hierarchy",
+      "key_principle": "Structure all content using the C.P.D. (Concept–Principle–Detail) hierarchy. Limit detail to 3 key points per principle to avoid overwhelming the audience.",
+      "coaching_points": [
+        "Concept: The single overarching theme. Example: 'Growing a More Profitable Business'.",
+        "Principles: The 3–5 supporting pillars that break down the concept. Each principle explains why it matters before delivering detail.",
+        "Detail: Up to 3 key points per principle. These should be summarised before stating the 'where to from here' action steps.",
+        "For full-day workshops, think in modules. Each module has its own C.P.D. structure, but each concept fits within an overarching theme.",
+        "Plan content order and speakers around natural breaks (morning tea, lunch, afternoon tea) for multi-speaker events.",
+        "Use the Design Summary Table: Target Audience → Desired Outcomes → Presenter Order → Concept/Content → Principle (Why) → Detail (Remember)."
+      ],
+      "cpd_example": {
+        "concept": "Scuba Diving Safely",
+        "principles": ["Being physically fit to dive", "Using the best equipment you can afford", "Knowing your dive area"],
+        "detail_example": "For 'Being physically fit to dive': Be able to run a sub-4 minute mile and why/how... Be able to complete 400 push-ups and why/how... Be able to get wetsuit over beer-pot and why/how..."
+      }
+    },
+    {
+      "stage": 3,
+      "name": "Audience Engagement & Learning Styles",
+      "key_principle": "The brain can only absorb what the backside can endure. Build in breaks, movement, and peer interaction. Design content to speak to all four learning styles.",
+      "coaching_points": [
+        "Pragmatists — require proof: use facts, figures, testimonials, and case studies.",
+        "Reflectors — need time to think: direct them to take a moment and write down their thoughts.",
+        "Theorists — need to understand why: ask for their input, explain logic and reasoning before moving on.",
+        "Activists — keep it energising: hands-on activities, get them actively involved.",
+        "Use 'turn to the person next to you and discuss X for 45 seconds — go!' to create energy and maintain attention. Be strong and directive when giving this instruction.",
+        "Each principle should explain how it relates to the concept and why it matters before delivering the detail.",
+        "End each principle with 'where to from here' action steps to maintain active involvement."
+      ]
+    },
+    {
+      "stage": 4,
+      "name": "Event Planning & Timeline",
+      "key_principle": "Plan the event over 5–6 weeks minimum. Work backwards from the session date. Assign clear responsibilities for invitations, registrations, and logistics.",
+      "coaching_points": [
+        "Week 1: Confirm session date, secure venue, appoint MC, assign invitation coordinator, agree on invitation style and wording.",
+        "Week 2: Develop C.P.D. structure for all presenters. Send 'First' invitation (hardcopy letter/card) to targets and existing clients. Develop attendance registrar.",
+        "Week 3: First invitations received. Presenters meet to compare content and test 'anchors'. Second invitation email drafted and ready.",
+        "Week 4: Send 'Second' invitation email. Phone centre-of-influence contacts. First full rehearsal for all presenters.",
+        "Week 5: Send 'Can't wait to see you' email to all who have accepted — include directions, time, what's provided, lucky draw number. Prepare name tags, handout packs, feedback forms.",
+        "Week 6: Final reminder text message. Second and final full rehearsal. Put on a show!",
+        "30 days after: Send 'Thank you for your attendance' email. Include names, photos, and contact details of presenters and topics covered. Advise of future contact.",
+        "Two-invitation rule: Always send a hardcopy 'First' invitation followed by an email 'Second' invitation. The hardcopy creates tangibility and stands out.",
+        "Appoint an MC (Master of Ceremonies) for housekeeping — agenda intro, breaks, refreshment rules, toilets, phones off. The MC covers these, NOT the platform speaker.",
+        "Always capture attendee details prior. Have a registration book and name tag station at the entrance if opened to the public."
+      ],
+      "broad_timeline_notes": "For a full seminar series, allow 6–8 months: July–August for fee growth plans and communication planning; September for COI agreements and testing sessions (e.g. a Power Lunch); November–January for rehearsals; February for the live event."
+    },
+    {
+      "stage": 5,
+      "name": "Delivery Style Selection",
+      "key_principle": "Choose your primary delivery style based on your intent for the audience. You can — and should — jump between styles depending on the segment. Be consciously aware of which style you are using and why.",
+      "styles": [
+        {
+          "style": "Motivator",
+          "use_when": "To inspire action or connect emotionally at the opening",
+          "characteristics": "More rapid verbal pace, vivid non-verbal gestures, strength positions rather than submissive, frequent calls to action using 'royal we'. Relationship with audience is not yet close at individual level.",
+          "frame": "Why Frame — Why This, Why Now, Why You, Why Me. 4 Values W.I.I.F.M."
+        },
+        {
+          "style": "Coach",
+          "use_when": "To impart specific skills or during key instructional moments when you have authority",
+          "characteristics": "More guttural and power-based tone. Direct and instructional. Strong relationship or hierarchy position has been established. Earns the right to be direct.",
+          "frame": "What Frame — how you work together today"
+        },
+        {
+          "style": "Educator",
+          "use_when": "To deliver information, knowledge, or process",
+          "characteristics": "More content-based than feeling-based. Logical structure to explain key facets. Uses data, charts, graphs, models. Presenter answers rather than asks questions. Can be mono-tone if not careful — keep energy up.",
+          "frame": "How Frame — practice, skills, information, common sense learning"
+        },
+        {
+          "style": "Collegiate / Facilitator",
+          "use_when": "To solve team problems, develop new initiatives, or close with a call to action",
+          "characteristics": "Two equals sharing a problem or opportunity. Equal standing, both willing contributors. Softer tones and non-verbal language. Facilitator asks questions — emphasis on soft fact questions (opinions). Engages attendees in contemplation.",
+          "frame": "What If / What's Next frame — facilitate options and consequences",
+          "group_size": "Ideal 5–9 participants depending on compatibility"
+        }
+      ],
+      "delivery_circle": "1. Connect & Engage (Motivator) → 2. Position & Set the Scene (Coach) → 3. Deliver (Educator) → 4. Call to Action & Close (Coach & Collegiate)"
+    },
+    {
+      "stage": 6,
+      "name": "Structuring the Rehearsal — 8 Delivery Steps",
+      "key_principle": "There are no shortcuts. Follow 'get it down then get it good' — don't let perfectionism create writer's block. Rehearse the full sequence in order.",
+      "eight_steps": [
+        {
+          "step": 1,
+          "name": "Psychological Preparation",
+          "guidance": "What is your intent? Are you present in the moment — is your ego in check? Summon the appropriate level of energy for your audience and content. Make sure tone, pace, posture, and facial expressions match each stage appropriately."
+        },
+        {
+          "step": 2,
+          "name": "Connect with the Audience",
+          "guidance": "Start strong but not necessarily loud — it's about connection. Physical stance and posture of confidence (professional, not arrogant). Voice tone of authority from diaphragm, not back of throat. Connect via Universals (shared experiences everyone can relate to), Truisms (indisputable facts verifiable in the here and now), or Calling Out the Ghosts (preempting negative thoughts or concerns the audience may hold)."
+        },
+        {
+          "step": 3,
+          "name": "Honey & Mumford Relevance Statement (W.I.I.F.M.)",
+          "guidance": "State how your concept relates to their lives/business in a 'What's in it for me' statement. Support by appealing to all four learning styles in their language — facts for Pragmatists, reflection time for Reflectors, input and logic for Theorists, energy and action for Activists. Then use a 'turn to the person next to you' moment to activate the room."
+        },
+        {
+          "step": 4,
+          "name": "Describe the Concept / Overall Theme",
+          "guidance": "Define the concept clearly. Example: 'This boot-camp can be defined as winning business because it's all about positively achieving new business for you and your practice.' Explain the background and how you came to be presenting today."
+        },
+        {
+          "step": 5,
+          "name": "Complete Your Self Introduction",
+          "guidance": "Professional and personal perspective. Keep it relevant, punchy, and brief. Longer than 1 minute starts to sound egotistical. They'll learn more about you through stories throughout the presentation."
+        },
+        {
+          "step": 6,
+          "name": "Set the Scene",
+          "guidance": "Establish the guidelines for how things work. Explain what's expected of attendees, how they should engage with you and each other. Introduce the PARK board if needed for off-topic questions."
+        },
+        {
+          "step": 7,
+          "name": "Layout the Agenda",
+          "guidance": "Clearly state what will be covered and when. This sets expectations and builds trust that the session is well-organised."
+        },
+        {
+          "step": 8,
+          "name": "Go to Work — Deliver",
+          "guidance": "Deliver principles and detail in a manner that creates 3-way engagement: You to Audience, Audience to Audience, Audience to You. Use stories, activities, humour, visual aids. Reveal content — don't just dump it. Encourage brief notes and reflection time. Draw out quiet attendees. Challenge thinking within boundaries. The easiest way to lift a disengaged room is to get attendees to connect with each other — create noise in the room."
+        }
+      ]
+    },
+    {
+      "stage": 7,
+      "name": "Multi-Speaker Coordination",
+      "key_principle": "All presenters must understand the overarching C.P.D. structure before anyone prepares independently. Get a single-page layout showing each person's Principles and Detail before going too far.",
+      "coaching_points": [
+        "Opening presenter: Frame the concept fully. Introduce subsequent speakers and explain how their content connects to yours.",
+        "Middle presenters: Link your material to the first presenter's content. Introduce those presenting after you. The link doesn't need to be direct — even a stretch works.",
+        "End presenter: Summarise the core concept by re-telling the audience the key principles (bullet points only). Tell them what to expect going forward. Invite them to the next session. Indicate follow-up but without pressure.",
+        "If using an existing client as guest speaker: Properly introduce them, explain how their experience relates to the concept, clarify their level of involvement after the event, and direct post-event enquiries via your office.",
+        "Presenters should meet to compare content, test 'anchors', and identify videos or comedy breaks early. Establish exactly who covers what before rehearsals begin.",
+        "Be wary of over-playing the 4 Values W.I.I.F.M. back-to-back across presenters."
+      ]
+    },
+    {
+      "stage": 8,
+      "name": "Final Logistics & Technical Check",
+      "key_principle": "Assume nothing works until tested. Check everything — light, sound, staging, seating layout — in advance. Do not do a cursory 'testing 1-2-3' and walk off.",
+      "coaching_points": [
+        "Walk the full stage with the microphone. Get someone to listen from the back of the room. Speak both loud and soft as you will during the actual presentation.",
+        "Many handheld mics are unidirectional — they only pick up from the front. Test by rotating the mic sideways. Imagine it is a torch: the beam needs to point at your face. Hold at sternum level.",
+        "For headset mics: check if unidirectional, position correctly near face. Make the belt-pack antennae hang upside down so the aerial won't get bent.",
+        "Overhead lighting: ensure it covers you, not the plants. Have front and rear lighting so you don't look overshadowed. Never blind the audience or yourself.",
+        "Seating/table layout: arrange so you can walk between attendees and work the stage without turning your back to the room.",
+        "If a permanent sound operator is available, brief them on loud and quiet moments and give them cues.",
+        "Make sure the venue matches the theme. Don't use a cheap venue if you're trying to impress.",
+        "Handouts: include full contact details and presenter names with topics at front or back. Always bring more than you need.",
+        "Refreshments slow the pace of attendees and make pre- and post-session networking easier. Speakers should meet people before the event — it helps get into state and provides last-minute audience intelligence.",
+        "All staff must know their roles and practise engaging. Approaching people after a seminar requires preparation — opportunity walks out the door while you're building confidence."
+      ]
+    }
+  ],
+
+  "additional_guidance": {
+    "call_to_action": "The call to action must be clear and rooted in the heart of your design from the very beginning. Do not bolt it on at the end.",
+    "venue_match": "Make sure the venue matches the theme and ambition of your presentation.",
+    "design_vs_delivery": "Always focus on design first, delivery second. The Evolution Process starts with design; delivery rehearsal then provides insights into feel and audience connection.",
+    "three_way_engagement": "Aim for three-way engagement throughout: You to Audience, Audience to Audience, Audience back to You.",
+    "energy_technique": "The simplest way to lift a flat room: direct the audience to 'turn to the person next to you and discuss X for 45 seconds — go!' Be strong and clear in the direction.",
+    "writing_discipline": "Define objectives in writing at every stage. Written objectives provide guidance over tactics for both organising and presenting."
+  }
+}

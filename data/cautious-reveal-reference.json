@@ -1,0 +1,124 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on the Cautious Reveal Method — a layered strategy for introducing revenue models to clients with low initial awareness or motivation.",
+  "objective": "To introduce the concept and value of a revenue model to a client who is not yet aware of or motivated by the idea — gradually building curiosity and buy-in before revealing complexity.",
+  "core_principle": "Establish WHY they need the model before showing them WHAT it contains. Concepts before complexity. Never show a client their own model until they have mentally owned the idea.",
+
+  "why_advisors_use_revenue_models": {
+    "summary": "Revenue models are not just delivery tools — they are authority-building and confidence-building instruments. Understanding why they work helps advisors use them with conviction, especially when facing a client who is not yet sold on the idea.",
+    "benefits": [
+      "Shifts the burden of proof from the advisor's personal credibility to objective, data-driven scenarios — particularly valuable for newer or less experienced advisors",
+      "Acts as a neutral proof point during initial consultations — the model validates the opportunity, not the advisor",
+      "Aligns expectations between advisor and client by quantifying exactly how specific variables (margin, customer numbers, turnaround times) impact total growth",
+      "Quantifies the opportunity in tangible numbers — e.g. identifying $70,000 to $90,000 in potential growth makes the case far more compelling than any verbal pitch",
+      "Motivates client action — when business owners can see the numbers show growth is possible, they are far more likely to follow through on recommended actions",
+      "Allows accurate pricing of advisory services based on the projected financial improvements identified in the model"
+    ],
+    "key_script": "When presenting the model's projections, use this framing to build confidence without overpromising: 'I'm not saying it'll be easy, just suggesting the numbers say it's possible.'",
+    "advisor_confidence_note": "If the advisor feels uncertain about presenting a model, remind them: the model does the heavy lifting. Their job is to facilitate the conversation, not to personally guarantee the numbers. The model is the proof point — they are the guide."
+  },
+
+  "when_to_use": {
+    "client_profile": "Low initial awareness or motivation regarding revenue models. The idea hasn't occurred to them, or they are fee-sensitive and would resist an upfront pitch.",
+    "typical_scenarios": [
+      "Standard end-of-year compliance review — no existing advisory relationship on modelling",
+      "Client has no awareness of what a revenue model is or does",
+      "Client would experience map shock if shown a complex model immediately",
+      "You want to seed the idea of modelling during a routine meeting without making it a formal sales pitch"
+    ],
+    "contrast_with_trial_fit": "Trial Fit is for clients who are already motivated and just need to be introduced to the model itself. Cautious Reveal is for clients who need to be sold on the idea first — before any model is opened."
+  },
+
+  "steps": [
+    {
+      "step": 1,
+      "name": "Pre-Meeting Outreach",
+      "key_principle": "Warm the client up to the concept before they sit down with you. If they arrive at the meeting already curious, the conversation starts from a much better position.",
+      "coaching_points": [
+        "Send the 'Phil's a plumber' video via email before the meeting, or use it as part of an introductory quiz format.",
+        "The video tells the story of a client trying to make strategic decisions (buy new equipment vs hire staff) and demonstrates the practical value of having a model — without showing a spreadsheet.",
+        "To find the video in the platform: Go to Get the Job → search 'video' → select 'Video Hyperlinks' → find Phil's a plumber.",
+        "Pre-meeting outreach is optional but highly effective when you know the client has low awareness. It primes the conversation so you are not starting from zero.",
+        "Even without the video, you can prime the conversation with a brief email: 'One of the things I'd like to explore with you this time is how some of our clients are making better decisions with a simple modelling tool — looking forward to showing you.'"
+      ]
+    },
+    {
+      "step": 2,
+      "name": "Concept Anchoring — The Why",
+      "key_principle": "Open with a concept, not a spreadsheet. Get the client thinking about the risk of growing the wrong way before any numbers are shown.",
+      "coaching_points": [
+        "Ask: 'Have you heard the term overtrading before?' — this opens the conversation without immediately showing data.",
+        "Use a visual aid (whiteboard, printed diagram, or simple sketch) to explain the 'profit sweet spot' — the ideal operating level where a business is profitable and manageable without excessive risk.",
+        "Explain overtrading: a business tries to grow too fast, funds it through debt, takes on extra costs and infrastructure — but without guaranteed extra demand. The owner ends up making less than before they expanded.",
+        "The sweet spot conversation gets the client OUT of an assessment mindset and INTO a conceptual one. They are no longer evaluating you — they are thinking about their own business.",
+        "Key question to pose: 'How much money would be required? What are the chances of success? How many extra customers would you need just to cover the new costs?' Let them feel the uncertainty of not having answers.",
+        "This is not a lecture. Ask questions, let them reflect. The goal is for them to feel the problem, not just hear about it."
+      ]
+    },
+    {
+      "step": 3,
+      "name": "Unrelated Industry Story",
+      "key_principle": "Introduce the concept using a completely different industry. When clients hear their own industry, they immediately start analysing their own numbers — which derails the conceptual conversation.",
+      "coaching_points": [
+        "Use a story about a business type completely different from the client's. The classic example is a cafe owner trying to scale up.",
+        "E.g.: 'A cafe owner is lean and mean, profitable at their current size. They want to grow — bigger premises, more staff, new equipment. How do they know if it's actually worth it?'",
+        "The unrelated industry approach keeps the client focused on the underlying logic — not on immediately mapping it to their own situation.",
+        "Once they grasp the logic in the unrelated example, they will naturally start applying it to themselves. Let that happen organically — don't force it.",
+        "Ask: 'Does that scenario make sense to you?' or 'Can you see how that applies to any business trying to grow?' This checks for understanding before moving forward."
+      ]
+    },
+    {
+      "step": 4,
+      "name": "Teaser Model",
+      "key_principle": "Give the client a small, entry-level taste of how a model works — still using the unrelated industry example. Simple enough to be immediately understood, but powerful enough to create curiosity.",
+      "coaching_points": [
+        "Keep using the unrelated industry — do not switch to their business yet.",
+        "For product or sales-based businesses: use a simple break-even model. E.g. 'How many extra coffees does the cafe need to sell each day just to cover the cost of the extra staff member?' Show them the maths in its simplest form.",
+        "For hours-based businesses (construction, trades, professional services): use a simple wages model. E.g. 'Show the cafe owner how quickly profitability disappears when you factor in sick leave, downtime, and unbillable hours.'",
+        "The goal is to show one meaningful insight — not to demonstrate the full model. Less is more here.",
+        "Watch and listen for buying signals at this point (see Buying Signals section below). A positive signal means you can move forward to the complex model flash."
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Complex Model Flash",
+      "key_principle": "After a positive buying signal, briefly flash a fully built complex industry model — still using the unrelated industry. Show the power without explaining the detail.",
+      "coaching_points": [
+        "Only move here if you have received a positive buying signal. Do not flash the complex model if the client is still uncertain.",
+        "Open the complex model briefly — show how multiple variables (marketing costs, customer types, seasonal patterns, staffing) all work together in one dynamic space.",
+        "Keep it strictly high-level. Do NOT explain the individual cells, formulas, or structure. This is a 'wow' moment, not a training session.",
+        "Suggested framing: 'This is what a fully built version looks like for a hospitality business. You can see how changing just one variable — like the number of seatings per day — flows through everything else.'",
+        "Then close it. Do not dwell. The brevity is intentional — you want curiosity, not overwhelm."
+      ]
+    },
+    {
+      "step": 6,
+      "name": "Propose Trial Fit and Create a Time Gap",
+      "key_principle": "Secure agreement in principle, then enforce a gap before showing the client THEIR model. The gap is not a delay — it is a psychological necessity.",
+      "coaching_points": [
+        "Ask: 'Can you see the value of having something like this built specifically for your business — for decisions like hiring, equipment, or planning your growth?'",
+        "If they say yes — that is your green light. Do NOT open their model in this meeting.",
+        "Explain there will be a separate meeting to show them their own model: 'What I'd like to do is prepare a version for your business and walk you through it properly in our next session.'",
+        "Why the time gap matters: the client needs time to take 'mental ownership' of the idea. If you show them a complex model of their own business in the same meeting, they haven't had time to want it yet — and you risk map shock.",
+        "The gap ensures that when they arrive at the next meeting, they are mentally prepared and genuinely motivated to engage with complex data about their own business.",
+        "This transition leads naturally into the Trial Fit method for the second meeting."
+      ]
+    }
+  ],
+
+  "key_concepts": {
+    "map_shock": "The feeling of being overwhelmed that a client experiences when presented with a complex revenue model all at once. The brain switches into immediate judgment mode — embarrassment, fear, and resistance follow. The entire Cautious Reveal strategy exists to prevent this by establishing the 'why' before the 'what'.",
+    "overtrading": "A business attempts to grow too quickly, funding expansion through debt without guaranteed extra demand. The result: more infrastructure, more costs, less profitability than before expansion. The 'profit sweet spot' is the ideal operating level that balances growth ambition with financial safety.",
+    "profit_sweet_spot": "The point at which a business is profitable and manageable without excessive risk. Not necessarily the largest possible version of the business. A cafe owner who is lean and profitable at 50 covers may actually make less money at 100 covers once debt, extra staff, and overhead are factored in.",
+    "buying_signals": "Verbal cues that the client has grasped the concept and sees value in the idea. Key signals: 'Yes, that's really useful', 'Oh, that's kind of intriguing', or any unprompted question about how it would apply to their own business. Do not flash the complex model until you receive at least one buying signal.",
+    "mental_ownership": "The psychological state where the client has internalised the idea of having a model and genuinely wants it — rather than just agreeing to be polite. Mental ownership is what makes the client willing to invest the mental energy required to engage with complex data about their own business. The time gap creates the conditions for mental ownership to form.",
+    "time_gap": "The deliberate pause between securing the client's agreement to explore a model and the meeting where they actually see their own bespoke version. This is not optional — skipping the gap and showing the model in the same meeting is one of the most common mistakes advisors make. The client needs time to think, get curious, and arrive motivated."
+  },
+
+  "additional_guidance": {
+    "sequence_discipline": "Never skip steps. The concept anchoring must come before the unrelated industry story. The teaser model must come before the complex model flash. The buying signal must be received before the flash. Each step builds the psychological foundation for the next.",
+    "buying_signals_patience": "Do not flash the complex model out of eagerness. Wait for the buying signal. If the client is not yet engaged after the teaser model, go back to the concept anchoring — ask more questions, probe their situation, find the angle that resonates.",
+    "transition_to_trial_fit": "The Cautious Reveal ends with a commitment to a second meeting. That second meeting is run using the Trial Fit method. These two approaches are designed to work in sequence for low-awareness clients.",
+    "phils_a_plumber_note": "The Phil's a plumber video is a platform resource — it is specifically designed for this pre-meeting warm-up purpose. Use it proactively with clients you know have low awareness before a scheduled meeting."
+  }
+}

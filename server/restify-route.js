@@ -26,6 +26,8 @@ const OpenAI = require('openai')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('./utils/templates')
 const { formatCoachingForPrompt } = require('./utils/coaching')
 const { detectScenario, buildScenarioBlock } = require('./utils/scenarios')
+const { detectLogicTree, formatLogicTreeForPrompt } = require('./utils/logicTrees')
+const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt } = require('./utils/summaries')
 
 const openaiClient = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -100,6 +102,19 @@ A scenario-specific diagnostic block may be injected below the phase structure. 
 - What other services have they engaged the advisor for in the past?
 
 Once you have a clear enough picture of the client (usually 3-4 exchanges), transition naturally: "That's a really helpful picture of your client. Now, tell me a bit about yourself as the advisor — I want to make sure I recommend something that plays to your strengths."
+
+---
+
+## Diagnostic Logic Trees
+
+A Diagnostic Logic Tree for this problem type may be provided in the context (under "Diagnostic Logic Tree"). If one is present, use it to guide your Phase 1 questioning:
+
+- Follow the tree's node sequence — at each **question** node, ask the stated question (one at a time), then branch based on the advisor's response
+- Terminal **recommendation** nodes list specific templates — treat these as your primary candidates for Phase 3
+- **assessment** nodes are gate checks — evaluate the condition before proceeding; if the gate fails, flag it to the advisor
+- Weave tree questions naturally into Phase 1 alongside the standard questions (acumen, personality, engagement history) — do not ask them all at once
+- If a Scenario Diagnostic block is also present, follow the scenario's 1a–1c questions first; use the tree to inform your broader template selection after that
+- If no tree is present in the context, proceed with standard Phase 1 questioning and use the coaching reference for template guidance
 
 ---
 
@@ -186,8 +201,13 @@ Advisors are often using voice-to-text which produces phonetic errors (e.g. "fac
 
 ## Recommendation quality
 When making your recommendation in Phase 3:
-- Reference the coaching notes directly — use the specific "What to Look For" signals and "Where it May Lead" pathways from the coaching reference, not generic statements
-- The "What this typically leads to" section must use the exact next step from the coaching data (e.g. "Regular management reporting", "Strategic Planning / Advisory Board level Governance") — not a vague paraphrase
+- **Content Summaries are your primary source** — if a matching entry exists in the "Do the Job Content Summaries" provided in the context, use it to populate Phase 3 sections:
+  - "Why this fits your client" → draw from the template's **Helps the owner** field
+  - "Why this suits you as the advisor" → draw from the **Helps the advisor** field
+  - "How to approach it" → draw from **Purpose** and **When to use** fields
+  - "What this typically leads to" → use the coaching reference **Where it leads** field
+- If a Content Summary exists for the recommended template, always prefer its language over generic statements — it is more detailed and up to date
+- If a Diagnostic Logic Tree was also provided and led to specific templates, those templates' summaries should already be in the context — use them
 - Every part of the recommendation should connect back to something specific the advisor told you — quote or paraphrase their actual words
 
 ## Closing each response
@@ -202,13 +222,15 @@ The advisor wants to find a specific template — by concept, capability, or a n
 You have been provided with:
 1. A list of templates available to this organisation, with their purpose and tags
 2. A coaching reference with expert guidance on template selection
+3. A Diagnostic Logic Tree (if the presenting problem matched one — see context)
 
 ---
 
 ## STEP 1 — Find the template
 
 Match the advisor's description to the best template in the list.
-- If the description is vague, ask ONE question about what problem it needs to solve — then recommend.
+- If the description is vague, check whether a Diagnostic Logic Tree is provided in the context. If one is present, use the first **question** node's stated question as your ONE clarifying question — this gives a more targeted result than a generic question. If no tree is present, ask ONE question about what problem it needs to solve.
+- Once the advisor responds, follow the tree's branching path (if a tree is present) to arrive at the terminal **recommendation** node — the templates listed there are your primary recommendation candidates.
 - If the advisor says "that's not it" or "find something else", ask what was missing before trying again. Do NOT just guess a different template.
 - Keep track of every template the advisor has already rejected in this conversation. Never suggest a rejected template again — not even as an "also worth considering" alternative.
 - If you have exhausted close matches and nothing fits, say so honestly: "I can't find an exact match in the available templates — it may not be in my current list. You could check the full Advisor-e library directly, or describe it differently and I'll try again."
@@ -219,7 +241,7 @@ Format:
 [Template name] — [one sentence on why it fits]
 
 **How it works**
-[2-3 sentences — practical, plain language]
+[2-3 sentences — draw from the template's Purpose and When to use fields in the Do the Job Content Summaries if available; otherwise use the template list and coaching reference]
 
 **Also worth considering**
 [1-2 alternatives with a one-line reason each — never include previously rejected templates]
@@ -301,19 +323,49 @@ async function advisorQuery (req, res, next) {
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = formatCoachingForPrompt()
 
-  // Detect scenario from the advisor's first message only (conversationHistory empty = first turn)
+  // Detect the first user message — used for scenario and logic tree detection
+  const firstMessage = conversationHistory.length === 0
+    ? query
+    : (conversationHistory.find(m => m.role === 'user') || {}).content || query
+
+  // Detect scenario from the advisor's first message only (client mode only)
   let scenarioBlock = ''
   if (mode === 'client') {
-    const firstMessage = conversationHistory.length === 0
-      ? query
-      : (conversationHistory.find(m => m.role === 'user') || {}).content || query
     const detection = detectScenario(firstMessage)
     scenarioBlock = buildScenarioBlock(detection)
   }
 
   const systemPrompt = scenarioBlock ? basePrompt + scenarioBlock : basePrompt
 
-  const contextMessage = `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)\n\n${templatesText}\n\n---\n\n## Coaching Reference — Expert Guidance on Template Selection\n\n${coachingText}`
+  // Detect a matching logic tree from the first message (both client and discover modes)
+  const matchedTree = detectLogicTree(firstMessage)
+  const logicTreeText = matchedTree ? formatLogicTreeForPrompt(matchedTree) : ''
+
+  // Build content summaries: keyword-relevant entries + any templates named in the tree's
+  // terminal (recommendation) nodes — ensures Phase 3 always has detailed guidance for the
+  // templates the tree is pointing toward, even if they're not in the query keywords.
+  const querySummaries = filterSummariesByQuery(query, 12)
+  const treeTemplateNames = matchedTree
+    ? matchedTree.nodes
+        .filter(n => n.type === 'recommendation')
+        .flatMap(n => n.templates || [])
+    : []
+  const treeSummaries = getSummariesForTemplateNames(treeTemplateNames)
+
+  // Merge, de-duplicate by name, cap at 25
+  const summaryMap = new Map()
+  for (const s of [...querySummaries, ...treeSummaries]) {
+    if (!summaryMap.has(s.name)) summaryMap.set(s.name, s)
+  }
+  const summariesToUse = Array.from(summaryMap.values()).slice(0, 25)
+  const summariesText = formatSummariesForPrompt(summariesToUse)
+
+  const contextMessage = [
+    `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)\n\n${templatesText}`,
+    `## Coaching Reference — Expert Guidance on Template Selection\n\n${coachingText}`,
+    summariesText ? `## Do the Job Content Summaries — Detailed Template Guidance (${summariesToUse.length} most relevant shown)\n\nUse these for Phase 3. Each entry contains: what the template does (Purpose), when to use it (When to use), how it helps the client (Helps the owner), and how it helps the advisor (Helps the advisor).\n\n${summariesText}` : null,
+    logicTreeText || null
+  ].filter(Boolean).join('\n\n---\n\n')
 
   const messages = [
     { role: 'user', content: contextMessage },
