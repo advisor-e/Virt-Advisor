@@ -1,0 +1,186 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on Dashboard Discussions — a structured framework for framing, interpreting, and actioning dashboard metrics using the 3x3 Category Secrets model, Cause-Event-Effect analysis, and collaborative facilitation.",
+  "objective": "To coach advisors in facilitating collaborative dashboard review sessions that shift the focus from simply looking at numbers to understanding the underlying operations that drive them — using the 3x3 framework to map each metric to the right cost category, identify root causes, and build concrete action plans.",
+  "core_principle": "Seek information; not judgement. No single ratio or report can give you the whole story. Always define if the data reflects causation, correlation, or coincidence. Always seek a balanced view — look for both good and bad data.",
+
+  "session_mindset": {
+    "advisor_role": "To challenge what the client believes to be true.",
+    "client_role": "To be ready to explore issues and ideas with an open heart and an open mind.",
+    "session_objective": "Discover what we have been missing.",
+    "outputs": ["Record what we learn.", "Build an action plan going forward."]
+  },
+
+  "the_3x3_framework": {
+    "description": "Dashboard reviews are structured around a 3x3 framework — Cause, Event, and Effect — mapped across three operational phases and three cost types. Understanding which cost category a metric relates to determines which tactical levers are available.",
+    "cause_event_effect": "Every metric tells a story of Cause (what drove the result), Event (the performance itself), and Effect (the downstream consequence). Advisors must ask: what does the data relate to, what led up to this performance, and what are the downstream effects?",
+    "cost_categories": [
+      {
+        "label": "Do The Job",
+        "cost_type": "Variable Costs",
+        "examples": "Materials, shipping, stock, contract labour, discounting.",
+        "definition": "Costs incurred on the promise that you will get paid once the work is delivered. These directly relate to sales or engagements secured by agreement with a customer.",
+        "to_change_these": "You must change how you produce or provide your product — or to whom and where you sell it.",
+        "tactical_options": [
+          "Purchasing, warehousing, and logistics efficiencies",
+          "Project management and wastage/error reductions",
+          "Process improvements, skill and equipment advantages"
+        ]
+      },
+      {
+        "label": "Get The Job",
+        "cost_type": "Activity Costs",
+        "examples": "General marketing, branding, salesperson travel costs (fuel, hotel, flights), advertising.",
+        "definition": "Costs incurred in the hope of winning more work or securing future sales. These are the costs of the effort to secure business — not of delivering it.",
+        "to_change_these": "You must change how you sell and distribute your product to make it easier for customers to find you.",
+        "tactical_options": [
+          "Product fit, positioning, packaging, pricing, bundling",
+          "Message clarity and penetration, market knowledge",
+          "Sales effectiveness, brand awareness, customer loyalty"
+        ]
+      },
+      {
+        "label": "Get Organised",
+        "cost_type": "Fixed Costs",
+        "examples": "Rent, equipment leases, management salaries, administration infrastructure.",
+        "definition": "The structural requirements of being in business — the costs of housing your staff and serving your customers. These are based on how you believe things should be done.",
+        "to_change_these": "You must choose how much of your customer's problem you solve in-house and what kind of customer experience you need to provide.",
+        "tactical_options": [
+          "Use of assets, model design, management effectiveness",
+          "Leadership, culture, employee engagement, quality focus",
+          "Strategic vision, stakeholder returns, sustainability"
+        ]
+      }
+    ]
+  },
+
+  "dashboard_metrics": [
+    {
+      "name": "Sales to Gross Profit Ratio",
+      "relates_to": ["Do the Job — Variable Costs", "Get the Job — Activity Costs"],
+      "what_it_highlights": "The relationship between trading income and the gross profit retained after variable costs. A widening or narrowing gap signals changes in cost of goods, pricing, or product mix.",
+      "tactical_options": ["Purchasing, warehousing, logistics efficiencies", "Project management, wastage/error reductions", "Process improvements, skill/equipment advantages", "Product fit, positioning, packaging, pricing, bundling", "Message clarity and penetration, market knowledge", "Sales effectiveness, brand awareness, customer loyalty"],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Wages to Sales Ratio",
+      "relates_to": ["Do the Job — Variable Costs", "Get the Job — Activity Costs"],
+      "what_it_highlights": "How much of every sales dollar is consumed by wages. Rising wages against flat sales signals productivity or staffing structure issues.",
+      "tactical_options": ["Purchasing, warehousing, logistics efficiencies", "Project management, wastage/error reductions", "Process improvements, skill/equipment advantages", "Use of assets, model design, management effectiveness", "Leadership, culture, employee engagement, quality focus", "Strategic vision, stakeholder returns, sustainability"],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Net Profit to Sales",
+      "relates_to": ["Do the Job — Variable Costs", "Get the Job — Activity Costs", "Get Organised — Fixed Costs"],
+      "what_it_highlights": "The ultimate profitability ratio — what remains after all costs. Relates to all three cost categories because all three affect the net outcome. A margin squeeze here requires diagnosis across all three buckets.",
+      "tactical_options": ["All nine tactical options across variable, activity, and fixed costs apply."],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Average Markup %",
+      "relates_to": ["Do the Job — Variable Costs", "Get the Job — Activity Costs"],
+      "what_it_highlights": "The average margin applied across products or services sold. A declining markup signals pricing pressure, discounting behaviour, or a shift in product mix toward lower-margin lines.",
+      "tactical_options": ["Purchasing, warehousing, logistics efficiencies", "Project management, wastage/error reductions", "Process improvements, skill/equipment advantages", "Product fit, positioning, packaging, pricing, bundling", "Message clarity and penetration, market knowledge", "Sales effectiveness, brand awareness, customer loyalty"],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Sales Mix by Margin",
+      "relates_to": ["Do the Job — Variable Costs", "Get the Job — Activity Costs"],
+      "what_it_highlights": "The proportion of total revenue generated by each product or service category, weighted by margin contribution. Reveals whether the business is being supported by its highest-margin lines or carried by volume in low-margin ones.",
+      "tactical_options": ["Purchasing, warehousing, logistics efficiencies", "Project management, wastage/error reductions", "Process improvements, skill/equipment advantages", "Product fit, positioning, packaging, pricing, bundling", "Message clarity and penetration, market knowledge", "Sales effectiveness, brand awareness, customer loyalty"],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Working vs Fixed Capital",
+      "relates_to": ["Do the Job — Variable Costs", "Get Organised — Fixed Costs"],
+      "what_it_highlights": "The balance between money actively cycling through the business (working capital) and money locked in structural assets (fixed capital). An unfavourable ratio signals over-investment in fixed infrastructure relative to productive trading activity.",
+      "tactical_options": ["Purchasing, warehousing, logistics efficiencies", "Project management, wastage/error reductions", "Process improvements, skill/equipment advantages", "Use of assets, model design, management effectiveness", "Leadership, culture, employee engagement, quality focus", "Strategic vision, stakeholder returns, sustainability"],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Quick Ratio and Days Trading Cover",
+      "relates_to": ["Do the Job — Variable Costs", "Get Organised — Fixed Costs"],
+      "what_it_highlights": "The Quick Ratio measures the business's ability to meet short-term liabilities using liquid assets. Days Trading Cover shows how many days of trading the available cash could sustain. Together they reveal the immediacy of any liquidity risk.",
+      "tactical_options": ["Purchasing, warehousing, logistics efficiencies", "Project management, wastage/error reductions", "Process improvements, skill/equipment advantages", "Use of assets, model design, management effectiveness", "Leadership, culture, employee engagement, quality focus", "Strategic vision, stakeholder returns, sustainability"],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Debt Ratio — Assets vs Liabilities",
+      "relates_to": ["Get Organised — Fixed Costs"],
+      "what_it_highlights": "The proportion of total assets financed by debt versus owned equity. A high or growing debt ratio signals structural financial risk — particularly relevant in downturns where servicing obligations exceed revenue capacity.",
+      "tactical_options": ["Use of assets, model design, management effectiveness", "Leadership, culture, employee engagement, quality focus", "Strategic vision, stakeholder returns, sustainability"],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Debt to Shareholders Equity",
+      "relates_to": ["Get Organised — Fixed Costs"],
+      "what_it_highlights": "The ratio of total debt to owner equity. Reveals how leveraged the business is and whether the owners have a genuine equity stake or whether the business is effectively owned by creditors. Critical for assessing over-trading risk.",
+      "tactical_options": ["Use of assets, model design, management effectiveness", "Leadership, culture, employee engagement, quality focus", "Strategic vision, stakeholder returns, sustainability"],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Return on Equity",
+      "relates_to": ["Do the Job — Variable Costs", "Get the Job — Activity Costs", "Get Organised — Fixed Costs"],
+      "what_it_highlights": "The return generated on the owner's investment in the business. A comprehensive metric — because it is influenced by profitability, efficiency, and leverage across all three cost categories. Declining ROE with stable sales often signals rising fixed cost burden or structural inefficiency.",
+      "tactical_options": ["All nine tactical options across variable, activity, and fixed costs apply."],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Division Wages %",
+      "relates_to": ["Do the Job — Variable Costs", "Get the Job — Activity Costs", "Get Organised — Fixed Costs"],
+      "what_it_highlights": "The wage cost breakdown by business division (e.g., Sales, Production, Admin, Management). Reveals whether wage expenditure is weighted toward revenue-generating activity or administrative overhead — and whether the proportion is shifting over time.",
+      "tactical_options": ["All nine tactical options across variable, activity, and fixed costs apply."],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which tactical options are of greatest influence and why?", "Did you have any actions planned prior to this data — do they still stand?"]
+    },
+    {
+      "name": "Volatility Analysis",
+      "relates_to": ["Do the Job — Variable Costs", "Get the Job — Activity Costs", "Get Organised — Fixed Costs"],
+      "what_it_highlights": "A standard deviation graph overlaid on actual sales performance. Identifies which data movements fall within expected variation and which represent genuine anomalies requiring action.",
+      "variation_types": [
+        "Common Cause: High frequency, low impact — normal background noise (e.g., retail store on a rainy day). Do not trigger management action.",
+        "Special Cause: Low frequency, high impact — genuine anomaly (e.g., earthquake, pandemic). Requires real strategic response.",
+        "Seasonal: Predictable patterns and trends (e.g., ice cream in summer vs winter). Manageable once identified.",
+        "Tampering: Data misinterpretation leading to wrong action. The most dangerous — ensure you are not punishing or rewarding staff for events outside their control."
+      ],
+      "discussion_questions": ["Is the information consistent with your previous business assumptions and beliefs?", "Which data points relate to special or seasonal cause?", "Did you have any actions planned prior to this data — do they still stand?"]
+    }
+  ],
+
+  "facilitation_process": [
+    {
+      "step": 1,
+      "name": "Set the Objective and Mindset",
+      "guidance": "Open the session by establishing that the advisor's role is to challenge what the client currently believes to be true. The client's role is to explore with an open heart and an open mind. Remind the group: no single ratio or report gives you the whole story."
+    },
+    {
+      "step": 2,
+      "name": "Map the Metric to the 3x3 Categories",
+      "guidance": "For each dashboard metric, identify which cost categories it relates to — Do the Job (Variable), Get the Job (Activity), or Get Organised (Fixed). This determines the tactical levers available and the nature of the conversation."
+    },
+    {
+      "step": 3,
+      "name": "Analyse Data Against Business Assumptions",
+      "guidance": "For each metric, ask: Is this information consistent with your previous business assumptions and beliefs? Determine whether the data reflects causation, correlation, or coincidence. Always look for a balanced view — seek both good and bad data, not just the problems."
+    },
+    {
+      "step": 4,
+      "name": "Conduct Root Cause Analysis",
+      "guidance": "If the data is unclear or performance is not matching expectations, do not jump to conclusions. Use the 5 Whys technique — ask WHY five times, with each answer forming the basis of the next question — to drill down to the fundamental root cause of the metric's performance."
+    },
+    {
+      "step": 5,
+      "name": "Identify Tactical Options and Build the Action Plan",
+      "guidance": "Based on the root cause and the cost category the metric relates to, identify which tactical options are of greatest influence and why. Determine whether any previously planned actions still stand or need to be revised. Record all learnings and document specific future action steps in the action plan."
+    }
+  ],
+
+  "key_concepts": {
+    "seek_information_not_judgement": "The guiding philosophy of every dashboard session. The advisor and client are seeking to understand, not to pass verdict. Balanced view — look for both good and bad data.",
+    "3x3_framework": "Cause-Event-Effect × Do the Job/Get the Job/Get Organised × Variable/Activity/Fixed Costs. Every metric maps to at least one cost category, which determines the available tactical levers.",
+    "category_secrets": "The three cost types reveal different things. Variable Costs (Do the Job) — what it costs to deliver what is already sold. Activity Costs (Get the Job) — what it costs to win future work. Fixed Costs (Get Organised) — the structural cost of being in business.",
+    "five_whys": "If clarity is not achieved from the metric itself, ask WHY five times. Each answer forms the basis of the next why. Used to uncover root cause rather than reacting to surface-level symptoms.",
+    "volatility_analysis_in_dashboard": "When a spike or unusual movement appears on a dashboard metric, run a volatility check before acting. Identify whether it is Common Cause, Special Cause, Seasonal, or Tampering. Acting on Common Cause variation is tampering.",
+    "no_single_metric": "No single ratio or report can give you the whole story. The dashboard is a system of interdependent signals — interpret metrics in combination, not in isolation.",
+    "discussion_questions_per_metric": "Three standard questions apply to every metric: (1) Is this consistent with previous assumptions? (2) Which tactical options are most influential and why? (3) Did you have prior actions planned — do they still stand?"
+  }
+}

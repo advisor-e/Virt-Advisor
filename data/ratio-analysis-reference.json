@@ -1,0 +1,160 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on Ratio Analysis — a framework for improving data interpretation through internal modelling, common sizing, and disciplined use of external benchmarks. Built around the 5-step Advisory Staircase.",
+  "objective": "To coach advisors in guiding clients through a collaborative, disciplined approach to ratio analysis — starting with internal assumptions, standardising data correctly, and using external benchmarks to challenge beliefs rather than judge performance.",
+  "core_principle": "Always compare apples with apples. Effective ratio analysis is not about calculating metrics — it is a collaborative process. The advisor and business owner must analyse findings and draw conclusions together. Handing a client raw data without requiring effort to understand it means they are unlikely to assign it meaning or take new action.",
+
+  "advisory_staircase": {
+    "description": "There are 5 components in business management. Ratio Analysis sits primarily in steps 2 and 3, but only delivers value when all 5 steps are functioning.",
+    "steps": [
+      {
+        "step": 1,
+        "name": "Compilation / Verification",
+        "description": "Get the data collected. Ensure it has integrity and is timely."
+      },
+      {
+        "step": 2,
+        "name": "Assimilation",
+        "description": "Render the data so it is easy to view and comprehend. The critical point about Ratio Analysis is ensuring assimilation is aligned with interpretation requirements."
+      },
+      {
+        "step": 3,
+        "name": "Interpretation",
+        "description": "Recognise correlation versus causation. Work together with the client — do not just hand them a finished report."
+      },
+      {
+        "step": 4,
+        "name": "Application",
+        "description": "Determine the next experiment. Assign clear task ownership."
+      },
+      {
+        "step": 5,
+        "name": "Observation",
+        "description": "Review progress. Learn, adapt, and go again."
+      }
+    ],
+    "advisor_note": "There is little point measuring your speed if you do not know where you are going. Operational objectives must come from a considered Strategic Plan."
+  },
+
+  "know_thyself_first": {
+    "description": "The most common mistake advisors make is purchasing external benchmark data before first capturing and quantifying the internal business assumptions. This is a rookie mistake. It makes the internal financial performance data non-standardised — and therefore incomparable.",
+    "three_perspectives": [
+      "A predictive/scenario (revenue) model that is validated by actual performance data.",
+      "Clearly defined operational objectives monitored via accurate and timely performance reports.",
+      "External Benchmark Data to encourage the challenge of internal beliefs — used last, not first."
+    ],
+    "internal_model_steps": [
+      "Identify your key business variables and determine how they are interdependent — this answers 'what happens if I pull this lever?'",
+      "Run the perfect world model, compare it against actual performance data, and investigate major discrepancies until the model accurately reflects reality.",
+      "Define operational objectives aligned with a considered Strategic Plan."
+    ],
+    "advisor_note": "External benchmarks should challenge internal beliefs — not replace them. Never buy benchmark data before the internal model is solidified."
+  },
+
+  "when_data_is_less_relevant": {
+    "description": "There is no point comparing external benchmark ratios, or even historical ratios for your own business, in the following three situations.",
+    "conditions": [
+      {
+        "label": "A — Ratios not calculated in an identical manner",
+        "explanation": "Different textbooks record alternative ratio calculations — all with valid logic. From a practical standpoint, use a ratio calculation you understand that requires data you can easily generate. Do NOT use different ratio calculations in different periods. You must be consistent with the method used to calculate a particular ratio. If using benchmark information, ensure you know how the ratio was calculated. Do NOT compare unless calculated using identical methods (or make allowance for any small differences).",
+        "example": "Use credit sales instead of total sales in the debtor days on hand ratio — but only if that information is easily available, and only if you apply it consistently in every period."
+      },
+      {
+        "label": "B — One-off situations that distort the ratio for a given period",
+        "explanation": "Some ratio changes are explained by one-off events, not management action. The figure relating to the one-off event should be removed from the calculation for comparison purposes.",
+        "example": "A large one-off order has been invoiced but not yet paid. The debtor days on hand figure will appear much higher than previous years — but this does not represent a genuine collection issue. Remove the distorting figure before comparing."
+      },
+      {
+        "label": "C — Ratios belong to time periods with fundamental differences",
+        "explanation": "Avoid direct comparison of ratios calculated in periods with fundamental differences. Either adjust for the difference or only compare equivalent stages of the cycle.",
+        "example": "A highly seasonal business comparing a peak season quarter to a low season quarter. The difference in ratios may be entirely due to the business cycle — not any management action or inaction. Compare peak to peak and low to low."
+      }
+    ]
+  },
+
+  "interrogate_benchmark_data": {
+    "description": "External benchmarking can be valuable — but only if the data is robust and genuinely comparable to your business. Always interrogate purchased benchmark data before using it.",
+    "questions_to_ask": [
+      "How many businesses does the data cover? Is the sample size representative of your industry? Be cautious of extreme results in small samples.",
+      "Can you accurately compare this category or sample to your particular business?",
+      "Are the figures from businesses of similar size to yours?",
+      "Do the figures include upper and lower quartile data? The further these lie from the average, the less meaningful the data.",
+      "How old is the data? Figures should be updated at least annually.",
+      "Do the figures include comprehensive information on how the ratios were calculated? Will you be comparing apples with apples?",
+      "Can you compare the industry figures directly with your business — for example, do not compare retail data with wholesale data.",
+      "Are there other factors that might influence the comparison — geographical location, local labour markets, different accounting methods, quality of product, financing methods, or terms of sale?",
+      "Do the other businesses in the sample have a similar seasonal cycle? An exporting business may deliver the same product at a different time of year, influencing ratios at peak and low season."
+    ],
+    "advisor_note": "External benchmarks are a tool for challenging internal beliefs and identifying blind spots — not a pass/fail scorecard. Use them to ask better questions, not to judge the business against others."
+  },
+
+  "common_size_year_on_year": {
+    "description": "Comparing year on year data without adjusting for the previous year's starting position creates confirmation bias. Think of business performance like a drag race where the starting position is determined by the previous race result. You cannot determine if you are genuinely improving if the only measure is who crosses the line first.",
+    "drag_race_metaphor": "If a drag race car starts ahead of its competitor because of the previous race result, you cannot know if it truly improved — or if it simply started with an advantage. Business year-on-year comparisons work the same way. A great prior year leaves more cash reserves and stock. Apparent improvement in year two may reflect the inherited starting advantage, not current management effectiveness.",
+    "the_fix": "Adjust your data to measure BOTH the Start position AND the Finish position for each year. This eliminates confirmation bias and correctly identifies whether current management decisions — not carried-over advantages — are driving results.",
+    "methods": [
+      {
+        "name": "Common Size Balance Sheet",
+        "method": "Divide every item on the balance sheet by Total Assets.",
+        "purpose": "Converts all balance sheet items to a percentage of total assets, making year-on-year comparisons fair regardless of overall business size or starting position."
+      },
+      {
+        "name": "Common Size Profit and Loss Account",
+        "method": "Divide every item in the P&L by Total Sales.",
+        "purpose": "Converts all P&L items to a percentage of total revenue, enabling meaningful comparison of cost structure and margin performance across different periods."
+      }
+    ],
+    "advisor_note": "Common sizing also filters out the distorting effects of one-off events and seasonal differences — reinforcing the 'When Data Is Less Relevant' principles."
+  },
+
+  "collaborative_approach": {
+    "description": "The traditional approach — compile a report and hand it to the client — does not work. This framework requires a fundamental shift: the advisor and business owner must analyse findings and draw conclusions together.",
+    "why_it_matters": "Providing raw data without requiring the client to invest effort in understanding it means they are unlikely to assign it meaning or take new action. By creating a shared, interactive space, the advisor does not lose value — the relationship grows as both parties identify key insights together.",
+    "manual_over_automated": "At the assimilation stage, use manual tools like Google Sheets rather than fully automated reporting software. Having the client physically cut, paste, and input data makes the process tactile. Just as a baby must chew steak to digest it, a client must interact with the data to truly absorb and interpret it.",
+    "advisor_note": "The collaborative environment is not optional — it is the mechanism by which the client becomes educated, engaged, and motivated to use data for future decision-making."
+  },
+
+  "step_by_step": [
+    {
+      "step": 1,
+      "name": "Know Thyself First — Internal Modelling",
+      "guidance": "Before looking outward, capture and quantify your own internal business assumptions to ensure your financial performance data is standardised. Build a predictive revenue model, validate it against actual performance, and define operational objectives aligned with a Strategic Plan."
+    },
+    {
+      "step": 2,
+      "name": "Collect and Assimilate the Data",
+      "guidance": "Gather the data ensuring it is timely and maintains high integrity. Render it so it is easy to view. Use manual tools (e.g., Google Sheets) rather than automated software — the client must interact with the data to absorb it."
+    },
+    {
+      "step": 3,
+      "name": "Clean and Standardise — Common Sizing",
+      "guidance": "Adjust for any inherent advantages or disadvantages carried over from previous periods. Create a Common Size Balance Sheet (each item ÷ Total Assets) and a Common Size P&L (each item ÷ Total Sales). Filter out data distorted by one-off events, calculation inconsistencies, or seasonal cycle differences."
+    },
+    {
+      "step": 4,
+      "name": "Interpret the Findings Internally",
+      "guidance": "Work together with the client to recognise true causation versus mere correlation. Ensure the way you assimilated the data perfectly aligns with the interpretation requirements."
+    },
+    {
+      "step": 5,
+      "name": "Introduce External Benchmarks",
+      "guidance": "Only introduce external benchmark data after the internal model is solidified. Use it to challenge internal beliefs — not as a pass/fail yardstick. Always interrogate the benchmark: sample size, calculation method, business size comparability, geographical and seasonal factors."
+    },
+    {
+      "step": 6,
+      "name": "Apply and Observe",
+      "guidance": "Based on shared interpretation, determine the next experiment and assign clear task ownership. Review progress, learn from outcomes, adapt operating procedures, and repeat the cycle."
+    }
+  ],
+
+  "key_concepts": {
+    "advisory_staircase": "The 5-step business management framework: Compilation, Assimilation, Interpretation, Application, Observation. Ratio Analysis lives in steps 2 and 3 but delivers value only when all 5 steps function.",
+    "compare_apples_with_apples": "The foundational principle of ratio analysis. Ratios are only meaningful when calculated consistently across periods and compared against data generated using identical methods.",
+    "know_thyself_first": "Internal assumptions must be captured and quantified before external benchmarks are consulted. Buying benchmark data before your own model is built is the single most common rookie mistake.",
+    "three_conditions_for_irrelevance": "Data comparisons are invalid if: (A) ratios were calculated using different methods, (B) one-off events distort a given period, or (C) the periods being compared have fundamental business cycle differences such as seasonal variation.",
+    "common_sizing": "Converting financial figures to percentages (balance sheet ÷ Total Assets, P&L ÷ Total Sales) so that year-on-year comparisons are fair regardless of starting position or business scale.",
+    "drag_race_metaphor": "Your starting position in year two is determined by how well you performed in year one. Apparent improvement may be inherited advantage, not current management effectiveness. Common sizing levels the starting line.",
+    "tactile_data_engagement": "Clients who physically interact with data — cutting, pasting, inputting — absorb and interpret it more effectively than those handed a finished automated report. The effort of engagement creates the meaning.",
+    "external_benchmark_purpose": "External benchmarks are tools for challenging internal beliefs and exposing blind spots — not pass/fail grades. Interrogate the data before trusting it."
+  }
+}

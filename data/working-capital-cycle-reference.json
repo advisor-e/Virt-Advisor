@@ -1,0 +1,182 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on the Working Capital Cycle — a framework for understanding how money moves through a business, diagnosing the correct financial problem type, and applying cash preservation tactics to improve the speed and profitability of the trading cycle.",
+  "objective": "To coach advisors in helping clients understand the difference between fixed and working capital, correctly identify whether they have a profitability problem, a lack of working capital, or a true cash flow problem, and apply specific tactics to accelerate and protect the working capital cycle.",
+  "core_principle": "Most business owners misdiagnose their financial problems. Getting this wrong leads to wrong solutions. The working capital cycle — Cash → Stock → Sale → Debtors → Cash — must complete within the trading period. The speed of that cycle determines annual profitability, not just the margin on each transaction.",
+
+  "capital_types": {
+    "fixed_capital": {
+      "label": "Fixed Capital (Structural Requirements)",
+      "description": "The cost of being in business. Includes structural overheads such as leases, plant and equipment, staff wages, and marketing costs. Fixed capital does not move with the trading cycle — it is incurred regardless of whether a sale occurs.",
+      "advisor_note": "Fixed capital is not directly recoverable through the working capital cycle. If it is too high relative to gross profit, the business has a profitability problem — not a cash flow problem."
+    },
+    "working_capital": {
+      "label": "Working Capital (Money in Movement)",
+      "description": "The money that makes money. It represents the ongoing operational cycle of the business: Cash → Stock → Sale → Debtors → Cash. Working capital is the fuel that keeps the business engine running.",
+      "advisor_note": "The speed of the working capital cycle is as important as the margin on each transaction. A 30-day cycle allows 12 stock turns per year. A 60-day cycle allows only 6 — halving the annual profit potential. A business can go bust if its markup is insufficient to cover a prolonged cycle."
+    }
+  },
+
+  "the_cycle": {
+    "description": "The Working Capital Cycle operates in a continuous loop: Cash → Stock → Sale → Debtors → Cash. Each stage must complete efficiently for the business to maintain healthy cash and profitability.",
+    "stages": [
+      { "stage": "Cash", "description": "Available funds used to purchase stock or materials." },
+      { "stage": "Stock", "description": "Inventory or work in progress awaiting sale." },
+      { "stage": "Sale", "description": "Revenue generated when stock is sold or service delivered." },
+      { "stage": "Debtors", "description": "Outstanding amounts owed by customers — the delay between sale and cash receipt." }
+    ],
+    "cycle_speed_example": "A 30-day cycle = 12 stock turns per year. A 60-day cycle = 6 stock turns per year. Extending the cycle by adding 14-day supplier delay plus 14-day debtor delay effectively doubles the capital required to run the same volume of business."
+  },
+
+  "three_problem_types": [
+    {
+      "type": "Profitability Problem",
+      "trigger": "Trading cycle completed normally within the period, but the business still cannot afford wages or new stock.",
+      "diagnosis": "This is not a cash flow problem. The trading cycle — including receipt of payment — completed within the same trading period. The money came back on time. The problem is that there is not enough of it.",
+      "causes": [
+        "Gross margin is too low relative to competitors.",
+        "Fixed costs (rent, wages, administration) are too high for the revenue being generated.",
+        "The business was underfunded from the outset and has never had sufficient capital to operate at the required level."
+      ],
+      "scenario": "Scenario 1 — Order 100 bars, pay cash, bars arrive day 14, sell on day 21, paid on day 28, still can't cover wages and new stock. Answer: No cash flow problem. Profitability problem.",
+      "advisor_note": "Do not recommend a loan or overdraft for a profitability problem. The problem is not timing — it is margin. Fix the margin or reduce fixed costs first."
+    },
+    {
+      "type": "Lack of Working Capital",
+      "trigger": "Business is growing and receives back-to-back or surge orders before the first order has been paid — cannot fund additional stock purchases.",
+      "diagnosis": "This is not a cash flow problem. The money from the first order will arrive. The problem is that growth is outpacing the available capital to fund the next cycle before the first cycle closes.",
+      "causes": [
+        "Rapid demand growth that was not anticipated or planned for.",
+        "Cash-on-order supplier terms combined with extended debtor payment terms.",
+        "Insufficient retained earnings to bridge consecutive trading cycles."
+      ],
+      "scenario": "Scenario 2 — Order 100 bars, bars arrive day 7, sell on day 14, customer pays day 28, but customer wants 50 more bars on day 21. Cannot fund the top-up order. Answer: No cash flow problem. Lack of working capital.",
+      "funding_note": "Appropriate funding here is justified — provided the gross margin can support the cost of finance. Think of the finance as an opportunity cost: you make slightly less on the funded cycle but secure the client relationship and inject future profit.",
+      "advisor_note": "This is the one scenario where taking on debt or using a credit facility is genuinely defensible — because the revenue is real, the cycle will close, and the cost of the finance is recoverable within the margin."
+    },
+    {
+      "type": "True Cash Flow Problem",
+      "trigger": "Operational failure causes the business to miss its invoicing or billing period, pushing payment into the following month.",
+      "diagnosis": "This IS a cash flow problem. The money will arrive eventually, but the delay removes one complete trading cycle from the year — reducing total annual stock turns and total annual profit.",
+      "causes": [
+        "Failure to invoice on time due to administrative delays.",
+        "Missing the client's billing cutoff period.",
+        "Delayed meetings, approvals, or purchase confirmations extending beyond the billing window."
+      ],
+      "scenario": "Scenario 3 — Order 100 bars, bars arrive day 14, purchaser reschedules, confirmation not received until day 23, miss billing period, won't get paid until 28th of following month. Answer: Yes, this is a cash flow problem.",
+      "impact": "If this happens regularly, total annual stock turns are reduced — meaning the business makes less annual profit even though the margin per sale is unchanged.",
+      "advisor_note": "The fix here is operational — not financial. Faster invoicing, better debtor management, and tighter administrative procedures. See Cash Preservation Tactics."
+    }
+  ],
+
+  "cash_preservation_tactics": {
+    "description": "Once the problem type has been correctly identified, apply targeted tactics to accelerate the working capital cycle and protect available cash.",
+    "categories": [
+      {
+        "area": "Stock and Work in Progress",
+        "tactics": [
+          "Negotiate delayed payment terms with suppliers in return for carrying a wider range of their stock items — converts upfront cash cost into deferred payment.",
+          "Use air freight on low-frequency stock items so you carry less stock and have items delivered direct to the customer after purchase — reducing holding cost.",
+          "Use fast freight to reduce the risk of stock perishing in your possession — giving more sales days to recover the investment."
+        ]
+      },
+      {
+        "area": "Debtors",
+        "tactics": [
+          "Connect invoicing add-on apps (e.g., Tradeify integrated with Xero) so team members can generate finalised invoices on-site the moment a job is completed — eliminating missed billing periods.",
+          "Implement proactive debtor follow-up protocols — contact debtors early rather than waiting until the invoice is severely overdue.",
+          "Move any client who has slipped into 90-day arrears in the past six months onto a strict cash-upon-delivery basis. Those who refuse — no longer act for them."
+        ]
+      },
+      {
+        "area": "Sales",
+        "tactics": [
+          "Conduct market research on competitor pricing. Scale prices from top to bottom and divide into four quadrants — aim to be priced at the lower end of the uppermost quadrant.",
+          "Brainstorm the five most common sales objections and build scripted responses. Pair salespeople as buddies to rehearse for 30 minutes at a time until the responses are natural.",
+          "Explore licensed distributors to access new markets without the infrastructure cost of direct market entry."
+        ]
+      }
+    ]
+  },
+
+  "cost_categories": {
+    "description": "Use the Category Secrets framework to examine expenses and find efficiencies across the three cost types.",
+    "categories": [
+      {
+        "label": "Variable Costs",
+        "also_known_as": "Do The Job",
+        "description": "The direct costs of delivering your product or service.",
+        "focus": "Look for purchasing, warehousing, and logistics efficiencies to lower the unit cost of materials and stock."
+      },
+      {
+        "label": "Activity Costs",
+        "also_known_as": "Get The Job",
+        "description": "The costs associated with generating sales — marketing, sales team, promotion.",
+        "focus": "Review product positioning, pricing strategy, and sales conversion effectiveness."
+      },
+      {
+        "label": "Fixed Costs",
+        "also_known_as": "Get Organised",
+        "description": "Structural overheads — rent, management, administration, employee-related costs.",
+        "focus": "Assess management effectiveness, asset utilisation, and employee culture."
+      }
+    ]
+  },
+
+  "management_effectiveness_audit": {
+    "description": "Ineffective management is often an invisible drag on the working capital cycle. Look for three major red flags.",
+    "red_flags": [
+      "No clear, measurable, and time-bound business objectives — the team has no shared direction.",
+      "A culture that accepts task failure as normal — accountability is absent and problems repeat.",
+      "No feedback loops — mistakes are not shared or learned from, so the same cycle failures recur."
+    ],
+    "advisor_note": "If these red flags are present, even the best cash preservation tactics will be undermined. Address management culture alongside the financial cycle."
+  },
+
+  "over_trading_warning": {
+    "description": "Over-trading occurs when a business funds growth primarily via debt without adequate previously retained profits.",
+    "risk": "Using debt to fund fixed assets — leasehold improvements, equipment — in the hope of generating future sales severely unbalances the debt-to-equity ratio. If a market downturn occurs, the business cannot service the debt and the equity base collapses.",
+    "expansion_principle": "Before expanding to a new Profit Plateau: (1) Maximise utilisation of existing assets first — increase working scale (e.g., additional labour shifts) before acquiring new assets. (2) If debt is taken on for expansion, perform a Liquidation Value Estimate — ask: how easily can we scale back down if necessary?",
+    "advisor_note": "Debt for growth is only defensible when retained earnings provide a genuine cushion and the gross margin can demonstrably service the finance cost."
+  },
+
+  "discounting_danger": {
+    "description": "Reducing sale prices has a compounding negative effect on gross margin that most business owners dramatically underestimate.",
+    "key_point": "A reduction in sale price requires a significantly higher increase in sales volume just to generate the same gross profit. Example: a 34% reduction in cost equates to a 103% required increase in markup to maintain the same profit contribution.",
+    "advisor_note": "Before a client discounts, quantify the volume increase required to maintain current gross profit levels. In most cases, the volume required is unachievable — and the discount strategy destroys margin without generating compensating volume."
+  },
+
+  "step_by_step": [
+    {
+      "step": 1,
+      "name": "Map Your Current Cycle and Margins",
+      "guidance": "Determine exactly how many days it takes to move from purchasing stock to receiving cash. Identify all delay points — supplier lead times, debtor payment terms, billing cycles, administrative gaps. Then explore the effects of current pricing and the danger of discounting."
+    },
+    {
+      "step": 2,
+      "name": "Implement Cash Preservation Tactics",
+      "guidance": "Apply the Working Capital Cash Tactics across stock and WIP, debtors, and sales. Each area has specific actions that accelerate cash return or reduce the capital required to fund the cycle."
+    },
+    {
+      "step": 3,
+      "name": "Categorise and Optimise Costs",
+      "guidance": "Examine all expenses using the Category Secrets framework: Variable (Do The Job), Activity (Get The Job), Fixed (Get Organised). Find efficiencies in each bucket without compromising delivery quality."
+    },
+    {
+      "step": 4,
+      "name": "Audit Management Effectiveness",
+      "guidance": "Check for the three red flags that allow cycle failures to persist: no clear objectives, a culture that tolerates failure, and no feedback loops. Address management culture alongside the financial cycle tactics."
+    }
+  ],
+
+  "key_concepts": {
+    "fixed_vs_working_capital": "Fixed Capital = the cost of being in business (structural). Working Capital = the money that makes money (in movement). Confusing the two leads to wrong diagnosis and wrong solutions.",
+    "the_cycle": "Cash → Stock → Sale → Debtors → Cash. The speed of this cycle determines annual profitability. 30-day cycle = 12 turns per year. 60-day cycle = 6 turns per year.",
+    "three_problem_types": "Profitability problem (cycle completes but not enough money returned), Lack of working capital (cycle is fine but growth outpaces capital), True cash flow problem (operational delay breaks the cycle). Getting the diagnosis right is the most important skill.",
+    "stock_turn": "The number of times per year the working capital cycle completes. Every missed cycle or extended delay reduces total stock turns — and total annual profit — even if the margin per unit is unchanged.",
+    "over_trading": "Funding growth via debt without retained profit cushion. Dangerous because a downturn exposes an unsustainable debt-to-equity position. Expansion must be tested against a Liquidation Value Estimate.",
+    "discounting_danger": "Reducing price requires disproportionately higher volume to maintain gross profit. Quantify the required volume increase before agreeing to any discount strategy.",
+    "cash_preservation_tactics": "Targeted actions across stock/WIP, debtors, and sales to accelerate cash return and reduce cycle drag — the practical toolkit for improving the working capital position.",
+    "management_audit_red_flags": "No measurable objectives, culture of accepted failure, and no feedback loops — all three allow cycle problems to persist regardless of the financial strategy applied."
+  }
+}

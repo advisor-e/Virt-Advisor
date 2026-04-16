@@ -64,10 +64,11 @@ function filterTemplatesByQuery (templates, query, maxResults) {
 function formatTemplatesForPrompt (templates) {
   return templates.map((t, i) => {
     const tags = (t.tags || []).slice(0, 5).join(', ')
+    const videoNote = t.hasVideo ? '\n   Video: Tutorial video available in Advisor-e' : ''
     return `${i + 1}. **${t.title}** [${t.section} > ${t.topic}]
    Purpose: ${t.purpose}
    Tags: ${tags}
-   ID: ${t.page}`
+   ID: ${t.page}${videoNote}`
   }).join('\n\n')
 }
 

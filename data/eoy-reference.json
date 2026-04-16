@@ -1,0 +1,203 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on how to plan and run an End of Year (EOY) client meeting — from pre-meeting outreach through to action planning and follow-up.",
+  "objective": "To guide an advisor through the full EOY meeting process: selecting the right outreach approach, auditing the client pre-meeting, choosing the right presentation deck, running the session with psychological confidence, and closing with a clear action plan.",
+  "core_principle": "The EOY meeting is not just a compliance review — it is the primary vehicle for transitioning a client from historical reporting into forward-looking advisory. Done well, it opens the door to ongoing advisory relationships and recurring revenue.",
+
+  "templates": [
+    {
+      "name": "E.O.Y Approach Resources (Video, Quiz, Scripts, and Emails)",
+      "purpose": "Outreach materials — emails, text messages, phone scripts, and video links — to connect with clients, qualify prospects, and prime them for their EOY meeting.",
+      "helps_advisor": "Provides a micro-step between the initial approach and the first meeting, helping to qualify prospects and significantly improving client engagement rates — especially when sent via text message.",
+      "helps_owner": "Prompts the owner to reflect on their business management strengths and weaknesses and primes them to prepare for potential economic ups and downs.",
+      "indicators": "Client is a new prospect or existing client being invited to an EOY meeting, or the advisor wants to transition the client into the Lite Fundamentals selling process."
+    },
+    {
+      "name": "E.O.Y Client Review Sheet - Input",
+      "purpose": "A comprehensive diagnostic checklist to review the client's business across Governance, Ownership, Structure, Management Reporting, Financials, Technology, Taxation, and HR before the meeting.",
+      "helps_advisor": "Acts as a structured pre-meeting intelligence framework to assess the client's current status and deliberately identify Opportunities for Further Assistance — advisory services or cross-selling.",
+      "helps_owner": "Provides a holistic health check of their business, uncovering blind spots related to business value, risk management, succession planning, and technology usage.",
+      "indicators": "Client has a multi-faceted business, is asking questions about structural or tax efficiency, or the advisor wants to conduct a thorough pre-meeting audit to spot advisory opportunities."
+    },
+    {
+      "name": "EOY Presentation Decks — Frame, Agenda, V2, and Rural",
+      "purpose": "A series of visual slide decks to structure the EOY meeting, transitioning the conversation from historical accounts to advisory concepts including the Growth Curve, Volatility, and a Start/Stop/Keep action plan.",
+      "variants": [
+        {
+          "name": "Frame",
+          "use_when": "Opening any EOY meeting where the client needs psychological framing first. Bridges the Personal Zone (lifestyle, goals, family) to the Business Zone (numbers, strategy, performance). Best for emotionally-driven clients or first-time EOY advisory meetings."
+        },
+        {
+          "name": "Agenda (Standard)",
+          "use_when": "Standard business clients needing strategic review and action planning. Covers accounts review, Growth Curve positioning, Volatility analysis, and Start/Stop/Keep. Best for clients experiencing cash or sales volatility."
+        },
+        {
+          "name": "V2",
+          "use_when": "Clients whose primary challenge is revenue probability — they need to focus on their capacity to generate reliable revenue before addressing other strategic topics."
+        },
+        {
+          "name": "Rural",
+          "use_when": "Agribusiness and farming clients. Replaces standard growth language with farmer-specific concepts and aligns strategic spending decisions (e.g. new equipment vs overseas holidays) to agricultural seasons and cycles."
+        }
+      ],
+      "helps_advisor": "Provides a visual, step-by-step agenda that controls the meeting's pace, handles psychological framing, and standardises the delivery of advisory concepts.",
+      "helps_owner": "Helps them visualise where they sit on the 9-stage Growth Curve and guides them in creating tangible action steps for the future.",
+      "indicators": "Client is scheduled for an annual accounts review. Deck selection depends on client type: Rural for farming, V2 for revenue focus, Standard Agenda for cash or sales volatility clients. Frame can be used as an opener with any of the other decks."
+    },
+    {
+      "name": "EOY Scripts Only",
+      "purpose": "Psychological framing structures, rehearsal reminders, and specific dialogue prompts for introducing concepts like the Growth Curve or Volatility Report.",
+      "helps_advisor": "Provides exact wording to assert status, assume permission, and navigate difficult client temperaments — including Angry Couples, Depressed Clients, and Withdrawn clients.",
+      "helps_owner": "Ensures the meeting is communicated in a way that resonates with their mindset (macro-vision vs micro-vision) and keeps them engaged.",
+      "indicators": "Advisor is preparing for a meeting with a challenging or emotional client, or needs to rehearse how to seamlessly introduce complex advisory concepts without sounding unprepared."
+    },
+    {
+      "name": "General Agenda",
+      "purpose": "A recurring meeting agenda template to document session objectives, track specific agenda items, and record future action points.",
+      "helps_advisor": "Standardises meeting documentation and provides a reliable paper trail of client progress and task completion across multiple coaching or advisory sessions.",
+      "helps_owner": "Holds them accountable by tracking whether previous action plan tasks were completed and keeps the current meeting focused on specific, written goals.",
+      "indicators": "Client is engaged in an ongoing coaching or advisory relationship requiring regular, structured follow-up meetings."
+    },
+    {
+      "name": "Management Reporting Annual Plan (Advisory Board Plan)",
+      "purpose": "A 12-month calendar template scheduling specific operational and strategic topics for an Advisory Board or management team — e.g. Strategic Planning in February, Budgets in April, Tech/Risk in September.",
+      "helps_advisor": "Creates a clear roadmap for recurring advisory revenue — detailing exactly what board packs and reports need to be prepared each month.",
+      "helps_owner": "Instils a disciplined, year-round corporate governance structure, ensuring all vital areas of the business are reviewed annually without being overwhelming.",
+      "indicators": "Client's business is mature enough to require an Advisory Board, or the client needs structured monthly management reporting and governance."
+    },
+    {
+      "name": "EOY Quiz Questions",
+      "purpose": "A brief questionnaire to test the client's knowledge of fundamental business metrics — customer acquisition costs, variable vs fixed costs, shareholder loan accounts.",
+      "helps_advisor": "Quickly identifies gaps in the client's financial knowledge, allowing the advisor to tailor the upcoming meeting to those specific educational needs.",
+      "helps_owner": "Forces them to reflect on their financial literacy and highlights specific blind spots in their understanding of their own business costs.",
+      "indicators": "Client struggles with pricing, cash flow, or understanding fixed vs variable costs. Also useful for a quick assessment of a new prospect's financial acumen."
+    }
+  ],
+
+  "stages": [
+    {
+      "stage": 1,
+      "name": "Pre-Meeting Outreach",
+      "key_principle": "Prime the client before they arrive. A well-primed client engages faster, asks better questions, and is more emotionally ready to move from compliance thinking to advisory thinking.",
+      "coaching_points": [
+        "Use the E.O.Y Approach Resources template — it contains emails, text messages, phone scripts, and video links for this exact purpose.",
+        "SMS outreach significantly outperforms email for engagement rates. If you have SMS software, use it to send the video or quiz link directly.",
+        "The video and quiz act as a micro-step between your initial approach and the meeting — they qualify the client's interest and warm them up to advisory concepts before you sit down together.",
+        "The quiz prompts business owners to reflect on what they do and don't know about their own business metrics. Clients who complete it arrive with questions — which is exactly where you want them.",
+        "For new prospects: use outreach to qualify interest before committing to a full EOY meeting. For existing clients: use it to signal that this year's meeting will be more strategic than a standard compliance review.",
+        "If you are transitioning the client into the Lite Fundamentals selling process, the EOY outreach sequence is the natural starting point — it introduces the concept of advisory without making it a formal sales pitch."
+      ]
+    },
+    {
+      "stage": 2,
+      "name": "Pre-Meeting Audit — Client Review Sheet",
+      "key_principle": "Walk into the meeting knowing more about the client's business than they think you do. The Review Sheet turns compliance knowledge into advisory intelligence.",
+      "coaching_points": [
+        "Complete the E.O.Y Client Review Sheet — Input before the meeting. It covers Governance, Ownership, Structure, Management Reporting, Financials, Technology, Taxation, and HR.",
+        "The primary value for the advisor is identifying Opportunities for Further Assistance — gaps, risks, or underdeveloped areas that advisory services can address.",
+        "Think of it as your pre-meeting intelligence brief. The more you know before you walk in, the more confident and precise your questioning will be during the session.",
+        "Look specifically for: business value blind spots (no succession plan, no buy-sell agreement), risk gaps (no key person insurance, no documented procedures), technology gaps (not using cloud accounting, no CRM), and structural inefficiencies (wrong entity structure, poor tax planning).",
+        "You do not need to share the full checklist with the client — but arrive with three or four specific observations prepared that you can raise naturally during the meeting.",
+        "The Review Sheet also works as a cross-selling tool: areas flagged as incomplete or unknown become natural conversation starters for additional advisory services."
+      ]
+    },
+    {
+      "stage": 3,
+      "name": "Deck Selection and Meeting Framing",
+      "key_principle": "Choose the right visual tool for this client before the meeting. The wrong deck creates confusion; the right deck controls the conversation effortlessly.",
+      "coaching_points": [
+        "Select your deck before the meeting based on client profile — Frame, Standard Agenda, V2, or Rural.",
+        "Frame deck: use as an opener when the client needs psychological framing before any numbers are discussed. Bridges the Personal Zone (lifestyle, family, goals) to the Business Zone (numbers, performance, strategy). Best for emotionally-driven clients or first-time advisory meetings.",
+        "Standard Agenda deck: the default for most business clients. Covers accounts review, Growth Curve positioning, Volatility analysis, and Start/Stop/Keep action planning. Best for clients experiencing cash or sales volatility.",
+        "V2 deck: use when the client's primary challenge is revenue probability — they need to focus on capacity to generate reliable revenue before addressing broader strategic topics.",
+        "Rural deck: use for farming or agribusiness clients. Replaces standard growth concepts with farmer-specific language and aligns strategic spending to agricultural seasons and cycles.",
+        "The Frame deck can be combined with any of the other three — use it as your opening section, then transition into the main deck. They are not mutually exclusive.",
+        "If in doubt, default to the Standard Agenda — it is the most versatile and covers the essential advisory conversation for most client types."
+      ]
+    },
+    {
+      "stage": 4,
+      "name": "Running the Meeting — Scripts, Framing, and Difficult Clients",
+      "key_principle": "The EOY meeting is a performance, not a report reading. Confidence, pace, and psychological awareness determine whether the client leaves inspired or overwhelmed.",
+      "coaching_points": [
+        "Rehearse your delivery using the EOY Scripts Only document before the meeting — especially for new concepts like the Growth Curve or Volatility Report. Use it until the language feels natural, not scripted.",
+        "Open in the Personal Zone — ask about lifestyle, goals, and family before touching any business topic. This sequence makes the advisory conversation feel invited rather than imposed.",
+        "Identify whether the client is macro-vision (big-picture, conceptual) or micro-vision (detail-oriented, data-driven) early in the meeting and adjust your language and pacing accordingly.",
+        "The Growth Curve is the conceptual anchor — showing the client where they sit on the 9-stage curve gives context to every challenge and decision you discuss.",
+        "Use the Volatility section to address cash flow instability with the WHAT-HOW framework: What offerings fill revenue gaps? How do we get money in faster (admin review)? How do we attract more customers more often (marketing review)? How do we manage financial swings (working capital review)?",
+        "Close the advisory section with a Start/Stop/Keep exercise — it is collaborative and action-oriented. The client co-creates the output, which means they own it rather than feeling it was imposed on them."
+      ],
+      "difficult_client_handling": [
+        {
+          "type": "Angry Couple",
+          "approach": "Match the energy of the client who is most at risk. Do not try to calm the room immediately — meet the energy first, then gradually lead it toward a more constructive place."
+        },
+        {
+          "type": "Depressed Client",
+          "approach": "Carefully manage your pace and tone to inspire followership. Do not allow yourself to be pulled down to their emotional level — maintain your own positive energy as an anchor for the room."
+        },
+        {
+          "type": "Angry and Rude",
+          "approach": "Remain at a high level and avoid reacting to hostility. Once you have a response from them, use a By the Way redirect: 'We can get to the source of what's making you angry — maybe I can help, maybe I can't — we'll know soon enough.'"
+        },
+        {
+          "type": "Dismissive of Junior Advisor",
+          "approach": "Use tone and posture to assert status. Project a 'you're lucky to have me' presence without explicitly stating it — confidence over defensiveness."
+        },
+        {
+          "type": "Withdrawn or Quiet",
+          "approach": "Fill the room with energy using body movement and deliberate physical engagement. Engage them physically before engaging them intellectually — movement breaks passivity."
+        }
+      ]
+    },
+    {
+      "stage": 5,
+      "name": "Action Planning and Follow-Up",
+      "key_principle": "An EOY meeting without a committed action plan is just a review. The follow-up structure is what converts the conversation into ongoing advisory revenue.",
+      "coaching_points": [
+        "Document the meeting outcomes using the General Agenda template — record objectives discussed, items covered, and specific action points with owners and due dates.",
+        "The General Agenda is your accountability tool for the next meeting: it shows the client that tasks are tracked and expected to be completed — not just discussed.",
+        "If the client is ready for structured ongoing advisory, introduce the Management Reporting Annual Plan — a 12-month calendar that maps governance, financial, and strategic topics month by month.",
+        "For mature businesses: frame the Annual Plan as their advisory board calendar. It gives them a professional governance structure and gives you a clear recurring revenue roadmap.",
+        "Three questions to close every EOY meeting: (1) What is the one thing you are most committed to actioning before we meet again? (2) What support do you need from us to make that happen? (3) When shall we schedule our next session?",
+        "The EOY meeting naturally flows into ongoing advisory — the Growth Curve positioning, Volatility framework, and Start/Stop/Keep actions create enough momentum and unanswered questions that the client wants to continue."
+      ]
+    }
+  ],
+
+  "cash_volatility_strategies": {
+    "overview": "High cash volatility is like a vehicle towing a trailer getting speed wobbles — the business cannot safely grow until the balance issue is addressed. Focus on reducing volatility before attempting further growth.",
+    "framework": "WHAT-HOW: for each volatility driver, identify WHAT needs to change and HOW to make it change.",
+    "strategies": [
+      {
+        "area": "Products and Services",
+        "what": "Identify offerings that fill revenue gaps during seasonal or cyclical dips",
+        "how": "Review your product and service mix — what can be introduced, packaged, or repriced to smooth income across the year?"
+      },
+      {
+        "area": "Admin Procedures",
+        "what": "Get money into the business faster",
+        "how": "Review Terms of Trade, billing cycles, and cloud accounting software (Xero, MYOB). For trades and contractors, review job management software like Tradify. Ask: how could we get the money in quicker?"
+      },
+      {
+        "area": "Marketing and Sales",
+        "what": "Attract more customers more often",
+        "how": "Review outbound messaging (hard copy and social media advertising), inbound enquiries (website and lead funnels), and the overall product development and sales/tenders process."
+      },
+      {
+        "area": "Working Capital",
+        "what": "Finance and manage the money to cope with financial swings",
+        "how": "Review banking facilities, cash flow guidance, Capex needs (using WACC), owner and shareholder accounts, dividends, ICA balances, and tax thresholds — GST basis, AIM tax, UOMI."
+      }
+    ]
+  },
+
+  "key_concepts": {
+    "personal_to_business_zone": "The deliberate transition from opening the meeting in personal territory (lifestyle, goals, family) to professional territory (numbers, strategy, performance). This shift feels natural when framed well and is the psychological foundation of the EOY meeting structure.",
+    "growth_curve": "The 9-stage model of business growth used to show the client where they currently sit and what comes next. Gives context to every challenge and decision discussed — why certain problems exist and what the appropriate strategic response is at their current stage.",
+    "volatility_report": "The section of the EOY meeting that addresses cash flow instability using the WHAT-HOW framework. It legitimises the advisor's role in financial management beyond compliance and creates a natural bridge to ongoing advisory.",
+    "start_stop_keep": "A collaborative action planning exercise that closes the advisory section. The client identifies what new behaviours to Start, what existing behaviours to Stop, and what is working well to Keep. Collaborative ownership is the goal — the client co-creates the output so they feel accountable for it.",
+    "macro_vs_micro_vision": "Two distinct client thinking styles. Macro-vision clients respond to concepts, big-picture framing, and possibility — keep numbers at a high level and focus on direction. Micro-vision clients need data, specifics, and logical step-by-step flow — do not skip steps. Identifying which type you have early in the meeting determines your language, pacing, and depth of detail throughout.",
+    "lite_fundamentals_transition": "The EOY meeting is often the entry point for transitioning a compliance client into the Lite Fundamentals advisory process. The outreach resources and meeting structure are designed to make this transition feel natural rather than like a sales pitch."
+  }
+}

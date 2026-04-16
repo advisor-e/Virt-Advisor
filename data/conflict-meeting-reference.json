@@ -1,0 +1,168 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on how to frame and facilitate a conflict meeting — covering the psychology of conflict, the detachment pathway, the 6-step facilitation process, and status and framing techniques.",
+  "objective": "To equip advisors with the psychological framework and practical facilitation tools to run a conflict meeting — from understanding why people double down on their positions, through creating a cognitive pathway for letting go, to managing the room with status and structured process.",
+  "core_principle": "The goal of a conflict meeting is not to declare a winner — it is to create an environment where people can catch themselves acting in violation of their own higher values, and choose to let go of their current position for the greater good.",
+
+  "stages": [
+    {
+      "stage": 1,
+      "name": "Understanding Conflict Psychology",
+      "key_principle": "Before you can facilitate conflict effectively, you need to understand why people argue the way they do. Reason and logic are not neutral — they are survival tools wired for persuasion.",
+      "coaching_points": [
+        "Dan Sperber (evolutionary psychologist): the function of internalised reason and logic is to help us argue — to manipulate and convince others to meet our survival needs, and to be wary when others attempt to do the same to us.",
+        "Confirmation bias is the proof: people don't reason to find truth — they reason to find information that supports the position they already hold. If self-reasoning was designed to build better beliefs, it wouldn't come with a built-in bias.",
+        "A Double Blind (Placebo) Study exists specifically to protect researchers from their own confirmation bias — such is the corrupting influence of internal dialogue on even trained, objective thinkers.",
+        "In a conflict meeting, assume that every party believes they are right and is actively searching for evidence to confirm it. Your role is not to judge who is correct — it is to shift the group out of confirmation bias mode and into collaborative problem-solving mode.",
+        "The caveman analogy: a physically small person in prehistoric times had to negotiate with stronger men to gain a share of food — learning to manipulate and convince without physical force. This is the evolutionary origin of what you are watching in the room."
+      ]
+    },
+    {
+      "stage": 2,
+      "name": "Creating the Cognitive Pathway — Detachment",
+      "key_principle": "People double down on their positions not because they are stubborn — but because letting go feels like a loss of self. Your first job is to create a safe cognitive pathway for them to release their position without losing their identity.",
+      "coaching_points": [
+        "We understand things by associating them with past experiences. Once we have made an association, we believe we know 'what it is' and 'what it means' — and we take psychological ownership of that understanding.",
+        "This is why people double down on beliefs even in the face of obvious conflicting information — changing the belief feels like losing part of themselves.",
+        "To accept new information, a person must first be prepared to let go of their current belief without feeling a loss of self. You must create the cognitive pathway for this before any resolution is possible.",
+        "Loss of self is deeper than loss of face — it includes the acceptance of conflicting values. This requires emotional maturity ('I love my job but I can't work there anymore').",
+        "Use the Santa Claus sequence to open this pathway — three questions in order:"
+      ],
+      "santa_claus_sequence": [
+        {
+          "type": "Disturb",
+          "question": "Do you remember who the first person was to tell you Santa Claus wasn't real?"
+        },
+        {
+          "type": "Affirm",
+          "question": "Did believing in Santa Claus make you less of a person?"
+        },
+        {
+          "type": "Aspirational",
+          "question": "Is it possible that the process of learning that a once firmly held belief was incorrect, releasing it, and accepting a new understanding, actually gave you the early life experience that you can change a belief and NOT be any weaker for it?"
+        }
+      ],
+      "prescribed_cognitive_pathway": "We can conclude from this that holding on to a belief or understanding from fear of learning we were wrong is actually detrimental to our wellbeing and potentially dangerous. Our desire to avoid feelings of short-term embarrassment or shame is only because we took ownership of our understanding. If we seek to experience life on the basis of 'information to date equals new information means new understanding' — then we'll be better able to adapt to our changing world and therefore be safer and, potentially, happier.",
+      "closing_anchor": "Going forward — we must seek understanding with an open heart and an open mind. (Ask each person to describe what this statement means to them.)"
+    },
+    {
+      "stage": 3,
+      "name": "The 6-Step Facilitation Process",
+      "key_principle": "Once the cognitive pathway is opened, move the group through a structured process. The objective is to create an environment where people can catch themselves acting in violation of their own higher values and choose to let go for the greater good.",
+      "steps": [
+        {
+          "step": 1,
+          "name": "Show Them the Light",
+          "script": "We're here to define a process that allows everyone to walk away with a solution they can live with. Not everything they demand, not rewarded for starting high so they can falsely lay claim to concessions — but realistic solutions to fair and honest requests that everyone can live with."
+        },
+        {
+          "step": 2,
+          "name": "Find Early Alignment",
+          "description": "Quickly identify the people who want the same outcome but disagree on the process or methodology. Surface shared intent before addressing the disagreement."
+        },
+        {
+          "step": 3,
+          "name": "Separate the Outcome from the Process",
+          "description": "By shifting the group's focus to the process (how we get there) rather than the problem (what went wrong), you reduce emotional energy on the conflict itself."
+        },
+        {
+          "step": 4,
+          "name": "Show the Cliff Face and Highlight the Grab Rails",
+          "description": "Allow those defending their position to clearly see the extreme consequence of scorched earth tactics. Then immediately show the grab rails — the path to a liveable outcome. Agree to let go and live with a central resolution unless it is illegal, unethical or immoral."
+        },
+        {
+          "step": 5,
+          "name": "Praise Even Small Acts of Progress",
+          "description": "Publicly thank those who relent or contribute to a positive meeting environment. Positive reinforcement of movement — even minor — accelerates group progress."
+        },
+        {
+          "step": 6,
+          "name": "Use Time to Your Advantage",
+          "scripts": [
+            "We're going to take a quick coffee break now. I want each of you to find at least one thing you can suggest to make progress here today that does not come at the cost of others.",
+            "I think we've achieved as much as we could expect for the day. I recommend we agree on a future meeting date here and now, and continue the agreed process when we meet again."
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "name": "The 3 Framing Concepts",
+      "key_principle": "These three concepts are the structural tools you use to hold the room. They work before and during the meeting to establish your authority, neutralise disruptive behaviour, and give everyone a shared reference point.",
+      "concepts": [
+        {
+          "concept": 1,
+          "name": "Achieve Status and Share It Quickly",
+          "description": "Establish hierarchical dominance early — then immediately share it. Sharing power prevents resentment and keeps the group engaged. Assign a task to a vocal adversary to channel their energy constructively.",
+          "example_script": "Hey Bob, I know you're concerned about this meeting running over time — can I ask you to watch the clock and remind everyone when there's 10 minutes remaining so we can cover Q&A and end 5 minutes early. If I go over time, you're in charge of the team to throw me out the window!"
+        },
+        {
+          "concept": 2,
+          "name": "Call Out The Ghosts",
+          "description": "Expose poor behaviour in advance, or pre-empt bad news and underlying fears before they surface. Naming the elephant in the room before someone else does gives you control of the narrative and reduces the shock value of difficult truths."
+        },
+        {
+          "concept": 3,
+          "name": "Establish Context",
+          "description": "Frame the situation across three reference points: Worst Case, Current Case, and Best Case. This prevents people from catastrophising and gives the group a rational range within which to negotiate."
+        }
+      ]
+    },
+    {
+      "stage": 5,
+      "name": "Achieving and Sustaining Status",
+      "key_principle": "Status is not about dominance for its own sake — it is about creating enough arousal in the room that the group chooses to tune in rather than tune out. Status must be earned in context, then shared.",
+      "coaching_points": [
+        "Status exists at two levels: Global (your position in society or profession) and Local (your perceived authority in this specific room and context). A heart surgeon has global status — but loses local status the moment they pick up a pool cue against a pub pool shark.",
+        "The goal of status in a conflict meeting is to create Arousal — the physiological and psychological state where sense organs are stimulated to the point of Perception. In sales and facilitation terms: should I tune in, or tune out?",
+        "Share your status position as quickly as possible after establishing it. Holding status too long creates resentment. Sharing it creates partnership.",
+        "One technique for sharing status: assign a meaningful task to your most vocal adversary. This redirects their energy from opposition to contribution and gives them a stake in the meeting's success."
+      ],
+      "delivery_elements": [
+        {
+          "element": "Physiology and Pace",
+          "description": "Congruent gestures and pace — sometimes referred to as mirroring. Your body language must match your intent and message."
+        },
+        {
+          "element": "Intent",
+          "description": "Your genuine intention for positive meeting outcomes for all in attendance. If your intent is not authentic, it will be detected — especially in a high-tension room."
+        },
+        {
+          "element": "Frameworks",
+          "description": "The problem-solving conceptual hierarchies you bring to the room. Clear, structured thinking signals that you have thought about this in advance and have authority over the process."
+        },
+        {
+          "element": "Tonality",
+          "description": "Delivering your message at the correct pitch. Tone communicates confidence, empathy, and control more powerfully than content alone."
+        }
+      ]
+    }
+  ],
+
+  "facilitator_framework": {
+    "description": "As a facilitator in a conflict meeting, you are simultaneously sustaining three things in the room at all times.",
+    "pillars": [
+      {
+        "pillar": "The Person",
+        "guidance": "Separate the emotional attachment from the belief — only then can you position a new belief if required. The person must be able to accept a new position without feeling a loss of self. This is deeper than loss of face — it includes accepting conflicting values."
+      },
+      {
+        "pillar": "The Method",
+        "guidance": "The method serves as the mental alignment to achieve collaboration. It must inspire confidence and affirm beliefs gained from the experience. Critically, the method must be easy to learn and recall — it is often during private reflection periods that buyers remorse sets in and people backtrack on agreements. The process must be simple enough to remember when they are alone."
+      },
+      {
+        "pillar": "The Outcome",
+        "guidance": "The outcome needs to be equitable — not necessarily equal. Equal means everyone gets the same. Equitable means everyone gets what they need relative to their situation. These are very different standards, and confusing them is a common source of conflict."
+      }
+    ]
+  },
+
+  "key_concepts": {
+    "confirmation_bias": "The tendency to seek and prioritise information that confirms our existing beliefs. In a conflict meeting, every party is unconsciously doing this. Your role is to interrupt the cycle — not by arguing facts, but by creating a process that makes letting go feel safe.",
+    "detachment": "The psychological phenomenon of releasing emotional ownership of a belief or understanding. Detachment is the prerequisite to accepting new information — you cannot hold a new belief while gripping the old one. The Santa Claus sequence is the primary tool for creating the conditions for detachment.",
+    "loss_of_self": "The deeper fear beneath most conflict — not just losing the argument (loss of face), but feeling that changing your position means you are somehow less of a person. Facilitators must address loss of self explicitly, not just loss of face.",
+    "cliff_face_and_grab_rails": "A facilitation technique for handling entrenched positions. Show the extreme consequence of the current trajectory (the cliff face), then immediately provide the safe path to a liveable outcome (the grab rails). Never show the cliff face without also showing the grab rails.",
+    "equitable_vs_equal": "A critical distinction for conflict resolution. Equal = everyone gets the same. Equitable = everyone gets what they need given their circumstances. Conflict often persists because parties argue for equality when what is actually needed is equity.",
+    "global_vs_local_status": "Status is always contextual. A professional's global status (reputation, credentials) may not translate to local status in a specific room. Read the room and establish your local status through delivery, frameworks, and intent — not just credentials."
+  }
+}

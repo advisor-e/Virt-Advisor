@@ -1,0 +1,61 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on Facilitation 101 — the universal 3-stage framework for introducing any advisory concept or template to a business owner client.",
+  "objective": "To equip advisors with the psychological entry protocol for presenting any advisory concept — from the opening frame through to securing genuine buy-in and personal relevance.",
+  "core_principle": "Never present a concept directly to the client's business first. Frame it, tell a third-person story, and only apply it to their business once they show genuine interest. Sequence discipline is everything.",
+
+  "stages": [
+    {
+      "stage": 1,
+      "name": "Framing",
+      "key_principle": "Achieve a dominant hierarchical position — secure your credibility, seize control of the meeting, and share power simultaneously. Set the psychological contract before any content is delivered.",
+      "opening_script": "I want to run a concept past you and get your feedback; if you like what you see, we'll explore how the concept relates to your business in more detail. How does that sound?",
+      "coaching_points": [
+        "The phrase 'get your feedback' shares power immediately — this prevents the client from feeling cornered and keeps them receptive.",
+        "'If you like what you see' signals disassociation — it slips the client's ego, improves reception and memory recall, and gives you an exit if the concept doesn't suit without losing face.",
+        "'How does that sound?' secures the psychological loop — you gain agreement and permission through an assumed close position before content has even begun.",
+        "This sequence establishes you as the guide, not the salesperson — the client feels in control while you hold the structure.",
+        "Do not paraphrase this script. Each phrase performs a specific psychological function. Changing the words changes the result."
+      ]
+    },
+    {
+      "stage": 2,
+      "name": "Lead with a 3rd Person Story",
+      "key_principle": "Create disassociation between the client's business and the concept. If they hear their own industry or situation immediately, the neocortex engages and the emotional connection is lost.",
+      "coaching_points": [
+        "Always introduce the concept using a business completely different from the client's — a chocolate factory, a computer shop, a cafe. Pick one and use it consistently.",
+        "Use the same story every time. Familiarity builds more emotional depth over time — inventing new stories on the spot makes delivery harder and less convincing.",
+        "Bring the story to life by characterising both sides of a conversation — play both characters, just as a comedian acts out both roles in a storyline.",
+        "Your goal: 'Create theatre in their mind.' The client should be visualising the scenario you describe, not evaluating you.",
+        "The 3rd person approach keeps the client in conceptual thinking mode. Once you shift to their business, the neocortex engages — use that transition deliberately, not accidentally."
+      ]
+    },
+    {
+      "stage": 3,
+      "name": "Secure Relevance",
+      "key_principle": "Only apply the concept to the client's business once they show genuine self-relevance. Relevance must be earned, not assumed.",
+      "coaching_points": [
+        "Watch for self-relevance signals: the client says things like 'That's like my business...' or 'I have customers that do exactly that...' — this is your green light to transition.",
+        "Even if the client agrees early, park their contributions. Finish explaining the concept fully before putting their business through the model.",
+        "The concept only sticks when the client can: (1) understand the concept, (2) see how it relates to them, and (3) know what action they can take. All three must happen in sequence.",
+        "Like a clothing salesperson — you only suggest they try it on once you can see they are drawn to it. Suggesting too early creates resistance.",
+        "Convert knowledge to physical involvement. The client needs to actively participate in applying the concept to their own situation — passive understanding is not enough."
+      ]
+    }
+  ],
+
+  "key_concepts": {
+    "psychological_loop": "The technique of securing agreement and permission at the start of a meeting through an assumed close ('How does that sound?'). Once the client agrees to the frame, they are psychologically committed to engaging with what follows.",
+    "slipping_the_ego": "The deliberate use of disassociation language ('if you like what you see') to reduce the client's defensive evaluation mode. The client's ego is less likely to reject a concept it was given permission to decline — paradoxically making acceptance more likely.",
+    "neocortex_vs_amygdala": "The neocortex handles critical judgment and analysis. The amygdala and hippocampus govern emotion and memory. The 3rd person story keeps the client in the emotional, receptive brain — switching to their own business triggers the analytical brain. Use this transition deliberately.",
+    "theatre_of_the_mind": "The standard of storytelling required in facilitation. The client should be mentally visualising the scenario you describe — not sitting in analytical mode. Characterising both sides of a conversation (playing both roles) is the primary technique for achieving this.",
+    "self_relevance_signal": "The moment the client maps the concept to their own experience without being prompted — 'That's like my business...' or 'I have customers who do exactly that...' This is the trigger for transitioning from the 3rd person story to their own business. Do not make this transition before the signal appears.",
+    "park_and_return": "The technique of acknowledging a client's early contribution ('great point — let's come back to that once I've shown you the full picture') without letting it derail the sequence. Parking keeps the flow intact while respecting the client's input."
+  },
+
+  "additional_guidance": {
+    "sequence_discipline": "The three stages must happen in order — every time. Skipping the 3rd person story and going straight to the client's business is the most common facilitation mistake. It triggers judgment before emotional buy-in is established.",
+    "story_consistency": "Pick one 3rd person story and use it for every client. The more times you tell the same story, the more natural and emotionally resonant it becomes. Consistency is a feature, not laziness.",
+    "universal_application": "These three stages apply to introducing any advisory template or concept — not just revenue models. Whether it's the Growth Curve, 8 Profit Levers, Working Capital Cycle, or any other framework, the Facilitation 101 sequence is the entry protocol every time."
+  }
+}

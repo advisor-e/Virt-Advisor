@@ -1524,6 +1524,778 @@
           "next_stage": null
         }
       ]
+    },
+
+    {
+      "id": "eoy_meeting",
+      "name": "End of Year Meeting — Planning and Delivery",
+      "mode": "learn",
+      "sequential": true,
+      "description": "A staged coaching guide for advisors preparing to run an End of Year (EOY) client meeting. Covers the full process from pre-meeting outreach and client audit, through deck selection, meeting delivery, and action planning. Uses the EOY template suite as the practical toolkit at each stage.",
+      "stage_entry_question": "Where are you in the EOY meeting process right now — are you still preparing and reaching out to the client, about to walk into the meeting, currently in the session and wanting guidance on what to do next, or wrapping up and thinking about follow-up?",
+      "entry_triggers": [
+        "end of year",
+        "eoy",
+        "year end",
+        "year-end",
+        "annual review",
+        "annual meeting",
+        "eoy meeting",
+        "year end meeting",
+        "eoy presentation",
+        "annual accounts review",
+        "accounts review",
+        "eoy scripts",
+        "eoy quiz",
+        "eoy client review",
+        "growth curve meeting",
+        "volatility report",
+        "start stop keep",
+        "advisory board plan",
+        "management reporting plan",
+        "eoy deck",
+        "rural deck",
+        "eoy agenda",
+        "eoy approach",
+        "compliance to advisory",
+        "transition to advisory",
+        "lite fundamentals"
+      ],
+      "nodes": [
+        {
+          "id": "eoy_stage1",
+          "branch_name": "Stage 1 — Pre-Meeting Outreach",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor is in the preparation phase — reaching out to invite the client to an EOY meeting",
+          "question": "Before we get into the meeting itself — have you reached out to the client yet? There is a specific outreach toolkit for EOY that makes a real difference to how engaged the client is when they arrive. Have you used anything like emails, a video link, or a quiz to prime them?",
+          "action": "Direct the advisor to the E.O.Y Approach Resources template. Key coaching points: SMS outreach outperforms email for engagement — if they have SMS software, use it. The video and quiz act as a micro-step that qualifies client interest and warms them up to advisory thinking before they sit down. For new prospects, outreach qualifies interest before committing to a full EOY meeting. For existing clients, it signals that this year will be more strategic than a standard compliance review. If the goal is to transition the client into Lite Fundamentals, the EOY outreach sequence is the natural starting point.",
+          "notes": "Advisors often skip outreach and go straight to the meeting — this is a missed opportunity. Even a single text message with a quiz link measurably improves client engagement rates. The micro-step is low-effort for the advisor and high-impact for the client's mindset arriving at the meeting.",
+          "next_stage": 2
+        },
+        {
+          "id": "eoy_stage2",
+          "branch_name": "Stage 2 — Pre-Meeting Audit",
+          "type": "question",
+          "stage": 2,
+          "condition": "Outreach is done and the advisor is preparing for the meeting itself",
+          "question": "Good. Now for your pre-meeting preparation — have you worked through the Client Review Sheet for this client? The goal is to walk in knowing more about their business than they expect, so you can ask precise questions rather than general ones. What areas are you most uncertain about going into this meeting?",
+          "action": "Direct the advisor to the E.O.Y Client Review Sheet — Input. Coach them to review the client across all eight dimensions: Governance, Ownership, Structure, Management Reporting, Financials, Technology, Taxation, and HR. The advisor should identify three or four specific observations to raise naturally during the meeting — not to share the full checklist with the client, but to use it as preparation intelligence. Flag common blind spots: no succession plan, no buy-sell agreement, not using cloud accounting, wrong entity structure. Each gap is both a risk to raise and a potential advisory service to introduce.",
+          "notes": "The Review Sheet doubles as a cross-selling map. Gaps flagged during the pre-meeting audit become natural conversation starters during the session. Advisors who skip this step arrive as accountants; advisors who complete it arrive as strategic partners.",
+          "next_stage": 3
+        },
+        {
+          "id": "eoy_stage3",
+          "branch_name": "Stage 3 — Deck Selection and Meeting Framing",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor has completed pre-meeting prep and needs to choose the right presentation deck",
+          "question": "There are four EOY deck variants — Frame, Standard Agenda, V2, and Rural. Which one are you planning to use, and what do you know about this client that's driving that choice? Tell me a bit about the client — their industry, their main challenges, and how emotionally engaged they typically are in these meetings.",
+          "action": "Use the client profile to recommend the right deck. Frame: use as an opener for emotionally-driven clients or first-time advisory meetings — it bridges the Personal Zone to the Business Zone before any numbers appear. Standard Agenda: the default for most business clients — covers accounts review, Growth Curve, Volatility, and Start/Stop/Keep. Best for clients with cash or sales volatility. V2: for clients whose primary challenge is revenue probability — they need to focus on capacity to generate reliable revenue. Rural: for farming or agribusiness clients — uses farmer-specific language and aligns strategic spending to agricultural seasons. The Frame deck can be combined with any other deck as an opening section — they are not mutually exclusive. If in doubt, default to the Standard Agenda.",
+          "notes": "Deck selection is not just a logistical choice — it is a psychological one. Using the wrong deck for the client type creates friction early in the meeting. A rural farmer shown a standard urban growth curve feels like the meeting wasn't prepared for them. A highly analytical client shown an emotional framing deck may disengage. Match the tool to the person.",
+          "next_stage": 4
+        },
+        {
+          "id": "eoy_stage4",
+          "branch_name": "Stage 4 — Running the Meeting",
+          "type": "question",
+          "stage": 4,
+          "condition": "Advisor is in or about to enter the meeting and needs guidance on delivery",
+          "question": "Let's talk through the meeting itself. Have you rehearsed your delivery of the key concepts — the Growth Curve positioning, the Volatility section, and the transition from accounts to advisory? And is there anything specific about this client you're concerned about — their personality, their emotional state, or a difficult topic you need to navigate?",
+          "action": "Coach the advisor through the meeting structure: (1) Open in the Personal Zone — ask about lifestyle, goals, family before touching any business topic. This makes the advisory conversation feel invited rather than imposed. (2) Identify early whether the client is macro-vision (conceptual, big-picture) or micro-vision (data-driven, detail-oriented) and adjust language and pacing accordingly. (3) The Growth Curve is the conceptual anchor — position the client on the 9 stages to give context to everything else. (4) Use the Volatility section with the WHAT-HOW framework for cash flow issues. (5) Close the advisory section with Start/Stop/Keep — collaborative and co-created. Direct them to the EOY Scripts Only document for exact wording and rehearsal prompts. For difficult client personalities: Angry Couple — match the energy of the most at-risk person first. Depressed client — manage pace and tone, do not get pulled to their emotional level. Angry/rude — stay high-level, use a By the Way redirect. Dismissive of junior advisor — assert status through tone and posture. Withdrawn — fill the room with physical energy and movement.",
+          "notes": "The EOY Scripts Only document is underused. Advisors who rehearse the exact language for introducing the Growth Curve or Volatility Report deliver it with far more confidence and authority than those who improvise. Even experienced advisors benefit from rehearsing new concepts before using them with real clients.",
+          "next_stage": 5
+        },
+        {
+          "id": "eoy_stage5",
+          "branch_name": "Stage 5 — Action Planning and Follow-Up",
+          "type": "question",
+          "stage": 5,
+          "condition": "The meeting is wrapping up and the advisor needs to close with a clear action plan and next steps",
+          "question": "Last stage — closing the meeting with a committed action plan. Have you thought about how you're going to document what was agreed and what happens next? And is this client one who could benefit from structured ongoing advisory, or are they still at the single-meeting stage?",
+          "action": "Coach the advisor to use the General Agenda template to document meeting outcomes — objectives discussed, items covered, and specific action points with owners and due dates. The General Agenda becomes the accountability tool at the next meeting. Three closing questions to always ask: (1) What is the one thing you are most committed to actioning before we meet again? (2) What support do you need from us to make that happen? (3) When shall we schedule our next session? For clients ready for structured ongoing advisory: introduce the Management Reporting Annual Plan — a 12-month governance and strategic calendar. Frame it as their advisory board calendar — it gives them professional governance structure and creates a clear recurring revenue roadmap for the advisor. The EOY meeting naturally creates momentum for ongoing advisory — the Growth Curve, Volatility, and Start/Stop/Keep framework leaves enough unanswered questions that engaged clients want to continue.",
+          "notes": "The biggest mistake at this stage is leaving without a booked next meeting. An EOY meeting with no follow-up date is a one-off — an EOY meeting with a scheduled next session is the start of an advisory relationship. Always book the next meeting before the client leaves the room.",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "facilitation_101",
+      "name": "Facilitation 101 — Framing, Story, and Relevance",
+      "description": "A sequential coaching guide for the Facilitation 101 framework — the universal 3-stage entry protocol for introducing any advisory concept or template to a client. Covers the opening frame, building a 3rd person story, and securing self-relevance.",
+      "mode": "learn",
+      "sequential": true,
+      "entry_triggers": [
+        "facilitation",
+        "facilitate",
+        "presentation",
+        "framing a meeting",
+        "frame a meeting",
+        "how to introduce a concept",
+        "introduce a template",
+        "how to present a concept",
+        "third person story",
+        "3rd person story",
+        "how does that sound",
+        "slipping the ego",
+        "secure relevance",
+        "self relevance",
+        "create theatre",
+        "theatre in their mind",
+        "neocortex",
+        "psychological loop",
+        "opening a meeting",
+        "open a client meeting",
+        "park and return",
+        "disassociation"
+      ],
+      "stage_entry_question": "Which part of the Facilitation 101 sequence do you want to work on — the opening frame, building your 3rd person story, or knowing when and how to secure relevance with the client?",
+      "nodes": [
+        {
+          "id": "fac_stage1",
+          "branch_name": "Stage 1 — Framing",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor wants to coach the opening frame for introducing any advisory concept",
+          "question": "Let's start with the opening frame. Have you used the script before — 'I want to run a concept past you and get your feedback; if you like what you see, we'll explore how the concept relates to your business in more detail. How does that sound?' How comfortable do you feel delivering it word for word?",
+          "notes": "Each phrase in the frame performs a specific psychological function. 'Get your feedback' shares power. 'If you like what you see' slips the ego and creates an exit. 'How does that sound?' closes the psychological loop. Do not paraphrase — changing the words changes the outcome.",
+          "next_stage": 2
+        },
+        {
+          "id": "fac_stage2",
+          "branch_name": "Stage 2 — 3rd Person Story",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor is ready to build and deliver the 3rd person story before applying the concept to the client's business",
+          "question": "Now the 3rd person story. Do you have a go-to story you use consistently — a chocolate factory, a computer shop, a cafe owner — or are you still making up a new one each time? And when you tell it, do you play both characters in the conversation or do you just describe it?",
+          "notes": "The story must be from a different industry to the client's. Use the same one every time — familiarity builds emotional depth. Characterise both sides of the dialogue (play both roles, like a comedian). Goal: create theatre in their mind, not transfer information.",
+          "next_stage": 3
+        },
+        {
+          "id": "fac_stage3",
+          "branch_name": "Stage 3 — Secure Relevance",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor is ready to practice transitioning from the 3rd person story to the client's own business",
+          "question": "Last stage — securing relevance. How do you currently know when a client is ready to have the concept applied to their own business? What signals are you watching for before you make that transition?",
+          "notes": "Self-relevance signals: 'That's like my business...' or 'I have customers who do exactly that...' — only then transition. Park early contributions (acknowledge and defer) until the concept is fully explained. The concept sticks only when the client understands it, sees how it applies, and knows what action to take — all three in sequence.",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "reveal_growth_curve",
+      "name": "Revealing the Growth Curve",
+      "description": "A sequential coaching guide for delivering the Growth Curve reveal to a client. Covers global positioning, persona development, the 3-part story sequence, live drawing technique, and how to close without selling too fast.",
+      "mode": "learn",
+      "sequential": true,
+      "entry_triggers": [
+        "growth curve",
+        "reveal the growth curve",
+        "growth curve reveal",
+        "growth curve facilitation",
+        "how to present the growth curve",
+        "growth curve story",
+        "9 stages of business growth",
+        "9 stages",
+        "persona",
+        "bob the chocolate maker",
+        "chocolate maker",
+        "global positioning",
+        "chunking technique",
+        "live drawing",
+        "free draw",
+        "artisan businessman",
+        "strategic advisor",
+        "growth curve story",
+        "devils toilet",
+        "split point",
+        "freedraw",
+        "draw",
+        "reveal"
+      ],
+      "stage_entry_question": "Which part of the Growth Curve reveal do you want to work on — the opening positioning and script, building your persona, delivering the story, the drawing technique, or how to close the session?",
+      "nodes": [
+        {
+          "id": "gc_stage1",
+          "branch_name": "Stage 1 — Global Positioning",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor wants to coach the opening script that introduces the Growth Curve before the persona story begins",
+          "question": "Let's start with the opening frame. Can you deliver the global positioning script from memory right now — the one that explains what the Growth Curve is and why you use it with clients? Have a go, or tell me where you feel uncertain with it.",
+          "notes": "The global positioning is brief — one confident paragraph. Its job is to establish what the framework is and why it matters BEFORE they have to cope. Emphasise BEFORE. The transition line into the persona ('Let's take a look through the eyes of...') signals the gear change into story mode — deliver it with energy.",
+          "next_stage": 2
+        },
+        {
+          "id": "gc_stage2",
+          "branch_name": "Stage 2 — Persona Development",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor needs to build or refine the 3rd person persona used throughout the Growth Curve delivery",
+          "question": "Now the persona. Do you have a character you use consistently — name, business, age, backstory, and a quirky product feature? Tell me what you've got, or let's build one from scratch if you haven't settled on one yet.",
+          "notes": "The persona keeps the advisor in 3rd person throughout delivery, preventing the client's neocortex from engaging in self-assessment too early. The quirky product feature (e.g. steak and rhubarb pies, chocolate with rust from the mixer) is deliberately strange — the stranger it is, the more it sticks. Advisor should pick one persona and use it with every client.",
+          "next_stage": 3
+        },
+        {
+          "id": "gc_stage3",
+          "branch_name": "Stage 3 — The 3-Part Story Sequence",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor is ready to practice delivering the story and transitioning through the 3-part sequence",
+          "question": "The story itself runs in three parts: explain the concept in 3rd person, gain agreement in principle if needed, then create client relevance. Which of those three transitions do you find hardest — staying in 3rd person throughout, knowing when to check for agreement, or making the move to 'so in YOUR case'?",
+          "notes": "Part 2 (gaining agreement in principle) is optional — only use it if the client is skeptical or resistant. Engaged clients show self-relevance naturally through questions and comments. Watch for those signals during Part 1 and park any early contributions until the story is complete. The three relevance questions to close: 'Where do you think you sit on the curve?', 'What makes you say that?', 'Where do you want to be, and by when?'",
+          "next_stage": 4
+        },
+        {
+          "id": "gc_stage4",
+          "branch_name": "Stage 4 — Drawing and Delivery Technique",
+          "type": "question",
+          "stage": 4,
+          "condition": "Advisor wants to improve their physical delivery of the Growth Curve — live drawing, chunking, and page management",
+          "question": "How are you currently delivering the visual — are you drawing it live or using a pre-made slide or diagram? And are you familiar with the chunking technique for labelling the stages?",
+          "notes": "Live drawing is the preferred method even for advisors with poor handwriting — it slows the client's brain, creates curiosity, and makes the reveal feel like shared discovery. Chunking: write all three phase labels first, then speak about them — never write one, explain it, write the next. Plan page space ahead of time to leave room for milestones. Rhyming words (artisan/businessman) are intentional for memory retention.",
+          "next_stage": 5
+        },
+        {
+          "id": "gc_stage5",
+          "branch_name": "Stage 5 — Closing the Session",
+          "type": "question",
+          "stage": 5,
+          "condition": "Advisor has delivered the Growth Curve and needs to close the section without over-selling",
+          "question": "Last stage — the close. After the client has placed themselves on the curve, what do you currently do next? And do you have the closing question ready: 'Would you be open to me offering you ideas or highlighting problem areas as and when I think they could help you?'",
+          "notes": "The Growth Curve's purpose is repositioning — not immediate selling. Don't list strategic services straight after. The Volatility discussion follows later in the EOY meeting — spacing these prevents overwhelm. Different processing styles (Activist, Pragmatist, Reflector, Theorist) need varying absorption time. Diary a follow-up within 14 days to share specific Growth Curve observations.",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "conflict_meeting",
+      "name": "Framing a Conflict Meeting",
+      "description": "A sequential coaching guide for advisors preparing to facilitate a conflict meeting. Covers conflict psychology, the detachment pathway, the 6-step facilitation process, the 3 framing concepts, and achieving and sharing status.",
+      "mode": "learn",
+      "sequential": true,
+      "entry_triggers": [
+        "conflict meeting",
+        "conflict",
+        "framing a conflict",
+        "difficult meeting",
+        "dispute",
+        "mediation",
+        "confirmation bias",
+        "cognitive pathway",
+        "loss of self",
+        "grab rails",
+        "scorched earth",
+        "show them the light",
+        "early alignment",
+        "equitable",
+        "dan sperber",
+        "double down",
+        "buyers remorse",
+        "global status",
+        "local status",
+        "achieve status",
+        "share status",
+        "worst case best case",
+        "hostile client",
+        "heated",
+        "tense",
+        "partnership conflict",
+        "business dispute"
+      ],
+      "stage_entry_question": "Which part of running a conflict meeting do you want to work on — understanding the psychology behind why people dig in, creating a pathway for them to let go, the step-by-step facilitation process, or how to frame and hold status in the room?",
+      "nodes": [
+        {
+          "id": "conf_stage1",
+          "branch_name": "Stage 1 — Conflict Psychology",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor wants to understand the psychological foundations of conflict before entering the meeting",
+          "question": "Before we get into technique — how do you currently think about why people in conflict refuse to change their position, even when new information is right in front of them? What's your read on what's actually happening psychologically?",
+          "notes": "Key insight from Dan Sperber: reason and logic evolved not to find truth, but to argue and persuade for survival. Confirmation bias is proof of this — people search for evidence that supports what they already believe. In a conflict meeting, every party believes they are right and is unconsciously filtering all information through that lens. The facilitator's job is to interrupt that cycle without triggering defensiveness.",
+          "next_stage": 2
+        },
+        {
+          "id": "conf_stage2",
+          "branch_name": "Stage 2 — Creating the Detachment Pathway",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor understands the psychology and is ready to learn how to open a cognitive pathway for clients to let go of their position",
+          "question": "The core challenge in conflict is that changing position feels like losing part of yourself — not just losing the argument. Have you got a way of helping people safely release a held belief before the substantive discussion begins? Or is this an area you want to build?",
+          "notes": "Use the Santa Claus sequence to open the detachment pathway: (1) Disturb — 'Do you remember who first told you Santa Claus wasn't real?' (2) Affirm — 'Did believing in Santa make you less of a person?' (3) Aspirational — 'Is it possible that releasing a firmly held belief gave you the early life experience that you can change and NOT be weaker for it?' Then deliver the Prescribed Cognitive Pathway and close with: 'Going forward, we must seek understanding with an open heart and an open mind — what does that mean to you?'",
+          "next_stage": 3
+        },
+        {
+          "id": "conf_stage3",
+          "branch_name": "Stage 3 — The 6-Step Facilitation Process",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor is ready to work through the structured facilitation process for running the conflict meeting itself",
+          "question": "Let's walk through the process. The meeting runs on 6 steps — Show the Light, Find Early Alignment, Separate Outcome from Process, Show the Cliff Face and Grab Rails, Praise Progress, Use Time. Which of those feels most uncertain for you, or do you want to walk through all six?",
+          "notes": "Step 1 script: 'We're here to define a process that allows everyone to walk away with a solution they can live with — not everything they demand, not rewarded for starting high to claim false concessions; but realistic, fair solutions everyone can live with.' Step 4 (Cliff Face/Grab Rails): show the extreme consequence of scorched earth tactics then immediately offer the path to resolution. Step 6 coffee break script: 'I want each of you to find at least one thing you can suggest to make progress today that does not come at the cost of others.'",
+          "next_stage": 4
+        },
+        {
+          "id": "conf_stage4",
+          "branch_name": "Stage 4 — The 3 Framing Concepts",
+          "type": "question",
+          "stage": 4,
+          "condition": "Advisor is ready to work on the three structural framing tools used before and during the conflict meeting",
+          "question": "There are 3 framing concepts that hold the room together — Achieve Status and Share It, Call Out the Ghosts, and Establish Context (Worst/Current/Best Case). Which of these do you find hardest in a tense meeting?",
+          "notes": "Achieve Status and Share It: establish authority early then immediately give some of it away — assign a task to your most vocal adversary to redirect their energy. Call Out the Ghosts: name poor behaviour or bad news before it surfaces — naming it first gives you narrative control. Establish Context: Worst Case/Current Case/Best Case gives everyone a rational range and prevents catastrophising.",
+          "next_stage": 5
+        },
+        {
+          "id": "conf_stage5",
+          "branch_name": "Stage 5 — Achieving and Sustaining Status",
+          "type": "question",
+          "stage": 5,
+          "condition": "Advisor wants to work on how to establish and hold status in a conflict meeting through delivery",
+          "question": "Last stage — status and delivery. In a conflict meeting, people are constantly scanning for who to follow. How do you currently establish your authority in a room where two or more people are already competing for dominance?",
+          "notes": "Status is Global (professional reputation) and Local (in this specific room right now). Local status is won through delivery — not credentials. The 4 delivery elements: Physiology and Pace (mirroring, congruent gestures), Intent (genuine commitment to a good outcome for everyone in the room), Frameworks (structured thinking signals you have prepared and have command of the process), Tonality (correct pitch communicates confidence and empathy simultaneously). Share status quickly — holding it too long creates resentment.",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "capacity_capability_opportunity",
+      "name": "Capacity, Capability, Opportunity",
+      "description": "A sequential coaching guide for the CCO framework — a macro-level diagnostic tool for identifying the legitimate constraints restricting a client's ability to grow. Covers the three pillars (Capacity, Capability, Opportunity) and how to apply them in an advisory conversation.",
+      "mode": "learn",
+      "sequential": true,
+      "entry_triggers": [
+        "capacity capability opportunity",
+        "capacity",
+        "capability",
+        "legitimate constraints",
+        "goldilocks",
+        "transactional volume",
+        "what if scenarios",
+        "market demand",
+        "fee creep",
+        "problem child",
+        "perfect world",
+        "current world",
+        "not yet",
+        "fall in love with customers",
+        "business constraints",
+        "growth constraints",
+        "proof of demand",
+        "skill sets",
+        "cco framework",
+        "macro view"
+      ],
+      "stage_entry_question": "Which part of the Capacity, Capability, Opportunity framework do you want to work on — setting up the conversation with legitimate constraints, assessing what the business can produce (Capacity), evaluating whether they are skilled and resourced to compete (Capability), or testing whether the market actually wants what they offer (Opportunity)?",
+      "nodes": [
+        {
+          "id": "cco_stage1",
+          "branch_name": "Stage 1 — Framework Setup and Legitimate Constraints",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor wants to understand how to introduce the CCO framework and frame client problems as legitimate constraints",
+          "question": "Before we get into the three pillars — how are you currently framing a client's growth problems in a meeting? Are you calling them out as issues, or do you have a way of validating them so the client doesn't feel judged or defensive?",
+          "notes": "The language of 'legitimate constraints' is the foundation of the whole framework. It removes guilt and negative emotion, which allows the client to let go of limiting beliefs without shame. The Goldilocks condition matters here too — enough client discomfort to motivate change, but not so much they are paralysed. The CCO framework can be used as an internal mental checklist, verbally anchored, or written on the meeting agenda. When the client's business model is confusing, simplify it by comparing it to your own model to identify similarities and key variables.",
+          "next_stage": 2
+        },
+        {
+          "id": "cco_stage2",
+          "branch_name": "Stage 2 — Capacity (Transactional Volume)",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor is ready to explore the client's production capacity and the gap between current and potential output",
+          "question": "Capacity is about Transactional Volume — how many jobs or widgets the business can realistically handle. Have you mapped the gap between what this client's business does now (Current World) and what it could do under good conditions (Probable Perfect World)? And are you using What-If scenarios to help them reach their own a-ha moment?",
+          "notes": "The REVEAL is the goal — guide the client to their own insight rather than telling them. Digital capacity models make this easier by enabling multiple What-If discussions. Building Capacity awareness also builds BELIEF — vital for the client to commit to change and to your services. Key script when presenting model figures: 'I'm not saying it will be easy to grow your business profits by the figures shown in the model — I'm just saying that the figures say it's possible. It's up to us to develop new ideas, test and measure the outcomes and make change where necessary to make the profit a REALITY.'",
+          "next_stage": 3
+        },
+        {
+          "id": "cco_stage3",
+          "branch_name": "Stage 3 — Capability (Skill Sets and Resource)",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor is ready to evaluate whether the client has the skills, tools, and resources to compete at the level they are targeting",
+          "question": "Capability is about whether the client is genuinely equipped to compete — skills, tools, equipment, financial resource. Do they have what it takes to deliver Premium or Volume services at the level they are targeting? And if a client is over-optimistic and wants to scale immediately, how are you currently handling that?",
+          "notes": "NOT YET is the key phrase for over-optimistic clients. It is not a rejection — it is a constructive redirect that forces the client to identify what needs to change and when the timing will be right. Also use Capability to explore future readiness: industry shifts, technology disruption, changing consumer trends. The question to pose: 'Are you ready to face the new challenges coming in your industry?'",
+          "next_stage": 4
+        },
+        {
+          "id": "cco_stage4",
+          "branch_name": "Stage 4 — Opportunity (Proof of Market Demand)",
+          "type": "question",
+          "stage": 4,
+          "condition": "Advisor is ready to test whether the client has genuine evidence that the market wants what they are offering",
+          "question": "Last pillar — Opportunity. Growth ambitions need to be grounded in evidence, not just enthusiasm. What qualitative data or customer feedback does your client actually have? And have you helped them identify the specific external forces — event triggers, technology waves, economy shifts — that support their belief the market wants what they're offering?",
+          "notes": "The critical mindset shift: fall in love with your customers, not your product or service. Enthusiasm is not proof of demand. Apply the same logic to your own practice — if your client base consists of retired pensioners, there will be no demand for strategic planning regardless of how enthusiastic you are. External demand factors to explore: event triggers, economy stimulus, fashion drivers, technology waves, environmental impact.",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "heald_matrix",
+      "name": "The Heald Matrix",
+      "description": "A sequential coaching guide for facilitating the Heald Matrix with a client — covering the framework purpose, the four quadrants, the reveal sequence, facilitation prompts, guiding toward action, and closing into a planning engagement.",
+      "mode": "learn",
+      "sequential": true,
+      "entry_triggers": [
+        "heald matrix",
+        "heald",
+        "why business owners fail to plan",
+        "fail to plan",
+        "turtle",
+        "shotgun",
+        "lab rat",
+        "lab-rat",
+        "pioneer",
+        "coping style",
+        "assertion",
+        "withdrawal",
+        "innovation methodology",
+        "planning avoidance",
+        "map shock",
+        "baby step",
+        "what makes you say that",
+        "cognitive framework",
+        "business planning",
+        "positioning",
+        "facilitate"
+      ],
+      "stage_entry_question": "Which part of the Heald Matrix do you want to work on — understanding why it works and how to introduce it, the four quadrants and their descriptions, how to reveal and facilitate the self-assessment, or how to guide the client toward action and close into a planning engagement?",
+      "nodes": [
+        {
+          "id": "hm_stage1",
+          "branch_name": "Stage 1 — Framework Purpose and Introduction",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor wants to understand the psychology behind the Heald Matrix and how to introduce it smoothly",
+          "question": "Before we get into the quadrants — do you understand what the Heald Matrix is actually doing psychologically? And do you have a smooth way of introducing it when the moment is right, or does that transition still feel a bit forced?",
+          "notes": "The framework works because you cannot tell a business owner their coping mechanisms are failing them — they need to see it themselves. The three coping styles are Assertion (Focused/Driven → Stubborn/Ignorant), Withdrawal (Considered/Prudent → Lazy/Aimless), and Dutiful. The segue: listen for 'too busy' or 'don't know' cues → ask 'Have you heard of the Heald Matrix?' → when they say no, write the title and begin. Writing the title creates intrigue and buys you thinking time.",
+          "next_stage": 2
+        },
+        {
+          "id": "hm_stage2",
+          "branch_name": "Stage 2 — The Four Quadrants",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor is ready to learn or rehearse the four quadrant descriptions",
+          "question": "Let's go through the four quadrants. Can you describe each one — Turtle, Shotgun, Lab-Rat, and Pioneer — in your own words? Which one do you find hardest to explain in a way that lands naturally?",
+          "notes": "Turtle (Low Innovation, Low Methodology): same old thing same old way — 'if it ain't broke, don't fix it' but forgets time waits for no one. Shotgun (High Innovation, Low Methodology): creative but no data — Deming: 'Without data, you're just another person with an opinion.' Lab-Rat (Low Innovation, High Methodology): paralysed by fear and judgement, second-guesses everything, forgets trial and error is legitimate. Pioneer (High Innovation, High Methodology): balances fresh ideas with sound process — indomitable spirit. Quadrant names can be changed if needed as long as the concept is preserved.",
+          "next_stage": 3
+        },
+        {
+          "id": "hm_stage3",
+          "branch_name": "Stage 3 — Reveal Sequence and Self-Assessment",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor is ready to rehearse the reveal order and the facilitation prompts for client self-assessment",
+          "question": "The reveal has a specific order and the facilitation prompts are precise — especially WHAT vs WHY. Walk me through how you'd reveal the matrix and get the client to place themselves on it. Do you know why we never ask WHY?",
+          "notes": "Reveal order: write title → draw axes (Innovation vertical, Methodology horizontal, with high/low markers) → Turtle → Shotgun → Lab-Rat → Pioneer. NEVER show all four at once — map shock causes the client to stop listening. Self-assessment prompts: (1) 'Where do you think you sit?' → slide pen along axis, say 'when'. (2) 'WHAT makes you say that?' — never WHY. WHY = internal challenge, defensive. WHAT = external evidence, non-threatening. (3) Write 'Evidence' on the board if they struggle — you are affirming, not confronting. If they are too hard on themselves, gently suggest they may be placed elsewhere.",
+          "next_stage": 4
+        },
+        {
+          "id": "hm_stage4",
+          "branch_name": "Stage 4 — Guiding to Action and Closing",
+          "type": "question",
+          "stage": 4,
+          "condition": "Advisor is ready to work on how to move the client from self-assessment into committed next steps and a planning engagement",
+          "question": "Last stage — moving from 'here's where I am' to 'here's what I'm going to do about it.' Do you have the IF/baby step language ready, and do you know how to close this into a next meeting without pitching too hard?",
+          "notes": "Future state: 'Where would you like to be on the matrix in future?' — almost all will say Pioneer. Baby step: 'IF you took one small baby step toward that, WHAT might that step look like?' IF reduces self-judgement. WHAT forces a behavioural, actionable response. Validate whatever they suggest, however small. Closing script: 'There's a quick example of how we can use cognitive frameworks to improve your creativity... would you be open to exploring how we could work a little closer going forward?' Do NOT pitch a large engagement — offer a small next step. Send follow-up email with branded Heald Matrix attached and next meeting confirmed.",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "demings_volatility",
+      "name": "Deming's Theory of Volatility",
+      "mode": "learn",
+      "sequential": true,
+      "entry_triggers": [
+        "deming",
+        "volatility",
+        "standard deviation",
+        "variation",
+        "averages",
+        "data swings",
+        "caravan",
+        "common cause",
+        "special cause",
+        "tampering",
+        "seasonal",
+        "cash flow swings",
+        "interpreting data",
+        "react to data",
+        "pass fail",
+        "volatile"
+      ],
+      "stage_entry_question": "Which part of Deming's Theory of Volatility do you want to work on — why averages mislead and what to use instead, the four types of variation, how to diagnose root cause using causation versus coincidence, or the four strategic options for stabilising the business?",
+      "nodes": [
+        {
+          "id": "dv_stage1",
+          "branch_name": "Stage 1 — The Problem with Averages and Standard Deviation",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor wants to understand why averages are misleading and how standard deviation reframes the conversation",
+          "question": "Let's start with the foundation. Can you explain to me why relying on an average to measure business performance is actually harmful — and what we use instead?",
+          "notes": "The problem: plotting data with an average line puts the business permanently in pass/fail mode — results will almost always be above or below the average, creating unnecessary stress and distorted decisions. The solution: Standard Deviation (Volatility Graph) calculates the likely range where 68% of results are expected to fall. This helps clients realise that going up and down is normal, and allows them to maintain an open mind about what is causing their variations rather than reacting to each movement. Deming: 'It is not enough to do your best; you must know what to do, and then do your best.'",
+          "next_stage": 2
+        },
+        {
+          "id": "dv_stage2",
+          "branch_name": "Stage 2 — The Four Types of Variation",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor is ready to learn the four variation types and what each one means for management action",
+          "question": "There are four types of variation a business experiences. Walk me through each one — and tell me which type is the most dangerous and why.",
+          "notes": "Common Cause: High frequency, low impact — normal background noise. Example: lower foot traffic on a rainy day. Should NOT trigger management action. Special Cause: Low frequency, high impact — genuine anomalies outside the normal range. Example: pandemic, earthquake. Requires genuine strategic response. Seasonal: Predictable, cyclical patterns. Example: ice cream sales summer vs winter. Manageable once identified — danger is mistaking it for a special cause and over-reacting. Tampering: The most dangerous. Data misinterpretation leading to wrong conclusions and wrong actions. Example: paying bonuses after a June sales spike, then firing staff after a December drop — missing that both were predictable seasonal patterns. Wrong conclusion = wrong action = new problem created by the response. Never punish or reward staff for events outside their control.",
+          "next_stage": 3
+        },
+        {
+          "id": "dv_stage3",
+          "branch_name": "Stage 3 — Root Cause Diagnosis (Causation, Correlation, Coincidence)",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor is ready to learn how to diagnose root cause accurately before recommending action",
+          "question": "Before we can respond to a data anomaly, we need to know what actually caused it. What are the three levels of relationship between events — and why does getting this wrong lead to tampering?",
+          "notes": "Causation: A direct, provable link — one event causes the other. Example: putting petrol in a diesel engine blows it up. Correlation: Highly attributable contribution — one factor significantly increases likelihood of the other but is not the sole cause. Example: driving with low tyre pressure and hitting a pothole causes a flat tyre. Coincidence: Two events occur together but are entirely unrelated. Example: listening to AC/DC when the engine blows up. Misidentifying coincidence as causation is the most common source of tampering. Before recommending action, make sure the client can clearly articulate the causal chain — not just a correlation or a coincidence. Also use the caravan metaphor to anchor the stakes: volatility in a business is like a caravan swaying behind a car — if you don't get the swinging under control it will pull the entire car off the road. You cannot safely scale a business if you don't understand and manage its underlying volatility first.",
+          "next_stage": 4
+        },
+        {
+          "id": "dv_stage4",
+          "branch_name": "Stage 4 — The Four Volatility Response Options",
+          "type": "question",
+          "stage": 4,
+          "condition": "Advisor is ready to apply the four strategic options for stabilising business volatility",
+          "question": "Once you've diagnosed the type and cause of the volatility, there are four strategic levers you can use to stabilise the business. Can you name them and explain what each one is actually addressing?",
+          "notes": "Step 1 — Map Your Data: Stop relying solely on averages. Plot key metrics (cash received, sales, gross margin) and add standard deviation lines to establish upper and lower likely ranges. Step 2 — Analyse Contextually: Ask — is this consistent with previous patterns? Is this a seasonal or special cause? Are swings influenced by internal campaigns? Step 3 — Diagnose Root Cause: Use the Causation/Correlation/Coincidence framework. Ensure you are not tampering. The four response options: (1) Review Products and Services — what could fill in revenue holes during slow periods? New products, recurring revenue, reduced seasonal dependence. (2) Review Admin Procedures — how could we get money in quicker? Terms of trade, invoicing cycles, debt collection, cloud accounting tools. Cash flow swings are often administrative problems, not revenue problems. (3) Review Marketing and Sales Tactics — how could we attract more customers, more often? More consistent volume smooths cash flow. (4) Review Working Capital — how should we finance and manage money to cope with swings? Retained earnings, overdraft facilities, credit lines, cash reserves. If volatility is an unavoidable industry feature, the business needs adequate financial buffers.",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "working_capital_cycle",
+      "name": "Working Capital Cycle",
+      "mode": "learn",
+      "sequential": true,
+      "entry_triggers": [
+        "working capital",
+        "cash flow",
+        "money in movement",
+        "trading cycle",
+        "stock turn",
+        "debtors",
+        "cash cycle",
+        "invoicing",
+        "cash position",
+        "fixed capital",
+        "profitability problem",
+        "cash preservation",
+        "over-trading",
+        "debt to equity",
+        "billing cycle",
+        "money moving"
+      ],
+      "stage_entry_question": "Which part of the Working Capital Cycle do you want to work on — understanding the cycle and the difference between fixed and working capital, diagnosing the three problem types correctly, applying cash preservation tactics, or auditing costs and management effectiveness?",
+      "nodes": [
+        {
+          "id": "wc_stage1",
+          "branch_name": "Stage 1 — Fixed vs Working Capital and the Cycle",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor wants to understand the framework and explain how money moves through a business",
+          "question": "Let's start with the basics. Can you explain the difference between fixed capital and working capital — and walk me through the working capital cycle in order?",
+          "notes": "Fixed Capital = the cost of being in business. Structural overheads: leases, plant and equipment, wages, marketing. This is incurred regardless of whether a sale occurs. Working Capital = the money that makes money. It moves through a continuous cycle: Cash → Stock → Sale → Debtors → Cash. The speed of this cycle is as important as the margin. A 30-day cycle = 12 stock turns per year. A 60-day cycle = 6 stock turns per year — halving the annual profit potential. Adding a 14-day supplier delay plus a 14-day debtor payment window effectively doubles the capital required to run the same volume of business. A business can go bust if its markup is insufficient to cover a prolonged cycle.",
+          "next_stage": 2
+        },
+        {
+          "id": "wc_stage2",
+          "branch_name": "Stage 2 — Diagnosing the Three Problem Types",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor is ready to learn how to correctly diagnose whether a client has a profitability problem, a lack of working capital, or a true cash flow problem",
+          "question": "This is the critical skill — most business owners misdiagnose their financial problem. If a client says 'I have a cash flow problem,' what are the three possible diagnoses and how do you tell them apart?",
+          "notes": "Profitability Problem: The trading cycle completed normally within the period — payment arrived on time — but there still isn't enough money to pay wages or buy new stock. This is NOT a cash flow problem. The cycle closed correctly. The problem is that the margin is too low, fixed costs are too high, or the business was underfunded from the start. Don't recommend debt — fix the margin first. Lack of Working Capital: The cycle is working fine, but growth or back-to-back orders arrive before the first cycle closes — so there's no cash to fund the next order. This is NOT a cash flow problem. The money from the first order IS coming. Here, appropriate funding is defensible — provided the gross margin can support the cost of finance. Think of it as an opportunity cost to secure the client relationship and inject future profit. True Cash Flow Problem: Operational failure causes a missed billing period — a delayed meeting, late invoice, or admin gap pushes payment into the following month. The money WILL arrive eventually — but the delay removes one complete trading cycle from the year, reducing total annual stock turns and total annual profit. The fix here is operational, not financial.",
+          "next_stage": 3
+        },
+        {
+          "id": "wc_stage3",
+          "branch_name": "Stage 3 — Cash Preservation Tactics",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor is ready to learn the practical tactics for accelerating cash return and reducing cycle drag across stock, debtors, and sales",
+          "question": "Once you've correctly diagnosed the problem, what are the specific tactics for improving the cash position across each area of the working capital cycle?",
+          "notes": "Stock and WIP: (1) Negotiate delayed payment terms with suppliers in return for carrying a wider range of their stock — converts upfront cost to deferred payment. (2) Use air freight on low-frequency items so you carry less stock and deliver direct to customer after purchase. (3) Use fast freight to reduce the risk of stock perishing — giving more sales days to recover the investment. Debtors: (1) Connect invoicing apps (e.g., Tradeify with Xero) so invoices are generated on-site the moment a job is completed — no missed billing periods. (2) Implement proactive debtor follow-ups — contact early, not when overdue. (3) Any client who has slipped into 90-day arrears in the past six months goes onto cash-upon-delivery. Those who refuse — no longer act for them. Sales: (1) Research competitor pricing, divide into four quadrants, aim for the lower end of the uppermost quadrant. (2) Brainstorm the five most common sales objections, build scripts, rehearse with a buddy until natural. (3) Explore licensed distributors for new market access without infrastructure cost. Also: Be cautious of discounting. A reduction in sale price requires a disproportionately higher increase in volume just to maintain the same gross profit. Quantify the required volume increase before agreeing to any discount.",
+          "next_stage": 4
+        },
+        {
+          "id": "wc_stage4",
+          "branch_name": "Stage 4 — Cost Categories, Management Audit, and Over-Trading",
+          "type": "question",
+          "stage": 4,
+          "condition": "Advisor is ready to work on cost categorisation, identifying management red flags, and understanding the over-trading risk",
+          "question": "Last stage. There are three cost categories to audit and three management red flags to watch for — plus a specific risk when clients want to use debt to expand. Can you walk me through each?",
+          "notes": "Cost Categories (Category Secrets framework): Variable Costs (Do The Job) — direct costs of delivering the product or service. Look for purchasing, warehousing, and logistics efficiencies. Activity Costs (Get The Job) — costs of generating sales. Review positioning, pricing, and conversion effectiveness. Fixed Costs (Get Organised) — structural overheads. Assess management effectiveness, asset utilisation, and employee culture. Management Red Flags: (1) No clear, measurable, time-bound business objectives. (2) A culture that accepts task failure as normal — accountability is absent. (3) No feedback loops — mistakes aren't shared or learned from, so the same cycle failures repeat. Even the best tactics will be undermined if these are present. Over-Trading Risk: Funding growth primarily via debt without adequate retained profits is highly dangerous. If debt is used to fund fixed assets in the hope of future sales, the debt-to-equity ratio becomes unsustainable. Before expanding to a new Profit Plateau: (1) Maximise utilisation of existing assets first — add labour shifts before acquiring new assets. (2) If taking on debt, perform a Liquidation Value Estimate — ask: how easily can we scale back down if necessary?",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "ratio_analysis",
+      "name": "Ratio Analysis",
+      "mode": "learn",
+      "sequential": true,
+      "entry_triggers": [
+        "ratio analysis",
+        "ratio",
+        "benchmark",
+        "benchmarking",
+        "common size",
+        "year on year",
+        "data interpretation",
+        "internal benchmark",
+        "external benchmark",
+        "advisory staircase",
+        "assimilation",
+        "interpret data",
+        "financial data",
+        "comparing data",
+        "apples with apples"
+      ],
+      "stage_entry_question": "Which part of Ratio Analysis do you want to work on — the Advisory Staircase and collaborative philosophy, when data is less relevant and what makes a comparison invalid, common size year on year data, or how to interrogate external benchmark data?",
+      "nodes": [
+        {
+          "id": "ra_stage1",
+          "branch_name": "Stage 1 — The Advisory Staircase and Collaborative Philosophy",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor wants to understand the framework context, the 5-step staircase, and the shift from report delivery to collaborative interpretation",
+          "question": "Before we get into the mechanics — what is the Advisory Staircase, and why is the traditional approach of compiling and handing a report to the client a problem?",
+          "notes": "The Advisory Staircase has 5 steps: (1) Compilation/Verification — get data collected with integrity and timeliness. (2) Assimilation — render data so it is easy to view and comprehend. The critical ratio analysis point: assimilation must be aligned with interpretation requirements. (3) Interpretation — recognise correlation versus causation. (4) Application — determine the next experiment, assign task ownership. (5) Observation — review progress, learn, adapt, go again. The core philosophy: ratio analysis is NOT just calculating metrics — it is a collaborative process. Instead of handing a client a finished report, the advisor and business owner must analyse findings and draw conclusions together. Giving raw data without requiring effort means the client is unlikely to assign it meaning or take action. Use manual tools like Google Sheets rather than automated software — having the client physically interact with data makes it tactile. Just as a baby must chew steak to digest it, a client must engage with the data to absorb it. The relationship grows through the collaborative environment, not by delivering polished outputs.",
+          "next_stage": 2
+        },
+        {
+          "id": "ra_stage2",
+          "branch_name": "Stage 2 — When Data Is Less Relevant",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor is ready to learn the three conditions that make ratio comparisons invalid or misleading",
+          "question": "There are three situations where comparing ratios — whether to your own history or to external benchmarks — is pointless or actively misleading. Can you name them?",
+          "notes": "Condition A — Ratios not calculated identically: Different textbooks use different ratio formulas — all mathematically valid, but incomparable. You must use the same calculation method consistently across all periods. If using external benchmarks, ensure you know exactly how their ratios were calculated. Do NOT compare ratios calculated using different methods. Example: using credit sales in the debtor days ratio is fine — but only if applied consistently every period. Condition B — One-off events distort the ratio for a given period: Changes in ratios can be explained by one-off situations that don't reflect ongoing performance. Remove the distorting figure from the calculation before comparing. Example: a large one-off order has been invoiced but not yet paid — debtor days will appear inflated. This is not a collection issue. Remove the figure. Condition C — Ratios from periods with fundamental differences: Avoid comparing periods that are structurally different. Either adjust for the difference or only compare equivalent stages of the cycle. Example: comparing a peak season quarter to a low season quarter in a highly seasonal business. The ratio difference may be entirely due to the business cycle, not management action.",
+          "next_stage": 3
+        },
+        {
+          "id": "ra_stage3",
+          "branch_name": "Stage 3 — Common Size Year on Year Data",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor is ready to learn the drag race metaphor and the two common sizing techniques for fair year-on-year comparison",
+          "question": "Comparing year on year data without adjustment creates a specific bias problem. What is the drag race metaphor, and what are the two common sizing methods that fix it?",
+          "notes": "The drag race metaphor: In a drag race where your starting position is determined by the previous race result, you cannot tell if you're genuinely improving or just starting from an advantage. Businesses face the same problem. A great prior year leaves more cash reserves and stock. Apparent improvement in year two may reflect the inherited starting advantage — not current management effectiveness. Comparing second year to first year without adjustment may make the business look even better, and the owner may incorrectly attribute this to management decisions that weren't actually causal. The fix: Adjust data to measure BOTH the Start position AND the Finish position for each year — eliminating confirmation bias. Common Size Balance Sheet: Divide every item on the balance sheet by Total Assets. This converts all items to a percentage of total assets, making comparisons fair regardless of starting position or business scale. Common Size Profit and Loss Account: Divide every item in the P&L by Total Sales. This converts all P&L items to a percentage of total revenue, enabling fair comparison of cost structure and margin performance across periods. Common sizing also naturally filters out distortions from one-off events and seasonal differences, reinforcing the 'When Data Is Less Relevant' principles.",
+          "next_stage": 4
+        },
+        {
+          "id": "ra_stage4",
+          "branch_name": "Stage 4 — Interrogating External Benchmark Data",
+          "type": "question",
+          "stage": 4,
+          "condition": "Advisor is ready to learn the rookie mistake with external benchmarks and the questions to ask before trusting any purchased benchmark data",
+          "question": "External benchmarking can be valuable — but there's a common rookie mistake and a set of questions you must ask before trusting any purchased data. What is the mistake, and what are the key interrogation questions?",
+          "notes": "The rookie mistake: Purchasing external benchmark data before first capturing and quantifying internal business assumptions. This makes internal financial performance data non-standardised — and therefore incomparable against any external data. Always build the internal model first. External benchmarks should be used to challenge internal beliefs, not replace them. They are not a pass/fail scorecard. The three perspectives to have before using external benchmarks: (1) A predictive/scenario revenue model validated by actual performance data. (2) Clearly defined operational objectives monitored via accurate and timely reports. (3) External benchmark data used to challenge internal beliefs only after the first two are established. Questions to interrogate any external benchmark: How many businesses does the data cover — is the sample representative? Can you accurately compare this category to your specific business? Are figures from businesses of similar size? Do figures include upper and lower quartile data — the wider the spread, the less meaningful the average. How old is the data — should be updated at least annually. Do the figures include how the ratios were calculated — will you be comparing apples with apples? Can industry figures be directly compared — do not compare retail data with wholesale. Are there other influencing factors — geography, labour markets, accounting methods, product quality, financing, terms of sale? Do other businesses in the sample have a similar seasonal cycle?",
+          "next_stage": null
+        }
+      ]
+    },
+
+    {
+      "id": "dashboard_discussions",
+      "name": "Dashboard Discussions",
+      "mode": "learn",
+      "sequential": true,
+      "entry_triggers": [
+        "dashboard",
+        "dashboard discussion",
+        "dashboard report",
+        "financial dashboard",
+        "management reporting",
+        "management report",
+        "financial reporting",
+        "financial review",
+        "reviewing financials",
+        "reviewing data",
+        "reading the numbers",
+        "interpreting data",
+        "kpi",
+        "key performance indicator",
+        "business performance",
+        "financial metrics",
+        "financial ratios",
+        "category secrets",
+        "do the job",
+        "get the job",
+        "get organised",
+        "3x3",
+        "cause event effect",
+        "gross profit ratio",
+        "wages to sales",
+        "net profit",
+        "markup",
+        "return on equity",
+        "debt ratio",
+        "quick ratio",
+        "sales mix",
+        "volatility analysis",
+        "variable costs",
+        "activity costs",
+        "fixed costs"
+      ],
+      "stage_entry_question": "Which part of Dashboard Discussions do you want to work on — the 3x3 framework and category secrets philosophy, the profitability and margin metrics, the capital and balance sheet metrics, or the facilitation process including root cause analysis and building the action plan?",
+      "nodes": [
+        {
+          "id": "dd_stage1",
+          "branch_name": "Stage 1 — The 3x3 Framework and Category Secrets",
+          "type": "question",
+          "stage": 1,
+          "condition": "Advisor wants to understand the core framework, the three cost categories, and the guiding philosophy for running a dashboard session",
+          "question": "Before we look at any specific metric — what is the 3x3 framework, what does each of the three cost categories tell you, and what is the guiding philosophy for the whole session?",
+          "notes": "The guiding philosophy: Seek Information; not judgement. No single ratio or report gives you the whole story. Always define if data reflects causation, correlation, or coincidence. Seek a balanced view — good AND bad data. The 3x3 Framework views business reviews through Cause, Event, and Effect — aligned across three operational phases and three cost types: (1) Do The Job (Variable Costs) — materials, stock, contract labour, shipping. Costs incurred on the promise you will get paid once work is delivered. To change these: change how you produce/provide your product, or to whom and where you sell it. Tactical options: purchasing/warehousing/logistics efficiencies, project management and wastage reduction, process improvements and skill/equipment advantages. (2) Get The Job (Activity Costs) — general marketing, advertising, salesperson travel costs. Costs incurred in the hope of winning future work. To change these: change how you sell and distribute to make it easier for customers to find you. Tactical options: product fit/positioning/packaging/pricing/bundling, message clarity and market knowledge, sales effectiveness and brand awareness. (3) Get Organised (Fixed Costs) — rent, equipment, management, admin structure. The cost of being in business. To change these: decide how much of the customer's problem you solve in-house. Tactical options: asset utilisation and model design, leadership and culture, strategic vision and stakeholder returns. Advisor role: challenge what the client believes to be true. Client role: explore with an open heart and open mind. Session objective: discover what we have been missing.",
+          "next_stage": 2
+        },
+        {
+          "id": "dd_stage2",
+          "branch_name": "Stage 2 — Profitability and Margin Metrics",
+          "type": "question",
+          "stage": 2,
+          "condition": "Advisor is ready to learn how to interpret and discuss the income statement and margin metrics on the dashboard",
+          "question": "Let's go through the profitability and margin metrics. For each one — Sales to Gross Profit, Wages to Sales, Net Profit to Sales, Average Markup, and Sales Mix by Margin — can you tell me which cost categories it relates to and what a movement in that metric is typically signalling?",
+          "notes": "Sales to Gross Profit Ratio: Relates to Do the Job (Variable) and Get the Job (Activity). The gap between trading income and gross profit retained. Widening gap = cost of goods rising, pricing pressure, or product mix shift. Wages to Sales Ratio: Relates to Do the Job (Variable) and Get the Job (Activity). How much of every sales dollar is consumed by wages. Rising wages against flat sales = productivity or staffing structure problem. Net Profit to Sales: Relates to ALL THREE cost categories. The ultimate profitability metric — all three buckets affect it. A margin squeeze here needs diagnosis across variable, activity, and fixed costs. Average Markup %: Relates to Do the Job (Variable) and Get the Job (Activity). The average margin applied across products/services sold. Declining markup = pricing pressure, discounting behaviour, or shift toward lower-margin lines. Sales Mix by Margin: Relates to Do the Job (Variable) and Get the Job (Activity). The proportion of revenue from each product/service category weighted by margin. Reveals whether high-margin lines are driving the business or whether volume in low-margin lines is masking a structural problem. For every metric, apply the three standard discussion questions: (1) Is this consistent with your previous business assumptions and beliefs? (2) Which tactical options are of greatest influence and why? (3) Did you have any actions planned prior to this data — do they still stand?",
+          "next_stage": 3
+        },
+        {
+          "id": "dd_stage3",
+          "branch_name": "Stage 3 — Capital and Balance Sheet Metrics",
+          "type": "question",
+          "stage": 3,
+          "condition": "Advisor is ready to learn how to interpret and discuss the balance sheet, capital, and structural health metrics",
+          "question": "Now the balance sheet and capital metrics. For Working vs Fixed Capital, Quick Ratio and Days Trading Cover, Debt Ratio, Debt to Shareholders Equity, Return on Equity, Division Wages %, and Volatility Analysis — which cost categories apply and what is each one telling you?",
+          "notes": "Working vs Fixed Capital: Do the Job (Variable) + Get Organised (Fixed). Balance between money actively cycling (working capital) and money locked in assets (fixed capital). Unfavourable ratio = over-investment in fixed infrastructure relative to productive trading. Quick Ratio and Days Trading Cover: Do the Job (Variable) + Get Organised (Fixed). Quick Ratio = ability to meet short-term liabilities from liquid assets. Days Trading Cover = how many days of trading current cash could sustain. Together they reveal immediacy of liquidity risk. Debt Ratio — Assets vs Liabilities: Get Organised (Fixed) only. Proportion of total assets financed by debt vs equity. High or growing debt ratio = structural financial risk, especially dangerous in a downturn. Debt to Shareholders Equity: Get Organised (Fixed) only. Total debt vs owner equity. Reveals whether the business is genuinely owner-funded or effectively creditor-owned. Critical for assessing over-trading risk. Return on Equity: ALL THREE cost categories. Return generated on the owner's investment. Influenced by profitability, efficiency, and leverage. Declining ROE with stable sales often signals rising fixed costs or structural inefficiency. Division Wages %: ALL THREE cost categories. Wage cost breakdown by division (Sales, Production, Admin, Management). Reveals whether wages are weighted toward revenue-generating activity or administrative overhead. Volatility Analysis: ALL THREE cost categories. Standard deviation graph overlaid on actual sales. Identifies what is normal variation vs genuine anomaly. Apply the four variation types: Common Cause (high frequency/low impact — do not act), Special Cause (low frequency/high impact — act), Seasonal (predictable — adjust for), Tampering (misinterpretation — avoid). Key question: which data points relate to special or seasonal cause, rather than common cause?",
+          "next_stage": 4
+        },
+        {
+          "id": "dd_stage4",
+          "branch_name": "Stage 4 — Facilitation Process, Root Cause Analysis, and Action Planning",
+          "type": "question",
+          "stage": 4,
+          "condition": "Advisor is ready to learn the step-by-step facilitation process, the 5 Whys technique, and how to close into an action plan",
+          "question": "Last stage — the facilitation process itself. Walk me through the five steps for running a dashboard discussion, including how you use the 5 Whys when a metric isn't giving up a clear answer.",
+          "notes": "Step 1 — Set the Objective and Mindset: Open by establishing roles — advisor challenges beliefs, client explores with an open heart and open mind. Remind the group: no single ratio gives you the whole story. Step 2 — Map the Metric to the 3x3 Categories: For each metric, identify which cost category (Variable/Activity/Fixed) it relates to. This determines the tactical levers available. Step 3 — Analyse Against Business Assumptions: Ask 'Is this consistent with your previous assumptions and beliefs?' Determine causation vs correlation vs coincidence. Seek a balanced view — good and bad data. Step 4 — Root Cause Analysis with the 5 Whys: If the metric is unclear or performance doesn't match expectations, don't jump to conclusions. Ask WHY five times — each answer becomes the basis of the next why — to find the fundamental root cause. Don't act on surface symptoms. Step 5 — Identify Tactical Options and Build the Action Plan: Based on root cause and cost category, identify which tactical options are of greatest influence and why. Check whether any previously planned actions still stand. Record learnings and document specific future action steps. Three standard discussion questions for every metric: (1) Is this consistent with your previous assumptions? (2) Which tactical options are most influential — and why? (3) Did you have prior planned actions — do they still stand? Always record action steps before leaving the session.",
+          "next_stage": null
+        }
+      ]
     }
 
   ]

@@ -1,0 +1,141 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on The Heald Matrix — a framework to help business owners see why they avoid planning, identify their current coping style, and commit to a future planning engagement.",
+  "objective": "To coach advisors through the full Heald Matrix facilitation process: understanding why it works, introducing it smoothly, revealing the four quadrants progressively, facilitating client self-assessment, guiding toward action, and closing into a planning engagement.",
+  "core_principle": "You cannot tell a business owner that their coping mechanisms are not serving them. They need to see themselves falling from grace — then decide to change. The Heald Matrix creates that moment of self-recognition, making the client far more agreeable to a future planning session.",
+
+  "framework_purpose": {
+    "overview": "Business owners fail to plan for two reasons: how they cope with the world around them, and a lack of knowledge on how to plan effectively. The Heald Matrix addresses both by making the coping style visible — and then showing the path to clarity of action.",
+    "coping_styles": [
+      {
+        "style": "Assertion",
+        "positive_state": "Focused and Driven",
+        "negative_state": "Stubborn and Ignorant",
+        "note": "Assertion looks like strength initially but can degrade over time into rigid, closed-minded behaviour."
+      },
+      {
+        "style": "Withdrawal",
+        "positive_state": "Considered and Prudent",
+        "negative_state": "Lazy and Aimless",
+        "note": "Withdrawal looks like caution initially but can degrade over time into inaction and avoidance."
+      },
+      {
+        "style": "Dutiful",
+        "positive_state": "Reliable and Consistent",
+        "negative_state": "Stuck in compliance, unable to innovate",
+        "note": "The third coping style — following rules and expectations without questioning whether they still serve the business."
+      }
+    ],
+    "why_it_works": "Once a client experiences how easily they can let go of their current coping mechanism and gain clarity of action through the matrix, they will be much more agreeable to a future planning session. The experience does the convincing — not the advisor."
+  },
+
+  "quadrants": [
+    {
+      "name": "Turtle",
+      "position": "Low Innovation, Low Methodology",
+      "description": "The same old thing the same old way. Supports this thinking with 'if it ain't broke, don't fix it' — but forgets that 'time and tide waits for no man.' Slow to react and pulls their head in when things get difficult.",
+      "reveal_order": 1
+    },
+    {
+      "name": "Shotgun",
+      "position": "High Innovation, Low Methodology",
+      "description": "Shoot and hope. Creative but lacking data — flying by the seat of their pants. Hope hides the fear. Driven by emotional assessment rather than evidence. As Edward Deming said: 'Without data, you're just another person with an opinion.'",
+      "reveal_order": 2
+    },
+    {
+      "name": "Lab-Rat",
+      "position": "Low Innovation, High Methodology",
+      "description": "Stuck in the grip of fear and judgement. This fixation causes them to second-guess themselves constantly. They forget that trial and error is a legitimate and necessary means of testing.",
+      "reveal_order": 3
+    },
+    {
+      "name": "Pioneer",
+      "position": "High Innovation, High Methodology",
+      "description": "Recognises the need to discover new lands. Combines gratitude for current means with excitement for what's new. Balances fresh ideas with sound process to achieve effective testing and deployment. Enjoys an indomitable spirit.",
+      "reveal_order": 4
+    }
+  ],
+
+  "steps": [
+    {
+      "step": 1,
+      "name": "Introduction — The Segue",
+      "key_principle": "The entry into the Heald Matrix must feel natural, not forced. Listen for the client's own cues before introducing it.",
+      "coaching_points": [
+        "Listen for cues where the client admits they don't know the answer to your questions, or claims they are 'too busy' for planning — these are your entry signals.",
+        "Simply ask: 'Have you heard of the Heald Matrix?'",
+        "When they say no (they always will), say 'Let me show you' and write the title on the page or whiteboard.",
+        "Writing the title buys you time to collect your thoughts, focuses the client, and creates intrigue before a single quadrant is revealed.",
+        "The matrix can be introduced in a formal meeting agenda or an informal setting — on a napkin over coffee. The informal setting is powerful for shifting a highly transactional relationship into a collaborative one."
+      ]
+    },
+    {
+      "step": 2,
+      "name": "Draw and Reveal the Matrix Progressively",
+      "key_principle": "Never show the completed matrix all at once. Reveal one quadrant at a time to prevent map shock and keep the client in listening mode.",
+      "coaching_points": [
+        "First draw the axes: label the vertical axis Innovation/Creativity and the horizontal axis Methodology/Process. Include high/low or +/- markers to indicate contrast.",
+        "Do NOT draw all four boxes at once — this causes map shock, where the client stops listening and jumps into assessing all four categories simultaneously.",
+        "Reveal quadrants one at a time in this order: Turtle → Shotgun → Lab-Rat → Pioneer. Discuss the narrative of each before moving to the next.",
+        "Turtle (Low Innovation, Low Methodology): same old thing, same old way — 'if it ain't broke, don't fix it.'",
+        "Shotgun (High Innovation, Low Methodology): creative but no data — flying by the seat of their pants.",
+        "Lab-Rat (Low Innovation, High Methodology): stuck in fear and judgement — second-guesses everything.",
+        "Pioneer (High Innovation, High Methodology): balances fresh ideas with sound process — indomitable spirit.",
+        "The quadrant names can be changed if they don't suit your style — what matters is the concept they represent, not the label."
+      ]
+    },
+    {
+      "step": 3,
+      "name": "Client Self-Assessment",
+      "key_principle": "Once the matrix is revealed, guide the client to identify their own position without triggering their ego defences. Use WHAT, never WHY.",
+      "coaching_points": [
+        "Ask: 'Where do you think you sit on the matrix?'",
+        "Increase self-relevance by localising their exact spot — place your pen on the axis of their chosen box and slowly slide it, asking them to say 'when' to mark their precise position.",
+        "Ask: 'WHAT makes you say that?' — NEVER ask WHY. WHY is potentially inflammatory: it causes them to seek an internal point of cognition, making them feel their thinking is being challenged. WHAT prompts them to seek something material and external — far less threatening.",
+        "If they struggle to answer, write the word 'Evidence' on the board. You are genuinely looking to affirm their position — not challenge it.",
+        "If they appear to have placed themselves incorrectly, suggest gently that they have been 'a bit harsh on themselves' and offer alternative reasons. The template itself will challenge them internally — you don't need to be confrontational. The goal is a positive feeling.",
+        "If a client is overly humble and places themselves too low, gently challenge: 'You think you're being a bit hard on yourself? You've got a great business — maybe you're further up?'"
+      ],
+      "facilitation_prompts": [
+        "Where do you think you sit on the matrix?",
+        "WHAT makes you say that?",
+        "Where would you like to be on the matrix in future?"
+      ]
+    },
+    {
+      "step": 4,
+      "name": "Guide Toward Action and Close",
+      "key_principle": "After the client takes ownership of their current position, guide them toward planning through IF language and baby steps — then close into a next meeting.",
+      "coaching_points": [
+        "Ask: 'Where would you like to be on the matrix in future?' Almost all clients will aim for the Pioneer quadrant — top right.",
+        "Ask: 'IF you took one small baby step toward that, WHAT might that step look like?' Use IF to reduce self-judgement and improve creative responses. One small baby step causes the mind to imagine a specific, actionable behaviour rather than an overwhelming transformation.",
+        "Emphasise what the step would LOOK like — not how it would feel. This forces a behavioural, actionable response rather than an emotional one.",
+        "Validate their baby steps, however small (e.g. 'looking at the financials once a fortnight').",
+        "Close with: 'So there's a quick example of how we can use cognitive frameworks to improve your creativity and develop ideas for a business advantage. We have a range of templates just like this — would you be open to exploring how we could work a little closer with you going forward?'",
+        "Do NOT pitch a large, expensive planning engagement immediately. Offer an accessible next step — a 45-minute session, fortnightly calls, or a brief discovery conversation.",
+        "Book a time before the client leaves. If they need to check their diary: 'I'll get [name] to phone you when you're in front of your diary and make a time to come in. We'll have a chat about your business, I'll come up with some recommendations, and we'll take things slowly from there.'"
+      ],
+      "closing_script": "So there's a quick example of how we can use cognitive frameworks to improve your creativity and develop ideas to give you a business advantage. We have a range of templates just like this — would you be open to exploring how we could work a little closer with you going forward?"
+    },
+    {
+      "step": 5,
+      "name": "Follow-Up Email",
+      "key_principle": "Cement the session with a brief follow-up email that summarises what was discussed and confirms the next meeting.",
+      "email_template": "Hi [Client Name], thanks for your time on [day] — it was great to get your thoughts around the methods and ideas you have for growing your business. As I mentioned, I feel your business could benefit from a combination of improved quality data and a more structured approach to developing business activities that could result in greater profits, less time at work, or a reduced level of stress for you and [partner]. Attached are a few notes that summarise what we spoke about around the Heald Matrix and as agreed, [assistant name] will be in touch in the coming days to arrange a time for me to show you the Business Growth Fundamentals I promised to share with you.",
+      "coaching_points": [
+        "Attach a branded version of the Heald Matrix to the email.",
+        "Reference the next meeting explicitly — do not leave the next step undefined.",
+        "Keep the email brief and warm — this is a relationship email, not a formal proposal."
+      ]
+    }
+  ],
+
+  "key_concepts": {
+    "map_shock": "The overwhelm that occurs when a client is shown a completed framework all at once. They immediately jump into assessment mode across all categories rather than listening to the narrative. Prevent it by revealing quadrants one at a time.",
+    "what_not_why": "Always ask WHAT makes you say that — never WHY. WHY challenges internal cognition and triggers defensiveness. WHAT prompts the client to seek external, material evidence — a far less threatening response that produces more useful answers.",
+    "if_language": "Using IF when asking about future steps ('IF you took one small baby step...') reduces self-judgement and encourages creative, non-threatened responses. It makes the question hypothetical rather than demanding, lowering the psychological stakes.",
+    "baby_steps": "The deliberate framing of next actions as small and manageable. One small baby step prevents the client from being overwhelmed by the gap between their current position and the Pioneer quadrant. The step must look like a specific behaviour — not a feeling.",
+    "assertion_withdrawal_dutiful": "The three primary coping styles that drive how business owners interact with planning. Each has a positive and negative manifestation depending on how long and under what conditions it has been applied.",
+    "pioneer": "The aspirational target quadrant — High Innovation, High Methodology. Balances creative ideas with structured process. Almost every client, when asked, will say they want to be in the Pioneer position — which is exactly the motivational hook for the planning conversation."
+  }
+}

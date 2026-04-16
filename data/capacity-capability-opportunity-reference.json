@@ -1,0 +1,96 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on the Capacity, Capability, Opportunity framework — a macro-level diagnostic tool for identifying the legitimate constraints restricting a client's ability to grow or improve.",
+  "objective": "To coach advisors in using the CCO framework to surface and validate a client's real growth constraints across three pillars — how much they can produce (Capacity), whether they are skilled and resourced to compete (Capability), and whether the market actually wants what they offer (Opportunity).",
+  "core_principle": "The goal is not to find problems — it is to find legitimate constraints. Naming them as legitimate removes the client's guilt and negative emotion, freeing them to let go of limiting beliefs and commit to change. Timing matters: the Goldilocks conditions must be right — enough discomfort to motivate action, but not so much that the client is paralysed.",
+
+  "framework_overview": {
+    "purpose": "A macro-level tool to structure advisory conversations around the real constraints holding a client back — before diving into numbers or recommending services.",
+    "goldilocks_conditions": "Timing is critical. There needs to be enough discomfort that the client is motivated to strive for something better, but not so much that they become paralysed by events and unable to act on recommendations. This balance is the Goldilocks condition — Not too Hot, Not too Cold.",
+    "legitimate_constraints_language": "Discussing issues as 'legitimate constraints' provides validity to the client's struggles. It removes guilt and negative emotion, which allows the client to let go of limiting beliefs and embrace newer, healthier habits for their business.",
+    "advisor_protection": "This framework also protects the advisor from picking up 'problem child' clients whose constraints are too significant to overcome — which leads to fee creep and unprofitable relationships.",
+    "delivery_options": [
+      "Use internally as a mental checklist if a structured review would feel inappropriate in the meeting",
+      "Verbally anchor the principle points throughout the conversation",
+      "Write the three pillars explicitly on the meeting agenda",
+      "When a client's business model is confusing, simplify it by comparing it to your own model to find similarities and identify the key variables to explore"
+    ]
+  },
+
+  "pillars": [
+    {
+      "pillar": 1,
+      "name": "Capacity",
+      "definition": "Transactional Volume — how many widgets or jobs can the client's business model cope with at its current state?",
+      "key_principle": "Establish the gap between the Probable Perfect World output and the Current World performance. This gap is where the advisory opportunity lives.",
+      "coaching_points": [
+        "Start by identifying the Probable Perfect World — what the business could produce under ideal conditions. Then compare this to Current World performance to reveal the gap.",
+        "You can explore Capacity at a high level (conceptual discussion) or in detail using a digital Capacity Model with specific variables.",
+        "The key to facilitation is the REVEAL — the process by which the client reaches their own a-ha moment. Digital capacity models encourage multiple What-If scenario discussions, all of which build understanding and positive suggestion.",
+        "Exploring Capacity builds BELIEF — that higher performance is possible. Belief is a vital prerequisite for a client to change any habit of significance, and it contributes directly to their decision to commit to your services.",
+        "Constraints in capacity may be temporary — a production bottleneck, a staffing gap, a technology limitation. Name these as legitimate rather than failures."
+      ],
+      "key_script": "I'm not saying it will be easy to grow your business profits by the figures shown in the model — I'm just saying that the figures say it's possible. It's up to us to develop new ideas, test and measure the outcomes and make change where necessary to make the profit a REALITY."
+    },
+    {
+      "pillar": 2,
+      "name": "Capability",
+      "definition": "Skill Sets and Resource — can the client deliver Premium or Volume services to their marketplace? Do they have the tools, equipment, and financial resource to compete at a higher level?",
+      "key_principle": "Evaluate whether the client is genuinely equipped to compete in the segment they are targeting — and use NOT YET as the constructive response when they are not.",
+      "coaching_points": [
+        "Assess whether the client can deliver Premium (high-spec, low-volume) or Volume (high-volume, lower-margin) services — and whether they have the tools, equipment, and financial resources to do so.",
+        "Clients often get overly optimistic and want to risk everything to scale immediately. Your job is to talk them down constructively — without crushing their ambition.",
+        "NOT YET is a powerful phrase. It is not an admission of failure — it tells the client that capability is a timing and preparation issue, not a permanent limitation.",
+        "NOT YET forces the client to search for evidence of what they still need to develop, and stimulates ideas about what changes are required before they can safely compete at a higher level.",
+        "Capability also covers future readiness: industry shifts, technology disruption, and consumer trend changes. Ask 'are you ready to face the new challenges coming in your industry?'"
+      ],
+      "not_yet_note": "NOT YET inspires future direction — it encourages the mind to search for reasons why they are not ready just now while simultaneously stimulating ideas on what to change and when the timing will be more conducive to success."
+    },
+    {
+      "pillar": 3,
+      "name": "Opportunity",
+      "definition": "Proof of Market Demand — what evidence of consumer response does the client have to support their growth goals and ambitions?",
+      "key_principle": "Growth ambitions must be grounded in evidence that the market actually wants what the client is offering. Enthusiasm is not proof of demand.",
+      "coaching_points": [
+        "Ask what qualitative data and customer feedback the client has collected to support their belief that growth is achievable.",
+        "If the client believes growth will come from new products or services, what has been the response of existing customers? What feedback have they actually gathered?",
+        "Help the client identify the specific external forces supporting demand: event triggers, economy stimulus, fashion drivers, technology waves, or environmental impacts.",
+        "Apply this principle to the advisor's own practice too — if your client base consists of retired pensioners, there will be little demand for advanced strategic planning regardless of how enthusiastic you are.",
+        "The most important mindset shift: fall in love with your customers, not your product or service. The market's response is the only reliable guide."
+      ],
+      "key_saying": "Fall in love with your customers; not your product or service."
+    }
+  ],
+
+  "application_steps": [
+    {
+      "step": 1,
+      "name": "Set the Stage and Validate Constraints",
+      "guidance": "Before diving into numbers, use the framework to structure your review. Frame the conversation around identifying legitimate constraints — not problems or failures. This language shift changes the emotional dynamic of the meeting immediately."
+    },
+    {
+      "step": 2,
+      "name": "Assess Business Capacity",
+      "guidance": "Focus on Transactional Volume. Compare Current World performance to Probable Perfect World potential. Use digital capacity models to run What-If scenarios and guide the client to their own a-ha moment through the REVEAL process."
+    },
+    {
+      "step": 3,
+      "name": "Evaluate Current Capability",
+      "guidance": "Examine Skill Sets and Resources. Evaluate tools, equipment, and financial resource. Use NOT YET for overly optimistic clients. Discuss future readiness: industry changes, technology impacts, consumer trends."
+    },
+    {
+      "step": 4,
+      "name": "Verify the Opportunity",
+      "guidance": "Demand proof of market demand. Ask for qualitative customer feedback, not just the client's belief. Identify specific external factors — event triggers, economy stimulus, technology waves, environmental impact — that validate the growth opportunity."
+    }
+  ],
+
+  "key_concepts": {
+    "legitimate_constraints": "The reframing of client problems as real, valid, and understandable constraints rather than failures or excuses. This language removes guilt and enables the client to let go of limiting beliefs without shame.",
+    "goldilocks_conditions": "The optimal timing for advisory intervention — enough client discomfort to motivate change, but not so much that they are paralysed. Too early and the client lacks urgency; too late and they cannot act. Finding this window is a critical advisor skill.",
+    "the_reveal": "The facilitation technique of guiding a client to reach their own a-ha moment through structured questioning and data, rather than telling them the answer. What-If scenario discussions in capacity models are the primary tool for achieving the reveal.",
+    "not_yet": "A constructive response to a client who is over-optimistic or underprepared for their stated ambition. NOT YET is not a rejection — it is a redirect that forces the client to identify what needs to change and when the timing will be right.",
+    "fee_creep": "The risk of taking on clients whose constraints are too significant to overcome — resulting in excessive advisor time, frustration, and unprofitable relationships. The CCO framework is a pre-qualification tool that helps advisors avoid this.",
+    "fall_in_love_with_customers": "The mindset required for genuine opportunity assessment. Clients must validate that the market wants what they offer — not simply that they love their own product or idea. Market demand is evidence-based, not passion-based."
+  }
+}

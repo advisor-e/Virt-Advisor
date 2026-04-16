@@ -13,7 +13,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
-const { detectLogicTree, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt } = require('../server/utils/logicTrees')
+const { detectLogicTree, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText } = require('../server/utils/logicTrees')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -890,18 +890,19 @@ ${formatFinMgtTable()}`
     const allLearnMessages = [...trimmedHistory.map(m => m.content), query].join(' ')
     const learnTree = detectLogicTree(allLearnMessages)
     if (learnTree && learnTree.mode === 'learn') {
-      learnSalesTreeText = formatLogicTreeForPrompt(learnTree)
-      // Inject companion reference content for sequential coaching trees
-      if (learnTree.id === 'public_speaking') {
-        const seminarsRef = formatSeminarsReferenceForPrompt()
-        if (seminarsRef) learnSalesTreeText += '\n\n---\n\n' + seminarsRef
-      } else if (learnTree.id === 'trial_fit') {
-        const trialFitRef = formatTrialFitReferenceForPrompt()
-        if (trialFitRef) learnSalesTreeText += '\n\n---\n\n' + trialFitRef
-      } else if (learnTree.id === 'cautious_reveal') {
-        const cautiousRevealRef = formatCautiousRevealReferenceForPrompt()
-        if (cautiousRevealRef) learnSalesTreeText += '\n\n---\n\n' + cautiousRevealRef
-      }
+      learnSalesTreeText = buildLearnReferenceText(learnTree)
+    }
+  }
+
+  // Deep-dive detection — client/discover mode only.
+  // If the conversation has drifted into territory covered by a learn-mode tree, load that
+  // tree's full reference content and signal the AI to offer a structured deep dive.
+  let deepDiveText = null
+  if (mode === 'client' || mode === 'discover') {
+    const allConversationText = [...trimmedHistory.map(m => m.content), query].join(' ')
+    const deepDiveTree = detectLogicTree(allConversationText)
+    if (deepDiveTree && deepDiveTree.mode === 'learn') {
+      deepDiveText = buildLearnReferenceText(deepDiveTree)
     }
   }
 
@@ -926,7 +927,10 @@ ${formatFinMgtTable()}`
       ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. Reference the profile below in your recommendation exactly as you would answers given in conversation.\n\n' + advisorProfileText
       : '',
     caseSummariesText ? '\n---\n\n' + caseSummariesText : '',
-    learnSalesTreeText ? '\n---\n\n' + learnSalesTreeText : ''
+    learnSalesTreeText ? '\n---\n\n' + learnSalesTreeText : '',
+    deepDiveText
+      ? '\n---\n\n## Deep Dive Reference Material\n\nThe conversation has touched on a topic that has structured how-to coaching content available. This material is provided below.\n\nAfter delivering your Phase 3 recommendation (or at the natural point when this topic has been identified), close with:\n"Would you like to do a deep dive on this material and explore how you can use it with your client in a meeting?"\n\nIf they say yes, use the reference content below to coach them through it step by step — walking them through each stage as you would in a structured coaching session.\n\n' + deepDiveText
+      : ''
   ].join('\n')
 
   // PHASE 2 INTERCEPT — fires before the AI runs.

@@ -1,0 +1,116 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on how to reveal the Growth Curve to a client — from the opening global positioning script through persona development, 3rd person story delivery, drawing technique, and session close.",
+  "objective": "To coach advisors through the complete Growth Curve reveal process: positioning the framework globally, building a persona for 3rd person delivery, walking the story sequence, using live drawing technique, and closing without selling too fast.",
+  "core_principle": "The Growth Curve reveal is not a lecture — it is a guided story. Use a 3rd person persona throughout, let the client find their own relevance, and close by positioning yourself as a Strategic Advisor rather than pitching services.",
+
+  "steps": [
+    {
+      "step": 1,
+      "name": "Global Positioning of the Curve",
+      "key_principle": "Open with a clear, confident statement of what the Growth Curve is and why you use it — before any story or persona is introduced. Brief but authoritative.",
+      "opening_script": "This is the Growth Curve. It's a framework that explains the 9 stages of business growth — from the time a business owner first develops their idea, right up until the day they sell it and walk off with a bag of money. We use it with our clients because it highlights the types of issues that business owners can expect to encounter BEFORE they have to cope — so they're better prepared and therefore, more successful.",
+      "transition_script": "Let's take a look at it through the eyes of [your persona — e.g. Bob the Chocolate Maker]...",
+      "coaching_points": [
+        "Keep global positioning brief — one confident paragraph. Its job is to set the frame, not explain the detail.",
+        "Emphasise BEFORE — clients are drawn to the idea of being forewarned about what's coming before it hits them.",
+        "The transition into the persona ('Let's take a look through the eyes of...') is the pivot from global to story mode. Deliver it with energy — it signals a gear change in the meeting."
+      ]
+    },
+    {
+      "step": 2,
+      "name": "Develop Your Persona",
+      "key_principle": "The persona is what keeps you in 3rd person throughout the entire delivery. It prevents the client from immediately mapping concepts to their own situation before they understand the full framework.",
+      "persona_elements": [
+        "Name of the business owner",
+        "Name of the business",
+        "Age of the owner",
+        "Why did they start the business?",
+        "What is their quirky or sticky point-of-difference product feature? (e.g. chocolate with rust in it from a washing machine mixer, or steak and rhubarb flavoured pies)"
+      ],
+      "coaching_points": [
+        "The persona creates dissociation — the client stays in conceptual thinking mode rather than immediately evaluating their own situation.",
+        "Staying in character throughout delivery keeps the brain in its emotional, receptive state (amygdala/hippocampus) rather than triggering analytical judgment (neocortex).",
+        "The persona creates permission for humour and exaggerated elements — this reduces jargon, increases memory retention, and makes clients want to spend more time with you.",
+        "The quirky product feature is deliberately memorable. The stranger it is, the more the story sticks. 'Steak and rhubarb pies' is still being remembered years after the meeting.",
+        "Pick one persona and use it with every client. Familiarity makes your delivery richer and more emotionally resonant over time — not repetitive."
+      ]
+    },
+    {
+      "step": 3,
+      "name": "Reveal the Story — 3-Part Sequence",
+      "key_principle": "The story is delivered in three distinct movements. Each movement has a purpose. Do not collapse them into one or skip ahead.",
+      "sequence": [
+        {
+          "part": 1,
+          "name": "Explain the Concept and Establish Understanding",
+          "description": "Deliver the full Growth Curve narrative in 3rd person — through the eyes of your persona. The client listens and builds conceptual understanding without yet mapping it to themselves.",
+          "script": "Let's look at this through the eyes of Bill and Mary and their chocolate shop..."
+        },
+        {
+          "part": 2,
+          "name": "Gain Agreement In Principle",
+          "description": "Only required if the client is skeptical or overly resistant. Confirm that the concept is valid in the 3rd person case before applying it to the client. Skip this if the client is already engaged.",
+          "script": "So if we use Bill and Mary's case as a reference — would the concept be valid, in THEIR case?"
+        },
+        {
+          "part": 3,
+          "name": "Create Client Relevance",
+          "description": "Once the client shows self-relevance (or after agreement is gained), transition to their business. You may only need to amplify what they have already shown through questions or agreement statements.",
+          "script": "So in YOUR case — how do you think this concept could apply?"
+        }
+      ],
+      "coaching_points": [
+        "Part 2 (gaining agreement in principle) is optional — only verbalise it if the client is resistant. Engaged clients will have already shown self-relevance through questions or unprompted comments.",
+        "Watch for self-relevance signals during Part 1 — if the client starts applying it to themselves, park their contribution and finish the story before transitioning.",
+        "The 3-part sequence mirrors the Facilitation 101 framework — explain, validate, apply. Same psychology, applied specifically to the Growth Curve."
+      ],
+      "relevance_questions": [
+        "So where do you think you sit on the curve?",
+        "What makes you say that?",
+        "Where do you want to be on the curve, and by when?"
+      ]
+    },
+    {
+      "step": 4,
+      "name": "Drawing and Delivery Technique",
+      "key_principle": "The Growth Curve is best delivered free-drawn live. The act of drawing in real time is itself a facilitation technique — not just a visual aid.",
+      "coaching_points": [
+        "Draw it live, even if your handwriting is poor. Writing it out in real time slows the client's brain down, draws them into the delivery, and creates focused attention and curiosity.",
+        "Manage space on the page — leave plenty of room so the curve and milestone labels don't end up crowded. Plan ahead for milestones like 'break even' and 'lifestyle'.",
+        "Use the chunking technique: present phases of the framework (design, launch, break even) in blocks of three. Write all three labels first, then speak about them. Never write one, explain it, then write the next — this causes confusion and loss of place.",
+        "Secondary elements like the devil's toilet and the split point don't need to be drawn in a specific order. If the sequence shifts, keep going — it doesn't matter.",
+        "Rhyming words like 'artisan' and 'businessman' are intentional — the rhyme makes the concept sticky in the client's mind long after the meeting."
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Closing the Session",
+      "key_principle": "The Growth Curve reveal is not a sales pitch. Its purpose is to reposition you as a Strategic Advisor. Do not blow it by selling immediately afterwards.",
+      "closing_script": "So now that we're both clear on where you're trying to get to on the curve — would you be open to me offering you ideas or highlighting problem areas, as and when I think they could help you?",
+      "yes_response": "Great, I'll put my thinking cap on and be in touch going forward...",
+      "coaching_points": [
+        "The purpose of the Growth Curve in an EOY meeting is to improve advisor/client alignment and reposition you as a Strategic Advisor — not to immediately list advisory services.",
+        "Do not dump strategic observations immediately after the Growth Curve section. The Volatility discussion comes later in the EOY meeting — spacing these out prevents client overwhelm.",
+        "The 4 processing styles (Activist, Pragmatist, Reflector, Theorist) mean different clients need different amounts of time to absorb the concept. Allow a small pause rather than pushing straight to the next topic.",
+        "Follow up within 14 days of the EOY meeting with Growth Curve-specific observations — diary this before you leave the room.",
+        "The closing question ('would you be open to me offering you ideas...') is deliberately low-pressure — it secures ongoing advisory permission without triggering a sales defence."
+      ]
+    }
+  ],
+
+  "key_concepts": {
+    "global_positioning": "The brief opening frame that introduces the Growth Curve as a framework before the persona story begins. Establishes what it is and why you use it — in one confident paragraph.",
+    "persona": "A fictional 3rd person business character used to deliver the Growth Curve narrative without triggering the client's self-assessment mode. The persona stays in character throughout, allows humour and exaggeration, and makes the concept memorable across many client conversations.",
+    "chunking": "The technique of presenting phases of the Growth Curve in groups of three — writing all three labels before speaking about any of them. Prevents confusion and keeps delivery flow intact.",
+    "live_drawing": "Drawing the Growth Curve in real time rather than presenting a pre-made diagram. Slows the client's brain down, creates curiosity, and makes the reveal feel like a shared discovery rather than a slideshow presentation.",
+    "dont_sell_too_fast": "The most common mistake after a successful Growth Curve reveal. The strategic repositioning value is destroyed if the advisor immediately lists advisory services. The closing question secures future permission without triggering resistance.",
+    "processing_styles": "The 4 learning styles (Activist, Pragmatist, Reflector, Theorist) determine how quickly different clients absorb new concepts. Allow time between the Growth Curve reveal and any follow-up strategic conversation — at minimum, a 14-day diary follow-up after the EOY meeting."
+  },
+
+  "additional_guidance": {
+    "practice_standard": "Deliver the Growth Curve reveal at least 10 times before using it with a real client. Practice with family, colleagues, or anyone willing to listen. The confidence that comes from repetition is visible to the client and increases the impact of the session.",
+    "standalone_vs_eoy": "The Growth Curve can be used in any advisory meeting — not only at EOY. It is the fastest way to create self-relevance with any business client and acts as a gateway to recommending further advisory services.",
+    "relationship_to_facilitation_101": "The Growth Curve reveal is a specific application of the Facilitation 101 framework. Global positioning = Frame. Persona story = 3rd Person Story. Client relevance questions = Secure Relevance. The same psychological sequence underpins both."
+  }
+}

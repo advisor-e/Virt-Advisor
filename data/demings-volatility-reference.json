@@ -1,0 +1,120 @@
+{
+  "version": "1.0",
+  "description": "Reference content for coaching advisors on Deming's Theory of Volatility — a framework for helping business owners understand, interpret, and respond to the natural fluctuations in their business data rather than reacting to them.",
+  "objective": "To coach advisors in using Deming's Theory of Volatility to shift client conversations from reactive data interpretation to contextual understanding — replacing averages with standard deviation, identifying the type of volatility driving results, and applying the four strategic options to get the business stable before attempting to grow.",
+  "core_principle": "Volatility is expected and carries with it a degree of predictability. Understanding the nature of your volatility is key. A business that cannot interpret its own data will always be managed by fear — reacting to swings rather than planning through them.",
+
+  "theory_overview": {
+    "the_problem_with_averages": "Many businesses review performance by plotting sales or revenue data and drawing an average line through it. While an average is useful for summarising a past dataset, it is completely ineffective for looking forward — because it creates an artificial standard where results are automatically judged as a pass (above average) or a fail (below average). Since results will almost always be above or below the average, the client is permanently in pass/fail mode.",
+    "the_solution": "Standard Deviation (or a Volatility Graph) calculates a likely range of performance — for example, where 68% of results are expected to fall. This helps business owners realise that going up and down is normal, and allows them to maintain an open mind about what is actually causing their variations.",
+    "deming_quote": "It is not enough to do your best; you must know what to do, and then do your best."
+  },
+
+  "variation_types": [
+    {
+      "type": "Common Cause",
+      "frequency": "High Frequency",
+      "impact": "Low Impact",
+      "description": "Normal, expected fluctuations that are part of running any business. Example: a retail store has lower foot traffic on a rainy day.",
+      "advisor_note": "Common cause variations should not trigger management action — they are background noise, not signals."
+    },
+    {
+      "type": "Special Cause",
+      "frequency": "Low Frequency",
+      "impact": "High Impact",
+      "description": "Rare, unexpected events with significant consequences. Example: an earthquake or pandemic disrupting the business.",
+      "advisor_note": "Special cause variations require genuine strategic response — they fall outside the normal range and represent real anomalies."
+    },
+    {
+      "type": "Seasonal",
+      "frequency": "Predictable",
+      "impact": "Varies",
+      "description": "Predictable patterns and trends that repeat on a regular cycle. Example: selling ice cream in summer vs. winter.",
+      "advisor_note": "Seasonal variations are manageable once identified — the risk is mistaking a seasonal swing for a special cause and over-reacting."
+    },
+    {
+      "type": "Tampering",
+      "frequency": "Any",
+      "impact": "Self-inflicted",
+      "description": "Data misinterpretation leading to wrong conclusions and wrong actions. Example: paying bonuses after a sales spike in June, then firing staff after a drop in December — completely missing the fact that both were predictable seasonal patterns.",
+      "advisor_note": "Tampering is the most dangerous variation type because it compounds the problem. Wrong conclusion = wrong action = new problem created by the response. Ensure clients are not punishing or rewarding staff for events outside their control."
+    }
+  ],
+
+  "causation_correlation_coincidence": {
+    "description": "To correctly interpret business data, you must identify the relationship between events accurately before acting. The three levels are:",
+    "levels": [
+      {
+        "level": "Causation",
+        "definition": "A direct, provable link between two events — one causes the other.",
+        "example": "Putting petrol in a diesel engine blows it up."
+      },
+      {
+        "level": "Correlation",
+        "definition": "A highly attributable contribution — one factor significantly increases the likelihood of the other, but is not the sole cause.",
+        "example": "Driving with low tyre pressure and hitting a pothole causes a flat."
+      },
+      {
+        "level": "Coincidence",
+        "definition": "Two events occur together but are entirely unrelated.",
+        "example": "Listening to AC/DC when your engine blows up."
+      }
+    ],
+    "advisor_note": "Misidentifying coincidence as causation is one of the most common sources of tampering. Before recommending action, make sure the client can clearly articulate the causal chain — not just a correlation or a coincidence."
+  },
+
+  "caravan_metaphor": "Volatility in a business is like a caravan swaying behind a car. If you do not get the swinging under control, it will pull the entire car off the road. You cannot safely scale or grow a business if you do not understand and manage its underlying volatility first. Extreme swings in sales and cash flow create a fatiguing and unsustainable environment — regardless of how strong the underlying business model is.",
+
+  "application_steps": [
+    {
+      "step": 1,
+      "name": "Map Your Data with a Volatility Graph",
+      "guidance": "Stop relying solely on averages. Plot key metrics (cash received, sales, gross margin) and add standard deviation lines to establish the upper and lower likely ranges. This immediately contextualises the data — showing what is a normal swing versus what is a genuine anomaly."
+    },
+    {
+      "step": 2,
+      "name": "Analyse the Data Contextually",
+      "guidance": "Review data points regularly and ask critical questions: Is this consistent with previous assumptions? Does this data point relate to a special or seasonal cause? Are our swings influenced by internal campaigns? Example: a furniture store running a 'free Christmas ham' promotion sees a massive December spike — but this may be cannibalising November and January sales, not representing genuine growth."
+    },
+    {
+      "step": 3,
+      "name": "Diagnose the Root Cause",
+      "guidance": "When anomalies appear outside the standard deviation range, use the Causation/Correlation/Coincidence framework to identify why. Ensure you are not tampering — do not punish or reward staff for events outside their control."
+    },
+    {
+      "step": 4,
+      "name": "Apply the Four Volatility Options",
+      "guidance": "Once the nature of the volatility is understood, apply one or more of the four strategic responses to get the caravan back under control.",
+      "options": [
+        {
+          "option": "Review Products and Services",
+          "question": "What could help fill in the holes during slow periods?",
+          "detail": "Identify offerings that smooth revenue across the year — new products, repackaged services, or recurring revenue models that reduce seasonal dependence."
+        },
+        {
+          "option": "Review Admin Procedures",
+          "question": "How could we get the money in quicker?",
+          "detail": "Review terms of trade, invoicing cycles, debt collection processes, and cloud accounting tools. Cash flow swings are often administrative problems, not revenue problems."
+        },
+        {
+          "option": "Review Marketing and Sales Tactics",
+          "question": "How could we attract more customers, more often?",
+          "detail": "Review outbound messaging, inbound lead generation, and the overall sales pipeline. More consistent customer volume smooths cash flow regardless of seasonal patterns."
+        },
+        {
+          "option": "Review Working Capital",
+          "question": "How should we finance and manage the money to cope with the swings?",
+          "detail": "Review retained earnings, overdraft facilities, credit lines, and cash reserves. If volatility is an unavoidable feature of the industry, the business needs adequate financial buffers to trade through the low periods."
+        }
+      ]
+    }
+  ],
+
+  "key_concepts": {
+    "standard_deviation": "A statistical measure that calculates the likely range within which most results will fall — typically capturing 68% of outcomes. Far more useful than an average for forward-looking business performance review, because it reflects the real shape of the data rather than an artificial midpoint.",
+    "tampering": "The act of taking management action based on a misinterpretation of data. The most common form: reacting to normal variation as if it were a special cause — paying bonuses for a seasonal peak, firing staff during a predictable trough. Wrong conclusion always leads to wrong action.",
+    "caravan_metaphor": "The visual anchor for explaining volatility to a client. A caravan swaying behind a car that you try to accelerate will eventually pull the car off the road. Businesses that try to scale without addressing underlying volatility face the same outcome.",
+    "pass_fail_trap": "The psychological consequence of using averages as performance benchmarks. Because results will almost always be above or below the average, the team is permanently in a state of passing or failing — which distorts decision-making and creates unnecessary stress.",
+    "causation_vs_coincidence": "The critical skill for preventing tampering. Before any management action is taken in response to a data point, the causal chain must be clearly established. Correlation is not enough — coincidence is common, and acting on coincidence makes things worse."
+  }
+}
