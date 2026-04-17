@@ -381,7 +381,7 @@ async function advisorQuery (req, res, next) {
 
   try {
     const stream = await openaiClient.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       max_tokens: 1024,
       stream: true,
       messages: [

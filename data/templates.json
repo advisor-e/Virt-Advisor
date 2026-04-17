@@ -1110,10 +1110,12 @@
     "section": "Do the Job",
     "menuSection": "do-the-job",
     "topic": "Getting Stock Levels Under Control",
-    "purpose": "This is a 'Weighted Average' model to help your clients identify the criteria by which they prioritise their stock purchasing. Importantly, this model still allows for the 'Trader' skill-set of your client but attemnpts to 'reign-in' their stock purchasing towards items that drive the most profits...",
+    "purpose": "This is a 'Weighted Average' model to help your clients identify the criteria by which they prioritise their stock purchasing. Importantly, this model still allows for the 'Trader' skill-set of your client but attempts to 'reign-in' their stock purchasing towards items that drive the most profits...",
     "tags": [
       "Inventory Management",
-      "Stock Turn"
+      "Stock Turn",
+      "due diligence",
+      "financial controls"
     ],
     "includedInClient": true,
     "position": 61
@@ -3116,5 +3118,561 @@
     ],
     "includedInClient": false,
     "position": 195
+  },
+  {
+    "page": "id-4806944979",
+    "title": "Board Member Conduct",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Governance",
+    "purpose": "This template seeks to offer practical insights for how to deal with disruptive board members. The content in this template will also prove useful to those presenting or 'pitching' to a board.",
+    "tags": [
+      "Status"
+    ],
+    "includedInClient": false,
+    "position": 196
+  },
+  {
+    "page": "id-5336158617",
+    "title": "Annual Board Plan",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Governance",
+    "purpose": "This template records the board's intentions to deal with certain business topics/issues and schedules their sequence throughout the year. Issues include both business performance and board member/director performance.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 197
+  },
+  {
+    "page": "id-2665394735",
+    "title": "Draft White Papers",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Governance",
+    "purpose": "This template guides the reader through the process of writing a white paper. It seeks to solve the common problem facing many board chairman, that of members 'dumping' their problem in a board meeting without offering suggestions to resolve or identify the issue  accurately.",
+    "tags": [
+      "Board performance",
+      "quality meetings"
+    ],
+    "includedInClient": false,
+    "position": 198
+  },
+  {
+    "page": "id-439870566",
+    "title": "Quality Decisions",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Governance",
+    "purpose": "This template seeks to highlight the importance of robust decision making frameworks. This is critical since many in board positions become fixated on meeting protocol, at the cost of robust debate and decisive decisions.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 199
+  },
+  {
+    "page": "id-3474302012",
+    "title": "Leadership Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Leadership",
+    "purpose": "This template shines a light on the requirements for leadership styles to be 'best matched' to industry, business team and leader personality type. All to often leaders can be misled into following the latest 'trend' on leadership; this template challenges a leaders understanding of the topic.",
+    "tags": [
+      "Governance",
+      "Culture"
+    ],
+    "includedInClient": false,
+    "position": 200
+  },
+  {
+    "page": "id-1203724614",
+    "title": "Customer Reliance",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Due Diligence",
+    "purpose": "This spreadsheet is used to calculate the financial dependency on clients. It allows for the ascending order and proportion to be made known. An example would be the 80/20 rule - does 80% of sales come from 20% of clients etc. Particularly important in due diligence but useful for any client.",
+    "tags": [
+      "Sales review",
+      "Customer analysis",
+      "sales growth",
+      "80/20 rule"
+    ],
+    "includedInClient": false,
+    "position": 201
+  },
+  {
+    "page": "id-7390480359",
+    "title": "Location Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Due Diligence",
+    "purpose": "This spreadsheet aids the due diligence process by assessing regional market potential, thus helping to assess future growth potential and serviceability 'cross-over' between multiple branches. This model can also be used to support in depth marketing reviews for any business.",
+    "tags": [
+      "Marketing",
+      "Market Potential"
+    ],
+    "includedInClient": false,
+    "position": 202
+  },
+  {
+    "page": "id-6537846405",
+    "title": "Supply Chain Review",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Due Diligence",
+    "purpose": "This spreadhseet allows you to calculate the 'delay days' of key supplies as part of your supply chain risk assessment. Again, whilst useful for due diligence engagements, this execrcise is valuable to support any growth programme or governance proceedings.",
+    "tags": [
+      "Governance",
+      "Management",
+      "risk management"
+    ],
+    "includedInClient": false,
+    "position": 203
+  },
+  {
+    "page": "id-7744014253",
+    "title": "Margin vs Markup",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you to explain pricing tactics to your clients.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 204
+  },
+  {
+    "page": "id-3613015604",
+    "title": "Labour Margin Mix",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.\nThis model differs from other labour margin by allowing more job type break-down.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 205
+  },
+  {
+    "page": "id-9678770136",
+    "title": "Sales Dashboard",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model provides a dashboard example of how you could review the performance of a sales team and the product mix of a business.",
+    "tags": [
+      "Financial management reporting",
+      "sales growth"
+    ],
+    "includedInClient": false,
+    "position": 206
+  },
+  {
+    "page": "id-520637887",
+    "title": "Finance and Depreciation",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy to explain the finance and depreciation costs of an asset purchase. This would be well supported by an industry specific what-if model and the Lite Feasibility template as part of your comprehensive solution.",
+    "tags": [
+      "feasibility"
+    ],
+    "includedInClient": false,
+    "position": 207
+  },
+  {
+    "page": "id-7300493666",
+    "title": "Dry Stock Farming",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model is part of the Rural package aimed at dry stock farmers. This model makes it easy for you and your client to calculate the Financial Capacity of their farm and to explore their financial assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 208
+  },
+  {
+    "page": "id-2994412897",
+    "title": "Marine Harvest",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model relates to the harvest contractor aspects of mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 209
+  },
+  {
+    "page": "id-7926022344",
+    "title": "Mussel Farm 2",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model relates specifically to mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 210
+  },
+  {
+    "page": "id-6135077820",
+    "title": "Real Estate Office",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model relates specifically to the calculation of revenue and sales commissions for a real estate office.\nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions.\n",
+    "tags": [],
+    "includedInClient": false,
+    "position": 211
+  },
+  {
+    "page": "id-2031816767",
+    "title": "Farm House Budget",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your farming clients to explore their home budget constraints as part of their overall farming budgets.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 212
+  },
+  {
+    "page": "id-4496283136",
+    "title": "Doctor",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their practice and explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 213
+  },
+  {
+    "page": "id-8630195960",
+    "title": "Health Spa",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 214
+  },
+  {
+    "page": "id-6913003200",
+    "title": "Support Person",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model relates to those in the 'care-support' roles within the private health sector.\nThe model makes it easy for you and your client to calculate the Financial Capacity of their practice and to explore their business assumptions whilst aligning you and the owner on their dreams and expectation.",
+    "tags": [],
+    "includedInClient": false,
+    "position": 215
+  },
+  {
+    "page": "id-9528768263",
+    "title": "Deliver and Hire",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model relates to hire services & makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations. ",
+    "tags": [],
+    "includedInClient": false,
+    "position": 216
+  },
+  {
+    "page": "id-7880718875",
+    "title": "Mobile Services",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "logistics"
+    ],
+    "includedInClient": false,
+    "position": 217
+  },
+  {
+    "page": "id-7911507941",
+    "title": "Beverages",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Energy Drinks",
+      "Coffee",
+      "Alcohol"
+    ],
+    "includedInClient": false,
+    "position": 218
+  },
+  {
+    "page": "id-4839857390",
+    "title": "Craft Production",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Boutique foods",
+      "production"
+    ],
+    "includedInClient": false,
+    "position": 219
+  },
+  {
+    "page": "id-8663037039",
+    "title": "Raw Food",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Pet Food",
+      "Natural Food Sources",
+      "Wild Food Products"
+    ],
+    "includedInClient": false,
+    "position": 220
+  },
+  {
+    "page": "id-5968387608",
+    "title": "Dress Maker",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Wedding dress",
+      "Boutique Fashion"
+    ],
+    "includedInClient": false,
+    "position": 221
+  },
+  {
+    "page": "id-2564764117",
+    "title": "Hard & Software Sales",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Computers",
+      "Hardware"
+    ],
+    "includedInClient": false,
+    "position": 222
+  },
+  {
+    "page": "id-8113313872",
+    "title": "Pet Shop",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Grooming",
+      "Walking"
+    ],
+    "includedInClient": false,
+    "position": 223
+  },
+  {
+    "page": "id-7595084187",
+    "title": "Entry Fee",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Tourism",
+      "Concerts",
+      "Events",
+      "Shows",
+      "Promoters",
+      "Ticket Sales",
+      "Attendance"
+    ],
+    "includedInClient": false,
+    "position": 224
+  },
+  {
+    "page": "id-9520016666",
+    "title": "Sales Teams",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model focus on the sales activity and commission levels of a sales team, using a multi tiered earnings structure to determine business margins and potential salesperson rewards.",
+    "tags": [
+      "Sales growth",
+      "Sales incentives"
+    ],
+    "includedInClient": false,
+    "position": 225
+  },
+  {
+    "page": "id-3167861288",
+    "title": "Drilling & Pumps",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Water bores",
+      "Wells",
+      "Water wells",
+      "Irrigation",
+      "Borehole",
+      "Drilling",
+      "aquafiers"
+    ],
+    "includedInClient": false,
+    "position": 226
+  },
+  {
+    "page": "id-9422408981",
+    "title": "Fencing Cost pr Mtr",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "boundary fencing",
+      "post and rail",
+      "gates"
+    ],
+    "includedInClient": false,
+    "position": 227
+  },
+  {
+    "page": "id-2405526495",
+    "title": "Butcher",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Fresh Meats"
+    ],
+    "includedInClient": false,
+    "position": 228
+  },
+  {
+    "page": "id-9838262016",
+    "title": "Cleaners",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Commercial cleaners"
+    ],
+    "includedInClient": false,
+    "position": 229
+  },
+  {
+    "page": "id-3652967577",
+    "title": "Consultancy Pricing",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model focuses on the different pricing 'layers' that can be applied to design, preparation, travel, delivery and long term support for consultants. It may not determine the actual fee being charged, but serves as a strong indicator for where negotiations should start.",
+    "tags": [
+      "business coach",
+      "growth expert",
+      "turnaround expert"
+    ],
+    "includedInClient": false,
+    "position": 230
+  },
+  {
+    "page": "id-4159320328",
+    "title": "Financial Advisor",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model enables the financial advisor to determine where best to focus their efforts. Based on client profiles, all sales activity is run through conversion calculations to deliver a cash forecast.",
+    "tags": [
+      "Insurance advisor",
+      "broker",
+      "financial planner"
+    ],
+    "includedInClient": false,
+    "position": 231
+  },
+  {
+    "page": "id-2924428930",
+    "title": "IT Services",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Computers",
+      "Hardware",
+      "Software",
+      "Devices"
+    ],
+    "includedInClient": false,
+    "position": 232
+  },
+  {
+    "page": "id-8331651557",
+    "title": "Plumber",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "drain layer",
+      "pipefitter",
+      "gas fitter",
+      "hot water cylinder"
+    ],
+    "includedInClient": false,
+    "position": 233
+  },
+  {
+    "page": "id-4785641745",
+    "title": "Landscaping & Maintenance",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "Gardens",
+      "lawnkeeping",
+      "plants",
+      "tree"
+    ],
+    "includedInClient": false,
+    "position": 234
+  },
+  {
+    "page": "id-2765249803",
+    "title": "Learn-from-Home",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "childcare",
+      "early childhood",
+      "home schooling"
+    ],
+    "includedInClient": false,
+    "position": 235
+  },
+  {
+    "page": "id-3757497372",
+    "title": "Scaffolding",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "What-if-Analysis",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "tags": [
+      "building wrap",
+      "temporary fencing",
+      "edge protection"
+    ],
+    "includedInClient": false,
+    "position": 236
   }
 ]

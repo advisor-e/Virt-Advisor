@@ -18,9 +18,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Lifestyle",
+      "fundamental": "This spreadsheet is a quick and low-cost way to introduce your clients to management reporting. The sheet provides 15 or more financial ratios in a graph/ graphic view to help explain the importance o"
     },
     "status": "--",
     "tags": [
@@ -53,9 +53,9 @@
       "reheasedTemplate": 30
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -87,9 +87,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -118,9 +118,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -960,7 +960,7 @@
     "growth": {
       "isHidden": false,
       "stage": "Launch",
-      "fundamental": "How incremental changes in Purchasing, Pricing, Selling & Managing Fixed Costs can add up to a big change in bottom line profit."
+      "fundamental": "How incremental changes in Purchasing, Pricing, Selling & Managing Fixed Costs can add up to a big change in bottom line profit. This content includes a what-if-analysis model."
     },
     "status": "--",
     "tags": [
@@ -1107,7 +1107,7 @@
     "growth": {
       "isHidden": false,
       "stage": "Design",
-      "fundamental": "Working Capital Cycle/ Money in Movement / Effects of Time on Cashflow"
+      "fundamental": "Working Capital Cycle/ Money in Movement / Effects of Time on Cashflow. This content includes a what-if-analysis model."
     },
     "status": "--",
     "tags": [
@@ -2072,8 +2072,8 @@
     "topic": "Getting Stock Levels Under Control",
     "title": "Stock Policies",
     "link": "growth-projects-delivery-tools-spare",
-    "purpose": "This is a 'Weighted Average' model to help your clients identify the criteria by which they prioritise their stock purchasing. Importantly, this model still allows for the 'Trader' skill-set of your client but attemnpts to 'reign-in' their stock purchasing towards items that drive the most profits...",
-    "support": "Inventory Management; Stock Turn",
+    "purpose": "This is a 'Weighted Average' model to help your clients identify the criteria by which they prioritise their stock purchasing. Importantly, this model still allows for the 'Trader' skill-set of your client but attempts to 'reign-in' their stock purchasing towards items that drive the most profits...",
+    "support": "Inventory Management; Stock Turn; due diligence; financial controls",
     "position": 61,
     "cpd": {
       "isHidden": false,
@@ -2090,7 +2090,9 @@
     "status": "--",
     "tags": [
       "Inventory Management",
-      "Stock Turn"
+      "Stock Turn",
+      "due diligence",
+      "financial controls"
     ],
     "index": 60
   },
@@ -2214,9 +2216,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2245,9 +2247,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2277,9 +2279,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2311,9 +2313,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2341,7 +2343,7 @@
     },
     "growth": {
       "isHidden": false,
-      "stage": "Design",
+      "stage": "Breakeven",
       "fundamental": "Mthly Sales to achieve break-even"
     },
     "status": "--",
@@ -2369,9 +2371,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2400,9 +2402,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2435,9 +2437,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2465,9 +2467,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2494,9 +2496,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2526,9 +2528,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2561,9 +2563,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2595,9 +2597,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2627,9 +2629,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2659,9 +2661,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2691,7 +2693,7 @@
     },
     "growth": {
       "isHidden": false,
-      "stage": "Launch",
+      "stage": "Breakeven",
       "fundamental": "Anticipated expenses & Estimated Sales to see if the business can afford to continue to trade (otherwise known as Cash Forecast)"
     },
     "status": "--",
@@ -2726,9 +2728,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2759,9 +2761,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2793,9 +2795,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2826,9 +2828,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2860,9 +2862,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2892,9 +2894,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2924,9 +2926,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2956,9 +2958,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -2985,9 +2987,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -3016,9 +3018,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -3084,9 +3086,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -3113,9 +3115,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
     "tags": [
@@ -3142,9 +3144,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3173,9 +3175,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3202,9 +3204,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3232,9 +3234,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3264,9 +3266,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3301,9 +3303,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3332,9 +3334,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3361,9 +3363,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3393,9 +3395,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3425,9 +3427,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3461,9 +3463,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -3498,9 +3500,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams."
     },
     "status": "--",
     "tags": [
@@ -6236,5 +6238,1217 @@
     ],
     "status": "--",
     "index": 194
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4806944979",
+    "section": "Do the Job",
+    "topic": "Governance",
+    "title": "Board Member Conduct",
+    "link": "id-4806944979",
+    "purpose": "This template seeks to offer practical insights for how to deal with disruptive board members. The content in this template will also prove useful to those presenting or 'pitching' to a board.",
+    "support": "Status",
+    "position": 196,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Status"
+    ],
+    "status": "--",
+    "index": 195
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-5336158617",
+    "section": "Do the Job",
+    "topic": "Governance",
+    "title": "Annual Board Plan",
+    "link": "id-5336158617",
+    "purpose": "This template records the board's intentions to deal with certain business topics/issues and schedules their sequence throughout the year. Issues include both business performance and board member/director performance.",
+    "support": "",
+    "position": 197,
+    "cpd": {
+      "isHidden": true,
+      "objective": "This template is designed to help you introduce more structure to your regular management meetings.",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [],
+    "index": 196
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-2665394735",
+    "section": "Do the Job",
+    "topic": "Governance",
+    "title": "Draft White Papers",
+    "link": "id-2665394735",
+    "purpose": "This template guides the reader through the process of writing a white paper. It seeks to solve the common problem facing many board chairman, that of members 'dumping' their problem in a board meeting without offering suggestions to resolve or identify the issue  accurately.",
+    "support": "Board performance; quality meetings",
+    "position": 198,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Board performance",
+      "quality meetings"
+    ],
+    "status": "--",
+    "index": 197
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-439870566",
+    "section": "Do the Job",
+    "topic": "Governance",
+    "title": "Quality Decisions",
+    "link": "id-439870566",
+    "purpose": "This template seeks to highlight the importance of robust decision making frameworks. This is critical since many in board positions become fixated on meeting protocol, at the cost of robust debate and decisive decisions.",
+    "support": "",
+    "position": 199,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [],
+    "index": 198
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-3474302012",
+    "section": "Do the Job",
+    "topic": "Leadership",
+    "title": "Leadership Review",
+    "link": "id-3474302012",
+    "purpose": "This template shines a light on the requirements for leadership styles to be 'best matched' to industry, business team and leader personality type. All to often leaders can be misled into following the latest 'trend' on leadership; this template challenges a leaders understanding of the topic.",
+    "support": "Governance; Culture",
+    "position": 200,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Governance",
+      "Culture"
+    ],
+    "status": "--",
+    "index": 199
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-1203724614",
+    "section": "Do the Job",
+    "topic": "Due Diligence",
+    "title": "Customer Reliance",
+    "link": "id-1203724614",
+    "purpose": "This spreadsheet is used to calculate the financial dependency on clients. It allows for the ascending order and proportion to be made known. An example would be the 80/20 rule - does 80% of sales come from 20% of clients etc. Particularly important in due diligence but useful for any client.",
+    "support": "Sales review; Customer analysis; sales growth; 80/20 rule",
+    "position": 201,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Sales review",
+      "Customer analysis",
+      "sales growth",
+      "80/20 rule"
+    ],
+    "status": "--",
+    "index": 200
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-7390480359",
+    "section": "Do the Job",
+    "topic": "Due Diligence",
+    "title": "Location Review",
+    "link": "id-7390480359",
+    "purpose": "This spreadsheet aids the due diligence process by assessing regional market potential, thus helping to assess future growth potential and serviceability 'cross-over' between multiple branches. This model can also be used to support in depth marketing reviews for any business.",
+    "support": "Marketing; Market Potential",
+    "position": 202,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Marketing",
+      "Market Potential"
+    ],
+    "status": "--",
+    "index": 201
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-6537846405",
+    "section": "Do the Job",
+    "topic": "Due Diligence",
+    "title": "Supply Chain Review",
+    "link": "id-6537846405",
+    "purpose": "This spreadhseet allows you to calculate the 'delay days' of key supplies as part of your supply chain risk assessment. Again, whilst useful for due diligence engagements, this execrcise is valuable to support any growth programme or governance proceedings.",
+    "support": "Governance; Management; risk management",
+    "position": 203,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Governance",
+      "Management",
+      "risk management"
+    ],
+    "status": "--",
+    "index": 202
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-7744014253",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Margin vs Markup",
+    "link": "id-7744014253",
+    "purpose": "This model makes it easy for you to explain pricing tactics to your clients.",
+    "support": "",
+    "position": 204,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you to explain pricing tactics to your clients."
+    },
+    "status": "--",
+    "tags": [],
+    "index": 203
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-3613015604",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Labour Margin Mix",
+    "link": "id-3613015604",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.\nThis model differs from other labour margin by allowing more job type break-down.",
+    "support": "",
+    "position": 205,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "status": "--",
+    "tags": [],
+    "index": 204
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-9678770136",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Sales Dashboard",
+    "link": "id-9678770136",
+    "purpose": "This model provides a dashboard example of how you could review the performance of a sales team and the product mix of a business.",
+    "support": "Financial management reporting; sales growth",
+    "position": 206,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model provides a dashboard example of how you could review the performance of a sales team and the product mix of a business."
+    },
+    "tags": [
+      "Financial management reporting",
+      "sales growth"
+    ],
+    "status": "--",
+    "index": 205
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-520637887",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Finance and Depreciation",
+    "link": "id-520637887",
+    "purpose": "This model makes it easy to explain the finance and depreciation costs of an asset purchase. This would be well supported by an industry specific what-if model and the Lite Feasibility template as part of your comprehensive solution.",
+    "support": "feasibility",
+    "position": 207,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy to explain the finance and depreciation costs of an asset purchase. This would be well supported by an industry specific what-if model and the Lite Feasibility template as par"
+    },
+    "tags": [
+      "feasibility"
+    ],
+    "status": "--",
+    "index": 206
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-7300493666",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Dry Stock Farming",
+    "link": "id-7300493666",
+    "purpose": "This model is part of the Rural package aimed at dry stock farmers. This model makes it easy for you and your client to calculate the Financial Capacity of their farm and to explore their financial assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "",
+    "position": 208,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model is part of the Rural package aimed at dry stock farmers. This model makes it easy for you and your client to calculate the Financial Capacity of their farm and to explore their financial as"
+    },
+    "status": "--",
+    "tags": [],
+    "index": 207
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-2994412897",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Marine Harvest",
+    "link": "id-2994412897",
+    "purpose": "This model relates to the harvest contractor aspects of mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "",
+    "position": 209,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model relates to the harvest contractor aspects of mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their busi"
+    },
+    "status": "--",
+    "tags": [],
+    "index": 208
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-7926022344",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Mussel Farm 2",
+    "link": "id-7926022344",
+    "purpose": "This model relates specifically to mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "",
+    "position": 210,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model relates specifically to mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whil"
+    },
+    "status": "--",
+    "tags": [],
+    "index": 209
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-6135077820",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Real Estate Office",
+    "link": "id-6135077820",
+    "purpose": "This model relates specifically to the calculation of revenue and sales commissions for a real estate office.\nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions.\n",
+    "support": "",
+    "position": 211,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model relates specifically to the calculation of revenue and sales commissions for a real estate office.\nThe model makes it easy for you and your client to calculate the Financial Capacity of the"
+    },
+    "status": "--",
+    "tags": [],
+    "index": 210
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-2031816767",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Farm House Budget",
+    "link": "id-2031816767",
+    "purpose": "This model makes it easy for you and your farming clients to explore their home budget constraints as part of their overall farming budgets.",
+    "support": "",
+    "position": 212,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your farming clients to explore their home budget constraints as part of their overall farming budgets."
+    },
+    "status": "--",
+    "tags": [],
+    "index": 211
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4496283136",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Doctor",
+    "link": "id-4496283136",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their practice and explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "",
+    "position": 213,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their practice and explore their business assumptions whilst aligning you and the owner on their dreams and expe"
+    },
+    "status": "--",
+    "tags": [],
+    "index": 212
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-8630195960",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Health Spa",
+    "link": "id-8630195960",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "",
+    "position": 214,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and explore their business assumptions whilst aligning you and the owner on their dreams and expe"
+    },
+    "status": "--",
+    "tags": [],
+    "index": 213
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-6913003200",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Support Person",
+    "link": "id-6913003200",
+    "purpose": "This model relates to those in the 'care-support' roles within the private health sector.\nThe model makes it easy for you and your client to calculate the Financial Capacity of their practice and to explore their business assumptions whilst aligning you and the owner on their dreams and expectation.",
+    "support": "",
+    "position": 215,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model relates to those in the 'care-support' roles within the private health sector.\nThe model makes it easy for you and your client to calculate the Financial Capacity of their practice."
+    },
+    "status": "--",
+    "tags": [],
+    "index": 214
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-9528768263",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Deliver and Hire",
+    "link": "id-9528768263",
+    "purpose": "This model relates to hire services & makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations. ",
+    "support": "",
+    "position": 216,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model relates to hire services & makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
+    },
+    "status": "--",
+    "tags": [],
+    "index": 215
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-7880718875",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Mobile Services",
+    "link": "id-7880718875",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "logistics",
+    "position": 217,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
+    },
+    "tags": [
+      "logistics"
+    ],
+    "status": "--",
+    "index": 216
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-7911507941",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Beverages",
+    "link": "id-7911507941",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Energy Drinks; Coffee; Alcohol",
+    "position": 218,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
+    },
+    "tags": [
+      "Energy Drinks",
+      "Coffee",
+      "Alcohol"
+    ],
+    "status": "--",
+    "index": 217
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4839857390",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Craft Production",
+    "link": "id-4839857390",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Boutique foods; production",
+    "position": 219,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
+    },
+    "tags": [
+      "Boutique foods",
+      "production"
+    ],
+    "status": "--",
+    "index": 218
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-8663037039",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Raw Food",
+    "link": "id-8663037039",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Pet Food; Natural Food Sources; Wild Food Products",
+    "position": 220,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
+    },
+    "tags": [
+      "Pet Food",
+      "Natural Food Sources",
+      "Wild Food Products"
+    ],
+    "status": "--",
+    "index": 219
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-5968387608",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Dress Maker",
+    "link": "id-5968387608",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Wedding dress; Boutique Fashion",
+    "position": 221,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
+    },
+    "tags": [
+      "Wedding dress",
+      "Boutique Fashion"
+    ],
+    "status": "--",
+    "index": 220
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-2564764117",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Hard & Software Sales",
+    "link": "id-2564764117",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Computers; Hardware",
+    "position": 222,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions"
+    },
+    "tags": [
+      "Computers",
+      "Hardware"
+    ],
+    "status": "--",
+    "index": 221
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-8113313872",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Pet Shop",
+    "link": "id-8113313872",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Grooming; Walking",
+    "position": 223,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
+    },
+    "tags": [
+      "Grooming",
+      "Walking"
+    ],
+    "status": "--",
+    "index": 222
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-7595084187",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Entry Fee",
+    "link": "id-7595084187",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Tourism; Concerts; Events; Shows; Promoters; Ticket Sales; Attendance",
+    "position": 224,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
+    },
+    "tags": [
+      "Tourism",
+      "Concerts",
+      "Events",
+      "Shows",
+      "Promoters",
+      "Ticket Sales",
+      "Attendance"
+    ],
+    "status": "--",
+    "index": 223
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-9520016666",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Sales Teams",
+    "link": "id-9520016666",
+    "purpose": "This model focus on the sales activity and commission levels of a sales team, using a multi tiered earnings structure to determine business margins and potential salesperson rewards.",
+    "support": "Sales growth; Sales incentives",
+    "position": 225,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model focus on the sales activity and commission levels of a sales team, using a multi tiered earnings structure to determine business margins and potential salesperson rewards."
+    },
+    "tags": [
+      "Sales growth",
+      "Sales incentives"
+    ],
+    "status": "--",
+    "index": 224
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-3167861288",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Drilling & Pumps",
+    "link": "id-3167861288",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Water bores; Wells; Water wells; Irrigation; Borehole; Drilling; aquafiers",
+    "position": 226,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "tags": [
+      "Water bores",
+      "Wells",
+      "Water wells",
+      "Irrigation",
+      "Borehole",
+      "Drilling",
+      "aquafiers"
+    ],
+    "status": "--",
+    "index": 225
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-9422408981",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Fencing Cost pr Mtr",
+    "link": "id-9422408981",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "boundary fencing; post and rail; gates",
+    "position": 227,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "tags": [
+      "boundary fencing",
+      "post and rail",
+      "gates"
+    ],
+    "status": "--",
+    "index": 226
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-2405526495",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Butcher",
+    "link": "id-2405526495",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Fresh Meats",
+    "position": 228,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "tags": [
+      "Fresh Meats"
+    ],
+    "status": "--",
+    "index": 227
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-9838262016",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Cleaners",
+    "link": "id-9838262016",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Commercial cleaners",
+    "position": 229,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "tags": [
+      "Commercial cleaners"
+    ],
+    "status": "--",
+    "index": 228
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-3652967577",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Consultancy Pricing",
+    "link": "id-3652967577",
+    "purpose": "This model focuses on the different pricing 'layers' that can be applied to design, preparation, travel, delivery and long term support for consultants. It may not determine the actual fee being charged, but serves as a strong indicator for where negotiations should start.",
+    "support": "business coach; growth expert; turnaround expert",
+    "position": 230,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "tags": [
+      "business coach",
+      "growth expert",
+      "turnaround expert"
+    ],
+    "status": "--",
+    "index": 229
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4159320328",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Financial Advisor",
+    "link": "id-4159320328",
+    "purpose": "This model enables the financial advisor to determine where best to focus their efforts. Based on client profiles, all sales activity is run through conversion calculations to deliver a cash forecast.",
+    "support": "Insurance advisor; broker; financial planner",
+    "position": 231,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "tags": [
+      "Insurance advisor",
+      "broker",
+      "financial planner"
+    ],
+    "status": "--",
+    "index": 230
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-2924428930",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "IT Services",
+    "link": "id-2924428930",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Computers; Hardware; Software; Devices",
+    "position": 232,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "tags": [
+      "Computers",
+      "Hardware",
+      "Software",
+      "Devices"
+    ],
+    "status": "--",
+    "index": 231
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-8331651557",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Plumber",
+    "link": "id-8331651557",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "drain layer; pipefitter; gas fitter; hot water cylinder",
+    "position": 233,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "tags": [
+      "drain layer",
+      "pipefitter",
+      "gas fitter",
+      "hot water cylinder"
+    ],
+    "status": "--",
+    "index": 232
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4785641745",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Landscaping & Maintenance",
+    "link": "id-4785641745",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "Gardens; lawnkeeping; plants; tree",
+    "position": 234,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
+    },
+    "tags": [
+      "Gardens",
+      "lawnkeeping",
+      "plants",
+      "tree"
+    ],
+    "status": "--",
+    "index": 233
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-2765249803",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Learn-from-Home",
+    "link": "id-2765249803",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "childcare; early childhood; home schooling",
+    "position": 235,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
+    },
+    "tags": [
+      "childcare",
+      "early childhood",
+      "home schooling"
+    ],
+    "status": "--",
+    "index": 234
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-3757497372",
+    "section": "Do the Job",
+    "topic": "What-if-Analysis",
+    "title": "Scaffolding",
+    "link": "id-3757497372",
+    "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
+    "support": "building wrap; temporary fencing; edge protection",
+    "position": 236,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dream."
+    },
+    "tags": [
+      "building wrap",
+      "temporary fencing",
+      "edge protection"
+    ],
+    "status": "--",
+    "index": 235
   }
 ]

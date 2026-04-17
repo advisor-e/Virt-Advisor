@@ -238,8 +238,10 @@ async function handleQuery (rawBody, res) {
       // Universal questions
       disambiguationAnswer: null,
       clientRaisedIssue: false,
+      situationDiagnostic: null,
       // Profit scenario questions
       usesReports: false,
+      reportsFromFirm: null,
       wouldBenefitFromReview: false,
       industry: null,
       // Staff scenario questions
@@ -261,12 +263,12 @@ async function handleQuery (rawBody, res) {
       growthStage: null,
       acumen: null,
       academic: null,
-      trust: null,
-      engagementHistory: null,
+      advisoryStaircase: null,
       clientPersonality: null,
       // Phase 2 questions
       advisorExperience: null,
       advisorConfidence: null,
+      advisorTimeframe: null,
       // Flow state
       readyForRecommendation: false,
       recommendationDelivered: false,
@@ -376,6 +378,10 @@ async function handleQuery (rawBody, res) {
         text: 'Has the client specifically raised this issue themselves, or is it something you\'ve noticed and want to address with them?'
       },
       {
+        field: 'situationDiagnostic',
+        text: 'What do you feel contributed to this situation, which issue do you feel we should solve first, and what do you think the downstream issues are that we should solve or include in your service offer?'
+      },
+      {
         field: 'disambiguationAnswer',
         textFn: s => {
           const scenarios = s.disambiguationScenarios || []
@@ -409,6 +415,11 @@ async function handleQuery (rawBody, res) {
         field: 'usesReports',
         text: 'Does the client use financial management reports on a regular basis?',
         skip: s => !s.profitSituation
+      },
+      {
+        field: 'reportsFromFirm',
+        text: 'Are these financial reports generated and presented by you or a member of your firm?',
+        skip: s => !s.profitSituation || !s.usesReports || s.usesReports === 'pending' || !/\byes\b|already|they do|we do|regular|use them|have them/i.test(s.usesReports)
       },
       {
         field: 'wouldBenefitFromReview',
@@ -491,18 +502,14 @@ async function handleQuery (rawBody, res) {
         text: 'Are they academically inclined — do they read business books, follow frameworks, engage with ideas? Or are they more instinctive and practical?'
       },
       {
-        field: 'trust',
-        text: 'How would you describe their relationship with you — is there strong trust already, or is it still being built?'
+        field: 'advisoryStaircase',
+        text: 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
       },
       {
         field: 'clientPersonality',
         text: 'Are they light-hearted and open to being challenged, or are they more discerning and careful about how they receive advice?',
-        // Skip if the trust answer already signals a warm, casual relationship — the answer is implied
-        skip: s => s.trust && s.trust !== 'pending' && /\b(great|friend|laugh|fun|relax|get on|love|close|enjoy|really well|very well|good rapport|like them|good mates|good mate)\b/i.test(s.trust)
-      },
-      {
-        field: 'engagementHistory',
-        text: 'Have they asked for this kind of help before, or is this new territory for them?'
+        // Skip if staircase Step 3+ — advisor already knows from direct experience how client receives advice
+        skip: s => s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
       },
       {
         field: 'advisorExperience',
@@ -511,8 +518,12 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'advisorConfidence',
-        text: 'How confident do you feel about this type of situation — is this familiar territory, or more of a stretch?',
-        skip: () => !!advisorProfile
+        // Never skip — this is topic-specific, not covered by the Advisor Profile
+        text: 'How confident do you feel about delivering services in this type of situation — is this familiar territory, or more of a stretch for you personally?'
+      },
+      {
+        field: 'advisorTimeframe',
+        text: 'How long are you thinking for addressing these issues with this client, and how many meetings would you be comfortable committing to based on current workload?'
       }
     ]
 
@@ -613,7 +624,7 @@ async function handleQuery (rawBody, res) {
       if (res.socket) res.socket.setNoDelay(true)
 
       const streamPost = await getOpenAI().chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         max_tokens: 1500,
         stream: true,
         messages: [{ role: 'system', content: loadPrompt('client') }, ...messagesPost]
@@ -651,8 +662,10 @@ async function handleQuery (rawBody, res) {
     const collectedAnswers = [
       `Opening situation: ${(conversationHistory.find(m => m.role === 'user') || { content: query }).content}`,
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' ? `Whether client raised it: ${state.clientRaisedIssue}` : '',
+      state.situationDiagnostic && state.situationDiagnostic !== 'pending' ? `Situation diagnostic (root cause / priority / downstream issues): ${state.situationDiagnostic}` : '',
       // Profit scenario answers
       state.profitSituation && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
+      state.profitSituation && state.reportsFromFirm && state.reportsFromFirm !== 'pending' ? `Reports delivered by advisor's firm: ${state.reportsFromFirm}` : '',
       state.profitSituation && state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' ? `Would benefit from profit driver review: ${state.wouldBenefitFromReview}` : '',
       state.profitSituation && state.industry && state.industry !== 'pending' ? `Industry: ${state.industry}` : '',
       // Staff scenario answers
@@ -674,21 +687,47 @@ async function handleQuery (rawBody, res) {
       state.growthStage && state.growthStage !== 'pending' ? `Growth stage: ${state.growthStage}` : '',
       state.acumen && state.acumen !== 'pending' ? `Business acumen: ${state.acumen}` : '',
       state.academic && state.academic !== 'pending' ? `Academic vs instinctive: ${state.academic}` : '',
-      state.trust && state.trust !== 'pending' ? `Relationship/trust: ${state.trust}` : '',
+      state.advisoryStaircase && state.advisoryStaircase !== 'pending' ? `Advisory Staircase position (depth of advisor-client engagement): ${state.advisoryStaircase}` : '',
       state.clientPersonality && state.clientPersonality !== 'pending' ? `Client personality/style: ${state.clientPersonality}` : '',
-      state.engagementHistory && state.engagementHistory !== 'pending' ? `Engagement history: ${state.engagementHistory}` : '',
       state.advisorExperience && state.advisorExperience !== 'pending' ? `Advisor experience: ${state.advisorExperience}` : '',
-      state.advisorConfidence && state.advisorConfidence !== 'pending' ? `Advisor confidence: ${state.advisorConfidence}` : ''
+      state.advisorConfidence && state.advisorConfidence !== 'pending' ? `Advisor confidence/willingness to stretch: ${state.advisorConfidence}` : '',
+      state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? `Advisor timeframe and meeting commitment: ${state.advisorTimeframe}` : ''
     ].filter(Boolean).join('\n')
+
+    // Derive explicit exclusion and context rules from diagnostic answers
+    const reportsYes = state.usesReports && /\byes\b|already|they do|we do|regular|use them|have them/i.test(state.usesReports)
+    const reportsFromAdvisorFirm = state.reportsFromFirm && /\byes\b|we do|our firm|my firm|we provide|we deliver|i do|i deliver|we produce/i.test(state.reportsFromFirm)
+    const reviewNo = state.wouldBenefitFromReview && /\bno\b|not really|don't think|good handle|already know|doesn't need|do not|wouldn't/i.test(state.wouldBenefitFromReview)
+    const staircaseStep = state.advisoryStaircase ? (state.advisoryStaircase.match(/Step\s*([1-5])/i) || [])[1] : null
+    const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
+    const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|they (raised|brought|flagged|mentioned|came|approached|asked|wanted)|client raised|came to me|brought it up|raised it|flagged it|their idea|they initiated/i.test(state.clientRaisedIssue)
+
+    // Map industry answer to a specific industry template name if one exists in the library
+    const industryText = (state.industry || '').toLowerCase()
+    const industryTemplateMap = [
+      { pattern: /scaffold/i, template: 'Scaffolding' },
+      { pattern: /construct|builder|build|plumb|electr|roofing|carpent|chippy|sparky|trade/i, template: 'Construction' },
+      { pattern: /engineer|manufactur|precision|tooling|plastics|fabricat/i, template: 'Engineering' },
+      { pattern: /hospit|restaur|cafe|catering|pub|bar|nightclub|food|beverage/i, template: 'Hospitality' },
+      { pattern: /retail|shop|store|merchandise|ecomm/i, template: 'Retail' },
+      { pattern: /farm|dairy|rural|agri|milk|crop|livestock/i, template: 'Rural Volatility' }
+    ]
+    const matchedIndustryTemplate = industryTemplateMap.find(m => m.pattern.test(industryText))
+    const recommendedRevenueModel = matchedIndustryTemplate ? matchedIndustryTemplate.template : null
 
     const profitInstruction = state.profitSituation && state.industry && state.industry !== 'pending'
       ? `\n\nPROFIT SITUATION: This client has a profitability/cost problem. Their industry is: ${state.industry}.
 
 Your recommendation MUST include a revenue model or what-if analysis template from the provided template list. Rules:
 - Only recommend templates that exist in the provided list — do NOT invent, adapt, or combine template names
-- Select the closest real revenue model or what-if analysis template available, exactly as named in the list
-- In the "How to approach it" section, explain specifically how the advisor should apply that template in the context of the ${state.industry} industry
-- Do not append the industry name to the template name (e.g. do not write "Scaffolding Revenue Model" if the template is simply called "Revenue Model")`
+${recommendedRevenueModel ? `- An industry-specific revenue model exists for this client: "${recommendedRevenueModel}". Use this template as the primary revenue model recommendation — it is purpose-built for this industry and will be more relevant than a generic Revenue Model.` : `- Select the closest real revenue model or what-if analysis template available, exactly as named in the list`}
+- In the "How to approach it" section, explain specifically how the advisor should apply that template in the context of the ${state.industry} industry — mention industry-specific cost pressures, pricing dynamics, and revenue levers relevant to that sector
+- Do not append the industry name to the template name
+- DELIVERY METHOD RULE: ${clientRaisedIssue ? `The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.` : `The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method. In "How to approach it", explain the Cautious Reveal: establish WHY they need the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil's a plumber video before the meeting to prime awareness.`}
+${reportsYes ? `- This client already uses financial management reports regularly. Do NOT recommend the Working Capital Cycle or any basic financial literacy or financial awareness templates — they are beneath this client's level. Only recommend templates appropriate for a financially informed client.` : ''}
+${reportsFromAdvisorFirm ? `- The advisor's firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.` : ''}
+${reviewNo ? `- The advisor has indicated the client does NOT need a detailed review of business variables and profit drivers. Do NOT recommend templates focused on profit driver analysis, business variable reviews, or foundational financial education. Stick to action-oriented templates relevant to the specific profitability issue.` : ''}
+${staircaseNum ? `- Advisory Staircase position: Step ${staircaseNum}. ${staircaseNum <= 2 ? 'This is an early-stage engagement — keep templates foundational and accessible. Build confidence before introducing complexity.' : staircaseNum === 3 ? 'The engagement is at interpretation stage — the client is ready for structured analysis and what-if modelling.' : staircaseNum === 4 ? 'The engagement is at application stage — the client is ready for forecasting, scenario planning, and strategic templates.' : 'This is a mature strategic engagement — the client expects sophisticated, data-driven templates. Do not recommend foundational or educational content.'}` : ''}`
       : ''
 
     const staffInstruction = state.staffSituation && state.staffCategory && state.staffCategory !== 'pending'
@@ -779,7 +818,7 @@ ${formatFinMgtTable()}`
     if (res.socket) res.socket.setNoDelay(true)
 
     const stream2 = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       max_tokens: 1500,
       stream: true,
       messages: [{ role: 'system', content: systemPrompt2 }, ...messages2]
@@ -841,8 +880,7 @@ ${formatFinMgtTable()}`
   const coachingText = includeCoaching ? formatCoachingForPrompt() : null
 
   // Use gpt-4o-mini throughout — fast and more than capable for conversational Q&A.
-  // Only switch to gpt-4o for the final recommendation (deep conversation, 10+ messages).
-  const model = trimmedHistory.length < 10 ? 'gpt-4o-mini' : 'gpt-4o'
+  const model = 'gpt-4o-mini'
 
   // Summaries only apply to Do the Job templates — skip for plan/learn modes.
   // Also defer until conversation is deep enough to be approaching a recommendation.

@@ -159,6 +159,24 @@
           :disabled="!selectedGrowthStage"
         ) Confirm selection
 
+      //- Advisory Staircase selector — shown when engagement depth question fires
+      .growth-curve-card(v-if="showStaircaseSelector")
+        p.growth-curve-title Where would you say your current engagement with this client sits on the Advisory Staircase?
+        .growth-stage-list
+          label.growth-stage-opt(
+            v-for="step in staircaseSteps"
+            :key="step.name"
+            :class="{ 'growth-stage-selected': selectedStaircaseStep === step.name }"
+          )
+            input(type="radio" :value="step.name" v-model="selectedStaircaseStep")
+            .growth-stage-body
+              span.growth-stage-name {{ step.name }}
+              span.growth-stage-desc {{ step.description }}
+        button.growth-curve-submit(
+          @click="submitStaircaseStep"
+          :disabled="!selectedStaircaseStep"
+        ) Confirm selection
+
       //- Fin Mgt Theme selector — shown when Forecasting/Management Reporting scenario detected
       .fin-mgt-card(v-if="showFinMgtThemeSelector")
         p.fin-mgt-title Where is your client starting from? Select the theme that best reflects their current relationship with financial management.
@@ -593,6 +611,8 @@ export default {
       conversationState: {},
       showGrowthCurveSelector: false,
       selectedGrowthStage: null,
+      showStaircaseSelector: false,
+      selectedStaircaseStep: null,
       showFinMgtThemeSelector: false,
       selectedFinMgtTheme: null,
       finMgtThemes: [
@@ -603,6 +623,13 @@ export default {
         { name: 'Test & Learn', problem: 'If clients view a financial forecast as a \'static prediction\' they fall victim to feelings of judgement & frustration. They miss the joy that comes from learning.' },
         { name: 'Measure What Matters', problem: 'Clients view financial reporting as being somewhat disconnected from how their business \'works\'. Most decisions are based on current bank balance and inventory levels.' },
         { name: 'Under the Microscope', problem: 'If clients aren\'t sure what they can do (in practical terms) upon reviewing their performance, there\'s little point agreeing to regular meetings.' }
+      ],
+      staircaseSteps: [
+        { name: 'Step 1: Compilation & Verification', description: 'Primarily doing compliance and accounting work — getting data in, clean and timely.' },
+        { name: 'Step 2: Assimilation', description: 'Started having broader business conversations — helping the client understand their numbers.' },
+        { name: 'Step 3: Interpretation', description: 'Delivering structured business advice — identifying what drives performance and what to change.' },
+        { name: 'Step 4: Application', description: 'Working together on strategy and planning — scenario modelling, forecasting, testing ideas.' },
+        { name: 'Step 5: Observation', description: 'Established strategic advisor — regular review meetings, dashboards, ratio analysis, benchmarking.' }
       ],
       growthStages: [
         { name: 'Design', description: 'Developing the business concept, getting ready to leave their job.' },
@@ -899,6 +926,8 @@ export default {
       this.conversationState = {}
       this.showGrowthCurveSelector = false
       this.selectedGrowthStage = null
+      this.showStaircaseSelector = false
+      this.selectedStaircaseStep = null
       this.showFinMgtThemeSelector = false
       this.selectedFinMgtTheme = null
       this.$nextTick(() => this.scrollToBottom())
@@ -917,6 +946,8 @@ export default {
       this.savePromptDismissed = false
       this.showGrowthCurveSelector = false
       this.selectedGrowthStage = null
+      this.showStaircaseSelector = false
+      this.selectedStaircaseStep = null
       this.showFinMgtThemeSelector = false
       this.selectedFinMgtTheme = null
     },
@@ -936,6 +967,15 @@ export default {
       this.inputText = `${stage.name} — ${stage.description}`
       this.showGrowthCurveSelector = false
       this.selectedGrowthStage = null
+      this.sendMessage()
+    },
+
+    submitStaircaseStep () {
+      if (!this.selectedStaircaseStep) return
+      const step = this.staircaseSteps.find(s => s.name === this.selectedStaircaseStep)
+      this.inputText = `${step.name} — ${step.description}`
+      this.showStaircaseSelector = false
+      this.selectedStaircaseStep = null
       this.sendMessage()
     },
 
@@ -1033,7 +1073,7 @@ export default {
 
     async sendMessage () {
       const query = this.inputText.trim()
-      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showFinMgtThemeSelector) return
+      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector) return
 
       this.messages.push({ role: 'user', content: query })
       this.inputText = ''
@@ -1093,6 +1133,10 @@ export default {
                 if (content.includes('[GROWTH_CURVE_SELECTOR]')) {
                   content = content.replace('[GROWTH_CURVE_SELECTOR]', '').trim()
                   this.showGrowthCurveSelector = true
+                }
+                if (content.includes('[STAIRCASE_SELECTOR]')) {
+                  content = content.replace('[STAIRCASE_SELECTOR]', '').trim()
+                  this.showStaircaseSelector = true
                 }
                 if (content.includes('[FIN_MGT_THEME_SELECTOR]')) {
                   content = content.replace('[FIN_MGT_THEME_SELECTOR]', '').trim()
