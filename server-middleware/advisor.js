@@ -40,6 +40,21 @@ function loadPrompt (name) {
   return _promptCache[name]
 }
 
+// ── Startup checks ──
+// Validate critical env vars and required files before any request arrives.
+;(function startupCheck () {
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('[advisor] FATAL: OPENAI_API_KEY is not set — all advisor requests will fail.')
+  }
+  const REQUIRED_PROMPTS = ['client', 'discover', 'plan', 'learn']
+  for (const name of REQUIRED_PROMPTS) {
+    const p = path.resolve(process.cwd(), 'data/prompts', name + '.txt')
+    if (!fs.existsSync(p)) {
+      console.error(`[advisor] STARTUP WARNING: required prompt file missing: ${p}`)
+    }
+  }
+})()
+
 const OPENING_MSG = {
   client: 'Great — let\'s work through this together.\n\nTell me about your client and the situation you want to address — I\'ll use that, along with what I already know about you, to find the right template.\n\n**What\'s the core situation or challenge you\'re looking to address with this client?**',
   discover: 'Sure — let\'s find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does ("something that helps clients understand their cash flow"), by a combination of topics ("strategic planning plus team engagement"), or by a name you half-remember ("something like the Working Capital one"). The more detail you give, the better I can match it.**',
@@ -171,14 +186,18 @@ function getOpenAI () {
 
 const _dbgLog = require('os').tmpdir() + '/va-debug.log'
 const _dbgMaxBytes = 5 * 1024 * 1024 // 5 MB cap — prevents runaway disk usage if debug left on
+let _dbgBytesWritten = 0
 function dbg (msg) {
   if (!process.env.VA_DEBUG) return
+  if (_dbgBytesWritten >= _dbgMaxBytes) return
   try {
-    const stat = fs.statSync(_dbgLog)
-    if (stat.size >= _dbgMaxBytes) return
+    const line = new Date().toISOString() + ' ' + msg + '\n'
+    fs.appendFileSync(_dbgLog, line)
+    _dbgBytesWritten += Buffer.byteLength(line)
   } catch (e) {}
-  try { fs.appendFileSync(_dbgLog, new Date().toISOString() + ' ' + msg + '\n') } catch (e) {}
 }
+
+const BODY_LIMIT = 256 * 1024 // 256 KB — protects against memory-exhaustion DoS
 
 module.exports = function advisorMiddleware (req, res, next) {
   dbg('MW: method=' + req.method + ' url=' + req.url)
@@ -187,8 +206,34 @@ module.exports = function advisorMiddleware (req, res, next) {
   }
 
   let body = ''
-  req.on('data', chunk => { body += chunk.toString() })
+  let bodySize = 0
+  let bodyRejected = false
+
+  req.on('error', (err) => {
+    console.error('[advisor] Request socket error:', err.message)
+    if (!res.headersSent) {
+      res.writeHead(400, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: 'Request error' }))
+    }
+  })
+
+  req.on('data', (chunk) => {
+    if (bodyRejected) return
+    bodySize += chunk.length
+    if (bodySize > BODY_LIMIT) {
+      bodyRejected = true
+      if (!res.headersSent) {
+        res.writeHead(413, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Request body too large' }))
+      }
+      req.socket && req.socket.destroy()
+      return
+    }
+    body += chunk.toString('utf8')
+  })
+
   req.on('end', () => {
+    if (bodyRejected) return
     handleQuery(body, res).catch(err => {
       console.error('[advisor] Unhandled error:', err.message)
       if (!res.headersSent) {
@@ -212,7 +257,52 @@ async function handleQuery (rawBody, res) {
     return
   }
 
-  const { query, mode = 'client', orgTemplateIds, conversationHistory = [], advisorProfile, language = 'en', languageName = 'English', caseSummaries: caseContext = [], conversationState = {} } = parsed
+  const {
+    query: rawQuery,
+    mode = 'client',
+    orgTemplateIds,
+    conversationHistory: rawHistory = [],
+    advisorProfile: rawProfile,
+    language = 'en',
+    languageName = 'English',
+    caseSummaries: rawCases = [],
+    conversationState = {}
+  } = parsed
+
+  // Cap and sanitise all client-supplied fields to prevent prompt injection
+  // and token cost inflation from oversized payloads
+  const MAX_QUERY = 4000
+  const MAX_HISTORY_MESSAGES = 20
+  const MAX_FIELD = 2000
+  const MAX_CASE_SUMMARY = 800
+  const MAX_CASES = 6
+
+  const query = typeof rawQuery === 'string' ? rawQuery.slice(0, MAX_QUERY) : ''
+  const conversationHistory = Array.isArray(rawHistory)
+    ? rawHistory.slice(-MAX_HISTORY_MESSAGES).map(m => ({
+        role: ['user', 'assistant'].includes(String(m.role)) ? m.role : 'user',
+        content: typeof m.content === 'string' ? m.content.slice(0, MAX_FIELD) : ''
+      }))
+    : []
+  const advisorProfile = rawProfile && typeof rawProfile === 'object'
+    ? {
+        experience: String(rawProfile.experience || '').slice(0, MAX_FIELD),
+        clientDemographic: String(rawProfile.clientDemographic || '').slice(0, MAX_FIELD),
+        enjoyment: String(rawProfile.enjoyment || '').slice(0, MAX_FIELD),
+        technicalStrengths: String(rawProfile.technicalStrengths || '').slice(0, MAX_FIELD),
+        toolsComfort: String(rawProfile.toolsComfort || '').slice(0, MAX_FIELD),
+        notes: String(rawProfile.notes || '').slice(0, MAX_FIELD)
+      }
+    : null
+  const caseContext = Array.isArray(rawCases)
+    ? rawCases.slice(0, MAX_CASES).map(c => ({
+        title: String(c.title || '').slice(0, 200),
+        mode: String(c.mode || '').slice(0, 20),
+        visibility: String(c.visibility || '').slice(0, 20),
+        summary: String(c.summary || '').slice(0, MAX_CASE_SUMMARY),
+        date: String(c.date || c.createdAt || '').slice(0, 30)
+      }))
+    : []
 
   if (!query || !query.trim()) {
     res.writeHead(400, { 'Content-Type': 'application/json' })
@@ -406,6 +496,7 @@ async function handleQuery (rawBody, res) {
             setSituationFlag('forecasting')
           } else if (s.disambiguationScenarios && s.disambiguationScenarios.length > 0) {
             // Can't determine from answer — default to first tied scenario
+            console.warn('[advisor] Disambiguation could not be resolved from answer; defaulting to scenario:', s.disambiguationScenarios[0].id)
             setSituationFlag(s.disambiguationScenarios[0].id)
           }
           s.disambiguationNeeded = false
@@ -576,7 +667,8 @@ async function handleQuery (rawBody, res) {
 
       // Alternatives path — detect when advisor confirms an alternative → fire Moving Forward
       if (state.clientApproachAsked && !state.happyConfirmed && !state.movingForwardAsked) {
-        const confirmsAlternative = /\b(yes|yeah|yep|great|perfect|that works|sounds good|let.?s run|run with|that.?s better|looks better|go with|happy with|that.?ll do|good idea|let.?s go|makes sense|that.?s right|that one)\b/i
+        // Deliberately narrow — avoids matching fragments inside longer sentences
+        const confirmsAlternative = /\b(yes|yeah|yep|great|perfect|that works|sounds good|run with|that.?s better|looks better|happy with|that.?ll do|good idea|that.?s right|that one)\b/i
         if (confirmsAlternative.test(query)) {
           state.happyConfirmed = true
           state.movingForwardAsked = true
@@ -596,10 +688,11 @@ async function handleQuery (rawBody, res) {
         // Yes — fall through to AI to help prepare talking points / framing
       }
 
-      // After AI delivered Moving Forward help — close cleanly on advisor sign-off
+      // After AI delivered Moving Forward help — close cleanly on advisor sign-off.
+      // Anchored to ^ and $ so partial fragment matches inside longer sentences don't trigger.
       if (state.movingForwardHelped) {
-        const signOffPattern = /\b(thanks|thank you|cheers|great|perfect|looks good|that.?s great|that.?ll do|got it|appreciate|brilliant|all good|wonderful|lovely)\b/i
-        if (signOffPattern.test(query)) {
+        const signOffPattern = /^(thanks|thank you|cheers|great|perfect|looks good|that.?s great|that.?ll do|got it|appreciate|brilliant|all good|wonderful|lovely|that.?s all|all done)[!.\s]*$/i
+        if (signOffPattern.test(query.trim())) {
           state.conversationComplete = true
           return sendQuestion("You're ready to go. Good luck with it.", state)
         }
@@ -634,7 +727,9 @@ async function handleQuery (rawBody, res) {
         for await (const chunk of streamPost) {
           const text = chunk.choices[0]?.delta?.content || ''
           if (text) res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
-          if (chunk.choices[0]?.finish_reason === 'stop') {
+          // Emit state+done for ALL finish reasons (stop, length, content_filter, etc.)
+          // so the client never loses conversationState on truncated responses
+          if (chunk.choices[0]?.finish_reason) {
             if (state.movingForwardDone && !state.movingForwardHelped) {
               state.movingForwardHelped = true
             }
@@ -723,6 +818,7 @@ Your recommendation MUST include a revenue model or what-if analysis template fr
 ${recommendedRevenueModel ? `- An industry-specific revenue model exists for this client: "${recommendedRevenueModel}". Use this template as the primary revenue model recommendation — it is purpose-built for this industry and will be more relevant than a generic Revenue Model.` : `- Select the closest real revenue model or what-if analysis template available, exactly as named in the list`}
 - In the "How to approach it" section, explain specifically how the advisor should apply that template in the context of the ${state.industry} industry — mention industry-specific cost pressures, pricing dynamics, and revenue levers relevant to that sector
 - Do not append the industry name to the template name
+- KEY INSIGHT — frame this in the "How to approach it" section: The revenue/what-if model's deepest value is the gap it exposes — the difference between what the owner assumes the business delivers (revenue, costs, profit) and what the financials actually show. That gap is a direct window into the mindset behind every decision they make. An owner running on flawed assumptions will keep arriving at the same outcomes. Making the gap visible is what shifts them from assumption-driven to data-driven thinking. The advisor should position the model as the tool that makes this shift possible — not just a financial exercise, but a change in how the owner sees their own business.
 - DELIVERY METHOD RULE: ${clientRaisedIssue ? `The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.` : `The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method. In "How to approach it", explain the Cautious Reveal: establish WHY they need the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil's a plumber video before the meeting to prime awareness.`}
 ${reportsYes ? `- This client already uses financial management reports regularly. Do NOT recommend the Working Capital Cycle or any basic financial literacy or financial awareness templates — they are beneath this client's level. Only recommend templates appropriate for a financially informed client.` : ''}
 ${reportsFromAdvisorFirm ? `- The advisor's firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.` : ''}
@@ -828,7 +924,9 @@ ${formatFinMgtTable()}`
       for await (const chunk of stream2) {
         const text = chunk.choices[0]?.delta?.content || ''
         if (text) res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
-        if (chunk.choices[0]?.finish_reason === 'stop') {
+        // Emit state+done for ALL finish reasons so the client never loses
+        // conversationState on max-token truncation or content-filtered responses
+        if (chunk.choices[0]?.finish_reason) {
           res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
         }

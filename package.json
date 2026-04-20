@@ -12,6 +12,8 @@
   "dependencies": {
     "buefy": "^0.9.29",
     "bulma": "^0.9.4",
+    "isomorphic-dompurify": "^3.9.0",
+    "markdown-it": "^13.0.2",
     "nuxt": "2.18.1",
     "openai": "^4.0.0",
     "vue": "^2.6.14",

@@ -536,9 +536,24 @@
 <script>
 import { LANGUAGES } from '~/data/languages'
 import { saveCase, getRelevantCases, updateCaseReview, deleteCase, getCases } from '~/utils/cases'
+import MarkdownIt from 'markdown-it'
+import DOMPurify from 'isomorphic-dompurify'
+
+const _md = new MarkdownIt({ html: false, linkify: false, typographer: false })
+
+// BCP-47 speech recognition language codes, keyed by i18n locale
+const BCP47_MAP = {
+  en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT',
+  pt: 'pt-PT', nl: 'nl-NL', pl: 'pl-PL', sv: 'sv-SE', da: 'da-DK',
+  fi: 'fi-FI', no: 'nb-NO', ja: 'ja-JP', zh: 'zh-CN', ko: 'ko-KR',
+  ar: 'ar-SA', ru: 'ru-RU', tr: 'tr-TR', hi: 'hi-IN', id: 'id-ID', ms: 'ms-MY'
+}
+
+const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
 
 function flattenObj (obj, prefix = '') {
   return Object.keys(obj).reduce((acc, k) => {
+    if (FORBIDDEN_KEYS.has(k)) return acc
     const key = prefix ? `${prefix}.${k}` : k
     if (typeof obj[k] === 'object' && obj[k] !== null) {
       Object.assign(acc, flattenObj(obj[k], key))
@@ -553,6 +568,7 @@ function unflattenObj (flat) {
   const result = {}
   for (const key of Object.keys(flat)) {
     const parts = key.split('.')
+    if (parts.some(p => FORBIDDEN_KEYS.has(p))) continue
     let cur = result
     for (let i = 0; i < parts.length - 1; i++) {
       if (!cur[parts[i]]) cur[parts[i]] = {}
@@ -652,7 +668,10 @@ export default {
   },
 
   watch: {
-    '$i18n.locale' (newLocale, oldLocale) {
+    '$i18n.locale' (newLocale) {
+      if (this.recognition) {
+        this.recognition.lang = BCP47_MAP[newLocale] || 'en-US'
+      }
       if (this.mode) {
         const currentMode = this.mode
         this.reset()
@@ -714,10 +733,14 @@ export default {
     },
     showSavePrompt () {
       if (this.isStreaming || this.savePromptDismissed || this.saveSuccess) return false
-      // Only show after a Phase 3 recommendation — detected by presence of "My recommendation" in the last VA message
-      const lastAssistant = [...this.messages].reverse().find(m => m.role === 'assistant')
-      if (!lastAssistant) return false
-      return lastAssistant.content.includes('My recommendation')
+      if (!this.mode) return false
+      // Client mode: use the state machine flag — works in any language
+      if (this.mode === 'client') {
+        return !!(this.conversationState && this.conversationState.recommendationDelivered)
+      }
+      // Other modes (discover/plan/learn): show after the user has sent 3+ messages,
+      // which reliably indicates a full recommendation exchange has occurred
+      return this.messages.filter(m => m.role === 'user').length >= 3
     },
     relevantCases () {
       if (!this.mode) return []
@@ -727,6 +750,7 @@ export default {
 
   beforeDestroy () {
     document.removeEventListener('click', this._onDocClick)
+    if (this._saveTimer) clearTimeout(this._saveTimer)
   },
 
   mounted () {
@@ -748,7 +772,7 @@ export default {
       this._recognitionRunning = false
       this.recognition.continuous = true
       this.recognition.interimResults = true
-      this.recognition.lang = 'en-US'
+      this.recognition.lang = BCP47_MAP[this.$i18n.locale] || 'en-US'
       this.recognition.onresult = (e) => {
         let transcript = ''
         for (let i = 0; i < e.results.length; i++) {
@@ -784,7 +808,9 @@ export default {
         try {
           this.advisorProfile = { ...this.advisorProfile, ...JSON.parse(saved) }
           this.profileSaved = true
-        } catch (e) {}
+        } catch (e) {
+          console.warn('[va:profile] Failed to parse saved profile:', e.message)
+        }
       }
     },
 
@@ -866,9 +892,11 @@ export default {
         this.refreshMyCases()
         this.saveSuccess = true
         this.saveTitle = ''
-        setTimeout(() => {
+        if (this._saveTimer) clearTimeout(this._saveTimer)
+        this._saveTimer = setTimeout(() => {
           this.saveSuccess = false
           this.showSavePanel = false
+          this._saveTimer = null
         }, 1500)
       } catch (e) {
         this.saveError = 'Could not save. Please try again.'
@@ -980,7 +1008,10 @@ export default {
     },
 
     closeSession () {
+      // window.close() only works on script-opened windows; reset as fallback for normal tabs
+      const openedByScript = window.opener != null
       window.close()
+      if (!openedByScript) this.reset()
     },
 
     openProfile () {
@@ -1018,6 +1049,18 @@ export default {
       this.profileStep = 0
     },
 
+    _startRecognition () {
+      if (this._recognitionRunning) return
+      this._recognitionRunning = true
+      try {
+        this.recognition.start()
+      } catch (e) {
+        // start() throws if already started or not available; reset the flag
+        this._recognitionRunning = false
+        console.warn('[va:speech] recognition.start() failed:', e.message)
+      }
+    },
+
     toggleListening () {
       if (!this.recognition) return
       if (this.isListening) {
@@ -1025,15 +1068,12 @@ export default {
         this.isListening = false
       } else {
         // Switch mode flags — if recognition is already running, it keeps going
-        // and onresult will route to inputText since the other flags are now clear
+        // and onresult routes to inputText since the other flags are now clear
         this.profileRecordingField = null
         this.reviewRecordingField = null
         this.inputText = ''
         this.isListening = true
-        if (!this._recognitionRunning) {
-          this._recognitionRunning = true
-          try { this.recognition.start() } catch (e) {}
-        }
+        this._startRecognition()
       }
     },
 
@@ -1047,10 +1087,7 @@ export default {
         this.isListening = false
         this.reviewRecordingField = null
         this.profileRecordingField = field
-        if (!this._recognitionRunning) {
-          this._recognitionRunning = true
-          try { this.recognition.start() } catch (e) {}
-        }
+        this._startRecognition()
       }
     },
 
@@ -1064,10 +1101,7 @@ export default {
         this.isListening = false
         this.profileRecordingField = null
         this.reviewRecordingField = field
-        if (!this._recognitionRunning) {
-          this._recognitionRunning = true
-          try { this.recognition.start() } catch (e) {}
-        }
+        this._startRecognition()
       }
     },
 
@@ -1147,18 +1181,22 @@ export default {
                 this.isStreaming = false
               }
             } catch (parseErr) {
-              // malformed SSE line — skip silently
+              console.warn('[va:sse] Malformed SSE line skipped:', parseErr.message)
             }
           }
         }
 
-        // Fallback: if stream ended without a done event (e.g. finish_reason !== 'stop')
+        // Fallback: if stream ended without a done event (e.g. max_tokens truncation)
         if (this.isStreaming) {
           if (this.streamingText) {
             let content = this.streamingText
             if (content.includes('[GROWTH_CURVE_SELECTOR]')) {
               content = content.replace('[GROWTH_CURVE_SELECTOR]', '').trim()
               this.showGrowthCurveSelector = true
+            }
+            if (content.includes('[STAIRCASE_SELECTOR]')) {
+              content = content.replace('[STAIRCASE_SELECTOR]', '').trim()
+              this.showStaircaseSelector = true
             }
             if (content.includes('[FIN_MGT_THEME_SELECTOR]')) {
               content = content.replace('[FIN_MGT_THEME_SELECTOR]', '').trim()
@@ -1186,21 +1224,10 @@ export default {
     },
 
     renderMarkdown (text) {
-      // Escape any raw HTML before processing — prevents XSS if AI output
-      // ever contains tags. Done before markdown so our own tags still render.
-      const escaped = text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-
-      return escaped
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-        .replace(/^- (.+)$/gm, '<li>$1</li>')
-        .replace(/(<li>[^]*?<\/li>(\n|$))+/g, match => '<ul>' + match + '</ul>')
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n/g, '<br>')
+      // markdown-it with html:false prevents raw HTML in AI output.
+      // DOMPurify removes any remaining unsafe constructs before v-html rendering.
+      const raw = _md.render(String(text || ''))
+      return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
     }
   }
 }

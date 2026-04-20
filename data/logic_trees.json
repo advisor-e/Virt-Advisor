@@ -11,9 +11,7 @@
     "Nodes of type 'question' require advisor to ask the stated question and branch based on response.",
     "Nodes of type 'recommendation' are terminal — output the listed templates."
   ],
-
   "trees": [
-
     {
       "id": "quickfire",
       "name": "Quickfire Logic",
@@ -40,7 +38,9 @@
           "condition": "Client states: 'I'm unhappy about our business performance'",
           "question": "Do you mean you're worried about the business 'going under' or just wish it could do better?",
           "notes": "This establishes the primary divergence. Both branches can be supported with a Revenue Model.",
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ],
           "branches": [
             {
               "answer_pattern": "worried about going under / survival / business failing",
@@ -58,7 +58,10 @@
           "type": "question",
           "condition": "Client responds: 'I'm worried we might go under'",
           "action": "Start with the Quick Position model, followed by the Worst Case model.",
-          "templates": ["Quick Position", "Worst Case Scenario"],
+          "templates": [
+            "Quick Position",
+            "Worst Case Scenario"
+          ],
           "notes": "Calculate the number of trading cycles to determine if there is time to adapt.",
           "branches": [
             {
@@ -81,7 +84,9 @@
           "type": "recommendation",
           "condition": "Situation is dire BUT client seems to be in denial or struggling to make tough decisions",
           "action": "Take them through the Worst Case (Liquidation) model.",
-          "templates": ["Worst Case Scenario"],
+          "templates": [
+            "Worst Case Scenario"
+          ],
           "notes": "This provides 'Contrast Perspective' — helps the client see that acting quickly will result in less pain later."
         },
         {
@@ -90,7 +95,9 @@
           "type": "recommendation",
           "condition": "Quick Position model determines there is 'No time — Imminent Failure'",
           "action": "Direct the client towards the Receivership vs Liquidation video.",
-          "templates": ["Receivership vs Liquidation"],
+          "templates": [
+            "Receivership vs Liquidation"
+          ],
           "notes": "Determine if a Creditor Compromise is possible."
         },
         {
@@ -99,7 +106,9 @@
           "type": "recommendation",
           "condition": "Quick Position model determines the business is 'At Risk but Salvage Possible'",
           "action": "Complete the Covid Agenda Programme (Feasibility, Scenarios, Contingency, Fundamentals).",
-          "templates": ["Covid Agendas"],
+          "templates": [
+            "Covid Agendas"
+          ],
           "notes": "Following this, set KPIs and arrange regular financial performance reviews."
         },
         {
@@ -108,7 +117,9 @@
           "type": "question",
           "condition": "Client responds: 'I mean I wish it could do better'",
           "action": "Start with the Quickfire Diagnosis Template.",
-          "templates": ["Quick Fire Diagnosis"],
+          "templates": [
+            "Quick Fire Diagnosis"
+          ],
           "notes": "The template makes problem-solving logic visible to the client, empowering them and teaching them a logic pathway. Focus areas: Get Organised, Get the Job, Do the Job.",
           "branches": [
             {
@@ -127,7 +138,9 @@
           "type": "recommendation",
           "condition": "Proceeding down the 'wish it could do better' pathway",
           "action": "Consider the Lite Fundamentals Programme (in whole or in parts).",
-          "templates": ["Lite Fundamentals"],
+          "templates": [
+            "Lite Fundamentals"
+          ],
           "notes": "This is the easiest place to start and often provides the best value for money for the client."
         },
         {
@@ -136,13 +149,16 @@
           "type": "recommendation",
           "condition": "Need to continue the diagnosis on the 'wish it could do better' pathway",
           "action": "Consider using the Pivot template.",
-          "templates": ["Pivot"],
+          "templates": [
+            "Pivot"
+          ],
           "notes": "Check progress against Revenue Model variables. Discuss with the team or an Advisor-e coach if required.",
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"]
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ]
         }
       ]
     },
-
     {
       "id": "client_sales",
       "name": "Client Sales Logic",
@@ -162,7 +178,9 @@
           "condition": "Client states: 'I'm not making enough Sales'",
           "question": "Do you mean the number of Sales or do you mean the Profit left over afterwards?",
           "notes": "Both branches can be supported with a Revenue Model.",
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ],
           "branches": [
             {
               "answer_pattern": "number of sales / volume / not enough customers",
@@ -180,9 +198,14 @@
           "type": "question",
           "condition": "Client responds: 'I mean the number of sales'",
           "action": "Start with the Customer Journey to determine if the issue is Marketing or Selling.",
-          "templates": ["Customer Journey", "Covid Agendas"],
+          "templates": [
+            "Customer Journey",
+            "Covid Agendas"
+          ],
           "notes": "Support with a Revenue Model. Covid Agendas combines the Customer Journey with Lite Fundamentals Marketing & Selling for a comprehensive review.",
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ],
           "question": "Looking at your Customer Journey — where does the breakdown seem to be: attracting people to you (Marketing) or converting them once they're in front of you (Selling)?",
           "branches": [
             {
@@ -205,7 +228,9 @@
           "type": "recommendation",
           "condition": "Issue is identified as Marketing",
           "action": "Proceed to Lite Fundamentals Marketing.",
-          "templates": ["Lite Marketing"],
+          "templates": [
+            "Lite Marketing"
+          ],
           "notes": "Ascertain if the challenge is knowing WHO to target, or knowing WHAT to say and which channel to say it on."
         },
         {
@@ -214,7 +239,9 @@
           "type": "recommendation",
           "condition": "Issue is identified as Selling",
           "action": "Proceed to Lite Fundamentals Selling.",
-          "templates": ["Sales Session"],
+          "templates": [
+            "Sales Session"
+          ],
           "notes": "Focuses strictly on sales fundamentals."
         },
         {
@@ -223,7 +250,9 @@
           "type": "recommendation",
           "condition": "Moving beyond fundamentals into advanced strategies",
           "action": "Conduct an Advanced Sales & Marketing Review.",
-          "templates": ["Sales & Marketing Review"],
+          "templates": [
+            "Sales & Marketing Review"
+          ],
           "notes": "Involves reviewing AIDCRA, Branding Digital Funnel & Storyboard Pages, alongside Pricing, Packaging, Bundling & Distribution Pages."
         },
         {
@@ -232,9 +261,14 @@
           "type": "question",
           "condition": "Client responds: 'I mean the profit left over'",
           "action": "Start with the 8 Profit Levers or Profit Levers & Blue Ocean.",
-          "templates": ["8 Profit Levers", "Profit Levers & Blue Ocean"],
+          "templates": [
+            "8 Profit Levers",
+            "Profit Levers & Blue Ocean"
+          ],
           "notes": "Use to determine if the issue relates to Variable, Activity or Fixed Expenses. 'Profit Levers & Blue Ocean' is suited for more advanced advisors and discerning clients.",
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ],
           "question": "Is the profit issue mainly coming from your variable costs and activity, or are you not sure where the leak is?",
           "branches": [
             {
@@ -253,7 +287,10 @@
           "type": "recommendation",
           "condition": "Profit issue involves Variable Activity",
           "action": "Focus the review on variable activities.",
-          "templates": ["8 Profit Levers", "Sales & Marketing Review"],
+          "templates": [
+            "8 Profit Levers",
+            "Sales & Marketing Review"
+          ],
           "notes": "Maps toward the advanced pricing and packaging review pages."
         },
         {
@@ -262,12 +299,13 @@
           "type": "recommendation",
           "condition": "Client is 'Not Sure?' about their profit levers or expense types",
           "action": "Acknowledge a 'Rubbish in Rubbish Out' scenario.",
-          "templates": ["Rubbish In - Rubbish Out"],
+          "templates": [
+            "Rubbish In - Rubbish Out"
+          ],
           "notes": "Clarification of business data and inputs is likely needed before applying specific models."
         }
       ]
     },
-
     {
       "id": "cashflow",
       "name": "Cashflow Logic",
@@ -305,9 +343,13 @@
           "type": "question",
           "condition": "Client responds: 'The money is slow to arrive — I catch up eventually but then it's gone again. I never have a safe reserve.'",
           "action": "Start with the Working Capital Cycle and support with a Revenue Model.",
-          "templates": ["Working Capital Cycle"],
+          "templates": [
+            "Working Capital Cycle"
+          ],
           "notes": "The Working Capital Cycle helps layer the message for clients. For newer owners it explains money movement. For advanced owners it leads to just-in-time stock control, lean systems, etc.",
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ],
           "question": "Is the root cause that you simply don't have enough capital, or is it more about how you're managing the cash you do have?",
           "branches": [
             {
@@ -326,7 +368,12 @@
           "type": "recommendation",
           "condition": "Root cause identified as lack of Capital",
           "action": "Utilise the Loan Estimator model, Personal Budget, and Forecast models.",
-          "templates": ["Loan Estimator", "Personal Budget", "Forecasting", "Assumptions"],
+          "templates": [
+            "Loan Estimator",
+            "Personal Budget",
+            "Forecasting",
+            "Assumptions"
+          ],
           "notes": "Brainstorm as a team to add cash management tactics to the support page in the Working Capital Cycle template (Firm Manager mode)."
         },
         {
@@ -335,7 +382,10 @@
           "type": "recommendation",
           "condition": "Root cause identified as poor cash management",
           "action": "Brainstorm cash tactics, use Debtor Protocols and Lite Fundamentals Data.",
-          "templates": ["Debtor Protocols", "Data Session"],
+          "templates": [
+            "Debtor Protocols",
+            "Data Session"
+          ],
           "notes": "Brainstorm as a team to add cash management tactics to the support page in the Working Capital Cycle template (Firm Manager mode)."
         },
         {
@@ -344,9 +394,13 @@
           "type": "question",
           "condition": "Client responds: 'I can't say where I stand with complete confidence.'",
           "action": "Start by generating a Financial Dashboard and support with a Revenue Model.",
-          "templates": ["Dashboard Report"],
+          "templates": [
+            "Dashboard Report"
+          ],
           "notes": "Generating a dashboard quickly identifies if current accounting systems provide accurate data and if the owner understands performance and activity ratios. This reveals how deep you need to explore their systems, finance team, or owner education.",
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ],
           "question": "Is the issue that your accounting systems aren't giving you reliable data, or is it that there's just no regular process for reviewing the numbers?",
           "branches": [
             {
@@ -365,7 +419,10 @@
           "type": "recommendation",
           "condition": "Accounting systems/procedures are flawed",
           "action": "Implement Accounting best practice (newer business owners or junior finance teams) or a Financial Systems Review (more complex business cases).",
-          "templates": ["90 Day Best Practice Accounting", "Financial Systems Review"],
+          "templates": [
+            "90 Day Best Practice Accounting",
+            "Financial Systems Review"
+          ],
           "notes": "Can also refer to the Working Capital Cycle explanation with the client if required."
         },
         {
@@ -374,128 +431,266 @@
           "type": "recommendation",
           "condition": "There's no structured/regular review of financial performance",
           "action": "Initiate Dashboard Discussions and Ratio Analysis.",
-          "templates": ["Dashboard Discussions", "Ratio Analysis"],
+          "templates": [
+            "Dashboard Discussions",
+            "Ratio Analysis"
+          ],
           "notes": "Can also refer to the Working Capital Cycle explanation with the client if required."
         }
       ]
     },
-
     {
       "id": "governance",
-      "name": "Governance Logic",
-      "description": "Diagnoses governance improvement needs, with a readiness gate to check if foundational management is in place first.",
+      "name": "Governance & Leadership Logic",
+      "description": "Diagnoses governance, leadership, and decision-quality issues. Covers leadership style fit, team functioning levels (the Waterline), boardroom conduct and manipulation tactics, psyche errors, and formal decision-making frameworks. Uses a readiness gate to ensure foundational management is in place before advancing to formal governance tools.",
       "entry_triggers": [
-        "need to improve governance",
-        "governance issues",
-        "decision making problems",
-        "accountability issues",
-        "board issues",
-        "management structure problems",
         "governance",
-        "accountability",
+        "governance issues",
+        "need to improve governance",
+        "board issues",
+        "board isn't working",
         "board meeting",
         "board structure",
-        "decision making"
+        "board conduct",
+        "boardroom",
+        "leadership style",
+        "leadership culture",
+        "leadership fit",
+        "team culture",
+        "team not functioning",
+        "team dysfunction",
+        "decision making",
+        "decision quality",
+        "quality of decisions",
+        "accountability issues",
+        "management structure problems",
+        "creative abrasion",
+        "confirmation bias",
+        "psyche errors",
+        "manipulation tactics",
+        "code of conduct",
+        "facade of governance",
+        "decision making problems",
+        "waterline",
+        "team waterline",
+        "power broker",
+        "fence mender"
       ],
       "nodes": [
         {
           "id": "gov_pre_assessment",
-          "branch_name": "Pre-Assessment: Readiness",
+          "branch_name": "Pre-Assessment: Readiness Gate",
           "type": "assessment",
-          "condition": "Client has no clear business objectives, accepts task failure as 'normal', or lacks feedback loops",
-          "action": "Determine that management is ineffective — it is 'Too Early For Governance'.",
-          "templates": ["Productive Habits", "People vs. Process"],
-          "notes": "Objectives lacking priority/measurement, or a culture where mistakes aren't shared, indicates foundational management issues must be solved first. Do not proceed to formal governance tools until this is resolved.",
-          "gate_question": "Before diving into governance, do they have clear objectives, do they track task outcomes, and do they have a culture of honest feedback?"
+          "condition": "Client has no clear business objectives, accepts task failure as normal, or lacks honest feedback loops",
+          "action": "Determine that management is ineffective — it is Too Early For Governance.",
+          "templates": [
+            "Productive Habits",
+            "People vs. Process"
+          ],
+          "notes": "A facade of governance will not act as a shield. If objectives lack priority or measurement, or the culture hides mistakes rather than learning from them, foundational management must be fixed first. Do not advance to formal governance tools until this gate is passed.",
+          "gate_question": "Before diving into governance: does the business have clear, measurable objectives? Do they track task outcomes? Is there a culture of honest feedback where mistakes are shared and learned from?"
         },
         {
           "id": "gov_initial",
           "branch_name": "Initial Assessment",
           "type": "question",
-          "condition": "Client states: 'We need to improve our Governance'",
-          "question": "Do you mean improve your decision making process or improve rule adherence and accountability?",
-          "notes": "Consider basic templates like 'Productive Habits' or 'People vs. Process' if decision quality/implementation is lacking. If they feel they've 'done pretty well on their own,' consider Porter's & Pine or Blue Ocean & 8 Profit Levers to create productive disturbance.",
+          "condition": "Client states they have governance or leadership issues",
+          "question": "Is the primary concern about how your leadership style and culture are set up, how the team functions and behaves together, or how decisions are made and governed?",
+          "notes": "This three-way split covers the three distinct dimensions of governance: (1) alignment of leadership style to business strategy, (2) team conduct and dynamics, and (3) the quality and formality of decision-making processes.",
           "branches": [
             {
-              "answer_pattern": "decision making / quality of decisions / making better choices",
-              "next_node": "gov_branch1_decision"
+              "answer_pattern": "leadership style / culture / how we lead / leadership fit / leadership alignment / style wrong",
+              "next_node": "gov_branch1_leadership"
             },
             {
-              "answer_pattern": "adherence / accountability / people not following through / rule compliance",
-              "next_node": "gov_branch2_adherence"
+              "answer_pattern": "team functioning / team behaviour / team dynamics / team not working / conduct / board conduct / boardroom / how the team works",
+              "next_node": "gov_branch2_team"
+            },
+            {
+              "answer_pattern": "decision making / decision quality / accountability / rules / protocols / adherence / structures / governance process",
+              "next_node": "gov_branch3_decisions"
             }
           ]
         },
         {
-          "id": "gov_branch1_decision",
-          "branch_name": "Branch 1: Decision Quality",
+          "id": "gov_branch1_leadership",
+          "branch_name": "Branch 1: Leadership Style & Culture",
           "type": "question",
-          "condition": "Client responds: 'I mean our decision quality'",
-          "action": "Start with the 6 Hats tool.",
-          "templates": ["6 Hats", "Nine Growth Aspects"],
-          "notes": "Both branches can be supported with a Review of the Growth Curve (9 Growth Stages, 7 Growth Tactics, 5 Complexity Layers, Devil's Toilet & Split Point).",
-          "question": "Is the issue making decisions in the first place, or reviewing and learning from decisions afterwards?",
+          "condition": "Primary concern is leadership style or culture alignment",
+          "action": "Explore the fit between leadership style and business strategy.",
+          "templates": [
+            "Leadership Review"
+          ],
+          "notes": "It is a critical error to adopt a leadership style based on personal preference or by mimicking an aspirational figure. The style must match the business strategy: a Creativity Culture (open-air debate, flat structures, flexible environment, individual incentives for new ideas) or a Discipline Culture (strict best-practice rules, fixed structures, defined reporting lines, team-based performance). Heavily compliant or safety-driven industries almost always require Discipline — applying a creative culture in those contexts is a dangerous misalignment.",
+          "question": "Is the issue that the current leadership style feels misaligned with where the business is heading, or that team culture has drifted away from what was originally intended?",
           "branches": [
             {
-              "answer_pattern": "making decisions / quality of choices going forward",
-              "next_node": "gov_branch1a_quality"
+              "answer_pattern": "leadership misaligned / wrong style / doesn't fit strategy / not the right approach / needs to change",
+              "next_node": "gov_branch1a_style"
             },
             {
-              "answer_pattern": "reviewing decisions / learning from outcomes / post-decision reflection",
-              "next_node": "gov_branch1a_quality"
+              "answer_pattern": "culture drifted / culture wrong / team culture changed / not what we wanted / environment has changed",
+              "next_node": "gov_branch1b_culture"
             }
           ]
         },
         {
-          "id": "gov_branch1a_quality",
-          "branch_name": "Branch 1a: Quality Decisions",
+          "id": "gov_branch1a_style",
+          "branch_name": "Branch 1a: Leadership Style Misalignment",
           "type": "recommendation",
-          "condition": "Ongoing focus is on Quality Decisions",
-          "action": "Support with Draft White Papers and Growth Curve review.",
-          "templates": ["Nine Growth Aspects", "Growth Framework"],
-          "notes": "Can be additionally supported by reviewing the Growth Curve (9 Growth Aspects)."
+          "condition": "Leadership style does not match the business's strategic needs",
+          "action": "Conduct a Leadership Review to formally audit the fit between leadership style and strategy.",
+          "templates": [
+            "Leadership Review",
+            "Organisational Review"
+          ],
+          "notes": "Use the Creativity vs Discipline framework: if the strategy requires innovation, leadership must encourage open debate, flat structures, and reward individual ideas. If the strategy requires safety, precision and consistency, leadership must be built around discipline, defined reporting lines and team performance. Document the pros and cons of each approach for the specific industry. Ensure that recruitment, meeting structures, and conflict resolution genuinely reflect the strategy — not just the leader's preferences."
         },
         {
-          "id": "gov_branch2_adherence",
-          "branch_name": "Branch 2: Adherence & Accountability",
+          "id": "gov_branch1b_culture",
+          "branch_name": "Branch 1b: Culture Drift",
+          "type": "recommendation",
+          "condition": "Team culture has drifted from the intended environment",
+          "action": "Use the Organisational Review to diagnose the gap between intended and current culture.",
+          "templates": [
+            "Organisational Review",
+            "Board Member Conduct",
+            "Leadership Review"
+          ],
+          "notes": "Culture drift often produces teams stuck at Level 2 or Level 3 of the Team Functioning Waterline — Role Observance (conduct dominated by the top dog, unspoken hesitancy) or Conformist Contribution (members drive within their lanes, contribute for self-promotion over team benefit). The Organisational Review creates a formal baseline. Board Member Conduct provides the framework for re-establishing standards. The Leadership Review ensures the leader's style is actively rebuilding the right environment."
+        },
+        {
+          "id": "gov_branch2_team",
+          "branch_name": "Branch 2: Team Functioning & Conduct",
           "type": "question",
-          "condition": "Client responds: 'I mean adherence and accountability'",
-          "action": "Start with Introduction to Governance.",
-          "templates": ["Governance Introduction", "Nine Growth Aspects"],
-          "notes": "Ideal starting point for owners who are receptive or have little prior understanding of formal governance. Both branches can be supported with a Review of the Growth Curve.",
-          "question": "Is the core issue that you don't have the right protocols and structures in place, or is it that the structures exist but people aren't following them?",
+          "condition": "Primary concern is how the team or board functions and behaves",
+          "action": "Assess the team's Waterline — the level at which they operate most often.",
+          "templates": [
+            "Board Member Conduct",
+            "Governance Introduction"
+          ],
+          "notes": "The 5 Levels of Team Functioning (Waterline): Level 1 — Flow State (authentic expression, creative abrasion, individual accountability, diversity of insight valued over virtue signalling). Level 2 — Role Observance (title-based respect, conduct dominated by the top dog, unspoken hesitancy). Level 3 — Conformist Contribution (average performance, structure and titles defend opinions, members drive within their lanes). Level 4 — Machiavellian (duplicitous, divisional rivalry, ideas undermined on purpose). Level 5 — Violation (survival mode, immoral acts ignored, theft or absenteeism seen as payback for poor management). Step 1 in any intervention: have each member independently record the level they believe the board operates at most often, then discuss as a group.",
+          "question": "Would you say the team is broadly collaborative but lacks structure or confidence, or is there active tension, political behaviour, or manipulation affecting how the team operates?",
           "branches": [
             {
-              "answer_pattern": "protocols lacking / no structures / no documented processes or agendas",
-              "next_node": "gov_branch2a_protocols"
+              "answer_pattern": "broadly collaborative / gets along / needs structure / lacks confidence / something missing / hesitant / functions but could be better",
+              "next_node": "gov_branch2a_structure"
             },
             {
-              "answer_pattern": "poor conduct / people not following rules / behavioural issues",
+              "answer_pattern": "active tension / politics / manipulation / undermining / divisive / power plays / people not following conduct / dysfunction",
               "next_node": "gov_branch2b_conduct"
             }
           ]
         },
         {
-          "id": "gov_branch2a_protocols",
-          "branch_name": "Branch 2a: Protocols Lacking",
+          "id": "gov_branch2a_structure",
+          "branch_name": "Branch 2a: Collaborative but Needs Structure",
           "type": "recommendation",
-          "condition": "Underlying issue is Protocols Lacking",
-          "action": "Explore Board Plan, Pre Meeting Pack, Agendas & Minutes, Conflict Disclosure.",
-          "templates": ["Mgt Annual Plan", "General Meeting Agenda", "Partner Accountability"],
-          "notes": "Directs focus to establishing procedural structures and documentation."
+          "condition": "Team functions at Level 1-2 — collaborative but lacking formal structure or habits",
+          "action": "Introduce Governance and establish an Annual Board Plan to create consistent meeting rhythms and conduct standards.",
+          "templates": [
+            "Governance Introduction",
+            "Annual Board Plan",
+            "Board Member Conduct"
+          ],
+          "notes": "Level 1-2 teams need a formal Code of Conduct and agreed meeting protocols before dysfunctions develop. The Code of Conduct should require: Align (act in the company's best interests, commit to common goals), Respect (take personal responsibility, participate in robust debate, concede defeat with grace, immediately disclose conflicts of interest), and Structure (contribute to strategy, embrace collaboration frameworks, abide by disciplinary procedures). A key practical step: agree on a team safe word — a phrase such as 'play the ball not the player' — that any member can invoke during a meeting to pause and redirect conduct without making it personal."
         },
         {
           "id": "gov_branch2b_conduct",
-          "branch_name": "Branch 2b: Poor Conduct",
+          "branch_name": "Branch 2b: Active Dysfunction or Manipulation",
+          "type": "question",
+          "condition": "Team is operating at Level 3-4 — political or manipulative behaviour is active",
+          "action": "Use Board Member Conduct to identify and name the manipulation tactics in play.",
+          "templates": [
+            "Board Member Conduct",
+            "Leadership Review"
+          ],
+          "notes": "Common boardroom manipulation tactics: The Power Broker (pulls rank regardless of evidence or prudence), The Assassin (fuels divisive personality alliances and an us-against-them culture), The Fence Mender (abstains from authentic contribution and goes along to get along), The Taxi Driver (blindly steers discussion in any direction to frustrate the room), Cold Logic (uses rigid logic to attack the person rather than the issue). Naming these openly — through the Code of Conduct — neutralises the behaviour without personalising the confrontation.",
+          "question": "Is the dysfunction showing up mainly as dominant individuals shutting things down, divisive alliances forming between members, or people disengaging and contributing nothing meaningful?",
+          "branches": [
+            {
+              "answer_pattern": "dominant individuals / pulling rank / shutting down / power broker / assassin / divisive alliances / undermining",
+              "next_node": "gov_branch2b_i_dominant"
+            },
+            {
+              "answer_pattern": "disengaging / not contributing / going along / fence mender / passive / no accountability / silent",
+              "next_node": "gov_branch2b_ii_passive"
+            }
+          ]
+        },
+        {
+          "id": "gov_branch2b_i_dominant",
+          "branch_name": "Branch 2b-i: Dominant or Divisive Behaviour",
           "type": "recommendation",
-          "condition": "Underlying issue is Poor Member Conduct",
-          "action": "Focus on Board Member Conduct.",
-          "templates": ["Partner Accountability"],
-          "notes": "Directs focus to managing behavioral expectations and adherence."
+          "condition": "Dysfunction driven by dominant or divisive individuals (Power Broker, Assassin)",
+          "action": "Focus on Board Member Conduct, Code of Conduct, and Quality Decisions to redirect authority from rank to evidence.",
+          "templates": [
+            "Board Member Conduct",
+            "Quality Decisions",
+            "Partner Accountability"
+          ],
+          "notes": "Power Broker and Assassin tactics lose their force when authority is redirected from seniority to the quality of the argument. Quality Decisions frameworks (6 Hats, 5 Whys, Draft White Papers) force structured reasoning independent of title. Partner Accountability establishes conflict of interest disclosure and individual accountability so dominant individuals cannot operate unchallenged."
+        },
+        {
+          "id": "gov_branch2b_ii_passive",
+          "branch_name": "Branch 2b-ii: Passive Non-Contribution",
+          "type": "recommendation",
+          "condition": "Dysfunction is passive — fence mending, disengagement, absence of accountability",
+          "action": "Use Governance Introduction to re-establish shared expectations, supported by Partner Accountability.",
+          "templates": [
+            "Governance Introduction",
+            "Partner Accountability",
+            "Board Member Conduct"
+          ],
+          "notes": "A team that never argues is not necessarily a high-performing Level 1 Flow State team — it may be a Level 3 Conformist environment where members go along to get along. High-performing teams practice Creative Abrasion: they actively clash ideas, play the ball not the player, and forgive flare-ups quickly because they value the best outcome over false harmony. Partner Accountability establishes individual responsibility and a safe structure for authentic contribution."
+        },
+        {
+          "id": "gov_branch3_decisions",
+          "branch_name": "Branch 3: Decision Quality & Process",
+          "type": "question",
+          "condition": "Primary concern is the quality of decisions or the governance of the decision-making process",
+          "question": "Is the concern more about the quality of thinking and reasoning behind decisions — biases, blind spots, assumptions — or about having the right formal structures, protocols, and accountability in place?",
+          "notes": "Decision quality can be eroded from two directions: internal psyche errors (Confirmation Bias, Complacency, Optimism Bias, Familiarity Principle, Role-Identification) or the absence of formal structures that enforce rigour. Leaders must also distinguish Causation from Correlation and Coincidence, and avoid Deming's Tampering trap of over-reacting to common low-impact variation rather than identifying genuine special-cause events.",
+          "branches": [
+            {
+              "answer_pattern": "quality of thinking / biases / blind spots / assumptions / ignoring evidence / confirmation bias / poor reasoning / psyche errors",
+              "next_node": "gov_branch3a_quality"
+            },
+            {
+              "answer_pattern": "formal structures / protocols / accountability / rules / adherence / documentation / no process / need structures",
+              "next_node": "gov_branch3b_process"
+            }
+          ]
+        },
+        {
+          "id": "gov_branch3a_quality",
+          "branch_name": "Branch 3a: Decision Quality — Thinking and Bias",
+          "type": "recommendation",
+          "condition": "Concern is about cognitive bias, blind spots, or poor reasoning behind decisions",
+          "action": "Use Quality Decisions and 6 Hats to introduce structured frameworks that actively counteract psyche errors.",
+          "templates": [
+            "Quality Decisions",
+            "6 Hats",
+            "Draft White Papers"
+          ],
+          "notes": "The 5 Common Psyche Errors: Confirmation Bias (seeking data that confirms existing views to avoid cognitive dissonance), Complacency (losing focus on the external environment once security is perceived), Optimism Bias (deleting negative information to protect existing beliefs), Over-Exposure/Familiarity (preferring the familiar — better the devil you know — over what is actually needed), Role-Identification (mimicking how a boss should behave rather than thinking authentically). De Bono's 6 Hats forces six perspectives: White (missing information), Red (intuition/feelings), Black (devil's advocate), Yellow (objective benefits), Green (creative alternatives), Blue (sequencing). Draft White Papers formalise the decision workpaper: defined problem, list of solutions with pros and cons, chosen solution with supporting logic, and crucially the counter-argument that proves risks were genuinely considered."
+        },
+        {
+          "id": "gov_branch3b_process",
+          "branch_name": "Branch 3b: Formal Governance Process",
+          "type": "recommendation",
+          "condition": "Concern is about missing structures, protocols, and formal accountability",
+          "action": "Build the governance infrastructure using Annual Board Plan, Partner Accountability, and Draft White Papers.",
+          "templates": [
+            "Annual Board Plan",
+            "Partner Accountability",
+            "Draft White Papers",
+            "Quality Decisions"
+          ],
+          "notes": "Formal governance requires: Protocols (defined procedures that must be followed without exception), Tolerances (permissible limits of variation from the original design), Milestones with Early Failure Indicators so the team knows exactly when a decision is going off track, and Independent Review (the person reviewing project success must not be the person managing its implementation). Partner Accountability establishes conflict of interest disclosure and individual accountability. Annual Board Plan creates the meeting rhythm and agenda discipline. Draft White Papers capture the full decision record including the counter-argument that proves risks were genuinely considered."
         }
       ]
     },
-
     {
       "id": "client_planning",
       "name": "Client Planning Logic",
@@ -521,7 +716,9 @@
           "condition": "Client states: 'I need a business plan'",
           "question": "Is this for a Startup, or is it a Well Established Business?",
           "notes": "Both paths can be supported with a Revenue Model.",
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ],
           "branches": [
             {
               "answer_pattern": "startup / new business / just starting / new to planning",
@@ -558,8 +755,13 @@
           "type": "recommendation",
           "condition": "Client is a Startup",
           "action": "Use the 1pg or 4pg Bizz Case, and support with a Revenue Model.",
-          "templates": ["1 pg Bizz Case", "4 Part Bizz Plan"],
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"]
+          "templates": [
+            "1 pg Bizz Case",
+            "4 Part Bizz Plan"
+          ],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ]
         },
         {
           "id": "cp_branch1b_new",
@@ -567,8 +769,15 @@
           "type": "recommendation",
           "condition": "Client is an owner New to Planning",
           "action": "Use the 1pg or 4pg Bizz Case OR the Lite Strategy (Lite Fundamentals Planning), and support with a Revenue Model.",
-          "templates": ["1 pg Bizz Case", "4 Part Bizz Plan", "Lite Strategy", "Planning Session"],
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "templates": [
+            "1 pg Bizz Case",
+            "4 Part Bizz Plan",
+            "Lite Strategy",
+            "Planning Session"
+          ],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ],
           "notes": "Use the Lite Fundamentals Planning template if you wish to develop ongoing strategic reviews. It provides a basic introduction to planning and features a pre-meeting video to put the client at ease."
         },
         {
@@ -577,9 +786,13 @@
           "type": "question",
           "condition": "Client indicates it is a Well Established Business",
           "action": "Start with the Planning Outcomes Review to choose the specific focus area, and support with a Revenue Model.",
-          "templates": ["Planning Outcomes Review"],
+          "templates": [
+            "Planning Outcomes Review"
+          ],
           "notes": "The Planning Outcomes Review helps you choose between: Business Targets, Strategic Orientation 1&2, Organisational Review, or Sales & Marketing Review.",
-          "support_templates": ["Revenue Model (What-if Analysis — choose by industry)"],
+          "support_templates": [
+            "Revenue Model (What-if Analysis — choose by industry)"
+          ],
           "question": "Using the Planning Outcomes Review — does the focus land on Business Targets and Strategic Orientation, or on Organisational and Sales & Marketing?",
           "branches": [
             {
@@ -598,7 +811,13 @@
           "type": "recommendation",
           "condition": "Planning Outcomes Review points to Business Targets or Strategic Orientation 1&2",
           "action": "Utilise Powerful Goal Setting or Profit Levers & Blue Ocean templates.",
-          "templates": ["Powerful Goal Setting", "Profit Levers & Blue Ocean", "Business Targets", "Orientation Part 1", "Orientation Part 2"],
+          "templates": [
+            "Powerful Goal Setting",
+            "Profit Levers & Blue Ocean",
+            "Business Targets",
+            "Orientation Part 1",
+            "Orientation Part 2"
+          ],
           "notes": "Profit Levers & Blue Ocean are short-form templates found in advanced Strategic templates. They help explore strategic issues or position Management Reporting or Governance Services."
         },
         {
@@ -607,12 +826,16 @@
           "type": "recommendation",
           "condition": "Planning Outcomes Review points to Organisational Review or Sales & Marketing Review",
           "action": "Utilise Alignment Statements or Porter's & Pine templates.",
-          "templates": ["Alignment Statements", "Porters & Pine", "Organisational Review", "Sales & Marketing Review"],
+          "templates": [
+            "Alignment Statements",
+            "Porters & Pine",
+            "Organisational Review",
+            "Sales & Marketing Review"
+          ],
           "notes": "Porter's & Pine are short-form templates that can be used to explore strategic issues or create demand for structured management review services."
         }
       ]
     },
-
     {
       "id": "staff_performance",
       "name": "Staff Performance Logic",
@@ -646,7 +869,11 @@
           "condition": "Client states: 'My staff are driving me nuts!'",
           "question": "Is it their Engagement (attitude) or their Effectiveness (competency) that's the problem?",
           "notes": "If they say they don't know, start with the People vs Process Template and support it with the Wages Review What-if Model. Consider the Remuneration & Incentives template also.",
-          "templates_if_unsure": ["People vs. Process", "Wages Review", "Remuneration & Incentives"],
+          "templates_if_unsure": [
+            "People vs. Process",
+            "Wages Review",
+            "Remuneration & Incentives"
+          ],
           "branches": [
             {
               "answer_pattern": "engagement / attitude / motivation / don't care / wrong people",
@@ -664,7 +891,11 @@
           "type": "recommendation",
           "condition": "Client responds: 'Their Engagement (attitude) is the problem'",
           "action": "Review the Lite Fundamentals 'PEOPLE' template. If you don't have the right team in the canoe, consider the Hiring Winners template also.",
-          "templates": ["People Session", "Hiring Winners", "Hire Winners"],
+          "templates": [
+            "People Session",
+            "Hiring Winners",
+            "Hire Winners"
+          ],
           "notes": "If engagement is an issue on a wider basis, consider using the Leadership Review to determine if the problem comes from the top. If the attitude issue is related to a single person or a few troublemakers, consider using a formal PIP (Performance Improvement Plan) in accordance with HR laws to record specific behavioural adjustments."
         },
         {
@@ -691,7 +922,11 @@
           "type": "recommendation",
           "condition": "Client responds: 'Lacking Skill sets'",
           "action": "Focus on the Delegation & Feedback protocols in the Lite Fundamentals 'People' template. Consider also the Turnaround Behaviours template.",
-          "templates": ["People Session", "Turnaround Behaviours", "Hiring Winners"],
+          "templates": [
+            "People Session",
+            "Turnaround Behaviours",
+            "Hiring Winners"
+          ],
           "notes": "If staff give 100% but lack experience, determine if current staff are capable (by temperament and IQ) to reach required levels. If they are, develop learning paths based on OBSERVABLE SKILLS. If not, explore the Hiring Winners template."
         },
         {
@@ -700,12 +935,14 @@
           "type": "recommendation",
           "condition": "Client responds: 'Poor Systems'",
           "action": "Review the Lite Fundamentals 'Process' template. For a more advanced organisation, explore the Organisational Review template.",
-          "templates": ["Process Session", "Organisational Review"],
+          "templates": [
+            "Process Session",
+            "Organisational Review"
+          ],
           "notes": "This branch is used when staff effectiveness is hindered by operational processes rather than individual capabilities."
         }
       ]
     },
-
     {
       "id": "frameworks_find",
       "name": "Frameworks Find Logic",
@@ -778,7 +1015,9 @@
           "type": "recommendation",
           "condition": "Client is lacking clarity about business milestones",
           "action": "Use the Growth Fundamentals Framework.",
-          "templates": ["Growth Framework"],
+          "templates": [
+            "Growth Framework"
+          ],
           "notes": "Quick and simple. Uses contrast to reduce confusion — 'Pick a spot on the curve vs Define your Vision in a sentence'."
         },
         {
@@ -787,7 +1026,9 @@
           "type": "recommendation",
           "condition": "Business is failing to grow and the owner is frustrated, feeling like they're losing the battle",
           "action": "Use the Capacity, Capability, Opportunity template.",
-          "templates": ["Capacity, Capability, Opportunity"],
+          "templates": [
+            "Capacity, Capability, Opportunity"
+          ],
           "notes": "Easy to facilitate, memorable for clients, and opens the discovery pathway."
         },
         {
@@ -796,7 +1037,9 @@
           "type": "recommendation",
           "condition": "Client is struggling to win new customers",
           "action": "Use the Customer Journey template.",
-          "templates": ["Customer Journey"],
+          "templates": [
+            "Customer Journey"
+          ],
           "notes": "Makes it easy to identify the primary issue and downstream effects."
         },
         {
@@ -805,7 +1048,10 @@
           "type": "recommendation",
           "condition": "Revenue is volatile and the owner feels exhausted bouncing from famine to feast",
           "action": "Use the E.O.Y Meeting and Demings Volatility templates.",
-          "templates": ["E.O.Y Meeting", "Demings Volatility"],
+          "templates": [
+            "E.O.Y Meeting",
+            "Demings Volatility"
+          ],
           "notes": "Explains the volatility range, encourages a more balanced understanding of data, and provides 4 remedy options to consider."
         },
         {
@@ -814,7 +1060,9 @@
           "type": "recommendation",
           "condition": "Client doesn't engage with financials, lacks an expense budget, doesn't retain profits, and hires staff or purchases assets by gut-feel",
           "action": "Use the Working Capital Cycle Model.",
-          "templates": ["Working Capital Cycle"],
+          "templates": [
+            "Working Capital Cycle"
+          ],
           "notes": "Provides a plain-English explanation of 'money in movement' related to their job/trading cycles to show how financial management achieves better outcomes."
         },
         {
@@ -823,7 +1071,9 @@
           "type": "recommendation",
           "condition": "Owner is concerned about overall business viability",
           "action": "Use the Quick Fire Diagnosis template.",
-          "templates": ["Quick Fire Diagnosis"],
+          "templates": [
+            "Quick Fire Diagnosis"
+          ],
           "notes": "Provides a concise triage-logic to identify the severity of the issue and deliver the relevant action plan."
         },
         {
@@ -832,12 +1082,16 @@
           "type": "recommendation",
           "condition": "Business is struggling to meet demand and deliver products/services in a timely, profitable manner",
           "action": "Use People vs Process, Lite Fundamentals People + Lite Fundamentals Process, or an Organisational Review.",
-          "templates": ["People vs. Process", "People Session", "Process Session", "Organisational Review"],
+          "templates": [
+            "People vs. Process",
+            "People Session",
+            "Process Session",
+            "Organisational Review"
+          ],
           "notes": "'People vs Process' helps diagnose the issues. The Lite templates provide simple remedy options. The Organisational Review offers more in-depth suggestions."
         }
       ]
     },
-
     {
       "id": "sales_process",
       "name": "Sales Process Decision Tree",
@@ -925,7 +1179,6 @@
             }
           ]
         },
-
         {
           "id": "sp_existing_prior",
           "branch_name": "Existing Client — Prior Advisory Work",
@@ -943,7 +1196,6 @@
             }
           ]
         },
-
         {
           "id": "sp_existing_consultative",
           "branch_name": "Existing Client — Consultative Confidence",
@@ -962,7 +1214,6 @@
             }
           ]
         },
-
         {
           "id": "sp_rec_planning_outcomes",
           "branch_name": "Recommendation: Planning Outcomes Review",
@@ -972,7 +1223,6 @@
           "sales_process": "Planning Outcomes Review — consultative scoping and upsell",
           "notes": "Leads directly to engagement. The advisor runs the Planning Outcomes Review as a discovery/alignment meeting to frame the opportunity."
         },
-
         {
           "id": "sp_rec_lite_existing_yes",
           "branch_name": "Recommendation: Lite Fundamentals (Existing, Prior Work, Less Confident)",
@@ -982,7 +1232,6 @@
           "sales_process": "Lite Fundamentals / Campaign Sales Process",
           "notes": "Safely transitions to engagement without requiring consultative confidence."
         },
-
         {
           "id": "sp_existing_profile",
           "branch_name": "Existing Client — Fee Resistance & Financial Sophistication",
@@ -1000,7 +1249,6 @@
             }
           ]
         },
-
         {
           "id": "sp_rec_education",
           "branch_name": "Recommendation: Education-Based Session",
@@ -1010,7 +1258,6 @@
           "sales_process": "Education-Based Session — build value first, then evaluate",
           "notes": "Educates the client before pitching. If the client engages and wants more, loop back through profile evaluation."
         },
-
         {
           "id": "sp_existing_size",
           "branch_name": "Existing Client — Business Size & Usage",
@@ -1028,7 +1275,6 @@
             }
           ]
         },
-
         {
           "id": "sp_rec_lite_existing_no",
           "branch_name": "Recommendation: Lite Fundamentals Campaign (Existing, Smaller)",
@@ -1038,7 +1284,6 @@
           "sales_process": "Lite Fundamentals / Campaign Sales Process",
           "notes": "Pre-packaged, structured, 1–2 meetings, $6–12k fee range."
         },
-
         {
           "id": "sp_rec_total_existing",
           "branch_name": "Recommendation: Total Needs (Existing, Larger/Complex)",
@@ -1048,7 +1293,6 @@
           "sales_process": "Total Needs Sales Process",
           "notes": "Consultative and exploratory, 3–5 meetings, 10+ hours, $30k+ fee range."
         },
-
         {
           "id": "sp_prospect_sophistication",
           "branch_name": "Targeted Prospect — Sophistication Check",
@@ -1067,7 +1311,6 @@
             }
           ]
         },
-
         {
           "id": "sp_prospect_soph_size",
           "branch_name": "Targeted Prospect — Sophisticated, Business Size",
@@ -1085,7 +1328,6 @@
             }
           ]
         },
-
         {
           "id": "sp_rec_total_prospect_soph",
           "branch_name": "Recommendation: Total Needs (Sophisticated + Larger)",
@@ -1095,7 +1337,6 @@
           "sales_process": "Total Needs Sales Process",
           "notes": "Deploys the most comprehensive sales process."
         },
-
         {
           "id": "sp_rec_lite_modified",
           "branch_name": "Recommendation: Lite Fundamentals Modified (Sophisticated + Smaller)",
@@ -1105,7 +1346,6 @@
           "sales_process": "Lite Fundamentals — modified for sophistication",
           "notes": "Leads into the standard Lite Fundamentals engagement but requires custom modifications to session depth."
         },
-
         {
           "id": "sp_prospect_not_soph_size",
           "branch_name": "Targeted Prospect — Not Sophisticated, Business Size",
@@ -1123,7 +1363,6 @@
             }
           ]
         },
-
         {
           "id": "sp_rec_lite_prospect",
           "branch_name": "Recommendation: Lite Fundamentals Campaign (Not Sophisticated + Smaller)",
@@ -1133,7 +1372,6 @@
           "sales_process": "Lite Fundamentals / Campaign Sales Process",
           "notes": "Deploys the streamlined campaign process."
         },
-
         {
           "id": "sp_rec_total_prospect_not_soph",
           "branch_name": "Recommendation: Total Needs (Not Sophisticated + Larger)",
@@ -1143,7 +1381,6 @@
           "sales_process": "Total Needs Sales Process",
           "notes": "Defaults to the comprehensive sales approach due to business size and complexity."
         },
-
         {
           "id": "sp_referral_issue",
           "branch_name": "Referral / Walk-In — Specific Issue",
@@ -1161,7 +1398,6 @@
             }
           ]
         },
-
         {
           "id": "sp_rec_solve_issue",
           "branch_name": "Recommendation: Solve Specific Issue + Seed Wider",
@@ -1171,7 +1407,6 @@
           "sales_process": "Solve specific issue — seed wider advisory in future",
           "notes": "Addresses the immediate pain point while creating a platform for future advisory work."
         },
-
         {
           "id": "sp_referral_size",
           "branch_name": "Referral / Walk-In — Business Size",
@@ -1189,7 +1424,6 @@
             }
           ]
         },
-
         {
           "id": "sp_rec_lite_referral",
           "branch_name": "Recommendation: Lite Fundamentals Campaign (Referral + Smaller)",
@@ -1199,7 +1433,6 @@
           "sales_process": "Lite Fundamentals / Campaign Sales Process",
           "notes": "Deploys the streamlined campaign process for smaller referrals."
         },
-
         {
           "id": "sp_rec_total_referral",
           "branch_name": "Recommendation: Total Needs (Referral + Larger)",
@@ -1211,7 +1444,6 @@
         }
       ]
     },
-
     {
       "id": "public_speaking",
       "name": "Seminar & Presentation Design and Delivery",
@@ -1334,7 +1566,6 @@
         }
       ]
     },
-
     {
       "id": "trial_fit",
       "name": "Trial Fit Method — Revenue Model Presentation",
@@ -1424,7 +1655,6 @@
         }
       ]
     },
-
     {
       "id": "cautious_reveal",
       "name": "Cautious Reveal Method — Introducing Revenue Models to Resistant Clients",
@@ -1525,7 +1755,6 @@
         }
       ]
     },
-
     {
       "id": "eoy_meeting",
       "name": "End of Year Meeting — Planning and Delivery",
@@ -1619,7 +1848,6 @@
         }
       ]
     },
-
     {
       "id": "facilitation_101",
       "name": "Facilitation 101 — Framing, Story, and Relevance",
@@ -1684,7 +1912,6 @@
         }
       ]
     },
-
     {
       "id": "reveal_growth_curve",
       "name": "Revealing the Growth Curve",
@@ -1770,7 +1997,6 @@
         }
       ]
     },
-
     {
       "id": "conflict_meeting",
       "name": "Framing a Conflict Meeting",
@@ -1860,7 +2086,6 @@
         }
       ]
     },
-
     {
       "id": "capacity_capability_opportunity",
       "name": "Capacity, Capability, Opportunity",
@@ -1933,7 +2158,6 @@
         }
       ]
     },
-
     {
       "id": "heald_matrix",
       "name": "The Heald Matrix",
@@ -2007,7 +2231,6 @@
         }
       ]
     },
-
     {
       "id": "demings_volatility",
       "name": "Deming's Theory of Volatility",
@@ -2075,7 +2298,6 @@
         }
       ]
     },
-
     {
       "id": "working_capital_cycle",
       "name": "Working Capital Cycle",
@@ -2143,7 +2365,6 @@
         }
       ]
     },
-
     {
       "id": "ratio_analysis",
       "name": "Ratio Analysis",
@@ -2210,7 +2431,6 @@
         }
       ]
     },
-
     {
       "id": "dashboard_discussions",
       "name": "Dashboard Discussions",
@@ -2296,7 +2516,835 @@
           "next_stage": null
         }
       ]
+    },
+    {
+      "id": "systems",
+      "name": "Systems Thinking",
+      "description": "Diagnoses systems and process concerns: broken processes, designing new business systems, staff adoption resistance, philosophy selection (Six Sigma / Lean / TOC), and scale readiness.",
+      "entry_triggers": [
+        "systems thinking",
+        "process improvement",
+        "workflow",
+        "business systems",
+        "systems before scale",
+        "processes broken",
+        "no system",
+        "need a system",
+        "ad hoc",
+        "inconsistent process",
+        "bottleneck",
+        "efficiency",
+        "lean",
+        "six sigma",
+        "theory of constraints",
+        "complex adaptive",
+        "circles of causality",
+        "reinforcing loop",
+        "balancing loop",
+        "limits to growth",
+        "shifting the burden",
+        "staff not following process",
+        "scale readiness",
+        "building a system",
+        "designing a process",
+        "systems design",
+        "process design",
+        "redundant systems",
+        "catastrophic failure",
+        "people vs process",
+        "six business systems",
+        "planning system",
+        "data system"
+      ],
+      "nodes": [
+        {
+          "id": "sys_preassess",
+          "branch_name": "Pre-Assessment Gate",
+          "type": "assessment",
+          "condition": "Before asking anything — determine which systems concern is presenting",
+          "notes": "Key distinction: a PROCESS is a sequence of steps to complete one task. A SYSTEM is an interconnected set of processes that together produce a reliable, repeatable outcome across the whole business. 'Systems Before Scale' is the golden rule — scaling a broken system amplifies every flaw. The 6 business systems are: (1) Planning System — goals, strategy, forecasting; (2) Data System — KPIs, dashboards, measurement; (3) Marketing System — lead generation, brand, positioning; (4) Sales System — conversion, pipeline, CRM; (5) People System — recruitment, onboarding, culture, performance; (6) Process System — how work gets done, quality, efficiency. Circles of Causality (Peter Senge): every action creates a feedback loop. Reinforcing Loops (R) — amplifying cycles that produce exponential growth (virtuous) or a death spiral (vicious). Balancing Loops (B) — corrective cycles that push toward equilibrium; often cause the Delay Factor — a lag between action and visible result that leads to oversteering. Complex Adaptive Systems (CAS) respond and self-organise; Complicated Systems are merely complex machines. Structure Influences Behaviour — changing the structure changes what people do, not the other way around.",
+          "branches": [
+            {
+              "answer_pattern": "existing systems or processes are broken, inefficient, or producing poor results",
+              "next_node": "sys_b1_broken"
+            },
+            {
+              "answer_pattern": "need to design or build a new system or process from scratch",
+              "next_node": "sys_b2_new"
+            },
+            {
+              "answer_pattern": "staff are not following, adopting, or resisting existing systems",
+              "next_node": "sys_b3_adoption"
+            },
+            {
+              "answer_pattern": "unsure which systems philosophy or methodology to apply — six sigma, lean, theory of constraints",
+              "next_node": "sys_b4_philosophy"
+            },
+            {
+              "answer_pattern": "planning to scale or grow but concerned whether systems can handle it",
+              "next_node": "sys_b5_scale"
+            }
+          ]
+        },
+        {
+          "id": "sys_b1_broken",
+          "branch_name": "Branch 1 — Broken or Inefficient Systems",
+          "type": "question",
+          "condition": "Client has existing systems or processes that are not performing",
+          "question": "When you say the process isn't working — is it that the process itself is poorly designed, or is the design sound but people aren't executing it correctly?",
+          "notes": "This is the People vs Process diagnostic split. A process problem means the design itself is flawed — wrong steps, missing steps, unclear handoffs, wrong sequence. A people problem means the design is adequate but individuals are not following it — through lack of skill, motivation, clarity, or accountability. Warning: clients frequently misattribute people problems as process problems to avoid difficult conversations about performance. Use the 5-Step Implementation Framework to guide rebuild: (1) Identify the Focus Area — which of the 6 business systems is involved? (2) Design the Architecture — 5 to 13 nodes in the process map, no more; complexity kills adoption. (3) Test with a pilot group — small team, real conditions. (4) Implement with buy-in — structure influences behaviour; people must understand why the system exists. (5) Review and Refine — feedback loops must be built in. Redundant Systems: for any process where failure is catastrophic (compliance, financial controls, client delivery), design a redundant fallback — a second parallel path that activates automatically on failure.",
+          "branches": [
+            {
+              "answer_pattern": "the process design itself is flawed or unclear",
+              "next_node": "sys_b1b_process"
+            },
+            {
+              "answer_pattern": "people are not following or executing the process correctly",
+              "next_node": "sys_b1a_people"
+            },
+            {
+              "answer_pattern": "both — the process is poorly designed and people aren't following it",
+              "next_node": "sys_b1c_both"
+            }
+          ]
+        },
+        {
+          "id": "sys_b1a_people",
+          "branch_name": "Branch 1A — People Execution Problem",
+          "type": "recommendation",
+          "condition": "Process design is adequate; the problem is people not executing",
+          "notes": "A people execution problem sits at the intersection of clarity, capability, and accountability. Did people know exactly what was expected? Were they capable of doing it? Was there a consequence for not doing it? Structure Influences Behaviour — if the incentive structure or accountability mechanism doesn't support the system, the system will not run. Use People vs. Process to distinguish systemic under-performance from individual behaviour. Organisational Review to examine whether culture is enabling or undermining the process.",
+          "templates": [
+            "People vs. Process",
+            "Organisational Review"
+          ]
+        },
+        {
+          "id": "sys_b1b_process",
+          "branch_name": "Branch 1B — Process Design Problem",
+          "type": "recommendation",
+          "condition": "The process design itself is the root problem — wrong steps, missing steps, unclear handoffs",
+          "notes": "Run a full process mapping session. The 5-13 node rule: fewer than 5 nodes usually means a step has been skipped or merged; more than 13 nodes means the process is too complex and will not be followed. Identify where the Delay Factor is creating oversteering — where teams take corrective action before the effect of their last action has been visible, creating oscillation. Check for Limits to Growth archetype: the process may be generating output that is hitting an invisible constraint (capacity, skill, resource) that is dampening it. Apply Capacity, Capability, Opportunity to identify the constraint.",
+          "templates": [
+            "Process Session",
+            "Capacity, Capability, Opportunity"
+          ]
+        },
+        {
+          "id": "sys_b1c_both",
+          "branch_name": "Branch 1C — Design AND People Problem",
+          "type": "recommendation",
+          "condition": "Process design is flawed AND people are not executing — compounded failure",
+          "notes": "Sequence matters: fix the design first, then address the people execution. Attempting to hold people accountable to a broken process creates resentment and confusion — it will be seen as blame-shifting. Use Process Session to rebuild the architecture. Then use People vs. Process to relaunch expectations and accountability once the design is sound. Where the Shifting the Burden archetype is present — short-term workarounds have been layered on top of a structural problem — identify and remove the workarounds before redesigning the core process.",
+          "templates": [
+            "Process Session",
+            "People vs. Process",
+            "Organisational Review"
+          ]
+        },
+        {
+          "id": "sys_b2_new",
+          "branch_name": "Branch 2 — Designing a New System",
+          "type": "question",
+          "condition": "Client needs to build a new system or process from scratch",
+          "question": "Which of the six business systems are we building — Planning, Data, Marketing, Sales, People, or Process? Or is this a technology or financial administration system?",
+          "notes": "Use the 5-Step Implementation Framework: (1) Identify the Focus Area; (2) Design the Architecture — 5 to 13 nodes, no more; (3) Test with a pilot group; (4) Implement with buy-in; (5) Review and Refine with built-in feedback loops. The goal is not a perfect system — it is a working system that can be refined. Complex Adaptive Systems (CAS) are self-correcting when given the right feedback loops. Build the feedback loop INTO the system at design stage, not as an afterthought. Remind the client: the system must be designed for the people who will run it, not for the people who designed it.",
+          "branches": [
+            {
+              "answer_pattern": "data system — KPIs, dashboards, measurement, reporting",
+              "next_node": "sys_b2a_data"
+            },
+            {
+              "answer_pattern": "financial administration system — controls, billing, reporting, reconciliation",
+              "next_node": "sys_b2b_financial"
+            },
+            {
+              "answer_pattern": "people system — recruitment, onboarding, culture, performance management",
+              "next_node": "sys_b2c_people_org"
+            },
+            {
+              "answer_pattern": "technology or application system — software, app, digital tools, automation",
+              "next_node": "sys_b2d_technology"
+            },
+            {
+              "answer_pattern": "planning system or capacity planning — strategy, forecasting, capacity, growth",
+              "next_node": "sys_b2e_planning"
+            },
+            {
+              "answer_pattern": "process system — operational workflow, production, service delivery, quality",
+              "next_node": "sys_b1b_process"
+            }
+          ]
+        },
+        {
+          "id": "sys_b2a_data",
+          "branch_name": "Branch 2A — Building a Data System",
+          "type": "recommendation",
+          "condition": "Client needs to build a KPI, dashboard, or measurement system",
+          "notes": "A data system is the Reinforcing Loop engine of the business — good data feeds better decisions, which produce better results, which generate better data. Without it, the business is flying blind. Start with: what decisions do we make weekly that a KPI could improve? Design backwards from the decision, not forwards from the data available. Avoid Tampering — acting on common-cause variation as if it were special-cause. Build Volatility Analysis in from the start to distinguish signal from noise. Data Session will define the KPI architecture. Nine Growth Aspects provides a full-business lens to ensure no system is overlooked.",
+          "templates": [
+            "Data Session",
+            "Nine Growth Aspects"
+          ]
+        },
+        {
+          "id": "sys_b2b_financial",
+          "branch_name": "Branch 2B — Building a Financial System",
+          "type": "recommendation",
+          "condition": "Client needs financial administration, controls, or reporting systems",
+          "notes": "Financial systems are a compliance and decision-support function. Design for both: (1) compliance — obligations, reconciliations, controls; (2) decision support — real-time position, cash flow visibility, margin by product. Redundant Systems apply here — financial controls must have a fallback if a primary check is bypassed. The Financial Systems Review covers the full architecture. Formal Risk Management should be used where financial failure represents a catastrophic or compliance risk.",
+          "templates": [
+            "Financial Systems Review",
+            "Formal Risk Management"
+          ]
+        },
+        {
+          "id": "sys_b2c_people_org",
+          "branch_name": "Branch 2C — Building a People System",
+          "type": "recommendation",
+          "condition": "Client needs to build recruitment, onboarding, performance, or culture systems",
+          "notes": "People systems are Complex Adaptive Systems by nature — they self-organise around the incentives and culture they are given. Structure Influences Behaviour: the people system must be designed so that doing the right thing is the path of least resistance. Clarity of expectation, capability to execute, and accountability for outcomes are the three pillars. Organisational Review maps the current culture state. People vs. Process clarifies whether the system or the individuals need redesign.",
+          "templates": [
+            "People vs. Process",
+            "Organisational Review"
+          ]
+        },
+        {
+          "id": "sys_b2d_technology",
+          "branch_name": "Branch 2D — Building a Technology System",
+          "type": "recommendation",
+          "condition": "Client needs to design or select technology, apps, or digital tools",
+          "notes": "Technology systems should follow the process, not define it. Map the process first, then select the tool that best supports the mapped process. Never reverse-engineer a business process around the limitations of a software package. App Review evaluates current technology against process needs. What's Applicable identifies which technology categories are relevant to this business. Redundant Systems: ensure there is a manual fallback for any technology-dependent process where failure would be catastrophic.",
+          "templates": [
+            "App Review",
+            "What's Applicable"
+          ]
+        },
+        {
+          "id": "sys_b2e_planning",
+          "branch_name": "Branch 2E — Building a Planning or Capacity System",
+          "type": "recommendation",
+          "condition": "Client needs strategic planning, forecasting, or capacity planning systems",
+          "notes": "Planning systems are Balancing Loops — they exist to close the gap between where the business is and where it wants to be. The Delay Factor is critical here: planning actions take time to produce visible results. Oversteering — changing direction before the last action has had time to work — is the most common failure. Capacity, Capability, Opportunity identifies the current constraint in capacity. Nine Growth Aspects provides a whole-business lens for planning across all six business systems simultaneously.",
+          "templates": [
+            "Capacity, Capability, Opportunity",
+            "Nine Growth Aspects"
+          ]
+        },
+        {
+          "id": "sys_b3_adoption",
+          "branch_name": "Branch 3 — Staff Not Adopting Systems",
+          "type": "question",
+          "condition": "Staff are resistant to or not following existing systems",
+          "question": "When people don't follow the system — do they know it exists and choose not to follow it, or do they genuinely not know what the system requires of them?",
+          "notes": "Adoption failure has three common root causes: (1) Clarity — people don't know what the system requires; (2) Capability — people know but can't execute; (3) Commitment — people know and can, but choose not to. Structure Influences Behaviour: if the informal culture rewards workarounds over system compliance, the system will always lose. Shifting the Burden archetype: the workaround has become the system. Use the 5-step implementation framework — specifically step (4) Implement with buy-in. The system must be co-designed or at minimum co-understood by those who will run it. Mandate from above without explanation produces surface compliance and underground workarounds.",
+          "branches": [
+            {
+              "answer_pattern": "staff don't know what the system requires — clarity or communication failure",
+              "next_node": "sys_b3a_clarity"
+            },
+            {
+              "answer_pattern": "staff know but are actively choosing not to follow — resistance or culture failure",
+              "next_node": "sys_b3b_resistance"
+            }
+          ]
+        },
+        {
+          "id": "sys_b3a_clarity",
+          "branch_name": "Branch 3A — Clarity Failure",
+          "type": "recommendation",
+          "condition": "Staff don't know what the system requires — communication or documentation failure",
+          "notes": "Rebuild the communication architecture of the system. Every system must have: (1) A documented standard — what does 'correct' look like? (2) A training event — not just a written document; (3) A reference point — where do people check when unsure? (4) A feedback mechanism — how do people flag when the system is wrong or unclear? People vs. Process re-establishes expectations and accountability post-clarity rebuild. Process Session documents and standardises the system.",
+          "templates": [
+            "Process Session",
+            "People vs. Process"
+          ]
+        },
+        {
+          "id": "sys_b3b_resistance",
+          "branch_name": "Branch 3B — Active Resistance",
+          "type": "recommendation",
+          "condition": "Staff know the system and are choosing not to follow it — culture or accountability failure",
+          "notes": "Active resistance to a system is almost always a signal that: (a) the system is genuinely poorly designed and people are right to resist it — investigate this honestly; or (b) the accountability structure has broken down — there is no consequence for non-compliance. Use Organisational Review to diagnose whether culture is the driver. Use People vs. Process to rebuild the accountability framework. Do not attempt to enforce compliance until the system's design has been validated — enforcing a bad system creates lasting resentment.",
+          "templates": [
+            "Organisational Review",
+            "People vs. Process"
+          ]
+        },
+        {
+          "id": "sys_b4_philosophy",
+          "branch_name": "Branch 4 — Systems Philosophy Selection",
+          "type": "question",
+          "condition": "Client needs to choose a systems improvement methodology",
+          "question": "Tell me about your business model — do you serve a mass market where every customer gets a near-identical experience, do you want to strip the business to its leanest possible operation, or do you deliver a unique, high-touch experience where no two clients get exactly the same thing?",
+          "notes": "Three systems philosophies and their contexts: (1) Six Sigma — eliminating variation for mass-market, high-volume operations. The goal is zero defects through statistical process control. Best for: manufacturing, fast food, financial processing, any operation where variation is a defect. Danger: removes the adaptability that unique-experience businesses need. (2) Lean — eliminating waste (anything the customer would not pay for). The goal is maximum value delivery at minimum resource cost. Best for: operations where margin is under pressure and the value chain needs tightening. Not a substitute for strategy — lean optimises delivery, it does not define direction. (3) Theory of Constraints (TOC) — identifying and exploiting the one constraint that limits throughput. The goal is maximum flow through the bottleneck. Best for: unique-experience, high-margin, capacity-constrained operations (professional services, boutique, bespoke). The five focusing steps: Identify the constraint → Exploit it → Subordinate everything else to it → Elevate it → Return to step 1. Danger of choosing wrongly: a Six Sigma business applied to a unique-experience model will standardise away its competitive advantage.",
+          "branches": [
+            {
+              "answer_pattern": "mass market, high volume, consistency is the product — variation is a defect",
+              "next_node": "sys_b4a_sixsigma"
+            },
+            {
+              "answer_pattern": "lean operations — remove waste, maximise value delivery at lowest cost",
+              "next_node": "sys_b4b_lean"
+            },
+            {
+              "answer_pattern": "unique experience, capacity-constrained, high-touch, bespoke — no two clients the same",
+              "next_node": "sys_b4c_toc"
+            }
+          ]
+        },
+        {
+          "id": "sys_b4a_sixsigma",
+          "branch_name": "Branch 4A — Six Sigma Pathway",
+          "type": "recommendation",
+          "condition": "Client operates a high-volume, mass-market model where variation is a defect",
+          "notes": "Six Sigma uses DMAIC: Define → Measure → Analyse → Improve → Control. Every process is mapped, measured, and statistically controlled. The target is 3.4 defects per million opportunities. Implementation in an SME context: start with the highest-volume, highest-consequence process first (not the most visible problem). Process Session maps the current state. Volatility Analysis (from the Data Session) establishes what is normal variation vs defect signal. Build control charts into the Data System so the team can self-monitor without constant management oversight.",
+          "templates": [
+            "Process Session",
+            "Data Session",
+            "Capacity, Capability, Opportunity"
+          ]
+        },
+        {
+          "id": "sys_b4b_lean",
+          "branch_name": "Branch 4B — Lean Pathway",
+          "type": "recommendation",
+          "condition": "Client wants to remove waste and maximise value delivery at minimum cost",
+          "notes": "Lean identifies eight types of waste: Transportation, Inventory, Motion, Waiting, Overproduction, Overprocessing, Defects, Skills (under-utilised talent). The value stream map is the primary tool — walk the entire process from customer request to customer receipt and mark every step as Value-Adding, Non-Value-Adding but Necessary, or Pure Waste. Remove Pure Waste first, then challenge each Non-Value-Adding-but-Necessary step. Lean works best when paired with a Data System that reveals where waste is accumulating in real time. Process Session runs the value stream mapping session. Capacity, Capability, Opportunity identifies where the lean savings can be redeployed.",
+          "templates": [
+            "Process Session",
+            "Capacity, Capability, Opportunity",
+            "Data Session"
+          ]
+        },
+        {
+          "id": "sys_b4c_toc",
+          "branch_name": "Branch 4C — Theory of Constraints Pathway",
+          "type": "recommendation",
+          "condition": "Client delivers unique, high-touch, bespoke experiences where the constraint determines throughput",
+          "notes": "Theory of Constraints: the rate of production of the entire system is determined by its slowest component — the constraint. Five Focusing Steps: (1) Identify the constraint — where does work back up? What is always busy while everything else waits? (2) Exploit the constraint — maximise throughput through it without spending anything. Remove waste and idle time AT the constraint. (3) Subordinate everything else — all other parts of the system exist to feed the constraint at its optimal rate. (4) Elevate the constraint — if steps 1-3 are not enough, invest to increase its capacity. (5) Return to step 1 — the constraint will shift. Circles of Causality apply here: improving throughput through the current constraint will expose the next constraint as a balancing loop. Capacity, Capability, Opportunity identifies and sizes the constraint. Nine Growth Aspects checks whether the constraint is systemic or isolated.",
+          "templates": [
+            "Capacity, Capability, Opportunity",
+            "Nine Growth Aspects",
+            "Process Session"
+          ]
+        },
+        {
+          "id": "sys_b5_scale",
+          "branch_name": "Branch 5 — Scale Readiness",
+          "type": "question",
+          "condition": "Client is planning to scale or grow and needs to assess systems readiness",
+          "question": "Before we talk about growth — are the six core business systems currently producing consistent, reliable results at your existing volume? Because Systems Before Scale is the golden rule: scaling a broken system amplifies every flaw exponentially.",
+          "notes": "Systems Before Scale is the foundational principle. A Reinforcing Loop drives growth — but if the underlying systems are broken, the reinforcing loop amplifies failure at scale, not success. The six business systems to check before scaling: (1) Planning — do you have a documented strategy and forecast? (2) Data — do you have KPIs that flag problems in real time? (3) Marketing — is your lead generation system predictable and repeatable? (4) Sales — do you have a documented sales process with a known conversion rate? (5) People — can you onboard new staff into a functioning system, or does growth require heroic individual effort? (6) Process — are your delivery processes documented, consistent, and quality-controlled? If any of these systems is not functioning reliably at current volume, halt scaling discussion and go to Branch 1 (broken systems) or Branch 2 (build new system) first. Redundant Systems: at scale, any single point of failure becomes a disaster. Design redundancy into every critical system before growth exposes it.",
+          "branches": [
+            {
+              "answer_pattern": "yes — all six systems are functioning reliably; ready to scale",
+              "next_node": "sys_b5a_ready"
+            },
+            {
+              "answer_pattern": "no — one or more systems are not reliable at current volume",
+              "next_node": "sys_b5b_not_ready"
+            }
+          ]
+        },
+        {
+          "id": "sys_b5a_ready",
+          "branch_name": "Branch 5A — Systems Ready, Plan for Scale",
+          "type": "recommendation",
+          "condition": "Systems are reliable at current volume — advise on capacity and growth planning",
+          "notes": "With systems in place, scaling becomes a capacity and capital question. Nine Growth Aspects provides a whole-business review of growth readiness across all functional areas. Capacity, Capability, Opportunity identifies the constraint that will bind first as volume increases — address this before scaling, not after. The Delay Factor will be amplified at scale: decisions made today about systems and capacity will not show their full effect for 3-6 months. Build feedback loops and review points into the scale plan so oversteering can be caught early.",
+          "templates": [
+            "Nine Growth Aspects",
+            "Capacity, Capability, Opportunity"
+          ]
+        },
+        {
+          "id": "sys_b5b_not_ready",
+          "branch_name": "Branch 5B — Systems Not Ready, Halt Scale",
+          "type": "recommendation",
+          "condition": "One or more core systems are not reliable — scaling must wait until systems are built",
+          "notes": "Advise clearly: scaling now will amplify existing problems, not outgrow them. A broken People system at 10 staff becomes a cultural crisis at 50. A broken Process system at 50 units per week becomes a quality disaster at 200. Use Nine Growth Aspects to identify which of the six business systems is the most critical constraint to fix first. Then go to Branch 1 (broken systems) or Branch 2 (build new systems) for the specific remediation pathway. Formal Risk Management is warranted if the client is planning significant capital deployment (hiring, leasing, equipment) before systems are reliable.",
+          "templates": [
+            "Nine Growth Aspects",
+            "People vs. Process",
+            "Formal Risk Management"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "risk_management",
+      "name": "Risk Management",
+      "description": "Guides advisors through risk identification, evaluation (heatmap), treatment strategy (Accept / Avoid / Reduce / Transfer), insurance review, and action planning including residual risk monitoring.",
+      "entry_triggers": [
+        "risk management",
+        "risk assessment",
+        "risk register",
+        "risk review",
+        "insurance",
+        "risk treatment",
+        "risk strategy",
+        "heatmap",
+        "risk heatmap",
+        "probability consequence",
+        "residual risk",
+        "risk owner",
+        "disaster recovery",
+        "contingency plan",
+        "ISO 31000",
+        "accept avoid reduce transfer",
+        "transfer risk",
+        "catastrophic risk",
+        "uninsured",
+        "underinsured",
+        "risk exposure",
+        "business risk",
+        "operational risk",
+        "compliance risk",
+        "governance risk requirement",
+        "risk and uncertainty",
+        "risk source",
+        "risk event",
+        "risk appetite",
+        "risk tolerance"
+      ],
+      "nodes": [
+        {
+          "id": "rm_preassess",
+          "branch_name": "Pre-Assessment Gate",
+          "type": "assessment",
+          "condition": "Before asking anything — determine which risk management concern is presenting",
+          "notes": "Foundation: ISO 31000 defines risk as the 'effect of uncertainty on objectives' — it can be positive (upside) or negative (downside). The goal of risk management is to reduce uncertainty about future outcomes. Key distinctions: (1) Risk Source — where the risk originates (economic shifts, natural forces, management shortcomings). (2) Risk Event — the actual occurrence that stems from the source and produces a consequence (an accident, a market crash). (3) Risk Owner — a designated person with authority and accountability to manage a specific risk. (4) Residual Risk — the risk remaining AFTER controls and treatments have been applied. Risk management is not a one-time exercise; it requires continuous monitoring and review. The 5-step ISO framework: (1) Establish Context → (2) Identify Risks → (3) Evaluate Risks (Heatmap) → (4) Determine Risk Strategy → (5) Develop Action Plan.",
+          "branches": [
+            {
+              "answer_pattern": "no formal risk management in place — need to build from scratch",
+              "next_node": "rm_b1_framework"
+            },
+            {
+              "answer_pattern": "risks have been identified but need to evaluate and decide how to treat them",
+              "next_node": "rm_b2_evaluate"
+            },
+            {
+              "answer_pattern": "specific risk event or incident has occurred or is imminent — need immediate response",
+              "next_node": "rm_b3_incident"
+            },
+            {
+              "answer_pattern": "insurance review — checking whether coverage is adequate, missing, or correctly structured",
+              "next_node": "rm_b4_insurance"
+            },
+            {
+              "answer_pattern": "compliance, legal, or governance requirement driving the need for a risk framework",
+              "next_node": "rm_b5_compliance"
+            }
+          ]
+        },
+        {
+          "id": "rm_b1_framework",
+          "branch_name": "Branch 1 — Building a Risk Framework from Scratch",
+          "type": "question",
+          "condition": "Client has no formal risk management — needs to build from the ground up",
+          "question": "Before we identify specific risks — let's define the playing field. What timeframe are we covering with this risk plan, and are we more concerned about risks inside the business or risks coming from outside it?",
+          "notes": "Step 1 — Establish Context: Define the timeframe (1 year, 3 year, project-specific). Identify internal context: governance structure, organisational capabilities, culture, key dependencies. Identify external context: local and international environment, stakeholder values, legal and regulatory trends, competitive landscape. This step prevents scope creep — a risk plan that tries to cover everything covers nothing. Step 2 — Identify Risks: Use strategic plans, SWOT analysis, historical incidents, and expert input. For each risk, identify the source (where it originates) AND the potential event (what could actually happen). Brainstorm across categories: financial, operational, people, market, legal/compliance, reputational, technology, natural/environmental. Step 3 — Evaluate: Consequence × Probability → Heatmap. Step 4 — Treat: Accept / Avoid / Reduce / Transfer. Step 5 — Action Plan with Risk Owners, timelines, contingency plans, and residual risk monitoring. The Formal Risk Management template runs this full process.",
+          "branches": [
+            {
+              "answer_pattern": "context established — ready to identify and map risks",
+              "next_node": "rm_b1_identify"
+            }
+          ]
+        },
+        {
+          "id": "rm_b1_identify",
+          "branch_name": "Branch 1A — Identify and Map Risks",
+          "type": "question",
+          "condition": "Context is set — now identifying and evaluating risks",
+          "question": "Let's build the risk list — for each risk area, what is the risk source, what event could occur, and what is the worst realistic consequence if it did?",
+          "notes": "Risk identification brainstorm categories: Financial (cash flow failure, bad debt, cost blowout, currency/interest rate); Operational (process failure, equipment failure, supply chain, quality defect); People (key person dependency, recruitment failure, culture breakdown, fraud/misconduct); Market (demand collapse, competitor disruption, pricing pressure); Legal/Compliance (regulatory breach, contract dispute, IP exposure, employment liability); Reputational (public incident, social media, client complaint escalation); Technology (data breach, system failure, cybersecurity, software dependency); Natural/Environmental (disaster, pandemic, climate-related). For each risk: name the SOURCE (economic, human, natural, technical), describe the EVENT, estimate the CONSEQUENCE (financial loss, business interruption, reputational damage) and PROBABILITY. Then plot on the Heatmap: X-axis = Probability (Low to High); Y-axis = Consequence (Low to High). The heatmap creates four quadrants that determine treatment strategy.",
+          "branches": [
+            {
+              "answer_pattern": "risks identified and mapped — ready to determine treatment strategy",
+              "next_node": "rm_b2_evaluate"
+            }
+          ]
+        },
+        {
+          "id": "rm_b2_evaluate",
+          "branch_name": "Branch 2 — Evaluate and Treat Identified Risks",
+          "type": "question",
+          "condition": "Risks are identified — need to evaluate consequence and probability and select treatment strategy",
+          "question": "For each risk on the list — where does it sit on the heatmap? Is it high or low probability, and high or low consequence if it occurs?",
+          "notes": "The Risk Heatmap is the central evaluation tool. Plot each risk on a matrix: X-axis = Probability (likelihood of occurrence: Rare / Unlikely / Possible / Likely / Almost Certain); Y-axis = Consequence (severity of impact: Insignificant / Minor / Moderate / Major / Catastrophic). This produces four strategic quadrants: (1) High Probability + High Consequence — priority action required: Avoid or Transfer; (2) High Probability + Low Consequence — manageable: Reduce exposure and volume; (3) Low Probability + High Consequence — insurance territory: Transfer to a third party; (4) Low Probability + Low Consequence — acceptable: Accept and monitor. Compare each mapped risk against the organisation's risk criteria (their stated risk appetite/tolerance) to determine if the current level is tolerable or requires action. Every risk that falls above tolerance threshold requires a treatment strategy and a Risk Owner.",
+          "branches": [
+            {
+              "answer_pattern": "high probability AND high consequence — business-threatening risk requiring urgent action",
+              "next_node": "rm_b2a_high_high"
+            },
+            {
+              "answer_pattern": "high probability but low consequence — frequent but manageable exposure",
+              "next_node": "rm_b2b_high_low"
+            },
+            {
+              "answer_pattern": "low probability but high consequence — rare but potentially catastrophic",
+              "next_node": "rm_b2c_low_high"
+            },
+            {
+              "answer_pattern": "low probability AND low consequence — within acceptable tolerance",
+              "next_node": "rm_b2d_low_low"
+            }
+          ]
+        },
+        {
+          "id": "rm_b2a_high_high",
+          "branch_name": "Branch 2A — High Probability, High Consequence",
+          "type": "question",
+          "condition": "Risk sits in the top-right quadrant — likely to occur AND catastrophic if it does",
+          "question": "For a risk this serious — can the activity that generates it be stopped entirely, or is it a core part of how the business operates?",
+          "notes": "Treatment decision: (1) Avoid — cease the engagement or activity entirely. This eliminates the risk at its source. Best choice when the activity is not core and the risk-to-reward ratio is fundamentally unacceptable. (2) Transfer — if the activity cannot be avoided, shift the financial consequence to a third party. Insurance is the primary transfer mechanism. Other transfer tools: contractual limitation of liability, subcontracting risk to a specialist, cooperative risk pooling. Evaluate each strategy on: cost of the treatment vs certainty of the outcome. A high-cost treatment for a low-certainty outcome is rarely worthwhile. After treatment, measure the Residual Risk — what remains. If residual risk is still above tolerance, the treatment is insufficient and must be escalated. Assign a Risk Owner with formal authority and accountability for this specific risk.",
+          "branches": [
+            {
+              "answer_pattern": "activity can be stopped — pursuing Avoid strategy",
+              "next_node": "rm_action_plan"
+            },
+            {
+              "answer_pattern": "activity is core — cannot be avoided; pursuing Transfer strategy",
+              "next_node": "rm_b4_insurance"
+            }
+          ]
+        },
+        {
+          "id": "rm_b2b_high_low",
+          "branch_name": "Branch 2B — High Probability, Low Consequence",
+          "type": "recommendation",
+          "condition": "Risk occurs frequently but individual impact is low — manageable through reduction",
+          "notes": "Treatment: Reduce — limit the exposure and volume of the activity to minimise the likelihood and potential loss. Reduction tactics: (1) Process controls — documented procedures that catch errors before they escalate; (2) Frequency reduction — how often does the business engage in the activity? Can it be batched, scheduled, or rate-limited? (3) Exposure caps — set a ceiling on the maximum value or volume at risk at any one point; (4) Early warning systems — KPIs and dashboards that flag the risk materialising before it compounds. A high-frequency/low-consequence risk that is not controlled can become a high-frequency/medium-consequence risk over time through accumulation or complacency. Monitor residual risk after reduction controls are in place. Assign a Risk Owner. Build a review date into the action plan.",
+          "templates": [
+            "Formal Risk Management"
+          ]
+        },
+        {
+          "id": "rm_b2c_low_high",
+          "branch_name": "Branch 2C — Low Probability, High Consequence",
+          "type": "recommendation",
+          "condition": "Risk is unlikely but would be catastrophic if it occurred — primary insurance/transfer territory",
+          "notes": "Treatment: Transfer — share or completely shift the risk by purchasing insurance, using a cooperative, or securing a guarantee of limited liability. Insurance is the primary tool for this quadrant: paying a premium separates the risk from the business and transfers the financial consequence to a third-party pool (a principle dating to 14th-century Genoa). Key insurance categories to review: Public/Product Liability (third-party injury or loss); Professional Indemnity (advice-based errors/omissions); Business Interruption (revenue loss from operational shutdown); Cyber/Data Breach; Key Person (loss of revenue-critical individual); Property and Equipment; Directors and Officers (D&O). The logic: even a 1% probability of a $1M loss justifies a premium if the business cannot absorb that loss. Transfer does not eliminate the risk — the Residual Risk shifts to the insurer; the business retains the deductible and any exclusions. Establish contingency and disaster recovery plans as a secondary control alongside transfer. Review coverage annually as the business risk profile changes.",
+          "templates": [
+            "Formal Risk Management"
+          ]
+        },
+        {
+          "id": "rm_b2d_low_low",
+          "branch_name": "Branch 2D — Low Probability, Low Consequence",
+          "type": "recommendation",
+          "condition": "Risk is within acceptable tolerance — Accept and monitor",
+          "notes": "Treatment: Accept — undertake the risk as currently assessed without active treatment. This is a deliberate, documented decision — not an oversight. Acceptance is appropriate when: the cost of treatment exceeds the expected value of the loss; the risk is within the organisation's stated risk appetite; controls already in place are adequate. Acceptance requires: (1) formal documentation that the risk was reviewed and accepted — protects against later claims of negligence; (2) a monitoring mechanism — even accepted risks must be watched; if probability or consequence changes, the acceptance decision must be revisited; (3) a review date — risk profiles change. Risk management is not a one-time exercise. Assign a Risk Owner even for accepted risks — someone must be watching.",
+          "templates": [
+            "Formal Risk Management"
+          ]
+        },
+        {
+          "id": "rm_b3_incident",
+          "branch_name": "Branch 3 — Risk Event Has Occurred or Is Imminent",
+          "type": "question",
+          "condition": "A specific risk event has occurred or is immediately threatening",
+          "question": "Has the event already happened, or is it a developing situation you can still get ahead of?",
+          "notes": "Incident response sequence: (1) Contain — stop the bleeding. What immediate action prevents the consequence from worsening? (2) Assess — what is the actual consequence now that it has occurred? How does this compare to the anticipated consequence from the risk register? (3) Treat — apply the pre-determined treatment (if one exists) or select one now using Accept/Avoid/Reduce/Transfer logic. (4) Communicate — notify relevant stakeholders. Who needs to know: clients, staff, insurers, regulators, directors? Timing matters: late disclosure often worsens reputational and legal consequences. (5) Review — once stabilised, conduct a root cause analysis. Was this risk previously identified? If not, why not? If yes, why did the treatment fail? Update the risk register and controls. Contingency and disaster recovery plans should be triggered immediately where they exist. If no plan exists, the absence of one is now itself a risk to document and treat.",
+          "branches": [
+            {
+              "answer_pattern": "event has already occurred — in response and recovery mode",
+              "next_node": "rm_b3a_response"
+            },
+            {
+              "answer_pattern": "event is developing — can still act to prevent or reduce impact",
+              "next_node": "rm_b3b_imminent"
+            }
+          ]
+        },
+        {
+          "id": "rm_b3a_response",
+          "branch_name": "Branch 3A — Post-Incident Response",
+          "type": "recommendation",
+          "condition": "Risk event has occurred — managing consequence and recovery",
+          "notes": "Immediate priorities: (1) Notify insurer immediately if an insurable event — late notification can void a claim; (2) Engage the Risk Owner for this risk category to coordinate response; (3) Document everything from this point — a contemporaneous record protects against later legal or regulatory challenge; (4) Assess residual risk — what further harm is still possible and what controls are now needed? Post-incident review: conduct a structured debrief once the crisis is stabilised. Root cause analysis (5 Whys) to find the fundamental source. Update the risk register: consequence and probability assumptions may need revision. Formal Risk Management runs the post-incident framework and rebuilds the risk register.",
+          "templates": [
+            "Formal Risk Management"
+          ]
+        },
+        {
+          "id": "rm_b3b_imminent",
+          "branch_name": "Branch 3B — Imminent Risk, Preventive Action",
+          "type": "recommendation",
+          "condition": "Risk event is developing — preventive action is still possible",
+          "notes": "Preventive action sequence: (1) Escalate immediately to the Risk Owner and decision-makers — this is not a time for committee; (2) Apply the treatment strategy from the risk register if one exists. If not, select from: Avoid (cease the activity now), Reduce (limit further exposure immediately), Transfer (notify insurer, engage legal). (3) Engage the contingency plan if one exists. (4) Communicate early to stakeholders — managing expectations early reduces reputational damage. (5) Document the developing situation in real time. The cost of preventive action is almost always less than the cost of recovery after the fact.",
+          "templates": [
+            "Formal Risk Management"
+          ]
+        },
+        {
+          "id": "rm_b4_insurance",
+          "branch_name": "Branch 4 — Insurance and Transfer Review",
+          "type": "question",
+          "condition": "Client wants to review insurance coverage or the Transfer strategy",
+          "question": "Are you reviewing insurance because you think you may be underinsured, because something has changed in the business, or because you've never properly mapped your insurance needs against your actual risk exposures?",
+          "notes": "Insurance is the primary Transfer mechanism — paying a premium shifts the financial consequence of a risk event to a third-party pool. The transfer does not eliminate the risk; it separates the business from the financial consequence. Residual risk remains: the deductible, policy exclusions, and any risks that are uninsurable. Insurance review checklist: (1) Risk profile change — has the business grown, changed activities, added new products/services, taken on contracts with new liability clauses, or hired key staff? All change the risk profile. (2) Coverage gaps — are all high-consequence risk categories covered? Common gaps: cyber liability, professional indemnity for new service lines, business interruption adequacy, key person. (3) Policy exclusions — what does the policy NOT cover? Advisors must understand exclusions before a claim, not after. (4) Adequacy of coverage limits — is the insured amount still sufficient given current revenue, assets, and client contract values? (5) Other Transfer tools beyond insurance: contractual limitation of liability clauses, subcontracting high-risk components to licensed specialists, cooperative risk pooling arrangements. Annual review is the minimum frequency; review at every material business change.",
+          "branches": [
+            {
+              "answer_pattern": "insurance gaps or coverage adequacy confirmed — ready to build action plan",
+              "next_node": "rm_action_plan"
+            }
+          ]
+        },
+        {
+          "id": "rm_b5_compliance",
+          "branch_name": "Branch 5 — Compliance or Governance-Driven Risk Requirement",
+          "type": "recommendation",
+          "condition": "A regulatory, legal, or governance obligation is driving the need for a formal risk framework",
+          "notes": "Compliance-driven risk management is not optional — it must be documented, evidenced, and reviewed on a schedule. The ISO 31000 framework is the international standard that satisfies most regulatory requirements. Key requirements for compliance-grade risk management: (1) Documented risk register with named Risk Owners; (2) Evidence of the Heatmap evaluation process; (3) Treatment strategies recorded for each risk above tolerance; (4) Formal Action Plan with tasks, owners, and timelines; (5) Contingency and disaster recovery plans for identified catastrophic risks; (6) Monitoring and review schedule — regulators expect ongoing evidence of oversight, not a one-time document. Internal context to document: governance structure, organisational capabilities, culture. External context: applicable legislation and regulations, industry standards, stakeholder expectations, legal trends. Formal Risk Management template builds this full documented framework. Where the governance structure itself is part of the risk — e.g., director liability, board oversight gaps — connect to the Governance logic tree.",
+          "templates": [
+            "Formal Risk Management"
+          ]
+        },
+        {
+          "id": "rm_action_plan",
+          "branch_name": "Action Plan — Treatment, Ownership, and Residual Risk",
+          "type": "recommendation",
+          "condition": "Risk treatment strategy is selected — now build the formal action plan",
+          "notes": "Step 5 — Develop the Action Plan. For every risk above tolerance, the action plan must specify: (1) Task — the specific control or treatment action to be implemented; (2) Risk Owner — the designated person with authority AND accountability to manage this risk. Not a committee; one named individual; (3) When — a specific deadline, not a vague timeframe; (4) Contingency Plan — if the primary treatment fails, what happens next? (5) Disaster Recovery Plan — for catastrophic risks, what is the step-by-step recovery sequence? After controls are implemented: measure the Residual Risk — the remaining level of risk after all treatments are applied. If residual risk is still above tolerance, the treatment is insufficient and must be escalated (add controls, increase transfer coverage, or Avoid). Build a review date into every risk — a risk register without a review date is not a risk management system, it is a historical document. Risk management is continuous: the risk profile changes as the business evolves, regulations shift, and market conditions change.",
+          "templates": [
+            "Formal Risk Management"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "valuation",
+      "name": "Business Valuation",
+      "description": "Guides advisors through business sale assessments: seller pricing (6-step Advisor-e methodology, 3-point sensitivities), buyer evaluation (bankability, goodwill payback), and exit preparation (building value before sale).",
+      "entry_triggers": [
+        "business valuation",
+        "sell the business",
+        "business sale",
+        "exit strategy",
+        "exit plan",
+        "goodwill",
+        "EBITDA",
+        "EBPITDA",
+        "add backs",
+        "super profit",
+        "payback period",
+        "goodwill payback",
+        "bankable",
+        "what is my business worth",
+        "business worth",
+        "asking price",
+        "purchase price",
+        "business multiplier",
+        "profit multiplier",
+        "notional market value",
+        "fair market value",
+        "business for sale",
+        "buying a business",
+        "business acquisition",
+        "serviceability",
+        "performance variance",
+        "adjusted net profit",
+        "tangible assets",
+        "intangible assets",
+        "key person dependency",
+        "succession planning",
+        "business transfer",
+        "sale readiness"
+      ],
+      "nodes": [
+        {
+          "id": "val_preassess",
+          "branch_name": "Pre-Assessment Gate",
+          "type": "assessment",
+          "condition": "Before asking anything — determine whether this is a seller, buyer, or exit preparation conversation",
+          "notes": "Core philosophy: place the seller in the 'negotiation seat' of the purchaser. A business is worth what a buyer can fund, not what a seller believes. The underlying method is Asset-Based: Tangible Assets (plant, machinery, equipment) + Intangible Assets (goodwill, patents, trademarks, brand) — but simply adding assets and applying a profit multiplier is insufficient and leads to overvaluation. The Advisor-e framework tests every valuation against 3-Point Sensitivities: (1) Serviceability — can the purchaser finance it? (Best Funding Calcs + interest rate risk); (2) Goodwill Repayment Period — how long to repay the goodwill component from super profits? (<3 years = Good, 3-5 = Normal, >5 = Be Careful); (3) Performance Variance — are projected net profits within a defined variance? Unrealized gains can only be included within strict limits and must be justified with specific actions and timelines. Critical distinction: EBPITDA (Earnings Before Proprietor's Income, Interest, Tax, Depreciation & Amortised Expenses) = used when buyer is hands-on / 'buying a job'. EBITDA = used for passive investors looking at distributable free cash flow only. Industry multiplier trap: published EBPIDT multiples often INCLUDE the value of tangible assets and stock — applying this multiple to goodwill alone double-counts assets and produces hyperinflated values.",
+          "branches": [
+            {
+              "answer_pattern": "client is the seller — wants to know what their business is worth or how to price it for sale",
+              "next_node": "val_b1_seller"
+            },
+            {
+              "answer_pattern": "client is the buyer — evaluating a business to acquire and needs to assess if the price is fair",
+              "next_node": "val_b2_buyer"
+            },
+            {
+              "answer_pattern": "client wants to exit in the future — preparing the business to maximise sale value",
+              "next_node": "val_b3_exit_prep"
+            }
+          ]
+        },
+        {
+          "id": "val_b1_seller",
+          "branch_name": "Branch 1 — Seller: What Is My Business Worth?",
+          "type": "question",
+          "condition": "Client wants to value their own business for a potential sale",
+          "question": "Before we run the numbers — do you have up-to-date financials (P&L and balance sheet) and a list of your business assets ready, or do we need to start by gathering that information?",
+          "notes": "Step 1 — Gather Core Financial and Operational Data: Balance sheet, profit and loss statements (ideally 3 years), and a comprehensive asset list. Also conduct a business overview: who are the competitors, which key personnel does the business depend on, what are the main threats, and what are the supplier relationships? This operational context is as important as the numbers — buyers price risk, not just profit. Step 2 — Calculate Adjusted Net Profit (Cash Surplus): Start with net profit and ADD BACK all expenses peculiar to the current vendor that a new owner would not incur. Common Add Backs: depreciation, interest, personal legal fees, owner's wages (if above market rate or not replaced), personal sponsorships, excessive vehicle costs, family payroll. The result is the true 'free cash flow' available to a buyer. Choose EBPITDA if the buyer will work in the business; EBITDA if the buyer is a passive investor.",
+          "branches": [
+            {
+              "answer_pattern": "financials are available — ready to calculate adjusted net profit",
+              "next_node": "val_b1_assets"
+            }
+          ]
+        },
+        {
+          "id": "val_b1_assets",
+          "branch_name": "Branch 1A — Assets and Super Profit",
+          "type": "question",
+          "condition": "Adjusted net profit is calculated — now assess assets and derive super profit",
+          "question": "Let's separate out what we're actually selling. Walk me through the tangible assets, stock and materials, and intangible assets — and then we'll work out what the super profit is.",
+          "notes": "Step 3 — Assess Assets and Super Profits: Separate the business into three categories: (1) Tangible Assets — physical items: plant, equipment, vehicles, fit-out. Value at market/replacement value, not book value; (2) Stock and Materials — valued at cost; (3) Intangible Assets — goodwill (customer relationships, brand, reputation), patents, trademarks, intellectual property, systems. Super Profit Calculation: Super Profit = Adjusted Net Profit (EBPITDA or EBITDA) MINUS the Minimum Acceptable Cash Surplus. The Minimum Acceptable Cash Surplus must cover: (a) A fair labour rate for the working owner — what would it cost to hire someone to replace them? (b) A basic return on invested funds — equivalent to current bank deposit rate on the purchase price; (c) A risk premium — compensation for the risk of owning a business vs a bank deposit; (d) Asset replacement reserves — provision for replacing depreciating assets. Super Profit is the earnings that remain after these baseline requirements are satisfied. It is the engine that powers the Goodwill Payback Period calculation.",
+          "branches": [
+            {
+              "answer_pattern": "assets categorised and super profit calculated — ready to apply the 3-point sensitivities",
+              "next_node": "val_b1_sensitivities"
+            }
+          ]
+        },
+        {
+          "id": "val_b1_sensitivities",
+          "branch_name": "Branch 1B — Apply the 3-Point Sensitivities",
+          "type": "question",
+          "condition": "Super profit is known — now test the proposed price against the three reality checks",
+          "question": "We've got the super profit figure. Now let's test the asking price against the three sensitivities — payback period, serviceability, and performance variance. What is the proposed asking price, and how much of it is goodwill?",
+          "notes": "Sensitivity 1 — Goodwill Payback Period: Goodwill Price ÷ Annual Super Profit = Years to repay. Benchmarks: under 3 years = GOOD; 3-5 years = NORMAL; over 5 years = BE CAREFUL. This is the clearest test of whether goodwill is priced fairly. A >5 year payback means the buyer is taking a speculative position, not a commercial one. Sensitivity 2 — Serviceability (Best Funding Calcs): Structure a hypothetical loan: what would the monthly repayments be at current interest rates on the full purchase price (or the funded portion)? Subtract: loan interest + principal repayments + tax + non-cash depreciation from the adjusted earnings. Is there still surplus cash for the owner? If not, the price is NOT BANKABLE regardless of how high the headline revenue is. Include an interest rate stress test — what happens if rates rise by 2%? Sensitivity 3 — Performance Variance: If the asking price relies on projected future profits rather than historical actuals, is the projection within the defined variance? Unrealized gains CAN be included but the seller must be able to identify: exactly what financial performance is yet to be realised; the specific timeframe to achieve it; the exact actions or personnel required. Vague growth projections that cannot be substantiated fail this sensitivity.",
+          "branches": [
+            {
+              "answer_pattern": "all three sensitivities pass — price is bankable and goodwill is justified",
+              "next_node": "val_b1_other"
+            },
+            {
+              "answer_pattern": "one or more sensitivities fail — price needs adjustment or additional justification",
+              "next_node": "val_b1_price_adjust"
+            }
+          ]
+        },
+        {
+          "id": "val_b1_price_adjust",
+          "branch_name": "Branch 1B(i) — Sensitivity Failure: Price Adjustment Required",
+          "type": "question",
+          "condition": "One or more sensitivities have failed — need to identify which and adjust",
+          "question": "Which sensitivity is failing — is the goodwill payback period too long, the serviceability not working at the proposed price, or the performance variance not justifiable?",
+          "notes": "Goodwill Payback >5 years: the goodwill price is too high. Options: (1) Reduce the goodwill component to bring payback under 5 years; (2) Justify the premium with specific, evidenced factors that de-risk the purchase (locked-in contracts, recurring revenue, documented systems, long-term leases); (3) Restructure the deal — vendor finance, earnout arrangements, deferred consideration tied to performance milestones. Serviceability failure: the total purchase price exceeds what the cash surplus can service at a reasonable loan structure. Options: (1) Reduce the total price; (2) Restructure the deal to reduce the amount requiring third-party finance (larger vendor finance component, equity contribution from buyer); (3) Improve the adjusted net profit by identifying further legitimate Add Backs. Performance Variance failure: projected profits are speculative and unsubstantiated. Options: (1) Remove unrealised gains from the valuation and price on actuals only; (2) Structure an earnout — a portion of the price is only paid if specified future performance milestones are achieved. Industry multiplier trap: if the seller has used a published EBPIDT multiple applied to the entire business — including assets and stock — the value is inflated because assets are being charged twice. Correct by applying the multiplier to goodwill ONLY and adding tangible assets and stock separately.",
+          "branches": [
+            {
+              "answer_pattern": "price adjusted or deal restructured — sensitivities now pass",
+              "next_node": "val_b1_other"
+            }
+          ]
+        },
+        {
+          "id": "val_b1_other",
+          "branch_name": "Branch 1C — Other Issues and Indicators",
+          "type": "question",
+          "condition": "Financial sensitivities pass — now review qualitative sale risks",
+          "question": "The numbers stack up. Now let's look at the sale risk factors — how transferable is the goodwill, what does the lease situation look like, and are there staff retention provisions?",
+          "notes": "Step 5 — Other Issues and Indicators: These qualitative factors directly affect sale risk and buyer confidence, even when the financial model is sound. (1) Goodwill Transferability: Is the business's goodwill attached to the owner personally (relationships, reputation, key client contacts) or to the business itself (brand, systems, contracts, recurring revenue)? Personal goodwill is the highest sale risk — a buyer is paying for something that walks out the door with the seller. Mitigation: vendor transition period, documented systems, staff continuity, key client introductions. (2) Staff Retention: Do employment agreements include retention clauses for key personnel? Key staff leaving post-sale can destroy goodwill value rapidly. (3) Lease Terms: Does the current premises lease offer favourable rollover terms without hidden reinstatement liabilities? A short remaining lease term or a landlord who can refuse assignment are significant sale obstacles. Reinstatement clauses (returning premises to original condition) can represent a large undisclosed liability. (4) Additional Working Capital: The buyer will need capital from day one. Typical provision: a 45-day trading reserve on top of the purchase price. This must be factored into the buyer's total funding requirement for the serviceability test.",
+          "branches": [
+            {
+              "answer_pattern": "qualitative factors reviewed — ready to establish the indicative value range",
+              "next_node": "val_b1_range"
+            }
+          ]
+        },
+        {
+          "id": "val_b1_range",
+          "branch_name": "Branch 1D — Indicative Value Range",
+          "type": "recommendation",
+          "condition": "All steps complete — establish the indicative valuation range",
+          "notes": "Step 6 — Establish the Indicative Value Range: Use the adjusted earnings and an appropriate risk-adjusted multiplier to produce three valuation scenarios: Low (conservative — discounted for risk factors identified in Step 5), Average (market-rate — assumes normal risk profile), High (optimistic — assumes risk factors mitigated and performance variance justified). Final Assessment Value = Goodwill Component + Intangible Assets + Tangible Assets + Stock and Materials. The assessment value is an INDICATIVE RANGE, not a fixed price. Notional Market Value vs Fair Market Value: open markets fluctuate due to speculation, sentiment, and incomplete information. The notional market assumes rational actors. Business valuers must not apply open market benchmark multiples directly to a specific business — no two businesses are identical. The Advisor-e framework produces a notional market value: what a rational, informed buyer would pay given complete information. Run Business Sale Assessment 1 first (initial assessment and Add Backs), then Sale Assessment Model 2 (asset breakdown and super profit), then Sale Assessment Report 3 (final indicative range and sensitivities output). EBITDA template supports the adjusted net profit calculation.",
+          "templates": [
+            "Business Sale Assessment 1",
+            "Sale Assessment Model 2",
+            "Sale Assessment Report 3",
+            "EBITDA"
+          ]
+        },
+        {
+          "id": "val_b2_buyer",
+          "branch_name": "Branch 2 — Buyer: Is This Business Worth Acquiring?",
+          "type": "question",
+          "condition": "Client is evaluating a business to purchase — assessing whether the asking price is fair and fundable",
+          "question": "To assess this acquisition properly — do you have the seller's financials, a breakdown of what the purchase price includes (goodwill, assets, stock), and an understanding of what your total funding requirement would be including working capital?",
+          "notes": "The buyer's assessment uses the same 3-Point Sensitivities but from the opposite seat. The buyer's primary questions: (1) Can I fund it? — Serviceability test: structure the loan, calculate monthly repayments, subtract from adjusted earnings, confirm there is surplus cash after debt service. Include a 2% interest rate stress test. Add the 45-day working capital reserve to the total funding requirement. (2) Am I paying a fair price for goodwill? — Goodwill Payback Period: calculate the Super Profit, divide goodwill asking price by super profit. Under 3 years = Good. Over 5 years = Be Careful. (3) Are the projections believable? — Performance Variance: if the asking price relies on future profits, demand specific evidence: what exactly will generate the growth, what is the timeline, who will execute it? Buyer's due diligence priorities: Are key staff locked in? Can the landlord block or restrict the lease transfer? What personal goodwill is attached to the selling owner — and what is the vendor transition plan? Have all Add Backs been correctly identified — or are some recurring costs that a new owner will face? Has the industry multiplier been correctly applied to goodwill only, not the whole business? If assets and stock are included in the headline multiple, the goodwill is being double-charged.",
+          "branches": [
+            {
+              "answer_pattern": "financials reviewed and sensitivities applied — ready to assess the acquisition",
+              "next_node": "val_b2_decision"
+            }
+          ]
+        },
+        {
+          "id": "val_b2_decision",
+          "branch_name": "Branch 2A — Buyer Acquisition Decision",
+          "type": "recommendation",
+          "condition": "Buyer has applied the sensitivities — now make the recommendation",
+          "notes": "Bankable and fair: Serviceability passes, goodwill payback under 5 years, performance variance justified. Proceed with full due diligence. Negotiate on identified risk factors (goodwill transferability, lease, staff retention). Structure the deal to include a vendor transition period and, where projections are relied upon, an earnout tied to actual performance milestones. Not bankable or overpriced: Serviceability fails OR goodwill payback >5 years without clear risk mitigation OR performance variance not substantiated. Options: (1) Negotiate price reduction to bring all three sensitivities within range; (2) Request a vendor-finance component to reduce third-party loan requirement; (3) Propose an earnout structure — base price on actuals, with additional consideration if projected performance is achieved within a defined period; (4) Walk away — if the seller will not adjust and the sensitivities cannot be made to work, the price is speculative, not commercial.",
+          "templates": [
+            "Business Sale Assessment 1",
+            "Sale Assessment Model 2",
+            "Sale Assessment Report 3",
+            "EBITDA"
+          ]
+        },
+        {
+          "id": "val_b3_exit_prep",
+          "branch_name": "Branch 3 — Exit Preparation: Building Value Before Sale",
+          "type": "question",
+          "condition": "Client plans to sell in the future — preparing the business to maximise sale value",
+          "question": "Let's identify what is currently holding the value down. If we ran the valuation today — which of the three sensitivities do you think would cause the most concern: the goodwill payback period, the serviceability, or the performance story?",
+          "notes": "Exit preparation is about systematically removing the risk factors that depress valuation and strengthen the factors that support it. The three value levers: (1) Increase Adjusted Net Profit — review Add Backs to confirm the financial picture is as clean as possible. Are there owner-specific expenses currently hidden in costs that should be legitimately added back? Is the owner's wage correctly benchmarked to market rate? Is depreciation correctly applied? A higher adjusted net profit directly increases both the valuation range AND the serviceability test. (2) Improve Goodwill Transferability — the highest value businesses are those where the goodwill is attached to the BUSINESS, not the owner. Actions: document all systems and processes (systemise before you sell); build a management team that can run the business without the owner; convert personal client relationships to business relationships through CRM, communication trails, and documented account management; build recurring revenue and contracted income. (3) Address Structural Sale Risks — negotiate a long-term lease with favourable rollover terms before going to market. Implement staff retention agreements for key personnel. Clear any reinstatement liabilities in the lease. Build a 45-day working capital buffer into the balance sheet. Timeline: exit preparation typically takes 2-3 years to meaningfully shift valuation. Advisors who engage clients on exit preparation early create significant long-term advisory value.",
+          "branches": [
+            {
+              "answer_pattern": "primary constraint is profitability — adjusted net profit needs to improve",
+              "next_node": "val_b3_profit"
+            },
+            {
+              "answer_pattern": "primary constraint is goodwill risk — business is too dependent on the owner",
+              "next_node": "val_b3_goodwill"
+            },
+            {
+              "answer_pattern": "primary constraint is structural — lease, staff, or working capital issues",
+              "next_node": "val_b3_structural"
+            }
+          ]
+        },
+        {
+          "id": "val_b3_profit",
+          "branch_name": "Branch 3A — Improving Adjusted Net Profit",
+          "type": "recommendation",
+          "condition": "Client's valuation is limited by low adjusted net profit — needs to improve earnings",
+          "notes": "Adjusted net profit is the foundation of every valuation metric. Increasing it by $50,000 can shift the goodwill value by $150,000-$250,000 on a 3-5x multiplier, while simultaneously improving the serviceability and payback period. Actions: (1) Complete a full Add Backs review — ensure every legitimate owner-specific expense is identified and documented; (2) Benchmark owner's wage to market rate — if the owner is being paid above market, the Add Back is legitimate; if below, future buyers will add the shortfall back as a cost; (3) Review product/service mix — shift revenue toward higher-margin lines to grow gross profit without growing costs; (4) Review fixed cost structure — unnecessary fixed costs directly reduce net profit with no Add Back benefit; (5) Build 2-3 years of clean, consistent profit history — buyers discount volatile or single-year profit spikes. The EBITDA template supports adjusted net profit calculation and Add Back documentation.",
+          "templates": [
+            "EBITDA",
+            "Business Sale Assessment 1"
+          ]
+        },
+        {
+          "id": "val_b3_goodwill",
+          "branch_name": "Branch 3B — Reducing Goodwill Transferability Risk",
+          "type": "recommendation",
+          "condition": "Business value is concentrated in the owner — goodwill will not transfer without them",
+          "notes": "Personal goodwill is the largest single discount factor in any business sale. A buyer paying for goodwill that leaves with the seller is taking a speculative risk, and will either refuse to pay for it or demand a long vendor earnout tied to client retention. Building transferable goodwill: (1) Systemise — document every core process. A buyer must be able to see how the business runs without relying on the owner's knowledge. Use Process Session to map and document systems; (2) Build management depth — if the owner is the only decision-maker, the business cannot run post-sale. Develop a management layer that operates independently; (3) Convert client relationships — move client relationships from owner-personal to business-systemic: CRM records, service agreements, communication trails, account management by staff not just the owner; (4) Build recurring revenue — contracted, subscription, or retainer income that survives an ownership change is worth a premium multiple; (5) Create a transition plan — buyers value a structured vendor transition period (6-12 months) that transfers knowledge and relationships systematically.",
+          "templates": [
+            "Business Sale Assessment 1",
+            "Sale Assessment Model 2"
+          ]
+        },
+        {
+          "id": "val_b3_structural",
+          "branch_name": "Branch 3C — Addressing Structural Sale Risks",
+          "type": "recommendation",
+          "condition": "Lease terms, staff agreements, or working capital are creating sale obstacles",
+          "notes": "Structural sale risks are often overlooked until a buyer's solicitor finds them during due diligence — at which point they become price chips or deal-breakers. Address them before going to market. Lease: negotiate a new long-term lease with at least 3-5 years remaining plus renewal options before listing. Confirm the landlord will consent to lease assignment to a new owner. Identify and quantify any reinstatement obligations (cost to return premises to original condition) — these are real liabilities that buyers will deduct from their offer. Staff Agreements: implement written employment contracts with key staff including reasonable notice periods. Where appropriate, add retention bonuses tied to a successful sale and post-settlement employment for a defined period. Key person dependency is a valuation risk — cross-train wherever possible. Working Capital: build a 45-day trading reserve into the balance sheet before sale. Buyers need to fund working capital on top of the purchase price; if the business has no cash buffer, buyers will either reduce their offer or require vendor finance to cover the working capital requirement.",
+          "templates": [
+            "Business Sale Assessment 1",
+            "Sale Assessment Report 3"
+          ]
+        }
+      ]
     }
-
   ]
 }

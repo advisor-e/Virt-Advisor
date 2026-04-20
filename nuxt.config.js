@@ -54,8 +54,6 @@ export default {
   },
 
   watchers: {
-    webpack: {
-      poll: 1000
-    }
+    webpack: {}
   }
 }
