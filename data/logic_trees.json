@@ -3345,6 +3345,311 @@
           ]
         }
       ]
+    },
+    {
+      "id": "succession",
+      "name": "Succession Planning",
+      "description": "Guides advisors through internal succession engagements: family business handovers, management succession, and emergency sudden-departure planning. Uses the Dream Home methodology, IFAC Value Preservation lifecycle, ISO 22301 dual-track planning, and OECD governance principles.",
+      "entry_triggers": [
+        "succession planning",
+        "succession plan",
+        "family succession",
+        "family business handover",
+        "business handover",
+        "pass on the business",
+        "hand over the business",
+        "next generation",
+        "family buyout",
+        "management buyout",
+        "who takes over",
+        "successor",
+        "leadership transition",
+        "owner retiring",
+        "key person",
+        "sudden departure",
+        "emergency succession",
+        "9-box grid",
+        "9 box grid",
+        "family constitution",
+        "ownership transfer",
+        "sibling equity",
+        "salary sacrifice",
+        "underpaid successor",
+        "dream home methodology"
+      ],
+      "nodes": [
+        {
+          "id": "succ_preassess",
+          "branch_name": "Pre-Assessment Gate",
+          "type": "assessment",
+          "condition": "Before asking anything — determine the nature and urgency of the succession conversation",
+          "notes": "Note: if the discussion is about selling to an external third party, redirect to the Valuation logic tree. Succession applies to internal handovers: family, management, or key staff. Three distinct conversation types exist and each requires a different entry path: (1) Family succession — an owner handing the business to a family member (child, spouse, sibling). Emotionally complex, legally intricate, high conflict risk. Use the Dream Home methodology. (2) Management or key staff succession — an identified internal candidate (non-family) being developed to take over a role or the whole business. Less emotionally charged but requires a rigorous development framework. (3) Emergency-only succession — no active succession plan exists, owner wants to establish a 'sudden departure' safety net for the business. ISO 22301 dual-track planning applies. Core philosophy (from the Argumentative Theory of psychology): humans under succession stress default to self-interest arguments. A structured framework is essential because it secures agreement on how the problem will be broken down before jumping to solutions, which prevents defensive conflict. The advisor's role is facilitation, not advice — let go of a predetermined outcome and chair the discussion instead.",
+          "branches": [
+            {
+              "answer_pattern": "family member will be the successor — this is a family business handover",
+              "next_node": "succ_b1_readiness"
+            },
+            {
+              "answer_pattern": "management or key staff member is the identified successor — internal non-family succession",
+              "next_node": "succ_b2_candidate"
+            },
+            {
+              "answer_pattern": "no succession plan in place — need a sudden departure or business continuity safety net only",
+              "next_node": "succ_b3_emergency"
+            }
+          ]
+        },
+        {
+          "id": "succ_b1_readiness",
+          "branch_name": "Branch 1 — Family Succession: Incumbent Readiness",
+          "type": "question",
+          "condition": "This is a family succession — assess whether the incumbent has begun thinking about life after the business",
+          "question": "Before we get into the detail — has [owner] had a genuine chance to think about what life after the business looks like for them personally? Or are we still at the very beginning of that conversation?",
+          "notes": "This is the most important gate in any succession engagement. The greatest single predictor of failure is an incumbent who agrees to succession intellectually but has not emotionally processed the loss of identity, purpose, and relevance that business exit brings. Indicators the incumbent is NOT ready: vague timelines ('sometime in the next few years'), reluctance to let successors make decisions, micromanaging the handover process, repeated reversion to 'I'm not ready yet'. If NOT ready: do not proceed to the wish list meetings — premature structured planning before emotional readiness solidifies conflict. Instead, use discovery questions to surface what the business gives the owner beyond income (identity, purpose, community, structure) and discuss what replaces those needs post-exit. A structured Initial Discovery Questionnaire directed at the incumbent — exploring their vision of life after business, financial requirements, and legacy goals — is the appropriate starting point. This creates a private baseline readiness report before formal meetings begin. If READY: proceed to the separate wish list meetings (Steps 2 and 3).",
+          "branches": [
+            {
+              "answer_pattern": "incumbent has thought about this and is emotionally ready to begin the process",
+              "next_node": "succ_b1_wishlist"
+            },
+            {
+              "answer_pattern": "incumbent has not fully processed what life after business looks like — not emotionally ready",
+              "next_node": "succ_b1_not_ready"
+            }
+          ]
+        },
+        {
+          "id": "succ_b1_not_ready",
+          "branch_name": "Branch 1A — Incumbent Not Ready: Initial Discovery",
+          "type": "recommendation",
+          "condition": "Incumbent has not emotionally processed the transition — premature planning will backfire",
+          "notes": "Step 1 of the Dream Home Methodology: Initial Discovery. Direct the incumbent to an introductory digital questionnaire before any formal meetings begin. Key questions to explore: What will you do with your time? What will give you purpose? What income do you need in retirement, and for how long? What does your ideal handover timeline look like? What do you want the business legacy to be? The questionnaire output becomes a private baseline readiness report — the advisor reviews it before any family meeting. This protects the process: walking into a family succession meeting with an unready incumbent typically produces an emotionally charged first session that entrenches positions rather than building alignment. The visual metaphor to use with clients: frame the succession journey as building a dream home. Just as an architect wouldn't start drawing plans before understanding the family's lifestyle and requirements, the advisor cannot design a succession plan before understanding what the incumbent is stepping into, not just stepping out of.",
+          "templates": [
+            "Succession Plan"
+          ]
+        },
+        {
+          "id": "succ_b1_wishlist",
+          "branch_name": "Branch 1B — Wish List Meetings: Incumbents and Successors Separately",
+          "type": "question",
+          "condition": "Incumbent is ready — now capture wishes from both parties separately before any joint meeting",
+          "question": "Have we had a chance to meet with the owners and successors separately yet, or are we jumping straight into a joint conversation?",
+          "notes": "Steps 2 and 3 of the Dream Home Methodology — conduct these as SEPARATE meetings, NEVER jointly at this stage. Step 2 — The Parents' Wish List: Meet with the incumbents only. Capture: (1) Family considerations — what is fair and why? Which family members are involved and on what basis? (2) Financial requirements — what retirement income is needed, what debts are being cleared, what lifestyle is expected? (3) Successor expectations — what does the incumbent expect from the successor going forward? What is non-negotiable? Step 3 — The Successors' Wish List (Kids' Wish List): Meet with the successors only. Capture: (1) Their vision for the business — what do they want to change, grow, or protect? (2) Their financial position — what can they realistically afford? What does the handover cost them personally? (3) Their expectations of the incumbents post-succession — ongoing involvement, advisory roles, complete exit? Critical confidentiality rule: if there is family disharmony, keep both wish list documents completely separate and hidden from the other party until the Concept Meeting (Step 4). Premature disclosure of wish lists in a high-conflict family context triggers the Argumentative Theory dynamic — stakeholders entrench into their stated positions and negotiation becomes adversarial rather than collaborative.",
+          "branches": [
+            {
+              "answer_pattern": "both wish list meetings completed — ready to bring parties together for the concept meeting",
+              "next_node": "succ_b1_financial"
+            },
+            {
+              "answer_pattern": "wish list meetings not yet done — starting here",
+              "next_node": "succ_b1_wishlist"
+            },
+            {
+              "answer_pattern": "family disharmony exists between siblings — need to manage confidentiality before proceeding",
+              "next_node": "succ_b1_sibling_dynamics"
+            }
+          ]
+        },
+        {
+          "id": "succ_b1_sibling_dynamics",
+          "branch_name": "Branch 1B(i) — Sibling Dynamics: Managing Family Disharmony",
+          "type": "recommendation",
+          "condition": "Active family disharmony exists between siblings or family members involved in the succession",
+          "notes": "IF there is current family disharmony between siblings, THEN keep the Kids' Wish List document completely hidden from all other parties until the Concept Meeting. This is not optional — premature disclosure of the successors' wish list in a high-conflict family context will cause stakeholders to entrench into defensive positions before the collaborative framework has been established. Dan Sperber's Argumentative Theory explains why: humans under stress default to arguments that serve their own survival interests. Seeing the other party's wish list before a structured facilitation context exists activates that defensive instinct and turns a wish list comparison into a negotiation battle. Practical management: store each wish list document separately with access restricted to the advisor and the relevant party only. Do not summarise, paraphrase, or reference specific items from one list in any communication with the other party. At the Concept Meeting (Step 4), the advisor controls the reveal — placing both lists on the table simultaneously in a facilitated environment where the framework for discussion has already been agreed. If the disharmony is severe enough that a joint meeting carries significant risk of breakdown: consider a structured pre-meeting with each party separately to set explicit ground rules for the Concept Meeting before bringing them together. In extreme cases, a professional family mediator should be engaged alongside the advisor. The advisor's role remains facilitation, not adjudication.",
+          "templates": [
+            "Succession Plan"
+          ]
+        },
+        {
+          "id": "succ_b1_financial",
+          "branch_name": "Branch 1C — Financial Viability Check",
+          "type": "question",
+          "condition": "Wish lists captured — before the concept meeting, run a financial viability check",
+          "question": "Before we bring the family together — do the numbers actually work? Can the successor fund the transition without it being financially crippling, and can the incumbent's retirement income requirements be met from what the business generates?",
+          "notes": "Financial viability is the most common reason family successions collapse after the relationship work has been done. Core check: (1) Transfer costs — what is the total cost of the ownership transfer? Includes: stamp duties, legal costs, valuation fees, tax liabilities (capital gains, gift duties if applicable). Are these costs manageable, or do they consume so much value that the incoming successor is immediately burdened? (2) Successor funding capacity — can the successor fund their share of the acquisition? What is the net cost to them after any discounts, gifting, or vendor finance arrangements? Is the monthly repayment burden sustainable from the business's cash flow after the succession takes effect? (3) Incumbent retirement income — does the business generate sufficient income to fund the incumbent's retirement requirements (lump sum extraction, ongoing income, superannuation arrangements) while still leaving the successor with a viable business? Use the Valuation logic tree (Business Sale Assessment framework) to establish a notional fair value before the financial viability check. Key fairness question (Q6 from succession framework): were the successors previously underpaid while building the business? If so, this underpayment may justify a discount on the transfer price — the family must discuss and agree the methodology explicitly. Use the Salary Sacrifice table to calculate the real-world income loss for a sibling or successor who was chronically underpaid or who provided personal care to ageing parents while siblings pursued external careers.",
+          "branches": [
+            {
+              "answer_pattern": "financially viable — the transfer costs are manageable and both parties' income needs can be met",
+              "next_node": "succ_b1_governance"
+            },
+            {
+              "answer_pattern": "financially problematic — transfer costs are too high, funding is unworkable, or retirement income falls short",
+              "next_node": "succ_b1_financial_fix"
+            },
+            {
+              "answer_pattern": "siblings are receiving disparate financial figures — equity methodology needs to be established",
+              "next_node": "succ_b1_disparate_value"
+            },
+            {
+              "answer_pattern": "incoming successor was chronically underpaid while building the business — sweat equity discount may apply",
+              "next_node": "succ_b1_successor_comp"
+            }
+          ]
+        },
+        {
+          "id": "succ_b1_disparate_value",
+          "branch_name": "Branch 1C(ii) — Disparate Financial Value: Sibling Equity Methodology",
+          "type": "recommendation",
+          "condition": "Siblings involved in the succession are slated to receive different financial outcomes — the methodology must be explicitly agreed",
+          "notes": "IF siblings are receiving disparate financial figures, THEN utilise the Salary Sacrifice table to calculate the real-world loss of income for those who provided elderly or family care, and document the agreed equity methodology transparently before the Concept Meeting. Disparate outcomes in family succession are common and legitimate — but only when the reason is explicit, agreed by all parties, and anchored in objective rules. Common legitimate reasons for disparate figures: (1) One sibling worked in the business for years at below-market wages — their labour contribution has an economic value that must be quantified and credited; (2) One sibling provided primary care for ageing parents, forgoing career income — the Salary Sacrifice table calculates the real-world income loss over the care period; (3) One sibling received prior financial gifts or support from the parents — these must be counted against their succession entitlement if equity is the agreed goal; (4) Siblings have different roles in the future business — an operating successor contributing ongoing labour and risk should receive different consideration than a passive recipient. The Salary Sacrifice calculation: identify the period during which the sibling was underpaid or providing care; calculate the difference between fair market rate and what was actually received or earned; this figure represents a legitimate economic claim that should be offset against their succession payment or credited as an equity adjustment. Transparency requirement: if different figures are provided to different siblings, the methodology and reasons must be thoroughly discussed and agreed by ALL parties — not unilaterally decided by the incumbent. Establishing a Family Constitution early creates the objective framework within which these calculations are accepted as fair rather than contested as arbitrary.",
+          "templates": [
+            "Succession Plan",
+            "Salary Sacrifice"
+          ]
+        },
+        {
+          "id": "succ_b1_successor_comp",
+          "branch_name": "Branch 1C(iii) — Successor Compensation: Underpayment Discount",
+          "type": "recommendation",
+          "condition": "The incoming successor was chronically underpaid relative to market rate while building the business — a purchase price discount may be warranted",
+          "notes": "IF the incoming successor was chronically underpaid while building the business, THEN negotiate whether a discount should be applied to their final purchase price to compensate for the sweat equity contributed at below-market wages. This is a distinct calculation from the Disparate Financial Value branch (which addresses sibling equity across multiple recipients). This branch applies when a single successor — typically a child who joined the business early and accepted below-market wages in exchange for a future ownership stake — is now being asked to pay a full commercial price for a business they helped build. The core question: were the wages previously paid to the successor at a fair market rate? If not, the family must quantify the cumulative shortfall. Calculation approach: (1) Identify the period during which the successor was employed at below-market wages; (2) Establish the fair market rate for an equivalent external hire in that role for each year of the period; (3) Calculate the annual shortfall (market rate minus actual wages paid); (4) Sum the total cumulative underpayment over the full period — this is the sweat equity figure; (5) The family then negotiates what portion of this figure is credited as a discount against the purchase price. There is no universal rule — some families credit 100% of the shortfall, others negotiate a partial credit. What matters is that the methodology is agreed explicitly and documented before finalising the transfer price. Connect to the Salary Sacrifice table for the calculation. Ensure the agreed discount methodology is recorded in the Family Constitution or the formal succession agreement.",
+          "templates": [
+            "Succession Plan",
+            "Salary Sacrifice"
+          ]
+        },
+        {
+          "id": "succ_b1_financial_fix",
+          "branch_name": "Branch 1C(i) — Financial Viability Fix",
+          "type": "question",
+          "condition": "The succession is not financially viable as currently structured — need to identify what is blocking it",
+          "question": "Is the problem primarily the transfer cost burden on the successor, the retirement income shortfall for the incumbent, or both?",
+          "notes": "Transfer cost burden on successor: (1) Vendor finance — the incumbent provides a loan to the successor for part of the purchase price, repaid from business distributions over time. Reduces the successor's need for third-party debt. (2) Staged acquisition — the successor acquires an agreed percentage of equity per year, funded from their share of distributions, over a 3-5 year transition. Reduces single-point financing risk. (3) Gifting component — the incumbent gifts a portion of value to the successor (tax implications must be confirmed by legal/tax advisors). (4) Discount for past underpayment — if the successor was chronically underpaid, a formally agreed and documented discount reduces the effective transfer price. Incumbent retirement income shortfall: (1) Improve business performance before succession — a more profitable business generates more extraction capacity for the incumbent AND a higher notional value for the successor. Engage the relevant performance advisory tools first. (2) Recalibrate timeline — the succession may need to be deferred by 2-3 years while the business performance improves and the incumbent builds a separate retirement fund. (3) Restructure the income arrangement — consider an ongoing consulting fee, director's fee, or profit-share arrangement where the incumbent retains an income role post-succession without retaining operational control. If neither fix is viable with current business performance, the succession should be deferred and business improvement work prioritised first.",
+          "branches": [
+            {
+              "answer_pattern": "financial structure resolved — proceed to governance discussion",
+              "next_node": "succ_b1_governance"
+            }
+          ]
+        },
+        {
+          "id": "succ_b1_governance",
+          "branch_name": "Branch 1D — Governance Structure: Ownership vs Stewardship",
+          "type": "question",
+          "condition": "Financial viability confirmed — now establish the governance framework before the concept meeting",
+          "question": "Here's a critical question for the family to answer: when the business transfers, are the new owners expected to 'own' it outright — to do with it as they choose — or are they acting as stewards, preserving it for the next generation after them?",
+          "notes": "This is one of the most emotionally loaded questions in any succession engagement and it must be answered explicitly before the concept meeting, not assumed. The OECD Principles of Corporate Governance (for family enterprises) prescribe a clear Separation of Powers between three distinct roles: (1) Ownership — who holds the economic interest and voting rights? (2) Governance — who sets the strategic direction and holds the board function? Who can override decisions? (3) Management — who runs the business day-to-day? In many family successions, the incumbent attempts to retain Governance or Management influence after transferring Ownership — this is the primary source of post-succession conflict. The conflict is predictable and preventable only if the separation is made explicit and written down. Family Constitution: the OECD strongly recommends a written Family Constitution for all family enterprise successions. The Family Constitution documents: the agreed rules for family involvement in the business; how disputes between family members will be resolved; the agreed process for future succession events; the conditions under which family members can sell or gift their interest; the rules for remuneration of family members employed in the business. A Family Constitution does not replace legal documents (shareholder agreements, wills, trusts) — it establishes the agreed family rules that sit above and guide those legal structures. Sibling equity (Q5): if multiple siblings are involved and receiving different financial arrangements, the Family Constitution must document the agreed methodology and the reasons — transparency is non-negotiable. Use the Salary Sacrifice table where siblings provided unequal labour or caregiving contributions.",
+          "branches": [
+            {
+              "answer_pattern": "governance structure agreed and family constitution scope defined — ready for the concept meeting",
+              "next_node": "succ_b1_concept"
+            },
+            {
+              "answer_pattern": "significant governance conflict — incumbents want to retain control after transfer",
+              "next_node": "succ_b1_governance_conflict"
+            }
+          ]
+        },
+        {
+          "id": "succ_b1_governance_conflict",
+          "branch_name": "Branch 1D(i) — Governance Conflict: Incumbent Retaining Control",
+          "type": "recommendation",
+          "condition": "Incumbent wants to transfer ownership but retain decision-making authority — classic conflict point",
+          "notes": "This is the most common and most destructive pattern in family succession: the incumbent transfers the ownership but retains the governance function informally, creating an unresolvable authority conflict for the successor. Why it happens: the incumbent has not separated their identity from the business. 'Handing over' feels like losing relevance, not gaining freedom. The successor is left managing upward (waiting for permission) while nominally owning the business. Resolution framework: (1) Define a written exit timeline for the incumbent's operational authority — a structured phased withdrawal, not an open-ended one; (2) Create a formal Governance role for the incumbent that is defined and bounded — e.g., Chair of an Advisory Board with a defined scope and term; (3) Separate the governance function from management: the incumbent can retain a governance/advisory role without having operational veto power; (4) Use the visual Ascension Diagram with the family: the successor must be shown moving upward in the diagram — the incumbent's continued involvement must be framed as mentorship, not supervision; (5) If conflict cannot be resolved, the succession is not ready to proceed — return to the readiness conversation with the incumbent. Forcing a succession over a governance conflict produces litigation, not transition.",
+          "templates": [
+            "Succession Plan"
+          ]
+        },
+        {
+          "id": "succ_b1_concept",
+          "branch_name": "Branch 1E — Concept Meeting: Bring Both Parties Together",
+          "type": "question",
+          "condition": "Financial viability and governance structure established — now bring stakeholders together to reconcile wish lists",
+          "question": "We're ready to run the Concept Meeting. Does everyone understand going in that this is a working session to find mutual compromise — not a negotiation where everyone gets their full wish list?",
+          "notes": "Step 4 of the Dream Home Methodology — the Concept Meeting. The advisor's role here is to chair, not advise. Place both wish lists side by side. The advisor's framing statement (to set collaborative tone): 'We've now heard from both sides separately. Today we're going to look at both wish lists together, identify where they align naturally, identify where there are constraints, and find the best mutual outcome — understanding that the final plan won't be perfect for either party, but it will be workable for everyone.' Facilitation principles: (1) Present the wish lists as neutral facts, not as positions to be defended; (2) Identify natural alignment points first — build psychological momentum; (3) For areas of conflict, present the practical constraints (financial, legal, governance) as external realities rather than as the other party's position — this removes the adversarial framing; (4) Use a visual Ascension Diagram during the meeting to maintain the sense that the group is moving forward together, not circling conflict; (5) Do NOT resolve every issue in this meeting — its purpose is to align on the framework and identify what needs further professional input (legal, tax, valuation). Outputs of the Concept Meeting: agreed list of 'must haves' for both parties; agreed list of items that need further professional advice before a decision can be made; confirmed areas where compromise is accepted; a clear mandate for the advisor to prepare the final design.",
+          "branches": [
+            {
+              "answer_pattern": "concept meeting completed — framework agreed and ready for final design",
+              "next_node": "succ_b1_signoff"
+            }
+          ]
+        },
+        {
+          "id": "succ_b1_signoff",
+          "branch_name": "Branch 1F — Final Design and Sign-Off",
+          "type": "question",
+          "condition": "Concept meeting agreed — now deliver the professional recommendations and get formal sign-off",
+          "question": "Before we finalise the design — have we engaged the independent legal and tax advisors to review the structure, or is the family expecting us to carry the full professional recommendation?",
+          "notes": "Step 5 of the Dream Home Methodology, incorporating the IFAC Value Preservation Lifecycle — Structuring phase. The advisor's deliverable at this stage: (1) Business case summary — is the succession financially and operationally viable? What is the indicative valuation range? (Use the Valuation logic tree outputs where a formal Business Sale Assessment has been run.) (2) Recommended legal structure — which ownership vehicle is appropriate? (Company shares, trust distribution, partnership, buy-sell agreement?) Note: the legal structure recommendation must be confirmed by a solicitor — this is professional scope. (3) Tax framework — what are the capital gains tax, stamp duty, and income tax implications of the proposed transfer? What structuring strategies are available to minimise the tax burden? Note: tax advice must be confirmed by a tax advisor or accountant — this is professional scope. (4) Fairness methodology — if multiple family members are receiving different outcomes, document the agreed reasoning clearly. (5) Final must-haves and agreed compromises — document what was resolved at the Concept Meeting and ensure it is reflected in the design. The family reviews the full design against: budget and total cost; feasibility of the timeline; their must-haves; what is too complex or too costly to proceed with. Formal sign-off is obtained from all parties before implementation begins.",
+          "branches": [
+            {
+              "answer_pattern": "sign-off obtained from all parties — ready to begin implementation",
+              "next_node": "succ_b1_implementation"
+            }
+          ]
+        },
+        {
+          "id": "succ_b1_implementation",
+          "branch_name": "Branch 1G — Implementation: Succession Action Plan",
+          "type": "recommendation",
+          "condition": "Sign-off complete — build and execute the succession action plan",
+          "notes": "Step 6 of the Dream Home Methodology — Construction Begins. The Succession Action Plan is the formal implementation tracking document. Structure each task with four classifications: (1) DO — tasks to be actioned immediately with a named owner and deadline; (2) INVESTIGATE — items requiring further research or professional advice before a decision; (3) HOLD — items agreed but deferred until a trigger event or milestone is reached; (4) DECLINE — items that were discussed but ruled out by the family. Per OECD governance principles, confidentiality management is critical: sensitive succession tasks (e.g., specific ownership transfer dates, financial figures, successor salary restructures) should be accessible only to named parties — not visible to broader staff or operational management. Dual-track requirement (ISO 22301): the implementation plan must include both a planned succession timeline AND a documented emergency 'sudden departure' plan. The sudden departure plan must specify: who assumes interim management authority if the owner exits unexpectedly today; what operating authorities are pre-delegated; what external stakeholders (bank, key suppliers, key clients) need to be notified and by whom. A succession plan without a sudden departure contingency is not a complete plan — it only works if the timeline is not disrupted. Build a formal review date into the plan — succession is a living document that must be updated as circumstances change.",
+          "templates": [
+            "Succession Plan"
+          ]
+        },
+        {
+          "id": "succ_b2_candidate",
+          "branch_name": "Branch 2 — Management Succession: Identify and Assess the Candidate",
+          "type": "question",
+          "condition": "This is a management or key staff succession — not a family handover",
+          "question": "Is there an identified candidate already, or are we at the stage of assessing who in the current team has the potential to step up?",
+          "notes": "Management succession is less emotionally complex than family succession but carries significant organisational risk if rushed. The ISO 22301 standard treats the 'loss of key personnel' as a high-priority operational risk — a compliant plan must identify BOTH an interim and a permanent replacement for any critical role. The IFAC Value Preservation Lifecycle — Development phase — prescribes use of a 9-Box Grid to assess successor candidates. The 9-Box Grid evaluates candidates on two axes: (1) Current Performance — assessed against current role expectations; High / Medium / Low; (2) Future Potential — capacity to operate at a higher level; High / Medium / Low. Box position determines the development pathway: High Performance / High Potential = accelerated development, fast-track succession; High Performance / Low Potential = retain, reward, but do not over-promote; Low Performance / High Potential = targeted development and coaching before succession readiness; Low Performance / Low Potential = succession is not appropriate. The Rule of 5 (global best practice): a 5-year lead time allows adequate time for competency modelling (what skills will the FUTURE business need, not just the current one?), strategic mentorship through real-world projects, and a structured dual-track plan.",
+          "branches": [
+            {
+              "answer_pattern": "candidate identified — ready to assess readiness and build a development plan",
+              "next_node": "succ_b2_development"
+            },
+            {
+              "answer_pattern": "no candidate identified — need to identify potential successors from the team",
+              "next_node": "succ_b2_assessment"
+            }
+          ]
+        },
+        {
+          "id": "succ_b2_assessment",
+          "branch_name": "Branch 2A — No Candidate Identified: Team Assessment",
+          "type": "recommendation",
+          "condition": "No successor has been identified — need to map the current team against succession potential",
+          "notes": "Before a development plan can be built, the field of candidates must be assessed. Steps: (1) List all key operational roles and identify which are succession-critical — a succession-critical role is one where the loss of the current holder would materially disrupt the business; (2) For each critical role, list the internal candidates who might be capable of stepping up — do not pre-filter based on seniority alone; (3) Apply the 9-Box Grid assessment to each candidate: rate current performance and future potential independently; (4) Use competency modelling to define what the FUTURE business needs in a successor — not just what the current business needs. If the business is in growth mode, the successor needs different capabilities than if it is in consolidation mode. Competency modelling question: 'If we fast-forward five years to where we want the business to be — what does the person running this business need to be excellent at?' This often produces a different profile than evaluating who is currently performing well. If no internal candidate reaches the minimum threshold — this is a critical risk flag. Options: (1) External hire into a development role alongside the current holder; (2) Formally extend the incumbent's tenure while the internal pipeline is built; (3) Build an emergency sudden departure plan now as a minimum safety net. Do not allow a 'no candidate' situation to continue without a documented interim plan.",
+          "templates": [
+            "Succession Plan"
+          ]
+        },
+        {
+          "id": "succ_b2_development",
+          "branch_name": "Branch 2B — Candidate Development: 5-Year Plan and 9-Box Tracking",
+          "type": "recommendation",
+          "condition": "Candidate identified — build the development plan and establish the 9-Box tracking cadence",
+          "notes": "The IFAC Development phase and the Rule of 5 combine to produce this framework. Step 1 — Competency Gap Analysis: Compare the candidate's current capabilities against the competency model for the future role. Identify the specific gaps. These gaps define the development programme. Step 2 — Strategic Mentorship Through Real-World Projects: Do not develop successors through training courses alone. Assign the candidate to progressively more complex real-world projects that require them to exercise the target competencies under the incumbent's guidance. Each project should: be meaningful to the business (not a training exercise); stretch the candidate just beyond their current comfort zone; include structured debrief sessions with the incumbent. Step 3 — 9-Box Grid Review Cadence: Review the candidate's 9-Box position formally at least annually. Track movement over time — is their potential being realised? Are they growing faster or slower than the timeline requires? The 9-Box review should drive adjustments to the development programme, not just confirm current status. Step 4 — Dual-Track Plan: Build both: (a) Planned succession timeline — target date for full handover, milestone authority transfers along the way; (b) Sudden departure plan — if the incumbent left tomorrow, what authority does the candidate currently have? What is the minimum viable handover that could occur immediately? The dual-track plan must be documented and reviewed annually alongside the 9-Box Grid. Step 5 — Parallel Role Handover: In the final 12-24 months before succession, the candidate should be running the role in parallel with the incumbent — making decisions independently and seeking endorsement rather than seeking permission.",
+          "templates": [
+            "Succession Plan"
+          ]
+        },
+        {
+          "id": "succ_b3_emergency",
+          "branch_name": "Branch 3 — Emergency Succession: Sudden Departure Plan",
+          "type": "question",
+          "condition": "No active succession plan — client wants a safety net for an unexpected exit",
+          "question": "If the owner or key person walked out of the business tomorrow — who has the authority to make decisions, who would the bank talk to, who would key clients call, and who would sign off on payroll?",
+          "notes": "ISO 22301 Business Continuity standards treat key person dependency as a critical risk requiring a documented dual-track plan. An emergency succession plan is not a full succession plan — it is a minimum viable continuity document that protects the business from immediate operational collapse if the key person exits unexpectedly. The sudden departure plan must address: (1) Interim Management Authority: name a specific person (not a committee) who assumes interim authority. Specify the scope and limits of that authority — what can they decide independently? What requires board or external approval? Document this pre-delegation in writing, signed by the current authority holder. (2) Banking and Finance: who is an authorised signatory on business bank accounts? If the owner is the sole signatory, the business cannot pay bills after a sudden departure. Dual signatories and a pre-signed authority letter to the bank are minimum requirements. (3) Key Stakeholder Notifications: who contacts key clients, key suppliers, and the landlord if the owner exits? Who manages the relationship during the interim period? Document named contacts and the notification protocol. (4) Operational Continuity: which decisions cannot wait more than 48 hours? Payroll, tax obligations, supplier payments. Who has the systems access, passwords, and knowledge to execute these? (5) Trigger Events: document the events that would activate the plan — death, incapacity, voluntary sudden exit, criminal charges. The plan must activate automatically on a trigger event, not require someone to convene a meeting to decide whether to activate it. Review cycle: the sudden departure plan must be reviewed at least annually — personnel change, authorities change, and a plan that was accurate 18 months ago may be dangerous today.",
+          "branches": [
+            {
+              "answer_pattern": "interim authority, banking, and key stakeholder plan documented — ready to formalise",
+              "next_node": "succ_b3_formalise"
+            }
+          ]
+        },
+        {
+          "id": "succ_b3_formalise",
+          "branch_name": "Branch 3A — Formalise the Sudden Departure Plan",
+          "type": "recommendation",
+          "condition": "Emergency succession elements identified — formalise and store securely",
+          "notes": "A sudden departure plan that exists only in the owner's head is not a plan. It must be: (1) Documented — written down, with named people, specific authorities, and clear trigger activation language; (2) Stored securely — accessible to the right people at the moment of a trigger event, not locked in the owner's desk drawer or password-protected on their personal computer. Consider: a secure digital vault (shared access), a sealed physical envelope with the company's solicitor, a copy lodged with the company's accountant; (3) Legally reviewed — the pre-delegated authority document should be reviewed by a solicitor to confirm it is enforceable; (4) Communicated selectively — the nominated interim authority holder must know they hold this role and must have agreed to it. Do not assume; (5) Reviewed annually — as part of the regular board or business review calendar. The sudden departure plan is the minimum floor. Once it is in place, it provides a stable foundation for building a full succession plan if one is desired. Connect to the Governance logic tree if the business has no documented governance structure — absence of governance documentation is the most common reason sudden departure plans cannot be executed. Connect to the Risk Management logic tree if key person dependency has been identified as a formal business risk requiring treatment, monitoring, and a documented contingency.",
+          "templates": [
+            "Succession Plan"
+          ]
+        }
+      ]
     }
   ]
 }

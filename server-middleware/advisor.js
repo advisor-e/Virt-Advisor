@@ -18,6 +18,15 @@ const { detectLogicTree, formatLogicTreeForPrompt, formatSeminarsReferenceForPro
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
 const SALES_MARKETING_SLIDES = require('../data/sales-marketing-slides.json')
+const DOMAINS = require('../data/domains.json')
+
+// Build detection patterns from domain definitions — compiled once at startup
+const DOMAIN_PATTERNS = DOMAINS.map(d => ({
+  id: d.id,
+  label: d.label,
+  pattern: new RegExp(d.keywords, 'gi'),
+  disambigPattern: new RegExp(d.disambiguationKeywords, 'i')
+}))
 
 function formatFinMgtTable () {
   return FIN_MGT_TABLE.themes.map(t =>
@@ -317,12 +326,8 @@ async function handleQuery (rawBody, res) {
   // ─────────────────────────────────────────────────────────────────
   if (mode === 'client') {
     const state = Object.assign({
-      // Scenario flags
-      profitSituation: false,
-      staffSituation: false,
-      dataSystemsSituation: false,
-      salesMarketingSituation: false,
-      forecastingSituation: false,
+      // Detection — active domain ID (one of 14 domain ids, or null)
+      detectedDomain: null,
       disambiguationNeeded: false,
       disambiguationScenarios: [],
       // Universal questions
@@ -371,75 +376,40 @@ async function handleQuery (rawBody, res) {
       postRecAiResponses: 0
     }, conversationState)
 
-    // Always re-detect scenario from the first user message — never trust state for these flags.
-    // Score all 5 scenarios by keyword match count. Most matches wins.
+    // Always re-detect domain from the first user message.
+    // Score all 14 domains by keyword match count. Most matches wins.
     // On a tie between any two or more, ask disambiguation.
-    const SCENARIO_PATTERNS = [
-      {
-        id: 'profit',
-        label: 'profitability and cost management',
-        pattern: /profit|profitability|margin|margins|fuel cost|fuel costs|rising cost|rising costs|cost increase|increasing cost|expenses|cost pressure|squeeze/gi
-      },
-      {
-        id: 'staff',
-        label: 'staff, productivity and leadership',
-        pattern: /\b(staff|employees|team|efficiency|productivity|effectiveness|leadership|HR|morale|culture|disharmony|poor communication)\b/gi
-      },
-      {
-        id: 'data-systems',
-        label: 'data integrity and financial systems',
-        pattern: /data integrity|\bdata\b|inaccurate|not accurate|can't rely|cannot rely|not reliable|accurate data|financial data|data quality|quality reports|financial reports|financial reporting|management reports|their financials|the financials|the figures|their figures|the numbers|the books|chart of accounts|financial literacy|generating reports|monthly reporting|financial systems|accounting systems|bookkeeping|unreliable|clean accounts|bad data|poor data|trust the numbers/gi
-      },
-      {
-        id: 'sales-marketing',
-        label: 'sales and marketing',
-        pattern: /\b(sales|marketing|messaging|advertising)\b|drop in revenue|drop in sales|drop in income|low sales|media campaigns|brand awareness/gi
-      },
-      {
-        id: 'forecasting',
-        label: 'forecasting and management reporting',
-        pattern: /cash forecast|budgets|dashboard discussions|dashboard|ratio analysis|financial management report/gi
-      }
-    ]
 
     const firstMsg = conversationHistory.length > 0
       ? (conversationHistory.find(m => m.role === 'user') || { content: query }).content
       : query
 
-    const scenarioScores = SCENARIO_PATTERNS.map(s => ({
-      id: s.id,
-      label: s.label,
-      count: (firstMsg.match(s.pattern) || []).length
-    })).filter(s => s.count > 0)
+    const domainScores = DOMAIN_PATTERNS.map(d => ({
+      id: d.id,
+      label: d.label,
+      count: (firstMsg.match(d.pattern) || []).length
+    })).filter(d => d.count > 0)
 
-    // Helper: set exactly one situation flag, clear the rest
-    function setSituationFlag (id) {
-      state.profitSituation = id === 'profit'
-      state.staffSituation = id === 'staff'
-      state.dataSystemsSituation = id === 'data-systems'
-      state.salesMarketingSituation = id === 'sales-marketing'
-      state.forecastingSituation = id === 'forecasting'
+    // Helper: set the active domain, clear disambiguation state
+    function setDetectedDomain (id) {
+      state.detectedDomain = id
     }
 
-    // Reset all situation flags before re-detecting
-    state.profitSituation = false
-    state.staffSituation = false
-    state.dataSystemsSituation = false
-    state.salesMarketingSituation = false
-    state.forecastingSituation = false
+    // Reset detection state before re-scoring
+    state.detectedDomain = null
     state.disambiguationNeeded = false
     state.disambiguationScenarios = []
 
-    if (scenarioScores.length > 0) {
-      const maxCount = Math.max(...scenarioScores.map(s => s.count))
-      const topMatches = scenarioScores.filter(s => s.count === maxCount)
+    if (domainScores.length > 0) {
+      const maxCount = Math.max(...domainScores.map(d => d.count))
+      const topMatches = domainScores.filter(d => d.count === maxCount)
 
       if (topMatches.length === 1) {
-        setSituationFlag(topMatches[0].id)
+        setDetectedDomain(topMatches[0].id)
       } else {
         // Genuine tie — disambiguation question fires after Q1
         state.disambiguationNeeded = true
-        state.disambiguationScenarios = topMatches.map(s => ({ id: s.id, label: s.label }))
+        state.disambiguationScenarios = topMatches.map(d => ({ id: d.id, label: d.label }))
       }
     }
 
@@ -483,98 +453,102 @@ async function handleQuery (rawBody, res) {
         },
         skip: s => !s.disambiguationNeeded,
         onAnswer: (answer, s) => {
-          const lower = answer.toLowerCase()
-          if (/profit|margin|cost|expense|squeeze/i.test(lower)) {
-            setSituationFlag('profit')
-          } else if (/staff|team|employee|leadership|hr|morale|culture/i.test(lower)) {
-            setSituationFlag('staff')
-          } else if (/data|system|chart.*account|financial literacy|accounting/i.test(lower)) {
-            setSituationFlag('data-systems')
-          } else if (/sales|marketing|revenue|advertising|brand|conversion/i.test(lower)) {
-            setSituationFlag('sales-marketing')
-          } else if (/forecast|budget|dashboard|ratio/i.test(lower)) {
-            setSituationFlag('forecasting')
+          // Try each tied domain's disambiguation pattern against the advisor's answer
+          const tiedIds = (s.disambiguationScenarios || []).map(sc => sc.id)
+          const tiedPatterns = DOMAIN_PATTERNS.filter(d => tiedIds.includes(d.id))
+          const matched = tiedPatterns.find(d => d.disambigPattern.test(answer))
+          if (matched) {
+            setDetectedDomain(matched.id)
           } else if (s.disambiguationScenarios && s.disambiguationScenarios.length > 0) {
-            // Can't determine from answer — default to first tied scenario
-            console.warn('[advisor] Disambiguation could not be resolved from answer; defaulting to scenario:', s.disambiguationScenarios[0].id)
-            setSituationFlag(s.disambiguationScenarios[0].id)
+            console.warn('[advisor] Disambiguation could not be resolved from answer; defaulting to domain:', s.disambiguationScenarios[0].id)
+            setDetectedDomain(s.disambiguationScenarios[0].id)
           }
           s.disambiguationNeeded = false
         }
       },
+      // ── Domain 1: Profitability / Feasibility ──
       {
         field: 'usesReports',
         text: 'Does the client use financial management reports on a regular basis?',
-        skip: s => !s.profitSituation
+        skip: s => s.detectedDomain !== 'profit'
       },
       {
         field: 'reportsFromFirm',
         text: 'Are these financial reports generated and presented by you or a member of your firm?',
-        skip: s => !s.profitSituation || !s.usesReports || s.usesReports === 'pending' || !/\byes\b|already|they do|we do|regular|use them|have them/i.test(s.usesReports)
+        skip: s => s.detectedDomain !== 'profit' || !s.usesReports || s.usesReports === 'pending' || !/\byes\b|already|they do|we do|regular|use them|have them/i.test(s.usesReports)
       },
       {
         field: 'wouldBenefitFromReview',
         text: 'Do you think the client could benefit from a detailed review of their business variables and profit drivers?',
-        skip: s => !s.profitSituation
+        skip: s => s.detectedDomain !== 'profit'
       },
       {
         field: 'industry',
         text: 'What industry is the client in?',
-        skip: s => !s.profitSituation
+        skip: s => s.detectedDomain !== 'profit'
       },
+      // ── Domain 2: Staff ──
       {
         field: 'staffScope',
         text: 'Does this issue relate to one or two specific employees, or is it a wider team issue across the business?',
-        skip: s => !s.staffSituation
+        skip: s => s.detectedDomain !== 'staff'
       },
       {
         field: 'staffOrigin',
         text: 'Has this issue surfaced in response to a specific event, or has it just developed over time — and if so, how long has it been building?',
-        skip: s => !s.staffSituation
+        skip: s => s.detectedDomain !== 'staff'
       },
       {
         field: 'staffCategory',
         text: 'In your opinion, is this a potential employment law matter, or does it fall into the broader category of team and leadership improvement?',
-        skip: s => !s.staffSituation
+        skip: s => s.detectedDomain !== 'staff'
       },
-      // ── Data Integrity / Financial Systems scenario questions ──
+      // ── Domain 3: Data Integrity / Financial Systems ──
       {
         field: 'dataSystemsChartAccounts',
         text: 'Which of the following, if any, does the client currently utilise — (a) a chart of accounts aligned to business practices for reporting purposes, (b) knowledge of their break-even requirements, (c) comprehension of the Working Capital Cycle? Please speak to each of the three points.',
-        skip: s => !s.dataSystemsSituation
+        skip: s => s.detectedDomain !== 'data-systems'
       },
       {
         field: 'dataSystemsTeam',
         text: 'Describe the staff numbers, experience and capabilities of the business admin and accounting team.',
-        skip: s => !s.dataSystemsSituation
+        skip: s => s.detectedDomain !== 'data-systems'
       },
       {
         field: 'dataSystemsComplexity',
         text: 'In your opinion, is the issue related to the complexity of their business administration and technology/software shortfalls?',
-        skip: s => !s.dataSystemsSituation
+        skip: s => s.detectedDomain !== 'data-systems'
       },
-      // ── Sales / Marketing scenario questions ──
+      // ── Domain 4: Sales & Marketing ──
       {
         field: 'salesDiagnosis',
         text: 'Has your client accurately determined if their key problem is lack of sales vs. the profitability from the sales they do make?',
-        skip: s => !s.salesMarketingSituation
+        skip: s => s.detectedDomain !== 'sales-marketing'
       },
       {
         field: 'salesTracking',
         text: 'Does your client track the conversion ratio from prospect to customer or messaging campaign to prospects? If so — which of these and how do they record the data?',
-        skip: s => !s.salesMarketingSituation
+        skip: s => s.detectedDomain !== 'sales-marketing'
       },
       {
         field: 'salesProductFit',
         text: "In your opinion, is the issue related to 'Product Fit' — is your client's product or service still competitive?",
-        skip: s => !s.salesMarketingSituation
+        skip: s => s.detectedDomain !== 'sales-marketing'
       },
-      // ── Forecasting / Management Reporting scenario — droptab ──
+      // ── Domain 5: Financial Management — droptab ──
       {
         field: 'forecastingTheme',
         text: 'These themes reflect different levels of client awareness and readiness. Select the one that best describes where your client is starting from with financial management.\n[FIN_MGT_THEME_SELECTOR]',
-        skip: s => !s.forecastingSituation
+        skip: s => s.detectedDomain !== 'forecasting'
       },
+      // ── Domains 6–14: questions loaded from domains.json when populated ──
+      ...DOMAINS.filter(d => d.questions && d.questions.length > 0).flatMap(d =>
+        d.questions.map(q => ({
+          field: q.field,
+          text: q.text,
+          skip: s => s.detectedDomain !== d.id
+        }))
+      ),
       {
         field: 'ownership',
         text: 'Is the business privately owned, a not-for-profit, or publicly listed?'
@@ -618,7 +592,7 @@ async function handleQuery (rawBody, res) {
       }
     ]
 
-    dbg('SEQUENCER: checking pipeline, profitSituation=' + state.profitSituation)
+    dbg('SEQUENCER: checking pipeline, detectedDomain=' + state.detectedDomain)
 
     for (const q of QUESTIONS) {
       if (q.skip && q.skip(state)) continue
@@ -758,25 +732,29 @@ async function handleQuery (rawBody, res) {
       `Opening situation: ${(conversationHistory.find(m => m.role === 'user') || { content: query }).content}`,
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' ? `Whether client raised it: ${state.clientRaisedIssue}` : '',
       state.situationDiagnostic && state.situationDiagnostic !== 'pending' ? `Situation diagnostic (root cause / priority / downstream issues): ${state.situationDiagnostic}` : '',
-      // Profit scenario answers
-      state.profitSituation && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
-      state.profitSituation && state.reportsFromFirm && state.reportsFromFirm !== 'pending' ? `Reports delivered by advisor's firm: ${state.reportsFromFirm}` : '',
-      state.profitSituation && state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' ? `Would benefit from profit driver review: ${state.wouldBenefitFromReview}` : '',
-      state.profitSituation && state.industry && state.industry !== 'pending' ? `Industry: ${state.industry}` : '',
-      // Staff scenario answers
-      state.staffSituation && state.staffScope && state.staffScope !== 'pending' ? `Staff issue scope (individual vs team): ${state.staffScope}` : '',
-      state.staffSituation && state.staffOrigin && state.staffOrigin !== 'pending' ? `Staff issue origin (event vs gradual): ${state.staffOrigin}` : '',
-      state.staffSituation && state.staffCategory && state.staffCategory !== 'pending' ? `Staff issue category (employment law vs team improvement): ${state.staffCategory}` : '',
-      // Data/Systems scenario answers
-      state.dataSystemsSituation && state.dataSystemsChartAccounts && state.dataSystemsChartAccounts !== 'pending' ? `Chart of accounts / break-even / working capital: ${state.dataSystemsChartAccounts}` : '',
-      state.dataSystemsSituation && state.dataSystemsTeam && state.dataSystemsTeam !== 'pending' ? `Admin and accounting team: ${state.dataSystemsTeam}` : '',
-      state.dataSystemsSituation && state.dataSystemsComplexity && state.dataSystemsComplexity !== 'pending' ? `Complexity vs technology issue: ${state.dataSystemsComplexity}` : '',
-      // Sales/Marketing scenario answers
-      state.salesMarketingSituation && state.salesDiagnosis && state.salesDiagnosis !== 'pending' ? `Sales volume vs profitability diagnosis: ${state.salesDiagnosis}` : '',
-      state.salesMarketingSituation && state.salesTracking && state.salesTracking !== 'pending' ? `Conversion tracking: ${state.salesTracking}` : '',
-      state.salesMarketingSituation && state.salesProductFit && state.salesProductFit !== 'pending' ? `Product fit assessment: ${state.salesProductFit}` : '',
-      // Forecasting scenario answer (droptab selection)
-      state.forecastingSituation && state.forecastingTheme && state.forecastingTheme !== 'pending' ? `Selected financial management theme: ${state.forecastingTheme}` : '',
+      // Domain 1: Profitability answers
+      state.detectedDomain === 'profit' && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
+      state.detectedDomain === 'profit' && state.reportsFromFirm && state.reportsFromFirm !== 'pending' ? `Reports delivered by advisor's firm: ${state.reportsFromFirm}` : '',
+      state.detectedDomain === 'profit' && state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' ? `Would benefit from profit driver review: ${state.wouldBenefitFromReview}` : '',
+      state.detectedDomain === 'profit' && state.industry && state.industry !== 'pending' ? `Industry: ${state.industry}` : '',
+      // Domain 2: Staff answers
+      state.detectedDomain === 'staff' && state.staffScope && state.staffScope !== 'pending' ? `Staff issue scope (individual vs team): ${state.staffScope}` : '',
+      state.detectedDomain === 'staff' && state.staffOrigin && state.staffOrigin !== 'pending' ? `Staff issue origin (event vs gradual): ${state.staffOrigin}` : '',
+      state.detectedDomain === 'staff' && state.staffCategory && state.staffCategory !== 'pending' ? `Staff issue category (employment law vs team improvement): ${state.staffCategory}` : '',
+      // Domain 3: Data / Systems answers
+      state.detectedDomain === 'data-systems' && state.dataSystemsChartAccounts && state.dataSystemsChartAccounts !== 'pending' ? `Chart of accounts / break-even / working capital: ${state.dataSystemsChartAccounts}` : '',
+      state.detectedDomain === 'data-systems' && state.dataSystemsTeam && state.dataSystemsTeam !== 'pending' ? `Admin and accounting team: ${state.dataSystemsTeam}` : '',
+      state.detectedDomain === 'data-systems' && state.dataSystemsComplexity && state.dataSystemsComplexity !== 'pending' ? `Complexity vs technology issue: ${state.dataSystemsComplexity}` : '',
+      // Domain 4: Sales & Marketing answers
+      state.detectedDomain === 'sales-marketing' && state.salesDiagnosis && state.salesDiagnosis !== 'pending' ? `Sales volume vs profitability diagnosis: ${state.salesDiagnosis}` : '',
+      state.detectedDomain === 'sales-marketing' && state.salesTracking && state.salesTracking !== 'pending' ? `Conversion tracking: ${state.salesTracking}` : '',
+      state.detectedDomain === 'sales-marketing' && state.salesProductFit && state.salesProductFit !== 'pending' ? `Product fit assessment: ${state.salesProductFit}` : '',
+      // Domain 5: Financial Management answer (droptab selection)
+      state.detectedDomain === 'forecasting' && state.forecastingTheme && state.forecastingTheme !== 'pending' ? `Selected financial management theme: ${state.forecastingTheme}` : '',
+      // Domains 6–14: dynamic question answers from domains.json
+      ...DOMAINS.filter(d => d.questions && d.questions.length > 0 && state.detectedDomain === d.id).flatMap(d =>
+        d.questions.map(q => state[q.field] && state[q.field] !== 'pending' ? `${q.field}: ${state[q.field]}` : '')
+      ),
       // Shared Phase 1 answers
       state.ownership && state.ownership !== 'pending' ? `Business ownership: ${state.ownership}` : '',
       state.growthStage && state.growthStage !== 'pending' ? `Growth stage: ${state.growthStage}` : '',
@@ -810,7 +788,7 @@ async function handleQuery (rawBody, res) {
     const matchedIndustryTemplate = industryTemplateMap.find(m => m.pattern.test(industryText))
     const recommendedRevenueModel = matchedIndustryTemplate ? matchedIndustryTemplate.template : null
 
-    const profitInstruction = state.profitSituation && state.industry && state.industry !== 'pending'
+    const profitInstruction = state.detectedDomain === 'profit' && state.industry && state.industry !== 'pending'
       ? `\n\nPROFIT SITUATION: This client has a profitability/cost problem. Their industry is: ${state.industry}.
 
 Your recommendation MUST include a revenue model or what-if analysis template from the provided template list. Rules:
@@ -826,7 +804,7 @@ ${reviewNo ? `- The advisor has indicated the client does NOT need a detailed re
 ${staircaseNum ? `- Advisory Staircase position: Step ${staircaseNum}. ${staircaseNum <= 2 ? 'This is an early-stage engagement — keep templates foundational and accessible. Build confidence before introducing complexity.' : staircaseNum === 3 ? 'The engagement is at interpretation stage — the client is ready for structured analysis and what-if modelling.' : staircaseNum === 4 ? 'The engagement is at application stage — the client is ready for forecasting, scenario planning, and strategic templates.' : 'This is a mature strategic engagement — the client expects sophisticated, data-driven templates. Do not recommend foundational or educational content.'}` : ''}`
       : ''
 
-    const staffInstruction = state.staffSituation && state.staffCategory && state.staffCategory !== 'pending'
+    const staffInstruction = state.detectedDomain === 'staff' && state.staffCategory && state.staffCategory !== 'pending'
       ? `\n\nSTAFF SITUATION: This is a staff/team issue. Use the three diagnostic answers to shape the recommendation:
 - Scope (individual vs team): ${state.staffScope}
 - Origin (event-driven vs gradual): ${state.staffOrigin}
@@ -836,7 +814,7 @@ If the category indicates a potential employment law matter: you MUST flag clear
 If the category indicates team and leadership improvement: tailor the recommendation to match the scope (individual vs whole team) and the origin (event-driven vs gradual development). Solutions may be up to 4 templates if required. Refer to the People Power Template to guide suggestions.`
       : ''
 
-    const dataSystemsInstruction = state.dataSystemsSituation && state.dataSystemsChartAccounts && state.dataSystemsChartAccounts !== 'pending'
+    const dataSystemsInstruction = state.detectedDomain === 'data-systems' && state.dataSystemsChartAccounts && state.dataSystemsChartAccounts !== 'pending'
       ? `\n\nDATA INTEGRITY / FINANCIAL SYSTEMS SITUATION: Use the three diagnostic answers to shape the recommendation:
 - Chart of accounts / break-even / working capital: ${state.dataSystemsChartAccounts}
 - Admin and accounting team: ${state.dataSystemsTeam}
@@ -847,7 +825,7 @@ If the team answer indicates lack of experience or education in accounting: the 
 If the complexity/technology answer indicates software issues AND the business is at Leverage, Reach, Leapfrog, or Maturity on the Growth Curve: the recommendation may also include the Financial Systems Review.`
       : ''
 
-    const salesMarketingInstruction = state.salesMarketingSituation && state.salesDiagnosis && state.salesDiagnosis !== 'pending'
+    const salesMarketingInstruction = state.detectedDomain === 'sales-marketing' && state.salesDiagnosis && state.salesDiagnosis !== 'pending'
       ? `\n\nSALES / MARKETING SITUATION: Use the three diagnostic answers to shape the recommendation:
 - Sales volume vs profitability diagnosis: ${state.salesDiagnosis}
 - Conversion tracking: ${state.salesTracking}
@@ -862,7 +840,7 @@ SALES & MARKETING REVIEW — FRAMEWORK INDEX (for reference when recommending sp
 ${formatSalesMarketingSlides()}`
       : ''
 
-    const forecastingInstruction = state.forecastingSituation && state.forecastingTheme && state.forecastingTheme !== 'pending'
+    const forecastingInstruction = state.detectedDomain === 'forecasting' && state.forecastingTheme && state.forecastingTheme !== 'pending'
       ? `\n\nFORECASTING / MANAGEMENT REPORTING SITUATION: The advisor has selected the following theme from the Financial Management Table:
 Selected theme: ${state.forecastingTheme}
 
@@ -876,12 +854,53 @@ FINANCIAL MANAGEMENT TABLE — all themes for reference:
 ${formatFinMgtTable()}`
       : ''
 
+    // ── Domains 6–14 instruction stubs — populated when domain questions are finalised ──
+    const governanceInstruction = state.detectedDomain === 'governance'
+      ? '\n\nGOVERNANCE & LEADERSHIP SITUATION: The advisor has flagged a governance or leadership issue. Recommend templates from the Governance & Leadership domain. Use Phase 2 answers to calibrate complexity and engagement style.'
+      : ''
+
+    const strategyInstruction = state.detectedDomain === 'strategy'
+      ? '\n\nSTRATEGY & PLANNING SITUATION: The advisor has flagged a strategic planning need. Recommend templates from the Strategy & Planning domain. Use Phase 2 answers to calibrate depth and sequencing.'
+      : ''
+
+    const systemsInstruction = state.detectedDomain === 'systems'
+      ? '\n\nSYSTEMS SITUATION: The advisor has flagged a systems or process issue. Recommend templates from the Systems domain. Use Phase 2 answers to calibrate complexity.'
+      : ''
+
+    const valuationInstruction = state.detectedDomain === 'valuation'
+      ? '\n\nVALUATION SITUATION: The advisor has flagged a business valuation need. Recommend templates from the Valuation domain. Use Phase 2 answers to calibrate the level of engagement.'
+      : ''
+
+    const riskInstruction = state.detectedDomain === 'risk'
+      ? '\n\nRISK MANAGEMENT SITUATION: The advisor has flagged a risk management issue. Recommend templates from the Risk Management domain. Use Phase 2 answers to calibrate urgency and complexity.'
+      : ''
+
+    const successionInstruction = state.detectedDomain === 'succession'
+      ? '\n\nSUCCESSION PLANNING SITUATION: The advisor has flagged a succession or exit planning need. Recommend templates from the Succession Planning domain. Use Phase 2 answers to calibrate timeframe and complexity.'
+      : ''
+
+    const conflictInstruction = state.detectedDomain === 'conflict'
+      ? '\n\nCONFLICT SITUATION: The advisor has flagged a conflict or dispute. Recommend templates from the Conflict Meetings domain. Note any mediation or employment law implications from the context.'
+      : ''
+
+    const eoyInstruction = state.detectedDomain === 'eoy'
+      ? '\n\nEND OF YEAR MEETING SITUATION: The advisor is preparing for an end of year meeting. Recommend templates from the End of Year content domain. Use Phase 2 answers to calibrate depth.'
+      : ''
+
+    const dueDiligenceInstruction = state.detectedDomain === 'due-diligence'
+      ? '\n\nDUE DILIGENCE SITUATION: The advisor has flagged a due diligence or acquisition situation. Recommend templates from the Due Diligence domain. Use Phase 2 answers to calibrate the level of advisor involvement.'
+      : ''
+
     const profileNote = advisorProfile
       ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nUse this profile in place of Phase 2 answers when writing "Why this suits you as the advisor".`
       : ''
 
     // Override query with the collected answers summary for the AI recommendation call
-    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${profitInstruction}${staffInstruction}${dataSystemsInstruction}${salesMarketingInstruction}${forecastingInstruction}${profileNote}\n\nNow produce the Phase 3 recommendation.`
+    const domainInstructions = profitInstruction + staffInstruction + dataSystemsInstruction + salesMarketingInstruction + forecastingInstruction +
+      governanceInstruction + strategyInstruction + systemsInstruction + valuationInstruction +
+      riskInstruction + successionInstruction + conflictInstruction + eoyInstruction + dueDiligenceInstruction
+
+    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${domainInstructions}${profileNote}\n\nNow produce the Phase 3 recommendation.`
 
     // Fall through to AI call for Phase 3 recommendation
     const languageInstruction2 = language !== 'en'

@@ -1,0 +1,100 @@
+[
+  {
+    "id": "profit",
+    "label": "profitability and feasibility",
+    "keywords": "profit|profitability|margin|margins|fuel cost|fuel costs|rising cost|rising costs|cost increase|increasing cost|expenses|cost pressure|squeeze|feasib",
+    "disambiguationKeywords": "profit|margin|cost|expense|squeeze|feasib",
+    "questions": []
+  },
+  {
+    "id": "staff",
+    "label": "staff, productivity and leadership",
+    "keywords": "\\b(staff|employees|team|efficiency|productivity|effectiveness|leadership|HR|morale|culture|disharmony|poor communication)\\b",
+    "disambiguationKeywords": "staff|team|employee|leadership|hr|morale|culture",
+    "questions": []
+  },
+  {
+    "id": "data-systems",
+    "label": "data integrity and financial systems",
+    "keywords": "data integrity|\\bdata\\b|inaccurate|not accurate|can't rely|cannot rely|not reliable|accurate data|financial data|data quality|quality reports|financial reports|financial reporting|management reports|their financials|the financials|the figures|their figures|the numbers|the books|chart of accounts|financial literacy|generating reports|monthly reporting|financial systems|accounting systems|bookkeeping|unreliable|clean accounts|bad data|poor data|trust the numbers",
+    "disambiguationKeywords": "data|system|chart|financial literacy|accounting",
+    "questions": []
+  },
+  {
+    "id": "sales-marketing",
+    "label": "sales and marketing",
+    "keywords": "\\b(sales|marketing|messaging|advertising)\\b|drop in revenue|drop in sales|drop in income|low sales|media campaigns|brand awareness",
+    "disambiguationKeywords": "sales|marketing|revenue|advertising|brand|conversion",
+    "questions": []
+  },
+  {
+    "id": "forecasting",
+    "label": "financial management",
+    "keywords": "cash forecast|budgets|dashboard discussions|dashboard|ratio analysis|financial management report",
+    "disambiguationKeywords": "forecast|budget|dashboard|ratio",
+    "questions": []
+  },
+  {
+    "id": "governance",
+    "label": "governance and leadership",
+    "keywords": "governance|board|directors|compliance|accountability|leadership structure|reporting structure|decision.making|policies|procedures|corporate governance",
+    "disambiguationKeywords": "governance|board|compliance|accountability",
+    "questions": []
+  },
+  {
+    "id": "strategy",
+    "label": "strategy and planning",
+    "keywords": "strategy|strategic planning|business plan|growth plan|long.term|vision|mission|goals|objectives|direction|pivot|restructure|business model",
+    "disambiguationKeywords": "strategy|strategic|planning|vision|goals",
+    "questions": []
+  },
+  {
+    "id": "systems",
+    "label": "systems",
+    "keywords": "\\bsystems\\b|processes|workflows|automation|\\btechnology\\b|\\bsoftware\\b|\\bCRM\\b|\\bERP\\b|operational efficiency|infrastructure|inefficiency|bottleneck",
+    "disambiguationKeywords": "systems|process|workflow|automation|technology",
+    "questions": []
+  },
+  {
+    "id": "valuation",
+    "label": "valuation",
+    "keywords": "valuation|value the business|business worth|what is it worth|enterprise value|EBITDA|business value|how much is it worth|price the business|sale price",
+    "disambiguationKeywords": "valuation|value|worth|enterprise|EBITDA",
+    "questions": []
+  },
+  {
+    "id": "risk",
+    "label": "risk management",
+    "keywords": "risk management|risk exposure|liability|business risk|contingency|disaster recovery|business continuity|mitigate risk|downside risk|key person|key man",
+    "disambiguationKeywords": "risk|liability|insurance|contingency|continuity",
+    "questions": []
+  },
+  {
+    "id": "succession",
+    "label": "succession planning",
+    "keywords": "succession|exit plan|retire|retiring|handover|next generation|family business|ownership transfer|management buyout|sell the business|exit strategy|ownership transition",
+    "disambiguationKeywords": "succession|exit|retire|handover|transition",
+    "questions": []
+  },
+  {
+    "id": "conflict",
+    "label": "conflict and conflict meetings",
+    "keywords": "conflict|dispute|disagreement|tension|falling out|relationship breakdown|mediation|partnership dispute|directors fighting|ownership dispute|irreconcilable",
+    "disambiguationKeywords": "conflict|dispute|disagreement|tension|mediation",
+    "questions": []
+  },
+  {
+    "id": "eoy",
+    "label": "end of year meetings",
+    "keywords": "end of year|year end|annual review|year.end meeting|\\bEOY\\b|financial year end|tax year|annual planning|end.of.year",
+    "disambiguationKeywords": "year end|annual review|eoy|financial year",
+    "questions": []
+  },
+  {
+    "id": "due-diligence",
+    "label": "due diligence",
+    "keywords": "due diligence|acquisition|acquire|merger|buying a business|purchase a business|buying the business|DD report|information memorandum",
+    "disambiguationKeywords": "due diligence|acquisition|merger|buying",
+    "questions": []
+  }
+]
