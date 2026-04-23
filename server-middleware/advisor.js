@@ -333,7 +333,11 @@ async function handleQuery (rawBody, res) {
       // Universal questions
       disambiguationAnswer: null,
       clientRaisedIssue: false,
-      situationDiagnostic: null,
+      situationContext: null,
+      situationPriority: null,
+      situationDownstream: null,
+      needsPriorityFollowup: false,
+      needsDownstreamFollowup: false,
       // Profit scenario questions
       usesReports: false,
       reportsFromFirm: null,
@@ -438,8 +442,23 @@ async function handleQuery (rawBody, res) {
         text: 'Has the client specifically raised this issue themselves, or is it something you\'ve noticed and want to address with them?'
       },
       {
-        field: 'situationDiagnostic',
-        text: 'What do you feel contributed to this situation, which issue do you feel we should solve first, and what do you think the downstream issues are that we should solve or include in your service offer?'
+        field: 'situationContext',
+        text: 'What do you feel contributed to this situation, which issue do you want to tackle first, and are there any downstream effects we should factor into the service offer?',
+        onAnswer: (answer, state) => {
+          const lower = answer.toLowerCase()
+          state.needsPriorityFollowup = !/\b(first|start with|focus on|tackle|priority|main|primary|biggest|most important|address|lead with)\b/.test(lower)
+          state.needsDownstreamFollowup = !/\b(also|affect|impact|flow|downstream|knock.on|cascade|further|spread|losing|hitting|secondary|as well|in addition|ripple|follow.on)\b/.test(lower)
+        }
+      },
+      {
+        field: 'situationPriority',
+        text: 'Which specific issue do you want to tackle first with this client?',
+        skip: s => !s.needsPriorityFollowup
+      },
+      {
+        field: 'situationDownstream',
+        text: 'Are there any downstream or flow-on effects we should factor into the service offer?',
+        skip: s => !s.needsDownstreamFollowup
       },
       {
         field: 'disambiguationAnswer',
@@ -594,19 +613,24 @@ async function handleQuery (rawBody, res) {
 
     dbg('SEQUENCER: checking pipeline, detectedDomain=' + state.detectedDomain)
 
-    for (const q of QUESTIONS) {
-      if (q.skip && q.skip(state)) continue
-      if (!state[q.field]) {
-        // Not yet asked — ask it now
-        state[q.field] = 'pending'
-        const questionText = q.textFn ? q.textFn(state) : q.text
-        return sendQuestion(questionText, state)
-      }
-      if (state[q.field] === 'pending') {
-        // Was asked last turn — record the answer
-        state[q.field] = query
-        // Allow the question to react to its answer (e.g. disambiguation resolving a scenario)
-        if (q.onAnswer) q.onAnswer(query, state)
+    // Guard: once recommendation is delivered, skip the pipeline entirely.
+    // Without this, a post-rec turn can re-trigger disambiguation or any unanswered
+    // question if domain re-detection produces a different score than the original turn.
+    if (!state.recommendationDelivered) {
+      for (const q of QUESTIONS) {
+        if (q.skip && q.skip(state)) continue
+        if (!state[q.field]) {
+          // Not yet asked — ask it now
+          state[q.field] = 'pending'
+          const questionText = q.textFn ? q.textFn(state) : q.text
+          return sendQuestion(questionText, state)
+        }
+        if (state[q.field] === 'pending') {
+          // Was asked last turn — record the answer
+          state[q.field] = query
+          // Allow the question to react to its answer (e.g. disambiguation resolving a scenario)
+          if (q.onAnswer) q.onAnswer(query, state)
+        }
       }
     }
 
@@ -615,7 +639,7 @@ async function handleQuery (rawBody, res) {
     if (state.recommendationDelivered) {
       // Hard stop — conversation is done, nothing further to process
       if (state.conversationComplete) {
-        return sendQuestion("You're ready to go. Good luck with it.", state)
+        return sendQuestion("You're ready to go. Good luck with it. Come back any time — before the meeting if you want to prep further, or after if you'd like to debrief.", state)
       }
 
       if (!state.clientApproachAsked) {
@@ -657,7 +681,7 @@ async function handleQuery (rawBody, res) {
         const noPattern = /\b(no|nope|nah|not now|not right now|i.?m fine|i.?m good|got it|ready to go|all good|i.?ll be fine|that.?s all|all done|i.?m done|that.?ll do|i.?m good to go|good to go)\b/i
         if (noPattern.test(query)) {
           state.conversationComplete = true
-          return sendQuestion("You're ready to go. Good luck with it.", state)
+          return sendQuestion("You're ready to go. Good luck with it. Come back any time — before the meeting if you want to prep further, or after if you'd like to debrief.", state)
         }
         // Yes — fall through to AI to help prepare talking points / framing
       }
@@ -668,7 +692,7 @@ async function handleQuery (rawBody, res) {
         const signOffPattern = /^(thanks|thank you|cheers|great|perfect|looks good|that.?s great|that.?ll do|got it|appreciate|brilliant|all good|wonderful|lovely|that.?s all|all done)[!.\s]*$/i
         if (signOffPattern.test(query.trim())) {
           state.conversationComplete = true
-          return sendQuestion("You're ready to go. Good luck with it.", state)
+          return sendQuestion("You're ready to go. Good luck with it. Come back any time — before the meeting if you want to prep further, or after if you'd like to debrief.", state)
         }
       }
 
@@ -682,6 +706,16 @@ async function handleQuery (rawBody, res) {
         { role: 'user', content: query }
       ]
 
+      // Detect "how do I use / learn [tool]" requests — switch to learn prompt so the
+      // AI gives practical how-to coaching rather than restarting domain detection.
+      const isHowToRequest = /\b(how do i|how do you|how to|teach me|walk me through|show me how|how would i|how can i|help me understand|explain)\b.{0,60}\b(use|learn|apply|run|do|deliver|introduce|facilitate|work with|implement|conduct|run through)\b/i
+      const mentionsTool = /\b(force field|template|tool|framework|analysis|matrix|plan|process|model|approach|method|heald|revenue model|growth curve|staircase|accountability|board plan|register|heatmap)\b/i
+      const isLearnRequest = isHowToRequest.test(query) && mentionsTool.test(query)
+
+      // Append a post-rec instruction so the AI does not restart domain detection
+      // or ask discovery questions when the advisor sends a follow-up.
+      const postRecInstruction = '\n\n[POST-RECOMMENDATION] The full recommendation has already been delivered and the advisor has responded to it. Do NOT run domain detection. Do NOT ask disambiguation questions. Do NOT restart the discovery process. Answer the advisor\'s current question directly and helpfully.'
+
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
@@ -694,7 +728,7 @@ async function handleQuery (rawBody, res) {
         model: 'gpt-4o-mini',
         max_tokens: 1500,
         stream: true,
-        messages: [{ role: 'system', content: loadPrompt('client') }, ...messagesPost]
+        messages: [{ role: 'system', content: (isLearnRequest ? loadPrompt('learn') : loadPrompt('client')) + postRecInstruction }, ...messagesPost]
       })
 
       try {
@@ -731,7 +765,9 @@ async function handleQuery (rawBody, res) {
     const collectedAnswers = [
       `Opening situation: ${(conversationHistory.find(m => m.role === 'user') || { content: query }).content}`,
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' ? `Whether client raised it: ${state.clientRaisedIssue}` : '',
-      state.situationDiagnostic && state.situationDiagnostic !== 'pending' ? `Situation diagnostic (root cause / priority / downstream issues): ${state.situationDiagnostic}` : '',
+      state.situationContext && state.situationContext !== 'pending' ? `Situation overview (root cause / focus / downstream): ${state.situationContext}` : '',
+      state.situationPriority && state.situationPriority !== 'pending' ? `Priority issue to tackle first: ${state.situationPriority}` : '',
+      state.situationDownstream && state.situationDownstream !== 'pending' ? `Downstream effects to factor in: ${state.situationDownstream}` : '',
       // Domain 1: Profitability answers
       state.detectedDomain === 'profit' && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
       state.detectedDomain === 'profit' && state.reportsFromFirm && state.reportsFromFirm !== 'pending' ? `Reports delivered by advisor's firm: ${state.reportsFromFirm}` : '',
