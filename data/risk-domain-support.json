@@ -1,0 +1,176 @@
+{
+  "domain": "risk",
+  "label": "risk management and insurance",
+  "trigger_keywords": ["risk events", "mitigation", "risk management", "insurance", "diversification", "defer", "avoid", "transfer", "legal liability"],
+  "overview": "Risk management scenarios typically surface when a client has experienced a risk event, is anticipating one, or has no formal framework for identifying and treating the risks threatening their objectives. Risk is defined by the ISO 31000 standard as the effect of uncertainty on objectives — and can produce both negative and positive deviations from what is expected. The advisor's role is to move the client from reactive fire-fighting to a structured process: establish context, identify risks, evaluate their consequence and probability, select the appropriate treatment strategy, and build an action plan with assigned ownership. Insurance is one treatment tool within this framework — not a substitute for the framework itself.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the client responding to a risk event that has already occurred, trying to prevent a foreseeable one, or building a risk management framework from scratch?",
+    "risk_event_already_occurred": "Establish what happened, what the consequence was, and whether a risk treatment was in place. Use this as the entry point for the 5-step framework — starting at Step 3 (Evaluate) to assess how the event would be classified on the heatmap, then move to Step 4 to determine the correct treatment strategy going forward.",
+    "foreseeable_risk_to_prevent": "Start at Step 1 (Establish Context) and work through the full 5-step framework. Identify the risk source and the event type before selecting a treatment. Do not jump to insurance or avoidance before the risk has been properly evaluated.",
+    "building_framework_from_scratch": "Work through all five steps in sequence. Establish the timeframe and categories first, then use SWOT analysis and historical data to identify risks. The Risk Heatmap is the key visual tool for prioritising which risks require immediate treatment versus monitoring."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Risk and Uncertainty — Core Theory",
+      "purpose": "Establishes the theoretical foundation for risk management conversations — ensuring the client understands what risk actually is, why it cannot be eliminated entirely, and why structured management is more effective than reactive response.",
+      "core_principle": "Risk is the effect of uncertainty on objectives — not just a synonym for danger. Risk can produce positive or negative deviations from what is expected. Uncertainty stems from a deficiency of information about future events and their consequences. The primary goal of risk management is to reduce that uncertainty as much as possible.",
+      "when_to_use": "Use as the opening reframe when a client conflates risk with crisis, treats insurance as the only risk management tool, or has never thought about their business risks in a structured way.",
+
+      "iso_31000_definition": "Risk = the effect of uncertainty on objectives. This includes both upside and downside deviations — risk is not inherently negative.",
+
+      "historical_context": [
+        {
+          "era": "3rd–2nd Millennium BC — Chinese Merchants",
+          "principle": "Early Risk Distribution (Diversification)",
+          "description": "Merchants navigating treacherous river rapids redistributed their wares across multiple vessels so that a single capsized boat would not result in total ruin. The origin of the diversification principle."
+        },
+        {
+          "era": "1750 BC — Babylonian Code of Hammurabi",
+          "principle": "Early Risk Transfer",
+          "description": "Merchants paid lenders an additional premium to guarantee their loan would be cancelled if their shipment was stolen. Inhabitants of Rhodes later developed the 'general average' — a pooled fund to reimburse anyone whose goods were jettisoned during a storm."
+        },
+        {
+          "era": "14th Century — Genoa",
+          "principle": "Formalised Insurance Contracts",
+          "description": "Risk was abstracted into formal insurance contracts, separating the investor and insurer roles. Risks could be transferred to dedicated risk pools backed by pledges of large landed estates — the origin of the modern insurance industry."
+        }
+      ],
+
+      "key_distinctions": [
+        {
+          "term": "Risk Source",
+          "definition": "Where the risk originates — has the intrinsic potential to give rise to risk. Examples: economic shifts, natural forces, management shortcomings."
+        },
+        {
+          "term": "Risk Event",
+          "definition": "The actual occurrence or change in circumstances that stems from a risk source and produces a consequence. Examples: an accident, a market crash, a key person departure."
+        },
+        {
+          "term": "Residual Risk",
+          "definition": "The level of risk remaining after controls and treatments have been applied. Risk treatments rarely eliminate risk entirely — residual risk must be monitored on an ongoing basis."
+        }
+      ]
+    },
+
+    {
+      "name": "5-Step Risk Management Framework",
+      "purpose": "A structured, systematic process for identifying, evaluating, treating, and monitoring the risks threatening a client's objectives — moving the client from reactive exposure to deliberate, documented control.",
+      "core_principle": "Risk management is not a one-time exercise. It requires constant monitoring and review — organisations must continually observe their current status to ensure controls remain effective and objectives are being met.",
+      "when_to_use": "Use as the primary delivery framework for any risk management engagement. Work through all five steps in sequence — each one builds the foundation for the next. The action plan in Step 5 is worthless without the evaluation work in Steps 2 and 3.",
+
+      "steps": [
+        {
+          "step": 1,
+          "name": "Establish Context",
+          "action": "Define the parameters in which the business operates before identifying any risks. Establish the timeframe the risk management plan will cover and determine the categories for consequences and probabilities.",
+          "two_contexts": [
+            {
+              "context": "External Context",
+              "factors": "Local and international environments, stakeholder values, legal trends, regulatory changes, market forces"
+            },
+            {
+              "context": "Internal Context",
+              "factors": "Governance structure, organisational capabilities, culture, existing processes, financial position"
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "Identify Risks",
+          "action": "Find, recognise, and describe the events and circumstances that could affect the achievement of objectives. Brainstorm potential risks using strategic plans, SWOT analysis, historical data, and expert advice. For each risk, identify the risk source (where it originates) and the potential event that could occur.",
+          "tools": ["Strategic plans", "SWOT analysis", "Historical incident data", "Expert or industry advice", "Stakeholder consultation"]
+        },
+        {
+          "step": 3,
+          "name": "Evaluate Risks",
+          "action": "Assess each identified risk to determine its consequence (how bad the loss could be) and its probability (the likelihood of it occurring). Plot risks on a Risk Heatmap — a matrix mapping low-to-high probability against low-to-high consequence. Compare results against the organisation's risk criteria to determine whether each risk level is tolerable.",
+          "heatmap_description": "The Risk Heatmap improves visibility and accountability by making the severity and likelihood of each risk visible to the whole team at once. Risks in the high probability / high consequence quadrant demand immediate treatment. Risks in the low probability / low consequence quadrant may be accepted and monitored."
+        },
+        {
+          "step": 4,
+          "name": "Determine Risk Strategy (Risk Treatment)",
+          "action": "Select the appropriate treatment for each risk. Each strategy must be evaluated based on the cost of the treatment and the certainty of the outcome.",
+          "four_treatment_strategies": [
+            {
+              "strategy": "Accept",
+              "description": "Undertake the risk as currently assessed — no additional action taken. Appropriate when the consequence and probability are both low, or when the cost of treatment exceeds the potential loss."
+            },
+            {
+              "strategy": "Avoid",
+              "description": "Cease the engagement or activity entirely to eliminate the risk at source. The most decisive treatment — but also eliminates any potential upside from the activity."
+            },
+            {
+              "strategy": "Reduce (Mitigate)",
+              "description": "Limit the exposure and volume of the activity to minimise both the likelihood and the potential loss. Includes process controls, training, diversification, and operational safeguards."
+            },
+            {
+              "strategy": "Transfer",
+              "description": "Share or completely shift the financial consequences of the risk to a third party. Primary methods: purchasing insurance, using a cooperative, or securing a guarantee of limited liability."
+            }
+          ],
+          "defer_note": "Defer (or postpone) is sometimes listed as a fifth option — delaying engagement with an activity until a risk can be better assessed or conditions change. Appropriate when the risk environment is rapidly shifting and acting immediately would lock in unnecessary exposure."
+        },
+        {
+          "step": 5,
+          "name": "Develop an Action Plan",
+          "action": "Convert each risk treatment into an active control — a documented measure that modifies and manages the risk. The action plan must specify: the Task (what will be done), the Risk Owner (who is accountable), and the Timeline (when it will be completed). Where necessary, establish contingency and disaster recovery plans. Monitor residual risk — the level remaining after all treatments have been applied.",
+          "risk_owner_principle": "A designated Risk Owner must be assigned for each risk — a specific person given both the authority and the accountability to manage that risk. Risk without an owner is a risk that will not be managed."
+        }
+      ]
+    },
+
+    {
+      "name": "Risk Treatment Strategy — If-Then Decision Logic",
+      "purpose": "Practical decision logic for selecting the correct risk treatment based on the nature and severity of the risk — and for positioning insurance correctly within the broader framework.",
+      "core_principle": "Insurance is a Transfer tool — not a risk management strategy in itself. A client who relies solely on insurance has only addressed the financial consequence of a risk, not its likelihood or source.",
+      "when_to_use": "Use during Step 4 of the framework to guide treatment selection, or when a client presents with a specific risk scenario and wants to know what to do about it.",
+
+      "if_then_logic": [
+        {
+          "condition": "The risk has high probability AND high consequence",
+          "action": "Immediate treatment required — do not accept or defer. Evaluate Avoid, Reduce, or Transfer depending on whether the activity generating the risk is core to the business."
+        },
+        {
+          "condition": "The risk has low probability AND low consequence",
+          "action": "Accept the risk and monitor. The cost of treatment is likely to exceed the expected loss. Document the decision and the rationale."
+        },
+        {
+          "condition": "The risk has high consequence but low probability",
+          "action": "Transfer is typically the most cost-effective strategy — insurance or limited liability structures. The infrequency of the event makes active reduction expensive relative to a transfer premium."
+        },
+        {
+          "condition": "The risk has high probability but manageable consequence",
+          "action": "Reduce through process controls, operational improvements, or diversification. The frequency of occurrence makes Transfer costly — improving the system is cheaper than repeatedly claiming."
+        },
+        {
+          "condition": "The client has no key person insurance and the business is dependent on one or two individuals",
+          "action": "Flag as a high consequence / variable probability risk. A key person departure, illness, or incapacity without a succession plan or insurance cover is one of the most common unmanaged risks in owner-operated businesses."
+        },
+        {
+          "condition": "The client is considering expanding into a new activity or market",
+          "action": "Run the 5-step framework for the new activity before committing. Identify whether new risk sources are being introduced and whether existing insurance and liability structures cover them."
+        },
+        {
+          "condition": "A risk event has already occurred and the client had no formal treatment in place",
+          "action": "Use the event as the entry point to build the framework. Start at Step 3 — evaluate where this event would sit on the heatmap — then work backward through context and identification, then forward to treatment and action plan."
+        },
+        {
+          "condition": "The client asks whether their insurance covers everything",
+          "action": "Insurance covers the Transfer of financial consequences — it does not reduce the likelihood of the risk occurring, and it does not address risks that fall outside the policy scope. A full risk register is required to identify coverage gaps."
+        }
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "insurance_is_not_the_framework": "The most common client misconception is equating risk management with buying insurance. Insurance is one Transfer tool within Step 4 — it addresses the financial consequence of an event but does nothing to reduce the probability of it occurring. Frame insurance as part of the strategy, not a substitute for having one.",
+    "residual_risk_must_be_monitored": "Risk treatments rarely eliminate risk entirely. After any treatment is applied, residual risk remains. The action plan in Step 5 must include a monitoring mechanism — a scheduled review date and an assigned Risk Owner. Risk management without ongoing monitoring is risk management on paper only.",
+    "risk_owner_accountability": "Every risk on the register must have a named Risk Owner — a person with both the authority and the accountability to manage it. A risk without an owner will not be managed. When presenting the action plan, secure explicit commitment from the client on who owns each risk before leaving.",
+    "heatmap_creates_shared_visibility": "The Risk Heatmap is one of the most effective facilitation tools in the framework. Plotting risks visually on a consequence-versus-probability matrix makes the relative severity of each risk immediately visible to the whole leadership team — creating shared accountability rather than leaving risk assessment in the hands of one person.",
+    "risk_can_be_positive": "Opening the conversation by acknowledging that risk includes positive deviations — not just negative ones — reframes the client's relationship with the topic. A client who sees risk management only as loss prevention misses the upside: a business with well-managed downside risk is better positioned to take calculated upside risks."
+  }
+}

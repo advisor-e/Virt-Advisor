@@ -1,0 +1,170 @@
+{
+  "domain": "succession",
+  "label": "succession planning and business continuity",
+  "trigger_keywords": ["succession", "family wishes", "exit plan", "exit strategy", "transfer", "realisation", "business continuation", "business contingency"],
+  "overview": "Succession planning scenarios require the advisor to navigate deep-seated emotional dynamics while simultaneously protecting the business from existential risk. Stakeholders naturally become polarised during ownership transitions — humans are wired to argue positions that serve their own survival interests. A structured facilitation framework is essential because it secures agreement on how the problem will be broken down before anyone jumps to solutions, which is precisely the point at which defensive and argumentative instincts are triggered. The advisor's role here is facilitation, not advice — letting go of predetermined outcomes and ensuring the right voices are balanced. Global standards provide the structural backbone: ISO 22301 for business continuity, IFAC for value preservation, and OECD principles for family governance.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the succession scenario driven by a planned transition with adequate lead time, an urgent or unexpected departure event, or unresolved family conflict that is blocking progress?",
+    "planned_transition": "Work through the full Dream Home methodology in sequence. Begin with the digital discovery questionnaire to establish baseline readiness, then conduct separate wish list meetings with incumbents and successors before bringing stakeholders together. A 5-year lead time is global best practice — if the timeline is shorter, identify which steps must be accelerated and what the corresponding risks are.",
+    "urgent_or_unexpected_departure": "Engage the ISO 22301 dual-track plan immediately. Identify interim replacements for operational continuity while the permanent succession structure is being designed. The emergency sudden departure plan must be activated or created — do not attempt to compress the full planned succession into a crisis timeline.",
+    "family_conflict_blocking_progress": "Address the psychological layer before the structural one. Use the Ascension Diagram and an overarching metaphor (Dream Home or Climbing Everest) to create a collaborative frame. Conduct wish list meetings separately with each party — never with both together until expectations have been individually mapped and potential conflict points identified. A Family Constitution is the OECD-recommended mechanism for preventing emotional conflict from derailing the process."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Psychology of Succession — Theory and Facilitation Principles",
+      "purpose": "Equips the advisor to understand and manage the emotional dynamics that make succession planning uniquely difficult — and to use visual facilitation techniques that create collaboration rather than conflict.",
+      "core_principle": "Facilitation is the key — not advice. The advisor must let go of predetermined ideal outcomes and focus on establishing a collaborative framework, chairing the discussion, and ensuring the right voices are balanced.",
+      "when_to_use": "Use as the theoretical foundation before any succession engagement — particularly where family dynamics are complex, where there is existing disharmony between parties, or where the incumbent is emotionally resistant to letting go.",
+
+      "argumentative_theory": {
+        "source": "Evolutionary psychologist Dan Sperber — Argumentative Theory",
+        "principle": "Humans are wired to establish arguments that best serve their own survival needs. During times of stress — such as handing over a family business — stakeholders naturally become polarised and argue their individual positions, often to the detriment of the greater good.",
+        "implication": "A structured framework prevents this polarisation from taking hold. It secures agreement on how the problem will be broken down before anyone jumps to solutions. Jumping to solutions is precisely what triggers defensive, argumentative instincts."
+      },
+
+      "visual_facilitation": {
+        "ascension_diagram": "Draw the succession journey starting at the bottom left and moving up to the top right. This psychologically aligns participants with the feeling that they are moving upward and improving — a subtle but powerful reframe that shifts the conversation from loss to progress.",
+        "overarching_metaphor": "Frame the entire succession journey using a single unifying metaphor — such as Building Your Dream Home or Climbing Mt Everest. The metaphor engages the right brain (images and emotion) alongside the left brain (structure and facts), making information stick and creating shared language across all stakeholders.",
+        "principle": "Information sticks better when it engages both the left brain (order, structure, facts) and the right brain (images, metaphors). A purely technical presentation of succession options will not create the emotional buy-in required for complex family decisions."
+      },
+
+      "business_continuity_culture": {
+        "standard": "Business Continuity Institute Good Practice Guidelines (GPG Edition 7.0)",
+        "principle": "Embracing business continuity means shifting the organisational mindset so that everyone — not just management — understands what is at stake and why the business needs protection from disruption. Succession planning is not a management exercise; it is an organisation-wide resilience commitment."
+      }
+    },
+
+    {
+      "name": "Global Standards Framework for Succession",
+      "purpose": "Provides the internationally recognised structural standards that underpin a defensible, professionally executed succession plan — ensuring the emotional facilitation is supported by rigorous governance and continuity frameworks.",
+      "core_principle": "Emotional facilitation alone is insufficient. A succession plan must be globally defensible — grounded in recognised standards for business continuity, value preservation, corporate governance, and successor development.",
+      "when_to_use": "Use to structure the professional recommendations and legal/tax framework elements of the succession engagement — particularly at Step 5 (Final Design) and Step 6 (Implementation).",
+
+      "four_standards": [
+        {
+          "standard": "ISO 22301 — Business Continuity and Key Person Risk",
+          "principle": "The International Organisation for Standardisation treats the loss of key personnel as a high-priority business risk. A compliant succession plan mandates identifying both interim and permanent replacements to ensure operational continuity.",
+          "dual_track_requirement": "Every succession plan must have two parallel tracks: (1) a long-term planned transition plan, and (2) an emergency sudden departure plan with pre-defined trigger events that activate it. The two tracks are not alternatives — both must exist simultaneously."
+        },
+        {
+          "standard": "IFAC Value Preservation Lifecycle — International Federation of Accountants",
+          "four_phases": [
+            { "phase": "Assessment", "description": "Evaluating financial and non-financial risks associated with the transition" },
+            { "phase": "Structuring", "description": "Legal, tax, and fair value structuring of the transaction" },
+            { "phase": "Development", "description": "Using a 9-Box Grid to track successor potential and performance against the transition timeline" },
+            { "phase": "Transition", "description": "A 3–5 year gradual handover — not a single event" }
+          ]
+        },
+        {
+          "standard": "OECD Principles of Corporate Governance — Family Enterprises",
+          "key_principles": [
+            "Separation of Powers between Ownership, Governance, and Management must be explicitly defined — the family must agree on who owns the asset, who governs it, and who manages it, as three distinct roles",
+            "A written Family Constitution is highly recommended to prevent emotional conflict — objective rules agreed upon in advance are far more effective than ad hoc negotiation under pressure",
+            "Succession tasks containing sensitive information should be accessible only to those who need to know — confidentiality protects relationships during the process"
+          ]
+        },
+        {
+          "standard": "The Rule of 5 — Global Best Practice Lead Time",
+          "principle": "Global best practice mandates a 5-year lead time for succession planning. This allows for:",
+          "what_five_years_enables": [
+            "Competency modelling based on what the future business will actually need from its leader — not what the current business requires",
+            "Strategic mentorship through real-world project assignments — not just observation",
+            "A dual-track plan that keeps long-term retirement planning separate from the emergency sudden departure plan",
+            "Measurement of successor performance and capability using the 9-Box Grid across the full development period"
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "6-Step Dream Home Methodology",
+      "purpose": "A structured step-by-step succession planning process that combines psychological facilitation with IFAC and ISO frameworks — using the Dream Home metaphor to create a collaborative, non-adversarial journey from discovery through to implementation.",
+      "core_principle": "Separate the parties before bringing them together. Gather each stakeholder's wish list independently before any joint meeting — premature exposure of conflicting expectations creates defensive positions that are very difficult to unwind.",
+      "when_to_use": "Use as the primary delivery framework for any succession engagement, regardless of whether the scenario is family business succession, planned retirement, or contingency planning.",
+
+      "steps": [
+        {
+          "step": 1,
+          "name": "Initial Discovery",
+          "action": "Direct the client to an introductory digital questionnaire to get them thinking about life after the business. Questions are designed to be answered as preliminary assessments (yes / no / worth investigating). Use the submitted responses to generate a private readiness report that establishes baseline position before the first formal meeting.",
+          "purpose": "Gets the incumbent thinking about the transition on their own terms — before an advisor or family member is in the room. Creates psychological preparation without triggering immediate defensiveness."
+        },
+        {
+          "step": 2,
+          "name": "Parents' Wish List Meeting",
+          "action": "Conduct the first formal meeting with the incumbents only. Capture their family considerations, financial requirements, personal retirement needs, and expectations regarding the successor — from their distinct viewpoint, without the successor present.",
+          "metaphor_anchor": "Frame this as the architect gathering the homeowner's wish list for the dream home — what must it have, what would be nice, what is non-negotiable."
+        },
+        {
+          "step": 3,
+          "name": "Kids' Wish List Meeting",
+          "action": "Conduct an identical wish list exercise with the incoming successors or siblings — separately from the incumbents. If there is existing family disharmony, keep this document completely hidden from the other parties until the Concept Meeting.",
+          "critical_note": "Premature exposure of one party's wish list to the other before expectations have been individually mapped creates conflict that is very difficult to undo. Keep the documents separate until Step 4."
+        },
+        {
+          "step": 4,
+          "name": "Concept Meeting",
+          "action": "Bring all stakeholders together for the first time. Place the parents' wishes alongside the successors' wishes and facilitate a discussion of the natural constraints, pros, and cons of each request. The goal is to align expectations — not to reach final agreement — and to help everyone understand that while the outcome will not be perfect for any single party, mutual compromise is both necessary and achievable.",
+          "facilitation_note": "This is where the advisor's role as facilitator is most critical. Chair the discussion, ensure all voices are heard in balance, and resist the urge to advocate for any position."
+        },
+        {
+          "step": 5,
+          "name": "Final Design and Sign-Off Meeting",
+          "action": "Incorporate the IFAC Structuring standards. Deliver professional recommendations on the business case, valuation, tax, and legal frameworks. The family reviews the budget and feasibility, finalises their must-haves, rules out what is too complex, and formally signs off on the final plan design.",
+          "key_items_to_address": [
+            "Financial viability — ensure transfer costs and funding requirements for withdrawing parties are not debilitating to incoming successors",
+            "Fair value and tax efficiency — independent advisors should verify this",
+            "Ownership vs stewardship — define whether assets will be outright owned by the successor or held in stewardship for future generations",
+            "Salary sacrifice — if a successor was chronically underpaid while building the business, assess whether a discount to the purchase price is warranted",
+            "Past compensation review — evaluate whether wages paid to the successor were at fair market rate throughout their tenure"
+          ]
+        },
+        {
+          "step": 6,
+          "name": "Construction Begins — Implementation",
+          "action": "Activate the succession action plan, assigning and tracking all tasks across four categories: Do, Investigate, Hold, Decline. Maintain confidentiality by ensuring sensitive succession tasks are sectioned off from broader staff access. Monitor progress against the 3–5 year transition timeline using the 9-Box Grid for successor development tracking.",
+          "dual_track_activation": "Simultaneously establish the emergency sudden departure plan with pre-defined trigger events. Both tracks — the planned transition and the contingency plan — must be operational from the moment implementation begins."
+        }
+      ]
+    },
+
+    {
+      "name": "Key Succession Issues — If-Then Guidance",
+      "purpose": "Practical decision logic for the most common succession complications — family conflict, financial viability, unexpected departures, and governance disputes.",
+      "if_then_logic": [
+        {
+          "condition": "Siblings are receiving different financial figures and transparency is being questioned",
+          "action": "The methodology and reasons for different figures must be thoroughly discussed and agreed to by all parties. Establish a Family Constitution early in the process to provide objective rules for mediating emotional conflicts. Use the Salary Sacrifice table to calculate real-world income loss for siblings who provided care to elderly parents during the business-building years."
+        },
+        {
+          "condition": "An unexpected event disrupts the succession timeline",
+          "action": "Activate the ISO 22301 dual-track emergency plan. Identify the trigger events that have occurred and implement the sudden departure protocol. Identify interim replacements for operational continuity immediately — do not attempt to compress the full planned succession into a crisis timeline."
+        },
+        {
+          "condition": "There is insufficient time to train the successor properly",
+          "action": "Use the 9-Box Grid to assess current successor performance and future-focused capability. Identify the specific competency gaps and design targeted project assignments to close them within the available timeframe. Escalate the risk — if the timeline is genuinely inadequate, the plan must either be extended or an interim external leader must be identified."
+        },
+        {
+          "condition": "The family cannot agree on whether successors should own assets outright or hold them in stewardship",
+          "action": "Apply the OECD Separation of Powers principle — define Ownership, Governance, and Management as three distinct roles and assign each explicitly. A written Family Constitution with agreed rules is the most effective mechanism for resolving this before it becomes a legal dispute."
+        },
+        {
+          "condition": "The incumbent is emotionally resistant to letting go",
+          "action": "Do not push the structural framework before the psychological groundwork is done. Use the Ascension Diagram and the Dream Home metaphor to reframe the transition as progress rather than loss. The digital discovery questionnaire in Step 1 is specifically designed to begin this psychological preparation independently, before any family pressure enters the room."
+        }
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "facilitation_over_advice": "The advisor's greatest mistake in succession planning is acting as the expert who knows the right answer. Succession involves values, family relationships, and emotional legacies that no outsider can fully understand. The role is to establish the framework, chair the discussion, and balance the voices — not to advocate for a particular outcome. Advisors who push too hard for what they think is best destroy the trust that makes agreement possible.",
+    "separate_before_joining": "Never bring the parties together before gathering their individual wish lists separately. Premature joint meetings allow dominant personalities to set the agenda, silence quieter stakeholders, and create defensive positions that are extremely difficult to reverse. Separate meetings first — always.",
+    "five_years_is_not_optional": "The Rule of 5 is global best practice for a reason. Compressed succession timelines are one of the leading causes of failed transitions — successors are underprepared, goodwill erodes during a rushed handover, and the incumbent's knowledge and relationships are not adequately transferred. If the client presents with less than five years, name the risk explicitly and document it.",
+    "dual_track_must_exist": "The planned transition plan and the emergency departure plan are not alternatives — both must be designed and operational simultaneously. A business that only has a long-term succession plan and loses its key person unexpectedly has no plan at all. The emergency plan must have named interim replacements, pre-defined trigger events, and a clear activation protocol.",
+    "family_constitution_prevents_legal_disputes": "Many succession conflicts that end up in litigation began as disagreements that could have been resolved by objective, pre-agreed family rules. A Family Constitution is not a legal document — it is a governance agreement. Its value is in creating a shared framework for decision-making before the emotional stakes are at their highest."
+  }
+}

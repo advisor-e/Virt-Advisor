@@ -1,0 +1,238 @@
+{
+  "domain": "governance",
+  "label": "governance and leadership",
+  "trigger_keywords": ["governance", "board", "directors", "compliance", "accountability", "leadership structure", "reporting structure", "decision-making", "policies", "procedures", "management", "oversight", "officers"],
+  "overview": "Governance and leadership scenarios typically surface as one of three underlying problems: the leadership style is misaligned with the business strategy or culture; the decision-making process is compromised by psychological blind spots or boardroom manipulation; or governance structures exist on paper but are not functioning in practice. The core principle across all governance work is that a facade of governance will not act as a shield — organisational survival is not about having structures and procedures in place, it is ultimately about the quality of the decisions made.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the governance problem about leadership style and culture fit, about how the board or leadership team actually makes decisions, or about the gap between documented governance and how it is practised in reality?",
+    "culture_misalignment": "If the presenting issue is team dysfunction, morale, or leadership conflict — start with the Leadership Fit audit and the 5 Levels of Team Functioning to establish where the team's waterline sits before recommending any structural changes.",
+    "decision_quality": "If the presenting issue is poor decisions, recurring mistakes, or a sense that the board is not functioning effectively — introduce the psyche errors and boardroom manipulation tactics, then apply the 8-step decision quality framework.",
+    "governance_gap": "If governance structures exist on paper but are not being followed — the issue is almost always cultural. Written codes, protocols, and tolerances are necessary but insufficient without the behavioural commitment to use them."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Leadership Fit and Team Culture",
+      "purpose": "Establishes whether the leadership style and team culture are aligned with what the business strategy actually requires — and identifies the level at which the team is currently functioning.",
+      "core_principle": "It is a critical error to adopt a leadership style based on personal preference or by mimicking an aspirational figure. Leadership style must align with the desired business culture, the industry's needs, and the leader's own personality traits.",
+      "when_to_use": "When a client presents with team dysfunction, leadership conflict, cultural problems, or poor morale — or when a new leader is being established and the culture needs to be intentionally designed.",
+
+      "two_culture_types": [
+        {
+          "type": "Creativity Culture",
+          "suited_to": "Businesses whose strategy seeks innovation, disruption, or creative problem-solving",
+          "leadership_behaviours": [
+            "Open-air debate and questioning of decision logic",
+            "Open-plan working environment and flexible working hours",
+            "Flat reporting structures",
+            "Financial and non-financial incentives for new ideas that prove commercial",
+            "Celebrate individual performance",
+            "Relaxed dress code"
+          ]
+        },
+        {
+          "type": "Discipline Culture",
+          "suited_to": "Businesses whose strategy demands quality, efficiency, consistency, and precision — e.g. heavily compliant or safety-driven industries",
+          "leadership_behaviours": [
+            "Strict adherence to written best-practice rules and procedures",
+            "Defined communication and reporting lines",
+            "Closed-door debate — questioning of decision logic follows protocol",
+            "Fixed working hours and environment",
+            "Uniform dress code",
+            "Celebrate team performance only — not individuals",
+            "Salary reflects authority position"
+          ]
+        }
+      ],
+
+      "five_levels_of_team_functioning": {
+        "description": "Every board or leadership team operates at one of five levels. Identifying the waterline — the level the team operates at most often — is the starting point for any governance improvement conversation.",
+        "levels": [
+          {
+            "level": 1,
+            "name": "Flow State",
+            "description": "Teams function via authentic expression and creative abrasion. Diversity of insight is valued over virtue signalling. Members are driven by individual accountability rather than fear of letting the team down.",
+            "advisor_note": "This is the target state. Do not assume a team that never argues has reached Level 1 — they may be Fence Menders at Level 3."
+          },
+          {
+            "level": 2,
+            "name": "Role Observance",
+            "description": "Respect is shown in line with title and status but conduct is dominated by the top dog. Members play to their strengths but there is an unspoken hesitancy — an outsider might sense something is missing."
+          },
+          {
+            "level": 3,
+            "name": "Conformist Contribution",
+            "description": "The team operates at average performance. Structure and titles are used to defend opinions. Members contribute more for self-promotion than team benefit. Pressure to conform is present — members drive within their lanes."
+          },
+          {
+            "level": 4,
+            "name": "Machiavellian",
+            "description": "The team is duplicitous and calculated, marked by obvious divisional rivalry. People or ideas are undermined on purpose. Performance is often driven at the cost of employee churn."
+          },
+          {
+            "level": 5,
+            "name": "Violation",
+            "description": "The team is in survival mode — every man for himself. Immoral or illegal actions are ignored. Theft or absenteeism is seen as payback for poor management.",
+            "advisor_note": "Level 4 and 5 teams require leadership intervention before any governance framework will be effective."
+          }
+        ]
+      },
+
+      "winning_team_framework": {
+        "source": "Linda Hill — TED Talk 2014, based on 10-year observation of 16 leaders across 12 industries in 7 countries including Pixar Studios",
+        "three_behaviours": [
+          {
+            "behaviour": "Creative Abrasion",
+            "description": "Winning teams understand the power of healthy debate. Everyone is encouraged to contribute regardless of title, time served, or experience. Teams amplify their differences and are comfortable clashing ideas against each other. They play hard and work hard — but when they work hard they play the ball and not the player."
+          },
+          {
+            "behaviour": "Creative Agility",
+            "description": "Teams are encouraged to have a healthy curiosity when reviewing procedures or ideas. They experiment and assess rather than planning every detail before acting. Team members contribute and then let go so that new ideas can present themselves."
+          },
+          {
+            "behaviour": "Creative Resolution",
+            "description": "Teams refuse to go-along-to-get-along if it means compromising on quality or innovation — regardless of who is pushing for it. Ideas and concepts are combined only in the interests of a better outcome — never to appease someone's ego. The boss does not retire to consider their verdict alone."
+          }
+        ]
+      }
+    },
+
+    {
+      "name": "Decision Quality — Psyche Errors and Boardroom Manipulation",
+      "purpose": "Equips the advisor to identify the psychological blind spots and interpersonal manipulation tactics that most commonly compromise decision quality in boards and leadership teams — and to apply structured frameworks that counteract them.",
+      "core_principle": "Even well-aligned teams must combat internal psychological blind spots and the misinterpretation of external data to make quality decisions. Our minds play tricks on us to avoid stress, anxiety, or effort.",
+      "when_to_use": "When a client's leadership team is making poor decisions, ignoring obvious evidence, or experiencing recurring board conflict. Also use proactively when establishing governance frameworks for a growing business.",
+
+      "five_psyche_errors": [
+        {
+          "error": "Confirmation Bias",
+          "stage": "Foundation Stage",
+          "description": "Seeking out information that supports existing views to avoid the anxiety of being wrong (cognitive dissonance). The team only sees what it already believes."
+        },
+        {
+          "error": "Complacency",
+          "stage": "Orientation Stage",
+          "description": "Failing to maintain focus on the external environment or internal processes once a stage of perceived security has been reached. Success creates blind spots."
+        },
+        {
+          "error": "Optimism Bias",
+          "stage": "Intelligence Stage",
+          "description": "The tendency to delete or ignore negative information in order to hold onto existing beliefs — even when that information threatens security. The team hears what it wants to hear."
+        },
+        {
+          "error": "Over-Exposure / Familiarity Principle",
+          "stage": "Expansion Stage",
+          "description": "Developing a preference for things simply because they are familiar — better the devil you know. Manifests as avoiding commitment and keeping what we have rather than focusing on what we need."
+        },
+        {
+          "error": "Role-Identification",
+          "stage": "Succession Stage",
+          "description": "Mimicking an aspirational figure and acting out how a boss should behave — resulting in inauthentic and poor decision-making. The leader performs a role rather than leading authentically."
+        }
+      ],
+
+      "data_misinterpretation": {
+        "description": "Decision quality drops significantly when leaders misunderstand the feedback or data they receive. Always distinguish between:",
+        "levels": [
+          { "level": "Causation", "definition": "Direct, provable influence — one thing causes another", "example": "Putting petrol in a diesel car causes engine damage" },
+          { "level": "Correlation", "definition": "A relationship exists but neither causes the other", "example": "Low tyre pressure and hitting a pothole correlates with a puncture — but the pressure did not cause the pothole" },
+          { "level": "Coincidence", "definition": "Two entirely independent events occurring at the same time", "example": "Listening to AC/DC when the engine blows up" }
+        ],
+        "tampering_warning": "W. Edwards Deming highlights that leaders must avoid tampering — over-reacting to common, low-impact causes as if they were special events. They must also accurately identify predictable seasonal trends versus genuine high-impact anomalies before taking action."
+      },
+
+      "boardroom_manipulation_tactics": {
+        "description": "When teams lack authentic expression, members resort to manipulation to protect their egos. Leaders must recognise and name these patterns — using the agreed safe word — rather than allowing them to derail decision-making.",
+        "tactics": [
+          { "name": "The Power Broker", "behaviour": "Pulls rank to get what they want regardless of prudence or evidence" },
+          { "name": "The Assassin", "behaviour": "Engages in divisive personality alliances and fuels an us-against-them culture" },
+          { "name": "The Fence Mender", "behaviour": "Abstains from authentic contribution and goes along to get along — false harmony that kills quality debate" },
+          { "name": "The Taxi Driver", "behaviour": "Blindly steers discussions in any direction to frustrate the room and prevent progress" },
+          { "name": "Cold Logic", "behaviour": "Uses rigid logic specifically to discredit or derail creative discussion — attacks the person rather than the idea" }
+        ]
+      },
+
+      "problem_solving_frameworks": [
+        {
+          "name": "Edward De Bono's 6 Hats",
+          "purpose": "Forces participants to examine a decision from six distinct perspectives — prevents groupthink and ensures all angles are covered",
+          "hats": [
+            "White — What information is missing?",
+            "Red — What do feelings and intuition say?",
+            "Black — What is the caution and devil's advocate view?",
+            "Yellow — What are the objective benefits?",
+            "Green — What are the creative alternatives?",
+            "Blue — How should we sequence and organise the decision?"
+          ]
+        },
+        {
+          "name": "The 5 Whys",
+          "purpose": "A simple drill-down method to find the root cause of a problem by sequentially asking 'Why?' — each answer forms the basis of the next question"
+        },
+        {
+          "name": "Contrast and Matrix Models",
+          "purpose": "Contrast models display the interrelationship between planning factors over time (Past vs Present vs Future). Matrix models force exploration of the extremities of variables to categorise scenarios — e.g. Rising Star vs Cash Cow"
+        }
+      ]
+    },
+
+    {
+      "name": "8-Step Governance Implementation Framework",
+      "purpose": "A practical step-by-step method for operationalising quality decision-making and boardroom conduct — translating theory into lasting habits.",
+      "core_principle": "Governance frameworks on paper are necessary but not sufficient. The goal is to embed behavioural habits that make quality decision-making the default — not the exception.",
+      "when_to_use": "When a client wants to establish or improve governance practices in a board, leadership team, or management group. Work through the steps in sequence — each one builds the foundation for the next.",
+      "steps": [
+        {
+          "step": 1,
+          "name": "Establish the Team Waterline",
+          "action": "Have each board member independently read the 5 Team Functioning Levels and record the level they believe the board operates at most often. Discuss as a group what excellent teamwork should look like — the gap between current waterline and Level 1 defines the development agenda."
+        },
+        {
+          "step": 2,
+          "name": "Audit Your Leadership Fit",
+          "action": "Formally review the organisation's strategy against the current leadership style. Document the pros and cons of a Creativity Culture versus a Discipline Culture for the specific industry. Ensure recruitment, meeting structures, and conflict resolution genuinely reflect the strategy required — not the leader's personal preferences."
+        },
+        {
+          "step": 3,
+          "name": "Agree on a Formal Code of Conduct",
+          "action": "Implement a written Code of Conduct requiring members to: Align — act in the best interests of the company and commit to common goals. Respect — take personal responsibility, participate in robust debate, concede defeat with grace, and immediately disclose conflicts of interest. Structure — contribute to strategy, embrace collaboration frameworks, and abide by disciplinary procedures."
+        },
+        {
+          "step": 4,
+          "name": "Implement a Safe Word for Meetings",
+          "action": "Review the manipulation tactics list as a team. Agree on a safe word or phrase — such as 'play the ball, not the player' — that any member can use during a meeting to pause discussion and invite a member to review their conduct. This allows the behaviour to be named without making it a personal attack."
+        },
+        {
+          "step": 5,
+          "name": "Establish Protocols and Tolerances",
+          "action": "Define the official set of procedures that must be followed without exception (Protocols) and the permissible limits of variation from the original design (Working Tolerance). Document both — undocumented tolerances become invisible and unenforced."
+        },
+        {
+          "step": 6,
+          "name": "Actively Test Assumptions",
+          "action": "Do not look only for data that proves existing beliefs are right. Rely on test criteria designed to actively disprove the theory. Where possible use double-blind testing — such as an externally compiled customer survey — to separate the test designer from the outcome and remove bias."
+        },
+        {
+          "step": 7,
+          "name": "Draft a Decision Workpaper",
+          "action": "For significant decisions, use a formal workpaper to document the entire process. Record: the clearly defined problem; a list of possible solutions with pros and cons of each; the final solution selected with the logic in support; and crucially — the counter-argument to the chosen logic, proving that risks were considered before the decision was made."
+        },
+        {
+          "step": 8,
+          "name": "Set Milestones and Enforce Independent Review",
+          "action": "Implementation plans must include reviewable milestones. For each milestone, define Early Failure Indicators so the team knows exactly when a decision is going off track. Ensure the person reviewing the success of a project is not the person managing its implementation — independent review removes the incentive to suppress bad news."
+        }
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "facade_of_governance": "The most important concept to establish early is that governance structures on paper will not protect the business. A board with a written code, documented procedures, and regular meetings can still make catastrophic decisions if the behavioural habits underneath are broken. Always move from structures to behaviours.",
+    "never_assume_harmony_means_health": "A board that never argues is not necessarily a high-performing team. It is more likely a group of Fence Menders operating at Level 3 — conformist contribution masquerading as harmony. Healthy teams use creative abrasion. The absence of conflict is often a warning sign, not a positive indicator.",
+    "culture_before_structure": "If the team waterline is at Level 4 or 5, adding governance frameworks will not fix the problem. The cultural and leadership issues must be addressed first. A decision workpaper handed to a Machiavellian team will be weaponised, not used. Sequence the intervention: culture and waterline first, structures second.",
+    "leadership_style_must_match_strategy": "The single most common governance error is a leader who adopts a style based on personal preference rather than strategic need. A creativity-oriented leader running a safety-critical manufacturing business is a governance risk. Always audit leadership fit against the actual strategy and industry requirements before recommending any leadership development."
+  }
+}

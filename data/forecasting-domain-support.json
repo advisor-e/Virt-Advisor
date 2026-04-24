@@ -1,0 +1,245 @@
+{
+  "domain": "forecasting",
+  "label": "financial management and forecasting",
+  "trigger_keywords": ["cash forecast", "budgets", "dashboard", "dashboard discussions", "ratio analysis", "financial management report", "forecast", "budget"],
+  "overview": "Financial management and forecasting scenarios typically involve clients who either lack a functioning financial management system entirely, or have some reporting in place but are not using it effectively. The 3 Pillars of Financial Management provide the structural framework — Scenario Model, Financial Systems and Controls, and Reporting — operating as a continuous cycle. The advisor's job is to identify where the client sits on the Client Progression pathway and use the right template to advance them to the next stage, rather than jumping straight to complex reporting tools a client is not yet ready for.",
+
+  "diagnostic_entry": {
+    "primary_question": "Where does the client currently sit on the Client Progression pathway — are they withdrawn from financial management entirely, confused about how money moves through their business, reacting to data without understanding it, or ready to plan and forecast?",
+    "progression_guide": "Do not try to install a full financial management system in one conversation. Identify the client's current stage and move them one step forward. A client who is Stuck in the Mud needs the Heald Matrix before they need a dashboard. A client with a Knowledge Gap needs the Working Capital Cycle before they need ratio analysis.",
+    "cash_problem_entry": "If the presenting issue is specifically a cash flow or cash management problem, use the three-problem-type diagnostic from the Working Capital Cycle first to establish whether the issue is a profitability problem, a lack of working capital, or a true cash flow problem — before applying any cash tactics."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "The 3 Pillars of Financial Management",
+      "purpose": "The master framework for understanding how a robust financial management system works. Sets the context for all financial management conversations — establishing what the three components are, how they interconnect, and why quality at each stage is required for quality at the next.",
+      "core_principle": "Quality reporting relies on quality systems, and quality systems rely on quality models. The three pillars operate as a continuous cycle — not a one-off setup. Most business owners fail because they skip one or more pillars entirely.",
+      "when_to_use": "Use as the opening framework when a client needs to understand why financial management matters and how the pieces fit together — before introducing any specific reporting or forecasting tool.",
+      "three_pillars": [
+        {
+          "pillar": "Scenario Model — Assumptions and Targets",
+          "description": "The what-if calculator. Essential for both strategic and operational planning. Involves feasibility modelling to identify risks and opportunities and assign a probability to observations.",
+          "key_message": "Most business owners fail to do the maths. As simple as it sounds, it is often at the heart of business failure. Scenario planning and feasibility modelling is why financial modelling is used by successful business owners and consultants around the world.",
+          "template": "Revenue Model / Forecast and Action Plan"
+        },
+        {
+          "pillar": "Financial Systems and Controls",
+          "description": "The foundational software platforms and administration protocols that support financial operations. Quality systems are required to support quality reporting.",
+          "key_message": "Most private business owners come from a technician or artisan background — they simply do not know what they do not know about financial systems. A helicopter questions approach lets clients see that system checks are common sense in hindsight.",
+          "template": "Financial Systems Review"
+        },
+        {
+          "pillar": "Reporting — Performance and Actual",
+          "description": "The information gained after business activities — definitive proof of performance. Effective management reporting is designed to avoid confirmation bias: it helps identify what you do not know just as much as it confirms what you do know.",
+          "key_message": "If you do not plan to make any changes or find a better way of doing things, you do not need management reporting. What you need is a whole heap of luck.",
+          "template": "Dashboard Discussions / Ratio Analysis / Benchmarking"
+        }
+      ]
+    },
+
+    {
+      "name": "Client Progression Pathway",
+      "purpose": "A sequential map of the psychological and practical stages a client moves through on the journey to embracing financial management services. Guides the advisor in selecting the right template for where the client actually is — not where the advisor wishes they were.",
+      "core_principle": "Securing management reporting clients is a progressive engagement. Building a visible learning culture can only occur top-down. Do not skip stages.",
+      "when_to_use": "Any time a client needs to be moved toward financial management services. Use to diagnose the client's current mindset and select the appropriate entry template before recommending dashboards or forecasts.",
+      "stages": [
+        {
+          "theme": "Stuck in the Mud",
+          "problem": "Client is withdrawn from business development due to fatigue, fear of loss, or lack of clarity and belief.",
+          "solution": "Create self-relevance by identifying with a persona. Let them see themselves within the Heald Matrix and recognise that progress is easily within reach.",
+          "template": "Heald Matrix"
+        },
+        {
+          "theme": "The Knowledge Gap",
+          "problem": "Client understands money in vs money out in a linear fashion but does not understand the true effects of time and discounting on their cash position.",
+          "solution": "Create the ah-ha moment. Let clients see their business in cyclic terms. They will then piece together the role of forecasting and budgeting.",
+          "template": "Working Capital Cycle"
+        },
+        {
+          "theme": "The Wake Up Call",
+          "problem": "Client accepts ups and downs but has no way of quantifying their range, leading to poor data conclusions and reactive decisions.",
+          "solution": "Show that a business is a system of processes and that a reduction in volatility can only come after refining business procedures.",
+          "template": "Volatility Model / Deming's Theory"
+        },
+        {
+          "theme": "Eyes on the Prize",
+          "problem": "Client carries too many ideas in their head. They need a place to unpack their thoughts so future moves become clear and quantifiable.",
+          "solution": "Encourage clients to see problems and opportunities as a series of what-if events. Logic supports ideas and quantifies what is needed to succeed.",
+          "template": "Revenue Model"
+        },
+        {
+          "theme": "Looking Ahead",
+          "problem": "If the client views a financial forecast as a static prediction they fall victim to feelings of judgement and frustration. They miss the joy that comes from learning.",
+          "solution": "A 3-way forecast combined with revenue model sensitivity gives strong clues about what to expect going forward. The owner can finally feel in control.",
+          "template": "Forecast and Action Plan"
+        },
+        {
+          "theme": "Cross the I's and Dot the T's",
+          "problem": "Client comes from a technician or artisan background and simply does not know what they do not know about financial systems.",
+          "solution": "Starting the financial systems review with helicopter questions allows the client to see that many system checks are simply common sense in hindsight.",
+          "template": "Financial Systems Review"
+        },
+        {
+          "theme": "Test and Learn",
+          "problem": "Learning is constant but only comes from a position of strength. Many business owners avoid financial management due to ignorance and fear.",
+          "solution": "Build a visible learning culture through progressive engagement. Implement Dashboard Reports, Ratio Analysis, and Benchmarking to maintain ongoing momentum.",
+          "template": "Dashboard Discussions / Ratio Analysis / Benchmarking"
+        }
+      ]
+    },
+
+    {
+      "name": "The Advisory Staircase — Financial Management",
+      "purpose": "A 5-step sequential framework that maps the journey from raw data to observable results — giving the advisor a clear pathway for building a client's financial management capability over time.",
+      "core_principle": "Each step builds on the one before. There is no point measuring speed if you do not know where you are going.",
+      "when_to_use": "Use to sequence the advisor's engagement plan with a financial management client — establishing which step the client is currently at and what the next logical move is.",
+      "steps": [
+        {
+          "step": 1,
+          "name": "Compilation and Verification",
+          "objective": "Get the data in, clean, and timely.",
+          "action": "If a client is withdrawn or Stuck in the Mud, use the Heald Matrix first to create self-relevance before demanding heavy data compliance. Do not attempt to build reporting on top of dirty or late data."
+        },
+        {
+          "step": 2,
+          "name": "Assimilation",
+          "objective": "Render the data so it is easy to view and comprehend.",
+          "action": "Address the Knowledge Gap by showing clients their business in cyclic terms using the Working Capital Cycle. Let them piece together the role of budgeting and forecasting through the ah-ha moment."
+        },
+        {
+          "step": 3,
+          "name": "Interpretation",
+          "objective": "Recognise the difference between correlation and causation.",
+          "action": "When clients experience their Wake Up Call about business ups and downs, introduce the Volatility Model. Show that a business is a system of processes and volatility reduces only by refining those procedures."
+        },
+        {
+          "step": 4,
+          "name": "Application",
+          "objective": "Determine the next experiment.",
+          "action": "Move clients away from viewing forecasts as frustrating static predictions. Implement a 3-way forecast with revenue model sensitivity so the owner feels in control rather than judged. Conduct a Financial Systems Review using helicopter questions."
+        },
+        {
+          "step": 5,
+          "name": "Observation",
+          "objective": "Stay in the loop.",
+          "action": "Solidify a Test and Learn environment. Secure progressive engagement through management reporting. Implement Dashboard Reports, Ratio Analysis, and Benchmarking to maintain a visible learning culture."
+        }
+      ]
+    },
+
+    {
+      "name": "Cash Tactics — Activity Ratios and Working Capital Tactics",
+      "purpose": "A practical 4-step tactical framework for accelerating the working capital cycle and improving cash position across accounts payable, inventory, accounts receivable, and sales. Applied once the problem type (profitability, working capital, or cash flow) has been correctly diagnosed.",
+      "core_principle": "The goal is not to chase a perfect standalone number but to implement actionable business behaviours that shift financial trends in a positive direction. Poor management of the working capital cycle creates opportunity costs, triggers overdraft fees, and damages market reputation.",
+      "when_to_use": "Use after the Working Capital Cycle diagnostic has confirmed the client has a true cash flow problem or a working capital shortage. Do not apply cash tactics to a profitability problem — the tactics will not fix insufficient margin.",
+      "steps": [
+        {
+          "step": 1,
+          "name": "Maximise Accounts Payable — Creditor Days",
+          "strategy": "Safely extend the time cash stays in the bank by utilising supplier terms (spontaneous finance) without damaging relationships.",
+          "tactics": [
+            "Approach suppliers with a mutually beneficial proposition: offer to carry a wider range of their stock items in exchange for delayed payment terms",
+            "Ensure extensions are negotiated upfront rather than simply paying late — burning bridges results in Cash on Delivery terms being imposed"
+          ]
+        },
+        {
+          "step": 2,
+          "name": "Lean Inventory Management — Stock Days",
+          "strategy": "Treat excessive stock as a liability that hides operational problems such as waste, machine downtime, or design flaws.",
+          "tactics": [
+            "For low-frequency or rare items, avoid holding them in the warehouse. Use air freight to ship directly to the customer post-purchase",
+            "For perishable goods, invest in fast freight to maximise available sales days and minimise spoilage risk",
+            "Establish formal protocols to offload obsolete items via third-party sellers to unlock trapped cash"
+          ]
+        },
+        {
+          "step": 3,
+          "name": "Aggressive Accounts Receivable — Debtor Days",
+          "strategy": "Eliminate the lag time between delivering a product or service and seeing the cash return to the business.",
+          "tactics": [
+            "Instant billing: equip field staff with on-site invoicing tools (e.g. Tradeify integrated with Xero) so finalised invoices are generated the moment a job is completed",
+            "Proactive collection: institute strict early follow-up protocols rather than waiting until invoices are severely overdue",
+            "The 90-day rule: any client who slips into 90-day arrears moves immediately to Cash on Delivery. If they refuse, cease acting for them"
+          ]
+        },
+        {
+          "step": 4,
+          "name": "Accelerating Sales and Annualised Stock Turn",
+          "strategy": "Increase working capital cycles by optimising sales volume and profit margins so every cycle brings maximum energy and return.",
+          "tactics": [
+            "Optimised pricing: conduct market research, divide competitor pricing into four quadrants, and position at the lower end of the uppermost quadrant to maximise margin while remaining competitive",
+            "Overcoming objections: brainstorm the top 5 common sales objections, build structured scripts, and have the sales team buddy up to rehearse until responses are natural",
+            "Infrastructure-free expansion: use licensed distributors to push products into new markets without taking on heavy infrastructure costs"
+          ]
+        }
+      ],
+      "if_then_logic": [
+        {
+          "condition": "Client states: 'We often forget to invoice until weeks after a job is done'",
+          "action": "Implement on-site billing apps synced to accounting software — invoices generated immediately upon job completion start the payment clock instantly"
+        },
+        {
+          "condition": "Client complains: 'We have clients who constantly stretch past 90 days'",
+          "action": "Switch them to Cash on Delivery immediately. If they refuse, terminate the relationship — chronic late payers drain the working capital cycle"
+        },
+        {
+          "condition": "Client asks: 'How can we negotiate longer payment terms with suppliers?'",
+          "action": "Offer to carry a wider range of their stock catalogue in return for delayed terms — a mutual trade-off that improves creditor days without damaging the relationship"
+        },
+        {
+          "condition": "Client notes: 'We tie up cash in rare items or lose money on perishable stock'",
+          "action": "Deploy direct-to-customer air freight for rare items and fast freight for perishables — maximises the sales days window to recover the investment"
+        },
+        {
+          "condition": "Client observes: 'Our sales team loses deals when prices are challenged'",
+          "action": "Build scripts for the top 5 sales objections and enforce buddy rehearsals — confidence in overcoming objections allows premium pricing to be maintained without sacrificing conversion"
+        },
+        {
+          "condition": "Client states: 'We want to enter new regions but lack the cash for infrastructure'",
+          "action": "Explore licensed distributors — they absorb regional infrastructure costs while extending the working capital cycle into new territories"
+        }
+      ]
+    },
+
+    {
+      "name": "Working Capital Cycle — Three-Problem Diagnostic",
+      "purpose": "A diagnostic framework for correctly identifying whether a client has a profitability problem, a lack of working capital, or a true cash flow problem. Getting the diagnosis wrong leads directly to wrong solutions — often expensive ones.",
+      "core_principle": "Most business owners misdiagnose their financial problems. The working capital cycle — Cash → Stock → Sale → Debtors → Cash — must complete within the trading period. The speed of that cycle determines annual profitability, not just the margin on each transaction.",
+      "when_to_use": "Use immediately when a client presents any cash, profit, or financial stress concern — before recommending any solution. The three problem types require fundamentally different responses.",
+      "three_problem_types": [
+        {
+          "type": "Profitability Problem",
+          "trigger": "Trading cycle completed within the period but the business still cannot cover wages or new stock",
+          "diagnosis": "This is not a cash flow problem. The money came back on time — there just is not enough of it. The issue is gross margin relative to fixed costs.",
+          "wrong_solution": "Do not recommend a loan or overdraft. The problem is not timing — it is margin. Fix the margin or reduce fixed costs first."
+        },
+        {
+          "type": "Lack of Working Capital",
+          "trigger": "Business receives back-to-back orders and cannot fund additional stock before the first order is paid",
+          "diagnosis": "This is not a cash flow problem. The money from the first order will arrive. Growth is outpacing the available capital to fund consecutive cycles.",
+          "appropriate_solution": "Funding is justified here — provided the gross margin can support the cost of finance. Think of it as an opportunity cost: slightly less margin on the funded cycle, but the client relationship and future profit are secured."
+        },
+        {
+          "type": "True Cash Flow Problem",
+          "trigger": "Operational failure causes the business to miss its invoicing or billing period, pushing payment into the following month",
+          "diagnosis": "This IS a cash flow problem. The money will arrive but the delay removes one complete trading cycle from the year — reducing total annual stock turns and total annual profit.",
+          "appropriate_solution": "The fix is operational, not financial. Faster invoicing, better debtor management, and tighter administrative procedures. Apply the Cash Tactics framework."
+        }
+      ],
+      "key_warnings": {
+        "discounting_danger": "Reducing sale prices requires a significantly higher increase in sales volume just to maintain the same gross profit. A 34% reduction in cost can equate to a 103% required increase in markup to maintain the same profit contribution. Always quantify the volume increase required before a client agrees to any discount strategy.",
+        "over_trading": "Over-trading occurs when growth is funded primarily via debt without adequate retained profit. Before expanding to a new profit plateau: maximise utilisation of existing assets first, then if debt is taken on, perform a Liquidation Value Estimate — can the business scale back down if necessary?"
+      }
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "diagnose_before_prescribing": "Never recommend a forecasting or reporting tool before identifying where the client sits on the Client Progression pathway. A client who is Stuck in the Mud or in the Knowledge Gap is not yet ready for dashboards or ratio analysis — and introducing them prematurely creates resistance, not engagement.",
+    "cash_problem_diagnosis_first": "When a client says they have a cash flow problem, resist the urge to immediately suggest a cash forecast or loan. Run the three-problem-type diagnostic from the Working Capital Cycle first. Most clients calling it a cash flow problem actually have a profitability problem — and recommending debt for a profitability problem makes things worse.",
+    "progressive_not_all_at_once": "The Advisory Staircase and Client Progression pathway are sequential by design. Identify which step the client is on and move them one step forward. Trying to install all three pillars at once overwhelms the client and usually results in none of them sticking.",
+    "reporting_needs_good_systems": "Quality reporting relies on quality systems. If the client's data is unreliable, do not build a dashboard on top of it — fix the financial systems first. A sophisticated report built on dirty data creates false confidence and wrong decisions."
+  }
+}

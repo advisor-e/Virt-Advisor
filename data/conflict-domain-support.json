@@ -1,0 +1,205 @@
+{
+  "domain": "conflict",
+  "label": "conflict meetings and facilitation",
+  "trigger_keywords": ["argument", "disagreement", "conflict meeting", "heated", "tense", "difficult", "tough", "uncomfortable", "pressure cooker", "disruptive", "come to jesus meeting", "face off", "facilitation"],
+  "overview": "Conflict meeting scenarios require the advisor to act as a facilitator — not an adjudicator. The goal is never to declare a winner. It is to create an environment where people can catch themselves acting in violation of their own higher values, and choose to let go of their current position for the greater good. The psychological foundation is understanding why people double down on positions even when proven wrong — and building a safe cognitive pathway for them to release those positions without feeling a loss of self. The practical tools are the 6-step facilitation process, the Force Field Analysis whiteboard exercise, the 3 framing concepts, and deliberate status management.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the conflict between two parties who share the same ultimate goal but disagree on the process — or are their interests genuinely opposed, making a mutually acceptable outcome structurally difficult?",
+    "shared_goal_different_process": "This is the most resolvable form of conflict. Find the early alignment on the shared outcome quickly, then separate the outcome from the process. Redirect energy from what went wrong to how to get where everyone wants to go.",
+    "genuinely_opposed_interests": "Use the Cliff Face and Grab Rails technique — show both parties the extreme consequence of scorched earth tactics, then offer a central equitable outcome they can agree to live with. The key is equitable, not equal. Equal means everyone gets the same; equitable means everyone gets what they need relative to their situation.",
+    "entrenched_position_with_loss_of_self": "The conflict has become about identity, not just interests. Before any process can work, the facilitator must open the cognitive pathway for detachment using the Santa Claus sequence. Attempting to resolve the substantive issue before addressing the loss-of-self dynamic will fail — the party cannot hear the solution until they feel safe enough to let go."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Conflict Psychology — Why People Double Down",
+      "purpose": "Establishes the psychological foundation that explains why conflict participants argue the way they do — giving the facilitator the insight to manage the room without being drawn into the content of the dispute.",
+      "core_principle": "Reason and logic are not neutral tools for finding truth. They are survival tools wired for persuasion. In a conflict meeting, assume that every party believes they are right and is actively searching for evidence to confirm it. The facilitator's role is not to judge who is correct — it is to shift the group out of confirmation bias mode and into collaborative problem-solving mode.",
+      "when_to_use": "Use as the theoretical foundation before entering any conflict meeting — and apply these principles throughout the session to interpret participant behaviour accurately.",
+
+      "sperber_argumentative_theory": "Dan Sperber (evolutionary psychologist): the function of internalised reason and logic is to help us argue — to manipulate and convince others to meet our survival needs, and to be wary when others attempt to do the same to us. The caveman analogy: a physically small person in prehistoric times had to negotiate with stronger men to gain a share of food — learning to manipulate and convince without physical force. This is the evolutionary origin of what you are watching in the room.",
+
+      "confirmation_bias": "People do not reason to find truth — they reason to find information that supports the position they already hold. If self-reasoning was designed to build better beliefs, it would not come with a built-in bias. In a conflict meeting, every party's internal dialogue is working against resolution. A Double Blind (Placebo) Study exists specifically to protect researchers from their own confirmation bias — such is the corrupting influence of internal dialogue on even trained, objective thinkers.",
+
+      "detachment_and_loss_of_self": {
+        "principle": "We understand things by associating them with past experiences. Once we make an association, we believe we know what it is and what it means — and we take psychological ownership of that understanding. This is why people double down on beliefs even when presented with obvious conflicting information — changing the belief feels like losing part of themselves.",
+        "loss_of_self_note": "Loss of self is deeper than loss of face. It includes the acceptance of conflicting values — a level of emotional maturity that requires the facilitator to explicitly make safe. Example: 'I love my job but I cannot work there anymore.' These two things feel contradictory; accepting both requires letting go of one identity to hold two truths at once.",
+        "implication": "To accept new information, a person must first be prepared to let go of their current belief without feeling a loss of self. You must create the cognitive pathway for this before any resolution is possible."
+      }
+    },
+
+    {
+      "name": "The Cognitive Pathway — Detachment Sequence",
+      "purpose": "A three-question script that creates a safe psychological pathway for participants to release their current position without feeling they are losing their identity — the prerequisite for any conflict resolution.",
+      "core_principle": "Holding on to a belief out of fear of learning we were wrong is detrimental to wellbeing and potentially dangerous. The desire to avoid short-term embarrassment is only because we took ownership of our understanding. Once we see that changing a belief does not make us weaker, we become free to accept new information.",
+      "when_to_use": "Use early in the conflict session — before the substantive issues are discussed — whenever participants are showing signs of entrenched positions, emotional escalation, or identity-based resistance. Cannot be skipped when loss of self is the real barrier.",
+
+      "santa_claus_sequence": [
+        {
+          "type": "Disturb",
+          "question": "Do you remember who the first person was to tell you Santa Claus wasn't real?"
+        },
+        {
+          "type": "Affirm",
+          "question": "Did believing in Santa Claus make you less of a person?"
+        },
+        {
+          "type": "Aspirational",
+          "question": "Is it possible that the process of learning that a once firmly held belief was incorrect, releasing it, and accepting a new understanding, actually gave you the early life experience that you can change a belief and NOT be any weaker for it?"
+        }
+      ],
+
+      "prescribed_cognitive_pathway": "We can conclude from this that holding on to a belief or understanding from fear of learning we were wrong is actually detrimental to our wellbeing and potentially dangerous. Our desire to avoid feelings of short-term embarrassment or shame is only because we took ownership of our understanding. If we seek to experience life on the basis of information to date equals new information means new understanding — then we will be better able to adapt to our changing world and therefore be safer, and potentially happier.",
+
+      "closing_anchor": "Going forward — we must seek understanding with an open heart and an open mind. Ask each person to describe what this statement means to them."
+    },
+
+    {
+      "name": "6-Step Facilitation Process",
+      "purpose": "A structured step-by-step method for moving a conflict group from entrenched positions through to a workable resolution — managing emotional energy, building early alignment, and using time deliberately.",
+      "core_principle": "The objective is to create an environment where people can catch themselves acting in violation of their own higher values, and decide to let go of their current position for the greater good.",
+      "when_to_use": "Use as the primary delivery framework for running the conflict meeting itself. Work through the steps in sequence — the early steps build the psychological safety that makes the later steps possible.",
+
+      "steps": [
+        {
+          "step": 1,
+          "name": "Show Them the Light",
+          "script": "We are here to define a process that allows everyone to walk away with a solution they can live with. Not everything they demand, not rewarded for starting high so they can falsely lay claim to concessions — but realistic solutions to fair and honest requests that everyone can live with.",
+          "purpose": "Removes the incentive for extreme opening positions by making clear upfront that the process will not reward them."
+        },
+        {
+          "step": 2,
+          "name": "Find Early Alignment",
+          "action": "Quickly identify the people who want the same ultimate outcome but disagree on the process or methodology. Surface shared intent before addressing the disagreement. Participants who discover they want the same thing — but disagree on how to get there — de-escalate significantly.",
+          "then": "Actively separate the desired outcome from the process itself. By shifting focus to how we get there rather than what went wrong, you reduce emotional energy on the conflict."
+        },
+        {
+          "step": 3,
+          "name": "Separate the Outcome from the Process",
+          "action": "Keep the group focused on where they are going, not on relitigating how they got here. Redirect any backward-looking blame statements to the forward-looking question: what process would get everyone to the outcome they have just agreed they want?"
+        },
+        {
+          "step": 4,
+          "name": "Show the Cliff Face — Highlight the Grab Rails",
+          "action": "Allow those defending their positions to clearly see the extreme consequence of scorched earth tactics — the Cliff Face. Then immediately show the Grab Rails — a central, liveable outcome they can agree to. Agree to let go and live with a central resolution unless it is illegal, unethical, or immoral.",
+          "warning": "Never show the Cliff Face without immediately offering the Grab Rails. The Cliff Face creates urgency; the Grab Rails give that urgency somewhere productive to go. Cliff Face without Grab Rails triggers panic, not resolution."
+        },
+        {
+          "step": 5,
+          "name": "Praise Even Small Acts of Progress",
+          "action": "Publicly thank those who relent or contribute positively to the meeting environment. Positive reinforcement of even minor movement accelerates group progress. Named, specific praise — not generic encouragement — is what lands."
+        },
+        {
+          "step": 6,
+          "name": "Use Time to Your Advantage",
+          "scripts": [
+            "We are going to take a quick coffee break now. I want each of you to find at least one thing you can suggest to make progress here today that does not come at the cost of others.",
+            "I think we have achieved as much as we could expect for the day. I recommend we agree on a future meeting date here and now, and continue the agreed process when we meet again."
+          ],
+          "principle": "Private reflection is where buyers remorse sets in and people backtrack on agreements. This is also where breakthroughs happen. Use breaks deliberately — with a specific assignment — not just to cool the room."
+        }
+      ]
+    },
+
+    {
+      "name": "Force Field Analysis — The Whiteboard Exercise",
+      "purpose": "A structured visual facilitation tool that allows participants to describe their situation from a distance — acting as if they are observing an external group rather than defending their own egos — making it possible to name forces honestly without personal attack.",
+      "core_principle": "Force Field Analysis works specifically because it creates psychological distance from the conflict. Participants describe forces, not people. Frustrations are directed at external pressures rather than at individuals — the rule is play the ball, not the player.",
+      "when_to_use": "Use as the core whiteboard exercise within the conflict meeting — after the cognitive pathway has been opened and early alignment established. It is a productive bloodletting session, provided the facilitator strictly enforces the no-personal-attack rule from the outset.",
+
+      "sequence": [
+        {
+          "step": 1,
+          "name": "Introduce the Framework",
+          "action": "Introduce the WHY (the purpose behind using this model), the WHAT (the action plan it will produce), and the HOW (play the ball, not the player). Participants must understand the rules before the exercise begins."
+        },
+        {
+          "step": 2,
+          "name": "Draw the Perfect World Position",
+          "action": "Start by identifying where the group ideally wants to be — the Perfect World outcome. Write it at the top of the whiteboard. This shifts the mental frame from what is wrong to what is possible, and opens minds to new ideas. Ask: if everything went exactly as hoped, what would the outcome look like for everyone in this room?"
+        },
+        {
+          "step": 3,
+          "name": "Draw the Worst Case Position",
+          "action": "Define the absolute worst-case scenario — what happens if no resolution is reached and scorched earth tactics prevail. Let the group describe this removed from themselves, which lessens feelings of guilt. Intentionally allow the fear of this worst outcome to linger in the room — it generates an immediate desire to act.",
+          "purpose": "Context. Describing something worse than their current situation reduces shame and provides the motivational urgency to move toward the Perfect World."
+        },
+        {
+          "step": 4,
+          "name": "Identify the Pushing Forces",
+          "action": "List the specific forces pushing the group toward the goal — the benefits of reaching resolution, the reasons change is necessary. These are the tailwinds. Write them on one side of the whiteboard."
+        },
+        {
+          "step": 5,
+          "name": "Identify the Pulling Forces",
+          "action": "List the forces holding the group back — constraints such as lack of funds, fear, history, or entrenched positions. Write these on the other side. The facilitator must strictly prevent personal attacks — forces are systemic, not personal."
+        },
+        {
+          "step": 6,
+          "name": "Build the Action Plan",
+          "action": "Translate the collaborative whiteboard session into a concrete plan. Identify which pulling forces can be reduced and which pushing forces can be amplified. Assign tasks with specific owners and timelines. Use automated reminders and copy relevant people into tasks to increase visibility and ensure completion."
+        }
+      ]
+    },
+
+    {
+      "name": "3 Framing Concepts and Status Management",
+      "purpose": "The structural tools used before and during the conflict meeting to establish facilitator authority, neutralise disruptive behaviour, and give all participants a shared reference point for negotiation.",
+      "core_principle": "Status is not about dominance for its own sake — it is about creating enough arousal in the room that the group chooses to tune in rather than tune out. Status must be earned in context, then shared immediately.",
+      "when_to_use": "Apply all three framing concepts in the opening phase of the meeting, before the substantive content begins. Status management is ongoing throughout.",
+
+      "three_framing_concepts": [
+        {
+          "concept": 1,
+          "name": "Achieve Status and Share It Quickly",
+          "description": "Establish hierarchical dominance early — then immediately share it. Sharing power prevents resentment and converts adversaries into stakeholders in the meeting's success. Assign a specific task to the most vocal adversary to channel their energy constructively.",
+          "example_script": "Hey [name], I know you are concerned about this meeting running over time — can I ask you to watch the clock and remind everyone when there are 10 minutes remaining so we can cover Q&A and end 5 minutes early? If I go over time, you are in charge of the team to throw me out the window.",
+          "status_levels": "Status exists at two levels — Global (your reputation and credentials in the wider world) and Local (your perceived authority in this specific room and context). A heart surgeon has global status but loses local status the moment they pick up a pool cue against a pub pool shark. Read the room — local status must be earned through delivery, frameworks, and genuine intent, not assumed from credentials alone."
+        },
+        {
+          "concept": 2,
+          "name": "Call Out the Ghosts",
+          "description": "Expose poor behaviour patterns or underlying fears in advance — before they surface and derail the session. Naming the elephant in the room before someone else does gives the facilitator control of the narrative and reduces the shock value of difficult truths. Pre-empt bad news; do not wait for it to ambush the meeting."
+        },
+        {
+          "concept": 3,
+          "name": "Establish Context — Worst Case, Current Case, Best Case",
+          "description": "Frame the situation across three reference points. Worst Case is what happens if nothing changes and scorched earth prevails. Current Case is where the parties actually are. Best Case is the Perfect World outcome. This prevents catastrophising (treating Current Case as Worst Case) and gives the group a rational range within which to negotiate."
+        }
+      ],
+
+      "facilitator_three_pillars": [
+        {
+          "pillar": "The Person",
+          "guidance": "Separate the emotional attachment from the belief — only then can you position a new belief if required. The person must be able to accept a new position without feeling a loss of self. Address the identity layer, not just the argument."
+        },
+        {
+          "pillar": "The Method",
+          "guidance": "The method serves as the mental alignment framework for achieving collaboration. It must be easy to learn and recall — it is often during private reflection periods after the meeting that people backtrack on agreements. If the process is too complex to remember when they are alone, buyers remorse will undo the progress made in the room."
+        },
+        {
+          "pillar": "The Outcome",
+          "guidance": "The outcome must be equitable — not necessarily equal. Equal means everyone gets the same. Equitable means everyone gets what they need relative to their situation. Confusing equality with equity is one of the most common sources of persistent conflict — and one of the most important distinctions the facilitator must hold."
+        }
+      ],
+
+      "delivery_elements": [
+        { "element": "Physiology and Pace", "description": "Congruent gestures and pace — mirroring. Body language must match intent and message. Incongruence is detected immediately in a high-tension room." },
+        { "element": "Intent", "description": "Genuine intention for positive meeting outcomes for all in attendance. If intent is not authentic, it will be detected — particularly by parties who are already on high alert for manipulation." },
+        { "element": "Frameworks", "description": "Structured, well-prepared conceptual tools signal that the facilitator has thought about the problem in advance and has genuine authority over the process — not just the room." },
+        { "element": "Tonality", "description": "Delivering the message at the correct pitch. Tone communicates confidence, empathy, and control more powerfully than content alone." }
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "facilitator_not_adjudicator": "The moment the advisor takes a position on the substantive content of the conflict, they lose their authority as a neutral facilitator. The role is to manage the process — not to determine who is right. If the advisor has a prior relationship with one party, that relationship must be explicitly acknowledged and set aside at the opening of the meeting.",
+    "cliff_face_without_grab_rails_is_dangerous": "The Cliff Face technique is powerful precisely because it uses fear. But fear without a safe exit triggers panic, escalation, or walkouts — not resolution. Every time the Cliff Face is shown, the Grab Rails must immediately follow. Show the consequence; then show the path. Never one without the other.",
+    "equitable_not_equal": "Most persistent conflict is sustained by both parties arguing for equality when the situation actually demands equity. The facilitator must hold this distinction clearly and introduce it early — before positions become entrenched around the wrong standard. Once parties understand that equitable means each person gets what their situation requires, rather than identical shares, resolution becomes structurally possible.",
+    "use_breaks_deliberately": "Private reflection is both the greatest risk (buyers remorse and backtracking) and the greatest opportunity (genuine processing away from group pressure) in a conflict meeting. Never call a break without assigning a specific reflection task. The task redirects the private thinking from relitigating the conflict to generating progress.",
+    "loss_of_self_must_be_addressed_first": "Advisors who attempt to resolve the substantive issue before addressing the loss-of-self dynamic will fail — often repeatedly. The party cannot hear the solution while they are gripping their identity. The Santa Claus sequence and the prescribed cognitive pathway are not optional warm-ups; they are the structural prerequisite for everything that follows."
+  }
+}

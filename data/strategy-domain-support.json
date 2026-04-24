@@ -1,0 +1,157 @@
+{
+  "domain": "strategy",
+  "label": "strategy and planning",
+  "trigger_keywords": ["strategy", "strategic planning", "business plan", "growth plan", "long-term", "vision", "mission", "goals", "objectives", "direction", "pivot", "restructure", "business model", "pitch", "scale", "scaling", "milestones", "ethos", "focus"],
+  "overview": "Strategy and planning scenarios require the advisor to first diagnose where the client sits — in terms of both their planning maturity and their mindset toward planning — before selecting any template. The four tools in this domain work as a natural progression: the Growth Curve Reveal repositions the advisor as a strategic partner; the Heald Matrix surfaces the client's relationship with planning and secures buy-in; the Capacity Capability Opportunity framework diagnoses the real macro constraints; and the Client Planning Framework selects the right planning approach based on business maturity. All planning paths must be supported by a Revenue Model to ensure financial alignment.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the client coming to planning fresh — a startup, new to the concept, or newly motivated — or are they an established business owner who needs a structured strategic review?",
+    "client_is_new_to_planning": "Use the Growth Curve Reveal to create context and reposition the advisor, then the Heald Matrix to secure planning buy-in, then navigate the Startup branch of the Client Planning Framework.",
+    "client_is_established_but_stuck": "Use the Heald Matrix to surface the coping mechanism blocking planning progress, then CCO to validate real constraints, then the Well Established Business branch of the Client Planning Framework.",
+    "client_wants_strategic_direction": "Use CCO to diagnose Capacity, Capability, and Opportunity constraints first — this determines whether the strategic ambition is grounded in reality — then select the appropriate planning template from the Planning Outcomes Review.",
+    "revenue_model_always_required": "Regardless of which branch is taken, all planning engagements must be supported by a Revenue Model. Financial alignment is not optional — it is the structural backbone of any credible plan."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Growth Curve Reveal",
+      "purpose": "Opens the strategic conversation by positioning the advisor as a Strategic Advisor rather than a compliance or technical provider. Uses a 3rd person persona story to help the client contextualise their own business position on the growth curve — without triggering ego defences.",
+      "core_principle": "The Growth Curve reveal is not a lecture — it is a guided story. Use a 3rd person persona throughout, let the client find their own relevance, and close by positioning yourself as a Strategic Advisor rather than pitching services.",
+      "when_to_use": "Use at the start of any strategic conversation with a client who has not yet engaged with advisory services — particularly at EOY meetings, first advisory conversations, or whenever the advisor wants to shift from a transactional to a strategic relationship. Can be used with any business client at any stage.",
+      "key_steps": [
+        {
+          "step": 1,
+          "name": "Global Positioning",
+          "guidance": "Open with one confident paragraph: 'This is the Growth Curve. It explains the 9 stages of business growth — from the time a business owner first develops their idea right up until they sell it and walk off with a bag of money. We use it because it highlights the types of issues owners can expect to encounter BEFORE they have to cope — so they are better prepared and more successful.' Then transition: 'Let's take a look through the eyes of [your persona]...'"
+        },
+        {
+          "step": 2,
+          "name": "Develop Your Persona",
+          "guidance": "Build a fictional 3rd person character before the session — name, business, age, why they started, and a quirky memorable product feature (e.g. steak and rhubarb pies). Use the same persona with every client. The persona keeps the client in conceptual mode, allows humour and exaggeration, and makes the framework memorable across many conversations."
+        },
+        {
+          "step": 3,
+          "name": "Three-Part Story Sequence",
+          "guidance": "Part 1 — Explain the concept in 3rd person through the persona. Part 2 — If the client is resistant, gain agreement in principle in the 3rd person case before applying it to them. Part 3 — Once self-relevance signals appear, transition: 'So in YOUR case — how do you think this concept could apply?' Ask: 'Where do you sit on the curve? What makes you say that? Where do you want to be, and by when?'"
+        },
+        {
+          "step": 4,
+          "name": "Live Drawing Technique",
+          "guidance": "Draw the curve free-hand in real time — even if handwriting is poor. Drawing slows the client's brain, creates curiosity, and makes the reveal feel like shared discovery. Use the chunking technique: write phase labels in groups of three before speaking about any of them."
+        },
+        {
+          "step": 5,
+          "name": "Close Without Selling",
+          "guidance": "Use the low-pressure closing question: 'So now that we are both clear on where you are trying to get to on the curve — would you be open to me offering you ideas or highlighting problem areas as and when I think they could help you?' This secures ongoing advisory permission without triggering a sales defence. Do NOT immediately list advisory services after a successful reveal."
+        }
+      ],
+      "critical_warning": "The most common mistake after a successful Growth Curve reveal is selling immediately. The strategic repositioning value is destroyed if the advisor lists services straight away. The close secures future permission — act on it in a follow-up within 14 days."
+    },
+
+    {
+      "name": "The Heald Matrix",
+      "purpose": "Surfaces the client's relationship with planning by revealing their current coping style and making it visible. Creates a moment of self-recognition that makes the client far more agreeable to committing to a planning engagement — without the advisor having to argue the case.",
+      "core_principle": "You cannot tell a business owner that their coping mechanisms are not serving them. They need to see themselves — then decide to change. The Heald Matrix creates that moment of self-recognition.",
+      "when_to_use": "Use when a client is resistant to planning, claims to be too busy, doesn't know where to start, or needs to be moved toward a formal planning engagement. Also effective as an informal conversation starter on a napkin over coffee — particularly powerful for shifting transactional relationships into collaborative ones.",
+      "four_quadrants": [
+        { "name": "Turtle", "position": "Low Innovation, Low Methodology", "description": "Same old thing, same old way. 'If it ain't broke, don't fix it' — but forgets that time and tide waits for no man. Slow to react and pulls their head in when things get difficult." },
+        { "name": "Shotgun", "position": "High Innovation, Low Methodology", "description": "Creative but no data — flying by the seat of their pants. Hope hides the fear. Driven by emotional assessment rather than evidence." },
+        { "name": "Lab-Rat", "position": "Low Innovation, High Methodology", "description": "Stuck in the grip of fear and judgement. Second-guesses everything. Forgets that trial and error is a legitimate and necessary means of testing." },
+        { "name": "Pioneer", "position": "High Innovation, High Methodology", "description": "Combines fresh ideas with sound process. Balances gratitude for current means with excitement for what is new. The aspirational target — almost every client will say they want to be here." }
+      ],
+      "three_coping_styles": [
+        { "style": "Assertion", "positive": "Focused and Driven", "negative": "Stubborn and Ignorant — rigid, closed-minded behaviour over time" },
+        { "style": "Withdrawal", "positive": "Considered and Prudent", "negative": "Lazy and Aimless — inaction and avoidance over time" },
+        { "style": "Dutiful", "positive": "Reliable and Consistent", "negative": "Stuck in compliance, unable to innovate" }
+      ],
+      "key_facilitation_rules": [
+        "Reveal quadrants one at a time in order — Turtle, Shotgun, Lab-Rat, Pioneer. Never show the completed matrix all at once (map shock).",
+        "Ask WHAT makes you say that — never WHY. WHY triggers defensiveness. WHAT prompts the client to seek external, material evidence.",
+        "Use IF language for future steps: 'IF you took one small baby step toward that, WHAT might that look like?' One baby step prevents overwhelm.",
+        "Do NOT pitch a large planning engagement immediately. Offer an accessible next step — a 45-minute session or discovery conversation — and book it before leaving."
+      ],
+      "closing_script": "So there is a quick example of how we can use cognitive frameworks to improve your creativity and develop ideas to give you a business advantage. We have a range of templates just like this — would you be open to exploring how we could work a little closer with you going forward?"
+    },
+
+    {
+      "name": "Capacity Capability Opportunity (CCO)",
+      "purpose": "A macro-level diagnostic framework for identifying the legitimate constraints restricting a client's ability to grow or improve across three pillars — how much they can produce (Capacity), whether they are equipped to compete (Capability), and whether the market actually wants what they offer (Opportunity).",
+      "core_principle": "The goal is not to find problems — it is to find legitimate constraints. Naming them as legitimate removes guilt and negative emotion, freeing the client to let go of limiting beliefs and commit to change.",
+      "when_to_use": "Use before recommending any specific strategic direction. CCO ensures the client's growth ambitions are grounded in reality — preventing the advisor from building plans on a foundation the client cannot support. Also use to qualify clients — those whose constraints are too significant to overcome will become problem clients.",
+      "goldilocks_conditions": "Timing is critical. There needs to be enough discomfort that the client is motivated to act, but not so much that they are paralysed. Not too hot, not too cold.",
+      "three_pillars": [
+        {
+          "pillar": "Capacity — Transactional Volume",
+          "definition": "How many jobs or widgets can the business model cope with at its current state?",
+          "diagnostic": "Establish the gap between the Probable Perfect World output and Current World performance. This gap is where the advisory opportunity lives.",
+          "key_script": "I am not saying it will be easy to grow your business profits by the figures shown — I am just saying the figures say it is possible. It is up to us to develop new ideas, test and measure outcomes, and make change where necessary to make the profit a reality."
+        },
+        {
+          "pillar": "Capability — Skill Sets and Resource",
+          "definition": "Can the client deliver Premium or Volume services? Do they have the tools, equipment, and financial resource to compete at a higher level?",
+          "diagnostic": "Evaluate whether the client is genuinely equipped for the segment they are targeting. Use NOT YET as the constructive response when they are not — it is not an admission of failure, it is a redirect that identifies what needs to change and when the timing will be right.",
+          "not_yet_note": "NOT YET inspires future direction. It encourages the mind to search for what they still need to develop — and stimulates ideas about what changes are required before they can safely compete at a higher level."
+        },
+        {
+          "pillar": "Opportunity — Proof of Market Demand",
+          "definition": "What evidence of consumer response does the client have to support their growth goals?",
+          "diagnostic": "Growth ambitions must be grounded in evidence that the market actually wants what the client offers. Ask for qualitative customer feedback and identify specific external forces — event triggers, economy stimulus, technology waves, environmental impacts.",
+          "key_saying": "Fall in love with your customers — not your product or service."
+        }
+      ]
+    },
+
+    {
+      "name": "Client Planning Framework",
+      "purpose": "Determines the most effective strategic planning approach based on a client's business maturity — navigating between a Startup or New to Planning path and a Well Established Business path, and selecting the right template within each.",
+      "core_principle": "Business planning requires a tailored approach rather than a one-size-fits-all solution. All planning paths must be supported by a Revenue Model to ensure financial alignment.",
+      "when_to_use": "After the Heald Matrix has secured planning buy-in and CCO has validated the constraints. Use the Client Planning Framework to select the correct template and depth of engagement.",
+      "step_by_step": [
+        {
+          "step": 1,
+          "name": "Initial Assessment",
+          "action": "When a client states 'I need a business plan', immediately ask: 'Is it for a startup or a well-established business?' This single question determines which branch to follow."
+        },
+        {
+          "step": 2,
+          "name": "Startup or New to Planning Branch",
+          "action": "Differentiate between a true startup and an existing owner who is new to strategic planning.",
+          "paths": [
+            { "type": "True Startup", "template": "1-page or 4-page Bizz Case — excellent for quick reviews of business issues, though mostly void of educative content" },
+            { "type": "Owner New to Planning", "template": "Lite Fundamentals Planning (Lite Strategy) — provides a basic introduction to planning, develops ongoing strategic reviews, and includes a pre-meeting video designed to put the client at ease before the consultation" }
+          ],
+          "note": "Support either choice with a Revenue Model."
+        },
+        {
+          "step": 3,
+          "name": "Well Established Business Branch",
+          "action": "Bypass the basic plans. Start immediately with the Planning Outcomes Review. Support with a Revenue Model."
+        },
+        {
+          "step": 4,
+          "name": "Selecting Focus Areas for Established Businesses",
+          "action": "Use the Planning Outcomes Review to identify the specific focus of the engagement.",
+          "focus_areas": [
+            { "focus": "Business Targets or Strategic Orientation", "templates": "Powerful Goal Setting or Profit Levers and Blue Ocean" },
+            { "focus": "Organisational Review or Sales and Marketing Review", "templates": "Alignment Statements or Porter's and Pine" }
+          ]
+        },
+        {
+          "step": 5,
+          "name": "Positioning Advanced Services",
+          "action": "Profit Levers and Blue Ocean and Porter's and Pine are short-form templates extracted from advanced strategic frameworks. Use them to explore deeper issues and create client demand for structured sequential review services — Management Reporting or Governance Services."
+        }
+      ],
+      "revenue_model_note": "Whether dealing with a startup, an owner new to planning, or a well-established business — the framework requires a Revenue Model to support every planning engagement without exception."
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "sequence_matters": "These four tools work as a natural progression — Growth Curve to open and reposition, Heald Matrix to secure planning buy-in, CCO to validate real constraints, Client Planning Framework to select the right template. Jumping straight to a planning template without the earlier steps is the most common reason planning engagements feel forced or are resisted.",
+    "do_not_sell_after_the_reveal": "The Growth Curve and Heald Matrix both close with low-pressure permission questions — not sales pitches. The strategic repositioning is undone the moment an advisor immediately lists advisory services. Secure permission, book a next step, follow up within 14 days.",
+    "not_yet_over_no": "When a client's ambitions exceed their current capability, NOT YET is far more productive than a blunt correction. It redirects without crushing and immediately prompts the client to think about what they need to change — turning a potential deflation into a development conversation.",
+    "revenue_model_is_non_negotiable": "Every planning path — startup, new to planning, or well established — requires a Revenue Model. A plan without financial alignment is a wish list. The Revenue Model is what converts strategic intention into something the client can actually test, measure, and hold themselves accountable to."
+  }
+}

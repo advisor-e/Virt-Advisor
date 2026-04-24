@@ -1,0 +1,153 @@
+{
+  "domain": "profit",
+  "label": "profitability and feasibility",
+  "trigger_keywords": ["profit", "margin", "margins", "expenses", "rising costs", "cost increase", "cost pressure", "fuel costs", "squeeze", "profitability"],
+  "overview": "Profit and cost pressure scenarios cover two distinct but connected situations: clients struggling with margin squeeze, rising costs, or declining profitability; and clients seeking to fund or acquire assets and needing feasibility assessment before committing. In both cases the advisor's role is to introduce objective, data-driven tools that quantify the problem and demonstrate what improvement is genuinely possible.",
+
+  "support_tools": [
+
+    {
+      "name": "Why Use Revenue Models",
+      "purpose": "Equips the advisor with conviction and language for introducing a revenue model — particularly useful when they feel uncertain about their own credibility or when the client needs to see the opportunity quantified before committing.",
+      "key_benefits": [
+        "Shifts the burden of proof from the advisor's personal credibility to objective, data-driven scenarios — especially valuable for newer or less experienced advisors",
+        "Acts as a neutral proof point during initial consultations — the model validates the opportunity, not the advisor",
+        "Aligns advisor and client on business variables by quantifying exactly how specific inputs (margin, customer numbers, turnaround times) impact total growth",
+        "Quantifies the opportunity in tangible numbers — e.g. identifying $70,000 to $90,000 in potential growth is far more compelling than a verbal pitch",
+        "Motivates client action — when owners can see the numbers show growth is possible, they are far more likely to follow through",
+        "Allows accurate pricing of advisory services based on projected financial improvements identified within the model"
+      ],
+      "advisor_confidence_note": "The model does the heavy lifting. The advisor's job is to facilitate the conversation, not to personally guarantee the numbers. The model is the proof point — they are the guide.",
+      "key_script": "When presenting model projections, frame potential without overpromising: 'I'm not saying it'll be easy, just suggesting the numbers say it's possible.'",
+      "when_to_use": "Any time the advisor is introducing a revenue model concept to a client — whether at the start of the advisory relationship or when recommending a specific modelling tool as part of a profit improvement conversation."
+    },
+
+    {
+      "name": "Lite Feasibility Framework",
+      "purpose": "A structured, three-phase conversational tool for assessing the viability and payback of a proposed funding request, loan, or asset purchase. Used when a client wants to acquire something and needs objective challenge before committing.",
+      "core_principle": "Clients seeking funding typically suffer from confirmation bias — they have already decided they want the asset and are focused on acquiring funds. The advisor must play devil's advocate to drive an objective conversation and uncover hidden risks.",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "The Situation — Validating the Core Idea",
+          "steps": [
+            {
+              "name": "Determine Product Fit",
+              "guidance": "Ask whether there is existing demand for the product or service the asset will support. If the concept is new, the client will need to educate the market. Critical check: if education is required, verify the client has a sufficient marketing budget and enough financial reserves to survive the time it takes for the market to accept the product."
+            },
+            {
+              "name": "Evaluate The Big Idea",
+              "guidance": "Have the client write down the specific problems or frustrations this purchase will solve. Getting it in writing separates minor annoyances from actual financial barriers. Ask them to rate on a scale of 1 to 10 how solving these problems will directly impact revenue or profit."
+            },
+            {
+              "name": "Gauge Market Size",
+              "guidance": "Ask about the scale of the opportunity and the financial upside. Challenge the client by asking whether the money they are about to spend could be invested in a different area of the business for a larger payback."
+            }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "The Business Model — Proving the Payback",
+          "steps": [
+            {
+              "name": "Define the Revenue Model",
+              "guidance": "Ask the client directly: 'Show me the money.' Document exactly how the pending funding or asset will contribute to the business's revenue or profit."
+            },
+            {
+              "name": "Calculate Break-Even",
+              "guidance": "Determine the required utilization rate — how many times the asset needs to 'spin around' to pay for itself. This converts the purchase from a feeling into a number."
+            }
+          ]
+        },
+        {
+          "phase": 3,
+          "name": "The Acid Test — Planning the Exit",
+          "steps": [
+            {
+              "name": "Assess Risk / Return",
+              "guidance": "Ask what is truly at risk if the idea fails. Determine whether failure would be an inconvenience or 'the straw that breaks the camel's back' and pull the entire business under."
+            },
+            {
+              "name": "Establish the Ripcord",
+              "guidance": "Define how the client will identify early signs of failure and how quickly they can exit. If the exit strategy relies on selling the asset (e.g. a truck or plant), warn them about market correlation: if their business slows due to a market drop, other businesses will also be offloading similar assets — drastically lowering realization rate and resale value."
+            }
+          ]
+        }
+      ],
+      "if_then_logic": [
+        {
+          "condition": "Client states: 'This is a new concept and we will need to educate our customers'",
+          "action": "Ask: 'What is your marketing budget, and do you have the financial reserves to wait for market acceptance?'",
+          "context": "Establishes whether the client can survive the timeline required to generate new market demand."
+        },
+        {
+          "condition": "Client states: 'This asset will fix several frustrating operational issues'",
+          "action": "Ask: 'On a scale of 1 to 10, how does solving these specific frustrations impact your actual revenue or profit?'",
+          "context": "Differentiates between a purchase of convenience and a purchase for financial growth."
+        },
+        {
+          "condition": "Client outlines a modest financial upside for the market size",
+          "action": "Ask: 'Could this money be invested in a different area of your business for a bigger payback?'",
+          "context": "Forces the client to consider alternative investments rather than focusing on the current shiny object."
+        },
+        {
+          "condition": "Client admits: 'If this purchase fails, we will lose a significant amount of capital'",
+          "action": "Ask: 'Could this loss be the straw that breaks the camel's back and pull the business under?'",
+          "context": "Determines whether the risk profile is an inconvenience or an existential threat."
+        },
+        {
+          "condition": "Client claims: 'If things go bad, our early exit strategy is to sell the asset to recoup costs'",
+          "action": "Ask: 'If the market tanks, will others be selling this same asset? What is your true realization rate in a down market?'",
+          "context": "Highlights market correlation risks — realization rates drop significantly when everyone is offloading the same asset simultaneously."
+        }
+      ],
+      "when_to_use": "When a client is seeking funding, a loan, or planning an asset purchase and needs objective challenge. Particularly effective when the advisor senses confirmation bias — the client has already emotionally committed to the idea and needs structured questioning to test the financials."
+    },
+
+    {
+      "name": "Cautious Reveal Method",
+      "purpose": "A layered strategy for introducing revenue models to clients with low initial awareness or motivation. Establishes WHY they need the model before showing them WHAT it contains.",
+      "core_principle": "Concepts before complexity. Never show a client their own model until they have mentally owned the idea.",
+      "when_to_use": "Client has low awareness of revenue models, is fee-sensitive, or would experience map shock if shown a complex model immediately. Use before the Trial Fit method.",
+      "sequence_summary": [
+        "Step 1 — Pre-meeting outreach: send Phil's a plumber video to warm the client up before they arrive",
+        "Step 2 — Concept anchoring: open with the overtrading concept and profit sweet spot — get them thinking about the risk of growing the wrong way before any numbers are shown",
+        "Step 3 — Unrelated industry story: introduce modelling logic using a completely different industry to keep the client in conceptual mode, not analysis mode",
+        "Step 4 — Teaser model: show a simple entry-level model using the unrelated industry — enough to create curiosity, not overwhelm",
+        "Step 5 — Complex model flash: after a positive buying signal, briefly flash a fully built industry model — show the power without explaining the detail",
+        "Step 6 — Propose Trial Fit and create a time gap: secure agreement then enforce a gap before showing the client their own model — the gap allows mental ownership to form"
+      ],
+      "key_concepts": {
+        "map_shock": "The overwhelm a client experiences when shown a complex model all at once — brain switches to judgment and resistance. The entire Cautious Reveal strategy prevents this.",
+        "mental_ownership": "The psychological state where the client genuinely wants the model rather than just agreeing to be polite. The time gap creates the conditions for mental ownership to form.",
+        "buying_signals": "Verbal cues that the client has grasped the concept: 'Yes, that's really useful', 'Oh, that's kind of intriguing', or unprompted questions about their own business. Do not flash the complex model until a buying signal is received."
+      }
+    },
+
+    {
+      "name": "Trial Fit Method",
+      "purpose": "A staged approach for introducing a revenue model to a client who is already motivated or has high awareness. Builds familiarity and ownership without causing map shock.",
+      "core_principle": "Get it down, then get it good. Use best guesses and outlandish numbers to build familiarity first — accuracy comes later through the fittings process.",
+      "when_to_use": "Client already has awareness or motivation — bank requires a cash forecast, they want to test feasibility of an idea, they are in a strategic planning conversation, or they proactively requested a model after watching introductory content.",
+      "sequence_summary": [
+        "Stage 1 — Priming and framing the tailored suit metaphor: set realistic expectations before the client sees a single number — the metaphor creates permission for the model to be imperfect",
+        "Stage 2 — Global overview: show the client the big picture quickly — what the model does and what pages it contains — without lingering on detail",
+        "Stage 3 — Getting them in the water: immediately ask the client to make a change to a specific cell — active interaction builds familiarity faster than explanation",
+        "Stage 4 — Testing assumptions against reality: compare client's inputted estimates against actual financial performance — the gap is the most powerful moment in the session",
+        "Stage 5 — Assigning homework and tailoring: send the client away with the model and four reflection prompts — their engagement between sessions drives ownership"
+      ],
+      "key_concepts": {
+        "tailored_suit_metaphor": "Off-the-rack suit = the existing model. Fittings = the iterative refinement process. Sets realistic expectations and creates permission for initial imperfections.",
+        "outlandish_numbers": "Intentionally unrealistic figures used during first interaction to show how the model works dynamically — removes pressure to find accurate data immediately.",
+        "flawed_assumptions": "The gap between what the client guessed and what the financial data shows — reveals that everyday assumptions used for quoting, hiring, or purchasing are fundamentally disconnected from reality."
+      }
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "sequencing_cautious_vs_trial": "Cautious Reveal is for low-awareness clients who need to be sold on the idea first. Trial Fit is for already-motivated clients who just need to be introduced to the model. They are designed to work in sequence for low-awareness clients: Cautious Reveal in meeting one, Trial Fit in meeting two.",
+    "feasibility_vs_modelling": "Use the Lite Feasibility Framework when a client wants to acquire something specific (asset, loan, new initiative). Use revenue modelling tools when the client wants to understand and improve ongoing profitability. The Lite Feasibility assessment often leads naturally into a revenue model conversation once the payback case is established.",
+    "profit_squeeze_entry_point": "When a client presents with rising costs, margin pressure, or cost squeeze, the primary goal is to quantify the gap between current and target performance. Revenue models make this gap visible and actionable. Introduce the Why Use Revenue Models rationale first to build advisor confidence and client buy-in before opening any model."
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "domain": "staff",
+  "label": "staff, productivity and leadership",
+  "trigger_keywords": ["staff", "employees", "team", "efficiency", "productivity", "effectiveness", "leadership", "HR", "morale", "culture", "disharmony", "poor communication"],
+  "overview": "Staff and productivity scenarios require the advisor to move away from generalised frustrations and diagnose the specific root cause of underperformance. The framework separates performance into five primary drivers and guides the advisor through a structured diagnostic — distinguishing between engagement problems (attitude and mindset) and effectiveness problems (knowledge, skill, systems). The right template and intervention depends entirely on which driver is failing.",
+
+  "support_tools": [
+
+    {
+      "name": "Staff Performance Framework — Diagnosis and Resolution",
+      "purpose": "A structured diagnostic guide for identifying and resolving the root cause of staff underperformance. Prevents the common mistake of applying a generic solution to what is actually a specific, diagnosable problem.",
+      "core_principle": "Move away from generalised frustrations ('my staff are driving me nuts') and diagnose the specific driver that is failing. The right intervention depends entirely on whether the issue is Engagement or Effectiveness.",
+
+      "five_drivers_of_human_output": {
+        "summary": "All staff performance issues trace back to one or more of five root causes. Diagnosing which driver is failing determines the correct intervention.",
+        "drivers": [
+          { "driver": "Knowledge", "description": "The information and past experience necessary for comprehension — does the employee know what is expected and why?" },
+          { "driver": "Skill", "description": "Practical application gained through practised actions — do they have the capability to execute at the required level?" },
+          { "driver": "Resource and Planning", "description": "The tools and prioritisation required to execute tasks — are they equipped and organised to deliver?" },
+          { "driver": "Environment", "description": "The organisational structure supporting the individual — does the system around them enable or block performance?" },
+          { "driver": "Mindset", "description": "The mental state, dominant thought patterns, and attitude of the employee — do they care about their role and its impact?" }
+        ],
+        "simplified_diagnostic": "Reduce to 'Know, Do, Care': Does the team know what is expected? Do they have the skills and tools to do it? Do they care — do they feel valued and understand their role's impact?"
+      },
+
+      "engagement_theory": {
+        "label": "Engagement (Care / Mindset)",
+        "summary": "When the issue is engagement, performance is dictated by the 80/20 of employee motivation. Financial incentives are rarely the answer for complex roles.",
+        "primary_motivators": [
+          { "motivator": "Security", "description": "Knowing their job is safe, well-managed, and that they have a visible learning path for the future." },
+          { "motivator": "Autonomy and Contribution", "description": "The freedom to make decisions, feel trusted, and do work that matters." },
+          { "motivator": "Fair Rewards", "description": "Equitable pay compared to peers. Financial bonuses only improve performance for highly repeatable, low-skill tasks — not complex roles." }
+        ]
+      },
+
+      "effectiveness_theory": {
+        "label": "Effectiveness (Knowledge / Skill)",
+        "summary": "When the issue is effectiveness, leaders must understand that learning is not a linear process. Employees go through emotional phases before new skills are embedded.",
+        "learning_curve_phases": ["Shock", "Avoidance", "Acceptance", "Testing", "Implementation"],
+        "advisor_note": "A performance dip during training is normal and expected. The employee's self-perceived skill level drops before they move into acceptance and testing. Anticipate this and coach the client to hold the line rather than abandon the development plan."
+      },
+
+      "diagnostic_steps": [
+        {
+          "step": 1,
+          "name": "Initial Assessment",
+          "trigger": "Manager or business owner states: 'My staff are driving me nuts' or expresses general frustration with team output.",
+          "action": "Start with the People vs Process template, supported by the Wages Review What-if Model to establish a performance baseline.",
+          "diagnostic_question": "Ask: 'Is it their Engagement (attitude) or their Effectiveness (competency) that is the problem?' This single question determines which branch of the framework to follow."
+        },
+        {
+          "step": 2,
+          "name": "Addressing Engagement — Attitude Issues",
+          "trigger": "Core issue identified as poor attitude, low morale, or lack of engagement.",
+          "action": "Review the Lite Fundamentals PEOPLE template.",
+          "systemic_vs_individual": {
+            "widespread_team_issue": "If the attitude problem spans the whole team, conduct a Leadership Review to determine how much of the problem is coming from the top. Check whether the right leadership style is being used to foster creative abrasion and creative agility.",
+            "individual_troublemakers": "If the poor attitude is restricted to one or a few individuals, implement a formal Performance Improvement Plan (PIP) following HR laws to mandate specific behavioural adjustments.",
+            "final_resort": "If the team composition is fundamentally wrong — the wrong people in the canoe — use the Hiring Winners template to replace them."
+          }
+        },
+        {
+          "step": 3,
+          "name": "Diagnosing Effectiveness — Competency Issues",
+          "trigger": "Staff are ineffective despite potentially having a good attitude.",
+          "diagnostic_question": "Ask: 'Is their effectiveness a result of poor systems or lacking skill sets?' This determines whether the failure is in the Environment/Resources or the Knowledge/Skill drivers."
+        },
+        {
+          "step": 4,
+          "name": "Fixing Lacking Skill Sets",
+          "trigger": "Staff give 100% effort but lack the experience or capability to perform at the required level.",
+          "assessment": "Determine whether the staff member has the necessary temperament and ability to realistically reach the required skill level.",
+          "action_if_capable": "Develop learning paths based on observable skills. Implement strict Delegation and Feedback protocols using the Clarify, Agree, Direct, Review model — ensuring no one is left wondering what happens next.",
+          "action_if_incapable": "If they cannot realistically reach the required level, use the Hiring Winners template.",
+          "delegation_model": {
+            "clarify": "Establish who owns the problem.",
+            "agree": "Define who is doing what and by when.",
+            "direct": "Dictate the employee's level of freedom to problem-solve.",
+            "review": "Set a specific time to meet back and check progress — close the loop."
+          }
+        },
+        {
+          "step": 5,
+          "name": "Fixing Poor Systems",
+          "trigger": "Staff are capable and motivated but their effectiveness is blocked by poor systems — they know how to do the job but lack the tools, processes, or structure to do it.",
+          "action": "Review the Lite Fundamentals Process template to redesign the operational environment that is hindering their output."
+        }
+      ],
+
+      "key_concepts": {
+        "ipp_feedback_model": "Use IPP (Improvement, Praise, Praise) rather than the standard PIP sandwich (Praise, Improvement, Praise). In the PIP model, employees wait for the 'but' and become defensive — the praise loses its impact. IPP: give the one specific behavioural improvement first, get them to articulate how they will change, then reinforce with two specific positive observations.",
+        "financial_bonuses_warning": "Financial bonuses only consistently improve performance for repeatable, physical, low-skill tasks. For roles requiring high skill, problem-solving, or task variation, bonuses show little improvement and can reinforce the wrong behaviours. Focus instead on Security, Autonomy, and fair equitable base rewards.",
+        "learning_dip": "A performance dip during or after training is normal. Employees experience Shock and Avoidance phases where their self-perceived skill level drops before they move into Acceptance and Testing. Do not abandon a development plan because performance temporarily worsens.",
+        "delegation_failure_point": "The most common delegation failure is leaving the employee wondering 'what happens next?' The Clarify, Agree, Direct, Review model closes this loop and prevents tasks from falling into a void."
+      },
+
+      "template_pathway": {
+        "engagement_path": ["People vs Process template (initial)", "Lite Fundamentals PEOPLE template (engagement)", "Leadership Review (if systemic)", "Performance Improvement Plan (if individual)", "Hiring Winners (if unsalvageable)"],
+        "effectiveness_path": ["People vs Process template (initial)", "Wages Review What-if Model (baseline)", "Lite Fundamentals Process template (if systems issue)", "Learning path development + Delegation model (if skill issue)", "Hiring Winners (if incapable of development)"]
+      }
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "first_diagnostic_question": "The single most important question is: engagement or effectiveness? Every other decision flows from this. Do not recommend a template before establishing which driver is failing.",
+    "leadership_as_root_cause": "When engagement problems are widespread across a team, the instinct is to focus on the employees — but the root cause is frequently leadership style. A Leadership Review should be the first step for team-wide morale or culture issues, not an afterthought.",
+    "do_not_jump_to_bonuses": "Clients frequently suggest financial bonuses as the fix for motivation problems. Redirect them: bonuses work for simple, repeatable tasks — not complex advisory, trades, or service roles. The real levers are security, autonomy, and fair base pay.",
+    "normalise_the_learning_dip": "Advisors should prepare clients for the learning dip before it happens. If the client is not warned, they will pull the plug on a development plan at exactly the wrong moment — just as the employee is entering the acceptance phase."
+  }
+}

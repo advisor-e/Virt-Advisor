@@ -1,0 +1,171 @@
+{
+  "domain": "sales-marketing",
+  "label": "sales and marketing",
+  "trigger_keywords": ["sales", "drop in revenue", "drop in sales", "drop in income", "low sales", "marketing", "messaging", "media campaigns", "advertising", "brand awareness", "conversion"],
+  "overview": "Sales and marketing scenarios split into two distinct diagnostic tracks: the client's sales volume or revenue has dropped and they need to identify why and recover it; or the client wants to grow sales and needs a structured approach to messaging, positioning, and channel strategy. A third less common pathway applies when the advisor themselves wants to use seminars or events as a client acquisition tool. The Sales and Marketing Review template provides a 16-framework navigation system covering the full sales and marketing spectrum — from product fit and pricing through to brand, digital funnel, and sales process. The Powerful Seminars framework applies specifically when seminar marketing is identified as the right channel.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the problem a drop in existing sales — or a failure to generate enough new sales in the first place?",
+    "drop_in_existing_sales": "Start with Product Fit and the 6 Marketing Questions to establish whether the offer itself is still relevant to the market. Then use the Sales Process Review to identify where in the pipeline leads are being lost.",
+    "failure_to_generate_new_sales": "Start with the 10 Marketing Messages and the Digital Funnel Storyboard to diagnose whether the client is reaching the right people with the right message through the right channels.",
+    "pricing_or_margin_concern": "If the sales drop is accompanied by a margin concern, cross to the Pricing and Packaging/Bundling frameworks before addressing volume — the problem may be in the offer structure, not the marketing activity."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Sales and Marketing Review — 16-Framework Navigation Guide",
+      "purpose": "A comprehensive template covering the full sales and marketing spectrum. The 16 frameworks are not designed to be delivered all at once — the advisor selects the frameworks most relevant to the client's specific presenting problem and navigates from there.",
+      "core_principle": "Identify the specific point of failure in the sales and marketing system before recommending activity. More marketing spend applied to a broken product fit or a weak sales process will not fix a revenue problem — it will accelerate the loss.",
+      "when_to_use": "Any time a client presents with a sales, revenue, or marketing challenge. Use the framework navigator below to select the most relevant starting point based on the presenting symptom.",
+
+      "frameworks": [
+        {
+          "name": "6 Marketing Questions",
+          "page": 5,
+          "presenting_symptom": "Client is unclear on who they serve, what makes them different, or why customers choose them",
+          "what_it_does": "Explores the foundational marketing clarity questions from the customer's perspective — who is being served, what value is delivered, and what makes the offer special",
+          "outcome": "Gets clear on the customer, the value proposition, and the point of difference before any messaging or campaign activity begins"
+        },
+        {
+          "name": "Product Fit",
+          "page": 7,
+          "presenting_symptom": "Sales leads are coming in but not converting — or the client is discounting to win work",
+          "what_it_does": "Explores the trade-offs between business profitability and customer acceptance — tests whether the offer is genuinely aligned with what the target customer actually wants to buy at the price being asked",
+          "outcome": "Increases sales conversion from existing marketing leads. Even below-average salespeople can win sales when the product or service fit is right"
+        },
+        {
+          "name": "10 Marketing Messages",
+          "page": 10,
+          "presenting_symptom": "Client has a good product but struggles to articulate its value — or advertising is not generating leads",
+          "what_it_does": "Explores 10 marketing statements that speak directly to the customer's purchase decision points — converting internal clarity into sticky outbound messaging",
+          "outcome": "Builds a set of compelling, customer-facing messages grounded in the customer's actual decision drivers — not the client's internal language"
+        },
+        {
+          "name": "Customer Type Table",
+          "page": 12,
+          "presenting_symptom": "Client is using one generic message for all customers and wondering why response rates are low",
+          "what_it_does": "Maps customer types to product fit — enabling specific, targeted messaging for each customer segment rather than broad general market coverage",
+          "outcome": "Higher response rates through segmented, relevant messaging for each customer type"
+        },
+        {
+          "name": "A.I.D.C.R.A Advertisement Framework",
+          "page": 14,
+          "presenting_symptom": "Client is spending on advertising but the ads are not performing",
+          "what_it_does": "Explains the logical sequence for constructing an effective advertisement — Attention, Interest, Desire, Conviction, Response, Action — and provides a review framework for A/B testing",
+          "outcome": "More effective advertisements and a structured approach to testing and improving campaign performance"
+        },
+        {
+          "name": "Digital Funnel Storyboard",
+          "page": 17,
+          "presenting_symptom": "Client has marketing assets (website, social media, email) but no coherent strategy connecting them",
+          "what_it_does": "Maps the sequential journey from first contact to purchase — exploring the right offerings, messages, and responses needed to move a target customer from their couch to the cash register",
+          "outcome": "A single, coherent digital marketing plan that utilises all assets in the right sequence"
+        },
+        {
+          "name": "Outbound Messaging Plan",
+          "page": 22,
+          "presenting_symptom": "Client wants to run campaigns but has no structured plan for execution",
+          "what_it_does": "Schedules messaging activities across medium, platform, time, and cost as planning considerations — translating strategy into an executable campaign calendar",
+          "outcome": "A campaign that can be executed alongside all other business activities without falling off the list"
+        },
+        {
+          "name": "Inbound Landing Page Review",
+          "page": 26,
+          "presenting_symptom": "Digital traffic is reaching the website but not converting into enquiries or sales",
+          "what_it_does": "Defines the reader's logic and landing page logic to correctly sequence text, graphics, and widgets — matching the page structure to how a prospective customer actually reads and decides",
+          "outcome": "Higher conversion rate from marketing traffic into sales opportunity"
+        },
+        {
+          "name": "Sparketing Friction Review",
+          "page": 31,
+          "presenting_symptom": "Client cannot identify why people choose not to buy despite apparent interest",
+          "what_it_does": "Reviews the product or service from the angle of 'what stops people from buying it?' — identifying friction points, unwanted features, and unnecessary costs from the customer's perspective",
+          "outcome": "Clarity on what the customer will happily pay for, what they do not care about, and what actively puts them off"
+        },
+        {
+          "name": "Branding Review",
+          "page": 33,
+          "presenting_symptom": "Client's brand feels inconsistent or is not memorable in the market",
+          "what_it_does": "Aligns logo, graphics, messaging, market promise, and story so they work together to build powerful mental associations in the target customer's mind",
+          "outcome": "A cohesive brand identity that creates lasting influence and recognition"
+        },
+        {
+          "name": "Customer Loyalty Programme",
+          "page": 35,
+          "presenting_symptom": "Client is running a loyalty or rewards programme that is not measurably improving profits",
+          "what_it_does": "Clarifies the purpose of a customer loyalty programme and ensures the design translates into measurable profit improvement — not just goodwill spending",
+          "outcome": "A loyalty programme that drives profitable repeat behaviour rather than giving things away without return"
+        },
+        {
+          "name": "Pricing",
+          "page": 37,
+          "presenting_symptom": "Client is considering dropping prices to win more business — or has low margins despite strong sales",
+          "what_it_does": "Encourages a review of pricing beyond simply lifting or dropping it — establishing price as a reflection of value delivered, not a competitive reaction",
+          "outcome": "Sustainable pricing that reflects genuine value and does not erode margin as the default response to sales pressure"
+        },
+        {
+          "name": "Packaging and Bundling",
+          "page": 39,
+          "presenting_symptom": "Client sells individual products or services when bundling could improve value perception and average transaction value",
+          "what_it_does": "Guides a review of how packaging and bundled solutions can support the brand promise, influence the purchasing decision, and shift price point and quality perception",
+          "outcome": "An offer structure that makes the buying decision easier and increases average transaction value"
+        },
+        {
+          "name": "Sales Channel Options",
+          "page": 41,
+          "presenting_symptom": "Client is relying on one sales channel and wants to reach a wider market",
+          "what_it_does": "Explores different sales channel options with a pros and cons discussion — direct, distribution, wholesale, online, partner, referral",
+          "outcome": "A channel strategy that expands market reach without over-extending the business"
+        },
+        {
+          "name": "Sales Process Review",
+          "page": 43,
+          "presenting_symptom": "Client has leads or enquiries but the conversion rate is poor — or the sales team are inconsistent",
+          "what_it_does": "Reviews the sales process from both the customer's perspective and the salesperson's perspective — identifying what to say, when to say it, and how to guide a customer to a buying decision",
+          "outcome": "A consistent, customer-aligned sales process that improves conversion and reduces reliance on individual salesperson personality"
+        },
+        {
+          "name": "Drafting Tender Proposals",
+          "page": 52,
+          "presenting_symptom": "Client relies on tenders or RFPs for revenue and wants to improve success rates",
+          "what_it_does": "Provides notes and guidance for structuring and strengthening tender applications — general reading rather than a focused session tool",
+          "outcome": "Improved tender application quality and success rate"
+        }
+      ]
+    },
+
+    {
+      "name": "Powerful Seminars",
+      "purpose": "A structured framework for designing and delivering seminars, workshops, or presentations that position the advisor or client favourably in the minds of their target audience — used when seminar or event marketing is identified as the right sales and marketing channel.",
+      "core_principle": "Design first, delivery second. A great design makes delivery easy. Many presentations suffer poor delivery because of poor design — not poor delivery skill.",
+      "when_to_use": "When a client wants to use seminars, workshops, or speaking engagements as a primary marketing and client acquisition strategy. Also applicable when the advisor themselves is developing a seminar or presentation programme for their own practice growth.",
+      "session_objective": "To position the speaker favourably in the mind of the audience such that they would seek — or confirm their decision to seek — that speaker's services.",
+      "key_design_principles": [
+        "Define the target audience specifically in writing before anything else — not 'business owners' but 'owner-operators of trades businesses turning over $500k–$2m'",
+        "Define desired outcomes in writing — writing forces clarity over both design and content",
+        "Structure all content using the C.P.D. hierarchy: Concept (the single overarching theme) → Principles (3–5 supporting pillars) → Detail (up to 3 key points per principle)",
+        "Design for all four learning styles in the audience: Pragmatists need facts and proof; Reflectors need time to think; Theorists need to understand why; Activists need energy and hands-on involvement",
+        "The call to action must be designed from the very beginning — not bolted on at the end"
+      ],
+      "four_delivery_styles": [
+        { "style": "Motivator", "use_when": "Opening — to inspire and connect emotionally", "frame": "Why — Why This, Why Now, Why You, Why Me" },
+        { "style": "Coach", "use_when": "Key instructional moments where authority has been established", "frame": "What — how we work together today" },
+        { "style": "Educator", "use_when": "Delivering information, knowledge, or process content", "frame": "How — skills, data, process, information" },
+        { "style": "Collegiate / Facilitator", "use_when": "Closing and call to action — solving together", "frame": "What If / What's Next — options and consequences" }
+      ],
+      "delivery_sequence": "Connect and Engage (Motivator) → Position and Set the Scene (Coach) → Deliver (Educator) → Call to Action and Close (Coach and Collegiate)",
+      "planning_timeline": "Plan over 5–6 weeks minimum, working backwards from the session date. Week 1: confirm date, venue, MC, invitations. Week 2: develop C.P.D. structure, send first hardcopy invitation. Week 3: presenters meet to compare content and test anchors. Week 4: send second email invitation, first full rehearsal. Week 5: send confirmation email to attendees, prepare packs. Week 6: final reminder, final rehearsal.",
+      "two_invitation_rule": "Always send a hardcopy first invitation followed by an email second invitation. The hardcopy creates tangibility and stands out — it significantly improves attendance rates over email-only invitations.",
+      "energy_technique": "The simplest way to lift a disengaged room: direct attendees to 'turn to the person next to you and discuss X for 45 seconds — go!' Be strong and clear in the instruction. Creates noise, momentum, and re-engagement."
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "do_not_start_with_advertising": "The most common client instinct when sales drop is to spend more on advertising. Before recommending any marketing activity, establish whether the product fit is right and whether the sales process is working. Advertising a broken offer or sending leads into a leaky sales process will not fix the revenue problem.",
+    "framework_selection": "The 16 Sales and Marketing frameworks are a menu, not a sequence. Select the 2–3 most relevant to the presenting symptom and run those. Do not attempt to work through all 16 in one session — it overwhelms the client and dilutes the conversation.",
+    "sales_vs_marketing_distinction": "Sales problems (conversion, pipeline, close rate) and marketing problems (awareness, reach, message) require different frameworks. Diagnose which side of the equation is failing before selecting a framework — a client with strong awareness but poor conversion needs sales process work, not more marketing spend.",
+    "seminar_as_a_channel": "The Powerful Seminars framework applies specifically when the client — or the advisor — identifies group presentations or workshops as the right channel for their audience. It is a design and delivery system, not a marketing strategy in itself. Confirm the channel is right before investing in seminar development."
+  }
+}

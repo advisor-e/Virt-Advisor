@@ -1,0 +1,210 @@
+{
+  "domain": "due-diligence",
+  "label": "due diligence and acquisition review",
+  "trigger_keywords": ["due diligence", "DD", "financial DD", "quality of earnings report", "red flag report", "reality check", "pass the sniff test"],
+  "overview": "Due diligence scenarios arise when a client is buying or merging with a business and needs to validate that the target's assets, liabilities, and internal culture are exactly as presented — or when a client is selling and needs to understand what scrutiny their business will face. Due diligence is not a paperwork exercise; it is a fundamental risk-mitigation strategy. The framework tests the target across three pillars — Financial (the Truth Test), Legal (the Protection Test), and Operational and Cultural (the Fit Test) — systematically uncovering red flags (deal-breakers) or price chips (issues that lower the valuation) before the Sales and Purchase Agreement is signed.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the client the buyer conducting diligence on an acquisition target, the seller preparing their business to withstand buyer scrutiny, or an advisor being asked to produce a Quality of Earnings or Red Flag report?",
+    "buyer_conducting_diligence": "Work through the 5-step framework in sequence. Begin with Strategic Alignment — establish the Investment Thesis before reviewing any documents, because what the buyer is acquiring for (talent, technology, geography) determines which pillar to prioritise. Set up the Virtual Data Room and assemble the deal team before the deep-dive phase begins.",
+    "seller_preparing_for_scrutiny": "Apply the same three-pillar framework from the seller's perspective — identify the red flags and price chips before the buyer does. Common seller blind spots: artificially inflated EBITDA through one-time add-backs, undisclosed Change of Control clauses in contracts, customer concentration above 20%, and key person dependencies without retention structures.",
+    "quality_of_earnings_or_red_flag_report": "Focus immediately on the Financial Pillar — specifically the Quality of Earnings analysis. Strip out owner perks, one-time expenses, and add-backs from the EBITDA to determine whether the reported profit is real, recurring, and sustainable. Cross-reference with 3–5 years of tax filings and accounts receivable ageing reports."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Three-Pillar Due Diligence Framework",
+      "purpose": "The core analytical framework for systematically stress-testing a target business across Financial, Legal, and Operational dimensions — ensuring buyers are legally and financially protected before signing the Sales and Purchase Agreement.",
+      "core_principle": "Every due diligence engagement must validate three things: that the financial performance is real and sustainable (Truth Test), that the legal structures protect the buyer post-acquisition (Protection Test), and that the operational and cultural reality matches what was presented (Fit Test).",
+      "when_to_use": "Use as the primary analytical structure for any acquisition, merger, or business purchase engagement. All three pillars must be assessed — skipping the Legal or Operational pillar because the financials look clean is a common and costly error.",
+
+      "pillars": [
+        {
+          "pillar": "Pillar 1 — Financial: The Truth Test",
+          "objective": "Validate that the reported financial performance is real, recurring, and sustainable — not artificially inflated for the purpose of sale.",
+          "key_actions": [
+            "Look beyond the basic P&L — conduct a Quality of Earnings (QoE) review to scrutinise EBITDA for artificial inflations including one-time add-backs and owner perks",
+            "Analyse working capital position and trends — not just the snapshot balance",
+            "Review 3–5 years of tax filings and compare to the financial statements — material discrepancies are a red flag",
+            "Check accounts receivable ageing — clients consistently paying at 90+ days materially affects daily cash flow requirements and post-acquisition liquidity"
+          ],
+          "red_flags": [
+            "High profitability with multiple claimed one-time expenses or owner perks — initiate QoE immediately",
+            "EBITDA that cannot be reconciled to cash flows — profit on paper that is not appearing as cash",
+            "Accounts receivable ageing showing 90+ day terms as standard — recalculate cash requirements before completing the purchase"
+          ]
+        },
+        {
+          "pillar": "Pillar 2 — Legal: The Protection Test",
+          "objective": "Identify legal exposures, contractual traps, and IP vulnerabilities that could immediately devalue the acquisition or expose the buyer to inherited liability.",
+          "key_actions": [
+            "Review all material contracts for Change of Control clauses — supplier or customer agreements that automatically terminate the moment ownership changes hands",
+            "Verify Intellectual Property ownership — patents, trademarks, software, and brand assets must be legally owned by the entity being acquired, not licensed from a related party",
+            "Check for pending or threatened litigation — any undisclosed legal proceedings are a material non-disclosure",
+            "Execute a Non-Disclosure Agreement and Letter of Intent early to establish framework, timelines (typically 30–90 days), and an exclusivity period"
+          ],
+          "red_flags": [
+            "Major supplier or customer contracts containing Change of Control clauses — these can instantly devalue the acquisition by terminating critical relationships post-sale",
+            "IP held by the founder personally rather than by the business entity — this asset may not transfer with the sale",
+            "Undisclosed litigation or regulatory investigations"
+          ]
+        },
+        {
+          "pillar": "Pillar 3 — Operational and Cultural: The Fit Test",
+          "objective": "Assess whether the business can actually function and deliver value post-acquisition — evaluating people dependency, technology integration costs, and customer concentration risk.",
+          "key_actions": [
+            "Use the FORD Model to assess staff morale, engagement, and alignment — particularly for key personnel whose retention is critical to deal value",
+            "Evaluate the technology stack for compatibility — merging cloud-based systems with legacy or paper-based systems creates massive hidden integration costs",
+            "Check for customer concentration — if one client accounts for more than 20% of revenue, the risk to the buyer is exceptionally high if that relationship sours post-acquisition",
+            "Conduct interviews with key staff, suppliers, and customers to uncover hidden bottlenecks, impending market threats, or relationship dependencies invisible in the financial statements"
+          ],
+          "red_flags": [
+            "Business operations or key client relationships tied to a single person — key person dependency is both a valuation and a continuity risk",
+            "Single client accounting for more than 20% of total revenue — flag as a potential deal-breaker and initiate valuation renegotiation",
+            "Major technology incompatibility between buyer and target systems — trigger an IT and Cyber Audit to quantify the tech debt before settling the price"
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "5-Step Due Diligence Process",
+      "purpose": "A phased, sequential methodology for executing a complete due diligence engagement — preventing critical details from slipping through the cracks and ensuring findings are translated into deal leverage before the SPA is signed.",
+      "core_principle": "Due diligence findings are only valuable if they are used. Red flags become deal-breakers or price renegotiation levers. Price chips become warranties and indemnities in the SPA. Start integration planning during the diligence phase — not after the deal closes.",
+      "when_to_use": "Use as the execution framework for any formal due diligence engagement. Each step must be completed before the next begins — the phased approach prevents critical details from being missed under deal pressure.",
+
+      "steps": [
+        {
+          "step": 1,
+          "name": "Strategic Alignment and Planning",
+          "action": "Establish the Investment Thesis before reviewing any documents. Define why the business is being acquired — geographic expansion, talent acquisition (acqui-hire), specific technology, or market share. The thesis determines which pillar receives the most scrutiny and where the deal team's time is best spent.",
+          "deal_team_composition": [
+            "Internal leaders: CEO, HR, Operations",
+            "External experts: M&A Accountant, Commercial Lawyer, IT Consultant"
+          ],
+          "legal_foundations": "Execute an NDA and LOI to establish the deal framework, timelines (typically 30–90 days), and exclusivity period before information sharing begins."
+        },
+        {
+          "step": 2,
+          "name": "Information Gathering — Virtual Data Room",
+          "action": "Have the seller populate a secure Virtual Data Room (VDR) with all sensitive documents. Organise data into parallel streams — Financials, Legal, HR, Operations — so deal team specialists can work simultaneously without creating bottlenecks. Do not allow information gathering to be sequential; parallel processing saves weeks."
+        },
+        {
+          "step": 3,
+          "name": "Execute the Three-Pillar Deep Dive",
+          "action": "Deploy each specialist against their pillar simultaneously. Financial team conducts the QoE analysis and tax review. Legal team reviews contracts for Change of Control clauses and verifies IP ownership. Operational team uses the FORD Model for cultural audit and assesses technology compatibility. All three pillars must be completed — not just the one that looks most pressing."
+        },
+        {
+          "step": 4,
+          "name": "Risk Assessment and Negotiation",
+          "action": "Compile the deal team's findings into a comprehensive Due Diligence Report. Categorise findings as deal-breakers (walk away or renegotiate structure) or price chips (reduce valuation or add protective warranty). Ensure warranties and indemnities are legally embedded in the SPA — verbal assurances are worthless post-settlement.",
+          "negotiation_tools": [
+            "Earn-out clause: ties a portion of the purchase price to the key person remaining and hitting performance targets — the standard remedy for key person dependency risk",
+            "Price reduction: applied to quantifiable issues such as tech debt, receivables ageing, or customer concentration risk",
+            "Warranty and indemnity clauses: legal protection against undisclosed liabilities discovered post-settlement"
+          ]
+        },
+        {
+          "step": 5,
+          "name": "Integration Planning",
+          "action": "Begin Day 1 integration planning during the diligence phase — not after the deal closes. Map the communication plan for staff and customers. Decide which software, CRM, and operational platforms survive the merger before settlement, not after. Decisions made under post-settlement pressure are almost always more expensive than decisions made during diligence.",
+          "day_one_priorities": [
+            "Staff communication plan — who hears what, and when",
+            "Customer communication plan — maintaining relationship continuity",
+            "System and platform consolidation decisions — which CRM, accounting, and operations tools survive"
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "Quality of Earnings Analysis — Red Flag and Price Chip Framework",
+      "purpose": "The specific financial analysis tool used to determine whether reported profitability is real, recurring, and sustainable — or artificially inflated through add-backs, one-time items, and owner perks that will not continue under new ownership.",
+      "core_principle": "The P&L alone does not show the financial truth. A business sold on the strength of its EBITDA must be tested to confirm that EBITDA is genuinely achievable under new ownership — not a product of accounting treatment, timing, or owner-specific expenses that disappear with the vendor.",
+      "when_to_use": "Use immediately when a client is reviewing any acquisition target. The QoE is the first financial test — before any multiplier is applied to earnings, those earnings must be verified as sustainable.",
+
+      "add_back_scrutiny": {
+        "description": "Add-backs are expenses claimed as one-time or owner-specific that the seller argues should be added back to net profit to show true earnings potential. Some add-backs are legitimate; others are artificially inflating EBITDA.",
+        "legitimate_add_backs": ["Owner's personal wages above market rate", "Non-recurring legal or consulting fees", "Owner's personal vehicle, travel, or entertainment charged to the business", "Depreciation (standard EBITDA adjustment)"],
+        "suspicious_add_backs": ["Recurring expenses reclassified as one-time in the sale year", "Expenses that will continue under new ownership", "Multiple consecutive years of claimed one-time items — statistically, they are not one-time"]
+      },
+
+      "if_then_logic": [
+        {
+          "condition": "Target displays high profitability but claims multiple one-time expenses or owner perks",
+          "action": "Initiate a Quality of Earnings analysis — strip out all add-backs and recalculate EBITDA on a normalised, sustainable basis before applying any earnings multiplier"
+        },
+        {
+          "condition": "Target relies heavily on a few major long-term supplier or customer contracts",
+          "action": "Mandate a legal review specifically searching for Change of Control clauses — prevents automatic termination of critical relationships the moment ownership transfers"
+        },
+        {
+          "condition": "A single client accounts for more than 20% of total revenue",
+          "action": "Flag as a high-risk deal-breaker and initiate valuation renegotiation — heavy customer concentration severely limits revenue stability if that relationship sours post-merger"
+        },
+        {
+          "condition": "Operations or key sales accounts are tied to a single key person",
+          "action": "Structure the SPA to include an Earn-out clause — ties a portion of the purchase price to the key person remaining and hitting performance targets post-acquisition"
+        },
+        {
+          "condition": "Buyer uses modern cloud-based systems but target uses legacy or paper-based systems",
+          "action": "Trigger an IT and Cyber Audit to quantify exact tech debt and upgrade costs — merge these into the purchase price calculation before the deal is settled"
+        },
+        {
+          "condition": "Accounts receivable ageing reports show clients consistently paying at 90+ days",
+          "action": "Recalculate the daily cash flow requirements needed to survive standard trading cycles under new ownership — the buyer must have sufficient liquid capital to cover operations while waiting for delayed payments"
+        }
+      ]
+    },
+
+    {
+      "name": "FORD Model — Cultural and Staff Due Diligence",
+      "purpose": "A rapport-building framework adapted as a soft due diligence tool for assessing staff morale, engagement, alignment, and flight risk during acquisitions and mergers — moving beyond transactional management to understand the human drivers behind the team.",
+      "core_principle": "The financial and legal pillars assess what the business owns. The FORD Model assesses what the business depends on — the people. In knowledge or relationship-based businesses, the staff are the asset. If key people's Dreams do not include the new merged entity, acquisition value is at risk the moment the deal closes.",
+      "when_to_use": "Use during the Operational Pillar assessment — conducted through informal 1-on-1 conversations with key staff, not formal interviews. The Coffee Shop approach (informal lunches or check-ins) lowers defences and produces more honest responses than structured HR interviews.",
+
+      "four_pillars": [
+        {
+          "pillar": "Family (and Background)",
+          "assessment_goal": "Identify stability and external pressures — who are the key influencers in their life and do caretaking responsibilities affect their work-life balance?",
+          "leadership_insight": "Understanding family context allows flexibility and support to be tailored — often a higher motivator than a salary increase and critical for retention planning post-acquisition.",
+          "conversation_entry": "How is the family doing? Any big plans for the school holidays?"
+        },
+        {
+          "pillar": "Occupation",
+          "assessment_goal": "Gauge job satisfaction and technical confidence — what part of their daily workflow do they find most frustrating, and what are they most proud of achieving in the last six months?",
+          "leadership_insight": "Reveals friction points in current processes — outdated software, communication bottlenecks, or role misalignment. These are integration risks that will compound post-acquisition.",
+          "conversation_entry": "If you had a magic wand to fix one process in the office, what would it be?"
+        },
+        {
+          "pillar": "Recreation",
+          "assessment_goal": "Understand personality, energy levels, and burnout risk — how do they spend their time outside work?",
+          "leadership_insight": "A staff member with no Recreation may be at high burnout risk. Hobbies can also reveal hidden skills — a junior accountant who coaches a sports team likely has untapped leadership potential worth retaining.",
+          "conversation_entry": "I heard you are into cycling — have you been out on the trails lately?"
+        },
+        {
+          "pillar": "Dreams (and Aspirations)",
+          "assessment_goal": "Align their personal trajectory with the company's post-acquisition roadmap — where do they want to be in three years, and what would they change about their career path?",
+          "leadership_insight": "The most critical pillar for staff retention during a merger. If the Dreams of the top three earners do not involve the new merged entity, acquisition value is at immediate risk. Dream misalignment is the leading cause of post-acquisition staff flight.",
+          "conversation_entry": "In a perfect world, what would your role look like a year from now?"
+        }
+      ],
+
+      "cultural_audit_applications": [
+        "Identifying Key Person Risk: if the Dreams of top earners do not include the merged entity, flag as a retention risk and structure Earn-out or retention bonus accordingly",
+        "Building Rapid Rapport: people who feel seen as individuals — not as FTEs — lower their defences and provide more honest information about operational realities",
+        "Mapping Hidden Knowledge: FORD moves information from the Hidden Area (what staff know but the buyer does not) into the Open Area — surfacing operational risks invisible in the financial statements"
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "qoe_before_the_multiplier": "The most expensive due diligence mistake is applying an earnings multiplier to an EBITDA figure that has not been quality-tested. One or two suspicious add-backs can inflate the asking price by hundreds of thousands. Always complete the Quality of Earnings analysis before any valuation discussion proceeds — the multiplier is meaningless if the earnings figure is unreliable.",
+    "change_of_control_clauses_are_invisible_until_they_trigger": "The most commonly overlooked legal risk in any acquisition is Change of Control clauses in supplier and customer contracts. These clauses are silent until the deal closes — then they can immediately terminate the relationships that justified the purchase price. A legal review specifically targeting these clauses is non-negotiable for any deal relying on contract revenue.",
+    "twenty_percent_customer_concentration_is_a_structural_risk": "A single client representing more than 20% of revenue is not a minor risk factor — it is a structural vulnerability. If that client walks post-acquisition, the earnings multiple applied to a business generating 20% less revenue would have produced a dramatically lower purchase price. Flag it early, quantify it, and price it into the deal.",
+    "integration_planning_starts_during_diligence": "The single most common post-acquisition failure is poor integration planning that begins only after the deal closes. By then, key staff have mentally departed, customer relationships are in limbo, and system decisions are being made under pressure. Integration planning — communication plans, system consolidation decisions, Day 1 staff messaging — must begin during the diligence phase.",
+    "ford_model_surfaces_what_financials_cannot": "In any business where the people are the product — professional services, knowledge firms, relationship-based businesses — the FORD Model surfaces risks that no financial statement can reveal. A perfectly clean set of accounts sitting on a team whose Dreams do not include the new owner is an acquisition heading for staff flight and goodwill erosion within twelve months of settlement."
+  }
+}

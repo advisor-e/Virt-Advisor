@@ -1,0 +1,182 @@
+{
+  "domain": "valuation",
+  "label": "business valuation and sale",
+  "trigger_keywords": ["business sale", "business purchase", "valuation", "indicative value", "share value", "management buy out", "MBO", "BIMBO", "newco"],
+  "overview": "Business valuation scenarios require the advisor to place the seller in the negotiation seat of the purchaser — viewing the business through a buyer's lens before setting any asking price. The underlying method is asset-based valuation (tangible and intangible assets), but simply adding assets and applying a profit multiplier is insufficient and can lead to overvaluation. Every valuation must be tested against three reality checks — Serviceability, Goodwill Repayment Period, and Performance Variance — to ensure the price is bankable for the purchaser. Deal structures such as MBO (Management Buy Out), BIMBO (Buy In Management Buy Out), and Newco (a new company vehicle created to acquire the business) all require the same valuation discipline before deal terms can be structured.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the client seeking to sell their business, purchase a business, or understand what their business is currently worth — and what is the intended buyer profile?",
+    "seller_seeking_valuation": "Start with Steps 1–3 of the methodology to establish Adjusted Net Profit and Super Profit. Then apply the 3-Point Sensitivities to test whether the indicative value range is bankable. The seller must be prepared to evidence every component of the asking price.",
+    "buyer_assessing_a_purchase": "Apply the same 6-step framework from the purchaser's perspective. Focus first on Serviceability — can the business cash surplus service the debt required to buy it? Then assess the Goodwill Payback Period and the transferability of intangible assets.",
+    "deal_structure_question": "If the deal involves an MBO, BIMBO, or Newco structure, the valuation framework applies identically — the structure determines how the purchase is funded and who takes ownership, not how the business is valued. Establish the indicative value range first, then discuss deal structure."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Business Sale Assessment Framework — 6-Step Methodology",
+      "purpose": "A structured step-by-step method for establishing a realistic, bankable indicative value range for a business — placing the seller in the buyer's negotiation seat and testing the price against three reality checks before it is presented.",
+      "core_principle": "Placing the seller in the purchaser's negotiation seat. By viewing the business through the lens of a potential buyer, sellers understand how to demonstrate value and provide the evidence needed to support their asking price.",
+      "when_to_use": "Use at the outset of any business sale, purchase, or valuation engagement — before any asking price is discussed or presented. The 3-Point Sensitivities must be applied before any number is put on the table.",
+
+      "steps": [
+        {
+          "step": 1,
+          "name": "Gather Core Financial and Operational Data",
+          "action": "Compile the balance sheet, profit and loss statements, and a comprehensive asset list. Conduct a business overview identifying: competitors, key personnel dependencies, potential threats, and supplier relationships. Operational realities must be assessed alongside the financials — the numbers alone do not tell the full story."
+        },
+        {
+          "step": 2,
+          "name": "Calculate Adjusted Net Profit (Cash Surplus)",
+          "action": "Determine the true earnings of the business by taking net profit and adding back expenses peculiar to the current vendor. Common Add Backs include depreciation, interest, personal legal fees, owner's wages, and sponsorships. The resulting figure shows the potential purchaser the actual free cash flow available to them.",
+          "two_earnings_measures": [
+            {
+              "measure": "EBPITDA — Earnings Before Proprietor's Income, Interest, Tax, Depreciation and Amortised Expenses",
+              "use_when": "The business requires a hands-on owner who works in it. The purchaser is effectively buying a job. Owner is treated as a critical labour unit."
+            },
+            {
+              "measure": "EBITDA — Earnings Before Interest, Tax, Depreciation and Amortisation",
+              "use_when": "The purchaser is a passive investor not intending to work in the business. Evaluates true distributable free cash flow prior to capital expenditure."
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "name": "Assess Assets and Super Profits",
+          "action": "Separate the business into three components: tangible assets, stock and materials, and intangible assets. Deduct the Minimum Acceptable Cash Surplus from estimated future earnings to calculate the Super Profit.",
+          "minimum_acceptable_cash_surplus_components": [
+            "A fair labour rate for the owner",
+            "A basic return on invested funds (equal to bank interest)",
+            "A risk premium",
+            "Asset replacement reserves"
+          ],
+          "super_profit_note": "The Super Profit is the earnings remaining after the business has met all its minimum obligations. It is the figure used to calculate the Goodwill Payback Period."
+        },
+        {
+          "step": 4,
+          "name": "Apply the 3-Point Sensitivities (Reality Checks)",
+          "action": "Test the indicative value against three reality checks before presenting any number. All three must pass for the price to be considered bankable.",
+          "three_sensitivities": [
+            {
+              "sensitivity": "Goodwill Payback Period",
+              "method": "Use the Super Profit to calculate how long it takes to recover the goodwill component of the purchase price",
+              "benchmarks": [
+                { "result": "Less than 3 years", "rating": "Good — minimises purchaser risk" },
+                { "result": "3 to 5 years", "rating": "Normal — standard acceptable benchmark" },
+                { "result": "Greater than 5 years", "rating": "Be Careful — highly elevated risk for the purchaser" }
+              ]
+            },
+            {
+              "sensitivity": "Serviceability",
+              "method": "Structure a hypothetical loan scenario for the purchaser. Subtract loan interest, principal repayments, tax, and non-cash depreciation from adjusted earnings. There must be cash remaining to reward the owners after debt servicing.",
+              "bankable_test": "If the business cannot service the debt required to buy it at the asking price — the price is not bankable. Revenue alone is not the test; the cash surplus after taxes must be sufficient to cover monthly repayments and interest, with an adequate margin of error for the buyer."
+            },
+            {
+              "sensitivity": "Performance Variance",
+              "method": "Ensure any projected net profits remain within a defined variance from current performance. Unrealised gains may be included — but only within strict limits.",
+              "conditions_for_including_unrealised_gains": [
+                "Identify exactly what financial performance is yet to be realised",
+                "State the timeframe expected to achieve it",
+                "Identify the specific actions or personnel required to make it successful"
+              ]
+            }
+          ]
+        },
+        {
+          "step": 5,
+          "name": "Review Other Issues and Indicators",
+          "action": "Examine qualitative factors that affect sale risk and deal viability.",
+          "key_review_items": [
+            "Goodwill transferability — how effectively can the business's goodwill transfer to a new owner without the current owner present?",
+            "Staff retention — do employment agreements include retention clauses? Key personnel departures after settlement can destroy goodwill value immediately.",
+            "Lease terms — does the current premises lease offer favourable rollover terms without hidden reinstatement liabilities?",
+            "Additional working capital — the purchaser will need a trading reserve (e.g. 45-day trading reserve) on top of the purchase price. This is frequently overlooked.",
+            "Intangible asset transferability — social media accounts, affiliate programs, licences, trademarks, and patents may have platform or legal restrictions on transfer.",
+            "WIP verification — any Work In Progress with scope variations must be verified as formally communicated and accepted in writing before settlement."
+          ]
+        },
+        {
+          "step": 6,
+          "name": "Establish the Indicative Value Range",
+          "action": "Use the adjusted earnings and a risk-adjusted multiplier to create a valuation range with Low, Average, and High scenarios. The final Assessment Value combines four components: Goodwill Component, Intangible Assets, Tangible Assets, and Stock and Materials.",
+          "multiplier_warning": "Do NOT apply an overall business sales multiple directly to the Goodwill component alone. Industry benchmark multiples from independent data sources typically reflect the full business sale price — inclusive of tangible assets and stock. Applying that multiple only to goodwill charges assets and stock twice, resulting in hyper-inflated values."
+        }
+      ]
+    },
+
+    {
+      "name": "Key Valuation Concepts and If-Then Logic",
+      "purpose": "Provides the decision logic for common valuation scenarios — helping the advisor navigate the correct method, flag risk factors, and avoid the most common valuation errors.",
+      "core_principle": "No two businesses are identical. Open market benchmark data assumes irrational factors — speculation, sentiment, lack of knowledge — that do not exist in a notional market valuation. Apply benchmarks with caution and always model from the specific business data first.",
+
+      "fair_market_vs_notional": {
+        "fair_market_value": "In an open market, prices fluctuate due to speculation, lack of knowledge, and investor sentiment. Benchmark data drawn from open market sales reflects these irrational factors.",
+        "notional_market_value": "A notional market assumes irrational factors do not exist. Business valuations must be grounded in notional market thinking — not open market speculation. Apply benchmark data carefully to the specific business."
+      },
+
+      "if_then_logic": [
+        {
+          "condition": "The potential purchaser intends to be a hands-on owner working in the business",
+          "action": "Use EBPITDA as the initial earnings figure — the purchase is treated as buying a job and the owner is a critical labour unit"
+        },
+        {
+          "condition": "The potential purchaser is a passive investor not intending to work in the business",
+          "action": "Use EBITDA as the initial earnings figure — focus is on distributable free cash flow prior to capital expenditure"
+        },
+        {
+          "condition": "The Goodwill Payback Period is less than 3 years",
+          "action": "Flag as Good — low purchaser risk, supports the asking price"
+        },
+        {
+          "condition": "The Goodwill Payback Period is between 3 and 5 years",
+          "action": "Flag as Normal — standard acceptable benchmark, proceed with the valuation"
+        },
+        {
+          "condition": "The Goodwill Payback Period exceeds 5 years",
+          "action": "Flag as Be Careful — highly elevated risk for the purchaser, the asking price may need to be reconsidered"
+        },
+        {
+          "condition": "Industry benchmark EBPIDT multiples are being used to support the valuation",
+          "action": "Ensure the multiple is not applied strictly to the Goodwill component — benchmark multiples include the full business value (assets + stock + goodwill). Applying them to goodwill alone charges assets twice."
+        },
+        {
+          "condition": "The business holds perishable stock",
+          "action": "Calculate the percentage of stock nearing its best-by or use-by dates. The seller has a strict duty to disclose this to the purchaser."
+        },
+        {
+          "condition": "The business has current Work In Progress with variations to scope",
+          "action": "Verify that all variations have been formally communicated and accepted in writing — unverified WIP variations may not be legally enforceable or transferable."
+        },
+        {
+          "condition": "Revenue is tied to social media followings via affiliate or commission-based programs",
+          "action": "Review the platform's guidelines on transfer or on-selling of the account — platform restrictions can severely impact or eliminate the value of this intangible asset."
+        },
+        {
+          "condition": "The business relies on specific licences, trademarks, or patents",
+          "action": "Identify the expected remaining asset life and check for transfer restrictions — determines long-term viability and legal transferability post-sale."
+        },
+        {
+          "condition": "The assessment relates to a complete sale or major sell-down",
+          "action": "Ask whether key personnel, major customers, and key suppliers plan to remain or maintain relations after the sale. Staff retention clauses may need to be embedded in the sale agreement."
+        },
+        {
+          "condition": "The business operates from a leased premises",
+          "action": "Mandate a legal review of the lease agreement, focusing on the reinstatement clause — hidden reinstatement liabilities or forced upgrades at rollover can be a significant unexpected cost for the purchaser."
+        },
+        {
+          "condition": "The seller wants to include unrealised future gains in the asking price",
+          "action": "Limit projections to a defined Performance Variance and require the seller to document the specific actions and people required to achieve them — prevents projections from becoming unbankable."
+        }
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "seller_in_the_buyers_seat": "The most powerful reframe in any valuation conversation is to move the seller from defending their asking price to demonstrating it through a buyer's eyes. A seller who cannot answer the buyer's three core questions — can I service this debt, when do I recover my goodwill investment, and is the future growth claim realistic — will lose credibility and the deal.",
+    "bankable_is_the_test": "Revenue and profit alone do not determine whether a business is saleable. The price must be bankable — the cash surplus after all obligations must be sufficient to service the debt a purchaser would take on to buy it. A business with strong revenue but thin margins may produce an asking price no bank will fund.",
+    "do_not_apply_multipliers_to_goodwill_alone": "The single most dangerous valuation error is applying an industry benchmark multiple — drawn from full business sales data — directly to the goodwill component only. This double-counts tangible assets and stock and produces a hyper-inflated figure that will collapse under scrutiny from any informed purchaser or their financier.",
+    "intangible_asset_transferability_is_often_overlooked": "Goodwill value can evaporate quickly if the assets driving it cannot actually be transferred. Social media followings, affiliate programs, platform accounts, and key personnel relationships are frequently counted as intangible value but may be legally or contractually non-transferable. Verify transferability before assigning value.",
+    "deal_structures_follow_valuation": "For MBO, BIMBO, and Newco transactions, the valuation discipline is identical to any other sale. The deal structure determines funding and ownership — not value. Establish the bankable indicative value range first, then work with the appropriate legal and financial advisors to design the deal structure that supports it."
+  }
+}

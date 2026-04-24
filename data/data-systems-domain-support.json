@@ -1,0 +1,134 @@
+{
+  "domain": "data-systems",
+  "label": "data integrity and financial systems",
+  "trigger_keywords": ["data integrity", "data", "inaccurate", "financial systems", "chart of accounts", "financial literacy", "generating reports", "monthly reporting", "management reports", "unreliable", "trust the numbers"],
+  "overview": "Data integrity and financial systems scenarios typically present as one of three underlying problems: the data itself is inaccurate or untimely (a systems or process issue); the client has the data but cannot interpret it correctly (a literacy and context issue); or the client is reacting to data in ways that create new problems (a volatility and judgement issue). The advisor's role is to diagnose which layer the problem sits in before recommending a tool. Three frameworks apply — Deming's Theory of Volatility for data interpretation, Ratio Analysis for structured performance review, and Dashboard Discussions for collaborative ongoing reporting.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the problem that the client cannot get clean, reliable data — or that they have data but do not know what to do with it?",
+    "cannot_get_clean_data": "Address the upstream system first — Chart of Accounts structure, bookkeeping processes, cloud accounting setup, or admin procedures. A reporting framework built on dirty data will compound the problem rather than solve it.",
+    "has_data_but_cannot_interpret": "Move to the three support frameworks below. Start with Deming's Theory of Volatility to establish the right interpretive mindset, then use Ratio Analysis or Dashboard Discussions depending on the depth of engagement required."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Deming's Theory of Volatility",
+      "purpose": "Shifts the client from reactive data interpretation to contextual understanding — replacing the pass/fail trap of averages with standard deviation thinking, and equipping them to correctly identify what is actually causing performance swings.",
+      "core_principle": "Volatility is expected and carries a degree of predictability. A business that cannot interpret its own data will always be managed by fear — reacting to swings rather than planning through them.",
+      "when_to_use": "Use this as the foundational mindset conversation before any reporting framework is introduced. Particularly critical when the client is making reactive decisions — hiring or firing based on monthly spikes, celebrating or panicking after a single good or bad result, or blaming staff for events outside their control.",
+      "the_problem_with_averages": "Plotting performance against an average line creates a permanent pass/fail dynamic — results are almost always above or below the average, keeping the client in a state of judgement rather than understanding. Standard deviation calculates a likely range of expected performance, normalising the natural up-and-down of business.",
+      "four_variation_types": [
+        { "type": "Common Cause", "description": "High frequency, low impact — normal background noise. Example: fewer customers on a rainy day. Do NOT trigger management action." },
+        { "type": "Special Cause", "description": "Low frequency, high impact — genuine anomaly. Example: a pandemic or natural disaster. Requires a real strategic response." },
+        { "type": "Seasonal", "description": "Predictable, repeating patterns. Example: ice cream sales in summer vs winter. Manageable once identified — risk is mistaking seasonal variation for a special cause." },
+        { "type": "Tampering", "description": "Acting on a misinterpretation of data — the most dangerous type. Example: firing staff after a predictable December trough that was actually a seasonal pattern. Wrong conclusion always leads to wrong action and creates new problems." }
+      ],
+      "causation_correlation_coincidence": "Before taking any action on a data point, establish the correct relationship: Causation (direct provable link), Correlation (highly attributable but not the sole cause), or Coincidence (two events occurring together but entirely unrelated). Acting on coincidence as if it were causation is the most common form of tampering.",
+      "caravan_metaphor": "Volatility in a business is like a caravan swaying behind a car. Trying to accelerate without first controlling the sway will pull the car off the road. A business cannot safely scale if it does not understand and manage its underlying volatility first.",
+      "four_strategic_responses": [
+        "Review Products and Services — what could fill in the holes during slow periods?",
+        "Review Admin Procedures — how could we get money in quicker? (invoicing, terms of trade, debt collection)",
+        "Review Marketing and Sales Tactics — how could we attract more customers, more consistently?",
+        "Review Working Capital — how should we finance and manage cash to cope with the swings?"
+      ],
+      "key_script": "Use the caravan metaphor to open the conversation. Then ask: 'When you see your sales spike or drop, what do you typically do?' This surfaces whether the client is tampering."
+    },
+
+    {
+      "name": "Ratio Analysis",
+      "purpose": "A disciplined, collaborative framework for improving data interpretation through internal modelling, common sizing, and structured use of external benchmarks — built around the 5-step Advisory Staircase.",
+      "core_principle": "Always compare apples with apples. Ratio analysis is not about calculating metrics — it is a collaborative process. Handing a client raw data without requiring effort to understand it means they are unlikely to assign meaning or take new action.",
+      "when_to_use": "When the client needs structured, ongoing performance tracking beyond a monthly dashboard. Use when they are comparing periods, benchmarking against industry peers, or building a predictive revenue model. Also use when the client is making decisions based on gut feel rather than validated data.",
+      "advisory_staircase": {
+        "summary": "Five components of business management — Ratio Analysis lives in steps 2 and 3, but only delivers value when all five steps are functioning.",
+        "steps": [
+          "Step 1 — Compilation and Verification: get the data collected with integrity and timeliness",
+          "Step 2 — Assimilation: render the data so it is easy to view and comprehend",
+          "Step 3 — Interpretation: recognise correlation versus causation — work together, do not just hand over a finished report",
+          "Step 4 — Application: determine the next experiment and assign clear task ownership",
+          "Step 5 — Observation: review progress, learn, adapt, and repeat"
+        ]
+      },
+      "know_thyself_first": "The most common mistake is consulting external benchmark data before capturing and quantifying internal business assumptions. Internal model first — always. External benchmarks are used last to challenge internal beliefs, not replace them.",
+      "three_conditions_when_data_is_irrelevant": [
+        "Ratios calculated using different methods across periods — must use identical calculation methods consistently",
+        "One-off events that distort the ratio for a given period — remove the distorting figure before comparing",
+        "Periods with fundamental differences such as seasonal cycles — compare peak to peak, low to low"
+      ],
+      "common_sizing": "Adjust data before year-on-year comparison to remove inherited starting-position advantages. Common Size Balance Sheet: divide every item by Total Assets. Common Size P&L: divide every item by Total Sales. This levels the starting line so current management decisions — not carried-over advantages — are what is being measured.",
+      "drag_race_metaphor": "A car that starts ahead in a drag race because of the previous race result may appear to win — but the advantage was inherited, not earned. Year-on-year comparisons without common sizing make the same error.",
+      "collaborative_approach": "At the assimilation stage, use manual tools like Google Sheets rather than fully automated software. Having the client physically cut, paste, and input data makes the process tactile and creates genuine understanding. A client who builds the picture themselves assigns meaning to it — one handed a finished report does not.",
+      "external_benchmark_interrogation": [
+        "How many businesses does the data cover — is the sample size representative?",
+        "Are the figures from businesses of similar size and structure?",
+        "Do the figures include upper and lower quartile data?",
+        "How old is the data — updated at least annually?",
+        "Were the ratios calculated using identical methods to yours?",
+        "Are there geographical, seasonal, or accounting method differences that affect comparability?"
+      ]
+    },
+
+    {
+      "name": "Dashboard Discussions",
+      "purpose": "A structured framework for facilitating collaborative dashboard review sessions — shifting focus from simply looking at numbers to understanding the underlying operations that drive them, using the 3x3 Category Secrets model and Cause-Event-Effect analysis.",
+      "core_principle": "Seek information, not judgement. No single ratio or report can give you the whole story. Always define whether the data reflects causation, correlation, or coincidence. Always seek a balanced view — look for both good and bad data.",
+      "when_to_use": "Use for regular monthly or quarterly management reporting sessions. Particularly effective when the client is already receiving reports but not acting on them, or when the advisor wants to shift the client from passive report recipient to active business analyst.",
+      "session_mindset": {
+        "advisor_role": "To challenge what the client believes to be true.",
+        "client_role": "To explore issues and ideas with an open heart and an open mind.",
+        "session_objective": "Discover what we have been missing.",
+        "outputs": ["Record what we learn.", "Build an action plan going forward."]
+      },
+      "the_3x3_framework": {
+        "description": "Every dashboard metric maps to one or more of three cost categories. Identifying the category determines which tactical levers are available.",
+        "categories": [
+          {
+            "label": "Do the Job — Variable Costs",
+            "examples": "Materials, shipping, stock, contract labour, discounting",
+            "tactical_levers": "Purchasing and logistics efficiencies, project management, wastage and error reduction, process improvements"
+          },
+          {
+            "label": "Get the Job — Activity Costs",
+            "examples": "Marketing, advertising, salesperson travel",
+            "tactical_levers": "Product fit, positioning, pricing, message clarity, sales effectiveness, brand awareness, customer loyalty"
+          },
+          {
+            "label": "Get Organised — Fixed Costs",
+            "examples": "Rent, equipment leases, management salaries, administration",
+            "tactical_levers": "Asset utilisation, model design, management effectiveness, leadership, culture, employee engagement, strategic vision"
+          }
+        ]
+      },
+      "key_dashboard_metrics": [
+        { "metric": "Sales to Gross Profit Ratio", "signals": "Widening or narrowing gap between revenue and retained gross profit — signals changes in cost of goods, pricing, or product mix" },
+        { "metric": "Wages to Sales Ratio", "signals": "Rising wages against flat sales — signals productivity or staffing structure issues" },
+        { "metric": "Net Profit to Sales", "signals": "The ultimate profitability ratio — relates to all three cost categories; a squeeze here requires diagnosis across all three buckets" },
+        { "metric": "Average Markup %", "signals": "Declining markup — signals pricing pressure, discounting behaviour, or a shift toward lower-margin lines" },
+        { "metric": "Quick Ratio and Days Trading Cover", "signals": "Reveals the immediacy of any liquidity risk — how many days of trading the available cash can sustain" },
+        { "metric": "Debt to Shareholders Equity", "signals": "Reveals how leveraged the business is and whether the owners have a genuine equity stake or whether creditors effectively own the business" },
+        { "metric": "Volatility Analysis", "signals": "Standard deviation overlay on actual performance — identifies which movements are normal variation and which are genuine anomalies requiring action" }
+      ],
+      "three_standard_questions_per_metric": [
+        "Is this information consistent with your previous business assumptions and beliefs?",
+        "Which tactical options are of greatest influence and why?",
+        "Did you have any actions planned prior to this data — do they still stand?"
+      ],
+      "facilitation_steps": [
+        "Step 1 — Set the objective and mindset: establish advisor and client roles, remind that no single metric tells the whole story",
+        "Step 2 — Map the metric to the 3x3 categories: identify which cost categories the metric relates to — this determines the available tactical levers",
+        "Step 3 — Analyse data against assumptions: ask the three standard questions for each metric",
+        "Step 4 — Root cause analysis: if clarity is not achieved, use the 5 Whys technique — ask WHY five times, each answer forming the basis of the next question",
+        "Step 5 — Build the action plan: identify the most influential tactical options, document learnings, assign specific future action steps"
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "sequencing": "Introduce Deming's Theory of Volatility first — before any reporting framework — to establish the right interpretive mindset. If the client is reacting to data badly, no dashboard will help them until they understand variation. Ratio Analysis and Dashboard Discussions can then follow as the structured delivery vehicle.",
+    "dirty_data_first": "If the client cannot generate reliable data in the first place, fix the upstream problem before introducing any reporting framework. A sophisticated dashboard built on inaccurate or incomplete data is worse than no dashboard — it creates false confidence.",
+    "collaborative_not_transactional": "The biggest mistake advisors make with reporting is delivering a finished report and expecting the client to act on it. The client must be a participant in building the picture — not a passive recipient. Manual tools, joint sessions, and tactile engagement are what create understanding and ownership.",
+    "tampering_is_the_hidden_cost": "When clients misinterpret data and take wrong action, the cost is invisible — they never know what the correct decision would have been. Tampering compounds on itself. Use Deming's framework to surface whether the client is already doing this before designing a reporting solution."
+  }
+}

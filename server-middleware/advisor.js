@@ -14,6 +14,7 @@ const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { detectLogicTree, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText } = require('../server/utils/logicTrees')
+const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -697,7 +698,9 @@ async function handleQuery (rawBody, res) {
       }
 
       // AI handles: either alternatives exploration or client approach guidance
-      const contextMsgPost = buildClientContext(orgTemplateIds, query, { advisorProfile })
+      const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
+      const contextMsgPost = buildClientContext(orgTemplateIds, query, { advisorProfile }) +
+        (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
         { role: 'user', content: contextMsgPost },
@@ -944,13 +947,14 @@ ${formatFinMgtTable()}`
       : ''
 
     const matchedTree = detectLogicTree(firstMsg)
+    const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: true,
       logicTree: matchedTree,
       includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
       includeSectionDesc: true,
       maxTemplates: 40
-    })
+    }) + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     const systemPrompt2 = loadPrompt('client') + languageInstruction2
 
@@ -1085,11 +1089,11 @@ ${formatFinMgtTable()}`
     }
   }
 
-  // Deep-dive detection — client/discover mode only.
-  // If the conversation has drifted into territory covered by a learn-mode tree, load that
-  // tree's full reference content and signal the AI to offer a structured deep dive.
+  // Deep-dive detection — client/discover mode only, deferred until after first exchange.
+  // Loading the full reference text (~19K chars) on the opening message bloats the prompt
+  // unnecessarily. The AI can't usefully offer a deep dive before it knows the client situation.
   let deepDiveText = null
-  if (mode === 'client' || mode === 'discover') {
+  if ((mode === 'client' || mode === 'discover') && trimmedHistory.length >= 2) {
     const allConversationText = [...trimmedHistory.map(m => m.content), query].join(' ')
     const deepDiveTree = detectLogicTree(allConversationText)
     if (deepDiveTree && deepDiveTree.mode === 'learn') {
@@ -1104,6 +1108,10 @@ ${formatFinMgtTable()}`
   // Section descriptions always included for client/discover modes so AI can tier-match from the start
   const sectionDescText = (mode === 'client' || mode === 'discover') ? formatSectionDescriptionsForPrompt() : null
 
+  // Domain support reference — client mode injects this directly in its own block (Phase 3 + post-rec).
+  // Discover/plan/learn modes do not run domain detection, so no support text here.
+  const domainSupportText = null
+
   const contextMessage = [
     `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)`,
     '',
@@ -1112,6 +1120,7 @@ ${formatFinMgtTable()}`
     coachingText
       ? '\n---\n\n## Coaching Reference — Expert Guidance on Template Selection\n\n' + coachingText
       : '',
+    domainSupportText ? '\n---\n\n' + domainSupportText : '',
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : '',
     advisorProfileText

@@ -1,0 +1,176 @@
+{
+  "domain": "systems",
+  "label": "systems thinking and process improvement",
+  "trigger_keywords": ["quality control", "systems", "error reduction", "controls", "financial controls", "process improvement", "efficiency", "effectiveness", "effective"],
+  "overview": "Systems and process improvement scenarios typically present as one of three underlying problems: the client is applying symptomatic fixes to recurring issues without addressing the structural root cause; they are scaling operations without first stabilising the systems that underpin them; or they are misreading feedback data and overreacting in ways that introduce new instability. The foundational principle across all systems work is that businesses are Complex Adaptive Systems — not linear machines — and that structure influences behaviour. Fixing the structure fixes the behaviour. The golden rule is Systems Before Scale.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the problem that the client keeps fixing the same issue repeatedly, that they are trying to scale before their systems are stable, or that process changes are creating unexpected downstream consequences?",
+    "recurring_symptomatic_fixes": "If the client is patching the same problem repeatedly — discounting to manage complaints, rehiring for roles that keep failing — the issue is a structural loop, not a personnel or pricing problem. Introduce Circles of Causality and the Shifting the Burden archetype before recommending any process change.",
+    "scaling_before_systems_are_ready": "If the client wants to grow but their current processes are inconsistent or volatile — apply the Systems Before Scale principle. Use the 5-step framework to stabilise first. A business cannot safely scale if it has not resolved its underlying volatility.",
+    "process_changes_creating_new_problems": "If a recent process change has caused unexpected ripple effects — over-hiring after a demand surge, or instability weeks after a rollout — the client is experiencing feedback loop delays. Use the delay concept from Circles of Causality to reframe the problem before recommending further changes."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Systems Thinking and Circles of Causality",
+      "purpose": "Shifts the client from linear problem-solving to circular causal thinking — helping them see how the structure of their business system is generating the problems they keep experiencing, rather than blaming individuals or external events.",
+      "core_principle": "Structure influences behaviour. Different people placed in the same broken structure produce the same broken results. Systems cause their own crises — not external forces or individual mistakes. The enemy is us.",
+      "source": "Peter Senge, The Fifth Discipline (1990) — Systems Dynamics framework translated for business leaders",
+      "when_to_use": "Use before recommending any process redesign when the client is experiencing recurring problems, unexpected consequences from process changes, or when they are tempted to blame staff for outcomes that are actually structural.",
+
+      "process_vs_system": {
+        "process": "A sequence of actions designed to produce a specific component in a consistent manner — e.g. building the engine or gearbox of a car",
+        "system": "A collection of interdependent processes that act together as a whole — e.g. assembling all components to produce a car that is ready to drive"
+      },
+
+      "complex_vs_complicated": {
+        "complicated_system": "Many parts interacting with linear feedback to achieve a predictable outcome — like a sports car or a complex machine. Manageable with step-by-step models.",
+        "complex_adaptive_system": "Dynamic, interacting parts where both individual and collective behaviours adapt over time — like a flock of birds navigating the sky, or a business. Requires collaborative and adaptive principles — not static step-by-step models."
+      },
+
+      "circles_of_causality": {
+        "description": "Traditional linear thinking assumes A causes B. Circles of Causality show that in complex systems, A causes B — which then feeds back to affect A. The effect eventually becomes the cause.",
+        "two_feedback_loops": [
+          {
+            "type": "Reinforcing Loops (Positive Feedback)",
+            "description": "Amplify change — responsible for exponential growth or rapid death spirals. Example: a software platform gaining users becomes more valuable, attracting even more users (network effect)."
+          },
+          {
+            "type": "Balancing Loops (Negative Feedback)",
+            "description": "Seek equilibrium and stability — resist change to keep the system within a specific range. Example: a thermostat turning the heater on when cold, off when warm."
+          }
+        ],
+        "the_delay_factor": "Circles of causality often contain delays — a lag between an action and its feedback. Leaders oversteer because they act before the system has responded, creating new problems. Example: hiring rapidly during a temporary demand surge, then facing high overhead when the system balances out.",
+        "key_senge_laws": [
+          "Today's problems come from yesterday's solutions — the circle completed a revolution",
+          "The harder you push, the harder the system pushes back — a balancing loop is resisting you",
+          "The enemy is us — if you are part of the loop, your own actions eventually come back to affect you"
+        ]
+      },
+
+      "two_system_archetypes": [
+        {
+          "name": "Limits to Growth",
+          "description": "A reinforcing loop (growth) eventually hits a balancing loop (a constraint), and the system plateaus or crashes. The solution is not to push harder — it is to identify and address the constraint."
+        },
+        {
+          "name": "Shifting the Burden",
+          "description": "A short-term symptomatic fix — like discounting to stop a client complaint, or manually correcting a spreadsheet error — addresses the symptom but diverts attention from the fundamental structural solution. The circle ensures the error returns because the underlying structure has not changed."
+        }
+      ],
+
+      "three_senge_principles": [
+        {
+          "principle": "Structure Influences Behaviour",
+          "description": "Different people in the same broken structure tend to produce qualitatively similar results. When problems recur, it is easy to find someone to blame — but more often than we realise, the system causes its own crises."
+        },
+        {
+          "principle": "Structure in Human Systems is Subtle",
+          "description": "Structure is not just external constraints — it includes how people make decisions, translate perceptions, and interpret goals, rules, and norms into actions. Changing behaviour requires changing the structure that generates it."
+        },
+        {
+          "principle": "Leverage Often Comes from New Ways of Thinking",
+          "description": "People often focus only on their own decisions and ignore how those decisions affect others in the system. They have the power to eliminate extreme instabilities but fail to do so because they do not understand how they are creating them in the first place."
+        }
+      ],
+
+      "circles_kpi_application": "The goal of Circles of Causality in practice is to identify the likely consequences of a plan of action even when executed correctly — to anticipate the negative forces generated by any action and measure them as Key Performance Indicators. This produces a full, balanced, and complete report on business results rather than a one-sided performance view.",
+
+      "newton_connection": "Newton's Third Law applies: for every action there is an equal and opposite reaction. Any process improvement will generate resistance or countervailing forces elsewhere in the system. Identifying and measuring those forces is part of quality system design."
+    },
+
+    {
+      "name": "Three Systems Philosophies",
+      "purpose": "Helps the advisor select the correct overarching systems design approach based on the client's market strategy and customer promise — preventing a mismatch between the operating model and what the business is trying to deliver.",
+      "core_principle": "The right systems philosophy is determined by the market promise — not by personal preference or industry convention.",
+      "when_to_use": "Use when a client is designing or redesigning their operating model and needs to choose which philosophy should govern their process architecture.",
+      "philosophies": [
+        {
+          "name": "Six Sigma",
+          "goal": "Remove variation — deliver a consistent, predictable experience with no surprises",
+          "suited_to": "Mass-market businesses where consistency is the promise",
+          "example": "McDonald's — every burger is the same everywhere in the world"
+        },
+        {
+          "name": "Lean Thinking",
+          "goal": "Remove frills — save the customer money by stripping out everything that does not add value",
+          "suited_to": "Cost-leadership businesses where price is the primary differentiator",
+          "example": "Pak n Save — no-frills retail that passes savings to the customer"
+        },
+        {
+          "name": "Theory of Constraints",
+          "goal": "Identify and exploit system weaknesses — combine niches and create a unique experience by removing the bottleneck that limits throughput",
+          "suited_to": "Differentiation or niche-combination strategies where innovation is the promise",
+          "example": "Airbnb — exploited the constraint of traditional accommodation by combining unused private property with traveller demand"
+        }
+      ]
+    },
+
+    {
+      "name": "Six Business Systems",
+      "purpose": "Provides a complete map of the six interdependent systems that every business must have functioning coherently — giving the advisor a structured lens for identifying which system is the source of the client's presenting problem.",
+      "core_principle": "Systems Before Scale — always fix and review your systems before expanding operations. Growth applied to a broken system amplifies the breakage.",
+      "when_to_use": "Use as the entry framework when a client presents with any operational, efficiency, or process problem — to identify which of the six systems is the root cause before recommending specific process work.",
+      "six_systems": [
+        { "system": "Planning", "description": "Strategy, goal setting, forecasting, and resource allocation systems — the direction-setting layer" },
+        { "system": "Data", "description": "Financial systems, reporting, dashboard, and data integrity systems — the feedback and measurement layer" },
+        { "system": "Marketing", "description": "Lead generation, brand, messaging, and channel systems — the market-facing acquisition layer" },
+        { "system": "Sales", "description": "Sales process, conversion, proposal, and pipeline management systems — the revenue capture layer" },
+        { "system": "People", "description": "Recruitment, onboarding, training, performance management, and culture systems — the human capability layer" },
+        { "system": "Process", "description": "Operational workflows, quality control, error reduction, and compliance systems — the delivery and consistency layer" }
+      ]
+    },
+
+    {
+      "name": "5-Step Process Implementation Framework",
+      "purpose": "A structured method for designing, testing, and rolling out new or improved business processes — ensuring changes are grounded in evidence, tested before full deployment, and embedded through coaching rather than just instruction.",
+      "core_principle": "Do not replace an old system across the entire business before testing in a controlled environment. Human systems require coaching — not just documentation.",
+      "when_to_use": "Use when a client is ready to redesign a specific process or system. Work through all five steps in sequence — skipping the pilot test phase is the most common implementation failure.",
+      "steps": [
+        {
+          "step": 1,
+          "name": "Identify the Focus Area",
+          "action": "Select processes that truly matter — prioritise areas with medium or high health and safety concerns, strict compliance requirements, or where a major performance jump is needed. Conduct cause-and-effect assessments, observe bottlenecks, and isolate specific process components before designing anything."
+        },
+        {
+          "step": 2,
+          "name": "Design the System Architecture",
+          "action": "Map the process using Nodes (action steps or objectives) and Links (connecting lines showing sequence or decision trees). Keep the flowchart to 5–13 Nodes — fewer suggests insufficient detail; more creates information overload. Write sticky notes for dominant Nodes and physically rearrange them to test whether the logical order is actually the smartest approach. Include visual references and write clear, measurable objectives before finalising the design."
+        },
+        {
+          "step": 3,
+          "name": "Test the Design",
+          "action": "Run a controlled pilot test with a small group — do not replace the old system company-wide before testing. Use active coaching: break the task into logical chunks, demonstrate the expected behaviour, and provide focused direction. Measure results against predefined metrics before proceeding to rollout."
+        },
+        {
+          "step": 4,
+          "name": "Implement and Roll-Out",
+          "action": "Roll out the new process in progressive stages — not all at once. Quantify the behavioural change being sought and secure genuine team buy-in from the people who will actually use the process. Discipline and regular training are required to produce consistent results. Presenting information is not enough — active coaching is essential."
+        },
+        {
+          "step": 5,
+          "name": "Review and Refine",
+          "action": "Close the feedback loop. Review the system through direct observation, financial metrics, and KPI performance. Engage with the people working the process and incorporate their on-the-ground feedback to fine-tune elements. Anticipate volatility by planning for predictable events — do not overreact to data that reflects normal systemic variation."
+        }
+      ],
+      "node_design_rules": [
+        "5–13 Nodes is the optimal range — keep it within this range to remain actionable without causing information overload",
+        "Write Nodes on sticky notes first — physical rearrangement tests whether logical order is the smartest sequence",
+        "Include visual references — makes abstract processes tangible for teams",
+        "Write measurable objectives before finalising — ensures the design can be evaluated"
+      ],
+      "redundant_systems_note": "The most advanced systems incorporate redundant systems — allowing whole sections of a process to safely shut down or be immediately replaced by an alternate system in the event of a major error, preventing total business disruption."
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "systems_before_scale": "The single most common error in growth conversations is recommending expansion before the client's existing systems are stable. Scaling a broken system amplifies the breakage. Always audit the six business systems for stability before endorsing growth plans.",
+    "blame_the_structure_not_the_person": "When a client is frustrated with a team member or a supplier, investigate whether the system structure is generating the poor result before attributing it to individual failure. Different people placed in the same broken structure produce the same broken results — the fix is structural, not personnel.",
+    "symptomatic_fixes_compound": "Every time a client applies a symptomatic fix — discounting to stop a complaint, manually correcting a recurring data error — they remove the pressure that would otherwise force the system to evolve. The problem will return because the underlying loop has not changed. Name the archetype: Shifting the Burden.",
+    "delays_cause_overreaction": "Process changes often appear not to be working because the feedback loop contains a delay. The client over-corrects before the system has had time to respond. When a client reports that a new process made things worse, check whether they are reacting to a delay rather than a genuine failure of the design.",
+    "coaching_over_documentation": "A written process manual alone will not embed new behaviour. The team must be coached through the change — demonstrated, chunked, observed, and given immediate feedback. Buy-in is not created by presenting information; it is created by involving the team in building and refining the process."
+  }
+}
