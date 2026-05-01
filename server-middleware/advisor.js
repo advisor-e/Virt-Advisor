@@ -402,6 +402,10 @@ async function handleQuery (rawBody, res) {
       state.detectedDomain = id
     }
 
+    // Lock domain once resolved — only re-score on the very first turn or if disambiguation is still pending
+    if (state.detectedDomain && !state.disambiguationNeeded) {
+      // Domain already locked — skip re-detection entirely
+    } else {
     // Reset detection state before re-scoring
     state.detectedDomain = null
     state.disambiguationNeeded = false
@@ -419,6 +423,7 @@ async function handleQuery (rawBody, res) {
         state.disambiguationScenarios = topMatches.map(d => ({ id: d.id, label: d.label }))
       }
     }
+    } // end domain lock else
 
     // Helper: stream a hardcoded question directly to the client
     const sendQuestion = (text, newState) => {
@@ -497,12 +502,13 @@ async function handleQuery (rawBody, res) {
       {
         field: 'reportsFromFirm',
         text: 'Are these financial reports generated and presented by you or a member of your firm?',
-        skip: s => s.detectedDomain !== 'profit' || !s.usesReports || s.usesReports === 'pending' || !/\byes\b|already|they do|we do|regular|use them|have them/i.test(s.usesReports)
+        skip: s => s.detectedDomain !== 'profit' || !s.usesReports || s.usesReports === 'pending' || !/\byes\b|already|\bthey do\b|\bwe do\b|regular|use them|have them/i.test(s.usesReports)
       },
       {
         field: 'wouldBenefitFromReview',
         text: 'Do you think the client could benefit from a detailed review of their business variables and profit drivers?',
-        skip: s => s.detectedDomain !== 'profit'
+        skip: s => s.detectedDomain !== 'profit' ||
+          (s.usesReports && s.usesReports !== 'pending' && !/\byes\b|already|\bthey do\b|\bwe do\b|regular|use them|have them/i.test(s.usesReports))
       },
       {
         field: 'industry',
