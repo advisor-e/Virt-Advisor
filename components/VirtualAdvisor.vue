@@ -334,9 +334,9 @@
                   | {{ $t('voice.stopRecording') }}
             textarea.profile-q-textarea.profile-q-textarea-done(
               v-model="advisorProfile[q.field]"
-              rows="2"
               :class="{ 'pq-recording': profileRecordingField === q.field }"
               @change="saveField"
+              @input="autoResizeTextarea($event.target)"
             )
 
           //- Current question — interactive
@@ -366,8 +366,8 @@
             textarea.profile-q-textarea(
               v-if="advisorProfile[q.field] || profileRecordingField === q.field"
               v-model="advisorProfile[q.field]"
-              rows="2"
               :class="{ 'pq-recording': profileRecordingField === q.field }"
+              @input="autoResizeTextarea($event.target)"
             )
 
             .profile-q-advance(v-if="advisorProfile[q.field] && advisorProfile[q.field].trim()")
@@ -451,9 +451,9 @@
                 textarea.review-textarea(
                   v-if="reviewDraft.wentLess || reviewRecordingField === 'wentLess'"
                   v-model="reviewDraft.wentLess"
-                  rows="6"
                   placeholder="What was harder than expected? What didn't land well?"
                   :class="{ 'pq-recording': reviewRecordingField === 'wentLess' }"
+                  @input="autoResizeTextarea($event.target)"
                 )
 
               .review-field
@@ -482,9 +482,9 @@
                 textarea.review-textarea(
                   v-if="reviewDraft.wentWell || reviewRecordingField === 'wentWell'"
                   v-model="reviewDraft.wentWell"
-                  rows="6"
                   placeholder="What worked? What did the client respond well to?"
                   :class="{ 'pq-recording': reviewRecordingField === 'wentWell' }"
+                  @input="autoResizeTextarea($event.target)"
                 )
 
               .review-field
@@ -513,9 +513,9 @@
                 textarea.review-textarea(
                   v-if="reviewDraft.changesRecommended || reviewRecordingField === 'changesRecommended'"
                   v-model="reviewDraft.changesRecommended"
-                  rows="6"
                   placeholder="What would you do differently next time?"
                   :class="{ 'pq-recording': reviewRecordingField === 'changesRecommended' }"
+                  @input="autoResizeTextarea($event.target)"
                 )
 
               .review-actions
@@ -611,7 +611,7 @@ export default {
       profileSaved: false,
       profileStep: 0,
       profileRecordingField: null,
-      advisorProfile: { experience: '', clientDemographic: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' },
+      advisorProfile: { advisorRole: '', experience: '', clientDemographic: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' },
       langPickerOpen: false,
       langSearch: '',
       loadingLang: null,
@@ -668,6 +668,18 @@ export default {
   },
 
   watch: {
+    advisorProfile: {
+      deep: true,
+      handler () {
+        this.$nextTick(() => this.$nextTick(() => this.resizeAllTextareas()))
+      }
+    },
+    reviewDraft: {
+      deep: true,
+      handler () {
+        this.$nextTick(() => this.$nextTick(() => this.resizeAllTextareas()))
+      }
+    },
     '$i18n.locale' (newLocale) {
       if (this.recognition) {
         this.recognition.lang = BCP47_MAP[newLocale] || 'en-US'
@@ -692,16 +704,45 @@ export default {
     },
     profileQuestions () {
       const experiencedPattern = /\b(yes|yeah|yep|years?|months?|weeks?|since|20\d\d|19\d\d|have been|i've been|been doing|been delivering|been working|been advising)\b/i
-      const hasExperience = experiencedPattern.test(this.advisorProfile.experience || '')
+      const beginnerPattern = /\b(haven't|have not|no experience|never done|never have|not done|not yet|just starting|new to advisory|just beginning|don't have|do not have|mostly compliance|compliance only|only learning|still learning|just learning|very little|no advisory|haven't done|just told you)\b/i
+
+      const roleText = this.advisorProfile.advisorRole || ''
+      const expText = this.advisorProfile.experience || ''
+
+      const hasExperience = experiencedPattern.test(expText)
+      const beginnerFromRole = beginnerPattern.test(roleText)
+      const beginnerFromExp = beginnerPattern.test(expText) || (expText.trim() && !hasExperience)
+      const isBeginner = beginnerFromRole || beginnerFromExp
+
       const questions = [
-        { field: 'experience', question: this.$t('profile.questions.experience') }
+        { field: 'advisorRole', question: this.$t('profile.questions.advisorRole') }
       ]
-      if (hasExperience) {
-        questions.push({ field: 'clientDemographic', question: this.$t('profile.questions.clientDemographic') })
+
+      // Only ask experience duration if role answer doesn't already make it clear they're a beginner
+      if (!beginnerFromRole) {
+        questions.push({ field: 'experience', question: this.$t('profile.questions.experience') })
       }
+
+      // Client demographic — experienced get advisory client description, beginners get firm client base
+      if (hasExperience && !isBeginner) {
+        questions.push({ field: 'clientDemographic', question: this.$t('profile.questions.clientDemographic') })
+      } else if (isBeginner) {
+        questions.push({ field: 'clientDemographic', question: this.$t('profile.questions.clientDemographicBeginner') })
+      }
+
       questions.push(
-        { field: 'enjoyment', question: this.$t('profile.questions.enjoyment') },
-        { field: 'technicalStrengths', question: this.$t('profile.questions.technicalStrengths') },
+        {
+          field: 'enjoyment',
+          question: isBeginner
+            ? this.$t('profile.questions.enjoymentBeginner')
+            : this.$t('profile.questions.enjoyment')
+        },
+        {
+          field: 'technicalStrengths',
+          question: isBeginner
+            ? this.$t('profile.questions.technicalStrengthsBeginner')
+            : this.$t('profile.questions.technicalStrengths')
+        },
         { field: 'toolsComfort', question: this.$t('profile.questions.toolsComfort') },
         { field: 'notes', question: this.$t('profile.questions.notes') }
       )
@@ -717,6 +758,7 @@ export default {
     },
     hasAdvisorProfile () {
       return !!(
+        this.advisorProfile.advisorRole ||
         this.advisorProfile.experience ||
         this.advisorProfile.technicalStrengths ||
         this.advisorProfile.enjoyment ||
@@ -802,6 +844,16 @@ export default {
   },
 
   methods: {
+    autoResizeTextarea (el) {
+      if (!el) return
+      el.style.height = '0'
+      el.style.height = el.scrollHeight + 'px'
+    },
+
+    resizeAllTextareas () {
+      document.querySelectorAll('.profile-q-textarea, .review-textarea').forEach(el => this.autoResizeTextarea(el))
+    },
+
     _loadProfile () {
       const saved = localStorage.getItem('va_advisor_profile')
       if (saved) {
@@ -1020,6 +1072,7 @@ export default {
       // Resetting to 0 was causing all answers to collapse on every open.
       this.profileStep = this.profileQuestions.filter(q => this.advisorProfile[q.field]).length
       this.profileOpen = true
+      this.$nextTick(() => this.$nextTick(() => this.resizeAllTextareas()))
     },
 
     saveField () {
@@ -1043,7 +1096,7 @@ export default {
     },
 
     clearProfile () {
-      this.advisorProfile = { experience: '', clientDemographic: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' }
+      this.advisorProfile = { advisorRole: '', experience: '', clientDemographic: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' }
       localStorage.removeItem('va_advisor_profile')
       this.profileSaved = false
       this.profileStep = 0
@@ -1603,6 +1656,8 @@ export default {
   background: #ffffff;
   transition: border-color 0.15s, box-shadow 0.15s;
   box-sizing: border-box;
+  min-height: 44px;
+  overflow-y: hidden;
 }
 .profile-q-textarea:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
 .profile-q-completed { display: flex; flex-direction: column; gap: 6px; }
@@ -2230,6 +2285,10 @@ export default {
   resize: none;
   outline: none;
   line-height: 1.5;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  overflow-y: hidden;
 }
 .review-textarea:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.08); }
 .review-voice-bar { margin-bottom: 4px; }

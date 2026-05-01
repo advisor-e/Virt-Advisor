@@ -80,10 +80,11 @@ const MODE_SECTIONS = {
 
 function formatAdvisorProfile (profile) {
   const lines = []
+  if (profile.advisorRole && profile.advisorRole.trim()) lines.push(`Advisor role / practice type: ${profile.advisorRole.trim()}`)
   if (profile.experience && profile.experience.trim()) lines.push(`Experience: ${profile.experience.trim()}`)
   if (profile.clientDemographic && profile.clientDemographic.trim()) lines.push(`Typical client profile: ${profile.clientDemographic.trim()}`)
   if (profile.enjoyment && profile.enjoyment.trim()) lines.push(`Advisory conversations they enjoy most: ${profile.enjoyment.trim()}`)
-  if (profile.technicalStrengths && profile.technicalStrengths.trim()) lines.push(`Technical strengths: ${profile.technicalStrengths.trim()}`)
+  if (profile.technicalStrengths && profile.technicalStrengths.trim()) lines.push(`Challenges / hesitations / development areas: ${profile.technicalStrengths.trim()}`)
   if (profile.toolsComfort && profile.toolsComfort.trim()) lines.push(`Comfort with tools and frameworks: ${profile.toolsComfort.trim()}`)
   if (profile.notes && profile.notes.trim()) lines.push(`Additional context: ${profile.notes.trim()}`)
   return lines.join('\n')
@@ -296,6 +297,7 @@ async function handleQuery (rawBody, res) {
     : []
   const advisorProfile = rawProfile && typeof rawProfile === 'object'
     ? {
+        advisorRole: String(rawProfile.advisorRole || '').slice(0, MAX_FIELD),
         experience: String(rawProfile.experience || '').slice(0, MAX_FIELD),
         clientDemographic: String(rawProfile.clientDemographic || '').slice(0, MAX_FIELD),
         enjoyment: String(rawProfile.enjoyment || '').slice(0, MAX_FIELD),

@@ -1592,7 +1592,17 @@
       "HR Consultants",
       "Health & Safety",
       "Geo Technical",
-      "Draughtsperson"
+      "Draughtsperson",
+      "fee growth model",
+      "accountant fee growth",
+      "practice growth",
+      "client targeting",
+      "target clients",
+      "grow fee base",
+      "client selection",
+      "client profiling",
+      "conversion model",
+      "advisor fee growth"
     ],
     "includedInClient": true,
     "position": 90
@@ -3592,7 +3602,16 @@
     "tags": [
       "Insurance advisor",
       "broker",
-      "financial planner"
+      "financial planner",
+      "fee growth model",
+      "client targeting",
+      "target clients",
+      "grow fee base",
+      "advisor fee growth",
+      "client selection",
+      "client profiling",
+      "conversion model",
+      "practice growth"
     ],
     "includedInClient": false,
     "position": 231

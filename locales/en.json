@@ -41,10 +41,14 @@
     "tagActive": "Profile active",
     "tagEmpty": "Not set up",
     "questions": {
+      "advisorRole": "What type of advisory practice do you run? For example — accountant delivering business advisory, financial planner, insurance advisor, business coach, or something else.",
       "experience": "How long have you been delivering advisory work?",
       "clientDemographic": "Describe your average advisory client in terms of staff numbers, industry, years in business, number of branches and annual turnover — but please don't mention names.",
       "enjoyment": "What kind of advisory conversations do you enjoy most or feel you do best?",
-      "technicalStrengths": "What are the areas you feel technically strong in?",
+      "enjoymentBeginner": "Outside of compliance, what aspects of your clients' businesses interest you most — or what area of advisory work are you most curious to explore?",
+      "clientDemographicBeginner": "What kind of clients does your firm mainly work with — in terms of size, industry, and the work they typically bring to you?",
+      "technicalStrengths": "What areas of advisory work do you find most challenging, or where would you most like to grow your confidence?",
+      "technicalStrengthsBeginner": "What's your biggest hesitation about starting to offer advisory services — is it knowledge gaps, confidence, knowing how to charge, or something else?",
       "toolsComfort": "How comfortable are you using structured tools and frameworks?",
       "notes": "Is there anything else about how you work that would help me tailor my recommendations to you?"
     },
