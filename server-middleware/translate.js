@@ -10,6 +10,8 @@
  * but they are sequential and the result is cached client-side.
  */
 
+const { sendError } = require('../server/utils/sendError')
+
 const SEPARATOR = '\n\n---SPLIT---\n\n'
 const CHUNK_CHARS = 900 // conservative limit per MyMemory GET request
 const BODY_LIMIT = 128 * 1024 // 128 KB
@@ -25,21 +27,15 @@ module.exports = function translateMiddleware (req, res, next) {
 
   req.on('error', (err) => {
     console.error('[translate] Request socket error:', err.message)
-    if (!res.headersSent) {
-      res.writeHead(400, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ error: 'Request error' }))
-    }
+    sendError(res, 400, 'REQUEST_ERROR', 'Request error')
   })
 
   req.on('data', (chunk) => {
-    if (bodyRejected) return
+    if (bodyRejected) { return }
     bodySize += chunk.length
     if (bodySize > BODY_LIMIT) {
       bodyRejected = true
-      if (!res.headersSent) {
-        res.writeHead(413, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ error: 'Request body too large' }))
-      }
+      sendError(res, 413, 'BODY_TOO_LARGE', 'Request body too large')
       req.socket && req.socket.destroy()
       return
     }
@@ -47,13 +43,10 @@ module.exports = function translateMiddleware (req, res, next) {
   })
 
   req.on('end', () => {
-    if (bodyRejected) return
-    handleTranslate(body, res).catch(err => {
+    if (bodyRejected) { return }
+    handleTranslate(body, res).catch((err) => {
       console.error('[translate] Error:', err.message)
-      if (!res.headersSent) {
-        res.writeHead(500, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ error: 'Translation failed' }))
-      }
+      sendError(res, 500, 'TRANSLATION_FAILED', 'Translation failed')
     })
   })
 }
@@ -61,15 +54,13 @@ module.exports = function translateMiddleware (req, res, next) {
 async function handleTranslate (rawBody, res) {
   let parsed
   try { parsed = JSON.parse(rawBody) } catch (e) {
-    res.writeHead(400, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'Invalid JSON' }))
+    sendError(res, 400, 'INVALID_JSON', 'Invalid JSON')
     return
   }
 
   const { texts, langCode } = parsed
   if (!texts || !langCode) {
-    res.writeHead(400, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'texts and langCode are required' }))
+    sendError(res, 400, 'PARAMS_REQUIRED', 'texts and langCode are required')
     return
   }
 
@@ -93,27 +84,27 @@ async function handleTranslate (rawBody, res) {
       currentLen += addition
     }
   }
-  if (currentChunk.length > 0) chunks.push(currentChunk)
+  if (currentChunk.length > 0) { chunks.push(currentChunk) }
 
   const translated = {}
 
   for (const chunkKeys of chunks) {
     const combined = chunkKeys.map(k => String(texts[k] || '')).join(SEPARATOR)
     const params = new URLSearchParams({ q: combined, langpair: `en|${langCode}` })
-    if (email) params.set('de', email)
+    if (email) { params.set('de', email) }
 
     let mmRes
     try {
       mmRes = await fetch(`https://api.mymemory.translated.net/get?${params}`)
     } catch (netErr) {
       console.error('[translate] Network error:', netErr.message)
-      chunkKeys.forEach(k => { translated[k] = texts[k] })
+      chunkKeys.forEach((k) => { translated[k] = texts[k] })
       continue
     }
 
     if (!mmRes.ok) {
       console.error('[translate] MyMemory HTTP error:', mmRes.status)
-      chunkKeys.forEach(k => { translated[k] = texts[k] })
+      chunkKeys.forEach((k) => { translated[k] = texts[k] })
       continue
     }
 
@@ -121,7 +112,7 @@ async function handleTranslate (rawBody, res) {
 
     if (data.responseStatus !== 200) {
       console.error('[translate] MyMemory rejected:', data.responseDetails)
-      chunkKeys.forEach(k => { translated[k] = texts[k] })
+      chunkKeys.forEach((k) => { translated[k] = texts[k] })
       continue
     }
 

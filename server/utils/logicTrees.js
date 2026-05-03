@@ -16,7 +16,7 @@ let _trees = null
 let _seminarsRef = null
 
 function loadLogicTrees () {
-  if (_trees) return _trees
+  if (_trees) { return _trees }
   const filePath = resolve(process.cwd(), 'data/logic_trees.json')
   try {
     const data = JSON.parse(readFileSync(filePath, 'utf8'))
@@ -111,12 +111,12 @@ function formatNodeForPrompt (node, allNodes) {
  * Formats a full logic tree into a readable text block for injection into the AI context.
  */
 function formatApproachGuidance (guidance) {
-  if (!guidance || guidance.length === 0) return ''
+  if (!guidance || guidance.length === 0) { return '' }
   const lines = ['\n### Campaign Approach — Match HOW you reach out to the relationship warmth\n']
   for (const g of guidance) {
     lines.push(`**${g.method}**`)
     lines.push(`Relationship: ${g.relationship_status}`)
-    if (g.step_detail) lines.push(`Steps: ${g.step_detail}`)
+    if (g.step_detail) { lines.push(`Steps: ${g.step_detail}`) }
     lines.push(`Discovery meeting style: ${g.discovery_style}`)
     lines.push('')
   }
@@ -124,7 +124,7 @@ function formatApproachGuidance (guidance) {
 }
 
 function formatLogicTreeForPrompt (tree) {
-  if (!tree) return ''
+  if (!tree) { return '' }
 
   const header = [
     `## Diagnostic Logic Tree — ${tree.name}`,
@@ -162,7 +162,7 @@ function loadTrialFitReference () {
  */
 function formatTrialFitReferenceForPrompt () {
   const ref = loadTrialFitReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Trial Fit Method — Detailed Coaching Reference',
@@ -176,9 +176,9 @@ function formatTrialFitReferenceForPrompt () {
     const why = ref.why_advisors_use_revenue_models
     lines.push('### Why Advisors Use Revenue Models')
     lines.push(why.summary)
-    for (const b of (why.benefits || [])) lines.push(`• ${b}`)
-    if (why.key_script) lines.push(`Key script: ${why.key_script}`)
-    if (why.advisor_confidence_note) lines.push(`Advisor confidence: ${why.advisor_confidence_note}`)
+    for (const b of (why.benefits || [])) { lines.push(`• ${b}`) }
+    if (why.key_script) { lines.push(`Key script: ${why.key_script}`) }
+    if (why.advisor_confidence_note) { lines.push(`Advisor confidence: ${why.advisor_confidence_note}`) }
     lines.push('')
   }
 
@@ -189,7 +189,7 @@ function formatTrialFitReferenceForPrompt () {
     for (const ind of (ref.when_to_use.indicators || [])) {
       lines.push(`• ${ind}`)
     }
-    if (ref.when_to_use.caution) lines.push(`Caution: ${ref.when_to_use.caution}`)
+    if (ref.when_to_use.caution) { lines.push(`Caution: ${ref.when_to_use.caution}`) }
     lines.push('')
   }
 
@@ -204,7 +204,7 @@ function formatTrialFitReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) {
+    for (const value of Object.values(ref.key_concepts)) {
       lines.push(`• ${value}`)
     }
     lines.push('')
@@ -212,7 +212,7 @@ function formatTrialFitReferenceForPrompt () {
 
   if (ref.additional_guidance) {
     lines.push('### Additional Guidance')
-    for (const [key, value] of Object.entries(ref.additional_guidance)) {
+    for (const value of Object.values(ref.additional_guidance)) {
       lines.push(`• ${value}`)
     }
   }
@@ -238,7 +238,7 @@ function loadCautiousRevealReference () {
  */
 function formatCautiousRevealReferenceForPrompt () {
   const ref = loadCautiousRevealReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Cautious Reveal Method — Detailed Coaching Reference',
@@ -252,9 +252,9 @@ function formatCautiousRevealReferenceForPrompt () {
     const why = ref.why_advisors_use_revenue_models
     lines.push('### Why Advisors Use Revenue Models')
     lines.push(why.summary)
-    for (const b of (why.benefits || [])) lines.push(`• ${b}`)
-    if (why.key_script) lines.push(`Key script: ${why.key_script}`)
-    if (why.advisor_confidence_note) lines.push(`Advisor confidence: ${why.advisor_confidence_note}`)
+    for (const b of (why.benefits || [])) { lines.push(`• ${b}`) }
+    if (why.key_script) { lines.push(`Key script: ${why.key_script}`) }
+    if (why.advisor_confidence_note) { lines.push(`Advisor confidence: ${why.advisor_confidence_note}`) }
     lines.push('')
   }
 
@@ -267,7 +267,7 @@ function formatCautiousRevealReferenceForPrompt () {
         lines.push(`• ${s}`)
       }
     }
-    if (ref.when_to_use.contrast_with_trial_fit) lines.push(`Contrast with Trial Fit: ${ref.when_to_use.contrast_with_trial_fit}`)
+    if (ref.when_to_use.contrast_with_trial_fit) { lines.push(`Contrast with Trial Fit: ${ref.when_to_use.contrast_with_trial_fit}`) }
     lines.push('')
   }
 
@@ -282,7 +282,7 @@ function formatCautiousRevealReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) {
+    for (const value of Object.values(ref.key_concepts)) {
       lines.push(`• ${value}`)
     }
     lines.push('')
@@ -290,7 +290,7 @@ function formatCautiousRevealReferenceForPrompt () {
 
   if (ref.additional_guidance) {
     lines.push('### Additional Guidance')
-    for (const [key, value] of Object.entries(ref.additional_guidance)) {
+    for (const value of Object.values(ref.additional_guidance)) {
       lines.push(`• ${value}`)
     }
   }
@@ -302,7 +302,7 @@ function formatCautiousRevealReferenceForPrompt () {
  * Loads the Powerful Seminars reference content for injection alongside the public_speaking tree.
  */
 function loadSeminarsReference () {
-  if (_seminarsRef) return _seminarsRef
+  if (_seminarsRef) { return _seminarsRef }
   const filePath = resolve(process.cwd(), 'data/powerful-seminars.json')
   try {
     _seminarsRef = JSON.parse(readFileSync(filePath, 'utf8'))
@@ -319,7 +319,7 @@ function loadSeminarsReference () {
  */
 function formatSeminarsReferenceForPrompt () {
   const ref = loadSeminarsReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Powerful Seminars Reference — Detailed Coaching Content',
@@ -343,9 +343,9 @@ function formatSeminarsReferenceForPrompt () {
       for (const style of stage.styles) {
         lines.push(`**${style.style}** — Use when: ${style.use_when}`)
         lines.push(`  Characteristics: ${style.characteristics}`)
-        if (style.frame) lines.push(`  Frame: ${style.frame}`)
+        if (style.frame) { lines.push(`  Frame: ${style.frame}`) }
       }
-      if (stage.delivery_circle) lines.push(`Delivery sequence: ${stage.delivery_circle}`)
+      if (stage.delivery_circle) { lines.push(`Delivery sequence: ${stage.delivery_circle}`) }
     }
 
     if (stage.eight_steps) {
@@ -364,7 +364,7 @@ function formatSeminarsReferenceForPrompt () {
 
   if (ref.additional_guidance) {
     lines.push('### Additional Guidance')
-    for (const [key, value] of Object.entries(ref.additional_guidance)) {
+    for (const value of Object.values(ref.additional_guidance)) {
       lines.push(`• ${value}`)
     }
   }
@@ -390,7 +390,7 @@ function loadEoyReference () {
  */
 function formatEoyReferenceForPrompt () {
   const ref = loadEoyReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## End of Year Meeting — Detailed Coaching Reference',
@@ -407,11 +407,11 @@ function formatEoyReferenceForPrompt () {
       lines.push(`Purpose: ${t.purpose}`)
       if (t.variants) {
         lines.push('Deck variants:')
-        for (const v of t.variants) lines.push(`  • ${v.name}: ${v.use_when}`)
+        for (const v of t.variants) { lines.push(`  • ${v.name}: ${v.use_when}`) }
       }
       lines.push(`Helps advisor: ${t.helps_advisor}`)
       lines.push(`Helps owner: ${t.helps_owner}`)
-      if (t.indicators) lines.push(`Indicators: ${t.indicators}`)
+      if (t.indicators) { lines.push(`Indicators: ${t.indicators}`) }
       lines.push('')
     }
   }
@@ -422,7 +422,7 @@ function formatEoyReferenceForPrompt () {
       lines.push(`**Stage ${stage.stage}: ${stage.name}**`)
       lines.push(`Key principle: ${stage.key_principle}`)
       if (stage.coaching_points) {
-        for (const point of stage.coaching_points) lines.push(`• ${point}`)
+        for (const point of stage.coaching_points) { lines.push(`• ${point}`) }
       }
       if (stage.difficult_client_handling) {
         lines.push('Difficult client handling:')
@@ -447,7 +447,7 @@ function formatEoyReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) {
+    for (const value of Object.values(ref.key_concepts)) {
       lines.push(`• ${value}`)
     }
   }
@@ -473,7 +473,7 @@ function loadHealdMatrixReference () {
  */
 function formatHealdMatrixReferenceForPrompt () {
   const ref = loadHealdMatrixReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## The Heald Matrix — Detailed Coaching Reference',
@@ -506,19 +506,19 @@ function formatHealdMatrixReferenceForPrompt () {
   for (const step of (ref.steps || [])) {
     lines.push(`### Step ${step.step}: ${step.name}`)
     lines.push(`Key principle: ${step.key_principle}`)
-    for (const point of (step.coaching_points || [])) lines.push(`• ${point}`)
+    for (const point of (step.coaching_points || [])) { lines.push(`• ${point}`) }
     if (step.facilitation_prompts) {
       lines.push('Facilitation prompts:')
-      for (const p of step.facilitation_prompts) lines.push(`  • "${p}"`)
+      for (const p of step.facilitation_prompts) { lines.push(`  • "${p}"`) }
     }
-    if (step.closing_script) lines.push(`Closing script: "${step.closing_script}"`)
-    if (step.email_template) lines.push(`Follow-up email template: ${step.email_template}`)
+    if (step.closing_script) { lines.push(`Closing script: "${step.closing_script}"`) }
+    if (step.email_template) { lines.push(`Follow-up email template: ${step.email_template}`) }
     lines.push('')
   }
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) lines.push(`• ${value}`)
+    for (const value of Object.values(ref.key_concepts)) { lines.push(`• ${value}`) }
   }
 
   return lines.join('\n')
@@ -542,7 +542,7 @@ function loadCCOReference () {
  */
 function formatCCOReferenceForPrompt () {
   const ref = loadCCOReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Capacity, Capability, Opportunity — Detailed Coaching Reference',
@@ -560,7 +560,7 @@ function formatCCOReferenceForPrompt () {
     lines.push(`Legitimate constraints language: ${ov.legitimate_constraints_language}`)
     lines.push(`Advisor protection: ${ov.advisor_protection}`)
     lines.push('Delivery options:')
-    for (const d of (ov.delivery_options || [])) lines.push(`  • ${d}`)
+    for (const d of (ov.delivery_options || [])) { lines.push(`  • ${d}`) }
     lines.push('')
   }
 
@@ -568,10 +568,10 @@ function formatCCOReferenceForPrompt () {
     lines.push(`### Pillar ${pillar.pillar}: ${pillar.name}`)
     lines.push(`Definition: ${pillar.definition}`)
     lines.push(`Key principle: ${pillar.key_principle}`)
-    for (const point of (pillar.coaching_points || [])) lines.push(`• ${point}`)
-    if (pillar.key_script) lines.push(`Key script: "${pillar.key_script}"`)
-    if (pillar.not_yet_note) lines.push(`NOT YET note: ${pillar.not_yet_note}`)
-    if (pillar.key_saying) lines.push(`Key saying: "${pillar.key_saying}"`)
+    for (const point of (pillar.coaching_points || [])) { lines.push(`• ${point}`) }
+    if (pillar.key_script) { lines.push(`Key script: "${pillar.key_script}"`) }
+    if (pillar.not_yet_note) { lines.push(`NOT YET note: ${pillar.not_yet_note}`) }
+    if (pillar.key_saying) { lines.push(`Key saying: "${pillar.key_saying}"`) }
     lines.push('')
   }
 
@@ -585,7 +585,7 @@ function formatCCOReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) lines.push(`• ${value}`)
+    for (const value of Object.values(ref.key_concepts)) { lines.push(`• ${value}`) }
   }
 
   return lines.join('\n')
@@ -609,7 +609,7 @@ function loadConflictMeetingReference () {
  */
 function formatConflictMeetingReferenceForPrompt () {
   const ref = loadConflictMeetingReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Framing a Conflict Meeting — Detailed Coaching Reference',
@@ -622,30 +622,30 @@ function formatConflictMeetingReferenceForPrompt () {
   for (const stage of (ref.stages || [])) {
     lines.push(`### Stage ${stage.stage}: ${stage.name}`)
     lines.push(`Key principle: ${stage.key_principle}`)
-    for (const point of (stage.coaching_points || [])) lines.push(`• ${point}`)
+    for (const point of (stage.coaching_points || [])) { lines.push(`• ${point}`) }
     if (stage.santa_claus_sequence) {
       lines.push('Santa Claus sequence:')
-      for (const q of stage.santa_claus_sequence) lines.push(`  • ${q.type}: "${q.question}"`)
+      for (const q of stage.santa_claus_sequence) { lines.push(`  • ${q.type}: "${q.question}"`) }
     }
-    if (stage.prescribed_cognitive_pathway) lines.push(`Prescribed cognitive pathway: ${stage.prescribed_cognitive_pathway}`)
-    if (stage.closing_anchor) lines.push(`Closing anchor: ${stage.closing_anchor}`)
+    if (stage.prescribed_cognitive_pathway) { lines.push(`Prescribed cognitive pathway: ${stage.prescribed_cognitive_pathway}`) }
+    if (stage.closing_anchor) { lines.push(`Closing anchor: ${stage.closing_anchor}`) }
     if (stage.steps) {
       for (const s of stage.steps) {
         lines.push(`Step ${s.step} — ${s.name}:`)
-        if (s.script) lines.push(`  Script: "${s.script}"`)
-        if (s.scripts) s.scripts.forEach(sc => lines.push(`  Script: "${sc}"`))
-        if (s.description) lines.push(`  ${s.description}`)
+        if (s.script) { lines.push(`  Script: "${s.script}"`) }
+        if (s.scripts) { s.scripts.forEach(sc => lines.push(`  Script: "${sc}"`)) }
+        if (s.description) { lines.push(`  ${s.description}`) }
       }
     }
     if (stage.concepts) {
       for (const c of stage.concepts) {
         lines.push(`Concept ${c.concept} — ${c.name}: ${c.description}`)
-        if (c.example_script) lines.push(`  Example: "${c.example_script}"`)
+        if (c.example_script) { lines.push(`  Example: "${c.example_script}"`) }
       }
     }
     if (stage.delivery_elements) {
       lines.push('Delivery elements:')
-      for (const d of stage.delivery_elements) lines.push(`  • ${d.element}: ${d.description}`)
+      for (const d of stage.delivery_elements) { lines.push(`  • ${d.element}: ${d.description}`) }
     }
     lines.push('')
   }
@@ -653,13 +653,13 @@ function formatConflictMeetingReferenceForPrompt () {
   if (ref.facilitator_framework) {
     const fw = ref.facilitator_framework
     lines.push('### Facilitator Framework — Sustain These Three Things')
-    for (const p of (fw.pillars || [])) lines.push(`• ${p.pillar}: ${p.guidance}`)
+    for (const p of (fw.pillars || [])) { lines.push(`• ${p.pillar}: ${p.guidance}`) }
     lines.push('')
   }
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) lines.push(`• ${value}`)
+    for (const value of Object.values(ref.key_concepts)) { lines.push(`• ${value}`) }
   }
 
   return lines.join('\n')
@@ -683,7 +683,7 @@ function loadGrowthCurveRevealReference () {
  */
 function formatGrowthCurveRevealReferenceForPrompt () {
   const ref = loadGrowthCurveRevealReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Revealing the Growth Curve — Detailed Coaching Reference',
@@ -696,13 +696,13 @@ function formatGrowthCurveRevealReferenceForPrompt () {
   for (const step of (ref.steps || [])) {
     lines.push(`### Step ${step.step}: ${step.name}`)
     lines.push(`Key principle: ${step.key_principle}`)
-    if (step.opening_script) lines.push(`Opening script: "${step.opening_script}"`)
-    if (step.transition_script) lines.push(`Transition: "${step.transition_script}"`)
-    if (step.closing_script) lines.push(`Closing script: "${step.closing_script}"`)
-    if (step.yes_response) lines.push(`Yes response: "${step.yes_response}"`)
+    if (step.opening_script) { lines.push(`Opening script: "${step.opening_script}"`) }
+    if (step.transition_script) { lines.push(`Transition: "${step.transition_script}"`) }
+    if (step.closing_script) { lines.push(`Closing script: "${step.closing_script}"`) }
+    if (step.yes_response) { lines.push(`Yes response: "${step.yes_response}"`) }
     if (step.persona_elements) {
       lines.push('Persona elements to develop:')
-      for (const el of step.persona_elements) lines.push(`  • ${el}`)
+      for (const el of step.persona_elements) { lines.push(`  • ${el}`) }
     }
     if (step.sequence) {
       for (const part of step.sequence) {
@@ -712,7 +712,7 @@ function formatGrowthCurveRevealReferenceForPrompt () {
     }
     if (step.relevance_questions) {
       lines.push('Relevance questions:')
-      for (const q of step.relevance_questions) lines.push(`  • "${q}"`)
+      for (const q of step.relevance_questions) { lines.push(`  • "${q}"`) }
     }
     for (const point of (step.coaching_points || [])) {
       lines.push(`• ${point}`)
@@ -722,7 +722,7 @@ function formatGrowthCurveRevealReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) {
+    for (const value of Object.values(ref.key_concepts)) {
       lines.push(`• ${value}`)
     }
     lines.push('')
@@ -730,7 +730,7 @@ function formatGrowthCurveRevealReferenceForPrompt () {
 
   if (ref.additional_guidance) {
     lines.push('### Additional Guidance')
-    for (const [key, value] of Object.entries(ref.additional_guidance)) {
+    for (const value of Object.values(ref.additional_guidance)) {
       lines.push(`• ${value}`)
     }
   }
@@ -756,7 +756,7 @@ function loadFacilitationReference () {
  */
 function formatFacilitationReferenceForPrompt () {
   const ref = loadFacilitationReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Facilitation 101 — Detailed Coaching Reference',
@@ -769,7 +769,7 @@ function formatFacilitationReferenceForPrompt () {
   for (const stage of (ref.stages || [])) {
     lines.push(`### Stage ${stage.stage}: ${stage.name}`)
     lines.push(`Key principle: ${stage.key_principle}`)
-    if (stage.opening_script) lines.push(`Opening script: "${stage.opening_script}"`)
+    if (stage.opening_script) { lines.push(`Opening script: "${stage.opening_script}"`) }
     for (const point of (stage.coaching_points || [])) {
       lines.push(`• ${point}`)
     }
@@ -778,7 +778,7 @@ function formatFacilitationReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) {
+    for (const value of Object.values(ref.key_concepts)) {
       lines.push(`• ${value}`)
     }
     lines.push('')
@@ -786,7 +786,7 @@ function formatFacilitationReferenceForPrompt () {
 
   if (ref.additional_guidance) {
     lines.push('### Additional Guidance')
-    for (const [key, value] of Object.entries(ref.additional_guidance)) {
+    for (const value of Object.values(ref.additional_guidance)) {
       lines.push(`• ${value}`)
     }
   }
@@ -812,7 +812,7 @@ function loadDemingsVolatilityReference () {
  */
 function formatDemingsVolatilityReferenceForPrompt () {
   const ref = loadDemingsVolatilityReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     "## Deming's Theory of Volatility — Detailed Coaching Reference",
@@ -871,7 +871,7 @@ function formatDemingsVolatilityReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) {
+    for (const value of Object.values(ref.key_concepts)) {
       lines.push(`• ${value}`)
     }
   }
@@ -897,7 +897,7 @@ function loadWorkingCapitalCycleReference () {
  */
 function formatWorkingCapitalCycleReferenceForPrompt () {
   const ref = loadWorkingCapitalCycleReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Working Capital Cycle — Detailed Coaching Reference',
@@ -927,9 +927,9 @@ function formatWorkingCapitalCycleReferenceForPrompt () {
       lines.push(`**${p.type}**`)
       lines.push(`Trigger: ${p.trigger}`)
       lines.push(`Diagnosis: ${p.diagnosis}`)
-      if (p.scenario) lines.push(`Scenario: ${p.scenario}`)
-      if (p.advisor_note) lines.push(`Advisor note: ${p.advisor_note}`)
-      if (p.funding_note) lines.push(`Funding note: ${p.funding_note}`)
+      if (p.scenario) { lines.push(`Scenario: ${p.scenario}`) }
+      if (p.advisor_note) { lines.push(`Advisor note: ${p.advisor_note}`) }
+      if (p.funding_note) { lines.push(`Funding note: ${p.funding_note}`) }
       lines.push('')
     }
   }
@@ -977,7 +977,7 @@ function formatWorkingCapitalCycleReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) {
+    for (const value of Object.values(ref.key_concepts)) {
       lines.push(`• ${value}`)
     }
   }
@@ -1003,7 +1003,7 @@ function loadRatioAnalysisReference () {
  */
 function formatRatioAnalysisReferenceForPrompt () {
   const ref = loadRatioAnalysisReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Ratio Analysis — Detailed Coaching Reference',
@@ -1039,7 +1039,7 @@ function formatRatioAnalysisReferenceForPrompt () {
     for (const c of (ref.when_data_is_less_relevant.conditions || [])) {
       lines.push(`**${c.label}**`)
       lines.push(c.explanation)
-      if (c.example) lines.push(`Example: ${c.example}`)
+      if (c.example) { lines.push(`Example: ${c.example}`) }
       lines.push('')
     }
   }
@@ -1073,7 +1073,7 @@ function formatRatioAnalysisReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) {
+    for (const value of Object.values(ref.key_concepts)) {
       lines.push(`• ${value}`)
     }
   }
@@ -1099,7 +1099,7 @@ function loadDashboardDiscussionsReference () {
  */
 function formatDashboardDiscussionsReferenceForPrompt () {
   const ref = loadDashboardDiscussionsReference()
-  if (!ref) return ''
+  if (!ref) { return '' }
 
   const lines = [
     '## Dashboard Discussions — Detailed Coaching Reference',
@@ -1155,7 +1155,7 @@ function formatDashboardDiscussionsReferenceForPrompt () {
 
   if (ref.key_concepts) {
     lines.push('### Key Concepts')
-    for (const [key, value] of Object.entries(ref.key_concepts)) {
+    for (const value of Object.values(ref.key_concepts)) {
       lines.push(`• ${value}`)
     }
   }
@@ -1170,49 +1170,49 @@ function formatDashboardDiscussionsReferenceForPrompt () {
  * or null if the tree is not a recognised learn-mode tree.
  */
 function buildLearnReferenceText (tree) {
-  if (!tree || tree.mode !== 'learn') return null
+  if (!tree || tree.mode !== 'learn') { return null }
 
   let text = formatLogicTreeForPrompt(tree)
 
   if (tree.id === 'public_speaking') {
     const ref = formatSeminarsReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'trial_fit') {
     const ref = formatTrialFitReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'cautious_reveal') {
     const ref = formatCautiousRevealReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'eoy_meeting') {
     const ref = formatEoyReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'facilitation_101') {
     const ref = formatFacilitationReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'reveal_growth_curve') {
     const ref = formatGrowthCurveRevealReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'conflict_meeting') {
     const ref = formatConflictMeetingReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'capacity_capability_opportunity') {
     const ref = formatCCOReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'heald_matrix') {
     const ref = formatHealdMatrixReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'demings_volatility') {
     const ref = formatDemingsVolatilityReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'working_capital_cycle') {
     const ref = formatWorkingCapitalCycleReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'ratio_analysis') {
     const ref = formatRatioAnalysisReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   } else if (tree.id === 'dashboard_discussions') {
     const ref = formatDashboardDiscussionsReferenceForPrompt()
-    if (ref) text += '\n\n---\n\n' + ref
+    if (ref) { text += '\n\n---\n\n' + ref }
   }
 
   return text

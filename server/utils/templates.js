@@ -10,7 +10,7 @@ const { STOP_WORDS } = require('./stop-words')
 let _templates = null
 
 function loadTemplates () {
-  if (_templates) return _templates
+  if (_templates) { return _templates }
   const filePath = resolve(process.cwd(), 'data/templates.json')
   try {
     _templates = JSON.parse(readFileSync(filePath, 'utf8'))
@@ -23,7 +23,7 @@ function loadTemplates () {
 
 function getOrgTemplates (orgTemplateIds) {
   const all = loadTemplates()
-  if (!orgTemplateIds || !Array.isArray(orgTemplateIds) || orgTemplateIds.length === 0) return all
+  if (!orgTemplateIds || !Array.isArray(orgTemplateIds) || orgTemplateIds.length === 0) { return all }
   const validIds = orgTemplateIds.filter(id => typeof id === 'string').slice(0, 500)
   return all.filter(t => validIds.includes(t.page))
 }
@@ -36,9 +36,9 @@ function filterTemplatesByQuery (templates, query, maxResults) {
     .filter(w => w.length > 3)
     .filter(w => !STOP_WORDS.has(w))
 
-  if (queryWords.length === 0) return templates.slice(0, maxResults)
+  if (queryWords.length === 0) { return templates.slice(0, maxResults) }
 
-  const scored = templates.map(t => {
+  const scored = templates.map((t) => {
     const searchText = [
       t.title,
       t.purpose,
@@ -49,7 +49,7 @@ function filterTemplatesByQuery (templates, query, maxResults) {
 
     let score = 0
     for (const word of queryWords) {
-      if (searchText.includes(word)) score++
+      if (searchText.includes(word)) { score++ }
     }
     return { template: t, score }
   })
@@ -71,6 +71,5 @@ function formatTemplatesForPrompt (templates) {
    ID: ${t.page}${videoNote}`
   }).join('\n\n')
 }
-
 
 module.exports = { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt }
