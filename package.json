@@ -10,6 +10,8 @@
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue .",
     "lint:fix": "eslint --ext .js,.vue . --fix",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -25,11 +27,15 @@
     "vuex": "^3.6.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.3",
     "@nuxtjs/eslint-config": "^12.0.0",
+    "babel-jest": "^27.5.1",
     "cross-env": "^10.1.0",
     "cssnano": "^7.1.4",
     "eslint": "^8.57.1",
     "husky": "^8.0.3",
+    "jest": "^27.5.1",
     "pug": "^2.0.4",
     "pug-plain-loader": "^1.1.0"
   }
