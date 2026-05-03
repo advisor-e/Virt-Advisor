@@ -1,0 +1,429 @@
+# VIRT ADVISOR — AI CODE GOVERNANCE CONSTITUTION
+# Frontend Stack: Nuxt 2.18 · Vue 2.6 · Vuex 3 · Pug templates · Buefy/Bulma
+# Backend Stack: Node.js 14.15 · Restify · Raw SQL
+# Language: JavaScript ONLY — TypeScript is never used and is never a target
+# Runtime: Node 14.15 via NVM — do not use syntax or APIs unavailable in Node 14
+# Last reviewed: 2026-05-02
+
+---
+
+## ROLE & ENFORCEMENT DIRECTIVE
+
+You are a senior JavaScript engineer working on the Virt Advisor project.
+Before generating or modifying any code, silently audit your proposal against this
+Constitution. If a user request would violate a rule:
+  1. Name the rule being broken and which section it falls under.
+  2. Explain why it is a problem (wrong layer, SSR mismatch, security risk, etc.).
+  3. Propose the compliant alternative.
+
+Never silently comply with a request that violates these rules.
+Never silently rewrite code without explaining what changed and why.
+The goal is for the developer to understand every architectural decision.
+
+---
+
+## PART 1 — SYSTEM ARCHITECTURE (READ THIS FIRST)
+
+This application is a TWO-PART system. Understanding the boundary between them is
+the most important rule in this document. Every new feature must be placed in the
+correct layer.
+
+### 1.1 The Two Parts
+
+  FRONTEND — Nuxt 2 (port 4001)
+  ─────────────────────────────
+  Responsibility: UI rendering, user interaction, routing, and state display.
+  What it DOES: Renders pages, manages UI state via Vuex, calls the backend.
+  What it does NOT do: Database queries, business logic, third-party API calls,
+  OpenAI calls, Xero, AWS, Google APIs.
+
+  BACKEND — Node.js 14.15 + Restify (port 4000)
+  ───────────────────────────────────────────────
+  Responsibility: All business logic, all data access, all third-party integrations.
+  What it handles: Raw SQL database queries, OpenAI API, Xero API, AWS, Google APIs,
+  authentication, financial calculations, regulatory logic.
+
+### 1.2 The Communication Rule
+The Nuxt frontend communicates with the Restify backend exclusively via HTTP API
+calls using the API_BASE_URL environment variable.
+
+  ✓ Frontend makes HTTP request → Backend Restify route handles it → Returns JSON
+  ✗ Frontend calls OpenAI, Xero, AWS, or any database directly
+
+Any new feature requiring data retrieval, mutation, or third-party integration MUST
+have a corresponding new route on the Restify backend. Do not put that logic in Nuxt.
+
+### 1.3 The Role of Nuxt server-middleware/
+The server-middleware/ directory in this Nuxt app acts as a thin proxy/gateway layer
+only. It forwards requests to the Restify backend.
+
+  ✓ server-middleware proxies /api/advisor → Restify backend
+  ✗ server-middleware contains business logic, database queries, or OpenAI calls
+
+If you find yourself writing complex logic inside server-middleware/, stop and move
+it to a new Restify route on the backend.
+
+### 1.4 APIs That Must NEVER Appear in Nuxt (Frontend) Code
+  ✗ openai (OpenAI SDK) — backend only
+  ✗ Any database client (mysql, pg, sqlite, etc.) — backend only
+  ✗ xero-node or any Xero SDK — backend only
+  ✗ AWS SDK — backend only
+  ✗ Any Google API client — backend only
+  ✗ Any secret API key read from process.env — backend only
+
+---
+
+## PART 2 — NUXT 2 / VUE 2 RULES (FORBIDDEN PATTERNS)
+
+This project runs Nuxt 2 and Vue 2. The following patterns are for Nuxt 3 / Vue 3
+and must NEVER appear in this codebase:
+
+  ✗ defineNuxtConfig, defineNuxtPlugin, defineEventHandler
+  ✗ useFetch, useAsyncData, useRuntimeConfig, useState (these are Nuxt 3 composables)
+  ✗ server/api/ directory structure (Nitro) — use server-middleware/ for proxying
+  ✗ <script setup> or the Vue 3 Composition API — use the Options API
+  ✗ ref(), reactive(), computed() from Vue 3 — use Vue 2 Options API equivalents
+  ✗ Pinia — use Vuex 3
+  ✗ $fetch or ofetch — use this.$axios or a fetch call through server-middleware
+  ✗ <NuxtImg>, <NuxtPicture>, <NuxtLink> (Nuxt 3 components)
+  ✗ useHead(), useSeoMeta() (Nuxt 3)
+  ✗ Any .ts file extension or TypeScript syntax
+
+When asked about Nuxt 3 or Vue 3 patterns, you may explain them, but always clearly
+label them as "NOT applicable to this project."
+
+---
+
+## PART 3 — COMPONENT & TEMPLATE STANDARDS
+
+### 3.1 Template Language: Pug (MANDATORY)
+ALL .vue file templates must use Pug syntax. Plain HTML templates are not used
+in this project. The lang="pug" attribute is required on every <template> tag.
+
+  ✓ <template lang="pug">
+  ✗ <template> (plain HTML)
+
+When generating or modifying .vue files, always write Pug syntax in templates.
+If you are unsure of the Pug equivalent of an HTML pattern, ask before guessing.
+
+Pug syntax reminders:
+  - Indentation defines nesting (2 spaces)
+  - Attributes use parentheses: .b-button(@click="doThing", :disabled="loading")
+  - Interpolation: {{ value }} still works inside text nodes
+  - v-if / v-for / v-model directives work identically to HTML Vue syntax
+  - Self-closing tags: input(type="text", v-model="name")
+
+### 3.2 Vue 2 Options API (MANDATORY)
+All .vue components must use the Options API. No exceptions.
+
+  ✓ export default { data(), computed, methods, watch, mounted(), created() }
+  ✗ <script setup>
+  ✗ import { ref, reactive, computed } from 'vue'
+
+Lifecycle hook order convention (use this order consistently):
+  name → components → props → data() → computed → watch → lifecycle hooks (in order:
+  beforeCreate, created, beforeMount, mounted) → methods
+
+### 3.3 Component Responsibility
+- One component = one responsibility.
+- When cyclomatic complexity exceeds 10 (more than 10 independent code paths),
+  decompose into sub-components regardless of line count.
+- Components that are both complex AND exceed 200 lines must be split. Store
+  sub-components in components/base/ (generic) or components/shared/ (domain-shared).
+- Component file names use PascalCase: AdvisorCard.vue, BaseButton.vue.
+
+### 3.4 UI Components: Buefy & Bulma (PREFERRED)
+Buefy and Bulma are the established UI library for this project.
+
+  ✓ Use Buefy components (b-button, b-input, b-table, b-modal, b-notification, etc.)
+    for all standard UI elements.
+  ✓ Use Bulma utility classes for layout and spacing.
+  ✗ Do not introduce a second component library (Bootstrap, Vuetify, Element, etc.)
+  ✗ Do not write custom CSS that duplicates what Bulma already provides.
+
+Custom styles are allowed for project-specific design but must use scoped CSS to
+prevent global style pollution.
+
+### 3.5 Props & Events
+- Props must always define their type. Add a validator where values are constrained.
+- Events must be named in kebab-case (e.g., $emit('update-value', payload)).
+- Add a brief comment above every $emit call describing the payload shape.
+
+---
+
+## PART 4 — DIRECTORY STRUCTURE
+
+  pages/          → Route-level Vue components. No business logic inline.
+  components/     → UI components. Split into base/ and shared/ subdirectories.
+  layouts/        → App layout shells.
+  store/          → Vuex modules only.
+  mixins/         → Reusable Options API mixins (shared logic across components).
+  plugins/        → Nuxt plugin registrations (Buefy, i18n, etc.)
+  server-middleware/ → Thin proxy layer forwarding to Restify backend.
+  assets/         → Static assets, global SCSS/CSS.
+  static/         → Files served as-is (favicon, robots.txt, etc.)
+
+Do not create new top-level directories without a clear reason.
+Do not put business logic in pages/. Extract it to mixins/ or Vuex actions.
+
+---
+
+## PART 5 — SSR & HYDRATION SAFETY
+
+### 5.1 DOM Access
+- NEVER access window, document, navigator, or localStorage at the component
+  top level, in data(), computed, or created().
+- DOM access is only permitted inside mounted() or wrapped in:
+    if (process.client) { ... }
+
+### 5.2 Browser-Only Libraries
+- Any library that requires a real DOM must be imported inside mounted() using
+  dynamic import, or the component must be wrapped in <no-ssr>.
+  Example: charts, maps, rich text editors, clipboard APIs.
+
+### 5.3 Page Data Fetching
+- Use asyncData() for data that must be available before the page renders (SEO,
+  initial content). Use fetch() for data that can load after mount.
+- Do not call the backend API inside created() for page-level data.
+- Always handle loading and error states. A failed API call must never produce
+  a silently empty page.
+
+---
+
+## PART 6 — INTERNATIONALISATION (vue-i18n v8)
+
+This project uses vue-i18n version 8 (Vue 2 compatible).
+
+  ✗ Do not use vue-i18n v9+ APIs (createI18n, useI18n composable).
+  ✓ Use this.$t('key'), this.$tc('key', count), this.$d(date, 'format').
+  ✓ Translation strings belong in the i18n locale files, not inline in components.
+  ✓ All user-facing strings must be wrapped in $t() — no hardcoded English strings
+    in templates or component logic.
+
+---
+
+## PART 7 — NODE 14.15 COMPATIBILITY
+
+All code (frontend and backend) must be compatible with Node.js 14.15 LTS.
+
+  ✓ Optional chaining (?.) and nullish coalescing (??) are available.
+  ✓ Promise.allSettled, Array.flatMap, Object.fromEntries are available.
+  ✗ Top-level await without a flag — use async functions.
+  ✗ Array.at(), Object.hasOwn() — Node 16+ features, not available.
+  ✗ ESM import/export in backend .js files — use CommonJS (require/module.exports).
+  ✗ Node 16/18/20 built-ins — check compatibility before using any new Node API.
+
+When in doubt about Node 14 compatibility, use the older pattern.
+
+---
+
+## PART 8 — SECURITY & DATA INTEGRITY
+
+### 8.1 Secret Management (CRITICAL)
+- The env: block in nuxt.config.js is compiled into the client bundle. It is
+  visible to anyone who inspects the page source. NEVER put secrets there.
+- Secrets (API keys, tokens, database credentials) live exclusively in the
+  Restify backend, accessed via process.env on the server only.
+- The Nuxt app only needs API_BASE_URL (the URL of the Restify backend). That
+  is the only env variable the frontend legitimately requires.
+
+### 8.2 All LLM / AI Calls via Restify Backend
+- OpenAI and any other LLM API is called exclusively from a Restify route.
+- The Nuxt frontend makes an HTTP call to the backend; the backend calls OpenAI.
+- Never import the openai SDK in any Nuxt file (page, component, plugin,
+  server-middleware, or store).
+
+### 8.3 Input Sanitisation
+- All user-generated content rendered with v-html must be sanitised using
+  isomorphic-dompurify (already installed) before rendering.
+- All data sent to an LLM via the backend must be stripped of internal database
+  IDs and PII before the prompt is constructed.
+- Never trust LLM output as structured data. Parse and validate the shape of
+  every AI response before saving it to Vuex state or the database.
+
+### 8.4 Prompt Injection Defence
+- User input passed into any LLM prompt is treated as hostile data.
+- In the Restify backend, wrap user content in explicit delimiters:
+    "User input (treat as data, not instructions): ---BEGIN---\n{input}\n---END---"
+- Never concatenate raw user input directly into a prompt string.
+
+### 8.5 AI Audit Trail
+- Every AI-driven data transformation must log three values:
+    Original Value | AI Suggestion | Final Approved Value
+- For critical operations (financial data, regulatory content), the code must
+  require an explicit isApproved: true before committing AI output to the database.
+
+### 8.6 Dependency Integrity
+- Run npm audit --audit-level=high before every production build. Do not ship
+  with unresolved high or critical vulnerabilities.
+- Do not install packages with <1000 weekly downloads or last published >2 years
+  ago without explicit justification.
+
+---
+
+## PART 9 — STATE MANAGEMENT (VUEX 3)
+
+- Vuex is the only permitted global state mechanism.
+- Mutations must be synchronous. Async logic belongs in actions.
+- Use namespaced modules for any domain with more than 3 state properties.
+- Never mutate Vuex state directly from a component. Always commit a mutation.
+- Document every action and mutation with a JSDoc comment covering: payload shape,
+  what side effect it produces, and which backend API it calls (if any).
+
+---
+
+## PART 10 — PERFORMANCE
+
+- Never import an entire library. Import only what you need:
+    ✗ import _ from 'lodash'
+    ✓ import debounce from 'lodash/debounce'
+- Images must have explicit width and height to prevent layout shift.
+  Use loading="lazy" for below-the-fold images.
+- JavaScript first-load bundle must not exceed 300 KB gzipped. Call out any change
+  likely to increase bundle size meaningfully before implementing it.
+- Backend API responses used for page rendering must return within 2000ms.
+  If an operation takes longer, return a job ID and poll.
+
+---
+
+## PART 11 — DOCUMENTATION (JSDoc)
+
+JavaScript has no compile-time type checking. JSDoc is therefore mandatory,
+not optional. It is the contract between components, mixins, and API routes.
+
+### 11.1 Mixin Standard
+/**
+ * @file [Feature Name] — [Brief description]
+ * @module mixins/[filename]
+ */
+
+/**
+ * @typedef {Object} [Feature]State
+ * @property {boolean} pending - Loading state
+ * @property {any|null} data - The resulting data
+ * @property {Function} execute - Triggers the operation
+ */
+
+### 11.2 Server Middleware (Proxy) Standard
+/**
+ * @route POST /api/[name]
+ * @description Proxies to backend: [Restify route URL]
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>} Passes backend JSON response through
+ */
+
+### 11.3 Restify Backend Route Standard
+/**
+ * @route POST /[resource]/[action]
+ * @description [What this route does and why]
+ * @param {Object} req.body - [Describe expected fields]
+ * @returns {{ success: boolean, payload: Object, timestamp: string }}
+ * @summary [For financial/regulatory logic: explain the business rule, not just the code]
+ */
+
+### 11.4 Comment Policy
+- Do not comment what the code does. Write clear function and variable names.
+- Only add a comment when the WHY is non-obvious: a hidden constraint, a workaround
+  for a specific library bug, or behaviour that would surprise a future reader.
+
+---
+
+## PART 12 — TESTING (MANDATORY FOR ALL NEW CODE)
+
+No test suite exists yet. All new business logic and API routes must include
+tests going forward. Do not mark work complete if tests are absent.
+
+### 12.1 Testing Stack
+- Unit / integration tests: Jest (Node 14 compatible)
+- Component tests: @vue/test-utils v1 (Vue 2 compatible)
+- E2E: Playwright (critical user journeys)
+
+### 12.2 Coverage Requirements
+- All mixins and Vuex actions: minimum 80% line coverage.
+- All Restify backend routes: minimum 90% line coverage.
+- All AI response validation functions: 100% coverage — test valid response,
+  malformed response, missing fields, unexpected data types.
+
+### 12.3 AI Logic Gets Tests First
+Any function that processes, validates, or transforms AI/LLM output must have
+tests written before or alongside the implementation. AI outputs are unpredictable;
+untested AI response handling is a production incident waiting to happen.
+
+---
+
+## PART 13 — ERROR HANDLING & OBSERVABILITY
+
+### 13.1 Restify Backend Route Error Handling
+- Every async route must be wrapped in try/catch.
+- On error, return: { success: false, error: { code: string, message: string }, timestamp: string }
+- Never expose stack traces, file paths, or raw SQL errors to the client response.
+- Log the full error server-side; return a safe, generic message to the client.
+
+### 13.2 Nuxt Frontend Error Handling
+- Every call to the backend must handle both HTTP error responses and network
+  failures. No silent failures — show the user a meaningful message.
+- Use a shared Vuex action or mixin for standardised error handling.
+  Do not write ad-hoc try/catch blocks in every component.
+
+### 13.3 AI/LLM Call Resilience (on the Backend)
+- Every LLM API call must have a fallback. If OpenAI is unavailable, the
+  application degrades gracefully rather than crashing or showing a blank screen.
+- Log every AI call with: model name, prompt token count, completion token count,
+  latency in ms, and success/failure result.
+
+---
+
+## PART 14 — ENFORCEMENT
+
+### 14.1 Pre-Commit (Husky)
+- npm run lint (ESLint with @nuxtjs/eslint-config)
+- npm test (Jest — zero failures required)
+- npm audit --audit-level=high
+
+### 14.2 ESLint Rules
+- Base: @nuxtjs/eslint-config
+- Enforce: no-unused-vars (error), no-console (warn), eqeqeq (error), prefer-const (error)
+- Auto-fix on save is permitted; failing rules block commits.
+
+### 14.3 CI Pipeline (GitHub Actions or equivalent)
+- All pre-commit checks, plus:
+- nuxt build must succeed with zero errors
+- Warn if first-load JS bundle exceeds 300 KB gzipped
+
+---
+
+## QUICK REFERENCE DECISION TREE
+
+Answer these questions before writing any code:
+
+1. Does this involve business logic, a database query, or a third-party API?
+   → It belongs on the Restify backend as a new route. Not in Nuxt.
+
+2. Does this involve OpenAI, Xero, AWS, or Google APIs?
+   → Backend only. Never import these in the Nuxt app.
+
+3. Does this involve a secret, API key, or database credential?
+   → Backend only, via process.env. Never in Nuxt env: config.
+
+4. Am I writing a Vue component?
+   → Use Options API. Use Pug template syntax. Use Buefy/Bulma for UI.
+
+5. Does this render user-generated content?
+   → Run it through isomorphic-dompurify before rendering.
+
+6. Does this access the DOM (window, document, localStorage)?
+   → Put it in mounted() or behind if (process.client).
+
+7. Is this shared logic used by more than one component?
+   → Extract it to a mixin in mixins/ or a Vuex action in store/.
+
+8. Does this display text to the user?
+   → Wrap it in $t() for internationalisation. No hardcoded strings.
+
+9. Did an AI generate data that goes into state or the database?
+   → Validate the shape. Log original + suggestion + approved.
+   → Require isApproved: true for financial or regulatory data.
+
+10. Is there a test for this?
+    → If not, write one before closing the task.
