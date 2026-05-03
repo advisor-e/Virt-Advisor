@@ -11,7 +11,7 @@ let _summaries = null
 let _sectionDescriptions = null
 
 function loadSummaries () {
-  if (_summaries) return _summaries
+  if (_summaries) { return _summaries }
   const filePath = resolve(process.cwd(), 'data/content-summaries.json')
   try {
     _summaries = JSON.parse(readFileSync(filePath, 'utf8'))
@@ -34,14 +34,14 @@ function filterSummariesByQuery (query, maxResults) {
     .filter(w => w.length > 3)
     .filter(w => !STOP_WORDS.has(w))
 
-  if (words.length === 0) return summaries.slice(0, maxResults)
+  if (words.length === 0) { return summaries.slice(0, maxResults) }
 
-  const scored = summaries.map(s => {
+  const scored = summaries.map((s) => {
     const searchText = [s.name, s.purpose, s.indicators, s.helpsOwner, s.helpsAdvisor]
       .join(' ').toLowerCase()
     let score = 0
     for (const word of words) {
-      if (searchText.includes(word)) score++
+      if (searchText.includes(word)) { score++ }
     }
     return { summary: s, score }
   })
@@ -62,7 +62,7 @@ function getAllSummaries () {
 }
 
 function loadSectionDescriptions () {
-  if (_sectionDescriptions) return _sectionDescriptions
+  if (_sectionDescriptions) { return _sectionDescriptions }
   const filePath = resolve(process.cwd(), 'data/section-descriptions.json')
   try {
     _sectionDescriptions = JSON.parse(readFileSync(filePath, 'utf8'))
@@ -88,17 +88,16 @@ function formatSectionDescriptionsForPrompt () {
 }
 
 function formatSummariesForPrompt (summaries) {
-  if (!summaries || summaries.length === 0) return ''
-  return summaries.map(s => {
+  if (!summaries || summaries.length === 0) { return '' }
+  return summaries.map((s) => {
     const lines = [`**${s.name}** [${s.section}]`]
-    if (s.purpose) lines.push(`Purpose: ${s.purpose}`)
-    if (s.indicators) lines.push(`When to use: ${s.indicators}`)
-    if (s.helpsOwner) lines.push(`Helps the owner: ${s.helpsOwner}`)
-    if (s.helpsAdvisor) lines.push(`Helps the advisor: ${s.helpsAdvisor}`)
+    if (s.purpose) { lines.push(`Purpose: ${s.purpose}`) }
+    if (s.indicators) { lines.push(`When to use: ${s.indicators}`) }
+    if (s.helpsOwner) { lines.push(`Helps the owner: ${s.helpsOwner}`) }
+    if (s.helpsAdvisor) { lines.push(`Helps the advisor: ${s.helpsAdvisor}`) }
     return lines.join('\n')
   }).join('\n\n')
 }
-
 
 /**
  * Static alias map: logic tree template names → content summary names.
@@ -148,29 +147,29 @@ function matchSummaryByTemplateName (summaries, templateName) {
   const aliasTarget = TEMPLATE_SUMMARY_ALIASES[templateName]
   if (aliasTarget) {
     const aliasMatch = summaries.find(s => s.name === aliasTarget)
-    if (aliasMatch) return aliasMatch
+    if (aliasMatch) { return aliasMatch }
   }
 
   // 1. Exact match
   const exact = summaries.find(s => s.name.toLowerCase() === nameLower)
-  if (exact) return exact
+  if (exact) { return exact }
 
   // 2. Summary name contains the full template name
   const contained = summaries.find(s => s.name.toLowerCase().includes(nameLower))
-  if (contained) return contained
+  if (contained) { return contained }
 
   // 3. Template name contains the full summary name (guards against very short names)
   const contains = summaries.find(s => s.name.length > 6 && nameLower.includes(s.name.toLowerCase()))
-  if (contains) return contains
+  if (contains) { return contains }
 
   // 4. Word-overlap: at least 60% of the template's meaningful words appear in the summary name
   const stopWords = new Set(['the', 'and', 'for', 'with', 'from', 'into', 'your', 'this', 'that'])
   const templateWords = nameLower.split(/[\s&.()+,/-]+/).filter(w => w.length > 3 && !stopWords.has(w))
-  if (templateWords.length === 0) return null
+  if (templateWords.length === 0) { return null }
 
   const threshold = Math.max(1, Math.ceil(templateWords.length * 0.6))
   const candidates = summaries
-    .map(s => {
+    .map((s) => {
       const sLower = s.name.toLowerCase()
       const matches = templateWords.filter(w => sLower.includes(w)).length
       return { summary: s, matches }

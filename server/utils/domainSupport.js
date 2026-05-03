@@ -10,7 +10,7 @@ const { resolve } = require('path')
 const _cache = {}
 
 function loadDomainSupport (domainId) {
-  if (_cache[domainId]) return _cache[domainId]
+  if (_cache[domainId]) { return _cache[domainId] }
   const filePath = resolve(process.cwd(), `data/${domainId}-domain-support.json`)
   try {
     _cache[domainId] = JSON.parse(readFileSync(filePath, 'utf8'))
@@ -22,7 +22,7 @@ function loadDomainSupport (domainId) {
 
 function formatDomainSupportForPrompt (domainId) {
   const ref = loadDomainSupport(domainId)
-  if (!ref) return null
+  if (!ref) { return null }
 
   const lines = []
   lines.push(`## Domain Support Reference — ${ref.label}`)
@@ -32,9 +32,9 @@ function formatDomainSupportForPrompt (domainId) {
 
   for (const tool of (ref.support_tools || [])) {
     lines.push(`### ${tool.name}`)
-    if (tool.purpose) lines.push(`**Purpose:** ${tool.purpose}`)
-    if (tool.core_principle) lines.push(`**Core principle:** ${tool.core_principle}`)
-    if (tool.when_to_use) lines.push(`**When to use:** ${tool.when_to_use}`)
+    if (tool.purpose) { lines.push(`**Purpose:** ${tool.purpose}`) }
+    if (tool.core_principle) { lines.push(`**Core principle:** ${tool.core_principle}`) }
+    if (tool.when_to_use) { lines.push(`**When to use:** ${tool.when_to_use}`) }
 
     if (tool.key_benefits && tool.key_benefits.length > 0) {
       lines.push('**Key benefits:**')
@@ -50,7 +50,7 @@ function formatDomainSupportForPrompt (domainId) {
     }
 
     if (tool.phases && tool.phases.length > 0) {
-      tool.phases.forEach(ph => {
+      tool.phases.forEach((ph) => {
         lines.push(`**Phase ${ph.phase} — ${ph.name}:**`)
         ph.steps.forEach(s => lines.push(`- *${s.name}:* ${s.guidance}`))
       })
@@ -58,7 +58,7 @@ function formatDomainSupportForPrompt (domainId) {
 
     if (tool.if_then_logic && tool.if_then_logic.length > 0) {
       lines.push('**If-then logic:**')
-      tool.if_then_logic.forEach(l => {
+      tool.if_then_logic.forEach((l) => {
         lines.push(`- IF ${l.condition} → ${l.action} *(${l.context})*`)
       })
     }

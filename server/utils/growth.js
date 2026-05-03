@@ -4,7 +4,7 @@ const { resolve } = require('path')
 let _data = null
 
 function loadGrowthData () {
-  if (_data) return _data
+  if (_data) { return _data }
   try {
     _data = JSON.parse(readFileSync(resolve(process.cwd(), 'data/growth-fundamentals.json'), 'utf8'))
   } catch (err) {
