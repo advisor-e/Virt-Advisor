@@ -3,7 +3,8 @@
 
 npm run lint
 
+npm test
+
 # Audit at critical level only — high-severity vulnerabilities are risk-accepted
 # in SECURITY-AUDIT-NOTES.md (locked to Nuxt 2 dependency tree, build tools only).
-# npm test will be added here in feature/02-test-infrastructure.
 npm audit --audit-level=critical

@@ -30,6 +30,11 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-var-requires': 'off'
       }
+    },
+    {
+      // Jest test files — expose Jest globals (describe, test, expect, jest, etc.)
+      files: ['tests/**/*.test.js'],
+      env: { jest: true, node: true, browser: false }
     }
   ]
 }

@@ -15,6 +15,7 @@ const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesFor
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { detectLogicTree, formatLogicTreeForPrompt, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
+const { sanitiseInput } = require('../server/utils/sanitiseInput')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -268,53 +269,24 @@ async function handleQuery (rawBody, res) {
     return
   }
 
+  const sanitised = sanitiseInput(parsed)
+  if (!sanitised) {
+    res.writeHead(400, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Invalid request body' }))
+    return
+  }
+
   const {
-    query: rawQuery,
-    mode = 'client',
+    query,
+    mode,
     orgTemplateIds,
-    conversationHistory: rawHistory = [],
-    advisorProfile: rawProfile,
-    language = 'en',
-    languageName = 'English',
-    caseSummaries: rawCases = [],
-    conversationState = {}
-  } = parsed
-
-  // Cap and sanitise all client-supplied fields to prevent prompt injection
-  // and token cost inflation from oversized payloads
-  const MAX_QUERY = 4000
-  const MAX_HISTORY_MESSAGES = 20
-  const MAX_FIELD = 2000
-  const MAX_CASE_SUMMARY = 800
-  const MAX_CASES = 6
-
-  const query = typeof rawQuery === 'string' ? rawQuery.slice(0, MAX_QUERY) : ''
-  const conversationHistory = Array.isArray(rawHistory)
-    ? rawHistory.slice(-MAX_HISTORY_MESSAGES).map(m => ({
-        role: ['user', 'assistant'].includes(String(m.role)) ? m.role : 'user',
-        content: typeof m.content === 'string' ? m.content.slice(0, MAX_FIELD) : ''
-      }))
-    : []
-  const advisorProfile = rawProfile && typeof rawProfile === 'object'
-    ? {
-        advisorRole: String(rawProfile.advisorRole || '').slice(0, MAX_FIELD),
-        experience: String(rawProfile.experience || '').slice(0, MAX_FIELD),
-        clientDemographic: String(rawProfile.clientDemographic || '').slice(0, MAX_FIELD),
-        enjoyment: String(rawProfile.enjoyment || '').slice(0, MAX_FIELD),
-        technicalStrengths: String(rawProfile.technicalStrengths || '').slice(0, MAX_FIELD),
-        toolsComfort: String(rawProfile.toolsComfort || '').slice(0, MAX_FIELD),
-        notes: String(rawProfile.notes || '').slice(0, MAX_FIELD)
-      }
-    : null
-  const caseContext = Array.isArray(rawCases)
-    ? rawCases.slice(0, MAX_CASES).map(c => ({
-        title: String(c.title || '').slice(0, 200),
-        mode: String(c.mode || '').slice(0, 20),
-        visibility: String(c.visibility || '').slice(0, 20),
-        summary: String(c.summary || '').slice(0, MAX_CASE_SUMMARY),
-        date: String(c.date || c.createdAt || '').slice(0, 30)
-      }))
-    : []
+    conversationHistory,
+    advisorProfile,
+    language,
+    languageName,
+    caseContext,
+    conversationState
+  } = sanitised
 
   if (!query || !query.trim()) {
     res.writeHead(400, { 'Content-Type': 'application/json' })
