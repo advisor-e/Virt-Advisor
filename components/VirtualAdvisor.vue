@@ -536,68 +536,16 @@
 <script>
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
-import { LANGUAGES } from '~/data/languages'
-import { saveCase, getRelevantCases, updateCaseReview, deleteCase, getCases } from '~/utils/cases'
+import { saveCase } from '~/utils/cases'
+import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
+import localeMixin from '~/mixins/localeMixin'
+import caseMixin from '~/mixins/caseMixin'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false })
 
-// BCP-47 speech recognition language codes, keyed by i18n locale
-const BCP47_MAP = {
-  en: 'en-US',
-fr: 'fr-FR',
-de: 'de-DE',
-es: 'es-ES',
-it: 'it-IT',
-  pt: 'pt-PT',
-nl: 'nl-NL',
-pl: 'pl-PL',
-sv: 'sv-SE',
-da: 'da-DK',
-  fi: 'fi-FI',
-no: 'nb-NO',
-ja: 'ja-JP',
-zh: 'zh-CN',
-ko: 'ko-KR',
-  ar: 'ar-SA',
-ru: 'ru-RU',
-tr: 'tr-TR',
-hi: 'hi-IN',
-id: 'id-ID',
-ms: 'ms-MY'
-}
-
-const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
-
-function flattenObj (obj, prefix = '') {
-  return Object.keys(obj).reduce((acc, k) => {
-    if (FORBIDDEN_KEYS.has(k)) { return acc }
-    const key = prefix ? `${prefix}.${k}` : k
-    if (typeof obj[k] === 'object' && obj[k] !== null) {
-      Object.assign(acc, flattenObj(obj[k], key))
-    } else {
-      acc[key] = obj[k]
-    }
-    return acc
-  }, {})
-}
-
-function unflattenObj (flat) {
-  const result = {}
-  for (const key of Object.keys(flat)) {
-    const parts = key.split('.')
-    if (parts.some(p => FORBIDDEN_KEYS.has(p))) { continue }
-    let cur = result
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (!cur[parts[i]]) { cur[parts[i]] = {} }
-      cur = cur[parts[i]]
-    }
-    cur[parts[parts.length - 1]] = flat[key]
-  }
-  return result
-}
-
 export default {
   name: 'VirtualAdvisor',
+  mixins: [speechMixin, localeMixin, caseMixin],
 
   props: {
     orgTemplateIds: {
@@ -621,25 +569,15 @@ export default {
       inputText: '',
       isStreaming: false,
       streamingText: '',
-      isListening: false,
-      speechSupported: false,
-      recognition: null,
       profileOpen: false,
       profileSaved: false,
       profileStep: 0,
-      profileRecordingField: null,
       advisorProfile: { advisorRole: '', experience: '', clientDemographic: '', enjoyment: '', technicalStrengths: '', toolsComfort: '', notes: '' },
-      langPickerOpen: false,
-      langSearch: '',
-      loadingLang: null,
-      langError: null,
       showSavePanel: false,
       saveTitle: '',
       saveVisibility: 'shared',
       saveSuccess: false,
       saveError: null,
-      myCases: [],
-      showCasesPanel: false,
       savePromptDismissed: false,
       conversationState: {},
       showGrowthCurveSelector: false,
@@ -674,26 +612,11 @@ export default {
         { name: 'Leapfrog', description: 'The business enjoys the ability to purchase or merge with like-minded competitors. Market share is now substantial.' },
         { name: 'Maturity', description: 'The business commands a sizeable market-share and creates a barrier to entry for any business looking to compete against it.' },
         { name: 'Exit / Decline', description: 'The owners realise their capital gain via sale, MBO, or succession to family. (If successful.) Or the business dwindles as the owner/s seek retirement. (If they missed the mark.)' }
-      ],
-      expandedCaseId: null,
-      transcriptOpenId: null,
-      reviewRecordingField: null,
-      reviewDraft: { wentWell: '', wentLess: '', changesRecommended: '' },
-      reviewSavedId: null,
-      confirmDeleteId: null
+      ]
     }
   },
 
   computed: {
-    currentLanguageName () {
-      const lang = LANGUAGES.find(l => l.code === this.$i18n.locale)
-      return lang ? lang.name : this.$i18n.locale
-    },
-    filteredLanguages () {
-      if (!this.langSearch) { return LANGUAGES }
-      const q = this.langSearch.toLowerCase()
-      return LANGUAGES.filter(l => l.name.toLowerCase().includes(q) || l.code.includes(q))
-    },
     profileQuestions () {
       const experiencedPattern = /\b(yes|yeah|yep|years?|months?|weeks?|since|20\d\d|19\d\d|have been|i've been|been doing|been delivering|been working|been advising)\b/i
       const beginnerPattern = /\b(haven't|have not|no experience|never done|never have|not done|not yet|just starting|new to advisory|just beginning|don't have|do not have|mostly compliance|compliance only|only learning|still learning|just learning|very little|no advisory|haven't done|just told you)\b/i
@@ -775,10 +698,6 @@ export default {
       // Other modes (discover/plan/learn): show after the user has sent 3+ messages,
       // which reliably indicates a full recommendation exchange has occurred
       return this.messages.filter(m => m.role === 'user').length >= 3
-    },
-    relevantCases () {
-      if (!this.mode) { return [] }
-      return getRelevantCases(this.advisorId, this.firmId, this.mode)
     }
   },
 
@@ -808,56 +727,11 @@ export default {
   },
 
   beforeDestroy () {
-    document.removeEventListener('click', this._onDocClick)
     if (this._saveTimer) { clearTimeout(this._saveTimer) }
   },
 
   mounted () {
-    this._onDocClick = (e) => {
-      if (this.$refs.langPicker && !this.$refs.langPicker.contains(e.target)) {
-        this.closeLangPicker()
-      }
-    }
-    document.addEventListener('click', this._onDocClick)
-
-    this.refreshMyCases()
-
     this._loadProfile()
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (SpeechRecognition) {
-      this.speechSupported = true
-      this.recognition = new SpeechRecognition()
-      this._recognitionRunning = false
-      this.recognition.continuous = true
-      this.recognition.interimResults = true
-      this.recognition.lang = BCP47_MAP[this.$i18n.locale] || 'en-US'
-      this.recognition.onresult = (e) => {
-        let transcript = ''
-        for (let i = 0; i < e.results.length; i++) {
-          transcript += e.results[i][0].transcript
-        }
-        if (this.profileRecordingField) {
-          this.$set(this.advisorProfile, this.profileRecordingField, transcript)
-        } else if (this.reviewRecordingField) {
-          this.$set(this.reviewDraft, this.reviewRecordingField, transcript)
-        } else {
-          this.inputText = transcript
-        }
-      }
-      this.recognition.onend = () => {
-        this._recognitionRunning = false
-        if (this.isListening || this.profileRecordingField || this.reviewRecordingField) {
-          this._recognitionRunning = true
-          try { this.recognition.start() } catch (e) {}
-        }
-      }
-      this.recognition.onerror = (e) => {
-        if (e.error !== 'no-speech') {
-          this.isListening = false
-        }
-      }
-    }
   },
 
   methods: {
@@ -881,66 +755,6 @@ export default {
           console.warn('[va:profile] Failed to parse saved profile:', e.message)
         }
       }
-    },
-
-    toggleLangPicker () {
-      this.langPickerOpen = !this.langPickerOpen
-      if (this.langPickerOpen) {
-        this.$nextTick(() => this.$refs.langSearch && this.$refs.langSearch.focus())
-      } else {
-        this.langSearch = ''
-        this.langError = null
-      }
-    },
-
-    closeLangPicker () {
-      this.langPickerOpen = false
-      this.langSearch = ''
-      this.langError = null
-    },
-
-    async changeLocale (lang) {
-      if (this.loadingLang) { return }
-      if (this.$i18n.locale === lang.code) { this.closeLangPicker(); return }
-      if (!this.$i18n.messages[lang.code]) {
-        this.loadingLang = lang.code
-        this.langError = null
-        try {
-          await this.loadDynamicLocale(lang)
-        } catch (e) {
-          this.langError = 'Translation failed — please try again.'
-          this.loadingLang = null
-          return
-        }
-        this.loadingLang = null
-      }
-      this.$i18n.locale = lang.code
-      this.closeLangPicker()
-    },
-
-    async loadDynamicLocale (lang) {
-      const cacheKey = `va_locale_${lang.code}`
-      const cached = localStorage.getItem(cacheKey)
-      if (cached) {
-        this.$i18n.setLocaleMessage(lang.code, JSON.parse(cached))
-        return
-      }
-      const flat = flattenObj(this.$i18n.messages.en)
-      const res = await fetch('/api/translate/locale', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ texts: flat, langCode: lang.code })
-      })
-      if (!res.ok) { throw new Error(`HTTP ${res.status}`) }
-      const translated = await res.json()
-      if (translated.error) { throw new Error(translated.error.message || String(translated.error)) }
-      const nested = unflattenObj(translated)
-      this.$i18n.setLocaleMessage(lang.code, nested)
-      localStorage.setItem(cacheKey, JSON.stringify(nested))
-    },
-
-    refreshMyCases () {
-      this.myCases = getCases().filter(c => c.advisorId === this.advisorId)
     },
 
     saveSession () {
@@ -970,51 +784,6 @@ export default {
       } catch (e) {
         this.saveError = 'Could not save. Please try again.'
       }
-    },
-
-    closeCasesPanel () {
-      this.showCasesPanel = false
-      this.expandedCaseId = null
-      if (this.reviewRecordingField) { this.recognition && this.recognition.stop(); this.reviewRecordingField = null }
-      this.reviewDraft = { wentWell: '', wentLess: '', changesRecommended: '' }
-      this.reviewSavedId = null
-      this.confirmDeleteId = null
-    },
-
-    toggleCase (id) {
-      if (this.expandedCaseId === id) {
-        this.expandedCaseId = null
-        return
-      }
-      this.expandedCaseId = id
-      this.confirmDeleteId = null
-      this.reviewSavedId = null
-      const c = this.myCases.find(c => c.id === id)
-      this.reviewDraft = c && c.review
-        ? { wentWell: c.review.wentWell || '', wentLess: c.review.wentLess || '', changesRecommended: c.review.changesRecommended || '' }
-        : { wentWell: '', wentLess: '', changesRecommended: '' }
-    },
-
-    saveReview (caseId) {
-      updateCaseReview(caseId, { ...this.reviewDraft, reviewedAt: new Date().toISOString() })
-      this.refreshMyCases()
-      this.closeCasesPanel()
-    },
-
-    deleteCaseAndRefresh (id) {
-      deleteCase(id)
-      this.refreshMyCases()
-      this.expandedCaseId = null
-      this.confirmDeleteId = null
-    },
-
-    modeName (mode) {
-      return { client: 'Client situation', discover: 'Discovery', plan: 'Planning', learn: 'Learning' }[mode] || mode
-    },
-
-    formatDate (iso) {
-      if (!iso) { return '' }
-      return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     },
 
     selectMode (selected) {
@@ -1117,62 +886,6 @@ export default {
       localStorage.removeItem('va_advisor_profile')
       this.profileSaved = false
       this.profileStep = 0
-    },
-
-    _startRecognition () {
-      if (this._recognitionRunning) { return }
-      this._recognitionRunning = true
-      try {
-        this.recognition.start()
-      } catch (e) {
-        // start() throws if already started or not available; reset the flag
-        this._recognitionRunning = false
-        console.warn('[va:speech] recognition.start() failed:', e.message)
-      }
-    },
-
-    toggleListening () {
-      if (!this.recognition) { return }
-      if (this.isListening) {
-        this.recognition.stop()
-        this.isListening = false
-      } else {
-        // Switch mode flags — if recognition is already running, it keeps going
-        // and onresult routes to inputText since the other flags are now clear
-        this.profileRecordingField = null
-        this.reviewRecordingField = null
-        this.inputText = ''
-        this.isListening = true
-        this._startRecognition()
-      }
-    },
-
-    toggleProfileListening (field) {
-      if (!this.recognition) { return }
-      if (this.profileRecordingField === field) {
-        this.recognition.stop()
-        this.profileRecordingField = null
-      } else {
-        // Switch mode flags — if recognition is already running, just reroute it
-        this.isListening = false
-        this.reviewRecordingField = null
-        this.profileRecordingField = field
-        this._startRecognition()
-      }
-    },
-
-    toggleReviewListening (field) {
-      if (!this.recognition) { return }
-      if (this.reviewRecordingField === field) {
-        this.recognition.stop()
-        this.reviewRecordingField = null
-      } else {
-        // Switch mode flags — if recognition is already running, just reroute it
-        this.isListening = false
-        this.profileRecordingField = null
-        this.reviewRecordingField = field
-        this._startRecognition()
-      }
     },
 
     async sendMessage () {
