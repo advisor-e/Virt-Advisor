@@ -111,6 +111,7 @@ Choose exactly one of the following based on the conversation — pick whichever
 
 Return ONLY the chosen question — no preamble, no explanation, no additional text.`
 
+  const _t0mf = Date.now()
   try {
     const response = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
@@ -121,9 +122,11 @@ Return ONLY the chosen question — no preamble, no explanation, no additional t
         { role: 'user', content: 'Choose and return the single most appropriate question.' }
       ]
     })
+    logAI('moving-forward', 'gpt-4o-mini', _t0mf, true, response.usage)
     const returned = (response.choices[0]?.message?.content || '').trim()
     return MOVING_FORWARD_OPTIONS.find(q => returned.includes(q.slice(0, 20))) || MOVING_FORWARD_OPTIONS[0]
   } catch (e) {
+    logAI('moving-forward', 'gpt-4o-mini', _t0mf, false, null)
     return MOVING_FORWARD_OPTIONS[0]
   }
 }
@@ -208,6 +211,16 @@ function dbg (msg) {
     fs.appendFileSync(_dbgLog, line)
     _dbgBytesWritten += Buffer.byteLength(line)
   } catch (e) {}
+}
+
+// Logs a completed OpenAI call to stderr for operational monitoring.
+// Always on (not gated by VA_DEBUG) — lightweight, one line per call.
+function logAI (label, model, startTime, success, usage) {
+  const latency = Date.now() - startTime
+  const tokens = usage
+    ? `prompt=${usage.prompt_tokens} completion=${usage.completion_tokens} total=${usage.total_tokens}`
+    : 'tokens=unknown'
+  console.error(`[openai] ${label} model=${model} status=${success ? 'ok' : 'error'} latency=${latency}ms ${tokens}`)
 }
 
 const BODY_LIMIT = 256 * 1024 // 256 KB — protects against memory-exhaustion DoS
@@ -698,15 +711,20 @@ async function handleQuery (rawBody, res) {
       })
       if (res.socket) { res.socket.setNoDelay(true) }
 
+      const _t0post = Date.now()
       const streamPost = await getOpenAI().chat.completions.create({
         model: 'gpt-4o-mini',
         max_tokens: 1500,
         stream: true,
+        stream_options: { include_usage: true },
         messages: [{ role: 'system', content: (isLearnRequest ? loadPrompt('learn') : loadPrompt('client')) + postRecInstruction }, ...messagesPost]
       })
 
+      let _postUsage = null
+      let _postOk = false
       try {
         for await (const chunk of streamPost) {
+          if (chunk.usage) { _postUsage = chunk.usage }
           const text = chunk.choices[0]?.delta?.content || ''
           if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
           // Emit state+done for ALL finish reasons (stop, length, content_filter, etc.)
@@ -720,12 +738,14 @@ async function handleQuery (rawBody, res) {
             res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
           }
         }
+        _postOk = true
       } catch (streamErr) {
         console.error('[advisor] Post-rec stream error:', streamErr.message)
         if (!res.writableEnded) {
           try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
         }
       } finally {
+        logAI('client-post-rec', 'gpt-4o-mini', _t0post, _postOk, _postUsage)
         if (!res.writableEnded) { res.end() }
       }
       return
@@ -943,15 +963,20 @@ ${formatFinMgtTable()}`
     })
     if (res.socket) { res.socket.setNoDelay(true) }
 
+    const _t0phase3 = Date.now()
     const stream2 = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       max_tokens: 1500,
       stream: true,
+      stream_options: { include_usage: true },
       messages: [{ role: 'system', content: systemPrompt2 }, ...messages2]
     })
 
+    let _p3Usage = null
+    let _p3Ok = false
     try {
       for await (const chunk of stream2) {
+        if (chunk.usage) { _p3Usage = chunk.usage }
         const text = chunk.choices[0]?.delta?.content || ''
         if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
         // Emit state+done for ALL finish reasons so the client never loses
@@ -961,12 +986,14 @@ ${formatFinMgtTable()}`
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
         }
       }
+      _p3Ok = true
     } catch (streamErr) {
       console.error('[advisor] Phase 3 stream error:', streamErr.message)
       if (!res.writableEnded) {
         try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
       }
     } finally {
+      logAI('client-phase3', 'gpt-4o-mini', _t0phase3, _p3Ok, _p3Usage)
       if (!res.writableEnded) { res.end() }
     }
     return
@@ -1158,18 +1185,23 @@ ${formatFinMgtTable()}`
     res.socket.setNoDelay(true)
   }
 
+  const _t0main = Date.now()
   const stream = await getOpenAI().chat.completions.create({
     model,
     max_tokens: 1024,
     stream: true,
+    stream_options: { include_usage: true },
     messages: [
       { role: 'system', content: systemPrompt },
       ...messages
     ]
   })
 
+  let _mainUsage = null
+  let _mainOk = false
   try {
     for await (const chunk of stream) {
+      if (chunk.usage) { _mainUsage = chunk.usage }
       const text = chunk.choices[0] && chunk.choices[0].delta && chunk.choices[0].delta.content
         ? chunk.choices[0].delta.content
         : ''
@@ -1180,12 +1212,14 @@ ${formatFinMgtTable()}`
         res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       }
     }
+    _mainOk = true
   } catch (streamErr) {
     console.error('[advisor] Stream error:', streamErr.message)
     if (!res.writableEnded) {
       try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
     }
   } finally {
+    logAI(mode, model, _t0main, _mainOk, _mainUsage)
     if (!res.writableEnded) { res.end() }
   }
 }
