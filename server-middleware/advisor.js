@@ -6,14 +6,14 @@
  * See server/restify-route.js for the Restify implementation reference.
  */
 
-const OpenAI = require('openai')
 const fs = require('fs')
 const path = require('path')
+const OpenAI = require('openai')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
-const { detectLogicTree, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText } = require('../server/utils/logicTrees')
+const { detectLogicTree, formatLogicTreeForPrompt, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 
 // Reference data for scenario-specific Phase 3 instructions
@@ -44,7 +44,7 @@ function formatSalesMarketingSlides () {
 // Prompt cache — loaded once per process, never re-read from disk
 const _promptCache = {}
 function loadPrompt (name) {
-  if (_promptCache[name]) return _promptCache[name]
+  if (_promptCache[name]) { return _promptCache[name] }
   const filePath = path.resolve(process.cwd(), 'data/prompts', name + '.txt')
   _promptCache[name] = fs.readFileSync(filePath, 'utf8')
   return _promptCache[name]
@@ -80,13 +80,13 @@ const MODE_SECTIONS = {
 
 function formatAdvisorProfile (profile) {
   const lines = []
-  if (profile.advisorRole && profile.advisorRole.trim()) lines.push(`Advisor role / practice type: ${profile.advisorRole.trim()}`)
-  if (profile.experience && profile.experience.trim()) lines.push(`Experience: ${profile.experience.trim()}`)
-  if (profile.clientDemographic && profile.clientDemographic.trim()) lines.push(`Typical client profile: ${profile.clientDemographic.trim()}`)
-  if (profile.enjoyment && profile.enjoyment.trim()) lines.push(`Advisory conversations they enjoy most: ${profile.enjoyment.trim()}`)
-  if (profile.technicalStrengths && profile.technicalStrengths.trim()) lines.push(`Challenges / hesitations / development areas: ${profile.technicalStrengths.trim()}`)
-  if (profile.toolsComfort && profile.toolsComfort.trim()) lines.push(`Comfort with tools and frameworks: ${profile.toolsComfort.trim()}`)
-  if (profile.notes && profile.notes.trim()) lines.push(`Additional context: ${profile.notes.trim()}`)
+  if (profile.advisorRole && profile.advisorRole.trim()) { lines.push(`Advisor role / practice type: ${profile.advisorRole.trim()}`) }
+  if (profile.experience && profile.experience.trim()) { lines.push(`Experience: ${profile.experience.trim()}`) }
+  if (profile.clientDemographic && profile.clientDemographic.trim()) { lines.push(`Typical client profile: ${profile.clientDemographic.trim()}`) }
+  if (profile.enjoyment && profile.enjoyment.trim()) { lines.push(`Advisory conversations they enjoy most: ${profile.enjoyment.trim()}`) }
+  if (profile.technicalStrengths && profile.technicalStrengths.trim()) { lines.push(`Challenges / hesitations / development areas: ${profile.technicalStrengths.trim()}`) }
+  if (profile.toolsComfort && profile.toolsComfort.trim()) { lines.push(`Comfort with tools and frameworks: ${profile.toolsComfort.trim()}`) }
+  if (profile.notes && profile.notes.trim()) { lines.push(`Additional context: ${profile.notes.trim()}`) }
   return lines.join('\n')
 }
 
@@ -163,7 +163,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     const treeSummaries = getSummariesForTemplateNames(treeTemplateNames)
     const summaryMap = new Map()
     for (const s of [...querySummaries, ...treeSummaries]) {
-      if (!summaryMap.has(s.name)) summaryMap.set(s.name, s)
+      if (!summaryMap.has(s.name)) { summaryMap.set(s.name, s) }
     }
     const summariesToUse = Array.from(summaryMap.values()).slice(0, 25)
     summariesText = summariesToUse.length > 0
@@ -199,8 +199,8 @@ const _dbgLog = require('os').tmpdir() + '/va-debug.log'
 const _dbgMaxBytes = 5 * 1024 * 1024 // 5 MB cap — prevents runaway disk usage if debug left on
 let _dbgBytesWritten = 0
 function dbg (msg) {
-  if (!process.env.VA_DEBUG) return
-  if (_dbgBytesWritten >= _dbgMaxBytes) return
+  if (!process.env.VA_DEBUG) { return }
+  if (_dbgBytesWritten >= _dbgMaxBytes) { return }
   try {
     const line = new Date().toISOString() + ' ' + msg + '\n'
     fs.appendFileSync(_dbgLog, line)
@@ -229,7 +229,7 @@ module.exports = function advisorMiddleware (req, res, next) {
   })
 
   req.on('data', (chunk) => {
-    if (bodyRejected) return
+    if (bodyRejected) { return }
     bodySize += chunk.length
     if (bodySize > BODY_LIMIT) {
       bodyRejected = true
@@ -244,8 +244,8 @@ module.exports = function advisorMiddleware (req, res, next) {
   })
 
   req.on('end', () => {
-    if (bodyRejected) return
-    handleQuery(body, res).catch(err => {
+    if (bodyRejected) { return }
+    handleQuery(body, res).catch((err) => {
       console.error('[advisor] Unhandled error:', err.message)
       if (!res.headersSent) {
         res.writeHead(500, { 'Content-Type': 'application/json' })
@@ -430,7 +430,7 @@ async function handleQuery (rawBody, res) {
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'X-Accel-Buffering': 'no'
       })
       res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
@@ -470,7 +470,7 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'disambiguationAnswer',
-        textFn: s => {
+        textFn: (s) => {
           const scenarios = s.disambiguationScenarios || []
           if (scenarios.length === 2) {
             return `I'm picking up signals for both ${scenarios[0].label} and ${scenarios[1].label} in what you've described — which of these is the primary focus for this client?`
@@ -627,7 +627,7 @@ async function handleQuery (rawBody, res) {
     // question if domain re-detection produces a different score than the original turn.
     if (!state.recommendationDelivered) {
       for (const q of QUESTIONS) {
-        if (q.skip && q.skip(state)) continue
+        if (q.skip && q.skip(state)) { continue }
         if (!state[q.field]) {
           // Not yet asked — ask it now
           state[q.field] = 'pending'
@@ -638,7 +638,7 @@ async function handleQuery (rawBody, res) {
           // Was asked last turn — record the answer
           state[q.field] = query
           // Allow the question to react to its answer (e.g. disambiguation resolving a scenario)
-          if (q.onAnswer) q.onAnswer(query, state)
+          if (q.onAnswer) { q.onAnswer(query, state) }
         }
       }
     }
@@ -730,10 +730,10 @@ async function handleQuery (rawBody, res) {
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'X-Accel-Buffering': 'no'
       })
-      if (res.socket) res.socket.setNoDelay(true)
+      if (res.socket) { res.socket.setNoDelay(true) }
 
       const streamPost = await getOpenAI().chat.completions.create({
         model: 'gpt-4o-mini',
@@ -745,7 +745,7 @@ async function handleQuery (rawBody, res) {
       try {
         for await (const chunk of streamPost) {
           const text = chunk.choices[0]?.delta?.content || ''
-          if (text) res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
+          if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
           // Emit state+done for ALL finish reasons (stop, length, content_filter, etc.)
           // so the client never loses conversationState on truncated responses
           if (chunk.choices[0]?.finish_reason) {
@@ -763,7 +763,7 @@ async function handleQuery (rawBody, res) {
           try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
         }
       } finally {
-        if (!res.writableEnded) res.end()
+        if (!res.writableEnded) { res.end() }
       }
       return
     }
@@ -840,14 +840,14 @@ async function handleQuery (rawBody, res) {
 
 Your recommendation MUST include a revenue model or what-if analysis template from the provided template list. Rules:
 - Only recommend templates that exist in the provided list — do NOT invent, adapt, or combine template names
-${recommendedRevenueModel ? `- An industry-specific revenue model exists for this client: "${recommendedRevenueModel}". Use this template as the primary revenue model recommendation — it is purpose-built for this industry and will be more relevant than a generic Revenue Model.` : `- Select the closest real revenue model or what-if analysis template available, exactly as named in the list`}
+${recommendedRevenueModel ? `- An industry-specific revenue model exists for this client: "${recommendedRevenueModel}". Use this template as the primary revenue model recommendation — it is purpose-built for this industry and will be more relevant than a generic Revenue Model.` : '- Select the closest real revenue model or what-if analysis template available, exactly as named in the list'}
 - In the "How to approach it" section, explain specifically how the advisor should apply that template in the context of the ${state.industry} industry — mention industry-specific cost pressures, pricing dynamics, and revenue levers relevant to that sector
 - Do not append the industry name to the template name
 - KEY INSIGHT — frame this in the "How to approach it" section: The revenue/what-if model's deepest value is the gap it exposes — the difference between what the owner assumes the business delivers (revenue, costs, profit) and what the financials actually show. That gap is a direct window into the mindset behind every decision they make. An owner running on flawed assumptions will keep arriving at the same outcomes. Making the gap visible is what shifts them from assumption-driven to data-driven thinking. The advisor should position the model as the tool that makes this shift possible — not just a financial exercise, but a change in how the owner sees their own business.
-- DELIVERY METHOD RULE: ${clientRaisedIssue ? `The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.` : `The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method. In "How to approach it", explain the Cautious Reveal: establish WHY they need the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil's a plumber video before the meeting to prime awareness.`}
-${reportsYes ? `- This client already uses financial management reports regularly. Do NOT recommend the Working Capital Cycle or any basic financial literacy or financial awareness templates — they are beneath this client's level. Only recommend templates appropriate for a financially informed client.` : ''}
-${reportsFromAdvisorFirm ? `- The advisor's firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.` : ''}
-${reviewNo ? `- The advisor has indicated the client does NOT need a detailed review of business variables and profit drivers. Do NOT recommend templates focused on profit driver analysis, business variable reviews, or foundational financial education. Stick to action-oriented templates relevant to the specific profitability issue.` : ''}
+- DELIVERY METHOD RULE: ${clientRaisedIssue ? 'The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.' : 'The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method. In "How to approach it", explain the Cautious Reveal: establish WHY they need the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil\'s a plumber video before the meeting to prime awareness.'}
+${reportsYes ? '- This client already uses financial management reports regularly. Do NOT recommend the Working Capital Cycle or any basic financial literacy or financial awareness templates — they are beneath this client\'s level. Only recommend templates appropriate for a financially informed client.' : ''}
+${reportsFromAdvisorFirm ? '- The advisor\'s firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.' : ''}
+${reviewNo ? '- The advisor has indicated the client does NOT need a detailed review of business variables and profit drivers. Do NOT recommend templates focused on profit driver analysis, business variable reviews, or foundational financial education. Stick to action-oriented templates relevant to the specific profitability issue.' : ''}
 ${staircaseNum ? `- Advisory Staircase position: Step ${staircaseNum}. ${staircaseNum <= 2 ? 'This is an early-stage engagement — keep templates foundational and accessible. Build confidence before introducing complexity.' : staircaseNum === 3 ? 'The engagement is at interpretation stage — the client is ready for structured analysis and what-if modelling.' : staircaseNum === 4 ? 'The engagement is at application stage — the client is ready for forecasting, scenario planning, and strategic templates.' : 'This is a mature strategic engagement — the client expects sophisticated, data-driven templates. Do not recommend foundational or educational content.'}` : ''}`
       : ''
 
@@ -975,10 +975,10 @@ ${formatFinMgtTable()}`
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      Connection: 'keep-alive',
       'X-Accel-Buffering': 'no'
     })
-    if (res.socket) res.socket.setNoDelay(true)
+    if (res.socket) { res.socket.setNoDelay(true) }
 
     const stream2 = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
@@ -990,7 +990,7 @@ ${formatFinMgtTable()}`
     try {
       for await (const chunk of stream2) {
         const text = chunk.choices[0]?.delta?.content || ''
-        if (text) res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
+        if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
         // Emit state+done for ALL finish reasons so the client never loses
         // conversationState on max-token truncation or content-filtered responses
         if (chunk.choices[0]?.finish_reason) {
@@ -1004,7 +1004,7 @@ ${formatFinMgtTable()}`
         try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
       }
     } finally {
-      if (!res.writableEnded) res.end()
+      if (!res.writableEnded) { res.end() }
     }
     return
   }
@@ -1062,12 +1062,12 @@ ${formatFinMgtTable()}`
   const systemPrompt = basePrompt + profileSystemInstruction + languageInstruction
 
   function formatCaseSummaries (cases) {
-    if (!cases || cases.length === 0) return null
+    if (!cases || cases.length === 0) { return null }
     const lines = ['## Past Case Studies']
     lines.push('')
     lines.push('These are real sessions saved by advisors in your firm. Reference them where relevant to show pattern recognition and build on prior experience — but only if genuinely applicable. Do not force references.')
     lines.push('')
-    cases.forEach(c => {
+    cases.forEach((c) => {
       const date = c.date ? new Date(c.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
       const scope = c.visibility === 'shared' ? 'Shared with firm' : 'Advisor\'s own'
       lines.push(`### ${c.title} (${date} · ${scope})`)
@@ -1075,9 +1075,9 @@ ${formatFinMgtTable()}`
       if (c.review) {
         lines.push('')
         lines.push('**Post-delivery review (what actually happened when this was delivered to a real client):**')
-        if (c.review.wentWell) lines.push(`✓ Went well: ${c.review.wentWell}`)
-        if (c.review.wentLess) lines.push(`⚠ Could have been better: ${c.review.wentLess}`)
-        if (c.review.changesRecommended) lines.push(`→ Recommended changes: ${c.review.changesRecommended}`)
+        if (c.review.wentWell) { lines.push(`✓ Went well: ${c.review.wentWell}`) }
+        if (c.review.wentLess) { lines.push(`⚠ Could have been better: ${c.review.wentLess}`) }
+        if (c.review.changesRecommended) { lines.push(`→ Recommended changes: ${c.review.changesRecommended}`) }
       }
       lines.push('')
     })
@@ -1166,7 +1166,7 @@ ${formatFinMgtTable()}`
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'X-Accel-Buffering': 'no'
       })
       res.write('data: ' + JSON.stringify({ type: 'delta', text: 'Your advisor profile covers that — here\'s my recommendation.' }) + '\n\n')
@@ -1186,7 +1186,7 @@ ${formatFinMgtTable()}`
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
+    Connection: 'keep-alive',
     'X-Accel-Buffering': 'no'
   })
 
@@ -1223,6 +1223,6 @@ ${formatFinMgtTable()}`
       try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
     }
   } finally {
-    if (!res.writableEnded) res.end()
+    if (!res.writableEnded) { res.end() }
   }
 }

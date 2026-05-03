@@ -7,7 +7,10 @@
     "dev:clean": "dev.bat",
     "serve": "serve.bat",
     "start": "nuxt start",
-    "generate": "nuxt generate"
+    "generate": "nuxt generate",
+    "lint": "eslint --ext .js,.vue .",
+    "lint:fix": "eslint --ext .js,.vue . --fix",
+    "prepare": "husky install"
   },
   "dependencies": {
     "buefy": "^0.9.29",
@@ -22,8 +25,11 @@
     "vuex": "^3.6.2"
   },
   "devDependencies": {
+    "@nuxtjs/eslint-config": "^12.0.0",
     "cross-env": "^10.1.0",
     "cssnano": "^7.1.4",
+    "eslint": "^8.57.1",
+    "husky": "^8.0.3",
     "pug": "^2.0.4",
     "pug-plain-loader": "^1.1.0"
   }

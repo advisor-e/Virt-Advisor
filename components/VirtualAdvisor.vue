@@ -534,26 +534,43 @@
 </template>
 
 <script>
-import { LANGUAGES } from '~/data/languages'
-import { saveCase, getRelevantCases, updateCaseReview, deleteCase, getCases } from '~/utils/cases'
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
+import { LANGUAGES } from '~/data/languages'
+import { saveCase, getRelevantCases, updateCaseReview, deleteCase, getCases } from '~/utils/cases'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false })
 
 // BCP-47 speech recognition language codes, keyed by i18n locale
 const BCP47_MAP = {
-  en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT',
-  pt: 'pt-PT', nl: 'nl-NL', pl: 'pl-PL', sv: 'sv-SE', da: 'da-DK',
-  fi: 'fi-FI', no: 'nb-NO', ja: 'ja-JP', zh: 'zh-CN', ko: 'ko-KR',
-  ar: 'ar-SA', ru: 'ru-RU', tr: 'tr-TR', hi: 'hi-IN', id: 'id-ID', ms: 'ms-MY'
+  en: 'en-US',
+fr: 'fr-FR',
+de: 'de-DE',
+es: 'es-ES',
+it: 'it-IT',
+  pt: 'pt-PT',
+nl: 'nl-NL',
+pl: 'pl-PL',
+sv: 'sv-SE',
+da: 'da-DK',
+  fi: 'fi-FI',
+no: 'nb-NO',
+ja: 'ja-JP',
+zh: 'zh-CN',
+ko: 'ko-KR',
+  ar: 'ar-SA',
+ru: 'ru-RU',
+tr: 'tr-TR',
+hi: 'hi-IN',
+id: 'id-ID',
+ms: 'ms-MY'
 }
 
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
 
 function flattenObj (obj, prefix = '') {
   return Object.keys(obj).reduce((acc, k) => {
-    if (FORBIDDEN_KEYS.has(k)) return acc
+    if (FORBIDDEN_KEYS.has(k)) { return acc }
     const key = prefix ? `${prefix}.${k}` : k
     if (typeof obj[k] === 'object' && obj[k] !== null) {
       Object.assign(acc, flattenObj(obj[k], key))
@@ -568,10 +585,10 @@ function unflattenObj (flat) {
   const result = {}
   for (const key of Object.keys(flat)) {
     const parts = key.split('.')
-    if (parts.some(p => FORBIDDEN_KEYS.has(p))) continue
+    if (parts.some(p => FORBIDDEN_KEYS.has(p))) { continue }
     let cur = result
     for (let i = 0; i < parts.length - 1; i++) {
-      if (!cur[parts[i]]) cur[parts[i]] = {}
+      if (!cur[parts[i]]) { cur[parts[i]] = {} }
       cur = cur[parts[i]]
     }
     cur[parts[parts.length - 1]] = flat[key]
@@ -667,38 +684,13 @@ export default {
     }
   },
 
-  watch: {
-    advisorProfile: {
-      deep: true,
-      handler () {
-        this.$nextTick(() => this.$nextTick(() => this.resizeAllTextareas()))
-      }
-    },
-    reviewDraft: {
-      deep: true,
-      handler () {
-        this.$nextTick(() => this.$nextTick(() => this.resizeAllTextareas()))
-      }
-    },
-    '$i18n.locale' (newLocale) {
-      if (this.recognition) {
-        this.recognition.lang = BCP47_MAP[newLocale] || 'en-US'
-      }
-      if (this.mode) {
-        const currentMode = this.mode
-        this.reset()
-        this.$nextTick(() => this.selectMode(currentMode))
-      }
-    }
-  },
-
   computed: {
     currentLanguageName () {
       const lang = LANGUAGES.find(l => l.code === this.$i18n.locale)
       return lang ? lang.name : this.$i18n.locale
     },
     filteredLanguages () {
-      if (!this.langSearch) return LANGUAGES
+      if (!this.langSearch) { return LANGUAGES }
       const q = this.langSearch.toLowerCase()
       return LANGUAGES.filter(l => l.name.toLowerCase().includes(q) || l.code.includes(q))
     },
@@ -774,8 +766,8 @@ export default {
       return !!this.mode && this.messages.filter(m => m.role === 'user').length >= 1
     },
     showSavePrompt () {
-      if (this.isStreaming || this.savePromptDismissed || this.saveSuccess) return false
-      if (!this.mode) return false
+      if (this.isStreaming || this.savePromptDismissed || this.saveSuccess) { return false }
+      if (!this.mode) { return false }
       // Client mode: use the state machine flag — works in any language
       if (this.mode === 'client') {
         return !!(this.conversationState && this.conversationState.recommendationDelivered)
@@ -785,14 +777,39 @@ export default {
       return this.messages.filter(m => m.role === 'user').length >= 3
     },
     relevantCases () {
-      if (!this.mode) return []
+      if (!this.mode) { return [] }
       return getRelevantCases(this.advisorId, this.firmId, this.mode)
+    }
+  },
+
+  watch: {
+    advisorProfile: {
+      deep: true,
+      handler () {
+        this.$nextTick(() => { this.$nextTick(() => this.resizeAllTextareas()) })
+      }
+    },
+    reviewDraft: {
+      deep: true,
+      handler () {
+        this.$nextTick(() => { this.$nextTick(() => this.resizeAllTextareas()) })
+      }
+    },
+    '$i18n.locale' (newLocale) {
+      if (this.recognition) {
+        this.recognition.lang = BCP47_MAP[newLocale] || 'en-US'
+      }
+      if (this.mode) {
+        const currentMode = this.mode
+        this.reset()
+        this.$nextTick(() => this.selectMode(currentMode))
+      }
     }
   },
 
   beforeDestroy () {
     document.removeEventListener('click', this._onDocClick)
-    if (this._saveTimer) clearTimeout(this._saveTimer)
+    if (this._saveTimer) { clearTimeout(this._saveTimer) }
   },
 
   mounted () {
@@ -845,7 +862,7 @@ export default {
 
   methods: {
     autoResizeTextarea (el) {
-      if (!el) return
+      if (!el) { return }
       el.style.height = '0'
       el.style.height = el.scrollHeight + 'px'
     },
@@ -883,7 +900,7 @@ export default {
     },
 
     async changeLocale (lang) {
-      if (this.loadingLang) return
+      if (this.loadingLang) { return }
       if (this.$i18n.locale === lang.code) { this.closeLangPicker(); return }
       if (!this.$i18n.messages[lang.code]) {
         this.loadingLang = lang.code
@@ -914,9 +931,9 @@ export default {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ texts: flat, langCode: lang.code })
       })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (!res.ok) { throw new Error(`HTTP ${res.status}`) }
       const translated = await res.json()
-      if (translated.error) throw new Error(translated.error)
+      if (translated.error) { throw new Error(translated.error) }
       const nested = unflattenObj(translated)
       this.$i18n.setLocaleMessage(lang.code, nested)
       localStorage.setItem(cacheKey, JSON.stringify(nested))
@@ -928,7 +945,7 @@ export default {
 
     saveSession () {
       this.saveError = null
-      if (!this.saveTitle.trim()) return
+      if (!this.saveTitle.trim()) { return }
       try {
         const lastAI = [...this.messages].reverse().find(m => m.role === 'assistant')
         const summary = lastAI ? lastAI.content.slice(0, 600) + (lastAI.content.length > 600 ? '…' : '') : ''
@@ -944,7 +961,7 @@ export default {
         this.refreshMyCases()
         this.saveSuccess = true
         this.saveTitle = ''
-        if (this._saveTimer) clearTimeout(this._saveTimer)
+        if (this._saveTimer) { clearTimeout(this._saveTimer) }
         this._saveTimer = setTimeout(() => {
           this.saveSuccess = false
           this.showSavePanel = false
@@ -996,7 +1013,7 @@ export default {
     },
 
     formatDate (iso) {
-      if (!iso) return ''
+      if (!iso) { return '' }
       return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     },
 
@@ -1033,7 +1050,7 @@ export default {
     },
 
     submitFinMgtTheme () {
-      if (!this.selectedFinMgtTheme) return
+      if (!this.selectedFinMgtTheme) { return }
       const theme = this.finMgtThemes.find(t => t.name === this.selectedFinMgtTheme)
       this.inputText = `${theme.name} — ${theme.problem}`
       this.showFinMgtThemeSelector = false
@@ -1042,7 +1059,7 @@ export default {
     },
 
     submitGrowthStage () {
-      if (!this.selectedGrowthStage) return
+      if (!this.selectedGrowthStage) { return }
       const stage = this.growthStages.find(s => s.name === this.selectedGrowthStage)
       this.inputText = `${stage.name} — ${stage.description}`
       this.showGrowthCurveSelector = false
@@ -1051,7 +1068,7 @@ export default {
     },
 
     submitStaircaseStep () {
-      if (!this.selectedStaircaseStep) return
+      if (!this.selectedStaircaseStep) { return }
       const step = this.staircaseSteps.find(s => s.name === this.selectedStaircaseStep)
       this.inputText = `${step.name} — ${step.description}`
       this.showStaircaseSelector = false
@@ -1061,9 +1078,9 @@ export default {
 
     closeSession () {
       // window.close() only works on script-opened windows; reset as fallback for normal tabs
-      const openedByScript = window.opener != null
+      const openedByScript = window.opener !== null
       window.close()
-      if (!openedByScript) this.reset()
+      if (!openedByScript) { this.reset() }
     },
 
     openProfile () {
@@ -1072,7 +1089,7 @@ export default {
       // Resetting to 0 was causing all answers to collapse on every open.
       this.profileStep = this.profileQuestions.filter(q => this.advisorProfile[q.field]).length
       this.profileOpen = true
-      this.$nextTick(() => this.$nextTick(() => this.resizeAllTextareas()))
+      this.$nextTick(() => { this.$nextTick(() => this.resizeAllTextareas()) })
     },
 
     saveField () {
@@ -1103,7 +1120,7 @@ export default {
     },
 
     _startRecognition () {
-      if (this._recognitionRunning) return
+      if (this._recognitionRunning) { return }
       this._recognitionRunning = true
       try {
         this.recognition.start()
@@ -1115,7 +1132,7 @@ export default {
     },
 
     toggleListening () {
-      if (!this.recognition) return
+      if (!this.recognition) { return }
       if (this.isListening) {
         this.recognition.stop()
         this.isListening = false
@@ -1131,7 +1148,7 @@ export default {
     },
 
     toggleProfileListening (field) {
-      if (!this.recognition) return
+      if (!this.recognition) { return }
       if (this.profileRecordingField === field) {
         this.recognition.stop()
         this.profileRecordingField = null
@@ -1145,7 +1162,7 @@ export default {
     },
 
     toggleReviewListening (field) {
-      if (!this.recognition) return
+      if (!this.recognition) { return }
       if (this.reviewRecordingField === field) {
         this.recognition.stop()
         this.reviewRecordingField = null
@@ -1160,7 +1177,7 @@ export default {
 
     async sendMessage () {
       const query = this.inputText.trim()
-      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector) return
+      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector) { return }
 
       this.messages.push({ role: 'user', content: query })
       this.inputText = ''
@@ -1193,7 +1210,7 @@ export default {
           })
         })
 
-        if (!response.ok) throw new Error('Request failed')
+        if (!response.ok) { throw new Error('Request failed') }
 
         const reader = response.body.getReader()
         const decoder = new TextDecoder()
@@ -1201,12 +1218,12 @@ export default {
 
         while (true) {
           const { done, value } = await reader.read()
-          if (done) break
+          if (done) { break }
           buffer += decoder.decode(value, { stream: true })
           const lines = buffer.split('\n')
           buffer = lines.pop() // retain any incomplete trailing line
           for (const line of lines) {
-            if (!line.startsWith('data: ')) continue
+            if (!line.startsWith('data: ')) { continue }
             try {
               const data = JSON.parse(line.slice(6))
               if (data.type === 'state') {

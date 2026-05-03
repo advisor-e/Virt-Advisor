@@ -9,7 +9,7 @@ const { resolve } = require('path')
 let _coaching = null
 
 function loadCoaching () {
-  if (_coaching) return _coaching
+  if (_coaching) { return _coaching }
   const filePath = resolve(process.cwd(), 'data/coaching-reference.json')
   try {
     _coaching = JSON.parse(readFileSync(filePath, 'utf8'))
@@ -22,7 +22,7 @@ function loadCoaching () {
 
 function formatCoachingForPrompt () {
   const coaching = loadCoaching()
-  return coaching.map(c => {
+  return coaching.map((c) => {
     const scenarios = (c.scenarios || []).map(s => `  - ${s}`).join('\n')
     return `**${c.template}**
 What to look for: ${c.whatToLookFor}
