@@ -32,7 +32,7 @@ module.exports = function translateMiddleware (req, res, next) {
   })
 
   req.on('data', (chunk) => {
-    if (bodyRejected) return
+    if (bodyRejected) { return }
     bodySize += chunk.length
     if (bodySize > BODY_LIMIT) {
       bodyRejected = true
@@ -47,8 +47,8 @@ module.exports = function translateMiddleware (req, res, next) {
   })
 
   req.on('end', () => {
-    if (bodyRejected) return
-    handleTranslate(body, res).catch(err => {
+    if (bodyRejected) { return }
+    handleTranslate(body, res).catch((err) => {
       console.error('[translate] Error:', err.message)
       if (!res.headersSent) {
         res.writeHead(500, { 'Content-Type': 'application/json' })
@@ -93,27 +93,27 @@ async function handleTranslate (rawBody, res) {
       currentLen += addition
     }
   }
-  if (currentChunk.length > 0) chunks.push(currentChunk)
+  if (currentChunk.length > 0) { chunks.push(currentChunk) }
 
   const translated = {}
 
   for (const chunkKeys of chunks) {
     const combined = chunkKeys.map(k => String(texts[k] || '')).join(SEPARATOR)
     const params = new URLSearchParams({ q: combined, langpair: `en|${langCode}` })
-    if (email) params.set('de', email)
+    if (email) { params.set('de', email) }
 
     let mmRes
     try {
       mmRes = await fetch(`https://api.mymemory.translated.net/get?${params}`)
     } catch (netErr) {
       console.error('[translate] Network error:', netErr.message)
-      chunkKeys.forEach(k => { translated[k] = texts[k] })
+      chunkKeys.forEach((k) => { translated[k] = texts[k] })
       continue
     }
 
     if (!mmRes.ok) {
       console.error('[translate] MyMemory HTTP error:', mmRes.status)
-      chunkKeys.forEach(k => { translated[k] = texts[k] })
+      chunkKeys.forEach((k) => { translated[k] = texts[k] })
       continue
     }
 
@@ -121,7 +121,7 @@ async function handleTranslate (rawBody, res) {
 
     if (data.responseStatus !== 200) {
       console.error('[translate] MyMemory rejected:', data.responseDetails)
-      chunkKeys.forEach(k => { translated[k] = texts[k] })
+      chunkKeys.forEach((k) => { translated[k] = texts[k] })
       continue
     }
 

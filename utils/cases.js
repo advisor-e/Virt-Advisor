@@ -69,8 +69,8 @@ export function deleteCase (id) {
  */
 export function getRelevantCases (advisorId, firmId, mode, limit = 4) {
   return getCases()
-    .filter(c => {
-      if (c.mode !== mode) return false
+    .filter((c) => {
+      if (c.mode !== mode) { return false }
       const isOwn = c.advisorId === advisorId
       const isFirmShared = c.firmId === firmId && c.visibility === 'shared'
       return isOwn || isFirmShared

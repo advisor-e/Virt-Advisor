@@ -1,0 +1,10 @@
+node_modules/
+.nuxt/
+dist/
+.output/
+data/
+Domain Support/
+Logic Tables/
+scripts/
+*.bat
+*.log
