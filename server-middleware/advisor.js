@@ -16,6 +16,7 @@ const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = requir
 const { detectLogicTree, formatLogicTreeForPrompt, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
+const { sendError } = require('../server/utils/sendError')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -223,10 +224,7 @@ module.exports = function advisorMiddleware (req, res, next) {
 
   req.on('error', (err) => {
     console.error('[advisor] Request socket error:', err.message)
-    if (!res.headersSent) {
-      res.writeHead(400, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ error: 'Request error' }))
-    }
+    sendError(res, 400, 'REQUEST_ERROR', 'Request error')
   })
 
   req.on('data', (chunk) => {
@@ -234,10 +232,7 @@ module.exports = function advisorMiddleware (req, res, next) {
     bodySize += chunk.length
     if (bodySize > BODY_LIMIT) {
       bodyRejected = true
-      if (!res.headersSent) {
-        res.writeHead(413, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ error: 'Request body too large' }))
-      }
+      sendError(res, 413, 'BODY_TOO_LARGE', 'Request body too large')
       req.socket && req.socket.destroy()
       return
     }
@@ -249,8 +244,7 @@ module.exports = function advisorMiddleware (req, res, next) {
     handleQuery(body, res).catch((err) => {
       console.error('[advisor] Unhandled error:', err.message)
       if (!res.headersSent) {
-        res.writeHead(500, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ error: 'Internal server error' }))
+        sendError(res, 500, 'INTERNAL_ERROR', 'Internal server error')
       } else if (!res.writableEnded) {
         try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Server error' }) + '\n\n') } catch (e) {}
         try { res.end() } catch (e) {}
@@ -264,15 +258,13 @@ async function handleQuery (rawBody, res) {
   try {
     parsed = JSON.parse(rawBody)
   } catch (e) {
-    res.writeHead(400, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'Invalid JSON' }))
+    sendError(res, 400, 'INVALID_JSON', 'Invalid JSON')
     return
   }
 
   const sanitised = sanitiseInput(parsed)
   if (!sanitised) {
-    res.writeHead(400, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'Invalid request body' }))
+    sendError(res, 400, 'INVALID_REQUEST', 'Invalid request body')
     return
   }
 
@@ -289,8 +281,7 @@ async function handleQuery (rawBody, res) {
   } = sanitised
 
   if (!query || !query.trim()) {
-    res.writeHead(400, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'Query is required' }))
+    sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
     return
   }
 

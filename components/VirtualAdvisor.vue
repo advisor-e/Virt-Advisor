@@ -933,7 +933,7 @@ export default {
       })
       if (!res.ok) { throw new Error(`HTTP ${res.status}`) }
       const translated = await res.json()
-      if (translated.error) { throw new Error(translated.error) }
+      if (translated.error) { throw new Error(translated.error.message || String(translated.error)) }
       const nested = unflattenObj(translated)
       this.$i18n.setLocaleMessage(lang.code, nested)
       localStorage.setItem(cacheKey, JSON.stringify(nested))
