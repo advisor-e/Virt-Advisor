@@ -57,8 +57,8 @@ export default {
 
     saveReview (caseId) {
       updateCaseReview(caseId, { ...this.reviewDraft, reviewedAt: new Date().toISOString() })
-      this.reviewSavedId = caseId
       this.refreshMyCases()
+      this.closeCasesPanel()
     },
 
     deleteCaseAndRefresh (id) {
