@@ -683,7 +683,8 @@ async function handleQuery (rawBody, res) {
 
       // AI handles: either alternatives exploration or client approach guidance
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
-      const contextMsgPost = buildClientContext(orgTemplateIds, query, { advisorProfile }) +
+      const postRecContextQuery = [query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -701,7 +702,7 @@ async function handleQuery (rawBody, res) {
 
       // Append a post-rec instruction so the AI does not restart domain detection
       // or ask discovery questions when the advisor sends a follow-up.
-      const postRecInstruction = '\n\n[POST-RECOMMENDATION] The full recommendation has already been delivered and the advisor has responded to it. Do NOT run domain detection. Do NOT ask disambiguation questions. Do NOT restart the discovery process. Answer the advisor\'s current question directly and helpfully.'
+      const postRecInstruction = '\n\n[POST-RECOMMENDATION] The full recommendation has already been delivered and the advisor has responded to it. Do NOT run domain detection. Do NOT ask disambiguation questions. Do NOT restart the discovery process. Answer the advisor\'s current question directly and helpfully.\n\nCRITICAL TEMPLATE RULE: You may ONLY reference or recommend templates that appear EXACTLY as named in the provided template list above. Do NOT invent template names. Do NOT suggest templates that do not exist in the list. Do NOT paraphrase, adapt, or combine template names. If the advisor\'s question calls for a template that is not in the list, clearly state what IS available from the list that comes closest — never fabricate a name. Violating this rule destroys advisor trust.'
 
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
@@ -805,6 +806,14 @@ async function handleQuery (rawBody, res) {
     const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated/i.test(state.clientRaisedIssue)
 
+    // Extract meeting count from advisor timeframe answer — used to set a template floor
+    const _timeframeText = state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? state.advisorTimeframe.toLowerCase() : ''
+    const _meetingMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\b.*\b(meeting|session|time)/i)
+    const _meetingWordMap = { one: 1, two: 2, three: 3, four: 4, five: 5 }
+    const meetingNum = _meetingMatch
+      ? (parseInt(_meetingMatch[1]) || _meetingWordMap[_meetingMatch[1]] || null)
+      : null
+
     // Detect if the advisor flagged a need to communicate price changes to clients
     const _communicationText = [state.situationPriority, state.situationDownstream, state.situationContext]
       .filter(s => s && s !== 'pending').join(' ')
@@ -837,7 +846,8 @@ ${reportsYes ? '- This client already uses financial management reports regularl
 ${reportsFromAdvisorFirm ? '- The advisor\'s firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.' : ''}
 ${reviewNo ? '- The advisor has indicated the client does NOT need a detailed review of business variables and profit drivers. Do NOT recommend templates focused on profit driver analysis, business variable reviews, or foundational financial education. Stick to action-oriented templates relevant to the specific profitability issue.' : ''}
 ${staircaseNum ? `- Advisory Staircase position: Step ${staircaseNum}. ${staircaseNum <= 2 ? 'This is an early-stage engagement — keep templates foundational and accessible. Build confidence before introducing complexity.' : staircaseNum === 3 ? 'The engagement is at interpretation stage — the client is ready for structured analysis and what-if modelling.' : staircaseNum === 4 ? 'The engagement is at application stage — the client is ready for forecasting, scenario planning, and strategic templates.' : 'This is a mature strategic engagement — the client expects sophisticated, data-driven templates. Do not recommend foundational or educational content.'}` : ''}
-${hasPriceCommunication ? '- PRICE COMMUNICATION REQUIREMENT: The advisor has explicitly flagged that the client needs to communicate price increases or pricing changes to their customers without losing them. You MUST include a third template recommendation specifically addressing this — choose the most relevant client communication or sales template from the provided list (e.g. a sales review, pricing communication, or client retention template). Dedicate a separate named section to it in the recommendation: explain what it is, why it fits, and how the advisor should use it to prepare the client for the pricing conversation with their customers.' : ''}`
+${hasPriceCommunication ? '- PRICE COMMUNICATION REQUIREMENT: The advisor has explicitly flagged that the client needs to communicate price increases or pricing changes to their customers without losing them. You MUST include a third template recommendation specifically addressing this — choose the most relevant client communication or sales template from the provided list (e.g. a sales review, pricing communication, or client retention template). Dedicate a separate named section to it in the recommendation: explain what it is, why it fits, and how the advisor should use it to prepare the client for the pricing conversation with their customers.' : ''}
+${meetingNum && meetingNum >= 2 ? `- MEETING COUNT RULE: The advisor has committed to ${meetingNum} meetings. Your recommendation MUST include at least ${meetingNum} templates — one meaningful deliverable per meeting — so every session has a clear, actionable focus. Do not give fewer templates than the number of meetings planned.` : ''}`
       : ''
 
     const staffInstruction = state.detectedDomain === 'staff' && state.staffCategory && state.staffCategory !== 'pending'
