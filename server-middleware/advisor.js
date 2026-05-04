@@ -563,21 +563,22 @@ async function handleQuery (rawBody, res) {
         skip: s => isNFPorPublic(s)
       },
       {
-        field: 'acumen',
-        text: 'How would you describe the business owner\'s acumen — are they experienced and commercially savvy, or relatively new to thinking strategically about their business?'
-      },
-      {
-        field: 'academic',
-        text: 'Are they academically inclined — do they read business books, follow frameworks, engage with ideas? Or are they more instinctive and practical?'
-      },
-      {
         field: 'advisoryStaircase',
         text: 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
       },
       {
+        field: 'acumen',
+        text: 'How would you describe the business owner\'s acumen — are they experienced and commercially savvy, or relatively new to thinking strategically about their business?',
+        skip: s => s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
+      },
+      {
+        field: 'academic',
+        text: 'Are they academically inclined — do they read business books, follow frameworks, engage with ideas? Or are they more instinctive and practical?',
+        skip: s => s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
+      },
+      {
         field: 'clientPersonality',
         text: 'Are they light-hearted and open to being challenged, or are they more discerning and careful about how they receive advice?',
-        // Skip if staircase Step 3+ — advisor already knows from direct experience how client receives advice
         skip: s => s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
       },
       {
@@ -800,19 +801,25 @@ async function handleQuery (rawBody, res) {
 
     // Derive explicit exclusion and context rules from diagnostic answers
     const reportsYes = state.usesReports && /\byes\b|already|they do|we do|regular|use them|have them/i.test(state.usesReports)
+    const reportsNo = state.usesReports && state.usesReports !== 'pending' && !reportsYes
     const reportsFromAdvisorFirm = state.reportsFromFirm && /\byes\b|we do|our firm|my firm|we provide|we deliver|i do|i deliver|we produce/i.test(state.reportsFromFirm)
     const reviewNo = state.wouldBenefitFromReview && /\bno\b|not really|don't think|good handle|already know|doesn't need|do not|wouldn't/i.test(state.wouldBenefitFromReview)
     const staircaseStep = state.advisoryStaircase ? (state.advisoryStaircase.match(/Step\s*([1-5])/i) || [])[1] : null
     const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated/i.test(state.clientRaisedIssue)
 
-    // Extract meeting count from advisor timeframe answer — used to set a template floor
+    // Extract meeting count from advisor timeframe answer — used to set a template floor.
+    // Range expressions ("two to three meetings") take the upper bound so the template
+    // floor covers every planned session.
     const _timeframeText = state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? state.advisorTimeframe.toLowerCase() : ''
-    const _meetingMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\b.*\b(meeting|session|time)/i)
     const _meetingWordMap = { one: 1, two: 2, three: 3, four: 4, five: 5 }
-    const meetingNum = _meetingMatch
-      ? (parseInt(_meetingMatch[1]) || _meetingWordMap[_meetingMatch[1]] || null)
-      : null
+    const _rangeMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\s+(?:to|or|-)\s+(one|two|three|four|five|\d)\b.*\b(meeting|session|time)/i)
+    const _singleMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\b.*\b(meeting|session|time)/i)
+    const meetingNum = _rangeMatch
+      ? (_meetingWordMap[_rangeMatch[2]] || parseInt(_rangeMatch[2]) || null)
+      : _singleMatch
+        ? (_meetingWordMap[_singleMatch[1]] || parseInt(_singleMatch[1]) || null)
+        : null
 
     // Detect if the advisor flagged a need to communicate price changes to clients.
     // Include advisorConfidence — advisors often name the communication challenge there.
@@ -846,6 +853,7 @@ ${recommendedRevenueModel ? `- An industry-specific revenue model exists for thi
 - KEY INSIGHT — frame this in the "How to approach it" section: The revenue/what-if model's deepest value is the gap it exposes — the difference between what the owner assumes the business delivers (revenue, costs, profit) and what the financials actually show. That gap is a direct window into the mindset behind every decision they make. An owner running on flawed assumptions will keep arriving at the same outcomes. Making the gap visible is what shifts them from assumption-driven to data-driven thinking. The advisor should position the model as the tool that makes this shift possible — not just a financial exercise, but a change in how the owner sees their own business.
 - DELIVERY METHOD RULE: ${clientRaisedIssue ? 'The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.' : 'The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method. In "How to approach it", explain the Cautious Reveal: establish WHY they need the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil\'s a plumber video before the meeting to prime awareness.'}
 ${reportsYes ? '- This client already uses financial management reports regularly. Do NOT recommend the Working Capital Cycle or any basic financial literacy or financial awareness templates — they are beneath this client\'s level. Only recommend templates appropriate for a financially informed client.' : ''}
+${reportsNo ? '- This client does NOT currently use financial management reports — they are running without financial visibility. You MUST include a financial dashboard or management reporting template as part of the engagement. Look in the provided template list for a dashboard, reporting session, or financial data presentation template and include it as a dedicated recommendation with its own session.' : ''}
 ${reportsFromAdvisorFirm ? '- The advisor\'s firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.' : ''}
 ${reviewNo ? '- The advisor has indicated the client does NOT need a detailed review of business variables and profit drivers. Do NOT recommend templates focused on profit driver analysis, business variable reviews, or foundational financial education. Stick to action-oriented templates relevant to the specific profitability issue.' : ''}
 ${staircaseNum ? `- Advisory Staircase position: Step ${staircaseNum}. ${staircaseNum <= 2 ? 'This is an early-stage engagement — keep templates foundational and accessible. Build confidence before introducing complexity.' : staircaseNum === 3 ? 'The engagement is at interpretation stage — the client is ready for structured analysis and what-if modelling.' : staircaseNum === 4 ? 'The engagement is at application stage — the client is ready for forecasting, scenario planning, and strategic templates.' : 'This is a mature strategic engagement — the client expects sophisticated, data-driven templates. Do not recommend foundational or educational content.'}` : ''}
