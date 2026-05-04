@@ -814,10 +814,13 @@ async function handleQuery (rawBody, res) {
       ? (parseInt(_meetingMatch[1]) || _meetingWordMap[_meetingMatch[1]] || null)
       : null
 
-    // Detect if the advisor flagged a need to communicate price changes to clients
-    const _communicationText = [state.situationPriority, state.situationDownstream, state.situationContext]
+    // Detect if the advisor flagged a need to communicate price changes to clients.
+    // Include advisorConfidence — advisors often name the communication challenge there.
+    // No trailing \b so stem patterns (communicat, announc) match full words like
+    // "communicate", "communication", "announcing" etc.
+    const _communicationText = [state.situationPriority, state.situationDownstream, state.situationContext, state.advisorConfidence]
       .filter(s => s && s !== 'pending').join(' ')
-    const hasPriceCommunication = /\b(communicat|price\s+(?:increase|rise|hike|change)|tell\s+(?:the\s+)?(?:client|customer)|announc|retain\s+client|losing\s+client|client[s]?\s+(?:leave|leav|left|retention|won.t\s+stay)|inform\s+(?:the\s+)?(?:client|customer)|pass\s+(?:it|the\s+cost|increase)\s+on)\b/i.test(_communicationText)
+    const hasPriceCommunication = /\b(communicat|price[s]?\s+(?:increase|rise|hike|change|up\b)|tell\s+(?:the\s+)?(?:client|customer)|announc|retain\s+client|losing\s+client|client[s]?\s+(?:leave|leav|left|retention|won.t\s+stay)|inform\s+(?:the\s+)?(?:client|customer)|pass\s+(?:it|the\s+cost|increase)\s+on|put(?:ting)?\s+(?:the\s+|their\s+)?price)/i.test(_communicationText)
 
     // Map industry answer to a specific industry template name if one exists in the library
     const industryText = (state.industry || '').toLowerCase()
