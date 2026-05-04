@@ -32,6 +32,11 @@
       "title": "I'm interested in learning more",
       "desc": "Want to develop your skills in selling, facilitation, psychology, or positioning? Tell me what you're working on and I'll point you to the right resource.",
       "tag": "Facilitative · Development"
+    },
+    "course": {
+      "title": "I want to build a course",
+      "desc": "Tell me what you want to develop as an advisor. I'll guide you through building a tailored learning program — session by session, at the right pace for you.",
+      "tag": "Guided · Learning Program"
     }
   },
   "profile": {
@@ -76,7 +81,8 @@
     "client": "Great — let's work through this together.\n\nTell me about your client and the situation you want to address — I'll use that, along with what I already know about you, to find the right template.\n\n**What's the core situation or challenge you're looking to address with this client?**",
     "discover": "Sure — let's find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does (\"something that helps clients understand their cash flow\"), by a combination of topics (\"strategic planning plus team engagement\"), or by a name you half-remember (\"something like the Working Capital one\"). The more detail you give, the better I can match it.**",
     "plan": "Great — let's think through this together.\n\nBefore I point you to the right tool, I want to understand where you are and what you're trying to achieve — the best planning framework depends entirely on your situation.\n\n**What's prompting you to think about planning ahead right now?**",
-    "learn": "Great — this is one of the most valuable things you can invest in.\n\nTo make sure I point you to the right resource, I want to understand what you're looking to develop and what's driving it.\n\n**What area are you most drawn to working on — winning clients, facilitation skills, the psychology side, positioning and messaging, or something else?**"
+    "learn": "Great — this is one of the most valuable things you can invest in.\n\nTo make sure I point you to the right resource, I want to understand what you're looking to develop and what's driving it.\n\n**What area are you most drawn to working on — winning clients, facilitation skills, the psychology side, positioning and messaging, or something else?**",
+    "course": "Great — let's design your learning program together.\n\nA good course starts with understanding what you want to develop and why — then we'll shape the right content, pace, and sequence around you.\n\n**What area of your advisory practice are you most wanting to grow right now?**"
   },
   "error": "Sorry, something went wrong. Please try again."
 }
