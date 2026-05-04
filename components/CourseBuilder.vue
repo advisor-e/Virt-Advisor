@@ -480,7 +480,10 @@ export default {
           })
         })
 
-        if (!response.ok) { throw new Error('Request failed') }
+        if (!response.ok) {
+          const text = await response.text().catch(() => '')
+          throw new Error(`HTTP ${response.status}: ${text.slice(0, 200)}`)
+        }
 
         const reader = response.body.getReader()
         const decoder = new TextDecoder()
@@ -524,6 +527,7 @@ export default {
           this.isDesignStreaming = false
         }
       } catch (e) {
+        console.error('[course:design]', e.message)
         this.designMessages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' })
         this.isDesignStreaming = false
         this.designStreamingText = ''
@@ -608,7 +612,10 @@ export default {
           })
         })
 
-        if (!response.ok) { throw new Error('Request failed') }
+        if (!response.ok) {
+          const text = await response.text().catch(() => '')
+          throw new Error(`HTTP ${response.status}: ${text.slice(0, 200)}`)
+        }
 
         const reader = response.body.getReader()
         const decoder = new TextDecoder()
@@ -643,6 +650,7 @@ export default {
           this.isSessionStreaming = false
         }
       } catch (e) {
+        console.error('[course:session]', e.message)
         this.sessionMessages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' })
         this.isSessionStreaming = false
         this.sessionStreamingText = ''
