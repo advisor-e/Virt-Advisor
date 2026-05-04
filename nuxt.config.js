@@ -39,7 +39,8 @@ export default {
   // Proxy /api/advisor/* to the Restify backend
   serverMiddleware: [
     { path: '/api/advisor', handler: '~/server-middleware/advisor.js' },
-    { path: '/api/translate', handler: '~/server-middleware/translate.js' }
+    { path: '/api/translate', handler: '~/server-middleware/translate.js' },
+    { path: '/api/course', handler: '~/server-middleware/course.js' }
   ],
 
   // API_BASE_URL should point to the Restify backend server

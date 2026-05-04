@@ -1,0 +1,24 @@
+{
+  "overrides": {
+    "_comment": "Add fixed quiz questions here keyed by session title. If a key matches the session title, these questions are used instead of AI-generated ones. Each question needs: id, question, objective.",
+    "_example": {
+      "Understanding Profit Drivers": [
+        {
+          "id": 1,
+          "question": "In your own words, what is the 'gap' concept in the Scaffolding Revenue Model and why does it matter to an advisor?",
+          "objective": "Understand the gap between owner assumptions and actual financial performance"
+        },
+        {
+          "id": 2,
+          "question": "Describe the Trial Fit Method in two or three sentences — what is the tailored suit metaphor and what does it achieve?",
+          "objective": "Explain the Trial Fit delivery approach"
+        },
+        {
+          "id": 3,
+          "question": "Why would an advisor choose the Cautious Reveal method over the Trial Fit method? What client situation calls for it?",
+          "objective": "Distinguish between the two delivery methods based on client awareness"
+        }
+      ]
+    }
+  }
+}

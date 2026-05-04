@@ -106,6 +106,19 @@
             span.mode-card-tag {{ $t('mode.learn.tag') }}
           span.mode-card-arrow →
 
+      button.mode-card.card-course(@click="selectMode('course')" style="grid-column: 1 / -1;")
+        .card-top-bar
+        .mode-card-inner
+          .mode-card-icon-wrap.icon-course
+            svg(xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="26" height="26")
+              path(stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z")
+              path(stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422A12.083 12.083 0 0 1 21 18.5a12.083 12.083 0 0 1-9 0 12.083 12.083 0 0 1-9-0.5v-4.5l3.84 1.922z")
+          .mode-card-body
+            h2.mode-card-title {{ $t('mode.course.title') }}
+            p.mode-card-desc {{ $t('mode.course.desc') }}
+            span.mode-card-tag {{ $t('mode.course.tag') }}
+          span.mode-card-arrow →
+
     //- Advisor Profile card (click opens overlay)
     .profile-card
       button.profile-card-header(@click="openProfile")
@@ -118,8 +131,17 @@
         span.profile-card-tag.tag-empty(v-else) {{ $t('profile.tagEmpty') }}
         span.profile-chevron →
 
+  //- Course builder
+  CourseBuilder(
+    v-if="mode === 'course'"
+    :advisorId="advisorId"
+    :advisorProfile="advisorProfile"
+    :orgTemplateIds="orgTemplateIds"
+    @exit="reset"
+  )
+
   //- Conversation
-  .messages-area(v-else ref="messagesArea")
+  .messages-area(v-else-if="mode && mode !== 'course'" ref="messagesArea")
     .messages-list
       div(
         v-for="(msg, index) in messages"
@@ -205,7 +227,7 @@
           button.save-prompt-no(@click="savePromptDismissed = true") Not now
 
   //- Input (only shown once mode is selected)
-  .input-area(v-if="mode")
+  .input-area(v-if="mode && mode !== 'course'")
 
     //- Voice status bar
     .voice-bar(v-if="speechSupported")
@@ -1235,6 +1257,7 @@ export default {
 .card-discover .card-top-bar { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
 .card-plan .card-top-bar    { background: linear-gradient(90deg, #059669, #34d399); }
 .card-learn .card-top-bar   { background: linear-gradient(90deg, #d97706, #fbbf24); }
+.card-course .card-top-bar  { background: linear-gradient(90deg, #0d9488, #0891b2); }
 
 .mode-card-inner {
   display: flex;
@@ -1257,6 +1280,7 @@ export default {
 .icon-discover { background: #f5f3ff; color: #7c3aed; }
 .icon-plan     { background: #ecfdf5; color: #059669; }
 .icon-learn    { background: #fffbeb; color: #d97706; }
+.icon-course   { background: #f0fdfa; color: #0d9488; }
 
 .mode-card-body { display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .mode-card-title { font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
@@ -1274,6 +1298,7 @@ export default {
 .card-discover .mode-card-tag { color: #7c3aed; background: #f5f3ff; }
 .card-plan .mode-card-tag    { color: #059669; background: #ecfdf5; }
 .card-learn .mode-card-tag   { color: #d97706; background: #fffbeb; }
+.card-course .mode-card-tag  { color: #0d9488; background: #f0fdfa; }
 
 .mode-card-arrow {
   font-size: 18px;
@@ -1285,10 +1310,12 @@ export default {
 .card-discover:hover .mode-card-arrow { color: #a78bfa; transform: translateX(4px); }
 .card-plan:hover    .mode-card-arrow { color: #34d399; transform: translateX(4px); }
 .card-learn:hover   .mode-card-arrow { color: #fbbf24; transform: translateX(4px); }
+.card-course:hover  .mode-card-arrow { color: #0d9488; transform: translateX(4px); }
 .card-client:hover  { border-color: #bfdbfe; }
 .card-discover:hover { border-color: #ddd6fe; }
 .card-plan:hover    { border-color: #a7f3d0; }
 .card-learn:hover   { border-color: #fde68a; }
+.card-course:hover  { border-color: #99f6e4; }
 
 /* Advisor Profile screen */
 .profile-screen {
