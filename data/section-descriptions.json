@@ -1,6 +1,8 @@
 [
   {
     "section": "Client On-Boarding",
+    "tier": "entry-level",
+    "advisorLevelNote": "Suitable for new and experienced advisors",
     "complexity": "Low",
     "clientProfile": "Any new or prospective client regardless of experience or business type",
     "advisorProfile": "Any advisor — these are process templates, not facilitation tools",
@@ -10,6 +12,8 @@
   },
   {
     "section": "End of Year Content",
+    "tier": "entry-level",
+    "advisorLevelNote": "Suitable for new and experienced advisors",
     "complexity": "Low to Medium",
     "clientProfile": "Any existing client — particularly suited to clients who are already engaged and have an established relationship with the advisor",
     "advisorProfile": "Any advisor — structured and agenda-driven, reduces the need for improvisation",
@@ -18,7 +22,20 @@
     "whenToUse": "Annual or semi-annual client reviews. Also useful for reactivating clients who have drifted or for demonstrating advisory value to clients who haven't yet engaged beyond compliance work."
   },
   {
+    "section": "Growth Fundamentals Framework",
+    "tier": "entry-level",
+    "advisorLevelNote": "Suitable for new and experienced advisors",
+    "complexity": "Low to Medium",
+    "clientProfile": "Any business owner who wants to understand where their business sits on the growth journey and what the next stage looks like",
+    "advisorProfile": "Any advisor — the framework is structured and self-explanatory, reducing the facilitation burden",
+    "engagementStyle": "Educative and orienting — introduces the growth curve concept and helps the client and advisor establish a shared language for the advisory relationship",
+    "description": "The Growth Fundamentals Framework gives advisors a structured way to position and explain the advisory journey to clients. It establishes a shared vocabulary around business growth stages and sets the context for all subsequent advisory work. Because it is conceptual rather than technically demanding, it is accessible to advisors at any experience level and suitable as an early-course resource.",
+    "whenToUse": "When introducing a client to advisory thinking for the first time, or when the advisor wants to establish a shared framework for growth before moving into domain-specific advisory work."
+  },
+  {
     "section": "General Tools",
+    "tier": "entry-level",
+    "advisorLevelNote": "Education-focused; better for newer advisors due to structured, low-facilitation format",
     "complexity": "Low to Medium",
     "clientProfile": "Less experienced or commercially unsophisticated clients. Clients who are new to advisory thinking or have never engaged with structured frameworks before. Also suitable as entry points for any client.",
     "advisorProfile": "Any advisor, including those newer to advisory delivery — these templates are educative and structured, reducing the facilitation burden",
@@ -28,6 +45,8 @@
   },
   {
     "section": "Lite Fundamentals",
+    "tier": "intermediate",
+    "advisorLevelNote": "Education and facilitation focus; previous meeting experience with clients required",
     "complexity": "Medium",
     "clientProfile": "Privately owned businesses — 'Mum and Dad' style operators — who are open to regular advisory engagement and ready to build foundational business skills. Covers the 80/20 of what every business needs to be profitable over time.",
     "advisorProfile": "Advisors with previous experience running client meetings without supervision. The programme is structured and self-contained, but it still requires the advisor to be comfortable facilitating sessions independently. Not suitable for first-time advisors.",
@@ -37,6 +56,8 @@
   },
   {
     "section": "Strategic Tools",
+    "tier": "advanced",
+    "advisorLevelNote": "Facilitation focus; advisor must be confident with complex concepts and open-ended strategic conversations",
     "complexity": "Medium to High",
     "clientProfile": "Commercially aware or experienced clients who are ready to think strategically about their business direction, growth, competitive position, or future planning. Clients at Leverage stage and above on the Growth Curve are typically ready for this.",
     "advisorProfile": "Advisors with some experience in advisory delivery who are comfortable facilitating strategic conversations and handling ambiguity",
@@ -46,6 +67,8 @@
   },
   {
     "section": "Specialist Tools",
+    "tier": "advanced",
+    "advisorLevelNote": "Advice focus; advisor must be confident with complex, technical advisory concepts",
     "complexity": "High",
     "clientProfile": "Clients with specific, defined problems that require technical depth — succession, asset management, valuation, financial systems, people management, or due diligence. These clients are typically experienced and commercially aware.",
     "advisorProfile": "Experienced advisors who are comfortable in technical advisory territory and can handle detailed, nuanced client conversations without a script",
@@ -55,6 +78,8 @@
   },
   {
     "section": "Governance Tools",
+    "tier": "advanced",
+    "advisorLevelNote": "Facilitation, education, and advice combined; experienced advisors only",
     "complexity": "High",
     "clientProfile": "Larger, more complex businesses — typically at Maturity or Leapfrog stage on the Growth Curve. Businesses with multiple stakeholders, boards, or investors. Not-for-profits and publicly listed entities are also well served here.",
     "advisorProfile": "Experienced advisors, ideally with some exposure to governance, board-level advisory, or larger business environments",

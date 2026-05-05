@@ -39,8 +39,8 @@ function filterTemplatesByQuery (templates, query, maxResults) {
   if (queryWords.length === 0) { return templates.slice(0, maxResults) }
 
   const scored = templates.map((t) => {
+    const titleLower = (t.title || '').toLowerCase()
     const searchText = [
-      t.title,
       t.purpose,
       t.topic,
       t.section,
@@ -49,7 +49,11 @@ function filterTemplatesByQuery (templates, query, maxResults) {
 
     let score = 0
     for (const word of queryWords) {
-      if (searchText.includes(word)) { score++ }
+      if (titleLower.includes(word)) {
+        score += 3 // title match is far more relevant than a tag match
+      } else if (searchText.includes(word)) {
+        score++
+      }
     }
     return { template: t, score }
   })
@@ -65,10 +69,13 @@ function formatTemplatesForPrompt (templates) {
   return templates.map((t, i) => {
     const tags = (t.tags || []).slice(0, 5).join(', ')
     const videoNote = t.hasVideo ? '\n   Video: Tutorial video available in Advisor-e' : ''
+    const useNote = t.includedInClient
+      ? '\n   Use: Client-facing delivery tool (shown to client during advisory sessions — NOT advisor learning material)'
+      : '\n   Use: Advisor reference/learning resource'
     return `${i + 1}. **${t.title}** [${t.section} > ${t.topic}]
    Purpose: ${t.purpose}
    Tags: ${tags}
-   ID: ${t.page}${videoNote}`
+   ID: ${t.page}${useNote}${videoNote}`
   }).join('\n\n')
 }
 

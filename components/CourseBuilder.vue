@@ -1,6 +1,9 @@
 <template lang="pug">
 .course-builder
 
+  //- ── AI processing bar — visible whenever any AI call is in-flight ────────
+  .ai-loading-bar(v-if="isDesignStreaming || isSessionStreaming || isGeneratingQuiz")
+
   //- ── PHASE: Design ───────────────────────────────────────────────────────
   template(v-if="phase === 'design'")
     .course-messages(ref="designMessages")
@@ -18,11 +21,11 @@
       .course-msg.msg-va(v-if="isDesignStreaming")
         .msg-avatar VA
         .msg-bubble
-          div(v-if="designStreamingText" v-html="renderMarkdown(designStreamingText)" class="prose")
-          .typing-indicator(v-else)
+          .typing-indicator
             span
             span
             span
+            span.thinking-label VA is thinking...
 
       //- Course outline confirmation card
       .outline-card(v-if="pendingOutline && !isDesignStreaming")
@@ -39,6 +42,15 @@
               p.session-focus {{ s.focus }}
               .session-resources(v-if="s.resources && s.resources.length")
                 span.resource-tag(v-for="r in s.resources" :key="r") {{ r }}
+        .outline-visibility
+          p.visibility-label Who can access this course?
+          .visibility-opts
+            button.vis-opt(:class="{ 'vis-active': courseVisibility === 'private' }" @click="courseVisibility = 'private'")
+              span.vis-icon 🔒
+              span Private — just me
+            button.vis-opt(:class="{ 'vis-active': courseVisibility === 'firm' }" @click="courseVisibility = 'firm'")
+              span.vis-icon 🏢
+              span Firm-wide — all advisors
         .outline-actions
           button.btn-start-course(@click="confirmOutline") Start this course →
           button.btn-request-changes(@click="requestOutlineChanges") Request changes
@@ -78,9 +90,11 @@
           @click="sendDesignMessage"
           :disabled="!designInput.trim() || isDesignStreaming"
         )
-          span(v-if="isDesignStreaming") ...
+          span(v-if="isDesignStreaming") Thinking...
           span(v-else) Save & Continue
       p.input-hint(v-if="!speechSupported") Press Enter to send · Shift+Enter for new line
+      p.design-reset-row
+        button.btn-start-fresh(@click="confirmDeleteCourse") ✕ Start fresh
 
   //- ── PHASE: Session ──────────────────────────────────────────────────────
   template(v-else-if="phase === 'session'")
@@ -89,19 +103,24 @@
         .session-progress-fill(:style="{ width: progressPercent + '%' }")
       .session-progress-label
         span {{ completedSessionCount }} of {{ activeCourse.outline.sessions.length }} sessions complete
+        button.btn-delete-course(@click="confirmDeleteCourse") ✕ Delete course
 
     .session-header
       .session-header-info
         span.session-badge Session {{ activeSessionIndex + 1 }}
         h3.session-title-heading {{ currentSession.title }}
         p.session-focus-text {{ currentSession.focus }}
-      button.btn-end-session(
-        @click="endSessionAndQuiz"
-        :disabled="isSessionStreaming || sessionMessages.length < 2 || isGeneratingQuiz"
-        :title="sessionMessages.length < 2 ? 'Have the session conversation first' : 'End session and take the quiz'"
-      )
-        span(v-if="isGeneratingQuiz") Generating quiz...
-        span(v-else) ✓ End session & take quiz
+      .session-quiz-actions
+        button.btn-view-overview(@click="viewCourseOverview") ≡ Overview
+        button.btn-end-session(
+          @click="endSessionAndQuiz"
+          :disabled="isSessionStreaming || sessionMessages.length < 2 || isGeneratingQuiz"
+          :title="sessionMessages.length < 2 ? 'Have the session conversation first' : 'End session and take the quiz'"
+        )
+          span(v-if="isGeneratingQuiz") Generating quiz...
+          span(v-else) ✓ End session & take quiz
+        button.btn-skip-quiz(v-if="quizError" @click="skipQuizAndContinue") Skip quiz & continue →
+      p.quiz-gen-error(v-if="quizError") {{ quizError }}
 
     .course-messages(ref="sessionMessages")
       .course-msg(
@@ -122,6 +141,7 @@
             span
             span
             span
+            span.thinking-label VA is thinking...
 
     .input-area
       .voice-bar(v-if="speechSupported")
@@ -161,6 +181,36 @@
           span(v-if="isSessionStreaming") ...
           span(v-else) Save & Continue
       p.input-hint(v-if="!speechSupported") Press Enter to send · Shift+Enter for new line
+
+  //- ── PHASE: Overview ─────────────────────────────────────────────────────
+  template(v-else-if="phase === 'overview'")
+    .course-overview
+      .overview-header
+        button.btn-back-to-session(@click="resumeSession") ← Back to session
+        h2.overview-course-title {{ activeCourse.outline.title }}
+        p.overview-course-topic {{ activeCourse.outline.topic }}
+        .overview-progress-row
+          .overview-progress-track
+            .overview-progress-fill(:style="{ width: progressPercent + '%' }")
+          span.overview-progress-text {{ completedSessionCount }} of {{ activeCourse.outline.sessions.length }} sessions complete
+      .overview-sessions
+        .overview-session-row(
+          v-for="(s, i) in activeCourse.outline.sessions"
+          :key="i"
+          :class="{ 'ov-active': i === activeSessionIndex && activeCourse.progress[i].status !== 'complete', 'ov-done': activeCourse.progress[i].status === 'complete' }"
+        )
+          .ov-session-num {{ i + 1 }}
+          .ov-session-info
+            strong.ov-session-title {{ s.title }}
+            p.ov-session-focus {{ s.focus }}
+          .ov-session-status
+            span.ov-badge.ov-badge-done(v-if="activeCourse.progress[i].status === 'complete'")
+              | ✓{{ activeCourse.progress[i].quizScore !== null ? ' ' + activeCourse.progress[i].quizScore + '%' : '' }}
+            span.ov-badge.ov-badge-active(v-else-if="i === activeSessionIndex") Active
+            span.ov-badge.ov-badge-pending(v-else) Upcoming
+      .overview-footer
+        button.btn-resume-session(@click="resumeSession") → Resume Session {{ activeSessionIndex + 1 }}
+        button.btn-delete-course(@click="confirmDeleteCourse") ✕ Delete course
 
   //- ── PHASE: Quiz ─────────────────────────────────────────────────────────
   template(v-else-if="phase === 'quiz'")
@@ -274,6 +324,7 @@ export default {
       designStreamingText: '',
       courseState: {},
       pendingOutline: null,
+      courseVisibility: 'private',
       activeCourse: null,
 
       // Session phase
@@ -283,6 +334,7 @@ export default {
       isSessionStreaming: false,
       sessionStreamingText: '',
       isGeneratingQuiz: false,
+      quizError: '',
 
       // Quiz phase
       quizQuestions: [],
@@ -408,7 +460,7 @@ export default {
             this.activeCourse = active
             this.activeSessionIndex = this._findActiveSessionIndex(active)
             this.phase = 'session'
-            this._startSession()
+            this._startSession(false)
             return
           }
         } catch (e) {
@@ -418,7 +470,7 @@ export default {
       // No active course — start design conversation
       this.designMessages = [{
         role: 'assistant',
-        content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat area of your advisory practice are you most wanting to grow right now?"
+        content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat are the skills or advisory concepts you'd like to develop?"
       }]
     },
 
@@ -544,6 +596,7 @@ export default {
         advisorId: this.advisorId,
         createdAt: new Date().toISOString(),
         status: 'active',
+        visibility: this.courseVisibility,
         outline: this.pendingOutline,
         progress: this.pendingOutline.sessions.map(() => ({
           status: 'pending',
@@ -556,7 +609,7 @@ export default {
       this._saveCourse(course)
       this.activeSessionIndex = 0
       this.phase = 'session'
-      this._startSession()
+      this._startSession(true)
     },
 
     requestOutlineChanges () {
@@ -569,17 +622,98 @@ export default {
 
     // ── Session phase ────────────────────────────────────────────────────
 
-    _startSession () {
+    _startSession (isNew = false) {
       const session = this.currentSession
       if (!session) { return }
-      const objectivesList = (session.objectives || []).map(o => '- ' + o).join('\n')
-      this.sessionMessages = [{
-        role: 'assistant',
-        content: `Welcome to **Session ${session.id}: ${session.title}**.\n\n${session.focus}\n\n${objectivesList ? 'By the end of this session you should be able to:\n' + objectivesList + '\n\n' : ''}**Let's start — what's your current experience or understanding of this topic?**`
-      }]
+      this.sessionMessages = []
       this.sessionInput = ''
       this.sessionStreamingText = ''
       this.isSessionStreaming = false
+      this.quizQuestions = []
+      this.quizCurrentIndex = 0
+      this.quizResults = []
+      this.currentResult = null
+      this.quizAnswer = ''
+      if (isNew) {
+        this._autoOpenSession()
+      } else {
+        const resources = (session.resources || []).join(' and ') || 'the session material'
+        this.sessionMessages = [{
+          role: 'assistant',
+          content: `**Session ${session.id}: ${session.title}**\n\n${session.focus}\n\nYour resource for this session is **${resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll discuss what you found.`
+        }]
+      }
+    },
+
+    async _autoOpenSession () {
+      const session = this.currentSession
+      if (!session) { return }
+      this.isSessionStreaming = true
+      this.sessionStreamingText = ''
+
+      try {
+        const response = await fetch('/api/course', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'session',
+            query: 'Begin session.',
+            sessionHistory: [],
+            sessionContext: session,
+            advisorProfile: this.advisorProfile,
+            orgTemplateIds: this.orgTemplateIds
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
+        }
+
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) { break }
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop()
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) { continue }
+            try {
+              const data = JSON.parse(line.slice(6))
+              if (data.type === 'delta') {
+                this.sessionStreamingText += data.text
+                await this.$nextTick()
+                this._scrollSession()
+              } else if (data.type === 'done') {
+                this.sessionMessages.push({ role: 'assistant', content: this.sessionStreamingText })
+                this.sessionStreamingText = ''
+                this.isSessionStreaming = false
+              }
+            } catch (e) { /* ignore */ }
+          }
+        }
+
+        if (this.isSessionStreaming) {
+          this.sessionMessages.push({ role: 'assistant', content: this.sessionStreamingText })
+          this.sessionStreamingText = ''
+          this.isSessionStreaming = false
+        }
+      } catch (e) {
+        console.error('[course:session:open]', e.message)
+        const resources = (session.resources || []).join(' and ') || 'the session material'
+        this.sessionMessages = [{
+          role: 'assistant',
+          content: `**Session ${session.id}: ${session.title}**\n\n${session.focus}\n\nHead to **${resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll pick it apart together.`
+        }]
+        this.isSessionStreaming = false
+        this.sessionStreamingText = ''
+      }
+
+      await this.$nextTick()
+      this._scrollSession()
     },
 
     async sendSessionMessage () {
@@ -635,8 +769,11 @@ export default {
                 this.sessionStreamingText += data.text
                 await this.$nextTick()
                 this._scrollSession()
+              } else if (data.type === 'error') {
+                this.sessionStreamingText = data.message || 'The response timed out. Please try again.'
               } else if (data.type === 'done') {
-                this.sessionMessages.push({ role: 'assistant', content: this.sessionStreamingText })
+                const content = this.sessionStreamingText || 'The response timed out. Please try again.'
+                this.sessionMessages.push({ role: 'assistant', content })
                 this.sessionStreamingText = ''
                 this.isSessionStreaming = false
               }
@@ -645,7 +782,8 @@ export default {
         }
 
         if (this.isSessionStreaming) {
-          this.sessionMessages.push({ role: 'assistant', content: this.sessionStreamingText })
+          const content = this.sessionStreamingText || 'The response timed out. Please try again.'
+          this.sessionMessages.push({ role: 'assistant', content })
           this.sessionStreamingText = ''
           this.isSessionStreaming = false
         }
@@ -663,6 +801,7 @@ export default {
     async endSessionAndQuiz () {
       if (this.isGeneratingQuiz || this.isSessionStreaming) { return }
       this.isGeneratingQuiz = true
+      this.quizError = ''
 
       // Reset quiz state
       this.quizQuestions = []
@@ -686,16 +825,59 @@ export default {
           this.quizQuestions = data.questions
           this.phase = 'quiz'
         } else {
-          // Quiz generation failed — skip quiz and mark session complete
-          console.warn('[course] Quiz generation failed, completing session without quiz')
-          this._markSessionComplete(null)
+          console.warn('[course] Quiz generation returned no questions:', data)
+          this.quizError = 'Couldn\'t generate quiz questions — please try again, or skip to continue.'
         }
       } catch (e) {
         console.error('[course] Quiz generation error:', e.message)
-        this._markSessionComplete(null)
+        this.quizError = 'Something went wrong generating the quiz — please try again, or skip to continue.'
       }
 
       this.isGeneratingQuiz = false
+    },
+
+    viewCourseOverview () {
+      this.phase = 'overview'
+    },
+
+    resumeSession () {
+      this.phase = 'session'
+    },
+
+    skipQuizAndContinue () {
+      this.quizError = ''
+      this._markSessionComplete(null)
+    },
+
+    confirmDeleteCourse () {
+      if (!confirm('Delete this course and start again? Your progress will be lost.')) { return }
+      this._deleteCourse()
+    },
+
+    _deleteCourse () {
+      if (this.activeCourse) {
+        try {
+          const stored = localStorage.getItem('va_courses')
+          if (stored) {
+            const data = JSON.parse(stored)
+            data.courses = (data.courses || []).filter(c => c.id !== this.activeCourse.id)
+            localStorage.setItem('va_courses', JSON.stringify(data))
+          }
+        } catch (e) { /* ignore */ }
+      }
+      this.activeCourse = null
+      this.activeSessionIndex = 0
+      this.phase = 'design'
+      this.courseVisibility = 'private'
+      this.pendingOutline = null
+      this.sessionMessages = []
+      this.quizQuestions = []
+      this.quizResults = []
+      this.quizError = ''
+      this.designMessages = [{
+        role: 'assistant',
+        content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat are the skills or advisory concepts you'd like to develop?"
+      }]
     },
 
     // ── Quiz phase ───────────────────────────────────────────────────────
@@ -745,7 +927,11 @@ export default {
     },
 
     _markSessionComplete (score) {
-      if (!this.activeCourse) { return }
+      if (!this.activeCourse) {
+        console.error('[course] _markSessionComplete called but activeCourse is null — cannot advance')
+        this.quizError = 'Session state was lost. Please refresh and try again.'
+        return
+      }
       const progress = (this.activeCourse.progress || []).map((p, i) => {
         if (i === this.activeSessionIndex) {
           return { status: 'complete', quizScore: score, completedAt: new Date().toISOString() }
@@ -761,7 +947,7 @@ export default {
         this._saveCourse(this.activeCourse)
         this.activeSessionIndex++
         this.phase = 'session'
-        this._startSession()
+        this._startSession(true)
         // Reset quiz state for next session
         this.quizQuestions = []
         this.quizResults = []
@@ -817,6 +1003,23 @@ export default {
   overflow: hidden;
 }
 
+.section-banner {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  height: 36px;
+  border-left: 4px solid #00b1e0;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+.section-banner-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
 /* ── Messages ─────────────────────────────────────────── */
 .course-messages { flex: 1; overflow-y: auto; padding: 24px; }
 .course-messages > * + * { margin-top: 20px; }
@@ -845,6 +1048,39 @@ export default {
 .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
 .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+/* ── AI loading bar ──────────────────────────────────── */
+.ai-loading-bar {
+  position: relative;
+  height: 3px;
+  background: #e0f6fd;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.ai-loading-bar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -45%;
+  width: 40%; height: 100%;
+  background: linear-gradient(90deg, transparent, #00b1e0, #0098c1, transparent);
+  animation: ai-sweep 1.4s ease-in-out infinite;
+}
+@keyframes ai-sweep {
+  0%   { left: -45%; }
+  100% { left: 110%; }
+}
+
+.thinking-label {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+  margin-left: 4px;
+  animation: fade-pulse 1.6s ease-in-out infinite;
+}
+@keyframes fade-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
 
 /* ── Input area ───────────────────────────────────────── */
 .input-area { border-top: 1px solid #e5e7eb; padding: 16px 24px; background: #ffffff; flex-shrink: 0; }
@@ -910,15 +1146,15 @@ export default {
 /* ── Course outline card ──────────────────────────────── */
 .outline-card {
   background: #ffffff;
-  border: 2px solid #0d9488;
+  border: 2px solid #00b1e0;
   border-radius: 16px;
   overflow: hidden;
   margin: 4px 0;
-  box-shadow: 0 4px 16px rgba(13,148,136,0.12);
+  box-shadow: 0 4px 16px rgba(0,177,224,0.12);
 }
 
 .outline-card-header {
-  background: linear-gradient(135deg, #0d9488, #0891b2);
+  background: linear-gradient(135deg, #00b1e0, #0098c1);
   padding: 20px 24px 16px;
 }
 .outline-title { font-size: 17px; font-weight: 700; color: #fff; margin: 0 0 10px; }
@@ -937,9 +1173,9 @@ export default {
 .session-num {
   width: 28px; height: 28px;
   border-radius: 50%;
-  background: #f0fdfa;
-  border: 2px solid #0d9488;
-  color: #0d9488;
+  background: #e6f8fd;
+  border: 2px solid #00b1e0;
+  color: #00b1e0;
   font-size: 12px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
@@ -951,12 +1187,29 @@ export default {
 .session-resources { display: flex; flex-wrap: wrap; gap: 4px; }
 .resource-tag {
   font-size: 11px;
-  background: #f0fdfa;
-  color: #0d9488;
-  border: 1px solid #99f6e4;
+  background: #e6f8fd;
+  color: #00b1e0;
+  border: 1px solid #99dff5;
   border-radius: 4px;
   padding: 2px 8px;
 }
+
+/* Visibility toggle */
+.outline-visibility {
+  padding: 14px 24px 0;
+}
+.visibility-label { font-size: 12px; font-weight: 600; color: #6b7280; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+.visibility-opts { display: flex; gap: 8px; }
+.vis-opt {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px;
+  border: 1.5px solid #e5e7eb; background: #fff;
+  font-size: 13px; font-weight: 500; color: #6b7280;
+  cursor: pointer; transition: all 0.15s;
+}
+.vis-opt:hover { border-color: #00b1e0; color: #00b1e0; }
+.vis-opt.vis-active { border-color: #00b1e0; background: #e6f8fd; color: #00b1e0; font-weight: 600; }
+.vis-icon { font-size: 14px; }
 
 .outline-actions {
   display: flex;
@@ -966,13 +1219,13 @@ export default {
   background: #fafafa;
 }
 .btn-start-course {
-  background: #0d9488; color: #fff;
+  background: #00b1e0; color: #fff;
   border: none; border-radius: 8px;
   padding: 10px 20px;
   font-size: 14px; font-weight: 600;
   cursor: pointer; transition: background 0.15s;
 }
-.btn-start-course:hover { background: #0f766e; }
+.btn-start-course:hover { background: #0090b8; }
 .btn-request-changes {
   background: none; color: #6b7280;
   border: 1.5px solid #d1d5db; border-radius: 8px;
@@ -985,8 +1238,22 @@ export default {
 /* ── Session phase ────────────────────────────────────── */
 .session-top-bar { padding: 0 0 0; flex-shrink: 0; }
 .session-progress-track { height: 4px; background: #e5e7eb; }
-.session-progress-fill { height: 4px; background: linear-gradient(90deg, #0d9488, #0891b2); transition: width 0.5s ease; }
-.session-progress-label { font-size: 11px; color: #6b7280; padding: 6px 24px; }
+.session-progress-fill { height: 4px; background: linear-gradient(90deg, #00b1e0, #0098c1); transition: width 0.5s ease; }
+.session-progress-label { font-size: 11px; color: #6b7280; padding: 6px 24px; display: flex; justify-content: space-between; align-items: center; }
+.btn-delete-course {
+  background: none; border: none; color: #9ca3af;
+  font-size: 11px; cursor: pointer; padding: 0;
+  transition: color 0.15s;
+}
+.btn-delete-course:hover { color: #dc2626; }
+
+.design-reset-row { text-align: center; margin: 4px 0 0; }
+.btn-start-fresh {
+  background: none; border: none; color: #9ca3af;
+  font-size: 11px; cursor: pointer; padding: 0;
+  transition: color 0.15s;
+}
+.btn-start-fresh:hover { color: #dc2626; }
 
 .session-header {
   display: flex;
@@ -1001,8 +1268,8 @@ export default {
 .session-badge {
   display: inline-block;
   font-size: 11px; font-weight: 700;
-  color: #0d9488;
-  background: #f0fdfa;
+  color: #00b1e0;
+  background: #e6f8fd;
   border-radius: 20px;
   padding: 2px 10px;
   margin-bottom: 6px;
@@ -1013,9 +1280,9 @@ export default {
 .session-focus-text { font-size: 13px; color: #6b7280; margin: 0; line-height: 1.4; }
 
 .btn-end-session {
-  background: #f0fdfa;
-  color: #0d9488;
-  border: 1.5px solid #0d9488;
+  background: #e6f8fd;
+  color: #00b1e0;
+  border: 1.5px solid #00b1e0;
   border-radius: 8px;
   padding: 8px 16px;
   font-size: 13px; font-weight: 600;
@@ -1024,8 +1291,21 @@ export default {
   flex-shrink: 0;
   transition: all 0.15s;
 }
-.btn-end-session:hover:not(:disabled) { background: #0d9488; color: #fff; }
+.btn-end-session:hover:not(:disabled) { background: #00b1e0; color: #fff; }
 .btn-end-session:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.session-quiz-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.btn-skip-quiz {
+  background: none; color: #6b7280;
+  border: 1.5px solid #d1d5db; border-radius: 8px;
+  padding: 8px 14px; font-size: 12px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.btn-skip-quiz:hover { color: #374151; border-color: #9ca3af; }
+.quiz-gen-error {
+  font-size: 12px; color: #dc2626;
+  margin: 4px 0 0; padding: 0 2px;
+}
 
 /* ── Quiz ─────────────────────────────────────────────── */
 .quiz-container {
@@ -1162,7 +1442,7 @@ export default {
 .completion-check {
   width: 72px; height: 72px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d9488, #0891b2);
+  background: linear-gradient(135deg, #00b1e0, #0098c1);
   color: #fff;
   font-size: 32px;
   display: flex; align-items: center; justify-content: center;
@@ -1208,4 +1488,93 @@ export default {
   cursor: pointer; transition: all 0.15s;
 }
 .btn-return-menu:hover { border-color: #9ca3af; color: #374151; }
+
+/* ── Overview button in session header ────────────────── */
+.btn-view-overview {
+  background: #f3f4f6; color: #6b7280;
+  border: 1.5px solid #e5e7eb; border-radius: 8px;
+  padding: 8px 14px; font-size: 13px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.btn-view-overview:hover { background: #e6f8fd; color: #00b1e0; border-color: #00b1e0; }
+
+/* ── Course overview screen ───────────────────────────── */
+.course-overview { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+.overview-header {
+  padding: 16px 24px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.btn-back-to-session {
+  background: none; border: none;
+  color: #6b7280; font-size: 13px;
+  cursor: pointer; padding: 0 0 10px;
+  transition: color 0.15s; display: block;
+}
+.btn-back-to-session:hover { color: #00b1e0; }
+
+.overview-course-title { font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 4px; }
+.overview-course-topic { font-size: 13px; color: #6b7280; margin: 0 0 14px; }
+
+.overview-progress-row { display: flex; align-items: center; gap: 12px; }
+.overview-progress-track { flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+.overview-progress-fill { height: 6px; background: linear-gradient(90deg, #00b1e0, #0098c1); transition: width 0.5s ease; }
+.overview-progress-text { font-size: 12px; color: #6b7280; white-space: nowrap; }
+
+.overview-sessions {
+  flex: 1; overflow-y: auto;
+  padding: 16px 24px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.overview-session-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 16px; border-radius: 10px;
+  border: 1.5px solid #e5e7eb; background: #fafafa;
+  transition: border-color 0.15s;
+}
+.ov-active { border-color: #00b1e0; background: #f0fbff; }
+.ov-done { border-color: #d1fae5; background: #f0fdf4; }
+
+.ov-session-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #e5e7eb; color: #9ca3af;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ov-active .ov-session-num { background: #e6f8fd; border: 2px solid #00b1e0; color: #00b1e0; }
+.ov-done .ov-session-num { background: #dcfce7; color: #16a34a; }
+
+.ov-session-info { flex: 1; }
+.ov-session-title { font-size: 14px; color: #111827; display: block; margin-bottom: 2px; }
+.ov-session-focus { font-size: 12px; color: #6b7280; margin: 0; line-height: 1.4; }
+
+.ov-session-status { flex-shrink: 0; display: flex; align-items: center; }
+
+.ov-badge {
+  font-size: 11px; font-weight: 600;
+  border-radius: 20px; padding: 3px 10px; white-space: nowrap;
+}
+.ov-badge-done { background: #dcfce7; color: #166534; }
+.ov-badge-active { background: #e6f8fd; color: #00b1e0; }
+.ov-badge-pending { background: #f3f4f6; color: #9ca3af; }
+
+.overview-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #fafafa;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-resume-session {
+  background: #00b1e0; color: #fff;
+  border: none; border-radius: 8px;
+  padding: 10px 20px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-resume-session:hover { background: #0090b8; }
 </style>

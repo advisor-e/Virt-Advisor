@@ -106,7 +106,7 @@
             span.mode-card-tag {{ $t('mode.learn.tag') }}
           span.mode-card-arrow →
 
-      button.mode-card.card-course(@click="selectMode('course')" style="grid-column: 1 / -1;")
+      button.mode-card.card-course(@click="selectMode('course')")
         .card-top-bar
         .mode-card-inner
           .mode-card-icon-wrap.icon-course
@@ -119,17 +119,20 @@
             span.mode-card-tag {{ $t('mode.course.tag') }}
           span.mode-card-arrow →
 
-    //- Advisor Profile card (click opens overlay)
-    .profile-card
-      button.profile-card-header(@click="openProfile")
-        .profile-card-icon 🎯
-        .profile-card-body
-          h2.profile-card-title {{ $t('profile.title') }}
-          p.profile-card-desc(v-if="!profileSaved") {{ $t('profile.descEmpty') }}
-          p.profile-card-desc(v-else) {{ $t('profile.descSaved') }}
-        span.profile-card-tag(v-if="profileSaved") {{ $t('profile.tagActive') }}
-        span.profile-card-tag.tag-empty(v-else) {{ $t('profile.tagEmpty') }}
-        span.profile-chevron →
+      button.mode-card.card-profile(@click="openProfile")
+        .card-top-bar
+        .mode-card-inner
+          .mode-card-icon-wrap.icon-profile 🎯
+          .mode-card-body
+            h2.mode-card-title {{ $t('profile.title') }}
+            p.mode-card-desc(v-if="!profileSaved") {{ $t('profile.descEmpty') }}
+            p.mode-card-desc(v-else) {{ $t('profile.descSaved') }}
+            span.mode-card-tag(:class="{ 'tag-empty': !profileSaved }") {{ profileSaved ? $t('profile.tagActive') : $t('profile.tagEmpty') }}
+          span.mode-card-arrow →
+
+  //- Section banner — shown whenever a mode is active
+  .section-banner(v-if="mode" :class="'banner-' + mode")
+    span.section-banner-label {{ sectionBannerLabel }}
 
   //- Course builder
   CourseBuilder(
@@ -639,6 +642,17 @@ export default {
   },
 
   computed: {
+    sectionBannerLabel () {
+      const labels = {
+        client: 'I have a client situation',
+        discover: 'I want to find something specific',
+        plan: 'I want to plan ahead',
+        learn: 'I\'m interested in learning more',
+        course: 'I want to build a course'
+      }
+      return labels[this.mode] || ''
+    },
+
     profileQuestions () {
       const experiencedPattern = /\b(yes|yeah|yep|years?|months?|weeks?|since|20\d\d|19\d\d|have been|i've been|been doing|been delivering|been working|been advising)\b/i
       const beginnerPattern = /\b(haven't|have not|no experience|never done|never have|not done|not yet|just starting|new to advisory|just beginning|don't have|do not have|mostly compliance|compliance only|only learning|still learning|just learning|very little|no advisory|haven't done|just told you)\b/i
@@ -1229,10 +1243,10 @@ export default {
 /* Cards grid */
 .mode-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   width: 100%;
-  max-width: 680px;
+  max-width: 800px;
 }
 .mode-card {
   display: flex;
@@ -1257,7 +1271,8 @@ export default {
 .card-discover .card-top-bar { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
 .card-plan .card-top-bar    { background: linear-gradient(90deg, #059669, #34d399); }
 .card-learn .card-top-bar   { background: linear-gradient(90deg, #d97706, #fbbf24); }
-.card-course .card-top-bar  { background: linear-gradient(90deg, #0d9488, #0891b2); }
+.card-course .card-top-bar  { background: linear-gradient(90deg, #00b1e0, #0098c1); }
+.card-profile .card-top-bar { background: linear-gradient(90deg, #6366f1, #a5b4fc); }
 
 .mode-card-inner {
   display: flex;
@@ -1280,7 +1295,8 @@ export default {
 .icon-discover { background: #f5f3ff; color: #7c3aed; }
 .icon-plan     { background: #ecfdf5; color: #059669; }
 .icon-learn    { background: #fffbeb; color: #d97706; }
-.icon-course   { background: #f0fdfa; color: #0d9488; }
+.icon-course   { background: #e6f8fd; color: #00b1e0; }
+.icon-profile  { background: #eef2ff; color: #6366f1; font-size: 26px; display: flex; align-items: center; justify-content: center; }
 
 .mode-card-body { display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .mode-card-title { font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
@@ -1298,7 +1314,9 @@ export default {
 .card-discover .mode-card-tag { color: #7c3aed; background: #f5f3ff; }
 .card-plan .mode-card-tag    { color: #059669; background: #ecfdf5; }
 .card-learn .mode-card-tag   { color: #d97706; background: #fffbeb; }
-.card-course .mode-card-tag  { color: #0d9488; background: #f0fdfa; }
+.card-course .mode-card-tag  { color: #00b1e0; background: #e6f8fd; }
+.card-profile .mode-card-tag { color: #6366f1; background: #eef2ff; }
+.card-profile .mode-card-tag.tag-empty { color: #6b7280; background: #f3f4f6; }
 
 .mode-card-arrow {
   font-size: 18px;
@@ -1310,12 +1328,37 @@ export default {
 .card-discover:hover .mode-card-arrow { color: #a78bfa; transform: translateX(4px); }
 .card-plan:hover    .mode-card-arrow { color: #34d399; transform: translateX(4px); }
 .card-learn:hover   .mode-card-arrow { color: #fbbf24; transform: translateX(4px); }
-.card-course:hover  .mode-card-arrow { color: #0d9488; transform: translateX(4px); }
+.card-course:hover  .mode-card-arrow { color: #00b1e0; transform: translateX(4px); }
+.card-profile:hover .mode-card-arrow { color: #6366f1; transform: translateX(4px); }
 .card-client:hover  { border-color: #bfdbfe; }
 .card-discover:hover { border-color: #ddd6fe; }
 .card-plan:hover    { border-color: #a7f3d0; }
 .card-learn:hover   { border-color: #fde68a; }
-.card-course:hover  { border-color: #99f6e4; }
+.card-course:hover  { border-color: #99dff5; }
+.card-profile:hover { border-color: #c7d2fe; }
+
+/* Section banner */
+.section-banner {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  height: 36px;
+  border-left: 4px solid #ccc;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+.section-banner-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+.banner-client  { border-left-color: #3b82f6; }
+.banner-discover { border-left-color: #a78bfa; }
+.banner-plan    { border-left-color: #34d399; }
+.banner-learn   { border-left-color: #fbbf24; }
+.banner-course  { border-left-color: #00b1e0; }
 
 /* Advisor Profile screen */
 .profile-screen {

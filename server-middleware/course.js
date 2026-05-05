@@ -15,8 +15,19 @@ const fs = require('fs')
 const path = require('path')
 const OpenAI = require('openai')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
+const { getAllSummaries, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
+const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
+const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { sendError } = require('../server/utils/sendError')
 const CourseReminderService = require('../server/services/CourseReminderService')
+
+// Node.js 15+ crashes on unhandled rejections — guard against OpenAI SDK stream cleanup errors
+if (!process._courseMiddlewareGuarded) {
+  process._courseMiddlewareGuarded = true
+  process.on('unhandledRejection', (reason) => {
+    console.error('[course] Unhandled rejection (server kept alive):', reason?.message || String(reason))
+  })
+}
 
 // Prompt cache — loaded once per process
 const _promptCache = {}
@@ -62,66 +73,181 @@ function jsonResponse (res, status, payload) {
 
 // ── Design conversation ────────────────────────────────────────────────────
 
-async function handleDesign (body, res) {
-  const { query, conversationHistory = [], advisorProfile, orgTemplateIds, courseState = {} } = body
+// Detects when an advisor's first message mentions both selling and delivering a service
+function _detectCourseMultiGoal (answer) {
+  const lower = answer.toLowerCase()
+  const hasSelling = /\b(sell|selling|sales|win clients|winning clients|get clients|approach clients)\b/.test(lower)
+  const hasDelivery = /\b(deliver|facilitat|run|use|apply|conduct|implement|strateg|planning|profit|staff|governance|systems|valuati|succession|conflict)\b/.test(lower)
+  return hasSelling && hasDelivery
+}
+
+// Code-controlled question sequence — asked one at a time before outline generation
+const COURSE_DESIGN_QUESTIONS = [
+  {
+    field: 'currentLevel',
+    text: "What's your current experience or confidence level in this area — have you had any prior training, coaching, or reading on this topic?"
+  },
+  {
+    field: 'intensity',
+    text: 'Do you prefer each session to stay at a consistent level of depth throughout, or would you like the course to get progressively more challenging as you go?'
+  },
+  {
+    field: 'sessionDetails',
+    text: 'How many minutes would you like each session to aim for, and how many sessions in total would you like to commit to?'
+  }
+]
+
+function handleDesign (body, res) {
+  const { query, advisorProfile, orgTemplateIds, courseState = {} } = body
   if (!query) { return sendError(res, 400, 'QUERY_REQUIRED', 'query is required') }
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-  const templates = getOrgTemplates(orgTemplateIds || null)
-  const filtered = filterTemplatesByQuery(templates, query)
-  const templateContext = formatTemplatesForPrompt(filtered)
+  // Restore or initialise design pipeline state
+  const state = Object.assign({
+    goalsPrimary: null,
+    multiGoalDetected: false,
+    currentLevel: null,
+    intensity: null,
+    sessionDetails: null,
+    pendingOutline: null
+  }, courseState)
 
-  const systemPrompt = loadPrompt('course-design') +
-    '\n\n## Available templates and resources\n\n' + templateContext
-
-  const advisorContext = advisorProfile
-    ? '\n\n## Advisor profile\n\n' +
-      Object.entries(advisorProfile)
-        .filter(([, v]) => v && v.trim())
-        .map(([k, v]) => `${k}: ${v}`)
-        .join('\n')
-    : ''
-
-  const messages = [
-    { role: 'system', content: systemPrompt + advisorContext },
-    ...conversationHistory,
-    { role: 'user', content: query }
-  ]
-
-  sseHeaders(res)
-  sseWrite(res, { type: 'state', state: courseState })
-
-  const stream = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages,
-    max_tokens: 2000,
-    stream: true
-  })
-
-  let fullText = ''
-  for await (const chunk of stream) {
-    const delta = chunk.choices[0]?.delta?.content || ''
-    if (delta) {
-      fullText += delta
-      sseWrite(res, { type: 'delta', text: delta })
-    }
+  // Helper: send a hardcoded question as instant SSE (no OpenAI call)
+  function sendQuestion (text, newState) {
+    sseHeaders(res)
+    sseWrite(res, { type: 'state', state: newState })
+    sseWrite(res, { type: 'delta', text })
+    sseWrite(res, { type: 'done' })
+    res.end()
   }
 
-  // Extract course outline if AI included one
-  const outlineMatch = fullText.match(/\[COURSE_OUTLINE\]([\s\S]*?)\[\/COURSE_OUTLINE\]/)
-  const newState = { ...courseState }
-  if (outlineMatch) {
+  // Helper: build full context and stream an AI-generated outline
+  async function generateOutline (userMessage) {
+    const allUserText = [
+      state.goalsPrimary,
+      state.goalsSecondary && state.goalsSecondary !== 'pending' ? state.goalsSecondary : '',
+      state.currentLevel,
+      state.intensity,
+      state.sessionDetails
+    ].filter(Boolean).join(' ').slice(0, 3000)
+
+    const templates = getOrgTemplates(orgTemplateIds || null)
+    const filtered = filterTemplatesByQuery(templates, allUserText)
+    const templateContext = formatTemplatesForPrompt(filtered)
+
+    // All content summaries injected in full — tells the AI what each template teaches and its complexity
+    const summariesText = formatSummariesForPrompt(getAllSummaries())
+    const sectionDescText = formatSectionDescriptionsForPrompt()
+
+    const detectedDomains = detectDomainsForDesign(allUserText)
+    const domainSummaries = detectedDomains
+      .map(id => formatDomainSummaryForDesign(id))
+      .filter(Boolean)
+      .join('\n\n')
+
+    const advisorContextStr = advisorProfile
+      ? '\n\n## Advisor profile\n\n' +
+        Object.entries(advisorProfile)
+          .filter(([, v]) => v && v.trim())
+          .map(([k, v]) => `${k}: ${v}`)
+          .join('\n')
+      : ''
+
+    const systemPrompt = loadPrompt('course-design') +
+      (domainSummaries ? '\n\n' + domainSummaries : '') +
+      '\n\n## Template section complexity guide\n\n' + sectionDescText +
+      '\n\n## Content summaries — what each template teaches and its complexity level\n\n' + summariesText +
+      '\n\n## Available templates and resources\n\n' + templateContext +
+      advisorContextStr
+
+    sseHeaders(res)
+    sseWrite(res, { type: 'state', state })
+
+    let stream
     try {
-      newState.pendingOutline = JSON.parse(outlineMatch[1].trim())
-    } catch (e) {
-      console.warn('[course:design] Could not parse course outline JSON:', e.message)
+      stream = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ],
+        max_tokens: 2500,
+        stream: true
+      }, { timeout: 60000 })
+    } catch (createErr) {
+      console.error('[course:design] OpenAI create failed:', createErr.message)
+      sseWrite(res, { type: 'done' })
+      res.end()
+      return
+    }
+
+    let fullText = ''
+    try {
+      for await (const chunk of stream) {
+        const delta = chunk.choices[0]?.delta?.content || ''
+        if (delta) {
+          fullText += delta
+          sseWrite(res, { type: 'delta', text: delta })
+        }
+      }
+    } catch (streamErr) {
+      console.error('[course:design] Stream error:', streamErr.message)
+    }
+
+    const outlineMatch = fullText.match(/\[COURSE_OUTLINE\]([\s\S]*?)\[\/COURSE_OUTLINE\]/)
+    const finalState = { ...state, pendingOutline: null }
+    if (outlineMatch) {
+      try {
+        finalState.pendingOutline = JSON.parse(outlineMatch[1].trim())
+      } catch (e) {
+        console.warn('[course:design] Could not parse course outline JSON:', e.message)
+      }
+    }
+
+    sseWrite(res, { type: 'state', state: finalState })
+    sseWrite(res, { type: 'done' })
+    res.end()
+  }
+
+  // ── Case 1: Outline revision — advisor wants changes to an existing outline ──
+  if (state.pendingOutline) {
+    const existingOutline = JSON.stringify(state.pendingOutline, null, 2)
+    state.pendingOutline = null
+    const revisionMessage = `The advisor has reviewed this course outline:\n\n${existingOutline}\n\nThey want the following changes: ${query}\n\nPlease revise the outline accordingly and present the updated version.`
+    return generateOutline(revisionMessage)
+  }
+
+  // ── Case 2: First message — capture primary goal, detect multi-goal ──
+  if (!state.goalsPrimary) {
+    state.goalsPrimary = query
+    state.multiGoalDetected = _detectCourseMultiGoal(query)
+    // Fall straight through to pipeline — no separate Q1 needed
+  }
+
+  // ── Case 3: Discovery pipeline — ask one question at a time ──
+  for (const q of COURSE_DESIGN_QUESTIONS) {
+    if (q.skip && q.skip(state)) { continue }
+    if (!state[q.field]) {
+      state[q.field] = 'pending'
+      return sendQuestion(q.text, state)
+    }
+    if (state[q.field] === 'pending') {
+      state[q.field] = query
     }
   }
 
-  sseWrite(res, { type: 'state', state: newState })
-  sseWrite(res, { type: 'done' })
-  res.end()
+  // ── Case 4: All fields collected — generate the outline ──
+  const collectedAnswers = [
+    `Development goals: ${state.goalsPrimary}`,
+    `Current level and experience: ${state.currentLevel}`,
+    `Intensity preference: ${state.intensity}`,
+    `Session format: ${state.sessionDetails}`
+  ].filter(Boolean).join('\n')
+
+  return generateOutline(
+    `Here is the complete picture of this advisor's learning needs:\n\n${collectedAnswers}\n\nNow generate the complete course outline.`
+  )
 }
 
 // ── Session delivery ───────────────────────────────────────────────────────
@@ -133,7 +259,7 @@ async function handleSession (body, res) {
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
   const templates = getOrgTemplates(orgTemplateIds || null)
-  const focusQuery = [sessionContext?.focus, sessionContext?.title].filter(Boolean).join(' ') || query
+  const focusQuery = [sessionContext?.focus, sessionContext?.title, ...(sessionContext?.resources || [])].filter(Boolean).join(' ') || query
   const filtered = filterTemplatesByQuery(templates, focusQuery)
   const templateContext = formatTemplatesForPrompt(filtered)
 
@@ -143,8 +269,19 @@ async function handleSession (body, res) {
       `Focus: ${sessionContext.focus}\n` +
       `Objectives:\n${(sessionContext.objectives || []).map(o => '- ' + o).join('\n')}\n` +
       `Resources: ${(sessionContext.resources || []).join(', ')}\n` +
-      `Estimated duration: ${sessionContext.estimatedHours || 1.5} hours`
+      `Estimated duration: ${sessionContext.estimatedMinutes || sessionContext.estimatedHours * 60 || 30} minutes`
     : ''
+
+  // Domain support context — match session topic to the relevant domain support JSON
+  const domainQuery = focusQuery
+  const domainId = detectDomainForSession(domainQuery)
+  const domainContext = domainId
+    ? '\n\n' + formatDomainContextForSession(domainId, sessionContext?.resources || [])
+    : ''
+
+  // Logic tree reference — match session topic to a learn-mode logic tree
+  const logicTree = detectLogicTree(domainQuery)
+  const logicTreeContext = logicTree ? '\n\n' + (buildLearnReferenceText(logicTree) || '') : ''
 
   const advisorContext = advisorProfile
     ? '\n\n## Advisor profile\n\n' +
@@ -155,7 +292,7 @@ async function handleSession (body, res) {
     : ''
 
   const systemPrompt = loadPrompt('course-session') +
-    sessionInject + advisorContext +
+    sessionInject + domainContext + logicTreeContext + advisorContext +
     '\n\n## Available templates and resources\n\n' + templateContext
 
   const messages = [
@@ -167,16 +304,29 @@ async function handleSession (body, res) {
   sseHeaders(res)
   sseWrite(res, { type: 'state', state: {} })
 
-  const stream = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages,
-    max_tokens: 2000,
-    stream: true
-  })
+  let stream
+  try {
+    stream = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages,
+      max_tokens: 2000,
+      stream: true
+    }, { timeout: 45000 })
+  } catch (createErr) {
+    console.error('[course:session] OpenAI create failed:', createErr.message)
+    sseWrite(res, { type: 'error', message: 'AI response timed out. Please try again.' })
+    sseWrite(res, { type: 'done' })
+    res.end()
+    return
+  }
 
-  for await (const chunk of stream) {
-    const delta = chunk.choices[0]?.delta?.content || ''
-    if (delta) { sseWrite(res, { type: 'delta', text: delta }) }
+  try {
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content || ''
+      if (delta) { sseWrite(res, { type: 'delta', text: delta }) }
+    }
+  } catch (streamErr) {
+    console.error('[course:session] Stream error:', streamErr.message)
   }
 
   sseWrite(res, { type: 'done' })
@@ -227,7 +377,9 @@ Return ONLY valid JSON with no other text:
       response_format: { type: 'json_object' }
     })
     const data = JSON.parse(completion.choices[0].message.content)
-    jsonResponse(res, 200, { success: true, questions: data.questions || [] })
+    // Accept common key name variations the model may use
+    const questions = data.questions || data.quiz_questions || data.quiz || data.items || []
+    jsonResponse(res, 200, { success: true, questions })
   } catch (e) {
     console.error('[course:quiz-generate]', e.message)
     jsonResponse(res, 500, { success: false, error: 'Failed to generate quiz questions' })
