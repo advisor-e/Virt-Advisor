@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-04-15",
+  "last_updated": "2026-05-06",
   "description": "Diagnostic logic trees for guiding advisor conversations. Each tree maps a client presenting problem to a recommended template pathway. Walk the nodes using the IF conditions and ask the question at each branch point. Terminal nodes (type: 'recommendation') output the templates to suggest.",
   "usage_notes": [
     "Use 'quickfire' as the default top-level entry point when the presenting problem is general or vague.",
@@ -164,11 +164,19 @@
       "name": "Client Sales Logic",
       "description": "Diagnoses sales problems by first splitting between volume of sales and profitability, then drilling into the specific cause.",
       "entry_triggers": [
-        "not making enough sales",
-        "sales are down",
-        "need more sales",
-        "revenue is low",
-        "not enough customers"
+        "my client needs more sales",
+        "client's sales are down",
+        "help my client with their sales",
+        "client is losing customers",
+        "client wants more customers",
+        "client not making enough sales",
+        "client struggling to sell",
+        "client can't get enough customers",
+        "help a client sell more",
+        "improve my client's sales",
+        "client sales problem",
+        "client revenue is low",
+        "client needs more customers"
       ],
       "nodes": [
         {
@@ -1298,7 +1306,7 @@
     },
     {
       "id": "sales_process",
-      "name": "Sales Process Decision Tree",
+      "name": "Get the Job - Sales Process Decision Tree",
       "description": "Guides the advisor to the right sales process and approach method based on client type, sophistication, and relationship warmth. Terminal nodes output a recommended sales process (not a template). After identifying the process, use the approach_guidance table to determine HOW to reach out based on the advisor-client relationship.",
       "mode": "learn",
       "entry_triggers": [
@@ -1331,6 +1339,19 @@
         "bring on as",
         "get them started"
       ],
+      "ambiguous_triggers": [
+        "need more sales",
+        "sales are down",
+        "not making enough sales",
+        "revenue is low",
+        "not enough customers",
+        "grow my sales",
+        "increase my fees",
+        "get more clients",
+        "struggling with sales",
+        "want more revenue"
+      ],
+      "disambiguation_node": "sp_qualify",
       "approach_guidance": [
         {
           "method": "Direct Phone Call",
@@ -1361,6 +1382,31 @@
         }
       ],
       "nodes": [
+        {
+          "id": "sp_qualify",
+          "branch_name": "Sales Context Qualifier",
+          "type": "question",
+          "condition": "Query about 'sales' or 'revenue' without clear advisor or client context",
+          "question": "Just to make sure I point you to the right place — is this about your own fee growth and winning more advisory clients, or is this about helping one of your clients increase their own sales to their customers?",
+          "branches": [
+            {
+              "answer_pattern": "my own / fee growth / win advisory clients / my sales",
+              "next_node": "sp_entry"
+            },
+            {
+              "answer_pattern": "my client / their sales / help a client / their customers",
+              "next_node": "sp_rec_client_domain"
+            }
+          ]
+        },
+        {
+          "id": "sp_rec_client_domain",
+          "branch_name": "Route to Client Sales Domain",
+          "type": "recommendation",
+          "condition": "Advisor wants to help a client improve their own sales to their customers",
+          "action": "This is a Do the Job scenario — use the Client Sales Logic tree to diagnose the client's sales problem and identify the right template.",
+          "notes": "The Client Sales Logic tree covers volume vs profitability issues and routes to the correct Advisor-e template for the client's situation."
+        },
         {
           "id": "sp_entry",
           "branch_name": "Initial Assessment — Client Type",
@@ -1426,15 +1472,6 @@
           "action": "Use the Planning Outcomes Review to approach and engage. This allows the advisor to scope the client's situation and select an appropriate planning session as the means to upsell into broader advisory work.",
           "sales_process": "Planning Outcomes Review — consultative scoping and upsell",
           "notes": "Leads directly to engagement. The advisor runs the Planning Outcomes Review as a discovery/alignment meeting to frame the opportunity."
-        },
-        {
-          "id": "sp_rec_lite_existing_yes",
-          "branch_name": "Recommendation: Lite Fundamentals (Existing, Prior Work, Less Confident)",
-          "type": "recommendation",
-          "condition": "Existing client, prior advisory work, but advisor not yet confident going consultative",
-          "action": "Approach using the Lite Fundamentals (Campaign) sales process — more structured and scripted than a consultative approach. Use this to safely introduce the next level of advisory engagement.",
-          "sales_process": "Lite Fundamentals / Campaign Sales Process",
-          "notes": "Safely transitions to engagement without requiring consultative confidence."
         },
         {
           "id": "sp_existing_profile",
@@ -1674,11 +1711,12 @@
           "sales_process": "Total Needs Sales Process",
           "notes": "Deploys the comprehensive sales approach for larger referrals."
         }
-      ]
+      ],
+      "section": "get-the-job"
     },
     {
       "id": "public_speaking",
-      "name": "Seminar & Presentation Design and Delivery",
+      "name": "Get the Job - Public Speaking & Seminar Delivery",
       "mode": "learn",
       "description": "Sequential coaching guide for designing and delivering a seminar, workshop, or presentation. Unlike other trees, this is not a one-shot recommendation — it is ongoing stage-by-stage coaching. Always ask where the advisor is in the process before starting, and jump to the relevant stage. Use the Powerful Seminars reference content (injected separately) for detailed coaching at each stage.",
       "sequential": true,
@@ -1795,6 +1833,27 @@
           "action": "Run through the full technical checklist: Walk the stage with the mic — speak loud and soft as you will on the day. Test for drop-out spots. Check mic type (unidirectional = hold at sternum level, body follows head). Check headset mic positioning and ensure belt-pack antennae hangs upside down. Check overhead lighting — covers the speaker, not the plants. Arrange seating so you can walk between attendees. Brief any sound operator on loud/quiet moments.",
           "notes": "Do not do a cursory 'testing 123' and walk off. Speak the full range as you will in the actual presentation. Always have a back-up mic. Make sure the venue matches the theme and ambition of the event. Handouts should include full contact details for all presenters at front or back. Refreshments help slow the pace and create networking opportunities.",
           "next_stage": null
+        }
+      ],
+      "section": "get-the-job",
+      "flat_branches": [
+        {
+          "id": "ps_networking",
+          "branch_name": "Networking Boundaries",
+          "condition": "IF an attendee initiates a deeply technical or bespoke service inquiry during hospitality drinks",
+          "action": "THEN trigger the Selling out of bounds protocol",
+          "notes": "The advisor must pause the business discussion and state: I would love to talk about that more, I will give you a call Monday",
+          "templates": []
+        },
+        {
+          "id": "ps_conclusion",
+          "branch_name": "Event Conclusion",
+          "condition": "IF the seminar delivery is complete and the Call to Action has been made",
+          "action": "THEN ensure staff distribute and collect the get.feedback form",
+          "notes": "Data must be captured regarding content relevance and whether the attendee wishes to be invited to the next scheduled event",
+          "templates": [
+            "Get. Seminar Feedback Form"
+          ]
         }
       ]
     },
@@ -6323,6 +6382,399 @@
           "notes": "Seller preparation for DD is the mirror image of the buyer's investigation — the goal is to ensure that every question a buyer will ask has a clean, documented, verifiable answer. A well-prepared seller reduces the buyer's perceived risk, which protects the asking price and reduces the likelihood of late-stage price chipping or deal withdrawal. Six preparation priorities matching the buyer's DD checklist: (1) Financial Preparation — engage an accountant to prepare a clean Quality of Earnings analysis from the seller's perspective before the buyer requests it. Identify all legitimate add-backs, document the basis for each, and prepare supporting evidence. Surprises in the financials discovered by the buyer's DD team are always more damaging than disclosures made proactively by the seller. (2) Contract Review — conduct a self-audit of all major contracts for Change of Control clauses before the buyer's legal team finds them. Where clauses exist, approach the counterparty proactively to negotiate consent — the seller's relationship with the counterparty is the best leverage they will ever have. (3) Revenue Concentration — if a single client represents >20% of revenue, begin proactively broadening the client base before going to market. This may require a 12-18 month preparation timeline. Alternatively, approach the concentrated client to obtain a long-term contract commitment that will survive the sale. (4) Key Person Dependency — systematically reduce personal goodwill: document processes, develop management depth, transition client relationships to the business rather than the individual. A business that runs well without the owner for 6 weeks is worth more than one that cannot. Cross-reference: exit preparation path in the valuation tree. (5) Technology — ensure all systems are cloud-based, current, and documented. A business on legacy systems will attract a tech debt discount in any negotiation. (6) Working Capital — ensure AR aging is clean before buyer review. Address aged debtors proactively — an AR aging report with significant 90+ day balances will trigger a working capital risk adjustment to the purchase price. Cross-reference: valuation tree (exit preparation path) for the full seller value-building framework.",
           "templates": [
             "Due Diligence Checklist"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "get_sales_tracker",
+      "name": "Get the Job - Sales Tracker",
+      "section": "get-the-job",
+      "type": "flat_if_then",
+      "description": "If-then logic for using the Sales Tracker system. Maps prospect and pipeline situations to the correct tracking approach, sales pathway, and management action.",
+      "entry_triggers": [
+        "sales tracker",
+        "pipeline",
+        "sales activity",
+        "prospecting",
+        "referral network",
+        "COI",
+        "cold target",
+        "conversion rate",
+        "sales log",
+        "pipeline management",
+        "prospect tracking",
+        "securing work",
+        "business development tracking",
+        "track my sales",
+        "pipeline report",
+        "sales dashboard"
+      ],
+      "branches": [
+        {
+          "id": "gst_1",
+          "branch_name": "Approach Methodology",
+          "condition": "IF the prospect is generated via a cold target or social media source",
+          "action": "THEN start the process by using the Quiz Link Sent approach style to qualify their interest",
+          "notes": "Quizzes act as a low-friction barrier; if completed favourably, the prospect is much warmer for a follow-up call",
+          "templates": [
+            "Get.1a.Sales Tracker"
+          ]
+        },
+        {
+          "id": "gst_2",
+          "branch_name": "Sales Pathway Selection",
+          "condition": "IF the initial engagement is categorised under the Lite Fundamentals Sales or Planning Review theme",
+          "action": "THEN log the sale under the Campaign sales style track",
+          "notes": "Campaigns are generally faster to close and require less bespoke discovery",
+          "templates": [
+            "Get.1a.Sales Tracker"
+          ]
+        },
+        {
+          "id": "gst_3",
+          "branch_name": "Complex Engagement Tracking",
+          "condition": "IF the prospect requires a Full Discovery or Issue Response",
+          "action": "THEN utilise the Total Needs tracker and update their progress through Scope, Analyse Data, and Presentation stages",
+          "notes": "Total needs selling is bespoke and requires careful staging to ensure no steps are skipped",
+          "templates": [
+            "Get.1a.Sales Tracker"
+          ]
+        },
+        {
+          "id": "gst_4",
+          "branch_name": "Pipeline Stagnation",
+          "condition": "IF work days elapsed in the Sales Activity log exceeds 90 days without a job being secured",
+          "action": "THEN change the Prospect Status to On Hold or Dead and move on",
+          "notes": "Keeping stalled prospects active artificially inflates the pipeline projection",
+          "templates": [
+            "Get.1a.Sales Tracker"
+          ]
+        },
+        {
+          "id": "gst_5",
+          "branch_name": "COI Relationship Progression",
+          "condition": "IF a new meeting is held with a Commercial Lender or Farm Consultant and they agree to explore a mutual alliance",
+          "action": "THEN change the relationship progress indicator from Could We to How Would We in the COI tab",
+          "notes": "Relationships must be systematically nurtured through trust stages before referrals can be expected",
+          "templates": [
+            "Get.1a.Sales Tracker"
+          ]
+        },
+        {
+          "id": "gst_6",
+          "branch_name": "Resource Allocation",
+          "condition": "IF the Team Report shows an advisor has an exceptionally low Secured Conversion % despite a high number of approaches",
+          "action": "THEN assign a senior partner as Support Staff (Buddy) on their next Active prospect",
+          "notes": "Tracking allows owners to spot weaknesses and implement peer mentoring to save active deals",
+          "templates": [
+            "Get.1a.Sales Tracker"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "get_marketing",
+      "name": "Get the Job - Marketing",
+      "section": "get-the-job",
+      "type": "flat_if_then",
+      "description": "If-then logic for advisor marketing engagement. Maps client presenting situations to the correct communication tool or engagement sequence to convert or expand the advisory relationship.",
+      "entry_triggers": [
+        "marketing",
+        "client engagement",
+        "approach client",
+        "advisory marketing",
+        "position services",
+        "compliance to advisory",
+        "grow advisory practice",
+        "attract clients",
+        "client communication",
+        "marketing templates",
+        "90 day best practice",
+        "bags of cash",
+        "mental gym",
+        "bankers login",
+        "hesitant prospect",
+        "qualify prospect",
+        "unqualified prospect"
+      ],
+      "branches": [
+        {
+          "id": "gm_1",
+          "branch_name": "Data Integrity / Administration",
+          "condition": "IF the client frequently submits messy records or says their admin team struggles with Xero",
+          "action": "THEN introduce the 90-Day Best Practice Plan",
+          "notes": "Explain the cost of unwinding bad transactions at year-end. Bill at $1,500 (or $1,800 international) over 3 months. Conduct via Zoom so the advisor can watch staff practical inputs",
+          "templates": [
+            "90 Day Accounting Best Practice Plan"
+          ]
+        },
+        {
+          "id": "gm_2",
+          "branch_name": "Cash Flow / Volatility",
+          "condition": "IF the client states they are making sales but there is never any cash in the bank",
+          "action": "THEN send the Bags of Cash video hyperlink and follow up within 48 hours to offer a Cash Volatility Review",
+          "notes": "Import their cash volatility data via the API to generate a report showing their working capital cycle before the meeting",
+          "templates": [
+            "Working Capital Cycle"
+          ]
+        },
+        {
+          "id": "gm_3",
+          "branch_name": "Growth / Strategic Planning",
+          "condition": "IF the client says they want to step back from the tools and scale the business",
+          "action": "THEN send the Growth Fundamentals online quiz to assess their current baseline, followed by the Mental Gym portal invitation",
+          "notes": "Use cartoon images like the Growth Curve or Profit Sweet-Spot during the meeting to visually map their next phase",
+          "templates": [
+            "Growth Fundamentals Framework",
+            "Get. TCM.Quiz Link Email",
+            "Get. Invitation Email"
+          ]
+        },
+        {
+          "id": "gm_4",
+          "branch_name": "External Funding / Bank Support",
+          "condition": "IF the client indicates they need to secure a loan to purchase new equipment",
+          "action": "THEN secure Client Extadv Consent and send the Bankers Login Email to grant their bank manager access to the Loan Estimator",
+          "notes": "Helps secure funding faster by demonstrating high-level financial governance and positions the advisor as a strategic partner to the bank",
+          "templates": [
+            "Get. Bankers Login Email"
+          ]
+        },
+        {
+          "id": "gm_5",
+          "branch_name": "Hesitant / Unqualified Prospect",
+          "condition": "IF a new prospect asks for services but seems resistant to committing to a paid meeting",
+          "action": "THEN utilise the What's Applicable or HR Maths Micro-Step Quizzes",
+          "notes": "This acts as a low-friction qualifier. If they will not invest 3 minutes into a free quiz, they are unlikely to invest in a premium advisory package",
+          "templates": [
+            "Get. TCM.Quiz Link Email",
+            "Get. 5 Layers Questionnaire"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "get_positioning",
+      "name": "Get the Job - Positioning",
+      "section": "get-the-job",
+      "type": "flat_if_then",
+      "description": "If-then logic for advisor positioning and client engagement situations. Covers growth conversations, engagement expansion, meeting frequency objections, and trust barriers.",
+      "entry_triggers": [
+        "positioning",
+        "trust barrier",
+        "meeting frequency",
+        "regular meetings",
+        "CCO framework",
+        "helicopter story",
+        "client resistance",
+        "client defensive",
+        "engagement expansion",
+        "look both ways",
+        "advisor positioning",
+        "somatic trust",
+        "congruence",
+        "grow my business",
+        "how to grow"
+      ],
+      "branches": [
+        {
+          "id": "gp_1",
+          "branch_name": "Growth Assessment",
+          "condition": "IF the client asks how to grow their business or is struggling to figure out how to grow",
+          "action": "THEN apply the CCO Framework — ask: Is the issue transactional volume (Capacity), team skills (Capability), or market demand (Opportunity)?",
+          "notes": "Do not solve it immediately. Tantalize them with a brief assessment to secure a proper strategy meeting",
+          "templates": [
+            "Business Assessment Report"
+          ]
+        },
+        {
+          "id": "gp_2",
+          "branch_name": "Engagement Expansion",
+          "condition": "IF the client requests help with a specific event such as a loan drawdown",
+          "action": "THEN use the Look Both Ways method — implement a pre-event revenue model review and post-event management meetings",
+          "notes": "This ensures the job is done properly for better outcomes, preventing the perception of up-selling",
+          "templates": [
+            "Revenue Model (What-if Analysis)",
+            "Agenda & Notes"
+          ]
+        },
+        {
+          "id": "gp_3",
+          "branch_name": "Meeting Frequency",
+          "condition": "IF the client asks why they need to meet regularly, saying they usually only do this once a year",
+          "action": "THEN introduce the Helicopter Story — draw the volatile ground and ask: What use is the control tower if the pilot only calls once a year?",
+          "notes": "Emphasise that navigating high-impact events (mountains) or internal issues (3-ton loads) requires ongoing dashboard visibility",
+          "templates": [
+            "Dashboard Discussions",
+            "Management Reporting Annual Plan (Advisory Board Plan)"
+          ]
+        },
+        {
+          "id": "gp_4",
+          "branch_name": "Trust Barrier",
+          "condition": "IF the client's body language becomes defensive, skeptical, or risk-averse",
+          "action": "THEN pause and evaluate your positioning for incongruence — adjust your tone and body language to match your values",
+          "notes": "A survival response (norepinephrine) has been triggered. Logic will not work until the vibe is corrected and somatic trust is restored",
+          "templates": []
+        }
+      ]
+    },
+    {
+      "id": "get_team_problem",
+      "name": "Get the Job - Team Problem Solving",
+      "section": "get-the-job",
+      "type": "flat_if_then",
+      "description": "If-then logic for team facilitation and problem-solving workshops. Covers exercise selection, debrief structure, process correction, brainstorming rules, and execution accountability.",
+      "entry_triggers": [
+        "team problem",
+        "team building",
+        "team facilitation",
+        "paper tower",
+        "spaghetti tower",
+        "workshop facilitation",
+        "team exercise",
+        "problem solving workshop",
+        "brainstorming",
+        "team challenge",
+        "team workshop",
+        "group exercise",
+        "team debrief",
+        "enforcer",
+        "SMART objective",
+        "team accountability",
+        "team problem solving"
+      ],
+      "branches": [
+        {
+          "id": "gtp_1",
+          "branch_name": "Exercise Selection — Financial Planning Under Pressure",
+          "condition": "IF the client wants to test resource management and financial planning under pressure",
+          "action": "THEN select and distribute the Paper Tower Task Sheet and utilise the Paper Tower Model",
+          "notes": "This exercise forces the team to balance the cost of materials ($2k per batch) against the potential revenue (height) to achieve profitability",
+          "templates": [
+            "Get. Paper Tower Task Sheet",
+            "Get. Paper Tower Model"
+          ]
+        },
+        {
+          "id": "gtp_2",
+          "branch_name": "Exercise Selection — Creativity and Structural Challenge",
+          "condition": "IF the client wants a pure creativity and structural problem-solving challenge",
+          "action": "THEN select and distribute the Spaghetti Tower Task Sheet",
+          "notes": "Focuses purely on height and structural integrity using highly brittle materials (spaghetti) and a top-heavy constraint (marshmallow)",
+          "templates": [
+            "Get. Spaghetti Tower Task Sheet"
+          ]
+        },
+        {
+          "id": "gtp_3",
+          "branch_name": "Debrief Initiation",
+          "condition": "IF the 30-minute exercise concludes and the towers are measured",
+          "action": "THEN transition to the Paper Tower Review Questions and read back time-stamped observations",
+          "notes": "State exactly what you saw and heard. Ask if the team were outcome-oriented or process-driven",
+          "templates": [
+            "Get. Paper Tower Review Questions"
+          ]
+        },
+        {
+          "id": "gtp_4",
+          "branch_name": "Process Correction",
+          "condition": "IF the team failed the exercise because they immediately started building without a plan",
+          "action": "THEN present Step 3 of the Team Problem Solving deck: Determine the Objective",
+          "notes": "Explain that a common point of failure is lacking a SMART objective that states not only what is being done, but why it is important",
+          "templates": [
+            "Get. Team Problem Solving"
+          ]
+        },
+        {
+          "id": "gtp_5",
+          "branch_name": "Brainstorming Rule",
+          "condition": "IF team members are arguing or shooting down each other's ideas during planning",
+          "action": "THEN enforce Step 5: Brainstorm Without Assessment",
+          "notes": "Remind the team that judgment must be deferred entirely. Congratulate all contributions to maintain psychological safety and foster divergent thinking",
+          "templates": [
+            "Get. Team Problem Solving"
+          ]
+        },
+        {
+          "id": "gtp_6",
+          "branch_name": "Execution Accountability",
+          "condition": "IF the team has selected a great idea but has a history of failing to implement",
+          "action": "THEN enforce Steps 8 and 9 by allocating resources and appointing an Enforcer",
+          "notes": "The Enforcer must take operational ownership of the Action Plan, monitor milestones, and report back on barriers to ensure the ROI of the session is realised",
+          "templates": [
+            "Get. Team Problem Solving"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "get_pricing_proposals",
+      "name": "Get the Job - Pricing & Proposals",
+      "section": "get-the-job",
+      "type": "flat_if_then",
+      "description": "If-then logic for advisory scoping and proposal selection. Maps the client engagement type to the correct pricing model and proposal template.",
+      "entry_triggers": [
+        "pricing",
+        "proposal",
+        "advisory proposal",
+        "scope of works",
+        "fee proposal",
+        "advisory pricing",
+        "lite fundamentals proposal",
+        "due diligence scoping",
+        "variation to scope",
+        "price advisory services",
+        "advisory fee",
+        "scoping model",
+        "general advisory proposal",
+        "bespoke consulting fee",
+        "out of scope",
+        "new project fee",
+        "quote a job",
+        "write a proposal"
+      ],
+      "branches": [
+        {
+          "id": "gpp_1",
+          "branch_name": "Bespoke Consulting",
+          "condition": "IF the client has unique, specific business problems identified during a discovery meeting",
+          "action": "THEN utilise the Advisory Pricing Model to map out the bespoke tasks and present the General Advisory Proposal",
+          "notes": "Ensure you explicitly list the hours the client must commit in the Recommendations slide",
+          "templates": [
+            "Advisory Pricing Model",
+            "Advisory Proposal"
+          ]
+        },
+        {
+          "id": "gpp_2",
+          "branch_name": "Foundational Coaching",
+          "condition": "IF the client requires general business education, better systems, or foundational marketing and sales planning",
+          "action": "THEN utilise the merge table tool to quickly generate the Lite Fundamentals Proposal",
+          "notes": "Focus on pitching the three pillars: Organised, More Work, Profitable Work",
+          "templates": [
+            "Lite Fundamentals Proposal"
+          ]
+        },
+        {
+          "id": "gpp_3",
+          "branch_name": "Business Acquisition / Merger",
+          "condition": "IF the client is looking to purchase another entity or merge operations",
+          "action": "THEN utilise the Due Diligence Scoping Model within the Advisory Pricing spreadsheet",
+          "notes": "Systematically review and price tasks like Asset Utilisation, Staff Contracts, and Supplier Risk",
+          "templates": [
+            "Advisory Pricing Model"
+          ]
+        },
+        {
+          "id": "gpp_4",
+          "branch_name": "Out-of-Scope Requests",
+          "condition": "IF the client requests assistance with a new project after the initial agreement",
+          "action": "THEN immediately generate a Variation to Scope of Works document",
+          "notes": "Clearly state the new issue, timeline, and the additional estimated fee required, and obtain a signature before proceeding",
+          "templates": [
+            "Advisory Proposal"
           ]
         }
       ]

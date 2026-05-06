@@ -1,0 +1,162 @@
+{
+  "domain": "get-team-problem",
+  "label": "Get the Job — Team Problem Solving",
+  "trigger_keywords": [
+    "team problem solving", "paper tower", "spaghetti tower", "team exercise",
+    "team building", "9 step framework", "problem solving framework", "SMART objectives",
+    "brainstorming", "enforcer", "debrief", "team dynamics", "facilitation exercise",
+    "off-site", "strategic planning day", "leadership training", "team workshop",
+    "analysis paralysis", "execution accountability", "impact vs effort matrix",
+    "team observation", "tower exercise", "divergent thinking", "convergent thinking",
+    "psychological safety", "team facilitation", "facilitate a team"
+  ],
+  "overview": "The Get the Job — Team Problem Solving content gives advisors a complete facilitated team exercise system — covering two experiential exercises (Paper Tower and Spaghetti Tower), an analytical scoring model, a structured observational debrief, and a 9-step problem-solving framework to apply back at the workplace. The exercises create a high-pressure microcosm of the workplace, exposing real team dynamics in a safe environment. Advanced content suited to experienced advisors delivering off-site retreats, strategic planning days, or leadership development programs.",
+  "diagnostic_entry": {
+    "primary_question": "What is the primary goal of this session — testing resource management and financial planning under pressure (Paper Tower), pure creativity and structural problem-solving (Spaghetti Tower), or teaching a structured problem-solving framework to a team that struggles to execute?"
+  },
+  "support_tools": [
+    {
+      "name": "Experiential Team-Building Task Sheets",
+      "purpose": "Two ready-to-use constrained team exercises — the Paper Tower Task Sheet and the Spaghetti Tower Task Sheet — designed to test planning, communication, and execution under strict resource and time pressure.",
+      "core_principle": "Constrained exercises expose real team dynamics that cannot be simulated in a discussion. The advisor's role during the exercise is to observe silently — not to intervene. Every breakdown observed becomes evidence for the debrief.",
+      "when_to_use": "At off-site retreats, strategic planning days, or leadership training programs. Choose Paper Tower when the goal is to test resource management and financial planning under pressure. Choose Spaghetti Tower when the goal is pure creativity and structural problem-solving.",
+      "key_benefits": [
+        "Both exercises have identical timing: 20 minutes preparation + 10 minutes construction — no prefabrication allowed",
+        "Paper Tower involves resource cost management ($2,000 per batch of 20 sheets) — connects the exercise to financial planning",
+        "Spaghetti Tower uses brittle materials and a top-heavy constraint (marshmallow) — tests structural creativity under stress",
+        "The advisor steps back and observes real leadership styles, communication breakdowns, and decision-making patterns in real-time"
+      ],
+      "advisor_confidence_note": "Do not touch the exercise once it begins. Your job during the 30 minutes is to observe and document — not to guide, encourage, or help. Write down specific quotes with exact timestamps (e.g., 'At 2:42, Jim said...'). For the Paper Tower, act as the supplier: hand out paper in batches of 20 and record usage. These observations are the raw material of your debrief.",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Introduce the Exercise",
+          "steps": [
+            { "name": "Select and distribute the task sheet", "guidance": "Choose Paper Tower (resource management focus) or Spaghetti Tower (creativity focus) based on the session goal. Distribute the task sheet and read the constraints out loud to the group." },
+            { "name": "State the rules clearly", "guidance": "Emphasise: 20 minutes preparation, 10 minutes construction, no prefabrication. For the Paper Tower, explain that materials cost $2,000 per batch of 20 sheets and that you (the advisor) are the supplier." }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Observe and Document",
+          "steps": [
+            { "name": "Act as a silent observer", "guidance": "Do not intervene during the 30-minute exercise. Document specific quotes, behaviours, and timestamps of when critical decisions were made or when the process broke down." },
+            { "name": "Measure the result", "guidance": "Once build time expires, measure the tower from the surface. Confirm it is self-supporting for at least one minute. For Paper Tower, record height and materials used for input into the scoring model." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Paper Tower Model (Analytical & Scoring Tool)",
+      "purpose": "A financial scoring spreadsheet that calculates the fictional Profit or Loss of the Paper Tower exercise — based on material costs ($2,000 per batch of 20 sheets), time taken, and height achieved (with a $10,000 bonus for exceeding 2400mm).",
+      "core_principle": "The point of the exercise is not to build the tallest tower — it is to execute a profitable business strategy. Revenue (height) must be balanced against operational expenses (paper costs) and labour (time). Teams that maximise height at any cost often generate a loss.",
+      "when_to_use": "Immediately after the Paper Tower construction phase. Input the team's actual material usage, time, and height to calculate their final profit or loss figure before beginning the debrief.",
+      "key_benefits": [
+        "Transforms a team-building game into a tangible financial exercise with real numbers",
+        "Gives the advisor quantitative data to challenge the team during the debrief — not just observational feedback",
+        "Teaches the importance of running a financial calculation before commencing construction — not after",
+        "Teams that failed to plan financially often produced a loss despite building a tall tower — a powerful debrief insight"
+      ],
+      "advisor_confidence_note": "Complete the scoring calculation before beginning the debrief. The profit/loss result is your opening data point: 'Your tower was [height]mm. You used [x] batches of paper at $2,000 each. Your final result was a [profit/loss] of $[amount]. Did you run this calculation before you started building?' This immediately grounds the debrief in evidence."
+    },
+    {
+      "name": "Debrief Framework",
+      "purpose": "A structured observational debrief using the Paper Tower Review Questions — guiding the advisor to read back time-stamped observations, ask targeted questions about planning versus execution, and transition into the 9-Step Framework.",
+      "core_principle": "The debrief is where the real learning happens. Generic questions produce generic answers. Time-stamped observations (what was seen and heard at specific moments during the exercise) make the debrief specific, credible, and impossible to deflect.",
+      "when_to_use": "Immediately after measuring the towers. The debrief must follow the exercise directly — allowing time to pass reduces the emotional connection to what just happened.",
+      "key_benefits": [
+        "Time-stamped observations from the advisor's notes are specific and undeniable — they shift the debrief from opinion to evidence",
+        "Structured opening questions (Did you have fun? Did you run a financial calculation? Were you outcome-oriented or process-driven?) establish the debrief frame",
+        "Research-backed framework (referencing HBR and McKinsey) elevates the advisor's authority during the debrief",
+        "Bridges the gap between the exercise experience and the 9-Step Framework that follows"
+      ],
+      "advisor_confidence_note": "Open the debrief by asking if they had fun — this releases the tension from the exercise. Then immediately read back your time-stamped observations: 'At 2:42 into the exercise, [name] said [exact quote]. At 8:15, the team had used [x] batches of paper without measuring the height. What was happening in the team at that moment?' Do not interpret — observe and ask.",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Open the Debrief",
+          "steps": [
+            { "name": "Release the tension", "guidance": "Ask: 'Did you have fun?' Allow the group to laugh and decompress before transitioning to the analysis." },
+            { "name": "Present the financial result", "guidance": "Share the profit/loss calculation from the Paper Tower Model. Ask: 'Did anybody complete a financial calculation prior to developing the construction plan?'" }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Read Back Observations",
+          "steps": [
+            { "name": "Use time-stamped observations", "guidance": "Read back specific quotes and behaviours from your notes with exact timestamps. Do not interpret or judge — simply state what you observed and ask the team what was happening at that moment." },
+            { "name": "Ask the key diagnostic questions", "guidance": "Ask: 'Were you outcome-oriented or process-driven?' and 'Did one person take the lead, and how was that decision made?' These questions surface the team dynamics that drove the result." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9-Step Problem Solving Framework",
+      "purpose": "A facilitator's slide deck (Team Problem Solving) outlining a structured 9-step organisational problem-solving process — from appointing a Chairperson and Timekeeper through to allocating resources and appointing an Enforcer to take ownership of the Action Plan.",
+      "core_principle": "Teams fail because they jump straight to solutions without a shared understanding of the problem. The 9-step framework separates divergent thinking (brainstorming) from convergent thinking (selecting the best option) and assigns operational ownership to prevent the momentum from dissipating.",
+      "when_to_use": "After the debrief — present the framework as the 'back at work' application of what was observed during the exercise. Also used standalone when a team suffers from analysis paralysis, lacks structured meeting processes, or has a history of good ideas that never get implemented.",
+      "key_benefits": [
+        "Step 3 (Determine the Objective) addresses the most common failure — teams jump to solutions before defining a S.M.A.R.T. objective",
+        "Step 5 (Brainstorm Without Assessment) enforces psychological safety — no ideas are rejected during the generation phase",
+        "Step 7 (Eliminate and Select Best Option) uses the Impact vs. Effort Matrix to focus on high-impact, lower-effort solutions",
+        "Step 9 (Appoint an Enforcer) ensures the Action Plan has a dedicated owner who monitors milestones and reports back"
+      ],
+      "advisor_confidence_note": "Present the 9-step framework as the antidote to what the team just experienced in the exercise. Connect each step back to a specific observation from the debrief — 'In the exercise, you jumped straight to building without defining what success looked like. Step 3 addresses exactly this.' Conclude the session by having the team identify their Enforcer for a real back-at-work application.",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Present the Framework",
+          "steps": [
+            { "name": "Connect the framework to the exercise", "guidance": "Explain that the team just demonstrated the most common problem-solving failure: jumping to solutions without a shared understanding of the problem. Use their exercise behaviour as the context." },
+            { "name": "Walk through the 9 steps", "guidance": "Present each step using the Team Problem Solving slide deck. Start with Step 1 (appoint a Chairperson and Timekeeper) and build through to Step 9 (Enforcer and Action Plan)." }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Apply Back at Work",
+          "steps": [
+            { "name": "Brainstorm a real application", "guidance": "Ask the team to identify a real workplace problem they can apply the 9-step framework to. Run a short demonstration of Steps 1–5 using their actual problem." },
+            { "name": "Appoint the Enforcer", "guidance": "Conclude by having the team nominate an Enforcer for the back-at-work application. The Enforcer takes psychological and operational ownership of the Action Plan — monitors milestones and reports back. A solution without an Enforcer is merely a wish." }
+          ]
+        }
+      ]
+    }
+  ],
+  "advisor_guidance": {
+    "observer_discipline": "The advisor's job during the exercise is silent observation — not facilitation. Resist the urge to help, guide, or encourage. Every moment of struggle you allow to play out becomes evidence for a more powerful debrief.",
+    "debrief_specificity": "Generic debrief questions produce generic answers. Time-stamped observations make the debrief specific and credible. 'At 2:42, Jim said...' is worth more than 'I noticed the group struggled to communicate.'",
+    "enforce_brainstorming_rule": "The single most important rule in the 9-Step Framework is: no assessment during brainstorming. Enforce it without exception. Premature assessment kills divergent thinking and reduces the quality of the final solution."
+  },
+  "if_then_logic": [
+    {
+      "condition": "The client wants to test resource management and financial planning under pressure",
+      "action": "Select and distribute the Paper Tower Task Sheet. Use the Paper Tower Model spreadsheet to calculate the profit or loss result after the build.",
+      "context": "The Paper Tower exercise forces the team to balance material cost ($2,000 per batch) against revenue (height) to achieve profitability — connecting the exercise directly to financial planning."
+    },
+    {
+      "condition": "The client wants a pure creativity and structural problem-solving challenge without the financial dimension",
+      "action": "Select and distribute the Spaghetti Tower Task Sheet.",
+      "context": "The Spaghetti Tower focuses purely on height and structural integrity using highly brittle materials (spaghetti) and a top-heavy constraint (marshmallow). No financial model required."
+    },
+    {
+      "condition": "The 30-minute exercise concludes and the towers are measured",
+      "action": "Transition immediately to the Paper Tower Review Questions. Open with 'Did you have fun?', then read back time-stamped observations from your notes.",
+      "context": "State exactly what you saw and heard. Ask if they were outcome-oriented or process-driven. The debrief must follow the exercise directly while the experience is still fresh."
+    },
+    {
+      "condition": "The team failed the exercise because they immediately started building without a plan",
+      "action": "Present Step 3 of the Team Problem Solving deck: 'Determine the Objective.' Explain that the most common failure is jumping to solutions without a S.M.A.R.T. objective.",
+      "context": "A S.M.A.R.T. objective must state not only what is being done, but why it is important. Teams that skip this step cannot evaluate whether their solution is working."
+    },
+    {
+      "condition": "Team members are arguing or shooting down each other's ideas during the brainstorming phase of the 9-step framework",
+      "action": "Enforce Step 5: Brainstorm Without Assessment. Remind the team that judgment must be deferred entirely. Congratulate all contributions.",
+      "context": "Premature assessment is the most frequent failure point in brainstorming. Psychological safety must be enforced by the facilitator — it will not emerge naturally under pressure."
+    },
+    {
+      "condition": "The team has selected a great idea but has a history of failing to implement",
+      "action": "Enforce Steps 8 and 9: allocate resources and appoint an Enforcer who takes operational ownership of the Action Plan.",
+      "context": "A solution without a budget or a dedicated owner is merely a wish. The Enforcer monitors milestones and reports back — ensuring the ROI of the session is realised."
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "domain": "get-sales",
+  "label": "Get the Job — Learning to Sell",
+  "trigger_keywords": [
+    "learning to sell", "sales prompts", "introduction prompts", "scoping prompts",
+    "presentation prompts", "implementation rationale", "decision tree",
+    "SPIDER", "lite sales", "total needs selling", "campaign selling",
+    "first meeting", "discovery session", "foreplay script", "check time",
+    "call out the ghosts", "trial closing", "emotional intensity gap",
+    "must have nice to have", "walk away price", "sales structure",
+    "8 pathways", "modular delivery", "bespoke selling", "how to sell",
+    "sell advisory", "win advisory work", "close a deal", "handle objections",
+    "sales process", "sales approach", "prospect meeting", "pitch"
+  ],
+  "overview": "The Get the Job — Learning to Sell content provides a comprehensive advisory sales framework aligned to advisor confidence and client complexity. It contrasts Campaign-based selling (pre-packaged modules for simpler clients) with Total Needs selling (bespoke, exploratory approach for complex, high-value clients). A central Decision Tree guides the advisor to the right path. Six core templates cover the full sales journey — from the first meeting through to negotiation and close. Intermediate-level content suited to senior advisors focused on fee growth.",
+  "diagnostic_entry": {
+    "primary_question": "Which stage of the sales process are you working on — first meeting preparation, choosing between Campaign and Total Needs approach, running a scoping session, presenting a proposal, or closing and negotiating?"
+  },
+  "support_tools": [
+    {
+      "name": "Introduction Prompts",
+      "purpose": "Scripted conversation guides for the crucial first meeting — moving from rapport-building ('Foreplay') through to a structured business discussion, using the 'Event, Cause & Effect' storytelling model to establish credibility without interrogating the prospect.",
+      "core_principle": "The first meeting must eliminate anxiety, not create it. By defining the meeting objective upfront, using 'Check Time' and 'Ask Permission' scripts, and sharing a relevant Common Problem story, the advisor maintains control while the prospect relaxes and opens up.",
+      "when_to_use": "For all initial discovery sessions and early-stage prospect meetings where trust is still being established. Use before any scoping, sales, or proposal work begins.",
+      "key_benefits": [
+        "Structured 'Foreplay' script builds genuine rapport before any business discussion begins",
+        "'Check Time' establishes a professional boundary and signals that the advisor respects the prospect's schedule",
+        "'Ask Permission' scripts allow the advisor to transition into business conversation naturally — without feeling abrupt",
+        "The 'Event, Cause & Effect' storytelling model builds credibility through empathy, not credentials"
+      ],
+      "advisor_confidence_note": "Open every first meeting with Foreplay — not with your credentials or a product pitch. State the meeting objective clearly within the first few minutes. Share a Common Problem story relevant to this prospect's situation to build empathy. Confirm at the end whether they are open to a more detailed scoping session before leaving.",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Open the Meeting",
+          "steps": [
+            { "name": "Foreplay and rapport", "guidance": "Use the Foreplay script to build genuine connection before any business talk. Do not rush this stage." },
+            { "name": "Check Time and set objectives", "guidance": "Use the Check Time script to establish a professional boundary. State the meeting objective clearly so both parties know what this conversation is and is not." }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Build Credibility and Agree Next Steps",
+          "steps": [
+            { "name": "Share a Common Problem story", "guidance": "Use the Event, Cause & Effect model to share a relevant story that builds empathy and credibility. Make it about a situation the prospect will recognise — not about your achievements." },
+            { "name": "Confirm next steps", "guidance": "Ask permission to explore further. Confirm whether they are open to a more detailed scoping session before leaving the meeting." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lite Sales Prompts (SPIDER)",
+      "purpose": "A 6-step Campaign sales track built around the SPIDER acronym for selling pre-packaged advisory programs (e.g., Lite Fundamentals) to smaller, less complex clients. Designed to complete the sale in 1–2 sessions.",
+      "core_principle": "Simplify the sale into six clear steps. Do not reveal the solution until the client has agreed to the three conditions for working together — this sequence ensures the client is invested before the offer is made.",
+      "when_to_use": "For smaller, less complex clients where a pre-packaged program (Modular/Campaign delivery) is the right fit. Not appropriate for complex bespoke engagements — use the Scoping Prompts for those.",
+      "key_benefits": [
+        "Provides a repeatable, step-by-step sales structure — removes guesswork for less experienced advisors",
+        "The Growth Curve (Pin step) places the client in their business context visually — they see themselves in the story",
+        "The Revenue Model (Determine/Dangle step) quantifies the financial upside of fixing their constraints",
+        "Conditions must be agreed before the solution is revealed — this pre-commitment is essential to the close"
+      ],
+      "advisor_confidence_note": "Follow SPIDER in sequence — do not skip to the Reveal until the Ensure step is complete. The three conditions (commit time, take action, agree to a monthly fee) must be agreed before you reveal the program. Revealing prematurely removes your negotiating position.",
+      "key_script": "S — Show your get-out-of-jail card (why you are here and what you are not doing). P — Pin the tail on the donkey (place them on the Growth Curve). I — Investigate blockages (what is holding them back). D — Determine/Dangle the prize (the Revenue Model and upside). E — Ensure conditions are agreed (time, action, monthly fee). R — Reveal the golden key (the program).",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Set Up and Investigate",
+          "steps": [
+            { "name": "Show (get-out-of-jail card)", "guidance": "Open by establishing your credibility and clarifying that you are not here to sell anything today — you are here to understand their situation." },
+            { "name": "Pin (Growth Curve placement)", "guidance": "Map the client's business onto the Growth Curve. Let them see where they sit on the journey and what the next stage looks like." },
+            { "name": "Investigate (blockages)", "guidance": "Ask what is holding them back from reaching the next stage. Listen more than you talk. These constraints become the basis of your offer." }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Build the Offer and Close",
+          "steps": [
+            { "name": "Determine/Dangle (Revenue Model)", "guidance": "Show them the financial upside of fixing their constraints using the Revenue Model. Make the prize tangible and specific to their numbers." },
+            { "name": "Ensure (conditions agreed)", "guidance": "Before revealing the program, get agreement on the three conditions: they must commit their time, take action, and agree to a monthly fee. No conditions, no reveal." },
+            { "name": "Reveal (the program)", "guidance": "Present the Lite Fundamentals program (or relevant module) as the vehicle for achieving the outcome you have built together. The reveal should feel like a natural conclusion, not a pitch." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Scoping Prompts",
+      "purpose": "A structured framework for conducting a deep-dive, 1.5-hour fact-finding session ('Total Needs' scoping) that explores the internal drivers of the business without immediately proposing solutions.",
+      "core_principle": "The discovery phase and the solution phase are strictly separate. Never propose solutions in a scoping session. Your job is to challenge their thinking and understand their unique situation — a rough price estimate at the end is acceptable, but a commitment is not.",
+      "when_to_use": "For complex, bespoke 'Total Needs' engagements where understanding the specific nuances of the client's business is mandatory before presenting a proposal. Use after the Introduction meeting when both parties agree to go deeper.",
+      "key_benefits": [
+        "Separates discovery from solution — the client never feels rushed toward a premature outcome",
+        "Privacy statements at the start reassure the client that the session is confidential and exploratory",
+        "A rough price estimate ('between $x and $y') qualifies the prospect's budget early without a hard quote commitment",
+        "Establishes that the advisor is here to challenge thinking, not fill out a survey — sets the tone for a peer-level conversation"
+      ],
+      "advisor_confidence_note": "Schedule 1.5 hours and protect the time. Open the session with a privacy statement and make it clear you are here to understand their unique situation — not to present a predetermined solution. At the end, provide a rough budget range to test their appetite. Book the Presentation meeting before leaving.",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Set Up the Session",
+          "steps": [
+            { "name": "Establish the session frame", "guidance": "Open with a privacy statement. Explain that today you are here to challenge their thinking and understand their unique situation — not to fill out a form or present a solution." },
+            { "name": "Guide the fact-find", "guidance": "Work through the scoping questions systematically. Explore the internal drivers — planning, data, marketing, sales, people, process. Do not propose solutions at this stage." }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Close the Scoping Session",
+          "steps": [
+            { "name": "Provide a rough budget estimate", "guidance": "At the end, provide a non-binding price range ('between $x and $y') to qualify whether the prospect is in the right budget range. This is not a quote — it is a filter." },
+            { "name": "Book the Presentation meeting", "guidance": "Before leaving, book the Presentation meeting. You will return with the full proposal. Do not leave without a confirmed next meeting in the diary." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Presentation Prompts",
+      "purpose": "A structured guide for the 'Reveal' meeting — presenting the tailored solution or formal proposal while systematically neutralising objections using 'Calling out the ghosts' and 'Trial Closing' techniques.",
+      "core_principle": "Name the objections before the client raises them. 'Calling out the ghosts' removes the emotional charge from known concerns before they derail the presentation. Trial Closing throughout the meeting ensures you are reading the room accurately.",
+      "when_to_use": "For the pivotal meeting where the tailored solution or formal proposal is presented, leading up to the final implementation decision.",
+      "key_benefits": [
+        "'Call out the ghosts' — proactively name price concerns, delivery concerns, or timing objections at the start of the presentation to defuse them before they escalate",
+        "Trial Closing ('How does this look/feel/sound?') throughout the presentation confirms alignment and prevents surprises at the close",
+        "Setting the scene (confirming nothing has changed since the scoping session) re-anchors the proposal in the client's current reality",
+        "Transparent approach — neither party must commit to an unworkable deal — reduces the emotional charge of negotiation"
+      ],
+      "advisor_confidence_note": "Open the Presentation meeting by setting the scene — confirm that nothing has changed in their business since you last spoke. Then immediately call out the ghosts: name the likely objections (price, timing, internal buy-in) before the client can raise them. Use trial closing after each major section: 'How does this look from your perspective?'",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Set the Scene and Call Out Ghosts",
+          "steps": [
+            { "name": "Set the scene", "guidance": "Confirm nothing has changed in their business since the scoping session. Re-anchor the proposal in the client's stated situation before revealing anything." },
+            { "name": "Call out the ghosts", "guidance": "Proactively name the likely objections (price, delivery timeline, internal approval) at the start of the presentation. Parking concerns upfront removes their emotional charge." }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Reveal and Trial Close",
+          "steps": [
+            { "name": "Reveal the offer with trial closing", "guidance": "Present the proposal section by section. After each major section, use a trial close: 'How does this look/feel/sound?' — test receptiveness before moving on." },
+            { "name": "Agree next steps", "guidance": "Confirm implementation timing, fee structure, and next steps. Do not leave the meeting without a clear decision or a defined pathway to one." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Implementation Rationale",
+      "purpose": "A negotiation framework for the final closing meeting — managing the 'Emotional Intensity Gap' (the difference between client expectations and reality), defining 'must have' versus 'nice to have' boundaries, and handling lingering objections to reach a win-win agreement.",
+      "core_principle": "Know your walk-away price before you walk in. Maintaining emotional detachment from the outcome allows the advisor to negotiate from a position of strength rather than desperation. Unexpected objections are legitimate feedback — not attacks to be defended against.",
+      "when_to_use": "For final-stage closing meetings where the goal is to finalise contracts, define negotiation boundaries, and handle any remaining objections before signing.",
+      "key_benefits": [
+        "Differentiates 'must have' terms (e.g., the minimum fee required) from 'nice to have' terms (e.g., upfront payment) — prevents unnecessary concessions",
+        "Emotional detachment from the outcome keeps the advisor objective when unexpected objections arise",
+        "Objections treated as legitimate feedback ('On a scale of 1-10, how critical is this issue?') invite the client to co-solve rather than defend",
+        "Allows the advisor to exit gracefully from unprofitable engagements — leaving the door open for 6–12 months later"
+      ],
+      "advisor_confidence_note": "Enter the final meeting knowing your 'must have' boundaries. If an unexpected objection arises, scale it first: 'On a scale of 1-10, how critical is this to moving forward?' Then state your reply without judgment and ask: 'How do you think we could both get around this?' Never defend your position — invite the client to solve the problem with you."
+    },
+    {
+      "name": "Decision Tree & Sales Structure",
+      "purpose": "A flowchart and psychological selling framework that guides the advisor to the right sales approach (Modular/Campaign vs. Bespoke/Total Needs) based on the advisor's confidence level and the client's complexity and processing style.",
+      "core_principle": "Remove the guesswork before the first call. The Decision Tree identifies the right pathway — Free Client Content for new advisors, Lite Fundamentals campaign for simpler clients, Total Needs for complex high-value clients. The Sales Structure covers the psychological underpinnings: buying motives, processing styles, and stages of consumer awareness.",
+      "when_to_use": "Before contacting any prospect — use as a triage tool to categorise the lead and select the right presentation and scoping pathway. Also used for understanding the four processing styles (Activist, Pragmatist, Reflector, Theorist) when tailoring communication.",
+      "key_benefits": [
+        "Removes guesswork from lead categorisation — the tree routes to the right approach based on objective criteria",
+        "New advisors are directed to Free Client Content — a soft entry that builds confidence without a premature close",
+        "Processing styles (Honey & Mumford) allow the advisor to tailor communication to how the specific prospect makes decisions",
+        "Clearly distinguishes Campaign (faster, pre-packaged, lower fee) from Total Needs (exploratory, bespoke, higher fee) so the advisor can manage their time appropriately"
+      ],
+      "advisor_confidence_note": "Run every new prospect through the Decision Tree before the first contact. The key question is: is this a smaller, simpler business suited to a pre-packaged Campaign, or a larger, complex business requiring a bespoke Total Needs approach? Match the pathway to the prospect — not to what you feel most comfortable delivering.",
+      "if_then_logic": [
+        {
+          "condition": "Advisor is new or less confident and the prospect has low business complexity",
+          "action": "Route to Free Client Content — this provides a soft experience with no specific offer at the end, removing the pressure to close and setting the stage for future discussions.",
+          "context": "Free Client Content builds the relationship without requiring the advisor to pitch. It is the correct entry point for newer advisors."
+        },
+        {
+          "condition": "Prospect fits a smaller business profile and is open to a pre-packaged program",
+          "action": "Route to the Lite Fundamentals Campaign track using SPIDER sales prompts.",
+          "context": "Campaign selling is faster to complete (1–2 sessions) and suited to less complex client situations."
+        },
+        {
+          "condition": "Prospect is a larger, commercially aware business with complex or unique problems",
+          "action": "Route to Total Needs — schedule a 1.5-hour scoping session and use the Scoping Prompts and General Advisory Proposal.",
+          "context": "Total Needs selling is bespoke, takes more time, and yields larger fees. Do not use a campaign approach with a complex client."
+        },
+        {
+          "condition": "Prospect appears to be an 'Activist' processing style — wants quick action and immediate results",
+          "action": "Adapt communication to be fast, decisive, and action-oriented. Present the next step clearly and immediately.",
+          "context": "Activists disengage when presented with too much process or theory. Lead with outcomes."
+        },
+        {
+          "condition": "Prospect appears to be a 'Reflector' processing style — needs time to think before deciding",
+          "action": "Give them time. Do not push for an immediate decision. Provide a summary and agree on a follow-up date.",
+          "context": "Reflectors make better decisions when not rushed. Respecting their process builds trust."
+        }
+      ]
+    }
+  ],
+  "advisor_guidance": {
+    "campaign_vs_total_needs": "Campaign selling involves a pre-packaged modular solution — faster, lower fee, suitable for simpler clients. Total Needs selling is explorative and bespoke — more time, higher fee, suited to complex clients with unique problems. Never apply a campaign approach to a complex client, and never over-engineer a simple engagement into a Total Needs process.",
+    "new_advisor_start": "New advisors should start with Free Client Content. This provides a soft sales experience with no forced close — it builds confidence and sets the stage for future paid work without the pressure of a premature pitch.",
+    "objection_handling": "The most effective strategy for objections is to call them out before the client raises them. Name the likely concerns at the start of the Presentation meeting. If an unexpected objection arises late, scale it, state your reply without judgment, and invite the client to co-solve."
+  }
+}

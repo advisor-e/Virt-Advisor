@@ -1,0 +1,128 @@
+{
+  "domain": "get-seminar",
+  "label": "Get the Job — Seminar Delivery",
+  "trigger_keywords": [
+    "seminar", "presentation", "public speaking", "platform skills", "seminar delivery",
+    "powerful seminars", "CPD hierarchy", "concept principle detail", "WIIFM",
+    "what's in it for me", "magic formula story", "MFS", "storytelling",
+    "blank platform template", "30 to 40 presentation", "growth stage seminar",
+    "forecast presentation", "funny stories", "event protocol", "selling out of bounds",
+    "feedback form", "seminar entertainment", "run a seminar", "lead a workshop",
+    "present to clients", "boot camp", "networking event", "call to action",
+    "seminar design", "client seminar", "prospect seminar"
+  ],
+  "overview": "The Get the Job — Seminar Delivery content gives advisors a complete system for designing, delivering, and following up on professional seminars and group presentations. It covers four areas: structured seminar design using the CPD Hierarchy (Concept, Principle, Detail), educational slide decks for client presentations, storytelling frameworks for credibility and engagement, and event protocols for professional networking. Advanced content suited to experienced advisors ready to build their platform presence.",
+  "diagnostic_entry": {
+    "primary_question": "Which aspect of seminar delivery are you working on — designing the presentation structure, building educational content, developing your storytelling, or managing event protocols and post-event follow-up?"
+  },
+  "support_tools": [
+    {
+      "name": "Seminar Design & Delivery Templates",
+      "purpose": "A complete architecture for designing and delivering professional public presentations — covering the CPD Hierarchy (Concept, Principle, Detail), structured run-sheets (Blank Platform Template, 30 to 40 Presentation Template), and pre-planned connection and call-to-action strategies.",
+      "core_principle": "Poor delivery is caused by poor design. The CPD Hierarchy forces the presenter to limit details to three per principle, pre-plan their WIIFM (What's In It For Me) statements for the audience, and structure every presentation so the call to action feels like a natural invitation — not a hard sell.",
+      "when_to_use": "When designing any client boot-camp, team workshop, or lead-generation seminar. Use the Powerful Seminars guide first to define the target audience and desired outcomes, then build the deck using the Blank Platform or 30 to 40 Template.",
+      "key_benefits": [
+        "CPD Hierarchy prevents information overload — the brain can only absorb what the backside can endure",
+        "WIIFM statements pre-planned for each concept connect the content to the audience's core values (survival, recognition, belonging)",
+        "Blank Platform Template provides a slide-by-slide structure: connect → frame relevance → deliver → call to action",
+        "30 to 40 Presentation Template is an operational run-sheet with agenda timings, chunking layout, and a Design Summary Table"
+      ],
+      "advisor_confidence_note": "Start with the Powerful Seminars guide before touching the slide deck. Define your target audience and desired outcomes in writing first — then build the presentation to serve those outcomes. Limit yourself to a maximum of 3 details per principle. If you have more, cut them.",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Design the Seminar",
+          "steps": [
+            { "name": "Define audience and outcomes", "guidance": "Use the Powerful Seminars guide to write down exactly who you are presenting to and what you want them to think, feel, and do by the end. Do not open a slide deck until this is clear." },
+            { "name": "Apply the CPD Hierarchy", "guidance": "Structure each section: Concept (the big idea) → Principle (the rule or framework) → Detail (maximum 3 supporting points per principle). Cut anything beyond 3 details per principle — it will overwhelm the audience." }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Build and Rehearse",
+          "steps": [
+            { "name": "Build the deck using a platform template", "guidance": "Open the Blank Platform Template or 30 to 40 Presentation Template. Map out timings for each section. Insert educational content (Growth Stage Seminar or Forecast Presentation slides) into the Deliver stage." },
+            { "name": "Pre-plan WIIFM statements", "guidance": "For each major concept, write the WIIFM statement: why does this matter to this specific audience? Connect it to their core values — survival, financial security, recognition, or status — before presenting." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Strategic Education Presentations",
+      "purpose": "Pre-built visual slide decks for educating clients on high-level business concepts — including the Growth Stage Seminar (9 stages of a business lifecycle) and the Forecast Presentation (reframing cash flow forecasting as scenario planning rather than a 'diet').",
+      "core_principle": "Elevate the advisor from transactional accountant to strategic partner by showing clients the big picture. Replace the 'pass-fail' mentality of standard budgeting with probability thinking and bespoke revenue models.",
+      "when_to_use": "When presenting to existing clients looking to scale, or prospects attending a business growth seminar. Inserted into the 'Deliver' stage of the Blank Platform Template during the seminar build.",
+      "key_benefits": [
+        "Growth Stage Seminar maps the business through 9 chronological lifecycle stages (Design to Exit) — clients see exactly where they are and what comes next",
+        "Forecast Presentation removes the negative stigma of budgeting by reframing it as scenario planning for 'Best Probable' outcomes",
+        "Both decks elevate the advisory conversation from compliance and tax to strategy and growth",
+        "Visual format reduces the need for technical explanations — the slides do the heavy lifting"
+      ],
+      "advisor_confidence_note": "Use Growth Stage Seminar to position the client on their lifecycle — this creates the 'aha moment' that opens the door to deeper advisory work. Use the Forecast Presentation when the client associates budgeting with restriction — reframe it as a tool for building the 'Best Probable' scenario for their business."
+    },
+    {
+      "name": "Storytelling Frameworks",
+      "purpose": "A mechanical approach to crafting and delivering engaging narratives — the Magic Formula Story (four-part structure: The Draw, The Plot, The Reveal, The Close) and Funny Stories (7-step guide for timing, pacing, and punchline delivery).",
+      "core_principle": "Stories create a 'theatre in the mind' — a non-threatening environment where the audience internalises business lessons without feeling lectured at. The Magic Formula structure ensures credibility is established through empathy, not by bragging about experience.",
+      "when_to_use": "To break the ice at the start of a presentation, explain complex technical or cultural concepts without jargon, or re-engage an audience that has become passive. Use the MFS Drafting Template to script any dry or technical section of the agenda into a story.",
+      "key_benefits": [
+        "Magic Formula structure (Draw → Plot → Reveal → Close) builds the story to a clear business point without grandstanding",
+        "Third-party storytelling and metaphor establish credibility without triggering the audience's defensiveness",
+        "Funny Stories guide covers the 7 steps to mastering timing, pacing, and punchline delivery — turns anecdotes into effective presentation tools",
+        "MFS Drafting Template provides a worksheet for scripting any concept into a Magic Formula Story before the seminar"
+      ],
+      "advisor_confidence_note": "Review the dry or technical sections of your seminar agenda and build a Magic Formula Story for each one. Script your 'Draw' to capture attention (a connecting story, or calling out the ghosts in the room). Anchor your 'Plot' points sequentially. Make sure your 'Reveal' cleanly makes the business point before the 'Close'. Practice your pacing and pauses using the Funny Stories guide.",
+      "phases": [
+        {
+          "phase": 1,
+          "name": "Draft the Story",
+          "steps": [
+            { "name": "Use the MFS Drafting Template", "guidance": "For each dry or technical section of your agenda, use the template to build a Magic Formula Story. Define the Draw (attention hook), Plot (sequential anchor points), Reveal (the business point), and Close (the takeaway)." }
+          ]
+        },
+        {
+          "phase": 2,
+          "name": "Rehearse Delivery",
+          "steps": [
+            { "name": "Practice pacing and pauses", "guidance": "Review Funny Stories for the 7-step guide to timing, intonation, and punchline delivery. Rehearse the story out loud — the difference between a story that lands and one that falls flat is almost always in the delivery, not the content." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Event Protocol & Evaluation",
+      "purpose": "Rules of engagement for firm staff at hosted networking events (Seminar & Entertainment protocol guide) and a post-event feedback mechanism (get.feedback form) for measuring success, capturing leads, and improving future events.",
+      "core_principle": "The seminar is not over when the presentation ends. Post-seminar drinks are a relationship-building exercise — not a sales floor. Specific service questions from prospects must be deferred to a follow-up call, not answered in an uncontrolled social environment.",
+      "when_to_use": "Before any hosted client or prospect event — brief all attending staff using the protocol guide. After the presentation concludes, distribute the feedback form before guests leave.",
+      "key_benefits": [
+        "Trains introverted or junior staff on how to 'work the room' without becoming an 'anchor in the corner'",
+        "The 'one drink behind' rule and body positioning guidelines ensure professional, welcoming behaviour throughout the event",
+        "The feedback form captures leads, content preferences, and willingness to attend future events — converting the evening into a pipeline asset",
+        "The 'Selling out of bounds' protocol protects both the advisor (from giving uncontrolled advice) and the firm (from buyer's remorse claims)"
+      ],
+      "advisor_confidence_note": "Brief all attending staff before the event — not on the way in. Cover body positioning (how to approach and leave group circles without excluding others), the 'one drink behind' rule, and the protocol for handling specific service questions: acknowledge the interest and promise to call on Monday. Never give specific advice over drinks — you cannot control the environment, and it makes your hospitality seem transactional.",
+      "if_then_logic": [
+        {
+          "condition": "A prospect asks for specific advice about their business during post-seminar drinks",
+          "action": "Do not answer. Acknowledge the question positively and defer: 'That's great, I'd love to talk about that more — I'll give you a call Monday and we can go through it properly.'",
+          "context": "This is called 'Selling out of bounds.' The environment is uncontrolled, the advice can be misunderstood, and it makes the hospitality feel insincere. Always defer to a formal follow-up."
+        },
+        {
+          "condition": "Staff member is uncertain how to approach or leave a group conversation at a networking event",
+          "action": "Use the body positioning guidelines from the Seminar & Entertainment protocol — open body language to invite others into the circle; clear exit signals to leave without abruptly cutting off.",
+          "context": "Networking confidence is a trainable skill. The protocol guide covers these micro-behaviours explicitly."
+        },
+        {
+          "condition": "Presentation contains dense technical material that risks losing audience engagement",
+          "action": "Insert a CPD chunk break — instruct the audience to 'turn to the person next to you and discuss this for 45 seconds' to reset their energy.",
+          "context": "The brain can only absorb what the backside can endure. Audience interaction resets attention and embeds the content more effectively."
+        }
+      ]
+    }
+  ],
+  "advisor_guidance": {
+    "design_before_build": "Always complete the Powerful Seminars design phase before building the slide deck. Advisors who build slides first produce presentations that are technically full but strategically empty — they cover a lot, but achieve nothing specific.",
+    "cpd_discipline": "The CPD Hierarchy is a constraint, not a suggestion. Maximum 3 details per principle. If you have 5 details you feel are essential, you need to redesign the principle — not expand the limit.",
+    "selling_out_of_bounds": "Brief every staff member on the 'Selling out of bounds' rule before every event. This is the most commonly broken protocol. The rule is absolute: no specific service advice during the social portion. All specific questions are deferred to a Monday follow-up call."
+  }
+}

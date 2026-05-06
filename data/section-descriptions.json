@@ -87,4 +87,71 @@
     "description": "Templates for businesses that have outgrown informal management and need structured governance frameworks. Covers board agendas, board packs, governance introductions, risk management, leadership review, quality decision-making, and conduct protocols. These tools are particularly relevant for not-for-profit and publicly listed entities, as well as privately owned businesses at scale. They signal to the client that the advisor operates at a sophisticated level and is thinking about long-term organisational health, not just immediate problems.",
     "whenToUse": "When the client is a not-for-profit, publicly listed entity, or a privately owned business at Maturity or above. When the presenting issue involves board structure, decision-making, risk, leadership accountability, or multi-stakeholder communication. When the advisor has experience operating at a governance or board advisory level."
   }
+,
+  {
+    "section": "Get the Job - Sales Tracker",
+    "tier": "entry-level",
+    "advisorLevelNote": "Suitable for new and experienced advisors focused on fee growth",
+    "complexity": "Low",
+    "clientProfile": "N/A — advisor-facing tool, not used with clients directly",
+    "advisorProfile": "Any advisor focused on fee growth — new or experienced",
+    "engagementStyle": "Operational and analytical — systematic recording and review of sales activities, pipeline velocity, and referral networks",
+    "description": "A spreadsheet-based sales tracking system that creates a transparent record of sales activities, pipeline velocity, and referral networks. Designed to benefit both the advisor and the business owner by surfacing patterns and accountability. Entry-level material that suits any advisor committed to fee growth, regardless of experience.",
+    "whenToUse": "When an advisor wants to build discipline around business development, track their pipeline, or understand where their fees are coming from. A foundational starting point for any advisor focused on growing their fee base."
+  },
+  {
+    "section": "Get the Job - Marketing",
+    "tier": "entry-level",
+    "advisorLevelNote": "Suitable for new and experienced advisors",
+    "complexity": "Low to Medium",
+    "clientProfile": "N/A — advisor-facing content, though communication templates are used with clients",
+    "advisorProfile": "Any advisor looking to transition from tax compliance to high-value consulting. Suitable for both new and experienced advisors.",
+    "engagementStyle": "Strategic and communicative — provides communication templates, predictive modelling, and legal safeguards as a turnkey system",
+    "description": "Content designed to help advisors transition from basic tax compliance work to high-value consulting. Primarily strategic and communication in nature — a turnkey system with communication templates, predictive modelling, and legal safeguards to protect intellectual property, identify growth opportunities, and prevent financial surprises. Helps advisors frame their services as aspirational and build meaningful client relationships. Entry-level and accessible to all advisors.",
+    "whenToUse": "When an advisor wants to reposition themselves from compliance provider to trusted advisor, improve how they communicate their services, or build out their marketing approach. Suitable as an early resource in any course focused on practice growth or client relationship development."
+  },
+  {
+    "section": "Get the Job - Seminar Delivery",
+    "tier": "advanced",
+    "advisorLevelNote": "Better suited to senior and experienced advisors",
+    "complexity": "High",
+    "clientProfile": "N/A — advisor development content focused on public presentation and team leadership",
+    "advisorProfile": "Senior and experienced advisors who are ready to build presentation skills and lead educational team-building activities",
+    "engagementStyle": "Educational and presentational — professional public speaking strategies and leadership through team-building activities",
+    "description": "Materials covering educational team-building activities and professional presentation strategies aimed at improving leadership and mastering professional public speaking. Advanced content suited to senior advisors who are ready to present at a high level — seminars, group sessions, or team leadership contexts. Not appropriate for new or less experienced advisors.",
+    "whenToUse": "When an experienced advisor wants to develop their platform presence, run client or prospect seminars, or strengthen their ability to lead group learning experiences. Should appear in later sessions of a course, not as a starting point."
+  },
+  {
+    "section": "Get the Job - Positioning",
+    "tier": "intermediate",
+    "advisorLevelNote": "Better suited to senior advisors focused on fee growth",
+    "complexity": "Medium",
+    "clientProfile": "N/A — advisor identity and positioning content; influences how the advisor presents to all client types",
+    "advisorProfile": "Senior advisors focused on fee growth who are ready to work on their personal positioning and authority",
+    "engagementStyle": "Strategic and identity-focused — transitioning from transactional service provider to trusted authority by selling personal identity and values",
+    "description": "A comprehensive guide for advisors transitioning from transactional service providers to trusted authorities. The core focus is positioning — learning to sell one's personal identity and values rather than just a product or service, in order to build congruence and trust. Intermediate-level material suited to senior advisors who are fee-growth focused and ready to work on how they show up in the market.",
+    "whenToUse": "When a senior advisor wants to differentiate themselves, build authority in their market, or move beyond commodity pricing. Best placed in mid-to-late sessions of a course once selling fundamentals have been covered."
+  },
+  {
+    "section": "Get the Job - Learning to Sell",
+    "tier": "intermediate",
+    "advisorLevelNote": "Better suited to senior advisors focused on fee growth",
+    "complexity": "Medium",
+    "clientProfile": "N/A — framework for aligning advisor sales approach to client complexity",
+    "advisorProfile": "Senior advisors focused on fee growth who are ready to develop a more structured and client-calibrated sales approach",
+    "engagementStyle": "Consultative and framework-driven — contrasts campaign-based selling (pre-packaged modules) with total needs selling (bespoke, high-value engagements), guided by a central decision tree",
+    "description": "A comprehensive advisory sales framework that helps advisors align their sales and delivery methods with a client's specific level of business complexity. Contrasts campaign-based selling (pre-packaged modules for simpler needs) with total needs selling (bespoke approach for complex, high-value engagements). A central decision tree guides advisors through selecting the right path based on their own confidence and the prospect's receptiveness. Intermediate-level content suited to senior advisors focused on fee growth.",
+    "whenToUse": "When an advisor wants to develop a more deliberate and client-calibrated approach to winning new advisory work. Useful mid-course once foundational selling concepts have been introduced, particularly when the advisor is moving toward higher-value engagements."
+  },
+  {
+    "section": "Get the Job - Pricing & Proposals",
+    "tier": "intermediate",
+    "advisorLevelNote": "Better suited to senior advisors focused on fee growth",
+    "complexity": "Medium",
+    "clientProfile": "N/A — pricing and proposal tools used to formalise advisory engagements with clients",
+    "advisorProfile": "Senior advisors focused on fee growth who are ready to price advisory services confidently and present formal proposals",
+    "engagementStyle": "Practical and commercial — uses pricing matrices, proposal templates, and light fundamentals documents to build and present advisory fee structures",
+    "description": "A practical guide to utilising pricing models and proposal templates specifically designed for advisory services. Covers how to use the pricing matrix (inputting team rates to auto-calculate costs for scoping, research, and implementation), how to draft proposals that highlight both financial investment and client time commitment, and how to use light fundamentals documents with automated tables for service agreements. Intermediate-level content for senior advisors ready to price and present advisory work with confidence.",
+    "whenToUse": "When an advisor is ready to formalise their advisory pricing structure or present a professional proposal to a prospect. Best placed in later sessions of a selling-focused course, after positioning and approach methods have been covered."
+  }
 ]
