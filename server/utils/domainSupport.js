@@ -8,6 +8,18 @@ const { readFileSync, readdirSync } = require('fs')
 const { resolve } = require('path')
 
 const _cache = {}
+let _domainFiles = null
+
+function getDomainFiles () {
+  if (_domainFiles) { return _domainFiles }
+  const dataDir = resolve(process.cwd(), 'data')
+  try {
+    _domainFiles = readdirSync(dataDir).filter(f => f.endsWith('-domain-support.json'))
+  } catch (e) {
+    _domainFiles = []
+  }
+  return _domainFiles
+}
 
 function loadDomainSupport (domainId) {
   if (_cache[domainId]) { return _cache[domainId] }
@@ -92,9 +104,7 @@ function formatDomainSupportForPrompt (domainId) {
  * whose trigger_keywords best match the given query string.
  */
 function detectDomainForSession (query) {
-  const dataDir = resolve(process.cwd(), 'data')
-  let files = []
-  try { files = readdirSync(dataDir).filter(f => f.endsWith('-domain-support.json')) } catch (e) { return null }
+  const files = getDomainFiles()
 
   const lower = query.toLowerCase()
   let bestId = null
@@ -203,9 +213,7 @@ function formatDomainSummaryForDesign (domainId) {
  * Used in the design phase where conversations may span multiple domains.
  */
 function detectDomainsForDesign (query) {
-  const dataDir = resolve(process.cwd(), 'data')
-  let files = []
-  try { files = readdirSync(dataDir).filter(f => f.endsWith('-domain-support.json')) } catch (e) { return [] }
+  const files = getDomainFiles()
 
   const lower = query.toLowerCase()
   const scores = []

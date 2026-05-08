@@ -346,7 +346,8 @@ async function handleQuery (rawBody, res) {
       // Phase 2 questions
       advisorExperience: null,
       advisorConfidence: null,
-      advisorTimeframe: null,
+      advisorMeetingCount: null,
+      advisorMeetingDuration: null,
       // Flow state
       readyForRecommendation: false,
       recommendationDelivered: false,
@@ -592,8 +593,12 @@ async function handleQuery (rawBody, res) {
         text: 'How confident do you feel about delivering services in this type of situation — is this familiar territory, or more of a stretch for you personally?'
       },
       {
-        field: 'advisorTimeframe',
-        text: 'How long are you thinking for addressing these issues with this client, and how many meetings would you be comfortable committing to based on current workload?'
+        field: 'advisorMeetingCount',
+        text: 'How many meetings are you comfortable committing to with this client based on your current workload?'
+      },
+      {
+        field: 'advisorMeetingDuration',
+        text: 'How long are you planning for each meeting? Most templates need a minimum of 60 minutes — 90 minutes is more comfortable for a full delivery.'
       }
     ]
 
@@ -796,7 +801,8 @@ async function handleQuery (rawBody, res) {
       state.clientPersonality && state.clientPersonality !== 'pending' ? `Client personality/style: ${state.clientPersonality}` : '',
       state.advisorExperience && state.advisorExperience !== 'pending' ? `Advisor experience: ${state.advisorExperience}` : '',
       state.advisorConfidence && state.advisorConfidence !== 'pending' ? `Advisor confidence/willingness to stretch: ${state.advisorConfidence}` : '',
-      state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? `Advisor timeframe and meeting commitment: ${state.advisorTimeframe}` : ''
+      state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' ? `Meetings committed: ${state.advisorMeetingCount}` : '',
+      state.advisorMeetingDuration && state.advisorMeetingDuration !== 'pending' ? `Meeting duration planned: ${state.advisorMeetingDuration}` : ''
     ].filter(Boolean).join('\n')
 
     // Derive explicit exclusion and context rules from diagnostic answers
@@ -808,26 +814,27 @@ async function handleQuery (rawBody, res) {
     const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated/i.test(state.clientRaisedIssue)
 
-    // Extract meeting count from advisor timeframe answer — used to set a template floor.
-    // Range expressions ("two to three meetings") take the upper bound so the template
-    // floor covers every planned session.
-    const _timeframeText = state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? state.advisorTimeframe.toLowerCase() : ''
+    // Parse meeting count — upper bound of a range ("two to three") taken so capacity covers all planned sessions
+    const _meetingCountText = state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' ? state.advisorMeetingCount.toLowerCase() : ''
     const _meetingWordMap = { one: 1, two: 2, three: 3, four: 4, five: 5 }
-    const _rangeMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\s+(?:to|or|-)\s+(one|two|three|four|five|\d)\b.*\b(meeting|session|time)/i)
-    const _singleMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\b.*\b(meeting|session|time)/i)
-    const meetingNum = _rangeMatch
-      ? (_meetingWordMap[_rangeMatch[2]] || parseInt(_rangeMatch[2]) || null)
-      : _singleMatch
-        ? (_meetingWordMap[_singleMatch[1]] || parseInt(_singleMatch[1]) || null)
+    const _countRangeMatch = _meetingCountText.match(/\b(one|two|three|four|five|\d)\s+(?:to|or|-)\s+(one|two|three|four|five|\d)\b/i)
+    const _countSingleMatch = _meetingCountText.match(/\b(one|two|three|four|five|\d)\b/i)
+    const meetingNum = _countRangeMatch
+      ? (_meetingWordMap[_countRangeMatch[2]] || parseInt(_countRangeMatch[2]) || null)
+      : _countSingleMatch
+        ? (_meetingWordMap[_countSingleMatch[1]] || parseInt(_countSingleMatch[1]) || null)
         : null
 
-    // Detect if the advisor flagged a need to communicate price changes to clients.
-    // Include advisorConfidence — advisors often name the communication challenge there.
-    // No trailing \b so stem patterns (communicat, announc) match full words like
-    // "communicate", "communication", "announcing" etc.
-    const _communicationText = [state.situationPriority, state.situationDownstream, state.situationContext, state.advisorConfidence]
-      .filter(s => s && s !== 'pending').join(' ')
-    const hasPriceCommunication = /\b(communicat|price[s]?\s+(?:increase|rise|hike|change|up\b)|tell\s+(?:the\s+)?(?:client|customer)|announc|retain\s+client|losing\s+client|client[s]?\s+(?:leave|leav|left|retention|won.t\s+stay)|inform\s+(?:the\s+)?(?:client|customer)|pass\s+(?:it|the\s+cost|increase)\s+on|put(?:ting)?\s+(?:the\s+|their\s+)?price)/i.test(_communicationText)
+    // Parse meeting duration — 90+ minutes allows 2 templates per meeting, 60 minutes allows 1
+    const _durationText = state.advisorMeetingDuration && state.advisorMeetingDuration !== 'pending' ? state.advisorMeetingDuration.toLowerCase() : ''
+    const _longMeeting = /\b(90|ninety|hour\s+and\s+a?\s*half|1\.5|one\s+and\s+a?\s*half|120|two\s*hour|2\s*hour)\b/.test(_durationText)
+    const templatesPerMeeting = _longMeeting ? 2 : 1
+    const tier1Capacity = (meetingNum || 1) * templatesPerMeeting
+
+    // Detect price communication need from priority (Tier 1) and downstream (Tier 2)
+    const _pricePattern = /\b(communicat|price[s]?\s+(?:increase|rise|hike|change|up\b)|put(?:ting)?\s+(?:the\s+|their\s+)?price|pass\s+(?:it|the\s+cost|increase)\s+on|tell\s+(?:the\s+)?(?:client|customer)|inform\s+(?:the\s+)?(?:client|customer)|announc|retain\s+client|losing\s+client|client[s]?\s+(?:leave|leav|left|retention))\b/i
+    const hasPriceCommunicationTier1 = state.situationPriority && state.situationPriority !== 'pending' && _pricePattern.test(state.situationPriority)
+    const hasPriceCommunicationTier2 = state.situationDownstream && state.situationDownstream !== 'pending' && _pricePattern.test(state.situationDownstream)
 
     // Map industry answer to a specific industry template name if one exists in the library
     const industryText = (state.industry || '').toLowerCase()
@@ -853,12 +860,10 @@ ${recommendedRevenueModel ? `- An industry-specific revenue model exists for thi
 - KEY INSIGHT — frame this in the "How to approach it" section: The revenue/what-if model's deepest value is the gap it exposes — the difference between what the owner assumes the business delivers (revenue, costs, profit) and what the financials actually show. That gap is a direct window into the mindset behind every decision they make. An owner running on flawed assumptions will keep arriving at the same outcomes. Making the gap visible is what shifts them from assumption-driven to data-driven thinking. The advisor should position the model as the tool that makes this shift possible — not just a financial exercise, but a change in how the owner sees their own business.
 - DELIVERY METHOD RULE: ${clientRaisedIssue ? 'The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.' : 'The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method. In "How to approach it", explain the Cautious Reveal: establish WHY they need the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil\'s a plumber video before the meeting to prime awareness.'}
 ${reportsYes ? '- This client already uses financial management reports regularly. Do NOT recommend the Working Capital Cycle or any basic financial literacy or financial awareness templates — they are beneath this client\'s level. Only recommend templates appropriate for a financially informed client.' : ''}
-${reportsNo ? '- This client does NOT currently use financial management reports — they are running without financial visibility. You MUST include a financial dashboard or management reporting template as part of the engagement. Look in the provided template list for a dashboard, reporting session, or financial data presentation template and include it as a dedicated recommendation with its own session.' : ''}
+${reportsNo ? `- FINANCIAL EDUCATION: This client does not use financial management reports. Include a financial education template in TIER 2 (future consideration). To select the correct one, match the client's described situation to the most relevant theme in the Financial Management Progression Table below — read the Problem column and find the closest match. The Suggested Template from that theme is what you must include. Do NOT use Debtor Protocols, Revenue Models, or other operational tools to satisfy this requirement.\n- CRITICAL: Do NOT describe this client as using, having access to, or being familiar with management reports at any point in your response. Their situation is that they do not use reports — every template description and all explanatory prose must reflect this. Writing anything that implies the client already uses reports is factually incorrect and undermines the recommendation.\n\nFINANCIAL MANAGEMENT PROGRESSION TABLE:\n${formatFinMgtTable()}` : ''}
 ${reportsFromAdvisorFirm ? '- The advisor\'s firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.' : ''}
 ${reviewNo ? '- The advisor has indicated the client does NOT need a detailed review of business variables and profit drivers. Do NOT recommend templates focused on profit driver analysis, business variable reviews, or foundational financial education. Stick to action-oriented templates relevant to the specific profitability issue.' : ''}
-${staircaseNum ? `- Advisory Staircase position: Step ${staircaseNum}. ${staircaseNum <= 2 ? 'This is an early-stage engagement — keep templates foundational and accessible. Build confidence before introducing complexity.' : staircaseNum === 3 ? 'The engagement is at interpretation stage — the client is ready for structured analysis and what-if modelling.' : staircaseNum === 4 ? 'The engagement is at application stage — the client is ready for forecasting, scenario planning, and strategic templates.' : 'This is a mature strategic engagement — the client expects sophisticated, data-driven templates. Do not recommend foundational or educational content.'}` : ''}
-${hasPriceCommunication ? '- PRICE COMMUNICATION REQUIREMENT: The advisor has explicitly flagged that the client needs to communicate price increases or pricing changes to their customers without losing them. You MUST include a third template recommendation specifically addressing this — choose the most relevant client communication or sales template from the provided list (e.g. a sales review, pricing communication, or client retention template). Dedicate a separate named section to it in the recommendation: explain what it is, why it fits, and how the advisor should use it to prepare the client for the pricing conversation with their customers.' : ''}
-${meetingNum && meetingNum >= 2 ? `- MEETING COUNT RULE: The advisor has committed to ${meetingNum} meetings. Your recommendation MUST include at least ${meetingNum} templates — one meaningful deliverable per meeting — so every session has a clear, actionable focus. Do not give fewer templates than the number of meetings planned.` : ''}`
+${staircaseNum ? `- Advisory Staircase position: Step ${staircaseNum}. ${staircaseNum <= 2 ? 'This is an early-stage engagement — keep templates foundational and accessible. Build confidence before introducing complexity.' : staircaseNum === 3 ? 'The engagement is at interpretation stage — the client is ready for structured analysis and what-if modelling.' : staircaseNum === 4 ? 'The engagement is at application stage — the client is ready for forecasting, scenario planning, and strategic templates.' : 'This is a mature strategic engagement — the client expects sophisticated, data-driven templates. Do not recommend foundational or educational content.'}` : ''}`
       : ''
 
     const staffInstruction = state.detectedDomain === 'staff' && state.staffCategory && state.staffCategory !== 'pending'
@@ -957,7 +962,29 @@ ${formatFinMgtTable()}`
       governanceInstruction + strategyInstruction + systemsInstruction + valuationInstruction +
       riskInstruction + successionInstruction + conflictInstruction + eoyInstruction + dueDiligenceInstruction
 
-    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${domainInstructions}${profileNote}\n\nNow produce the Phase 3 recommendation.`
+    const _tier1Label = `${meetingNum || 1} meeting${(meetingNum || 1) !== 1 ? 's' : ''} × ${templatesPerMeeting} template${templatesPerMeeting !== 1 ? 's' : ''} per ${_longMeeting ? '90-minute' : '60-minute'} meeting = ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} maximum`
+    const recommendationStructure = `\n\nRECOMMENDATION FORMAT — structure your response in exactly two sections:
+
+SECTION 1 — "I'm confident this will help..."
+Select templates that directly address the CAUSE of the client's situation — what led to it and the primary fix. Capacity: ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} (${_tier1Label}). Do not exceed this number in Section 1.
+
+SECTION 2 — "You might find these templates support this topic — for future consideration"
+Maximum 3 templates. Include ONLY templates that meet one of these specific criteria:
+- The advisor explicitly described a downstream or flow-on effect that this template directly addresses
+- A clear foundational gap was identified in the advisor's answers (e.g. no use of financial reports → a financial education template)
+- A specific secondary need emerged from a Phase 2 answer that is distinct from the primary situation
+
+Do NOT include templates that:
+- Are generic or process-based (meeting agendas, time management) unless explicitly discussed
+- Address the advisor's own practice management rather than the client's situation
+- Merely keyword-match but were not referenced in any collected answer
+- Duplicate the intent of a Tier 1 template
+
+If fewer than 3 templates meet these criteria, include only those that qualify. Do not pad to reach the maximum.
+
+Use the advisor's answers about what caused this situation and what will flow on from it to determine which templates belong in each section.${hasPriceCommunicationTier1 ? '\n\nPRICE COMMUNICATION — TIER 1: The advisor has identified communicating price increases to clients as a primary focus. Include a template that addresses this in Section 1.' : ''}${hasPriceCommunicationTier2 ? '\n\nPRICE COMMUNICATION — TIER 2: The advisor has flagged that communicating price increases to clients will flow on from this situation. Include a template that addresses this in Section 2.' : ''}`
+
+    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${domainInstructions}${profileNote}${recommendationStructure}\n\nNow produce the Phase 3 recommendation.`
 
     // Fall through to AI call for Phase 3 recommendation
     const languageInstruction2 = language !== 'en'
