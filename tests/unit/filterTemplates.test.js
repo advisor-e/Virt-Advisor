@@ -138,13 +138,8 @@ describe('formatTemplatesForPrompt', () => {
     expect(result).toContain('Profit')
   })
 
-  test('includes video note when template has video', () => {
+  test('does not include video note in prompt (video injection is code-based)', () => {
     const result = formatTemplatesForPrompt([SAMPLE_TEMPLATES[1]])
-    expect(result).toContain('Video:')
-  })
-
-  test('excludes video note when template has no video', () => {
-    const result = formatTemplatesForPrompt([SAMPLE_TEMPLATES[0]])
     expect(result).not.toContain('Video:')
   })
 

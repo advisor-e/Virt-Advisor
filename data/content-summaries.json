@@ -10,10 +10,10 @@
   {
     "name": "Advisory Pricing Model",
     "section": "Client On-Boarding",
-    "purpose": "This comprehensive spreadsheet template provides a modular pricing and scoping framework for a wide variety of advisory services, ranging from strategic planning and marketing reviews to detailed M&A due diligence.",
-    "helpsOwner": "It provides the client with extreme transparency, showing exactly what objectives are being tackled, the number of meetings, and the specific time and value allocated to each component of their business development.",
-    "helpsAdvisor": "It allows the firm to calculate profitable pricing by assigning specific hourly rates to different team members and tracking travel, prep, and advisory time. It also includes a robust scoping model to ensure complex jobs, like due diligence, are sequenced and costed thoroughly.",
-    "indicators": "Accounting and advisory firms that need to standardize their pricing structure, delegate tasks to a team, and scope complex multi-stage consulting projects."
+    "purpose": "A spreadsheet template for the accounting or advisory firm to calculate and present the price of its own advisory services — NOT a tool for helping a client with their business pricing. It provides a modular scoping framework covering services such as strategic planning, marketing reviews, and M&A due diligence.",
+    "helpsOwner": "Gives the client (who is purchasing the advisory firm's services) full transparency: exactly which objectives are being tackled, the number of meetings, and the time and value allocated to each component of their engagement.",
+    "helpsAdvisor": "Allows the firm to calculate a profitable fee by assigning hourly rates to different team members and tracking travel, prep, and advisory time. Includes a scoping model to ensure complex multi-stage jobs are sequenced and costed thoroughly before committing to a fixed price.",
+    "indicators": "Use ONLY when the advisor needs to price and present their own firm's advisory services to a client. Do NOT recommend this for client business pricing problems — it has nothing to do with how a client prices their own products or services."
   },
   {
     "name": "Advisory Proposal",
@@ -64,6 +64,14 @@
     "indicators": "Accounting firms facing seasonal bottlenecks, needing to implement priority pricing, or preparing to communicate a price hike to their client base."
   },
   {
+    "name": "E.O.Y Approach Resources",
+    "section": "End of Year Content",
+    "purpose": "This template provides outreach materials (emails, text messages, phone scripts, and video links) to connect with clients, qualify prospects, and prime them for their End of Year (EOY) meeting.",
+    "helpsOwner": "It prompts the owner to reflect on their business management strengths and weaknesses and primes them to prepare for potential economic \"ups and downs\".",
+    "helpsAdvisor": "It offers a \"micro-step\" between the initial approach and the first meeting, helping to qualify prospects and significantly improving client engagement rates (especially when sent via text message).",
+    "indicators": "The client is either a new prospect or an existing client being invited to an EOY meeting, or the advisor wants to transition the client into the \"Lite Fundamentals\" selling process."
+  },
+  {
     "name": "E.O.Y Client Review Sheet - Input",
     "section": "End of Year Content",
     "purpose": "A comprehensive diagnostic checklist used to review a client's business across multiple dimensions, including Governance, Ownership, Structure, Management Reporting, Financials, Technology, Taxation, and HR.",
@@ -112,12 +120,44 @@
     "indicators": "The client struggles with pricing, cash flow, or understanding their fixed vs. variable costs, or the advisor wants a quick assessment of a new prospect's financial acumen."
   },
   {
+    "name": "Growth Curve",
+    "section": "Growth Framework",
+    "purpose": "The core visual map of the Growth Fundamentals Framework. Contains the master tables mapping the 9 Growth Stages to the 7 Growth Tactics, 9 Growth Aspects, and the 5 Psyche Errors. Introduces key metaphors including the \"Devil's Toilet\" (the dangerous profit plateau between Lifestyle and Leverage stages) and the 8 Profit Levers.",
+    "helpsOwner": "Helps owners recognize exactly where they currently sit on the growth curve, creates self-relevance and motivation by contextualizing their journey, and identifies predictable hazards — like the \"Devil's Toilet\" — before they encounter them. Clearly defines \"What Got You Here\" versus \"What Holds You Back\" for each stage.",
+    "helpsAdvisor": "Provides the foundational map for all Growth Fundamentals advisory work. Offers two distinct engagement models: a \"Full\" version (3-5 meetings, 10+ hours, for complex businesses) and a \"Lite\" version (focused 1-meeting engagement for smaller clients). Allows advisors to draw the curve freehand in \"3x3 chunks\" for interactive client discussions.",
+    "indicators": "Clients experiencing a profit plateau or extreme fatigue after sustained effort (likely stuck in the \"Devil's Toilet\"). Clients showing Confirmation Bias, Complacency, or Role Identification psyche errors. Clients unsure whether to scale, pivot, or prepare for succession/exit."
+  },
+  {
+    "name": "Growth Curve Story",
+    "section": "Growth Framework",
+    "purpose": "An illustrative, narrative-driven presentation deck. Provides character-based visual metaphors for each of the 9 Growth Stages, detailing the core growth focus, 3 fundamental requirements per stage, and \"What holds you back\" at each transition.",
+    "helpsOwner": "Helps owners see their own business situation through story and character rather than abstract theory, making it easier to recognize which stage they are at and what is blocking their next transition. The narrative format reduces defensiveness and increases engagement.",
+    "helpsAdvisor": "Enables advisors to use storytelling and personas (e.g., \"Bob the Chocolate Maker\") to discuss complex concepts in the third person. Creates dissociation — avoiding direct judgment, reducing jargon, and helping the advisor overcome the stereotype of being a purely analytical or \"boring\" accountant.",
+    "indicators": "Clients who respond poorly to abstract frameworks or theoretical models. Clients who need an emotionally engaging entry into the Growth Fundamentals framework before deeper analysis begins."
+  },
+  {
+    "name": "Reveal the Curve",
+    "section": "Growth Framework",
+    "purpose": "A facilitation guide instructing the advisor on how to draw the Growth Curve \"freehand\" for the client in a structured, interactive session. Includes the exact questions to ask at each stage to test understanding and script examples for using third-person personas.",
+    "helpsOwner": "Turns the Growth Curve from a static slide deck into an interactive, co-created experience. The progressive reveal format builds the client's understanding incrementally, making the framework feel relevant and personally derived rather than prescribed.",
+    "helpsAdvisor": "Provides a precise \"3x3 chunk\" drawing method and exact scripting for each stage, enabling even less experienced advisors to deliver the framework with confidence. Includes persona scripts to navigate difficult discussions without triggering defensiveness.",
+    "indicators": "The advisor is ready to move from explaining the Growth Fundamentals framework to actively facilitating it with a client. Most effective after the client has shown genuine interest in understanding their current business stage."
+  },
+  {
+    "name": "Growth Fundamentals Framework Philosophy",
+    "section": "Growth Framework",
+    "purpose": "The foundational theory behind the Growth Fundamentals framework. Explains the \"Why\" of the framework, breaks down the difference between the \"Lite\" and \"Full\" service offerings, and includes story fables (e.g., The Bear and the Salmon, Barney the Badger) to teach the 5 Psyche Errors in accessible terms.",
+    "helpsOwner": "Provides the intellectual context for why the framework exists and why growth follows predictable patterns. The fables make complex psychological concepts — like complacency or confirmation bias — immediately relatable and memorable.",
+    "helpsAdvisor": "Gives the advisor a deep understanding of the framework's theoretical roots, enabling them to answer probing client questions and adapt the framework to different client contexts. Helps advisors clearly differentiate their Lite vs Full service offerings.",
+    "indicators": "Used during advisor training and onboarding, or when a sophisticated client wants to understand the intellectual basis of the framework before committing to a program."
+  },
+  {
     "name": "6 Hats Thinking",
     "section": "General Tools",
     "purpose": "To introduce a framework for collaborative \"parallel thinking\" over traditional \"argument thinking,\" helping teams avoid confirmation bias and cross-purpose discussions.",
     "helpsOwner": "It directs the minds of the team using a shared structure and language, ensuring everyone focuses on the same topic and views issues from multiple perspectives (creative, critical, emotional, etc.), which enhances problem-solving and innovation.",
     "helpsAdvisor": "It increases the effectiveness of business planning sessions 10-fold by getting all participants focused and using the same terminology.",
-    "indicators": "The client’s team frequently experiences conflict, confusion, ego-clashes, or \"trips over each other\" during meetings."
+    "indicators": "The client's team frequently experiences conflict, confusion, ego-clashes, or \"trips over each other\" during meetings."
   },
   {
     "name": "90 Day Accounting Best Practice Plan",
@@ -166,6 +206,14 @@
     "helpsOwner": "It aligns the business's growth stages with the owner's personal goals (e.g., desired income, weekly hours, weeks of annual leave) and clearly tracks business development over multiple years.",
     "helpsAdvisor": "It secures long-term engagement by breaking growth into manageable stages (Stage 1, 2, 3) and mapping out the specific tasks required.",
     "indicators": "The client feels overworked (seeking \"Ikigai\" or purpose), wants to significantly scale up, or lacks a long-term strategic direction."
+  },
+  {
+    "name": "3 Pillars of Financial Management",
+    "section": "General Tools",
+    "purpose": "An educational template to provide practical steps for a business owner to learn financial management.",
+    "helpsOwner": "It breaks the process into actionable steps, starting with the 'math' of their own (business variable) assumptions via a suitable revenue model, then a systems review before suggesting they learn ratio analysis.",
+    "helpsAdvisor": "It secures long-term engagement by showing a progressive pathway to financial literacy — supported all the way by their trusted advisor.",
+    "indicators": "The client fails to use financial management reports or seeks a cash forecast to support a funding application without knowledge of feasibility or ongoing performance reviews."
   },
   {
     "name": "Debtor Protocols & Business Drag Model",
@@ -248,6 +296,62 @@
     "indicators": "The client complains about staff performance, quality control issues, or frequent production bottlenecks."
   },
   {
+    "name": "Price Rise",
+    "section": "General Tools",
+    "purpose": "An educational template for business owners providing two methods for communicating a price rise to their customers.",
+    "helpsOwner": "It allows them to develop scripts based on their own personality and customer relationship dynamics.",
+    "helpsAdvisor": "It introduces the methods and scripts are provided to 'get the ball rolling' but are most certainly intended to be revised to suit each owner.",
+    "indicators": "The client fears putting their prices up and lacks a method of communicating their position to customers."
+  },
+  {
+    "name": "Business Structure Options",
+    "section": "General Tools",
+    "purpose": "Reviews the primary legal structures (Sole Trader, Partnership, Company, Trust) and explains the concept of the \"Corporate Veil\" and separate legal entities.",
+    "helpsOwner": "Ensures they understand how to protect what they build, how liability works, and how their structure impacts their ability to sell the business in the future.",
+    "helpsAdvisor": "Allows the advisor to have a proactive conversation about asset protection, succession, and risk without giving formal legal advice.",
+    "indicators": "The client is starting a new business, operating in a highly litigious industry, taking on a partner, or amassing significant working assets."
+  },
+  {
+    "name": "Lite Funda Call & Email",
+    "section": "Lite Fundamentals",
+    "purpose": "Exact phone scripts and email templates designed to invite existing clients or cold prospects to complete an online business quiz.",
+    "helpsOwner": "It provides a highly accessible, low-pressure entry point (a 3-minute quiz done on a smartphone) to assess their business's opportunities and threats confidentially.",
+    "helpsAdvisor": "It gives the advisor a conversational, non-threatening reason to reach out, generating leads by offering a 'no harm, no foul' follow-up chat based on the quiz results.",
+    "indicators": "The client is either an existing accounting client who might need growth support, or a cold prospect who presents professionally online and looks like they 'strive to do better'."
+  },
+  {
+    "name": "Get.Lite Sales Prompts",
+    "section": "Lite Fundamentals",
+    "purpose": "A step-by-step presentation slide deck and accompanying advisor script to guide a prospect through a Lite Fundamentals Sales Meeting. The script utilizes the S.P.I.D.E.R. framework (Show, Pin, Investigate, Determine, Ensure, Reveal).",
+    "helpsOwner": "Helps them identify exactly where their business currently sits on the Growth Curve and clearly illustrates the structural blockages holding them back. Provides a vision of potential revenue improvements without demanding an immediate commitment.",
+    "helpsAdvisor": "Provides a repeatable, psychologically structured sales track that builds the client's desire for the program. Scripts exactly how to set boundaries, requiring three specific commitments from the client (time, focus, and a regular monthly fee arrangement) before working together.",
+    "indicators": "The client has completed the initial business quiz, is open to discussing their results, and desires to improve their revenue or overcome business constraints."
+  },
+  {
+    "name": "Lite Fundamentals Proposal",
+    "section": "Lite Fundamentals",
+    "purpose": "A formal, customizable service proposal document outlining the scope, deliverables, and pricing for the Lite Fundamentals program.",
+    "helpsOwner": "It provides total transparency on what the program entails (broken down into Getting Organised, Getting Work, and Doing Profitable Work) and outlines exactly what is required from them to get started.",
+    "helpsAdvisor": "It formalizes the commercial relationship, commits the client to an 8-meeting schedule, establishes fixed monthly fees, and protects the advisor's time by including a \"Variation to Scope of Works\" template for any out-of-scope requests.",
+    "indicators": "The client has responded positively during the sales meeting, verbally agreed to the program's three conditions, and is ready to review the financial investment."
+  },
+  {
+    "name": "Lite Framework Philosophy",
+    "section": "Lite Fundamentals",
+    "purpose": "Foundational slides explaining the psychology, growth stages, and methodology behind the Lite Fundamentals program. Breaks business growth into 9 distinct stages, 5 layers of complexity and psyche errors, and 6 core components.",
+    "helpsOwner": "Creates 'self relevance' by contextualizing their struggles, showing them what got them to their current stage, what is holding them back, and warning them of predictable hazards like the 'Devil's Toilet' (profit plateaus).",
+    "helpsAdvisor": "Offers a simplified, focused methodology compared to the full Growth Fundamentals framework. Limits the scope of engagement, making it easier to sell to budget-conscious clients and allowing the advisor to become active with the client in just 3 weeks.",
+    "indicators": "The client's business is relatively straightforward, cannot afford the premium fee range of a comprehensive full framework, but still requires structured growth assistance."
+  },
+  {
+    "name": "Lite Fundamentals Components",
+    "section": "Lite Fundamentals",
+    "purpose": "A visual diagram mapping the 6 core areas of business improvement covered in the Lite Fundamentals program: Getting Organised, Getting Work, Doing Profitable Work, and the associated 6 module sessions.",
+    "helpsOwner": "Gives the client a clear visual overview of the entire program's scope, helping them understand how the 6 sessions connect and what they will learn across the program.",
+    "helpsAdvisor": "Acts as an orientation tool to present the Lite Fundamentals program structure at a glance, useful during the sales meeting or at the start of the program.",
+    "indicators": "Use at the beginning of the Lite Fundamentals program or during the sales process to help a prospect visualize the full scope of the engagement."
+  },
+  {
     "name": "Planning Session",
     "section": "Lite Fundamentals",
     "purpose": "Part of the Lite Fundamentals programme (Lite.1 Planning). Helps the client align their income, risk, and work hours expectations to their business model and lays a foundation of shared understanding between advisor and client. The supporting document explains strategic language for those new to business planning.",
@@ -296,14 +400,6 @@
     "indicators": "Client experiencing recurring operational failures, quality control issues, bottlenecks, or inefficiency. Issue has been diagnosed as process-driven rather than people-driven. Also used as Lite.6 within a Lite Fundamentals programme."
   },
   {
-    "name": "Business Structure Options",
-    "section": "General Tools",
-    "purpose": "Reviews the primary legal structures (Sole Trader, Partnership, Company, Trust) and explains the concept of the \"Corporate Veil\" and separate legal entities.",
-    "helpsOwner": "Ensures they understand how to protect what they build, how liability works, and how their structure impacts their ability to sell the business in the future.",
-    "helpsAdvisor": "Allows the advisor to have a proactive conversation about asset protection, succession, and risk without giving formal legal advice.",
-    "indicators": "The client is starting a new business, operating in a highly litigious industry, taking on a partner, or amassing significant working assets."
-  },
-  {
     "name": "80/20 Farm Plan",
     "section": "Strategic Tools",
     "purpose": "Applies the Pareto Principle (80% of results come from 20% of activities) specifically to agricultural businesses. It breaks the farm down into four focus areas: Financial, Herd, People, and Land Management.",
@@ -324,7 +420,7 @@
     "section": "Strategic Tools",
     "purpose": "Sets the agenda, collaborative rules, and scope for a strategic planning session across four domains: Business Targets, Strategic Orientation, Organisational Review, and Sales & Marketing.",
     "helpsOwner": "Prepares them mentally to explore issues with an \"open heart and an open mind,\" clarifying exactly what deliverables they will walk away with.",
-    "helpsAdvisor": "Defines the advisor’s role clearly (to \"Challenge What You Believe To Be True!\") and provides a roadmap to structure the planning session without getting derailed.",
+    "helpsAdvisor": "Defines the advisor's role clearly (to \"Challenge What You Believe To Be True!\") and provides a roadmap to structure the planning session without getting derailed.",
     "indicators": "The beginning of any major strategic planning cycle or workshop."
   },
   {
@@ -338,7 +434,7 @@
   {
     "name": "Advance.2 & 2B. Strategic Orientation (Part 1 & 2)",
     "section": "Strategic Tools",
-    "purpose": "Explores high-level strategic frameworks to review the business model. It utilizes tools like Porter’s 5 Forces, Joseph Pine’s Progression of Economic Value, the Sigmoid Curve, Blue Ocean Strategy, and Deming's Volatility Theory.",
+    "purpose": "Explores high-level strategic frameworks to review the business model. It utilizes tools like Porter's 5 Forces, Joseph Pine's Progression of Economic Value, the Sigmoid Curve, Blue Ocean Strategy, and Deming's Volatility Theory.",
     "helpsOwner": "Challenges market assumptions, helps anticipate competitor/supplier movements, identifies when a product might become obsolete, and helps shift offerings from commodities to premium experiences. It also helps owners recognize their own \"Psyche Errors\" like Optimism Bias or Complacency.",
     "helpsAdvisor": "Elevates the conversation from operational tactics to high-level market strategy, providing robust frameworks to guide clients through complex market environments.",
     "indicators": "Clients facing heavy competition, market disruption, stagnant product sales, or those needing to rethink their fundamental value proposition."
@@ -348,7 +444,7 @@
     "section": "Strategic Tools",
     "purpose": "A traditional internal/external analysis matrix (Strengths, Weaknesses, Opportunities, Threats) combined with P.E.S.T. (Political, Economic, Social, Technological) prompts.",
     "helpsOwner": "Provides a straightforward way to assess their current market position, internal resource gaps, and external regulatory or economic impacts.",
-    "helpsAdvisor": "Quickly captures a snapshot of the client’s situational awareness and environmental risks.",
+    "helpsAdvisor": "Quickly captures a snapshot of the client's situational awareness and environmental risks.",
     "indicators": "Clients needing a foundational baseline assessment before making a major strategic decision."
   },
   {
@@ -498,7 +594,7 @@
   {
     "name": "Indicative Value Questions",
     "section": "Specialist Tools",
-    "purpose": "A preliminary questionnaire to gather essential context on a business’s history, competitors, threats, opportunities, and key dependencies prior to a valuation.",
+    "purpose": "A preliminary questionnaire to gather essential context on a business's history, competitors, threats, opportunities, and key dependencies prior to a valuation.",
     "helpsOwner": "It forces them to critically assess their market position, their reliance on key people or suppliers, and the true nature of their past expenditures.",
     "helpsAdvisor": "It collects the raw, qualitative data required to perform an accurate comparative or asset-based business valuation.",
     "indicators": "A client requests a business valuation for the purposes of succession, a partner buyout, or a potential sale."
@@ -594,7 +690,7 @@
   {
     "name": "Board Member Conduct",
     "section": "Governance Tools",
-    "purpose": "A framework to identify a team’s functioning levels, highlight boardroom manipulation tactics (like the \"Bully\" or \"Turtle Mentality\"), and establish a firm code of conduct.",
+    "purpose": "A framework to identify a team's functioning levels, highlight boardroom manipulation tactics (like the \"Bully\" or \"Turtle Mentality\"), and establish a firm code of conduct.",
     "helpsOwner": "Promotes self-awareness and helps directors check their egos, align with common goals, and embrace healthy brainstorming and respect.",
     "helpsAdvisor": "Gives the advisor an objective tool to address toxic boardroom dynamics, implement \"safe words\" to manage conduct, and foster authentic contribution.",
     "indicators": "The board suffers from \"Poor Member Conduct,\" internal drama, manipulation, or entrenched ego-driven conflicts."
@@ -642,7 +738,7 @@
   {
     "name": "Governance Playsheet",
     "section": "Governance Tools",
-    "purpose": "A diagnostic map that guides users to the correct framework depending on the client’s specific governance problems (Decision Quality vs. Adherence).",
+    "purpose": "A diagnostic map that guides users to the correct framework depending on the client's specific governance problems (Decision Quality vs. Adherence).",
     "helpsOwner": "Ensures their core problem is diagnosed correctly so that the interventions applied actually solve their underlying issues.",
     "helpsAdvisor": "Acts as an operational flowchart, visually directing the advisor to deploy tools like 6 Hats, White Papers, or Board Plans based on client feedback.",
     "indicators": "To be used internally by the advisor when first assessing a client's need to improve governance or if a client shows signs that management is too ineffective for governance to begin."

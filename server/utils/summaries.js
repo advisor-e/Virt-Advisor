@@ -1,6 +1,6 @@
 /**
  * Content summaries loader — detailed per-template guidance extracted from
- * "Do the Job Content summaries.docx". Covers 79 templates across 6 sections.
+ * the Advisor-e content Google Doc. Covers 97 templates across 8 sections.
  */
 
 const { readFileSync } = require('fs')
@@ -132,7 +132,14 @@ const TEMPLATE_SUMMARY_ALIASES = {
   'Hire Winners': 'Managing Poor Performance',
   'Hiring Winners': 'Managing Poor Performance',
   'E.O.Y Meeting': 'E.O.Y Client Review Sheet - Input',
-  'Capacity, Capability, Opportunity': 'Business Assessment Report'
+  'Capacity, Capability, Opportunity': 'Business Assessment Report',
+  'Lite Fundamentals Visual Aids': 'Get.Lite Sales Prompts',
+  'Lite Visuals': 'Get.Lite Sales Prompts',
+  'Lite Funda Call': 'Lite Funda Call & Email',
+  'EOY Approach': 'E.O.Y Approach Resources',
+  'E.O.Y Approach': 'E.O.Y Approach Resources',
+  'Three Pillars of Financial Management': '3 Pillars of Financial Management',
+  'Growth Curve Checklist': 'Growth Curve'
 }
 
 /**

@@ -34,7 +34,8 @@
       "Volatility"
     ],
     "includedInClient": false,
-    "position": 2
+    "position": 2,
+    "videoMinutes": 9
   },
   {
     "page": "id-9515196091",
@@ -107,7 +108,8 @@
       "9 Growth Aspects"
     ],
     "includedInClient": true,
-    "position": 6
+    "position": 6,
+    "videoMinutes": 15
   },
   {
     "page": "id-4277160310",
@@ -128,7 +130,8 @@
       "stress"
     ],
     "includedInClient": true,
-    "position": 7
+    "position": 7,
+    "videoMinutes": 15.2
   },
   {
     "page": "id-5773184106",
@@ -165,7 +168,8 @@
       "stress"
     ],
     "includedInClient": true,
-    "position": 9
+    "position": 9,
+    "videoMinutes": 6
   },
   {
     "page": "id-3314827163",
@@ -232,7 +236,8 @@
       "Overdraft"
     ],
     "includedInClient": true,
-    "position": 13
+    "position": 13,
+    "videoMinutes": 12
   },
   {
     "page": "id-3094237070",
@@ -267,7 +272,8 @@
       "Efficiency"
     ],
     "includedInClient": true,
-    "position": 15
+    "position": 15,
+    "videoMinutes": 6
   },
   {
     "page": "id-6071441423",
@@ -284,7 +290,8 @@
       "Problem solving"
     ],
     "includedInClient": true,
-    "position": 16
+    "position": 16,
+    "videoMinutes": 5
   },
   {
     "page": "id-5195288668",
@@ -298,7 +305,8 @@
       "Debtors"
     ],
     "includedInClient": true,
-    "position": 17
+    "position": 17,
+    "videoMinutes": 7
   },
   {
     "page": "capacity-capability-opportunity",
@@ -309,7 +317,8 @@
     "purpose": "This framework helps you quickly disect the 'legitimate constraints' that are holding a business back. From here you can start to drill down into greater detail. A great conversation starter and a quick way to get a new prospect 'collaborating' with you, which is a powerful sales aid.",
     "tags": [],
     "includedInClient": false,
-    "position": 18
+    "position": 18,
+    "videoMinutes": 5
   },
   {
     "page": "id-679676385",
@@ -333,7 +342,8 @@
       "Admin"
     ],
     "includedInClient": true,
-    "position": 19
+    "position": 19,
+    "videoMinutes": 9
   },
   {
     "page": "advanced-fundamentals-delivery-tools",
@@ -351,7 +361,8 @@
       "Business Beliefs"
     ],
     "includedInClient": true,
-    "position": 20
+    "position": 20,
+    "videoMinutes": 9
   },
   {
     "page": "id-4361586555",
@@ -371,7 +382,8 @@
       "messaging"
     ],
     "includedInClient": true,
-    "position": 21
+    "position": 21,
+    "videoMinutes": 12
   },
   {
     "page": "strategic-review",
@@ -390,7 +402,8 @@
       "Tight"
     ],
     "includedInClient": true,
-    "position": 22
+    "position": 22,
+    "videoMinutes": 15
   },
   {
     "page": "id-9212012331",
@@ -401,7 +414,8 @@
     "purpose": "This template discusses Edwards Demings Theory of Volatility - it encourages people to accept that business goes up and down and to learn to properly interpret the data they're reviewing. Use this template to explain the clients cash volatility report so they can understand the vital importance of cash forecasts / budgets and regular cash management reviews. This tool is also extremely helpful in identifying and supporting the calculation of required working capital; use it to aid in the application for finance and to help the owners get clear on the dangers of running the business too low in cash reserves.",
     "tags": [],
     "includedInClient": true,
-    "position": 23
+    "position": 23,
+    "videoMinutes": 6
   },
   {
     "page": "id-9601408536",
@@ -419,7 +433,8 @@
       "Vision"
     ],
     "includedInClient": true,
-    "position": 24
+    "position": 24,
+    "videoMinutes": 5
   },
   {
     "page": "id-1031914952",
@@ -437,7 +452,8 @@
       "Business Values"
     ],
     "includedInClient": true,
-    "position": 25
+    "position": 25,
+    "videoMinutes": 8
   },
   {
     "page": "id-6324353645",
@@ -458,7 +474,8 @@
       "Administration"
     ],
     "includedInClient": true,
-    "position": 26
+    "position": 26,
+    "videoMinutes": 16
   },
   {
     "page": "id-1034348000",
@@ -473,7 +490,8 @@
       "SMART"
     ],
     "includedInClient": true,
-    "position": 27
+    "position": 27,
+    "videoMinutes": 8
   },
   {
     "page": "farmers-model",
@@ -489,7 +507,8 @@
       "5 Steps to building new habits"
     ],
     "includedInClient": true,
-    "position": 28
+    "position": 28,
+    "videoMinutes": 10
   },
   {
     "page": "8-profit-levers",
@@ -517,7 +536,8 @@
       "Profit Sweet Spot"
     ],
     "includedInClient": true,
-    "position": 29
+    "position": 29,
+    "videoMinutes": 16
   },
   {
     "page": "id-480549223",
@@ -550,7 +570,8 @@
       "Viability Timeline"
     ],
     "includedInClient": true,
-    "position": 31
+    "position": 31,
+    "videoMinutes": 23
   },
   {
     "page": "learning-to-deliver-advanced-fundamentals",
@@ -572,7 +593,8 @@
       "Administration"
     ],
     "includedInClient": true,
-    "position": 32
+    "position": 32,
+    "videoMinutes": 8
   },
   {
     "page": "bizz360",
@@ -600,7 +622,8 @@
       "Sweet Spot"
     ],
     "includedInClient": true,
-    "position": 33
+    "position": 33,
+    "videoMinutes": 7
   },
   {
     "page": "planning-session",
@@ -624,7 +647,8 @@
       "Goals"
     ],
     "includedInClient": true,
-    "position": 34
+    "position": 34,
+    "videoMinutes": 11
   },
   {
     "page": "data-session",
@@ -654,7 +678,8 @@
       "Over Trading Sweetspot"
     ],
     "includedInClient": true,
-    "position": 35
+    "position": 35,
+    "videoMinutes": 7
   },
   {
     "page": "marketing-session",
@@ -682,7 +707,8 @@
       "Advertising"
     ],
     "includedInClient": true,
-    "position": 36
+    "position": 36,
+    "videoMinutes": 7
   },
   {
     "page": "sales-session",
@@ -702,7 +728,8 @@
       "Sales Tension Points"
     ],
     "includedInClient": true,
-    "position": 37
+    "position": 37,
+    "videoMinutes": 7
   },
   {
     "page": "people-session",
@@ -723,7 +750,8 @@
       "Performance Review"
     ],
     "includedInClient": true,
-    "position": 38
+    "position": 38,
+    "videoMinutes": 4
   },
   {
     "page": "process-session",
@@ -738,7 +766,8 @@
       "Systems Thinking"
     ],
     "includedInClient": true,
-    "position": 39
+    "position": 39,
+    "videoMinutes": 6
   },
   {
     "page": "alignment-statements",
@@ -754,7 +783,8 @@
       "Alignment Statements"
     ],
     "includedInClient": true,
-    "position": 40
+    "position": 40,
+    "videoMinutes": 6
   },
   {
     "page": "id-4919294252",
@@ -775,7 +805,8 @@
       "Ambitions"
     ],
     "includedInClient": true,
-    "position": 41
+    "position": 41,
+    "videoMinutes": 9
   },
   {
     "page": "swot-prompts",
@@ -791,7 +822,8 @@
       "Threats"
     ],
     "includedInClient": true,
-    "position": 42
+    "position": 42,
+    "videoMinutes": 6
   },
   {
     "page": "id-2201525362",
@@ -808,7 +840,8 @@
       "First Impressions"
     ],
     "includedInClient": true,
-    "position": 43
+    "position": 43,
+    "videoMinutes": 7
   },
   {
     "page": "planning-outcomes-review",
@@ -827,7 +860,8 @@
       "process"
     ],
     "includedInClient": true,
-    "position": 44
+    "position": 44,
+    "videoMinutes": 5
   },
   {
     "page": "business-targets",
@@ -850,7 +884,8 @@
       "Strategic Plan"
     ],
     "includedInClient": true,
-    "position": 45
+    "position": 45,
+    "videoMinutes": 13
   },
   {
     "page": "strategic-orientation-pt-1",
@@ -869,7 +904,8 @@
       "Field Intelligence"
     ],
     "includedInClient": true,
-    "position": 46
+    "position": 46,
+    "videoMinutes": 13
   },
   {
     "page": "strategic-orientation-pt-2",
@@ -884,7 +920,8 @@
       "Competitve Position"
     ],
     "includedInClient": true,
-    "position": 47
+    "position": 47,
+    "videoMinutes": 7
   },
   {
     "page": "profit-levers-blue-ocean",
@@ -901,7 +938,8 @@
       "Strategic"
     ],
     "includedInClient": true,
-    "position": 48
+    "position": 48,
+    "videoMinutes": 13
   },
   {
     "page": "organisation-review",
@@ -919,7 +957,8 @@
       "Staff"
     ],
     "includedInClient": true,
-    "position": 49
+    "position": 49,
+    "videoMinutes": 9
   },
   {
     "page": "advanced-sales-marketing-review",
@@ -946,7 +985,8 @@
       "Avatar"
     ],
     "includedInClient": true,
-    "position": 50
+    "position": 50,
+    "videoMinutes": 7
   },
   {
     "page": "id-6756274046",
@@ -960,7 +1000,8 @@
       "Farm Management"
     ],
     "includedInClient": true,
-    "position": 51
+    "position": 51,
+    "videoMinutes": 5
   },
   {
     "page": "id-3009841766",
@@ -971,7 +1012,8 @@
     "purpose": "The Nine Growth Aspects aim to balance the business owner's focus during intense periods of growth. You are encouraged to explore Process Improvement, Customer Focus, Sales, Authenticity, Inventory & Equipment, Team Focus, Innovation, Governance, Harmony & Balance.",
     "tags": [],
     "includedInClient": true,
-    "position": 52
+    "position": 52,
+    "videoMinutes": 7
   },
   {
     "page": "learning-to-deliver-elite-fundamentals",
@@ -1001,7 +1043,8 @@
       "Transfer"
     ],
     "includedInClient": true,
-    "position": 54
+    "position": 54,
+    "videoMinutes": 7
   },
   {
     "page": "id-8466205046",
@@ -1015,7 +1058,8 @@
       "Advisory Board vs Formal Board"
     ],
     "includedInClient": true,
-    "position": 55
+    "position": 55,
+    "videoMinutes": 8
   },
   {
     "page": "lite-fundamental-resource",
@@ -1045,7 +1089,8 @@
       "Payrise"
     ],
     "includedInClient": true,
-    "position": 57
+    "position": 57,
+    "videoMinutes": 13
   },
   {
     "page": "id-8974944498",
@@ -1061,7 +1106,8 @@
       "Partnership Income"
     ],
     "includedInClient": true,
-    "position": 58
+    "position": 58,
+    "videoMinutes": 10
   },
   {
     "page": "due-diligence",
@@ -1075,7 +1121,8 @@
       "Sale & Purchase"
     ],
     "includedInClient": true,
-    "position": 59
+    "position": 59,
+    "videoMinutes": 7
   },
   {
     "page": "financial-systems-review",
@@ -1102,7 +1149,8 @@
       "Shareholder Dispute"
     ],
     "includedInClient": true,
-    "position": 60
+    "position": 60,
+    "videoMinutes": 8
   },
   {
     "page": "growth-projects-delivery-tools-spare",
@@ -1118,7 +1166,8 @@
       "financial controls"
     ],
     "includedInClient": true,
-    "position": 61
+    "position": 61,
+    "videoMinutes": 6
   },
   {
     "page": "succession-planning",
@@ -1134,7 +1183,8 @@
       "quiz"
     ],
     "includedInClient": true,
-    "position": 62
+    "position": 62,
+    "videoMinutes": 8
   },
   {
     "page": "id-5291277413",
@@ -1150,7 +1200,8 @@
       "quiz"
     ],
     "includedInClient": true,
-    "position": 63
+    "position": 63,
+    "videoMinutes": 5
   },
   {
     "page": "id-7790271877",
@@ -1984,7 +2035,8 @@
       "Market Imperative"
     ],
     "includedInClient": true,
-    "position": 113
+    "position": 113,
+    "videoMinutes": 11
   },
   {
     "page": "id-3251922216",
@@ -2001,7 +2053,8 @@
       "innovation"
     ],
     "includedInClient": true,
-    "position": 114
+    "position": 114,
+    "videoMinutes": 13
   },
   {
     "page": "id-4307038570",
@@ -2035,7 +2088,8 @@
       "Fire & General Broker"
     ],
     "includedInClient": false,
-    "position": 116
+    "position": 116,
+    "videoMinutes": 3
   },
   {
     "page": "id-102938972",
@@ -2068,7 +2122,8 @@
       "Shareholder Dispute"
     ],
     "includedInClient": true,
-    "position": 118
+    "position": 118,
+    "videoMinutes": 12
   },
   {
     "page": "id-9915362116",
@@ -2100,7 +2155,8 @@
       "Needs Analysis"
     ],
     "includedInClient": false,
-    "position": 120
+    "position": 120,
+    "videoMinutes": 14
   },
   {
     "page": "id-4774716093",
@@ -2114,7 +2170,8 @@
       "Communicating service benefits"
     ],
     "includedInClient": false,
-    "position": 121
+    "position": 121,
+    "videoMinutes": 7
   },
   {
     "page": "id-3640303064",
@@ -2191,7 +2248,8 @@
     "purpose": "The Lite Fundamentals proposal document is a merge table (enabled) template that explains what the programme covers, how it helps your client and presents both the fee and the variation to scope agreement to reduce 'job creep'.",
     "tags": [],
     "includedInClient": false,
-    "position": 126
+    "position": 126,
+    "videoMinutes": 4
   },
   {
     "page": "winning-the-job-tools",
@@ -2204,7 +2262,8 @@
       "Sales psychology"
     ],
     "includedInClient": false,
-    "position": 127
+    "position": 127,
+    "videoMinutes": 5
   },
   {
     "page": "id-2057808138",
@@ -2219,7 +2278,8 @@
       "Course Design"
     ],
     "includedInClient": false,
-    "position": 128
+    "position": 128,
+    "videoMinutes": 24.23
   },
   {
     "page": "seminar-delivery",
@@ -2230,7 +2290,8 @@
     "purpose": "This template helps you design your outbound messaging plan to help you attract more 'A' clients.",
     "tags": [],
     "includedInClient": false,
-    "position": 129
+    "position": 129,
+    "videoMinutes": 3
   },
   {
     "page": "id-7757688681",
@@ -2249,7 +2310,8 @@
       "Assessment"
     ],
     "includedInClient": true,
-    "position": 130
+    "position": 130,
+    "videoMinutes": 5
   },
   {
     "page": "id-4007209261",
@@ -2267,7 +2329,8 @@
       "Virtual CFO"
     ],
     "includedInClient": true,
-    "position": 131
+    "position": 131,
+    "videoMinutes": 14
   },
   {
     "page": "id-7924565511",
@@ -2285,7 +2348,8 @@
       "KPI's"
     ],
     "includedInClient": true,
-    "position": 132
+    "position": 132,
+    "videoMinutes": 7
   },
   {
     "page": "id-7015138225",
@@ -2339,7 +2403,8 @@
       "Sale & Purchase"
     ],
     "includedInClient": true,
-    "position": 136
+    "position": 136,
+    "videoMinutes": 30
   },
   {
     "page": "id-3487353495",
@@ -2418,7 +2483,8 @@
       "limited liability"
     ],
     "includedInClient": true,
-    "position": 141
+    "position": 141,
+    "videoMinutes": 6
   },
   {
     "page": "id-5642754592",
@@ -2451,7 +2517,8 @@
       "Financial Performance"
     ],
     "includedInClient": true,
-    "position": 143
+    "position": 143,
+    "videoMinutes": 7
   },
   {
     "page": "id-1908658752",
@@ -2581,7 +2648,8 @@
     "purpose": "This video provides a foundational understanding of the psychology of the sale. A 'must view' for those who have not been formally trained in selling advisory services.",
     "tags": [],
     "includedInClient": false,
-    "position": 152
+    "position": 152,
+    "videoMinutes": 5
   },
   {
     "page": "id-4570105459",
@@ -2592,7 +2660,8 @@
     "purpose": "How to secure on-going management/ business improvement engagements using the Lite Fundamentals framework. Step by step instructions show you the use of pre-approach quizzes and all the visual aids and sales scripts to help you win! (note: the video is the same video as shown in the concept meeting)",
     "tags": [],
     "includedInClient": false,
-    "position": 153
+    "position": 153,
+    "videoMinutes": 5
   },
   {
     "page": "winning-the-job-tools",
@@ -2603,7 +2672,8 @@
     "purpose": "This video explains the relationship dynamics and client awareness (levels) that drive the different types of engagements that you'll secure. Understanding the difference will help guide you in your dealings when selling or scoping.",
     "tags": [],
     "includedInClient": false,
-    "position": 154
+    "position": 154,
+    "videoMinutes": 5
   },
   {
     "page": "winning-the-job-tools",
@@ -2614,7 +2684,8 @@
     "purpose": "The progressive stages of engaging with a client; how to present 'solution layers'.",
     "tags": [],
     "includedInClient": false,
-    "position": 155
+    "position": 155,
+    "videoMinutes": 5
   },
   {
     "page": "spare-5",
@@ -2627,7 +2698,8 @@
       "Facilitation skills"
     ],
     "includedInClient": false,
-    "position": 156
+    "position": 156,
+    "videoMinutes": 13
   },
   {
     "page": "id-1283439703",
@@ -2642,7 +2714,8 @@
       "Financial models"
     ],
     "includedInClient": false,
-    "position": 157
+    "position": 157,
+    "videoMinutes": 3
   },
   {
     "page": "learning",
@@ -2666,7 +2739,8 @@
     "purpose": "This template explores the difference between efficiency and effectiveness, what blocks your creativity, how to work within your own body rythm and cope with feelings of overwhelm. (All the stuff that comes with being a business owner.)",
     "tags": [],
     "includedInClient": true,
-    "position": 159
+    "position": 159,
+    "videoMinutes": 12
   },
   {
     "page": "id-3444141596",
@@ -2677,7 +2751,8 @@
     "purpose": "This template helps to 'flush out' the problem areas within a business by providing a 'process of elimination' approach to clarifying the core issue/s. The basic triage framework starts with Get Organised, Get the Job and Do the Job and cascades down from there.",
     "tags": [],
     "includedInClient": true,
-    "position": 160
+    "position": 160,
+    "videoMinutes": 23
   },
   {
     "page": "id-5038284749",
@@ -2688,7 +2763,8 @@
     "purpose": "This template is an (essential) foundation template to improve team problem solving techniques and meeting conduct. You can use this framework in the board room one day, and with a small start up team the next. ",
     "tags": [],
     "includedInClient": true,
-    "position": 161
+    "position": 161,
+    "videoMinutes": 11
   },
   {
     "page": "id-4570105459",
@@ -2699,7 +2775,8 @@
     "purpose": "How to use on-line quizzes to 'prime' clients; how to frame a sales meeting and use visual aids & scenario models to follow the psychology of the sale, whilst reducing tension.",
     "tags": [],
     "includedInClient": false,
-    "position": 162
+    "position": 162,
+    "videoMinutes": 5
   },
   {
     "page": "id-9293972213",
@@ -2710,7 +2787,8 @@
     "purpose": "How to help your client approach a merger or aquisition with a more progressive, longer term outlook to improve the chances of successful (combined) team and management culture.",
     "tags": [],
     "includedInClient": true,
-    "position": 163
+    "position": 163,
+    "videoMinutes": 6
   },
   {
     "page": "capacity-capability-opportunity",
@@ -2725,7 +2803,8 @@
       "diagnosis"
     ],
     "includedInClient": false,
-    "position": 164
+    "position": 164,
+    "videoMinutes": 5
   },
   {
     "page": "id-679676385",
@@ -2736,7 +2815,8 @@
     "purpose": "This session is designed to stimulate a review of how technology can be COMBINED with existing business procedures to achieve more effctive outcomes for all.",
     "tags": [],
     "includedInClient": true,
-    "position": 165
+    "position": 165,
+    "videoMinutes": 9
   },
   {
     "page": "id-1946196200",
@@ -2747,7 +2827,8 @@
     "purpose": "This template explores the observable traits of a failing economy so that you and your clients can discuss the macro position and the implications to their business. (It's a great way to 'talk your client down' from taking large risks in a depressed economy.)",
     "tags": [],
     "includedInClient": true,
-    "position": 166
+    "position": 166,
+    "videoMinutes": 7
   },
   {
     "page": "id-3306202362",
@@ -2758,7 +2839,8 @@
     "purpose": "This advisor preparation page helps you to explore the business sale assessment section so you can become familiar with the indicative value model, the report, and the sensitivity calculations that guide you in your indicative value assessment.",
     "tags": [],
     "includedInClient": false,
-    "position": 167
+    "position": 167,
+    "videoMinutes": 30
   },
   {
     "page": "id-4138307831",
@@ -2773,7 +2855,8 @@
       "sale & purchase"
     ],
     "includedInClient": false,
-    "position": 168
+    "position": 168,
+    "videoMinutes": 30
   },
   {
     "page": "id-452735813",
@@ -2784,7 +2867,8 @@
     "purpose": "This sale assessment report provides an indicative business value for your client and explores the multiple aspects to be considered prior to sale. The report raises the issue of payback period, super profits and margin of error calculations for cash surplus, from a purchaser's perspective so your c",
     "tags": [],
     "includedInClient": true,
-    "position": 169
+    "position": 169,
+    "videoMinutes": 30
   },
   {
     "page": "seminar-delivery",
@@ -2799,7 +2883,8 @@
       "Platform presentation"
     ],
     "includedInClient": false,
-    "position": 170
+    "position": 170,
+    "videoMinutes": 3
   },
   {
     "page": "id-1449558534",
@@ -2865,7 +2950,8 @@
     "purpose": "This document provides a brief description of the video and its (paired) hyperlink to help you decide which video could best help to shape the nature of discussion with your client. Excellent PRIMING resource! \n(The video hyperlinks relate to unbranded 'concept' videos.)",
     "tags": [],
     "includedInClient": false,
-    "position": 176
+    "position": 176,
+    "videoMinutes": 60
   },
   {
     "page": "id-4678322776",
@@ -2891,7 +2977,8 @@
       "seminar design"
     ],
     "includedInClient": false,
-    "position": 178
+    "position": 178,
+    "videoMinutes": 13
   },
   {
     "page": "id-6785367543",
@@ -2902,7 +2989,8 @@
     "purpose": "This video explains the psychology of call reluctance; what it is, what causes it and what you can do about it. A must watch for anyone new to selling.",
     "tags": [],
     "includedInClient": false,
-    "position": 179
+    "position": 179,
+    "videoMinutes": 15
   },
   {
     "page": "id-5063596715",
@@ -3693,5 +3781,36 @@
     ],
     "includedInClient": false,
     "position": 236
+  },
+  {
+    "page": "id-7247592654",
+    "title": "3 Pillars of Financial Management",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Financial Management",
+    "purpose": "This template explores a practical pathway for prudent financial management. Instead of just focusing on setting KPIs and reviewing basic performance ratios, this template reveals the need to assess assumptions vs reality and design systems to ensure data integrity — then the aforementioned applies. The ultimate goal is to guide clients toward a constant 'Test & Learn' culture.",
+    "tags": [
+      "Reporting",
+      "Financial Literacy",
+      "Governance",
+      "Dashboards"
+    ],
+    "includedInClient": false,
+    "position": 237
+  },
+  {
+    "page": "id-4109582337",
+    "title": "Price Rise",
+    "section": "Do the Job",
+    "menuSection": "do-the-job",
+    "topic": "Marketing",
+    "purpose": "This template reviews two communication methods used to explain a price rise to customers. This allows you and your client to determine which best suits their personality and industry/client relationship types, before finalising their own scripts.",
+    "tags": [
+      "Client Communication",
+      "Pricing Strategies",
+      "Client Relations"
+    ],
+    "includedInClient": false,
+    "position": 238
   }
 ]

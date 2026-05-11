@@ -68,7 +68,7 @@ function filterTemplatesByQuery (templates, query, maxResults) {
 function formatTemplatesForPrompt (templates) {
   return templates.map((t, i) => {
     const tags = (t.tags || []).slice(0, 5).join(', ')
-    const videoNote = t.hasVideo ? '\n   Video: Tutorial video available in Advisor-e' : ''
+    const videoNote = ''
     const useNote = t.includedInClient
       ? '\n   Use: Client-facing delivery tool (shown to client during advisory sessions — NOT advisor learning material)'
       : '\n   Use: Advisor reference/learning resource'

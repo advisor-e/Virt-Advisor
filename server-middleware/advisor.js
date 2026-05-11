@@ -17,6 +17,7 @@ const { detectLogicTree, formatLogicTreeForPrompt, buildLearnReferenceText } = r
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { sendError } = require('../server/utils/sendError')
+const { injectVideoInfo } = require('../server/utils/videoInjector')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -729,18 +730,20 @@ async function handleQuery (rawBody, res) {
 
       let _postUsage = null
       let _postOk = false
+      let _postBuffer = ''
       try {
         for await (const chunk of streamPost) {
           if (chunk.usage) { _postUsage = chunk.usage }
           const text = chunk.choices[0]?.delta?.content || ''
-          if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
-          // Emit state+done for ALL finish reasons (stop, length, content_filter, etc.)
-          // so the client never loses conversationState on truncated responses
+          if (text) { _postBuffer += text }
+          // Emit once when stream finishes — video sentences injected in code
           if (chunk.choices[0]?.finish_reason) {
             if (state.movingForwardDone && !state.movingForwardHelped) {
               state.movingForwardHelped = true
             }
             state.postRecAiResponses = (state.postRecAiResponses || 0) + 1
+            const processed = injectVideoInfo(_postBuffer, orgTemplateIds)
+            res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
             res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
             res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
           }
@@ -812,7 +815,7 @@ async function handleQuery (rawBody, res) {
     const reviewNo = state.wouldBenefitFromReview && /\bno\b|not really|don't think|good handle|already know|doesn't need|do not|wouldn't/i.test(state.wouldBenefitFromReview)
     const staircaseStep = state.advisoryStaircase ? (state.advisoryStaircase.match(/Step\s*([1-5])/i) || [])[1] : null
     const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
-    const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated/i.test(state.clientRaisedIssue)
+    const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated|spoke\s+to\s+(?:me|us)\s+about|called\s+(?:me|us)\s+about|phoned\s+(?:me|us)|reached\s+out|got\s+in\s+touch|contacted\s+(?:me|us)|they\s+(?:called|rang|phoned|messaged|emailed|texted)/i.test(state.clientRaisedIssue)
 
     // Parse meeting count — upper bound of a range ("two to three") taken so capacity covers all planned sessions
     const _meetingCountText = state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' ? state.advisorMeetingCount.toLowerCase() : ''
@@ -832,7 +835,7 @@ async function handleQuery (rawBody, res) {
     const tier1Capacity = (meetingNum || 1) * templatesPerMeeting
 
     // Detect price communication need from priority (Tier 1) and downstream (Tier 2)
-    const _pricePattern = /\b(communicat|price[s]?\s+(?:increase|rise|hike|change|up\b)|put(?:ting)?\s+(?:the\s+|their\s+)?price|pass\s+(?:it|the\s+cost|increase)\s+on|tell\s+(?:the\s+)?(?:client|customer)|inform\s+(?:the\s+)?(?:client|customer)|announc|retain\s+client|losing\s+client|client[s]?\s+(?:leave|leav|left|retention))\b/i
+    const _pricePattern = /\b(communicat(?:e|ing|ion|ions)?|price[s]?\s+(?:increase[s]?|rise[s]?|hike[s]?|change[s]?|up)\b|put(?:ting)?\s+(?:the\s+|their\s+)?price[s]?\s+up|pass\s+(?:it|the\s+cost|increase)\s+on|tell\s+(?:the\s+)?(?:client|customer)s?\s+about|inform\s+(?:the\s+)?(?:client|customer)s?|announc(?:e|ing|ement[s]?)?|retain(?:ing)?\s+(?:client|customer)s?|losing\s+(?:client|customer)s?|afraid\s+to\s+(?:raise|increase|put\s+up)\s+(?:the\s+)?price|client[s]?\s+(?:leave|leav|left|retention))\b/i
     const hasPriceCommunicationTier1 = state.situationPriority && state.situationPriority !== 'pending' && _pricePattern.test(state.situationPriority)
     const hasPriceCommunicationTier2 = state.situationDownstream && state.situationDownstream !== 'pending' && _pricePattern.test(state.situationDownstream)
 
@@ -854,11 +857,11 @@ async function handleQuery (rawBody, res) {
 
 Your recommendation MUST include a revenue model or what-if analysis template from the provided template list. Rules:
 - Only recommend templates that exist in the provided list — do NOT invent, adapt, or combine template names
-${recommendedRevenueModel ? `- An industry-specific revenue model exists for this client: "${recommendedRevenueModel}". Use this template as the primary revenue model recommendation — it is purpose-built for this industry and will be more relevant than a generic Revenue Model.` : '- Select the closest real revenue model or what-if analysis template available, exactly as named in the list'}
+${recommendedRevenueModel ? `- An industry-specific revenue model exists for this client: "${recommendedRevenueModel}". You MUST use this exact name in "My recommendation" — do NOT call it "Revenue Model", "Scaffolding Revenue Model", or any other variation. The only permitted name is "${recommendedRevenueModel}".` : '- Select the closest real revenue model or what-if analysis template available, exactly as named in the list'}
 - In the "How to approach it" section, explain specifically how the advisor should apply that template in the context of the ${state.industry} industry — mention industry-specific cost pressures, pricing dynamics, and revenue levers relevant to that sector
 - Do not append the industry name to the template name
 - KEY INSIGHT — frame this in the "How to approach it" section: The revenue/what-if model's deepest value is the gap it exposes — the difference between what the owner assumes the business delivers (revenue, costs, profit) and what the financials actually show. That gap is a direct window into the mindset behind every decision they make. An owner running on flawed assumptions will keep arriving at the same outcomes. Making the gap visible is what shifts them from assumption-driven to data-driven thinking. The advisor should position the model as the tool that makes this shift possible — not just a financial exercise, but a change in how the owner sees their own business.
-- DELIVERY METHOD RULE: ${clientRaisedIssue ? 'The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.' : 'The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method. In "How to approach it", explain the Cautious Reveal: establish WHY they need the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil\'s a plumber video before the meeting to prime awareness.'}
+- DELIVERY METHOD RULE: ${clientRaisedIssue ? 'The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.' : 'The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method to deliver the revenue model. CRITICAL: the Cautious Reveal is NOT a template and must NOT appear in "My recommendation" — it is a delivery approach only. Explain it solely within the "How to approach it" section: establish WHY the client needs the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil\'s a plumber video before the meeting to prime awareness.'}
 ${reportsYes ? '- This client already uses financial management reports regularly. Do NOT recommend the Working Capital Cycle or any basic financial literacy or financial awareness templates — they are beneath this client\'s level. Only recommend templates appropriate for a financially informed client.' : ''}
 ${reportsNo ? `- FINANCIAL EDUCATION: This client does not use financial management reports. Include a financial education template in TIER 2 (future consideration). To select the correct one, match the client's described situation to the most relevant theme in the Financial Management Progression Table below — read the Problem column and find the closest match. The Suggested Template from that theme is what you must include. Do NOT use Debtor Protocols, Revenue Models, or other operational tools to satisfy this requirement.\n- CRITICAL: Do NOT describe this client as using, having access to, or being familiar with management reports at any point in your response. Their situation is that they do not use reports — every template description and all explanatory prose must reflect this. Writing anything that implies the client already uses reports is factually incorrect and undermines the recommendation.\n\nFINANCIAL MANAGEMENT PROGRESSION TABLE:\n${formatFinMgtTable()}` : ''}
 ${reportsFromAdvisorFirm ? '- The advisor\'s firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.' : ''}
@@ -963,10 +966,10 @@ ${formatFinMgtTable()}`
       riskInstruction + successionInstruction + conflictInstruction + eoyInstruction + dueDiligenceInstruction
 
     const _tier1Label = `${meetingNum || 1} meeting${(meetingNum || 1) !== 1 ? 's' : ''} × ${templatesPerMeeting} template${templatesPerMeeting !== 1 ? 's' : ''} per ${_longMeeting ? '90-minute' : '60-minute'} meeting = ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} maximum`
-    const recommendationStructure = `\n\nRECOMMENDATION FORMAT — structure your response in exactly two sections:
+    const recommendationStructure = `\n\nRECOMMENDATION FORMAT — follow this structure exactly. Do not invent alternative headings or reorder the sections.
 
 SECTION 1 — "I'm confident this will help..."
-Select templates that directly address the CAUSE of the client's situation — what led to it and the primary fix. Capacity: ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} (${_tier1Label}). Do not exceed this number in Section 1.
+Select templates that directly address the CAUSE of the client's situation — what led to it and the primary fix. Capacity: ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} (${_tier1Label}). Do not exceed this number in Section 1. Order by priority: the template that addresses what the advisor said they want to tackle first comes first, followed by any other primary cause templates, then any downstream needs included in Section 1.
 
 SECTION 2 — "You might find these templates support this topic — for future consideration"
 Maximum 3 templates. Include ONLY templates that meet one of these specific criteria:
@@ -982,7 +985,16 @@ Do NOT include templates that:
 
 If fewer than 3 templates meet these criteria, include only those that qualify. Do not pad to reach the maximum.
 
-Use the advisor's answers about what caused this situation and what will flow on from it to determine which templates belong in each section.${hasPriceCommunicationTier1 ? '\n\nPRICE COMMUNICATION — TIER 1: The advisor has identified communicating price increases to clients as a primary focus. Include a template that addresses this in Section 1.' : ''}${hasPriceCommunicationTier2 ? '\n\nPRICE COMMUNICATION — TIER 2: The advisor has flagged that communicating price increases to clients will flow on from this situation. Include a template that addresses this in Section 2.' : ''}`
+PER-TEMPLATE FORMAT — use this exact structure for every template in both sections, no exceptions:
+
+**[Template name]**
+Why this fits your client: [Reference the client's situation, the issue raised, their growth stage and acumen. Draw from content summaries where available.]
+Why this suits you as the advisor: [Reference the advisor's experience, confidence, and willingness to stretch.]
+How to approach it: [Practical delivery guidance tailored to this specific advisor-client combination.]
+
+Do not use any other field names. Do not add extra fields. Do not use "Purpose:", "Helps the owner:", "Helps the advisor:", or any other heading not listed above.
+
+Use the advisor's answers about what caused this situation and what will flow on from it to determine which templates belong in each section.${(hasPriceCommunicationTier1 || hasPriceCommunicationTier2) ? '\n\nPRICE COMMUNICATION: The advisor has flagged communicating price increases as a need for this engagement. Include the "Price Rise" template (exactly that name) in Section 1 — it covers two communication methods for explaining a price rise to customers.' : ''}`
 
     const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${domainInstructions}${profileNote}${recommendationStructure}\n\nNow produce the Phase 3 recommendation.`
 
@@ -1028,14 +1040,16 @@ Use the advisor's answers about what caused this situation and what will flow on
 
     let _p3Usage = null
     let _p3Ok = false
+    let _p3Buffer = ''
     try {
       for await (const chunk of stream2) {
         if (chunk.usage) { _p3Usage = chunk.usage }
         const text = chunk.choices[0]?.delta?.content || ''
-        if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
-        // Emit state+done for ALL finish reasons so the client never loses
-        // conversationState on max-token truncation or content-filtered responses
+        if (text) { _p3Buffer += text }
+        // Emit once when the stream finishes — video sentences injected in code
         if (chunk.choices[0]?.finish_reason) {
+          const processed = injectVideoInfo(_p3Buffer, orgTemplateIds)
+          res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
         }
@@ -1253,16 +1267,17 @@ Use the advisor's answers about what caused this situation and what will flow on
 
   let _mainUsage = null
   let _mainOk = false
+  let _mainBuffer = ''
   try {
     for await (const chunk of stream) {
       if (chunk.usage) { _mainUsage = chunk.usage }
       const text = chunk.choices[0] && chunk.choices[0].delta && chunk.choices[0].delta.content
         ? chunk.choices[0].delta.content
         : ''
-      if (text) {
-        res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
-      }
+      if (text) { _mainBuffer += text }
       if (chunk.choices[0] && chunk.choices[0].finish_reason) {
+        const processed = injectVideoInfo(_mainBuffer, orgTemplateIds)
+        res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
         res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       }
     }
