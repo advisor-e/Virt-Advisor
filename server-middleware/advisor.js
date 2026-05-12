@@ -143,10 +143,12 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     includeSectionDesc = false,
     advisorProfile = null,
     logicTree = null,
-    maxTemplates = 25
+    maxTemplates = 25,
+    excludeSections = []
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null)
+    .filter(t => excludeSections.length === 0 || !excludeSections.includes(t.menuSection))
   const relevant = filterTemplatesByQuery(orgTemplates, searchQuery, maxTemplates)
   const templatesToUse = relevant.length > 0 ? relevant : orgTemplates.slice(0, maxTemplates)
   const templatesText = formatTemplatesForPrompt(templatesToUse)
@@ -316,6 +318,7 @@ async function handleQuery (rawBody, res) {
       situationContext: null,
       situationPriority: null,
       situationDownstream: null,
+      clarityCheck: null,
       needsPriorityFollowup: false,
       needsDownstreamFollowup: false,
       // Profit scenario questions
@@ -432,8 +435,8 @@ async function handleQuery (rawBody, res) {
         text: 'What do you feel contributed to this situation, which issue do you want to tackle first, and are there any downstream effects we should factor into the service offer?',
         onAnswer: (answer, state) => {
           const lower = answer.toLowerCase()
-          state.needsPriorityFollowup = !/\b(first|start with|focus on|tackle|priority|main|primary|biggest|most important|address|lead with)\b/.test(lower)
-          state.needsDownstreamFollowup = !/\b(also|affect|impact|flow|downstream|knock.on|cascade|further|spread|losing|hitting|secondary|as well|in addition|ripple|follow.on)\b/.test(lower)
+          state.needsPriorityFollowup = !/\b(first(?!\s+(?:noticed|heard|saw|found|thought|time|realized|came|became|happened|occurred))|start with|focus on|tackle|priority|main|primary|biggest|most important|address|lead with)\b/.test(lower)
+          state.needsDownstreamFollowup = !/\b(downstream|knock.on|cascade|ripple|follow.on|as well|in addition|secondary)\b/.test(lower)
         }
       },
       {
@@ -469,6 +472,28 @@ async function handleQuery (rawBody, res) {
             setDetectedDomain(s.disambiguationScenarios[0].id)
           }
           s.disambiguationNeeded = false
+        }
+      },
+      // ── Clarity gate — fires every session before domain questions ──
+      // Reflects the three captured context pieces back to the advisor for confirmation.
+      // Any correction they give is recorded and passed to Phase 3 as additional context.
+      {
+        field: 'clarityCheck',
+        textFn: (s) => {
+          const hasSeparatePriority = s.situationPriority && s.situationPriority !== 'pending'
+          const context = s.situationContext && s.situationContext !== 'pending' ? s.situationContext : 'Not captured'
+          const downstream = s.situationDownstream && s.situationDownstream !== 'pending'
+            ? s.situationDownstream
+            : 'None identified yet — if there are flow-on effects worth factoring in, add them now'
+          let msg = 'Before we go deeper — let me check I\'ve understood this correctly:\n\n'
+          if (hasSeparatePriority) {
+            msg += `**Core issue:** ${s.situationPriority}\n\n**Leading causes:** ${context}\n\n`
+          } else {
+            msg += `**Situation and causes:** ${context}\n\n`
+          }
+          msg += `**Downstream effects:** ${downstream}\n\n`
+          msg += 'Do I understand this correctly, or have I missed anything?'
+          return msg
         }
       },
       // ── Domain 1: Profitability / Feasibility ──
@@ -638,10 +663,14 @@ async function handleQuery (rawBody, res) {
         const wantsAlternatives = /\b(alternative|alternatives|different|other option|not sure|not happy|not convinced|something else|explore|prefer something|instead|not quite right|change|not right)\b/i
         const confirmsHappy = /\b(yes|yeah|yep|yep|looks good|look.*good|pretty good|good enough|that.?s great|that.?s fine|that.?s right|that.?s perfect|happy with that|happy with|i.?m happy|perfect|sounds good|love it|that works|that.?ll work|that.?ll do|that.?s good|brilliant|excellent|great suggestion|go with that|looks right|fair enough|alright|all right)\b/i
 
+        // Guard: if the advisor is asking a question (how/what/tell me/can you), they
+        // are following up — not confirming happiness. Fall through to AI regardless.
+        const containsQuestion = /\b(how|what|why|tell me|can you|could you|would you|explain|show me|walk me)\b/i
+
         if (wantsAlternatives.test(query)) {
           // Advisor wants alternatives — fall through to AI, then re-check next turn
           state.clientApproachAsked = true
-        } else if (confirmsHappy.test(query)) {
+        } else if (confirmsHappy.test(query) && !containsQuestion.test(query)) {
           // Advisor confirms happy — fire Moving Forward
           // The AI always closes with "Are you happy with what I've suggested?" so a
           // happiness signal here is always a direct response to that question
@@ -671,11 +700,13 @@ async function handleQuery (rawBody, res) {
       if (state.movingForwardAsked && !state.movingForwardDone) {
         state.movingForwardDone = true
         const noPattern = /\b(no|nope|nah|not now|not right now|i.?m fine|i.?m good|got it|ready to go|all good|i.?ll be fine|that.?s all|all done|i.?m done|that.?ll do|i.?m good to go|good to go)\b/i
-        if (noPattern.test(query)) {
+        // Guard: "no, I want help with X" is a redirect, not a decline — fall through to AI
+        const isRedirect = /^no[,\s]+(?:i\s+want|i\s+need|actually|but\b|wait\b|i\s+would|i.d\s+like|i\s+still|help|how|what)/i
+        if (noPattern.test(query) && !isRedirect.test(query)) {
           state.conversationComplete = true
           return sendQuestion("You're ready to go. Good luck with it. Come back any time — before the meeting if you want to prep further, or after if you'd like to debrief.", state)
         }
-        // Yes — fall through to AI to help prepare talking points / framing
+        // Yes (or redirect) — fall through to AI to help prepare talking points / framing
       }
 
       // After AI delivered Moving Forward help — close cleanly on advisor sign-off.
@@ -704,7 +735,8 @@ async function handleQuery (rawBody, res) {
       // Detect "how do I use / learn [tool]" requests — switch to learn prompt so the
       // AI gives practical how-to coaching rather than restarting domain detection.
       const isHowToRequest = /\b(how do i|how do you|how to|teach me|walk me through|show me how|how would i|how can i|help me understand|explain)\b.{0,60}\b(use|learn|apply|run|do|deliver|introduce|facilitate|work with|implement|conduct|run through)\b/i
-      const mentionsTool = /\b(force field|template|tool|framework|analysis|matrix|plan|process|model|approach|method|heald|revenue model|growth curve|staircase|accountability|board plan|register|heatmap)\b/i
+      // In post-rec context, pronouns (them/these/it/this) referring to recommended templates are valid
+      const mentionsTool = /\b(force field|template|tool|framework|analysis|matrix|plan|process|model|approach|method|heald|revenue model|growth curve|staircase|accountability|board plan|register|heatmap|them|these|it|this one|those)\b/i
       const isLearnRequest = isHowToRequest.test(query) && mentionsTool.test(query)
 
       // Append a post-rec instruction so the AI does not restart domain detection
@@ -769,9 +801,12 @@ async function handleQuery (rawBody, res) {
     const collectedAnswers = [
       `Opening situation: ${(conversationHistory.find(m => m.role === 'user') || { content: query }).content}`,
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' ? `Whether client raised it: ${state.clientRaisedIssue}` : '',
-      state.situationContext && state.situationContext !== 'pending' ? `Situation overview (root cause / focus / downstream): ${state.situationContext}` : '',
+      state.situationContext && state.situationContext !== 'pending' ? `Situation context (root cause and contributing factors — priority and downstream captured separately below): ${state.situationContext}` : '',
       state.situationPriority && state.situationPriority !== 'pending' ? `Priority issue to tackle first: ${state.situationPriority}` : '',
-      state.situationDownstream && state.situationDownstream !== 'pending' ? `Downstream effects to factor in: ${state.situationDownstream}` : '',
+      state.situationDownstream && state.situationDownstream !== 'pending'
+        ? `Downstream effects (explicitly provided by advisor): ${state.situationDownstream}`
+        : 'Downstream effects: not separately captured — review all collected answer fields for flow-on signals before populating Section 2',
+      state.clarityCheck && state.clarityCheck !== 'pending' ? `Advisor response to context summary check: ${state.clarityCheck}` : '',
       // Domain 1: Profitability answers
       state.detectedDomain === 'profit' && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
       state.detectedDomain === 'profit' && state.reportsFromFirm && state.reportsFromFirm !== 'pending' ? `Reports delivered by advisor's firm: ${state.reportsFromFirm}` : '',
@@ -820,7 +855,7 @@ async function handleQuery (rawBody, res) {
     // Parse meeting count — upper bound of a range ("two to three") taken so capacity covers all planned sessions
     const _meetingCountText = state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' ? state.advisorMeetingCount.toLowerCase() : ''
     const _meetingWordMap = { one: 1, two: 2, three: 3, four: 4, five: 5 }
-    const _countRangeMatch = _meetingCountText.match(/\b(one|two|three|four|five|\d)\s+(?:to|or|-)\s+(one|two|three|four|five|\d)\b/i)
+    const _countRangeMatch = _meetingCountText.match(/\b(one|two|three|four|five|\d)\s+(?:to|or|maybe|-)\s+(one|two|three|four|five|\d)\b/i)
     const _countSingleMatch = _meetingCountText.match(/\b(one|two|three|four|five|\d)\b/i)
     const meetingNum = _countRangeMatch
       ? (_meetingWordMap[_countRangeMatch[2]] || parseInt(_countRangeMatch[2]) || null)
@@ -834,10 +869,10 @@ async function handleQuery (rawBody, res) {
     const templatesPerMeeting = _longMeeting ? 2 : 1
     const tier1Capacity = (meetingNum || 1) * templatesPerMeeting
 
-    // Detect price communication need from priority (Tier 1) and downstream (Tier 2)
+    // Detect price communication need — scan all substantive answer fields, not just priority/downstream
     const _pricePattern = /\b(communicat(?:e|ing|ion|ions)?|price[s]?\s+(?:increase[s]?|rise[s]?|hike[s]?|change[s]?|up)\b|put(?:ting)?\s+(?:the\s+|their\s+)?price[s]?\s+up|pass\s+(?:it|the\s+cost|increase)\s+on|tell\s+(?:the\s+)?(?:client|customer)s?\s+about|inform\s+(?:the\s+)?(?:client|customer)s?|announc(?:e|ing|ement[s]?)?|retain(?:ing)?\s+(?:client|customer)s?|losing\s+(?:client|customer)s?|afraid\s+to\s+(?:raise|increase|put\s+up)\s+(?:the\s+)?price|client[s]?\s+(?:leave|leav|left|retention))\b/i
-    const hasPriceCommunicationTier1 = state.situationPriority && state.situationPriority !== 'pending' && _pricePattern.test(state.situationPriority)
-    const hasPriceCommunicationTier2 = state.situationDownstream && state.situationDownstream !== 'pending' && _pricePattern.test(state.situationDownstream)
+    const _priceFields = [state.situationContext, state.situationPriority, state.situationDownstream, state.advisorConfidence]
+    const hasPriceCommunication = _priceFields.some(f => f && f !== 'pending' && _pricePattern.test(f))
 
     // Map industry answer to a specific industry template name if one exists in the library
     const industryText = (state.industry || '').toLowerCase()
@@ -863,7 +898,7 @@ ${recommendedRevenueModel ? `- An industry-specific revenue model exists for thi
 - KEY INSIGHT — frame this in the "How to approach it" section: The revenue/what-if model's deepest value is the gap it exposes — the difference between what the owner assumes the business delivers (revenue, costs, profit) and what the financials actually show. That gap is a direct window into the mindset behind every decision they make. An owner running on flawed assumptions will keep arriving at the same outcomes. Making the gap visible is what shifts them from assumption-driven to data-driven thinking. The advisor should position the model as the tool that makes this shift possible — not just a financial exercise, but a change in how the owner sees their own business.
 - DELIVERY METHOD RULE: ${clientRaisedIssue ? 'The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.' : 'The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method to deliver the revenue model. CRITICAL: the Cautious Reveal is NOT a template and must NOT appear in "My recommendation" — it is a delivery approach only. Explain it solely within the "How to approach it" section: establish WHY the client needs the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil\'s a plumber video before the meeting to prime awareness.'}
 ${reportsYes ? '- This client already uses financial management reports regularly. Do NOT recommend the Working Capital Cycle or any basic financial literacy or financial awareness templates — they are beneath this client\'s level. Only recommend templates appropriate for a financially informed client.' : ''}
-${reportsNo ? `- FINANCIAL EDUCATION: This client does not use financial management reports. Include a financial education template in TIER 2 (future consideration). To select the correct one, match the client's described situation to the most relevant theme in the Financial Management Progression Table below — read the Problem column and find the closest match. The Suggested Template from that theme is what you must include. Do NOT use Debtor Protocols, Revenue Models, or other operational tools to satisfy this requirement.\n- CRITICAL: Do NOT describe this client as using, having access to, or being familiar with management reports at any point in your response. Their situation is that they do not use reports — every template description and all explanatory prose must reflect this. Writing anything that implies the client already uses reports is factually incorrect and undermines the recommendation.\n\nFINANCIAL MANAGEMENT PROGRESSION TABLE:\n${formatFinMgtTable()}` : ''}
+${reportsNo ? `- FINANCIAL EDUCATION: This client does not use financial management reports. Include a financial education template in TIER 2 (future consideration). To select the correct one, match the client's described situation to the most relevant theme in the Financial Management Progression Table below — read the Problem column and find the closest match. You MUST use the Suggested Template name from that theme exactly as written. The only permitted template names for this slot are: The Heald Matrix, Working Capital Cycle, Demings Volatility, Forecasting, Dashboard Discussions, Ratio Analysis. Do NOT use any other template name. If the closest theme is "Eyes On The Prize" (Revenue Model), skip it — the revenue model is already in Section 1 — and choose the next best matching theme instead.\n- CRITICAL: Do NOT describe this client as using, having access to, or being familiar with management reports at any point in your response. Their situation is that they do not use reports — every template description and all explanatory prose must reflect this. Writing anything that implies the client already uses reports is factually incorrect and undermines the recommendation.\n\nFINANCIAL MANAGEMENT PROGRESSION TABLE:\n${formatFinMgtTable()}` : ''}
 ${reportsFromAdvisorFirm ? '- The advisor\'s firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.' : ''}
 ${reviewNo ? '- The advisor has indicated the client does NOT need a detailed review of business variables and profit drivers. Do NOT recommend templates focused on profit driver analysis, business variable reviews, or foundational financial education. Stick to action-oriented templates relevant to the specific profitability issue.' : ''}
 ${staircaseNum ? `- Advisory Staircase position: Step ${staircaseNum}. ${staircaseNum <= 2 ? 'This is an early-stage engagement — keep templates foundational and accessible. Build confidence before introducing complexity.' : staircaseNum === 3 ? 'The engagement is at interpretation stage — the client is ready for structured analysis and what-if modelling.' : staircaseNum === 4 ? 'The engagement is at application stage — the client is ready for forecasting, scenario planning, and strategic templates.' : 'This is a mature strategic engagement — the client expects sophisticated, data-driven templates. Do not recommend foundational or educational content.'}` : ''}`
@@ -972,29 +1007,36 @@ SECTION 1 — "I'm confident this will help..."
 Select templates that directly address the CAUSE of the client's situation — what led to it and the primary fix. Capacity: ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} (${_tier1Label}). Do not exceed this number in Section 1. Order by priority: the template that addresses what the advisor said they want to tackle first comes first, followed by any other primary cause templates, then any downstream needs included in Section 1.
 
 SECTION 2 — "You might find these templates support this topic — for future consideration"
-Maximum 3 templates. Include ONLY templates that meet one of these specific criteria:
-- The advisor explicitly described a downstream or flow-on effect that this template directly addresses
-- A clear foundational gap was identified in the advisor's answers (e.g. no use of financial reports → a financial education template)
-- A specific secondary need emerged from a Phase 2 answer that is distinct from the primary situation
+Maximum 3 templates. Before including any template here, apply one of these three tests against the collected answers above — a template only belongs in Section 2 if it passes at least one test:
+
+TEST 1 — Downstream: The advisor named a specific downstream or flow-on effect in any collected answer field, and this template directly and specifically addresses that stated effect. A loose thematic connection does not pass this test — the effect must have been named by the advisor.
+
+TEST 2 — Foundational gap: A domain diagnostic answer revealed a clear knowledge or tool gap, and this template closes it (e.g. no use of financial reports → a financial education template from the approved list). The gap must be explicitly present in the collected answers.
+
+TEST 3 — Phase 2 secondary need: The advisor described a specific secondary need in their confidence or experience answer that is distinct from the primary situation and not already covered in Section 1.
+
+If a template does not pass one of these three tests, it does not belong in Section 2. Do not pad to reach the maximum.
 
 Do NOT include templates that:
+- Belong to the "Get Organised" section — these are advisor development and practice management tools, never client-facing. Do not recommend them under any circumstances.
 - Are generic or process-based (meeting agendas, time management) unless explicitly discussed
 - Address the advisor's own practice management rather than the client's situation
-- Merely keyword-match but were not referenced in any collected answer
+- Were not referenced in any collected answer field
 - Duplicate the intent of a Tier 1 template
 
-If fewer than 3 templates meet these criteria, include only those that qualify. Do not pad to reach the maximum.
-
-PER-TEMPLATE FORMAT — use this exact structure for every template in both sections, no exceptions:
+PER-TEMPLATE FORMAT — use this exact structure for every template in both sections, no exceptions. Each sub-section MUST be separated by a blank line so they render as distinct paragraphs:
 
 **[Template name]**
+
 Why this fits your client: [Reference the client's situation, the issue raised, their growth stage and acumen. Draw from content summaries where available.]
+
 Why this suits you as the advisor: [Reference the advisor's experience, confidence, and willingness to stretch.]
+
 How to approach it: [Practical delivery guidance tailored to this specific advisor-client combination.]
 
 Do not use any other field names. Do not add extra fields. Do not use "Purpose:", "Helps the owner:", "Helps the advisor:", or any other heading not listed above.
 
-Use the advisor's answers about what caused this situation and what will flow on from it to determine which templates belong in each section.${(hasPriceCommunicationTier1 || hasPriceCommunicationTier2) ? '\n\nPRICE COMMUNICATION: The advisor has flagged communicating price increases as a need for this engagement. Include the "Price Rise" template (exactly that name) in Section 1 — it covers two communication methods for explaining a price rise to customers.' : ''}`
+Use the advisor's answers about what caused this situation and what will flow on from it to determine which templates belong in each section.${hasPriceCommunication ? '\n\nPRICE COMMUNICATION: The advisor has flagged communicating price increases as a need for this engagement. Include the "Price Rise" template (exactly that name) in Section 1 — it covers two communication methods for explaining a price rise to customers.' : ''}`
 
     const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${domainInstructions}${profileNote}${recommendationStructure}\n\nNow produce the Phase 3 recommendation.`
 
@@ -1009,8 +1051,8 @@ Use the advisor's answers about what caused this situation and what will flow on
       includeSummaries: true,
       logicTree: matchedTree,
       includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
-      includeSectionDesc: true,
-      maxTemplates: 40
+      maxTemplates: 25,
+      excludeSections: ['get-organised', 'get-the-job']
     }) + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     const systemPrompt2 = loadPrompt('client') + languageInstruction2
@@ -1045,11 +1087,17 @@ Use the advisor's answers about what caused this situation and what will flow on
       for await (const chunk of stream2) {
         if (chunk.usage) { _p3Usage = chunk.usage }
         const text = chunk.choices[0]?.delta?.content || ''
-        if (text) { _p3Buffer += text }
-        // Emit once when the stream finishes — video sentences injected in code
+        if (text) {
+          _p3Buffer += text
+          // Stream each chunk immediately so the advisor sees text appearing in real time
+          res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
+        }
         if (chunk.choices[0]?.finish_reason) {
+          // Post-process for video injection — if it changed the text, send a replace event
           const processed = injectVideoInfo(_p3Buffer, orgTemplateIds)
-          res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
+          if (processed !== _p3Buffer) {
+            res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
+          }
           res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
         }

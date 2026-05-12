@@ -764,6 +764,7 @@ export default {
 
   beforeDestroy () {
     if (this._saveTimer) { clearTimeout(this._saveTimer) }
+    if (this._abortController) { this._abortController.abort() }
   },
 
   mounted () {
@@ -823,6 +824,11 @@ export default {
     },
 
     selectMode (selected) {
+      if (this._abortController) { this._abortController.abort() }
+      if (this.recognition) { this.recognition.stop() }
+      this.isListening = false
+      this.isStreaming = false
+      this.streamingText = ''
       this.mode = selected
       this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
       this.conversationState = {}
@@ -836,6 +842,9 @@ export default {
     },
 
     reset () {
+      if (this._abortController) { this._abortController.abort() }
+      if (this.recognition) { this.recognition.stop() }
+      this.isListening = false
       this.mode = null
       this.messages = []
       this.inputText = ''
@@ -937,9 +946,12 @@ export default {
       this.scrollToBottom()
 
       try {
+        if (this._abortController) { this._abortController.abort() }
+        this._abortController = new AbortController()
         const response = await fetch('/api/advisor/query', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: this._abortController.signal,
           body: JSON.stringify({
             query,
             mode: this.mode,
@@ -979,6 +991,10 @@ export default {
                 this.conversationState = data.state
               } else if (data.type === 'delta') {
                 this.streamingText += data.text
+                await this.$nextTick()
+                this.scrollToBottom()
+              } else if (data.type === 'replace') {
+                this.streamingText = data.text
                 await this.$nextTick()
                 this.scrollToBottom()
               } else if (data.type === 'done') {
@@ -1027,6 +1043,11 @@ export default {
           this.isStreaming = false
         }
       } catch (e) {
+        if (e && e.name === 'AbortError') {
+          this.isStreaming = false
+          this.streamingText = ''
+          return
+        }
         this.messages.push({ role: 'assistant', content: this.$t('error') })
         this.isStreaming = false
         this.streamingText = ''
