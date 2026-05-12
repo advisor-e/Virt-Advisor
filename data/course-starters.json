@@ -1,0 +1,30 @@
+[
+  {
+    "id": "positioning-financial-management",
+    "title": "Positioning Financial Management",
+    "blurb": "Position financial management services so clients see the value — and say yes.",
+    "sessions": 5,
+    "colour": "#00b1e0"
+  },
+  {
+    "id": "eoy-opportunity",
+    "title": "The EOY Opportunity",
+    "blurb": "Make EOY meetings count — for you and your client.",
+    "sessions": 4,
+    "colour": "#0d9488"
+  },
+  {
+    "id": "coffee-and-a-curve",
+    "title": "Coffee & A Curve",
+    "blurb": "Using a story and a napkin to position you as their strategic advisor.",
+    "sessions": 4,
+    "colour": "#7c3aed"
+  },
+  {
+    "id": "simple-dashboard-discussions",
+    "title": "Simple Dashboard Discussions",
+    "blurb": "Making it easy to measure what matters.",
+    "sessions": 5,
+    "colour": "#d97706"
+  }
+]

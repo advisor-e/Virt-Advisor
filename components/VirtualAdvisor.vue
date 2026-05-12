@@ -140,11 +140,20 @@
     :advisorId="advisorId"
     :advisorProfile="advisorProfile"
     :orgTemplateIds="orgTemplateIds"
+    :isFirmManager="isFirmManager"
     @exit="reset"
+    @openFirmDashboard="selectMode('firm')"
+  )
+
+  //- Firm dashboard
+  FirmDashboard(
+    v-else-if="mode === 'firm'"
+    :firmId="advisorId"
+    :firmName="advisorProfile && advisorProfile.firmName ? advisorProfile.firmName : 'My Firm'"
   )
 
   //- Conversation
-  .messages-area(v-else-if="mode && mode !== 'course'" ref="messagesArea")
+  .messages-area(v-else-if="mode && mode !== 'course' && mode !== 'firm'" ref="messagesArea")
     .messages-list
       div(
         v-for="(msg, index) in messages"
@@ -584,6 +593,10 @@ export default {
     firmId: {
       type: String,
       default: 'local-firm'
+    },
+    isFirmManager: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -648,7 +661,8 @@ export default {
         discover: 'I want to find something specific',
         plan: 'I want to plan ahead',
         learn: 'I\'m interested in learning more',
-        course: 'I want to build a course'
+        course: 'I want to build a course',
+        firm: 'Team Dashboard'
       }
       return labels[this.mode] || ''
     },
@@ -830,7 +844,10 @@ export default {
       this.isStreaming = false
       this.streamingText = ''
       this.mode = selected
-      this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
+      const noConversation = ['course', 'firm']
+      if (!noConversation.includes(selected)) {
+        this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
+      }
       this.conversationState = {}
       this.showGrowthCurveSelector = false
       this.selectedGrowthStage = null
@@ -1293,6 +1310,7 @@ export default {
 .card-plan .card-top-bar    { background: linear-gradient(90deg, #059669, #34d399); }
 .card-learn .card-top-bar   { background: linear-gradient(90deg, #d97706, #fbbf24); }
 .card-course .card-top-bar  { background: linear-gradient(90deg, #00b1e0, #0098c1); }
+.card-firm .card-top-bar    { background: linear-gradient(90deg, #0f766e, #0d9488); }
 .card-profile .card-top-bar { background: linear-gradient(90deg, #6366f1, #a5b4fc); }
 
 .mode-card-inner {
@@ -1317,6 +1335,7 @@ export default {
 .icon-plan     { background: #ecfdf5; color: #059669; }
 .icon-learn    { background: #fffbeb; color: #d97706; }
 .icon-course   { background: #e6f8fd; color: #00b1e0; }
+.icon-firm     { background: #f0fdf4; color: #0f766e; }
 .icon-profile  { background: #eef2ff; color: #6366f1; font-size: 26px; display: flex; align-items: center; justify-content: center; }
 
 .mode-card-body { display: flex; flex-direction: column; gap: 6px; flex: 1; }
@@ -1336,6 +1355,7 @@ export default {
 .card-plan .mode-card-tag    { color: #059669; background: #ecfdf5; }
 .card-learn .mode-card-tag   { color: #d97706; background: #fffbeb; }
 .card-course .mode-card-tag  { color: #00b1e0; background: #e6f8fd; }
+.card-firm .mode-card-tag    { color: #0f766e; background: #f0fdf4; }
 .card-profile .mode-card-tag { color: #6366f1; background: #eef2ff; }
 .card-profile .mode-card-tag.tag-empty { color: #6b7280; background: #f3f4f6; }
 
@@ -1350,12 +1370,14 @@ export default {
 .card-plan:hover    .mode-card-arrow { color: #34d399; transform: translateX(4px); }
 .card-learn:hover   .mode-card-arrow { color: #fbbf24; transform: translateX(4px); }
 .card-course:hover  .mode-card-arrow { color: #00b1e0; transform: translateX(4px); }
+.card-firm:hover    .mode-card-arrow { color: #0d9488; transform: translateX(4px); }
 .card-profile:hover .mode-card-arrow { color: #6366f1; transform: translateX(4px); }
 .card-client:hover  { border-color: #bfdbfe; }
 .card-discover:hover { border-color: #ddd6fe; }
 .card-plan:hover    { border-color: #a7f3d0; }
 .card-learn:hover   { border-color: #fde68a; }
 .card-course:hover  { border-color: #99dff5; }
+.card-firm:hover    { border-color: #99f6e4; }
 .card-profile:hover { border-color: #c7d2fe; }
 
 /* Section banner */

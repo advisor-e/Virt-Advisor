@@ -1,11 +1,33 @@
 <template lang="pug">
 .course-builder
 
+  //- ── Course builder nav bar ──────────────────────────────────────────────
+  .cb-nav-bar
+    button.btn-my-courses(@click="goToCourses") ← My Courses
+    button.btn-team-dashboard(v-if="isFirmManager" @click="$emit('openFirmDashboard')") Team Dashboard
+
   //- ── AI processing bar — visible whenever any AI call is in-flight ────────
   .ai-loading-bar(v-if="isDesignStreaming || isSessionStreaming || isGeneratingQuiz")
 
+  //- ── PHASE: Courses (picker) ────────────────────────────────────────────
+  template(v-if="phase === 'courses'")
+    .courses-picker
+      .courses-picker-header
+        h2.picker-heading Your saved courses
+        p.picker-sub Pick up where you left off, or start something new.
+      .courses-list
+        .course-row(v-for="c in savedCourses" :key="c.id")
+          .course-row-info
+            strong.course-row-title {{ c.outline.title }}
+            p.course-row-meta {{ c.outline.sessions.length }} sessions · {{ (c.progress || []).filter(p => p.status === 'complete').length }} complete
+          .course-row-status
+            span.course-status-badge(:class="c.status === 'active' ? 'badge-status-active' : 'badge-status-paused'") {{ c.status === 'active' ? 'Active' : 'Paused' }}
+          button.btn-resume-picker-course(@click="resumeCourse(c)") Resume →
+      .courses-picker-footer
+        button.btn-new-course-main(@click="startFreshCourse") + Build a new course
+
   //- ── PHASE: Design ───────────────────────────────────────────────────────
-  template(v-if="phase === 'design'")
+  template(v-else-if="phase === 'design'")
     .course-messages(ref="designMessages")
       .course-msg(
         v-for="(msg, i) in designMessages"
@@ -16,6 +38,22 @@
         .msg-bubble
           div(v-if="msg.role === 'assistant'" v-html="renderMarkdown(msg.content)" class="prose")
           p(v-else) {{ msg.content }}
+
+      //- Pre-built starters — shown only at the opening screen
+      .starters-section(v-if="designMessages.length === 1 && !isDesignStreaming")
+        p.starters-heading Build from a template
+        .starters-grid
+          .starter-card(
+            v-for="s in courseStarters"
+            :key="s.id"
+            @click="selectStarter(s)"
+            :style="{ '--starter-colour': s.colour }"
+          )
+            .starter-card-top
+            .starter-card-body
+              h3.starter-title {{ s.title }}
+              p.starter-blurb {{ s.blurb }}
+              span.starter-btn Start building →
 
       //- Streaming indicator
       .course-msg.msg-va(v-if="isDesignStreaming")
@@ -103,7 +141,9 @@
         .session-progress-fill(:style="{ width: progressPercent + '%' }")
       .session-progress-label
         span {{ completedSessionCount }} of {{ activeCourse.outline.sessions.length }} sessions complete
-        button.btn-delete-course(@click="confirmDeleteCourse") ✕ Delete course
+        .session-top-actions
+          button.btn-new-course(@click="buildNewCourse") + Build a new course
+          button.btn-delete-course(@click="confirmDeleteCourse") ✕ Delete course
 
     .session-header
       .session-header-info
@@ -112,6 +152,7 @@
         p.session-focus-text {{ currentSession.focus }}
       .session-quiz-actions
         button.btn-view-overview(@click="viewCourseOverview") ≡ Overview
+        button.btn-my-notes(@click="showNotes = !showNotes" :class="{ 'notes-active': showNotes }") ✎ My Session Notes
         button.btn-end-session(
           @click="endSessionAndQuiz"
           :disabled="isSessionStreaming || sessionMessages.length < 2 || isGeneratingQuiz"
@@ -121,6 +162,17 @@
           span(v-else) ✓ End session & take quiz
         button.btn-skip-quiz(v-if="quizError" @click="skipQuizAndContinue") Skip quiz & continue →
       p.quiz-gen-error(v-if="quizError") {{ quizError }}
+
+    .notes-panel(v-show="showNotes")
+      .notes-panel-header
+        span.notes-panel-title My session notes
+        button.notes-close(@click="showNotes = false") ✕
+      textarea.notes-textarea(
+        :value="currentNotes"
+        @input="saveNote($event.target.value)"
+        placeholder="Jot down key takeaways, questions, or ideas..."
+        rows="5"
+      )
 
     .course-messages(ref="sessionMessages")
       .course-msg(
@@ -204,8 +256,13 @@
             strong.ov-session-title {{ s.title }}
             p.ov-session-focus {{ s.focus }}
           .ov-session-status
-            span.ov-badge.ov-badge-done(v-if="activeCourse.progress[i].status === 'complete'")
-              | ✓{{ activeCourse.progress[i].quizScore !== null ? ' ' + activeCourse.progress[i].quizScore + '%' : '' }}
+            template(v-if="activeCourse.progress[i].status === 'complete'")
+              span.ov-badge.ov-badge-done
+                | ✓{{ activeCourse.progress[i].quizScore !== null ? ' ' + activeCourse.progress[i].quizScore + '%' : '' }}
+              button.btn-review-quiz(
+                v-if="activeCourse.progress[i].quizResults && activeCourse.progress[i].quizResults.length"
+                @click="viewQuizReview(i)"
+              ) Review
             span.ov-badge.ov-badge-active(v-else-if="i === activeSessionIndex") Active
             span.ov-badge.ov-badge-pending(v-else) Upcoming
       .overview-footer
@@ -269,6 +326,24 @@
         button.btn-continue-course(@click="completeSession")
           | {{ hasMoreSessions ? 'Continue to session ' + (activeSessionIndex + 2) + ' →' : 'Complete course' }}
 
+  //- ── PHASE: Quiz Review ──────────────────────────────────────────────────
+  template(v-else-if="phase === 'quiz-review'")
+    .quiz-review-container
+      .quiz-review-header
+        button.btn-back-to-overview(@click="backFromQuizReview") ← Back to overview
+        h3.review-heading Quiz review — Session {{ reviewSessionIndex + 1 }}
+      .review-questions
+        .review-q-row(v-for="(r, i) in reviewResults" :key="i")
+          .review-q-meta
+            span.review-q-num Q{{ i + 1 }}
+            span.review-q-score(:class="r.passed ? 'score-pass-text' : 'score-fail-text'") {{ r.score }}%
+            span.review-badge(:class="r.passed ? 'badge-pass' : 'badge-fail'") {{ r.passed ? '✓ Good understanding' : '✗ Review this one' }}
+          p.review-q-text {{ r.question }}
+          .review-answer-block
+            p.review-answer-label Your answer
+            p.review-answer-text {{ r.answer }}
+          p.review-feedback {{ r.feedback }}
+
   //- ── PHASE: Complete ─────────────────────────────────────────────────────
   template(v-else-if="phase === 'complete'")
     .completion-screen
@@ -290,12 +365,37 @@
           .comp-session-score(v-if="activeCourse.progress && activeCourse.progress[i] && activeCourse.progress[i].quizScore")
             span(:class="activeCourse.progress[i].quizScore >= 70 ? 'score-pass-text' : 'score-fail-text'")
               | {{ activeCourse.progress[i].quizScore }}%
-      button.btn-return-menu(@click="$emit('exit')") ← Return to main menu
+      .completion-actions
+        button.btn-download-cert(@click="showCertificate = true") ↓ Download certificate
+        button.btn-return-menu(@click="$emit('exit')") ← Return to main menu
+
+    //- Certificate modal
+    .certificate-modal(v-if="showCertificate")
+      .cert-backdrop(@click="showCertificate = false")
+      .certificate-card
+        .cert-logo Advisor-e
+        h1.cert-title Course Completion Certificate
+        p.cert-subtitle This certifies that
+        p.cert-advisor-name {{ advisorProfile && advisorProfile.name ? advisorProfile.name : 'the advisor' }}
+        p.cert-body has successfully completed
+        p.cert-course-name {{ activeCourse.outline.title }}
+        p.cert-date {{ certCompletedDate }}
+        .cert-stats
+          .cert-stat-item
+            span.cert-stat-num {{ completedSessionCount }}
+            span.cert-stat-label Sessions
+          .cert-stat-item
+            span.cert-stat-num {{ averageScore }}%
+            span.cert-stat-label Average score
+        .cert-actions
+          button.btn-cert-print(@click="printCertificate") Print / Save as PDF
+          button.btn-cert-close(@click="showCertificate = false") Close
 </template>
 
 <script>
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
+import courseStarters from '~/data/course-starters.json'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
 
@@ -305,7 +405,8 @@ export default {
   props: {
     advisorId: { type: String, default: 'local-advisor' },
     advisorProfile: { type: Object, default: null },
-    orgTemplateIds: { type: Array, default: null }
+    orgTemplateIds: { type: Array, default: null },
+    isFirmManager: { type: Boolean, default: false }
   },
 
   data () {
@@ -342,7 +443,19 @@ export default {
       quizAnswer: '',
       quizResults: [],
       currentResult: null,
-      isGrading: false
+      isGrading: false,
+
+      // Pre-built starters
+      courseStarters,
+
+      // Notes
+      showNotes: false,
+
+      // Quiz review
+      reviewSessionIndex: 0,
+
+      // Certificate
+      showCertificate: false
     }
   },
 
@@ -394,6 +507,39 @@ export default {
         .map(p => p.quizScore)
       if (!scores.length) { return 0 }
       return Math.round(scores.reduce((s, v) => s + v, 0) / scores.length)
+    },
+
+    currentNotes () {
+      if (!this.activeCourse || !this.activeCourse.progress) { return '' }
+      return (this.activeCourse.progress[this.activeSessionIndex] || {}).notes || ''
+    },
+
+    reviewResults () {
+      if (!this.activeCourse || !this.activeCourse.progress) { return [] }
+      return (this.activeCourse.progress[this.reviewSessionIndex] || {}).quizResults || []
+    },
+
+    certCompletedDate () {
+      if (!this.activeCourse || !this.activeCourse.progress) { return '' }
+      const last = [...this.activeCourse.progress]
+        .reverse()
+        .find(p => p.completedAt)
+      if (!last) { return '' }
+      return new Date(last.completedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
+    },
+
+    savedCourses () {
+      if (typeof localStorage === 'undefined') { return [] }
+      try {
+        const stored = localStorage.getItem('va_courses')
+        if (!stored) { return [] }
+        const data = JSON.parse(stored)
+        return (data.courses || []).filter(
+          c => c.advisorId === this.advisorId && (c.status === 'active' || c.status === 'paused')
+        )
+      } catch (e) {
+        return []
+      }
     }
   },
 
@@ -453,9 +599,15 @@ export default {
       if (stored) {
         try {
           const data = JSON.parse(stored)
-          const active = (data.courses || []).find(
-            c => c.advisorId === this.advisorId && c.status === 'active'
+          const all = (data.courses || []).filter(
+            c => c.advisorId === this.advisorId && (c.status === 'active' || c.status === 'paused')
           )
+          const hasPaused = all.some(c => c.status === 'paused')
+          const active = all.find(c => c.status === 'active')
+          if (hasPaused) {
+            this.phase = 'courses'
+            return
+          }
           if (active) {
             this.activeCourse = active
             this.activeSessionIndex = this._findActiveSessionIndex(active)
@@ -467,7 +619,7 @@ export default {
           console.warn('[course] Failed to load saved course:', e.message)
         }
       }
-      // No active course — start design conversation
+      // No saved courses — start design conversation
       this.designMessages = [{
         role: 'assistant',
         content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat are the skills or advisory concepts you'd like to develop?"
@@ -844,6 +996,89 @@ export default {
       this.phase = 'session'
     },
 
+    viewQuizReview (index) {
+      this.reviewSessionIndex = index
+      this.phase = 'quiz-review'
+    },
+
+    backFromQuizReview () {
+      this.phase = 'overview'
+    },
+
+    saveNote (text) {
+      if (!this.activeCourse) { return }
+      const progress = this.activeCourse.progress.map((p, i) => {
+        if (i === this.activeSessionIndex) { return { ...p, notes: text } }
+        return p
+      })
+      this.activeCourse = { ...this.activeCourse, progress }
+      this._saveCourse(this.activeCourse)
+    },
+
+    printCertificate () {
+      window.print()
+    },
+
+    goToCourses () {
+      if (this.activeCourse && this.phase === 'session') {
+        this._saveCourse(this.activeCourse)
+      }
+      this.phase = 'courses'
+    },
+
+    buildNewCourse () {
+      if (this.activeCourse) {
+        this.activeCourse = { ...this.activeCourse, status: 'paused' }
+        this._saveCourse(this.activeCourse)
+      }
+      this.activeCourse = null
+      this.activeSessionIndex = 0
+      this.phase = 'design'
+      this.courseVisibility = 'private'
+      this.pendingOutline = null
+      this.sessionMessages = []
+      this.quizQuestions = []
+      this.quizResults = []
+      this.quizError = ''
+      this.designMessages = [{
+        role: 'assistant',
+        content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat are the skills or advisory concepts you'd like to develop?"
+      }]
+    },
+
+    resumeCourse (course) {
+      this.activeCourse = course.status === 'paused' ? { ...course, status: 'active' } : course
+      if (course.status === 'paused') { this._saveCourse(this.activeCourse) }
+      this.activeSessionIndex = this._findActiveSessionIndex(this.activeCourse)
+      this.sessionMessages = []
+      this.quizQuestions = []
+      this.quizResults = []
+      this.quizError = ''
+      this.phase = 'session'
+      this._startSession(false)
+    },
+
+    selectStarter (starter) {
+      this.designInput = `I'd like to build a course called "${starter.title}". ${starter.blurb} Please design a ${starter.sessions}-session course using the available Advisor-e templates and resources.`
+      this.sendDesignMessage()
+    },
+
+    startFreshCourse () {
+      this.activeCourse = null
+      this.activeSessionIndex = 0
+      this.courseVisibility = 'private'
+      this.pendingOutline = null
+      this.sessionMessages = []
+      this.quizQuestions = []
+      this.quizResults = []
+      this.quizError = ''
+      this.phase = 'design'
+      this.designMessages = [{
+        role: 'assistant',
+        content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat are the skills or advisory concepts you'd like to develop?"
+      }]
+    },
+
     skipQuizAndContinue () {
       this.quizError = ''
       this._markSessionComplete(null)
@@ -900,12 +1135,12 @@ export default {
         })
         const data = await response.json()
         if (data.success) {
-          this.currentResult = { passed: data.passed, score: data.score, feedback: data.feedback }
+          this.currentResult = { passed: data.passed, score: data.score, feedback: data.feedback, question: this.currentQuestion.question, answer }
         } else {
-          this.currentResult = { passed: true, score: 75, feedback: 'Could not evaluate — moving on.' }
+          this.currentResult = { passed: true, score: 75, feedback: 'Could not evaluate — moving on.', question: this.currentQuestion.question, answer }
         }
       } catch (e) {
-        this.currentResult = { passed: true, score: 75, feedback: 'Could not evaluate — moving on.' }
+        this.currentResult = { passed: true, score: 75, feedback: 'Could not evaluate — moving on.', question: this.currentQuestion.question, answer }
       }
 
       this.isGrading = false
@@ -923,10 +1158,10 @@ export default {
     },
 
     completeSession () {
-      this._markSessionComplete(this.overallScore)
+      this._markSessionComplete(this.overallScore, [...this.quizResults])
     },
 
-    _markSessionComplete (score) {
+    _markSessionComplete (score, results = null) {
       if (!this.activeCourse) {
         console.error('[course] _markSessionComplete called but activeCourse is null — cannot advance')
         this.quizError = 'Session state was lost. Please refresh and try again.'
@@ -934,7 +1169,7 @@ export default {
       }
       const progress = (this.activeCourse.progress || []).map((p, i) => {
         if (i === this.activeSessionIndex) {
-          return { status: 'complete', quizScore: score, completedAt: new Date().toISOString() }
+          return { status: 'complete', quizScore: score, completedAt: new Date().toISOString(), quizResults: results, notes: p.notes || null }
         }
         return p
       })
@@ -1019,6 +1254,28 @@ export default {
   text-transform: uppercase;
   color: #64748b;
 }
+
+/* ── Course builder nav bar ──────────────────────────── */
+.cb-nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+.btn-my-courses {
+  background: none; border: none; color: #6b7280;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  padding: 4px 0; transition: color 0.15s;
+}
+.btn-my-courses:hover { color: #1e40af; }
+.btn-team-dashboard {
+  background: #0f766e; color: #fff;
+  border: none; border-radius: 6px;
+  padding: 5px 14px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-team-dashboard:hover { background: #0d6560; }
 
 /* ── Messages ─────────────────────────────────────────── */
 .course-messages { flex: 1; overflow-y: auto; padding: 24px; }
@@ -1240,13 +1497,6 @@ export default {
 .session-progress-track { height: 4px; background: #e5e7eb; }
 .session-progress-fill { height: 4px; background: linear-gradient(90deg, #00b1e0, #0098c1); transition: width 0.5s ease; }
 .session-progress-label { font-size: 11px; color: #6b7280; padding: 6px 24px; display: flex; justify-content: space-between; align-items: center; }
-.btn-delete-course {
-  background: none; border: none; color: #9ca3af;
-  font-size: 11px; cursor: pointer; padding: 0;
-  transition: color 0.15s;
-}
-.btn-delete-course:hover { color: #dc2626; }
-
 .design-reset-row { text-align: center; margin: 4px 0 0; }
 .btn-start-fresh {
   background: none; border: none; color: #9ca3af;
@@ -1577,4 +1827,297 @@ export default {
   cursor: pointer; transition: background 0.15s;
 }
 .btn-resume-session:hover { background: #0090b8; }
+
+/* ── Session top-bar new-course button ───────────────── */
+.session-top-actions { display: flex; gap: 8px; align-items: center; }
+.btn-new-course {
+  background: #00b1e0; color: #fff;
+  border: none; border-radius: 6px;
+  padding: 4px 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-new-course:hover { background: #0090b8; }
+.btn-delete-course {
+  background: none; color: #9ca3af;
+  border: 1.5px solid #e5e7eb; border-radius: 6px;
+  padding: 4px 10px; font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-delete-course:hover { color: #dc2626; border-color: #fca5a5; background: #fef2f2; }
+
+/* ── Courses picker screen ───────────────────────────── */
+.courses-picker {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+  gap: 24px;
+}
+
+.courses-picker-header { flex-shrink: 0; }
+.picker-heading { font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 6px; }
+.picker-sub { font-size: 14px; color: #6b7280; margin: 0; }
+
+.courses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.course-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fafafa;
+  transition: border-color 0.15s;
+}
+.course-row:hover { border-color: #00b1e0; background: #f0fbff; }
+
+.course-row-info { flex: 1; }
+.course-row-title { font-size: 14px; color: #111827; display: block; margin-bottom: 3px; }
+.course-row-meta { font-size: 12px; color: #6b7280; margin: 0; }
+
+.course-row-status { flex-shrink: 0; }
+.course-status-badge {
+  font-size: 11px; font-weight: 600;
+  border-radius: 20px; padding: 3px 10px;
+}
+.badge-status-active { background: #e6f8fd; color: #00b1e0; }
+.badge-status-paused { background: #f3f4f6; color: #9ca3af; }
+
+.btn-resume-picker-course {
+  background: #00b1e0; color: #fff;
+  border: none; border-radius: 8px;
+  padding: 8px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.btn-resume-picker-course:hover { background: #0090b8; }
+
+.courses-picker-footer {
+  flex-shrink: 0;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+}
+.btn-new-course-main {
+  background: none;
+  color: #1e40af;
+  border: 1.5px solid #1e40af;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-new-course-main:hover { background: #eff6ff; }
+
+/* ── Pre-built starters ──────────────────────────────── */
+.starters-section {
+  margin-top: 20px;
+  padding: 0 4px;
+}
+.starters-heading {
+  font-size: 12px; font-weight: 700; color: #9ca3af;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin: 0 0 14px;
+}
+.starters-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.starter-card {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background: #fff;
+}
+.starter-card:hover {
+  border-color: var(--starter-colour);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.starter-card-top {
+  height: 5px;
+  background: var(--starter-colour);
+}
+.starter-card-body {
+  padding: 14px 16px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.starter-title {
+  font-size: 13px; font-weight: 700; color: #111827; margin: 0;
+}
+.starter-blurb {
+  font-size: 12px; color: #6b7280; margin: 0; line-height: 1.5;
+}
+.starter-btn {
+  font-size: 12px; font-weight: 600;
+  color: var(--starter-colour);
+  margin-top: 4px;
+  display: inline-block;
+  transition: opacity 0.15s;
+}
+.starter-card:hover .starter-btn { opacity: 0.8; }
+
+/* ── My Session Notes ────────────────────────────────── */
+.btn-my-notes {
+  background: #f3f4f6; color: #374151;
+  border: 1.5px solid #e5e7eb; border-radius: 8px;
+  padding: 8px 14px; font-size: 13px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.btn-my-notes:hover { background: #fef9c3; border-color: #fde68a; color: #92400e; }
+.btn-my-notes.notes-active { background: #fef9c3; border-color: #fbbf24; color: #92400e; }
+
+.notes-panel {
+  border-bottom: 1px solid #fde68a;
+  background: #fefce8;
+  padding: 14px 24px;
+  flex-shrink: 0;
+}
+.notes-panel-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.notes-panel-title { font-size: 13px; font-weight: 600; color: #92400e; }
+.notes-close {
+  background: none; border: none; color: #92400e;
+  font-size: 16px; cursor: pointer; line-height: 1; padding: 0;
+  opacity: 0.6; transition: opacity 0.15s;
+}
+.notes-close:hover { opacity: 1; }
+.notes-textarea {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid #fde68a; border-radius: 8px;
+  background: #fffdf0; color: #1c1917;
+  padding: 10px 14px; font-size: 13px;
+  font-family: inherit; resize: none; outline: none;
+  line-height: 1.6; transition: border-color 0.15s;
+}
+.notes-textarea:focus { border-color: #f59e0b; }
+
+/* ── Quiz review button in overview ──────────────────── */
+.btn-review-quiz {
+  margin-left: 8px;
+  background: none; color: #6b7280;
+  border: 1.5px solid #e5e7eb; border-radius: 6px;
+  padding: 3px 10px; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.btn-review-quiz:hover { color: #1e40af; border-color: #1e40af; background: #eff6ff; }
+
+/* ── Quiz review phase ───────────────────────────────── */
+.quiz-review-container {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+.quiz-review-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+.btn-back-to-overview {
+  background: none; border: none; color: #6b7280;
+  font-size: 13px; cursor: pointer; padding: 0 0 10px;
+  display: block; transition: color 0.15s;
+}
+.btn-back-to-overview:hover { color: #1e40af; }
+.review-heading { font-size: 18px; font-weight: 700; color: #111827; margin: 0; }
+
+.review-questions {
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.review-q-row {
+  background: #f9fafb; border: 1.5px solid #e5e7eb;
+  border-radius: 12px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.review-q-meta { display: flex; align-items: center; gap: 10px; }
+.review-q-num { font-size: 12px; font-weight: 700; color: #6b7280; }
+.review-q-score { font-size: 13px; font-weight: 700; }
+.review-badge {
+  font-size: 11px; font-weight: 600;
+  border-radius: 20px; padding: 3px 10px;
+}
+.review-q-text { font-size: 14px; font-weight: 600; color: #111827; margin: 0; line-height: 1.5; }
+.review-answer-block {
+  background: #fff; border: 1px solid #e5e7eb;
+  border-radius: 8px; padding: 10px 14px;
+}
+.review-answer-label { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 4px; }
+.review-answer-text { font-size: 13px; color: #374151; margin: 0; line-height: 1.5; }
+.review-feedback { font-size: 13px; color: #6b7280; margin: 0; line-height: 1.5; font-style: italic; }
+
+/* ── Completion actions ───────────────────────────────── */
+.completion-actions { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.btn-download-cert {
+  background: #1e40af; color: #fff;
+  border: none; border-radius: 10px;
+  padding: 12px 28px; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-download-cert:hover { background: #1d3a98; }
+
+/* ── Certificate modal ───────────────────────────────── */
+.certificate-modal {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+}
+.cert-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+.certificate-card {
+  position: relative; z-index: 1;
+  background: #fff;
+  border: 3px solid #00b1e0;
+  border-radius: 16px;
+  padding: 48px 56px;
+  max-width: 560px; width: 90%;
+  text-align: center;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.cert-logo { font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #00b1e0; }
+.cert-title { font-size: 22px; font-weight: 800; color: #111827; margin: 0; }
+.cert-subtitle { font-size: 13px; color: #6b7280; margin: 0; }
+.cert-advisor-name { font-size: 26px; font-weight: 700; color: #1e40af; margin: 4px 0; }
+.cert-body { font-size: 13px; color: #6b7280; margin: 0; }
+.cert-course-name { font-size: 18px; font-weight: 700; color: #111827; margin: 4px 0; line-height: 1.3; }
+.cert-date { font-size: 13px; color: #9ca3af; margin: 0; }
+.cert-stats { display: flex; gap: 32px; justify-content: center; margin: 8px 0; }
+.cert-stat-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.cert-stat-num { font-size: 28px; font-weight: 800; color: #0d9488; line-height: 1; }
+.cert-stat-label { font-size: 11px; color: #6b7280; font-weight: 500; }
+.cert-actions { display: flex; gap: 10px; justify-content: center; margin-top: 8px; }
+.btn-cert-print {
+  background: #1e40af; color: #fff;
+  border: none; border-radius: 8px;
+  padding: 10px 22px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-cert-print:hover { background: #1d3a98; }
+.btn-cert-close {
+  background: none; color: #6b7280;
+  border: 1.5px solid #d1d5db; border-radius: 8px;
+  padding: 10px 18px; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-cert-close:hover { color: #374151; border-color: #9ca3af; }
+
+/* ── Print: show certificate only ────────────────────── */
+@media print {
+  body > * { display: none !important; }
+  .certificate-modal { display: flex !important; position: static !important; }
+  .cert-backdrop { display: none !important; }
+  .cert-actions { display: none !important; }
+  .certificate-card { box-shadow: none !important; border-color: #ccc !important; }
+}
 </style>

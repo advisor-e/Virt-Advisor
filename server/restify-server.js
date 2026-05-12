@@ -15,6 +15,7 @@ const restify = require('restify')
 const healthRoute = require('./routes/health')
 const translateRoute = require('./routes/translate')
 const advisorRoute = require('./routes/advisor')
+const firmRoute = require('./routes/firm')
 
 const PORT = process.env.BACKEND_PORT || 4000
 
@@ -46,6 +47,8 @@ server.use((req, res, next) => {
 server.get('/api/health', healthRoute.get)
 server.post('/api/translate/locale', translateRoute.post)
 server.post('/api/advisor/query', advisorRoute.post)
+server.get('/api/firm/advisors', firmRoute.getAdvisors)
+server.post('/api/firm/insights', firmRoute.postInsights)
 
 // ── Start ──
 server.listen(PORT, () => {

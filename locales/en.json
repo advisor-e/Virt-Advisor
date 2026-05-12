@@ -37,6 +37,11 @@
       "title": "I want to build a course",
       "desc": "Tell me what you want to develop as an advisor. I'll guide you through building a tailored learning program — session by session, at the right pace for you.",
       "tag": "Guided · Learning Program"
+    },
+    "firm": {
+      "title": "Team Dashboard",
+      "desc": "Monitor your team's course enrolments, progress and quiz scores.",
+      "tag": "Firm Manager"
     }
   },
   "profile": {

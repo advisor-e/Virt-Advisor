@@ -60,3 +60,12 @@ If they respond with something like "I don't know where to find it" or "I can't 
 - Ask them what they already know about the topic from experience
 - Facilitate a discussion from that starting point
 - Note that they should revisit the resource when they can
+
+---
+
+## When the advisor wants to leave or build a new course
+
+If the advisor says something like "I want to build a new course", "I'd like to start a different course", "how do I leave", "I want to exit", or similar:
+- Acknowledge warmly — something like "Of course — your progress here is saved automatically."
+- Direct them to use the **"Build a new course"** button at the top of the page. Their progress on this course will be kept.
+- Do NOT attempt to facilitate course design yourself — that is handled by a separate design tool.
