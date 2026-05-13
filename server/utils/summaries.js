@@ -78,6 +78,7 @@ function formatSectionDescriptionsForPrompt () {
   const lines = ['### Template Section Guide — Use this to match client and advisor profile to the right complexity tier\n']
   for (const s of sections) {
     lines.push(`**${s.section}** (Complexity: ${s.complexity})`)
+    if (s.advisorLevelNote) { lines.push(`Advisor level: ${s.advisorLevelNote}`) }
     lines.push(`Client profile: ${s.clientProfile}`)
     lines.push(`Advisor profile: ${s.advisorProfile}`)
     lines.push(`Engagement style: ${s.engagementStyle}`)

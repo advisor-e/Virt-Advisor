@@ -7,4 +7,4 @@ npm test
 
 # Audit at critical level only — high-severity vulnerabilities are risk-accepted
 # in SECURITY-AUDIT-NOTES.md (locked to Nuxt 2 dependency tree, build tools only).
-npm audit --audit-level=critical
+NODE_OPTIONS=--use-system-ca npm audit --audit-level=critical

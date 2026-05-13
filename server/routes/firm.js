@@ -25,7 +25,7 @@ const { sendError } = require('../utils/sendError')
 
 // ── GET /api/firm/advisors ──────────────────────────────────────────────────
 
-async function getAdvisors (req, res, next) {
+function getAdvisors (req, res, next) {
   const firmId = req.query.firmId
 
   if (!firmId) {
@@ -58,8 +58,8 @@ async function getAdvisors (req, res, next) {
 
 // ── POST /api/firm/insights ─────────────────────────────────────────────────
 
-async function postInsights (req, res, next) {
-  const { firmId, summaryStats, advisors } = req.body || {}
+function postInsights (req, res, next) {
+  const { firmId } = req.body || {}
 
   if (!firmId) {
     return sendError(res, 400, 'firmId required')
@@ -89,8 +89,11 @@ async function postInsights (req, res, next) {
 }
 
 // ── Prompt builder (ready for OpenAI hookup) ────────────────────────────────
+// Called by postInsights once the DB/OpenAI wiring is in place.
+// Receives summaryStats { activeLearners, coursesRunning, completionRate, avgQuizScore }
+// and advisors array matching the DB schema shape.
 
-function buildInsightPrompt (stats, advisors) {
+function buildInsightPrompt (stats, advisorList) {
   const lines = [
     'You are a learning analytics assistant for a financial advisory firm.',
     'Write a 2-3 sentence plain-English summary of the team\'s learning progress below.',
@@ -103,7 +106,7 @@ function buildInsightPrompt (stats, advisors) {
     '',
     'Advisor breakdown:'
   ]
-  for (const a of (advisors || [])) {
+  for (const a of (advisorList || [])) {
     for (const c of (a.courses || [])) {
       const done = (c.sessions || []).filter(s => s.status === 'complete').length
       const total = (c.sessions || []).length
@@ -113,4 +116,4 @@ function buildInsightPrompt (stats, advisors) {
   return lines.join('\n')
 }
 
-module.exports = { getAdvisors, postInsights }
+module.exports = { getAdvisors, postInsights, buildInsightPrompt }

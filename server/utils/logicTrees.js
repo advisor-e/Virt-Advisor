@@ -1163,6 +1163,24 @@ function formatDashboardDiscussionsReferenceForPrompt () {
   return lines.join('\n')
 }
 
+// Maps learn-mode tree IDs to their companion reference formatter functions.
+// Add a new entry here whenever a new learn-mode tree gets a reference file.
+const LEARN_REFERENCE_FORMATTERS = {
+  public_speaking: formatSeminarsReferenceForPrompt,
+  trial_fit: formatTrialFitReferenceForPrompt,
+  cautious_reveal: formatCautiousRevealReferenceForPrompt,
+  eoy_meeting: formatEoyReferenceForPrompt,
+  facilitation_101: formatFacilitationReferenceForPrompt,
+  reveal_growth_curve: formatGrowthCurveRevealReferenceForPrompt,
+  conflict_meeting: formatConflictMeetingReferenceForPrompt,
+  capacity_capability_opportunity: formatCCOReferenceForPrompt,
+  heald_matrix: formatHealdMatrixReferenceForPrompt,
+  demings_volatility: formatDemingsVolatilityReferenceForPrompt,
+  working_capital_cycle: formatWorkingCapitalCycleReferenceForPrompt,
+  ratio_analysis: formatRatioAnalysisReferenceForPrompt,
+  dashboard_discussions: formatDashboardDiscussionsReferenceForPrompt
+}
+
 /**
  * Builds the full reference text block for a given learn-mode tree.
  * Used by both learn mode (primary path) and the deep-dive offer in client/discover mode.
@@ -1174,44 +1192,9 @@ function buildLearnReferenceText (tree) {
 
   let text = formatLogicTreeForPrompt(tree)
 
-  if (tree.id === 'public_speaking') {
-    const ref = formatSeminarsReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'trial_fit') {
-    const ref = formatTrialFitReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'cautious_reveal') {
-    const ref = formatCautiousRevealReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'eoy_meeting') {
-    const ref = formatEoyReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'facilitation_101') {
-    const ref = formatFacilitationReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'reveal_growth_curve') {
-    const ref = formatGrowthCurveRevealReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'conflict_meeting') {
-    const ref = formatConflictMeetingReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'capacity_capability_opportunity') {
-    const ref = formatCCOReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'heald_matrix') {
-    const ref = formatHealdMatrixReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'demings_volatility') {
-    const ref = formatDemingsVolatilityReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'working_capital_cycle') {
-    const ref = formatWorkingCapitalCycleReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'ratio_analysis') {
-    const ref = formatRatioAnalysisReferenceForPrompt()
-    if (ref) { text += '\n\n---\n\n' + ref }
-  } else if (tree.id === 'dashboard_discussions') {
-    const ref = formatDashboardDiscussionsReferenceForPrompt()
+  const formatter = LEARN_REFERENCE_FORMATTERS[tree.id]
+  if (formatter) {
+    const ref = formatter()
     if (ref) { text += '\n\n---\n\n' + ref }
   }
 

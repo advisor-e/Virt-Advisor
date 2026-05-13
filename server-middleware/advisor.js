@@ -175,7 +175,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     }
     const summariesToUse = Array.from(summaryMap.values()).slice(0, 25)
     summariesText = summariesToUse.length > 0
-      ? `## Do the Job Content Summaries (${summariesToUse.length} most relevant)\n\nUse these for Phase 3. Each entry contains: Purpose, When to use, Helps the owner, Helps the advisor.\n\n` + formatSummariesForPrompt(summariesToUse)
+      ? `## Template Content Summaries (${summariesToUse.length} most relevant)\n\nUse these for Phase 3. Each entry contains: Purpose, When to use, Helps the owner, Helps the advisor.\n\n` + formatSummariesForPrompt(summariesToUse)
       : null
   }
 
@@ -1155,8 +1155,12 @@ Use the advisor's answers about what caused this situation and what will flow on
 
   // Summaries only apply to Do the Job templates — skip for plan/learn modes.
   // Also defer until conversation is deep enough to be approaching a recommendation.
+  // Use the first user message (establishes the topic) + current query for filtering —
+  // the current message alone may be a short answer ("yes", "they're a plumber") that matches nothing.
   const summariesApply = mode === 'client' || mode === 'discover'
-  const relevantSummaries = summariesApply && trimmedHistory.length >= 6 ? filterSummariesByQuery(query, 10) : []
+  const firstUserMsg = trimmedHistory.find(m => m.role === 'user')?.content || ''
+  const summaryQuery = firstUserMsg ? firstUserMsg + ' ' + query : query
+  const relevantSummaries = summariesApply && trimmedHistory.length >= 6 ? filterSummariesByQuery(summaryQuery, 10) : []
   const summariesText = formatSummariesForPrompt(relevantSummaries)
 
   const advisorProfileText = advisorProfile ? formatAdvisorProfile(advisorProfile) : null

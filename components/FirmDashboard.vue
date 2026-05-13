@@ -78,8 +78,9 @@
         .th Last Active
         .th Status
 
-      template(v-for="row in filteredRows" :key="row.key")
+      template(v-for="row in filteredRows")
         .table-row(
+          :key="row.key"
           @click="toggleExpand(row.key)"
           :class="{ 'row-expanded': expandedRows.has(row.key) }"
         )
@@ -102,7 +103,7 @@
             span.expand-chevron(:class="{ 'chevron-open': expandedRows.has(row.key) }") ›
 
         //- Session breakdown (expanded)
-        .session-breakdown(v-if="expandedRows.has(row.key)")
+        .session-breakdown(:key="row.key + '-bd'" v-if="expandedRows.has(row.key)")
           .breakdown-inner
             .breakdown-heading Sessions
             .breakdown-row(v-for="s in row.sessions" :key="s.id")
@@ -234,7 +235,7 @@ export default {
 
   methods: {
     async loadData () {
-      this.isLoading ? null : (this.isRefreshing = true)
+      if (!this.isLoading) { this.isRefreshing = true }
 
       // TODO: replace with real API call:
       // const res = await fetch(`/api/firm/advisors?firmId=${this.firmId}`)
@@ -264,8 +265,11 @@ export default {
       await new Promise(resolve => setTimeout(resolve, 1200))
       this.teamInsights = `Your team has ${this.summaryStats.activeLearners} active learners across ${this.summaryStats.coursesRunning} running courses, with an overall completion rate of ${this.summaryStats.completionRate}%. ` +
         `Quiz performance is ${this.summaryStats.avgQuizScore >= 70 ? 'strong' : 'developing'} at an average of ${this.summaryStats.avgQuizScore}%. ` +
-        `Consider following up with advisors who have been inactive for more than 7 days to keep momentum going.`
-      this.insightsGeneratedAt = new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })
+        'Consider following up with advisors who have been inactive for more than 7 days to keep momentum going.'
+      this.insightsGeneratedAt = new Date().toLocaleTimeString('en-AU', {
+        hour: '2-digit',
+        minute: '2-digit'
+      })
       this.isGeneratingInsights = false
     },
 
@@ -310,8 +314,10 @@ export default {
           name: 'Sarah Chen',
           email: 'sarah@firm.com',
           courses: [{
-            id: 'c1', title: 'Financial Management Fundamentals',
-            status: 'active', lastActive: new Date(Date.now() - 86400000).toISOString(),
+            id: 'c1',
+            title: 'Financial Management Fundamentals',
+            status: 'active',
+            lastActive: new Date(Date.now() - 86400000).toISOString(),
             sessions: [
               { id: 1, title: 'The Heald Matrix', status: 'complete', score: 88 },
               { id: 2, title: 'Working Capital Cycle', status: 'complete', score: 82 },
@@ -327,8 +333,10 @@ export default {
           name: 'James Park',
           email: 'james@firm.com',
           courses: [{
-            id: 'c1', title: 'Financial Management Fundamentals',
-            status: 'complete', lastActive: new Date(Date.now() - 3 * 86400000).toISOString(),
+            id: 'c1',
+            title: 'Financial Management Fundamentals',
+            status: 'complete',
+            lastActive: new Date(Date.now() - 3 * 86400000).toISOString(),
             sessions: [
               { id: 1, title: 'The Heald Matrix', status: 'complete', score: 95 },
               { id: 2, title: 'Working Capital Cycle', status: 'complete', score: 91 },
@@ -345,8 +353,10 @@ export default {
           email: 'emma@firm.com',
           courses: [
             {
-              id: 'c2', title: 'Business Development Essentials',
-              status: 'active', lastActive: new Date(Date.now() - 2 * 86400000).toISOString(),
+              id: 'c2',
+              title: 'Business Development Essentials',
+              status: 'active',
+              lastActive: new Date(Date.now() - 2 * 86400000).toISOString(),
               sessions: [
                 { id: 1, title: 'Client Discovery', status: 'complete', score: 74 },
                 { id: 2, title: 'Value Proposition', status: 'complete', score: 70 },
@@ -356,8 +366,10 @@ export default {
               ]
             },
             {
-              id: 'c1', title: 'Financial Management Fundamentals',
-              status: 'paused', lastActive: new Date(Date.now() - 12 * 86400000).toISOString(),
+              id: 'c1',
+              title: 'Financial Management Fundamentals',
+              status: 'paused',
+              lastActive: new Date(Date.now() - 12 * 86400000).toISOString(),
               sessions: [
                 { id: 1, title: 'The Heald Matrix', status: 'complete', score: 68 },
                 { id: 2, title: 'Working Capital Cycle', status: 'pending', score: null },
@@ -374,8 +386,10 @@ export default {
           name: 'Tom Richards',
           email: 'tom@firm.com',
           courses: [{
-            id: 'c1', title: 'Financial Management Fundamentals',
-            status: 'active', lastActive: new Date(Date.now() - 8 * 86400000).toISOString(),
+            id: 'c1',
+            title: 'Financial Management Fundamentals',
+            status: 'active',
+            lastActive: new Date(Date.now() - 8 * 86400000).toISOString(),
             sessions: [
               { id: 1, title: 'The Heald Matrix', status: 'complete', score: 65 },
               { id: 2, title: 'Working Capital Cycle', status: 'active', score: null },
@@ -391,8 +405,10 @@ export default {
           name: 'Lisa Nguyen',
           email: 'lisa@firm.com',
           courses: [{
-            id: 'c2', title: 'Business Development Essentials',
-            status: 'complete', lastActive: new Date(Date.now() - 86400000).toISOString(),
+            id: 'c2',
+            title: 'Business Development Essentials',
+            status: 'complete',
+            lastActive: new Date(Date.now() - 86400000).toISOString(),
             sessions: [
               { id: 1, title: 'Client Discovery', status: 'complete', score: 92 },
               { id: 2, title: 'Value Proposition', status: 'complete', score: 88 },
