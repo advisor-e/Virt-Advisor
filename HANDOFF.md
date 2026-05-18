@@ -134,3 +134,13 @@ All endpoints require `Authorization: Bearer <token>` with a `firm_manager` or `
 - Per-firm storage quota is 500 MB (configurable in `STORAGE.maxFirmStorageBytes`).
 - Uploaded files are validated by MIME type on the server before being sent to Drive.
 - The `firmAuth` middleware returns 401/403 before any handler runs if the token is invalid or the role is insufficient.
+
+---
+
+## Known Issues
+
+### Node.js v24 + Restify v11 incompatibility
+
+Restify v11 depends on `spdy`, which uses a native `http_parser` binding that was removed in Node.js v24. The backend (`server/restify-server.js`) will fail to start on Node 24 with a binding error.
+
+**Fix:** Use Node.js 18 LTS or 20 LTS for the backend process. This is an upstream Restify issue — no changes to the Firm Manager code are required. Track the upstream fix at the `restify` npm package.
