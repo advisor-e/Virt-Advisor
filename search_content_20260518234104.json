@@ -4,6 +4,7 @@
     "menuSection": "do-the-job",
     "page": "id-4466260146",
     "section": "Do the Job",
+    "subSection": "Reporting",
     "topic": "Management Reporting",
     "title": "Dashboard Report",
     "link": "id-4466260146",
@@ -39,6 +40,7 @@
     "menuSection": "do-the-job",
     "page": "id-7154906006",
     "section": "Do the Job",
+    "subSection": "EOY Notes & Docs",
     "topic": "Client Meetings",
     "title": "E.O.Y Meeting",
     "link": "id-7154906006",
@@ -73,6 +75,7 @@
     "menuSection": "do-the-job",
     "page": "id-9515196091",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Client Meetings",
     "title": "General Meeting Agenda",
     "link": "id-9515196091",
@@ -104,6 +107,7 @@
     "menuSection": "do-the-job",
     "page": "id-3779095414",
     "section": "Do the Job",
+    "subSection": "EOY Notes & Docs",
     "topic": "PDF Storage",
     "title": "PDF Storage",
     "link": "id-3779095414",
@@ -136,6 +140,7 @@
     "menuSection": "do-the-job",
     "page": "id-904072826",
     "section": "Do the Job",
+    "subSection": "EOY Notes & Docs",
     "topic": "FBT Questionnaire",
     "title": "FBT Questionnaire",
     "link": "id-904072826",
@@ -165,6 +170,7 @@
     "menuSection": "do-the-job",
     "page": "id-6607114703",
     "section": "Do the Job",
+    "subSection": "Growth Framework",
     "topic": "Consultancy Framework",
     "title": "Growth Framework",
     "link": "id-6607114703",
@@ -211,6 +217,7 @@
     "menuSection": "do-the-job",
     "page": "id-4277160310",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Covid 19",
     "title": "Client pre Meeting",
     "link": "id-4277160310",
@@ -248,6 +255,7 @@
     "menuSection": "do-the-job",
     "page": "id-5773184106",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Covid 19",
     "title": "Covid Agendas",
     "link": "id-5773184106",
@@ -279,6 +287,7 @@
     "menuSection": "do-the-job",
     "page": "id-7069873149",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Financial Solvency",
     "title": "Receivership vs Liquidation",
     "link": "id-7069873149",
@@ -317,6 +326,7 @@
     "menuSection": "do-the-job",
     "page": "id-3314827163",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Financial Solvency",
     "title": "Quick & Worst",
     "link": "id-3314827163",
@@ -347,6 +357,7 @@
     "menuSection": "do-the-job",
     "page": "id-6257902186",
     "section": "Do the Job",
+    "subSection": "External Advisors",
     "topic": "Insurance",
     "title": "Insurance",
     "link": "id-6257902186",
@@ -379,6 +390,7 @@
     "menuSection": "do-the-job",
     "page": "id-2913118225",
     "section": "Do the Job",
+    "subSection": "External Advisors",
     "topic": "Legal",
     "title": "Legal",
     "link": "id-2913118225",
@@ -410,6 +422,7 @@
     "menuSection": "do-the-job",
     "page": "id-6817897422",
     "section": "Do the Job",
+    "subSection": "External Advisors",
     "topic": "Banking & Finance",
     "title": "Loan Estimator",
     "link": "id-6817897422",
@@ -448,6 +461,7 @@
     "menuSection": "do-the-job",
     "page": "id-3094237070",
     "section": "Do the Job",
+    "subSection": "External Advisors",
     "topic": "Superannuation; Pension",
     "title": "Retirement Calcs",
     "link": "id-3094237070",
@@ -484,6 +498,7 @@
     "menuSection": "do-the-job",
     "page": "id-482414900",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Free Client Content",
     "title": "Time Matters",
     "link": "id-482414900",
@@ -515,6 +530,7 @@
     "menuSection": "do-the-job",
     "page": "id-6071441423",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Free Client Content",
     "title": "Control Matters",
     "link": "id-6071441423",
@@ -548,6 +564,7 @@
     "menuSection": "do-the-job",
     "page": "id-5195288668",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Free Client Content",
     "title": "Money Matters",
     "link": "id-5195288668",
@@ -578,11 +595,12 @@
     "menuSection": "do-the-job",
     "page": "capacity-capability-opportunity",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Fault Diagnosis",
     "title": "Capacity, Capability, Opportunity",
     "link": "capacity-capability-opportunity",
     "purpose": "This framework helps you quickly disect the 'legitimate constraints' that are holding a business back. From here you can start to drill down into greater detail. A great conversation starter and a quick way to get a new prospect 'collaborating' with you, which is a powerful sales aid.",
-    "support": "",
+    "support": "facilitation; video; sales skills",
     "position": 18,
     "cpd": {
       "isHidden": false,
@@ -597,7 +615,11 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
+    "tags": [
+      "facilitation",
+      "video",
+      "sales skills"
+    ],
     "index": 17
   },
   {
@@ -605,6 +627,7 @@
     "menuSection": "do-the-job",
     "page": "id-679676385",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Application Solutions",
     "title": "App Review",
     "link": "id-679676385",
@@ -646,6 +669,7 @@
     "menuSection": "do-the-job",
     "page": "advanced-fundamentals-delivery-tools",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Cash Forecast",
     "title": "Assumptions",
     "link": "advanced-fundamentals-delivery-tools",
@@ -680,11 +704,12 @@
     "menuSection": "do-the-job",
     "page": "id-4361586555",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Sales & Marketing",
     "title": "Customer Journey",
     "link": "id-4361586555",
     "purpose": "This template is a 'lite' version of other sales related documents and chooses to focus on the customer journey (from first awareness to decision to purchase) and a basic problem solving flow-chart to help you find the source of your clients failing sales. You can use this document as a stand alone discussion (in less than 1 hr) or as an introduction to a more complete sales review if needed.",
-    "support": "Sales; Awareness; Interest; Desire; Credibility; Product Fit; marketing; messaging; Video",
+    "support": "Sales; Awareness; Interest; Desire; Credibility; Product Fit; marketing; messaging; Video; positioning",
     "position": 21,
     "cpd": {
       "isHidden": false,
@@ -708,7 +733,8 @@
       "Product Fit",
       "marketing",
       "messaging",
-      "Video"
+      "Video",
+      "positioning"
     ],
     "index": 20
   },
@@ -717,6 +743,7 @@
     "menuSection": "do-the-job",
     "page": "strategic-review",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Debtor Issues",
     "title": "Debtor Protocols",
     "link": "strategic-review",
@@ -753,6 +780,7 @@
     "menuSection": "do-the-job",
     "page": "id-9212012331",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Cashflow - Cash Management - Interpreting Data",
     "title": "Demings Volatility",
     "link": "id-9212012331",
@@ -783,6 +811,7 @@
     "menuSection": "do-the-job",
     "page": "id-9601408536",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Support the application for funding OR   Fault Diagnosis",
     "title": "1 pg Bizz Case",
     "link": "id-9601408536",
@@ -818,6 +847,7 @@
     "menuSection": "do-the-job",
     "page": "id-1031914952",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Business Planning",
     "title": "Lite Strategy",
     "link": "id-1031914952",
@@ -853,11 +883,12 @@
     "menuSection": "do-the-job",
     "page": "id-6324353645",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Efficiency, Effectiveness, Business Systems",
     "title": "People vs. Process",
     "link": "id-6324353645",
     "purpose": "This template seeks to guide you through the process of identifying the business practices, protocols, procedures (call them what you prefer) that need to be improved. Just as importantly, the template helps to define the overarching systems philosophy of your client SO THAT they can embark on an improvement process that best suits their existing habits, preferences and understanding. You will find the content a little m ore advanced but don't be put-off - just take the time to rehearse and you'll find it all makes practical sense in the end. (Especially when you flow-chart your client's practices and break-down the issues, one by one.).",
-    "support": "Emotional reaction to learning; the progressive learning path; 5 Drivers of human output/productivity; 5 Steps to building new habits; Lean Theory; Constraint Theory; Six Sigma; Admin; Administration; Video",
+    "support": "Emotional reaction to learning; the progressive learning path; 5 Drivers of human output/productivity; 5 Steps to building new habits; Lean Theory; Constraint Theory; Six Sigma; Admin; Administration; Video; Positioning",
     "position": 26,
     "cpd": {
       "isHidden": false,
@@ -882,7 +913,8 @@
       "Six Sigma",
       "Admin",
       "Administration",
-      "Video"
+      "Video",
+      "Positioning"
     ],
     "index": 25
   },
@@ -891,6 +923,7 @@
     "menuSection": "do-the-job",
     "page": "id-1034348000",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Goals",
     "title": "Powerful Goal Setting",
     "link": "id-1034348000",
@@ -922,6 +955,7 @@
     "menuSection": "do-the-job",
     "page": "farmers-model",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Team Engagement / Productivity",
     "title": "Productive Habits",
     "link": "farmers-model",
@@ -954,6 +988,7 @@
     "menuSection": "do-the-job",
     "page": "8-profit-levers",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Fault Diagnosis/ Growth Framework",
     "title": "8 Profit Levers",
     "link": "8-profit-levers",
@@ -999,6 +1034,7 @@
     "menuSection": "do-the-job",
     "page": "id-480549223",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Organisational Structure",
     "title": "Org Chart Only",
     "link": "id-480549223",
@@ -1030,6 +1066,7 @@
     "menuSection": "do-the-job",
     "page": "id-3444141596",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Fault Diagnosis",
     "title": "Quick Fire Diagnosis",
     "link": "id-3444141596",
@@ -1065,6 +1102,7 @@
     "menuSection": "do-the-job",
     "page": "learning-to-deliver-advanced-fundamentals",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Management Reporting Basics",
     "title": "Rubbish In - Rubbish Out",
     "link": "learning-to-deliver-advanced-fundamentals",
@@ -1104,6 +1142,7 @@
     "menuSection": "do-the-job",
     "page": "bizz360",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Financial Management Basics",
     "title": "Working Capital Cycle",
     "link": "bizz360",
@@ -1149,6 +1188,7 @@
     "menuSection": "do-the-job",
     "page": "planning-session",
     "section": "Do the Job",
+    "subSection": "Lite Fundamentals",
     "topic": "Planning / Orientation",
     "title": "Planning Session",
     "link": "planning-session",
@@ -1189,6 +1229,7 @@
     "menuSection": "do-the-job",
     "page": "data-session",
     "section": "Do the Job",
+    "subSection": "Lite Fundamentals",
     "topic": "Developing KPI's",
     "title": "Data Session",
     "link": "data-session",
@@ -1236,6 +1277,7 @@
     "menuSection": "do-the-job",
     "page": "marketing-session",
     "section": "Do the Job",
+    "subSection": "Lite Fundamentals",
     "topic": "Marketing",
     "title": "Lite Marketing",
     "link": "marketing-session",
@@ -1281,6 +1323,7 @@
     "menuSection": "do-the-job",
     "page": "sales-session",
     "section": "Do the Job",
+    "subSection": "Lite Fundamentals",
     "topic": "Increasing Sales",
     "title": "Sales Session",
     "link": "sales-session",
@@ -1318,6 +1361,7 @@
     "menuSection": "do-the-job",
     "page": "people-session",
     "section": "Do the Job",
+    "subSection": "Lite Fundamentals",
     "topic": "Staff Engagement/ Delegation",
     "title": "People Session",
     "link": "people-session",
@@ -1356,6 +1400,7 @@
     "menuSection": "do-the-job",
     "page": "process-session",
     "section": "Do the Job",
+    "subSection": "Lite Fundamentals",
     "topic": "Process Improvement",
     "title": "Process Session",
     "link": "process-session",
@@ -1388,6 +1433,7 @@
     "menuSection": "do-the-job",
     "page": "alignment-statements",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Finding Your 'Why'",
     "title": "Alignment Statements",
     "link": "alignment-statements",
@@ -1420,6 +1466,7 @@
     "menuSection": "do-the-job",
     "page": "id-4919294252",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Business Plan to Support Funding Application",
     "title": "4 Part Bizz Plan",
     "link": "id-4919294252",
@@ -1458,6 +1505,7 @@
     "menuSection": "do-the-job",
     "page": "swot-prompts",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Business Planning",
     "title": "SWOT / PEST",
     "link": "swot-prompts",
@@ -1490,6 +1538,7 @@
     "menuSection": "do-the-job",
     "page": "id-2201525362",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Customer Service Standards",
     "title": "Phone Techniques",
     "link": "id-2201525362",
@@ -1523,6 +1572,7 @@
     "menuSection": "do-the-job",
     "page": "planning-outcomes-review",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Business Planning Overview",
     "title": "Planning Outcomes Review",
     "link": "planning-outcomes-review",
@@ -1558,6 +1608,7 @@
     "menuSection": "do-the-job",
     "page": "business-targets",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Clear Targets",
     "title": "Business Targets",
     "link": "business-targets",
@@ -1597,6 +1648,7 @@
     "menuSection": "do-the-job",
     "page": "strategic-orientation-pt-1",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Strategic Planning",
     "title": "Orientation Part 1",
     "link": "strategic-orientation-pt-1",
@@ -1632,6 +1684,7 @@
     "menuSection": "do-the-job",
     "page": "strategic-orientation-pt-2",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Strategic Planning",
     "title": "Orientation Part 2",
     "link": "strategic-orientation-pt-2",
@@ -1663,6 +1716,7 @@
     "menuSection": "do-the-job",
     "page": "profit-levers-blue-ocean",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Strategic Differentiation",
     "title": "Profit Levers & Blue Ocean",
     "link": "profit-levers-blue-ocean",
@@ -1696,6 +1750,7 @@
     "menuSection": "do-the-job",
     "page": "organisation-review",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Business Culture",
     "title": "Organisational Review",
     "link": "organisation-review",
@@ -1730,6 +1785,7 @@
     "menuSection": "do-the-job",
     "page": "advanced-sales-marketing-review",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Growing Revenue",
     "title": "Sales & Marketing Review",
     "link": "advanced-sales-marketing-review",
@@ -1773,6 +1829,7 @@
     "menuSection": "do-the-job",
     "page": "id-6756274046",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Farm Planning",
     "title": "80/20 Farm Plan",
     "link": "id-6756274046",
@@ -1803,11 +1860,12 @@
     "menuSection": "do-the-job",
     "page": "id-3009841766",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Detailed Review of Key Functions",
     "title": "Nine Growth Aspects",
     "link": "id-3009841766",
     "purpose": "The Nine Growth Aspects aim to balance the business owner's focus during intense periods of growth. You are encouraged to explore Process Improvement, Customer Focus, Sales, Authenticity, Inventory & Equipment, Team Focus, Innovation, Governance, Harmony & Balance.",
-    "support": "",
+    "support": "Growth; Process Improvement; Customer Focus; Sales; Authenticity; Inventory; Team; Innovation; Governance; Harmony; Strategic Planning",
     "position": 52,
     "cpd": {
       "isHidden": false,
@@ -1822,7 +1880,19 @@
       "fundamental": "How to help your client identify the business objectives necessary for a balanced, sustainable operation."
     },
     "status": "--",
-    "tags": [],
+    "tags": [
+      "Growth",
+      "Process Improvement",
+      "Customer Focus",
+      "Sales",
+      "Authenticity",
+      "Inventory",
+      "Team",
+      "Innovation",
+      "Governance",
+      "Harmony",
+      "Strategic Planning"
+    ],
     "index": 51
   },
   {
@@ -1830,11 +1900,12 @@
     "menuSection": "do-the-job",
     "page": "learning-to-deliver-elite-fundamentals",
     "section": "Do the Job",
+    "subSection": "",
     "topic": "Add Your Own Brilliance",
     "title": "Specialist Content 1",
     "link": "learning-to-deliver-elite-fundamentals",
     "purpose": "This is where you get to stamp your mark; a series of hosted pages specifically to help you tailor your service delivery to your clients...",
-    "support": "",
+    "support": "Custom Content; Specialist; Intellectual Property; Tailored Service",
     "position": 53,
     "cpd": {
       "isHidden": true,
@@ -1849,7 +1920,12 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
+    "tags": [
+      "Custom Content",
+      "Specialist",
+      "Intellectual Property",
+      "Tailored Service"
+    ],
     "index": 52
   },
   {
@@ -1857,11 +1933,12 @@
     "menuSection": "do-the-job",
     "page": "formal-risk-management",
     "section": "Do the Job",
+    "subSection": "Governance Tools",
     "topic": "Risk Management",
     "title": "Formal Risk Management",
     "link": "formal-risk-management",
     "purpose": "This model walks you through (step by step) the procedure of identifying, classifying and determining action steps to manage business risks for your clients. Critical steps include establishing context and is made 'simpler' by the graphic 'Heat Map' of risks; all of which makes for best practice procedures for the majority of your clients.",
-    "support": "Establish Risk Context; Minimise Risks; Risk Management; Accept; Avoid; Reduce; Transfer",
+    "support": "Risk Management; Risk Matrix; Governance; Compliance; Business Risk; Risk Assessment",
     "position": 54,
     "cpd": {
       "isHidden": false,
@@ -1877,13 +1954,12 @@
     },
     "status": "--",
     "tags": [
-      "Establish Risk Context",
-      "Minimise Risks",
       "Risk Management",
-      "Accept",
-      "Avoid",
-      "Reduce",
-      "Transfer"
+      "Risk Matrix",
+      "Governance",
+      "Compliance",
+      "Business Risk",
+      "Risk Assessment"
     ],
     "index": 53
   },
@@ -1892,6 +1968,7 @@
     "menuSection": "do-the-job",
     "page": "id-8466205046",
     "section": "Do the Job",
+    "subSection": "Governance Tools",
     "topic": "Governance",
     "title": "Governance Introduction",
     "link": "id-8466205046",
@@ -1922,11 +1999,12 @@
     "menuSection": "do-the-job",
     "page": "lite-fundamental-resource",
     "section": "Do the Job",
+    "subSection": "",
     "topic": "A Place to Share Your Own I.P",
     "title": "Programme Pages",
     "link": "lite-fundamental-resource",
     "purpose": "This section is a series of (12) hosted pages so you can add your own material and share it with the world... Not sure how to build a programme for your clients? No problem, there's plaenty of information to help you with that...",
-    "support": "",
+    "support": "Programme; Intellectual Property; Custom Content; Client Programme",
     "position": 56,
     "cpd": {
       "isHidden": true,
@@ -1941,7 +2019,12 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
+    "tags": [
+      "Programme",
+      "Intellectual Property",
+      "Custom Content",
+      "Client Programme"
+    ],
     "index": 55
   },
   {
@@ -1949,6 +2032,7 @@
     "menuSection": "do-the-job",
     "page": "employee-incentives",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Key People Motivation",
     "title": "Remuneration & Incentives",
     "link": "employee-incentives",
@@ -1984,6 +2068,7 @@
     "menuSection": "do-the-job",
     "page": "id-8974944498",
     "section": "Do the Job",
+    "subSection": "Governance Tools",
     "topic": "Governance",
     "title": "Partner Accountability",
     "link": "id-8974944498",
@@ -2016,10 +2101,11 @@
     "menuSection": "do-the-job",
     "page": "due-diligence",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Diligence",
     "title": "Stg. 1 Due Diligence",
     "link": "due-diligence",
-    "purpose": "A short form due diligence option; perfect for small business purchases or as an initial board assessment prior to detailed investigation,",
+    "purpose": "A short form due diligence option; perfect for small business purchases or as an initial board assessment prior to detailed investigation.",
     "support": "Value Drivers; Sale & Purchase",
     "position": 59,
     "cpd": {
@@ -2046,6 +2132,7 @@
     "menuSection": "do-the-job",
     "page": "financial-systems-review",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Financial Administration",
     "title": "Financial Systems Review",
     "link": "financial-systems-review",
@@ -2089,6 +2176,7 @@
     "menuSection": "do-the-job",
     "page": "growth-projects-delivery-tools-spare",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Getting Stock Levels Under Control",
     "title": "Stock Policies",
     "link": "growth-projects-delivery-tools-spare",
@@ -2121,6 +2209,7 @@
     "menuSection": "do-the-job",
     "page": "succession-planning",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Business Succession",
     "title": "Succession Planning",
     "link": "succession-planning",
@@ -2153,6 +2242,7 @@
     "menuSection": "do-the-job",
     "page": "id-5291277413",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Farm Succession",
     "title": "Farm Succession",
     "link": "id-5291277413",
@@ -2185,6 +2275,7 @@
     "menuSection": "do-the-job",
     "page": "id-7790271877",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Revenue Models",
     "title": "Lease vs. Buy",
     "link": "id-7790271877",
@@ -2222,6 +2313,7 @@
     "menuSection": "do-the-job",
     "page": "id-8315250902",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Labour Only",
     "link": "id-8315250902",
@@ -2253,6 +2345,7 @@
     "menuSection": "do-the-job",
     "page": "id-8835402008",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Labour, Margin",
     "link": "id-8835402008",
@@ -2285,6 +2378,7 @@
     "menuSection": "do-the-job",
     "page": "id-4271103145",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Labour, Margin, Sales",
     "link": "id-4271103145",
@@ -2319,6 +2413,7 @@
     "menuSection": "do-the-job",
     "page": "id-2687849712",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Back Costing",
     "link": "id-2687849712",
@@ -2348,6 +2443,7 @@
     "menuSection": "do-the-job",
     "page": "id-6335013800",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Break-Even",
     "link": "id-6335013800",
@@ -2377,6 +2473,7 @@
     "menuSection": "do-the-job",
     "page": "id-3892948252",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Audio-Opto",
     "link": "id-3892948252",
@@ -2408,6 +2505,7 @@
     "menuSection": "do-the-job",
     "page": "id-329534784",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Cafe",
     "link": "id-329534784",
@@ -2443,6 +2541,7 @@
     "menuSection": "do-the-job",
     "page": "id-448611359",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Cake Shop",
     "link": "id-448611359",
@@ -2473,6 +2572,7 @@
     "menuSection": "do-the-job",
     "page": "id-7325651781",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Car Importer",
     "link": "id-7325651781",
@@ -2502,6 +2602,7 @@
     "menuSection": "do-the-job",
     "page": "id-6386895650",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Childcare Ctr",
     "link": "id-6386895650",
@@ -2534,6 +2635,7 @@
     "menuSection": "do-the-job",
     "page": "id-2656438043",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Construction",
     "link": "id-2656438043",
@@ -2569,6 +2671,7 @@
     "menuSection": "do-the-job",
     "page": "id-4336328485",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Cost per Mtr",
     "link": "id-4336328485",
@@ -2603,6 +2706,7 @@
     "menuSection": "do-the-job",
     "page": "id-8171543327",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Earth Moving Hrs",
     "link": "id-8171543327",
@@ -2635,6 +2739,7 @@
     "menuSection": "do-the-job",
     "page": "id-2363382326",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Engineering",
     "link": "id-2363382326",
@@ -2667,6 +2772,7 @@
     "menuSection": "do-the-job",
     "page": "id-4393936700",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Food & Remedy Product'n",
     "link": "id-4393936700",
@@ -2698,6 +2804,7 @@
     "menuSection": "do-the-job",
     "page": "id-1799860252",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Forecasting",
     "link": "id-1799860252",
@@ -2734,6 +2841,7 @@
     "menuSection": "do-the-job",
     "page": "id-9500594254",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Gym & Trainer",
     "link": "id-9500594254",
@@ -2767,6 +2875,7 @@
     "menuSection": "do-the-job",
     "page": "id-9850884917",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Home Services Feasibility",
     "link": "id-9850884917",
@@ -2801,6 +2910,7 @@
     "menuSection": "do-the-job",
     "page": "id-4976805070",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Hospitality",
     "link": "id-4976805070",
@@ -2834,6 +2944,7 @@
     "menuSection": "do-the-job",
     "page": "id-7833593692",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Hairdressing",
     "link": "id-7833593692",
@@ -2868,6 +2979,7 @@
     "menuSection": "do-the-job",
     "page": "id-2924428930",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "IT Services",
     "link": "id-2924428930",
@@ -2900,6 +3012,7 @@
     "menuSection": "do-the-job",
     "page": "id-3908104417",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Joiner",
     "link": "id-3908104417",
@@ -2932,6 +3045,7 @@
     "menuSection": "do-the-job",
     "page": "id-196230307",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Motel & Lodge",
     "link": "id-196230307",
@@ -2964,6 +3078,7 @@
     "menuSection": "do-the-job",
     "page": "id-8797736868",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Online Sales",
     "link": "id-8797736868",
@@ -2993,6 +3108,7 @@
     "menuSection": "do-the-job",
     "page": "id-6812423554",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Production Output",
     "link": "id-6812423554",
@@ -3024,6 +3140,7 @@
     "menuSection": "do-the-job",
     "page": "id-9464472464",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Professional Services Firm",
     "link": "id-9464472464",
@@ -3062,6 +3179,7 @@
     "menuSection": "do-the-job",
     "page": "id-2939904328",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Quick Position",
     "link": "id-2939904328",
@@ -3092,6 +3210,7 @@
     "menuSection": "do-the-job",
     "page": "id-3263743632",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Rental Property",
     "link": "id-3263743632",
@@ -3121,6 +3240,7 @@
     "menuSection": "do-the-job",
     "page": "id-2874439569",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Retail",
     "link": "id-2874439569",
@@ -3150,6 +3270,7 @@
     "menuSection": "do-the-job",
     "page": "id-2031013565",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Rural Volatility",
     "link": "id-2031013565",
@@ -3181,6 +3302,7 @@
     "menuSection": "do-the-job",
     "page": "id-8581344527",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Sales Forecaster",
     "link": "id-8581344527",
@@ -3210,6 +3332,7 @@
     "menuSection": "do-the-job",
     "page": "id-3071922878",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Shop",
     "link": "id-3071922878",
@@ -3240,6 +3363,7 @@
     "menuSection": "do-the-job",
     "page": "id-3443941670",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Tour Operators",
     "link": "id-3443941670",
@@ -3272,6 +3396,7 @@
     "menuSection": "do-the-job",
     "page": "id-4671298680",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Tours + Shop",
     "link": "id-4671298680",
@@ -3309,6 +3434,7 @@
     "menuSection": "do-the-job",
     "page": "id-739082913",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Trucking/ Haulage",
     "link": "id-739082913",
@@ -3340,6 +3466,7 @@
     "menuSection": "do-the-job",
     "page": "id-483900379",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Volatility Scenario",
     "link": "id-483900379",
@@ -3369,6 +3496,7 @@
     "menuSection": "do-the-job",
     "page": "id-6834300729",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Wages Review",
     "link": "id-6834300729",
@@ -3401,6 +3529,7 @@
     "menuSection": "do-the-job",
     "page": "id-9055555447",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Workshop / Program Sales",
     "link": "id-9055555447",
@@ -3433,6 +3562,7 @@
     "menuSection": "do-the-job",
     "page": "id-6276187822",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Worst Case Scenario",
     "link": "id-6276187822",
@@ -3469,6 +3599,7 @@
     "menuSection": "do-the-job",
     "page": "id-9440392920",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Physiotherapy",
     "link": "id-9440392920",
@@ -3506,6 +3637,7 @@
     "menuSection": "do-the-job",
     "page": "id-2363028463",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if Analysis",
     "title": "Dentist",
     "link": "id-2363028463",
@@ -3541,6 +3673,7 @@
     "menuSection": "do-the-job",
     "page": "id-520637887",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Revenue Models",
     "title": "Finance & Depreciation",
     "link": "id-520637887",
@@ -3573,6 +3706,7 @@
     "menuSection": "do-the-job",
     "page": "id-1637972585",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Finance",
     "title": "Personal Budget",
     "link": "id-1637972585",
@@ -3607,6 +3741,7 @@
     "menuSection": "do-the-job",
     "page": "id-5397004441",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Finance",
     "title": "High Level Budget",
     "link": "id-5397004441",
@@ -3640,6 +3775,7 @@
     "menuSection": "do-the-job",
     "page": "id-7465208849",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "HR",
     "title": "Hiring Winners",
     "link": "id-7465208849",
@@ -3676,6 +3812,7 @@
     "menuSection": "do-the-job",
     "page": "id-4785641745",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Services",
     "title": "Landscaping & Maintainence",
     "link": "id-4785641745",
@@ -3711,10 +3848,11 @@
     "menuSection": "do-the-job",
     "page": "id-7083515495",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Health & Wellness",
     "title": "Midwife",
     "link": "id-7083515495",
-    "purpose": "",
+    "purpose": "This template is designed to help add the 'flesh' to the conversation when collecting data to generate a cash forecast.(By aligning key business assumptions to financial KPI's or reports) It's a great way to help encourage clients to add the review component to their forecast solution.",
     "support": "Birthing; Birth Clinic; Midwifery; Newborn; Child Birth",
     "position": 111,
     "cpd": {
@@ -3744,6 +3882,7 @@
     "menuSection": "do-the-job",
     "page": "id-4212038247",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Retail/ Wholesale",
     "title": "Homeware Sales",
     "link": "id-4212038247",
@@ -3779,6 +3918,7 @@
     "menuSection": "do-the-job",
     "page": "id-4491265764",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Strategy",
     "title": "Porters & Pine",
     "link": "id-4491265764",
@@ -3809,6 +3949,7 @@
     "menuSection": "do-the-job",
     "page": "id-3251922216",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Strategy",
     "title": "Pivot",
     "link": "id-3251922216",
@@ -3840,11 +3981,12 @@
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
-    "page": "id-4307038570",
+    "page": "mail-chimp-automation",
     "section": "Get the Job",
+    "subSection": "Marketing",
     "topic": "Client Set Up",
     "title": "E Mails",
-    "link": "id-4307038570",
+    "link": "mail-chimp-automation",
     "purpose": "The emails found on this page can be used to invite new clients to the portal and advise them of the login authentication email they can expect to receive.",
     "support": "On boarding emails; Invitation; Client Set up; Client Login; Authentication",
     "position": 115,
@@ -3875,6 +4017,7 @@
     "menuSection": "do-the-job",
     "page": "id-1283439703",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Scenario models",
     "title": "Section Overview",
     "link": "id-1283439703",
@@ -3908,11 +4051,12 @@
     "menuSection": "do-the-job",
     "page": "id-102938972",
     "section": "Do the Job",
-    "topic": "Production",
+    "subSection": "Revenue & Feasibility Models",
+    "topic": "What-if Analysis",
     "title": "Manufacturing",
     "link": "id-102938972",
     "purpose": "Explore this model as a means to determine peak production capabilities and the effects of shut down periods on your manufacturing business.",
-    "support": "",
+    "support": "Manufacturing; Production; Capacity; Financial Capacity; What-if Analysis; Revenue Model",
     "position": 117,
     "cpd": {
       "isHidden": true,
@@ -3927,7 +4071,14 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
+    "tags": [
+      "Manufacturing",
+      "Production",
+      "Capacity",
+      "Financial Capacity",
+      "What-if Analysis",
+      "Revenue Model"
+    ],
     "index": 116
   },
   {
@@ -3935,6 +4086,7 @@
     "menuSection": "do-the-job",
     "page": "id-6883609726",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Facilitation",
     "title": "Force Field Analysis",
     "link": "id-6883609726",
@@ -3971,11 +4123,12 @@
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
-    "page": "id-9915362116",
+    "page": "id-5034074996",
     "section": "Get the Job",
+    "subSection": "Pricing & Proposals",
     "topic": "Pricing Services",
     "title": "Advisory Pricing Model",
-    "link": "id-9915362116",
+    "link": "id-5034074996",
     "purpose": "The advisory pricing model provides guidance on a range of advisory service solutions in terms of communicating the objectives of the session, estimating time for said engagement and calculating the fee for services offered.",
     "support": "Price Estimates; Time estimates; Charges; Fee Cost",
     "position": 119,
@@ -4005,6 +4158,7 @@
     "menuSection": "do-the-job",
     "page": "id-8456555412",
     "section": "Do the Job",
+    "subSection": "Client On Boarding",
     "topic": "Scoping Document",
     "title": "5 Layers Questionnaire",
     "link": "id-8456555412",
@@ -4037,11 +4191,12 @@
     "menuSection": "do-the-job",
     "page": "id-4774716093",
     "section": "Do the Job",
+    "subSection": "Client On Boarding",
     "topic": "Service Proposal",
     "title": "Advisory Proposal",
     "link": "id-4774716093",
     "purpose": "This (general purpose) advisory service proposal is designed to help you communicate your service offer in a manner that aligns with the psychology of the sale.",
-    "support": "Advisory proposal; Communicating service benefits",
+    "support": "Advisory proposal; Communicating service benefits; fee growth; sales",
     "position": 121,
     "cpd": {
       "isHidden": false,
@@ -4058,7 +4213,9 @@
     "status": "--",
     "tags": [
       "Advisory proposal",
-      "Communicating service benefits"
+      "Communicating service benefits",
+      "fee growth",
+      "sales"
     ],
     "index": 120
   },
@@ -4067,6 +4224,7 @@
     "menuSection": "do-the-job",
     "page": "id-3640303064",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Management Meetings",
     "title": "Mgt Annual Plan",
     "link": "id-3640303064",
@@ -4103,6 +4261,7 @@
     "menuSection": "get-the-job",
     "page": "mail-chimp-automation",
     "section": "Get the Job",
+    "subSection": "Marketing",
     "topic": "Marketing Emails",
     "title": "Outbound Emails",
     "link": "mail-chimp-automation",
@@ -4134,6 +4293,7 @@
     "menuSection": "get-organised",
     "page": "individual-fee-growth-plan",
     "section": "Get Organised",
+    "subSection": "Firm Manager Access",
     "topic": "Advisor Skills/ Career Development",
     "title": "Coaching Content",
     "link": "individual-fee-growth-plan",
@@ -4166,6 +4326,7 @@
     "menuSection": "get-organised",
     "page": "service-matrix",
     "section": "Get Organised",
+    "subSection": "Advisor Access",
     "topic": "Advisor Career Development",
     "title": "My Improvement Plan",
     "link": "service-matrix",
@@ -4197,11 +4358,12 @@
     "menuSection": "do-the-job",
     "page": "id-4234098724",
     "section": "Do the Job",
+    "subSection": "Lite Fundamentals",
     "topic": "Client On Boarding",
     "title": "Lite Fundamentals Proposal",
     "link": "id-4234098724",
     "purpose": "The Lite Fundamentals proposal document is a merge table (enabled) template that explains what the programme covers, how it helps your client and presents both the fee and the variation to scope agreement to reduce 'job creep'.",
-    "support": "",
+    "support": "Proposal; Client Onboarding; Lite Fundamentals; Fee Agreement; Scope of Work; Engagement",
     "position": 126,
     "cpd": {
       "isHidden": false,
@@ -4216,7 +4378,14 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
+    "tags": [
+      "Proposal",
+      "Client Onboarding",
+      "Lite Fundamentals",
+      "Fee Agreement",
+      "Scope of Work",
+      "Engagement"
+    ],
     "index": 125
   },
   {
@@ -4224,11 +4393,12 @@
     "menuSection": "get-the-job",
     "page": "winning-the-job-tools",
     "section": "Get the Job",
-    "topic": "Learning to Sell",
-    "title": "Sales Psychology",
+    "subSection": "Learning to Sell",
+    "topic": "Coaching & Culture",
+    "title": "Sales Psychology (Basics)",
     "link": "winning-the-job-tools",
-    "purpose": "This page highlights the sales psychology basics that allow you to develop your sales skills and structure your proceedings (and review in hindsight) to win more business.",
-    "support": "Sales psychology",
+    "purpose": "This page highlights the sales psychology basics that allow you to develop your sales skills and structure your proceedings (and review in hindsight) to win more business. A must for anyone not formally trained in consultancy selling.",
+    "support": "Sales psychology; fee growth; career development",
     "position": 127,
     "cpd": {
       "isHidden": false,
@@ -4244,7 +4414,9 @@
     },
     "status": "--",
     "tags": [
-      "Sales psychology"
+      "Sales psychology",
+      "fee growth",
+      "career development"
     ],
     "index": 126
   },
@@ -4253,11 +4425,12 @@
     "menuSection": "do-the-job",
     "page": "id-2057808138",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Covid 19",
     "title": "Advisor Prep",
     "link": "id-2057808138",
     "purpose": "This advisor prep page reveals how you register for funding with the NZTE Business Support Funding Programme and provides ideas for how you can package, price and present a 'coaching' based programme in order to qualify for (financial) Govt' support for your clients.",
-    "support": "NZTA; Funding Application; Course Design",
+    "support": "Valuation; Business Sale; Indicative Value; Due Diligence; Sale Assessment; Business Value",
     "position": 128,
     "cpd": {
       "isHidden": false,
@@ -4273,50 +4446,27 @@
     },
     "status": "--",
     "tags": [
-      "NZTA",
-      "Funding Application",
-      "Course Design"
+      "Valuation",
+      "Business Sale",
+      "Indicative Value",
+      "Due Diligence",
+      "Sale Assessment",
+      "Business Value"
     ],
     "index": 127
-  },
-  {
-    "includedInClient": false,
-    "menuSection": "get-the-job",
-    "page": "seminar-delivery",
-    "section": "Get the Job",
-    "topic": "Marketing",
-    "title": "Messaging Plan",
-    "link": "seminar-delivery",
-    "purpose": "This template helps you design your outbound messaging plan to help you attract more 'A' clients.",
-    "support": "",
-    "position": 129,
-    "cpd": {
-      "isHidden": false,
-      "objective": "To understand the process of messaging.",
-      "watchedVideo": 3,
-      "reviewTemplate": 4,
-      "reheasedTemplate": 4
-    },
-    "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
-    },
-    "status": "--",
-    "tags": [],
-    "index": 128
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-7757688681",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Feasibility",
     "title": "Lite Feasibility",
     "link": "id-7757688681",
     "purpose": "This template is a short-form template (just 7 questions) to help clarify the assumptions of your client. This template can be used in isolation but is most likely to be relevant for clients that have requested a cashflow forecast to support their finance application.",
     "support": "Cash Forecast; Loan Application; Financing; Debt Review; Quickpack; Bundled Solutions; Assessment; Video",
-    "position": 130,
+    "position": 129,
     "cpd": {
       "isHidden": false,
       "objective": "This template is a short-form template (just 7 questions) to help clarify the assumptions of your client. This template can be used in isolation but is most likely to be relevant for clients that have requested a cashflow forecast to support their finance application.",
@@ -4340,19 +4490,20 @@
       "Assessment",
       "Video"
     ],
-    "index": 129
+    "index": 128
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-4007209261",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "$ Management Reporting",
     "title": "Dashboard Discussions",
     "link": "id-4007209261",
     "purpose": "This template helps you to explore the different performance and activity ratio reports (available in the Advisor-e financial dashboard) with your clients.\n\nThis page also includes the 7 Cash Drivers template which is another tool to help prepare your clients for finan management reporting services.",
     "support": "Cash management; 7 cash drivers; Performance reports; Management; VCFO; Virtual CFO; Video",
-    "position": 131,
+    "position": 130,
     "cpd": {
       "isHidden": false,
       "objective": "This template helps you to explore the different performance and activity ratio reports (available in the Advisor-e financial dashboard) with your clients.",
@@ -4375,19 +4526,20 @@
       "Virtual CFO",
       "Video"
     ],
-    "index": 130
+    "index": 129
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-7924565511",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Financial Management",
     "title": "Ratio Analysis",
     "link": "id-7924565511",
     "purpose": "This template explores the plus and minus of benchmark data and raises the concerns about 'when data doesn't count'.  This template may also assist in developing KPI's.\n\nThe same page includes a spreadsheet to introduce your client to the concept of Common Size trend analysis",
     "support": "Reporting; Cash Management; external benchmark data; internal; performance; KPI's",
-    "position": 132,
+    "position": 131,
     "cpd": {
       "isHidden": false,
       "objective": "This template explores the plus and minus of benchmark data and raises the concerns about 'when data doesn't count'.  This template may also assist in developing KPI's.",
@@ -4409,19 +4561,20 @@
       "performance",
       "KPI's"
     ],
-    "index": 131
+    "index": 130
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-7015138225",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Due Diligence",
     "title": "Key Interviews",
     "link": "id-7015138225",
     "purpose": "This template provides a range of questions to interview Staff, Financial Controller, Key Customers & Key Supplier. You can use this resource as part of your DD process or you can use them as stand alone feedback questionnaires.",
     "support": "Customer survey; Staff; Employee; Client interviews",
-    "position": 133,
+    "position": 132,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4441,19 +4594,20 @@
       "Employee",
       "Client interviews"
     ],
-    "index": 132
+    "index": 131
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-9984769921",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Due Diligence",
     "title": "Asset Review",
     "link": "id-9984769921",
     "purpose": "This model helps you identify the assets of merging businesses and assess the value to the combined operation going forward.",
     "support": "Assets realised",
-    "position": 134,
+    "position": 133,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4470,19 +4624,20 @@
     "tags": [
       "Assets realised"
     ],
-    "index": 133
+    "index": 132
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-9984769921",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Due Diligence",
     "title": "Porter's Revenue",
     "link": "id-9984769921",
     "purpose": "This framework explores the revenue potential and risk from alternative (revenue generating) activities. You can use this as part of your DD process or use it as a supporting framework for your strategic planning or feasibility engagements.",
-    "support": "",
-    "position": 135,
+    "support": "Due Diligence; Revenue; Strategic Planning; Feasibility; Risk Assessment; Alternative Revenue; Porter",
+    "position": 134,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4496,20 +4651,29 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 134
+    "tags": [
+      "Due Diligence",
+      "Revenue",
+      "Strategic Planning",
+      "Feasibility",
+      "Risk Assessment",
+      "Alternative Revenue",
+      "Porter"
+    ],
+    "index": 133
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-2228360143",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Valuation",
     "title": "Purchase Assessment Report 3",
     "link": "id-2228360143",
     "purpose": "This assessment report provides an indicative business value for your client and explores the multiple aspects to be considered prior to purchase. The report raises the issue of payback period, super profits and margin of error calculations for cash surplus.",
     "support": "Valuation; Sale & Purchase",
-    "position": 136,
+    "position": 135,
     "cpd": {
       "isHidden": false,
       "objective": "Learn the fundamentals of business valuation by reviewing the model, report, indicative value questionnaire and the 3 tutorial videos paired to this section. (total video time shown below)",
@@ -4527,19 +4691,20 @@
       "Valuation",
       "Sale & Purchase"
     ],
-    "index": 135
+    "index": 134
   },
   {
     "includedInClient": false,
     "menuSection": "get-organised",
     "page": "id-3487353495",
     "section": "Get Organised",
+    "subSection": "Firm Manager Access",
     "topic": "Advisory Roles",
     "title": "Coaching Outcome Statements",
     "link": "id-3487353495",
     "purpose": "This template helps you define the outcome expectations of those undertaking advisory coaching within your firm and breaks the advisory journey into progressive learning layers.",
     "support": "Roles; Advisory Coaching; Learning; Training; Development",
-    "position": 137,
+    "position": 136,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4560,19 +4725,20 @@
       "Training",
       "Development"
     ],
-    "index": 136
+    "index": 135
   },
   {
     "includedInClient": false,
     "menuSection": "get-organised",
     "page": "coi-planning",
     "section": "Get Organised",
+    "subSection": "Firm Manager Access",
     "topic": "Planning & Coaching",
     "title": "Planning Templates Directory",
     "link": "coi-planning",
     "purpose": "This document highlights the numerous templates, models and software features within Advisor-e that relate to the Strategic Planning and Team Development of your firm.",
     "support": "Glossary; Directory; Summary; Planning; Coaching; HR; Development; Learning; Role Play",
-    "position": 138,
+    "position": 137,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4597,19 +4763,20 @@
       "Learning",
       "Role Play"
     ],
-    "index": 137
+    "index": 136
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-5001782177",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Capital Raising",
     "title": "Pitch Deck",
     "link": "id-5001782177",
     "purpose": "This (blank) Pitch Deck is designed to help guide you in the communication of your solution advantages to prospective investors to help secure business capital.",
     "support": "Investment; Share Capital",
-    "position": 139,
+    "position": 138,
     "cpd": {
       "isHidden": false,
       "objective": "This (blank) Pitch Deck is designed to help guide you in the communication of your solution advantages to prospective investors to help secure business capital.",
@@ -4627,46 +4794,20 @@
       "Investment",
       "Share Capital"
     ],
-    "index": 138
-  },
-  {
-    "includedInClient": false,
-    "menuSection": "get-organised",
-    "page": "coi-planning",
-    "section": "Get Organised",
-    "topic": "Planning & Team Development",
-    "title": "Planning Tools Directory",
-    "link": "coi-planning",
-    "purpose": "This template guides you to the range of templates, models and software features that specifically relate to the internal planning and team development needs of your business.",
-    "support": "",
-    "position": 140,
-    "cpd": {
-      "isHidden": true,
-      "objective": "",
-      "watchedVideo": 0,
-      "reviewTemplate": 0,
-      "reheasedTemplate": 0
-    },
-    "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
-    },
-    "status": "--",
-    "tags": [],
-    "index": 139
+    "index": 137
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-1108511320",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Business Structure",
     "title": "Structure Options",
     "link": "id-1108511320",
     "purpose": "This template is an entry level introduction to clients wishing to learn about their business structure options. The template introduces the concept of risk mitigation and future saleability but does not go into detailed explanation of topics such as tax or estate protection.",
     "support": "Forming a company; sole trader; trusts; limited liability; video",
-    "position": 141,
+    "position": 139,
     "cpd": {
       "isHidden": false,
       "objective": "Understanding Business Structure Options for Risk Mitigation & Future Saleability",
@@ -4687,19 +4828,20 @@
       "limited liability",
       "video"
     ],
-    "index": 140
+    "index": 138
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-5642754592",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Accounting Training",
     "title": "90 Day Best Practice Accounting",
     "link": "id-5642754592",
     "purpose": "This template (and resource section) is about coaching your clients to be more confident and robust in their accounting methods. The template provides a broad outline of how you might present your coaching, via a series of meetngs, and provides an environment to host support videos.",
     "support": "Xero training; MYOB training; Accounting; Invoicing; Chart of accounts; Reconciling",
-    "position": 142,
+    "position": 140,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4721,19 +4863,20 @@
       "Chart of accounts",
       "Reconciling"
     ],
-    "index": 141
+    "index": 139
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "bizz360",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Financial Reporting",
     "title": "Activity Ratios",
     "link": "bizz360",
     "purpose": "This template can be found at the bottom of the Working Capital Cycle page. The template explores a range of cash management ratios and explains both theory and 'real world' implications.",
     "support": "KPI's; Reporting; Financial Performance",
-    "position": 143,
+    "position": 141,
     "cpd": {
       "isHidden": false,
       "objective": "The template explores a range of cash management ratios and explains both theory and 'real world' implications.",
@@ -4752,19 +4895,20 @@
       "Reporting",
       "Financial Performance"
     ],
-    "index": 142
+    "index": 140
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-1908658752",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Valuation",
     "title": "Business Sale Assessment 1",
     "link": "id-1908658752",
     "purpose": "This 'landing page' describes the process of selling a business and gives business owners insight into what lies ahead, should they choose to sell their business.",
     "support": "Business Sale Process",
-    "position": 144,
+    "position": 142,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4781,19 +4925,20 @@
     "tags": [
       "Business Sale Process"
     ],
-    "index": 143
+    "index": 141
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-8913859328",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Valuation",
     "title": "Indicative Value Questions",
     "link": "id-8913859328",
     "purpose": "This questionnaire helps to orient you in the process of determining an indicative value and is a valuable first step in the valuation process.",
     "support": "Valuation; Business data; Owner's price",
-    "position": 145,
+    "position": 143,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4812,19 +4957,20 @@
       "Business data",
       "Owner's price"
     ],
-    "index": 144
+    "index": 142
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-136069218",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Valuation",
     "title": "Business Purchase Assessment 1",
     "link": "id-136069218",
     "purpose": "This 'landing page' describes the process of purchasing a business and gives business owners insight into what lies ahead. It's a great way to 'prime' your client for an inital feasibility meeting.",
     "support": "Valuation; Business Sale; Liquidation; Going Concern; Succession Planning",
-    "position": 146,
+    "position": 144,
     "cpd": {
       "isHidden": true,
       "objective": "This 'landing page' describes the process of purchasing a business and gives business owners insight into what lies ahead. It's a great way to 'prime' your client for an inital feasibility meeting.",
@@ -4845,19 +4991,20 @@
       "Going Concern",
       "Succession Planning"
     ],
-    "index": 145
+    "index": 143
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-5168118171",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Valuation",
     "title": "Purchase Assessment Model 2",
     "link": "id-5168118171",
     "purpose": "This indicative value model applies to someone who is thinking of BUYING a business - the model layout is similar to that of the business sale assessment model but it ONLY links to the business purchase assessment report.",
     "support": "Valuation; Going Concern; Feasibility",
-    "position": 147,
+    "position": 145,
     "cpd": {
       "isHidden": false,
       "objective": "Understand the 'as is' valuation method based on current stock/materials/wip + tangible assets + intangible assets.",
@@ -4876,19 +5023,20 @@
       "Going Concern",
       "Feasibility"
     ],
-    "index": 146
+    "index": 144
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-9261761081",
     "section": "Do the Job",
+    "subSection": "Risk Advisor Access",
     "topic": "Business Insurance",
     "title": "Business Insurance Model",
     "link": "id-9261761081",
     "purpose": "This model helps to calculate the Share transfer and Key Person  insurance levels to make it easier for business owners to determine an appropriate cover for their needs.",
     "support": "Share transfer; Attributable Revenue",
-    "position": 148,
+    "position": 146,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4906,19 +5054,20 @@
       "Share transfer",
       "Attributable Revenue"
     ],
-    "index": 147
+    "index": 145
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "id-3131916997",
     "section": "Get the Job",
+    "subSection": "Marketing",
     "topic": "Approach Letters",
     "title": "Gift Approach Letters",
     "link": "id-3131916997",
     "purpose": "These pre approach letters utilise a gift to help with the positioning of your intial approach.",
     "support": "pre-approach letter; Gift Letter; Selling; Marketing",
-    "position": 149,
+    "position": 147,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4938,19 +5087,20 @@
       "Selling",
       "Marketing"
     ],
-    "index": 148
+    "index": 146
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "the-sales-theory",
     "section": "Get the Job",
-    "topic": "Outbound Phone Scripts",
+    "subSection": "Learning to Sell",
+    "topic": "Coaching & Culture",
     "title": "Phone Scripts",
     "link": "the-sales-theory",
     "purpose": "These phone script templates provide suggestions for how you could deal with targeted approaches.",
-    "support": "Cold calling; Selling; Marketing",
-    "position": 150,
+    "support": "Cold calling; Selling; Marketing; fee growth; career development",
+    "position": 148,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -4967,21 +5117,24 @@
     "tags": [
       "Cold calling",
       "Selling",
-      "Marketing"
+      "Marketing",
+      "fee growth",
+      "career development"
     ],
-    "index": 149
+    "index": 147
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "rehearsal-action-plan",
     "section": "Get the Job",
+    "subSection": "Learning to Sell",
     "topic": "Sales Scripts",
     "title": "Total Needs Sales Scripts",
     "link": "rehearsal-action-plan",
     "purpose": "These templates help you understand the psychology behind the total needs sales process, and provide practical scripts for you to rehearse and edit (when comfortable) to ensure your delivery is authentic. Rehearsing these is the fastest way to learn to sell professionally.",
-    "support": "Selling; Marketing",
-    "position": 151,
+    "support": "Selling; Marketing; fee growth; Career development",
+    "position": 149,
     "cpd": {
       "isHidden": false,
       "objective": "These templates help you understand the psychology behind the total needs sales process, and provide practical scripts for you to rehearse and edit (when comfortable) to ensure your delivery is authentic. Rehearsing these is the fastest way to learn to sell professionally.",
@@ -4997,48 +5150,24 @@
     "status": "--",
     "tags": [
       "Selling",
-      "Marketing"
+      "Marketing",
+      "fee growth",
+      "Career development"
     ],
-    "index": 150
-  },
-  {
-    "includedInClient": false,
-    "menuSection": "get-the-job",
-    "page": "winning-the-job-tools",
-    "section": "Get the Job",
-    "topic": "Positioning for Advisory",
-    "title": "Sales Psychology (Basics)",
-    "link": "winning-the-job-tools",
-    "purpose": "This video provides a foundational understanding of the psychology of the sale. A 'must view' for those who have not been formally trained in selling advisory services.",
-    "support": "",
-    "position": 152,
-    "cpd": {
-      "isHidden": false,
-      "objective": "The 2 reasons people don't buy, 4 stages in Consumer Awareness & 4 Stages in the Psychology of the Sale.",
-      "watchedVideo": 5,
-      "reviewTemplate": 0,
-      "reheasedTemplate": 0
-    },
-    "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
-    },
-    "status": "--",
-    "tags": [],
-    "index": 151
+    "index": 148
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-4570105459",
     "section": "Do the Job",
+    "subSection": "Lite Fundamentals",
     "topic": "Selling Lite Fundamentals Programme",
     "title": "Lite Fundamentals",
     "link": "id-4570105459",
     "purpose": "How to secure on-going management/ business improvement engagements using the Lite Fundamentals framework. Step by step instructions show you the use of pre-approach quizzes and all the visual aids and sales scripts to help you win! (note: the video is the same video as shown in the concept meeting)",
-    "support": "",
-    "position": 153,
+    "support": "selling; fee growth; video",
+    "position": 150,
     "cpd": {
       "isHidden": false,
       "objective": "How to secure on-going management/ business improvement engagements using the Lite Fundamentals framework. Step by step instructions show you the use of pre-approach quizzes and all the visual aids and sales scripts to help you win! – (note: the video is the same video as shown in the concept meeting visuals page – it may make more sense when viewed alongside the other actions in sequence.)",
@@ -5052,20 +5181,25 @@
       "fundamental": "Understanding business as 6 systems (Planning, Data, Mktg, Sales, People, Process)"
     },
     "status": "--",
-    "tags": [],
-    "index": 152
+    "tags": [
+      "selling",
+      "fee growth",
+      "video"
+    ],
+    "index": 149
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "winning-the-job-tools",
     "section": "Get the Job",
+    "subSection": "Positioning",
     "topic": "Positioning for Advisory",
     "title": "The Nature of Engagement",
     "link": "winning-the-job-tools",
     "purpose": "This video explains the relationship dynamics and client awareness (levels) that drive the different types of engagements that you'll secure. Understanding the difference will help guide you in your dealings when selling or scoping.",
-    "support": "",
-    "position": 154,
+    "support": "Engagement; Positioning; Client Awareness; Relationship Dynamics; Advisory Sales; Scoping",
+    "position": 151,
     "cpd": {
       "isHidden": false,
       "objective": "Understand positioning dynamics - what separates the engagement drivers and how the advisor must prepare.",
@@ -5079,20 +5213,28 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 153
+    "tags": [
+      "Engagement",
+      "Positioning",
+      "Client Awareness",
+      "Relationship Dynamics",
+      "Advisory Sales",
+      "Scoping"
+    ],
+    "index": 150
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "winning-the-job-tools",
     "section": "Get the Job",
-    "topic": "Positioning for Advisory",
+    "subSection": "Positioning",
+    "topic": "Coaching & Culture",
     "title": "The 5 Steps in the Advisory Staircase",
     "link": "winning-the-job-tools",
     "purpose": "The progressive stages of engaging with a client; how to present 'solution layers'.",
-    "support": "",
-    "position": 155,
+    "support": "Fee growth; Career development; Service solutions",
+    "position": 152,
     "cpd": {
       "isHidden": false,
       "objective": "The progressive stages of engaging with a client; how to present 'solution layers'.",
@@ -5106,20 +5248,25 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 154
+    "tags": [
+      "Fee growth",
+      "Career development",
+      "Service solutions"
+    ],
+    "index": 151
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "spare-5",
     "section": "Get the Job",
+    "subSection": "Positioning",
     "topic": "Facilitation Skills",
     "title": "The Heald Matrix",
     "link": "spare-5",
     "purpose": "How to re-frame business planning in the mind of your client and (at the same time) position yourself as a strategic advisor. (This is a perfect framework for learning how to facilitate effectively)",
     "support": "Facilitation skills",
-    "position": 156,
+    "position": 153,
     "cpd": {
       "isHidden": false,
       "objective": "Learn how to 'Control the Reveal' - an essential facilitators skillset.",
@@ -5136,19 +5283,20 @@
       "Facilitation skills"
     ],
     "status": "--",
-    "index": 155
+    "index": 152
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-1283439703",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Feasibility Assessment",
     "title": "Section Brief",
     "link": "id-1283439703",
     "purpose": "How to use Revenue Models to shift the ‘burden of proof’ away from you and towards the client’s business model.",
     "support": "Feasibility; Facilitation; Financial models",
-    "position": 157,
+    "position": 154,
     "cpd": {
       "isHidden": false,
       "objective": "How to use Revenue Models to shift the ‘burden of proof’ away from you and towards the client’s business model.",
@@ -5167,19 +5315,20 @@
       "Financial models"
     ],
     "status": "--",
-    "index": 156
+    "index": 153
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "learning",
     "section": "Get the Job",
-    "topic": "Sales Training",
+    "subSection": "Learning to Sell",
+    "topic": "Coaching & Culture",
     "title": "Your Sales Process Decision Tree",
     "link": "learning",
-    "purpose": "Understand the different approach options and how to modify your approach to suit existing relationship dynamics.",
-    "support": "Sales training",
-    "position": 158,
+    "purpose": "Understand the different sales approach options and how to modify your approach to suit existing relationship dynamics. This is an extremely practical template to help you define your 'next move' with client cases.",
+    "support": "Sales training; fee growth; career development; video",
+    "position": 155,
     "cpd": {
       "isHidden": false,
       "objective": "Understand the different approach options and how to modify your approach to suit existing relationship dynamics.",
@@ -5193,22 +5342,26 @@
       "fundamental": ""
     },
     "tags": [
-      "Sales training"
+      "Sales training",
+      "fee growth",
+      "career development",
+      "video"
     ],
     "status": "--",
-    "index": 157
+    "index": 154
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-3560081422",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Mental Well Being",
     "title": "Business Clock vs Body Clock",
     "link": "id-3560081422",
     "purpose": "This template explores the difference between efficiency and effectiveness, what blocks your creativity, how to work within your own body rythm and cope with feelings of overwhelm. (All the stuff that comes with being a business owner.)",
-    "support": "",
-    "position": 159,
+    "support": "Wellbeing; Mental Health; Efficiency; Effectiveness; Overwhelm; Creativity; Work Habits; Body Clock",
+    "position": 156,
     "cpd": {
       "isHidden": false,
       "objective": "How to help your client reduce feelings of overwhelm & improve effectiveness.",
@@ -5222,49 +5375,30 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 158
-  },
-  {
-    "includedInClient": true,
-    "menuSection": "do-the-job",
-    "page": "id-3444141596",
-    "section": "Do the Job",
-    "topic": "Creative Problem Solving",
-    "title": "Quick Fire Diagnosis",
-    "link": "id-3444141596",
-    "purpose": "This template helps to 'flush out' the problem areas within a business by providing a 'process of elimination' approach to clarifying the core issue/s. The basic triage framework starts with Get Organised, Get the Job and Do the Job and cascades down from there.",
-    "support": "Video",
-    "position": 160,
-    "cpd": {
-      "isHidden": false,
-      "objective": "How to perform basic 'business triage' to aid clients in distress or identify business growth opportunities",
-      "watchedVideo": 23,
-      "reviewTemplate": 20,
-      "reheasedTemplate": 30
-    },
-    "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
-    },
-    "status": "--",
     "tags": [
-      "Video"
+      "Wellbeing",
+      "Mental Health",
+      "Efficiency",
+      "Effectiveness",
+      "Overwhelm",
+      "Creativity",
+      "Work Habits",
+      "Body Clock"
     ],
-    "index": 159
+    "index": 155
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-5038284749",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Collaborative Problem Solving",
     "title": "6 Hats",
     "link": "id-5038284749",
     "purpose": "This template is an (essential) foundation template to improve team problem solving techniques and meeting conduct. You can use this framework in the board room one day, and with a small start up team the next. ",
-    "support": "",
-    "position": 161,
+    "support": "Problem Solving; Team Meeting; Collaboration; Six Hats; Brainstorming; Decision Making; Board",
+    "position": 157,
     "cpd": {
       "isHidden": false,
       "objective": "Help your clients to understand the power of ‘Parallel Thinking’ – one of the most important business skills to enhance decision making.",
@@ -5278,20 +5412,29 @@
       "fundamental": "Help your clients to understand the power of ‘Parallel Thinking’ – one of the most important business skills to enhance decision making."
     },
     "status": "--",
-    "tags": [],
-    "index": 160
+    "tags": [
+      "Problem Solving",
+      "Team Meeting",
+      "Collaboration",
+      "Six Hats",
+      "Brainstorming",
+      "Decision Making",
+      "Board"
+    ],
+    "index": 156
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-4570105459",
     "section": "Do the Job",
+    "subSection": "Lite Fundamentals",
     "topic": "Sales Training",
     "title": "Lite Fundamentals Visual Aids",
     "link": "id-4570105459",
     "purpose": "How to use on-line quizzes to 'prime' clients; how to frame a sales meeting and use visual aids & scenario models to follow the psychology of the sale, whilst reducing tension.",
-    "support": "",
-    "position": 162,
+    "support": "career development; fee growth; video",
+    "position": 158,
     "cpd": {
       "isHidden": false,
       "objective": "How to use on-line quizzes to 'prime' clients; how to frame a sales meeting and use visual aids & scenario models to follow the psychology of the sale, whilst reducing tension.",
@@ -5305,20 +5448,25 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 161
+    "tags": [
+      "career development",
+      "fee growth",
+      "video"
+    ],
+    "index": 157
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-9293972213",
     "section": "Do the Job",
+    "subSection": "Strategic Tools",
     "topic": "Acquisition & Merging",
     "title": "Business Dating",
     "link": "id-9293972213",
     "purpose": "How to help your client approach a merger or aquisition with a more progressive, longer term outlook to improve the chances of successful (combined) team and management culture.",
-    "support": "",
-    "position": 163,
+    "support": "Merger; Acquisition; Business Purchase; Culture; Team Integration; Strategic Growth",
+    "position": 159,
     "cpd": {
       "isHidden": false,
       "objective": "How to help your client approach a merger or aquisition with a more progressive, longer term outlook to improve the chances of successful (combined) team and management culture.",
@@ -5332,20 +5480,28 @@
       "fundamental": "How to help your client approach a merger or aquisition with a more progressive, longer term outlook to improve the chances of successful (combined) team and management culture."
     },
     "status": "--",
-    "tags": [],
-    "index": 162
+    "tags": [
+      "Merger",
+      "Acquisition",
+      "Business Purchase",
+      "Culture",
+      "Team Integration",
+      "Strategic Growth"
+    ],
+    "index": 158
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "capacity-capability-opportunity",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Strategic Facilitation",
     "title": "Capacity, Capability, Opportunity",
     "link": "capacity-capability-opportunity",
     "purpose": "Your clients can't see this page as it's designed to help you build your confidence and ultimately - help you position in the eyes of your client. Take the time to rehearse the framework with others; together your rate of learning will grow...",
     "support": "positioning; facilitation; diagnosis",
-    "position": 164,
+    "position": 160,
     "cpd": {
       "isHidden": false,
       "objective": "Your clients can't see this page as it's designed to help you build your confidence and ultimately - help you position in the eyes of your client. Take the time to rehearse the framework with others; together your rate of learning will grow...",
@@ -5364,19 +5520,20 @@
       "diagnosis"
     ],
     "status": "--",
-    "index": 163
+    "index": 159
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-679676385",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Technology",
     "title": "What's Applicable",
     "link": "id-679676385",
     "purpose": "This session is designed to stimulate a review of how technology can be COMBINED with existing business procedures to achieve more effctive outcomes for all.",
-    "support": "",
-    "position": 165,
+    "support": "Technology; Digital; Process Improvement; Innovation; Apps; Efficiency",
+    "position": 161,
     "cpd": {
       "isHidden": false,
       "objective": "This session is designed to stimulate a review of how technology can be COMBINED with existing business procedures to achieve more effctive outcomes for all.",
@@ -5390,20 +5547,28 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 164
+    "tags": [
+      "Technology",
+      "Digital",
+      "Process Improvement",
+      "Innovation",
+      "Apps",
+      "Efficiency"
+    ],
+    "index": 160
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-1946196200",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Strategic Planning",
     "title": "HOPE Recession Model",
     "link": "id-1946196200",
     "purpose": "This template explores the observable traits of a failing economy so that you and your clients can discuss the macro position and the implications to their business. (It's a great way to 'talk your client down' from taking large risks in a depressed economy.)",
     "support": "Video; Forecasting; Feasibility",
-    "position": 166,
+    "position": 162,
     "cpd": {
       "isHidden": false,
       "objective": "This template explores the observable traits of a failing economy so that you and your clients can discuss the macro position and the implications to their business. (It's a great way to 'talk your client down' from taking large risks in a depressed economy.)",
@@ -5422,19 +5587,20 @@
       "Forecasting",
       "Feasibility"
     ],
-    "index": 165
+    "index": 161
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-3306202362",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Valuation",
     "title": "Advisor Prep",
     "link": "id-3306202362",
     "purpose": "This advisor preparation page helps you to explore the business sale assessment section so you can become familiar with the indicative value model, the report, and the sensitivity calculations that guide you in your indicative value assessment.",
-    "support": "",
-    "position": 167,
+    "support": "Valuation; Business Sale; Indicative Value; Due Diligence; Sale Assessment; Business Value",
+    "position": 163,
     "cpd": {
       "isHidden": false,
       "objective": "Learn the fundamentals of business valuation by reviewing the model, report, indicative value questionnaire and the 3 tutorial videos paired to this section. (total video time shown below)",
@@ -5448,20 +5614,28 @@
       "fundamental": "This advisor preparation page helps you to explore the business sale assessment section so you can become familiar with the indicative value model, the report, and the sensitivity calculations."
     },
     "status": "--",
-    "tags": [],
-    "index": 166
+    "tags": [
+      "Valuation",
+      "Business Sale",
+      "Indicative Value",
+      "Due Diligence",
+      "Sale Assessment",
+      "Business Value"
+    ],
+    "index": 162
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-4138307831",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Valuation",
     "title": "Sale Assessment Model 2",
     "link": "id-4138307831",
     "purpose": "This indicative value model applies to someone who is thinking of SELLING a business - the model layout is similar to that of the business sale assessment model but it ONLY links to the business sale assessment report.",
     "support": "valuation; indicative value; sale & purchase",
-    "position": 168,
+    "position": 164,
     "cpd": {
       "isHidden": false,
       "objective": "Use this model to calculate the Seller's Discretionary Cashflow or Future Maintainable Earnings as part of your business indicative value. From here, your figures are easily 'inserted' into the Assessment Report.",
@@ -5480,19 +5654,20 @@
       "sale & purchase"
     ],
     "status": "--",
-    "index": 167
+    "index": 163
   },
   {
     "includedInClient": true,
     "menuSection": "do-the-job",
     "page": "id-452735813",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Valuation",
     "title": "Sale Assessment Report 3",
     "link": "id-452735813",
     "purpose": "This sale assessment report provides an indicative business value for your client and explores the multiple aspects to be considered prior to sale. The report raises the issue of payback period, super profits and margin of error calculations for cash surplus, from a purchaser's perspective so your c",
-    "support": "",
-    "position": 169,
+    "support": "Valuation; Business Sale; Indicative Value; Sale Assessment; Super Profits; Payback Period; Business Purchase",
+    "position": 165,
     "cpd": {
       "isHidden": false,
       "objective": "Learn the fundamentals of business valuation by reviewing the model, report, indicative value questionnaire and the 3 tutorial videos paired to this section. (total video time shown below)",
@@ -5506,20 +5681,29 @@
       "fundamental": "Learn the fundamentals of business valuation by reviewing the model, report, indicative value questionnaire and the 3 tutorial videos paired to this section. (total video time shown below)"
     },
     "status": "--",
-    "tags": [],
-    "index": 168
+    "tags": [
+      "Valuation",
+      "Business Sale",
+      "Indicative Value",
+      "Sale Assessment",
+      "Super Profits",
+      "Payback Period",
+      "Business Purchase"
+    ],
+    "index": 164
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "seminar-delivery",
     "section": "Get the Job",
+    "subSection": "Marketing",
     "topic": "Outbound Messaging",
     "title": "Messaging Plan",
     "link": "seminar-delivery",
     "purpose": "This template helps you design your outbound messaging plan to help attract more 'A' clients. The framework explores common client problems, your solution, the medium, frequency and content layers as part of an annual plan to communicate your value to new and existing clients.",
-    "support": "seminar development; Public speaking; Platform presentation",
-    "position": 170,
+    "support": "Messaging; Marketing Plan; Outbound Marketing; Client Attraction; A Clients; Marketing Strategy",
+    "position": 166,
     "cpd": {
       "isHidden": false,
       "objective": "This template helps you design your outbound messaging plan to help you attract more 'A' clients and introduces you to the CPD (Concept, Principle, Detail) framework for developing messaging - which also applies when presenting in public.",
@@ -5533,24 +5717,28 @@
       "fundamental": ""
     },
     "tags": [
-      "seminar development",
-      "Public speaking",
-      "Platform presentation"
+      "Messaging",
+      "Marketing Plan",
+      "Outbound Marketing",
+      "Client Attraction",
+      "A Clients",
+      "Marketing Strategy"
     ],
     "status": "--",
-    "index": 169
+    "index": 165
   },
   {
     "includedInClient": false,
     "menuSection": "get-organised",
     "page": "id-1449558534",
     "section": "Get Organised",
+    "subSection": "Firm Manager Access",
     "topic": "Team Building",
     "title": "Paper Tower",
     "link": "id-1449558534",
     "purpose": "These (team) problem solving templates provide a practical means to observe members work together and allows you to introduce a structured approach to dealing with problems in future.",
-    "support": "",
-    "position": 171,
+    "support": "Team Building; Problem Solving; Team Dynamics; Internal Training; Collaboration",
+    "position": 167,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -5564,20 +5752,27 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 170
+    "tags": [
+      "Team Building",
+      "Problem Solving",
+      "Team Dynamics",
+      "Internal Training",
+      "Collaboration"
+    ],
+    "index": 166
   },
   {
     "includedInClient": false,
     "menuSection": "get-organised",
     "page": "get-focused-support",
     "section": "Get Organised",
+    "subSection": "Firm Manager Access",
     "topic": "Hiring",
     "title": "Hire Winners",
     "link": "get-focused-support",
     "purpose": "This (internal) template explores the process of identifying winning and diverse temperament, skills and character traits. For many, the idea of diversity has been generally accepted. Few however, comprehend that it's only with an understanding of personality types, can it prove effective.",
-    "support": "",
-    "position": 172,
+    "support": "Hiring; Recruitment; Team Building; Personality Types; Diversity; Staff Selection",
+    "position": 168,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -5591,20 +5786,28 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 171
+    "tags": [
+      "Hiring",
+      "Recruitment",
+      "Team Building",
+      "Personality Types",
+      "Diversity",
+      "Staff Selection"
+    ],
+    "index": 167
   },
   {
     "includedInClient": false,
     "menuSection": "get-organised",
     "page": "individual-fee-growth-plan",
     "section": "Get Organised",
-    "topic": "Partnership Pathway",
+    "subSection": "Advisor Access",
+    "topic": "Career Development",
     "title": "My Fee Growth Plan",
     "link": "individual-fee-growth-plan",
     "purpose": "This template is designed to help those on the Partnership Pathway to be clear on who to target, what to communicate and the sheer level of activity required to (organically) grow a fee base. 'A' client profile, logistics and marketing statements (BBQ statements) are all part of the content covered",
-    "support": "",
-    "position": 173,
+    "support": "Video; Model; Template",
+    "position": 169,
     "cpd": {
       "isHidden": false,
       "objective": "This template is designed to help those on the Partnership Pathway to be clear on who to target, what to communicate and the sheer level of activity required to (organically) grow a fee base. 'A' client profile, logistics and marketing statements (BBQ statements) are all part of the content covered",
@@ -5618,20 +5821,25 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 172
+    "tags": [
+      "Video",
+      "Model",
+      "Template"
+    ],
+    "index": 168
   },
   {
     "includedInClient": false,
     "menuSection": "get-organised",
     "page": "id-6203812261",
     "section": "Get Organised",
+    "subSection": "Advisor Access",
     "topic": "Networking",
     "title": "My Network/Entertainment Schedule",
     "link": "id-6203812261",
     "purpose": "This template works on the belief that a clear allocation of resources can aid in the planning of pro-active networking tactics. In short, the allocation of both time and budget will then help define WHO best to target, WHAT outcomes are expected and HOW MUCH resource should be used to be effective.",
-    "support": "",
-    "position": 174,
+    "support": "Networking; Entertainment; Business Development; Client Relationships; Prospecting; Budget",
+    "position": 170,
     "cpd": {
       "isHidden": false,
       "objective": "This template works on the belief that a clear allocation of resources can aid in the planning of pro-active networking tactics. In short, the allocation of both time and budget will then help define WHO best to target, WHAT outcomes are expected and HOW MUCH resource should be used to be effective.",
@@ -5645,20 +5853,28 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 173
+    "tags": [
+      "Networking",
+      "Entertainment",
+      "Business Development",
+      "Client Relationships",
+      "Prospecting",
+      "Budget"
+    ],
+    "index": 169
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "spare-4",
     "section": "Get the Job",
+    "subSection": "Marketing",
     "topic": "Quiz",
     "title": "Online Quiz Summary",
     "link": "spare-4",
     "purpose": "This template highlights the purpose behind the online quiz options provided. Quizzes provide a useful 'Priming' role to help shape the understanding of your client and additionally, helps to build the DESIRE to act.",
-    "support": "",
-    "position": 175,
+    "support": "Quiz; Marketing; Priming; Client Engagement; Lead Generation; Online Marketing",
+    "position": 171,
     "cpd": {
       "isHidden": false,
       "objective": "This template highlights the purpose behind the online quiz options provided. Quizzes provide a useful 'Priming' role to help shape the understanding of your client and additionally, helps to build the DESIRE to act.",
@@ -5672,20 +5888,28 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 174
+    "tags": [
+      "Quiz",
+      "Marketing",
+      "Priming",
+      "Client Engagement",
+      "Lead Generation",
+      "Online Marketing"
+    ],
+    "index": 170
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "tracking-your-progress",
     "section": "Get the Job",
+    "subSection": "Marketing",
     "topic": "Messaging",
     "title": "Video Hyperlinks",
     "link": "tracking-your-progress",
     "purpose": "This document provides a brief description of the video and its (paired) hyperlink to help you decide which video could best help to shape the nature of discussion with your client. Excellent PRIMING resource! \n(The video hyperlinks relate to unbranded 'concept' videos.)",
-    "support": "",
-    "position": 176,
+    "support": "fee growth",
+    "position": 172,
     "cpd": {
       "isHidden": false,
       "objective": "This document provides a brief description of the video and its (paired) hyperlink to help you decide which video could best help to shape the nature of discussion with your client. Excellent PRIMING resource!",
@@ -5699,20 +5923,23 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 175
+    "tags": [
+      "fee growth"
+    ],
+    "index": 171
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "id-4678322776",
     "section": "Get the Job",
+    "subSection": "Marketing",
     "topic": "Website Creation",
     "title": "Website Blurbs",
     "link": "id-4678322776",
     "purpose": "This document provides 'tips n tricks' to aid in the design of your firm's website. The tactics suggested here may, in turn, be passed to your clients as an additional resource.",
-    "support": "",
-    "position": 177,
+    "support": "Website; Marketing; Website Copy; Digital Marketing; Client Attraction; Firm Profile",
+    "position": 173,
     "cpd": {
       "isHidden": false,
       "objective": "This document provides 'tips n tricks' to aid in the design of your firm's website. The tactics suggested here may, in turn, be passed to your clients as an additional resource.",
@@ -5726,20 +5953,28 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 176
+    "tags": [
+      "Website",
+      "Marketing",
+      "Website Copy",
+      "Digital Marketing",
+      "Client Attraction",
+      "Firm Profile"
+    ],
+    "index": 172
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "spare-2",
     "section": "Get the Job",
+    "subSection": "Positioning",
     "topic": "Positioning",
     "title": "The Helicopter Story",
     "link": "spare-2",
     "purpose": "This delivery is a superb way to plant the seed for a client and is really useful if presented in a seminar environment to aid in the positioning of you as a strategic advisor. It takes time to learn but works - (69% of the time - everytime! :)",
     "support": "platform presentation; public speaking; seminar design",
-    "position": 178,
+    "position": 174,
     "cpd": {
       "isHidden": false,
       "objective": "This delivery is a superb way to plant the seed for a client and is really useful if presented in a seminar environment to aid in the positioning of you as a strategic advisor. It takes time to learn but works - (69% of the time - everytime! :)",
@@ -5758,19 +5993,20 @@
       "seminar design"
     ],
     "status": "--",
-    "index": 177
+    "index": 173
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "id-6785367543",
     "section": "Get the Job",
+    "subSection": "Learning to Sell",
     "topic": "Sales Psychology",
     "title": "Call Reluctance Psychology",
     "link": "id-6785367543",
     "purpose": "This video explains the psychology of call reluctance; what it is, what causes it and what you can do about it. A must watch for anyone new to selling.",
-    "support": "",
-    "position": 179,
+    "support": "video; fear of selling; struggle to sell; hard to sell",
+    "position": 175,
     "cpd": {
       "isHidden": false,
       "objective": "This video explains the psychology of call reluctance; what it is, what causes it and what you can do about it. A must watch for anyone new to selling.",
@@ -5784,20 +6020,26 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 178
+    "tags": [
+      "video",
+      "fear of selling",
+      "struggle to sell",
+      "hard to sell"
+    ],
+    "index": 174
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "id-5063596715",
     "section": "Get the Job",
-    "topic": "Selling Management Reporting",
+    "subSection": "Learning to Sell",
+    "topic": "Coaching & Culture",
     "title": "Winning Management Reporting",
     "link": "id-5063596715",
     "purpose": "This document explores why clients struggle to get excited about management reporting services and what you can do about it. In particular, it explores the 5 'current states' your clients could be in and the appropriate template to help move them forward.",
-    "support": "",
-    "position": 180,
+    "support": "Fee growth; Career development",
+    "position": 176,
     "cpd": {
       "isHidden": false,
       "objective": "This document explores why clients struggle to get excited about management reporting services and what you can do about it. In particular, it explores the 5 'current states' your clients could be in and the appropriate template to help move them forward.",
@@ -5811,20 +6053,24 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 179
+    "tags": [
+      "Fee growth",
+      "Career development"
+    ],
+    "index": 175
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "id-2297533587",
     "section": "Get the Job",
-    "topic": "Sales Training",
+    "subSection": "Learning to Sell",
+    "topic": "Coaching & Culture",
     "title": "Campaign Intro Options",
     "link": "id-2297533587",
     "purpose": "This page holds 3 templates; each of which could prove useful to aid in the positioning of you as an advisor to a new client/prospect. Learn them all and be ready to 'change up' if the meeting environment requires.",
-    "support": "strategic advisor",
-    "position": 181,
+    "support": "strategic advisor; fee growth; career development; sales training",
+    "position": 177,
     "cpd": {
       "isHidden": false,
       "objective": "This page holds 3 templates; each of which could prove useful to aid in the positioning of you as an advisor to a new client/prospect. Learn them all and be ready to 'change up' if the meeting environment requires.",
@@ -5838,22 +6084,26 @@
       "fundamental": ""
     },
     "tags": [
-      "strategic advisor"
+      "strategic advisor",
+      "fee growth",
+      "career development",
+      "sales training"
     ],
     "status": "--",
-    "index": 180
+    "index": 176
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "id-477955253",
     "section": "Get the Job",
-    "topic": "Networking",
+    "subSection": "Learning to Sell",
+    "topic": "Coaching & Culture",
     "title": "Centre of Influence Scripts",
     "link": "id-477955253",
     "purpose": "This page holds 4 templates that explain both the process and provides specific (word for word examples) for you to develop your business networks. Everything you need to know is here - you just have to practice!",
-    "support": "",
-    "position": 182,
+    "support": "Networking; Referrals; Fee growth; Career development",
+    "position": 178,
     "cpd": {
       "isHidden": false,
       "objective": "This page holds 4 templates that explain both the process and provides specific (word for word examples) for you to develop your business networks. Everything you need to know is here - you just have to practice!",
@@ -5867,20 +6117,26 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 181
+    "tags": [
+      "Networking",
+      "Referrals",
+      "Fee growth",
+      "Career development"
+    ],
+    "index": 177
   },
   {
     "includedInClient": false,
     "menuSection": "get-organised",
     "page": "adve-lf-6-keys",
     "section": "Get Organised",
+    "subSection": "Advisor Access",
     "topic": "Client Case Study",
     "title": "Platinum Case Study",
     "link": "adve-lf-6-keys",
     "purpose": "This template provides the meeting structure to help team members prepare and present their client case study material. Organising structured reviews enables a visible learning culture which is critical to a firm's advisory journey.",
     "support": "team building; team culture; personal development; career development",
-    "position": 183,
+    "position": 179,
     "cpd": {
       "isHidden": false,
       "objective": "This template provides the meeting structure to help team members prepare and present their client case study material. Organising structured reviews enables a visible learning culture which is critical to a firm's advisory journey.",
@@ -5900,19 +6156,20 @@
       "career development"
     ],
     "status": "--",
-    "index": 182
+    "index": 178
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "lite-data-pre-meeting",
     "section": "Do the Job",
+    "subSection": "Help",
     "topic": "Software Help",
     "title": "Quickfire Advisory Directory",
     "link": "lite-data-pre-meeting",
     "purpose": "Use this quick fire directory to identify the 80/20 templates to help you serve your clients. If, as an advisor, you became proficient in just the templates listed in this directory, you would be significantly better trained to deliver advisory services to your clients than 90% of accountants.",
     "support": "advisor help; advisor learning",
-    "position": 184,
+    "position": 180,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -5930,19 +6187,20 @@
       "advisor help",
       "advisor learning"
     ],
-    "index": 183
+    "index": 179
   },
   {
     "includedInClient": false,
     "menuSection": "get-organised",
     "page": "my-fee-growth-plan-old",
     "section": "Get Organised",
+    "subSection": "Advisor Access",
     "topic": "Tracking CPD Hours",
     "title": "My CPD Log",
     "link": "my-fee-growth-plan-old",
     "purpose": "Use this content table to track the learning time you've invested. You can add your own content to the table and easily produce a report for management or association bodies to show your learning progress.",
     "support": "CPD Hours; Tracking Learning; Professional Development",
-    "position": 185,
+    "position": 181,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -5961,19 +6219,20 @@
       "Tracking Learning",
       "Professional Development"
     ],
-    "index": 184
+    "index": 180
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-8349162326",
     "section": "Do the Job",
+    "subSection": "Help",
     "topic": "Content Logic",
     "title": "Advisory Playsheets",
     "link": "id-8349162326",
     "purpose": "The advisory playsheets help guide you through the 'thought logic' to determine which template is more appropriate to your client's circumstance, and your own personal experience & confidence levels. These playsheets assist with your diagnosis and service solution.",
     "support": "Content Logic; Thought Logic; Template choice; Diagnose; Problem Solve",
-    "position": 186,
+    "position": 182,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -5994,19 +6253,20 @@
       "Problem Solve"
     ],
     "status": "--",
-    "index": 185
+    "index": 181
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "lite-data-pre-meeting",
     "section": "Do the Job",
+    "subSection": "Help",
     "topic": "Graphical Concepts",
     "title": "Learning Graphics",
     "link": "lite-data-pre-meeting",
     "purpose": "This is a collection of concept graphics that relate to an advisor's learning journey.\nThe 5 Steps in the Advisory Staircase, The Professional's Journey, The 3 Types of Engagement, The Progressive Learning Path (to Wisdom) and The Emotional Reaction to Learning are all included.",
     "support": "concepts; conceptual hierarchy",
-    "position": 187,
+    "position": 183,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6024,19 +6284,20 @@
       "concepts",
       "conceptual hierarchy"
     ],
-    "index": 186
+    "index": 182
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-7982468813",
     "section": "Do the Job",
+    "subSection": "Growth Framework",
     "topic": "Template Selection",
     "title": "Growth Curve Checklist",
     "link": "id-7982468813",
     "purpose": "The growth curve checklist is your team's reference (list) to identify service (template) solutions for clients at each stage of the growth curve. It's about anticipating your client's issues and getting the right team member resourced, trained (& confident) in advance.",
     "support": "Template selection; Leveraged advisory",
-    "position": 188,
+    "position": 184,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6054,19 +6315,20 @@
       "Leveraged advisory"
     ],
     "status": "--",
-    "index": 187
+    "index": 183
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-9763482347",
     "section": "Do the Job",
+    "subSection": "Growth Framework",
     "topic": "Revealing Growth Framework",
     "title": "Free Draw 3x3",
     "link": "id-9763482347",
     "purpose": "This template and the tutorial video (underneath) will make it easy for you to reveal the growth (fundamentals) framework to your clients in a low pressure manner. (Especially useful for you to draw on a napkin at a coffee shop!)",
     "support": "Freedraw; free draw; reveal growth curve; freedraw",
-    "position": 189,
+    "position": 185,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6086,19 +6348,20 @@
       "freedraw"
     ],
     "status": "--",
-    "index": 188
+    "index": 184
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-631140983",
     "section": "Do the Job",
+    "subSection": "EOY Notes & Docs",
     "topic": "Quiz",
     "title": "EOY Quiz",
     "link": "id-631140983",
     "purpose": "The EOY quiz is a great way to 'prime' your client for their end of year meeting. For starters, it gets them thinking about their strengths, weaknesses & satisfaction levels (& you learn what they are) but more importanly, it signals your intention to discuss more than just their accounts.",
     "support": "quiz; satisfaction",
-    "position": 190,
+    "position": 186,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6116,19 +6379,20 @@
       "satisfaction"
     ],
     "status": "--",
-    "index": 189
+    "index": 185
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-629955404",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Staff Training",
     "title": "Turnaround Behaviours",
     "link": "id-629955404",
     "purpose": "This framework helps the team to decide how they want to be 'talked about' in their marketplace. The framework then explores practical steps for service improvement. (This example showcases a cafe but many in retail will find it applicable)",
     "support": "service improvement",
-    "position": 191,
+    "position": 187,
     "cpd": {
       "isHidden": false,
       "objective": "Learn how to position yourself as a facilitator of team improvement.",
@@ -6145,19 +6409,20 @@
       "service improvement"
     ],
     "status": "--",
-    "index": 190
+    "index": 186
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-1015676757",
     "section": "Do the Job",
-    "topic": "BNZ",
+    "subSection": "Strategic Tools",
+    "topic": "Finance Application",
     "title": "BNZ Templates",
     "link": "id-1015676757",
     "purpose": "These templates are specific to the BNZ in support of loan applications. If your client is needing a template as a requirement for a loan, perhaps check with their bank if they have a strict format to follow.",
-    "support": "BNZ Business Plan",
-    "position": 192,
+    "support": "BNZ Business Plan; Loan assessment; finance application",
+    "position": 188,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6171,22 +6436,25 @@
       "fundamental": ""
     },
     "tags": [
-      "BNZ Business Plan"
+      "BNZ Business Plan",
+      "Loan assessment",
+      "finance application"
     ],
     "status": "--",
-    "index": 191
+    "index": 187
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-458386486",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "Cooking",
     "title": "Baking Apple Pie",
     "link": "id-458386486",
     "purpose": "Build closer relations by helping your client bake an apple pie",
     "support": "wellness; healthy eating; cooking",
-    "position": 193,
+    "position": 189,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6205,19 +6473,20 @@
       "cooking"
     ],
     "status": "--",
-    "index": 192
+    "index": 188
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-8990592804",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "EBITDA & Discounted Cashflows",
     "title": "EBITDA",
     "link": "id-8990592804",
     "purpose": "This model is used to help calculate EBITDA and Discounted Future Cashflows to assess share values. Whilst both calculations carry a degree of controvesy when compared to 'real-world' values, understanding the methods will prove educational when completing your indicative value engagements.",
     "support": "EBITDA; Discounted Future Cashflows",
-    "position": 194,
+    "position": 190,
     "cpd": {
       "isHidden": false,
       "objective": "To understand the applications of these methods such that you can see the merit and flaws of both calculations.",
@@ -6235,19 +6504,20 @@
       "Discounted Future Cashflows"
     ],
     "status": "--",
-    "index": 193
+    "index": 189
   },
   {
     "includedInClient": false,
     "menuSection": "get-the-job",
     "page": "id-2297533587",
     "section": "Get the Job",
-    "topic": "Sales & Facilitation",
+    "subSection": "Learning to Sell",
+    "topic": "Coaching & Culture",
     "title": "Common Problem Stories",
     "link": "id-2297533587",
     "purpose": "Use the Event, Cause & Effect framework to develop your Common Problem Stories for use with sales prospects who are reluctant to engage. This framework serves as a Facilitative approach to probem solving and/or a soft sales method for introduction (first) meetings.",
-    "support": "Event; Cause; Effect",
-    "position": 195,
+    "support": "Event; Cause; Effect; fee growth; sales training; career development",
+    "position": 191,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6263,22 +6533,26 @@
     "tags": [
       "Event",
       "Cause",
-      "Effect"
+      "Effect",
+      "fee growth",
+      "sales training",
+      "career development"
     ],
     "status": "--",
-    "index": 194
+    "index": 190
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-4806944979",
     "section": "Do the Job",
+    "subSection": "Governance Tools",
     "topic": "Governance",
     "title": "Board Member Conduct",
     "link": "id-4806944979",
     "purpose": "This template seeks to offer practical insights for how to deal with disruptive board members. The content in this template will also prove useful to those presenting or 'pitching' to a board.",
     "support": "Status",
-    "position": 196,
+    "position": 192,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6295,19 +6569,20 @@
       "Status"
     ],
     "status": "--",
-    "index": 195
+    "index": 191
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-5336158617",
     "section": "Do the Job",
+    "subSection": "Governance Tools",
     "topic": "Governance",
     "title": "Annual Board Plan",
     "link": "id-5336158617",
     "purpose": "This template records the board's intentions to deal with certain business topics/issues and schedules their sequence throughout the year. Issues include both business performance and board member/director performance.",
-    "support": "",
-    "position": 197,
+    "support": "Positioning; Career Development",
+    "position": 193,
     "cpd": {
       "isHidden": true,
       "objective": "This template is designed to help you introduce more structure to your regular management meetings.",
@@ -6321,20 +6596,24 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 196
+    "tags": [
+      "Positioning",
+      "Career Development"
+    ],
+    "index": 192
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-2665394735",
     "section": "Do the Job",
+    "subSection": "Governance Tools",
     "topic": "Governance",
     "title": "Draft White Papers",
     "link": "id-2665394735",
     "purpose": "This template guides the reader through the process of writing a white paper. It seeks to solve the common problem facing many board chairman, that of members 'dumping' their problem in a board meeting without offering suggestions to resolve or identify the issue  accurately.",
     "support": "Board performance; quality meetings",
-    "position": 198,
+    "position": 194,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6352,19 +6631,20 @@
       "quality meetings"
     ],
     "status": "--",
-    "index": 197
+    "index": 193
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-439870566",
     "section": "Do the Job",
+    "subSection": "Governance Tools",
     "topic": "Governance",
     "title": "Quality Decisions",
     "link": "id-439870566",
     "purpose": "This template seeks to highlight the importance of robust decision making frameworks. This is critical since many in board positions become fixated on meeting protocol, at the cost of robust debate and decisive decisions.",
-    "support": "",
-    "position": 199,
+    "support": "Governance; Decision Making; Board; Quality; Debate; Leadership",
+    "position": 195,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6378,20 +6658,28 @@
       "fundamental": ""
     },
     "status": "--",
-    "tags": [],
-    "index": 198
+    "tags": [
+      "Governance",
+      "Decision Making",
+      "Board",
+      "Quality",
+      "Debate",
+      "Leadership"
+    ],
+    "index": 194
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-3474302012",
     "section": "Do the Job",
+    "subSection": "Governance Tools",
     "topic": "Leadership",
     "title": "Leadership Review",
     "link": "id-3474302012",
     "purpose": "This template shines a light on the requirements for leadership styles to be 'best matched' to industry, business team and leader personality type. All to often leaders can be misled into following the latest 'trend' on leadership; this template challenges a leaders understanding of the topic.",
     "support": "Governance; Culture",
-    "position": 200,
+    "position": 196,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6409,19 +6697,20 @@
       "Culture"
     ],
     "status": "--",
-    "index": 199
+    "index": 195
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-1203724614",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Due Diligence",
     "title": "Customer Reliance",
     "link": "id-1203724614",
     "purpose": "This spreadsheet is used to calculate the financial dependency on clients. It allows for the ascending order and proportion to be made known. An example would be the 80/20 rule - does 80% of sales come from 20% of clients etc. Particularly important in due diligence but useful for any client.",
     "support": "Sales review; Customer analysis; sales growth; 80/20 rule",
-    "position": 201,
+    "position": 197,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6441,19 +6730,20 @@
       "80/20 rule"
     ],
     "status": "--",
-    "index": 200
+    "index": 196
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-7390480359",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Due Diligence",
     "title": "Location Review",
     "link": "id-7390480359",
     "purpose": "This spreadsheet aids the due diligence process by assessing regional market potential, thus helping to assess future growth potential and serviceability 'cross-over' between multiple branches. This model can also be used to support in depth marketing reviews for any business.",
     "support": "Marketing; Market Potential",
-    "position": 202,
+    "position": 198,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6471,19 +6761,20 @@
       "Market Potential"
     ],
     "status": "--",
-    "index": 201
+    "index": 197
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-6537846405",
     "section": "Do the Job",
+    "subSection": "Specialist Tools",
     "topic": "Due Diligence",
     "title": "Supply Chain Review",
     "link": "id-6537846405",
     "purpose": "This spreadhseet allows you to calculate the 'delay days' of key supplies as part of your supply chain risk assessment. Again, whilst useful for due diligence engagements, this execrcise is valuable to support any growth programme or governance proceedings.",
     "support": "Governance; Management; risk management",
-    "position": 203,
+    "position": 199,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6502,19 +6793,20 @@
       "risk management"
     ],
     "status": "--",
-    "index": 202
+    "index": 198
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-7744014253",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Margin vs Markup",
     "link": "id-7744014253",
     "purpose": "This model makes it easy for you to explain pricing tactics to your clients.",
-    "support": "",
-    "position": 204,
+    "support": "Margin; Markup; Pricing; Pricing Tactics; Revenue; What-if Analysis",
+    "position": 200,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6528,20 +6820,28 @@
       "fundamental": "This model makes it easy for you to explain pricing tactics to your clients."
     },
     "status": "--",
-    "tags": [],
-    "index": 203
+    "tags": [
+      "Margin",
+      "Markup",
+      "Pricing",
+      "Pricing Tactics",
+      "Revenue",
+      "What-if Analysis"
+    ],
+    "index": 199
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-3613015604",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Labour Margin Mix",
     "link": "id-3613015604",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.\nThis model differs from other labour margin by allowing more job type break-down.",
-    "support": "",
-    "position": 205,
+    "support": "Labour Margin; Labour Cost; Financial Capacity; Revenue Mix; Job Costing; What-if Analysis",
+    "position": 201,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6555,20 +6855,28 @@
       "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and e"
     },
     "status": "--",
-    "tags": [],
-    "index": 204
+    "tags": [
+      "Labour Margin",
+      "Labour Cost",
+      "Financial Capacity",
+      "Revenue Mix",
+      "Job Costing",
+      "What-if Analysis"
+    ],
+    "index": 200
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-9678770136",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Sales Dashboard",
     "link": "id-9678770136",
     "purpose": "This model provides a dashboard example of how you could review the performance of a sales team and the product mix of a business.",
     "support": "Financial management reporting; sales growth",
-    "position": 206,
+    "position": 202,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6586,19 +6894,20 @@
       "sales growth"
     ],
     "status": "--",
-    "index": 205
+    "index": 201
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-520637887",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Finance and Depreciation",
     "link": "id-520637887",
     "purpose": "This model makes it easy to explain the finance and depreciation costs of an asset purchase. This would be well supported by an industry specific what-if model and the Lite Feasibility template as part of your comprehensive solution.",
     "support": "feasibility",
-    "position": 207,
+    "position": 203,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6615,19 +6924,20 @@
       "feasibility"
     ],
     "status": "--",
-    "index": 206
+    "index": 202
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-7300493666",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Dry Stock Farming",
     "link": "id-7300493666",
     "purpose": "This model is part of the Rural package aimed at dry stock farmers. This model makes it easy for you and your client to calculate the Financial Capacity of their farm and to explore their financial assumptions whilst aligning you and the owner on their dreams and expectations.",
-    "support": "",
-    "position": 208,
+    "support": "Farming; Dry Stock; Rural; Agriculture; Financial Capacity; Farm Budget; What-if Analysis",
+    "position": 204,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6641,20 +6951,29 @@
       "fundamental": "This model is part of the Rural package aimed at dry stock farmers. This model makes it easy for you and your client to calculate the Financial Capacity of their farm and to explore their financial as"
     },
     "status": "--",
-    "tags": [],
-    "index": 207
+    "tags": [
+      "Farming",
+      "Dry Stock",
+      "Rural",
+      "Agriculture",
+      "Financial Capacity",
+      "Farm Budget",
+      "What-if Analysis"
+    ],
+    "index": 203
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-2994412897",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Marine Harvest",
     "link": "id-2994412897",
     "purpose": "This model relates to the harvest contractor aspects of mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
-    "support": "",
-    "position": 209,
+    "support": "Marine; Harvest Contractor; Mussel Farming; Aquaculture; Financial Capacity; What-if Analysis; Rural",
+    "position": 205,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6668,20 +6987,29 @@
       "fundamental": "This model relates to the harvest contractor aspects of mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their busi"
     },
     "status": "--",
-    "tags": [],
-    "index": 208
+    "tags": [
+      "Marine",
+      "Harvest Contractor",
+      "Mussel Farming",
+      "Aquaculture",
+      "Financial Capacity",
+      "What-if Analysis",
+      "Rural"
+    ],
+    "index": 204
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-7926022344",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Mussel Farm 2",
     "link": "id-7926022344",
     "purpose": "This model relates specifically to mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
-    "support": "",
-    "position": 210,
+    "support": "Mussel Farm; Aquaculture; Marine; Farming; Financial Capacity; What-if Analysis; Rural",
+    "position": 206,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6695,20 +7023,29 @@
       "fundamental": "This model relates specifically to mussel farming. \nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whil"
     },
     "status": "--",
-    "tags": [],
-    "index": 209
+    "tags": [
+      "Mussel Farm",
+      "Aquaculture",
+      "Marine",
+      "Farming",
+      "Financial Capacity",
+      "What-if Analysis",
+      "Rural"
+    ],
+    "index": 205
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-6135077820",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Real Estate Office",
     "link": "id-6135077820",
     "purpose": "This model relates specifically to the calculation of revenue and sales commissions for a real estate office.\nThe model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions.\n",
-    "support": "",
-    "position": 211,
+    "support": "Real Estate; Sales Commissions; Commission; Property; Financial Capacity; What-if Analysis; Revenue Model",
+    "position": 207,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6722,20 +7059,29 @@
       "fundamental": "This model relates specifically to the calculation of revenue and sales commissions for a real estate office.\nThe model makes it easy for you and your client to calculate the Financial Capacity of the"
     },
     "status": "--",
-    "tags": [],
-    "index": 210
+    "tags": [
+      "Real Estate",
+      "Sales Commissions",
+      "Commission",
+      "Property",
+      "Financial Capacity",
+      "What-if Analysis",
+      "Revenue Model"
+    ],
+    "index": 206
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-2031816767",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Farm House Budget",
     "link": "id-2031816767",
     "purpose": "This model makes it easy for you and your farming clients to explore their home budget constraints as part of their overall farming budgets.",
-    "support": "",
-    "position": 212,
+    "support": "Farm Budget; Home Budget; Farming; Rural; Agriculture; Personal Budget; What-if Analysis",
+    "position": 208,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6749,20 +7095,29 @@
       "fundamental": "This model makes it easy for you and your farming clients to explore their home budget constraints as part of their overall farming budgets."
     },
     "status": "--",
-    "tags": [],
-    "index": 211
+    "tags": [
+      "Farm Budget",
+      "Home Budget",
+      "Farming",
+      "Rural",
+      "Agriculture",
+      "Personal Budget",
+      "What-if Analysis"
+    ],
+    "index": 207
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-4496283136",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Doctor",
     "link": "id-4496283136",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their practice and explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
-    "support": "",
-    "position": 213,
+    "support": "Medical Practice; Doctor; Health; Financial Capacity; Practice Management; What-if Analysis; Professional Services",
+    "position": 209,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6776,20 +7131,29 @@
       "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their practice and explore their business assumptions whilst aligning you and the owner on their dreams and expe"
     },
     "status": "--",
-    "tags": [],
-    "index": 212
+    "tags": [
+      "Medical Practice",
+      "Doctor",
+      "Health",
+      "Financial Capacity",
+      "Practice Management",
+      "What-if Analysis",
+      "Professional Services"
+    ],
+    "index": 208
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-8630195960",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Health Spa",
     "link": "id-8630195960",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
-    "support": "",
-    "position": 214,
+    "support": "Health Spa; Wellness; Beauty; Financial Capacity; Revenue Model; What-if Analysis",
+    "position": 210,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6803,20 +7167,28 @@
       "fundamental": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and explore their business assumptions whilst aligning you and the owner on their dreams and expe"
     },
     "status": "--",
-    "tags": [],
-    "index": 213
+    "tags": [
+      "Health Spa",
+      "Wellness",
+      "Beauty",
+      "Financial Capacity",
+      "Revenue Model",
+      "What-if Analysis"
+    ],
+    "index": 209
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-6913003200",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Support Person",
     "link": "id-6913003200",
     "purpose": "This model relates to those in the 'care-support' roles within the private health sector.\nThe model makes it easy for you and your client to calculate the Financial Capacity of their practice and to explore their business assumptions whilst aligning you and the owner on their dreams and expectation.",
-    "support": "",
-    "position": 215,
+    "support": "Support Worker; Care; Private Health; Health Sector; Financial Capacity; What-if Analysis; Professional Services",
+    "position": 211,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6830,20 +7202,29 @@
       "fundamental": "This model relates to those in the 'care-support' roles within the private health sector.\nThe model makes it easy for you and your client to calculate the Financial Capacity of their practice."
     },
     "status": "--",
-    "tags": [],
-    "index": 214
+    "tags": [
+      "Support Worker",
+      "Care",
+      "Private Health",
+      "Health Sector",
+      "Financial Capacity",
+      "What-if Analysis",
+      "Professional Services"
+    ],
+    "index": 210
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-9528768263",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Deliver and Hire",
     "link": "id-9528768263",
     "purpose": "This model relates to hire services & makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations. ",
-    "support": "",
-    "position": 216,
+    "support": "Hire; Delivery; Equipment Hire; Financial Capacity; Revenue Model; What-if Analysis; Logistics",
+    "position": 212,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6857,20 +7238,29 @@
       "fundamental": "This model relates to hire services & makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions."
     },
     "status": "--",
-    "tags": [],
-    "index": 215
+    "tags": [
+      "Hire",
+      "Delivery",
+      "Equipment Hire",
+      "Financial Capacity",
+      "Revenue Model",
+      "What-if Analysis",
+      "Logistics"
+    ],
+    "index": 211
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-7880718875",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Mobile Services",
     "link": "id-7880718875",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "logistics",
-    "position": 217,
+    "position": 213,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6887,19 +7277,20 @@
       "logistics"
     ],
     "status": "--",
-    "index": 216
+    "index": 212
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-7911507941",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Beverages",
     "link": "id-7911507941",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Energy Drinks; Coffee; Alcohol",
-    "position": 218,
+    "position": 214,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6918,19 +7309,20 @@
       "Alcohol"
     ],
     "status": "--",
-    "index": 217
+    "index": 213
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-4839857390",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Craft Production",
     "link": "id-4839857390",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Boutique foods; production",
-    "position": 219,
+    "position": 215,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6948,19 +7340,20 @@
       "production"
     ],
     "status": "--",
-    "index": 218
+    "index": 214
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-8663037039",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Raw Food",
     "link": "id-8663037039",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Pet Food; Natural Food Sources; Wild Food Products",
-    "position": 220,
+    "position": 216,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -6979,19 +7372,20 @@
       "Wild Food Products"
     ],
     "status": "--",
-    "index": 219
+    "index": 215
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-5968387608",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Dress Maker",
     "link": "id-5968387608",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Wedding dress; Boutique Fashion",
-    "position": 221,
+    "position": 217,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7009,19 +7403,20 @@
       "Boutique Fashion"
     ],
     "status": "--",
-    "index": 220
+    "index": 216
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-2564764117",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Hard & Software Sales",
     "link": "id-2564764117",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Computers; Hardware",
-    "position": 222,
+    "position": 218,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7039,19 +7434,20 @@
       "Hardware"
     ],
     "status": "--",
-    "index": 221
+    "index": 217
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-8113313872",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Pet Shop",
     "link": "id-8113313872",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Grooming; Walking",
-    "position": 223,
+    "position": 219,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7069,19 +7465,20 @@
       "Walking"
     ],
     "status": "--",
-    "index": 222
+    "index": 218
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-7595084187",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Entry Fee",
     "link": "id-7595084187",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Tourism; Concerts; Events; Shows; Promoters; Ticket Sales; Attendance",
-    "position": 224,
+    "position": 220,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7104,19 +7501,20 @@
       "Attendance"
     ],
     "status": "--",
-    "index": 223
+    "index": 219
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-9520016666",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Sales Teams",
     "link": "id-9520016666",
     "purpose": "This model focus on the sales activity and commission levels of a sales team, using a multi tiered earnings structure to determine business margins and potential salesperson rewards.",
     "support": "Sales growth; Sales incentives",
-    "position": 225,
+    "position": 221,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7134,19 +7532,20 @@
       "Sales incentives"
     ],
     "status": "--",
-    "index": 224
+    "index": 220
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-3167861288",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Drilling & Pumps",
     "link": "id-3167861288",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Water bores; Wells; Water wells; Irrigation; Borehole; Drilling; aquafiers",
-    "position": 226,
+    "position": 222,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7169,19 +7568,20 @@
       "aquafiers"
     ],
     "status": "--",
-    "index": 225
+    "index": 221
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-9422408981",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Fencing Cost pr Mtr",
     "link": "id-9422408981",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "boundary fencing; post and rail; gates",
-    "position": 227,
+    "position": 223,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7200,19 +7600,20 @@
       "gates"
     ],
     "status": "--",
-    "index": 226
+    "index": 222
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-2405526495",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Butcher",
     "link": "id-2405526495",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Fresh Meats",
-    "position": 228,
+    "position": 224,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7229,19 +7630,20 @@
       "Fresh Meats"
     ],
     "status": "--",
-    "index": 227
+    "index": 223
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-9838262016",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Cleaners",
     "link": "id-9838262016",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Commercial cleaners",
-    "position": 229,
+    "position": 225,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7258,19 +7660,20 @@
       "Commercial cleaners"
     ],
     "status": "--",
-    "index": 228
+    "index": 224
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-3652967577",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Consultancy Pricing",
     "link": "id-3652967577",
     "purpose": "This model focuses on the different pricing 'layers' that can be applied to design, preparation, travel, delivery and long term support for consultants. It may not determine the actual fee being charged, but serves as a strong indicator for where negotiations should start.",
     "support": "business coach; growth expert; turnaround expert",
-    "position": 230,
+    "position": 226,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7289,19 +7692,20 @@
       "turnaround expert"
     ],
     "status": "--",
-    "index": 229
+    "index": 225
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-4159320328",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Financial Advisor",
     "link": "id-4159320328",
     "purpose": "This model enables the financial advisor to determine where best to focus their efforts. Based on client profiles, all sales activity is run through conversion calculations to deliver a cash forecast.",
     "support": "Insurance advisor; broker; financial planner",
-    "position": 231,
+    "position": 227,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7320,19 +7724,20 @@
       "financial planner"
     ],
     "status": "--",
-    "index": 230
+    "index": 226
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-2924428930",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "IT Services",
     "link": "id-2924428930",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Computers; Hardware; Software; Devices",
-    "position": 232,
+    "position": 228,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7352,19 +7757,20 @@
       "Devices"
     ],
     "status": "--",
-    "index": 231
+    "index": 227
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-8331651557",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Plumber",
     "link": "id-8331651557",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "drain layer; pipefitter; gas fitter; hot water cylinder",
-    "position": 233,
+    "position": 229,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7384,19 +7790,20 @@
       "hot water cylinder"
     ],
     "status": "--",
-    "index": 232
+    "index": 228
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-4785641745",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Landscaping & Maintenance",
     "link": "id-4785641745",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "Gardens; lawnkeeping; plants; tree",
-    "position": 234,
+    "position": 230,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7416,19 +7823,20 @@
       "tree"
     ],
     "status": "--",
-    "index": 233
+    "index": 229
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-2765249803",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Learn-from-Home",
     "link": "id-2765249803",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "childcare; early childhood; home schooling",
-    "position": 235,
+    "position": 231,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7447,19 +7855,20 @@
       "home schooling"
     ],
     "status": "--",
-    "index": 234
+    "index": 230
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-3757497372",
     "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
     "topic": "What-if-Analysis",
     "title": "Scaffolding",
     "link": "id-3757497372",
     "purpose": "This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions whilst aligning you and the owner on their dreams and expectations.",
     "support": "building wrap; temporary fencing; edge protection",
-    "position": 236,
+    "position": 232,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7478,51 +7887,20 @@
       "edge protection"
     ],
     "status": "--",
-    "index": 235
+    "index": 231
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-7247592654",
     "section": "Do the Job",
-    "topic": "Management Reporting",
-    "title": "3 Pillars of Financial Management",
-    "link": "id-7247592654",
-    "purpose": "The foundation of robust business finance lies in understanding The 3 Pillars of Financial Management. This framework operates as a continuous cycle rather than a static process. The ultimate goal is to guide clients toward a constant \"Test & Learn\" culture.",
-    "support": "Reporting; Financial Literacy; Governance; Dashboards",
-    "position": 237,
-    "cpd": {
-      "isHidden": true,
-      "objective": "",
-      "watchedVideo": 0,
-      "reviewTemplate": 0,
-      "reheasedTemplate": 0
-    },
-    "growth": {
-      "isHidden": false,
-      "stage": "Lifestyle",
-      "fundamental": "The foundation of robust business finance lies in understanding The 3 Pillars of Financial Management. This framework operates as a continuous cycle rather than a static process. The ultimate goal is "
-    },
-    "tags": [
-      "Reporting",
-      "Financial Literacy",
-      "Governance",
-      "Dashboards"
-    ],
-    "status": "--",
-    "index": 236
-  },
-  {
-    "includedInClient": false,
-    "menuSection": "do-the-job",
-    "page": "id-7247592654",
-    "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Financial Management",
     "title": "3 Pillars of Financial Management",
     "link": "id-7247592654",
     "purpose": "This template explores a practical pathway for prudent financial management. Instead of just focusing on setting KPI's and reviewing basic performance ratios, this tempate reveals the need to assess assumptions vs reality and design systems to ensure data integrity - then the aforementioned applies.",
     "support": "Financial Literacy",
-    "position": 238,
+    "position": 233,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7539,19 +7917,20 @@
       "Financial Literacy"
     ],
     "status": "--",
-    "index": 237
+    "index": 232
   },
   {
     "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-4109582337",
     "section": "Do the Job",
+    "subSection": "General Tools",
     "topic": "Marketing",
     "title": "Price Rise",
     "link": "id-4109582337",
     "purpose": "This template reviews two communication methods used to explain a price rise to customers. This allows you and your client to determine which best suits their personality and industry/client relationship types, before finalising their own scripts.",
     "support": "Client Communication; Pricing Strategies; Client Relations",
-    "position": 239,
+    "position": 234,
     "cpd": {
       "isHidden": true,
       "objective": "",
@@ -7570,6 +7949,1464 @@
       "Client Relations"
     ],
     "status": "--",
+    "index": 233
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "practice-capacity-planner",
+    "section": "Get Organised",
+    "subSection": "Advisor Access",
+    "topic": "Risk Advisor Sales Growth",
+    "title": "My Sales Logistics & Mktg Plan",
+    "link": "practice-capacity-planner",
+    "purpose": "This page contains two resources - a Model to calculate the activity levels and conflicting logistics of a risk advisor or mortgage broker. The model includes commission split options and generates a cashflow report. A marketing plan is also included to support growth focus.",
+    "support": "Sales; Marketing Plan; Risk Advisor; Mortgage Broker; Commission; Cashflow; Growth Plan",
+    "position": 235,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Sales",
+      "Marketing Plan",
+      "Risk Advisor",
+      "Mortgage Broker",
+      "Commission",
+      "Cashflow",
+      "Growth Plan"
+    ],
+    "index": 234
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "capacity-planner-old",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "What-if Analysis",
+    "title": "CA Capacity Planner",
+    "link": "capacity-planner-old",
+    "purpose": "The CA Capacity Planner is a comprehensive planning model to calculate optimum productivity, pricing and staff levels. Calcs include compliance committments and new fee growth activities. Partner reports on client base risks and opportunities further enhance insights. This is your \"A-Ha\" model.",
+    "support": "Firm Planning; Firm Strategy",
+    "position": 236,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Firm Planning",
+      "Firm Strategy"
+    ],
+    "status": "--",
+    "index": 235
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "know-your-numbers-global",
+    "section": "Do the Job",
+    "subSection": "Firm Manager Access",
+    "topic": "Operational & Strategic Planning",
+    "title": "CA Firm Strategy",
+    "link": "know-your-numbers-global",
+    "purpose": "The CA Firm Strategy is designed to take an accounting or advisory firm from disorganized operational chaos to a structured, highly profitable advisory practice. The framework guides you through five sequential phases: Planning, Packaging, Coaching, Sales, and Delivery.",
+    "support": "Firm Strategy; Advisory Practice; Strategic Planning; Packaging; Sales; Coaching; Delivery",
+    "position": 237,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Firm Strategy",
+      "Advisory Practice",
+      "Strategic Planning",
+      "Packaging",
+      "Sales",
+      "Coaching",
+      "Delivery"
+    ],
+    "index": 236
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-423558797",
+    "section": "Do the Job",
+    "subSection": "Firm Manager Access",
+    "topic": "Leadership",
+    "title": "Leadership",
+    "link": "id-423558797",
+    "purpose": "This section provides the core frameworks used to evaluate, onboard, and manage partners and directors. By integrating pathway guidelines, psychological profiling, and rigorous accountability metrics, these tools ensure that professional service firms maintain high standards of performance.",
+    "support": "Leadership; GOvernance; Culture",
+    "position": 238,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Leadership",
+      "GOvernance",
+      "Culture"
+    ],
+    "status": "--",
+    "index": 237
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-8460496871",
+    "section": "Do the Job",
+    "subSection": "Firm Manager Access",
+    "topic": "Governance",
+    "title": "Firm Board Pack",
+    "link": "id-8460496871",
+    "purpose": "Implementing a robust governance framework is essential for accounting firm owners to move from working in the business, to strategically directing it. These tools enable the practices to become embeded, such that they can then be rolled out to the firms client base.",
+    "support": "Board Pack; Governance; Strategic Direction; Firm Management; Accountability",
+    "position": 239,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Board Pack",
+      "Governance",
+      "Strategic Direction",
+      "Firm Management",
+      "Accountability"
+    ],
     "index": 238
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "adve-lf-opener",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Strategy & Planning",
+    "title": "Our Own Growth Stage",
+    "link": "adve-lf-opener",
+    "purpose": "Plot your own position against the Growth Fundamentals Framework - it's the same model you use to help your clients achieve contextual awareness - it works for you as well!",
+    "support": "Growth Stage; Growth Framework; Strategic Awareness; Firm Development; Self Assessment",
+    "position": 240,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Growth Stage",
+      "Growth Framework",
+      "Strategic Awareness",
+      "Firm Development",
+      "Self Assessment"
+    ],
+    "index": 239
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "coi-planning",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Team Development",
+    "title": "Plan For Success",
+    "link": "coi-planning",
+    "purpose": "This section provides a 'quick-fire' planning method to guide firms in a series of focused growth activities.\nS.A.S (Strategy - Alignment - Service)",
+    "support": "Fee Growth; Planning; Strategy",
+    "position": 241,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Fee Growth",
+      "Planning",
+      "Strategy"
+    ],
+    "index": 240
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-9907157360",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Strategy & Planning",
+    "title": "Lite Advisor-e Plan",
+    "link": "id-9907157360",
+    "purpose": "This planning template explores - \"What got us here won't get us there.\", \"Nobody's perfect but a team can be.\" and \"Sharing is caring.\" A quick session template to explore external drivers, team skills & capability and the best methods for internal review and monitoring.",
+    "support": "Strategic Planning; Team Skills; External Drivers; Internal Review; Firm Growth",
+    "position": 242,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Strategic Planning",
+      "Team Skills",
+      "External Drivers",
+      "Internal Review",
+      "Firm Growth"
+    ],
+    "index": 241
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-2567969417",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Strategy & Planning   ",
+    "title": "Strategic Summary Tables",
+    "link": "id-2567969417",
+    "purpose": "This page enables the rapid understanding of strategic service offers and internal function roles/responsibilities. Quick, easy and contextual.",
+    "support": "Strategy; Service Offers; Roles; Responsibilities; Firm Management",
+    "position": 243,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Strategy",
+      "Service Offers",
+      "Roles",
+      "Responsibilities",
+      "Firm Management"
+    ],
+    "index": 242
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-3309994449",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Strategy & Planning",
+    "title": "Our Strategic Plan",
+    "link": "id-3309994449",
+    "purpose": "This page provides a blank template for you to host your own (previous) strategic planning templates.",
+    "support": "Strategic Plan; Firm Strategy; Planning; Firm Management",
+    "position": 244,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Strategic Plan",
+      "Firm Strategy",
+      "Planning",
+      "Firm Management"
+    ],
+    "index": 243
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "advisory-logistics",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Pricing",
+    "title": "Pricing Tactics",
+    "link": "advisory-logistics",
+    "purpose": "This section encourages the conversation regarding the scheduling of work on a client category - priority basis. The template introduces the concept of a 'premium levie' for clients requesting their accounts be prioritised above their scheduled period. (A healthy internal partner debate!)",
+    "support": "Pricing; Premium; Client Prioritisation; Scheduling; Partner; Firm Management",
+    "position": 245,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Pricing",
+      "Premium",
+      "Client Prioritisation",
+      "Scheduling",
+      "Partner",
+      "Firm Management"
+    ],
+    "index": 244
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "6-keys-notes",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Partner Relations",
+    "title": "Partner Accountability",
+    "link": "6-keys-notes",
+    "purpose": "This template establishes a robust governance structure through a highly detailed 'Conduct & Effect' matrix; and links behavioral or performance failures directly to financial consequences.\n",
+    "support": "Ethics; Leadership; Partner Dynamics",
+    "position": 246,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Ethics",
+      "Leadership",
+      "Partner Dynamics"
+    ],
+    "status": "--",
+    "index": 245
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "adve-lf-orientation",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Career Development",
+    "title": "Directorship Pathway",
+    "link": "adve-lf-orientation",
+    "purpose": "The Directorship Pathway templates provide a transparent, objective, and structured 5-year roadmap for an individual to transition into a partnership role. It removes ambiguity from the promotion process by establishing strict benchmarks for experience, character, and core competencies.",
+    "support": "Directorship; Partnership; Career Development; Promotion; Benchmarks; Competency",
+    "position": 247,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Directorship",
+      "Partnership",
+      "Career Development",
+      "Promotion",
+      "Benchmarks",
+      "Competency"
+    ],
+    "index": 246
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-8527149537",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Board Annual Plan",
+    "title": "FM Board Annual Plan",
+    "link": "id-8527149537",
+    "purpose": "These templates transition a casual business chat into a structured, accountable board meeting. They provide rigid time allocations, enforce the review of financial KPIs, capture \"what's gone well/less well,\" and mandate clear takeaways and conflict of interest declarations.",
+    "support": "Governance; Firm Planning",
+    "position": 248,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Governance",
+      "Firm Planning"
+    ],
+    "status": "--",
+    "index": 247
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-906407785",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Firm Governance",
+    "title": "FM Board Pack Tables",
+    "link": "id-906407785",
+    "purpose": "The Boardpack Table ensures compliance by requiring directors to sign off that they have \"Read and Understood\" required reading, financials, and major correspondence before the meeting begins.",
+    "support": "Governance",
+    "position": 249,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Governance"
+    ],
+    "status": "--",
+    "index": 248
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-2747481002",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Governance",
+    "title": "FM Agenda & Minutes",
+    "link": "id-2747481002",
+    "purpose": "Ensures meetings stay on track, legally records decisions, and holds directors accountable to time and previously assigned action items.",
+    "support": "Agenda; Minutes; Governance; Board Meeting; Accountability; Action Items",
+    "position": 250,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Agenda",
+      "Minutes",
+      "Governance",
+      "Board Meeting",
+      "Accountability",
+      "Action Items"
+    ],
+    "index": 249
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-442254579",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Governance",
+    "title": "FM General Notes",
+    "link": "id-442254579",
+    "purpose": "This is a general hosting page - blank for you to record your own meeting notes.",
+    "support": "Meeting Notes; Governance; Records; Board",
+    "position": 251,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Meeting Notes",
+      "Governance",
+      "Records",
+      "Board"
+    ],
+    "index": 250
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-1410890299",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Governance",
+    "title": "FM Board White Paper",
+    "link": "id-1410890299",
+    "purpose": "This template standardizes how new ideas or major purchases are pitched to the board. It requires an Executive Summary, Historical Context, Suggested Solution, Measurable Benefits, and an analysis of alternative solutions.",
+    "support": "White Paper; Board; Governance; Proposal; Executive Summary; Decision Making",
+    "position": 252,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "White Paper",
+      "Board",
+      "Governance",
+      "Proposal",
+      "Executive Summary",
+      "Decision Making"
+    ],
+    "index": 251
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-8371420367",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Governance",
+    "title": "FM Quality Decisions",
+    "link": "id-8371420367",
+    "purpose": "This template is best described by the following quote; “The Facade of Governance will not act as a Shield… It’s not about the Structure and Procedures; it’s about the quality of the Decision!” - Bryan Dickey - Crown Prosecutor.\n",
+    "support": "Quality Decisions; Governance; Decision Making; Board; Leadership",
+    "position": 253,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Quality Decisions",
+      "Governance",
+      "Decision Making",
+      "Board",
+      "Leadership"
+    ],
+    "index": 252
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-8825772953",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Governance",
+    "title": "FM Resolutions",
+    "link": "id-8825772953",
+    "purpose": "This template provides a legally binding, auditable trail of unanimous or majority director votes, protecting the corporate veil. This ensures the firm's major moves are executed with strict legal and financial compliance.\n",
+    "support": "Resolutions; Governance; Legal; Director Votes; Corporate; Compliance",
+    "position": 254,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Resolutions",
+      "Governance",
+      "Legal",
+      "Director Votes",
+      "Corporate",
+      "Compliance"
+    ],
+    "index": 253
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-2047777512",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Risk Management",
+    "title": "Formal Risk Management",
+    "link": "id-2047777512",
+    "purpose": "The Risk Matrix categorizes threats by probability and consequence to determine if risks should be Accepted, Avoided, Reduced, or Transferred.",
+    "support": "Risk Management; Risk Matrix; Governance; Compliance; Business Risk; Risk Assessment",
+    "position": 255,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Risk Management",
+      "Risk Matrix",
+      "Governance",
+      "Compliance",
+      "Business Risk",
+      "Risk Assessment"
+    ],
+    "index": 254
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "get-focused-support",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "H.R",
+    "title": "FM HIre Winners",
+    "link": "get-focused-support",
+    "purpose": "A strategic slide deck covering recruitment theory, leadership alignment, candidate screening, and orientation frameworks. ",
+    "support": "Team Dynamics; Human Resources; Team Selection",
+    "position": 256,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Team Dynamics",
+      "Human Resources",
+      "Team Selection"
+    ],
+    "status": "--",
+    "index": 255
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-1449558534",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Team Building",
+    "title": "Team Bldg Problem Solving",
+    "link": "id-1449558534",
+    "purpose": "This section demonstrates firsthand, how rushing into action without a plan, leads to material waste and financial loss. Suitable for: Workshop facilitators running team-building and conflict resolution exercises.",
+    "support": "Paper Tower; Spaghetti Tower; Problem Solving; Culture; Coaching; Team Building",
+    "position": 257,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Paper Tower",
+      "Spaghetti Tower",
+      "Problem Solving",
+      "Culture",
+      "Coaching",
+      "Team Building"
+    ],
+    "status": "--",
+    "index": 256
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-9980304581",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Coaching & Culture",
+    "title": "Advisor-e Coaching Plan",
+    "link": "id-9980304581",
+    "purpose": "This model plans your coaching sessions with an Advisor-e coach. It allows you to have direct input into the sessions that will help you most and makes it easy to track progress.",
+    "support": "Coaching Plan",
+    "position": 258,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Coaching Plan"
+    ],
+    "status": "--",
+    "index": 257
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-7534574842",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "H.R",
+    "title": "Advisory Performance Improvement",
+    "link": "id-7534574842",
+    "purpose": "This template suggests a formal review process for those that are actively avoiding self improvement activities or seek to disrupt the learning pathways of others. This template shoul be used in addition to your existing HR frameworks to meet your legal employment obligations.",
+    "support": "Formal Warning",
+    "position": 259,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Formal Warning"
+    ],
+    "status": "--",
+    "index": 258
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-9120294725",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Coaching & Culture",
+    "title": "Group Coaching Sessions",
+    "link": "id-9120294725",
+    "purpose": "This page hosts the Group Coaching Session overview. This template highlights the content and purpose of each group tutorial session, giving you a global understanding of the learning opportunities for your team.",
+    "support": "Coaching; Group Learning; Culture",
+    "position": 260,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Coaching",
+      "Group Learning",
+      "Culture"
+    ],
+    "status": "--",
+    "index": 259
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-392677477",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Coaching & Culture",
+    "title": "Coping With Disruption",
+    "link": "id-392677477",
+    "purpose": "This page hosts a group video tutorial session. Play the video and talk with your team at specified breaks to build a visible learning culture. This content explores the global environment in response to major tech disruptions & encourages EVERYONE to seek self-improvement in response.",
+    "support": "Team Learning; Video",
+    "position": 261,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Team Learning",
+      "Video"
+    ],
+    "status": "--",
+    "index": 260
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-8759181508",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Coaching & Culture",
+    "title": "Structured Networking",
+    "link": "id-8759181508",
+    "purpose": "This page hosts a group video tutorial session. Play the video and talk with your team at specified breaks to build a visible learning culture. This content explores the enry level skills of developing centres of influence & encourages your team to engage directly with clients.",
+    "support": "Sales Skills; Fee Growth; Team Skills; Video",
+    "position": 262,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Sales Skills",
+      "Fee Growth",
+      "Team Skills",
+      "Video"
+    ],
+    "status": "--",
+    "index": 261
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-815572309",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Coaching & Culture",
+    "title": "COI Development pt1",
+    "link": "id-815572309",
+    "purpose": "This page hosts a group video tutorial session. Play the video and talk with your team at specified breaks to build a visible learning culture. This session builds from the structured networking session, developing the skills and confidence of an advisor to build structured Centres of Influence.",
+    "support": "video; sales training; skills",
+    "position": 263,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "video",
+      "sales training",
+      "skills"
+    ],
+    "status": "--",
+    "index": 262
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-2511220452",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Coaching & Culture",
+    "title": "COI Development pt2",
+    "link": "id-2511220452",
+    "purpose": "This page hosts a group video tutorial session. Play the video and talk with your team at specified breaks to build a visible learning culture. This session builds from COI Development pt1, developing the skills and confidence of an advisor to build structured Centres of Influence.",
+    "support": "video; team learning; sales",
+    "position": 264,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "video",
+      "team learning",
+      "sales"
+    ],
+    "status": "--",
+    "index": 263
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-6063400289",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Coaching & Culture",
+    "title": "Event, Cause, Effect",
+    "link": "id-6063400289",
+    "purpose": "This page hosts a group video tutorial session. Play the video and talk with your team at specified breaks to build a visible learning culture. This session builds from COI Development pt2, developing the skills to build structured Centres of Influence. (Can be run as a stand alone session)",
+    "support": "video; sales; facilitation; story telling",
+    "position": 265,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "video",
+      "sales",
+      "facilitation",
+      "story telling"
+    ],
+    "status": "--",
+    "index": 264
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "id-8441130110",
+    "section": "Get Organised",
+    "subSection": "Firm Manager Access",
+    "topic": "Coaching & Culture",
+    "title": "Fee Estimate & Job Creep Discussions",
+    "link": "id-8441130110",
+    "purpose": "This page hosts a group video tutorial session. Play the video and talk with your team at specified breaks to build a visible learning culture. This content explores the techniques to handle fee enquiries and 'push-back' from clients.",
+    "support": "video; sales; skills; pricing; fee growth",
+    "position": 266,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "video",
+      "sales",
+      "skills",
+      "pricing",
+      "fee growth"
+    ],
+    "status": "--",
+    "index": 265
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-organised",
+    "page": "practice-capacity-planner",
+    "section": "Get Organised",
+    "subSection": "Risk Advisor Access",
+    "topic": "Career Development",
+    "title": "My Sales Logistics & Mktg' Plan",
+    "link": "practice-capacity-planner",
+    "purpose": "This page hosts a fee growth MODEL to calculate sales activities, commission splits, cash flow, client profile preferences etc + a PLAN to capture vital marketing statements & insights.",
+    "support": "video; model; strategy; financial advisor; insurance; mortgage; broker",
+    "position": 267,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "video",
+      "model",
+      "strategy",
+      "financial advisor",
+      "insurance",
+      "mortgage",
+      "broker"
+    ],
+    "status": "--",
+    "index": 266
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "tracker-only",
+    "section": "Get the Job",
+    "subSection": "Sales Process Design",
+    "topic": "Fee Growth",
+    "title": "Sales Tracker Opt A",
+    "link": "tracker-only",
+    "purpose": "This model records and analyzes sales approach methods, pipeline activity, and referral networks. The material is of an entry level and suits new and experienced advisors alike, provided they are focused on fee growth.",
+    "support": "Career development; sales",
+    "position": 268,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Career development",
+      "sales"
+    ],
+    "status": "--",
+    "index": 267
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "id-4740427390",
+    "section": "Get the Job",
+    "subSection": "Sales Process Design",
+    "topic": "Fee Growth",
+    "title": "Sales Tracker Opt B",
+    "link": "id-4740427390",
+    "purpose": "This model is of a more general approach to support sales teams in tracking their activities. Whilst not specific to professional services, the model may provide ideas or prompt innovation in developing your own tracking model.",
+    "support": "Sales Tracking; Sales Team; Activity Tracking; Fee Growth; Sales Management; Revenue Growth",
+    "position": 269,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Sales Tracking",
+      "Sales Team",
+      "Activity Tracking",
+      "Fee Growth",
+      "Sales Management",
+      "Revenue Growth"
+    ],
+    "index": 268
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "tracking-sales-progress",
+    "section": "Get the Job",
+    "subSection": "Sales Process Design",
+    "topic": "Fee Growth",
+    "title": "Our Sales Process",
+    "link": "tracking-sales-progress",
+    "purpose": "This page provides an easy template to flowchart your sales process so you and your team can visualise 'the next move' for each client opportunity.",
+    "support": "Sales Training; Sales Tracking; Sales Skills",
+    "position": 270,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Sales Training",
+      "Sales Tracking",
+      "Sales Skills"
+    ],
+    "status": "--",
+    "index": 269
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "id-2313793896",
+    "section": "Get the Job",
+    "subSection": "Marketing",
+    "topic": "Visual Aid",
+    "title": "Cartoons",
+    "link": "id-2313793896",
+    "purpose": "This page hosts the cartoons found throughout the Growth Fundamentals material. You can use them in your own branding material to help win advisory engagements.",
+    "support": "Branding; Story Telling",
+    "position": 271,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Branding",
+      "Story Telling"
+    ],
+    "status": "--",
+    "index": 270
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "id-2353819376",
+    "section": "Get the Job",
+    "subSection": "Seminar Delivery",
+    "topic": "Public Speaking",
+    "title": "Design & Deliver",
+    "link": "id-2353819376",
+    "purpose": "Deliver a clear, engaging, and easy-to-follow presentation that doesn't overwhelm the audience.\nSaves you preparation time by utilizing a structured framework that sequences the presentation logically from opening to agenda.",
+    "support": "Public speaking; branding; positioning",
+    "position": 272,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "status": "--",
+    "tags": [
+      "Public speaking",
+      "branding",
+      "positioning"
+    ],
+    "index": 271
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "id-9708234603",
+    "section": "Get the Job",
+    "subSection": "Positioning",
+    "topic": "Positioning",
+    "title": "Capacity, Capability, Opportunity",
+    "link": "id-9708234603",
+    "purpose": "This auditory framework can be used as an internal diagnostic tool to find areas to add value, or as a formal agenda structure to guide a client discussion. It acts as a perfect entry point to tease service offerings without solving all the client's problems on the spot.",
+    "support": "facilitation; selling; sales; fee growth; consultancy; video",
+    "position": 273,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "facilitation",
+      "selling",
+      "sales",
+      "fee growth",
+      "consultancy",
+      "video"
+    ],
+    "status": "--",
+    "index": 272
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "id-1950416363",
+    "section": "Get the Job",
+    "subSection": "Positioning",
+    "topic": "Fee Growth",
+    "title": "Time, Control, Money",
+    "link": "id-1950416363",
+    "purpose": "This auditory framework is designed to position the need for structured (strategic) planning for a business owner. It can also be used to identify 'Owner Dominant Buying Motives' - the real reason they go to work each day!",
+    "support": "Fee growth; selling; sales; facilitation; video",
+    "position": 274,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Fee growth",
+      "selling",
+      "sales",
+      "facilitation",
+      "video"
+    ],
+    "status": "--",
+    "index": 273
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "id-2089227425",
+    "section": "Get the Job",
+    "subSection": "Positioning",
+    "topic": "Fee Growth",
+    "title": "Mastering Positioning",
+    "link": "id-2089227425",
+    "purpose": "This template teaches how to move from being a transactional vendor of hours to a collaborative trusted authority. It shifts the focus from selling a specific product to selling yourself. By achieving total congruence, it removes friction from the advisory process, making influence much easier.",
+    "support": "networking; sales; career development",
+    "position": 275,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "networking",
+      "sales",
+      "career development"
+    ],
+    "status": "--",
+    "index": 274
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "id-4868546372",
+    "section": "Get the Job",
+    "subSection": "Packaging Solutions",
+    "topic": "Coaching & Culture",
+    "title": "Video Techniques",
+    "link": "id-4868546372",
+    "purpose": "This video provides practical tips n tricks to help you develop your own suite of videos - be they tutorial, educational or promotional - this video will prove useful.",
+    "support": "video; public speaking; branding; marketing; career development; fee growth",
+    "position": 276,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "video",
+      "public speaking",
+      "branding",
+      "marketing",
+      "career development",
+      "fee growth"
+    ],
+    "status": "--",
+    "index": 275
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-7507553035",
+    "section": "Do the Job",
+    "subSection": "External Advisors",
+    "topic": "Finance",
+    "title": "Cost of Capital",
+    "link": "id-7507553035",
+    "purpose": "This model allows you to quickly demonstrate the real cost of borrowing for your clients. This is not a specific revenue model or feasibility model; it's a tool to help your clients learn more about the real costs and risks of expansion.",
+    "support": "Finance; Raising Capital",
+    "position": 277,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Finance",
+      "Raising Capital"
+    ],
+    "status": "--",
+    "index": 276
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-884860044",
+    "section": "Do the Job",
+    "subSection": "External Advisors",
+    "topic": "Crypto",
+    "title": "Crypto Asset Allocations",
+    "link": "id-884860044",
+    "purpose": "This model is an easy format for your client to use to track the asset allocations of their crypto investments.",
+    "support": "Bitcoin; Solana; XRP; Etherium; Stablecoins",
+    "position": 278,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Bitcoin",
+      "Solana",
+      "XRP",
+      "Etherium",
+      "Stablecoins"
+    ],
+    "status": "--",
+    "index": 277
   }
 ]
