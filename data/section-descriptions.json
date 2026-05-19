@@ -86,8 +86,18 @@
     "engagementStyle": "Formal and structural — board-level communication, decision-making frameworks, risk management, and leadership accountability",
     "description": "Templates for businesses that have outgrown informal management and need structured governance frameworks. Covers board agendas, board packs, governance introductions, risk management, leadership review, quality decision-making, and conduct protocols. These tools are particularly relevant for not-for-profit and publicly listed entities, as well as privately owned businesses at scale. They signal to the client that the advisor operates at a sophisticated level and is thinking about long-term organisational health, not just immediate problems.",
     "whenToUse": "When the client is a not-for-profit, publicly listed entity, or a privately owned business at Maturity or above. When the presenting issue involves board structure, decision-making, risk, leadership accountability, or multi-stakeholder communication. When the advisor has experience operating at a governance or board advisory level."
-  }
-,
+  },
+  {
+    "section": "Revenue & Feasibility Models",
+    "tier": "entry-level",
+    "advisorLevelNote": "Education focus; structured and model-driven — suitable for newer advisors",
+    "complexity": "Low to Medium",
+    "clientProfile": "Any client who needs to model revenue, assess commercial viability, or understand the financial projections for a new venture, product, or revenue stream. Suitable across business types and sizes.",
+    "advisorProfile": "Any advisor — the structured, model-driven format reduces facilitation burden. The models lead the conversation; the advisor interprets the outputs rather than facilitating an open-ended discussion.",
+    "engagementStyle": "Educative and analytical — industry-specific modelling tools that translate client inputs into revenue projections and feasibility assessments. The model does the heavy lifting.",
+    "description": "A library of 74+ industry-specific revenue and feasibility models that give advisors a fast, structured way to assess whether a business idea, new product, or revenue stream is commercially viable. The models are pre-built and input-driven — the advisor works through the relevant model with the client and the outputs create the conversation. Because the format is structured rather than open-ended, these tools are accessible to newer advisors and work well as an early engagement touchpoint. Covering a wide range of industries and revenue scenarios, this section is most useful when a client needs to test assumptions before committing to a direction.",
+    "whenToUse": "When a client is assessing whether a new revenue stream, product line, or business venture is commercially viable. When a client needs to model revenue projections or stress-test financial assumptions. When the advisor wants a structured, numbers-driven entry point into a commercial conversation. Suitable at any stage of the advisory relationship."
+  },
   {
     "section": "Get the Job - Sales Tracker",
     "tier": "entry-level",
