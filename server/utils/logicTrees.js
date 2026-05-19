@@ -13,7 +13,21 @@ const { readFileSync } = require('fs')
 const { resolve } = require('path')
 
 let _trees = null
-let _seminarsRef = null
+const _refCache = new Map()
+
+function loadReferenceFile (filename) {
+  if (_refCache.has(filename)) { return _refCache.get(filename) }
+  const filePath = resolve(process.cwd(), 'data/' + filename)
+  try {
+    const data = JSON.parse(readFileSync(filePath, 'utf8'))
+    _refCache.set(filename, data)
+    return data
+  } catch (err) {
+    console.error('[logicTrees] Failed to load ' + filename + ':', err.message)
+    _refCache.set(filename, null)
+    return null
+  }
+}
 
 function loadLogicTrees () {
   if (_trees) { return _trees }
@@ -144,24 +158,8 @@ function formatLogicTreeForPrompt (tree) {
   return header + nodeBlocks + approachBlock
 }
 
-/**
- * Loads the Trial Fit reference content for injection alongside the trial_fit tree.
- */
-function loadTrialFitReference () {
-  const filePath = resolve(process.cwd(), 'data/trial-fit-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load trial-fit-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Trial Fit reference content as a text block for the AI context.
- */
 function formatTrialFitReferenceForPrompt () {
-  const ref = loadTrialFitReference()
+  const ref = loadReferenceFile('trial-fit-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -220,24 +218,8 @@ function formatTrialFitReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Cautious Reveal reference content for injection alongside the cautious_reveal tree.
- */
-function loadCautiousRevealReference () {
-  const filePath = resolve(process.cwd(), 'data/cautious-reveal-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load cautious-reveal-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Cautious Reveal reference content as a text block for the AI context.
- */
 function formatCautiousRevealReferenceForPrompt () {
-  const ref = loadCautiousRevealReference()
+  const ref = loadReferenceFile('cautious-reveal-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -298,27 +280,8 @@ function formatCautiousRevealReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Powerful Seminars reference content for injection alongside the public_speaking tree.
- */
-function loadSeminarsReference () {
-  if (_seminarsRef) { return _seminarsRef }
-  const filePath = resolve(process.cwd(), 'data/powerful-seminars.json')
-  try {
-    _seminarsRef = JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load powerful-seminars.json:', err.message)
-    _seminarsRef = null
-  }
-  return _seminarsRef
-}
-
-/**
- * Formats the Powerful Seminars reference content as a text block for the AI context.
- * Includes the full stage guidance, delivery styles, and 8 delivery steps.
- */
 function formatSeminarsReferenceForPrompt () {
-  const ref = loadSeminarsReference()
+  const ref = loadReferenceFile('powerful-seminars.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -372,24 +335,8 @@ function formatSeminarsReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the EOY Meeting reference content for injection alongside the eoy_meeting tree.
- */
-function loadEoyReference () {
-  const filePath = resolve(process.cwd(), 'data/eoy-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load eoy-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the EOY Meeting reference content as a text block for the AI context.
- */
 function formatEoyReferenceForPrompt () {
-  const ref = loadEoyReference()
+  const ref = loadReferenceFile('eoy-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -455,24 +402,8 @@ function formatEoyReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Heald Matrix reference content for injection alongside the heald_matrix tree.
- */
-function loadHealdMatrixReference () {
-  const filePath = resolve(process.cwd(), 'data/heald-matrix-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load heald-matrix-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Heald Matrix reference content as a text block for the AI context.
- */
 function formatHealdMatrixReferenceForPrompt () {
-  const ref = loadHealdMatrixReference()
+  const ref = loadReferenceFile('heald-matrix-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -524,24 +455,8 @@ function formatHealdMatrixReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Capacity, Capability, Opportunity reference content for injection alongside the capacity_capability_opportunity tree.
- */
-function loadCCOReference () {
-  const filePath = resolve(process.cwd(), 'data/capacity-capability-opportunity-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load capacity-capability-opportunity-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the CCO reference content as a text block for the AI context.
- */
 function formatCCOReferenceForPrompt () {
-  const ref = loadCCOReference()
+  const ref = loadReferenceFile('capacity-capability-opportunity-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -591,24 +506,8 @@ function formatCCOReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Conflict Meeting reference content for injection alongside the conflict_meeting tree.
- */
-function loadConflictMeetingReference () {
-  const filePath = resolve(process.cwd(), 'data/conflict-meeting-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load conflict-meeting-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Conflict Meeting reference content as a text block for the AI context.
- */
 function formatConflictMeetingReferenceForPrompt () {
-  const ref = loadConflictMeetingReference()
+  const ref = loadReferenceFile('conflict-meeting-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -665,24 +564,8 @@ function formatConflictMeetingReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Growth Curve Reveal reference content for injection alongside the reveal_growth_curve tree.
- */
-function loadGrowthCurveRevealReference () {
-  const filePath = resolve(process.cwd(), 'data/growth-curve-reveal-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load growth-curve-reveal-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Growth Curve Reveal reference content as a text block for the AI context.
- */
 function formatGrowthCurveRevealReferenceForPrompt () {
-  const ref = loadGrowthCurveRevealReference()
+  const ref = loadReferenceFile('growth-curve-reveal-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -738,24 +621,8 @@ function formatGrowthCurveRevealReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Facilitation 101 reference content for injection alongside the facilitation_101 tree.
- */
-function loadFacilitationReference () {
-  const filePath = resolve(process.cwd(), 'data/facilitation-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load facilitation-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Facilitation 101 reference content as a text block for the AI context.
- */
 function formatFacilitationReferenceForPrompt () {
-  const ref = loadFacilitationReference()
+  const ref = loadReferenceFile('facilitation-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -794,24 +661,8 @@ function formatFacilitationReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Deming's Volatility reference content for injection alongside the demings_volatility tree.
- */
-function loadDemingsVolatilityReference () {
-  const filePath = resolve(process.cwd(), 'data/demings-volatility-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load demings-volatility-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Deming's Volatility reference content as a text block for the AI context.
- */
 function formatDemingsVolatilityReferenceForPrompt () {
-  const ref = loadDemingsVolatilityReference()
+  const ref = loadReferenceFile('demings-volatility-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -879,24 +730,8 @@ function formatDemingsVolatilityReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Working Capital Cycle reference content for injection alongside the working_capital_cycle tree.
- */
-function loadWorkingCapitalCycleReference () {
-  const filePath = resolve(process.cwd(), 'data/working-capital-cycle-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load working-capital-cycle-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Working Capital Cycle reference content as a text block for the AI context.
- */
 function formatWorkingCapitalCycleReferenceForPrompt () {
-  const ref = loadWorkingCapitalCycleReference()
+  const ref = loadReferenceFile('working-capital-cycle-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -985,24 +820,8 @@ function formatWorkingCapitalCycleReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Ratio Analysis reference content for injection alongside the ratio_analysis tree.
- */
-function loadRatioAnalysisReference () {
-  const filePath = resolve(process.cwd(), 'data/ratio-analysis-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load ratio-analysis-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Ratio Analysis reference content as a text block for the AI context.
- */
 function formatRatioAnalysisReferenceForPrompt () {
-  const ref = loadRatioAnalysisReference()
+  const ref = loadReferenceFile('ratio-analysis-reference.json')
   if (!ref) { return '' }
 
   const lines = [
@@ -1081,24 +900,8 @@ function formatRatioAnalysisReferenceForPrompt () {
   return lines.join('\n')
 }
 
-/**
- * Loads the Dashboard Discussions reference content for injection alongside the dashboard_discussions tree.
- */
-function loadDashboardDiscussionsReference () {
-  const filePath = resolve(process.cwd(), 'data/dashboard-discussions-reference.json')
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'))
-  } catch (err) {
-    console.error('[logicTrees] Failed to load dashboard-discussions-reference.json:', err.message)
-    return null
-  }
-}
-
-/**
- * Formats the Dashboard Discussions reference content as a text block for the AI context.
- */
 function formatDashboardDiscussionsReferenceForPrompt () {
-  const ref = loadDashboardDiscussionsReference()
+  const ref = loadReferenceFile('dashboard-discussions-reference.json')
   if (!ref) { return '' }
 
   const lines = [
