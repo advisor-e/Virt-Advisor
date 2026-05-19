@@ -96,5 +96,26 @@
     "keywords": "due diligence|acquisition|acquire|merger|buying a business|purchase a business|buying the business|DD report|information memorandum",
     "disambiguationKeywords": "due diligence|acquisition|merger|buying",
     "questions": []
+  },
+  {
+    "id": "stock-purchasing",
+    "label": "stock purchasing and inventory management",
+    "keywords": "stock purchasing|inventory management|stock levels|reorder point|purchase assessment|stock replenishment|days on hand|unit cost risk|stock policies|ordering quantities|bulk purchasing|stock cash flow",
+    "disambiguationKeywords": "stock|inventory|purchasing|reorder|stock levels",
+    "questions": []
+  },
+  {
+    "id": "raising-capital",
+    "label": "raising capital and business acquisition",
+    "keywords": "raising capital|raise capital|pitch deck|venture capital|equity funding|term sheet|capital raise|business acquisition|search fund|entrepreneur|franchise model|cost of capital|capital structure",
+    "disambiguationKeywords": "capital|pitch|investor|equity|acquisition|funding",
+    "questions": []
+  },
+  {
+    "id": "fm-coach-culture",
+    "label": "firm management coaching and culture",
+    "keywords": "firm manager|firm culture|visible learning|coaching plan|advisory coaching|performance improvement|PIP|fee estimate|job creep|scope creep|applicant screening|team feedback|COI prospect|paper tower|group coaching|team building",
+    "disambiguationKeywords": "firm manager|coaching|visible learning|PIP|COI|paper tower",
+    "questions": []
   }
 ]
