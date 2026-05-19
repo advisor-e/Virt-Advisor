@@ -368,14 +368,13 @@ async function handleQuery (rawBody, res) {
     // Score all 14 domains by keyword match count. Most matches wins.
     // On a tie between any two or more, ask disambiguation.
 
-    const firstMsg = conversationHistory.length > 0
-      ? (conversationHistory.find(m => m.role === 'user') || { content: query }).content
+    const detectionWindow = conversationHistory.length > 0
+      ? conversationHistory.filter(m => m.role === 'user').slice(0, 4).map(m => m.content).concat(query).join(' ')
       : query
-
     const domainScores = DOMAIN_PATTERNS.map(d => ({
       id: d.id,
       label: d.label,
-      count: (firstMsg.match(d.pattern) || []).length
+      count: (detectionWindow.match(d.pattern) || []).length
     })).filter(d => d.count > 0)
 
     // Helper: set the active domain, clear disambiguation state
@@ -721,7 +720,8 @@ async function handleQuery (rawBody, res) {
 
       // AI handles: either alternatives exploration or client approach guidance
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
-      const postRecContextQuery = [query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
+      const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
+      const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
       const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
@@ -1045,7 +1045,8 @@ Use the advisor's answers about what caused this situation and what will flow on
       ? `\n\nIMPORTANT: Always respond entirely in ${languageName}.`
       : ''
 
-    const matchedTree = detectLogicTree(firstMsg)
+    const allUserConvText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).concat(query).join(' ')
+    const matchedTree = detectLogicTree(allUserConvText)
     const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: true,
@@ -1158,8 +1159,8 @@ Use the advisor's answers about what caused this situation and what will flow on
   // Use the first user message (establishes the topic) + current query for filtering —
   // the current message alone may be a short answer ("yes", "they're a plumber") that matches nothing.
   const summariesApply = mode === 'client' || mode === 'discover'
-  const firstUserMsg = trimmedHistory.find(m => m.role === 'user')?.content || ''
-  const summaryQuery = firstUserMsg ? firstUserMsg + ' ' + query : query
+  const allUserMsgs = trimmedHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
+  const summaryQuery = allUserMsgs ? allUserMsgs + ' ' + query : query
   const relevantSummaries = summariesApply && trimmedHistory.length >= 6 ? filterSummariesByQuery(summaryQuery, 10) : []
   const summariesText = formatSummariesForPrompt(relevantSummaries)
 
