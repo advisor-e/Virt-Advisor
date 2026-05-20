@@ -1,5 +1,27 @@
 [
   {
+    "section": "Do the Job",
+    "tier": "mixed",
+    "advisorLevelNote": "Varies by subsection — from entry-level (General Tools, Revenue Models) through to advanced (Specialist Tools, Governance Tools)",
+    "complexity": "Low to High",
+    "clientProfile": "Any client — this section spans the full range of advisory work from foundational education to advanced specialist engagements. The appropriate subsection depends on the client's commercial awareness, Growth Curve position, and the presenting issue.",
+    "advisorProfile": "Any advisor — subsections are tiered by complexity. Match the subsection to the advisor's experience and confidence level.",
+    "engagementStyle": "Education, Facilitation, and Advice — varies by subsection",
+    "description": "The complete client-facing advisory library. Contains every template an advisor uses directly with a client, organised into subsections by complexity tier and topic domain. When the VA makes a template recommendation, it will come from this section. The appropriate starting point depends on the client's commercial awareness, the advisor's confidence, and the nature of the presenting issue. Use the subsection descriptions to navigate to the right tier.",
+    "whenToUse": "All client advisory work. The VA draws exclusively from this section when making template recommendations."
+  },
+  {
+    "section": "Get Organised",
+    "tier": "operational",
+    "advisorLevelNote": "Advisor-facing tools — not used in client sessions",
+    "complexity": "Low to Medium",
+    "clientProfile": "N/A — internal practice management tools, not used directly with clients",
+    "advisorProfile": "Any advisor or firm manager responsible for practice administration and advisory delivery operations",
+    "engagementStyle": "Operational and administrative — tools for organising the practice, managing firm-wide content access, and structuring delivery systems",
+    "description": "The practice management section of the platform. Contains tools for organising and systemising the advisory practice — including firm manager access controls, advisor-facing reference materials, and operational templates that support advisory delivery. These are not client-facing. Advisors and firm managers use these tools to run the practice, not to facilitate client sessions.",
+    "whenToUse": "When an advisor or firm manager needs to organise the practice, manage content access, or systemise their advisory delivery. Not relevant to client-facing advisory recommendations."
+  },
+  {
     "section": "Client On-Boarding",
     "tier": "entry-level",
     "advisorLevelNote": "Suitable for new and experienced advisors",
@@ -97,6 +119,17 @@
     "engagementStyle": "Educative and analytical — industry-specific modelling tools that translate client inputs into revenue projections and feasibility assessments. The model does the heavy lifting.",
     "description": "A library of 74+ industry-specific revenue and feasibility models that give advisors a fast, structured way to assess whether a business idea, new product, or revenue stream is commercially viable. The models are pre-built and input-driven — the advisor works through the relevant model with the client and the outputs create the conversation. Because the format is structured rather than open-ended, these tools are accessible to newer advisors and work well as an early engagement touchpoint. Covering a wide range of industries and revenue scenarios, this section is most useful when a client needs to test assumptions before committing to a direction.",
     "whenToUse": "When a client is assessing whether a new revenue stream, product line, or business venture is commercially viable. When a client needs to model revenue projections or stress-test financial assumptions. When the advisor wants a structured, numbers-driven entry point into a commercial conversation. Suitable at any stage of the advisory relationship."
+  },
+  {
+    "section": "Get the Job",
+    "tier": "mixed",
+    "advisorLevelNote": "Advisor development content — not used in client sessions",
+    "complexity": "Low to Medium",
+    "clientProfile": "N/A — advisor-facing content focused on winning new advisory clients",
+    "advisorProfile": "Any advisor focused on building their advisory client base — from those starting out in business development to senior advisors refining their positioning and sales approach",
+    "engagementStyle": "Strategic, communicative, and skill-building — covers marketing, positioning, selling methodology, pricing, and proposal writing for advisory services",
+    "description": "Advisor business development content. Everything an advisor needs to attract, engage, and convert new advisory clients — marketing strategy and communication templates, personal positioning frameworks, selling methodology, sales process design, pricing and proposal tools, and seminar delivery skills. Not used in client sessions — this section develops the advisor, not the client.",
+    "whenToUse": "When an advisor wants to grow their advisory client base, improve how they sell and position their services, develop their proposal or pricing approach, or build business development skills. Also relevant when a firm manager wants to develop their team's business development capability."
   },
   {
     "section": "Get the Job - Sales Tracker",

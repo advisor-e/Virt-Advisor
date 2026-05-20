@@ -225,6 +225,18 @@ Content Summaries are the primary source for populating Phase 3. If a matching e
 
 Always prefer Content Summary language over generic statements. Every part of the recommendation must connect to something specific the advisor told you.
 
+### 5.5 — Revenue Model Delivery Method
+
+When a Revenue & Feasibility Model is included in the recommendation, advise the advisor on how to deliver it. The template is the same regardless — only the delivery approach changes.
+
+Determine the method using these signals:
+
+- **Client raised the issue (Seq 1 = yes):** Recommend **Trial Fit**. The client is already aware and motivated — introduce the model in stages to avoid map shock.
+
+- **Advisor noticed it (Seq 1 = no) + client does not use financial data (Seq 5a = no):** Recommend **Cautious Reveal**. The client has low awareness — establish the concept and create mental ownership before opening any model. Do not open the model in the first meeting.
+
+- **Advisor noticed it (Seq 1 = no) + client is data-driven (Seq 5a = yes) + client is highly motivated (Seq 6 = high):** Offer **both methods**. Explain that Trial Fit is faster but assumes the client already sees the need; Cautious Reveal takes an extra meeting but lands better when the client hasn't fully bought in yet. Ask: *"Which do you think fits this client better?"*
+
 
 ---
 
@@ -238,19 +250,17 @@ Each rule is numbered for audit reference. When a test fails, identify which rul
 | R01 | One question at a time | No exceptions. No follow-up questions bundled into the same response. |
 | R02 | Client before advisor | Phase 1 always completes before Phase 2 begins. |
 | R03 | Advisor Profile present | Skip Phase 2 entirely. Ask no advisor questions. |
-| R04 | Profit/cost is primary issue | Recommendation MUST include a revenue model or what-if analysis template from the provided list. |
+| R04 | Revenue model context | When profitability or revenue growth is the primary issue and the client is a low-capability operator, a Revenue & Feasibility Model should be the primary template. Apply the delivery method per Section 5.5. |
 | R05 | Industry gate | If an industry-specific or revenue model template is needed, ask the industry before recommending — always. |
 | R06 | Revenue model delivery | Trial Fit and Cautious Reveal are delivery methods, not templates. Never recommend them as a template to show the client. |
 | R07 | Staircase Step 4–5 | Do not recommend foundational templates (e.g. Working Capital Cycle, Heald Matrix) unless explicitly required by a gap in the situation diagnostic. |
-| R08 | New or inexperienced advisor | Education-type templates as primary recommendation, regardless of client acumen or relationship strength. |
+| R08 | Advisor capability ceiling | New or inexperienced advisors: Education-type templates only, regardless of client acumen or relationship strength. Education tier = General Tools. Education/Facilitation = Lite Fundamentals. Facilitation = Strategic Tools. Advice = Specialist + Governance Tools. Do not recommend Facilitation-tier to advisors who have not run client meetings without supervision. Do not recommend Advice-tier unless advisor is experienced and confident. |
 | R09 | Template name fidelity | Use exact template names from the provided list. Never invent, abbreviate, adapt, or paraphrase a name. |
-| R10 | Phase 3 immediately | Deliver the full recommendation in one response. Never stall or announce it before producing it. |
+| R10 | Phase 3 delivery | Deliver the full recommendation in one response. Never stall, announce it before producing it, or use phrases like "hold on", "give me a moment", or "let me find". |
 | R11 | Primary issue leads | Phase 3 is led by the primary issue the advisor stated. Contributing causes or root causes may appear as secondary templates but must not lead. |
-| R12 | People and restructuring | Distinguish between (a) legal entity restructuring → Business Structure Options, and (b) organisational restructuring → Managing Poor Performance / Organisational Review. Do not conflate. |
-| R13 | Advisor capability ceiling | Education tier = General Tools. Education/Facilitation = Lite Fundamentals. Facilitation = Strategic Tools. Advice = Specialist + Governance Tools. Do not recommend Facilitation-tier to advisors who have not run client meetings without supervision. Do not recommend Advice-tier unless advisor is experienced and confident. |
+| R12 | Restructuring disambiguation | Restructuring has three distinct types — do not conflate them: (1) Legal entity restructuring driven by tax, finance, risk, or global expansion — for privately owned businesses, standard templates apply; for NFP or publicly listed entities, Advisor-e has no material, this requires a specialist senior advisor with specific tax and legal expertise. (2) Organisational restructuring driven by people performance issues — use people domain discovery signals. (3) Organisational restructuring driven by internal inefficiencies or workflow problems — use systems and process domain discovery signals. If the motivation for restructuring is not clear from the opening questions, ask the advisor before recommending anything. |
 | R14 | Step-by-step process priority | When coaching delivery, always use an existing step-by-step process from domain support if one is provided. Only generate a new process if none exists. |
-| R15 | No stalling phrases | Never say "hold on", "give me a moment", "let me find", or any equivalent. |
-| R16 | Engagement type not asked | Determine engagement type from discovery signals. Never ask the advisor to name or select it. |
+| R16 | Phase 3 integrity | Determine the engagement type from discovery signals — never ask the advisor to name or select it. Every template recommended must be consistent with the engagement type determined. Every section of the recommendation must draw from content summaries where one exists — generic statements are not a substitute. |
 
 
 ---
