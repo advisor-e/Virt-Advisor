@@ -137,6 +137,42 @@ All endpoints require `Authorization: Bearer <token>` with a `firm_manager` or `
 
 ---
 
+## Known Architecture Limitations
+
+These are confirmed pre-production issues. They are not blocking for initial handoff but must be resolved before production scale or public exposure.
+
+### L1 — No rate limiting on OpenAI endpoints (HIGH)
+
+`/api/advisor/query` and `/api/course` have zero throttling. Unbounded API spend is possible under load or abuse.
+
+**Fix required:** Add per-IP throttling — suggested limits: 20 req/min for advisor, 10 req/min for course. Evaluate `restify-throttle` or a Redis-backed token-bucket approach. The middleware registration point is `server/restify-server.js`.
+
+### L2 — Conversation state round-trips via client (HIGH — architectural)
+
+`conversationState` (14+ fields including `recommendationDelivered`, `happyConfirmed`, `detectedDomain`) is serialised into every SSE response and trusted back from the client on the next request. An attacker can modify state in transit to skip the question pipeline entirely.
+
+**Fix required:** Server-side session storage (Redis or MySQL) keyed by a session ID. The client sends a session ID only; the server holds all state. The trust boundary is in `server-middleware/advisor.js` at the `Object.assign({ ...defaults }, conversationState)` call (approximately line 365). This is the highest-priority architectural change before production scale.
+
+### L3 — `/api/firm/advisors` and `/api/firm/insights` are stub-only
+
+These two routes now have `firmAuth` middleware applied (JWT required) but the handlers return empty placeholder data. They must be wired to real DB queries before the FirmDashboard can display live team data. The FirmDashboard.vue component currently uses client-side mock data.
+
+**Fix required:** Implement the DB queries documented in `server/routes/firm.js` TODOs. The `FirmDashboard.vue` frontend will also need to send a JWT `Authorization` header when the stubs are replaced.
+
+### L4 — Two industry reference sources require parallel maintenance
+
+Adding a new industry to the system requires updating two independent maps:
+- `server-middleware/advisor.js` — `industryTemplateMap` (approx. line 879, 6 industries hardcoded)
+- `server/utils/summaries.js` — `TEMPLATE_SUMMARY_ALIASES` (60+ entries)
+
+These serve different purposes but diverging them will cause mismatch bugs. The integration team should consolidate into a single industry reference file during the data layer refactor.
+
+### L5 — Phase 3 `max_tokens` configuration
+
+Phase 3 recommendation stream is set to `max_tokens: 2500` (raised from 1500 — the original value was truncating multi-template recommendations). If the recommendation format expands further (e.g. more templates, longer Content Summaries), this may need adjustment. The setting is in `server-middleware/advisor.js` at the `getOpenAI().chat.completions.create()` call that produces the main stream.
+
+---
+
 ## Known Issues
 
 ### Node.js v24 + Restify v11 incompatibility

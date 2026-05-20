@@ -25,3 +25,6 @@ logs
 
 # Claude Code memory
 .claude/
+
+# Generated search exports (not for version control)
+search_content_*.json

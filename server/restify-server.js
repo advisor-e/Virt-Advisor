@@ -12,6 +12,22 @@
  */
 
 const restify = require('restify')
+
+// ── Startup guards — fail fast on placeholder config ──────────────────────────
+;(function assertConfig () {
+  const { AUTH, DB } = require('../config/integration')
+  const placeholders = [
+    [AUTH.secret, 'REPLACE_ME_WITH_ADVISOR_E_JWT_SECRET', 'JWT_SECRET'],
+    [DB.password, 'REPLACE_ME', 'MYSQL_PASSWORD']
+  ]
+  for (const [value, sentinel, envVar] of placeholders) {
+    if (value === sentinel) {
+      console.error(`[startup] FATAL: ${envVar} is still set to the placeholder value. Set the real value in your .env file and restart.`)
+      process.exit(1)
+    }
+  }
+})()
+
 const healthRoute = require('./routes/health')
 const translateRoute = require('./routes/translate')
 const advisorRoute = require('./routes/advisor')
@@ -52,8 +68,8 @@ server.use((req, res, next) => {
 server.get('/api/health', healthRoute.get)
 server.post('/api/translate/locale', translateRoute.post)
 server.post('/api/advisor/query', advisorRoute.post)
-server.get('/api/firm/advisors', firmRoute.getAdvisors)
-server.post('/api/firm/insights', firmRoute.postInsights)
+server.get('/api/firm/advisors', firmAuth, firmRoute.getAdvisors)
+server.post('/api/firm/insights', firmAuth, firmRoute.postInsights)
 server.post('/api/activity/log-course', activityRoute.logCourse)
 server.get('/api/activity/progression', activityRoute.getProgression)
 server.get('/api/activity/team', activityRoute.getTeam)

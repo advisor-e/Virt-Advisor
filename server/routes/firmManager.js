@@ -43,6 +43,13 @@ const { STORAGE, DRIVE } = require('../../config/integration')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+// Logs the real error server-side; returns a generic message to the client
+// so internal Drive IDs, MySQL fragments, and file paths are never exposed.
+function serverError (res, status, code, err) {
+  console.error(`[firmManager] ${code}:`, err.message)
+  return sendError(res, status, code, 'An unexpected error occurred')
+}
+
 function categoryKeyFromValue (value) {
   return Object.keys(DRIVE.categories).find(k => DRIVE.categories[k] === value) || null
 }
@@ -70,7 +77,7 @@ async function listDocuments (req, res, next) {
       firm: firmFiles.map(f => ({ ...f, source: 'firm' }))
     })
   } catch (err) {
-    return sendError(res, 500, 'DRIVE_ERROR', err.message)
+    return serverError(res, 500, 'DRIVE_ERROR', err)
   }
   return next()
 }
@@ -87,7 +94,7 @@ async function uploadDocument (req, res, next) {
   try {
     ;[fields, files] = await form.parse(req)
   } catch (err) {
-    return sendError(res, 400, 'PARSE_ERROR', err.message)
+    return serverError(res, 400, 'PARSE_ERROR', err)
   }
 
   const category = Array.isArray(fields.category) ? fields.category[0] : fields.category
@@ -138,7 +145,7 @@ async function uploadDocument (req, res, next) {
 
     res.send(201, { file: driveFile })
   } catch (err) {
-    return sendError(res, 500, 'UPLOAD_ERROR', err.message)
+    return serverError(res, 500, 'UPLOAD_ERROR', err)
   }
   return next()
 }
@@ -153,7 +160,7 @@ async function downloadDocument (req, res, next) {
     res.header('Content-Type', 'application/pdf')
     stream.pipe(res)
   } catch (err) {
-    return sendError(res, 500, 'DOWNLOAD_ERROR', err.message)
+    return serverError(res, 500, 'DOWNLOAD_ERROR', err)
   }
   return next()
 }
@@ -184,7 +191,7 @@ async function deleteDocument (req, res, next) {
     )
     res.send(200, { deleted: true })
   } catch (err) {
-    return sendError(res, 500, 'DELETE_ERROR', err.message)
+    return serverError(res, 500, 'DELETE_ERROR', err)
   }
   return next()
 }
@@ -198,7 +205,7 @@ async function getFramework (req, res, next) {
     const firmOverride = await overlay.loadFirmConfig(req.firmId, configKey)
     res.send(200, { configKey, firmOverride, hasOverride: firmOverride !== null })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }
@@ -215,7 +222,7 @@ async function saveFramework (req, res, next) {
     const version = await overlay.saveFirmConfig(req.firmId, configKey, configJson, req.userEmail)
     res.send(200, { saved: true, version })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }
@@ -227,7 +234,7 @@ async function getFrameworkHistory (req, res, next) {
     const history = await overlay.getVersionHistory(req.firmId, configKey)
     res.send(200, { history })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }
@@ -241,7 +248,7 @@ async function restoreFramework (req, res, next) {
     const version = await overlay.restoreVersion(req.firmId, configKey, Number(versionId))
     res.send(200, { restored: true, version })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }
@@ -259,7 +266,7 @@ async function listVideos (req, res, next) {
     )
     res.send(200, { videos: rows })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }
@@ -284,7 +291,7 @@ async function addVideo (req, res, next) {
     )
     res.send(201, { id: result.insertId, domain, title, url })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }
@@ -301,7 +308,7 @@ async function deleteVideo (req, res, next) {
     }
     res.send(200, { deleted: true })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }
@@ -318,7 +325,7 @@ async function getProfile (req, res, next) {
     if (rows.length === 0) { return sendError(res, 404, 'NOT_FOUND', 'Firm not found') }
     res.send(200, { firm: rows[0] })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }
@@ -349,7 +356,7 @@ async function updateProfile (req, res, next) {
     )
     res.send(200, { updated: true })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }
@@ -369,7 +376,7 @@ async function getStorageUsage (req, res, next) {
       percentUsed: Math.round((bytesUsed / STORAGE.maxFirmStorageBytes) * 100)
     })
   } catch (err) {
-    return sendError(res, 500, 'DB_ERROR', err.message)
+    return serverError(res, 500, 'DB_ERROR', err)
   }
   return next()
 }

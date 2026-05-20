@@ -46,14 +46,7 @@ function formatSalesMarketingSlides () {
   ).join('\n')
 }
 
-// Prompt cache — loaded once per process, never re-read from disk
-const _promptCache = {}
-function loadPrompt (name) {
-  if (_promptCache[name]) { return _promptCache[name] }
-  const filePath = path.resolve(process.cwd(), 'data/prompts', name + '.txt')
-  _promptCache[name] = fs.readFileSync(filePath, 'utf8')
-  return _promptCache[name]
-}
+const { loadPrompt } = require('../server/utils/promptLoader')
 
 // ── Startup checks ──
 // Validate critical env vars and required files before any request arrives.
@@ -271,6 +264,29 @@ module.exports = function advisorMiddleware (req, res, next) {
   })
 }
 
+function formatCaseSummaries (cases) {
+  if (!cases || cases.length === 0) { return null }
+  const lines = ['## Past Case Studies']
+  lines.push('')
+  lines.push('These are real sessions saved by advisors in your firm. Reference them where relevant to show pattern recognition and build on prior experience — but only if genuinely applicable. Do not force references.')
+  lines.push('')
+  cases.forEach((c) => {
+    const date = c.date ? new Date(c.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+    const scope = c.visibility === 'shared' ? 'Shared with firm' : 'Advisor\'s own'
+    lines.push(`### ${c.title} (${date} · ${scope})`)
+    lines.push(c.summary || '')
+    if (c.review) {
+      lines.push('')
+      lines.push('**Post-delivery review (what actually happened when this was delivered to a real client):**')
+      if (c.review.wentWell) { lines.push(`✓ Went well: ${c.review.wentWell}`) }
+      if (c.review.wentLess) { lines.push(`⚠ Could have been better: ${c.review.wentLess}`) }
+      if (c.review.changesRecommended) { lines.push(`→ Recommended changes: ${c.review.changesRecommended}`) }
+    }
+    lines.push('')
+  })
+  return lines.join('\n')
+}
+
 async function handleQuery (rawBody, res) {
   let parsed
   try {
@@ -299,6 +315,12 @@ async function handleQuery (rawBody, res) {
     advisorId,
     firmId
   } = sanitised
+
+  const ALLOWED_MODES = ['client', 'discover', 'plan', 'learn']
+  if (!ALLOWED_MODES.includes(mode)) {
+    sendError(res, 400, 'INVALID_MODE', 'Invalid mode')
+    return
+  }
 
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
@@ -347,8 +369,8 @@ async function handleQuery (rawBody, res) {
       // Shared Phase 1 questions
       ownership: null,
       growthStage: null,
-      acumen: null,
-      academic: null,
+      operatorSignals: null,
+      clientMotivation: null,
       advisoryStaircase: null,
       clientPersonality: null,
       // Phase 2 questions
@@ -597,14 +619,12 @@ async function handleQuery (rawBody, res) {
         text: 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
       },
       {
-        field: 'acumen',
-        text: 'How would you describe the business owner\'s acumen — are they experienced and commercially savvy, or relatively new to thinking strategically about their business?',
-        skip: s => s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
+        field: 'operatorSignals',
+        text: 'How does this client currently operate — do they make decisions based on data, do they follow structured plans and act on them, and do they have a working understanding of their financial reports?'
       },
       {
-        field: 'academic',
-        text: 'Are they academically inclined — do they read business books, follow frameworks, engage with ideas? Or are they more instinctive and practical?',
-        skip: s => s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
+        field: 'clientMotivation',
+        text: 'How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift?'
       },
       {
         field: 'clientPersonality',
@@ -839,8 +859,8 @@ async function handleQuery (rawBody, res) {
       // Shared Phase 1 answers
       state.ownership && state.ownership !== 'pending' ? `Business ownership: ${state.ownership}` : '',
       state.growthStage && state.growthStage !== 'pending' ? `Growth stage: ${state.growthStage}` : '',
-      state.acumen && state.acumen !== 'pending' ? `Business acumen: ${state.acumen}` : '',
-      state.academic && state.academic !== 'pending' ? `Academic vs instinctive: ${state.academic}` : '',
+      state.operatorSignals && state.operatorSignals !== 'pending' ? `Operator signals (data-driven, structured planning, financial literacy): ${state.operatorSignals}` : '',
+      state.clientMotivation && state.clientMotivation !== 'pending' ? `Motivation to change: ${state.clientMotivation}` : '',
       state.advisoryStaircase && state.advisoryStaircase !== 'pending' ? `Advisory Staircase position (depth of advisor-client engagement): ${state.advisoryStaircase}` : '',
       state.clientPersonality && state.clientPersonality !== 'pending' ? `Client personality/style: ${state.clientPersonality}` : '',
       state.advisorExperience && state.advisorExperience !== 'pending' ? `Advisor experience: ${state.advisorExperience}` : '',
@@ -1034,7 +1054,7 @@ PER-TEMPLATE FORMAT — use this exact structure for every template in both sect
 
 **[Template name]**
 
-Why this fits your client: [Reference the client's situation, the issue raised, their growth stage and acumen. Draw from content summaries where available.]
+Why this fits your client: [Reference the client's situation, the issue raised, their growth stage, operator capability, and motivation to change. Draw from content summaries where available.]
 
 Why this suits you as the advisor: [Reference the advisor's experience, confidence, and willingness to stretch.]
 
@@ -1179,29 +1199,6 @@ Use the advisor's answers about what caused this situation and what will flow on
   const basePrompt = loadPrompt(mode) || loadPrompt('client')
   const systemPrompt = basePrompt + profileSystemInstruction + languageInstruction
 
-  function formatCaseSummaries (cases) {
-    if (!cases || cases.length === 0) { return null }
-    const lines = ['## Past Case Studies']
-    lines.push('')
-    lines.push('These are real sessions saved by advisors in your firm. Reference them where relevant to show pattern recognition and build on prior experience — but only if genuinely applicable. Do not force references.')
-    lines.push('')
-    cases.forEach((c) => {
-      const date = c.date ? new Date(c.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
-      const scope = c.visibility === 'shared' ? 'Shared with firm' : 'Advisor\'s own'
-      lines.push(`### ${c.title} (${date} · ${scope})`)
-      lines.push(c.summary || '')
-      if (c.review) {
-        lines.push('')
-        lines.push('**Post-delivery review (what actually happened when this was delivered to a real client):**')
-        if (c.review.wentWell) { lines.push(`✓ Went well: ${c.review.wentWell}`) }
-        if (c.review.wentLess) { lines.push(`⚠ Could have been better: ${c.review.wentLess}`) }
-        if (c.review.changesRecommended) { lines.push(`→ Recommended changes: ${c.review.changesRecommended}`) }
-      }
-      lines.push('')
-    })
-    return lines.join('\n')
-  }
-
   // Case studies are only relevant in client and discover modes
   const caseSummariesText = (mode === 'client' || mode === 'discover') ? formatCaseSummaries(caseContext) : null
 
@@ -1316,7 +1313,7 @@ Use the advisor's answers about what caused this situation and what will flow on
   const _t0main = Date.now()
   const stream = await getOpenAI().chat.completions.create({
     model,
-    max_tokens: 1500,
+    max_tokens: 2500,
     stream: true,
     stream_options: { include_usage: true },
     messages: [

@@ -29,15 +29,14 @@ if (!process._courseMiddlewareGuarded) {
   })
 }
 
-// Prompt cache — loaded once per process
-const _promptCache = {}
-function loadPrompt (name) {
-  if (_promptCache[name]) { return _promptCache[name] }
-  const filePath = path.resolve(process.cwd(), 'data/prompts', name + '.txt')
-  const content = fs.readFileSync(filePath, 'utf8')
-  _promptCache[name] = content
-  return content
+// OpenAI singleton — one client per process, avoids creating a new connection pool on every request
+let _openaiClient = null
+function getOpenAI () {
+  if (!_openaiClient) { _openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) }
+  return _openaiClient
 }
+
+const { loadPrompt } = require('../server/utils/promptLoader')
 
 // Quiz override questions — loaded once, falls back to empty if file missing
 let _quizOverrides = null
@@ -56,13 +55,17 @@ function sseWrite (res, data) {
   res.write('data: ' + JSON.stringify(data) + '\n\n')
 }
 
-function sseHeaders (res) {
-  res.writeHead(200, {
+function sseHeaders (req, res) {
+  const origin = (req && req.headers && req.headers.origin) || ''
+  const headers = {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    Connection: 'keep-alive',
-    'Access-Control-Allow-Origin': '*'
-  })
+    Connection: 'keep-alive'
+  }
+  if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) {
+    headers['Access-Control-Allow-Origin'] = origin
+  }
+  res.writeHead(200, headers)
 }
 
 function jsonResponse (res, status, payload) {
@@ -97,11 +100,11 @@ const COURSE_DESIGN_QUESTIONS = [
   }
 ]
 
-function handleDesign (body, res) {
+function handleDesign (req, body, res) {
   const { query, advisorProfile, orgTemplateIds, courseState = {} } = body
   if (!query) { return sendError(res, 400, 'QUERY_REQUIRED', 'query is required') }
 
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  const openai = getOpenAI()
 
   // Restore or initialise design pipeline state
   const state = Object.assign({
@@ -115,7 +118,7 @@ function handleDesign (body, res) {
 
   // Helper: send a hardcoded question as instant SSE (no OpenAI call)
   function sendQuestion (text, newState) {
-    sseHeaders(res)
+    sseHeaders(req, res)
     sseWrite(res, { type: 'state', state: newState })
     sseWrite(res, { type: 'delta', text })
     sseWrite(res, { type: 'done' })
@@ -161,7 +164,7 @@ function handleDesign (body, res) {
       '\n\n## Available templates and resources\n\n' + templateContext +
       advisorContextStr
 
-    sseHeaders(res)
+    sseHeaders(req, res)
     sseWrite(res, { type: 'state', state })
 
     let stream
@@ -252,11 +255,11 @@ function handleDesign (body, res) {
 
 // ── Session delivery ───────────────────────────────────────────────────────
 
-async function handleSession (body, res) {
+async function handleSession (req, body, res) {
   const { query, sessionHistory = [], sessionContext, advisorProfile, orgTemplateIds } = body
   if (!query) { return sendError(res, 400, 'QUERY_REQUIRED', 'query is required') }
 
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  const openai = getOpenAI()
 
   const templates = getOrgTemplates(orgTemplateIds || null)
   const focusQuery = [sessionContext?.focus, sessionContext?.title, ...(sessionContext?.resources || [])].filter(Boolean).join(' ') || query
@@ -345,7 +348,7 @@ async function handleQuizGenerate (body, res) {
     return jsonResponse(res, 200, { success: true, questions: overrides.overrides[sessionKey] })
   }
 
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  const openai = getOpenAI()
 
   const sessionSummary = sessionHistory
     .filter(m => m.role === 'assistant')
@@ -394,7 +397,7 @@ async function handleQuizGrade (body, res) {
     return jsonResponse(res, 400, { success: false, error: 'question and answer are required' })
   }
 
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  const openai = getOpenAI()
 
   const prompt = `Grade an advisor's quiz answer for a professional development course.
 
@@ -472,10 +475,10 @@ module.exports = async function (req, res, next) {
   try {
     switch (body.type) {
       case 'design':
-        await handleDesign(body, res)
+        await handleDesign(req, body, res)
         break
       case 'session':
-        await handleSession(body, res)
+        await handleSession(req, body, res)
         break
       case 'quiz-generate':
         await handleQuizGenerate(body, res)
