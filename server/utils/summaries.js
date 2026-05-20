@@ -130,8 +130,7 @@ const TEMPLATE_SUMMARY_ALIASES = {
   'Rubbish In - Rubbish Out': 'Rubbish in - Rubbish Out',
   'Debtor Protocols': 'Debtor Protocols & Business Drag Model',
   '90 Day Best Practice Accounting': '90 Day Accounting Best Practice Plan',
-  'Hire Winners': 'Managing Poor Performance',
-  'Hiring Winners': 'Managing Poor Performance',
+
   'E.O.Y Meeting': 'E.O.Y Client Review Sheet - Input',
   'Capacity, Capability, Opportunity': 'Business Assessment Report',
   'Lite Fundamentals Visual Aids': 'Get.Lite Sales Prompts',
