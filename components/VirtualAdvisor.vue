@@ -1002,6 +1002,8 @@ export default {
             conversationHistory: this.conversationHistory.slice(0, -1),
             conversationState: this.conversationState,
             advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
+            advisorId: this.advisorId,
+            firmId: this.firmId,
             caseSummaries: this.relevantCases.map(c => ({
               title: c.title,
               mode: c.mode,
