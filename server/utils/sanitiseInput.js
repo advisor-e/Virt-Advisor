@@ -47,7 +47,9 @@ function sanitiseInput (raw) {
     language = 'en',
     languageName = 'English',
     caseSummaries: rawCases = [],
-    conversationState = {}
+    conversationState = {},
+    advisorId: rawAdvisorId,
+    firmId: rawFirmId
   } = raw
 
   const query = typeof rawQuery === 'string' ? rawQuery.slice(0, MAX_QUERY) : ''
@@ -90,7 +92,9 @@ function sanitiseInput (raw) {
     advisorProfile,
     caseContext,
     conversationState: conversationState && typeof conversationState === 'object' ? conversationState : {},
-    orgTemplateIds
+    orgTemplateIds,
+    advisorId: rawAdvisorId ? String(rawAdvisorId).slice(0, 64) : null,
+    firmId: rawFirmId ? String(rawFirmId).slice(0, 64) : null
   }
 }
 

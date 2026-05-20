@@ -113,3 +113,55 @@ CREATE TABLE IF NOT EXISTS `firm_storage_usage` (
   CONSTRAINT `fk_firm_storage_firm`
     FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- advisor_va_sessions
+-- One row per completed VA case (happyConfirmed = true).
+-- recommended_templates stores the raw template names for the audit trail.
+-- highest_tier is pre-computed at write time from the template→section→tier lookup.
+-- advisor_id is not FK-constrained — advisors table belongs to the Advisor-e platform.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `advisor_va_sessions` (
+  `id`                    INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  `advisor_id`            VARCHAR(64)   NOT NULL,
+  `firm_id`               VARCHAR(64)   NOT NULL,
+  `domain`                VARCHAR(128)           DEFAULT NULL,
+  `recommended_templates` JSON                   DEFAULT NULL,
+  `highest_tier`          ENUM('entry-level','intermediate','advanced') DEFAULT NULL,
+  `completed_at`          DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_va_sessions_advisor` (`advisor_id`),
+  KEY `idx_va_sessions_firm`    (`firm_id`),
+  KEY `idx_va_sessions_tier`    (`highest_tier`),
+  CONSTRAINT `fk_va_sessions_firm`
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- advisor_course_completions
+-- One row per completed course session (quiz done or skipped).
+-- session_resources stores the raw template names used in that session.
+-- highest_tier is pre-computed at write time from the template→section→tier lookup.
+-- Unique key on (advisor_id, course_id, session_index) prevents duplicate writes.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `advisor_course_completions` (
+  `id`                INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+  `advisor_id`        VARCHAR(64)      NOT NULL,
+  `firm_id`           VARCHAR(64)      NOT NULL,
+  `course_id`         VARCHAR(64)      NOT NULL,
+  `course_title`      VARCHAR(255)     NOT NULL,
+  `course_topic`      VARCHAR(255)              DEFAULT NULL,
+  `session_index`     TINYINT UNSIGNED NOT NULL,
+  `session_title`     VARCHAR(255)     NOT NULL,
+  `session_resources` JSON                      DEFAULT NULL,
+  `quiz_score`        TINYINT UNSIGNED          DEFAULT NULL,
+  `highest_tier`      ENUM('entry-level','intermediate','advanced') DEFAULT NULL,
+  `completed_at`      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_course_session`        (`advisor_id`, `course_id`, `session_index`),
+  KEY `idx_course_comp_advisor`         (`advisor_id`),
+  KEY `idx_course_comp_firm`            (`firm_id`),
+  KEY `idx_course_comp_tier`            (`highest_tier`),
+  CONSTRAINT `fk_course_comp_firm`
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

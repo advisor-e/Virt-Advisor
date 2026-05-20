@@ -18,6 +18,8 @@ const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport'
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
+const { extractTemplatesFromText } = require('../server/utils/tierLookup')
+const { logVASession } = require('../server/utils/activityLogger')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -293,7 +295,9 @@ async function handleQuery (rawBody, res) {
     language,
     languageName,
     caseContext,
-    conversationState
+    conversationState,
+    advisorId,
+    firmId
   } = sanitised
 
   if (!query || !query.trim()) {
@@ -676,6 +680,7 @@ async function handleQuery (rawBody, res) {
           state.happyConfirmed = true
           state.clientApproachAsked = true
           state.movingForwardAsked = true
+          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates).catch(() => {})
           const mfQuestion = await getMovingForwardQuestion(conversationHistory)
           return sendQuestion(mfQuestion, state)
         }
@@ -690,6 +695,7 @@ async function handleQuery (rawBody, res) {
         if (confirmsAlternative.test(query)) {
           state.happyConfirmed = true
           state.movingForwardAsked = true
+          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates).catch(() => {})
           const mfQuestion = await getMovingForwardQuestion(conversationHistory)
           return sendQuestion(mfQuestion, state)
         }
@@ -1075,7 +1081,7 @@ Use the advisor's answers about what caused this situation and what will flow on
     const _t0phase3 = Date.now()
     const stream2 = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
-      max_tokens: 1500,
+      max_tokens: 2500,
       stream: true,
       stream_options: { include_usage: true },
       messages: [{ role: 'system', content: systemPrompt2 }, ...messages2]
@@ -1104,6 +1110,7 @@ Use the advisor's answers about what caused this situation and what will flow on
         }
       }
       _p3Ok = true
+      state.recommendedTemplates = extractTemplatesFromText(_p3Buffer)
     } catch (streamErr) {
       console.error('[advisor] Phase 3 stream error:', streamErr.message)
       if (!res.writableEnded) {
@@ -1309,7 +1316,7 @@ Use the advisor's answers about what caused this situation and what will flow on
   const _t0main = Date.now()
   const stream = await getOpenAI().chat.completions.create({
     model,
-    max_tokens: 1024,
+    max_tokens: 1500,
     stream: true,
     stream_options: { include_usage: true },
     messages: [

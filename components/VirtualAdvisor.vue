@@ -138,6 +138,7 @@
   CourseBuilder(
     v-if="mode === 'course'"
     :advisorId="advisorId"
+    :firmId="firmId"
     :advisorProfile="advisorProfile"
     :orgTemplateIds="orgTemplateIds"
     :isFirmManager="isFirmManager"

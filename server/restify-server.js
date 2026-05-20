@@ -17,6 +17,7 @@ const translateRoute = require('./routes/translate')
 const advisorRoute = require('./routes/advisor')
 const firmRoute = require('./routes/firm')
 const firmManagerRoute = require('./routes/firmManager')
+const activityRoute = require('./routes/activity')
 const { firmAuth, requireManagerRole } = require('./middleware/firmAuth')
 
 const PORT = process.env.BACKEND_PORT || 4000
@@ -53,6 +54,9 @@ server.post('/api/translate/locale', translateRoute.post)
 server.post('/api/advisor/query', advisorRoute.post)
 server.get('/api/firm/advisors', firmRoute.getAdvisors)
 server.post('/api/firm/insights', firmRoute.postInsights)
+server.post('/api/activity/log-course', activityRoute.logCourse)
+server.get('/api/activity/progression', activityRoute.getProgression)
+server.get('/api/activity/team', activityRoute.getTeam)
 
 // ── Firm Manager routes (firm_manager or platform_admin role required) ──
 const fm = firmManagerRoute

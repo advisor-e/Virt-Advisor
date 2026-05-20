@@ -398,12 +398,14 @@ import DOMPurify from 'isomorphic-dompurify'
 import courseStarters from '~/data/course-starters.json'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
+const BACKEND = 'http://localhost:4000'
 
 export default {
   name: 'CourseBuilder',
 
   props: {
     advisorId: { type: String, default: 'local-advisor' },
+    firmId: { type: String, default: 'local-firm' },
     advisorProfile: { type: Object, default: null },
     orgTemplateIds: { type: Array, default: null },
     isFirmManager: { type: Boolean, default: false }
@@ -1177,6 +1179,7 @@ export default {
 
       // Notify platform integration stub
       this._recordProgress(score)
+      this._logActivity(score)
 
       if (this.hasMoreSessions) {
         this._saveCourse(this.activeCourse)
@@ -1212,6 +1215,31 @@ export default {
         })
       } catch (e) {
         console.warn('[course] Progress record failed (non-critical):', e.message)
+      }
+    },
+
+    async _logActivity (score) {
+      if (!this.advisorId || !this.firmId || !this.activeCourse) { return }
+      const session = this.activeCourse.outline.sessions[this.activeSessionIndex]
+      if (!session) { return }
+      try {
+        await fetch(`${BACKEND}/api/activity/log-course`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            advisorId: this.advisorId,
+            firmId: this.firmId,
+            courseId: this.activeCourse.id,
+            courseTitle: this.activeCourse.outline.title,
+            courseTopic: this.activeCourse.outline.topic || null,
+            sessionIndex: this.activeSessionIndex,
+            sessionTitle: session.title,
+            sessionResources: session.resources || [],
+            quizScore: (score !== null && score !== undefined) ? score : null
+          })
+        })
+      } catch (e) {
+        console.warn('[course] Activity log failed (non-critical):', e.message)
       }
     },
 
