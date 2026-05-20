@@ -53,6 +53,9 @@ const { loadPrompt } = require('../server/utils/promptLoader')
 ;(function startupCheck () {
   if (!process.env.OPENAI_API_KEY) {
     console.error('[advisor] FATAL: OPENAI_API_KEY is not set — all advisor requests will fail.')
+  } else {
+    const k = process.env.OPENAI_API_KEY
+    console.log('[advisor] OPENAI_API_KEY loaded — last 8 chars: ...' + k.slice(-8))
   }
   const REQUIRED_PROMPTS = ['client', 'discover', 'plan', 'learn']
   for (const name of REQUIRED_PROMPTS) {
@@ -341,12 +344,7 @@ async function handleQuery (rawBody, res) {
       // Universal questions
       disambiguationAnswer: null,
       clientRaisedIssue: false,
-      situationContext: null,
-      situationPriority: null,
-      situationDownstream: null,
-      clarityCheck: null,
-      needsPriorityFollowup: false,
-      needsDownstreamFollowup: false,
+      situationDiagnostic: null,
       // Profit scenario questions
       usesReports: false,
       reportsFromFirm: null,
@@ -369,15 +367,17 @@ async function handleQuery (rawBody, res) {
       // Shared Phase 1 questions
       ownership: null,
       growthStage: null,
-      operatorSignals: null,
+      operatorDataDriven: null,
+      operatorPlanning: null,
+      operatorFinancialLiteracy: null,
       clientMotivation: null,
       advisoryStaircase: null,
       clientPersonality: null,
       // Phase 2 questions
       advisorExperience: null,
       advisorConfidence: null,
-      advisorMeetingCount: null,
-      advisorMeetingDuration: null,
+      advisorEnjoyment: null,
+      advisorTimeframe: null,
       // Flow state
       readyForRecommendation: false,
       recommendationDelivered: false,
@@ -456,23 +456,8 @@ async function handleQuery (rawBody, res) {
         text: 'Has the client specifically raised this issue themselves, or is it something you\'ve noticed and want to address with them?'
       },
       {
-        field: 'situationContext',
-        text: 'What do you feel contributed to this situation, which issue do you want to tackle first, and are there any downstream effects we should factor into the service offer?',
-        onAnswer: (answer, state) => {
-          const lower = answer.toLowerCase()
-          state.needsPriorityFollowup = !/\b(first(?!\s+(?:noticed|heard|saw|found|thought|time|realized|came|became|happened|occurred))|start with|focus on|tackle|priority|main|primary|biggest|most important|address|lead with)\b/.test(lower)
-          state.needsDownstreamFollowup = !/\b(downstream|knock.on|cascade|ripple|follow.on|as well|in addition|secondary)\b/.test(lower)
-        }
-      },
-      {
-        field: 'situationPriority',
-        text: 'Which specific issue do you want to tackle first with this client?',
-        skip: s => !s.needsPriorityFollowup
-      },
-      {
-        field: 'situationDownstream',
-        text: 'Are there any downstream or flow-on effects we should factor into the service offer?',
-        skip: s => !s.needsDownstreamFollowup
+        field: 'situationDiagnostic',
+        text: 'What do you feel contributed to this situation, and are there any downstream effects we should factor into the service offer?'
       },
       {
         field: 'disambiguationAnswer',
@@ -497,28 +482,6 @@ async function handleQuery (rawBody, res) {
             setDetectedDomain(s.disambiguationScenarios[0].id)
           }
           s.disambiguationNeeded = false
-        }
-      },
-      // ── Clarity gate — fires every session before domain questions ──
-      // Reflects the three captured context pieces back to the advisor for confirmation.
-      // Any correction they give is recorded and passed to Phase 3 as additional context.
-      {
-        field: 'clarityCheck',
-        textFn: (s) => {
-          const hasSeparatePriority = s.situationPriority && s.situationPriority !== 'pending'
-          const context = s.situationContext && s.situationContext !== 'pending' ? s.situationContext : 'Not captured'
-          const downstream = s.situationDownstream && s.situationDownstream !== 'pending'
-            ? s.situationDownstream
-            : 'None identified yet — if there are flow-on effects worth factoring in, add them now'
-          let msg = 'Before we go deeper — let me check I\'ve understood this correctly:\n\n'
-          if (hasSeparatePriority) {
-            msg += `**Core issue:** ${s.situationPriority}\n\n**Leading causes:** ${context}\n\n`
-          } else {
-            msg += `**Situation and causes:** ${context}\n\n`
-          }
-          msg += `**Downstream effects:** ${downstream}\n\n`
-          msg += 'Do I understand this correctly, or have I missed anything?'
-          return msg
         }
       },
       // ── Domain 1: Profitability / Feasibility ──
@@ -619,8 +582,16 @@ async function handleQuery (rawBody, res) {
         text: 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
       },
       {
-        field: 'operatorSignals',
-        text: 'How does this client currently operate — do they make decisions based on data, do they follow structured plans and act on them, and do they have a working understanding of their financial reports?'
+        field: 'operatorDataDriven',
+        text: 'Does this client make decisions based on data, or do they mostly go on gut feel?'
+      },
+      {
+        field: 'operatorPlanning',
+        text: 'Do they follow structured plans and act on them, or does the business tend to run day to day?'
+      },
+      {
+        field: 'operatorFinancialLiteracy',
+        text: 'Do they have a working understanding of their financial reports?'
       },
       {
         field: 'clientMotivation',
@@ -628,7 +599,7 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'clientPersonality',
-        text: 'Are they light-hearted and open to being challenged, or are they more discerning and careful about how they receive advice?',
+        text: 'Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice?',
         skip: s => s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
       },
       {
@@ -638,16 +609,18 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'advisorConfidence',
-        // Never skip — this is topic-specific, not covered by the Advisor Profile
-        text: 'How confident do you feel about delivering services in this type of situation — is this familiar territory, or more of a stretch for you personally?'
+        text: 'How confident do you feel about delivering services in this type of situation — is this familiar territory, or more of a stretch for you personally?',
+        skip: () => !!advisorProfile
       },
       {
-        field: 'advisorMeetingCount',
-        text: 'How many meetings are you comfortable committing to with this client based on your current workload?'
+        field: 'advisorEnjoyment',
+        text: 'What kinds of advisory conversations do you enjoy most?',
+        skip: () => !!advisorProfile
       },
       {
-        field: 'advisorMeetingDuration',
-        text: 'How long are you planning for each meeting? Most templates need a minimum of 60 minutes — 90 minutes is more comfortable for a full delivery.'
+        field: 'advisorTimeframe',
+        text: 'How many meetings are you comfortable committing to with this client, and over what timeframe?',
+        skip: () => !!advisorProfile
       }
     ]
 
@@ -827,12 +800,7 @@ async function handleQuery (rawBody, res) {
     const collectedAnswers = [
       `Opening situation: ${(conversationHistory.find(m => m.role === 'user') || { content: query }).content}`,
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' ? `Whether client raised it: ${state.clientRaisedIssue}` : '',
-      state.situationContext && state.situationContext !== 'pending' ? `Situation context (root cause and contributing factors — priority and downstream captured separately below): ${state.situationContext}` : '',
-      state.situationPriority && state.situationPriority !== 'pending' ? `Priority issue to tackle first: ${state.situationPriority}` : '',
-      state.situationDownstream && state.situationDownstream !== 'pending'
-        ? `Downstream effects (explicitly provided by advisor): ${state.situationDownstream}`
-        : 'Downstream effects: not separately captured — review all collected answer fields for flow-on signals before populating Section 2',
-      state.clarityCheck && state.clarityCheck !== 'pending' ? `Advisor response to context summary check: ${state.clarityCheck}` : '',
+      state.situationDiagnostic && state.situationDiagnostic !== 'pending' ? `Situation diagnostic (contributing factors, priority issue, downstream effects): ${state.situationDiagnostic}` : '',
       // Domain 1: Profitability answers
       state.detectedDomain === 'profit' && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
       state.detectedDomain === 'profit' && state.reportsFromFirm && state.reportsFromFirm !== 'pending' ? `Reports delivered by advisor's firm: ${state.reportsFromFirm}` : '',
@@ -859,14 +827,16 @@ async function handleQuery (rawBody, res) {
       // Shared Phase 1 answers
       state.ownership && state.ownership !== 'pending' ? `Business ownership: ${state.ownership}` : '',
       state.growthStage && state.growthStage !== 'pending' ? `Growth stage: ${state.growthStage}` : '',
-      state.operatorSignals && state.operatorSignals !== 'pending' ? `Operator signals (data-driven, structured planning, financial literacy): ${state.operatorSignals}` : '',
+      state.operatorDataDriven && state.operatorDataDriven !== 'pending' ? `Operator signal — data-driven decisions: ${state.operatorDataDriven}` : '',
+      state.operatorPlanning && state.operatorPlanning !== 'pending' ? `Operator signal — structured planning: ${state.operatorPlanning}` : '',
+      state.operatorFinancialLiteracy && state.operatorFinancialLiteracy !== 'pending' ? `Operator signal — financial literacy: ${state.operatorFinancialLiteracy}` : '',
       state.clientMotivation && state.clientMotivation !== 'pending' ? `Motivation to change: ${state.clientMotivation}` : '',
-      state.advisoryStaircase && state.advisoryStaircase !== 'pending' ? `Advisory Staircase position (depth of advisor-client engagement): ${state.advisoryStaircase}` : '',
+      state.advisoryStaircase && state.advisoryStaircase !== 'pending' ? `Advisory Staircase position: ${state.advisoryStaircase}` : '',
       state.clientPersonality && state.clientPersonality !== 'pending' ? `Client personality/style: ${state.clientPersonality}` : '',
       state.advisorExperience && state.advisorExperience !== 'pending' ? `Advisor experience: ${state.advisorExperience}` : '',
       state.advisorConfidence && state.advisorConfidence !== 'pending' ? `Advisor confidence/willingness to stretch: ${state.advisorConfidence}` : '',
-      state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' ? `Meetings committed: ${state.advisorMeetingCount}` : '',
-      state.advisorMeetingDuration && state.advisorMeetingDuration !== 'pending' ? `Meeting duration planned: ${state.advisorMeetingDuration}` : ''
+      state.advisorEnjoyment && state.advisorEnjoyment !== 'pending' ? `Advisor enjoyment/strengths: ${state.advisorEnjoyment}` : '',
+      state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? `Advisor timeframe and meeting commitment: ${state.advisorTimeframe}` : ''
     ].filter(Boolean).join('\n')
 
     // Derive explicit exclusion and context rules from diagnostic answers
@@ -878,26 +848,21 @@ async function handleQuery (rawBody, res) {
     const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated|spoke\s+to\s+(?:me|us)\s+about|called\s+(?:me|us)\s+about|phoned\s+(?:me|us)|reached\s+out|got\s+in\s+touch|contacted\s+(?:me|us)|they\s+(?:called|rang|phoned|messaged|emailed|texted)/i.test(state.clientRaisedIssue)
 
-    // Parse meeting count — upper bound of a range ("two to three") taken so capacity covers all planned sessions
-    const _meetingCountText = state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' ? state.advisorMeetingCount.toLowerCase() : ''
+    // Parse meeting count from advisorTimeframe — upper bound of a range taken so capacity covers all planned sessions
+    const _timeframeText = state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? state.advisorTimeframe.toLowerCase() : ''
     const _meetingWordMap = { one: 1, two: 2, three: 3, four: 4, five: 5 }
-    const _countRangeMatch = _meetingCountText.match(/\b(one|two|three|four|five|\d)\s+(?:to|or|maybe|-)\s+(one|two|three|four|five|\d)\b/i)
-    const _countSingleMatch = _meetingCountText.match(/\b(one|two|three|four|five|\d)\b/i)
+    const _countRangeMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\s+(?:to|or|maybe|-)\s+(one|two|three|four|five|\d)\b/i)
+    const _countSingleMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\b/i)
     const meetingNum = _countRangeMatch
       ? (_meetingWordMap[_countRangeMatch[2]] || parseInt(_countRangeMatch[2]) || null)
       : _countSingleMatch
         ? (_meetingWordMap[_countSingleMatch[1]] || parseInt(_countSingleMatch[1]) || null)
         : null
-
-    // Parse meeting duration — 90+ minutes allows 2 templates per meeting, 60 minutes allows 1
-    const _durationText = state.advisorMeetingDuration && state.advisorMeetingDuration !== 'pending' ? state.advisorMeetingDuration.toLowerCase() : ''
-    const _longMeeting = /\b(90|ninety|hour\s+and\s+a?\s*half|1\.5|one\s+and\s+a?\s*half|120|two\s*hour|2\s*hour)\b/.test(_durationText)
-    const templatesPerMeeting = _longMeeting ? 2 : 1
-    const tier1Capacity = (meetingNum || 1) * templatesPerMeeting
+    const tier1Capacity = meetingNum || 2
 
     // Detect price communication need — scan all substantive answer fields, not just priority/downstream
     const _pricePattern = /\b(communicat(?:e|ing|ion|ions)?|price[s]?\s+(?:increase[s]?|rise[s]?|hike[s]?|change[s]?|up)\b|put(?:ting)?\s+(?:the\s+|their\s+)?price[s]?\s+up|pass\s+(?:it|the\s+cost|increase)\s+on|tell\s+(?:the\s+)?(?:client|customer)s?\s+about|inform\s+(?:the\s+)?(?:client|customer)s?|announc(?:e|ing|ement[s]?)?|retain(?:ing)?\s+(?:client|customer)s?|losing\s+(?:client|customer)s?|afraid\s+to\s+(?:raise|increase|put\s+up)\s+(?:the\s+)?price|client[s]?\s+(?:leave|leav|left|retention))\b/i
-    const _priceFields = [state.situationContext, state.situationPriority, state.situationDownstream, state.advisorConfidence]
+    const _priceFields = [state.situationDiagnostic, state.advisorConfidence]
     const hasPriceCommunication = _priceFields.some(f => f && f !== 'pending' && _pricePattern.test(f))
 
     // Map industry answer to a specific industry template name if one exists in the library
@@ -1026,10 +991,10 @@ ${formatFinMgtTable()}`
       governanceInstruction + strategyInstruction + systemsInstruction + valuationInstruction +
       riskInstruction + successionInstruction + conflictInstruction + eoyInstruction + dueDiligenceInstruction
 
-    const _tier1Label = `${meetingNum || 1} meeting${(meetingNum || 1) !== 1 ? 's' : ''} × ${templatesPerMeeting} template${templatesPerMeeting !== 1 ? 's' : ''} per ${_longMeeting ? '90-minute' : '60-minute'} meeting = ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} maximum`
+    const _tier1Label = `${meetingNum || 2} meeting${(meetingNum || 2) !== 1 ? 's' : ''} = ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} maximum`
     const recommendationStructure = `\n\nRECOMMENDATION FORMAT — follow this structure exactly. Do not invent alternative headings or reorder the sections.
 
-SECTION 1 — "I'm confident this will help..."
+SECTION 1 — "My recommendation"
 Select templates that directly address the CAUSE of the client's situation — what led to it and the primary fix. Capacity: ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} (${_tier1Label}). Do not exceed this number in Section 1. Order by priority: the template that addresses what the advisor said they want to tackle first comes first, followed by any other primary cause templates, then any downstream needs included in Section 1.
 
 SECTION 2 — "You might find these templates support this topic — for future consideration"

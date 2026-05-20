@@ -1,5 +1,5 @@
 # Virtual Advisor — Engagement Logic
-**Status:** DRAFT — for review only. Not loaded into the app.
+**Status:** LIVE — deployed to client.txt. Edit client.txt for live changes; keep this file as the versioned reference.
 **Source:** Merged from client.txt (live) and phase3-decision-framework.md (spec)
 **Purpose:** Single source of truth for all VA conversation behaviour, question sequencing, and recommendation logic.
 
@@ -50,7 +50,9 @@ Ask ONE question at a time. Wait for the answer before asking the next. No bundl
 | 2 | situationDiagnostic | What do you feel contributed to this situation, which issue do you want to tackle first, and are there any downstream effects we should factor into the service offer? | Never skip — validate all three parts are answered (see 3.2) |
 | 3 | ownership | Is the business privately owned, a not-for-profit, or publicly listed? | Never skip |
 | 4 | growthStage | Where would you place them on the Growth Curve? [GROWTH_CURVE_SELECTOR] | Skip if NFP or publicly listed |
-| 5 | operatorSignals | How does this client currently operate — do they make decisions based on data, do they follow structured plans and act on them, and do they have a working understanding of their financial reports? | Never skip |
+| 5a | operatorDataDriven | Does this client make decisions based on data, or do they mostly go on gut feel? | Never skip |
+| 5b | operatorPlanning | Do they follow structured plans and act on them, or does the business tend to run day to day? | Never skip |
+| 5c | operatorFinancialLiteracy | Do they have a working understanding of their financial reports? | Never skip |
 | 6 | clientMotivation | How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift? | Never skip — always asked immediately after Seq 5 |
 | 7 | clientPersonality | Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice? | Skip if Advisory Staircase Step 3 or above |
 | 8 | advisoryStaircase | Where would you say your current engagement with this client sits on the Advisory Staircase? [STAIRCASE_SELECTOR] | Never skip |
