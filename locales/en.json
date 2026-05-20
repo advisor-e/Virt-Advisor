@@ -42,6 +42,11 @@
       "title": "Team Dashboard",
       "desc": "Monitor your team's course enrolments, progress and quiz scores.",
       "tag": "Firm Manager"
+    },
+    "progress": {
+      "title": "My Progress",
+      "desc": "See how your advisory capability is building — VA cases, courses, and sessions all tracked in one place.",
+      "tag": "Development"
     }
   },
   "profile": {

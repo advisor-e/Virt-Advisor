@@ -119,6 +119,19 @@
             span.mode-card-tag {{ $t('mode.course.tag') }}
           span.mode-card-arrow →
 
+      button.mode-card.card-progress(@click="selectMode('progression')")
+        .card-top-bar
+        .mode-card-inner
+          .mode-card-icon-wrap.icon-progress
+            svg(xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="26" height="26")
+              path(stroke-linecap="round" stroke-linejoin="round" d="M3 17l4-8 4 4 4-6 4 3")
+              path(stroke-linecap="round" stroke-linejoin="round" d="M3 20h18")
+          .mode-card-body
+            h2.mode-card-title {{ $t('mode.progress.title') }}
+            p.mode-card-desc {{ $t('mode.progress.desc') }}
+            span.mode-card-tag {{ $t('mode.progress.tag') }}
+          span.mode-card-arrow →
+
       button.mode-card.card-profile(@click="openProfile")
         .card-top-bar
         .mode-card-inner
@@ -153,8 +166,17 @@
     :firmName="advisorProfile && advisorProfile.firmName ? advisorProfile.firmName : 'My Firm'"
   )
 
+  //- Capability progression
+  AdvisorProgression(
+    v-else-if="mode === 'progression'"
+    :advisorId="advisorId"
+    :firmId="firmId"
+    :isFirmManager="isFirmManager"
+    @exit="reset"
+  )
+
   //- Conversation
-  .messages-area(v-else-if="mode && mode !== 'course' && mode !== 'firm'" ref="messagesArea")
+  .messages-area(v-else-if="mode && mode !== 'course' && mode !== 'firm' && mode !== 'progression'" ref="messagesArea")
     .messages-list
       div(
         v-for="(msg, index) in messages"
@@ -240,7 +262,7 @@
           button.save-prompt-no(@click="savePromptDismissed = true") Not now
 
   //- Input (only shown once mode is selected)
-  .input-area(v-if="mode && mode !== 'course'")
+  .input-area(v-if="mode && mode !== 'course' && mode !== 'progression'")
 
     //- Voice status bar
     .voice-bar(v-if="speechSupported")
@@ -663,7 +685,8 @@ export default {
         plan: 'I want to plan ahead',
         learn: 'I\'m interested in learning more',
         course: 'I want to build a course',
-        firm: 'Team Dashboard'
+        firm: 'Team Dashboard',
+        progression: 'My Progress'
       }
       return labels[this.mode] || ''
     },
@@ -1312,7 +1335,8 @@ export default {
 .card-learn .card-top-bar   { background: linear-gradient(90deg, #d97706, #fbbf24); }
 .card-course .card-top-bar  { background: linear-gradient(90deg, #00b1e0, #0098c1); }
 .card-firm .card-top-bar    { background: linear-gradient(90deg, #0f766e, #0d9488); }
-.card-profile .card-top-bar { background: linear-gradient(90deg, #6366f1, #a5b4fc); }
+.card-profile .card-top-bar  { background: linear-gradient(90deg, #6366f1, #a5b4fc); }
+.card-progress .card-top-bar { background: linear-gradient(90deg, #be185d, #f472b6); }
 
 .mode-card-inner {
   display: flex;
@@ -1357,8 +1381,9 @@ export default {
 .card-learn .mode-card-tag   { color: #d97706; background: #fffbeb; }
 .card-course .mode-card-tag  { color: #00b1e0; background: #e6f8fd; }
 .card-firm .mode-card-tag    { color: #0f766e; background: #f0fdf4; }
-.card-profile .mode-card-tag { color: #6366f1; background: #eef2ff; }
+.card-profile .mode-card-tag  { color: #6366f1; background: #eef2ff; }
 .card-profile .mode-card-tag.tag-empty { color: #6b7280; background: #f3f4f6; }
+.card-progress .mode-card-tag { color: #be185d; background: #fdf2f8; }
 
 .mode-card-arrow {
   font-size: 18px;
@@ -1372,14 +1397,16 @@ export default {
 .card-learn:hover   .mode-card-arrow { color: #fbbf24; transform: translateX(4px); }
 .card-course:hover  .mode-card-arrow { color: #00b1e0; transform: translateX(4px); }
 .card-firm:hover    .mode-card-arrow { color: #0d9488; transform: translateX(4px); }
-.card-profile:hover .mode-card-arrow { color: #6366f1; transform: translateX(4px); }
+.card-profile:hover  .mode-card-arrow { color: #6366f1; transform: translateX(4px); }
+.card-progress:hover .mode-card-arrow { color: #f472b6; transform: translateX(4px); }
 .card-client:hover  { border-color: #bfdbfe; }
 .card-discover:hover { border-color: #ddd6fe; }
 .card-plan:hover    { border-color: #a7f3d0; }
 .card-learn:hover   { border-color: #fde68a; }
 .card-course:hover  { border-color: #99dff5; }
 .card-firm:hover    { border-color: #99f6e4; }
-.card-profile:hover { border-color: #c7d2fe; }
+.card-profile:hover  { border-color: #c7d2fe; }
+.card-progress:hover { border-color: #fbcfe8; }
 
 /* Section banner */
 .section-banner {
