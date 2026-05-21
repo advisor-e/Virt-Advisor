@@ -662,7 +662,8 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'operatorDataDriven',
-        text: 'Does this client make decisions based on financial data, or do they mostly go on gut feel?'
+        text: 'Does this client make decisions based on financial data, or do they mostly go on gut feel?',
+        skip: s => s.usesReports && /\bno\b|not really|don't|doesn't|they don't|do not/i.test(s.usesReports)
       },
       {
         field: 'operatorPlanning',
@@ -671,7 +672,9 @@ async function handleQuery (rawBody, res) {
       {
         field: 'operatorFinancialLiteracy',
         text: 'Do they have a working understanding of their financial reports?',
-        skip: s => s.operatorDataDriven && /financial data|data.driven|based on data|\byes\b|use data/i.test(s.operatorDataDriven)
+        skip: s =>
+          (s.operatorDataDriven && /financial data|data.driven|based on data|\byes\b|use data/i.test(s.operatorDataDriven)) ||
+          (s.usesReports && /\bno\b|not really|don't|doesn't|they don't|do not/i.test(s.usesReports))
       },
       {
         field: 'clientMotivation',
