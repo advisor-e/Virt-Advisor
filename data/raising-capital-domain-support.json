@@ -1,0 +1,154 @@
+{
+  "domain": "raising-capital",
+  "label": "raising capital and business acquisition",
+  "trigger_keywords": ["raising capital", "raise capital", "pitch deck", "venture capital", "equity funding", "term sheet", "capital raise", "business acquisition", "search fund", "entrepreneur", "franchise model", "cost of capital", "capital structure"],
+  "overview": "Capital raising engagements span a wide spectrum — from a founder seeking their first equity investor to an experienced operator acquiring a business through a search fund model. The advisor's role is to match the client's specific capital requirement to the right vehicle and prepare them for the rigorous scrutiny of investors, lenders, or vendors. The critical diagnostic step is identifying which of the five capital pathways applies, as each has distinct preparation requirements, investor expectations, and risk profiles. Misjudging the pathway — for example, approaching venture capital investors with a lifestyle business pitch — wastes time and damages credibility.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the capital requirement driven by growth equity funding for an existing business, acquisition financing for purchasing another business, transformation capital for a major strategic change, a new venture launch, or a franchise or search fund model?",
+    "growth_equity": "The client has an established business with proven revenue and is seeking capital to accelerate growth. Focus on investor-ready financials, the pitch deck narrative, and equity dilution strategy. The investor's return expectation and exit timeline must be agreed before term sheet negotiation begins.",
+    "acquisition_financing": "The client is purchasing an existing business and needs to structure debt, equity, and vendor financing components. Due diligence quality, business valuation, and financing structure are the critical workstreams. Refer to the due-diligence domain for the DD framework.",
+    "transformation_capital": "The client needs capital to fund a significant operational or strategic transformation — new technology, market entry, business model shift. Focus on the strategic rationale, ROI model, and risk mitigation plan. Investors in transformation capital require a clear path to payback.",
+    "new_venture": "The client is launching a new business and needs seed or early-stage funding. Focus on MVP validation, total addressable market sizing, and the founder narrative. The pitch must demonstrate problem-solution fit before any financial projections are credible.",
+    "search_fund_or_franchise": "The client is using a structured acquisition vehicle — either a search fund (raising capital to search for and acquire an SME) or a franchise model (acquiring a proven operating system). Each has specific investor expectations around search criteria, acquisition thesis, and operator capability."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Venture Capital and Equity Funding Pathway",
+      "purpose": "Prepares the client for equity capital raising from professional investors — covering pitch deck structure, investor due diligence expectations, valuation methodology, and equity dilution management.",
+      "core_principle": "Investors fund people before businesses. The founder narrative, track record, and problem-solving credibility are evaluated as rigorously as the financial model. A technically perfect pitch deck with a weak founder story will not close capital.",
+      "when_to_use": "Use when the client is seeking external equity capital from angel investors, family offices, venture capital funds, or private equity — either for growth, transformation, or new venture purposes.",
+
+      "pitch_deck_structure": {
+        "required_components": [
+          { "slide": "Problem", "description": "Define the specific, quantifiable problem being solved. Investors screen out vague problem statements immediately. Use data and customer evidence." },
+          { "slide": "Solution", "description": "Describe the product or service with enough specificity to be credible. Avoid feature-listing — articulate the mechanism by which the solution solves the problem." },
+          { "slide": "Market Size", "description": "Total Addressable Market (TAM), Serviceable Addressable Market (SAM), and Serviceable Obtainable Market (SOM). Use bottom-up sizing, not top-down industry statistics." },
+          { "slide": "Business Model", "description": "How the business makes money — unit economics, pricing model, revenue recognition, and customer acquisition cost vs. lifetime value." },
+          { "slide": "Traction", "description": "Evidence of product-market fit — revenue, customer numbers, growth rate, retention metrics, or pilot results. This is the most scrutinised section for early-stage raises." },
+          { "slide": "Team", "description": "Founder backgrounds, relevant domain expertise, and gaps being filled by the raise. Investors back the team's ability to execute, not the plan." },
+          { "slide": "Financials", "description": "3-year projections with key assumptions visible. Revenue model, cost structure, and path to profitability or cash flow sustainability." },
+          { "slide": "The Ask", "description": "Amount being raised, use of funds (with allocation percentages), post-money valuation, and the milestone the raise is designed to reach." }
+        ]
+      },
+
+      "equity_dilution_management": {
+        "principle": "Every equity round dilutes the founder's ownership percentage. Model the dilution waterfall across anticipated future rounds before accepting any term sheet — the effective ownership at exit is what matters, not the headline percentage.",
+        "dilution_formula": "Post-round founder ownership = (Pre-round shares held by founder) ÷ (Total post-round shares outstanding)",
+        "advisory_guidance": "Founders consistently underestimate cumulative dilution across multiple rounds. Map the expected dilution through Series A, B, and C before accepting Seed terms. A 20% Series A dilution on top of a 25% Seed round leaves the founder at 60% before any option pool — which becomes 45-50% after option pool creation."
+      }
+    },
+
+    {
+      "name": "Term Sheet Negotiation Framework",
+      "purpose": "Equips the advisor and client to understand, evaluate, and negotiate the key commercial and governance terms in an investment term sheet — preventing the client from accepting unfavourable terms they do not fully understand.",
+      "core_principle": "Most founders focus on valuation when reviewing a term sheet. Experienced investors know that liquidation preferences, anti-dilution provisions, and board control rights are often more economically significant than the headline valuation.",
+      "when_to_use": "Use when a term sheet has been received and the client requires guidance on which terms are standard, which are negotiable, and which represent investor-friendly provisions that require pushback.",
+
+      "key_terms": [
+        {
+          "term": "Valuation (Pre-money and Post-money)",
+          "description": "Pre-money valuation is the business value before the investment. Post-money = Pre-money + Investment Amount. The founder's ownership percentage is calculated on post-money shares.",
+          "negotiation_note": "Valuation is the most visible term but often not the most important. A high valuation with a full ratchet anti-dilution clause can be economically worse than a lower valuation with standard weighted average anti-dilution."
+        },
+        {
+          "term": "Liquidation Preference",
+          "description": "The investor's right to receive a multiple of their investment before founders or other equity holders receive any proceeds in a sale or liquidation.",
+          "negotiation_note": "1x non-participating liquidation preference is standard and founder-friendly. 2x or participating liquidation preferences are investor-friendly and should be resisted. A participating preference means the investor takes their multiple AND participates in remaining proceeds pro-rata."
+        },
+        {
+          "term": "Anti-Dilution Protection",
+          "description": "Protects the investor's ownership percentage if a future round is raised at a lower valuation (a 'down round').",
+          "negotiation_note": "Weighted average (broad-based or narrow-based) is standard. Full ratchet is heavily investor-friendly and can dramatically dilute founders in a down round. Push for broad-based weighted average as the standard protection."
+        },
+        {
+          "term": "Board Composition and Control",
+          "description": "Defines the number of board seats, who appoints them, and which decisions require investor approval (protective provisions).",
+          "negotiation_note": "Ensure founders retain operational control in the early stages. Review the protective provisions list carefully — investors sometimes include operational decisions (salary levels, new hires) alongside the standard capital structure decisions."
+        },
+        {
+          "term": "Pro-Rata Rights",
+          "description": "The investor's right to participate in future funding rounds to maintain their ownership percentage.",
+          "negotiation_note": "Standard and acceptable. Ensure pro-rata rights do not include a right of first refusal that could complicate future rounds with new investors."
+        }
+      ]
+    },
+
+    {
+      "name": "Business Transformation Capital",
+      "purpose": "Provides the financial and strategic framework for securing capital to fund a material transformation — technology adoption, market expansion, business model change, or major infrastructure investment.",
+      "core_principle": "Transformation capital requires a rigorous ROI case that connects the investment to measurable business outcomes. Lenders and investors funding transformation require evidence that the change is essential, the execution plan is credible, and the payback period is defined.",
+      "when_to_use": "Use when the client needs capital specifically to fund a strategic change that will alter the business model, cost structure, or competitive position — rather than simply scaling what already exists.",
+
+      "roi_framework": {
+        "components": [
+          { "component": "Strategic Rationale", "description": "Why this transformation is necessary — market forces, competitive threat, or opportunity window. Quantify the cost of not transforming." },
+          { "component": "Investment Requirement", "description": "Total capital needed with a detailed breakdown: technology, people, transition costs, working capital impact during the change period." },
+          { "component": "Payback Analysis", "description": "Time to recover the capital investment from incremental revenue or cost savings generated by the transformation. Model best, base, and worst case." },
+          { "component": "Risk Mitigation Plan", "description": "What could go wrong and what is the contingency. Investors and lenders are not deterred by risk — they are deterred by founders who have not identified and planned for it." }
+        ]
+      }
+    },
+
+    {
+      "name": "Search Fund and Franchise Acquisition Model",
+      "purpose": "Guides clients considering a search fund (raising capital to find and acquire an SME) or franchise acquisition (buying into a proven operating system) — two structured pathways to business ownership that require specific investor preparation.",
+      "core_principle": "Both models transfer execution risk from the investment thesis to the operator. Investors fund the person's ability to find, acquire, and run a business — not the business itself, which is unknown at the time of investment in a search fund.",
+      "when_to_use": "Use when the client wants to acquire and operate a business but does not have a specific target identified (search fund) or wants to leverage a proven brand and system (franchise).",
+
+      "search_fund_model": {
+        "structure": "Raise a search fund from investors to cover 18-24 months of salary and deal costs while identifying an acquisition target. On acquisition, raise a second, larger round to fund the purchase. Investors receive equity in the acquired business.",
+        "investor_expectations": [
+          "Operator quality — academic background, professional track record, relevant industry experience",
+          "Search criteria — industry focus, size parameters, geography, and operator-dependent business characteristics",
+          "Acquisition thesis — the specific type of business and value creation plan post-acquisition",
+          "References — investor networks almost always conduct reference checks before committing to a search fund"
+        ],
+        "typical_search_criteria": "SME businesses with $1-10M EBITDA, owner-operated, in industries with stable demand and low technological disruption risk, where the current owner's departure creates a transition opportunity rather than a business risk."
+      },
+
+      "franchise_model": {
+        "key_considerations": [
+          "Franchise Disclosure Document (FDD) — must be reviewed by a franchise-specialist lawyer before any commitment",
+          "Territory exclusivity — confirm the geographic protection and what conditions can trigger territory reallocation",
+          "Royalty structure — understand the total fee burden (royalties + marketing levies + technology fees) as a percentage of revenue",
+          "Renewal terms — what conditions must be met to renew the franchise agreement and at what cost",
+          "Exit rights — under what conditions can the franchisee sell the business, and does the franchisor have a right of first refusal"
+        ]
+      }
+    },
+
+    {
+      "name": "Capital Raising — If-Then Guidance",
+      "purpose": "Decision logic for the most common capital raising complications — investor rejection, valuation disagreements, deal structure problems, and financing shortfalls.",
+      "if_then_logic": [
+        {
+          "condition": "Investor rejects the pitch but the client believes the business is fundable",
+          "action": "Request specific feedback on the rejection. If traction is the primary concern, the business may not be ready for institutional equity — consider bridge financing to reach the next milestone. If the problem is the team narrative, coaching the founder presentation is required before the next investor approach."
+        },
+        {
+          "condition": "Client disagrees with the investor's valuation",
+          "action": "Build a comparable transactions analysis using recent deals in the same sector and stage. Valuation disputes resolved with data are more productive than valuation disputes based on founder expectation. If the valuation gap is irreconcilable, test whether different term structures (earn-outs, milestone-based tranches) can bridge the difference."
+        },
+        {
+          "condition": "Term sheet contains a participating liquidation preference",
+          "action": "Model the economic impact of the participating preference across three exit scenarios: below the preference threshold, at 2× investment, and at 5× investment. Show the client the dollar difference between participating and non-participating at each exit level. This is almost always the most compelling negotiation tool."
+        },
+        {
+          "condition": "Client cannot raise the full amount needed from equity and needs to bridge the gap",
+          "action": "Explore a blended structure: equity for the minimum viable raise amount, government grants for eligible R&D or export activities, and revenue-based financing or a convertible note for the balance. Maintaining a clean cap table for future equity rounds should be a design principle of the blended structure."
+        }
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "pathway_first": "Identifying which of the five capital pathways applies is the most important step in any capital raising engagement. Applying VC pitch preparation to a franchise acquisition or a search fund pitch wastes the client's time and credibility. Spend the first meeting establishing which pathway is correct before any other work begins.",
+    "investors_fund_people": "Across all five pathways, the quality of the operator is evaluated as critically as the financial model. A strong business case with a weak founder narrative will not close capital. Coach the client's story — their domain expertise, their track record, why they are uniquely qualified to execute — before reviewing the financial slides.",
+    "term_sheets_are_not_standard": "Clients frequently assume that term sheets are largely standardised and the only negotiable item is valuation. The most economically significant terms are often buried in the liquidation preference and anti-dilution provisions. Always model the economics of the term sheet across multiple exit scenarios before advising the client to accept or reject.",
+    "acquisition_due_diligence_is_not_optional": "For any capital raise funding a business acquisition, the quality of the due diligence determines the quality of the purchase decision. Refer to the due-diligence domain framework and insist on independent legal, financial, and operational DD regardless of time pressure from the vendor."
+  }
+}

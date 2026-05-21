@@ -1,0 +1,246 @@
+{
+  "domain": "people-power",
+  "label": "people engagement, recruitment and performance",
+  "trigger_keywords": ["people power", "owner alignment", "team engagement", "customer engagement", "recruitment", "remuneration", "SMART goals", "staff retention", "employee engagement", "hiring", "performance goals", "salary review", "incentive structure", "people strategy", "workforce planning"],
+  "overview": "People Power addresses the people strategy dimension of business advisory — the systems and frameworks that attract, engage, develop, and retain the right people at every level of the organisation. The diagnostic must distinguish between owner alignment issues (where the leadership group is not unified on direction), team engagement problems (where frontline staff are disengaged or underperforming), customer engagement gaps (where client relationships are transactional rather than loyal), and structural people problems (where the recruitment, remuneration, and goal-setting systems are producing the wrong outcomes). All four dimensions must be assessed before any people strategy intervention can be effective — symptoms at the team level often have their root cause in misalignment at the owner level.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the people challenge primarily an owner alignment issue where the leadership group lacks clarity or agreement on direction, a team engagement problem where frontline staff are disengaged or underperforming, a customer engagement gap where client loyalty and NPS are below target, a recruitment problem, a remuneration structure issue, or a goal-setting and performance management gap?",
+    "owner_alignment": "When the leadership group — whether founders, partners, or a management team — is not aligned on the direction, values, or operating model of the business, the effect cascades through every layer of the organisation. Staff read the lack of alignment as a signal that leadership does not know where it is going, and engagement falls accordingly. Owner alignment must be addressed before any downstream people intervention will be effective.",
+    "team_engagement": "Low team engagement is almost never caused by a single factor. The diagnostic must assess whether the engagement problem is driven by poor management behaviours (the most common cause), unclear expectations, inadequate recognition, limited development opportunity, or a mismatch between the individual's values and the organisation's culture.",
+    "customer_engagement": "Customer engagement is the downstream result of team engagement — staff who are disengaged deliver transactional service; staff who are engaged create loyalty. Before investing in a customer engagement program, confirm that the team engagement foundation is solid. Customer engagement programs that sit on a disengaged team foundation do not produce durable results.",
+    "recruitment": "Recruitment problems present in two ways: difficulty attracting candidates, or difficulty retaining candidates who are hired. The first is a positioning and sourcing problem; the second is a selection and onboarding problem. The intervention differs for each.",
+    "remuneration": "Remuneration issues present as either below-market pay (driving attrition) or above-market pay without corresponding performance requirements (driving entitlement). Both require a structured remuneration framework that aligns pay to market rates, internal equity, and individual performance.",
+    "goal_setting": "Goal-setting failures produce one of two outcomes: goals that are too vague to be actionable (producing drift), or goals that are so narrowly defined that they drive the wrong behaviour (producing gaming). The SMART framework, applied rigorously and reviewed regularly, prevents both failure modes."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Owner Alignment Framework",
+      "purpose": "Provides a structured process for establishing alignment among the business owner group on the five dimensions that determine organisational direction — values, vision, operating principles, decision-making authority, and role clarity.",
+      "core_principle": "Owner alignment is the foundation of organisational culture. When owners model coherent values, a clear direction, and consistent decision-making, the organisation has a stable cultural reference point. When owners are visibly misaligned — contradicting each other's decisions, sending different messages to staff — the organisation cannot build a coherent culture regardless of what is written in the values statement.",
+      "when_to_use": "Use at the start of any people strategy engagement where the owner group has more than one individual, when staff feedback indicates confusion about leadership direction, or when performance management interventions are being undermined by inconsistent owner behaviour.",
+
+      "five_alignment_dimensions": [
+        {
+          "dimension": "Shared Values",
+          "description": "The non-negotiable principles that govern how the business operates — what it will not do regardless of the financial opportunity, how it treats staff and clients, and what defines its character. Shared values are not a statement on the wall; they are the decisions the owners make consistently under pressure.",
+          "alignment_process": "Each owner articulates their top 5 personal professional values independently. Map the overlaps — these are the genuine shared values. Address gaps without consensus — these are the hidden misalignments that produce inconsistent behaviour."
+        },
+        {
+          "dimension": "Strategic Direction",
+          "description": "Where the business is going in the next 3-5 years — the market it wants to serve, the scale it aims to achieve, and the competitive position it is building toward. Owners who disagree on strategic direction will make incompatible decisions on hiring, pricing, and investment.",
+          "alignment_process": "Use a facilitated strategy session where each owner presents their vision for the business in 3 years. Identify the divergences and facilitate a structured conversation to reach a documented consensus. Document the agreed direction and review it annually."
+        },
+        {
+          "dimension": "Operating Principles",
+          "description": "The agreed norms for how the business operates day-to-day — how decisions are made, how disagreements are resolved, how clients are served, and what standards apply to everyone regardless of seniority.",
+          "alignment_process": "Draft a simple Operating Agreement: 10-15 documented principles that all owners agree to operate by. This is not a legal document — it is a behavioural commitment. Review it annually and update as the business evolves."
+        },
+        {
+          "dimension": "Decision-Making Authority",
+          "description": "Clarity on who makes which decisions — which decisions require full owner consensus, which can be made by the managing owner or CEO, and which are delegated to management. Ambiguity in decision-making authority is one of the most common causes of owner friction.",
+          "alignment_process": "Build a decision authority matrix: categorise all significant decision types by who has authority to decide (one owner, majority, consensus), and ensure all owners agree on the categorisation."
+        },
+        {
+          "dimension": "Role Clarity",
+          "description": "Each owner has a defined primary role in the business — operational, strategic, client-facing, or a combination. Owners who operate outside their agreed role create confusion for staff and undermine the authority of whoever holds that role.",
+          "alignment_process": "Document each owner's primary role, the decisions that sit within that role, and the boundaries of the role. Review role boundaries whenever the business structure changes significantly."
+        }
+      ]
+    },
+
+    {
+      "name": "Team Engagement Framework",
+      "purpose": "Provides a diagnostic and intervention framework for understanding and improving the engagement of frontline and management staff — identifying the specific drivers of disengagement and targeting interventions that produce measurable improvement.",
+      "core_principle": "Employee engagement is the degree to which staff are emotionally committed to the organisation's goals and willing to invest discretionary effort in achieving them. Engaged staff do not just do their job — they look for ways to make it better. Disengaged staff do the minimum required. Actively disengaged staff undermine the engagement of others.",
+      "when_to_use": "Use when staff turnover is above industry norms, when productivity or quality metrics are declining despite adequate resourcing, or when management feedback indicates morale problems that are not being addressed through normal channels.",
+
+      "engagement_diagnostic": {
+        "twelve_engagement_drivers": [
+          "I know what is expected of me at work",
+          "I have the materials and equipment I need to do my job right",
+          "At work, I have the opportunity to do what I do best every day",
+          "In the last seven days, I have received recognition or praise for doing good work",
+          "My manager or someone at work seems to care about me as a person",
+          "There is someone at work who encourages my development",
+          "At work, my opinions seem to count",
+          "The mission or purpose of my organisation makes me feel my job is important",
+          "My fellow staff members are committed to doing quality work",
+          "I have a best friend at work",
+          "In the last six months, someone at work has talked to me about my progress",
+          "This last year, I have had opportunities to learn and grow"
+        ],
+        "source": "Adapted from Gallup's Q12 Engagement Framework — the most empirically validated engagement measurement framework in organisational research.",
+        "scoring": "Rate each item on a 1-5 scale (1 = strongly disagree, 5 = strongly agree). Team average below 3.5 on any item indicates a priority area for intervention. Items 1-6 predict individual performance; items 7-12 predict team and organisational outcomes."
+      },
+
+      "engagement_intervention_priorities": [
+        {
+          "priority": "Role clarity and expectations (Item 1)",
+          "intervention": "Structured role description review and a weekly or fortnightly 1:1 between manager and team member specifically focused on priorities and expectations. Role clarity is the single highest-correlating driver of individual performance."
+        },
+        {
+          "priority": "Recognition and acknowledgement (Item 4)",
+          "intervention": "Implement a structured recognition cadence — weekly team meeting with a specific recognition agenda item, peer-to-peer recognition mechanism, and monthly manager-to-team recognition communication. Recognition does not require financial investment — the most effective recognition is specific, timely, and public."
+        },
+        {
+          "priority": "Development opportunity (Items 6 and 12)",
+          "intervention": "Establish an individual development plan for each team member — a documented conversation about where they want to go, what capabilities they need to develop, and what the organisation can provide. Organisations that invest visibly in development retain staff at significantly higher rates than those that do not."
+        }
+      ]
+    },
+
+    {
+      "name": "Customer Engagement and NPS Framework",
+      "purpose": "Provides a structured approach to measuring, understanding, and improving the quality of client relationships — using NPS as the primary metric and a systematic feedback loop to convert client insights into service improvements.",
+      "core_principle": "Client loyalty is earned through consistent experiences that exceed expectation, not through relationship charm alone. The advisor's role is to help the business build the systems that create consistently excellent client experiences — feedback loops, service standards, and recovery protocols — so that loyalty is a structural outcome, not a personality-dependent one.",
+      "when_to_use": "Use when client retention rates are below target, when the business is growing revenue from new clients but not retaining existing ones, or when the client experience is inconsistent across different staff or delivery channels.",
+
+      "net_promoter_score": {
+        "question": "On a scale of 0-10, how likely are you to recommend us to a friend or colleague?",
+        "scoring": {
+          "promoters": "Score 9-10: Loyal enthusiasts who will fuel growth by referring others",
+          "passives": "Score 7-8: Satisfied but unenthusiastic — vulnerable to competitive offers",
+          "detractors": "Score 0-6: Unhappy clients who can damage the brand through negative word of mouth"
+        },
+        "calculation": "NPS = % Promoters − % Detractors. A score above 50 is excellent; above 70 is world-class. Most professional service firms target 40-60.",
+        "follow_up": "NPS is a diagnostic tool, not an outcome. For every response below 8, a follow-up conversation should be scheduled within 48 hours to understand the specific concern and what would change the client's rating."
+      },
+
+      "feedback_loop_design": {
+        "collection": "Survey clients at two moments: immediately after a significant engagement concludes (transactional NPS) and annually (relationship NPS). Transactional NPS reveals service quality at specific touchpoints; relationship NPS reveals the health of the overall relationship.",
+        "analysis": "Segment NPS data by service line, advisor, and client tenure. Patterns within segments reveal systematic issues — if NPS is consistently lower for one service line or one advisor, the cause is identifiable and addressable.",
+        "action": "Every NPS result below 7 must trigger an action — either a recovery conversation or a service change. An NPS system that collects data but does not produce action loses credibility with clients who were honest enough to give a low score."
+      }
+    },
+
+    {
+      "name": "Recruitment Framework",
+      "purpose": "Provides a structured, role-specific recruitment process that improves the quality and retention rate of new hires — reducing the cost and disruption of failed recruitment decisions.",
+      "core_principle": "Most recruitment failures are selection failures, not sourcing failures. The cost of a failed hire — in productivity, management time, team morale, and client disruption — is typically 1.5-3× the annual salary of the role. A disciplined selection process that takes more time upfront is almost always cheaper than a fast process that produces the wrong outcome.",
+      "when_to_use": "Use when designing or reviewing a recruitment process for a specific role, when the firm has experienced a pattern of failed hires, or when expanding the team significantly.",
+
+      "job_design_before_sourcing": {
+        "principle": "The most common recruitment failure is hiring for the wrong job. Before sourcing candidates, invest in designing the role correctly: what outcomes is this role accountable for, what capabilities are non-negotiable, and what is the cultural context the person must thrive in?",
+        "job_design_components": [
+          "Outcome accountability — the 3-5 specific outcomes this role is responsible for delivering, with measurable standards",
+          "Non-negotiable capabilities — the 3-5 capabilities without which the person cannot do the job (distinct from nice-to-haves)",
+          "Cultural context — the operating environment: pace, ambiguity, management style, peer relationships",
+          "Growth trajectory — what development opportunity exists in this role and where can it lead"
+        ]
+      },
+
+      "sourcing_strategy": {
+        "internal_first": "Before any external sourcing, assess whether an internal candidate can be developed or redeployed into the role. Internal promotion has a lower sourcing cost, faster ramp time, and a higher retention rate than external hiring.",
+        "referral_network": "Staff referrals produce higher-quality candidates and better retention outcomes than job board sourcing. Design a referral incentive that rewards staff for referring candidates who are successfully hired and retained for a minimum period (typically 6 months).",
+        "specialist_sourcing": "For specialist or senior roles, engage a recruiter with domain expertise in the relevant field. A recruiter who understands the technical requirements of the role will screen more effectively than a generalist recruiter who is screening on keywords."
+      },
+
+      "onboarding_as_retention": {
+        "principle": "The first 90 days determines retention. New hires who feel welcomed, informed, and connected to a clear purpose in their first 90 days are significantly more likely to remain for 2+ years. New hires who are left to find their own feet are the primary source of early-tenure attrition.",
+        "ninety_day_plan": [
+          "Day 1: Personal welcome from the manager. Access to all required systems and tools. Introduction to the team.",
+          "Week 1: Structured orientation to the business — purpose, values, operating model, and the new hire's specific role.",
+          "Month 1: First formal check-in against the onboarding plan. Identify any capability gaps or resource needs.",
+          "Day 60: Second check-in. Review progress against the role's outcome accountabilities. Address any concerns on both sides.",
+          "Day 90: 90-day review. Formal assessment of the new hire's progress. Confirm mutual expectations for the next quarter."
+        ]
+      }
+    },
+
+    {
+      "name": "Remuneration Framework",
+      "purpose": "Provides a structured approach to designing and reviewing remuneration — ensuring pay is competitive with the market, internally equitable, and aligned to individual and organisational performance.",
+      "core_principle": "Remuneration is not primarily a motivational tool — research consistently shows that once pay is perceived as fair, additional pay increases do not proportionately increase performance. However, pay that is perceived as unfair is a powerful demotivator. The remuneration framework must ensure that staff believe their pay is fair relative to the market and to their peers before any incentive structure can be effective.",
+      "when_to_use": "Use when designing a remuneration structure for a growing team, when conducting an annual salary review, when experiencing attrition that exit interview data suggests is pay-related, or when designing an incentive or profit-sharing program.",
+
+      "remuneration_structure": {
+        "base_pay": {
+          "principle": "Base pay should be set at or above the market median for equivalent roles in the same geography and industry. Pay below the market median creates ongoing attrition risk that is disproportionately skewed toward the best performers — who have the most options.",
+          "market_benchmarking": "Source market data from at least two independent sources annually: published salary surveys and current advertised role data for comparable positions. Do not rely on anecdotal evidence or outdated data — the market for skilled roles moves faster than annual benchmarking cycles."
+        },
+        "variable_pay": {
+          "principle": "Variable pay is effective when it is tied to outcomes that the individual can directly influence, is paid within a short timeframe of the performance that earned it, and represents a meaningful proportion of total compensation.",
+          "common_structures": [
+            { "structure": "Individual performance bonus", "description": "Paid for achieving specific, pre-agreed individual targets. Most effective for roles with clear individual output metrics — sales, production, client billing.", "pitfall": "Avoid purely subjective bonus criteria — if the individual cannot predict their bonus at the start of the year based on their own effort, the motivational value is lost." },
+            { "structure": "Team performance bonus", "description": "Paid when the team achieves a collective target. Builds collaboration but can create free-rider problems if individual contributions are not separately visible.", "pitfall": "Only effective when team interdependency is genuine — where individual success genuinely depends on team performance." },
+            { "structure": "Profit sharing", "description": "A percentage of business profit distributed to staff. Reinforces ownership mentality and aligns staff interests with business health. Most effective in businesses where staff can observe and influence the profit drivers.", "pitfall": "Profit sharing that is opaque — where staff cannot see how the profit figure is calculated or how their behaviour influences it — produces goodwill but not performance alignment." }
+          ]
+        },
+        "non_financial_remuneration": {
+          "principle": "For many staff — particularly in professional services — non-financial elements of the employment proposition are as important as pay. Flexible working, development investment, autonomy, and purpose alignment are increasingly the deciding factors in employment decisions for high-quality candidates.",
+          "key_elements": ["Flexible working arrangements — location and hours flexibility where operationally viable", "Development investment — funded CPD, conference attendance, professional qualifications", "Autonomy — clearly defined scope within which the individual can make decisions without approval", "Wellbeing support — physical and mental health provisions"]
+        }
+      }
+    },
+
+    {
+      "name": "SMART Goal-Setting and Performance Review Framework",
+      "purpose": "Provides a structured approach to setting, reviewing, and calibrating individual performance goals — ensuring that goals drive the right behaviour, are genuinely measurable, and are reviewed frequently enough to course-correct before year-end.",
+      "core_principle": "The purpose of a goal is to create aligned effort. A goal that is too vague produces drift — the individual is busy but not purposefully. A goal that is too narrow produces gaming — the individual hits the metric while undermining the broader intention. The SMART framework, applied rigorously and reviewed regularly, prevents both failure modes.",
+      "when_to_use": "Use at the start of any performance period to set individual goals, when reviewing an underperforming team member's objectives, or when redesigning the firm's performance management cycle.",
+
+      "smart_framework": {
+        "specific": {
+          "description": "The goal states precisely what must be achieved — who, what, when, where. Vague goals ('improve client service') cannot be evaluated and do not direct effort.",
+          "test": "Can a third party, reading the goal without context, understand exactly what achievement looks like?"
+        },
+        "measurable": {
+          "description": "The goal has a defined measure of success — a number, a percentage, a completion date, or a documented outcome. If it cannot be measured, it cannot be evaluated.",
+          "test": "At the end of the period, will there be agreement on whether the goal was achieved — or will it require a subjective judgement?"
+        },
+        "achievable": {
+          "description": "The goal is stretching but realistic given the individual's current capability, resources, and time. Goals that are set too high create learned helplessness; goals set too low create complacency.",
+          "test": "Has the individual who owns the goal agreed that it is achievable with effort? Goals imposed without agreement have lower achievement rates than goals set collaboratively."
+        },
+        "relevant": {
+          "description": "The goal connects to the individual's role and the organisation's priorities. Goals that are irrelevant to either the individual's growth or the business's objectives are compliance exercises, not performance tools.",
+          "test": "If this goal is achieved, will it make a meaningful difference to the individual's contribution or the business's results?"
+        },
+        "time_bound": {
+          "description": "The goal has a defined completion date or review cadence. Open-ended goals produce open-ended effort — the time boundary creates the commitment.",
+          "test": "Is there a specific date by which this will be completed or reviewed?"
+        }
+      },
+
+      "review_cadence": {
+        "quarterly_review": "Formal review of progress against all SMART goals. Not a grading exercise — a problem-solving conversation. If a goal is off track, the review identifies why and what changes to goals, resources, or approach are required.",
+        "monthly_check_in": "Brief (15-30 minute) 1:1 focused on the individual's highest-priority goal for the month. The purpose is course correction — not evaluation.",
+        "annual_review": "Full performance evaluation against the year's SMART goals, calibrated against the team's performance to ensure consistency of standards across managers. Feed directly into remuneration decisions — the link between performance and pay must be visible and consistent."
+      }
+    },
+
+    {
+      "name": "People Power — If-Then Guidance",
+      "purpose": "Decision logic for the most common people strategy complications — owner misalignment blocking team progress, engagement surveys with no follow-through, recruitment that consistently fails, and remuneration disputes.",
+      "if_then_logic": [
+        {
+          "condition": "Team engagement interventions are not producing improvement despite investment",
+          "action": "Check whether the owner alignment foundation is solid before continuing team-level interventions. Disengagement that is driven by visible owner conflict or inconsistent leadership cannot be fixed by team-level programs. Interview 3-5 team members individually (guaranteed anonymity) and ask directly: what is the biggest barrier to engagement in this organisation? Their answers will reveal whether the root cause is team-level or owner-level."
+        },
+        {
+          "condition": "NPS feedback is consistently below target but no action is being taken on the results",
+          "action": "NPS without follow-through is counterproductive — clients who give a low score and receive no response are more likely to leave than clients who were never surveyed. Implement a mandatory response protocol: every score below 8 requires a named follow-up owner and a 48-hour response deadline. Review compliance at the monthly management meeting."
+        },
+        {
+          "condition": "Multiple new hires have left within their first 6 months",
+          "action": "Conduct exit interviews with all departing staff within 2 weeks of departure — not at the point of resignation, when answers are often guarded. Map the exit interview findings to the recruitment and onboarding process. The most common causes of early-tenure attrition are: role mismatch (the job was different from what was described), management quality (the day-to-day experience of working for their manager), and culture fit (the organisation's actual culture was different from its stated culture)."
+        },
+        {
+          "condition": "A high-performing individual is seeking a salary above the approved remuneration band",
+          "action": "Before rejecting the request, run a market benchmarking check. If the individual's requested salary is within the market range for their role and performance level, the band is wrong — not the request. The cost of losing a high performer to a competitor is always greater than the cost of correcting the band. If the request is genuinely above market, a transparent conversation about the market data is more effective than a band-based refusal."
+        }
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "owner_alignment_first": "In any people strategy engagement with a multi-owner business, check the owner alignment foundation before investing in team-level interventions. Staff always know when owners are not aligned — they see it in inconsistent decisions, contradictory messages, and the visible discomfort between leaders. Team-level programs built on an owner misalignment foundation will not produce durable results.",
+    "engagement_surveys_require_action_or_do_not_conduct_them": "An engagement survey that produces results and no action has a net negative effect on engagement — it signals to staff that their feedback is collected but not valued. If the organisation is not prepared to act on survey findings, do not conduct the survey. If it is prepared to act, make the action visible: share the results with the team, name the improvements that will be made, and report back on progress at a defined date.",
+    "pay_fairness_before_pay_level": "The primary remuneration risk in most SME businesses is not below-market pay — it is perceived internal inequity. Staff who believe they are paid less than a peer of equivalent contribution are more disengaged and more likely to leave than staff who are below market but believe their pay is internally fair. Ensure internal equity conversations happen before market benchmarking decisions.",
+    "goals_reviewed_frequently_outperform_goals_reviewed_annually": "The research on goal-setting consistently shows that goals reviewed quarterly produce significantly better outcomes than goals reviewed only at year-end. By the time an annual review occurs, any goal that has drifted off track has been off track for months — and the damage to performance is largely done. A monthly check-in and a quarterly formal review create the course-correction cadence that makes SMART goals genuinely effective."
+  }
+}

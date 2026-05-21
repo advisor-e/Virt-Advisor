@@ -1,0 +1,201 @@
+{
+  "domain": "fm-coach-culture",
+  "label": "firm management coaching and culture",
+  "trigger_keywords": ["firm manager", "firm culture", "visible learning", "coaching plan", "advisory coaching", "performance improvement", "PIP", "fee estimate", "job creep", "scope creep", "applicant screening", "team feedback", "COI prospect", "paper tower", "group coaching", "team building"],
+  "overview": "Firm management coaching addresses the operational and cultural mechanics of running a high-performing advisory practice — from managing underperforming advisors through a structured improvement process, to preventing fee erosion through disciplined scope management, to building a referral network through systematic COI engagement. The advisor leading this work operates simultaneously as a coach, a process designer, and a cultural architect. The diagnostic must distinguish between individual performance issues (which require a PIP or conduct pathway), structural problems (which require process redesign), and cultural drift (which requires leadership intervention at the firm level).",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the firm management challenge primarily an individual performance issue requiring a structured improvement plan, a fee and scope management problem driven by job creep, a referral network gap requiring COI development, or a recruitment and team composition problem?",
+    "individual_performance": "When an advisor is underperforming against measurable standards, a Performance Improvement Plan (PIP) is the structured pathway. The PIP must include specific metrics, a defined review period, coaching support, and clear outcome criteria — both for successful completion and for the consequences of non-completion.",
+    "fee_and_scope_management": "Job creep — the gradual expansion of advisory scope without corresponding fee adjustment — is one of the most common sources of margin erosion in advisory firms. The intervention requires both a process fix (standardising fee estimate letters and change order protocols) and a behaviour change from advisors who are conflict-averse about raising fees.",
+    "coi_development": "Centres of Influence (COIs) are the highest-leverage referral source for advisory practices, yet most advisors engage with them inconsistently. A systematic COI engagement framework converts ad hoc relationship management into a structured pipeline development process.",
+    "recruitment_and_team_composition": "When underperformance is structural rather than individual — when the role is wrong, the team composition is misaligned, or the business is growing beyond its current talent — recruitment and role design are required. Competency-based screening prevents the common mistake of hiring for technical skill while ignoring cultural fit and client-facing capability."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Advisor Performance Improvement Plan (PIP)",
+      "purpose": "Provides a structured, documentable, and legally defensible framework for managing underperforming advisors — ensuring the improvement process is fair to the individual, clear in its expectations, and protective of the firm.",
+      "core_principle": "A PIP is a coaching instrument, not a termination pathway. Its purpose is to create the conditions for the advisor to succeed, with documented evidence of the support provided. If the advisor does not improve, the documentation provides the legal foundation for the next step.",
+      "when_to_use": "Use when an advisor is consistently missing agreed performance metrics and informal coaching has not produced improvement. Do not use a PIP as a surprise — the performance concerns must have been raised in prior conversations.",
+
+      "pip_structure": {
+        "components": [
+          {
+            "component": "Performance Concerns",
+            "description": "A specific, measurable description of the performance gap. Reference actual data — client satisfaction scores, billing targets, activity metrics, compliance breaches. Do not use generalisations such as 'attitude' or 'effort' without supporting evidence."
+          },
+          {
+            "component": "Performance Standards Required",
+            "description": "The specific standards the advisor must meet during and after the PIP period. These must be achievable and consistent with what is expected of peers in equivalent roles."
+          },
+          {
+            "component": "Coaching and Support Provided",
+            "description": "The firm's commitment during the PIP period — coaching sessions scheduled, training provided, process changes made to remove structural barriers to performance. This section protects the firm by demonstrating genuine support."
+          },
+          {
+            "component": "Review Timeline",
+            "description": "A defined review period (typically 30, 60, or 90 days) with scheduled check-in points. Each check-in must be documented with the advisor's progress against each metric."
+          },
+          {
+            "component": "Outcome Criteria",
+            "description": "Explicitly state: (1) what constitutes successful completion of the PIP and what happens next, and (2) what constitutes failure to meet the PIP standards and what the consequences are. Vague outcome criteria create legal exposure."
+          }
+        ]
+      },
+
+      "visible_learning": {
+        "principle": "Visible Learning (inspired by John Hattie's meta-analysis of 800+ studies on educational achievement) translates directly to advisory practice coaching: advisors must see their own performance data clearly and understand the gap between current and required performance before any coaching intervention can be effective.",
+        "paper_tower_exercise": "A team-building and coaching diagnostic where teams compete to build the tallest freestanding paper tower using limited materials. The exercise reveals problem-solving approach, team dynamics, communication under pressure, and leadership emergence — all observable by the coach without the distortion of self-reporting."
+      }
+    },
+
+    {
+      "name": "Fee Estimate and Job Creep Management",
+      "purpose": "Provides the process and behavioural framework for preventing scope creep from eroding advisory firm margins — standardising how new work is scoped, estimated, and billed, and coaching advisors to have fee conversations confidently.",
+      "core_principle": "Job creep is almost always a symptom of conflict avoidance, not generosity. Advisors who absorb extra work without billing it do so because raising a fee conversation feels uncomfortable. The firm must remove the discomfort by making fee conversations a structured process, not a personal initiative.",
+      "when_to_use": "Use when margin analysis shows advisory hours being written off against client engagements, when advisors are completing work outside the defined scope without a change order, or when fee realisation rates are declining.",
+
+      "fee_estimate_letter_standard": {
+        "required_elements": [
+          "Scope of work — precisely what is included in the engagement",
+          "Exclusions — explicitly what is not included, to prevent assumption creep",
+          "Estimated fee or fee range with the basis for the estimate (time-based, fixed, or value-based)",
+          "Trigger for re-estimate — the specific conditions under which a new fee estimate will be issued before additional work proceeds",
+          "Client sign-off — a documented acceptance of the scope and fee, not just an email acknowledgement"
+        ]
+      },
+
+      "change_order_protocol": {
+        "trigger": "Any work request that falls outside the documented scope in the fee estimate letter must trigger a change order before the work begins.",
+        "steps": [
+          "Identify the out-of-scope request",
+          "Estimate the additional time and cost",
+          "Issue a written change order with the additional scope and fee",
+          "Obtain client approval before commencing — verbal approval is not sufficient",
+          "Document the approved change order in the client file"
+        ],
+        "coaching_note": "Most advisors avoid the change order conversation because they fear the client's reaction. Reframe the conversation: the change order is a professional service to the client — it prevents surprises on the final invoice. Clients who respect professional advice generally respect transparent fee management."
+      }
+    },
+
+    {
+      "name": "Centre of Influence (COI) Engagement Framework",
+      "purpose": "Converts ad hoc COI relationship management into a systematic pipeline development process — identifying the right COI prospects, building structured engagement activities, and converting relationships into consistent referral sources.",
+      "core_principle": "A COI is a professional whose clients overlap with the advisory firm's target client profile. The most valuable COIs are those who already refer clients to other professionals — they understand referral reciprocity and are predisposed to a systematic engagement relationship.",
+      "when_to_use": "Use when the advisory firm's referral pipeline is inconsistent, when the firm is dependent on a small number of referral sources, or when the firm is entering a new market segment and needs to build a referral network from scratch.",
+
+      "coi_identification": {
+        "primary_coi_categories": [
+          "Accountants and tax advisors — clients who are also receiving accounting services have financial complexity that often requires advisory input",
+          "Solicitors and estate planning lawyers — estate, trust, and succession clients frequently need coordinated financial advice",
+          "Mortgage brokers — clients purchasing or refinancing property are often simultaneously making investment and insurance decisions",
+          "Business bankers — clients with business lending facilities are natural advisory prospects"
+        ],
+        "qualification_criteria": [
+          "Serves clients in the advisory firm's target demographic or industry",
+          "Has a track record of referring clients to other professionals (ask directly)",
+          "Is credentialled and reputable — the referral relationship reflects on the advisory firm",
+          "Is not already engaged in an exclusive referral arrangement with a competitor"
+        ]
+      },
+
+      "coi_engagement_cadence": {
+        "initial_meeting": "Conduct a peer introduction meeting — not a sales meeting. The objective is to understand the COI's client base, their referral behaviour, and their professional interests. Share the advisory firm's client profile and specialisations. Do not ask for referrals in the first meeting.",
+        "ongoing_engagement": [
+          "Quarterly value-add touchpoint — a brief, relevant article, market update, or client scenario that demonstrates expertise",
+          "Annual joint event or seminar — positions both parties as thought leaders to each other's client bases",
+          "Referral reciprocity — track inbound referrals from each COI and proactively identify and refer clients with unmet needs back to them",
+          "Annual relationship review — a formal conversation about the referral relationship, what is working, and how it can be developed"
+        ]
+      }
+    },
+
+    {
+      "name": "Applicant Screening and Competency-Based Recruitment",
+      "purpose": "Provides a structured recruitment framework that evaluates advisory candidates on both technical competency and client-facing capability — reducing the risk of hiring technically qualified advisors who fail in a client relationship context.",
+      "core_principle": "Most advisory recruitment failures are not technical failures — they are cultural and relational failures. A candidate who cannot manage client expectations, handle objections, or build trust under pressure will underperform regardless of their technical qualifications. The screening process must deliberately test these capabilities.",
+      "when_to_use": "Use when the firm is recruiting for client-facing advisory roles. Adapt the framework for support or specialist roles by adjusting the competency weighting.",
+
+      "screening_stages": [
+        {
+          "stage": "Application Review",
+          "focus": "Professional qualifications, relevant experience, career trajectory, and evidence of client-facing success (not just tenure). Reject applications that do not demonstrate measurable client outcomes — 'managed a portfolio of clients' is not evidence; 'retained 95% of clients over three years with an average NPS of 8.5' is."
+        },
+        {
+          "stage": "Structured Interview",
+          "focus": "Behavioural questions based on the STAR method (Situation, Task, Action, Result). Specific areas to probe: client conflict management, fee conversation handling, dealing with underperformance feedback, and working within a team framework.",
+          "sample_questions": [
+            "Tell me about a time a client was unhappy with your advice. How did you handle it and what was the outcome?",
+            "Describe a situation where you had to have a difficult conversation about fees with a client. What was your approach?",
+            "Give me an example of when you identified that a client's brief was actually different from what they said they wanted. How did you manage that?"
+          ]
+        },
+        {
+          "stage": "Technical Assessment",
+          "focus": "A relevant case study or scenario that mirrors the type of work the candidate will be doing. Assess both the quality of the technical analysis and how they communicate the findings — the latter is often more important in a client-facing role."
+        },
+        {
+          "stage": "Reference Checking",
+          "focus": "Speak directly with at least two referees who have managed the candidate in a client-facing context. Ask specifically about client retention, complaint management, and performance against revenue targets. Do not accept written references as a substitute for verbal reference calls."
+        }
+      ],
+
+      "cultural_fit_assessment": {
+        "principle": "Cultural fit is not about personality match — it is about alignment with the firm's operating standards, client service philosophy, and professional values. Candidates who are technically strong but culturally misaligned create more disruption than those who are technically adequate but highly aligned.",
+        "assessment_approach": "Include a structured conversation about the firm's non-negotiable standards — response time commitments, documentation requirements, fee transparency protocols, and peer feedback processes. Observe how the candidate responds: candidates who push back on standards that other team members accept consistently are a cultural fit risk."
+      }
+    },
+
+    {
+      "name": "Firm Culture — Group Coaching and Team Development",
+      "purpose": "Provides structured group coaching methodologies for building team cohesion, surfacing hidden performance blockers, and creating a learning culture in which individual advisors develop faster through peer engagement.",
+      "core_principle": "Individual coaching is necessary but insufficient for firm culture development. Group coaching creates shared language, mutual accountability, and the social proof that makes behaviour change sustainable. Advisors who learn alongside peers are more likely to apply new approaches than those who learn in isolation.",
+      "when_to_use": "Use when the firm is developing a structured learning and development program, when team dynamics are creating friction, or when a cohort of advisors needs to develop similar capabilities within a defined timeframe.",
+
+      "group_coaching_structure": {
+        "session_frequency": "Monthly 90-minute sessions with a consistent cohort of 4-8 advisors. Consistency of participants is essential — coaching groups that churn in membership do not develop the trust required for vulnerability-based learning.",
+        "session_design": [
+          "Opening check-in — brief report from each advisor on one win and one challenge since the last session (creates accountability rhythm)",
+          "Skill or concept focus — a 20-minute input on a specific advisory technique, framework, or scenario",
+          "Case study or role play — a real client scenario (anonymised) presented by one advisor and workshopped by the group",
+          "Commitment round — each advisor states one specific action they will take before the next session",
+          "Closing reflection — brief individual sharing of one insight from the session"
+        ],
+        "facilitator_role": "The group coach facilitates but does not dominate. The most valuable learning in group coaching comes from peer-to-peer challenge and shared experience, not from the coach providing answers. Hold space for the group to work through problems — intervene when the discussion loses direction, not when it becomes uncomfortable."
+      }
+    },
+
+    {
+      "name": "Firm Management — If-Then Guidance",
+      "purpose": "Decision logic for the most common firm management complications — PIP escalation, fee dispute resolution, COI relationship breakdowns, and recruitment failures.",
+      "if_then_logic": [
+        {
+          "condition": "Advisor on a PIP is not meeting the improvement milestones at the first check-in",
+          "action": "Do not wait until the end of the PIP period to address the shortfall. Document the check-in outcome immediately and schedule a review meeting. Determine whether the shortfall is due to lack of effort, lack of capability, or a structural barrier the firm has not removed. Adjust the support if the barrier is structural; escalate to the next HR step if the issue is effort or conduct."
+        },
+        {
+          "condition": "Client disputes a fee for work that was completed outside the original scope",
+          "action": "Do not absorb the fee to preserve the relationship. Review the fee estimate letter and change order documentation. If the change order was properly documented and approved, hold the position professionally — absorbing the fee creates a precedent that the firm's scope management process can be overridden. If there was no change order, use the dispute as the impetus to implement the change order protocol immediately."
+        },
+        {
+          "condition": "A previously active COI has stopped making referrals",
+          "action": "Schedule a direct conversation — do not assume the relationship has deteriorated. Common causes include the COI feeling that their clients were not well-served, that the referral relationship was one-directional, or simply that other priorities have displaced the advisory firm in their referral mindset. Address the specific issue identified before investing further in the relationship."
+        },
+        {
+          "condition": "A recently hired advisor is technically strong but struggling to build client relationships",
+          "action": "Do not wait for the performance gap to reach PIP territory. Assign a senior advisor as a shadow coach for client meetings and use the debrief process to build the relational skills directly. Identify whether the issue is confidence, communication style, or client management process — each requires a different intervention."
+        }
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "pip_is_a_coaching_instrument": "Advisors who manage underperformance well treat the PIP as a genuine support mechanism, not as a paper trail for dismissal. The quality of coaching provided during the PIP period is a direct reflection of the firm's culture. Firms that use PIPs as exit pathways without genuine coaching create a culture where performance conversations are feared and avoided — the opposite of a learning culture.",
+    "fee_conversations_are_professional_service": "The single most impactful change in most advisory firms' fee management is reframing the fee conversation as a service to the client, not a demand from the firm. Clients are better served by transparent, documented scope management than by advisors who absorb work silently and build resentment. Train advisors to deliver the change order conversation as a professional courtesy.",
+    "coi_relationships_are_long_game": "COI development requires consistent investment over 12-24 months before a reliable referral pipeline emerges. Advisors who approach COI relationships transactionally — expecting referrals within weeks of an initial meeting — damage their reputation in the professional community. The most productive COI relationships are built on genuine mutual respect and proven client outcomes.",
+    "group_coaching_requires_trust": "The most common reason group coaching fails is that the facilitator attempts to run structured learning before sufficient trust has been built in the cohort. Invest the first 1-2 sessions in building the group's relational foundation before introducing skills or performance content. Advisors who do not trust their peers in the group will not share the real challenges that make group coaching valuable."
+  }
+}

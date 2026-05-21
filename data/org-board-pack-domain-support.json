@@ -1,0 +1,193 @@
+{
+  "domain": "org-board-pack",
+  "label": "firm board governance and reporting",
+  "trigger_keywords": ["board pack", "board governance", "annual board plan", "risk matrix", "white paper", "board meeting", "quality decisions", "Deming", "governance calendar", "firm reporting", "partner meeting", "strategic review", "board reporting"],
+  "overview": "Board governance in a CA or advisory firm transforms partner meetings from reactive financial discussions into structured, forward-looking governance forums. The board pack is the instrument through which leadership creates accountability, surfaces risk early, and ensures that strategic decisions are made with adequate information and deliberation. The advisory challenge in this domain is twofold: designing the content and structure of the board pack so it enables genuinely useful governance conversations, and developing the decision-making quality of the leadership group so that the governance forum produces consistently good outcomes. W. Edwards Deming's volatility principles and the Quality Decisions framework both address this second challenge — the behavioural and analytical dimensions of high-quality governance.",
+
+  "diagnostic_entry": {
+    "primary_question": "Is the board governance challenge primarily about establishing or restructuring the board pack and reporting framework, managing and communicating firm risks, developing thought leadership through white papers and external content, or improving the quality of decisions made in the governance forum?",
+    "board_pack_structure": "If the firm's partner meetings lack a consistent agenda, pre-meeting materials, or a structured record of decisions, the starting point is designing the board pack framework and governance calendar. A meeting without pre-read materials and a structured agenda is a conversation — not a governance forum.",
+    "risk_governance": "If material risks are being identified in retrospect — discovered when they have already caused harm rather than managed in advance — the risk matrix is missing or is not being reviewed regularly. Risk governance is a forward-looking discipline; its value is in creating a systematic process for identifying what could go wrong before it does.",
+    "thought_leadership": "If the firm lacks a content strategy that positions it as an authority in its chosen market segments, white paper production is a high-leverage investment. White papers serve multiple strategic purposes simultaneously: they create conversation starters for COI and client engagement, they drive inbound enquiries, and they develop the technical and communication capabilities of the advisors who produce them.",
+    "decision_quality": "If the leadership group consistently makes decisions that seem reasonable at the time but produce poor outcomes, the problem is not the information available — it is the decision-making process. The Quality Decisions framework and Deming's volatility principles provide the analytical tools to identify and correct systematic biases in how the governance forum processes information and reaches conclusions."
+  },
+
+  "support_tools": [
+
+    {
+      "name": "Annual Board Plan and Governance Calendar",
+      "purpose": "Provides the structural framework for a year-long board governance program — defining what is reviewed at each meeting, how frequently, and with what preparation requirements — converting ad hoc partner meetings into a disciplined, forward-looking governance cycle.",
+      "core_principle": "Good governance is predictable governance. A board that knows in advance what will be reviewed at each meeting, and receives the materials in sufficient time to prepare, makes better decisions than one that receives information at the meeting and is expected to react immediately.",
+      "when_to_use": "Use at the start of a new financial year when designing or refreshing the firm's governance framework, or when the current partner meeting structure lacks discipline and forward-planning.",
+
+      "governance_calendar_framework": {
+        "meeting_frequency": "At minimum, quarterly partner meetings for strategic governance review. Monthly financial review meetings (which can be shorter and more focused) for WIP, billing, and cash flow management.",
+        "annual_governance_cycle": [
+          {
+            "quarter": "Q1 (July-September)",
+            "agenda_focus": "Annual strategic review — assess progress against prior year objectives, set strategic priorities for the year ahead, review partner performance against agreed metrics, confirm partnership agreements and equity positions are current."
+          },
+          {
+            "quarter": "Q2 (October-December)",
+            "agenda_focus": "Mid-year performance review — WIP and capacity against target, pipeline quality review, risk matrix update, HR and team development review, technology and systems status."
+          },
+          {
+            "quarter": "Q3 (January-March)",
+            "agenda_focus": "Annual planning and budgeting — financial year budget and targets, headcount plan, pricing review, major investment decisions for the year ahead, external environment review."
+          },
+          {
+            "quarter": "Q4 (April-June)",
+            "agenda_focus": "Year-end governance — financial year performance against targets, client portfolio review (including trimming analysis), succession planning status, partner promotion consideration, board pack and governance process review."
+          }
+        ],
+
+        "board_pack_standard_contents": [
+          { "section": "Chair's report", "description": "Brief narrative from the managing partner on the key issues and decisions required at the meeting. Sets the tone and focus before the financial data." },
+          { "section": "Financial summary", "description": "Revenue, WIP, collections, and profit against budget for the period. Exception reporting only — highlight variances above a defined threshold rather than presenting all data." },
+          { "section": "Operational scorecard", "description": "Key operational metrics: utilisation rates, write-off rates, staff turnover, client retention. Trends are more important than point-in-time figures." },
+          { "section": "Risk register update", "description": "Status update on all active risks and any new risks identified since the last meeting. The risk owner reports on the current status and any changes to the likelihood or impact assessment." },
+          { "section": "Strategic initiative status", "description": "Progress update on each active strategic initiative — on track, at risk, or blocked. Brief enough for review but specific enough to support a genuine conversation." },
+          { "section": "Decision log", "description": "Decisions made at the last meeting and status of implementation. Closing the loop on decisions is the mechanism by which governance creates accountability." }
+        ]
+      }
+    },
+
+    {
+      "name": "Risk Matrix and Governance",
+      "purpose": "Provides a structured framework for identifying, quantifying, and managing the material risks facing the firm — converting risk awareness from a passive concern into an active governance discipline.",
+      "core_principle": "Risk governance is a forward-looking activity. Its value is not in documenting risks that have already materialised but in systematically identifying what could go wrong before it does — and assigning ownership and mitigation actions while there is still time to act.",
+      "when_to_use": "Use to establish or refresh the firm's risk governance framework, to prepare for an external quality audit or regulatory review, or when a material adverse event has revealed a gap in the firm's risk identification process.",
+
+      "risk_identification_categories": [
+        { "category": "Operational Risk", "examples": ["Key person dependency — the firm is critically dependent on one or two individuals for client relationships", "Technology failure — core practice management systems without adequate backup or redundancy", "Data security breach — client data inadequately protected against external or internal breach"] },
+        { "category": "Financial Risk", "examples": ["Client concentration — more than 20% of revenue from a single client", "Debtor quality — ageing receivables indicating collection risk", "Cash flow timing — seasonal revenue patterns creating short-term liquidity exposure"] },
+        { "category": "People Risk", "examples": ["Staff attrition — loss of key fee earners to competitors", "Succession gap — no credible internal candidates for partner or management roles", "Conduct risk — behaviour or ethics breach creating firm liability"] },
+        { "category": "Professional Risk", "examples": ["Professional indemnity exposure — complex or high-value engagements not adequately scoped and documented", "Compliance risk — regulatory changes not tracked or implemented", "Conflict of interest — inadequate disclosure or management of conflicts"] },
+        { "category": "Strategic Risk", "examples": ["Market disruption — technology or competitive change reducing demand for core service lines", "Partnership fragmentation — material disagreement between partners on firm direction", "Reputation risk — public adverse event or social media exposure"] }
+      ],
+
+      "risk_matrix_methodology": {
+        "likelihood_scale": "1 (Remote — unlikely to occur in the next 3 years), 2 (Possible — may occur in the next 1-3 years), 3 (Likely — expected to occur within 12 months), 4 (Almost Certain — occurring or about to occur)",
+        "impact_scale": "1 (Negligible — no material impact), 2 (Minor — manageable with normal operations), 3 (Moderate — significant disruption or cost), 4 (Severe — existential threat to the firm or a major client relationship)",
+        "risk_score": "Likelihood × Impact. Scores of 9+ are critical risks requiring immediate mitigation. Scores of 6-8 are high risks requiring active management. Scores of 3-5 are medium risks requiring monitoring. Scores below 3 are low risks requiring documentation only.",
+        "risk_ownership": "Every risk on the register must have a named owner who is accountable for the mitigation actions and reports on status at each quarterly board meeting."
+      }
+    },
+
+    {
+      "name": "White Paper Program",
+      "purpose": "Provides a structured framework for producing firm-branded thought leadership content — white papers, technical updates, and market commentary — that positions the firm as an authority in its chosen market segments and generates inbound client and referral engagement.",
+      "core_principle": "A white paper program serves multiple strategic objectives simultaneously: it creates content for COI and client engagement, it develops the technical and communication capabilities of the advisors who produce them, and it generates a compounding asset of intellectual property that represents the firm's knowledge base in tangible form.",
+      "when_to_use": "Use when the firm is seeking to build market profile in a specific industry or service niche, when the BD pipeline relies too heavily on reactive referrals and not enough on inbound enquiries, or when developing the advisory and communication capabilities of senior staff.",
+
+      "white_paper_development_process": {
+        "topic_selection": "Choose topics that sit at the intersection of the firm's deepest expertise and the client's most pressing concerns. The best white paper topics are those where the firm has a genuinely differentiated perspective — not a summary of publicly available information.",
+        "structure": [
+          { "section": "Executive Summary", "description": "2-3 paragraph summary of the key insight and implications. Written last but positioned first. Must be compelling enough to make a time-pressured reader continue." },
+          { "section": "Problem or Opportunity Definition", "description": "Define the specific challenge or opportunity being addressed. Quantify it where possible — the more concrete the problem definition, the more the reader will recognise their own situation." },
+          { "section": "Analysis", "description": "The firm's expert analysis of the problem — data, frameworks, case evidence. This is where the firm's unique perspective must be most visible." },
+          { "section": "Implications", "description": "What the analysis means for the reader's specific context. Generic implications are of no value — connect the analysis directly to the decisions the reader needs to make." },
+          { "section": "Recommended Actions", "description": "Specific, actionable next steps. White papers that end with 'more research is needed' or 'the answer depends on your circumstances' fail to create the engagement they are designed to generate." }
+        ],
+        "distribution_strategy": [
+          "Direct email to existing clients — frame as a value-add resource, not a sales document",
+          "COI distribution — share with referral partners as a conversation starter",
+          "LinkedIn publication — drives inbound enquiries from prospects in the target segment",
+          "Seminar or webinar anchor — use the white paper as the basis for a client education event",
+          "Regulatory or industry submission — where the topic is policy-relevant, submission to regulators or industry bodies creates external credibility"
+        ]
+      }
+    },
+
+    {
+      "name": "Quality Decisions Framework",
+      "purpose": "Provides a structured process for improving the quality of decisions made in the governance forum — reducing the influence of cognitive biases, ensuring adequate information is available before decisions are made, and creating accountability for decision outcomes.",
+      "core_principle": "Most governance failures are not information failures — the information was available. They are decision process failures — the governance forum did not engage with the information rigorously enough, or was subject to group dynamics (dominant voices, conflict avoidance, social proof) that substituted for independent analysis.",
+      "when_to_use": "Use when the leadership group is consistently making decisions that produce poor outcomes, when one or two voices consistently dominate the governance forum, or when the firm is facing a material decision that requires structured deliberation.",
+
+      "decision_quality_standards": [
+        {
+          "standard": "Decision framing",
+          "description": "State the decision to be made in a single sentence before any discussion begins. Many governance discussions fail because different participants believe they are deciding different things. The discipline of framing the decision precisely before discussion starts prevents this failure."
+        },
+        {
+          "standard": "Information sufficiency test",
+          "description": "Before deciding, explicitly ask: do we have the information we need to make this decision well? If not, what is missing and what is the cost of delay? A decision made without sufficient information is a guess — the governance forum should know when it is guessing."
+        },
+        {
+          "standard": "Pre-mortem analysis",
+          "description": "Before committing to a decision, conduct a brief pre-mortem: assume the decision has failed in 12 months and identify the most likely causes. This technique surfaces concerns that participants are reluctant to raise in a forward-looking discussion but are willing to raise in a hypothetical failure analysis."
+        },
+        {
+          "standard": "Devil's advocate assignment",
+          "description": "For significant decisions, formally assign one participant the role of Devil's Advocate — tasked with articulating the strongest case against the proposed decision. This role protects the forum from groupthink and ensures that counter-arguments are heard regardless of the social dynamics in the room."
+        },
+        {
+          "standard": "Decision record",
+          "description": "Document every governance decision: what was decided, who was present, what the key considerations were, and when the decision will be reviewed. The decision record creates accountability and enables the governance forum to learn from its decisions over time."
+        }
+      ]
+    },
+
+    {
+      "name": "Deming's Volatility Principles in Governance",
+      "purpose": "Applies W. Edwards Deming's principles of statistical variation and process management to the governance forum — helping leadership teams distinguish between random variation in performance metrics and genuine signals that require a management response.",
+      "core_principle": "Deming's central insight for governance contexts is that most management interventions are responses to random variation, not genuine signals. A month of below-budget revenue is usually the result of normal process variation, not a fundamental problem requiring intervention. Leaders who react to random variation create instability and destroy the trust of their teams. Learning to separate signal from noise is one of the highest-leverage governance skills.",
+      "when_to_use": "Use when the governance forum is consistently making reactive decisions in response to short-term performance fluctuations, when leadership is micromanaging operational staff based on month-to-month variance, or when introducing a new performance metric to the board reporting framework.",
+
+      "deming_concepts_for_governance": [
+        {
+          "concept": "Common Cause Variation",
+          "description": "Variation that is inherent in the process — the natural fluctuation that occurs in any complex system operating normally. Revenue that varies by 5-10% month-to-month in a professional services firm is almost always common cause variation. Intervening in common cause variation makes the system less stable, not more.",
+          "governance_application": "Before reacting to a performance metric, establish the normal variation range (upper and lower control limits). Only intervene when the metric is outside the control limits — not when it is simply below the budget figure for one period."
+        },
+        {
+          "concept": "Special Cause Variation",
+          "description": "Variation caused by a specific, identifiable factor outside the normal system — a key client loss, a market event, a new competitor, a process failure. Special cause variation requires investigation and targeted intervention.",
+          "governance_application": "When a metric is outside the established control limits, the governance response is to identify the special cause before deciding on any intervention. Acting on special cause variation without identifying the cause creates a second failure: the wrong intervention."
+        },
+        {
+          "concept": "Tampering",
+          "description": "Deming's term for management interventions that respond to common cause variation as if it were special cause — making adjustments to a system that is operating normally, which increases total variation rather than reducing it.",
+          "governance_application": "The most common form of tampering in governance forums is changing strategy or process in response to one or two bad months. If the system is in control — operating within its normal variation range — the correct governance response is observation and understanding, not intervention."
+        },
+        {
+          "concept": "PDCA Cycle",
+          "description": "Plan-Do-Check-Act: Deming's continuous improvement cycle. Plan the change, implement it at a small scale, check the results against the plan, act by standardising what worked or returning to the Plan step if it did not.",
+          "governance_application": "Any significant operational change — new technology, new process, new service line — should be piloted using the PDCA cycle before full implementation. This prevents the firm from investing fully in a change before the evidence of its effectiveness is available."
+        }
+      ]
+    },
+
+    {
+      "name": "Board Governance — If-Then Guidance",
+      "purpose": "Decision logic for the most common board governance complications — meeting dominance, risk register neglect, white paper stall, and decision outcome accountability.",
+      "if_then_logic": [
+        {
+          "condition": "One or two partners consistently dominate the governance forum and others are not contributing",
+          "action": "Restructure the meeting format to require written pre-read positions from all partners before the meeting. This forces independent thinking before the dominant voice is heard. At the meeting, go around the table for initial positions before open discussion — once everyone has stated a position on the record, the social dynamics that enable dominance are significantly reduced."
+        },
+        {
+          "condition": "The risk register is not being updated and risk owners are not reporting to the board",
+          "action": "Risk governance will not be self-sustaining without explicit accountability. Add risk register updates as a standing agenda item — each risk owner is required to provide a brief written update before the meeting and speak to it in the session. A risk register that is reviewed quarterly in the board meeting, with named owners reporting, will be maintained. One that is treated as an annual compliance exercise will be neglected."
+        },
+        {
+          "condition": "The white paper program has produced no content despite initial enthusiasm",
+          "action": "The most common cause of white paper stall is that the responsibility is not specific enough. Assign one named author per paper with a defined deadline and a first draft review date. The managing partner should schedule a brief (20-minute) check-in with each author at the midpoint between assignment and deadline. White papers are never urgent — without a specific deadline and accountability, they will always be displaced by billable work."
+        },
+        {
+          "condition": "The governance forum is revisiting decisions that were already made because the outcomes have been disappointing",
+          "action": "Distinguish between revisiting a decision because new information has emerged (appropriate) and revisiting a decision because the outcome was uncomfortable (governance failure). Review the decision record — if the decision was made on adequate information with appropriate deliberation, the governance response is to manage the outcome, not to relitigate the decision. If the decision was made without adequate process, use the failure as the impetus to implement the Quality Decisions framework."
+        }
+      ]
+    }
+
+  ],
+
+  "advisor_guidance": {
+    "governance_is_a_practice_not_a_document": "A governance framework that exists in documents but is not lived in meetings has no value. The quality of governance is measured by the quality of the conversations that happen in the board room, the decisions that are made and implemented, and the risks that are managed before they cause harm. Design the board pack to enable great conversations — not to document compliance.",
+    "risk_registers_need_owners": "A risk register without named owners is a list of worries, not a governance instrument. The discipline of naming an owner for every risk and requiring them to report at the board meeting is the mechanism that converts risk awareness into risk management. Every risk on the register should make someone in the room slightly uncomfortable — that discomfort is the governance engine.",
+    "deming_before_reaction": "The most valuable governance habit a leadership team can develop is pausing before reacting to a performance metric and asking: is this signal or noise? Leaders who learn to apply Deming's common cause vs. special cause distinction make fewer reactive decisions, create more stable teams, and build organisations that improve continuously rather than lurching from one management intervention to the next.",
+    "decision_quality_compounds": "Good decisions build on each other — a governance forum that consistently makes well-framed, well-evidenced decisions with clear accountability creates a compounding advantage over time. Poor governance is equally compounding: each reactive, under-deliberated decision creates a new problem that the next meeting must manage. Investing in decision process quality is the highest-leverage governance intervention available."
+  }
+}

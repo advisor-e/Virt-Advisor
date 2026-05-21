@@ -117,5 +117,40 @@
     "keywords": "firm manager|firm culture|visible learning|coaching plan|advisory coaching|performance improvement|PIP|fee estimate|job creep|scope creep|applicant screening|team feedback|COI prospect|paper tower|group coaching|team building",
     "disambiguationKeywords": "firm manager|coaching|visible learning|PIP|COI|paper tower",
     "questions": []
+  },
+  {
+    "id": "org-firm-strategy",
+    "label": "CA firm strategy and partner management",
+    "keywords": "firm strategy|partner admission|partner retirement|CA firm|accounting firm|practice strategy|AI adoption|software adoption|capacity management|fee growth|partner equity|practice management|firm direction|practice direction",
+    "disambiguationKeywords": "firm strategy|partner admission|practice strategy|CA firm|accounting firm",
+    "questions": []
+  },
+  {
+    "id": "org-capacity-planner",
+    "label": "CA firm capacity planning",
+    "keywords": "capacity planner|capacity planning|capacity model|scenario versioning|client trimming|WIP management|staff utilisation|fee earner capacity|practice capacity|resource planning|workload management|practice load",
+    "disambiguationKeywords": "capacity planning|capacity model|WIP|utilisation|client trimming",
+    "questions": []
+  },
+  {
+    "id": "org-leadership",
+    "label": "leadership development and partner management",
+    "keywords": "partner promotion|leadership development|conduct management|enneagram|ethics demerit|partner checklist|leadership pipeline|performance management|professional conduct|culture leadership|values alignment|demerit system",
+    "disambiguationKeywords": "partner promotion|leadership development|enneagram|conduct management|demerit",
+    "questions": []
+  },
+  {
+    "id": "org-board-pack",
+    "label": "firm board governance and reporting",
+    "keywords": "board pack|board governance|annual board plan|risk matrix|white paper|board meeting|quality decisions|Deming|governance calendar|firm reporting|partner meeting|strategic review|board reporting",
+    "disambiguationKeywords": "board pack|board governance|risk matrix|white paper|Deming|governance calendar",
+    "questions": []
+  },
+  {
+    "id": "people-power",
+    "label": "people engagement, recruitment and performance",
+    "keywords": "people power|owner alignment|team engagement|customer engagement|recruitment|remuneration|SMART goals|staff retention|employee engagement|performance goals|salary review|incentive structure|people strategy|workforce planning|NPS|net promoter",
+    "disambiguationKeywords": "people power|owner alignment|team engagement|recruitment|remuneration|SMART goals",
+    "questions": []
   }
 ]
