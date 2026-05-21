@@ -69,6 +69,24 @@ function detectLogicTree (message) {
 }
 
 /**
+ * Returns all logic trees that match the message, sorted by score descending.
+ * Every tree scoring at least one trigger is returned — no arbitrary cap.
+ */
+function detectLogicTrees (message) {
+  const trees = loadLogicTrees()
+  const lower = message.toLowerCase()
+
+  return trees
+    .map(tree => ({
+      tree,
+      score: (tree.entry_triggers || []).filter(t => lower.includes(t.toLowerCase())).length
+    }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(({ tree }) => tree)
+}
+
+/**
  * Formats a single tree node into a readable text block for the AI.
  */
 function formatNodeForPrompt (node, allNodes) {
@@ -1004,4 +1022,4 @@ function buildLearnReferenceText (tree) {
   return text
 }
 
-module.exports = { loadLogicTrees, detectLogicTree, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText }
+module.exports = { loadLogicTrees, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText }

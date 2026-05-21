@@ -14,7 +14,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
-const { detectLogicTree, formatLogicTreeForPrompt, buildLearnReferenceText } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { sendError } = require('../server/utils/sendError')
@@ -192,6 +192,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     includeSectionDesc = false,
     advisorProfile = null,
     logicTree = null,
+    logicTrees = null,
     maxTemplates = 25,
     excludeSections = [],
     firmTemplates = null
@@ -215,9 +216,8 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   let summariesText = null
   if (includeSummaries) {
     const querySummaries = filterSummariesByQuery(searchQuery, 12)
-    const treeTemplateNames = logicTree
-      ? logicTree.nodes.filter(n => n.type === 'recommendation').flatMap(n => n.templates || [])
-      : []
+    const treesArray = Array.isArray(logicTrees) ? logicTrees : (logicTree ? [logicTree] : [])
+    const treeTemplateNames = treesArray.flatMap(t => t.nodes.filter(n => n.type === 'recommendation').flatMap(n => n.templates || []))
     const treeSummaries = getSummariesForTemplateNames(treeTemplateNames)
     const summaryMap = new Map()
     for (const s of [...querySummaries, ...treeSummaries]) {
@@ -229,8 +229,11 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
       : null
   }
 
-  // Logic tree — diagnostic pathway that led to this situation
-  const logicTreeText = logicTree ? formatLogicTreeForPrompt(logicTree) : null
+  // Logic trees — diagnostic pathways that led to this situation
+  const treesForPrompt = Array.isArray(logicTrees) ? logicTrees : (logicTree ? [logicTree] : [])
+  const logicTreeText = treesForPrompt.length > 0
+    ? treesForPrompt.map(t => formatLogicTreeForPrompt(t)).join('\n\n---\n\n')
+    : null
 
   return [
     `## Available Templates (${templatesToUse.length} most relevant)`,
@@ -1121,11 +1124,11 @@ Use the advisor's answers about what caused this situation and what will flow on
       : ''
 
     const allUserConvText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).concat(query).join(' ')
-    const matchedTree = detectLogicTree(allUserConvText)
+    const matchedTrees = detectLogicTrees(allUserConvText)
     const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: true,
-      logicTree: matchedTree,
+      logicTrees: matchedTrees,
       includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
       maxTemplates: 25,
       excludeSections: ['get-organised', 'get-the-job'],
