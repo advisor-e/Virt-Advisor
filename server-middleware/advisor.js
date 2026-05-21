@@ -1085,7 +1085,7 @@ ${formatFinMgtTable()}`
       : ''
 
     const profileNote = advisorProfile
-      ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nUse this profile in place of Phase 2 answers when writing "Why this suits you as the advisor".`
+      ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nUse this profile in place of Phase 2 answers when writing "Why this suits you as the advisor". Only reference what is explicitly stated in the profile. Do NOT infer, assume, or guess the advisor's experience level, seniority, or capability from what is absent. If experience is not mentioned, write the section based solely on role, interests, and stated strengths — do not label the advisor as new, inexperienced, or a beginner.`
       : ''
 
     // Override query with the collected answers summary for the AI recommendation call

@@ -198,6 +198,10 @@
             span
             span
 
+      //- Retry button — shown after a failed request
+      .retry-row(v-if="showRetry && !isStreaming")
+        button.retry-btn(@click="retryLastMessage") Try again
+
       //- Growth Curve selector — shown when AI signals privately owned branch
       .growth-curve-card(v-if="showGrowthCurveSelector")
         p.growth-curve-title Where would you place them on the Growth Curve?
@@ -641,6 +645,8 @@ export default {
       saveError: null,
       savePromptDismissed: false,
       sessionId: null,
+      showRetry: false,
+      lastQuery: null,
       recommendationDelivered: false,
       showGrowthCurveSelector: false,
       selectedGrowthStage: null,
@@ -975,6 +981,16 @@ export default {
       this.selectedStaircaseStep = null
       this.showFinMgtThemeSelector = false
       this.selectedFinMgtTheme = null
+      this.showRetry = false
+      this.lastQuery = null
+    },
+
+    retryLastMessage () {
+      if (!this.lastQuery || this.isStreaming) { return }
+      this.messages.pop() // remove the error message
+      this.showRetry = false
+      this.inputText = this.lastQuery
+      this.sendMessage()
     },
 
     submitFinMgtTheme () {
@@ -1055,6 +1071,8 @@ export default {
       this.inputText = ''
       this.isStreaming = true
       this.streamingText = ''
+      this.showRetry = false
+      this.lastQuery = query
 
       await this.$nextTick()
       this.scrollToBottom()
@@ -1103,7 +1121,12 @@ export default {
             if (!line.startsWith('data: ')) { continue }
             try {
               const data = JSON.parse(line.slice(6))
-              if (data.type === 'recommendation_delivered') {
+              if (data.type === 'error') {
+                this.messages.push({ role: 'assistant', content: this.$t('error') })
+                this.streamingText = ''
+                this.isStreaming = false
+                this.showRetry = true
+              } else if (data.type === 'recommendation_delivered') {
                 this.recommendationDelivered = true
               } else if (data.type === 'delta') {
                 this.streamingText += data.text
@@ -1167,6 +1190,7 @@ export default {
         this.messages.push({ role: 'assistant', content: this.$t('error') })
         this.isStreaming = false
         this.streamingText = ''
+        this.showRetry = true
       }
 
       await this.$nextTick()
@@ -1718,6 +1742,10 @@ export default {
 .send-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
 .input-hint { font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center; }
+
+.retry-row { display: flex; justify-content: center; padding: 8px 0 4px; }
+.retry-btn { background: none; border: 1px solid #d1d5db; color: #6b7280; font-size: 13px; padding: 6px 16px; border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.retry-btn:hover { background: #f3f4f6; color: #374151; border-color: #9ca3af; }
 
 /* Voice bar */
 .voice-bar {
