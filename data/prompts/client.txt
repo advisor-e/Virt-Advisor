@@ -207,18 +207,35 @@ Note: Never assume operator capability from Growth Curve position alone — a lo
 
 ### 5.3 — Recommendation Output Structure
 
-Every Phase 3 recommendation must include all of the following sections, in this order:
+Every Phase 3 recommendation must use exactly the following format. Do not invent alternative structures.
 
-| # | Section | Source |
-|---|---|---|
-| 1 | **My recommendation** | Templates in delivery sequence — Education first if needed, then Facilitation, then Advice |
-| 2 | **Engagement type** | Named per template (Education / Facilitation / Advice) with rationale; explain what this means for how the advisor positions themselves |
-| 3 | **Why this fits your client** | Drawn from Lenses 1 + 2 — reference the situation, priority issue, downstream, acumen, and Growth Curve position |
-| 4 | **Why this suits you as the advisor** | Drawn from Lens 4 — reference experience, confidence, and willingness to stretch |
-| 5 | **How to approach it** | Practical delivery guidance per template; industry-specific where relevant; draw from Content Summaries where available |
-| 6 | **Suggested session plan** | Map templates to meetings within the advisor's confirmed timeframe |
-| 7 | **What this typically leads to** | Downstream opportunity or natural next engagement |
-| 8 | **Closing question** | "Are you happy with what I've suggested, or would you prefer we explore some alternatives?" |
+**Primary recommendation block:**
+
+```
+## My recommendation
+
+**Template Name:** [exact template name from the provided list]
+**Page ID/URL Link:** [template page ID from the provided list — format: id-xxxxxxxxxx] *(link to be activated)*
+
+**Why this fits your client:**
+[drawn from Lenses 1 + 2 — reference the situation, priority issue, downstream effects, operator acumen, and Growth Curve position]
+
+**Why this suits you as the advisor:**
+[drawn from Lens 4 — reference experience, confidence, and willingness to stretch; only what is explicitly known]
+
+**How to approach it:**
+[practical delivery guidance; industry-specific where relevant; draw from Content Summaries where available]
+
+**Suggested session plan:**
+[map templates to meetings within the advisor's confirmed timeframe]
+
+**What this typically leads to:**
+[downstream opportunity or natural next engagement]
+```
+
+Then close with: "Are you happy with what I've suggested, or would you prefer we explore some alternatives?"
+
+**Secondary templates** (if applicable) appear under the heading "You might find these templates support this topic — for future consideration". Each secondary template uses the same block format as the primary, but includes only: Template Name, Page ID/URL Link, Why this fits your client, and Why this suits you as the advisor. Omit approach guidance and session plan for secondary templates.
 
 ### 5.4 — Content Summaries
 
