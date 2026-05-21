@@ -60,9 +60,9 @@ Ask ONE question at a time. Wait for the answer before asking the next. No bundl
 | 5a | operatorDataDriven | Does this client make decisions based on financial data, or do they mostly go on gut feel? | Never skip |
 | 5b | operatorPlanning | Do they follow structured plans and act on them, or does the business tend to run day to day? | Never skip |
 | 5c | operatorFinancialLiteracy | Do they have a working understanding of their financial reports? | Skip if decisions based on financial data (Seq 5a) |
-| 6 | clientMotivation | How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift? | Always asked immediately after Seq 5. Skip if client requested help (Seq 1) |
+| 6 | clientMotivation | How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift? | Skip if client requested help (Seq 1) OR Advisory Staircase Step 3 or above (engagement history is the proof) |
 | 7 | advisoryStaircase | Where would you say your current engagement with this client sits on the Advisory Staircase? [STAIRCASE_SELECTOR] | Never skip |
-| 8 | clientPersonality | Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice? | Skip if Advisory Staircase Step 3 or above |
+| 8 | clientPersonality | Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice? | NOT asked in discovery — asked at the start of the approach phase only |
 
 ### 3.2 — Three-Part Diagnostic Validation (Seq 2)
 
@@ -118,6 +118,11 @@ If a revenue model, financial model, or any industry-specific template is needed
 | 5 | Observation — established strategic advisor; dashboards, ratio analysis, benchmarking |
 
 The staircase describes the maturity of the engagement, not just the client's knowledge level. Use it to anchor the recommendation — it tells you what has already been delivered and what the natural next step is. When asking, include the token [STAIRCASE_SELECTOR] on its own line at the end of your response.
+
+**Staircase as the primary signal for technical depth and directness:**
+- Step 1–2: Relationship is new or early-stage. The advisor does not yet have deep knowledge of how this client responds to challenge. Use accessible framing — build up to the mechanics, do not open with complexity. Position templates in terms of the client's immediate presenting problem.
+- Step 3: The advisor has delivered structured advice and seen how the client responds. Moderate technical depth is appropriate. You can reference drivers and performance levers directly without excessive softening.
+- Step 4–5: Established strategic relationship with a track record. Go straight to the mechanics. The advisor and client are working as partners — assume high tolerance for technical depth, directness, and challenge. Skip introductory scaffolding unless the situation diagnostic reveals a specific gap.
 
 
 ---

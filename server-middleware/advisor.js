@@ -682,12 +682,17 @@ async function handleQuery (rawBody, res) {
       {
         field: 'clientMotivation',
         text: 'How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift?',
-        skip: s => s.clientRaisedIssue && /requested|asked|raised|their own|they came|\byes\b/i.test(s.clientRaisedIssue)
+        skip: (s) => {
+          const raised = s.clientRaisedIssue && s.clientRaisedIssue !== 'pending' &&
+            /requested|asked|raised|their own|they came|they want|want(ed)? (some |to |help|advice|ideas)|came to (me|us)|looking for|approached|seeking|\byes\b|\bthey did\b|\bit was them\b/i.test(s.clientRaisedIssue)
+          const deepEngagement = s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
+          return raised || deepEngagement
+        }
       },
       {
         field: 'clientPersonality',
         text: 'Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice?',
-        skip: s => s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
+        skip: () => true // asked at start of approach phase instead, where it is actually needed
       },
       {
         field: 'advisorExperience',
@@ -791,7 +796,17 @@ async function handleQuery (rawBody, res) {
           state.conversationComplete = true
           return sendQuestion("You're ready to go. Good luck with it. Come back any time — before the meeting if you want to prep further, or after if you'd like to debrief.", state)
         }
-        // Yes (or redirect) — fall through to AI to help prepare talking points / framing
+        // Yes (or redirect) — ask personality before generating approach guidance if not yet known
+        if (!state.clientPersonality) {
+          state.clientPersonality = 'pending'
+          return sendQuestion('Before I help you plan your approach — are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice?', state)
+        }
+      }
+
+      // Capture personality answer given at the start of the approach phase
+      if (state.movingForwardDone && state.clientPersonality === 'pending') {
+        state.clientPersonality = query
+        // fall through to AI — personality context now populated
       }
 
       // After AI delivered Moving Forward help — close cleanly on advisor sign-off.
