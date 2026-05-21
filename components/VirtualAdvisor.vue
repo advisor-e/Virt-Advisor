@@ -640,7 +640,8 @@ export default {
       saveSuccess: false,
       saveError: null,
       savePromptDismissed: false,
-      conversationState: {},
+      sessionId: null,
+      recommendationDelivered: false,
       showGrowthCurveSelector: false,
       selectedGrowthStage: null,
       showStaircaseSelector: false,
@@ -767,7 +768,7 @@ export default {
       if (!this.mode) { return false }
       // Client mode: use the state machine flag — works in any language
       if (this.mode === 'client') {
-        return !!(this.conversationState && this.conversationState.recommendationDelivered)
+        return this.recommendationDelivered
       }
       // Other modes (discover/plan/learn): show after the user has sent 3+ messages,
       // which reliably indicates a full recommendation exchange has occurred
@@ -877,7 +878,8 @@ export default {
           this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
         }
       }
-      this.conversationState = {}
+      this.sessionId = null
+      this.recommendationDelivered = false
       this.showGrowthCurveSelector = false
       this.selectedGrowthStage = null
       this.showStaircaseSelector = false
@@ -904,7 +906,6 @@ export default {
             languageName: this.currentLanguageName,
             orgTemplateIds: this.orgTemplateIds,
             conversationHistory: [],
-            conversationState: {},
             advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
             advisorId: this.advisorId,
             firmId: this.firmId
@@ -924,8 +925,8 @@ export default {
             if (!line.startsWith('data: ')) { continue }
             try {
               const data = JSON.parse(line.slice(6))
-              if (data.type === 'state') {
-                this.conversationState = data.state
+              if (data.type === 'session') {
+                this.sessionId = data.sessionId
               } else if (data.type === 'delta') {
                 this.streamingText += data.text
               } else if (data.type === 'done') {
@@ -961,7 +962,8 @@ export default {
       this.messages = []
       this.inputText = ''
       this.streamingText = ''
-      this.conversationState = {}
+      this.sessionId = null
+      this.recommendationDelivered = false
       this.showSavePanel = false
       this.saveTitle = ''
       this.saveSuccess = false
@@ -1071,7 +1073,7 @@ export default {
             languageName: this.currentLanguageName,
             orgTemplateIds: this.orgTemplateIds,
             conversationHistory: this.conversationHistory.slice(0, -1),
-            conversationState: this.conversationState,
+            sessionId: this.sessionId,
             advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
             advisorId: this.advisorId,
             firmId: this.firmId,
@@ -1101,8 +1103,8 @@ export default {
             if (!line.startsWith('data: ')) { continue }
             try {
               const data = JSON.parse(line.slice(6))
-              if (data.type === 'state') {
-                this.conversationState = data.state
+              if (data.type === 'recommendation_delivered') {
+                this.recommendationDelivered = true
               } else if (data.type === 'delta') {
                 this.streamingText += data.text
                 await this.$nextTick()

@@ -47,7 +47,7 @@ function sanitiseInput (raw) {
     language = 'en',
     languageName = 'English',
     caseSummaries: rawCases = [],
-    conversationState = {},
+    sessionId: rawSessionId,
     advisorId: rawAdvisorId,
     firmId: rawFirmId
   } = raw
@@ -91,7 +91,7 @@ function sanitiseInput (raw) {
     conversationHistory,
     advisorProfile,
     caseContext,
-    conversationState: conversationState && typeof conversationState === 'object' ? conversationState : {},
+    sessionId: rawSessionId ? String(rawSessionId).slice(0, 64) : null,
     orgTemplateIds,
     advisorId: rawAdvisorId ? String(rawAdvisorId).slice(0, 64) : null,
     firmId: rawFirmId ? String(rawFirmId).slice(0, 64) : null

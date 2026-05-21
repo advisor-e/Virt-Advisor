@@ -26,12 +26,7 @@ const { sendError } = require('../utils/sendError')
 // ── GET /api/firm/advisors ──────────────────────────────────────────────────
 
 function getAdvisors (req, res, next) {
-  const firmId = req.query.firmId
-
-  if (!firmId) {
-    return sendError(res, 400, 'firmId query param required')
-  }
-
+  // req.firmId available for DB query when stubs are wired up
   try {
     // TODO: replace with DB query
     // const advisors = await db.query(
@@ -59,12 +54,7 @@ function getAdvisors (req, res, next) {
 // ── POST /api/firm/insights ─────────────────────────────────────────────────
 
 function postInsights (req, res, next) {
-  const { firmId } = req.body || {}
-
-  if (!firmId) {
-    return sendError(res, 400, 'firmId required')
-  }
-
+  // req.firmId available for OpenAI/DB hookup when stubs are wired up
   try {
     // TODO: replace with OpenAI call
     // const OpenAI = require('openai')

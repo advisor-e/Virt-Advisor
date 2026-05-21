@@ -6,6 +6,7 @@
  * See server/restify-route.js for the Restify implementation reference.
  */
 
+const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
 const OpenAI = require('openai')
@@ -47,6 +48,50 @@ function formatSalesMarketingSlides () {
 }
 
 const { loadPrompt } = require('../server/utils/promptLoader')
+const { createLimiter } = require('./rateLimit')
+
+const checkAdvisorLimit = createLimiter(30)
+
+// ── Server-side session store ──────────────────────────────────────────────
+// Conversation state lives here — the client never sees it.
+// Single-process only; replace Map with Redis for multi-process deployments.
+const SESSION_TTL_MS = 2 * 60 * 60 * 1000 // 2 hours
+const sessionStore = new Map()
+
+function sessionCreate () {
+  const id = crypto.randomBytes(16).toString('hex')
+  sessionStore.set(id, { state: null, lastActivity: Date.now() })
+  return id
+}
+
+function sessionGet (id) {
+  if (!id) { return null }
+  const entry = sessionStore.get(id)
+  if (!entry) { return null }
+  if (Date.now() - entry.lastActivity > SESSION_TTL_MS) {
+    sessionStore.delete(id)
+    return null
+  }
+  entry.lastActivity = Date.now()
+  return entry.state
+}
+
+function sessionSave (id, state) {
+  const entry = sessionStore.get(id)
+  if (entry) {
+    entry.state = state
+    entry.lastActivity = Date.now()
+  } else {
+    sessionStore.set(id, { state, lastActivity: Date.now() })
+  }
+}
+
+setInterval(() => {
+  const cutoff = Date.now() - SESSION_TTL_MS
+  for (const [k, v] of sessionStore) {
+    if (v.lastActivity < cutoff) { sessionStore.delete(k) }
+  }
+}, 15 * 60 * 1000).unref()
 
 let _loadFirmConfig = null
 function loadFirmConfig (...args) {
@@ -239,6 +284,8 @@ module.exports = function advisorMiddleware (req, res, next) {
     return next()
   }
 
+  if (!checkAdvisorLimit(req, res)) { return }
+
   let body = ''
   let bodySize = 0
   let bodyRejected = false
@@ -321,7 +368,7 @@ async function handleQuery (rawBody, res) {
     language,
     languageName,
     caseContext,
-    conversationState,
+    sessionId: incomingSessionId,
     advisorId,
     firmId
   } = sanitised
@@ -348,6 +395,9 @@ async function handleQuery (rawBody, res) {
   // AI is only called for Phase 3 recommendation.
   // ─────────────────────────────────────────────────────────────────
   if (mode === 'client') {
+    let sessionId = incomingSessionId
+    const storedState = sessionGet(sessionId)
+
     const state = Object.assign({
       // Detection — active domain ID (one of 14 domain ids, or null)
       detectedDomain: null,
@@ -400,7 +450,7 @@ async function handleQuery (rawBody, res) {
       movingForwardHelped: false,
       conversationComplete: false,
       postRecAiResponses: 0
-    }, conversationState)
+    }, storedState || {})
 
     // Always re-detect domain from the first user message.
     // Score all 14 domains by keyword match count. Most matches wins.
@@ -444,7 +494,8 @@ async function handleQuery (rawBody, res) {
     } // end domain lock else
 
     // Helper: stream a hardcoded question directly to the client
-    const sendQuestion = (text, newState) => {
+    const sendQuestion = (text) => {
+      if (sessionId) { sessionSave(sessionId, state) }
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
@@ -452,14 +503,25 @@ async function handleQuery (rawBody, res) {
         'X-Accel-Buffering': 'no'
       })
       res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
-      res.write('data: ' + JSON.stringify({ type: 'state', state: newState }) + '\n\n')
       res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       res.end()
     }
 
-    // ── INIT: first-load request — return the opening question without touching state ──
+    // ── INIT: create session, return opening question and session ID ──
     if (query === '__init__') {
-      return sendQuestion('What is the core problem or opportunity you want to address with this client?', state)
+      sessionId = sessionCreate()
+      sessionSave(sessionId, state)
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no'
+      })
+      res.write('data: ' + JSON.stringify({ type: 'delta', text: 'What is the core problem or opportunity you want to address with this client?' }) + '\n\n')
+      res.write('data: ' + JSON.stringify({ type: 'session', sessionId }) + '\n\n')
+      res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
+      res.end()
+      return
     }
 
     // ── QUESTION PIPELINE ──
@@ -794,7 +856,7 @@ async function handleQuery (rawBody, res) {
             state.postRecAiResponses = (state.postRecAiResponses || 0) + 1
             const processed = injectVideoInfo(_postBuffer, orgTemplateIds)
             res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
-            res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
+            if (sessionId) { sessionSave(sessionId, state) }
             res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
           }
         }
@@ -1110,12 +1172,13 @@ Use the advisor's answers about what caused this situation and what will flow on
           if (processed !== _p3Buffer) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
-          res.write('data: ' + JSON.stringify({ type: 'state', state }) + '\n\n')
+          res.write('data: ' + JSON.stringify({ type: 'recommendation_delivered' }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
         }
       }
       _p3Ok = true
       state.recommendedTemplates = extractTemplatesFromText(_p3Buffer)
+      if (sessionId) { sessionSave(sessionId, state) }
     } catch (streamErr) {
       console.error('[advisor] Phase 3 stream error:', streamErr.message)
       if (!res.writableEnded) {

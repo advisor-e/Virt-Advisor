@@ -37,6 +37,9 @@ function getOpenAI () {
 }
 
 const { loadPrompt } = require('../server/utils/promptLoader')
+const { createLimiter } = require('./rateLimit')
+
+const checkCourseLimit = createLimiter(15)
 
 // Quiz override questions — loaded once, falls back to empty if file missing
 let _quizOverrides = null
@@ -455,6 +458,8 @@ function parseBody (req) {
 
 module.exports = async function (req, res, next) {
   if (req.method !== 'POST') { return next() }
+
+  if (!checkCourseLimit(req, res)) { return }
 
   let body
   try {
