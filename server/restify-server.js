@@ -91,6 +91,9 @@ server.del('/api/firm-manager/videos/:id', ...fmGuard, fm.deleteVideo)
 server.get('/api/firm-manager/profile', ...fmGuard, fm.getProfile)
 server.put('/api/firm-manager/profile', ...fmGuard, fm.updateProfile)
 server.get('/api/firm-manager/storage', ...fmGuard, fm.getStorageUsage)
+server.get('/api/firm-manager/templates', ...fmGuard, fm.getTemplateImport)
+server.post('/api/firm-manager/templates', ...fmGuard, fm.importTemplates)
+server.del('/api/firm-manager/templates', ...fmGuard, fm.resetTemplateImport)
 
 // ── Start ──
 server.listen(PORT, () => {

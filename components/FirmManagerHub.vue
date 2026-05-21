@@ -238,6 +238,97 @@
         <!-- ── Tab 3: Templates & Videos ────────────────────────────────── -->
         <b-tab-item label="Templates &amp; Videos" icon="play-box-multiple">
           <div class="columns">
+            <!-- Template Library column -->
+            <div class="column">
+              <p class="has-text-weight-semibold mb-3">
+                Template library
+              </p>
+
+              <!-- Current status -->
+              <div class="box mb-4">
+                <div v-if="loadingTemplateImport" class="has-text-centered py-3">
+                  <b-loading :is-full-page="false" :active="true" />
+                </div>
+                <template v-else>
+                  <div v-if="templateImport.hasImport" class="mb-3">
+                    <b-tag type="is-success is-light" size="is-medium">
+                      {{ templateImport.templateCount }} templates loaded
+                    </b-tag>
+                    <p class="is-size-7 has-text-grey mt-1">
+                      Version {{ templateImport.history[0] && templateImport.history[0].version }}
+                      &middot; saved {{ formatDate(templateImport.history[0] && templateImport.history[0].created_at) }}
+                    </p>
+                  </div>
+                  <div v-else class="mb-3">
+                    <b-tag type="is-warning is-light" size="is-medium">
+                      Using platform default
+                    </b-tag>
+                    <p class="is-size-7 has-text-grey mt-1">
+                      No firm-specific template library imported yet
+                    </p>
+                  </div>
+
+                  <!-- Upload -->
+                  <b-field grouped>
+                    <b-field expanded label="Import JSON from master app">
+                      <b-upload v-model="templateImportFile" accept=".json" expanded>
+                        <a class="button is-light is-fullwidth">
+                          <b-icon icon="upload" />
+                          <span>{{ templateImportFile ? templateImportFile.name : 'Choose JSON file…' }}</span>
+                        </a>
+                      </b-upload>
+                    </b-field>
+                    <b-field label="&nbsp;">
+                      <b-button
+                        type="is-primary"
+                        :loading="importingTemplates"
+                        :disabled="!templateImportFile"
+                        @click="submitTemplateImport"
+                      >
+                        Import
+                      </b-button>
+                    </b-field>
+                  </b-field>
+
+                  <b-button
+                    v-if="templateImport.hasImport"
+                    type="is-danger is-light"
+                    size="is-small"
+                    icon-left="restore"
+                    @click="confirmResetTemplates"
+                  >
+                    Reset to platform default
+                  </b-button>
+                </template>
+              </div>
+
+              <!-- Version history -->
+              <div v-if="templateImport.history && templateImport.history.length > 1">
+                <p class="has-text-weight-semibold mb-2">
+                  Import history
+                </p>
+                <b-table :data="templateImport.history" :hoverable="true" size="is-small">
+                  <b-table-column v-slot="{ row }" field="version" label="Version" width="80">
+                    v{{ row.version }}
+                    <b-tag v-if="row.is_active" type="is-success is-light" size="is-small">current</b-tag>
+                  </b-table-column>
+                  <b-table-column v-slot="{ row }" field="created_at" label="Imported">
+                    {{ formatDate(row.created_at) }}
+                  </b-table-column>
+                  <b-table-column v-slot="{ row }" label="" width="80">
+                    <b-button
+                      v-if="!row.is_active"
+                      size="is-small"
+                      type="is-info is-light"
+                      @click="restoreTemplateVersion(row)"
+                    >
+                      Restore
+                    </b-button>
+                  </b-table-column>
+                </b-table>
+              </div>
+            </div>
+
             <!-- Videos column -->
             <div class="column">
               <p class="has-text-weight-semibold mb-3">
@@ -379,6 +470,12 @@ export default {
       savingFramework: false,
       showHistoryModal: false,
 
+      // Template import
+      templateImport: { hasImport: false, templateCount: 0, history: [] },
+      loadingTemplateImport: false,
+      templateImportFile: null,
+      importingTemplates: false,
+
       // Videos
       videos: [],
       loadingVideos: false,
@@ -400,6 +497,7 @@ export default {
   mounted () {
     this.loadDocuments()
     this.loadFramework()
+    this.loadTemplateImport()
     this.loadVideos()
     this.loadProfile()
     this.loadStorage()
@@ -561,6 +659,71 @@ export default {
         this.$buefy.toast.open({ message: `Restored as version ${res.version}.`, type: 'is-success' })
         this.showHistoryModal = false
         this.loadFramework()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
+    },
+
+    // ── Template Library Import ─────────────────────────────────────────────
+    async loadTemplateImport () {
+      this.loadingTemplateImport = true
+      try {
+        const data = await this.api('GET', '/api/firm-manager/templates')
+        this.templateImport = data
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.loadingTemplateImport = false
+      }
+    },
+
+    async submitTemplateImport () {
+      if (!this.templateImportFile) { return }
+      this.importingTemplates = true
+      try {
+        const form = new FormData()
+        form.append('file', this.templateImportFile)
+        const res = await this.api('POST', '/api/firm-manager/templates', form, true)
+        this.$buefy.toast.open({
+          message: `${res.templateCount} templates imported (version ${res.version}).`,
+          type: 'is-success'
+        })
+        this.templateImportFile = null
+        this.loadTemplateImport()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.importingTemplates = false
+      }
+    },
+
+    confirmResetTemplates () {
+      this.$buefy.dialog.confirm({
+        message: 'Remove your firm\'s template library import and revert to the platform default?',
+        type: 'is-danger',
+        confirmText: 'Reset to default',
+        onConfirm: () => this.resetTemplateImport()
+      })
+    },
+
+    async resetTemplateImport () {
+      try {
+        await this.api('DELETE', '/api/firm-manager/templates')
+        this.$buefy.toast.open({ message: 'Template library reset to platform default.', type: 'is-success' })
+        this.loadTemplateImport()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
+    },
+
+    async restoreTemplateVersion (row) {
+      try {
+        const res = await this.api('POST', '/api/firm-manager/framework/restore', {
+          configKey: 'templates',
+          versionId: row.id
+        })
+        this.$buefy.toast.open({ message: `Restored as version ${res.version}.`, type: 'is-success' })
+        this.loadTemplateImport()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       }

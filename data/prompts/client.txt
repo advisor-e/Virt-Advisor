@@ -61,8 +61,8 @@ Ask ONE question at a time. Wait for the answer before asking the next. No bundl
 | 5b | operatorPlanning | Do they follow structured plans and act on them, or does the business tend to run day to day? | Never skip |
 | 5c | operatorFinancialLiteracy | Do they have a working understanding of their financial reports? | Skip if decisions based on financial data (Seq 5a) |
 | 6 | clientMotivation | How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift? | Always asked immediately after Seq 5. Skip if client requested help (Seq 1) |
-| 7 | clientPersonality | Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice? | Skip if Advisory Staircase Step 3 or above |
-| 8 | advisoryStaircase | Where would you say your current engagement with this client sits on the Advisory Staircase? [STAIRCASE_SELECTOR] | Never skip |
+| 7 | advisoryStaircase | Where would you say your current engagement with this client sits on the Advisory Staircase? [STAIRCASE_SELECTOR] | Never skip |
+| 8 | clientPersonality | Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice? | Skip if Advisory Staircase Step 3 or above |
 
 ### 3.2 — Three-Part Diagnostic Validation (Seq 2)
 

@@ -51,10 +51,19 @@ export default {
 
   build: {
     cache: true,
-    parallel: true
+    parallel: false,
+    extend (config, { isDev }) {
+      if (isDev) {
+        config.optimization = config.optimization || {}
+        config.optimization.splitChunks = { chunks: 'async' }
+      }
+    }
   },
 
   watchers: {
-    webpack: {}
+    webpack: {
+      aggregateTimeout: 300,
+      poll: false
+    }
   }
 }

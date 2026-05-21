@@ -381,6 +381,91 @@ async function getStorageUsage (req, res, next) {
   return next()
 }
 
+// ── Template Library Import ───────────────────────────────────────────────────
+
+const TEMPLATE_REQUIRED_FIELDS = ['page', 'title', 'section']
+const TEMPLATE_MAX_COUNT = 2000
+const TEMPLATE_IMPORT_MAX_BYTES = 10 * 1024 * 1024 // 10 MB
+
+async function getTemplateImport (req, res, next) {
+  try {
+    const [config, history] = await Promise.all([
+      overlay.loadFirmConfig(req.firmId, 'templates'),
+      overlay.getVersionHistory(req.firmId, 'templates')
+    ])
+    if (!config) {
+      return res.send(200, { hasImport: false, templateCount: 0, history: [] })
+    }
+    res.send(200, {
+      hasImport: true,
+      templateCount: Array.isArray(config) ? config.length : 0,
+      history: history || []
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+  return next()
+}
+
+async function importTemplates (req, res, next) {
+  const form = formidable({ maxFileSize: TEMPLATE_IMPORT_MAX_BYTES })
+  let files
+  try {
+    ;[, files] = await form.parse(req)
+  } catch (err) {
+    return serverError(res, 400, 'PARSE_ERROR', err)
+  }
+
+  const uploadedFile = files.file
+    ? (Array.isArray(files.file) ? files.file[0] : files.file)
+    : null
+  if (!uploadedFile) { return sendError(res, 400, 'NO_FILE', 'A file field named "file" is required') }
+
+  let parsed
+  try {
+    const content = fs.readFileSync(uploadedFile.filepath, 'utf8')
+    parsed = JSON.parse(content)
+  } catch {
+    return sendError(res, 400, 'INVALID_JSON', 'File must contain valid JSON')
+  }
+
+  if (!Array.isArray(parsed) || parsed.length === 0) {
+    return sendError(res, 400, 'INVALID_FORMAT', 'Template JSON must be a non-empty array')
+  }
+  if (parsed.length > TEMPLATE_MAX_COUNT) {
+    return sendError(res, 400, 'TOO_MANY_TEMPLATES',
+      `Template JSON must not exceed ${TEMPLATE_MAX_COUNT} entries`)
+  }
+  const badEntry = parsed.find(t =>
+    !t || typeof t !== 'object' || TEMPLATE_REQUIRED_FIELDS.some(f => !t[f])
+  )
+  if (badEntry) {
+    return sendError(res, 400, 'INVALID_FORMAT',
+      `Each template must have: ${TEMPLATE_REQUIRED_FIELDS.join(', ')}`)
+  }
+
+  try {
+    const version = await overlay.saveFirmConfig(req.firmId, 'templates', parsed, req.userEmail)
+    res.send(201, { imported: true, templateCount: parsed.length, version })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+  return next()
+}
+
+async function resetTemplateImport (req, res, next) {
+  try {
+    await db.execute(
+      'DELETE FROM firm_framework_versions WHERE firm_id = ? AND config_key = ?',
+      [req.firmId, 'templates']
+    )
+    res.send(200, { reset: true })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+  return next()
+}
+
 module.exports = {
   listDocuments,
   uploadDocument,
@@ -395,5 +480,8 @@ module.exports = {
   deleteVideo,
   getProfile,
   updateProfile,
-  getStorageUsage
+  getStorageUsage,
+  getTemplateImport,
+  importTemplates,
+  resetTemplateImport
 }

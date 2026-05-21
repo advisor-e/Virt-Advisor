@@ -870,7 +870,12 @@ export default {
       this.mode = selected
       const noConversation = ['course', 'firm']
       if (!noConversation.includes(selected)) {
-        this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
+        if (selected === 'client') {
+          this.messages = []
+          this.initClientSession()
+        } else {
+          this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
+        }
       }
       this.conversationState = {}
       this.showGrowthCurveSelector = false
@@ -880,6 +885,72 @@ export default {
       this.showFinMgtThemeSelector = false
       this.selectedFinMgtTheme = null
       this.$nextTick(() => this.scrollToBottom())
+    },
+
+    async initClientSession () {
+      this.isStreaming = true
+      this.streamingText = ''
+      try {
+        if (this._abortController) { this._abortController.abort() }
+        this._abortController = new AbortController()
+        const response = await fetch('/api/advisor/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: this._abortController.signal,
+          body: JSON.stringify({
+            query: '__init__',
+            mode: 'client',
+            language: this.$i18n.locale,
+            languageName: this.currentLanguageName,
+            orgTemplateIds: this.orgTemplateIds,
+            conversationHistory: [],
+            conversationState: {},
+            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
+            advisorId: this.advisorId,
+            firmId: this.firmId
+          })
+        })
+        if (!response.ok) { throw new Error('Request failed') }
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) { break }
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop()
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) { continue }
+            try {
+              const data = JSON.parse(line.slice(6))
+              if (data.type === 'state') {
+                this.conversationState = data.state
+              } else if (data.type === 'delta') {
+                this.streamingText += data.text
+              } else if (data.type === 'done') {
+                this.messages = [{ role: 'assistant', content: this.streamingText }]
+                this.streamingText = ''
+                this.isStreaming = false
+              }
+            } catch (e) {}
+          }
+        }
+        if (this.isStreaming && this.streamingText) {
+          this.messages = [{ role: 'assistant', content: this.streamingText }]
+          this.streamingText = ''
+          this.isStreaming = false
+        }
+      } catch (e) {
+        if (e && e.name === 'AbortError') {
+          this.isStreaming = false
+          this.streamingText = ''
+          return
+        }
+        this.messages = [{ role: 'assistant', content: this.$t('opening.client') }]
+        this.isStreaming = false
+        this.streamingText = ''
+      }
     },
 
     reset () {

@@ -25,12 +25,24 @@ const jwt = require('jsonwebtoken')
 const { AUTH } = require('../../config/integration')
 const { sendError } = require('../utils/sendError')
 
+const IS_DEV = process.env.NODE_ENV !== 'production'
+const DEV_TOKEN = 'dev-local-bypass'
+const DEV_FIRM_ID = 'dev-firm-001'
+
 function firmAuth (req, res, next) {
   const header = req.headers.authorization || ''
   const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null
 
   if (!token) {
     return sendError(res, 401, 'MISSING_TOKEN', 'Authorization Bearer token required')
+  }
+
+  // Dev bypass — only active outside production; never reaches this branch in prod
+  if (IS_DEV && token === DEV_TOKEN) {
+    req.firmId = DEV_FIRM_ID
+    req.userRole = AUTH.managerRole
+    req.userEmail = 'dev@local'
+    return next()
   }
 
   let payload

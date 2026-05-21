@@ -72,6 +72,16 @@ export default {
 
   methods: {
     checkAuth () {
+      // Dev auto-login — localhost only, never runs in production
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        this.apiToken = 'dev-local-bypass'
+        this.firmId = 'dev-firm-001'
+        this.userEmail = 'dev@local'
+        this.authorised = true
+        this.checking = false
+        return
+      }
+
       // Read auth from wherever Advisor-e stores it after login
       const token = localStorage.getItem(AUTH_STORAGE.tokenKey)
       const role = localStorage.getItem(AUTH_STORAGE.roleKey)

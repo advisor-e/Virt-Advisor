@@ -48,6 +48,12 @@ function formatSalesMarketingSlides () {
 
 const { loadPrompt } = require('../server/utils/promptLoader')
 
+let _loadFirmConfig = null
+function loadFirmConfig (...args) {
+  if (!_loadFirmConfig) { _loadFirmConfig = require('../server/utils/firmOverlay').loadFirmConfig }
+  return _loadFirmConfig(...args)
+}
+
 // ── Startup checks ──
 // Validate critical env vars and required files before any request arrives.
 ;(function startupCheck () {
@@ -67,7 +73,7 @@ const { loadPrompt } = require('../server/utils/promptLoader')
 })()
 
 const OPENING_MSG = {
-  client: 'Great — let\'s work through this together.\n\nTell me about your client and the situation you want to address — I\'ll use that, along with what I already know about you, to find the right template.\n\n**What\'s the core situation or challenge you\'re looking to address with this client?**',
+  client: 'What is the core problem or opportunity you want to address with this client?',
   discover: 'Sure — let\'s find you the right template.\n\n**Tell me what you have in mind. You can describe it by what it does ("something that helps clients understand their cash flow"), by a combination of topics ("strategic planning plus team engagement"), or by a name you half-remember ("something like the Working Capital one"). The more detail you give, the better I can match it.**',
   plan: 'Great — let\'s think through this together.\n\nBefore I point you to the right tool, I want to understand where you are and what you\'re trying to achieve — the best planning framework depends entirely on your situation.\n\n**What\'s prompting you to think about planning ahead right now?**',
   learn: 'Great — this is one of the most valuable things you can invest in.\n\nTo make sure I point you to the right resource, I want to understand what you\'re looking to develop and what\'s driving it.\n\n**What area are you most drawn to working on — winning clients, facilitation skills, the psychology side, positioning and messaging, or something else?**'
@@ -142,10 +148,11 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     advisorProfile = null,
     logicTree = null,
     maxTemplates = 25,
-    excludeSections = []
+    excludeSections = [],
+    firmTemplates = null
   } = options || {}
 
-  const orgTemplates = getOrgTemplates(orgTemplateIds || null)
+  const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
     .filter(t => excludeSections.length === 0 || !excludeSections.includes(t.menuSection))
   const relevant = filterTemplatesByQuery(orgTemplates, searchQuery, maxTemplates)
   const templatesToUse = relevant.length > 0 ? relevant : orgTemplates.slice(0, maxTemplates)
@@ -325,6 +332,11 @@ async function handleQuery (rawBody, res) {
     return
   }
 
+  // Load firm-specific template override once per request — null if none saved
+  const firmTemplates = firmId
+    ? await loadFirmConfig(firmId, 'templates').catch(() => null)
+    : null
+
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
     return
@@ -445,6 +457,11 @@ async function handleQuery (rawBody, res) {
       res.end()
     }
 
+    // ── INIT: first-load request — return the opening question without touching state ──
+    if (query === '__init__') {
+      return sendQuestion('What is the core problem or opportunity you want to address with this client?', state)
+    }
+
     // ── QUESTION PIPELINE ──
     // Full sequence of questions in order. Each has an optional skip() condition.
     // The sequencer asks the first unanswered, non-skipped question, then stops.
@@ -453,7 +470,7 @@ async function handleQuery (rawBody, res) {
     const QUESTIONS = [
       {
         field: 'clientRaisedIssue',
-        text: 'Has the client specifically raised this issue themselves, or is it something you\'ve noticed and want to address with them?'
+        text: 'Has the client specifically requested help with this issue, or is it something you\'ve noticed?'
       },
       {
         field: 'situationDiagnostic',
@@ -583,7 +600,7 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'operatorDataDriven',
-        text: 'Does this client make decisions based on data, or do they mostly go on gut feel?'
+        text: 'Does this client make decisions based on financial data, or do they mostly go on gut feel?'
       },
       {
         field: 'operatorPlanning',
@@ -591,11 +608,13 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'operatorFinancialLiteracy',
-        text: 'Do they have a working understanding of their financial reports?'
+        text: 'Do they have a working understanding of their financial reports?',
+        skip: s => s.operatorDataDriven && /financial data|data.driven|based on data|\byes\b|use data/i.test(s.operatorDataDriven)
       },
       {
         field: 'clientMotivation',
-        text: 'How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift?'
+        text: 'How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift?',
+        skip: s => s.clientRaisedIssue && /requested|asked|raised|their own|they came|\byes\b/i.test(s.clientRaisedIssue)
       },
       {
         field: 'clientPersonality',
@@ -721,7 +740,7 @@ async function handleQuery (rawBody, res) {
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
-      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile }) +
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -1044,7 +1063,8 @@ Use the advisor's answers about what caused this situation and what will flow on
       logicTree: matchedTree,
       includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
       maxTemplates: 25,
-      excludeSections: ['get-organised', 'get-the-job']
+      excludeSections: ['get-organised', 'get-the-job'],
+      firmTemplates
     }) + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     const systemPrompt2 = loadPrompt('client') + languageInstruction2
@@ -1111,7 +1131,7 @@ Use the advisor's answers about what caused this situation and what will flow on
   const languageInstruction = language !== 'en'
     ? `\n\nIMPORTANT: The advisor is using the ${languageName} interface. Always respond entirely in ${languageName}, regardless of what language the advisor writes in.`
     : ''
-  const orgTemplates = getOrgTemplates(orgTemplateIds || null)
+  const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
   const primarySections = MODE_SECTIONS[mode] || null
 
   let templatesToUse

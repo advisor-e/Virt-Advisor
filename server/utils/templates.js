@@ -21,8 +21,8 @@ function loadTemplates () {
   return _templates
 }
 
-function getOrgTemplates (orgTemplateIds) {
-  const all = loadTemplates()
+function getOrgTemplates (orgTemplateIds, firmTemplates) {
+  const all = (Array.isArray(firmTemplates) && firmTemplates.length > 0) ? firmTemplates : loadTemplates()
   if (!orgTemplateIds || !Array.isArray(orgTemplateIds) || orgTemplateIds.length === 0) { return all }
   const validIds = orgTemplateIds.filter(id => typeof id === 'string').slice(0, 500)
   return all.filter(t => validIds.includes(t.page))
