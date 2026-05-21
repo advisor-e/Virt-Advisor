@@ -1,5 +1,17 @@
 # Project Rules for Claude
 
+## Debugging and Fix Protocol
+
+**When something looks wrong, follow these 5 steps in order. No exceptions.**
+
+1. **Find the broken rule** — read the relevant code/data to prove it is actually broken
+2. **Show the proof** — confirm it is the real cause, not a guess
+3. **Plan the fix** — describe exactly what will change
+4. **Get permission** — wait for yes
+5. **Then fix it**
+
+Do not run commands, spiral into analysis, or touch files before completing steps 1–4. The rules hold you straight — rely on them every time.
+
 ## Code Change Governance
 
 **Never make a code change without explicit user approval.**
