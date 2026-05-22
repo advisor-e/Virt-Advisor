@@ -217,7 +217,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   if (includeSummaries) {
     const querySummaries = filterSummariesByQuery(searchQuery, 12)
     const treesArray = Array.isArray(logicTrees) ? logicTrees : (logicTree ? [logicTree] : [])
-    const treeTemplateNames = treesArray.flatMap(t => t.nodes.filter(n => n.type === 'recommendation').flatMap(n => n.templates || []))
+    const treeTemplateNames = treesArray.flatMap(t => (t.nodes || []).filter(n => n.type === 'recommendation').flatMap(n => n.templates || []))
     const treeSummaries = getSummariesForTemplateNames(treeTemplateNames)
     const summaryMap = new Map()
     for (const s of [...querySummaries, ...treeSummaries]) {
