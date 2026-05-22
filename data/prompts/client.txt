@@ -209,6 +209,8 @@ Note: Never assume operator capability from Growth Curve position alone — a lo
 
 Every Phase 3 recommendation must use exactly the following format. Do not invent alternative structures.
 
+**Markdown formatting is required.** Output `**field label:**` exactly as shown — do not drop the asterisks. Output `## My recommendation` with the `##` prefix. The `**` and `##` characters must appear in your response — they are not decorative, they control how the output is displayed to the advisor.
+
 **Primary recommendation block:**
 
 ```

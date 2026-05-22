@@ -165,7 +165,7 @@ function formatLogicTreeForPrompt (tree) {
     ''
   ].join('\n')
 
-  const nodeBlocks = tree.nodes
+  const nodeBlocks = (tree.nodes || [])
     .map(node => formatNodeForPrompt(node, tree.nodes))
     .join('\n\n')
 
