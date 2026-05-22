@@ -685,8 +685,7 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'advisorConfidence',
-        text: 'How confident do you feel about delivering services in this type of situation — is this familiar territory, or more of a stretch for you personally?',
-        skip: () => !!advisorProfile
+        text: 'How confident do you feel about delivering services in this type of situation — is this familiar territory, or more of a stretch for you personally?'
       },
       {
         field: 'advisorEnjoyment',
@@ -695,8 +694,7 @@ async function handleQuery (rawBody, res) {
       },
       {
         field: 'advisorTimeframe',
-        text: 'How many meetings are you comfortable committing to with this client, and over what timeframe?',
-        skip: () => !!advisorProfile
+        text: 'How many meetings are you comfortable committing to with this client, and over what timeframe?'
       }
     ]
 
@@ -837,18 +835,17 @@ async function handleQuery (rawBody, res) {
       if (res.socket) { res.socket.setNoDelay(true) }
 
       const _t0post = Date.now()
-      const streamPost = await getOpenAI().chat.completions.create({
-        model: 'gpt-4o-mini',
-        max_tokens: 1500,
-        stream: true,
-        stream_options: { include_usage: true },
-        messages: [{ role: 'system', content: (isLearnRequest ? loadPrompt('learn') : loadPrompt('client')) + postRecInstruction }, ...messagesPost]
-      })
-
       let _postUsage = null
       let _postOk = false
       let _postBuffer = ''
       try {
+        const streamPost = await getOpenAI().chat.completions.create({
+          model: 'gpt-4o-mini',
+          max_tokens: 1500,
+          stream: true,
+          stream_options: { include_usage: true },
+          messages: [{ role: 'system', content: (isLearnRequest ? loadPrompt('learn') : loadPrompt('client')) + postRecInstruction }, ...messagesPost]
+        })
         for await (const chunk of streamPost) {
           if (chunk.usage) { _postUsage = chunk.usage }
           const text = chunk.choices[0]?.delta?.content || ''
@@ -917,7 +914,7 @@ async function handleQuery (rawBody, res) {
       state.advisoryStaircase && state.advisoryStaircase !== 'pending' ? `Advisory Staircase position: ${state.advisoryStaircase}` : '',
       state.clientPersonality && state.clientPersonality !== 'pending' ? `Client personality/style: ${state.clientPersonality}` : '',
       state.advisorExperience && state.advisorExperience !== 'pending' ? `Advisor experience: ${state.advisorExperience}` : '',
-      state.advisorConfidence && state.advisorConfidence !== 'pending' ? `Advisor confidence/willingness to stretch: ${state.advisorConfidence}` : '',
+      state.advisorConfidence && state.advisorConfidence !== 'pending' ? `Advisor confidence for this specific situation (NOT a measure of overall career experience or seniority): ${state.advisorConfidence}` : '',
       state.advisorEnjoyment && state.advisorEnjoyment !== 'pending' ? `Advisor enjoyment/strengths: ${state.advisorEnjoyment}` : '',
       state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? `Advisor timeframe and meeting commitment: ${state.advisorTimeframe}` : ''
     ].filter(Boolean).join('\n')
@@ -1098,17 +1095,26 @@ Do NOT include templates that:
 - Were not referenced in any collected answer field
 - Duplicate the intent of a Tier 1 template
 
-PER-TEMPLATE FORMAT — use this exact structure for every template in both sections, no exceptions. Each sub-section MUST be separated by a blank line so they render as distinct paragraphs:
+PER-TEMPLATE FORMAT — use this exact structure for every template in both sections, no exceptions. Each field label must appear exactly as written below, including the ** markers. Each sub-section MUST be separated by a blank line so they render as distinct paragraphs:
 
 **[Template name]**
 
-Why this fits your client: [Reference the client's situation, the issue raised, their growth stage, operator capability, and motivation to change. Draw from content summaries where available.]
+**Why this fits your client:**
+[Reference the client's situation, the issue raised, their growth stage, operator capability, and motivation to change. Draw from content summaries where available.]
 
-Why this suits you as the advisor: [Reference the advisor's experience, confidence, and willingness to stretch.]
+**Why this suits you as the advisor:**
+[Reference the advisor's experience, confidence, and willingness to stretch. Only reference what is explicitly known — do not infer or fabricate.]
 
-How to approach it: [Practical delivery guidance tailored to this specific advisor-client combination.]
+**How to approach it:**
+[Practical delivery guidance tailored to this specific advisor-client combination.]
 
-Do not use any other field names. Do not add extra fields. Do not use "Purpose:", "Helps the owner:", "Helps the advisor:", or any other heading not listed above.
+**Suggested session plan:**
+[Map the recommended templates to the meetings within the advisor's stated timeframe. Use the advisor's meeting count and timeframe to distribute the work across sessions.]
+
+**What this typically leads to:**
+[The downstream opportunity or natural next engagement this template typically opens up. Draw from content summaries where available.]
+
+Do not use any other field names. Do not add extra fields. Do not use "Purpose:", "Helps the owner:", "Helps the advisor:", or any other heading not listed above. The ** characters are not decorative — they must appear in your output exactly as shown above.
 
 Use the advisor's answers about what caused this situation and what will flow on from it to determine which templates belong in each section.${hasPriceCommunication ? '\n\nPRICE COMMUNICATION: The advisor has flagged communicating price increases as a need for this engagement. Include the "Price Rise" template (exactly that name) in Section 1 — it covers two communication methods for explaining a price rise to customers.' : ''}`
 
@@ -1148,18 +1154,17 @@ Use the advisor's answers about what caused this situation and what will flow on
     if (res.socket) { res.socket.setNoDelay(true) }
 
     const _t0phase3 = Date.now()
-    const stream2 = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
-      max_tokens: 2500,
-      stream: true,
-      stream_options: { include_usage: true },
-      messages: [{ role: 'system', content: systemPrompt2 }, ...messages2]
-    })
-
     let _p3Usage = null
     let _p3Ok = false
     let _p3Buffer = ''
     try {
+      const stream2 = await getOpenAI().chat.completions.create({
+        model: 'gpt-4o-mini',
+        max_tokens: 2500,
+        stream: true,
+        stream_options: { include_usage: true },
+        messages: [{ role: 'system', content: systemPrompt2 }, ...messages2]
+      })
       for await (const chunk of stream2) {
         if (chunk.usage) { _p3Usage = chunk.usage }
         const text = chunk.choices[0]?.delta?.content || ''
@@ -1297,7 +1302,7 @@ Use the advisor's answers about what caused this situation and what will flow on
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : '',
     advisorProfileText
-      ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. Reference the profile below in your recommendation exactly as you would answers given in conversation.\n\n' + advisorProfileText
+      ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. When writing "Why this suits you as the advisor", use ONLY what is explicitly stated in the profile below — do not infer, extrapolate, or assume anything about their career stage, seniority, years of experience, or interests that is not written here.\n\n' + advisorProfileText
       : '',
     caseSummariesText ? '\n---\n\n' + caseSummariesText : '',
     learnSalesTreeText ? '\n---\n\n' + learnSalesTreeText : '',
