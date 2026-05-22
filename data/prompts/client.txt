@@ -55,13 +55,11 @@ Ask ONE question at a time. Wait for the answer before asking the next. No bundl
 | 0 | situation | What is the core problem or opportunity you want to address with this client? | Never skip — this is the opening question |
 | 1 | clientRaisedIssue | Has the client specifically requested help with this issue, or is it something you've noticed? | Never skip |
 | 2 | situationDiagnostic | What do you feel contributed to this situation, and are there any downstream effects we should factor into the service offer? | Never skip — validate all three parts are answered (see 3.2) |
-| 3 | ownership | Is the business privately owned, a not-for-profit, or publicly listed? | Never skip |
-| 4 | growthStage | Where would you place them on the Growth Curve? [GROWTH_CURVE_SELECTOR] | Skip if NFP (Not For Profit) or publicly listed |
-| 5a | operatorDataDriven | Does this client make decisions based on financial data, or do they mostly go on gut feel? | Never skip |
-| 5b | operatorPlanning | Do they follow structured plans and act on them, or does the business tend to run day to day? | Never skip |
-| 5c | operatorFinancialLiteracy | Do they have a working understanding of their financial reports? | Skip if decisions based on financial data (Seq 5a) |
-| 6 | clientMotivation | How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift? | Skip if client requested help (Seq 1) OR Advisory Staircase Step 3 or above (engagement history is the proof) |
-| 7 | advisoryStaircase | Where would you say your current engagement with this client sits on the Advisory Staircase? [STAIRCASE_SELECTOR] | Never skip |
+| 3 | [domain-specific] | See section 3.3 for domain-specific questions | Asked only when the relevant domain is detected |
+| 4 | ownership | Is the business privately owned, a not-for-profit, or publicly listed? | Never skip |
+| 5 | growthStage | Where would you place them on the Growth Curve? [GROWTH_CURVE_SELECTOR] | Skip if NFP or publicly listed |
+| 6 | advisoryStaircase | Where would you say your current engagement with this client sits on the Advisory Staircase? [STAIRCASE_SELECTOR] | Never skip |
+| 7 | operatorPlanning | Do they follow structured plans and act on them, or does the business tend to run day to day? | Skip if client raised the issue (Seq 1) OR Advisory Staircase Step 3 or above |
 | 8 | clientPersonality | Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice? | NOT asked in discovery — asked at the start of the approach phase only |
 
 ### 3.2 — Three-Part Diagnostic Validation (Seq 2)
@@ -160,22 +158,34 @@ Apply all four lenses before producing the recommendation. Each lens informs a s
 - Rule: Phase 3 must be led by the PRIMARY issue the advisor stated — not a contributing cause behind it
 
 **Lens 2 — Client**
-*Growth Curve position + operator capability + motivation to change*
+*Growth Curve position + operator capability + client awareness*
 
-Operator capability is determined by three signals (Seq 5): data-driven decisions, structured planning and follow-through, understands financial reports. A client who scores low across all three is a low-capability operator regardless of how experienced they are in their trade.
+Operator capability is determined by two signals:
+1. **Financial reporting** — does the client use management reports regularly? (profit domain only — usesReports)
+2. **Execution style** — structured planning vs day-to-day (operatorPlanning — only collected when client did not raise the issue and staircase is Step 1–2; if skipped, treat as unknown and use Growth Curve as the proxy)
 
-Motivation (Seq 6) acts as the ceiling modifier — a low-capability client who is genuinely committed to change can be introduced to more advanced templates over time, provided the advisor sequences correctly.
+**Client awareness (Seq 1) is the primary complexity modifier:**
 
-| Growth Curve + Operator Capability | Motivation to Change | Engagement type | Template complexity |
+When the client raised the issue themselves:
+- Awareness is confirmed — the client already sees the need and is engaged
+- Template complexity can be higher even if operator acumen is moderate, provided business scale warrants it and the advisor is confident
+- Exception: if acumen is low AND business scale is small AND advisor lacks confidence → lead with general or education-based templates; more complex templates may appear as supporting future options only
+
+When the advisor noticed the issue:
+- Awareness is not confirmed — the client may not have bought in yet
+- Apply the same matrix below but drop the complexity ceiling one level by default
+- Build awareness before opening any model or framework
+
+| Growth Curve + Operator Capability | Client Awareness | Engagement type | Template complexity |
 |---|---|---|---|
-| Early stage (Design–Break-even) + low capability | Low | Education | Simple, foundational |
-| Early stage + low capability | High — committed to change | Education → Facilitation | Moderate — can stretch with structure |
-| Early stage + high capability | High | Education → Advice | Moderate |
-| Mid stage (Lifestyle–Leverage) + moderate capability | Moderate | Facilitation → Advice | Moderate–complex |
-| Mid–late stage + high capability | High | Advice (+ Facilitation if behavioural change needed) | Complex |
-| Late stage (Reach–Maturity) + high capability | High | Advice | Sophisticated |
+| Early stage (Design–Break-even) + low capability | Advisor noticed | Education | Simple, foundational |
+| Early stage + low capability | Client raised it | Education → Facilitation | Moderate — can stretch with structure |
+| Early stage + high capability | Either | Education → Advice | Moderate |
+| Mid stage (Lifestyle–Leverage) + moderate capability | Either | Facilitation → Advice | Moderate–complex |
+| Mid–late stage + high capability | Client raised it | Advice (+ Facilitation if behavioural change needed) | Complex |
+| Late stage (Reach–Maturity) + high capability | Either | Advice | Sophisticated |
 
-Note: Never assume operator capability from Growth Curve position alone — a long-established business can still have a low-capability operator. Always use the three signals from Seq 5.
+Note: Never assume operator capability from Growth Curve position alone — a long-established business can still have a low-capability operator. Use the reporting and execution signals together with the Growth Curve position.
 
 **Lens 3 — Relationship**
 *Advisory Staircase position + personality + engagement history*

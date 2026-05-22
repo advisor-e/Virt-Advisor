@@ -664,24 +664,8 @@ async function handleQuery (rawBody, res) {
         text: 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
       },
       {
-        field: 'operatorDataDriven',
-        text: 'Does this client make decisions based on financial data, or do they mostly go on gut feel?',
-        skip: s => s.usesReports && /\bno\b|not really|don't|doesn't|they don't|do not/i.test(s.usesReports)
-      },
-      {
         field: 'operatorPlanning',
-        text: 'Do they follow structured plans and act on them, or does the business tend to run day to day?'
-      },
-      {
-        field: 'operatorFinancialLiteracy',
-        text: 'Do they have a working understanding of their financial reports?',
-        skip: s =>
-          (s.operatorDataDriven && /financial data|data.driven|based on data|\byes\b|use data/i.test(s.operatorDataDriven)) ||
-          (s.usesReports && /\bno\b|not really|don't|doesn't|they don't|do not/i.test(s.usesReports))
-      },
-      {
-        field: 'clientMotivation',
-        text: 'How motivated are they to change how they operate — are they genuinely committed to fixing the issues, or more resistant to that kind of shift?',
+        text: 'Do they follow structured plans and act on them, or does the business tend to run day to day?',
         skip: (s) => {
           const raised = s.clientRaisedIssue && s.clientRaisedIssue !== 'pending' &&
             /requested|asked|raised|their own|they came|they want|want(ed)? (some |to |help|advice|ideas)|came to (me|us)|looking for|approached|seeking|\byes\b|\bthey did\b|\bit was them\b/i.test(s.clientRaisedIssue)
@@ -929,10 +913,7 @@ async function handleQuery (rawBody, res) {
       // Shared Phase 1 answers
       state.ownership && state.ownership !== 'pending' ? `Business ownership: ${state.ownership}` : '',
       state.growthStage && state.growthStage !== 'pending' ? `Growth stage: ${state.growthStage}` : '',
-      state.operatorDataDriven && state.operatorDataDriven !== 'pending' ? `Operator signal — data-driven decisions: ${state.operatorDataDriven}` : '',
-      state.operatorPlanning && state.operatorPlanning !== 'pending' ? `Operator signal — structured planning: ${state.operatorPlanning}` : '',
-      state.operatorFinancialLiteracy && state.operatorFinancialLiteracy !== 'pending' ? `Operator signal — financial literacy: ${state.operatorFinancialLiteracy}` : '',
-      state.clientMotivation && state.clientMotivation !== 'pending' ? `Motivation to change: ${state.clientMotivation}` : '',
+      state.operatorPlanning && state.operatorPlanning !== 'pending' ? `Operator execution style — structured planning vs day-to-day: ${state.operatorPlanning}` : '',
       state.advisoryStaircase && state.advisoryStaircase !== 'pending' ? `Advisory Staircase position: ${state.advisoryStaircase}` : '',
       state.clientPersonality && state.clientPersonality !== 'pending' ? `Client personality/style: ${state.clientPersonality}` : '',
       state.advisorExperience && state.advisorExperience !== 'pending' ? `Advisor experience: ${state.advisorExperience}` : '',
