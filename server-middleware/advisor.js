@@ -225,7 +225,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     }
     const summariesToUse = Array.from(summaryMap.values()).slice(0, 25)
     summariesText = summariesToUse.length > 0
-      ? `## Template Content Summaries (${summariesToUse.length} most relevant)\n\nUse these for Phase 3. Each entry contains: Purpose, When to use, Helps the owner, Helps the advisor.\n\n` + formatSummariesForPrompt(summariesToUse)
+      ? `## Template Content Summaries (${summariesToUse.length} most relevant)\n\nFor Phase 3, these are your primary source for recommendation copy. Use this mapping when writing each template entry:\n- "Why this fits your client" → draw from the Purpose and When to use fields, tailored to this client's specific situation\n- "Why this suits you as the advisor" → draw from the Helps the advisor field, tailored to what the advisor stated about their confidence and strengths\nDo not copy word-for-word — adapt the language to the situation — but stay close to the intent of the source content. If no summary exists for a template, write the fields from the collected answers alone.\n\n` + formatSummariesForPrompt(summariesToUse)
       : null
   }
 
@@ -1075,6 +1075,8 @@ ${formatFinMgtTable()}`
     const recommendationStructure = `\n\nRECOMMENDATION FORMAT — follow this structure exactly. Do not invent alternative headings or reorder the sections.
 
 OPENING SUMMARY — Before listing any templates, write 2–3 sentences that give the advisor an at-a-glance read. Cover: (1) what the core client problem is, (2) what the recommended approach will fix, (3) why this combination suits this specific advisor-client pairing. Keep it tight — an advisor reading this before a meeting should absorb it in 10 seconds. No headers, no bullet points — plain prose only.
+
+TEMPLATE SELECTION RULE: If one or more Diagnostic Logic Trees appear in the context above, their recommendation nodes identify the primary templates for this situation. You MUST prioritise templates named in those terminal nodes for Section 1. The trees encode diagnostic pathways built specifically for each domain — they are more precise than general inference. Only exclude a tree-recommended template if a specific advisor or client answer explicitly rules it out (e.g. the client already uses that tool, or the advisor said it is not appropriate).
 
 SECTION 1 — "My recommendation"
 Select templates that directly address the CAUSE of the client's situation — what led to it and the primary fix. Capacity: ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} (${_tier1Label}). Do not exceed this number in Section 1. Order by priority: the template that addresses what the advisor said they want to tackle first comes first, followed by any other primary cause templates, then any downstream needs included in Section 1.
