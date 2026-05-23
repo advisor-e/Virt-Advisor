@@ -1074,6 +1074,8 @@ ${formatFinMgtTable()}`
     const _tier1Label = `${meetingNum || 2} meeting${(meetingNum || 2) !== 1 ? 's' : ''} = ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} maximum`
     const recommendationStructure = `\n\nRECOMMENDATION FORMAT — follow this structure exactly. Do not invent alternative headings or reorder the sections.
 
+OPENING SUMMARY — Before listing any templates, write 2–3 sentences that give the advisor an at-a-glance read. Cover: (1) what the core client problem is, (2) what the recommended approach will fix, (3) why this combination suits this specific advisor-client pairing. Keep it tight — an advisor reading this before a meeting should absorb it in 10 seconds. No headers, no bullet points — plain prose only.
+
 SECTION 1 — "My recommendation"
 Select templates that directly address the CAUSE of the client's situation — what led to it and the primary fix. Capacity: ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} (${_tier1Label}). Do not exceed this number in Section 1. Order by priority: the template that addresses what the advisor said they want to tackle first comes first, followed by any other primary cause templates, then any downstream needs included in Section 1.
 
@@ -1103,7 +1105,7 @@ PER-TEMPLATE FORMAT — use this exact structure for every template in both sect
 [Reference the client's situation, the issue raised, their growth stage, operator capability, and motivation to change. Draw from content summaries where available.]
 
 **Why this suits you as the advisor:**
-[Reference the advisor's experience, confidence, and willingness to stretch. Only reference what is explicitly known — do not infer or fabricate.]
+[Reference only what the advisor explicitly stated. CRITICAL: a lower confidence answer for a specific topic does NOT mean the advisor is new to advisory work or inexperienced in general. Never use words like "new", "inexperienced", "beginner", "not previously engaged", or any phrase implying career stage unless the advisor explicitly stated it. If no experience level was stated, write this section based solely on the situation-specific confidence and strengths they described — nothing more.]
 
 **How to approach it:**
 [Practical delivery guidance tailored to this specific advisor-client combination.]
