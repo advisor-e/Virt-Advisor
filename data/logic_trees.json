@@ -37,10 +37,8 @@
           "type": "question",
           "condition": "Client states: 'I'm unhappy about our business performance'",
           "question": "Do you mean you're worried about the business 'going under' or just wish it could do better?",
-          "notes": "This establishes the primary divergence. Both branches can be supported with a Revenue Model.",
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
+          "notes": "This establishes the primary divergence. Both branches can be supported with a Revenue Model. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "support_templates": [],
           "branches": [
             {
               "answer_pattern": "worried about going under / survival / business failing",
@@ -152,10 +150,8 @@
           "templates": [
             "Pivot"
           ],
-          "notes": "Check progress against Revenue Model variables. Discuss with the team or an Advisor-e coach if required.",
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ]
+          "notes": "Check progress against Revenue Model variables. Discuss with the team or an Advisor-e coach if required. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "support_templates": []
         }
       ]
     },
@@ -185,10 +181,8 @@
           "type": "question",
           "condition": "Client states: 'I'm not making enough Sales'",
           "question": "Do you mean the number of Sales or do you mean the Profit left over afterwards?",
-          "notes": "Both branches can be supported with a Revenue Model.",
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
+          "notes": "Both branches can be supported with a Revenue Model. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "support_templates": [],
           "branches": [
             {
               "answer_pattern": "number of sales / volume / not enough customers",
@@ -210,10 +204,8 @@
             "Customer Journey",
             "Covid Agendas"
           ],
-          "notes": "Support with a Revenue Model. Covid Agendas combines the Customer Journey with Lite Fundamentals Marketing & Selling for a comprehensive review.",
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
+          "notes": "Support with a Revenue Model. Covid Agendas combines the Customer Journey with Lite Fundamentals Marketing & Selling for a comprehensive review. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "support_templates": [],
           "question": "Looking at your Customer Journey — where does the breakdown seem to be: attracting people to you (Marketing) or converting them once they're in front of you (Selling)?",
           "branches": [
             {
@@ -273,10 +265,8 @@
             "8 Profit Levers",
             "Profit Levers & Blue Ocean"
           ],
-          "notes": "Use to determine if the issue relates to Variable, Activity or Fixed Expenses. 'Profit Levers & Blue Ocean' is suited for more advanced advisors and discerning clients.",
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
+          "notes": "Use to determine if the issue relates to Variable, Activity or Fixed Expenses. 'Profit Levers & Blue Ocean' is suited for more advanced advisors and discerning clients. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "support_templates": [],
           "question": "Is the profit issue mainly coming from your variable costs and activity, or are you not sure where the leak is?",
           "branches": [
             {
@@ -354,10 +344,8 @@
           "templates": [
             "Working Capital Cycle"
           ],
-          "notes": "The Working Capital Cycle helps layer the message for clients. For newer owners it explains money movement. For advanced owners it leads to just-in-time stock control, lean systems, etc.",
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
+          "notes": "The Working Capital Cycle helps layer the message for clients. For newer owners it explains money movement. For advanced owners it leads to just-in-time stock control, lean systems, etc. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "support_templates": [],
           "question": "Is the root cause that you simply don't have enough capital, or is it more about how you're managing the cash you do have?",
           "branches": [
             {
@@ -405,10 +393,8 @@
           "templates": [
             "Dashboard Report"
           ],
-          "notes": "Generating a dashboard quickly identifies if current accounting systems provide accurate data and if the owner understands performance and activity ratios. This reveals how deep you need to explore their systems, finance team, or owner education.",
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
+          "notes": "Generating a dashboard quickly identifies if current accounting systems provide accurate data and if the owner understands performance and activity ratios. This reveals how deep you need to explore their systems, finance team, or owner education. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "support_templates": [],
           "question": "Is the issue that your accounting systems aren't giving you reliable data, or is it that there's just no regular process for reviewing the numbers?",
           "branches": [
             {
@@ -751,10 +737,8 @@
           "type": "question",
           "condition": "Client states: 'I need a business plan'",
           "question": "Is this for a Startup, or is it a Well Established Business?",
-          "notes": "Both paths can be supported with a Revenue Model.",
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
+          "notes": "Both paths can be supported with a Revenue Model. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "support_templates": [],
           "branches": [
             {
               "answer_pattern": "startup / new business / just starting / new to planning",
@@ -795,9 +779,8 @@
             "1 pg Bizz Case",
             "4 Part Bizz Plan"
           ],
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ]
+          "support_templates": [],
+          "notes": "Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "cp_branch1b_new",
@@ -811,10 +794,8 @@
             "Lite Strategy",
             "Planning Session"
           ],
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
-          "notes": "Use the Lite Fundamentals Planning template if you wish to develop ongoing strategic reviews. It provides a basic introduction to planning and features a pre-meeting video to put the client at ease."
+          "support_templates": [],
+          "notes": "Use the Lite Fundamentals Planning template if you wish to develop ongoing strategic reviews. It provides a basic introduction to planning and features a pre-meeting video to put the client at ease. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "cp_branch2_established",
@@ -825,10 +806,8 @@
           "templates": [
             "Planning Outcomes Review"
           ],
-          "notes": "The Planning Outcomes Review helps you choose between: Business Targets, Strategic Orientation 1&2, Organisational Review, or Sales & Marketing Review.",
-          "support_templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
+          "notes": "The Planning Outcomes Review helps you choose between: Business Targets, Strategic Orientation 1&2, Organisational Review, or Sales & Marketing Review. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "support_templates": [],
           "question": "Using the Planning Outcomes Review — does the focus land on Business Targets and Strategic Orientation, or on Organisational and Sales & Marketing?",
           "branches": [
             {
@@ -4426,10 +4405,8 @@
           "type": "recommendation",
           "condition": "Client is not engaged after teaser model or complex model flash",
           "action": "Do not proceed further. Park the revenue model conversation. Revisit at the next touchpoint or when an external event creates urgency — a bank request, a hiring decision, or a major purchase.",
-          "notes": "Forcing a complex model on a disengaged client causes map shock and resistance. The timing is wrong — not the concept.",
-          "templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ]
+          "notes": "Forcing a complex model on a disengaged client causes map shock and resistance. The timing is wrong — not the concept. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "templates": []
         },
         {
           "id": "pf_cr_step4",
@@ -4475,10 +4452,8 @@
           "type": "recommendation",
           "condition": "Client has agreed to explore a bespoke model for their own business",
           "action": "Do not show the client their personalised model today. Enforce a time gap before the next meeting. This pause gives the client time to take mental ownership of the idea — so they arrive at the reveal meeting motivated and ready to invest mental energy into their own complex data. Book the reveal meeting before leaving today's session.",
-          "notes": "The time gap is not optional. Clients who see their personalised model too soon often disengage before they are mentally ready to process it.",
-          "templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ]
+          "notes": "The time gap is not optional. Clients who see their personalised model too soon often disengage before they are mentally ready to process it. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "templates": []
         },
         {
           "id": "pf_tf_qualify",
@@ -4564,10 +4539,8 @@
           "type": "recommendation",
           "condition": "Initial Trial Fit meeting concluding",
           "action": "Assign homework: ask the client to have a play with the model and identify what measurable data matters most to their business. Ask them to evaluate whether the data is actionable and how it improves their decision-making. Letting them add their own data between sessions builds ownership and investment in the outcome.",
-          "notes": "The homework step is critical for ownership transfer. Book the follow-up session before leaving.",
-          "templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
+          "notes": "The homework step is critical for ownership transfer. Book the follow-up session before leaving. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "templates": [],
           "next_node": "pf_tf_stage6"
         },
         {
@@ -4576,10 +4549,8 @@
           "type": "recommendation",
           "condition": "Client has completed homework and returns for follow-up",
           "action": "Use the client's feedback to guide the final tailoring process. Modify the model to perfectly fit their specific strategic planning needs. This transitions the owner away from guesswork and equips them for data-driven management and accurate profit generation.",
-          "notes": "By this point the client has mental ownership — they have played with it, challenged it, and brought their own data. The final reveal is a confirmation, not a surprise.",
-          "templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ]
+          "notes": "By this point the client has mental ownership — they have played with it, challenged it, and brought their own data. The final reveal is a confirmation, not a surprise. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "templates": []
         },
         {
           "id": "pf_feasibility_entry",
@@ -4920,10 +4891,9 @@
           "type": "recommendation",
           "condition": "Actual performance results are close to the predictive revenue model and differences are understood",
           "action": "The internal model is now validated. Define operational objectives and begin monitoring performance reports against the model. Only at this point is it appropriate to introduce external benchmark data to challenge internal beliefs. The model has no value until you know where you are going — there is no point measuring speed without a destination.",
-          "notes": "Never introduce external benchmark data until the internal model is validated. External benchmarks challenge beliefs — they do not replace internal analysis.",
+          "notes": "Never introduce external benchmark data until the internal model is validated. External benchmarks challenge beliefs — they do not replace internal analysis. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
           "templates": [
-            "Dashboard",
-            "Revenue Model (What-if Analysis — choose by industry)"
+            "Dashboard"
           ]
         },
         {
@@ -4932,10 +4902,8 @@
           "type": "recommendation",
           "condition": "Actual performance results are significantly different from the predictive revenue model",
           "action": "Continue developing and refining the internal model before proceeding. Do not introduce external benchmark data until the internal variables and their interdependencies are properly quantified. The gap between the model and actuals is itself a diagnostic — use it to identify which assumptions are flawed.",
-          "notes": "A large gap between model and actual is not a failure — it is information. Treat it as the starting point for the next round of assumption testing.",
-          "templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ]
+          "notes": "A large gap between model and actual is not a failure — it is information. Treat it as the starting point for the next round of assumption testing. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "templates": []
         },
         {
           "id": "dfs_data_methods",
@@ -5082,10 +5050,9 @@
           "type": "recommendation",
           "condition": "The industry itself dictates unavoidable massive swings in business performance",
           "action": "Review working capital, retained earnings, and overdraft facilities. If volatility cannot be engineered out, the business must be structured to finance and manage money through the swings. Build adequate financial buffers during peak periods to fund operations through troughs.",
-          "notes": "If volatility is an unavoidable industry feature, the goal shifts from eliminating it to surviving it. The business model must be designed around the cash flow cycle, not against it.",
+          "notes": "If volatility is an unavoidable industry feature, the goal shifts from eliminating it to surviving it. The business model must be designed around the cash flow cycle, not against it. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
           "templates": [
-            "Working Capital Cycle",
-            "Revenue Model (What-if Analysis — choose by industry)"
+            "Working Capital Cycle"
           ]
         },
         {
@@ -5168,10 +5135,9 @@
           "templates": [
             "Customer Journey",
             "8 Profit Levers",
-            "Revenue Model (What-if Analysis — choose by industry)",
             "Covid Agendas"
           ],
-          "notes": "The client_sales tree handles this path in full. If the advisor is unsure whether it is a sales or marketing problem, start with the Customer Journey — it reveals the breakdown point."
+          "notes": "The client_sales tree handles this path in full. If the advisor is unsure whether it is a sales or marketing problem, start with the Customer Journey — it reveals the breakdown point. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "sm_marketing_entry",
@@ -5511,10 +5477,8 @@
           "type": "recommendation",
           "condition": "Client carries too many ideas in their head and needs a place to unpack their thoughts to make future moves clear",
           "action": "Encourage the client to treat problems and opportunities as a series of 'what-if' events using a Revenue Model. Logic supports ideas and quantifies what is needed to be successful — this turns scattered thinking into a testable financial scenario.",
-          "templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
-          "notes": "The Revenue Model is the primary tool here. Once the 'what-if' thinking is underway, return to ffm_forecast_entry to build a structured forecast around the best scenario."
+          "templates": [],
+          "notes": "The Revenue Model is the primary tool here. Once the 'what-if' thinking is underway, return to ffm_forecast_entry to build a structured forecast around the best scenario. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "ffm_mindset_forecast_fear",
@@ -5524,10 +5488,9 @@
           "action": "Deploy a Forecast & Action Plan combining a 3-way forecast with Revenue Model sensitivity analysis. This restores a sense of control — forecasting is about providing strong clues to what to expect, not making an exact prediction. The 3-way format (best/likely/worst) removes the judgment dynamic.",
           "templates": [
             "Forecasting",
-            "Assumptions",
-            "Revenue Model (What-if Analysis — choose by industry)"
+            "Assumptions"
           ],
-          "notes": "Reframe the forecast as a learning tool, not a report card. The 3-way forecast and sensitivity analysis together create joy from learning rather than fear of being wrong."
+          "notes": "Reframe the forecast as a learning tool, not a report card. The 3-way forecast and sensitivity analysis together create joy from learning rather than fear of being wrong. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "ffm_mindset_system_ignorance",
@@ -5582,10 +5545,9 @@
           "action": "Start with the 3-way Forecast and Assumptions template. Walk through the best/likely/worst structure and show how the assumptions page ties each input to a real-world belief about the business. Support with a Revenue Model to show the effect of key variable changes on the forecast outcome.",
           "templates": [
             "Forecasting",
-            "Assumptions",
-            "Revenue Model (What-if Analysis — choose by industry)"
+            "Assumptions"
           ],
-          "notes": "Keep the first forecast simple — populate it with numbers they already know. The goal is familiarity with the format and the habit of reviewing it, not perfection on the first attempt."
+          "notes": "Keep the first forecast simple — populate it with numbers they already know. The goal is familiarity with the format and the habit of reviewing it, not perfection on the first attempt. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "ffm_forecast_improve",
@@ -5611,10 +5573,9 @@
           "action": "Deploy the 3-way forecast combined with Revenue Model sensitivity analysis. Work through the assumptions page together — accuracy problems almost always trace back to assumptions that were too optimistic or not tested against real data. Sensitivity analysis reveals which variables have the most impact so the client knows where to focus attention.",
           "templates": [
             "Forecasting",
-            "Assumptions",
-            "Revenue Model (What-if Analysis — choose by industry)"
+            "Assumptions"
           ],
-          "notes": "Poor forecast accuracy is usually an assumptions problem, not a maths problem. Spend as much time on the assumptions page as the forecast itself."
+          "notes": "Poor forecast accuracy is usually an assumptions problem, not a maths problem. Spend as much time on the assumptions page as the forecast itself. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "ffm_reporting_entry",
@@ -5643,10 +5604,9 @@
           "condition": "Client has no dashboard or structured financial review process",
           "action": "Generate a Financial Dashboard as the starting point. This quickly identifies whether current accounting systems provide accurate data and whether the owner understands performance and activity ratios. Use the Dashboard Discussions coaching tree to walk through the setup process. Support with a Revenue Model to show how key metrics connect to business outcomes.",
           "templates": [
-            "Dashboard Report",
-            "Revenue Model (What-if Analysis — choose by industry)"
+            "Dashboard Report"
           ],
-          "notes": "Cross-reference the dashboard_discussions coaching tree. If accounting systems cannot generate the required data, refer to the data_financial_systems advisory tree first before building the dashboard."
+          "notes": "Cross-reference the dashboard_discussions coaching tree. If accounting systems cannot generate the required data, refer to the data_financial_systems advisory tree first before building the dashboard. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "ffm_reporting_ratio",
@@ -5692,10 +5652,9 @@
           "condition": "Client completes normal trading cycles but cannot afford to pay wages or buy new stock",
           "action": "Diagnose as a Profitability Problem. Review gross margins and fixed costs — this usually means the margin is too low, fixed costs are too high, or the business was underfunded from the start. Categorise expenses into Variable (Do The Job), Activity (Get The Job), and Fixed (Get Organised) using the Cost Breakdown template. Cross-reference the profitability_feasibility advisory tree for the full diagnostic pathway.",
           "templates": [
-            "Cost Breakdown",
-            "Revenue Model (What-if Analysis — choose by industry)"
+            "Cost Breakdown"
           ],
-          "notes": "Cross-reference the profitability_feasibility advisory tree. Do not confuse this with a cash timing problem — the trading cycle itself is fine, the margin is insufficient to sustain the business."
+          "notes": "Cross-reference the profitability_feasibility advisory tree. Do not confuse this with a cash timing problem — the trading cycle itself is fine, the margin is insufficient to sustain the business. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "ffm_wc_funding_gap",
@@ -5802,10 +5761,8 @@
           "type": "recommendation",
           "condition": "Client's team loses deals when prices are challenged, leading to discounting and margin erosion",
           "action": "Conduct market research to confirm pricing sits in the lower end of the upper-most quadrant — hold the price rather than discount. Develop scripts for the top 5 sales objections and enforce buddy rehearsals so the team builds confidence in holding price under pressure. Cross-reference the sales_marketing and client_sales advisory trees for a broader sales process review if conversion is the wider issue.",
-          "templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
-          "notes": "Confidence in overcoming objections allows pricing to be maintained without sacrificing conversion rates. Discounting almost always signals value uncertainty to the buyer and is rarely the right answer."
+          "templates": [],
+          "notes": "Confidence in overcoming objections allows pricing to be maintained without sacrificing conversion rates. Discounting almost always signals value uncertainty to the buyer and is rarely the right answer. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         }
       ]
     },
@@ -5892,10 +5849,9 @@
             "1 pg Bizz Case",
             "4 Part Bizz Plan",
             "Lite Strategy",
-            "Planning Outcomes Review",
-            "Revenue Model (What-if Analysis — choose by industry)"
+            "Planning Outcomes Review"
           ],
-          "notes": "Use the client_planning tree for full routing logic. Both the startup and established paths are supported by a Revenue Model."
+          "notes": "Use the client_planning tree for full routing logic. Both the startup and established paths are supported by a Revenue Model. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "stp_identity",
@@ -5966,12 +5922,11 @@
           "templates": [
             "1 pg Bizz Case",
             "4 Part Bizz Plan",
-            "Revenue Model (What-if Analysis — choose by industry)",
             "Forecasting",
             "Assumptions",
             "Loan Estimator"
           ],
-          "notes": "Investors and lenders want to see: a clearly defined problem and solution, evidence of market demand, a credible financial model, and a realistic picture of what success looks like. Use the Revenue Model to stress-test the numbers before the pitch — if it does not hold up in the model, it will not hold up in front of an investor."
+          "notes": "Investors and lenders want to see: a clearly defined problem and solution, evidence of market demand, a credible financial model, and a realistic picture of what success looks like. Use the Revenue Model to stress-test the numbers before the pitch — if it does not hold up in the model, it will not hold up in front of an investor. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "stp_pitch_internal",
@@ -6045,10 +6000,9 @@
             "Orientation Part 1",
             "Orientation Part 2",
             "Powerful Goal Setting",
-            "Revenue Model (What-if Analysis — choose by industry)",
             "Forecasting"
           ],
-          "notes": "A validated pivot still needs a structured transition plan — the business does not flip overnight. Use the planning tools to define what changes, in what order, and what success looks like at each stage."
+          "notes": "A validated pivot still needs a structured transition plan — the business does not flip overnight. Use the planning tools to define what changes, in what order, and what success looks like at each stage. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "stp_pivot_unproven",
@@ -6056,10 +6010,8 @@
           "type": "recommendation",
           "condition": "New strategic direction is unproven — still at idea or intention stage with no market validation",
           "action": "Do not build a full strategic plan around an unproven pivot. Instead, use the Cautious Reveal Method to test market demand without exposing the business to unnecessary risk, or Lite Feasibility to assess whether the idea is commercially viable before committing. Cross-reference the profitability_feasibility advisory tree for the full Cautious Reveal and Trial Fit routing.",
-          "templates": [
-            "Revenue Model (What-if Analysis — choose by industry)"
-          ],
-          "notes": "Cross-reference the profitability_feasibility advisory tree (pf_cr_outreach for Cautious Reveal, pf_tf_qualify for Trial Fit, pf_feasibility_entry for Lite Feasibility). The Cautious Reveal Method is the safest way to test a new direction — it validates demand before the business invests significantly in the pivot."
+          "templates": [],
+          "notes": "Cross-reference the profitability_feasibility advisory tree (pf_cr_outreach for Cautious Reveal, pf_tf_qualify for Trial Fit, pf_feasibility_entry for Lite Feasibility). The Cautious Reveal Method is the safest way to test a new direction — it validates demand before the business invests significantly in the pivot. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "stp_growth_entry",
@@ -6105,11 +6057,10 @@
           "action": "Use the Capacity, Capability, Opportunity framework to map the 'Probable Perfect World' output against 'Current World' performance and identify the capacity ceiling. Use a Revenue Model to run multiple what-if scenarios across volume, price, and cost levers. Use the Planning Outcomes Review to frame the growth targets formally. Cross-reference the capacity_capability_opportunity coaching tree for the full CCO facilitation sequence.",
           "templates": [
             "Capacity, Capability, Opportunity",
-            "Revenue Model (What-if Analysis — choose by industry)",
             "Planning Outcomes Review",
             "Business Targets"
           ],
-          "notes": "Expanding the existing model is the lowest-risk growth strategy — it uses proven assets, known customers, and tested processes. The main constraint is almost always capacity (how much can the current model produce) or capability (does the team have the skills to sustain higher volume). The CCO framework surfaces both."
+          "notes": "Expanding the existing model is the lowest-risk growth strategy — it uses proven assets, known customers, and tested processes. The main constraint is almost always capacity (how much can the current model produce) or capability (does the team have the skills to sustain higher volume). The CCO framework surfaces both. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "stp_growth_new",
@@ -6120,10 +6071,9 @@
           "templates": [
             "Capacity, Capability, Opportunity",
             "Porters & Pine",
-            "Profit Levers & Blue Ocean",
-            "Revenue Model (What-if Analysis — choose by industry)"
+            "Profit Levers & Blue Ocean"
           ],
-          "notes": "New market and new product growth carries significantly higher risk than expanding an existing model. The CCO framework's core rule applies: 'Fall in love with your customers, not your product or service.' Validate external demand before internal enthusiasm drives the investment decision."
+          "notes": "New market and new product growth carries significantly higher risk than expanding an existing model. The CCO framework's core rule applies: 'Fall in love with your customers, not your product or service.' Validate external demand before internal enthusiasm drives the investment decision. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "stp_growth_stuck",
@@ -6164,11 +6114,10 @@
           "templates": [
             "Reveal Growth Curve",
             "Planning Outcomes Review",
-            "Revenue Model (What-if Analysis — choose by industry)",
             "Forecasting",
             "Assumptions"
           ],
-          "notes": "Businesses that are genuinely ready to scale often fail not because of the market opportunity but because of internal complexity they did not anticipate. The Growth Curve and the planning tools together create a picture of what scale actually demands — not just what it promises."
+          "notes": "Businesses that are genuinely ready to scale often fail not because of the market opportunity but because of internal complexity they did not anticipate. The Growth Curve and the planning tools together create a picture of what scale actually demands — not just what it promises. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "stp_growth_rapid_not_ready",
@@ -6178,12 +6127,11 @@
           "action": "Introduce the CCO 'NOT YET' concept — this is not an admission of failure, it is a structured search for evidence. Ask: what specifically needs to change for the scale move to be safe? Use the CCO Capability Check to assess whether skill sets, tools, equipment, and financial resources are sufficient to 'play with the big boys'. Use Revenue Model scenarios to show what scale actually demands financially. Run a Forecast to map the funding requirement if a capital injection is needed.",
           "templates": [
             "Capacity, Capability, Opportunity",
-            "Revenue Model (What-if Analysis — choose by industry)",
             "Forecasting",
             "Assumptions",
             "Loan Estimator"
           ],
-          "notes": "Cross-reference the capacity_capability_opportunity coaching tree for the full CCO facilitation including the 'NOT YET' and over-optimism management sequences. The goal is not to kill the ambition — it is to build the specific readiness that makes the scale move safe and sustainable."
+          "notes": "Cross-reference the capacity_capability_opportunity coaching tree for the full CCO facilitation including the 'NOT YET' and over-optimism management sequences. The goal is not to kill the ambition — it is to build the specific readiness that makes the scale move safe and sustainable. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "stp_avoidant",

@@ -945,25 +945,18 @@ async function handleQuery (rawBody, res) {
     const _priceFields = [state.situationDiagnostic, state.advisorConfidence]
     const hasPriceCommunication = _priceFields.some(f => f && f !== 'pending' && _pricePattern.test(f))
 
-    // Map industry answer to a specific industry template name if one exists in the library
-    const industryText = (state.industry || '').toLowerCase()
-    const industryTemplateMap = [
-      { pattern: /scaffold/i, template: 'Scaffolding' },
-      { pattern: /construct|builder|build|plumb|electr|roofing|carpent|chippy|sparky|trade/i, template: 'Construction' },
-      { pattern: /engineer|manufactur|precision|tooling|plastics|fabricat/i, template: 'Engineering' },
-      { pattern: /hospit|restaur|cafe|catering|pub|bar|nightclub|food|beverage/i, template: 'Hospitality' },
-      { pattern: /retail|shop|store|merchandise|ecomm/i, template: 'Retail' },
-      { pattern: /farm|dairy|rural|agri|milk|crop|livestock/i, template: 'Rural Volatility' }
-    ]
-    const matchedIndustryTemplate = industryTemplateMap.find(m => m.pattern.test(industryText))
-    const recommendedRevenueModel = matchedIndustryTemplate ? matchedIndustryTemplate.template : null
-
     const profitInstruction = state.detectedDomain === 'profit' && state.industry && state.industry !== 'pending'
       ? `\n\nPROFIT SITUATION: This client has a profitability/cost problem. Their industry is: ${state.industry}.
 
-Your recommendation MUST include a revenue model or what-if analysis template from the provided template list. Rules:
-- Only recommend templates that exist in the provided list — do NOT invent, adapt, or combine template names
-${recommendedRevenueModel ? `- An industry-specific revenue model exists for this client: "${recommendedRevenueModel}". You MUST use this exact name in "My recommendation" — do NOT call it "Revenue Model", "Scaffolding Revenue Model", or any other variation. The only permitted name is "${recommendedRevenueModel}".` : '- Select the closest real revenue model or what-if analysis template available, exactly as named in the list'}
+Your recommendation MUST include a Revenue & Feasibility Model from the provided template list. These templates are labelled [Do the Job > Revenue & Feasibility Models > ...] in the list. Select the single most appropriate model using this order:
+
+1. TITLE MATCH — find a template whose title directly names the client's industry or business type (e.g. "Construction", "Hospitality", "Scaffolding")
+2. TAGS MATCH — if no title match, scan all trigger words and signals from the full conversation (situation, diagnostic, downstream effects, industry answer) against the tags of every Revenue & Feasibility Model and find the closest fit
+3. PURPOSE MATCH — if tags do not resolve it, read the purpose field of each Revenue & Feasibility Model for the closest operational match
+
+If no match is found after all three steps: do NOT invent a name or silently pick something generic. Instead, tell the advisor: "No exact model exists in the library for [industry/business type] — the closest I could find is [exact template name] as it covers [specific tags from the template] that relate to [specific aspect of their situation]. You may want to review the library directly for a better fit."
+
+The template name used in "My recommendation" must appear exactly as written in the provided list. Do NOT invent, abbreviate, adapt, or combine names.
 - In the "How to approach it" section, explain specifically how the advisor should apply that template in the context of the ${state.industry} industry — mention industry-specific cost pressures, pricing dynamics, and revenue levers relevant to that sector
 - Do not append the industry name to the template name
 - KEY INSIGHT — frame this in the "How to approach it" section: The revenue/what-if model's deepest value is the gap it exposes — the difference between what the owner assumes the business delivers (revenue, costs, profit) and what the financials actually show. That gap is a direct window into the mindset behind every decision they make. An owner running on flawed assumptions will keep arriving at the same outcomes. Making the gap visible is what shifts them from assumption-driven to data-driven thinking. The advisor should position the model as the tool that makes this shift possible — not just a financial exercise, but a change in how the owner sees their own business.

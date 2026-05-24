@@ -72,7 +72,7 @@ function formatTemplatesForPrompt (templates) {
     const useNote = t.includedInClient
       ? '\n   Use: Client-facing delivery tool (shown to client during advisory sessions — NOT advisor learning material)'
       : '\n   Use: Advisor reference/learning resource'
-    return `${i + 1}. **${t.title}** [${t.section} > ${t.topic}]
+    return `${i + 1}. **${t.title}** [${t.section} > ${t.subSection ? t.subSection + ' > ' : ''}${t.topic}]
    Purpose: ${t.purpose}
    Tags: ${tags}
    ID: ${t.page}${useNote}${videoNote}`
