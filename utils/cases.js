@@ -52,7 +52,7 @@ export function saveCase (caseData) {
 }
 
 export function updateCaseReview (id, review) {
-  const cases = getCases().map(c => c.id === id ? { ...c, review } : c)
+  const cases = getCases().map(c => c.id === id ? { ...c, review, feedbackPending: false } : c)
   persistCases(cases)
 }
 

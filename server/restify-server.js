@@ -34,6 +34,7 @@ const advisorRoute = require('./routes/advisor')
 const firmRoute = require('./routes/firm')
 const firmManagerRoute = require('./routes/firmManager')
 const activityRoute = require('./routes/activity')
+const casesRoute = require('./routes/cases')
 const { firmAuth, requireManagerRole } = require('./middleware/firmAuth')
 
 const PORT = process.env.BACKEND_PORT || 4000
@@ -73,6 +74,9 @@ server.post('/api/firm/insights', firmAuth, firmRoute.postInsights)
 server.post('/api/activity/log-course', activityRoute.logCourse)
 server.get('/api/activity/progression', activityRoute.getProgression)
 server.get('/api/activity/team', activityRoute.getTeam)
+
+// ── Cases routes ──
+server.post('/api/cases/promote', firmAuth, requireManagerRole, casesRoute.promote)
 
 // ── Firm Manager routes (firm_manager or platform_admin role required) ──
 const fm = firmManagerRoute

@@ -3,21 +3,33 @@
  * Loads data/coaching-reference.json and formats it for the AI prompt.
  */
 
-const { readFileSync } = require('fs')
+const { readFileSync, writeFileSync } = require('fs')
 const { resolve } = require('path')
 
 let _coaching = null
 
+const COACHING_FILE = resolve(process.cwd(), 'data/coaching-reference.json')
+
 function loadCoaching () {
   if (_coaching) { return _coaching }
-  const filePath = resolve(process.cwd(), 'data/coaching-reference.json')
   try {
-    _coaching = JSON.parse(readFileSync(filePath, 'utf8'))
+    _coaching = JSON.parse(readFileSync(COACHING_FILE, 'utf8'))
   } catch (err) {
     console.error('[coaching] Failed to load coaching-reference.json:', err.message)
     _coaching = []
   }
   return _coaching
+}
+
+function resetCoachingCache () {
+  _coaching = null
+}
+
+function appendCoachingEntry (entry) {
+  const coaching = loadCoaching()
+  coaching.push(entry)
+  writeFileSync(COACHING_FILE, JSON.stringify(coaching, null, 2), 'utf8')
+  _coaching = coaching
 }
 
 function formatCoachingForPrompt () {
@@ -31,4 +43,4 @@ Where it leads: ${c.whereMayLead}`
   }).join('\n\n')
 }
 
-module.exports = { formatCoachingForPrompt }
+module.exports = { formatCoachingForPrompt, resetCoachingCache, appendCoachingEntry }

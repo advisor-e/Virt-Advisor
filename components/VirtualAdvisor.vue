@@ -591,6 +591,13 @@
 
               .review-actions
                 button.review-save-btn(@click="saveReview(c.id)") {{ reviewSavedId === c.id ? '✓ Saved' : 'Save review' }}
+                button.review-promote-btn(
+                  v-if="isFirmManager"
+                  @click="promoteCase(c)"
+                  :disabled="promoteSuccessId === c.id"
+                )
+                  | {{ promoteSuccessId === c.id ? '✓ Added to coaching reference' : 'Promote to coaching reference' }}
+                span.promote-error(v-if="promoteErrorId === c.id") Failed — check server connection
                 button.review-delete-btn(
                   @click="confirmDeleteId === c.id ? deleteCaseAndRefresh(c.id) : confirmDeleteId = c.id"
                 )
@@ -634,6 +641,10 @@ export default {
     isFirmManager: {
       type: Boolean,
       default: false
+    },
+    apiToken: {
+      type: String,
+      default: 'dev-local-bypass'
     }
   },
 
@@ -1217,6 +1228,11 @@ export default {
         // Fallback: if stream ended without a done event (e.g. max_tokens truncation)
         if (this.isStreaming) {
           if (this.streamingText) {
+            if (this.streamingText.includes('[INTAKE_COMPLETE]')) {
+              this.streamingText = this.streamingText.replace('[INTAKE_COMPLETE]', '').trim()
+              this.intakeComplete = true
+              this.intakeActive = false
+            }
             let content = this.streamingText
             if (content.includes('[GROWTH_CURVE_SELECTOR]')) {
               content = content.replace('[GROWTH_CURVE_SELECTOR]', '').trim()
@@ -2351,6 +2367,19 @@ export default {
   cursor: pointer;
 }
 .review-save-btn:hover { background: #1d3a98; }
+.review-promote-btn {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  border-radius: 7px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.review-promote-btn:hover:not(:disabled) { background: #dcfce7; border-color: #86efac; }
+.review-promote-btn:disabled { opacity: 0.7; cursor: default; }
+.promote-error { font-size: 12px; color: #dc2626; align-self: center; }
 .case-transcript-toggle { margin: 12px 0 4px; }
 .transcript-btn {
   background: none;
