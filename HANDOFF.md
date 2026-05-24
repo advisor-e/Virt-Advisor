@@ -137,6 +137,74 @@ All endpoints require `Authorization: Bearer <token>` with a `firm_manager` or `
 
 ---
 
+## Learning Loop — Case Studies
+
+The VA session system supports saving case studies for advisor learning and AI improvement. Each saved case captures the full conversation, session context, and post-delivery observations.
+
+### Current storage: localStorage
+
+Case data is stored in `utils/cases.js` via localStorage. The file explicitly notes the migration path — replace the four CRUD functions with API calls. The rest of the app is storage-agnostic by design. **Shared visibility (`visibility: 'shared'`) is stored correctly but cannot actually be shared across devices until the MySQL migration is complete.**
+
+### MySQL migration — table schema
+
+```sql
+CREATE TABLE va_case_studies (
+  id                         VARCHAR(64)               NOT NULL,
+  advisor_id                 VARCHAR(64)               NOT NULL,
+  firm_id                    VARCHAR(64)               NOT NULL,
+  title                      VARCHAR(255)              NOT NULL,
+  mode                       VARCHAR(32)               NOT NULL,
+  visibility                 ENUM('shared','private')  NOT NULL DEFAULT 'shared',
+  domain                     VARCHAR(128)              NULL,
+  staircase_step             VARCHAR(128)              NULL,
+  growth_stage               VARCHAR(64)               NULL,
+  fin_mgt_theme              VARCHAR(128)              NULL,
+  templates                  JSON                      NULL COMMENT 'Array of recommended template names from Phase 3 output',
+  summary                    TEXT                      NULL COMMENT 'First 600 chars of Phase 3 AI output',
+  transcript                 LONGTEXT                  NULL COMMENT 'Full conversation messages array (JSON)',
+  feedback_pending           TINYINT(1)                NOT NULL DEFAULT 1 COMMENT '1 until advisor completes AI-guided post-session intake',
+  review_went_well           TEXT                      NULL,
+  review_went_less           TEXT                      NULL,
+  review_changes_recommended TEXT                      NULL,
+  reviewed_at                DATETIME                  NULL,
+  created_at                 DATETIME                  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  INDEX idx_advisor          (advisor_id),
+  INDEX idx_firm_visibility  (firm_id, visibility),
+  INDEX idx_domain           (domain),
+  INDEX idx_feedback_pending (firm_id, feedback_pending)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+### Case data field reference
+
+| Field | Source | Notes |
+|---|---|---|
+| `id` | Client `crypto.randomUUID()` | Preserve as-is on migration |
+| `advisor_id` | Client prop | Upgrade to JWT-derived once auth is wired |
+| `firm_id` | Client prop | Upgrade to JWT-derived once auth is wired |
+| `title` | Advisor input | Free text |
+| `mode` | Session mode | `client`, `discover`, `plan`, `learn` |
+| `visibility` | Advisor choice | `shared` = firm team; `private` = advisor only |
+| `domain` | `session_meta` SSE event | One of the 14 advisory domain IDs |
+| `staircase_step` | UI selector | Advisory Staircase step name |
+| `growth_stage` | UI selector | Growth Curve stage name |
+| `fin_mgt_theme` | UI selector | Financial Management theme name |
+| `templates` | `session_meta` SSE event | Array of template names extracted from Phase 3 output |
+| `summary` | Client | First 600 chars of last AI message |
+| `transcript` | Client | Full `messages` array serialised as JSON |
+| `feedback_pending` | Client | `true` until AI-guided intake is completed in-session |
+| `review_*` | Post-delivery review UI | Filled in after advisor delivers session to client |
+
+### Migration steps
+
+1. Run the schema above against the Advisor-e MySQL database
+2. Replace the four functions in `utils/cases.js` (`getCases`, `saveCase`, `updateCaseReview`, `deleteCase`) with API calls to new `/api/cases/*` routes — scope all DB queries to `firmId` from the JWT, never from the request body
+3. Register new routes in `server/restify-server.js`
+4. Build a one-time browser-side migration utility to export existing localStorage cases and POST them to the new API
+
+---
+
 ## Known Architecture Limitations
 
 These are confirmed pre-production issues. They are not blocking for initial handoff but must be resolved before production scale or public exposure.
@@ -166,6 +234,15 @@ Adding a new industry to the system requires updating two independent maps:
 - `server/utils/summaries.js` — `TEMPLATE_SUMMARY_ALIASES` (60+ entries)
 
 These serve different purposes but diverging them will cause mismatch bugs. The integration team should consolidate into a single industry reference file during the data layer refactor.
+
+### L6 — Case study storage is localStorage only (MEDIUM — pre-production)
+
+Case studies saved by advisors exist only in their browser's localStorage. This means:
+- "Shared with firm" cases are not visible to other advisors on different devices
+- Firm managers cannot access team case data
+- Cases are lost if the advisor clears browser storage
+
+**Fix required before production:** Migrate `utils/cases.js` to MySQL using the schema and steps documented in the "Learning Loop — Case Studies" section above. The migration path is already prepared — the four functions in `utils/cases.js` are the only files to replace.
 
 ### L5 — Phase 3 `max_tokens` configuration
 
