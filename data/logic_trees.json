@@ -586,7 +586,7 @@
           "condition": "Client feels they have managed fine without formal governance and does not immediately see the need",
           "action": "Create strategic disturbance before introducing governance tools. Use Porter's & Pine or Blue Ocean Strategy to surface the external competitive or disruption pressures the client may be ignoring. A client who believes they have 'done pretty well on their own' is often operating in a comfort zone that masks slowing growth, increasing complexity, or emerging risk. Review the Growth Curve to show where the business currently sits across the 9 Growth Stages and identify which Complexity Layers are about to become governance problems if left unmanaged.",
           "templates": [
-            "Porter's & Pine",
+            "Porters & Pine",
             "Blue Ocean Strategy",
             "Reveal Growth Curve"
           ],
@@ -1076,8 +1076,8 @@
           "action": "Use the Force Field Analysis framework to surface the real forces at play — this is a great way to march people to the edge of the cliff and encourage them to look over it. Follow with De Bono's 6 Hats to ensure personalities don't override decision-making. Add the Introduction to Governance template to establish formal or informal meeting structures with an independent chair while relations repair. Rehearse the Force Field Analysis and 6 Hats with an Advisor-e coach before delivering — do not just present the concept and walk away.",
           "templates": [
             "Force Field Analysis",
-            "De Bono's 6 Hats",
-            "Introduction to Governance"
+            "6 Hats",
+            "Governance Introduction"
           ],
           "notes": "The Force Field Analysis content is in the coaching notes (Get Organised / My Fee Growth Plan). The 6 Hats must be practised in session, not just presented. Do not attempt this without rehearsing with a coach first."
         },
@@ -3997,7 +3997,7 @@
           "condition": "Incumbent has not emotionally processed the transition — premature planning will backfire",
           "notes": "Step 1 of the Dream Home Methodology: Initial Discovery. Direct the incumbent to an introductory digital questionnaire before any formal meetings begin. Key questions to explore: What will you do with your time? What will give you purpose? What income do you need in retirement, and for how long? What does your ideal handover timeline look like? What do you want the business legacy to be? The questionnaire output becomes a private baseline readiness report — the advisor reviews it before any family meeting. This protects the process: walking into a family succession meeting with an unready incumbent typically produces an emotionally charged first session that entrenches positions rather than building alignment. The visual metaphor to use with clients: frame the succession journey as building a dream home. Just as an architect wouldn't start drawing plans before understanding the family's lifestyle and requirements, the advisor cannot design a succession plan before understanding what the incumbent is stepping into, not just stepping out of.",
           "templates": [
-            "Succession Plan"
+            "Succession Planning"
           ]
         },
         {
@@ -4029,7 +4029,7 @@
           "condition": "Active family disharmony exists between siblings or family members involved in the succession",
           "notes": "IF there is current family disharmony between siblings, THEN keep the Kids' Wish List document completely hidden from all other parties until the Concept Meeting. This is not optional — premature disclosure of the successors' wish list in a high-conflict family context will cause stakeholders to entrench into defensive positions before the collaborative framework has been established. Dan Sperber's Argumentative Theory explains why: humans under stress default to arguments that serve their own survival interests. Seeing the other party's wish list before a structured facilitation context exists activates that defensive instinct and turns a wish list comparison into a negotiation battle. Practical management: store each wish list document separately with access restricted to the advisor and the relevant party only. Do not summarise, paraphrase, or reference specific items from one list in any communication with the other party. At the Concept Meeting (Step 4), the advisor controls the reveal — placing both lists on the table simultaneously in a facilitated environment where the framework for discussion has already been agreed. If the disharmony is severe enough that a joint meeting carries significant risk of breakdown: consider a structured pre-meeting with each party separately to set explicit ground rules for the Concept Meeting before bringing them together. In extreme cases, a professional family mediator should be engaged alongside the advisor. The advisor's role remains facilitation, not adjudication.",
           "templates": [
-            "Succession Plan"
+            "Succession Planning"
           ]
         },
         {
@@ -4065,7 +4065,7 @@
           "condition": "Siblings involved in the succession are slated to receive different financial outcomes — the methodology must be explicitly agreed",
           "notes": "IF siblings are receiving disparate financial figures, THEN utilise the Salary Sacrifice table to calculate the real-world loss of income for those who provided elderly or family care, and document the agreed equity methodology transparently before the Concept Meeting. Disparate outcomes in family succession are common and legitimate — but only when the reason is explicit, agreed by all parties, and anchored in objective rules. Common legitimate reasons for disparate figures: (1) One sibling worked in the business for years at below-market wages — their labour contribution has an economic value that must be quantified and credited; (2) One sibling provided primary care for ageing parents, forgoing career income — the Salary Sacrifice table calculates the real-world income loss over the care period; (3) One sibling received prior financial gifts or support from the parents — these must be counted against their succession entitlement if equity is the agreed goal; (4) Siblings have different roles in the future business — an operating successor contributing ongoing labour and risk should receive different consideration than a passive recipient. The Salary Sacrifice calculation: identify the period during which the sibling was underpaid or providing care; calculate the difference between fair market rate and what was actually received or earned; this figure represents a legitimate economic claim that should be offset against their succession payment or credited as an equity adjustment. Transparency requirement: if different figures are provided to different siblings, the methodology and reasons must be thoroughly discussed and agreed by ALL parties — not unilaterally decided by the incumbent. Establishing a Family Constitution early creates the objective framework within which these calculations are accepted as fair rather than contested as arbitrary.",
           "templates": [
-            "Succession Plan",
+            "Succession Planning",
             "Salary Sacrifice"
           ]
         },
@@ -4076,7 +4076,7 @@
           "condition": "The incoming successor was chronically underpaid relative to market rate while building the business — a purchase price discount may be warranted",
           "notes": "IF the incoming successor was chronically underpaid while building the business, THEN negotiate whether a discount should be applied to their final purchase price to compensate for the sweat equity contributed at below-market wages. This is a distinct calculation from the Disparate Financial Value branch (which addresses sibling equity across multiple recipients). This branch applies when a single successor — typically a child who joined the business early and accepted below-market wages in exchange for a future ownership stake — is now being asked to pay a full commercial price for a business they helped build. The core question: were the wages previously paid to the successor at a fair market rate? If not, the family must quantify the cumulative shortfall. Calculation approach: (1) Identify the period during which the successor was employed at below-market wages; (2) Establish the fair market rate for an equivalent external hire in that role for each year of the period; (3) Calculate the annual shortfall (market rate minus actual wages paid); (4) Sum the total cumulative underpayment over the full period — this is the sweat equity figure; (5) The family then negotiates what portion of this figure is credited as a discount against the purchase price. There is no universal rule — some families credit 100% of the shortfall, others negotiate a partial credit. What matters is that the methodology is agreed explicitly and documented before finalising the transfer price. Connect to the Salary Sacrifice table for the calculation. Ensure the agreed discount methodology is recorded in the Family Constitution or the formal succession agreement.",
           "templates": [
-            "Succession Plan",
+            "Succession Planning",
             "Salary Sacrifice"
           ]
         },
@@ -4119,7 +4119,7 @@
           "condition": "Incumbent wants to transfer ownership but retain decision-making authority — classic conflict point",
           "notes": "This is the most common and most destructive pattern in family succession: the incumbent transfers the ownership but retains the governance function informally, creating an unresolvable authority conflict for the successor. Why it happens: the incumbent has not separated their identity from the business. 'Handing over' feels like losing relevance, not gaining freedom. The successor is left managing upward (waiting for permission) while nominally owning the business. Resolution framework: (1) Define a written exit timeline for the incumbent's operational authority — a structured phased withdrawal, not an open-ended one; (2) Create a formal Governance role for the incumbent that is defined and bounded — e.g., Chair of an Advisory Board with a defined scope and term; (3) Separate the governance function from management: the incumbent can retain a governance/advisory role without having operational veto power; (4) Use the visual Ascension Diagram with the family: the successor must be shown moving upward in the diagram — the incumbent's continued involvement must be framed as mentorship, not supervision; (5) If conflict cannot be resolved, the succession is not ready to proceed — return to the readiness conversation with the incumbent. Forcing a succession over a governance conflict produces litigation, not transition.",
           "templates": [
-            "Succession Plan"
+            "Succession Planning"
           ]
         },
         {
@@ -4157,7 +4157,7 @@
           "condition": "Sign-off complete — build and execute the succession action plan",
           "notes": "Step 6 of the Dream Home Methodology — Construction Begins. The Succession Action Plan is the formal implementation tracking document. Structure each task with four classifications: (1) DO — tasks to be actioned immediately with a named owner and deadline; (2) INVESTIGATE — items requiring further research or professional advice before a decision; (3) HOLD — items agreed but deferred until a trigger event or milestone is reached; (4) DECLINE — items that were discussed but ruled out by the family. Per OECD governance principles, confidentiality management is critical: sensitive succession tasks (e.g., specific ownership transfer dates, financial figures, successor salary restructures) should be accessible only to named parties — not visible to broader staff or operational management. Dual-track requirement (ISO 22301): the implementation plan must include both a planned succession timeline AND a documented emergency 'sudden departure' plan. The sudden departure plan must specify: who assumes interim management authority if the owner exits unexpectedly today; what operating authorities are pre-delegated; what external stakeholders (bank, key suppliers, key clients) need to be notified and by whom. A succession plan without a sudden departure contingency is not a complete plan — it only works if the timeline is not disrupted. Build a formal review date into the plan — succession is a living document that must be updated as circumstances change.",
           "templates": [
-            "Succession Plan"
+            "Succession Planning"
           ]
         },
         {
@@ -4185,7 +4185,7 @@
           "condition": "No successor has been identified — need to map the current team against succession potential",
           "notes": "Before a development plan can be built, the field of candidates must be assessed. Steps: (1) List all key operational roles and identify which are succession-critical — a succession-critical role is one where the loss of the current holder would materially disrupt the business; (2) For each critical role, list the internal candidates who might be capable of stepping up — do not pre-filter based on seniority alone; (3) Apply the 9-Box Grid assessment to each candidate: rate current performance and future potential independently; (4) Use competency modelling to define what the FUTURE business needs in a successor — not just what the current business needs. If the business is in growth mode, the successor needs different capabilities than if it is in consolidation mode. Competency modelling question: 'If we fast-forward five years to where we want the business to be — what does the person running this business need to be excellent at?' This often produces a different profile than evaluating who is currently performing well. If no internal candidate reaches the minimum threshold — this is a critical risk flag. Options: (1) External hire into a development role alongside the current holder; (2) Formally extend the incumbent's tenure while the internal pipeline is built; (3) Build an emergency sudden departure plan now as a minimum safety net. Do not allow a 'no candidate' situation to continue without a documented interim plan.",
           "templates": [
-            "Succession Plan"
+            "Succession Planning"
           ]
         },
         {
@@ -4195,7 +4195,7 @@
           "condition": "Candidate identified — build the development plan and establish the 9-Box tracking cadence",
           "notes": "The IFAC Development phase and the Rule of 5 combine to produce this framework. Step 1 — Competency Gap Analysis: Compare the candidate's current capabilities against the competency model for the future role. Identify the specific gaps. These gaps define the development programme. Step 2 — Strategic Mentorship Through Real-World Projects: Do not develop successors through training courses alone. Assign the candidate to progressively more complex real-world projects that require them to exercise the target competencies under the incumbent's guidance. Each project should: be meaningful to the business (not a training exercise); stretch the candidate just beyond their current comfort zone; include structured debrief sessions with the incumbent. Step 3 — 9-Box Grid Review Cadence: Review the candidate's 9-Box position formally at least annually. Track movement over time — is their potential being realised? Are they growing faster or slower than the timeline requires? The 9-Box review should drive adjustments to the development programme, not just confirm current status. Step 4 — Dual-Track Plan: Build both: (a) Planned succession timeline — target date for full handover, milestone authority transfers along the way; (b) Sudden departure plan — if the incumbent left tomorrow, what authority does the candidate currently have? What is the minimum viable handover that could occur immediately? The dual-track plan must be documented and reviewed annually alongside the 9-Box Grid. Step 5 — Parallel Role Handover: In the final 12-24 months before succession, the candidate should be running the role in parallel with the incumbent — making decisions independently and seeking endorsement rather than seeking permission.",
           "templates": [
-            "Succession Plan"
+            "Succession Planning"
           ]
         },
         {
@@ -4219,7 +4219,7 @@
           "condition": "Emergency succession elements identified — formalise and store securely",
           "notes": "A sudden departure plan that exists only in the owner's head is not a plan. It must be: (1) Documented — written down, with named people, specific authorities, and clear trigger activation language; (2) Stored securely — accessible to the right people at the moment of a trigger event, not locked in the owner's desk drawer or password-protected on their personal computer. Consider: a secure digital vault (shared access), a sealed physical envelope with the company's solicitor, a copy lodged with the company's accountant; (3) Legally reviewed — the pre-delegated authority document should be reviewed by a solicitor to confirm it is enforceable; (4) Communicated selectively — the nominated interim authority holder must know they hold this role and must have agreed to it. Do not assume; (5) Reviewed annually — as part of the regular board or business review calendar. The sudden departure plan is the minimum floor. Once it is in place, it provides a stable foundation for building a full succession plan if one is desired. Connect to the Governance logic tree if the business has no documented governance structure — absence of governance documentation is the most common reason sudden departure plans cannot be executed. Connect to the Risk Management logic tree if key person dependency has been identified as a formal business risk requiring treatment, monitoring, and a documented contingency.",
           "templates": [
-            "Succession Plan"
+            "Succession Planning"
           ]
         }
       ]
@@ -4751,7 +4751,7 @@
           "action": "Ask: 'Would it be useful to track this going forward?' If yes, form a plan to either extract the data manually or restructure the Chart of Accounts to capture it automatically. Map the key metrics needed — Sales Mix by Margin, Division Wages %, and Gross Profit by category are the most common gaps. Align the restructure to the 3x3 framework: Do The Job (variable costs), Get The Job (activity costs), Get Organised (fixed costs).",
           "templates": [
             "Dashboard",
-            "3 Pill Financial Management"
+            "3 Pillars of Financial Management"
           ],
           "notes": "Do not attempt a COA restructure mid-year without consulting the accountant. Changes take effect from the next period and require remapping of historical data for year-on-year comparisons."
         },
@@ -4762,7 +4762,7 @@
           "condition": "Client has no meaningful financial reporting and needs foundational financial literacy first",
           "action": "Start with the 3 Pill Financial Management framework to establish financial literacy before introducing any reporting tool. Once the client understands the three cost categories, introduce the Dashboard template to structure what gets measured. Use the tactile approach — have the client manually input or cut and paste data into a spreadsheet rather than relying on fully automated reporting. Making the process tactile requires the client to invest effort, which ensures they digest the information, assign meaning to it, and act on it.",
           "templates": [
-            "3 Pill Financial Management",
+            "3 Pillars of Financial Management",
             "Dashboard"
           ],
           "notes": "Never automate reporting for a client who does not yet understand what they are looking at. Automation removes the learning friction that builds comprehension."
@@ -5023,7 +5023,7 @@
           "action": "Replace or supplement the chart with a standard deviation (volatility) graph to establish a 68% likely range. Averaging summarises past data well but creates a false pass-or-fail metric for performance — results will almost always be above or below the average, creating unnecessary stress and distorted decisions. Standard deviation contextualises what is normal expected variation.",
           "notes": "Once the likely range is established, clients stop reacting to normal fluctuations and start reserving their energy for genuine anomalies.",
           "templates": [
-            "Deming's Volatility"
+            "Demings Volatility"
           ]
         },
         {
@@ -5479,7 +5479,7 @@
           "condition": "Client seems withdrawn due to fatigue, fear of loss, or lack of clarity",
           "action": "Create self-relevance before introducing data. Have the client identify with a persona using the Heald Matrix — this shows them that progress is within reach without the pressure of heavy data verification upfront. Once engagement is restored, return to ffm_entry to diagnose the specific financial management need.",
           "templates": [
-            "Heald Matrix"
+            "The Heald Matrix"
           ],
           "notes": "Cross-reference the heald_matrix coaching tree. Do not front-load data or complex financial tools — this client needs a mindset shift before they can absorb financial information."
         },
@@ -6133,7 +6133,7 @@
           "action": "Cross-reference the frameworks_find advisory tree (ff_branch2_stagnant → Capacity, Capability, Opportunity). If the owner is disengaged or avoidant about the numbers, also cross-reference frameworks_find ff_branch5_financial (Working Capital Cycle). Use the Heald Matrix as a pattern interrupt if the owner is stuck in a mindset that is blocking forward movement — it helps them see that progress is within reach before diving into diagnostic tools.",
           "templates": [
             "Capacity, Capability, Opportunity",
-            "Heald Matrix",
+            "The Heald Matrix",
             "Working Capital Cycle"
           ],
           "notes": "Cross-reference the frameworks_find advisory tree — it was designed precisely for this scenario. The CCO framework is the primary tool; the Heald Matrix is the pattern interrupt if the owner's mindset is the barrier before the strategic tools can land."
@@ -6192,7 +6192,7 @@
           "condition": "Client is too busy, overwhelmed, or avoidant when it comes to strategic thinking — cannot engage with planning conversations",
           "action": "Use the Heald Matrix as a pattern interrupt before any strategic tools are introduced. Ask 'Have you heard of the Heald Matrix?' — if no, write the title down and reveal the quadrants progressively (Turtle, Shotgun, Lab-Rat, Pioneer). Ask 'Where do you think you sit?' then 'WHAT makes you say that?' (never WHY). Once they identify their desired future state, ask 'IF you took one small baby step towards that, WHAT might that look like?' Close with 'Would you be open to exploring how we could work a little closer with you going forward?' and follow up within 14 days with a branded Heald Matrix. Cross-reference the heald_matrix coaching tree for the full facilitation sequence.",
           "templates": [
-            "Heald Matrix"
+            "The Heald Matrix"
           ],
           "notes": "Cross-reference the heald_matrix coaching tree for the full step-by-step facilitation. The Heald Matrix works because it creates self-relevance before any agenda is imposed. Do not introduce planning templates until the client has identified their own desired future state — let them pull, do not push."
         }

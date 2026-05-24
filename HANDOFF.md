@@ -141,17 +141,17 @@ All endpoints require `Authorization: Bearer <token>` with a `firm_manager` or `
 
 These are confirmed pre-production issues. They are not blocking for initial handoff but must be resolved before production scale or public exposure.
 
-### L1 — No rate limiting on OpenAI endpoints (HIGH)
+### L1 — No rate limiting on OpenAI endpoints (HIGH) — RESOLVED
 
-`/api/advisor/query` and `/api/course` have zero throttling. Unbounded API spend is possible under load or abuse.
+~~`/api/advisor/query` and `/api/course` have zero throttling. Unbounded API spend is possible under load or abuse.~~
 
-**Fix required:** Add per-IP throttling — suggested limits: 20 req/min for advisor, 10 req/min for course. Evaluate `restify-throttle` or a Redis-backed token-bucket approach. The middleware registration point is `server/restify-server.js`.
+**Resolved:** Per-IP rate limiting is implemented in `server-middleware/advisor.js` via `createLimiter` (imported from `./rateLimit`). The advisor query endpoint is limited at 30 requests per window. The `rateLimit.js` middleware handles the response directly and blocks over-limit requests before they reach OpenAI.
 
-### L2 — Conversation state round-trips via client (HIGH — architectural)
+### L2 — Conversation state round-trips via client (HIGH — architectural) — RESOLVED
 
-`conversationState` (14+ fields including `recommendationDelivered`, `happyConfirmed`, `detectedDomain`) is serialised into every SSE response and trusted back from the client on the next request. An attacker can modify state in transit to skip the question pipeline entirely.
+~~`conversationState` (14+ fields including `recommendationDelivered`, `happyConfirmed`, `detectedDomain`) is serialised into every SSE response and trusted back from the client on the next request. An attacker can modify state in transit to skip the question pipeline entirely.~~
 
-**Fix required:** Server-side session storage (Redis or MySQL) keyed by a session ID. The client sends a session ID only; the server holds all state. The trust boundary is in `server-middleware/advisor.js` at the `Object.assign({ ...defaults }, conversationState)` call (approximately line 365). This is the highest-priority architectural change before production scale.
+**Resolved:** Server-side session storage is implemented in `server-middleware/advisor.js`. All conversation state is held in a server-side `Map` (`sessionStore`) keyed by a 16-byte random session ID. The client receives only the session ID; no state is round-tripped. Sessions expire after 2 hours of inactivity and are pruned every 15 minutes. For multi-process deployments, replace the `Map` with a Redis-backed store.
 
 ### L3 — `/api/firm/advisors` and `/api/firm/insights` are stub-only
 
@@ -174,6 +174,14 @@ Phase 3 recommendation stream is set to `max_tokens: 2500` (raised from 1500 —
 ---
 
 ## Known Issues
+
+### Startup diagnostic log — API key fragment (REMOVE BEFORE PRODUCTION)
+
+`server-middleware/advisor.js` line 109 logs the last 8 characters of `OPENAI_API_KEY` to the console on every server start. This is intentionally left in to make it easy to confirm the correct key is loaded during development and testing.
+
+**Remove before production deployment.** Delete or comment out the `console.log` line at `server-middleware/advisor.js:109`. The surrounding `if (!process.env.OPENAI_API_KEY)` error check on line 105 should be kept — only the key fragment log needs to go.
+
+---
 
 ### Node.js v24 + Restify v11 incompatibility
 
