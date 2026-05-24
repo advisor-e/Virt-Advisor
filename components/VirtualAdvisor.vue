@@ -256,6 +256,15 @@
           :disabled="!selectedFinMgtTheme"
         ) Confirm selection
 
+      //- Intake prompt — shown after Phase 3, before advisor dismisses
+      .intake-prompt-card(v-if="showIntakePrompt")
+        .save-prompt-text
+          strong Record a quick observation?
+          span  Do you want to do this now while it's fresh in your memory?
+        .save-prompt-actions
+          button.save-prompt-yes(@click="startIntake") Yes, let's do it
+          button.save-prompt-no(@click="dismissIntake") Not now
+
       //- Save prompt — only shown after Phase 3 recommendation, never alongside a VA question
       .save-prompt-card(v-if="showSavePrompt")
         .save-prompt-text
@@ -459,6 +468,7 @@
               .case-tags
                 span.case-mode-tag {{ modeName(c.mode) }}
                 span.case-vis-tag {{ c.visibility === 'shared' ? '🏢 Shared' : '🔒 Private' }}
+                span.case-feedback-tag(v-if="c.feedbackPending") Feedback welcome
             .case-header-right
               span.case-date {{ formatDate(c.createdAt) }}
               span.case-chevron {{ expandedCaseId === c.id ? '▲' : '▼' }}
@@ -648,6 +658,11 @@ export default {
       showRetry: false,
       lastQuery: null,
       recommendationDelivered: false,
+      sessionDomain: null,
+      sessionTemplates: [],
+      intakeDismissed: false,
+      intakeActive: false,
+      intakeComplete: false,
       showGrowthCurveSelector: false,
       selectedGrowthStage: null,
       showStaircaseSelector: false,
@@ -769,6 +784,9 @@ export default {
     canSave () {
       return !!this.mode && this.messages.filter(m => m.role === 'user').length >= 1
     },
+    showIntakePrompt () {
+      return this.recommendationDelivered && !this.isStreaming && !this.intakeDismissed && !this.intakeActive && !this.intakeComplete
+    },
     showSavePrompt () {
       if (this.isStreaming || this.savePromptDismissed || this.saveSuccess) { return false }
       if (!this.mode) { return false }
@@ -839,6 +857,17 @@ export default {
       }
     },
 
+    startIntake () {
+      this.intakeDismissed = true
+      this.intakeActive = true
+      this.inputText = 'Yes, let\'s record it now.'
+      this.sendMessage('__intake__')
+    },
+
+    dismissIntake () {
+      this.intakeDismissed = true
+    },
+
     saveSession () {
       this.saveError = null
       if (!this.saveTitle.trim()) { return }
@@ -852,7 +881,13 @@ export default {
           mode: this.mode,
           transcript: this.messages,
           summary,
-          visibility: this.saveVisibility
+          visibility: this.saveVisibility,
+          domain: this.sessionDomain,
+          templates: this.sessionTemplates,
+          staircaseStep: this.selectedStaircaseStep,
+          growthStage: this.selectedGrowthStage,
+          finMgtTheme: this.selectedFinMgtTheme,
+          feedbackPending: !this.intakeComplete
         })
         this.refreshMyCases()
         this.saveSuccess = true
@@ -886,6 +921,11 @@ export default {
       }
       this.sessionId = null
       this.recommendationDelivered = false
+      this.sessionDomain = null
+      this.sessionTemplates = []
+      this.intakeDismissed = false
+      this.intakeActive = false
+      this.intakeComplete = false
       this.showGrowthCurveSelector = false
       this.selectedGrowthStage = null
       this.showStaircaseSelector = false
@@ -970,6 +1010,11 @@ export default {
       this.streamingText = ''
       this.sessionId = null
       this.recommendationDelivered = false
+      this.sessionDomain = null
+      this.sessionTemplates = []
+      this.intakeDismissed = false
+      this.intakeActive = false
+      this.intakeComplete = false
       this.showSavePanel = false
       this.saveTitle = ''
       this.saveSuccess = false
@@ -1063,7 +1108,7 @@ export default {
       this.profileStep = 0
     },
 
-    async sendMessage () {
+    async sendMessage (serverQueryOverride = null) {
       const query = this.inputText.trim()
       if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector) { return }
 
@@ -1085,7 +1130,7 @@ export default {
           headers: { 'Content-Type': 'application/json' },
           signal: this._abortController.signal,
           body: JSON.stringify({
-            query,
+            query: serverQueryOverride || query,
             mode: this.mode,
             language: this.$i18n.locale,
             languageName: this.currentLanguageName,
@@ -1100,7 +1145,8 @@ export default {
               mode: c.mode,
               visibility: c.visibility,
               summary: c.summary,
-              date: c.createdAt
+              date: c.createdAt,
+              review: c.review || null
             }))
           })
         })
@@ -1126,6 +1172,9 @@ export default {
                 this.streamingText = ''
                 this.isStreaming = false
                 this.showRetry = true
+              } else if (data.type === 'session_meta') {
+                this.sessionDomain = data.domain || null
+                this.sessionTemplates = data.templates || []
               } else if (data.type === 'recommendation_delivered') {
                 this.recommendationDelivered = true
               } else if (data.type === 'delta') {
@@ -1137,6 +1186,11 @@ export default {
                 await this.$nextTick()
                 this.scrollToBottom()
               } else if (data.type === 'done') {
+                if (this.streamingText.includes('[INTAKE_COMPLETE]')) {
+                  this.streamingText = this.streamingText.replace('[INTAKE_COMPLETE]', '').trim()
+                  this.intakeComplete = true
+                  this.intakeActive = false
+                }
                 let content = this.streamingText
                 if (content.includes('[GROWTH_CURVE_SELECTOR]')) {
                   content = content.replace('[GROWTH_CURVE_SELECTOR]', '').trim()
@@ -1931,6 +1985,18 @@ export default {
 .fin-mgt-submit:hover:not(:disabled) { background: #6d28d9; }
 .fin-mgt-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 
+.intake-prompt-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 8px 16px 4px;
+  padding: 12px 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
 .save-prompt-card {
   display: flex;
   align-items: center;
@@ -2233,6 +2299,13 @@ export default {
   font-size: 11px;
   color: #6b7280;
   background: #f3f4f6;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+.case-feedback-tag {
+  font-size: 11px;
+  color: #15803d;
+  background: #dcfce7;
   border-radius: 20px;
   padding: 2px 8px;
 }

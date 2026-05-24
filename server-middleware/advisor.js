@@ -452,7 +452,9 @@ async function handleQuery (rawBody, res) {
       movingForwardDone: false,
       movingForwardHelped: false,
       conversationComplete: false,
-      postRecAiResponses: 0
+      postRecAiResponses: 0,
+      intakeActive: false,
+      intakeTurn: 0
     }, storedState || {})
 
     // Always re-detect domain from the first user message.
@@ -697,6 +699,62 @@ async function handleQuery (rawBody, res) {
         text: 'How many meetings are you comfortable committing to with this client, and over what timeframe?'
       }
     ]
+
+    // ── INTAKE MODE ──
+    // Intercept __intake__ and intake follow-up before the normal sequencer runs.
+    if (query === '__intake__' || state.intakeActive) {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no'
+      })
+      if (res.socket) { res.socket.setNoDelay(true) }
+
+      const templateList = (state.recommendedTemplates || []).join(', ') || 'the recommended templates'
+      const domainLabel = state.detectedDomain || 'this advisory area'
+
+      let intakeMessages
+      if (query === '__intake__') {
+        state.intakeActive = true
+        state.intakeTurn = 1
+        intakeMessages = [
+          {
+            role: 'system',
+            content: `You are helping an advisor record a brief post-session observation after recommending ${templateList} for a ${domainLabel} situation. Ask the advisor the following 4 questions in a warm, conversational message — do not number them, weave them naturally into 2-3 short paragraphs: (1) Did you end up using these templates with the client, or are you planning to? (2) What landed well in this session? (3) Was anything harder than expected? (4) What would you do differently for a similar client next time? Keep it brief, warm, and encouraging.`
+          }
+        ]
+      } else {
+        state.intakeActive = false
+        state.intakeTurn = 2
+        intakeMessages = [
+          {
+            role: 'system',
+            content: 'The advisor has just answered post-session observation questions. Acknowledge their observations warmly in 2-3 sentences. Thank them genuinely — explain this kind of reflection is what makes the system smarter over time. End your response with the exact marker [INTAKE_COMPLETE] on its own line with nothing after it.'
+          },
+          ...conversationHistory.slice(-4)
+        ]
+      }
+
+      try {
+        const intakeStream = await getOpenAI().chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: intakeMessages,
+          stream: true,
+          max_tokens: 400
+        })
+        for await (const chunk of intakeStream) {
+          const text = chunk.choices[0]?.delta?.content || ''
+          if (text) { res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n') }
+        }
+      } catch (intakeErr) {
+        console.error('[advisor] Intake stream error:', intakeErr.message)
+      }
+      res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
+      if (sessionId) { sessionSave(sessionId, state) }
+      if (!res.writableEnded) { res.end() }
+      return
+    }
 
     dbg('SEQUENCER: checking pipeline, detectedDomain=' + state.detectedDomain)
 
@@ -1176,12 +1234,13 @@ Use the advisor's answers about what caused this situation and what will flow on
           if (processed !== _p3Buffer) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
+          state.recommendedTemplates = extractTemplatesFromText(_p3Buffer)
+          res.write('data: ' + JSON.stringify({ type: 'session_meta', domain: state.detectedDomain, templates: state.recommendedTemplates }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'recommendation_delivered' }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
         }
       }
       _p3Ok = true
-      state.recommendedTemplates = extractTemplatesFromText(_p3Buffer)
       if (sessionId) { sessionSave(sessionId, state) }
     } catch (streamErr) {
       console.error('[advisor] Phase 3 stream error:', streamErr.message)
