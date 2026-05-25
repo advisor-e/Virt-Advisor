@@ -227,13 +227,15 @@ These two routes now have `firmAuth` middleware applied (JWT required) but the h
 
 **Fix required:** Implement the DB queries documented in `server/routes/firm.js` TODOs. The `FirmDashboard.vue` frontend will also need to send a JWT `Authorization` header when the stubs are replaced.
 
-### L4 — Two industry reference sources require parallel maintenance
+### L4 — Static template name alias map requires manual maintenance
 
-Adding a new industry to the system requires updating two independent maps:
-- `server-middleware/advisor.js` — `industryTemplateMap` (approx. line 879, 6 industries hardcoded)
-- `server/utils/summaries.js` — `TEMPLATE_SUMMARY_ALIASES` (60+ entries)
+`industryTemplateMap` has been removed from `server-middleware/advisor.js`. The remaining static map is `TEMPLATE_SUMMARY_ALIASES` in `server/utils/summaries.js` — it bridges known naming mismatches between logic tree template names and content summary names (e.g. `"Nine Growth Aspects"` → `"9 Growth Aspect Questions & Graphic"`).
 
-These serve different purposes but diverging them will cause mismatch bugs. The integration team should consolidate into a single industry reference file during the data layer refactor.
+This map is well-contained in one file but must be manually updated when:
+- A new template is added whose name differs between `data/logic_trees.json` and `data/content-summaries.json`
+- An existing template is renamed in either data file
+
+No consolidation is required — the alias map is intentionally separate from the data files. The integration team should audit the map after any bulk template rename.
 
 ### L6 — Case study storage is localStorage only (MEDIUM — pre-production)
 
