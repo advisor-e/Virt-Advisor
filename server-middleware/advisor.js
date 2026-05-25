@@ -352,14 +352,21 @@ async function handleQuery (rawBody, res) {
   try {
     parsed = JSON.parse(rawBody)
   } catch (e) {
+    console.error('[advisor] 400 INVALID_JSON — body length:', rawBody ? rawBody.length : 0)
     sendError(res, 400, 'INVALID_JSON', 'Invalid JSON')
     return
   }
 
   const sanitised = sanitiseInput(parsed)
   if (!sanitised) {
+    console.error('[advisor] 400 INVALID_REQUEST — parsed keys:', parsed ? Object.keys(parsed).join(',') : 'null')
     sendError(res, 400, 'INVALID_REQUEST', 'Invalid request body')
     return
+  }
+
+  const { query: _q, mode: _m } = sanitised
+  if (!_q || !_q.trim()) {
+    console.error('[advisor] 400 QUERY_REQUIRED — mode:', _m, '| query repr:', JSON.stringify(_q), '| keys:', Object.keys(parsed).join(','))
   }
 
   const {
@@ -721,7 +728,7 @@ async function handleQuery (rawBody, res) {
         intakeMessages = [
           {
             role: 'system',
-            content: `You are helping an advisor record a brief post-session observation after recommending ${templateList} for a ${domainLabel} situation. Ask the advisor the following 4 questions in a warm, conversational message — do not number them, weave them naturally into 2-3 short paragraphs: (1) Did you end up using these templates with the client, or are you planning to? (2) What landed well in this session? (3) Was anything harder than expected? (4) What would you do differently for a similar client next time? Keep it brief, warm, and encouraging.`
+            content: `After a session using ${templateList} for a ${domainLabel} situation, ask the advisor two short, direct questions: (1) What went well in the session, and what was harder than expected? (2) What would you do differently with a similar client next time? No filler, no praise, no sign-offs. Plain sentences only, maximum 3 lines total.`
           }
         ]
       } else {
@@ -730,7 +737,7 @@ async function handleQuery (rawBody, res) {
         intakeMessages = [
           {
             role: 'system',
-            content: 'The advisor has just answered post-session observation questions. Acknowledge their observations warmly in 2-3 sentences. Thank them genuinely — explain this kind of reflection is what makes the system smarter over time. End your response with the exact marker [INTAKE_COMPLETE] on its own line with nothing after it.'
+            content: 'The advisor has just shared post-session observations. In 2 sentences, briefly acknowledge what they noted — reference one or two specific points they raised. No praise, no encouragement. Just a concise, professional close. End your response with the exact marker [INTAKE_COMPLETE] on its own line with nothing after it.'
           },
           ...conversationHistory.slice(-4)
         ]
@@ -1042,10 +1049,15 @@ async function handleQuery (rawBody, res) {
     const _priceFields = [state.situationDiagnostic, state.advisorConfidence]
     const hasPriceCommunication = _priceFields.some(f => f && f !== 'pending' && _pricePattern.test(f))
 
+    // Detect sales/customer root cause within a profit domain — scan situation and all answer fields
+    const _salesCustomerPattern = /\b(customer[s]?|foot\s*traffic|footfall|foot\s+count|not\s+enough\s+(?:customer|client|buyer|sale|visitor|foot|traffic|people)|lack\s+of\s+(?:customer|client|buyer|sale|visitor|traffic|footfall)|low\s+(?:customer|traffic|foot|sale|visitor|footfall)|more\s+(?:customer|client|sale|buyer|visitor)|attract(?:ing)?\s+(?:customer|client|sale|buyer)|marketing|new\s+business|new\s+client|new\s+customer|acquisition|losing\s+(?:customer|client|buyer)|slow\s+(?:sale|traffic|customer)|insufficient\s+(?:customer|sale|revenue|traffic)|sales\s+(?:volume|drop|decline|problem|issue)|not\s+(?:selling|converting)|can'?t\s+(?:get|attract|find)\s+(?:enough\s+)?(?:customer|client|buyer|people))\b/i
+    const _salesCustomerFields = Object.values(state).filter(v => typeof v === 'string' && v !== 'pending')
+    const hasSalesCustomerRootCause = _salesCustomerFields.some(f => _salesCustomerPattern.test(f))
+
     const profitInstruction = state.detectedDomain === 'profit' && state.industry && state.industry !== 'pending'
       ? `\n\nPROFIT SITUATION: This client has a profitability/cost problem. Their industry is: ${state.industry}.
 
-Your recommendation MUST include a Revenue & Feasibility Model from the provided template list. These templates are labelled [Do the Job > Revenue & Feasibility Models > ...] in the list. Select the single most appropriate model using this order:
+Your recommendation MUST include one template from the Revenue & Feasibility Models section. In the provided template list, find entries whose section label shows [Do the Job > Revenue & Feasibility Models > ...]. The TEMPLATE TITLE is the bold name before the section path (e.g. "Cafe", "Hospitality", "Home Services Feasibility") — NOT the section path itself. Use that exact title in your output. Do NOT write "Revenue & Feasibility Model" as a template name — that is the section label, not a title. Select the single most appropriate template using this order:
 
 1. TITLE MATCH — find a template whose title directly names the client's industry or business type (e.g. "Construction", "Hospitality", "Scaffolding")
 2. TAGS MATCH — if no title match, scan all trigger words and signals from the full conversation (situation, diagnostic, downstream effects, industry answer) against the tags of every Revenue & Feasibility Model and find the closest fit
@@ -1059,7 +1071,8 @@ The template name used in "My recommendation" must appear exactly as written in 
 - KEY INSIGHT — frame this in the "How to approach it" section: The revenue/what-if model's deepest value is the gap it exposes — the difference between what the owner assumes the business delivers (revenue, costs, profit) and what the financials actually show. That gap is a direct window into the mindset behind every decision they make. An owner running on flawed assumptions will keep arriving at the same outcomes. Making the gap visible is what shifts them from assumption-driven to data-driven thinking. The advisor should position the model as the tool that makes this shift possible — not just a financial exercise, but a change in how the owner sees their own business.
 - DELIVERY METHOD RULE: ${clientRaisedIssue ? 'The client raised this issue themselves — they are already motivated and aware. The advisor MUST use the Trial Fit Method to introduce the revenue model. In "How to approach it", explain the Trial Fit Method: open with the tailored suit metaphor ("get it down, then get it good"), give a quick global overview of the model without lingering on detail, then immediately get the client interacting with a specific section using best-guess numbers. Do not skip the framing stage even with an enthusiastic client.' : 'The advisor noticed this issue — the client has not yet asked for this kind of help. The advisor MUST use the Cautious Reveal Method to deliver the revenue model. CRITICAL: the Cautious Reveal is NOT a template and must NOT appear in "My recommendation" — it is a delivery approach only. Explain it solely within the "How to approach it" section: establish WHY the client needs the model before showing WHAT it contains — concepts before complexity. Open with the overtrading concept and profit sweet spot conversation. Never show the client their own model until they have mentally owned the idea. Consider sending the Phil\'s a plumber video before the meeting to prime awareness.'}
 ${reportsYes ? '- This client already uses financial management reports regularly. Do NOT recommend the Working Capital Cycle or any basic financial literacy or financial awareness templates — they are beneath this client\'s level. Only recommend templates appropriate for a financially informed client.' : ''}
-${reportsNo ? `- FINANCIAL EDUCATION: This client does not use financial management reports. Include a financial education template in TIER 2 (future consideration). To select the correct one, match the client's described situation to the most relevant theme in the Financial Management Progression Table below — read the Problem column and find the closest match. You MUST use the Suggested Template name from that theme exactly as written. The only permitted template names for this slot are: The Heald Matrix, Working Capital Cycle, Demings Volatility, Forecasting, Dashboard Discussions, Ratio Analysis. Do NOT use any other template name. If the closest theme is "Eyes On The Prize" (Revenue Model), skip it — the revenue model is already in Section 1 — and choose the next best matching theme instead.\n- CRITICAL: Do NOT describe this client as using, having access to, or being familiar with management reports at any point in your response. Their situation is that they do not use reports — every template description and all explanatory prose must reflect this. Writing anything that implies the client already uses reports is factually incorrect and undermines the recommendation.\n\nFINANCIAL MANAGEMENT PROGRESSION TABLE:\n${formatFinMgtTable()}` : ''}
+${reportsNo ? `- FINANCIAL EDUCATION: This client does not use financial management reports. You MUST include a financial education template as the first entry in SECTION 2 ("You might find these templates support this topic — for future consideration"). This is not optional — it is a required entry in SECTION 2 whenever the client does not use management reports. To select the correct one, match the client's described situation to the most relevant theme in the Financial Management Progression Table below — read the Problem column and find the closest match. You MUST use the Suggested Template name from that theme exactly as written. The only permitted template names for this slot are: The Heald Matrix, Working Capital Cycle, Demings Volatility, Forecasting, Dashboard Discussions, Ratio Analysis. Do NOT use any other template name. If the closest theme is "Eyes On The Prize" (Revenue Model), skip it — the revenue model is already in Section 1 — and choose the next best matching theme instead.\n- CRITICAL: Do NOT describe this client as using, having access to, or being familiar with management reports at any point in your response. Their situation is that they do not use reports — every template description and all explanatory prose must reflect this. Writing anything that implies the client already uses reports is factually incorrect and undermines the recommendation.\n\nFINANCIAL MANAGEMENT PROGRESSION TABLE:\n${formatFinMgtTable()}` : ''}
+${hasSalesCustomerRootCause ? '- SALES/CUSTOMER ROOT CAUSE: Read the situation diagnostic and collected answers. If they indicate the profitability problem is primarily driven by insufficient customers, foot traffic, or sales volume — rather than cost or overhead problems — you MUST include the Customer Journey template in SECTION 2. The Customer Journey reveals where in the acquisition funnel the business is losing people, which is the critical diagnostic step before any sales tactics are introduced. If the financial education rule above also applies, place Customer Journey immediately after the financial education template. If no financial education template is required, make Customer Journey the first entry in SECTION 2.' : ''}
 ${reportsFromAdvisorFirm ? '- The advisor\'s firm already delivers management reports to this client. This is an established financial services relationship — build on that foundation, not repeat it. Position the next step as advancing the engagement.' : ''}
 ${reviewNo ? '- The advisor has indicated the client does NOT need a detailed review of business variables and profit drivers. Do NOT recommend templates focused on profit driver analysis, business variable reviews, or foundational financial education. Stick to action-oriented templates relevant to the specific profitability issue.' : ''}
 ${staircaseNum ? `- Advisory Staircase position: Step ${staircaseNum}. ${staircaseNum <= 2 ? 'This is an early-stage engagement — keep templates foundational and accessible. Build confidence before introducing complexity.' : staircaseNum === 3 ? 'The engagement is at interpretation stage — the client is ready for structured analysis and what-if modelling.' : staircaseNum === 4 ? 'The engagement is at application stage — the client is ready for forecasting, scenario planning, and strategic templates.' : 'This is a mature strategic engagement — the client expects sophisticated, data-driven templates. Do not recommend foundational or educational content.'}` : ''}`
@@ -1196,6 +1209,8 @@ Do NOT include templates that:
 - Were not referenced in any collected answer field
 - Duplicate the intent of a Tier 1 template
 
+CRITICAL OUTPUT RULE: The first line of each template entry must be the exact template title in bold markdown — **[exact title from list]** — nothing else on that line. Do NOT write "Template Name: [title]". Do NOT include template IDs, page links, or any fields not listed in the format below.
+
 PER-TEMPLATE FORMAT — use this exact structure for every template in both sections, no exceptions. Each field label must appear exactly as written below, including the ** markers. Each sub-section MUST be separated by a blank line so they render as distinct paragraphs:
 
 **[Template name]**
@@ -1289,7 +1304,8 @@ Use the advisor's answers about what caused this situation and what will flow on
       _p3Ok = true
       if (sessionId) { sessionSave(sessionId, state) }
     } catch (streamErr) {
-      console.error('[advisor] Phase 3 stream error:', streamErr.message)
+      console.error('[advisor] Phase 3 stream error:', streamErr.message, '| type:', streamErr.constructor.name, '| status:', streamErr.status ?? 'none', '| code:', streamErr.code ?? 'none')
+      if (streamErr.error) { console.error('[advisor] Phase 3 OpenAI error detail:', JSON.stringify(streamErr.error)) }
       if (!res.writableEnded) {
         try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
       }

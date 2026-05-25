@@ -49,8 +49,8 @@ function filterTemplatesByQuery (templates, query, maxResults) {
 
     let score = 0
     for (const word of queryWords) {
-      if (titleLower.includes(word)) {
-        score += 3 // title match is far more relevant than a tag match
+      if (titleLower.includes(word) || (titleLower.length >= 4 && word.startsWith(titleLower))) {
+        score += 3 // title match — includes plural/derived forms (e.g. "cafes" → "Cafe")
       } else if (searchText.includes(word)) {
         score++
       }

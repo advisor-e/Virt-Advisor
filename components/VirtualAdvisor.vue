@@ -310,14 +310,14 @@
     .input-inner
       textarea.message-input(
         v-model="inputText"
-        @keydown.enter.exact.prevent="sendMessage"
+        @keydown.enter.exact.prevent="sendMessage()"
         :placeholder="isListening ? $t('input.listening') : inputPlaceholder"
         rows="3"
         :disabled="isStreaming"
         :class="{ 'input-listening': isListening, 'input-ready': !isListening && inputText.trim() }"
       )
       button.send-btn(
-        @click="sendMessage"
+        @click="sendMessage()"
         :disabled="!inputText.trim() || isStreaming || isListening"
       )
         span(v-if="isStreaming") {{ $t('input.sending') }}

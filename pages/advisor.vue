@@ -16,7 +16,7 @@ export default {
       return (this.$route && this.$route.query.advisorId) || 'local-advisor'
     },
     firmId () {
-      return (this.$route && this.$route.query.firmId) || 'local-firm'
+      return (this.$route && this.$route.query.firmId) || null
     }
   }
 }
