@@ -1127,7 +1127,14 @@ ${formatFinMgtTable()}`
 
 OPENING SUMMARY — Before listing any templates, write 2–3 sentences that give the advisor an at-a-glance read. Cover: (1) what the core client problem is, (2) what the recommended approach will fix, (3) why this combination suits this specific advisor-client pairing. Keep it tight — an advisor reading this before a meeting should absorb it in 10 seconds. No headers, no bullet points — plain prose only.
 
-TEMPLATE SELECTION RULE: If one or more Diagnostic Logic Trees appear in the context above, their recommendation nodes identify the primary templates for this situation. You MUST prioritise templates named in those terminal nodes for Section 1. The trees encode diagnostic pathways built specifically for each domain — they are more precise than general inference. Only exclude a tree-recommended template if a specific advisor or client answer explicitly rules it out (e.g. the client already uses that tool, or the advisor said it is not appropriate).
+TEMPLATE SELECTION RULE: Diagnostic Logic Trees identify the TYPE and CATEGORY of solution needed — they encode diagnostic pathways, not exact template names. Use them to understand the solution category, then select the actual template by matching all signals from the full conversation (client situation, domain, industry, growth stage, advisor answers) against the template list above using this exact order:
+1. TITLE MATCH — find a template whose title directly names the client's situation, industry, or core problem
+2. TAGS MATCH — if no title match, match trigger words and signals from the full conversation against the tags of every template in the relevant category (use the [Section > SubSection > Topic] labels to identify the right category)
+3. PURPOSE MATCH — if tags do not resolve it, read the purpose field of each candidate template for the closest operational match
+
+If no match is found after all three steps: tell the advisor explicitly — "No exact template exists in the library for [situation] — the closest I could find is [exact template name] as it covers [specific tags/purpose] that relate to [specific aspect of their situation]. You may want to review the library directly for a better fit."
+
+CRITICAL: You may ONLY recommend templates that appear EXACTLY as named in the template list above. Never invent a template name. Never silently fall back to a generic or approximate name. If you cannot find a match, say so explicitly using the message above.
 
 SECTION 1 — "My recommendation"
 Select templates that directly address the CAUSE of the client's situation — what led to it and the primary fix. Capacity: ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} (${_tier1Label}). Do not exceed this number in Section 1. Order by priority: the template that addresses what the advisor said they want to tackle first comes first, followed by any other primary cause templates, then any downstream needs included in Section 1.
