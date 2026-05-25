@@ -391,7 +391,7 @@
           "condition": "Client responds: 'I can't say where I stand with complete confidence.'",
           "action": "Start by generating a Financial Dashboard and support with a Revenue Model.",
           "templates": [
-            "Dashboard Report"
+            "a financial dashboard or reporting template [Financial Management & Reporting — tags: dashboard, KPIs, financial reporting, management accounts]"
           ],
           "notes": "Generating a dashboard quickly identifies if current accounting systems provide accurate data and if the owner understands performance and activity ratios. This reveals how deep you need to explore their systems, finance team, or owner education. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
           "support_templates": [],
@@ -570,11 +570,11 @@
           "branch_name": "Complacent — Done Pretty Well On Their Own",
           "type": "recommendation",
           "condition": "Client feels they have managed fine without formal governance and does not immediately see the need",
-          "action": "Create strategic disturbance before introducing governance tools. Use Porter's & Pine or Blue Ocean Strategy to surface the external competitive or disruption pressures the client may be ignoring. A client who believes they have 'done pretty well on their own' is often operating in a comfort zone that masks slowing growth, increasing complexity, or emerging risk. Review the Growth Curve to show where the business currently sits across the 9 Growth Stages and identify which Complexity Layers are about to become governance problems if left unmanaged.",
+          "action": "Create strategic disturbance before introducing governance tools. Use Porter's & Pine or a strategic differentiation template [Strategy & Planning — tags: differentiation, competitive advantage, Blue Ocean] to surface the external competitive or disruption pressures the client may be ignoring. A client who believes they have 'done pretty well on their own' is often operating in a comfort zone that masks slowing growth, increasing complexity, or emerging risk. Review the Growth Curve to show where the business currently sits across the 9 Growth Stages and identify which Complexity Layers are about to become governance problems if left unmanaged.",
           "templates": [
             "Porters & Pine",
-            "Blue Ocean Strategy",
-            "Reveal Growth Curve"
+            "a strategic differentiation template [Strategy & Planning — tags: differentiation, competitive advantage, Blue Ocean]",
+            "a growth stage framework template [Business Development — tags: growth curve, growth stages, business maturity]"
           ],
           "notes": "Do not argue for governance directly — let the strategic tools create the disturbance. Once the client can see the gap between where they are and where the business needs to go, governance becomes the obvious next conversation rather than an imposed agenda."
         },
@@ -692,7 +692,7 @@
             "Quality Decisions",
             "6 Hats",
             "Draft White Papers",
-            "Reveal Growth Curve"
+            "a growth stage framework template [Business Development — tags: growth curve, growth stages, business maturity]"
           ],
           "notes": "The 5 Common Psyche Errors: Confirmation Bias (seeking data that confirms existing views to avoid cognitive dissonance), Complacency (losing focus on the external environment once security is perceived), Optimism Bias (deleting negative information to protect existing beliefs), Over-Exposure/Familiarity (preferring the familiar — better the devil you know — over what is actually needed), Role-Identification (mimicking how a boss should behave rather than thinking authentically). De Bono's 6 Hats forces six perspectives: White (missing information), Red (intuition/feelings), Black (devil's advocate), Yellow (objective benefits), Green (creative alternatives), Blue (sequencing). Draft White Papers formalise the decision workpaper: defined problem, list of solutions with pros and cons, chosen solution with supporting logic, and crucially the counter-argument that proves risks were genuinely considered. The Growth Curve (9 Growth Stages, 7 Growth Tactics, 5 Complexity Layers) helps the client understand whether their decisions are appropriate for the stage the business is actually at."
         },
@@ -707,7 +707,7 @@
             "Partner Accountability",
             "Draft White Papers",
             "Quality Decisions",
-            "Reveal Growth Curve"
+            "a growth stage framework template [Business Development — tags: growth curve, growth stages, business maturity]"
           ],
           "notes": "Formal governance requires: Protocols (defined procedures that must be followed without exception), Tolerances (permissible limits of variation from the original design), Milestones with Early Failure Indicators so the team knows exactly when a decision is going off track, and Independent Review (the person reviewing project success must not be the person managing its implementation). Partner Accountability establishes conflict of interest disclosure and individual accountability. Annual Board Plan creates the meeting rhythm and agenda discipline. Draft White Papers capture the full decision record including the counter-argument that proves risks were genuinely considered. Board Plan should include Pre Meeting Pack, Agendas, Minutes, and Conflict Disclosure as standard procedural components."
         }
@@ -1039,10 +1039,10 @@
           "branch_name": "People Power — Multiple Owners, Misaligned (Trust Intact)",
           "type": "recommendation",
           "condition": "Multiple owners not currently aligned, frustration aired, but mutual trust and respect remain — relationship has NOT turned toxic",
-          "action": "Use the Business Owners Expectations table and Business Development Stages table as Contrast Models. These encourage recognition of the interdependence between operational objectives and owner expectations. If the owners also want to communicate their alignment to the team or customer base, add the Alignment Statements template.",
+          "action": "Use the an owner expectations contrast model [Governance or Strategy — tags: owner expectations, alignment, contrast model] table and a business development stages template [Business Development — tags: development stages, lifecycle, growth phases] table as Contrast Models. These encourage recognition of the interdependence between operational objectives and owner expectations. If the owners also want to communicate their alignment to the team or customer base, add the Alignment Statements template.",
           "templates": [
-            "Business Owners Expectations",
-            "Business Development Stages",
+            "an owner expectations contrast model [Governance or Strategy — tags: owner expectations, alignment, contrast model]",
+            "a business development stages template [Business Development — tags: development stages, lifecycle, growth phases]",
             "Alignment Statements"
           ],
           "notes": "Contrast Models are the right tool here — they make interdependence visible without assigning blame. The Alignment Statements template is optional, used when owners want to communicate outward."
@@ -1068,8 +1068,8 @@
           "action": "Use Turnaround Behaviours combined with the Feedback and Delegation frameworks. This is a 4-stage meeting process: (1) Determine the observable winning behaviours to implement — attended by business owners and team managers. (2) Coach the team members concerned. (3) Coach the managers on feedback and delegation protocols. (4) Observe managers coaching their team — practice and review with feedback given to managers afterwards. If industry-appropriate, add the Phone Techniques template but run it as a separate session — do not mix face-to-face customer dealings with phone technique training.",
           "templates": [
             "Turnaround Behaviours",
-            "Feedback Framework",
-            "Delegation Framework",
+            "a feedback framework template [People & Performance — tags: feedback, communication, team engagement]",
+            "a delegation framework template [People & Performance — tags: delegation, leadership, team management]",
             "Phone Techniques"
           ],
           "notes": "Phone Techniques requires an extra coaching session dedicated to practice. Do not combine with face-to-face customer content in the same session."
@@ -1079,9 +1079,9 @@
           "branch_name": "People Power — Owner Feeling Beaten Up / Needs Re-Energising",
           "type": "recommendation",
           "condition": "Business owner feels beaten up by the business and needs to re-energise to follow through on important tasks — business is still profitable with sound fundamentals",
-          "action": "Use SMART Goals. Introduce this session by encouraging the owner to think about their ambitions in advance of the meeting. This is especially useful for husband-and-wife business owners to improve internal communication and reconnect. Encourage goals across a wide range of topics — health, education, finance, relationships — not just business. This is the Relative dimension of SMART goals. Even though these areas sit outside normal advisory engagement, make sure you encourage clients in these domains.",
+          "action": "Use a goal-setting template [Planning — tags: goals, targets, accountability, SMART]. Introduce this session by encouraging the owner to think about their ambitions in advance of the meeting. This is especially useful for husband-and-wife business owners to improve internal communication and reconnect. Encourage goals across a wide range of topics — health, education, finance, relationships — not just business. This is the Relative dimension of SMART goals. Even though these areas sit outside normal advisory engagement, make sure you encourage clients in these domains.",
           "templates": [
-            "SMART Goals"
+            "a goal-setting template [Planning — tags: goals, targets, accountability, SMART]"
           ],
           "notes": "This session only applies when the business itself is fundamentally sound. If the business is in distress, resolve the business issues first."
         },
@@ -1094,7 +1094,7 @@
           "templates": [
             "Alignment Statements"
           ],
-          "notes": "The Alignment Statements template serves a dual role: outward messaging and internal cultural anchoring. It is most powerful when the owners have gone through the Business Owners Expectations and Business Development Stages tables first."
+          "notes": "The Alignment Statements template serves a dual role: outward messaging and internal cultural anchoring. It is most powerful when the owners have gone through the an owner expectations contrast model [Governance or Strategy — tags: owner expectations, alignment, contrast model] and a business development stages template [Business Development — tags: development stages, lifecycle, growth phases] tables first."
         },
         {
           "id": "sp_sit_recruiting",
@@ -1697,7 +1697,7 @@
       "id": "public_speaking",
       "name": "Get the Job - Public Speaking & Seminar Delivery",
       "mode": "learn",
-      "description": "Sequential coaching guide for designing and delivering a seminar, workshop, or presentation. Unlike other trees, this is not a one-shot recommendation — it is ongoing stage-by-stage coaching. Always ask where the advisor is in the process before starting, and jump to the relevant stage. Use the Powerful Seminars reference content (injected separately) for detailed coaching at each stage.",
+      "description": "Sequential coaching guide for designing and delivering a seminar, workshop, or presentation. Unlike other trees, this is not a one-shot recommendation — it is ongoing stage-by-stage coaching. Always ask where the advisor is in the process before starting, and jump to the relevant stage. Use the a seminars and events template [Sales & Marketing — tags: seminars, events, public speaking, marketing channel] reference content (injected separately) for detailed coaching at each stage.",
       "sequential": true,
       "entry_triggers": [
         "seminar",
@@ -4017,7 +4017,7 @@
           "type": "question",
           "condition": "Wish lists captured — before the concept meeting, run a financial viability check",
           "question": "Before we bring the family together — do the numbers actually work? Can the successor fund the transition without it being financially crippling, and can the incumbent's retirement income requirements be met from what the business generates?",
-          "notes": "Financial viability is the most common reason family successions collapse after the relationship work has been done. Core check: (1) Transfer costs — what is the total cost of the ownership transfer? Includes: stamp duties, legal costs, valuation fees, tax liabilities (capital gains, gift duties if applicable). Are these costs manageable, or do they consume so much value that the incoming successor is immediately burdened? (2) Successor funding capacity — can the successor fund their share of the acquisition? What is the net cost to them after any discounts, gifting, or vendor finance arrangements? Is the monthly repayment burden sustainable from the business's cash flow after the succession takes effect? (3) Incumbent retirement income — does the business generate sufficient income to fund the incumbent's retirement requirements (lump sum extraction, ongoing income, superannuation arrangements) while still leaving the successor with a viable business? Use the Valuation logic tree (Business Sale Assessment framework) to establish a notional fair value before the financial viability check. Key fairness question (Q6 from succession framework): were the successors previously underpaid while building the business? If so, this underpayment may justify a discount on the transfer price — the family must discuss and agree the methodology explicitly. Use the Salary Sacrifice table to calculate the real-world income loss for a sibling or successor who was chronically underpaid or who provided personal care to ageing parents while siblings pursued external careers.",
+          "notes": "Financial viability is the most common reason family successions collapse after the relationship work has been done. Core check: (1) Transfer costs — what is the total cost of the ownership transfer? Includes: stamp duties, legal costs, valuation fees, tax liabilities (capital gains, gift duties if applicable). Are these costs manageable, or do they consume so much value that the incoming successor is immediately burdened? (2) Successor funding capacity — can the successor fund their share of the acquisition? What is the net cost to them after any discounts, gifting, or vendor finance arrangements? Is the monthly repayment burden sustainable from the business's cash flow after the succession takes effect? (3) Incumbent retirement income — does the business generate sufficient income to fund the incumbent's retirement requirements (lump sum extraction, ongoing income, superannuation arrangements) while still leaving the successor with a viable business? Use the Valuation logic tree (Business Sale Assessment framework) to establish a notional fair value before the financial viability check. Key fairness question (Q6 from succession framework): were the successors previously underpaid while building the business? If so, this underpayment may justify a discount on the transfer price — the family must discuss and agree the methodology explicitly. Use the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table to calculate the real-world income loss for a sibling or successor who was chronically underpaid or who provided personal care to ageing parents while siblings pursued external careers.",
           "branches": [
             {
               "answer_pattern": "financially viable — the transfer costs are manageable and both parties' income needs can be met",
@@ -4042,10 +4042,10 @@
           "branch_name": "Branch 1C(ii) — Disparate Financial Value: Sibling Equity Methodology",
           "type": "recommendation",
           "condition": "Siblings involved in the succession are slated to receive different financial outcomes — the methodology must be explicitly agreed",
-          "notes": "IF siblings are receiving disparate financial figures, THEN utilise the Salary Sacrifice table to calculate the real-world loss of income for those who provided elderly or family care, and document the agreed equity methodology transparently before the Concept Meeting. Disparate outcomes in family succession are common and legitimate — but only when the reason is explicit, agreed by all parties, and anchored in objective rules. Common legitimate reasons for disparate figures: (1) One sibling worked in the business for years at below-market wages — their labour contribution has an economic value that must be quantified and credited; (2) One sibling provided primary care for ageing parents, forgoing career income — the Salary Sacrifice table calculates the real-world income loss over the care period; (3) One sibling received prior financial gifts or support from the parents — these must be counted against their succession entitlement if equity is the agreed goal; (4) Siblings have different roles in the future business — an operating successor contributing ongoing labour and risk should receive different consideration than a passive recipient. The Salary Sacrifice calculation: identify the period during which the sibling was underpaid or providing care; calculate the difference between fair market rate and what was actually received or earned; this figure represents a legitimate economic claim that should be offset against their succession payment or credited as an equity adjustment. Transparency requirement: if different figures are provided to different siblings, the methodology and reasons must be thoroughly discussed and agreed by ALL parties — not unilaterally decided by the incumbent. Establishing a Family Constitution early creates the objective framework within which these calculations are accepted as fair rather than contested as arbitrary.",
+          "notes": "IF siblings are receiving disparate financial figures, THEN utilise the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table to calculate the real-world loss of income for those who provided elderly or family care, and document the agreed equity methodology transparently before the Concept Meeting. Disparate outcomes in family succession are common and legitimate — but only when the reason is explicit, agreed by all parties, and anchored in objective rules. Common legitimate reasons for disparate figures: (1) One sibling worked in the business for years at below-market wages — their labour contribution has an economic value that must be quantified and credited; (2) One sibling provided primary care for ageing parents, forgoing career income — the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table calculates the real-world income loss over the care period; (3) One sibling received prior financial gifts or support from the parents — these must be counted against their succession entitlement if equity is the agreed goal; (4) Siblings have different roles in the future business — an operating successor contributing ongoing labour and risk should receive different consideration than a passive recipient. The a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] calculation: identify the period during which the sibling was underpaid or providing care; calculate the difference between fair market rate and what was actually received or earned; this figure represents a legitimate economic claim that should be offset against their succession payment or credited as an equity adjustment. Transparency requirement: if different figures are provided to different siblings, the methodology and reasons must be thoroughly discussed and agreed by ALL parties — not unilaterally decided by the incumbent. Establishing a Family Constitution early creates the objective framework within which these calculations are accepted as fair rather than contested as arbitrary.",
           "templates": [
             "Succession Planning",
-            "Salary Sacrifice"
+            "a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation]"
           ]
         },
         {
@@ -4053,10 +4053,10 @@
           "branch_name": "Branch 1C(iii) — Successor Compensation: Underpayment Discount",
           "type": "recommendation",
           "condition": "The incoming successor was chronically underpaid relative to market rate while building the business — a purchase price discount may be warranted",
-          "notes": "IF the incoming successor was chronically underpaid while building the business, THEN negotiate whether a discount should be applied to their final purchase price to compensate for the sweat equity contributed at below-market wages. This is a distinct calculation from the Disparate Financial Value branch (which addresses sibling equity across multiple recipients). This branch applies when a single successor — typically a child who joined the business early and accepted below-market wages in exchange for a future ownership stake — is now being asked to pay a full commercial price for a business they helped build. The core question: were the wages previously paid to the successor at a fair market rate? If not, the family must quantify the cumulative shortfall. Calculation approach: (1) Identify the period during which the successor was employed at below-market wages; (2) Establish the fair market rate for an equivalent external hire in that role for each year of the period; (3) Calculate the annual shortfall (market rate minus actual wages paid); (4) Sum the total cumulative underpayment over the full period — this is the sweat equity figure; (5) The family then negotiates what portion of this figure is credited as a discount against the purchase price. There is no universal rule — some families credit 100% of the shortfall, others negotiate a partial credit. What matters is that the methodology is agreed explicitly and documented before finalising the transfer price. Connect to the Salary Sacrifice table for the calculation. Ensure the agreed discount methodology is recorded in the Family Constitution or the formal succession agreement.",
+          "notes": "IF the incoming successor was chronically underpaid while building the business, THEN negotiate whether a discount should be applied to their final purchase price to compensate for the sweat equity contributed at below-market wages. This is a distinct calculation from the Disparate Financial Value branch (which addresses sibling equity across multiple recipients). This branch applies when a single successor — typically a child who joined the business early and accepted below-market wages in exchange for a future ownership stake — is now being asked to pay a full commercial price for a business they helped build. The core question: were the wages previously paid to the successor at a fair market rate? If not, the family must quantify the cumulative shortfall. Calculation approach: (1) Identify the period during which the successor was employed at below-market wages; (2) Establish the fair market rate for an equivalent external hire in that role for each year of the period; (3) Calculate the annual shortfall (market rate minus actual wages paid); (4) Sum the total cumulative underpayment over the full period — this is the sweat equity figure; (5) The family then negotiates what portion of this figure is credited as a discount against the purchase price. There is no universal rule — some families credit 100% of the shortfall, others negotiate a partial credit. What matters is that the methodology is agreed explicitly and documented before finalising the transfer price. Connect to the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table for the calculation. Ensure the agreed discount methodology is recorded in the Family Constitution or the formal succession agreement.",
           "templates": [
             "Succession Planning",
-            "Salary Sacrifice"
+            "a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation]"
           ]
         },
         {
@@ -4079,7 +4079,7 @@
           "type": "question",
           "condition": "Financial viability confirmed — now establish the governance framework before the concept meeting",
           "question": "Here's a critical question for the family to answer: when the business transfers, are the new owners expected to 'own' it outright — to do with it as they choose — or are they acting as stewards, preserving it for the next generation after them?",
-          "notes": "This is one of the most emotionally loaded questions in any succession engagement and it must be answered explicitly before the concept meeting, not assumed. The OECD Principles of Corporate Governance (for family enterprises) prescribe a clear Separation of Powers between three distinct roles: (1) Ownership — who holds the economic interest and voting rights? (2) Governance — who sets the strategic direction and holds the board function? Who can override decisions? (3) Management — who runs the business day-to-day? In many family successions, the incumbent attempts to retain Governance or Management influence after transferring Ownership — this is the primary source of post-succession conflict. The conflict is predictable and preventable only if the separation is made explicit and written down. Family Constitution: the OECD strongly recommends a written Family Constitution for all family enterprise successions. The Family Constitution documents: the agreed rules for family involvement in the business; how disputes between family members will be resolved; the agreed process for future succession events; the conditions under which family members can sell or gift their interest; the rules for remuneration of family members employed in the business. A Family Constitution does not replace legal documents (shareholder agreements, wills, trusts) — it establishes the agreed family rules that sit above and guide those legal structures. Sibling equity (Q5): if multiple siblings are involved and receiving different financial arrangements, the Family Constitution must document the agreed methodology and the reasons — transparency is non-negotiable. Use the Salary Sacrifice table where siblings provided unequal labour or caregiving contributions.",
+          "notes": "This is one of the most emotionally loaded questions in any succession engagement and it must be answered explicitly before the concept meeting, not assumed. The OECD Principles of Corporate Governance (for family enterprises) prescribe a clear Separation of Powers between three distinct roles: (1) Ownership — who holds the economic interest and voting rights? (2) Governance — who sets the strategic direction and holds the board function? Who can override decisions? (3) Management — who runs the business day-to-day? In many family successions, the incumbent attempts to retain Governance or Management influence after transferring Ownership — this is the primary source of post-succession conflict. The conflict is predictable and preventable only if the separation is made explicit and written down. Family Constitution: the OECD strongly recommends a written Family Constitution for all family enterprise successions. The Family Constitution documents: the agreed rules for family involvement in the business; how disputes between family members will be resolved; the agreed process for future succession events; the conditions under which family members can sell or gift their interest; the rules for remuneration of family members employed in the business. A Family Constitution does not replace legal documents (shareholder agreements, wills, trusts) — it establishes the agreed family rules that sit above and guide those legal structures. Sibling equity (Q5): if multiple siblings are involved and receiving different financial arrangements, the Family Constitution must document the agreed methodology and the reasons — transparency is non-negotiable. Use the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table where siblings provided unequal labour or caregiving contributions.",
           "branches": [
             {
               "answer_pattern": "governance structure agreed and family constitution scope defined — ready for the concept meeting",
@@ -5345,7 +5345,7 @@
           "condition": "Client wants to use seminars, workshops, or presentations as a marketing and sales tool",
           "action": "Seminars and events are a high-leverage marketing channel when designed correctly — they position the advisor or business owner as an authority and create a group selling environment. Use the Public Speaking and Seminar Design tree to guide the full design and delivery process: define the audience and desired outcome, build the C.P.D. content structure, plan the 5-6 week timeline, select the right delivery style, and prepare the 8-step rehearsal process. After the event, always send a thank-you follow-up and have a clear next step prepared for interested attendees.",
           "templates": [
-            "Powerful Seminars",
+            "a seminars and events template [Sales & Marketing — tags: seminars, events, public speaking, marketing channel]",
             "Sales & Marketing Review"
           ],
           "notes": "The objective of any public speaking engagement is to position the speaker favourably so the audience would seek or confirm their decision to engage their services. A seminar that does not include a clear call to action and next step is a missed commercial opportunity."
@@ -5465,9 +5465,9 @@
           "branch_name": "Mindset — Volatility & Ups/Downs (The Wake Up Call)",
           "type": "recommendation",
           "condition": "Client accepts the business has 'ups and downs' but lacks a way to quantify their range, leading to poor data conclusions",
-          "action": "Introduce the Volatility Model to show the business is a collection of processes. This demonstrates that a reduction in volatility can only come after refining business procedures — it is not random. The Deming's Volatility coaching tree walks through this step by step.",
+          "action": "Introduce the a volatility or data interpretation template [Financial Management & Reporting — tags: volatility, Deming, data interpretation, working capital] to show the business is a collection of processes. This demonstrates that a reduction in volatility can only come after refining business procedures — it is not random. The Deming's Volatility coaching tree walks through this step by step.",
           "templates": [
-            "Volatility Model"
+            "a volatility or data interpretation template [Financial Management & Reporting — tags: volatility, Deming, data interpretation, working capital]"
           ],
           "notes": "Cross-reference the demings_volatility coaching tree. This is often the insight that unlocks a client's willingness to commit to regular financial reporting."
         },
@@ -5509,11 +5509,11 @@
           "branch_name": "Mindset — Establishing a Financial Learning Culture (Test & Learn)",
           "type": "recommendation",
           "condition": "Client is operating from a position of strength but needs to secure ongoing progressive financial engagement",
-          "action": "Implement visible management reporting tools: Dashboard Report, Ratio Analysis, and Benchmarking. Building a visible learning culture can only occur top-down — learning is constant but requires a system to observe. Begin with the dashboard to establish the baseline, then layer in ratio analysis and benchmarking over successive sessions.",
+          "action": "Implement visible management reporting tools: a financial dashboard or reporting template [Financial Management & Reporting — tags: dashboard, KPIs, financial reporting, management accounts], Ratio Analysis, and a benchmarking template [Financial Management & Reporting — tags: benchmarking, ratios, industry comparison]. Building a visible learning culture can only occur top-down — learning is constant but requires a system to observe. Begin with the dashboard to establish the baseline, then layer in ratio analysis and benchmarking over successive sessions.",
           "templates": [
-            "Dashboard Report",
+            "a financial dashboard or reporting template [Financial Management & Reporting — tags: dashboard, KPIs, financial reporting, management accounts]",
             "Ratio Analysis",
-            "Benchmarking"
+            "a benchmarking template [Financial Management & Reporting — tags: benchmarking, ratios, industry comparison]"
           ],
           "notes": "Cross-reference dashboard_discussions and ratio_analysis coaching trees. Keep the cadence regular and tied to management meetings for maximum engagement."
         },
@@ -5604,7 +5604,7 @@
           "condition": "Client has no dashboard or structured financial review process",
           "action": "Generate a Financial Dashboard as the starting point. This quickly identifies whether current accounting systems provide accurate data and whether the owner understands performance and activity ratios. Use the Dashboard Discussions coaching tree to walk through the setup process. Support with a Revenue Model to show how key metrics connect to business outcomes.",
           "templates": [
-            "Dashboard Report"
+            "a financial dashboard or reporting template [Financial Management & Reporting — tags: dashboard, KPIs, financial reporting, management accounts]"
           ],
           "notes": "Cross-reference the dashboard_discussions coaching tree. If accounting systems cannot generate the required data, refer to the data_financial_systems advisory tree first before building the dashboard. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
@@ -5613,12 +5613,12 @@
           "branch_name": "Adding Ratio Analysis to Existing Reporting",
           "type": "recommendation",
           "condition": "Client has a dashboard and wants to add ratio analysis or KPI tracking",
-          "action": "Initiate Ratio Analysis alongside the existing dashboard. Cross-reference the ratio_analysis coaching tree to walk through the key performance and activity ratios relevant to their business. Add Benchmarking to give the client an external reference point for their ratios.",
+          "action": "Initiate Ratio Analysis alongside the existing dashboard. Cross-reference the ratio_analysis coaching tree to walk through the key performance and activity ratios relevant to their business. Add a benchmarking template [Financial Management & Reporting — tags: benchmarking, ratios, industry comparison] to give the client an external reference point for their ratios.",
           "templates": [
             "Ratio Analysis",
-            "Benchmarking"
+            "a benchmarking template [Financial Management & Reporting — tags: benchmarking, ratios, industry comparison]"
           ],
-          "notes": "Cross-reference the ratio_analysis coaching tree. Benchmarking is most powerful when the client can see how they compare to industry peers — it removes the subjectivity from financial conversations."
+          "notes": "Cross-reference the ratio_analysis coaching tree. a benchmarking template [Financial Management & Reporting — tags: benchmarking, ratios, industry comparison] is most powerful when the client can see how they compare to industry peers — it removes the subjectivity from financial conversations."
         },
         {
           "id": "ffm_wc_diagnosis",
@@ -5650,9 +5650,9 @@
           "branch_name": "Working Capital — Profitability Problem",
           "type": "recommendation",
           "condition": "Client completes normal trading cycles but cannot afford to pay wages or buy new stock",
-          "action": "Diagnose as a Profitability Problem. Review gross margins and fixed costs — this usually means the margin is too low, fixed costs are too high, or the business was underfunded from the start. Categorise expenses into Variable (Do The Job), Activity (Get The Job), and Fixed (Get Organised) using the Cost Breakdown template. Cross-reference the profitability_feasibility advisory tree for the full diagnostic pathway.",
+          "action": "Diagnose as a Profitability Problem. Review gross margins and fixed costs — this usually means the margin is too low, fixed costs are too high, or the business was underfunded from the start. Categorise expenses into Variable (Do The Job), Activity (Get The Job), and Fixed (Get Organised) using the a cost breakdown or expense categorisation template [Financial Management & Reporting — tags: costs, expense categories, gross margin, variable costs] template. Cross-reference the profitability_feasibility advisory tree for the full diagnostic pathway.",
           "templates": [
-            "Cost Breakdown"
+            "a cost breakdown or expense categorisation template [Financial Management & Reporting — tags: costs, expense categories, gross margin, variable costs]"
           ],
           "notes": "Cross-reference the profitability_feasibility advisory tree. Do not confuse this with a cash timing problem — the trading cycle itself is fine, the margin is insufficient to sustain the business. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
@@ -5751,7 +5751,7 @@
           "action": "Deploy direct-to-customer air freight for rare items and fast freight for perishables — fast freight maximises the 'sales days' window to recover investment before stock perishes. Negotiate delayed supplier payment terms for slow-moving lines to reduce cash commitment before a sale is confirmed.",
           "templates": [
             "Working Capital Cycle",
-            "Cost Breakdown"
+            "a cost breakdown or expense categorisation template [Financial Management & Reporting — tags: costs, expense categories, gross margin, variable costs]"
           ],
           "notes": "Stock management is a cash management discipline. Reducing the holding period of slow-moving or high-risk stock directly improves the working capital cycle and reduces write-off risk."
         },
@@ -5964,11 +5964,11 @@
           "branch_name": "Pivot — Responding to External Disruption",
           "type": "recommendation",
           "condition": "Business must pivot in response to market disruption, a technology shift, competitive pressure, or an industry change",
-          "action": "Use Porter's & Pine to map the competitive landscape and identify where the business can reposition. Follow with Blue Ocean Strategy to surface untapped market space — the goal is to find a position the disruption cannot easily reach. Reveal the Growth Curve to show where the business is on its growth journey and what the pivot means for the next stage.",
+          "action": "Use Porter's & Pine to map the competitive landscape and identify where the business can reposition. Follow with a strategic differentiation template [Strategy & Planning — tags: differentiation, competitive advantage, Blue Ocean] to surface untapped market space — the goal is to find a position the disruption cannot easily reach. Reveal the Growth Curve to show where the business is on its growth journey and what the pivot means for the next stage.",
           "templates": [
             "Porters & Pine",
             "Profit Levers & Blue Ocean",
-            "Reveal Growth Curve"
+            "a growth stage framework template [Business Development — tags: growth curve, growth stages, business maturity]"
           ],
           "notes": "External pivots are urgent but must still be strategic. Do not simply react to the disruption — use the competitive frameworks to find the position of strength before committing to the new direction. Speed matters, but pivoting into the wrong space is worse than pivoting slowly into the right one."
         },
@@ -6067,7 +6067,7 @@
           "branch_name": "Growth — New Markets or New Opportunities",
           "type": "recommendation",
           "condition": "Business wants to grow by entering new markets, launching new products, or pursuing a new opportunity",
-          "action": "Use the CCO Opportunity Validation process — demand proof of market demand before committing. Ask what qualitative data or customer feedback exists. Identify specific external drivers (event trigger, economy stimulus, technology wave, fashion driver, environmental impact). Use Porter's & Pine and Blue Ocean Strategy to find the competitive positioning for the new market. Validate financially with a Revenue Model before building a full plan.",
+          "action": "Use the CCO Opportunity Validation process — demand proof of market demand before committing. Ask what qualitative data or customer feedback exists. Identify specific external drivers (event trigger, economy stimulus, technology wave, fashion driver, environmental impact). Use Porter's & Pine and a strategic differentiation template [Strategy & Planning — tags: differentiation, competitive advantage, Blue Ocean] to find the competitive positioning for the new market. Validate financially with a Revenue Model before building a full plan.",
           "templates": [
             "Capacity, Capability, Opportunity",
             "Porters & Pine",
@@ -6112,7 +6112,7 @@
           "condition": "Business has the capability, systems, and capital base to support rapid scaling",
           "action": "Reveal the Growth Curve to show where the business sits across the 9 Growth Stages and what the next complexity layers look like at scale. Use the Planning Outcomes Review to build the scale plan formally. A Revenue Model and Forecast are essential — scaling without a financial model is flying blind. Consider also whether governance structures need to be upgraded before the scale move (cross-reference the governance advisory tree).",
           "templates": [
-            "Reveal Growth Curve",
+            "a growth stage framework template [Business Development — tags: growth curve, growth stages, business maturity]",
             "Planning Outcomes Review",
             "Forecasting",
             "Assumptions"
@@ -6307,9 +6307,9 @@
           "branch_name": "Final Report — DD Findings and Recommendation",
           "type": "recommendation",
           "condition": "All six DD checks complete — consolidate findings and deliver a recommendation",
-          "notes": "The Due Diligence Report consolidates the findings from all six investigation areas into a structured output that supports the buyer's final decision. Report structure: (1) Executive Summary — overall risk rating (Low / Medium / High / Do Not Proceed) and the primary basis for that rating; (2) Quality of Earnings Summary — Adjusted EBITDA vs reported EBITDA, list of verified and rejected add-backs, implied valuation impact; (3) Risk Register — for each of the six DD areas, document: the risk identified (if any), the severity (Low / Medium / High / Deal-Breaker), the recommended treatment, and the recommended price adjustment or deal structure change; (4) Recommended Deal Structure — based on the findings, what changes to the deal are recommended? This may include: price reduction to reflect identified risks; earn-out provisions for key person or performance risks; vendor finance component; specific warranties and indemnities in the SPA; conditions precedent (things the seller must resolve before settlement can occur); (5) Decision Recommendation — Proceed as structured / Proceed with renegotiation / Conditional proceed pending resolution of specific items / Do not proceed. Red Flag Report: if any single finding constitutes a deal-breaker (revenue concentration >20% with no mitigation, Change of Control clauses that cannot be resolved, QoE revealing Adjusted EBITDA materially below the valuation basis), the Red Flag Report documents this specifically and recommends suspension of the process pending resolution. The Red Flag Report is issued before full DD costs are incurred — it is the early-warning output. Templates: Due Diligence Checklist. Cross-reference: valuation tree for the 3-Point Sensitivities (serviceability, goodwill payback, performance variance) — all DD findings feed directly into the final valuation model.",
+          "notes": "The Due Diligence Report consolidates the findings from all six investigation areas into a structured output that supports the buyer's final decision. Report structure: (1) Executive Summary — overall risk rating (Low / Medium / High / Do Not Proceed) and the primary basis for that rating; (2) Quality of Earnings Summary — Adjusted EBITDA vs reported EBITDA, list of verified and rejected add-backs, implied valuation impact; (3) Risk Register — for each of the six DD areas, document: the risk identified (if any), the severity (Low / Medium / High / Deal-Breaker), the recommended treatment, and the recommended price adjustment or deal structure change; (4) Recommended Deal Structure — based on the findings, what changes to the deal are recommended? This may include: price reduction to reflect identified risks; earn-out provisions for key person or performance risks; vendor finance component; specific warranties and indemnities in the SPA; conditions precedent (things the seller must resolve before settlement can occur); (5) Decision Recommendation — Proceed as structured / Proceed with renegotiation / Conditional proceed pending resolution of specific items / Do not proceed. Red Flag Report: if any single finding constitutes a deal-breaker (revenue concentration >20% with no mitigation, Change of Control clauses that cannot be resolved, QoE revealing Adjusted EBITDA materially below the valuation basis), the Red Flag Report documents this specifically and recommends suspension of the process pending resolution. The Red Flag Report is issued before full DD costs are incurred — it is the early-warning output. Templates: a due diligence checklist or report template [Business Acquisition — tags: due diligence, acquisition, DD findings]. Cross-reference: valuation tree for the 3-Point Sensitivities (serviceability, goodwill payback, performance variance) — all DD findings feed directly into the final valuation model.",
           "templates": [
-            "Due Diligence Checklist"
+            "a due diligence checklist or report template [Business Acquisition — tags: due diligence, acquisition, DD findings]"
           ]
         },
         {
@@ -6319,7 +6319,7 @@
           "condition": "Advisor needs a quick pre-commitment screen to identify obvious deal-breakers before committing to full DD costs",
           "notes": "The Red Flag / Sniff Test is a rapid pre-DD screen — typically conducted before the buyer commits to the cost and time of a full due diligence investigation. It is not a substitute for full DD; it is a filter to avoid wasting resources on deals with obvious fatal flaws. Six quick checks that constitute the sniff test: (1) Does the seller's EBITDA rely heavily on add-backs? Ask for the breakdown of the Adjusted EBITDA — if more than 20-25% of the claimed profit relies on add-backs, demand immediate QoE before proceeding. (2) Does any single customer account for more than 20% of revenue? If yes, and if that customer has a personal relationship with the seller, this is a structural red flag. (3) Are the key contracts reviewed for Change of Control clauses? If not, mandate it before proceeding. (4) Is the business's goodwill primarily attached to the seller personally? If the seller's name is the brand, their relationships are the business, and they plan to exit immediately — the goodwill value is largely illusory. (5) Are the accounts receivable aging reports available and clean? Refusal or inability to provide AR aging is a behavioural red flag. Aged debtors may indicate customer disputes, quality issues, or revenue recognition problems. (6) Is there a documented management team, or is the seller the sole decision-maker? A business with no management depth cannot be acquired safely without a structured transition and earn-out. Sniff test outcome: if two or more of the six checks raise concerns, escalate to full DD immediately. If any single check reveals a deal-breaker-level issue, issue a formal Red Flag Report and suspend the process pending resolution. Do not allow deal enthusiasm to override early warning signals — the cost of proper DD is always less than the cost of a failed acquisition.",
           "templates": [
-            "Due Diligence Checklist"
+            "a due diligence checklist or report template [Business Acquisition — tags: due diligence, acquisition, DD findings]"
           ]
         },
         {
@@ -6329,7 +6329,7 @@
           "condition": "Client is selling and needs to prepare the business to withstand a buyer's due diligence process",
           "notes": "Seller preparation for DD is the mirror image of the buyer's investigation — the goal is to ensure that every question a buyer will ask has a clean, documented, verifiable answer. A well-prepared seller reduces the buyer's perceived risk, which protects the asking price and reduces the likelihood of late-stage price chipping or deal withdrawal. Six preparation priorities matching the buyer's DD checklist: (1) Financial Preparation — engage an accountant to prepare a clean Quality of Earnings analysis from the seller's perspective before the buyer requests it. Identify all legitimate add-backs, document the basis for each, and prepare supporting evidence. Surprises in the financials discovered by the buyer's DD team are always more damaging than disclosures made proactively by the seller. (2) Contract Review — conduct a self-audit of all major contracts for Change of Control clauses before the buyer's legal team finds them. Where clauses exist, approach the counterparty proactively to negotiate consent — the seller's relationship with the counterparty is the best leverage they will ever have. (3) Revenue Concentration — if a single client represents >20% of revenue, begin proactively broadening the client base before going to market. This may require a 12-18 month preparation timeline. Alternatively, approach the concentrated client to obtain a long-term contract commitment that will survive the sale. (4) Key Person Dependency — systematically reduce personal goodwill: document processes, develop management depth, transition client relationships to the business rather than the individual. A business that runs well without the owner for 6 weeks is worth more than one that cannot. Cross-reference: exit preparation path in the valuation tree. (5) Technology — ensure all systems are cloud-based, current, and documented. A business on legacy systems will attract a tech debt discount in any negotiation. (6) Working Capital — ensure AR aging is clean before buyer review. Address aged debtors proactively — an AR aging report with significant 90+ day balances will trigger a working capital risk adjustment to the purchase price. Cross-reference: valuation tree (exit preparation path) for the full seller value-building framework.",
           "templates": [
-            "Due Diligence Checklist"
+            "a due diligence checklist or report template [Business Acquisition — tags: due diligence, acquisition, DD findings]"
           ]
         }
       ]
