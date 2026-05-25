@@ -79,7 +79,14 @@ function sanitiseInput (raw) {
       mode: String(c.mode || '').slice(0, 20),
       visibility: String(c.visibility || '').slice(0, 20),
       summary: String(c.summary || '').slice(0, MAX_CASE_SUMMARY),
-      date: String(c.date || c.createdAt || '').slice(0, 30)
+      date: String(c.date || c.createdAt || '').slice(0, 30),
+      review: c.review && typeof c.review === 'object'
+        ? {
+          wentWell: String(c.review.wentWell || '').slice(0, 500),
+          wentLess: String(c.review.wentLess || '').slice(0, 500),
+          changesRecommended: String(c.review.changesRecommended || '').slice(0, 500)
+        }
+        : null
     }))
     : []
 

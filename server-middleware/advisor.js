@@ -757,6 +757,7 @@ async function handleQuery (rawBody, res) {
     }
 
     dbg('SEQUENCER: checking pipeline, detectedDomain=' + state.detectedDomain)
+    console.log('[advisor] TURN histLen=' + conversationHistory.length + ' session=' + (sessionId ? sessionId.slice(0, 8) : 'none') + ' domain=' + (state.detectedDomain || 'none') + ' recDelivered=' + state.recommendationDelivered)
 
     // Guard: once recommendation is delivered, skip the pipeline entirely.
     // Without this, a post-rec turn can re-trigger disambiguation or any unanswered
@@ -934,6 +935,44 @@ async function handleQuery (rawBody, res) {
     }
 
     // ── PHASE 3 — all questions done, call AI for first recommendation ──
+    // Guard: every mandatory question must be answered before the AI fires.
+    // If any is still null or 'pending', the QUESTIONS loop fell through unexpectedly.
+    // Log the full state for diagnosis and re-ask the first missing question instead.
+    const _mandatoryAnswered = (
+      state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' &&
+      state.situationDiagnostic && state.situationDiagnostic !== 'pending' &&
+      state.ownership && state.ownership !== 'pending' &&
+      state.advisoryStaircase && state.advisoryStaircase !== 'pending' &&
+      state.advisorConfidence && state.advisorConfidence !== 'pending' &&
+      state.advisorTimeframe && state.advisorTimeframe !== 'pending'
+    )
+    if (!_mandatoryAnswered) {
+      console.error('[advisor] PHASE3 PREMATURE TRIGGER — mandatory questions incomplete. State:', JSON.stringify({
+        domain: state.detectedDomain || null,
+        clientRaisedIssue: state.clientRaisedIssue || null,
+        situationDiagnostic: state.situationDiagnostic ? '[set]' : null,
+        ownership: state.ownership || null,
+        advisoryStaircase: state.advisoryStaircase || null,
+        advisorConfidence: state.advisorConfidence ? '[set]' : null,
+        advisorTimeframe: state.advisorTimeframe || null,
+        histLen: conversationHistory.length,
+        session: sessionId ? sessionId.slice(0, 8) : null
+      }))
+      // Re-run the QUESTIONS array to find and ask the first genuinely missing question
+      for (const q of QUESTIONS) {
+        if (q.skip && q.skip(state)) { continue }
+        if (!state[q.field] || state[q.field] === 'pending') {
+          if (!state[q.field]) { state[q.field] = 'pending' }
+          return sendQuestion(q.textFn ? q.textFn(state) : q.text)
+        }
+      }
+      // All QUESTIONS are skipped but mandatory fields are still empty — something is very wrong.
+      // Recover by asking ownership, the simplest mandatory question.
+      console.error('[advisor] PHASE3 guard: could not find a question to ask — forcing ownership')
+      state.ownership = 'pending'
+      return sendQuestion('Is the business privately owned, a not-for-profit, or publicly listed?')
+    }
+
     state.readyForRecommendation = true
     state.recommendationDelivered = true
 
@@ -1429,16 +1468,27 @@ Use the advisor's answers about what caused this situation and what will flow on
   }
 
   const _t0main = Date.now()
-  const stream = await getOpenAI().chat.completions.create({
-    model,
-    max_tokens: 2500,
-    stream: true,
-    stream_options: { include_usage: true },
-    messages: [
-      { role: 'system', content: systemPrompt },
-      ...messages
-    ]
-  })
+  let stream
+  try {
+    stream = await getOpenAI().chat.completions.create({
+      model,
+      max_tokens: 2500,
+      stream: true,
+      stream_options: { include_usage: true },
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ]
+    })
+  } catch (createErr) {
+    console.error('[advisor] OpenAI stream create error:', createErr.message)
+    if (!res.writableEnded) {
+      try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Could not reach AI service' }) + '\n\n') } catch (e) {}
+      res.end()
+    }
+    logAI(mode, model, _t0main, false, null)
+    return
+  }
 
   let _mainUsage = null
   let _mainOk = false
