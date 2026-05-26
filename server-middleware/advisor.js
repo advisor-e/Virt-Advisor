@@ -14,7 +14,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
-const { detectLogicTree, formatLogicTreeForPrompt, buildLearnReferenceText } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { sendError } = require('../server/utils/sendError')
@@ -195,13 +195,18 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     logicTrees = null,
     maxTemplates = 25,
     excludeSections = [],
-    firmTemplates = null
+    firmTemplates = null,
+    preFilteredNames = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
     .filter(t => excludeSections.length === 0 || !excludeSections.includes(t.menuSection))
-  const relevant = filterTemplatesByQuery(orgTemplates, searchQuery, maxTemplates)
-  const templatesToUse = relevant.length > 0 ? relevant : orgTemplates.slice(0, maxTemplates)
+  const narrowed = preFilteredNames && preFilteredNames.length > 0
+    ? orgTemplates.filter(t => preFilteredNames.some(n => n.toLowerCase() === (t.name || '').toLowerCase()))
+    : []
+  const baseTemplates = narrowed.length > 0 ? narrowed : orgTemplates
+  const relevant = filterTemplatesByQuery(baseTemplates, searchQuery, maxTemplates)
+  const templatesToUse = relevant.length > 0 ? relevant : baseTemplates.slice(0, maxTemplates)
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = includeCoaching ? formatCoachingForPrompt() : null
   const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
@@ -1261,12 +1266,21 @@ Use the advisor's answers about what caused this situation and what will flow on
       : ''
 
     const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
+
+    const matchedTrees = detectLogicTrees(collectedAnswers)
+    const walkedNames = new Set()
+    for (const tree of matchedTrees) {
+      for (const name of walkLogicTree(state, tree.id)) { walkedNames.add(name) }
+    }
+    const preFilteredNames = walkedNames.size > 0 ? [...walkedNames] : null
+
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: false,
       includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
       maxTemplates: 25,
       excludeSections: ['get-organised', 'get-the-job'],
-      firmTemplates
+      firmTemplates,
+      preFilteredNames
     }) + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     const systemPrompt2 = loadPrompt('client') + languageInstruction2
