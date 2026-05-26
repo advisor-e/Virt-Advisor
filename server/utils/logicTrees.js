@@ -1022,4 +1022,65 @@ function buildLearnReferenceText (tree) {
   return text
 }
 
-module.exports = { loadLogicTrees, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText }
+function buildSignalText (state) {
+  const parts = [
+    state.detectedDomain, state.industry, state.clientRaisedIssue,
+    state.situationDiagnostic, state.staffScope, state.staffOrigin, state.staffCategory,
+    state.salesDiagnosis, state.salesTracking, state.salesProductFit,
+    state.forecastingTheme, state.dataSystemsChartAccounts, state.dataSystemsTeam,
+    state.dataSystemsComplexity, state.growthStage, state.operatorDataDriven,
+    state.clientMotivation, state.advisoryStaircase, state.clientPersonality
+  ]
+  return parts.filter(v => v && typeof v === 'string' && v !== 'pending').join(' ').toLowerCase()
+}
+
+function scorePattern (signalText, pattern) {
+  if (!pattern || !signalText) { return 0 }
+  const stopWords = new Set(['then', 'that', 'this', 'when', 'with', 'from', 'they', 'have', 'been', 'will', 'their', 'does', 'what'])
+  const words = pattern.toLowerCase()
+    .split(/[\s,/|]+/)
+    .filter(w => w.length > 3 && !stopWords.has(w))
+  if (!words.length) { return 0 }
+  return words.filter(w => signalText.includes(w)).length
+}
+
+function walkLogicTree (state, treeId) {
+  const trees = loadLogicTrees()
+  const tree = trees.find(t => t.id === treeId)
+  if (!tree || !tree.nodes || !tree.nodes.length) { return [] }
+  const signalText = buildSignalText(state)
+  const templates = new Set()
+  const visited = new Set()
+
+  function walkNode (nodeId, depth) {
+    if (depth > 12 || visited.has(nodeId)) { return }
+    visited.add(nodeId)
+    const node = tree.nodes.find(n => n.id === nodeId)
+    if (!node) { return }
+    for (const t of (node.templates || [])) {
+      if (t && typeof t === 'string' && !t.startsWith('[') && !t.startsWith('a ') && t.length < 80) {
+        templates.add(t)
+      }
+    }
+    if (node.type === 'recommendation') { return }
+    if (node.next_stage !== undefined) {
+      const nextNode = tree.nodes.find(n => n.stage === node.next_stage)
+      if (nextNode) { walkNode(nextNode.id, depth + 1) }
+      return
+    }
+    const branches = node.branches || []
+    if (!branches.length) { return }
+    let bestBranch = null
+    let bestScore = 0
+    for (const branch of branches) {
+      const score = scorePattern(signalText, branch.answer_pattern)
+      if (score > bestScore) { bestScore = score; bestBranch = branch }
+    }
+    if (bestBranch && bestScore > 0) { walkNode(bestBranch.next_node, depth + 1) }
+  }
+
+  walkNode(tree.nodes[0].id, 0)
+  return [...templates]
+}
+
+module.exports = { loadLogicTrees, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree }

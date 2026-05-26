@@ -2108,7 +2108,7 @@
           "condition": "Advisor is in or about to enter the meeting and needs guidance on delivery",
           "question": "Let's talk through the meeting itself. Have you rehearsed your delivery of the key concepts — the Growth Curve positioning, the Volatility section, and the transition from accounts to advisory? And is there anything specific about this client you're concerned about — their personality, their emotional state, or a difficult topic you need to navigate?",
           "action": "Coach the advisor through the meeting structure: (1) Open in the Personal Zone — ask about lifestyle, goals, family before touching any business topic. This makes the advisory conversation feel invited rather than imposed. (2) Identify early whether the client is macro-vision (conceptual, big-picture) or micro-vision (data-driven, detail-oriented) and adjust language and pacing accordingly. (3) The Growth Curve is the conceptual anchor — position the client on the 9 stages to give context to everything else. (4) Use the Volatility section with the WHAT-HOW framework for cash flow issues. (5) Close the advisory section with Start/Stop/Keep — collaborative and co-created. Direct them to the EOY Scripts Only document for exact wording and rehearsal prompts. For difficult client personalities: Angry Couple — match the energy of the most at-risk person first. Depressed client — manage pace and tone, do not get pulled to their emotional level. Angry/rude — stay high-level, use a By the Way redirect. Dismissive of junior advisor — assert status through tone and posture. Withdrawn — fill the room with physical energy and movement.",
-          "notes": "The EOY Scripts Only document is underused. Advisors who rehearse the exact language for introducing the Growth Curve or Volatility Report deliver it with far more confidence and authority than those who improvise. Even experienced advisors benefit from rehearsing new concepts before using them with real clients. Volatility Sub-Paths — after WHAT-HOW identifies the volatility type, route to the appropriate sub-path: (1) Admin Procedures Review: the business needs to get cash in faster to smooth out financial swings. Audit Terms of Trade (payment terms, late fees, deposit requirements), review core admin procedures for invoicing and collections, and implement cloud-based software (Xero, Tradify) to accelerate cash inflows and operational efficiency. Cross-reference: data_financial_systems tree for cloud software selection and systems implementation. (2) Marketing & Sales Review: the business needs to attract more customers more frequently to prevent revenue holes. Schedule audits of outbound messaging, inbound website and social media enquiries, and the overall marketing plan. Best executed as part of the 12-month Management Reporting Annual Plan or Advisory Board calendar built in Stage 5. Cross-reference: sales_marketing tree for marketing review and client_sales tree for sales process. (3) Working Capital Review: the business needs to finance and manage its money to survive financial swings. Evaluate banking facilities and credit lines, assess capital expenditure needs using WACC (Weighted Average Cost of Capital), and review owner and shareholder loan accounts and tax payment thresholds. Ensures the financial structure is optimised and compliant before the next volatility event. Cross-reference: forecasting_financial_mgmt tree (WC path) for working capital diagnosis and cash tactics.",
+          "notes": "The EOY Scripts Only document is underused. Advisors who rehearse the exact language for introducing the Growth Curve or Volatility Report deliver it with far more confidence and authority than those who improvise. Even experienced advisors benefit from rehearsing new concepts before using them with real clients. Volatility Sub-Paths — after WHAT-HOW identifies the volatility type, route to the appropriate sub-path: (1) Admin Procedures Review: the business needs to get cash in faster to smooth out financial swings. Audit Terms of Trade (payment terms, late fees, deposit requirements), review core admin procedures for invoicing and collections, and implement cloud-based software (Xero, Tradify) to accelerate cash inflows and operational efficiency. Cross-reference: financial_systems_review tree for cloud software selection and systems implementation. (2) Marketing & Sales Review: the business needs to attract more customers more frequently to prevent revenue holes. Schedule audits of outbound messaging, inbound website and social media enquiries, and the overall marketing plan. Best executed as part of the 12-month Management Reporting Annual Plan or Advisory Board calendar built in Stage 5. Cross-reference: sales_marketing tree for marketing review and client_sales tree for sales process. (3) Working Capital Review: the business needs to finance and manage its money to survive financial swings. Evaluate banking facilities and credit lines, assess capital expenditure needs using WACC (Weighted Average Cost of Capital), and review owner and shareholder loan accounts and tax payment thresholds. Ensures the financial structure is optimised and compliant before the next volatility event. Cross-reference: forecasting_financial_mgmt tree (WC path) for working capital diagnosis and cash tactics.",
           "next_stage": 5
         },
         {
@@ -3246,7 +3246,7 @@
             "Data Session",
             "Capacity, Capability, Opportunity"
           ],
-          "notes": "Cross-reference the demings_volatility coaching tree and the data_financial_systems advisory tree for the full volatility interpretation framework. The diagnostic question is: 'Is this a special-cause event that demands a response, or common-cause variation that we are mistakenly reacting to?' Acting on common-cause variation as if it were special cause is Deming's Tampering — it adds instability rather than reducing it."
+          "notes": "Cross-reference the demings_volatility coaching tree and the financial_systems_review advisory tree for the full volatility interpretation framework. The diagnostic question is: 'Is this a special-cause event that demands a response, or common-cause variation that we are mistakenly reacting to?' Acting on common-cause variation as if it were special cause is Deming's Tampering — it adds instability rather than reducing it."
         },
         {
           "id": "sys_b_leverage",
@@ -4641,431 +4641,6 @@
       ]
     },
     {
-      "id": "data_financial_systems",
-      "name": "Data Integrity & Financial Systems",
-      "description": "Advisory session routing for data integrity, financial reporting, and systems concerns. Splits between setup (Chart of Accounts, reporting structure), interpretation (dashboard facilitation branches), data quality (ratio analysis validity), and volatility (Deming response options). The existing learn-mode trees (dashboard_discussions, ratio_analysis, demings_volatility) handle advisor coaching — this tree handles live advisory session navigation.",
-      "entry_triggers": [
-        "data integrity",
-        "financial systems",
-        "chart of accounts",
-        "financial literacy",
-        "generating reports",
-        "monthly reporting",
-        "management reporting",
-        "reporting structure",
-        "not tracking the right things",
-        "can't get the data",
-        "reports don't make sense",
-        "numbers don't add up",
-        "data unreliable",
-        "inconsistent data",
-        "missing data",
-        "no reporting",
-        "no dashboard",
-        "set up reporting",
-        "fix the chart of accounts",
-        "xero setup",
-        "myob setup",
-        "accounting software",
-        "financial review",
-        "reviewing the numbers"
-      ],
-      "nodes": [
-        {
-          "id": "dfs_entry",
-          "branch_name": "Initial Split — What Is the Nature of the Concern?",
-          "type": "question",
-          "condition": "Advisor detects a data integrity, financial systems, or reporting concern",
-          "question": "Is this about setting up or fixing the financial reporting structure, interpreting existing reports with a client, dealing with unreliable or inconsistent data, or managing volatile and unpredictable numbers?",
-          "branches": [
-            {
-              "answer_pattern": "setup / no reporting / chart of accounts / fix the structure / new system",
-              "next_node": "dfs_setup"
-            },
-            {
-              "answer_pattern": "interpreting reports / dashboard session / reviewing data with client",
-              "next_node": "dfs_interpret_entry"
-            },
-            {
-              "answer_pattern": "unreliable / inconsistent / comparing data / benchmarking / ratios",
-              "next_node": "dfs_data_quality_entry"
-            },
-            {
-              "answer_pattern": "volatile / swinging / spikes / drops / unpredictable / wild swings",
-              "next_node": "dfs_volatility_entry"
-            }
-          ]
-        },
-        {
-          "id": "dfs_setup",
-          "branch_name": "Setup — Chart of Accounts & Reporting Structure",
-          "type": "question",
-          "condition": "Client has no reporting structure or needs to fix their Chart of Accounts",
-          "question": "Does the client have an existing Chart of Accounts that needs restructuring, or are they starting from scratch with no meaningful financial reporting in place?",
-          "notes": "The Chart of Accounts is the foundation of all reporting. If it cannot automatically provide key metrics via API, data must either be extracted manually or the COA restructured. Do not let current reporting limitations stop you from tracking what is meaningful — adapt the system to capture the necessary data.",
-          "branches": [
-            {
-              "answer_pattern": "existing COA / needs restructuring / some reporting in place",
-              "next_node": "dfs_setup_restructure"
-            },
-            {
-              "answer_pattern": "starting from scratch / no reporting / financial literacy needed first",
-              "next_node": "dfs_setup_from_scratch"
-            }
-          ]
-        },
-        {
-          "id": "dfs_setup_restructure",
-          "branch_name": "Setup — Restructure Existing Chart of Accounts",
-          "type": "recommendation",
-          "condition": "Client has an existing COA that cannot deliver the metrics needed",
-          "action": "Ask: 'Would it be useful to track this going forward?' If yes, form a plan to either extract the data manually or restructure the Chart of Accounts to capture it automatically. Map the key metrics needed — Sales Mix by Margin, Division Wages %, and Gross Profit by category are the most common gaps. Align the restructure to the 3x3 framework: Do The Job (variable costs), Get The Job (activity costs), Get Organised (fixed costs).",
-          "templates": [
-            "Dashboard",
-            "3 Pillars of Financial Management"
-          ],
-          "notes": "Do not attempt a COA restructure mid-year without consulting the accountant. Changes take effect from the next period and require remapping of historical data for year-on-year comparisons."
-        },
-        {
-          "id": "dfs_setup_from_scratch",
-          "branch_name": "Setup — Financial Literacy and Reporting From Scratch",
-          "type": "recommendation",
-          "condition": "Client has no meaningful financial reporting and needs foundational financial literacy first",
-          "action": "Start with the 3 Pill Financial Management framework to establish financial literacy before introducing any reporting tool. Once the client understands the three cost categories, introduce the Dashboard template to structure what gets measured. Use the tactile approach — have the client manually input or cut and paste data into a spreadsheet rather than relying on fully automated reporting. Making the process tactile requires the client to invest effort, which ensures they digest the information, assign meaning to it, and act on it.",
-          "templates": [
-            "3 Pillars of Financial Management",
-            "Dashboard"
-          ],
-          "notes": "Never automate reporting for a client who does not yet understand what they are looking at. Automation removes the learning friction that builds comprehension."
-        },
-        {
-          "id": "dfs_interpret_entry",
-          "branch_name": "Interpret — What Is Happening in the Dashboard Session?",
-          "type": "question",
-          "condition": "Advisor is running a dashboard or financial review session with a client",
-          "question": "What is happening in the session right now?",
-          "notes": "Match the client's behaviour or the data situation to the right branch. These branches are designed for live session navigation.",
-          "branches": [
-            {
-              "answer_pattern": "client says it looks fine / looks pretty good / happy with it / complacency",
-              "next_node": "dfs_complacency"
-            },
-            {
-              "answer_pattern": "metric doesn't match expectations / something looks off / unclear cause",
-              "next_node": "dfs_diagnostic"
-            },
-            {
-              "answer_pattern": "still unclear after cause-event-effect / can't identify root cause",
-              "next_node": "dfs_five_whys"
-            },
-            {
-              "answer_pattern": "issue is variable costs / margins / materials / contract labour / delivery costs",
-              "next_node": "dfs_do_the_job"
-            },
-            {
-              "answer_pattern": "issue is activity costs / marketing spend / sales costs / winning work",
-              "next_node": "dfs_get_the_job"
-            },
-            {
-              "answer_pattern": "issue is fixed costs / rent / debt / asset utilisation / management overhead",
-              "next_node": "dfs_get_organised"
-            },
-            {
-              "answer_pattern": "spike or drop in a chart / anomaly / unpredictable pattern",
-              "next_node": "dfs_volatility_entry"
-            },
-            {
-              "answer_pattern": "metric would be useful but COA can't provide it / missing data",
-              "next_node": "dfs_missing_metrics"
-            }
-          ]
-        },
-        {
-          "id": "dfs_complacency",
-          "branch_name": "Dashboard — Client Complacency",
-          "type": "recommendation",
-          "condition": "Client views the dashboard and immediately says 'That looks pretty good, I'm happy with that'",
-          "action": "Respond with: 'It's not about getting a school grade or ticking a box. What are we learning from this?' Then ask: 'Is this data consistent with your gut feel and your prior business assumptions?' The guiding philosophy is to seek information, not judgement. The goal is to challenge what the client believes to be true — not to validate it.",
-          "notes": "Complacency is the enemy of improvement. A client who is satisfied with the data has stopped looking. Push them to find one thing they did not already know before closing the session."
-        },
-        {
-          "id": "dfs_diagnostic",
-          "branch_name": "Dashboard — Diagnostic Analysis",
-          "type": "recommendation",
-          "condition": "A dashboard metric does not match expectations or the underlying cause is unclear",
-          "action": "Apply the Cause-Event-Effect framework. Ask: 'What led up to the information we are seeing?' Then: 'What are the downstream effects of this performance?' This contextualises whether the issue relates to Do The Job (variable costs), Get The Job (activity costs), or Get Organised (fixed costs — the key structural decisions of the business).",
-          "notes": "No single ratio gives the whole story. Always determine whether the data represents causation, correlation, or coincidence before recommending action."
-        },
-        {
-          "id": "dfs_five_whys",
-          "branch_name": "Dashboard — Root Cause Discovery (5 Whys)",
-          "type": "recommendation",
-          "condition": "Advisor and client cannot gain clarity from a specific metric even after applying the Cause-Event-Effect framework",
-          "action": "Ask the 5 Whys — keep asking 'why?' until you reach the fundamental root cause. No single ratio or event explains the full picture. Before concluding, determine whether the data represents causation (a direct provable link), correlation (a significant contributing factor), or coincidence (two events occurring together but unrelated). Only causation warrants a change in strategy.",
-          "notes": "Misidentifying coincidence as causation is the most common source of tampering. Make sure the client can articulate the full causal chain before acting."
-        },
-        {
-          "id": "dfs_do_the_job",
-          "branch_name": "Dashboard — Optimising Do The Job (Variable Costs)",
-          "type": "recommendation",
-          "condition": "The identified issue relates to variable costs — poor margins on delivered jobs, high materials, or contract labour costs",
-          "action": "Focus tactical options on changing how the product is produced, or to whom and where it is sold. Review purchasing efficiencies, project management, and waste reduction. These costs are incurred on the promise of getting paid for secured work — every efficiency here goes directly to margin.",
-          "notes": "Three standard discussion questions for every metric: (1) Is this consistent with your previous business assumptions and beliefs? (2) Which tactical options are of greatest influence and why? (3) Did you have any actions planned prior to this data — do they still stand?",
-          "templates": [
-            "Dashboard",
-            "8 Profit Levers"
-          ]
-        },
-        {
-          "id": "dfs_get_the_job",
-          "branch_name": "Dashboard — Optimising Get The Job (Activity Costs)",
-          "type": "recommendation",
-          "condition": "The identified issue relates to activity costs — high marketing spend, travel expenses, or struggling to secure new sales",
-          "action": "Focus tactical options on how the product is sold and distributed. Review product fit, messaging clarity, brand awareness, and sales effectiveness. These costs represent money spent in the hope of winning future work — the return on every dollar here depends on conversion effectiveness.",
-          "notes": "Apply the same three standard discussion questions. A rising activity cost without a corresponding sales increase is a conversion problem, not a marketing budget problem.",
-          "templates": [
-            "Dashboard",
-            "Sales & Marketing Review",
-            "Lite Marketing"
-          ]
-        },
-        {
-          "id": "dfs_get_organised",
-          "branch_name": "Dashboard — Reevaluating Get Organised (Fixed Costs)",
-          "type": "recommendation",
-          "condition": "The identified issue relates to fixed costs — high debt ratios, expensive office leases, or poor asset utilisation",
-          "action": "Evaluate the foundational decisions driving the business structure. Review asset utilisation, management effectiveness, and whether the strategic vision needs adjusting — for example, a grand physical office versus a cloud-based operation. Fixed costs are driven by the owner's beliefs about how the business should operate and house its staff. These beliefs are the hardest to change and the most structural in their impact.",
-          "notes": "Fixed cost problems are rarely solved by cutting — they are solved by restructuring the operating model. Challenge the assumptions behind the infrastructure, not just the line items.",
-          "templates": [
-            "Dashboard",
-            "Organisational Review"
-          ]
-        },
-        {
-          "id": "dfs_missing_metrics",
-          "branch_name": "Dashboard — Missing Metrics / Chart of Accounts Gap",
-          "type": "recommendation",
-          "condition": "A specific chart or metric would be highly useful but the client's current Chart of Accounts cannot automatically provide the data",
-          "action": "Ask: 'Would it be useful to track this going forward?' If yes, form a plan to either extract the data manually in the short term, or restructure the Chart of Accounts to capture it automatically. Do not let current reporting limitations stop you from tracking what is meaningful — adapt the system to capture the necessary data.",
-          "notes": "Common examples: Sales Mix by Margin requires product-level coding in the COA. Division Wages % requires department coding. Both are worth restructuring for if the business is large enough to benefit.",
-          "templates": [
-            "Dashboard"
-          ]
-        },
-        {
-          "id": "dfs_data_quality_entry",
-          "branch_name": "Data Quality — What Is the Comparison Problem?",
-          "type": "question",
-          "condition": "Data appears unreliable, inconsistent, or comparisons are producing misleading results",
-          "question": "What is the nature of the data quality issue?",
-          "branches": [
-            {
-              "answer_pattern": "actual results are close to the revenue model / differences are understood",
-              "next_node": "dfs_model_close"
-            },
-            {
-              "answer_pattern": "actual results are far from the revenue model / assumptions are way off",
-              "next_node": "dfs_model_far"
-            },
-            {
-              "answer_pattern": "ratios calculated differently across periods / apples and oranges",
-              "next_node": "dfs_data_methods"
-            },
-            {
-              "answer_pattern": "large one-off event distorting the numbers",
-              "next_node": "dfs_data_oneoff"
-            },
-            {
-              "answer_pattern": "comparing peak season to low season / seasonal differences",
-              "next_node": "dfs_data_seasonal"
-            },
-            {
-              "answer_pattern": "year on year comparison / want to assess management performance fairly",
-              "next_node": "dfs_year_on_year"
-            }
-          ]
-        },
-        {
-          "id": "dfs_model_close",
-          "branch_name": "Ratio Analysis — Model Validated (Close Match)",
-          "type": "recommendation",
-          "condition": "Actual performance results are close to the predictive revenue model and differences are understood",
-          "action": "The internal model is now validated. Define operational objectives and begin monitoring performance reports against the model. Only at this point is it appropriate to introduce external benchmark data to challenge internal beliefs. The model has no value until you know where you are going — there is no point measuring speed without a destination.",
-          "notes": "Never introduce external benchmark data until the internal model is validated. External benchmarks challenge beliefs — they do not replace internal analysis. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
-          "templates": [
-            "Dashboard"
-          ]
-        },
-        {
-          "id": "dfs_model_far",
-          "branch_name": "Ratio Analysis — Model Not Yet Validated (Far Match)",
-          "type": "recommendation",
-          "condition": "Actual performance results are significantly different from the predictive revenue model",
-          "action": "Continue developing and refining the internal model before proceeding. Do not introduce external benchmark data until the internal variables and their interdependencies are properly quantified. The gap between the model and actuals is itself a diagnostic — use it to identify which assumptions are flawed.",
-          "notes": "A large gap between model and actual is not a failure — it is information. Treat it as the starting point for the next round of assumption testing. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
-          "templates": []
-        },
-        {
-          "id": "dfs_data_methods",
-          "branch_name": "Ratio Analysis — Inconsistent Calculation Methods",
-          "type": "recommendation",
-          "condition": "Historical or external benchmark ratios were calculated using different mathematical methods",
-          "action": "Do not compare these ratios. Ensure consistent calculation methods are used across all periods to compare apples with apples. If using external benchmarks, confirm exactly how their ratios were calculated before drawing any conclusions.",
-          "notes": "Different textbooks use different ratio formulas — all mathematically valid, but incomparable. This is one of the most common sources of misleading analysis."
-        },
-        {
-          "id": "dfs_data_oneoff",
-          "branch_name": "Ratio Analysis — One-Off Event Distorting the Data",
-          "type": "recommendation",
-          "condition": "A large one-off situation is distorting a ratio for a given period",
-          "action": "Remove the distorting figure from the calculation before making any comparisons. This prevents false interpretations — for example, a large single order not yet paid will inflate debtor days, which is not a collection issue.",
-          "notes": "One-off events are the most common source of ratio misinterpretation. Always ask: 'Is there anything unusual that happened in this period that would explain this number?'"
-        },
-        {
-          "id": "dfs_data_seasonal",
-          "branch_name": "Ratio Analysis — Seasonal Comparison Problem",
-          "type": "recommendation",
-          "condition": "Comparing ratios from time periods with fundamental business cycle differences",
-          "action": "Avoid direct comparison. Either adjust for the seasonal cycle or only compare quarters at the exact same stage of the seasonal cycle. Differences in these ratios are likely due to the natural business cycle, not management action or inaction.",
-          "notes": "Seasonal misinterpretation is a primary source of tampering — rewarding or punishing performance that is entirely predictable. Always chart year-on-year at the same seasonal point."
-        },
-        {
-          "id": "dfs_year_on_year",
-          "branch_name": "Ratio Analysis — Fair Year-on-Year Assessment",
-          "type": "recommendation",
-          "condition": "Attempting to evaluate management success year-on-year without confusing it with an inherited starting advantage",
-          "action": "Create a Common Size Balance Sheet (divide every item by Total Assets) and a Common Size Profit and Loss (divide every item by Total Sales). This adjusts the data to measure both the start position and the finish position for each year, eliminating the drag race bias where a strong prior year makes the current year look better regardless of actual management performance.",
-          "notes": "The drag race metaphor: if your starting position is determined by your last race result, you cannot tell if you are improving or just starting from an advantage. Common sizing removes this bias.",
-          "templates": [
-            "Ratio Analysis",
-            "Dashboard"
-          ]
-        },
-        {
-          "id": "dfs_volatility_entry",
-          "branch_name": "Volatility — What Type of Situation?",
-          "type": "question",
-          "condition": "Business data is showing significant spikes, drops, or unpredictable patterns",
-          "question": "What best describes the volatility situation?",
-          "notes": "Classify before acting. Taking action on misidentified volatility is tampering — it creates a new problem while leaving the original one unresolved.",
-          "branches": [
-            {
-              "answer_pattern": "measuring against an average / pass fail thinking",
-              "next_node": "dfs_vol_average"
-            },
-            {
-              "answer_pattern": "leadership wants to reward a spike or punish a drop immediately",
-              "next_node": "dfs_vol_tampering"
-            },
-            {
-              "answer_pattern": "internal promotion / campaign created a spike this month",
-              "next_node": "dfs_vol_campaign"
-            },
-            {
-              "answer_pattern": "predictable drops / holes in sales volume / seasonal lulls",
-              "next_node": "dfs_vol_product_gap"
-            },
-            {
-              "answer_pattern": "demand is steady but cash received is volatile",
-              "next_node": "dfs_vol_cashflow_delay"
-            },
-            {
-              "answer_pattern": "products and admin stable but still minor bumpy swings",
-              "next_node": "dfs_vol_scale"
-            },
-            {
-              "answer_pattern": "industry dictates unavoidable massive swings",
-              "next_node": "dfs_vol_industry"
-            },
-            {
-              "answer_pattern": "wants to scale / grow but has volatile sales or cash flow",
-              "next_node": "dfs_vol_scaling"
-            }
-          ]
-        },
-        {
-          "id": "dfs_vol_average",
-          "branch_name": "Deming — Replace Average with Standard Deviation",
-          "type": "recommendation",
-          "condition": "Business data is being measured solely against an average line",
-          "action": "Replace or supplement the chart with a standard deviation (volatility) graph to establish a 68% likely range. Averaging summarises past data well but creates a false pass-or-fail metric for performance — results will almost always be above or below the average, creating unnecessary stress and distorted decisions. Standard deviation contextualises what is normal expected variation.",
-          "notes": "Once the likely range is established, clients stop reacting to normal fluctuations and start reserving their energy for genuine anomalies.",
-          "templates": [
-            "Demings Volatility"
-          ]
-        },
-        {
-          "id": "dfs_vol_tampering",
-          "branch_name": "Deming — Avoiding Tampering",
-          "type": "recommendation",
-          "condition": "Leadership wants to immediately reward a spike or punish a drop in performance",
-          "action": "Pause. Assess whether the outcome is due to causation, correlation, or pure coincidence before taking any action. Tampering is taking the wrong action based on misinterpreted data — for example, paying a bonus for a predictable seasonal spike while punishing staff for a predictable seasonal drop. Both responses punish or reward events that had nothing to do with individual performance.",
-          "notes": "Never reward or punish staff for events outside their control. The damage from tampering compounds — it demoralises good performers and creates perverse incentives that distort future behaviour."
-        },
-        {
-          "id": "dfs_vol_campaign",
-          "branch_name": "Deming — Campaign Analysis (Cannibalized Sales)",
-          "type": "recommendation",
-          "condition": "An internal promotion created a massive spike in one month",
-          "action": "Analyse the sales data from the months immediately preceding and following the promotion. Look for cannibalized sales — customers may have delayed purchases to get the deal, causing surrounding months to plummet. The promotion may have generated no new revenue at all, simply shifted the timing of existing demand.",
-          "notes": "A campaign that creates a spike followed by two flat months has likely generated zero incremental revenue. Calculate the net effect across the full 3-month window before declaring the promotion a success."
-        },
-        {
-          "id": "dfs_vol_product_gap",
-          "branch_name": "Deming — Volatility Option 1: Fill the Product Gap",
-          "type": "recommendation",
-          "condition": "Business experiences predictable drops or holes in sales volume at regular intervals",
-          "action": "Review key products and services to identify what could be introduced to fill the holes. Target volatility caused by distinct lulls in customer demand — new products, recurring revenue models, or reduced seasonal dependence. The goal is to smooth the revenue curve, not eliminate variation entirely.",
-          "templates": [
-            "Sales & Marketing Review",
-            "Lite Marketing"
-          ]
-        },
-        {
-          "id": "dfs_vol_cashflow_delay",
-          "branch_name": "Deming — Volatility Option 2: Fix the Cashflow Delay",
-          "type": "recommendation",
-          "condition": "Product demand is steady but cash received is highly volatile",
-          "action": "Review administrative procedures to improve invoicing speed and debt collection. The volatility graph is based on cash received — if demand is steady, the volatility is an administrative recovery problem, not a sales problem. Focus on: invoicing on completion (not end of month), proactive debtor follow-up, and terms of trade.",
-          "notes": "Cash flow volatility that looks like a sales problem is often an invoicing problem. Fix the admin before changing the product or marketing strategy.",
-          "templates": [
-            "Working Capital Cycle",
-            "Dashboard"
-          ]
-        },
-        {
-          "id": "dfs_vol_scale",
-          "branch_name": "Deming — Volatility Option 3: Build Scale to Smooth Swings",
-          "type": "recommendation",
-          "condition": "Products, services, and admin are stable but the business still experiences minor bumpy swings",
-          "action": "Review marketing and sales tactics to attract more customers more often. Building overall customer volume and scale can smooth out normal market fluctuations — a larger customer base means no single customer's behaviour dominates the revenue line.",
-          "templates": [
-            "Sales & Marketing Review",
-            "Customer Journey"
-          ]
-        },
-        {
-          "id": "dfs_vol_industry",
-          "branch_name": "Deming — Volatility Option 4: Finance the Industry Swings",
-          "type": "recommendation",
-          "condition": "The industry itself dictates unavoidable massive swings in business performance",
-          "action": "Review working capital, retained earnings, and overdraft facilities. If volatility cannot be engineered out, the business must be structured to finance and manage money through the swings. Build adequate financial buffers during peak periods to fund operations through troughs.",
-          "notes": "If volatility is an unavoidable industry feature, the goal shifts from eliminating it to surviving it. The business model must be designed around the cash flow cycle, not against it. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
-          "templates": [
-            "Working Capital Cycle"
-          ]
-        },
-        {
-          "id": "dfs_vol_scaling",
-          "branch_name": "Deming — Stabilise Before Scaling",
-          "type": "recommendation",
-          "condition": "Business wants to scale up and grow but currently has wildly fluctuating sales or cash flow",
-          "action": "The business must first stabilise its existing volatility before attempting to scale. Deming's caravan metaphor: trying to speed up a car with a wildly swaying caravan will pull the entire vehicle off the road. Resolve the volatility using Options 1-4 before adding growth pressure to an already unstable system.",
-          "notes": "Scaling an unstable business amplifies the instability — it does not resolve it. A doubling of revenue in a volatile business produces a doubling of volatility, not a smoothing effect."
-        }
-      ]
-    },
-    {
       "id": "sales_marketing",
       "name": "Sales & Marketing Scenario",
       "description": "Entry domain tree for all sales and marketing concerns. Splits between sales volume issues (routes to client_sales diagnostic), marketing and brand concerns (messaging, campaigns, awareness — new diagnostic nodes), and public speaking or seminars as a marketing tactic (routes to public_speaking tree). The client_sales, sales_process, and public_speaking trees handle their respective domains in full — this tree handles the broader trigger words and marketing-specific gaps those trees do not cover.",
@@ -5497,12 +5072,12 @@
           "branch_name": "Mindset — System Ignorance (Cross the I's and Dot the T's)",
           "type": "recommendation",
           "condition": "Client comes from an artisan or technician background and avoids financial management out of ignorance or fear",
-          "action": "Start a Financial Systems Review using a range of helicopter questions. This allows the client to see that system checks are simply 'common sense' in hindsight before diving deeper. Cross-reference the data_financial_systems advisory tree for the full diagnostic.",
+          "action": "Start a Financial Systems Review using a range of helicopter questions. This allows the client to see that system checks are simply 'common sense' in hindsight before diving deeper. Cross-reference the financial_systems_review advisory tree for the full diagnostic.",
           "templates": [
             "Financial Systems Review",
             "90 Day Best Practice Accounting"
           ],
-          "notes": "Cross-reference the data_financial_systems advisory tree. Do not overwhelm with financial theory — use practical, operational language and let the common-sense framing do the heavy lifting."
+          "notes": "Cross-reference the financial_systems_review advisory tree. Do not overwhelm with financial theory — use practical, operational language and let the common-sense framing do the heavy lifting."
         },
         {
           "id": "ffm_mindset_culture",
@@ -5606,7 +5181,7 @@
           "templates": [
             "a financial dashboard or reporting template [Financial Management & Reporting — tags: dashboard, KPIs, financial reporting, management accounts]"
           ],
-          "notes": "Cross-reference the dashboard_discussions coaching tree. If accounting systems cannot generate the required data, refer to the data_financial_systems advisory tree first before building the dashboard. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
+          "notes": "Cross-reference the dashboard_discussions coaching tree. If accounting systems cannot generate the required data, refer to the financial_systems_review advisory tree first before building the dashboard. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
         },
         {
           "id": "ffm_reporting_ratio",
@@ -6272,7 +5847,7 @@
           "type": "question",
           "condition": "Human capital risk assessed — now check whether the target's technology infrastructure is compatible with the buyer's",
           "question": "Does the buyer operate on modern cloud-based systems, while the target is running on legacy software or paper-based processes? And has anyone calculated what it will actually cost to bring the target's systems up to standard?",
-          "notes": "Technology due diligence is consistently underestimated in acquisition assessments. Hidden integration costs — what the technology industry calls 'tech debt' — can be substantial and must be factored into the adjusted purchase price before settlement. Tech debt assessment: (1) Map the target's current technology stack — what software, hardware, and systems does the business currently rely on? Are they cloud-based or on-premise? Proprietary or standard? (2) Identify incompatibilities — where does the target's stack conflict with the buyer's existing systems? What data migration, integration, or replacement will be required? (3) Quantify the upgrade cost — obtain independent IT quotes for: software licensing and migration, hardware replacement, data migration and testing, staff retraining, and any parallel-running period where both systems must operate simultaneously. (4) IT & Cyber Audit: extend beyond compatibility to assess cybersecurity posture — has the target had any data breaches? What is their data governance standard? Are customer data handling practices compliant with applicable privacy legislation? Does the target have cyber insurance? A business with poor cybersecurity posture inherits that risk on day one of new ownership — including any pre-settlement breach that manifests post-settlement. Action: the total quantified tech debt figure is deducted from the purchase price in negotiation, or a specific budget allocation is negotiated as part of the settlement terms. Do not allow the buyer to discover tech debt post-settlement — it becomes a stranded cost with no recourse. Cross-reference: data_financial_systems tree for cloud platform selection and systems implementation advisory.",
+          "notes": "Technology due diligence is consistently underestimated in acquisition assessments. Hidden integration costs — what the technology industry calls 'tech debt' — can be substantial and must be factored into the adjusted purchase price before settlement. Tech debt assessment: (1) Map the target's current technology stack — what software, hardware, and systems does the business currently rely on? Are they cloud-based or on-premise? Proprietary or standard? (2) Identify incompatibilities — where does the target's stack conflict with the buyer's existing systems? What data migration, integration, or replacement will be required? (3) Quantify the upgrade cost — obtain independent IT quotes for: software licensing and migration, hardware replacement, data migration and testing, staff retraining, and any parallel-running period where both systems must operate simultaneously. (4) IT & Cyber Audit: extend beyond compatibility to assess cybersecurity posture — has the target had any data breaches? What is their data governance standard? Are customer data handling practices compliant with applicable privacy legislation? Does the target have cyber insurance? A business with poor cybersecurity posture inherits that risk on day one of new ownership — including any pre-settlement breach that manifests post-settlement. Action: the total quantified tech debt figure is deducted from the purchase price in negotiation, or a specific budget allocation is negotiated as part of the settlement terms. Do not allow the buyer to discover tech debt post-settlement — it becomes a stranded cost with no recourse. Cross-reference: financial_systems_review tree for cloud platform selection and systems implementation advisory.",
           "branches": [
             {
               "answer_pattern": "legacy or paper-based systems identified — trigger IT and Cyber Audit to quantify tech debt before finalising purchase price",
@@ -7410,7 +6985,9 @@
           "condition": "Audience holds preemptive negative thoughts about the presentation (e.g. rumoured price rises, known objections)",
           "notes": "Call out the ghosts early in the presentation — acknowledge known concerns before the audience can raise them. This preempts negativity and builds immediate trust. Naming the objection disarms it; ignoring it allows it to fester and undermine the rest of the session.",
           "recommendation": "Use Get Seminar template. Address known objections at the opening of the session before the audience can voice them.",
-          "templates": ["Get Seminar"]
+          "templates": [
+            "Get Seminar"
+          ]
         },
         {
           "id": "gs_learning_styles",
@@ -7419,7 +6996,10 @@
           "condition": "Audience includes a mix of learning styles: Reflectors, Pragmatists, Theorists, Activists",
           "notes": "Reflectors: direct them to take a moment and write down their thoughts — they process by reflecting. Pragmatists need facts and real-world application. Theorists need input and conceptual understanding before acting. Activists need to get hands-on immediately. Tailor delivery to accommodate all four styles — do not run a purely lecture-based format.",
           "recommendation": "Use Get Seminar template and Powerful Seminars support content to structure delivery that accommodates all four learning styles.",
-          "templates": ["Get Seminar", "Powerful Seminars"]
+          "templates": [
+            "Get Seminar",
+            "Powerful Seminars"
+          ]
         },
         {
           "id": "gs_networking_out_of_bounds",
@@ -7428,7 +7008,9 @@
           "condition": "A client attempts to discuss detailed services or products while being entertained at a networking event",
           "notes": "Politely steer the conversation to a future Monday call and refocus on hospitality. Engaging in detailed service discussions at social events prevents insincerity, loss of control over the environment, and buyer's remorse. The social context is for relationship building, not transacting.",
           "recommendation": "Use Get Seminar template. Redirect to a scheduled follow-up call and maintain the hospitality focus for the event.",
-          "templates": ["Get Seminar"]
+          "templates": [
+            "Get Seminar"
+          ]
         },
         {
           "id": "gs_networking_joining",
@@ -7437,7 +7019,9 @@
           "condition": "Advisor wishes to join an established group of people at a networking event",
           "notes": "Check body position and explicitly ask permission to join (e.g. 'Hey guys, would it be OK if I joined you?'). This mitigates the basic tribal instinct to exclude outsiders and invokes a compassionate response. Simply walking into a group without asking triggers subconscious exclusion behaviour.",
           "recommendation": "Use Get Seminar template. Practise the approach and body language techniques before major networking events.",
-          "templates": ["Get Seminar"]
+          "templates": [
+            "Get Seminar"
+          ]
         },
         {
           "id": "gs_networking_state",
@@ -7446,7 +7030,9 @@
           "condition": "Advisor is naturally quiet, reserved, or feeling drained before a social or networking event",
           "notes": "Take 5 minutes before the event to get into 'state' by imagining confident posture and voice tone. Physicality dictates confidence — otherwise quietness may be mistaken for snobbery. The technique uses physical anchoring: stand tall, breathe deep, visualise a successful interaction before entering.",
           "recommendation": "Use Get Seminar template. Build the pre-event state preparation into standard networking preparation habits.",
-          "templates": ["Get Seminar"]
+          "templates": [
+            "Get Seminar"
+          ]
         },
         {
           "id": "gs_problem_solving",
@@ -7455,7 +7041,10 @@
           "condition": "The group is prematurely assessing ideas and stalling out during a brainstorming or divergent thinking session",
           "notes": "Premature assessment is the most frequent point of failure in divergent thinking and brainstorming. The facilitator must strictly enforce the no-assessment rule — no criticism or evaluation of ideas during the divergent phase. Use mind mapping to capture all ideas visually before any assessment begins. Do not allow idea killing until the full ideation phase is complete.",
           "recommendation": "Use Get Seminar template and Get Team Problem template. The no-assessment rule must be announced and enforced from the start of the session.",
-          "templates": ["Get Seminar", "Get Team Problem"]
+          "templates": [
+            "Get Seminar",
+            "Get Team Problem"
+          ]
         },
         {
           "id": "gs_implementation",
@@ -7464,7 +7053,9 @@
           "condition": "Team has agreed on an Action Plan but risks losing momentum when they return to their normal workplace environment",
           "notes": "Assign an Enforcer — a nominated team member who takes psychological and operational ownership to monitor milestones. The Enforcer is not a manager; they are an internal accountability partner. Without this role, social pressure fades when participants re-enter their day-to-day context and competing priorities take over.",
           "recommendation": "Use Get Seminar template. Assign an Enforcer during the session before participants leave and document their role in the Action Plan.",
-          "templates": ["Get Seminar"]
+          "templates": [
+            "Get Seminar"
+          ]
         }
       ]
     },
@@ -7539,7 +7130,10 @@
           "condition": "Partner group is evaluating a divisive operational strategy such as offshoring or major structural change",
           "notes": "Deploy the Offshoring Review and use the 6 Hats Framework. The chairperson must force all members to wear the same Hat at the same time — this prevents emotional arguments and confirmation bias. The 6 Hats technique separates thinking modes (facts, feelings, caution, benefits, creativity, process) so the group addresses each dimension systematically rather than debating simultaneously from different positions.",
           "recommendation": "Use Offshoring Review to structure evaluation of the specific change. Use De Bono's 6 Hats to facilitate the partner discussion and prevent confirmation bias.",
-          "templates": ["Offshoring Review", "De Bono's 6 Hats"]
+          "templates": [
+            "Offshoring Review",
+            "De Bono's 6 Hats"
+          ]
         },
         {
           "id": "cas_technology",
@@ -7548,7 +7142,10 @@
           "condition": "Firm wants to test a new AI platform or software suite",
           "notes": "Run the Team AI (Familiarity) Tasks exercise and apply the Software Assessment Criteria. Have team members test inputs across multiple AI models (Gemini, ChatGPT) to learn logic parameters, then compare outputs for bias and accuracy. Familiarity before formal adoption prevents costly mistakes from false confidence in AI outputs.",
           "recommendation": "Use Team AI (Familiarity) Tasks to build staff familiarity with the platform. Apply Software Assessment Criteria to evaluate the tool formally before committing to adoption.",
-          "templates": ["Team AI (Familiarity) Tasks", "Software Assessment Criteria"]
+          "templates": [
+            "Team AI (Familiarity) Tasks",
+            "Software Assessment Criteria"
+          ]
         },
         {
           "id": "cas_capacity",
@@ -7557,7 +7154,9 @@
           "condition": "Workflow is overwhelmed and deadlines are at risk of being missed",
           "notes": "Review the Client Service Standards table. Ensure any necessary service delays or reduced contact hours are absorbed by 'Service' tier clients — protecting the 'Growth' and 'Maintain' client base. Not all clients have equal strategic value; protecting high-value relationships during capacity constraints is a deliberate triage decision.",
           "recommendation": "Use Client Service Standards to triage client contact priorities during the capacity crunch. Absorb delays into the Service tier first.",
-          "templates": ["Client Service Standards"]
+          "templates": [
+            "Client Service Standards"
+          ]
         },
         {
           "id": "cas_advisor_role",
@@ -7566,7 +7165,10 @@
           "condition": "A team member has been given the objective of expanding the firm's client base and building a book of business",
           "notes": "Assign the My Fee Growth Model and My Fee Growth Plan. Require the advisor to complete their activity targets and conversion assumptions independently before partner review — this maximises buy-in and forces them to own the numbers. Partners reviewing before the advisor completes their own assumptions creates dependency rather than ownership.",
           "recommendation": "Use My Fee Growth Model for the financial modelling of fee targets. Use My Fee Growth Plan for the activity targets and conversion planning.",
-          "templates": ["My Fee Growth Model", "My Fee Growth Plan"]
+          "templates": [
+            "My Fee Growth Model",
+            "My Fee Growth Plan"
+          ]
         },
         {
           "id": "cas_service_alignment",
@@ -7575,7 +7177,9 @@
           "condition": "Determining which advisory fundamentals to scope for a specific business owner",
           "notes": "Deploy the Growth Curve Checklist. This ensures service suggestions are perfectly aligned with the business owner's current lifecycle stage, preventing irrelevant pitches. A business in survival mode needs different advisory content than one in growth or exit mode.",
           "recommendation": "Use Growth Curve Checklist to identify the client's current lifecycle stage before scoping any advisory service offering.",
-          "templates": ["Growth Curve Checklist"]
+          "templates": [
+            "Growth Curve Checklist"
+          ]
         },
         {
           "id": "cas_accountability",
@@ -7584,7 +7188,9 @@
           "condition": "Management needs to verify that advisory advice is translating into completed client tasks",
           "notes": "Run the Global Actions Report. This pulls data from all individual Advisor Action Plans to provide a firm-wide view of task completion, revealing bottlenecks and measuring field effectiveness. Without this, advisory quality is invisible — tasks may be agreed in sessions but never actioned, eroding client outcomes and firm credibility.",
           "recommendation": "Use Global Actions Report to track task completion across all advisors and clients at the firm-wide level.",
-          "templates": ["Global Actions Report"]
+          "templates": [
+            "Global Actions Report"
+          ]
         }
       ]
     },
@@ -7662,7 +7268,10 @@
           "condition": "Client struggles with disorganized or ineffective leadership meetings",
           "notes": "Deploy the Annual Board Plan and BoardPack Agenda. Map out 12 months of meeting topics in advance — scheduling specific themes such as Budgets, Tech Policy, HR Review. This moves the client from reactive management to proactive corporate governance. Without a structured annual plan, board meetings become ad-hoc and reactive rather than strategically driven.",
           "recommendation": "Use Annual Board Plan to map 12 months of meeting themes upfront. Use BoardPack Agenda to structure each individual meeting session.",
-          "templates": ["Annual Board Plan", "BoardPack Agenda"]
+          "templates": [
+            "Annual Board Plan",
+            "BoardPack Agenda"
+          ]
         },
         {
           "id": "fbp_risk_assessment",
@@ -7671,7 +7280,9 @@
           "condition": "Client indicates exposure to market volatility or operational threats",
           "notes": "Deploy the Risk Management Cover matrix. Evaluate risks based on Probability and Consequence. Instruct the client to classify each identified risk into four strategic actions: Accept, Avoid, Reduce, or Transfer. The matrix prevents gut-feel risk prioritisation and forces a structured, evidence-based classification.",
           "recommendation": "Use Risk Mgt Cover matrix to identify, classify, and assign strategic actions to all identified risks.",
-          "templates": ["Risk Mgt Cover"]
+          "templates": [
+            "Risk Mgt Cover"
+          ]
         },
         {
           "id": "fbp_strategic_proposals",
@@ -7680,7 +7291,9 @@
           "condition": "Client wants to make a major capital purchase, launch a new product, or enter a new market",
           "notes": "Require completion of a Board White Paper before any capital is committed. Forces the client to objectively outline the historical context, feasible solutions, alternative options, and measurable benefits before spending money. The White Paper process eliminates shiny-object decisions driven by enthusiasm rather than evidence.",
           "recommendation": "Use Board White Paper framework to structure and document the strategic proposal before any board vote or capital commitment.",
-          "templates": ["Board White Paper"]
+          "templates": [
+            "Board White Paper"
+          ]
         },
         {
           "id": "fbp_combating_bias",
@@ -7689,7 +7302,9 @@
           "condition": "Client has a history of repeating mistakes, ignoring negative data, or making gut-feel choices",
           "notes": "Introduce the Quality Decisions frameworks, specifically addressing Psyche Errors. Educate the client on Optimism Bias (overestimating success probability) and Confirmation Bias (seeking only data that confirms existing beliefs). Have them use a Decision Workpaper to outline logic, counter-arguments, and early failure indicators for every major decision.",
           "recommendation": "Use Quality Decisions frameworks to introduce Psyche Errors concepts. Use Decision Workpaper to structure future high-stakes decisions.",
-          "templates": ["Quality Decisions"]
+          "templates": [
+            "Quality Decisions"
+          ]
         },
         {
           "id": "fbp_data_interpretation",
@@ -7698,7 +7313,10 @@
           "condition": "Client is making assumptions or taking action based on sudden spikes or drops in business metrics",
           "notes": "Apply the Interpreting Data Correctly framework and Deming's Theory of Volatility. Determine if the data shift is Common cause (normal variation — do not act), Special cause (genuine anomaly — investigate and act), or Seasonal cause (predictable pattern — plan for). Test whether any apparent relationship between variables is actual Causation or merely Correlation or Coincidence.",
           "recommendation": "Use Interpreting Data Correctly framework. Apply Deming's Theory of Volatility to classify the cause type before recommending any action.",
-          "templates": ["Interpreting Data Correctly", "Demings Volatility"]
+          "templates": [
+            "Interpreting Data Correctly",
+            "Demings Volatility"
+          ]
         },
         {
           "id": "fbp_formal_legal",
@@ -7707,7 +7325,9 @@
           "condition": "The board has reached an agreement on raising capital, paying dividends, or buying major assets",
           "notes": "Generate a formal Resolution. This ensures the board action is legally protected by capturing the date, location, and unanimous or majority signatures of the directors. Without a formal resolution, major financial actions lack legal standing and create governance risk for the business.",
           "recommendation": "Use Board Resolution template to formally document and sign off any major board agreement before action is taken.",
-          "templates": ["Board Resolution"]
+          "templates": [
+            "Board Resolution"
+          ]
         },
         {
           "id": "fbp_accountability",
@@ -7716,7 +7336,9 @@
           "condition": "Directors are arriving at meetings unprepared or having not read required documents",
           "notes": "Implement the Boardpack Table tracker. This mandates that each director signs off confirming they have Read and Understood required documents (financials, legal correspondence) prior to the meeting. The tracker creates a formal pre-meeting accountability step — if a director has not signed off, they are visibly unprepared and cannot credibly participate in the vote.",
           "recommendation": "Use Boardpack Table Tracker to enforce a read-and-sign-off requirement for all directors before each meeting.",
-          "templates": ["Boardpack Table Tracker"]
+          "templates": [
+            "Boardpack Table Tracker"
+          ]
         }
       ]
     },
@@ -7796,7 +7418,9 @@
           "condition": "Firm states they want to promote a senior staff member to partner",
           "notes": "Initiate Directorship Pathway 1 checklist. Verify if the candidate has 30 months of firm experience and has managed $250k in fees. These baseline requirements must be confirmed before spending time on complex competency testing — they are the entry gate, not the destination.",
           "recommendation": "Use Directorship Pathway 1 to verify baseline requirements before proceeding to any competency assessment.",
-          "templates": ["Directorship Pathway 1"]
+          "templates": [
+            "Directorship Pathway 1"
+          ]
         },
         {
           "id": "ol_competency_assessment",
@@ -7805,7 +7429,9 @@
           "condition": "Candidate meets baseline pathway requirements and is ready for formal competency evaluation",
           "notes": "Deploy Directorship Pathway 2 Competency Rating Matrix. Ask the candidate and their peers to rate them from 1-5 on core competencies. Focus on identifying skill gaps (e.g. Financial Management or Presenting) that require coaching before promotion. Peer ratings often reveal blind spots the candidate themselves cannot see.",
           "recommendation": "Use Directorship Pathway 2 Competency Rating Matrix for both self-assessment and peer assessment of the candidate.",
-          "templates": ["Directorship Pathway 2"]
+          "templates": [
+            "Directorship Pathway 2"
+          ]
         },
         {
           "id": "ol_behavioural_profiling",
@@ -7814,7 +7440,9 @@
           "condition": "Interviewing a candidate and assessing their personality type and emotional intelligence",
           "notes": "Use Enneagram-based employment questions tailored to the candidate's presenting personality type. Example: if they present as an Achiever (Type 3), ask 'How do you cope when those around you appear to be having more success than you are?' This tests emotional intelligence and competitive drivers specific to that personality structure.",
           "recommendation": "Use Enneagram Employment Questions to structure behavioural interview questions matched to the candidate's personality type.",
-          "templates": ["Enneagram Employment Questions"]
+          "templates": [
+            "Enneagram Employment Questions"
+          ]
         },
         {
           "id": "ol_boardroom_conflict",
@@ -7823,7 +7451,9 @@
           "condition": "A partner is continuously shutting down creative discussions with cold logic or manipulative behaviour",
           "notes": "Reference Boardroom Manipulation Tactics to identify whether they are acting as 'The Assassin' (attacking ideas rather than engaging with them) or using 'Scorched Earth' tactics (making the cost of disagreement so high that others back down). Accurately labelling the behaviour type allows the chair to address it objectively rather than emotionally.",
           "recommendation": "Use Boardroom Manipulation Tactics to identify and name the specific disruptive behaviour pattern before raising it formally with the partner group.",
-          "templates": ["Boardroom Manipulation Tactics"]
+          "templates": [
+            "Boardroom Manipulation Tactics"
+          ]
         },
         {
           "id": "ol_conduct_warning",
@@ -7832,7 +7462,10 @@
           "condition": "A partner consistently displays tardiness or grumpiness without improvement despite informal feedback",
           "notes": "Issue a Yellow Card citing the Agreed Response Time Guidelines (e.g. Priority 2 / 30 Days to correct). The Yellow Card is an interim measure — it creates a documented, formal record of the warning. If the partner fails to correct within the timeframe, this escalates to formal Demerit Points. Without documentation, conduct issues cannot be escalated fairly or legally.",
           "recommendation": "Issue a formal Yellow Card using the Agreed Response Time Guidelines. Document the specific behaviour and the correction deadline clearly.",
-          "templates": ["Yellow Card", "Agreed Response Time Guidelines"]
+          "templates": [
+            "Yellow Card",
+            "Agreed Response Time Guidelines"
+          ]
         },
         {
           "id": "ol_performance_tracking",
@@ -7841,7 +7474,9 @@
           "condition": "A partner has exceeded their targets by generating over $100k in new combined client fees",
           "notes": "Refer to the Bonus Points System and award the set bonus (e.g. $12k) prior to profit share calculations. This reinforces positive Finder behaviour and growth through transparent financial incentives. Applying the bonus before profit share makes it visible, material, and unambiguous — not absorbed into a general distribution.",
           "recommendation": "Apply Bonus Points System to calculate and award the performance bonus. Process before profit share calculations.",
-          "templates": ["Bonus Points System"]
+          "templates": [
+            "Bonus Points System"
+          ]
         },
         {
           "id": "ol_severe_infraction",
@@ -7850,7 +7485,9 @@
           "condition": "A partner commits gross negligence resulting in catastrophic market fallout or a serious ethical breach",
           "notes": "Apply the Ethics Conduct & Effect matrix to calculate Demerit Points (e.g. Base 4pts + Effect 8pts = 12 Demerit Points). If Demerit Points hit 20 within 12 months, it triggers immediate resignation and trade restrictions. The matrix makes the outcome of severe infractions mathematically predictable and pre-agreed — removing subjectivity from the highest-stakes partner decisions.",
           "recommendation": "Use Ethics Conduct & Effect matrix to calculate and formally record Demerit Points. Apply the resignation threshold if the 20-point limit is reached within 12 months.",
-          "templates": ["Ethics Conduct & Effect"]
+          "templates": [
+            "Ethics Conduct & Effect"
+          ]
         }
       ]
     },
@@ -7922,7 +7559,9 @@
           "condition": "New client has no financial reporting system in place",
           "notes": "Use the Financial Systems Review template to map the required system structure. Chart of Accounts design is the critical first step — getting this wrong creates compounding reporting problems over years. Focus on: correct income and expense categorisation aligned to the 3x3 framework (Variable, Activity, Fixed), cloud-based access for the advisor, and management reporting outputs that support the dashboard discussion process.",
           "recommendation": "Use Financial Systems Review template to scope and build the system from scratch. Align the Chart of Accounts to the 3x3 cost framework from day one.",
-          "templates": ["Financial Systems Review"]
+          "templates": [
+            "Financial Systems Review"
+          ]
         },
         {
           "id": "fsr_scaling",
@@ -7931,7 +7570,9 @@
           "condition": "Existing financial system is overwhelmed or inadequate because the business has grown beyond its original scope",
           "notes": "Common signs the system has not scaled: manual workarounds, multiple disconnected spreadsheets, inability to produce timely management reports, reconciliation errors. The Financial Systems Review template provides the diagnostic framework to assess current state and scope the required upgrade or replacement.",
           "recommendation": "Use Financial Systems Review template to diagnose where the current system is breaking down and scope the upgrade or replacement.",
-          "templates": ["Financial Systems Review"]
+          "templates": [
+            "Financial Systems Review"
+          ]
         },
         {
           "id": "fsr_audit",
@@ -7940,7 +7581,9 @@
           "condition": "Client faces an external audit or compliance requirement that their current system cannot support",
           "notes": "Audit requirements impose specific documentation, data integrity, and access control standards. The current system must be assessed against those requirements before the audit — not during it. Data integrity review and access log assessment are the priority outputs. The Financial Systems Review template provides the structure for this gap analysis.",
           "recommendation": "Use Financial Systems Review template for audit readiness assessment. Prioritise data integrity verification and access control documentation as first outputs.",
-          "templates": ["Financial Systems Review"]
+          "templates": [
+            "Financial Systems Review"
+          ]
         },
         {
           "id": "fsr_system_findings",
@@ -7949,7 +7592,9 @@
           "condition": "A review of the existing financial system has revealed specific problems, gaps, or data integrity failures",
           "notes": "Treat each finding as a discrete remediation task with a priority classification. Finding categories: data integrity failures (incorrect coding, missing entries), structural problems (wrong Chart of Accounts design), process failures (no reconciliation discipline), and reporting gaps (no management report outputs). The Financial Systems Review template supports both findings documentation and the remediation plan.",
           "recommendation": "Use Financial Systems Review template to document findings and build a prioritised remediation plan with assigned owners and deadlines.",
-          "templates": ["Financial Systems Review"]
+          "templates": [
+            "Financial Systems Review"
+          ]
         },
         {
           "id": "fsr_post_implementation",
@@ -7958,7 +7603,277 @@
           "condition": "A new financial system has recently been implemented and needs to be verified as working correctly",
           "notes": "Post-implementation verification checks: Chart of Accounts is correctly configured, live data is coding correctly, management reports are producing sensible outputs, and the advisor has the access needed for ongoing dashboard work. Run a parallel period comparison where possible — comparing new system outputs against known historical data confirms accuracy before the old system is decommissioned.",
           "recommendation": "Use Financial Systems Review template for the post-implementation verification checklist. Run a parallel period comparison to confirm accuracy.",
-          "templates": ["Financial Systems Review"]
+          "templates": [
+            "Financial Systems Review"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "three_pill_fin_mgt",
+      "name": "3 Pill Financial Management",
+      "source_pdf": "3 Pill Fin Mgt Logic.pdf",
+      "description": "Diagnostic tree for identifying and resolving client mindset barriers to financial management. The 7-branch routing identifies the specific barrier (fatigue, linear thinking, volatility blindness, ideas overload, forecast fear, system ignorance, or culture-building) and routes to the tool that creates the first ah-ha moment before deeper financial work begins.",
+      "entry_triggers": [
+        "3 pill",
+        "three pill",
+        "financial management mindset",
+        "client avoids financials",
+        "doesn't understand the numbers",
+        "afraid of financials",
+        "client disengaged",
+        "client overwhelmed by financials",
+        "fear of forecasting",
+        "withdrawn from financials",
+        "financial literacy barrier",
+        "artisan background",
+        "technician avoids numbers",
+        "financial culture",
+        "culture of financial oversight"
+      ],
+      "nodes": [
+        {
+          "id": "tpfm_entry",
+          "branch_name": "Pill Routing — Which Barrier Does the Client Have?",
+          "type": "question",
+          "question": "Which best describes the client's current relationship with their financials — withdrawn and fatigued, understands cash in/out but not timing or cycles, accepts the business has ups and downs but can't quantify them, has too many ideas and needs clarity, sees forecasting as a judgment exercise, avoids financial management due to background, or operating well and wants to build a culture of financial oversight?",
+          "notes": "Match the client to their barrier and route to the tool that creates the first ah-ha moment before advancing to deeper financial work.",
+          "branches": [
+            {
+              "answer_pattern": "withdrawn / fatigued / fearful of loss / stuck / lacks clarity / can't see a path forward",
+              "next_node": "tpfm_fatigue"
+            },
+            {
+              "answer_pattern": "understands money in vs money out linearly but doesn't grasp cycles, timing, or working capital",
+              "next_node": "tpfm_knowledge_gap"
+            },
+            {
+              "answer_pattern": "accepts ups and downs but has no way to quantify or explain the range",
+              "next_node": "tpfm_volatility"
+            },
+            {
+              "answer_pattern": "too many ideas / overwhelmed / everything is urgent / needs to unpack and prioritise",
+              "next_node": "tpfm_ideas"
+            },
+            {
+              "answer_pattern": "views forecasting as a static prediction / feels judged when actuals miss / stopped forecasting because it felt pointless",
+              "next_node": "tpfm_forecast_fear"
+            },
+            {
+              "answer_pattern": "artisan or technician background / avoids financial management / ignorant or afraid of systems",
+              "next_node": "tpfm_system_ignorance"
+            },
+            {
+              "answer_pattern": "operating from strength / proactive / wants a culture of ongoing financial learning and oversight",
+              "next_node": "tpfm_culture"
+            }
+          ]
+        },
+        {
+          "id": "tpfm_fatigue",
+          "branch_name": "Pill 1 — Fatigue & Withdrawal (Stuck in the Mud)",
+          "type": "recommendation",
+          "condition": "Client seems withdrawn due to fatigue, fear of loss, or lack of clarity",
+          "action": "Create self-relevance before introducing data. Have the client identify with a persona using the Heald Matrix — this shows them that progress is within reach without the pressure of heavy data verification upfront. Once engagement is restored, diagnose the specific financial management need.",
+          "templates": [
+            "The Heald Matrix"
+          ],
+          "notes": "Cross-reference the heald_matrix coaching tree. Do not front-load data or complex financial tools — this client needs a mindset shift before they can absorb financial information."
+        },
+        {
+          "id": "tpfm_knowledge_gap",
+          "branch_name": "Pill 1 — The Knowledge Gap (Linear Thinker)",
+          "type": "recommendation",
+          "condition": "Client understands money in vs money out linearly but does not understand the true effects of time, cycles, or discounting",
+          "action": "Create an ah-ha moment by showing their business in cyclic terms using the Working Capital Cycle. This helps the client piece together the role of forecasting and budgeting in their specific business before advancing to deeper financial planning.",
+          "templates": [
+            "Working Capital Cycle"
+          ],
+          "notes": "Cross-reference the working_capital_cycle coaching tree. Once the cycle concept lands, progress to a structured forecast or financial reporting setup depending on the client's primary need."
+        },
+        {
+          "id": "tpfm_volatility",
+          "branch_name": "Pill 1 — Volatility & Ups/Downs (The Wake Up Call)",
+          "type": "recommendation",
+          "condition": "Client accepts the business has ups and downs but lacks a way to quantify their range, leading to poor data conclusions",
+          "action": "Introduce a volatility or data interpretation template to show the business is a collection of processes. This demonstrates that a reduction in volatility can only come after refining business procedures — it is not random. Deming's Volatility coaching tree walks through this step by step.",
+          "templates": [
+            "a volatility or data interpretation template [Financial Management & Reporting — tags: volatility, Deming, data interpretation, working capital]"
+          ],
+          "notes": "Cross-reference the demings_volatility coaching tree. This is often the insight that unlocks a client's willingness to commit to regular financial reporting."
+        },
+        {
+          "id": "tpfm_ideas",
+          "branch_name": "Pill 2 — Too Many Ideas (Eyes On The Prize)",
+          "type": "recommendation",
+          "condition": "Client carries too many ideas in their head and needs a place to unpack their thoughts to make future moves clear",
+          "action": "Encourage the client to treat problems and opportunities as a series of what-if events using a Revenue Model. Logic supports ideas and quantifies what is needed to be successful — this turns scattered thinking into a testable financial scenario.",
+          "templates": [],
+          "notes": "Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match; (3) purpose match. If no match found, tell the advisor explicitly rather than guessing."
+        },
+        {
+          "id": "tpfm_forecast_fear",
+          "branch_name": "Pill 2 — Fear of Forecasting (Looking Ahead)",
+          "type": "recommendation",
+          "condition": "Client views a financial forecast as a frustrating static prediction and feels judgment when actuals differ",
+          "action": "Deploy a Forecast & Action Plan combining a 3-way forecast with Revenue Model sensitivity analysis. This restores a sense of control — forecasting is about providing strong clues to what to expect, not making an exact prediction. The 3-way format (best/likely/worst) removes the judgment dynamic.",
+          "templates": [
+            "Forecasting",
+            "Assumptions"
+          ],
+          "notes": "Reframe the forecast as a learning tool, not a report card. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match; (2) tags match; (3) purpose match. If no match found, tell the advisor explicitly rather than guessing."
+        },
+        {
+          "id": "tpfm_system_ignorance",
+          "branch_name": "Pill 3 — System Ignorance (Cross the I's and Dot the T's)",
+          "type": "recommendation",
+          "condition": "Client comes from an artisan or technician background and avoids financial management out of ignorance or fear",
+          "action": "Start a Financial Systems Review using a range of helicopter questions. This allows the client to see that system checks are simply common sense in hindsight before diving deeper. Cross-reference the financial_systems_review advisory tree for the full diagnostic.",
+          "templates": [
+            "Financial Systems Review",
+            "90 Day Best Practice Accounting"
+          ],
+          "notes": "Cross-reference the financial_systems_review advisory tree. Do not overwhelm with financial theory — use practical, operational language and let the common-sense framing do the heavy lifting."
+        },
+        {
+          "id": "tpfm_culture",
+          "branch_name": "Pill 3 — Establishing a Financial Learning Culture (Test & Learn)",
+          "type": "recommendation",
+          "condition": "Client is operating from a position of strength but needs to secure ongoing progressive financial engagement",
+          "action": "Implement visible management reporting tools: a financial dashboard or reporting template, Ratio Analysis, and a benchmarking template. Building a visible learning culture can only occur top-down — learning is constant but requires a system to observe. Begin with the dashboard to establish the baseline, then layer in ratio analysis and benchmarking over successive sessions.",
+          "templates": [
+            "a financial dashboard or reporting template [Financial Management & Reporting — tags: dashboard, KPIs, financial reporting, management accounts]",
+            "Ratio Analysis",
+            "a benchmarking template [Financial Management & Reporting — tags: benchmarking, ratios, industry comparison]"
+          ],
+          "notes": "Cross-reference dashboard_discussions and ratio_analysis coaching trees. Keep the cadence regular and tied to management meetings for maximum engagement."
+        }
+      ]
+    },
+    {
+      "id": "cash_tactics",
+      "name": "Cash Tactics",
+      "source_pdf": "Cash Tactics Logic.pdf",
+      "description": "Diagnostic and tactical routing for cash flow problems where the root cause is known. Routes by primary cash leak (billing lags, chronic debtors, supplier terms, slow stock, sales pricing, or market expansion needs) and maps each to the most effective operational or financial tool. Cross-references working_capital_cycle coaching tree and forecasting_financial_mgmt for situations where root cause is not yet confirmed.",
+      "entry_triggers": [
+        "cash tactics",
+        "cash leak",
+        "billing lag",
+        "late invoicing",
+        "chronic debtors",
+        "debtors stretched",
+        "supplier payment terms",
+        "creditor days",
+        "slow stock",
+        "perishable stock",
+        "sales pricing",
+        "holding price",
+        "losing deals on price",
+        "market expansion",
+        "cash improvement tactics",
+        "improve cash flow",
+        "cash flow tactics",
+        "debtor protocols",
+        "working capital tactics"
+      ],
+      "nodes": [
+        {
+          "id": "ct_entry",
+          "branch_name": "Cash Tactics — Where Is the Cash Being Lost?",
+          "type": "question",
+          "question": "Which area is the primary source of the cash problem — late invoicing or billing lags, chronic late-paying debtors, supplier payment terms that are too tight, cash tied up in slow or perishable stock, sales pricing being challenged and deals lost on price, or the business needs to expand into new markets to grow revenue?",
+          "branches": [
+            {
+              "answer_pattern": "billing lags / forgetting to invoice / invoicing late after jobs are completed",
+              "next_node": "ct_billing"
+            },
+            {
+              "answer_pattern": "chronic debtors / clients constantly stretching past 60 or 90 days",
+              "next_node": "ct_debtors"
+            },
+            {
+              "answer_pattern": "supplier payment terms too tight / cash tied up waiting to pay suppliers",
+              "next_node": "ct_suppliers"
+            },
+            {
+              "answer_pattern": "stock / inventory / perishable or rare items tying up cash",
+              "next_node": "ct_stock"
+            },
+            {
+              "answer_pattern": "sales pricing / losing deals when price is challenged / conversion dropping / discounting",
+              "next_node": "ct_sales"
+            },
+            {
+              "answer_pattern": "market expansion / new markets / grow revenue to solve cash shortfall / not enough customers",
+              "next_node": "ct_market_expansion"
+            }
+          ]
+        },
+        {
+          "id": "ct_billing",
+          "branch_name": "Cash Tactic — Billing Lags",
+          "type": "recommendation",
+          "condition": "Client forgets to invoice until weeks after a job is done",
+          "action": "Implement on-site billing apps synced to accounting software (e.g., Tradify to Xero). Invoices must be generated immediately upon job completion to start the payment clock instantly. Every day of billing lag is a day removed from the working capital cycle.",
+          "templates": [
+            "Debtor Protocols",
+            "Data Session"
+          ],
+          "notes": "This is an operational fix, not a financial one. Establish a non-negotiable rule: invoice on the day the work is done. Systems and apps make this frictionless and remove the 'I forgot' excuse."
+        },
+        {
+          "id": "ct_debtors",
+          "branch_name": "Cash Tactic — Chronic Debtors",
+          "type": "recommendation",
+          "condition": "Client has customers who consistently stretch payment past 90 days",
+          "action": "Switch persistent late payers to Cash on Delivery (COD) or terminate the relationship. Do not let poor-paying clients drain the working capital cycle. Implement proactive debtor follow-ups early — do not wait until the account is already 60+ days overdue. Use Debtor Protocols to script the follow-up process.",
+          "templates": [
+            "Debtor Protocols"
+          ],
+          "notes": "The cost of a chronic debtor is not just the interest on the outstanding amount — it is management time, stress, and the stock or labour that cannot be funded as a result. Cutting poor payers frees up both cash and capacity."
+        },
+        {
+          "id": "ct_suppliers",
+          "branch_name": "Cash Tactic — Supplier Leverage",
+          "type": "recommendation",
+          "condition": "Client wants to negotiate longer payment terms with suppliers to ease cash pressure",
+          "action": "Offer to carry a wider range of the supplier's stock catalogue in return for delayed payment terms. This mutual trade-off improves creditor days without damaging the business's reputation. Negotiate from a position of being a reliable customer, not from desperation.",
+          "templates": [
+            "Working Capital Cycle"
+          ],
+          "notes": "Longer supplier terms effectively act as interest-free funding. Even a 30-day extension can significantly improve the working capital position if the business has strong stock turn."
+        },
+        {
+          "id": "ct_stock",
+          "branch_name": "Cash Tactic — Slow, Rare, or Perishable Stock",
+          "type": "recommendation",
+          "condition": "Client ties up cash in rare items or loses money on perishable or slow-moving stock",
+          "action": "Deploy direct-to-customer air freight for rare items and fast freight for perishables — fast freight maximises the 'sales days' window to recover investment before stock perishes. Negotiate delayed supplier payment terms for slow-moving lines to reduce cash commitment before a sale is confirmed.",
+          "templates": [
+            "Working Capital Cycle",
+            "a cost breakdown or expense categorisation template [Financial Management & Reporting — tags: costs, expense categories, gross margin, variable costs]"
+          ],
+          "notes": "Stock management is a cash management discipline. Reducing the holding period of slow-moving or high-risk stock directly improves the working capital cycle and reduces write-off risk."
+        },
+        {
+          "id": "ct_sales",
+          "branch_name": "Cash Tactic — Sales Pricing & Conversion",
+          "type": "recommendation",
+          "condition": "Client's team loses deals when prices are challenged, leading to discounting and margin erosion",
+          "action": "Conduct market research to confirm pricing sits in the lower end of the upper-most quadrant — hold the price rather than discount. Develop scripts for the top 5 sales objections and enforce buddy rehearsals so the team builds confidence in holding price under pressure. Cross-reference the sales_marketing and client_sales advisory trees for a broader sales process review if conversion is the wider issue.",
+          "templates": [],
+          "notes": "Confidence in overcoming objections allows pricing to be maintained without sacrificing conversion rates. Discounting almost always signals value uncertainty to the buyer and is rarely the right answer. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match; (2) tags match; (3) purpose match. If no match found, tell the advisor explicitly rather than guessing."
+        },
+        {
+          "id": "ct_market_expansion",
+          "branch_name": "Cash Tactic — Market Expansion",
+          "type": "recommendation",
+          "condition": "Business needs to grow its revenue base by accessing new markets or customer segments to resolve a structural cash shortfall",
+          "action": "Identify whether the gap is a volume problem (not enough customers) or a geographic/segment problem (wrong markets). For volume: deploy targeted marketing campaigns and referral systems to increase inbound enquiry. For geographic expansion: use a Revenue Model to forecast the incremental revenue and cost of entering a new territory before committing resources. Cross-reference sales_marketing for marketing strategy and client_sales for conversion improvement.",
+          "templates": [
+            "a revenue model or feasibility template [Do the Job > Revenue & Feasibility Models — tags: revenue, market, new market, expansion]"
+          ],
+          "notes": "Market expansion is a medium-term cash solution — it does not address an immediate cash crisis. Short-term tactics (billing, debtors, suppliers) must be actioned in parallel while the expansion plan is built. Do not let growth planning distract from fixing underlying operational cash leaks first."
         }
       ]
     }
