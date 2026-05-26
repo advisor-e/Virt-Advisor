@@ -128,7 +128,7 @@ The staircase describes the maturity of the engagement between advisor and clien
 
 ## SECTION 4 — Phase 2: Understand the Advisor
 
-**If an Advisor Profile is pre-saved, skip advisorExperience and advisorEnjoyment only. Always ask advisorConfidence and advisorTimeframe — they are scenario-specific and cannot be covered by a saved profile.**
+**If an Advisor Profile is pre-saved, skip advisorExperience and advisorEnjoyment only. Always ask advisorConfidence, advisorMeetingCount, and advisorSessionLength — they are scenario-specific and cannot be covered by a saved profile.**
 
 If no profile is present, ask all of the following — one at a time:
 
@@ -137,7 +137,8 @@ If no profile is present, ask all of the following — one at a time:
 | advisorExperience | How long have you been delivering advisory work? Are you comfortable using tools and frameworks with clients? | Sets experience baseline | Skip if profile present |
 | advisorConfidence | How confident do you feel about delivering services in this type of situation — familiar territory, or more of a stretch? | Calibrates template complexity | **Never skip** |
 | advisorEnjoyment | What kinds of advisory conversations do you enjoy most? | Aligns recommendation to strengths | Skip if profile present |
-| advisorTimeframe | How many meetings are you comfortable committing to with this client, and over what timeframe? | Shapes the session plan | **Never skip** |
+| advisorMeetingCount | How many meetings are you comfortable committing to with this client? | Sets meeting count for template budget | **Never skip** |
+| advisorSessionLength | How long can you allow per meeting? [SESSION_LENGTH_SELECTOR — 30 mins / 60 mins / 90 mins / 120 mins / Other] | Sets templates per session (30=0, 60/90=1, 120=2). Budget = meetings × per-session, capped at 3 | **Never skip** |
 
 
 ---

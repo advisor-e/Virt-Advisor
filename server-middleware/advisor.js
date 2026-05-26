@@ -449,7 +449,8 @@ async function handleQuery (rawBody, res) {
       advisorExperience: null,
       advisorConfidence: null,
       advisorEnjoyment: null,
-      advisorTimeframe: null,
+      advisorMeetingCount: null,
+      advisorSessionLength: null,
       // Flow state
       readyForRecommendation: false,
       recommendationDelivered: false,
@@ -701,8 +702,12 @@ async function handleQuery (rawBody, res) {
         skip: () => !!advisorProfile
       },
       {
-        field: 'advisorTimeframe',
-        text: 'How many meetings are you comfortable committing to with this client, and over what timeframe?'
+        field: 'advisorMeetingCount',
+        text: 'How many meetings are you comfortable committing to with this client?'
+      },
+      {
+        field: 'advisorSessionLength',
+        text: 'How long can you allow per meeting?\n[SESSION_LENGTH_SELECTOR]'
       }
     ]
 
@@ -950,7 +955,8 @@ async function handleQuery (rawBody, res) {
       state.ownership && state.ownership !== 'pending' &&
       state.advisoryStaircase && state.advisoryStaircase !== 'pending' &&
       state.advisorConfidence && state.advisorConfidence !== 'pending' &&
-      state.advisorTimeframe && state.advisorTimeframe !== 'pending'
+      state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' &&
+      state.advisorSessionLength && state.advisorSessionLength !== 'pending'
     )
     if (!_mandatoryAnswered) {
       console.error('[advisor] PHASE3 PREMATURE TRIGGER — mandatory questions incomplete. State:', JSON.stringify({
@@ -960,7 +966,8 @@ async function handleQuery (rawBody, res) {
         ownership: state.ownership || null,
         advisoryStaircase: state.advisoryStaircase || null,
         advisorConfidence: state.advisorConfidence ? '[set]' : null,
-        advisorTimeframe: state.advisorTimeframe || null,
+        advisorMeetingCount: state.advisorMeetingCount || null,
+        advisorSessionLength: state.advisorSessionLength || null,
         histLen: conversationHistory.length,
         session: sessionId ? sessionId.slice(0, 8) : null
       }))
@@ -1019,7 +1026,8 @@ async function handleQuery (rawBody, res) {
       state.advisorExperience && state.advisorExperience !== 'pending' ? `Advisor experience: ${state.advisorExperience}` : '',
       state.advisorConfidence && state.advisorConfidence !== 'pending' ? `Advisor confidence for this specific situation (NOT a measure of overall career experience or seniority): ${state.advisorConfidence}` : '',
       state.advisorEnjoyment && state.advisorEnjoyment !== 'pending' ? `Advisor enjoyment/strengths: ${state.advisorEnjoyment}` : '',
-      state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? `Advisor timeframe and meeting commitment: ${state.advisorTimeframe}` : ''
+      state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' ? `Advisor meeting commitment: ${state.advisorMeetingCount}` : '',
+      state.advisorSessionLength && state.advisorSessionLength !== 'pending' ? `Session length per meeting: ${state.advisorSessionLength}` : ''
     ].filter(Boolean).join('\n')
 
     // Derive explicit exclusion and context rules from diagnostic answers
@@ -1032,17 +1040,28 @@ async function handleQuery (rawBody, res) {
     const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated|spoke\s+to\s+(?:me|us)\s+about|called\s+(?:me|us)\s+about|phoned\s+(?:me|us)|reached\s+out|got\s+in\s+touch|contacted\s+(?:me|us)|they\s+(?:called|rang|phoned|messaged|emailed|texted)/i.test(state.clientRaisedIssue)
 
-    // Parse meeting count from advisorTimeframe — upper bound of a range taken so capacity covers all planned sessions
-    const _timeframeText = state.advisorTimeframe && state.advisorTimeframe !== 'pending' ? state.advisorTimeframe.toLowerCase() : ''
-    const _meetingWordMap = { one: 1, two: 2, three: 3, four: 4, five: 5 }
-    const _countRangeMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\s+(?:to|or|maybe|-)\s+(one|two|three|four|five|\d)\b/i)
-    const _countSingleMatch = _timeframeText.match(/\b(one|two|three|four|five|\d)\b/i)
+    // Parse meeting count — upper bound of a range taken so capacity covers all planned sessions
+    const _meetingText = state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' ? state.advisorMeetingCount.toLowerCase() : ''
+    const _meetingWordMap = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6 }
+    const _countRangeMatch = _meetingText.match(/\b(one|two|three|four|five|six|\d)\s+(?:to|or|maybe|-)\s+(one|two|three|four|five|six|\d)\b/i)
+    const _countSingleMatch = _meetingText.match(/\b(one|two|three|four|five|six|\d)\b/i)
     const meetingNum = _countRangeMatch
       ? (_meetingWordMap[_countRangeMatch[2]] || parseInt(_countRangeMatch[2]) || null)
       : _countSingleMatch
         ? (_meetingWordMap[_countSingleMatch[1]] || parseInt(_countSingleMatch[1]) || null)
         : null
-    const tier1Capacity = meetingNum || 2
+
+    // Session length → templates per session
+    // 30 mins = 0 (not enough for template delivery), 60/90 mins = 1, 120 mins = 2, other = 1
+    const _sessionLen = state.advisorSessionLength && state.advisorSessionLength !== 'pending'
+      ? state.advisorSessionLength.toLowerCase().trim()
+      : null
+    const _sessionLengthMap = { '30 mins': 0, '60 mins': 1, '90 mins': 1, '120 mins': 2, other: 1 }
+    const templatesPerSession = _sessionLen !== null ? (_sessionLengthMap[_sessionLen] ?? 1) : 1
+
+    // Template budget = meetings × templates per session, capped at 3 (Cause + Core + Downstream)
+    const templateBudget = Math.min((meetingNum || 1) * templatesPerSession, 3)
+    const tier1Capacity = templateBudget
 
     // Detect price communication need — scan all substantive answer fields, not just priority/downstream
     const _pricePattern = /\b(communicat(?:e|ing|ion|ions)?|price[s]?\s+(?:increase[s]?|rise[s]?|hike[s]?|change[s]?|up)\b|put(?:ting)?\s+(?:the\s+|their\s+)?price[s]?\s+up|pass\s+(?:it|the\s+cost|increase)\s+on|tell\s+(?:the\s+)?(?:client|customer)s?\s+about|inform\s+(?:the\s+)?(?:client|customer)s?|announc(?:e|ing|ement[s]?)?|retain(?:ing)?\s+(?:client|customer)s?|losing\s+(?:client|customer)s?|afraid\s+to\s+(?:raise|increase|put\s+up)\s+(?:the\s+)?price|client[s]?\s+(?:leave|leav|left|retention))\b/i
@@ -1163,7 +1182,8 @@ ${formatFinMgtTable()}`
       governanceInstruction + strategyInstruction + systemsInstruction + valuationInstruction +
       riskInstruction + successionInstruction + conflictInstruction + eoyInstruction + dueDiligenceInstruction
 
-    const _tier1Label = `${meetingNum || 2} meeting${(meetingNum || 2) !== 1 ? 's' : ''} = ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} maximum`
+    const _sessionContext = state.advisorSessionLength && state.advisorSessionLength !== 'pending' ? ` @ ${state.advisorSessionLength}` : ''
+    const _tier1Label = `${meetingNum || 1} meeting${(meetingNum || 1) !== 1 ? 's' : ''}${_sessionContext} = ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''}`
     const recommendationStructure = `\n\nRECOMMENDATION FORMAT — follow this structure exactly. Do not invent alternative headings or reorder the sections.
 
 OPENING SUMMARY — Before listing any templates, write 2–3 sentences that give the advisor an at-a-glance read. Cover: (1) what the core client problem is, (2) what the recommended approach will fix, (3) why this combination suits this specific advisor-client pairing. Keep it tight — an advisor reading this before a meeting should absorb it in 10 seconds. No headers, no bullet points — plain prose only.
@@ -1178,7 +1198,17 @@ If no match is found after all three steps: tell the advisor explicitly — "No 
 CRITICAL: You may ONLY recommend templates that appear EXACTLY as named in the template list above. Never invent a template name. Never silently fall back to a generic or approximate name. If you cannot find a match, say so explicitly using the message above.
 
 SECTION 1 — "My recommendation"
-Select templates that directly address the CAUSE of the client's situation — what led to it and the primary fix. Capacity: ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''} (${_tier1Label}). Do not exceed this number in Section 1. Order by priority: the template that addresses what the advisor said they want to tackle first comes first, followed by any other primary cause templates, then any downstream needs included in Section 1.
+${tier1Capacity === 0
+  ? 'SESSION TOO SHORT: The advisor has only 30 minutes available. This is not enough time to deliver any template properly. Do NOT recommend templates. Instead, tell the advisor directly: 30 minutes is too short for a proper template delivery. Recommend they schedule at least 60–90 minutes. Identify which template should be Slot 1 when they do have time, and explain why.'
+  : `Capacity: ${_tier1Label}. Do not exceed this number in Section 1.
+
+TEMPLATE SLOT ALLOCATION — assign templates to slots in this order:
+- Slot 1 (CAUSE): The template that addresses what caused or is driving the client's issue. If the cause is unclear, use this slot as a discovery session — choose a template that helps identify the driver. For profit situations where the exact driver is unclear, a Revenue & Feasibility Model is the recommended discovery tool.${tier1Capacity >= 2 ? '\n- Slot 2 (CORE): The template that directly addresses the primary issue once the cause is understood.' : ''}${tier1Capacity >= 3 ? '\n- Slot 3 (DOWNSTREAM): The template that addresses the downstream or flow-on effects of the issue.' : ''}
+
+CAUSE CLARITY RULE:
+- Cause unclear, core known → Slot 1 = Cause (discovery), Slot 2 = Core, Slot 3 = Downstream
+- Cause clear, core is the main issue → Slot 1 = Cause, Slot 2 = Core, Slot 3 = Downstream
+- 1 meeting only, cause unclear (profit) → Slot 1 = Revenue Model as discovery method`}
 
 SECTION 2 — "You might find these templates support this topic — for future consideration"
 Maximum 3 templates. Before including any template here, apply one of these three tests against the collected answers above — a template only belongs in Section 2 if it passes at least one test:
@@ -1214,7 +1244,7 @@ PER-TEMPLATE FORMAT — use this exact structure for every template in both sect
 [Practical delivery guidance tailored to this specific advisor-client combination.]
 
 **Suggested session plan:**
-[Map the recommended templates to the meetings within the advisor's stated timeframe. Use the advisor's meeting count and timeframe to distribute the work across sessions.]
+[Map the recommended templates to the advisor's meetings using the slot allocation above. State the meeting count and session length, then assign each slot (Cause/Core/Downstream) to a specific session number.]
 
 **What this typically leads to:**
 [The downstream opportunity or natural next engagement this template typically opens up. Draw from content summaries where available.]
@@ -1433,7 +1463,9 @@ Use the advisor's answers about what caused this situation and what will flow on
       'delivered similar content to this client',
       'how confident are you',
       'tell me a bit about yourself as the advisor',
-      'tell me about yourself as the advisor'
+      'tell me about yourself as the advisor',
+      'how many meetings are you comfortable committing',
+      'how long can you allow per meeting'
     ]
     const isPhase2Question = lastAssistant && phase2Patterns.some(p => lastAssistant.content.toLowerCase().includes(p))
     if (isPhase2Question) {

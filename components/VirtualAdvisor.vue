@@ -256,6 +256,21 @@
           :disabled="!selectedFinMgtTheme"
         ) Confirm selection
 
+      //- Session length selector — shown when session length question fires
+      .session-length-card(v-if="showSessionLengthSelector")
+        p.session-length-title How long can you allow per meeting?
+        .session-length-list
+          button.session-length-opt(
+            v-for="opt in sessionLengthOptions"
+            :key="opt"
+            :class="{ 'session-length-selected': selectedSessionLength === opt }"
+            @click="selectedSessionLength = opt"
+          ) {{ opt }}
+        button.session-length-submit(
+          @click="submitSessionLength"
+          :disabled="!selectedSessionLength"
+        ) Confirm selection
+
       //- Intake prompt — shown after Phase 3, before advisor dismisses
       .intake-prompt-card(v-if="showIntakePrompt")
         .save-prompt-text
@@ -680,6 +695,9 @@ export default {
       selectedStaircaseStep: null,
       showFinMgtThemeSelector: false,
       selectedFinMgtTheme: null,
+      showSessionLengthSelector: false,
+      selectedSessionLength: null,
+      sessionLengthOptions: ['30 mins', '60 mins', '90 mins', '120 mins', 'Other'],
       finMgtThemes: [
         { name: 'Stuck in the Mud', problem: 'Clients are \'withdrawn\' from business development due to fatigue, fear of loss or lack of clarity & belief.' },
         { name: 'The Knowledge Gap', problem: 'Clients understand \'money in vs money out\' in a linear fashion; they do not understand the true effects of time and discounting.' },
@@ -943,6 +961,8 @@ export default {
       this.selectedStaircaseStep = null
       this.showFinMgtThemeSelector = false
       this.selectedFinMgtTheme = null
+      this.showSessionLengthSelector = false
+      this.selectedSessionLength = null
       this.$nextTick(() => this.scrollToBottom())
     },
 
@@ -1037,6 +1057,8 @@ export default {
       this.selectedStaircaseStep = null
       this.showFinMgtThemeSelector = false
       this.selectedFinMgtTheme = null
+      this.showSessionLengthSelector = false
+      this.selectedSessionLength = null
       this.showRetry = false
       this.lastQuery = null
     },
@@ -1055,6 +1077,14 @@ export default {
       this.inputText = `${theme.name} — ${theme.problem}`
       this.showFinMgtThemeSelector = false
       this.selectedFinMgtTheme = null
+      this.sendMessage()
+    },
+
+    submitSessionLength () {
+      if (!this.selectedSessionLength) { return }
+      this.inputText = this.selectedSessionLength
+      this.showSessionLengthSelector = false
+      this.selectedSessionLength = null
       this.sendMessage()
     },
 
@@ -1121,7 +1151,7 @@ export default {
 
     async sendMessage (serverQueryOverride = null) {
       const query = this.inputText.trim()
-      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector) { return }
+      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector || this.showSessionLengthSelector) { return }
 
       this.messages.push({ role: 'user', content: query })
       this.inputText = ''
@@ -1215,6 +1245,10 @@ export default {
                   content = content.replace('[FIN_MGT_THEME_SELECTOR]', '').trim()
                   this.showFinMgtThemeSelector = true
                 }
+                if (content.includes('[SESSION_LENGTH_SELECTOR]')) {
+                  content = content.replace('[SESSION_LENGTH_SELECTOR]', '').trim()
+                  this.showSessionLengthSelector = true
+                }
                 this.messages.push({ role: 'assistant', content })
                 this.streamingText = ''
                 this.isStreaming = false
@@ -1245,6 +1279,10 @@ export default {
             if (content.includes('[FIN_MGT_THEME_SELECTOR]')) {
               content = content.replace('[FIN_MGT_THEME_SELECTOR]', '').trim()
               this.showFinMgtThemeSelector = true
+            }
+            if (content.includes('[SESSION_LENGTH_SELECTOR]')) {
+              content = content.replace('[SESSION_LENGTH_SELECTOR]', '').trim()
+              this.showSessionLengthSelector = true
             }
             this.messages.push({ role: 'assistant', content })
             this.streamingText = ''
@@ -2000,6 +2038,52 @@ export default {
 }
 .fin-mgt-submit:hover:not(:disabled) { background: #6d28d9; }
 .fin-mgt-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+
+/* Session length selector */
+.session-length-card {
+  margin: 8px 16px 4px;
+  padding: 16px;
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  border-radius: 10px;
+}
+.session-length-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e3a5f;
+  margin: 0 0 12px;
+}
+.session-length-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.session-length-opt {
+  padding: 8px 18px;
+  border: 1px solid #93c5fd;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e40af;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.session-length-opt:hover { background: #dbeafe; border-color: #3b82f6; }
+.session-length-selected { background: #1e40af !important; color: #fff !important; border-color: #1e40af !important; }
+.session-length-submit {
+  background: #1e40af;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.session-length-submit:hover:not(:disabled) { background: #1d4ed8; }
+.session-length-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 
 .intake-prompt-card {
   display: flex;
