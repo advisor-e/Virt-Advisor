@@ -39,63 +39,180 @@
     "label": "governance and leadership",
     "keywords": "governance|board|directors|compliance|accountability|leadership structure|reporting structure|decision.making|policies|procedures|corporate governance",
     "disambiguationKeywords": "governance|board|compliance|accountability",
-    "questions": []
+    "questions": [
+      {
+        "field": "governanceNature",
+        "text": "Is this primarily a structural issue — roles, accountability, decision-making processes — or a behavioural and cultural issue around how people lead and act?"
+      },
+      {
+        "field": "governanceParties",
+        "text": "Who is primarily involved — the owner, a board or group of directors, the shareholder group, or the management team?"
+      },
+      {
+        "field": "governanceUrgency",
+        "text": "Is this situation urgent and needs addressing now, or is this a planned improvement?"
+      }
+    ]
   },
   {
     "id": "strategy",
     "label": "strategy and planning",
     "keywords": "strategy|strategic planning|business plan|growth plan|long.term|vision|mission|goals|objectives|direction|pivot|restructure|business model",
     "disambiguationKeywords": "strategy|strategic|planning|vision|goals",
-    "questions": []
+    "questions": [
+      {
+        "field": "strategyTrigger",
+        "text": "What's prompted this conversation — a growth opportunity, a performance challenge, a change in the business model, or are they doing structured planning for the first time?"
+      },
+      {
+        "field": "strategyPlanExists",
+        "text": "Does the business currently have a documented strategic plan they actively work from?"
+      },
+      {
+        "field": "strategyHorizon",
+        "text": "What planning horizon makes sense here — 12 months, 2–3 years, or 5 years plus?"
+      }
+    ]
   },
   {
     "id": "systems",
     "label": "systems",
     "keywords": "\\bsystems\\b|processes|workflows|automation|\\btechnology\\b|\\bsoftware\\b|\\bCRM\\b|\\bERP\\b|operational efficiency|infrastructure|inefficiency|bottleneck",
     "disambiguationKeywords": "systems|process|workflow|automation|technology",
-    "questions": []
+    "questions": [
+      {
+        "field": "systemsType",
+        "text": "What area of the business is the systems issue in — financial administration, operational workflow, technology and software, or HR and people systems?"
+      },
+      {
+        "field": "systemsDriver",
+        "text": "Is this being driven by the business growing beyond its current systems, existing systems breaking down, or a desire to modernise?"
+      },
+      {
+        "field": "systemsPriorAttempt",
+        "text": "Has the business attempted to address this before, and if so, what happened?"
+      }
+    ]
   },
   {
     "id": "valuation",
     "label": "valuation",
     "keywords": "valuation|value the business|business worth|what is it worth|enterprise value|EBITDA|business value|how much is it worth|price the business|sale price",
     "disambiguationKeywords": "valuation|value|worth|enterprise|EBITDA",
-    "questions": []
+    "questions": [
+      {
+        "field": "valuationPurpose",
+        "text": "What's the purpose of the valuation — potential sale, succession planning, a shareholder situation, raising finance, or benchmarking where they stand?"
+      },
+      {
+        "field": "valuationTimeline",
+        "text": "What's the likely timeframe — is this immediate, within 12 months, or longer-term planning?"
+      },
+      {
+        "field": "valuationOwnerAwareness",
+        "text": "Does the owner have a realistic sense of what the business is worth, or is establishing that part of what needs to happen first?"
+      }
+    ]
   },
   {
     "id": "risk",
     "label": "risk management",
     "keywords": "risk management|risk exposure|liability|business risk|contingency|disaster recovery|business continuity|mitigate risk|downside risk|key person|key man",
     "disambiguationKeywords": "risk|liability|insurance|contingency|continuity",
-    "questions": []
+    "questions": [
+      {
+        "field": "riskType",
+        "text": "What type of risk are we dealing with — operational, financial, key person dependency, legal or compliance, reputational, or something else?"
+      },
+      {
+        "field": "riskAwareness",
+        "text": "Is the client already aware of this risk, or is it something you've identified that they haven't fully appreciated yet?"
+      },
+      {
+        "field": "riskUrgency",
+        "text": "How urgent is this — does it need immediate action, or is this a monitoring and planning conversation?"
+      }
+    ]
   },
   {
     "id": "succession",
     "label": "succession planning",
     "keywords": "succession|exit plan|retire|retiring|handover|next generation|family business|ownership transfer|management buyout|sell the business|exit strategy|ownership transition",
     "disambiguationKeywords": "succession|exit|retire|handover|transition",
-    "questions": []
+    "questions": [
+      {
+        "field": "successionScenario",
+        "text": "What's the most likely succession scenario — passing to family, a management buyout, an external sale, or are they still working through the options?"
+      },
+      {
+        "field": "successionTimeline",
+        "text": "What's the timeframe — 1–2 years, 3–5 years, longer term, or is there a specific event or deadline driving it?"
+      },
+      {
+        "field": "successionOwnerReadiness",
+        "text": "How emotionally ready does the owner seem to be — are they ready to go, actively working toward it, or is there still significant reluctance to let go?"
+      }
+    ]
   },
   {
     "id": "conflict",
     "label": "conflict and conflict meetings",
     "keywords": "conflict|dispute|disagreement|tension|falling out|relationship breakdown|mediation|partnership dispute|directors fighting|ownership dispute|irreconcilable",
     "disambiguationKeywords": "conflict|dispute|disagreement|tension|mediation",
-    "questions": []
+    "questions": [
+      {
+        "field": "conflictParties",
+        "text": "Who are the parties involved — business partners, co-directors, shareholders, family members in the business, or an employer-employee situation?"
+      },
+      {
+        "field": "conflictStage",
+        "text": "Where is the conflict at — early tension that's still manageable, an active dispute, or has it escalated to the point where legal proceedings are a real possibility?"
+      },
+      {
+        "field": "conflictLegalFlag",
+        "text": "In your view, does this situation need a legal or HR specialist involved first, or is this an advisory and mediation conversation?"
+      }
+    ]
   },
   {
     "id": "eoy",
     "label": "end of year meetings",
     "keywords": "end of year|year end|annual review|year.end meeting|\\bEOY\\b|financial year end|tax year|annual planning|end.of.year",
     "disambiguationKeywords": "year end|annual review|eoy|financial year",
-    "questions": []
+    "questions": [
+      {
+        "field": "eoyPurpose",
+        "text": "What's the primary focus of this end of year meeting — reviewing the year's performance, setting goals and planning ahead, tax and financial planning, or a broader strategic conversation?"
+      },
+      {
+        "field": "eoySpecificIssue",
+        "text": "Is there a specific issue or opportunity you want to make sure gets addressed in this meeting, beyond the standard review?"
+      },
+      {
+        "field": "eoyClientEngagement",
+        "text": "How engaged is this client — do they actively participate and want depth, or is this more of a compliance-focused relationship where they want the key points only?"
+      }
+    ]
   },
   {
     "id": "due-diligence",
     "label": "due diligence",
     "keywords": "due diligence|acquisition|acquire|merger|buying a business|purchase a business|buying the business|DD report|information memorandum",
     "disambiguationKeywords": "due diligence|acquisition|merger|buying",
-    "questions": []
+    "questions": [
+      {
+        "field": "dueDiligenceScenario",
+        "text": "What's the situation — are they acquiring a business, being approached for acquisition, entering a new partnership or joint venture, or making an investment decision?"
+      },
+      {
+        "field": "dueDiligenceAdvisorRole",
+        "text": "What's your role in this process — are you leading the due diligence, supporting alongside other advisors, or providing advisory commentary on the findings?"
+      },
+      {
+        "field": "dueDiligenceTimeline",
+        "text": "What's the timeline — is there a deadline driving this, or is it still at the exploratory stage?"
+      }
+    ]
   },
   {
     "id": "stock-purchasing",

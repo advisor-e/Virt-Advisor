@@ -37,22 +37,44 @@ const SIGNAL_TYPES = {
   // Constraints
   TEMPLATE_BUDGET: 'template_budget',
   SESSION_LENGTH: 'session_length',
-  MEETING_COUNT: 'meeting_count'
+  MEETING_COUNT: 'meeting_count',
+  // Governance domain
+  GOVERNANCE_NATURE: 'governance_nature',
+  GOVERNANCE_PARTIES: 'governance_parties',
+  GOVERNANCE_URGENCY: 'governance_urgency',
+  // Strategy domain
+  STRATEGY_TRIGGER: 'strategy_trigger',
+  STRATEGY_PLAN_EXISTS: 'strategy_plan_exists',
+  STRATEGY_HORIZON: 'strategy_horizon',
+  // Systems domain
+  SYSTEMS_TYPE: 'systems_type',
+  SYSTEMS_DRIVER: 'systems_driver',
+  SYSTEMS_PRIOR_ATTEMPT: 'systems_prior_attempt',
+  // Valuation domain
+  VALUATION_PURPOSE: 'valuation_purpose',
+  VALUATION_TIMELINE: 'valuation_timeline',
+  VALUATION_OWNER_AWARENESS: 'valuation_owner_awareness',
+  // Risk domain
+  RISK_TYPE: 'risk_type',
+  RISK_AWARENESS: 'risk_awareness',
+  RISK_URGENCY: 'risk_urgency',
+  // Succession domain
+  SUCCESSION_SCENARIO: 'succession_scenario',
+  SUCCESSION_TIMELINE: 'succession_timeline',
+  SUCCESSION_OWNER_READINESS: 'succession_owner_readiness',
+  // Conflict domain
+  CONFLICT_PARTIES: 'conflict_parties',
+  CONFLICT_STAGE: 'conflict_stage',
+  CONFLICT_LEGAL_FLAG: 'conflict_legal_flag',
+  // EOY domain
+  EOY_PURPOSE: 'eoy_purpose',
+  EOY_SPECIFIC_ISSUE: 'eoy_specific_issue',
+  EOY_CLIENT_ENGAGEMENT: 'eoy_client_engagement',
+  // Due diligence domain
+  DUE_DILIGENCE_SCENARIO: 'due_diligence_scenario',
+  DUE_DILIGENCE_ADVISOR_ROLE: 'due_diligence_advisor_role',
+  DUE_DILIGENCE_TIMELINE: 'due_diligence_timeline'
 }
-
-// Stub slots for the 9 domains with no questions yet — populated in Phase B.
-// Listed here so the schema is complete and observable even before Phase B.
-const STUB_DOMAIN_SIGNALS = [
-  'governance_issue_type',
-  'strategy_planning_horizon',
-  'systems_change_driver',
-  'valuation_purpose',
-  'risk_category',
-  'succession_timeline',
-  'conflict_party_type',
-  'eoy_meeting_focus',
-  'due_diligence_role'
-]
 
 function sig (type, source, value) {
   return { type, source, value }
@@ -274,12 +296,286 @@ function extractSignals (state, derived) {
     }
   }
 
+  // ── Governance domain signals ─────────────────────────────────────────────
+  if (state.detectedDomain === 'governance') {
+    if (state.governanceNature && state.governanceNature !== 'pending') {
+      const nature = /structural|role|accountab|decision|process|procedure/i.test(state.governanceNature)
+        ? 'structural'
+        : /behav|cultural|how people|lead|act/i.test(state.governanceNature)
+          ? 'behavioural'
+          : 'both'
+      signals.push(sig(SIGNAL_TYPES.GOVERNANCE_NATURE, 'q_governanceNature', nature))
+    }
+    if (state.governanceParties && state.governanceParties !== 'pending') {
+      const parties = /owner/i.test(state.governanceParties)
+        ? 'owner'
+        : /board|director/i.test(state.governanceParties)
+          ? 'board'
+          : /shareholder/i.test(state.governanceParties)
+            ? 'shareholders'
+            : 'management'
+      signals.push(sig(SIGNAL_TYPES.GOVERNANCE_PARTIES, 'q_governanceParties', parties))
+    }
+    if (state.governanceUrgency && state.governanceUrgency !== 'pending') {
+      const urgent = /urgent|now|immediate|pressing|right away|crisis/i.test(state.governanceUrgency)
+        ? 'urgent'
+        : 'planned'
+      signals.push(sig(SIGNAL_TYPES.GOVERNANCE_URGENCY, 'q_governanceUrgency', urgent))
+    }
+  }
+
+  // ── Strategy domain signals ───────────────────────────────────────────────
+  if (state.detectedDomain === 'strategy') {
+    if (state.strategyTrigger && state.strategyTrigger !== 'pending') {
+      const trigger = /growth|opportunit/i.test(state.strategyTrigger)
+        ? 'growth_opportunity'
+        : /performance|challenge|problem|struggling/i.test(state.strategyTrigger)
+          ? 'performance_challenge'
+          : /business model|pivot|restructure|change/i.test(state.strategyTrigger)
+            ? 'model_change'
+            : 'first_time_planning'
+      signals.push(sig(SIGNAL_TYPES.STRATEGY_TRIGGER, 'q_strategyTrigger', trigger))
+    }
+    if (state.strategyPlanExists && state.strategyPlanExists !== 'pending') {
+      const exists = /yes|have|do have|documented|active|working from/i.test(state.strategyPlanExists)
+        ? 'yes'
+        : /no|don.t|haven.t|not yet|nothing|first time/i.test(state.strategyPlanExists)
+          ? 'no'
+          : 'informal'
+      signals.push(sig(SIGNAL_TYPES.STRATEGY_PLAN_EXISTS, 'q_strategyPlanExists', exists))
+    }
+    if (state.strategyHorizon && state.strategyHorizon !== 'pending') {
+      const horizon = /12 month|one year|1 year|short/i.test(state.strategyHorizon)
+        ? '12_months'
+        : /2|3|two|three|medium/i.test(state.strategyHorizon)
+          ? '2_3_years'
+          : '5_plus_years'
+      signals.push(sig(SIGNAL_TYPES.STRATEGY_HORIZON, 'q_strategyHorizon', horizon))
+    }
+  }
+
+  // ── Systems domain signals ────────────────────────────────────────────────
+  if (state.detectedDomain === 'systems') {
+    if (state.systemsType && state.systemsType !== 'pending') {
+      const type = /financ|admin|account|bookkeep/i.test(state.systemsType)
+        ? 'financial_admin'
+        : /operation|workflow|process/i.test(state.systemsType)
+          ? 'operational'
+          : /tech|software|crm|erp|platform|app/i.test(state.systemsType)
+            ? 'technology'
+            : 'hr_people'
+      signals.push(sig(SIGNAL_TYPES.SYSTEMS_TYPE, 'q_systemsType', type))
+    }
+    if (state.systemsDriver && state.systemsDriver !== 'pending') {
+      const driver = /grown|outgrown|scaling|too big/i.test(state.systemsDriver)
+        ? 'growth'
+        : /breaking|broken|failing|not working|unreliable/i.test(state.systemsDriver)
+          ? 'breakdown'
+          : 'modernisation'
+      signals.push(sig(SIGNAL_TYPES.SYSTEMS_DRIVER, 'q_systemsDriver', driver))
+    }
+    if (state.systemsPriorAttempt && state.systemsPriorAttempt !== 'pending') {
+      const prior = /yes|tried|attempt|before|previous|last time/i.test(state.systemsPriorAttempt)
+        ? 'yes'
+        : /no|never|first time|haven.t/i.test(state.systemsPriorAttempt)
+          ? 'no'
+          : 'partial'
+      signals.push(sig(SIGNAL_TYPES.SYSTEMS_PRIOR_ATTEMPT, 'q_systemsPriorAttempt', prior))
+    }
+  }
+
+  // ── Valuation domain signals ──────────────────────────────────────────────
+  if (state.detectedDomain === 'valuation') {
+    if (state.valuationPurpose && state.valuationPurpose !== 'pending') {
+      const purpose = /sale|sell|exit/i.test(state.valuationPurpose)
+        ? 'sale'
+        : /succession|handover|next gen|family/i.test(state.valuationPurpose)
+          ? 'succession'
+          : /shareholder|dispute|partner/i.test(state.valuationPurpose)
+            ? 'shareholder'
+            : /financ|loan|raise|capital/i.test(state.valuationPurpose)
+              ? 'finance'
+              : 'benchmarking'
+      signals.push(sig(SIGNAL_TYPES.VALUATION_PURPOSE, 'q_valuationPurpose', purpose))
+    }
+    if (state.valuationTimeline && state.valuationTimeline !== 'pending') {
+      const timeline = /immediate|now|soon|this year|urgent/i.test(state.valuationTimeline)
+        ? 'immediate'
+        : /12 month|within a year|next year|one year/i.test(state.valuationTimeline)
+          ? 'within_12_months'
+          : 'longer_term'
+      signals.push(sig(SIGNAL_TYPES.VALUATION_TIMELINE, 'q_valuationTimeline', timeline))
+    }
+    if (state.valuationOwnerAwareness && state.valuationOwnerAwareness !== 'pending') {
+      const awareness = /yes|realistic|good sense|knows|aware|understand/i.test(state.valuationOwnerAwareness)
+        ? 'realistic'
+        : /no|not sure|overvalue|undervalue|no idea|don.t know|haven.t|first time/i.test(state.valuationOwnerAwareness)
+          ? 'unrealistic'
+          : 'partial'
+      signals.push(sig(SIGNAL_TYPES.VALUATION_OWNER_AWARENESS, 'q_valuationOwnerAwareness', awareness))
+    }
+  }
+
+  // ── Risk domain signals ───────────────────────────────────────────────────
+  if (state.detectedDomain === 'risk') {
+    if (state.riskType && state.riskType !== 'pending') {
+      const type = /operation/i.test(state.riskType)
+        ? 'operational'
+        : /financ/i.test(state.riskType)
+          ? 'financial'
+          : /key person|key man/i.test(state.riskType)
+            ? 'key_person'
+            : /legal|compliance|regulat/i.test(state.riskType)
+              ? 'legal_compliance'
+              : /reputation/i.test(state.riskType)
+                ? 'reputational'
+                : 'other'
+      signals.push(sig(SIGNAL_TYPES.RISK_TYPE, 'q_riskType', type))
+    }
+    if (state.riskAwareness && state.riskAwareness !== 'pending') {
+      const aware = /already aware|knows|client identified|they know|they see/i.test(state.riskAwareness)
+        ? 'client_aware'
+        : 'advisor_identified'
+      signals.push(sig(SIGNAL_TYPES.RISK_AWARENESS, 'q_riskAwareness', aware))
+    }
+    if (state.riskUrgency && state.riskUrgency !== 'pending') {
+      const urgent = /immediate|now|urgent|right away|critical/i.test(state.riskUrgency)
+        ? 'immediate'
+        : /monitor|plan|longer|not urgent|watching/i.test(state.riskUrgency)
+          ? 'monitoring'
+          : 'medium'
+      signals.push(sig(SIGNAL_TYPES.RISK_URGENCY, 'q_riskUrgency', urgent))
+    }
+  }
+
+  // ── Succession domain signals ─────────────────────────────────────────────
+  if (state.detectedDomain === 'succession') {
+    if (state.successionScenario && state.successionScenario !== 'pending') {
+      const scenario = /family|next gen|children|son|daughter/i.test(state.successionScenario)
+        ? 'family'
+        : /management buyout|MBO|mbo|management team/i.test(state.successionScenario)
+          ? 'mbo'
+          : /external sale|third party|sell to|buyer/i.test(state.successionScenario)
+            ? 'external_sale'
+            : 'undecided'
+      signals.push(sig(SIGNAL_TYPES.SUCCESSION_SCENARIO, 'q_successionScenario', scenario))
+    }
+    if (state.successionTimeline && state.successionTimeline !== 'pending') {
+      const timeline = /1.2 year|1 year|2 year|soon|within two|short/i.test(state.successionTimeline)
+        ? '1_2_years'
+        : /3.5 year|3 year|4 year|5 year|medium/i.test(state.successionTimeline)
+          ? '3_5_years'
+          : /longer|10|beyond|no rush|not sure/i.test(state.successionTimeline)
+            ? 'longer_term'
+            : 'event_driven'
+      signals.push(sig(SIGNAL_TYPES.SUCCESSION_TIMELINE, 'q_successionTimeline', timeline))
+    }
+    if (state.successionOwnerReadiness && state.successionOwnerReadiness !== 'pending') {
+      const readiness = /ready|eager|want to go|can.t wait|looking forward/i.test(state.successionOwnerReadiness)
+        ? 'ready'
+        : /reluct|not ready|hesit|emotional|struggle|hard time|let go/i.test(state.successionOwnerReadiness)
+          ? 'reluctant'
+          : 'working_toward'
+      signals.push(sig(SIGNAL_TYPES.SUCCESSION_OWNER_READINESS, 'q_successionOwnerReadiness', readiness))
+    }
+  }
+
+  // ── Conflict domain signals ───────────────────────────────────────────────
+  if (state.detectedDomain === 'conflict') {
+    if (state.conflictParties && state.conflictParties !== 'pending') {
+      const parties = /partner|co.director|co director/i.test(state.conflictParties)
+        ? 'business_partners'
+        : /shareholder/i.test(state.conflictParties)
+          ? 'shareholders'
+          : /family/i.test(state.conflictParties)
+            ? 'family'
+            : /employ|staff|worker/i.test(state.conflictParties)
+              ? 'employer_employee'
+              : 'directors'
+      signals.push(sig(SIGNAL_TYPES.CONFLICT_PARTIES, 'q_conflictParties', parties))
+    }
+    if (state.conflictStage && state.conflictStage !== 'pending') {
+      const stage = /early|tension|manageab|still ok|not escalat/i.test(state.conflictStage)
+        ? 'early'
+        : /legal|proceeding|court|lawyer|solicit/i.test(state.conflictStage)
+          ? 'legal'
+          : 'active_dispute'
+      signals.push(sig(SIGNAL_TYPES.CONFLICT_STAGE, 'q_conflictStage', stage))
+    }
+    if (state.conflictLegalFlag && state.conflictLegalFlag !== 'pending') {
+      const legal = /yes|legal|hr|specialist|lawyer|solicitor|need a/i.test(state.conflictLegalFlag)
+        ? 'yes'
+        : /no|advisory|mediation|not yet/i.test(state.conflictLegalFlag)
+          ? 'no'
+          : 'unclear'
+      signals.push(sig(SIGNAL_TYPES.CONFLICT_LEGAL_FLAG, 'q_conflictLegalFlag', legal))
+    }
+  }
+
+  // ── EOY domain signals ────────────────────────────────────────────────────
+  if (state.detectedDomain === 'eoy') {
+    if (state.eoyPurpose && state.eoyPurpose !== 'pending') {
+      const purpose = /review|performance|how did we go|year.s result/i.test(state.eoyPurpose)
+        ? 'performance_review'
+        : /goal|plan|ahead|next year|forward/i.test(state.eoyPurpose)
+          ? 'forward_planning'
+          : /tax|financial plan|financ/i.test(state.eoyPurpose)
+            ? 'financial_planning'
+            : 'strategic'
+      signals.push(sig(SIGNAL_TYPES.EOY_PURPOSE, 'q_eoyPurpose', purpose))
+    }
+    if (state.eoySpecificIssue && state.eoySpecificIssue !== 'pending') {
+      const hasIssue = /yes|there is|specific|something|one thing|key issue|concern/i.test(state.eoySpecificIssue)
+        ? 'yes'
+        : 'standard'
+      signals.push(sig(SIGNAL_TYPES.EOY_SPECIFIC_ISSUE, 'q_eoySpecificIssue', hasIssue))
+    }
+    if (state.eoyClientEngagement && state.eoyClientEngagement !== 'pending') {
+      const engagement = /active|engage|depth|want detail|participate|keen/i.test(state.eoyClientEngagement)
+        ? 'engaged'
+        : /compliance|key point|brief|not interest|passive|just tell/i.test(state.eoyClientEngagement)
+          ? 'compliance'
+          : 'moderate'
+      signals.push(sig(SIGNAL_TYPES.EOY_CLIENT_ENGAGEMENT, 'q_eoyClientEngagement', engagement))
+    }
+  }
+
+  // ── Due diligence domain signals ──────────────────────────────────────────
+  if (state.detectedDomain === 'due-diligence') {
+    if (state.dueDiligenceScenario && state.dueDiligenceScenario !== 'pending') {
+      const scenario = /acquir|buying|purchase/i.test(state.dueDiligenceScenario)
+        ? 'acquiring'
+        : /being approach|for sale|sell|acquisition target/i.test(state.dueDiligenceScenario)
+          ? 'being_acquired'
+          : /joint venture|partnership|jv/i.test(state.dueDiligenceScenario)
+            ? 'joint_venture'
+            : 'investment'
+      signals.push(sig(SIGNAL_TYPES.DUE_DILIGENCE_SCENARIO, 'q_dueDiligenceScenario', scenario))
+    }
+    if (state.dueDiligenceAdvisorRole && state.dueDiligenceAdvisorRole !== 'pending') {
+      const role = /lead|leading|running|managing/i.test(state.dueDiligenceAdvisorRole)
+        ? 'lead'
+        : /support|alongside|assist/i.test(state.dueDiligenceAdvisorRole)
+          ? 'support'
+          : 'commentary'
+      signals.push(sig(SIGNAL_TYPES.DUE_DILIGENCE_ADVISOR_ROLE, 'q_dueDiligenceAdvisorRole', role))
+    }
+    if (state.dueDiligenceTimeline && state.dueDiligenceTimeline !== 'pending') {
+      const timeline = /deadline|urgent|soon|specific date|this month|this quarter/i.test(state.dueDiligenceTimeline)
+        ? 'deadline_driven'
+        : /explor|early|not yet|no rush/i.test(state.dueDiligenceTimeline)
+          ? 'exploratory'
+          : 'in_progress'
+      signals.push(sig(SIGNAL_TYPES.DUE_DILIGENCE_TIMELINE, 'q_dueDiligenceTimeline', timeline))
+    }
+  }
+
   return signals
 }
 
 // ── deriveInferredState ────────────────────────────────────────────────────
 // Converts signal array into a flat, readable CaseState snapshot.
-// This is the Phase A version — will evolve into the full typed CaseState in Phase C.
+// This is the Phase A/B version — will evolve into the full typed CaseState in Phase C.
 function deriveInferredState (signals, state) {
   const get = (type) => {
     const found = signals.find(s => s.type === type)
@@ -288,31 +584,76 @@ function deriveInferredState (signals, state) {
 
   return {
     domain: state.detectedDomain || null,
+    // Situation
     clientAwareness: get(SIGNAL_TYPES.CLIENT_AWARENESS),
+    // Client
     businessOwnership: get(SIGNAL_TYPES.BUSINESS_OWNERSHIP),
     growthStage: get(SIGNAL_TYPES.CLIENT_GROWTH_STAGE),
     operatorStyle: get(SIGNAL_TYPES.OPERATOR_EXECUTION_STYLE),
+    // Relationship
     relationshipMaturity: get(SIGNAL_TYPES.RELATIONSHIP_MATURITY),
+    // Advisor
     advisorConfidenceLevel: get(SIGNAL_TYPES.ADVISOR_CONFIDENCE_LEVEL),
     advisorExperienceLevel: get(SIGNAL_TYPES.ADVISOR_EXPERIENCE_LEVEL),
+    // Constraints
     templateBudget: get(SIGNAL_TYPES.TEMPLATE_BUDGET),
     sessionLength: get(SIGNAL_TYPES.SESSION_LENGTH),
     meetingCount: get(SIGNAL_TYPES.MEETING_COUNT),
-    // Domain-specific
+    // Profit domain
     reportingEngagement: get(SIGNAL_TYPES.REPORTING_ENGAGEMENT),
     reportingSource: get(SIGNAL_TYPES.REPORTING_SOURCE),
     variableReviewReadiness: get(SIGNAL_TYPES.VARIABLE_REVIEW_READINESS),
     priceCommunicationNeeded: get(SIGNAL_TYPES.PRICE_COMMUNICATION_NEED),
+    // Staff domain
     staffIssueScope: get(SIGNAL_TYPES.STAFF_ISSUE_SCOPE),
     staffIssueOrigin: get(SIGNAL_TYPES.STAFF_ISSUE_ORIGIN),
     staffIssueCategory: get(SIGNAL_TYPES.STAFF_ISSUE_CATEGORY),
+    // Data-systems domain
     financialFoundationsGap: get(SIGNAL_TYPES.FINANCIAL_FOUNDATIONS_GAP),
     accountingTeamCapability: get(SIGNAL_TYPES.ACCOUNTING_TEAM_CAPABILITY),
     complexityVsTechnology: get(SIGNAL_TYPES.COMPLEXITY_VS_TECHNOLOGY),
+    // Sales-marketing domain
     salesDiagnosis: get(SIGNAL_TYPES.SALES_DIAGNOSIS),
     conversionTracking: get(SIGNAL_TYPES.CONVERSION_TRACKING),
     productFitIssue: get(SIGNAL_TYPES.PRODUCT_FIT_ISSUE),
-    financialMgmtTheme: get(SIGNAL_TYPES.FINANCIAL_MGMT_THEME)
+    // Forecasting domain
+    financialMgmtTheme: get(SIGNAL_TYPES.FINANCIAL_MGMT_THEME),
+    // Governance domain
+    governanceNature: get(SIGNAL_TYPES.GOVERNANCE_NATURE),
+    governanceParties: get(SIGNAL_TYPES.GOVERNANCE_PARTIES),
+    governanceUrgency: get(SIGNAL_TYPES.GOVERNANCE_URGENCY),
+    // Strategy domain
+    strategyTrigger: get(SIGNAL_TYPES.STRATEGY_TRIGGER),
+    strategyPlanExists: get(SIGNAL_TYPES.STRATEGY_PLAN_EXISTS),
+    strategyHorizon: get(SIGNAL_TYPES.STRATEGY_HORIZON),
+    // Systems domain
+    systemsType: get(SIGNAL_TYPES.SYSTEMS_TYPE),
+    systemsDriver: get(SIGNAL_TYPES.SYSTEMS_DRIVER),
+    systemsPriorAttempt: get(SIGNAL_TYPES.SYSTEMS_PRIOR_ATTEMPT),
+    // Valuation domain
+    valuationPurpose: get(SIGNAL_TYPES.VALUATION_PURPOSE),
+    valuationTimeline: get(SIGNAL_TYPES.VALUATION_TIMELINE),
+    valuationOwnerAwareness: get(SIGNAL_TYPES.VALUATION_OWNER_AWARENESS),
+    // Risk domain
+    riskType: get(SIGNAL_TYPES.RISK_TYPE),
+    riskAwareness: get(SIGNAL_TYPES.RISK_AWARENESS),
+    riskUrgency: get(SIGNAL_TYPES.RISK_URGENCY),
+    // Succession domain
+    successionScenario: get(SIGNAL_TYPES.SUCCESSION_SCENARIO),
+    successionTimeline: get(SIGNAL_TYPES.SUCCESSION_TIMELINE),
+    successionOwnerReadiness: get(SIGNAL_TYPES.SUCCESSION_OWNER_READINESS),
+    // Conflict domain
+    conflictParties: get(SIGNAL_TYPES.CONFLICT_PARTIES),
+    conflictStage: get(SIGNAL_TYPES.CONFLICT_STAGE),
+    conflictLegalFlag: get(SIGNAL_TYPES.CONFLICT_LEGAL_FLAG),
+    // EOY domain
+    eoyPurpose: get(SIGNAL_TYPES.EOY_PURPOSE),
+    eoySpecificIssue: get(SIGNAL_TYPES.EOY_SPECIFIC_ISSUE),
+    eoyClientEngagement: get(SIGNAL_TYPES.EOY_CLIENT_ENGAGEMENT),
+    // Due diligence domain
+    dueDiligenceScenario: get(SIGNAL_TYPES.DUE_DILIGENCE_SCENARIO),
+    dueDiligenceAdvisorRole: get(SIGNAL_TYPES.DUE_DILIGENCE_ADVISOR_ROLE),
+    dueDiligenceTimeline: get(SIGNAL_TYPES.DUE_DILIGENCE_TIMELINE)
   }
 }
 
@@ -335,4 +676,4 @@ function buildObservabilityPayload (sessionId, domain, signals, inferredState, s
   }
 }
 
-module.exports = { extractSignals, deriveInferredState, buildObservabilityPayload, SIGNAL_TYPES, STUB_DOMAIN_SIGNALS }
+module.exports = { extractSignals, deriveInferredState, buildObservabilityPayload, SIGNAL_TYPES }
