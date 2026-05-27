@@ -21,6 +21,7 @@ const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { extractTemplatesFromText } = require('../server/utils/tierLookup')
 const { logVASession } = require('../server/utils/activityLogger')
+const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -202,7 +203,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
     .filter(t => excludeSections.length === 0 || !excludeSections.includes(t.menuSection))
   const narrowed = preFilteredNames && preFilteredNames.length > 0
-    ? orgTemplates.filter(t => preFilteredNames.some(n => n.toLowerCase() === (t.name || '').toLowerCase()))
+    ? orgTemplates.filter(t => preFilteredNames.some(n => n.toLowerCase() === (t.title || '').toLowerCase()))
     : []
   const baseTemplates = narrowed.length > 0 ? narrowed : orgTemplates
   const relevant = filterTemplatesByQuery(baseTemplates, searchQuery, maxTemplates)
@@ -1040,7 +1041,7 @@ async function handleQuery (rawBody, res) {
     const reportsNo = state.usesReports && state.usesReports !== 'pending' && !reportsYes
     const reportsFromAdvisorFirm = state.reportsFromFirm && /\byes\b|we do|our firm|my firm|we provide|we deliver|i do|i deliver|we produce/i.test(state.reportsFromFirm)
     const reviewYes = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && /\byes\b|yeah|absolutely|definitely|think so|would help|would benefit|good idea/i.test(state.wouldBenefitFromReview)
-    const reviewNo = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && /\bno\b|not really|don't think|good handle|already know|doesn't need|do not|wouldn't/i.test(state.wouldBenefitFromReview)
+    const reviewNo = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && !reviewYes
     const staircaseStep = state.advisoryStaircase ? (state.advisoryStaircase.match(/Step\s*([1-5])/i) || [])[1] : null
     const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated|spoke\s+to\s+(?:me|us)\s+about|called\s+(?:me|us)\s+about|phoned\s+(?:me|us)|reached\s+out|got\s+in\s+touch|contacted\s+(?:me|us)|they\s+(?:called|rang|phoned|messaged|emailed|texted)/i.test(state.clientRaisedIssue)
@@ -1072,6 +1073,22 @@ async function handleQuery (rawBody, res) {
     const _pricePattern = /\b(communicat(?:e|ing|ion|ions)?|price[s]?\s+(?:increase[s]?|rise[s]?|hike[s]?|change[s]?|up)\b|put(?:ting)?\s+(?:the\s+|their\s+)?price[s]?\s+up|pass\s+(?:it|the\s+cost|increase)\s+on|tell\s+(?:the\s+)?(?:client|customer)s?\s+about|inform\s+(?:the\s+)?(?:client|customer)s?|announc(?:e|ing|ement[s]?)?|retain(?:ing)?\s+(?:client|customer)s?|losing\s+(?:client|customer)s?|afraid\s+to\s+(?:raise|increase|put\s+up)\s+(?:the\s+)?price|client[s]?\s+(?:leave|leav|left|retention))\b/i
     const _priceFields = [state.situationDiagnostic, state.advisorConfidence]
     const hasPriceCommunication = _priceFields.some(f => f && f !== 'pending' && _pricePattern.test(f))
+
+    // Phase A — extract structured signals from collected answers
+    const _derivedForSignals = {
+      reportsYes,
+      reportsNo,
+      reportsFromAdvisorFirm,
+      reviewYes,
+      reviewNo,
+      clientRaisedIssue,
+      staircaseNum,
+      meetingNum,
+      templateBudget,
+      hasPriceCommunication
+    }
+    const _signals = extractSignals(state, _derivedForSignals)
+    const _inferredState = deriveInferredState(_signals, state)
 
     const profitInstruction = state.detectedDomain === 'profit' && state.industry && state.industry !== 'pending'
       ? `\n\nPROFIT SITUATION: Industry: ${state.industry}.
@@ -1208,12 +1225,12 @@ ${tier1Capacity === 0
   : `Capacity: ${_tier1Label}. Do not exceed this number in Section 1.
 
 TEMPLATE SLOT ALLOCATION — assign templates to slots in this order:
-- Slot 1 (CAUSE): The template that addresses what caused or is driving the client's issue. If the cause is unclear, use this slot as a discovery session — choose a template that helps identify the driver. For profit situations where the exact driver is unclear, a Revenue & Feasibility Model is the recommended discovery tool.${tier1Capacity >= 2 ? '\n- Slot 2 (CORE): The template that directly addresses the primary issue once the cause is understood.' : ''}${tier1Capacity >= 3 ? '\n- Slot 3 (DOWNSTREAM): The template that addresses the downstream or flow-on effects of the issue.' : ''}
+- Slot 1 (CAUSE): The template that addresses what caused or is driving the client's issue. If the cause is unclear, use this slot as a discovery session — choose a template that helps identify the driver. For profit situations where the cause is unclear AND the advisor confirmed a variable review would help, a Revenue & Feasibility Model is the recommended discovery tool — see the PROFIT SITUATION rules above.${tier1Capacity >= 2 ? '\n- Slot 2 (CORE): The template that directly addresses the primary issue once the cause is understood.' : ''}${tier1Capacity >= 3 ? '\n- Slot 3 (DOWNSTREAM): The template that addresses the downstream or flow-on effects of the issue.' : ''}
 
 CAUSE CLARITY RULE:
 - Cause unclear, core known → Slot 1 = Cause (discovery), Slot 2 = Core, Slot 3 = Downstream
 - Cause clear, core is the main issue → Slot 1 = Cause, Slot 2 = Core, Slot 3 = Downstream
-- 1 meeting only, cause unclear (profit) → Slot 1 = Revenue Model as discovery method`}
+- 1 meeting only, cause unclear (profit) AND advisor confirmed review would help → Slot 1 = Revenue Model as discovery method`}
 
 SECTION 2 — "You might find these templates support this topic — for future consideration"
 Maximum 3 templates. Before including any template here, apply one of these three tests against the collected answers above — a template only belongs in Section 2 if it passes at least one test:
@@ -1282,6 +1299,33 @@ Use the advisor's answers about what caused this situation and what will flow on
       firmTemplates,
       preFilteredNames
     }) + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
+
+    // Phase A — log observability payload (always to stderr summary, full JSON when VA_DEBUG on)
+    const _strategySnapshot = {
+      revenueModelPlacement: reviewYes ? 'section_1' : reviewNo ? 'section_2_only' : 'not_applicable',
+      templateBudget,
+      tier1Capacity,
+      staircaseCalibration: staircaseNum
+        ? (staircaseNum <= 2 ? 'foundational' : staircaseNum <= 4 ? 'analytical' : 'strategic')
+        : null,
+      clientRaisedIssue: !!clientRaisedIssue,
+      priceCommunicationFlag: hasPriceCommunication,
+      preFilterHit: !!(preFilteredNames && preFilteredNames.length > 0),
+      preFilterCount: preFilteredNames ? preFilteredNames.length : 0
+    }
+    const _obsPayload = buildObservabilityPayload(
+      sessionId,
+      state.detectedDomain,
+      _signals,
+      _inferredState,
+      _strategySnapshot,
+      preFilteredNames
+    )
+    console.error(
+      `[va-observe] session=${sessionId || 'none'} domain=${state.detectedDomain || 'none'}` +
+      ` signals=${_signals.length} budget=${templateBudget} preFilter=${_obsPayload.strategyDecision.preFilterCount}`
+    )
+    dbg('[OBSERVABILITY] ' + JSON.stringify(_obsPayload, null, 2))
 
     const systemPrompt2 = loadPrompt('client') + languageInstruction2
 
