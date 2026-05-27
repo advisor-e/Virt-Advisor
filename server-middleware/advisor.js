@@ -24,6 +24,7 @@ const { logVASession } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
+const { resolveTemplates } = require('../server/utils/templateResolver')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -1094,6 +1095,10 @@ async function handleQuery (rawBody, res) {
     const _caseState = buildCaseState(_signals, state)
     const _strategyDecision = resolveStrategy(_caseState)
 
+    // Phase D — deterministic template resolver (no AI in selection loop)
+    const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
+    const _resolvedTemplates = resolveTemplates(_caseState, _strategyDecision, _resolverTemplatePool)
+
     const profitInstruction = state.detectedDomain === 'profit' && state.industry && state.industry !== 'pending'
       ? `\n\nPROFIT SITUATION: Industry: ${state.industry}.
 
@@ -1288,12 +1293,19 @@ Use the advisor's answers about what caused this situation and what will flow on
 
     const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
 
-    const matchedTrees = detectLogicTrees(collectedAnswers)
-    const walkedNames = new Set()
-    for (const tree of matchedTrees) {
-      for (const name of walkLogicTree(state, tree.id)) { walkedNames.add(name) }
+    // Phase D: resolver output is the primary preFilter source.
+    // walkLogicTree kept as fallback for the rare case where resolver returns empty.
+    let preFilteredNames = null
+    if (_resolvedTemplates.selected.length > 0) {
+      preFilteredNames = _resolvedTemplates.selected.map(t => t.title)
+    } else {
+      const matchedTrees = detectLogicTrees(collectedAnswers)
+      const walkedNames = new Set()
+      for (const tree of matchedTrees) {
+        for (const name of walkLogicTree(state, tree.id)) { walkedNames.add(name) }
+      }
+      if (walkedNames.size > 0) { preFilteredNames = [...walkedNames] }
     }
-    const preFilteredNames = walkedNames.size > 0 ? [...walkedNames] : null
 
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: false,
@@ -1304,14 +1316,15 @@ Use the advisor's answers about what caused this situation and what will flow on
       preFilteredNames
     }) + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
-    // Phase C — merge strategy decision with Phase A diagnostic context for observability
+    // Phase C/D — merge strategy + resolver decisions into observability snapshot
     const _strategySnapshot = Object.assign({}, _strategyDecision, {
       revenueModelPlacement: reviewYes ? 'section_1' : reviewNo ? 'section_2_only' : 'not_applicable',
       tier1Capacity,
       clientRaisedIssue: !!clientRaisedIssue,
       priceCommunicationFlag: hasPriceCommunication,
-      preFilterHit: !!(preFilteredNames && preFilteredNames.length > 0),
-      preFilterCount: preFilteredNames ? preFilteredNames.length : 0
+      resolverHit: _resolvedTemplates.selected.length > 0,
+      resolverCount: _resolvedTemplates.selected.length,
+      resolverNoMatchReason: _resolvedTemplates.noMatchReason || null
     })
     const _obsPayload = buildObservabilityPayload(
       sessionId,
@@ -1321,9 +1334,22 @@ Use the advisor's answers about what caused this situation and what will flow on
       _strategySnapshot,
       preFilteredNames
     )
+    // Upgrade templateScores with full resolver scoring log (Phase D)
+    if (_resolvedTemplates.scoringLog.length > 0) {
+      _obsPayload.templateScores = _resolvedTemplates.scoringLog.map((t, i) => ({
+        rank: i + 1,
+        title: t.title,
+        page: t.page,
+        subSection: t.subSection,
+        score: t.score,
+        matchReasons: t.matchReasons,
+        source: 'code_resolver'
+      }))
+    }
     console.error(
       `[va-observe] session=${sessionId || 'none'} domain=${state.detectedDomain || 'none'}` +
-      ` signals=${_signals.length} budget=${templateBudget} preFilter=${_obsPayload.strategyDecision.preFilterCount}`
+      ` signals=${_signals.length} budget=${templateBudget} resolver=${_resolvedTemplates.selected.length}` +
+      (_resolvedTemplates.noMatchReason ? ` noMatch=${_resolvedTemplates.noMatchReason}` : '')
     )
     dbg('[OBSERVABILITY] ' + JSON.stringify(_obsPayload, null, 2))
 
