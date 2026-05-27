@@ -26,9 +26,7 @@ const { buildCaseState } = require('../server/utils/caseState')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplates } = require('../server/utils/templateResolver')
 
-// Reference data for scenario-specific Phase 3 instructions
-const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
-const SALES_MARKETING_SLIDES = require('../data/sales-marketing-slides.json')
+// Reference data
 const DOMAINS = require('../data/domains.json')
 
 // Build detection patterns from domain definitions — compiled once at startup
@@ -38,18 +36,6 @@ const DOMAIN_PATTERNS = DOMAINS.map(d => ({
   pattern: new RegExp(d.keywords, 'gi'),
   disambigPattern: new RegExp(d.disambiguationKeywords, 'i')
 }))
-
-function formatFinMgtTable () {
-  return FIN_MGT_TABLE.themes.map(t =>
-    `Theme: ${t.name}\nProblem: ${t.problem}\nSolution: ${t.solution}\nSuggested Template: ${t.template}`
-  ).join('\n\n')
-}
-
-function formatSalesMarketingSlides () {
-  return SALES_MARKETING_SLIDES.frameworks.map(f =>
-    `Page ${f.page} — ${f.name}: ${f.summary}`
-  ).join('\n')
-}
 
 const { loadPrompt } = require('../server/utils/promptLoader')
 const { createLimiter } = require('./rateLimit')
@@ -1099,201 +1085,54 @@ async function handleQuery (rawBody, res) {
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
     const _resolvedTemplates = resolveTemplates(_caseState, _strategyDecision, _resolverTemplatePool)
 
-    const profitInstruction = state.detectedDomain === 'profit' && state.industry && state.industry !== 'pending'
-      ? `\n\nPROFIT SITUATION: Industry: ${state.industry}.
+    // Phase E — situationBrief: AI writes copy only; template selection already done by code
+    const DOMAIN_LABELS_E = {
+      profit: 'Profit & Revenue',
+      staff: 'Staff & Team',
+      'data-systems': 'Data & Financial Systems',
+      'sales-marketing': 'Sales & Marketing',
+      forecasting: 'Forecasting & Management Reporting',
+      governance: 'Governance & Leadership',
+      strategy: 'Strategy & Planning',
+      systems: 'Business Systems',
+      valuation: 'Business Valuation',
+      risk: 'Risk Management',
+      succession: 'Succession & Exit Planning',
+      conflict: 'Conflict & Dispute',
+      eoy: 'End of Year',
+      'due-diligence': 'Due Diligence & Acquisitions'
+    }
+    const ENGAGEMENT_CONTEXT_E = {
+      education: 'client lacks knowledge — teach and build up sequentially',
+      facilitation: 'client needs to change — pace the reveal, stay professionally detached',
+      advice: 'client knows the problem and wants it solved — be direct and expert'
+    }
 
-REVENUE & FEASIBILITY MODEL RULES:
-1. ${reviewYes ? 'The advisor confirmed the client would benefit from a variable review — the Revenue Model is PRIMARY and must appear in Section 1.' : reviewNo ? 'The advisor said no to a variable review — the Revenue Model is SECONDARY and must appear in Section 2 only, not Section 1.' : 'Place the Revenue Model in Section 1.'}
-2. Select the Revenue Model using: title match first → tags match second → purpose match third. In the template list, Revenue Models are listed under [Do the Job > Revenue & Feasibility Models > ...]. The TITLE is the bold name before the section path — use that exact title.
-3. Use the exact title as written in the template list. Do not invent, shorten, or combine names.
-4. If no match found after all three steps: tell the advisor which is closest and why — do not silently pick a generic one.
-5. ${clientRaisedIssue ? 'The client requested help — use the Trial Fit method to introduce the revenue model.' : 'The advisor noticed this issue — use the Cautious Reveal method to introduce the revenue model. Cautious Reveal is NOT a template and must not appear in "My recommendation".'}
-
-SECTION 2 RULES:
-${reportsNo ? `6. This client does not use management reports. The first entry in Section 2 must be a financial education template. Permitted names only: The Heald Matrix, Working Capital Cycle, Demings Volatility, Forecasting, Dashboard Discussions, Ratio Analysis. Use the Progression Table below to select the closest match. Do not use any other name. Do not describe the client as using reports anywhere in the response.\n\nFINANCIAL MANAGEMENT PROGRESSION TABLE:\n${formatFinMgtTable()}` : '6. This client uses management reports — do not recommend Working Capital Cycle or basic financial literacy templates.'}
-${reportsFromAdvisorFirm ? '7. The advisor\'s firm delivers reports to this client — position the next step as advancing that engagement, not repeating it.' : ''}
-
-CALIBRATION:
-${staircaseNum ? `- Advisory Staircase Step ${staircaseNum}: ${staircaseNum <= 2 ? 'keep templates foundational and accessible.' : staircaseNum <= 4 ? 'analytical and what-if modelling appropriate.' : 'strategic and data-driven templates only.'}` : ''}`
-      : ''
-
-    const staffInstruction = state.detectedDomain === 'staff' && state.staffCategory && state.staffCategory !== 'pending'
-      ? `\n\nSTAFF SITUATION: This is a staff/team issue. Use the three diagnostic answers to shape the recommendation:
-- Scope (individual vs team): ${state.staffScope}
-- Origin (event-driven vs gradual): ${state.staffOrigin}
-- Category: ${state.staffCategory}
-
-If the category indicates a potential employment law matter: you MUST flag clearly that this may require an HR or legal specialist before any advisory template is used. However, if the scope indicates one or two specific employees, you may also suggest a Performance Improvement Plan — this is available in the Advisor-e library under Get Organised / Team Coaching & Culture.
-If the category indicates team and leadership improvement: tailor the recommendation to match the scope (individual vs whole team) and the origin (event-driven vs gradual development). Solutions may be up to 4 templates if required. Refer to the People Power Template to guide suggestions.`
-      : ''
-
-    const dataSystemsInstruction = state.detectedDomain === 'data-systems' && state.dataSystemsChartAccounts && state.dataSystemsChartAccounts !== 'pending'
-      ? `\n\nDATA INTEGRITY / FINANCIAL SYSTEMS SITUATION: Use the three diagnostic answers to shape the recommendation:
-- Chart of accounts / break-even / working capital: ${state.dataSystemsChartAccounts}
-- Admin and accounting team: ${state.dataSystemsTeam}
-- Complexity vs technology issue: ${state.dataSystemsComplexity}
-
-If the answer to (a) indicates poor understanding or non-use of any of the three points (chart of accounts, break-even, working capital): ensure templates related to those specific topics are included. The final solution may include 4 or 5 templates if necessary.
-If the team answer indicates lack of experience or education in accounting: the recommendation may also include the Accounting Best Practices section.
-If the complexity/technology answer indicates software issues AND the business is at Leverage, Reach, Leapfrog, or Maturity on the Growth Curve: the recommendation may also include the Financial Systems Review.`
-      : ''
-
-    const salesMarketingInstruction = state.detectedDomain === 'sales-marketing' && state.salesDiagnosis && state.salesDiagnosis !== 'pending'
-      ? `\n\nSALES / MARKETING SITUATION: Use the three diagnostic answers to shape the recommendation:
-- Sales volume vs profitability diagnosis: ${state.salesDiagnosis}
-- Conversion tracking: ${state.salesTracking}
-- Product fit assessment: ${state.salesProductFit}
-
-If the diagnosis answer indicates the client does not know whether their issue is sales volume or profitability: suggest the Customer Journey template to create clarity first.
-If the client has problems with sales volume or conversion: for smaller businesses or where the advisor is newer to this topic, suggest Lite Sales. If the business is more complex, the owner is more open to input, and the advisor is more experienced, suggest the Sales & Marketing Review. The final solution may include up to 4 or 5 templates if necessary.
-If the tracking answer indicates the client does not track any conversion data or does a poor job of it: suggest Lite Marketing together with the 8 Profit Levers.
-If the product fit answer indicates a product fit issue: refer to pages 7–9 (Product Fit section) of the Sales & Marketing Review template.
-
-SALES & MARKETING REVIEW — FRAMEWORK INDEX (for reference when recommending specific sections):
-${formatSalesMarketingSlides()}`
-      : ''
-
-    const forecastingInstruction = state.detectedDomain === 'forecasting' && state.forecastingTheme && state.forecastingTheme !== 'pending'
-      ? `\n\nFORECASTING / MANAGEMENT REPORTING SITUATION: The advisor has selected the following theme from the Financial Management Table:
-Selected theme: ${state.forecastingTheme}
-
-Use this theme to drive the recommendation:
-- The "My recommendation" section: recommend the template mapped to this theme as the primary template.
-- The "Why this fits your client" section: reference the problem description of the selected theme.
-- The "How to approach it" section: frame the approach using the solution description for that theme.
-- Do NOT recommend templates outside the theme's suggested template unless there is a clear secondary need from Phase 2 answers.
-
-FINANCIAL MANAGEMENT TABLE — all themes for reference:
-${formatFinMgtTable()}`
-      : ''
-
-    // ── Domains 6–14 instruction stubs — populated when domain questions are finalised ──
-    const governanceInstruction = state.detectedDomain === 'governance'
-      ? '\n\nGOVERNANCE & LEADERSHIP SITUATION: The advisor has flagged a governance or leadership issue. Recommend templates from the Governance & Leadership domain. Use Phase 2 answers to calibrate complexity and engagement style.'
-      : ''
-
-    const strategyInstruction = state.detectedDomain === 'strategy'
-      ? '\n\nSTRATEGY & PLANNING SITUATION: The advisor has flagged a strategic planning need. Recommend templates from the Strategy & Planning domain. Use Phase 2 answers to calibrate depth and sequencing.'
-      : ''
-
-    const systemsInstruction = state.detectedDomain === 'systems'
-      ? '\n\nSYSTEMS SITUATION: The advisor has flagged a systems or process issue. Recommend templates from the Systems domain. Use Phase 2 answers to calibrate complexity.'
-      : ''
-
-    const valuationInstruction = state.detectedDomain === 'valuation'
-      ? '\n\nVALUATION SITUATION: The advisor has flagged a business valuation need. Recommend templates from the Valuation domain. Use Phase 2 answers to calibrate the level of engagement.'
-      : ''
-
-    const riskInstruction = state.detectedDomain === 'risk'
-      ? '\n\nRISK MANAGEMENT SITUATION: The advisor has flagged a risk management issue. Recommend templates from the Risk Management domain. Use Phase 2 answers to calibrate urgency and complexity.'
-      : ''
-
-    const successionInstruction = state.detectedDomain === 'succession'
-      ? '\n\nSUCCESSION PLANNING SITUATION: The advisor has flagged a succession or exit planning need. Recommend templates from the Succession Planning domain. Use Phase 2 answers to calibrate timeframe and complexity.'
-      : ''
-
-    const conflictInstruction = state.detectedDomain === 'conflict'
-      ? '\n\nCONFLICT SITUATION: The advisor has flagged a conflict or dispute. Recommend templates from the Conflict Meetings domain. Note any mediation or employment law implications from the context.'
-      : ''
-
-    const eoyInstruction = state.detectedDomain === 'eoy'
-      ? '\n\nEND OF YEAR MEETING SITUATION: The advisor is preparing for an end of year meeting. Recommend templates from the End of Year content domain. Use Phase 2 answers to calibrate depth.'
-      : ''
-
-    const dueDiligenceInstruction = state.detectedDomain === 'due-diligence'
-      ? '\n\nDUE DILIGENCE SITUATION: The advisor has flagged a due diligence or acquisition situation. Recommend templates from the Due Diligence domain. Use Phase 2 answers to calibrate the level of advisor involvement.'
-      : ''
-
-    const profileNote = advisorProfile
-      ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nUse this profile in place of Phase 2 answers when writing "Why this suits you as the advisor". Only reference what is explicitly stated in the profile. Do NOT infer, assume, or guess the advisor's experience level, seniority, or capability from what is absent. If experience is not mentioned, write the section based solely on role, interests, and stated strengths — do not label the advisor as new, inexperienced, or a beginner.`
-      : ''
-
-    // Override query with the collected answers summary for the AI recommendation call
-    const domainInstructions = profitInstruction + staffInstruction + dataSystemsInstruction + salesMarketingInstruction + forecastingInstruction +
-      governanceInstruction + strategyInstruction + systemsInstruction + valuationInstruction +
-      riskInstruction + successionInstruction + conflictInstruction + eoyInstruction + dueDiligenceInstruction
-
+    const _domainLabel = DOMAIN_LABELS_E[state.detectedDomain] || state.detectedDomain || 'General advisory'
+    const _engagementContext = ENGAGEMENT_CONTEXT_E[_strategyDecision.engagementType] || ''
     const _sessionContext = state.advisorSessionLength && state.advisorSessionLength !== 'pending' ? ` @ ${state.advisorSessionLength}` : ''
-    const _tier1Label = `${meetingNum || 1} meeting${(meetingNum || 1) !== 1 ? 's' : ''}${_sessionContext} = ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''}`
-    const recommendationStructure = `\n\nRECOMMENDATION FORMAT — follow this structure exactly. Do not invent alternative headings or reorder the sections.
+    const _budgetLabel = tier1Capacity === 0
+      ? '0 templates — session is 30 minutes only. Tell the advisor to schedule at least 60–90 minutes first.'
+      : `${meetingNum || 1} meeting${(meetingNum || 1) !== 1 ? 's' : ''}${_sessionContext} = ${tier1Capacity} template${tier1Capacity !== 1 ? 's' : ''}`
 
-OPENING SUMMARY — Before listing any templates, write 2–3 sentences that give the advisor an at-a-glance read. Cover: (1) what the core client problem is, (2) what the recommended approach will fix, (3) why this combination suits this specific advisor-client pairing. Keep it tight — an advisor reading this before a meeting should absorb it in 10 seconds. No headers, no bullet points — plain prose only.
+    const _copySignals = []
+    if (clientRaisedIssue && reviewYes) {
+      _copySignals.push('Revenue model delivery: Trial Fit — client raised the issue; introduce model in stages.')
+    } else if (!clientRaisedIssue && reviewYes) {
+      _copySignals.push('Revenue model delivery: Cautious Reveal — advisor noticed; establish concept before opening model. Do not open the model in meeting 1.')
+    }
+    if (reportsNo) {
+      _copySignals.push('Reports status: client has no management reports — financial education template belongs in Section 2.')
+    }
+    if (hasPriceCommunication) {
+      _copySignals.push('Price communication: advisor flagged a price rise — include "Price Rise" template.')
+    }
 
-TEMPLATE SELECTION RULE: Diagnostic Logic Trees identify the TYPE and CATEGORY of solution needed — they encode diagnostic pathways, not exact template names. Use them to understand the solution category, then select the actual template by matching all signals from the full conversation (client situation, domain, industry, growth stage, advisor answers) against the template list above using this exact order:
-1. TITLE MATCH — find a template whose title directly names the client's situation, industry, or core problem
-2. TAGS MATCH — if no title match, match trigger words and signals from the full conversation against the tags of every template in the relevant category (use the [Section > SubSection > Topic] labels to identify the right category)
-3. PURPOSE MATCH — if tags do not resolve it, read the purpose field of each candidate template for the closest operational match
-
-If no match is found after all three steps: tell the advisor explicitly — "No exact template exists in the library for [situation] — the closest I could find is [exact template name] as it covers [specific tags/purpose] that relate to [specific aspect of their situation]. You may want to review the library directly for a better fit."
-
-CRITICAL: You may ONLY recommend templates that appear EXACTLY as named in the template list above. Never invent a template name. Never silently fall back to a generic or approximate name. If you cannot find a match, say so explicitly using the message above.
-
-SECTION 1 — "My recommendation"
-${tier1Capacity === 0
-  ? 'SESSION TOO SHORT: The advisor has only 30 minutes available. This is not enough time to deliver any template properly. Do NOT recommend templates. Instead, tell the advisor directly: 30 minutes is too short for a proper template delivery. Recommend they schedule at least 60–90 minutes. Identify which template should be Slot 1 when they do have time, and explain why.'
-  : `Capacity: ${_tier1Label}. Do not exceed this number in Section 1.
-
-TEMPLATE SLOT ALLOCATION — assign templates to slots in this order:
-- Slot 1 (CAUSE): The template that addresses what caused or is driving the client's issue. If the cause is unclear, use this slot as a discovery session — choose a template that helps identify the driver. For profit situations where the cause is unclear AND the advisor confirmed a variable review would help, a Revenue & Feasibility Model is the recommended discovery tool — see the PROFIT SITUATION rules above.${tier1Capacity >= 2 ? '\n- Slot 2 (CORE): The template that directly addresses the primary issue once the cause is understood.' : ''}${tier1Capacity >= 3 ? '\n- Slot 3 (DOWNSTREAM): The template that addresses the downstream or flow-on effects of the issue.' : ''}
-
-CAUSE CLARITY RULE:
-- Cause unclear, core known → Slot 1 = Cause (discovery), Slot 2 = Core, Slot 3 = Downstream
-- Cause clear, core is the main issue → Slot 1 = Cause, Slot 2 = Core, Slot 3 = Downstream
-- 1 meeting only, cause unclear (profit) AND advisor confirmed review would help → Slot 1 = Revenue Model as discovery method`}
-
-SECTION 2 — "You might find these templates support this topic — for future consideration"
-Maximum 3 templates. Before including any template here, apply one of these three tests against the collected answers above — a template only belongs in Section 2 if it passes at least one test:
-
-TEST 1 — Downstream: The advisor named a specific downstream or flow-on effect in any collected answer field, and this template directly and specifically addresses that stated effect. A loose thematic connection does not pass this test — the effect must have been named by the advisor.
-
-TEST 2 — Foundational gap: A domain diagnostic answer revealed a clear knowledge or tool gap, and this template closes it (e.g. no use of financial reports → a financial education template from the approved list). The gap must be explicitly present in the collected answers.
-
-TEST 3 — Phase 2 secondary need: The advisor described a specific secondary need in their confidence or experience answer that is distinct from the primary situation and not already covered in Section 1.
-
-If a template does not pass one of these three tests, it does not belong in Section 2. Do not pad to reach the maximum.
-
-Do NOT include templates that:
-- Belong to the "Get Organised" section — these are advisor development and practice management tools, never client-facing. Do not recommend them under any circumstances.
-- Are generic or process-based (meeting agendas, time management) unless explicitly discussed
-- Address the advisor's own practice management rather than the client's situation
-- Were not referenced in any collected answer field
-- Duplicate the intent of a Tier 1 template
-
-CRITICAL OUTPUT RULE: The first line of each template entry must be the exact template title in bold markdown — **[exact title from list]** — nothing else on that line. Do NOT write "Template Name: [title]". Do NOT include template IDs, page links, or any fields not listed in the format below.
-
-PER-TEMPLATE FORMAT — use this exact structure for every template in both sections, no exceptions. Each field label must appear exactly as written below, including the ** markers. Each sub-section MUST be separated by a blank line so they render as distinct paragraphs:
-
-**[Template name]**
-
-**Why this fits your client:**
-[Reference the client's situation, the issue raised, their growth stage, operator capability, and motivation to change. Draw from content summaries where available.]
-
-**Why this suits you as the advisor:**
-[Reference only what the advisor explicitly stated. CRITICAL: a lower confidence answer for a specific topic does NOT mean the advisor is new to advisory work or inexperienced in general. Never use words like "new", "inexperienced", "beginner", "not previously engaged", or any phrase implying career stage unless the advisor explicitly stated it. If no experience level was stated, write this section based solely on the situation-specific confidence and strengths they described — nothing more.]
-
-**How to approach it:**
-[Practical delivery guidance tailored to this specific advisor-client combination.]
-
-**Suggested session plan:**
-[Map the recommended templates to the advisor's meetings using the slot allocation above. State the meeting count and session length, then assign each slot (Cause/Core/Downstream) to a specific session number.]
-
-**What this typically leads to:**
-[The downstream opportunity or natural next engagement this template typically opens up. Draw from content summaries where available.]
-
-Do not use any other field names. Do not add extra fields. Do not use "Purpose:", "Helps the owner:", "Helps the advisor:", or any other heading not listed above. The ** characters are not decorative — they must appear in your output exactly as shown above.
-
-Use the advisor's answers about what caused this situation and what will flow on from it to determine which templates belong in each section.${hasPriceCommunication ? '\n\nPRICE COMMUNICATION: The advisor has flagged communicating price increases as a need for this engagement. Include the "Price Rise" template (exactly that name) in Section 1 — it covers two communication methods for explaining a price rise to customers.' : ''}`
-
-    const recommendationQuery = `Here is everything collected about the client and situation:\n\n${collectedAnswers}${domainInstructions}${profileNote}${recommendationStructure}\n\nNow produce the Phase 3 recommendation.`
-
-    // Fall through to AI call for Phase 3 recommendation
-    const languageInstruction2 = language !== 'en'
-      ? `\n\nIMPORTANT: Always respond entirely in ${languageName}.`
+    const _profileNote = advisorProfile
+      ? `\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nOnly reference what is explicitly stated. Do not infer seniority or capability from what is absent.`
       : ''
 
-    const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
-
-    // Phase D: resolver output is the primary preFilter source.
+    // Phase D/E: resolver output is the primary preFilter source.
     // walkLogicTree kept as fallback for the rare case where resolver returns empty.
     let preFilteredNames = null
     if (_resolvedTemplates.selected.length > 0) {
@@ -1307,6 +1146,45 @@ Use the advisor's answers about what caused this situation and what will flow on
       if (walkedNames.size > 0) { preFilteredNames = [...walkedNames] }
     }
 
+    const situationBrief = [
+      'SITUATION BRIEF',
+      `Domain: ${_domainLabel}`,
+      `Engagement type: ${_strategyDecision.engagementType} — ${_engagementContext}`,
+      `Template budget: ${_budgetLabel}`,
+      ..._copySignals,
+      '',
+      _resolvedTemplates.selected.length > 0
+        ? 'PRE-SELECTED TEMPLATES — write Section 1 copy for these only, in order:\n' +
+          _resolvedTemplates.selected.map((t, i) => `${i + 1}. ${t.title} (ID: ${t.page})`).join('\n')
+        : 'No templates auto-selected — choose the best match from the template list above.',
+      '',
+      'COLLECTED ANSWERS',
+      collectedAnswers,
+      _profileNote
+    ].filter(line => line !== null && line !== undefined).join('\n') + '\n\nNow produce the Phase 3 recommendation.'
+
+    // Fetch summaries for pre-selected templates — exact match, no keyword diffusion
+    const _preSelectedSummaries = preFilteredNames && preFilteredNames.length > 0
+      ? getSummariesForTemplateNames(preFilteredNames)
+      : []
+    const _preSelectedSummariesText = _preSelectedSummaries.length > 0
+      ? '\n---\n\n## Template Content Summaries (' + _preSelectedSummaries.length + ' pre-selected)\n\n' +
+        'Primary source for Phase 3 copy:\n' +
+        '- "Why this fits your client" → Helps the owner field\n' +
+        '- "Why this suits you as the advisor" → Helps the advisor field\n' +
+        '- "How to approach it" → Purpose and When to use fields\n' +
+        '- "What this typically leads to" → Where it leads field\n' +
+        'Adapt to the specific situation — do not copy word-for-word.\n\n' +
+        formatSummariesForPrompt(_preSelectedSummaries)
+      : ''
+
+    // Fall through to AI call for Phase 3 recommendation
+    const languageInstruction2 = language !== 'en'
+      ? `\n\nIMPORTANT: Always respond entirely in ${languageName}.`
+      : ''
+
+    const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
+
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: false,
       includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
@@ -1314,7 +1192,7 @@ Use the advisor's answers about what caused this situation and what will flow on
       excludeSections: ['get-organised', 'get-the-job'],
       firmTemplates,
       preFilteredNames
-    }) + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
+    }) + _preSelectedSummariesText + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     // Phase C/D — merge strategy + resolver decisions into observability snapshot
     const _strategySnapshot = Object.assign({}, _strategyDecision, {
@@ -1358,7 +1236,7 @@ Use the advisor's answers about what caused this situation and what will flow on
     const messages2 = [
       { role: 'user', content: contextMsg2 },
       { role: 'assistant', content: OPENING_MSG.client },
-      { role: 'user', content: recommendationQuery }
+      { role: 'user', content: situationBrief }
     ]
 
     res.writeHead(200, {
