@@ -22,6 +22,8 @@ const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { extractTemplatesFromText } = require('../server/utils/tierLookup')
 const { logVASession } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
+const { buildCaseState } = require('../server/utils/caseState')
+const { resolveStrategy } = require('../server/utils/strategyResolver')
 
 // Reference data for scenario-specific Phase 3 instructions
 const FIN_MGT_TABLE = require('../data/fin-mgt-table.json')
@@ -1089,6 +1091,8 @@ async function handleQuery (rawBody, res) {
     }
     const _signals = extractSignals(state, _derivedForSignals)
     const _inferredState = deriveInferredState(_signals, state)
+    const _caseState = buildCaseState(_signals, state)
+    const _strategyDecision = resolveStrategy(_caseState)
 
     const profitInstruction = state.detectedDomain === 'profit' && state.industry && state.industry !== 'pending'
       ? `\n\nPROFIT SITUATION: Industry: ${state.industry}.
@@ -1300,19 +1304,15 @@ Use the advisor's answers about what caused this situation and what will flow on
       preFilteredNames
     }) + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
-    // Phase A — log observability payload (always to stderr summary, full JSON when VA_DEBUG on)
-    const _strategySnapshot = {
+    // Phase C — merge strategy decision with Phase A diagnostic context for observability
+    const _strategySnapshot = Object.assign({}, _strategyDecision, {
       revenueModelPlacement: reviewYes ? 'section_1' : reviewNo ? 'section_2_only' : 'not_applicable',
-      templateBudget,
       tier1Capacity,
-      staircaseCalibration: staircaseNum
-        ? (staircaseNum <= 2 ? 'foundational' : staircaseNum <= 4 ? 'analytical' : 'strategic')
-        : null,
       clientRaisedIssue: !!clientRaisedIssue,
       priceCommunicationFlag: hasPriceCommunication,
       preFilterHit: !!(preFilteredNames && preFilteredNames.length > 0),
       preFilterCount: preFilteredNames ? preFilteredNames.length : 0
-    }
+    })
     const _obsPayload = buildObservabilityPayload(
       sessionId,
       state.detectedDomain,
