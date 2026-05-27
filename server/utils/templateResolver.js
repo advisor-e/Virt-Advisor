@@ -65,19 +65,25 @@ const CATEGORY_KEYWORDS = {
 }
 
 // ── Engagement type → preferred subSections ─────────────────────────────────
+// Source: content headers spec (revenue models = EDUCATION; strategic = FACILITATION; specialist = ADVICE)
 // First entry = primary (score +2); remaining = secondary (score +1)
 const ENGAGEMENT_SUBSECTION_PREFERENCE = {
-  education: ['Lite Fundamentals', 'General Tools', 'Reporting', 'Growth Framework'],
-  facilitation: ['Revenue & Feasibility Models', 'General Tools', 'Governance Tools', 'Strategic Tools'],
+  education: ['Revenue & Feasibility Models', 'General Tools', 'Lite Fundamentals', 'Reporting', 'Growth Framework'],
+  facilitation: ['Strategic Tools', 'Governance Tools', 'Lite Fundamentals', 'General Tools'],
   advice: ['Specialist Tools', 'Governance Tools', 'Strategic Tools', 'External Advisors']
 }
+
+// ── Advisor confidence → subSection fit ──────────────────────────────────────
+// Source: content headers spec — new-advisor-friendly vs experience-required subSections
+const NEW_ADVISOR_SUBSECTIONS = new Set(['Revenue & Feasibility Models', 'General Tools', 'EOY Notes & Docs'])
+const EXPERIENCE_REQUIRED_SUBSECTIONS = new Set(['Lite Fundamentals', 'Strategic Tools', 'Specialist Tools', 'Governance Tools'])
 
 // ── resolveTemplates ────────────────────────────────────────────────────────
 // Pure deterministic function. No side effects. No AI calls.
 // Inputs: CaseState + StrategyDecision (from Phases B/C) + templates array
 // Output: scored, ranked selection capped at templateBudget
 function resolveTemplates (caseState, strategyDecision, templates) {
-  const { domain, solutionCategories, client, complexityCeiling } = caseState
+  const { domain, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
 
   const blocked = CEILING_BLOCKED[complexityCeiling] || new Set()
@@ -150,6 +156,20 @@ function resolveTemplates (caseState, strategyDecision, templates) {
     } else if (engagementPreferred.includes(subSection)) {
       score += 1
       reasons.push('engagement:secondary')
+    }
+
+    // Advisor confidence → subSection fit
+    if (advisor && advisor.confidence) {
+      if (advisor.confidence === 'low' && NEW_ADVISOR_SUBSECTIONS.has(subSection)) {
+        score += 1
+        reasons.push('advisor:confidence_match')
+      } else if (advisor.confidence === 'low' && EXPERIENCE_REQUIRED_SUBSECTIONS.has(subSection)) {
+        score -= 1
+        reasons.push('advisor:confidence_mismatch')
+      } else if (advisor.confidence === 'high' && EXPERIENCE_REQUIRED_SUBSECTIONS.has(subSection)) {
+        score += 1
+        reasons.push('advisor:confidence_boost')
+      }
     }
 
     // Growth stage exact match
