@@ -73,6 +73,23 @@ const ENGAGEMENT_SUBSECTION_PREFERENCE = {
   advice: ['Specialist Tools', 'Governance Tools', 'Strategic Tools', 'External Advisors']
 }
 
+// ── Problem signal → tag keyword fragments ───────────────────────────────────
+// Maps free-text problem signals (from situationDiagnostic) to template tag substrings.
+// Same substring matching as CATEGORY_KEYWORDS. modeling_rejected is penalty-only — no entry.
+const PROBLEM_SIGNAL_KEYWORDS = {
+  sales_volume: ['sales', 'customer', 'foot traffic', 'conversion', 'prospect', 'pipeline', 'market', 'brand', 'awareness', 'funnel'],
+  pricing_issue: ['pric', 'price rise', 'markup', 'communicat'],
+  cash_flow_gap: ['cash', 'debtor', 'working capital', 'overdraft', 'financ', 'credit'],
+  profit_plateau: ['profit', 'levers', 'driver', 'profitab'],
+  staff_problem: ['staff', 'team', 'perform', 'culture', 'leadership', 'people'],
+  strategy_needed: ['strateg', 'planning', 'swot', 'pivot', 'growth'],
+  data_quality: ['data', 'system', 'accounting', 'chart', 'report', 'kpi', 'ratio'],
+  governance_gap: ['governance', 'board', 'accountab', 'director'],
+  succession_issue: ['succession', 'exit', 'handover', 'valuati'],
+  systems_gap: ['system', 'software', 'technolog', 'process', 'workflow'],
+  marketing_gap: ['marketing', 'market', 'brand', 'digital', 'funnel']
+}
+
 // ── Advisor confidence → subSection fit ──────────────────────────────────────
 // Source: content headers spec — new-advisor-friendly vs experience-required subSections
 const NEW_ADVISOR_SUBSECTIONS = new Set(['Revenue & Feasibility Models', 'General Tools', 'EOY Notes & Docs'])
@@ -105,7 +122,14 @@ function resolveTemplates (caseState, strategyDecision, templates) {
   }
 
   // ── Step 2: Score ────────────────────────────────────────────────────────
-  const preferredSubSections = domain ? (DOMAIN_SUBSECTION_MAP[domain] || []) : []
+  let preferredSubSections = domain ? (DOMAIN_SUBSECTION_MAP[domain] || []) : []
+
+  // When the profit domain's revenue_feasibility signal is absent, the advisor
+  // has indicated the client doesn't need financial modelling — shift subSection
+  // preference so General Tools ranks first and surfaces sales-oriented templates.
+  if (domain === 'profit' && !(solutionCategories || []).includes('revenue_feasibility')) {
+    preferredSubSections = ['General Tools', 'Lite Fundamentals', 'Reporting', 'Revenue & Feasibility Models']
+  }
   const engagementPreferred = ENGAGEMENT_SUBSECTION_PREFERENCE[engagementType] || []
 
   const scored = eligible.map((t) => {
@@ -147,6 +171,26 @@ function resolveTemplates (caseState, strategyDecision, templates) {
           }
         }
       }
+    }
+
+    // Problem signals from situationDiagnostic free text → tag keyword match
+    const _problemSignals = caseState.problemSignals || {}
+    for (const [signal, signalCount] of Object.entries(_problemSignals)) {
+      if (signal === 'modeling_rejected') { continue } // penalty-only signal handled below
+      const keywords = PROBLEM_SIGNAL_KEYWORDS[signal] || []
+      for (const kw of keywords) {
+        if (tagsLower.some(tag => tag.includes(kw)) || purposeLower.includes(kw)) {
+          score += Math.min(3, signalCount) // cap contribution per signal at 3
+          reasons.push('problemSignal:' + signal)
+          break
+        }
+      }
+    }
+
+    // Explicit contradiction penalty: advisor indicated revenue modelling is not the solution
+    if ((_problemSignals.modeling_rejected || 0) > 0 && subSection === 'Revenue & Feasibility Models') {
+      score -= 6
+      reasons.push('penalty:modeling_rejected')
     }
 
     // Engagement type → subSection alignment
@@ -192,17 +236,19 @@ function resolveTemplates (caseState, strategyDecision, templates) {
 
   const budget = (typeof templateBudget === 'number' && templateBudget >= 0) ? templateBudget : 1
   const selected = ranked.slice(0, budget)
+  const candidates = ranked.slice(0, Math.max(8, budget * 4))
   const scoringLog = ranked.slice(0, 20)
 
   if (selected.length === 0) {
     return {
       selected: [],
+      candidates: [],
       scoringLog: scored.sort((a, b) => b.score - a.score).slice(0, 10),
       noMatchReason: `No template scored above 0: domain=${domain} categories=${(solutionCategories || []).join(',')}`
     }
   }
 
-  return { selected, scoringLog, noMatchReason: null }
+  return { selected, candidates, scoringLog, noMatchReason: null }
 }
 
 module.exports = { resolveTemplates }

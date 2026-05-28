@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=8192 nuxt",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=8192 NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem nuxt",
     "dev:clean": "dev.bat",
     "serve": "serve.bat",
     "start": "nuxt start",

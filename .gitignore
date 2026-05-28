@@ -28,3 +28,6 @@ logs
 
 # Generated search exports (not for version control)
 search_content_*.json
+
+# Local CA cert bundle (machine-specific export from Windows cert store)
+certs/

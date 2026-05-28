@@ -1,6 +1,7 @@
 'use strict'
 
 const { SIGNAL_TYPES } = require('./signals')
+const { extractProblemSignals } = require('./problemSignals')
 
 // Domain natural engagement type — what kind of delivery the domain typically requires.
 // clientRequestedHelp must also be true before facilitation or advice is used.
@@ -144,7 +145,8 @@ function buildCaseState (signals, state) {
       templateBudget: get(SIGNAL_TYPES.TEMPLATE_BUDGET)
     },
     diagnosticSignals: signals.map(s => s.type),
-    solutionCategories: deriveSolutionCategories(signals, state.detectedDomain)
+    solutionCategories: deriveSolutionCategories(signals, state.detectedDomain),
+    problemSignals: extractProblemSignals(state.situationDiagnostic || '')
   }
 }
 

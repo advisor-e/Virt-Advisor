@@ -1802,11 +1802,12 @@ export default {
 .bubble-advisor { background: #f9fafb; border: 1px solid #e5e7eb; color: #111827; border-radius: 4px 12px 12px 12px; }
 
 .prose ::v-deep strong { font-weight: 600; }
-.prose ::v-deep h2 { font-size: 15px; font-weight: 700; margin: 12px 0 6px; color: #1e40af; }
-.prose ::v-deep h3 { font-size: 14px; font-weight: 600; margin: 10px 0 4px; }
+.prose ::v-deep h2 { font-size: 16px; font-weight: 700; margin: 16px 0 8px; color: #1e40af; }
+.prose ::v-deep h3 { font-size: 14px; font-weight: 700; margin: 20px 0 8px; color: #111827; padding-top: 14px; border-top: 1px solid #e5e7eb; }
+.prose ::v-deep h3:first-child { margin-top: 8px; padding-top: 0; border-top: none; }
 .prose ::v-deep ul { margin: 6px 0; padding-left: 20px; }
 .prose ::v-deep li { margin: 3px 0; }
-.prose ::v-deep p { margin: 6px 0; }
+.prose ::v-deep p { margin: 6px 0; line-height: 1.6; }
 
 .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
 .typing-indicator span { width: 7px; height: 7px; background: #9ca3af; border-radius: 50%; animation: bounce 1.2s infinite; }

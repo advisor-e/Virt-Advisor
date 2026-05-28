@@ -1134,9 +1134,13 @@ async function handleQuery (rawBody, res) {
 
     // Phase D/E: resolver output is the primary preFilter source.
     // walkLogicTree kept as fallback for the rare case where resolver returns empty.
+    const _resolverCandidates = (_resolvedTemplates.candidates && _resolvedTemplates.candidates.length > 0)
+      ? _resolvedTemplates.candidates
+      : _resolvedTemplates.selected
+
     let preFilteredNames = null
-    if (_resolvedTemplates.selected.length > 0) {
-      preFilteredNames = _resolvedTemplates.selected.map(t => t.title)
+    if (_resolverCandidates.length > 0) {
+      preFilteredNames = _resolverCandidates.map(t => t.title)
     } else {
       const matchedTrees = detectLogicTrees(collectedAnswers)
       const walkedNames = new Set()
@@ -1146,6 +1150,7 @@ async function handleQuery (rawBody, res) {
       if (walkedNames.size > 0) { preFilteredNames = [...walkedNames] }
     }
 
+    const _budgetCount = tier1Capacity > 0 ? tier1Capacity : (_strategyDecision.templateBudget || 1)
     const situationBrief = [
       'SITUATION BRIEF',
       `Domain: ${_domainLabel}`,
@@ -1153,10 +1158,10 @@ async function handleQuery (rawBody, res) {
       `Template budget: ${_budgetLabel}`,
       ..._copySignals,
       '',
-      _resolvedTemplates.selected.length > 0
-        ? 'PRE-SELECTED TEMPLATES — write Section 1 copy for these only, in order:\n' +
-          _resolvedTemplates.selected.map((t, i) => `${i + 1}. ${t.title} (ID: ${t.page})`).join('\n')
-        : 'No templates auto-selected — choose the best match from the template list above.',
+      _resolverCandidates.length > 0
+        ? `CANDIDATE TEMPLATES — read the collected answers carefully, then select the ${_budgetCount} best-fit template${_budgetCount !== 1 ? 's' : ''} from this list. Choose only from these candidates — do not invent, abbreviate, or paraphrase names:\n` +
+          _resolverCandidates.map((t, i) => `${i + 1}. ${t.title} (ID: ${t.page})`).join('\n')
+        : 'No templates pre-scored — choose the best match from the template list above.',
       '',
       'COLLECTED ANSWERS',
       collectedAnswers,
