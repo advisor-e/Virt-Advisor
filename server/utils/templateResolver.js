@@ -1,5 +1,27 @@
 'use strict'
 
+const { readFileSync } = require('fs')
+const { resolve } = require('path')
+
+// ── Semantic profile loader ─────────────────────────────────────────────────
+// Reads the pre-compiled semantic profiles (built by scripts/build-semantic-profiles.js).
+// Keyed by template page ID. Returns empty profile for unknown templates.
+let _profileMap = null
+function getProfileMap () {
+  if (!_profileMap) {
+    _profileMap = new Map()
+    try {
+      const raw = JSON.parse(readFileSync(resolve(process.cwd(), 'data/semantic-profiles.json'), 'utf8'))
+      for (const entry of raw) {
+        if (entry.page) { _profileMap.set(entry.page, entry.profile || {}) }
+      }
+    } catch (_) {
+      // File not present during unit tests — scoring degrades to structural only
+    }
+  }
+  return _profileMap
+}
+
 // ── Complexity ceiling → blocked subSections ────────────────────────────────
 // Architecture rule: "Step 1–2 cannot produce Specialist/Governance templates"
 // foundational = staircase 1–2, analytical = 3–4, strategic = 5
@@ -73,23 +95,6 @@ const ENGAGEMENT_SUBSECTION_PREFERENCE = {
   advice: ['Specialist Tools', 'Governance Tools', 'Strategic Tools', 'External Advisors']
 }
 
-// ── Problem signal → tag keyword fragments ───────────────────────────────────
-// Maps free-text problem signals (from situationDiagnostic) to template tag substrings.
-// Same substring matching as CATEGORY_KEYWORDS. modeling_rejected is penalty-only — no entry.
-const PROBLEM_SIGNAL_KEYWORDS = {
-  sales_volume: ['sales', 'customer', 'foot traffic', 'conversion', 'prospect', 'pipeline', 'market', 'brand', 'awareness', 'funnel'],
-  pricing_issue: ['pric', 'price rise', 'markup', 'communicat'],
-  cash_flow_gap: ['cash', 'debtor', 'working capital', 'overdraft', 'financ', 'credit'],
-  profit_plateau: ['profit', 'levers', 'driver', 'profitab'],
-  staff_problem: ['staff', 'team', 'perform', 'culture', 'leadership', 'people'],
-  strategy_needed: ['strateg', 'planning', 'swot', 'pivot', 'growth'],
-  data_quality: ['data', 'system', 'accounting', 'chart', 'report', 'kpi', 'ratio'],
-  governance_gap: ['governance', 'board', 'accountab', 'director'],
-  succession_issue: ['succession', 'exit', 'handover', 'valuati'],
-  systems_gap: ['system', 'software', 'technolog', 'process', 'workflow'],
-  marketing_gap: ['marketing', 'market', 'brand', 'digital', 'funnel']
-}
-
 // ── Advisor confidence → subSection fit ──────────────────────────────────────
 // Source: content headers spec — new-advisor-friendly vs experience-required subSections
 const NEW_ADVISOR_SUBSECTIONS = new Set(['Revenue & Feasibility Models', 'General Tools', 'EOY Notes & Docs'])
@@ -132,6 +137,12 @@ function resolveTemplates (caseState, strategyDecision, templates) {
   }
   const engagementPreferred = ENGAGEMENT_SUBSECTION_PREFERENCE[engagementType] || []
 
+  // Prepare semantic scoring inputs once (not inside the map loop)
+  const _profileMap = getProfileMap()
+  const _problemSignals = caseState.problemSignals || {}
+  const _activeSignalEntries = Object.entries(_problemSignals)
+    .filter(([sig, n]) => sig !== 'modeling_rejected' && n > 0)
+
   const scored = eligible.map((t) => {
     let score = 0
     const reasons = []
@@ -173,17 +184,18 @@ function resolveTemplates (caseState, strategyDecision, templates) {
       }
     }
 
-    // Problem signals from situationDiagnostic free text → tag keyword match
-    const _problemSignals = caseState.problemSignals || {}
-    for (const [signal, signalCount] of Object.entries(_problemSignals)) {
-      if (signal === 'modeling_rejected') { continue } // penalty-only signal handled below
-      const keywords = PROBLEM_SIGNAL_KEYWORDS[signal] || []
-      for (const kw of keywords) {
-        if (tagsLower.some(tag => tag.includes(kw)) || purposeLower.includes(kw)) {
-          score += Math.min(3, signalCount) // cap contribution per signal at 3
-          reasons.push('problemSignal:' + signal)
-          break
-        }
+    // Stage 1 — semantic profile overlap with active problem signals.
+    // Each signal type present in BOTH problemSignals and the template's compiled
+    // semantic profile contributes +4. Degrades to 0 if no profile exists.
+    const _semanticProfile = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
+    if (_activeSignalEntries.length > 0) {
+      let overlapCount = 0
+      for (const [signal] of _activeSignalEntries) {
+        if ((_semanticProfile[signal] || 0) > 0) { overlapCount++ }
+      }
+      if (overlapCount > 0) {
+        score += overlapCount * 4
+        reasons.push('semantic:' + overlapCount)
       }
     }
 

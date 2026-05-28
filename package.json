@@ -13,6 +13,7 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "backend": "node server/restify-server.js",
+    "build:semantic-profiles": "node scripts/build-semantic-profiles.js",
     "prepare": "husky install"
   },
   "dependencies": {
