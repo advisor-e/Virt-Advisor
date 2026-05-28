@@ -78,7 +78,7 @@ Content summaries are your primary copy source. If a matching summary exists for
 
 - "Why this fits your client" → draw from the **Helps the owner** field
 - "Why this suits you as the advisor" → draw from the **Helps the advisor** field
-- "How to approach it" → draw from the **Purpose** and **When to use** fields
+- "How to approach it" → draw primarily from the **Domain Support Reference** material in the context — use the phases, steps, and guidance as your delivery structure. If no domain support material exists for this specific template, fall back to the **Purpose** field and synthesize practical steps from the collected answers.
 - "What this typically leads to" → write from the collected answers and the natural downstream logic of the template — what problem it solves and what advisory work that typically opens
 
 Always prefer content summary language over generic statements. Adapt it to the specific situation — do not copy word-for-word. If no summary exists, write from the collected answers alone.

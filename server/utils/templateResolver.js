@@ -250,13 +250,18 @@ function resolveTemplates (caseState, strategyDecision, templates) {
       }
     }
 
-    return { title: t.title, page: t.page, subSection, score, matchReasons: reasons }
+    const _profile = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
+    const profileRichness = Object.values(_profile).reduce((sum, n) => sum + n, 0)
+    return { title: t.title, page: t.page, subSection, score, profileRichness, matchReasons: reasons }
   })
 
   // ── Step 3: Rank and cap ─────────────────────────────────────────────────
+  // Primary sort: score descending. Tiebreaker: profile richness descending
+  // (total signal strength across all signal types — richer profile = more specific authoring).
+  // If testing shows this produces wrong results, revisit with subSection preference rank.
   const ranked = scored
     .filter(s => s.score > 0)
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score || b.profileRichness - a.profileRichness)
 
   const budget = (typeof templateBudget === 'number' && templateBudget >= 0) ? templateBudget : 1
   const selected = ranked.slice(0, budget)
