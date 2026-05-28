@@ -13,7 +13,8 @@
     "purpose": "A spreadsheet template for the accounting or advisory firm to calculate and present the price of its own advisory services — NOT a tool for helping a client with their business pricing. It provides a modular scoping framework covering services such as strategic planning, marketing reviews, and M&A due diligence.",
     "helpsOwner": "Gives the client (who is purchasing the advisory firm's services) full transparency: exactly which objectives are being tackled, the number of meetings, and the time and value allocated to each component of their engagement.",
     "helpsAdvisor": "Allows the firm to calculate a profitable fee by assigning hourly rates to different team members and tracking travel, prep, and advisory time. Includes a scoping model to ensure complex multi-stage jobs are sequenced and costed thoroughly before committing to a fixed price.",
-    "indicators": "Use ONLY when the advisor needs to price and present their own firm's advisory services to a client. Do NOT recommend this for client business pricing problems — it has nothing to do with how a client prices their own products or services."
+    "indicators": "Use ONLY when the advisor needs to price and present their own firm's advisory services to a client. Do NOT recommend this for client business pricing problems — it has nothing to do with how a client prices their own products or services.",
+    "page": "id-5034074996"
   },
   {
     "name": "Advisory Proposal",
@@ -21,7 +22,8 @@
     "purpose": "This slide deck template visually and logically structures a service pitch following a discovery meeting.",
     "helpsOwner": "It clearly links the owner's desired \"Milestones\" and goals with their specific \"Legitimate Constraints\" (what is holding them back), ensuring they feel heard and understood. It also breaks down the investment into manageable monthly payments.",
     "helpsAdvisor": "It creates a professional, persuasive narrative that guides the prospect from their problems to the advisor's recommended solutions and required investment. It also includes a standardized \"Variation to Scope of Works\" to cleanly handle future out-of-scope requests.",
-    "indicators": "Advisors presenting a formal plan of attack and fee structure to a prospect after an initial discovery session."
+    "indicators": "Advisors presenting a formal plan of attack and fee structure to a prospect after an initial discovery session.",
+    "page": "id-4774716093"
   },
   {
     "name": "Get. TCM.Quiz Link Email",
@@ -37,7 +39,11 @@
     "purpose": "An extensive, color-coded diagnostic tool (Green, Yellow, Orange, Red, Grey) that covers the entire business lifecycle from launch to maturity and exit.",
     "helpsOwner": "It prompts deep critical thinking, asking the owner to evaluate their financial models, marketing awareness, team functionality, risk management, and succession plans, helping them identify operational blind spots.",
     "helpsAdvisor": "It provides a structured agenda for a discovery meeting (focused on identifying problems, not immediate solutions). By the end of the questionnaire, the advisor has a clear understanding of the client's readiness, budget, and timeline to begin a business development program.",
-    "indicators": "Advisors conducting deep-dive strategic planning sessions or formal discovery meetings to uncover wide-ranging business issues."
+    "indicators": "Advisors conducting deep-dive strategic planning sessions or formal discovery meetings to uncover wide-ranging business issues.",
+    "pages": [
+      "id-904072826",
+      "id-8456555412"
+    ]
   },
   {
     "name": "Get. Invitation Email",
@@ -77,7 +83,11 @@
     "purpose": "A comprehensive diagnostic checklist used to review a client's business across multiple dimensions, including Governance, Ownership, Structure, Management Reporting, Financials, Technology, Taxation, and HR.",
     "helpsOwner": "It provides a holistic health check of their business, uncovering blind spots related to business value, risk management, succession planning, and technology usage.",
     "helpsAdvisor": "It acts as a structured framework to assess the client's current status and deliberately identify \"Opportunities for Further Assistance\" (advisory services or cross-selling).",
-    "indicators": "The client has a multi-faceted business, is asking questions about structural or tax efficiency, or the advisor wants to conduct a thorough pre-meeting audit to spot advisory opportunities."
+    "indicators": "The client has a multi-faceted business, is asking questions about structural or tax efficiency, or the advisor wants to conduct a thorough pre-meeting audit to spot advisory opportunities.",
+    "pages": [
+      "id-7154906006",
+      "id-679676385"
+    ]
   },
   {
     "name": "EOY Presentation Decks (Frame, Agenda, V2, and Rural)",
@@ -109,7 +119,8 @@
     "purpose": "A 12-month calendar template scheduling specific operational and strategic topics for an Advisory Board or management team (e.g., Strategic Planning in Feb, Budgets in April, Tech/Risk in Sept).",
     "helpsOwner": "It instills a disciplined, year-round corporate governance structure, ensuring that all vital areas of the business are reviewed annually without being overwhelming.",
     "helpsAdvisor": "It creates a clear roadmap for recurring advisory revenue, detailing exactly what board packs and reports (e.g., Sales Manager Report, KPI Reports) need to be prepared each month.",
-    "indicators": "The client's business is mature enough to require an Advisory Board, or the client needs structured, monthly management reporting and governance."
+    "indicators": "The client's business is mature enough to require an Advisory Board, or the client needs structured, monthly management reporting and governance.",
+    "page": "id-3640303064"
   },
   {
     "name": "EOY Quiz Questions",
@@ -117,7 +128,8 @@
     "purpose": "A brief questionnaire template designed to test the client's knowledge of fundamental business metrics, such as customer acquisition costs, variable vs. fixed costs, and shareholder loan accounts.",
     "helpsOwner": "It forces them to reflect on their financial literacy and highlights specific blind spots in their understanding of their own business costs.",
     "helpsAdvisor": "It quickly identifies gaps in the client's financial knowledge, allowing the advisor to tailor the upcoming meeting to those specific educational needs.",
-    "indicators": "The client struggles with pricing, cash flow, or understanding their fixed vs. variable costs, or the advisor wants a quick assessment of a new prospect's financial acumen."
+    "indicators": "The client struggles with pricing, cash flow, or understanding their fixed vs. variable costs, or the advisor wants a quick assessment of a new prospect's financial acumen.",
+    "page": "id-631140983"
   },
   {
     "name": "Growth Curve",
@@ -125,7 +137,8 @@
     "purpose": "The core visual map of the Growth Fundamentals Framework. Contains the master tables mapping the 9 Growth Stages to the 7 Growth Tactics, 9 Growth Aspects, and the 5 Psyche Errors. Introduces key metaphors including the \"Devil's Toilet\" (the dangerous profit plateau between Lifestyle and Leverage stages) and the 8 Profit Levers.",
     "helpsOwner": "Helps owners recognize exactly where they currently sit on the growth curve, creates self-relevance and motivation by contextualizing their journey, and identifies predictable hazards — like the \"Devil's Toilet\" — before they encounter them. Clearly defines \"What Got You Here\" versus \"What Holds You Back\" for each stage.",
     "helpsAdvisor": "Provides the foundational map for all Growth Fundamentals advisory work. Offers two distinct engagement models: a \"Full\" version (3-5 meetings, 10+ hours, for complex businesses) and a \"Lite\" version (focused 1-meeting engagement for smaller clients). Allows advisors to draw the curve freehand in \"3x3 chunks\" for interactive client discussions.",
-    "indicators": "Clients experiencing a profit plateau or extreme fatigue after sustained effort (likely stuck in the \"Devil's Toilet\"). Clients showing Confirmation Bias, Complacency, or Role Identification psyche errors. Clients unsure whether to scale, pivot, or prepare for succession/exit."
+    "indicators": "Clients experiencing a profit plateau or extreme fatigue after sustained effort (likely stuck in the \"Devil's Toilet\"). Clients showing Confirmation Bias, Complacency, or Role Identification psyche errors. Clients unsure whether to scale, pivot, or prepare for succession/exit.",
+    "page": "id-7982468813"
   },
   {
     "name": "Growth Curve Story",
@@ -157,7 +170,8 @@
     "purpose": "To introduce a framework for collaborative \"parallel thinking\" over traditional \"argument thinking,\" helping teams avoid confirmation bias and cross-purpose discussions.",
     "helpsOwner": "It directs the minds of the team using a shared structure and language, ensuring everyone focuses on the same topic and views issues from multiple perspectives (creative, critical, emotional, etc.), which enhances problem-solving and innovation.",
     "helpsAdvisor": "It increases the effectiveness of business planning sessions 10-fold by getting all participants focused and using the same terminology.",
-    "indicators": "The client's team frequently experiences conflict, confusion, ego-clashes, or \"trips over each other\" during meetings."
+    "indicators": "The client's team frequently experiences conflict, confusion, ego-clashes, or \"trips over each other\" during meetings.",
+    "page": "id-5038284749"
   },
   {
     "name": "90 Day Accounting Best Practice Plan",
@@ -165,7 +179,8 @@
     "purpose": "A 90-day training program covering four key sessions (Coding, Transactions, Quality Control, and Close Off) to teach best practices for using financial software like Xero.",
     "helpsOwner": "It prevents costly mistakes, \"surprise\" tax bills, and ensures the business's chart of accounts is aligned with what the owner actually wants to measure.",
     "helpsAdvisor": "It creates a paid, structured engagement ($1,500 - $1,800) and prevents the advisor from having to untangle \"birds-nest nightmares\" caused by untrained staff.",
-    "indicators": "The client's financial administrator is out of their depth, the accounts require constant clean-up, or the client needs actionable KPI reports rather than just tax data."
+    "indicators": "The client's financial administrator is out of their depth, the accounts require constant clean-up, or the client needs actionable KPI reports rather than just tax data.",
+    "page": "id-5642754592"
   },
   {
     "name": "Dashboard Discussions",
@@ -173,7 +188,8 @@
     "purpose": "A framework for evaluating financial ratios (e.g., Sales to Gross Profit, Wages to Sales) by breaking down costs into Variable (Do the Job), Activity (Get the Job), and Fixed (Get Organised) categories.",
     "helpsOwner": "It helps them identify the root causes of their financial data (Cause - Event - Effect) and determine which tactical options will have the greatest influence on their business.",
     "helpsAdvisor": "It sets the advisor's role to \"Challenge What You Believe To Be True,\" positioning them as a strategic partner who guides the client to look beyond just the numbers.",
-    "indicators": "The client relies on assumptions instead of facts, struggles to interpret financial metrics, or needs help understanding how operational decisions impact profitability."
+    "indicators": "The client relies on assumptions instead of facts, struggles to interpret financial metrics, or needs help understanding how operational decisions impact profitability.",
+    "page": "id-4007209261"
   },
   {
     "name": "One Page Supposition (Accme Business Case)",
@@ -181,7 +197,8 @@
     "purpose": "A condensed business case template designed to evaluate the viability of a new idea by assessing the \"Big Idea\", target customers, revenue models, and the \"Acid Test\" (key obstacles and risks).",
     "helpsOwner": "It forces them to identify potential competitive advantages, infrastructure requirements, and a \"Ripcord\" strategy to collapse the business quickly if it fails.",
     "helpsAdvisor": "It provides a rapid, structured way to assess a client's new venture without needing a 50-page business plan.",
-    "indicators": "The client wants to launch a new product, pivot their service, or start a completely new business enterprise."
+    "indicators": "The client wants to launch a new product, pivot their service, or start a completely new business enterprise.",
+    "page": "id-9601408536"
   },
   {
     "name": "The 8 Profit Levers",
@@ -189,7 +206,8 @@
     "purpose": "To break down the components of profitability into 8 controllable levers: Foot-traffic, Prospects, Customers, Customer Spend, Customer Frequency, Sales Margin, Activity Costs, and Fixed Costs.",
     "helpsOwner": "It visually demonstrates how small, incremental improvements across multiple levers (e.g., converting 20% of prospects instead of 8%) can lead to massive profit increases.",
     "helpsAdvisor": "It transitions abstract financial goals into a concrete Action Plan where the advisor can assign specific tasks and deadlines to improve specific business functions.",
-    "indicators": "The client wants to increase profits but doesn't know where to focus, or they are suffering from a \"Profit Plateau\"."
+    "indicators": "The client wants to increase profits but doesn't know where to focus, or they are suffering from a \"Profit Plateau\".",
+    "page": "8-profit-levers"
   },
   {
     "name": "Working Capital Cycle",
@@ -197,7 +215,8 @@
     "purpose": "To explain the flow of \"Money in Movement\" (Working Capital) versus \"The cost of being in business\" (Fixed Capital), highlighting how time delays affect cashflow.",
     "helpsOwner": "It shows how delayed collection cycles (e.g., 60 days vs 30 days) drastically reduce stock turn and available cash, and demonstrates the danger of discounting prices.",
     "helpsAdvisor": "It allows the advisor to model scenarios showing exactly how much working capital is needed to support growth, warning clients away from dangerous \"over-trading\" (funding growth primarily via debt).",
-    "indicators": "The client is growing rapidly but running out of cash, considering discounting to win work, or using long-term debt to fund short-term stock cycles."
+    "indicators": "The client is growing rapidly but running out of cash, considering discounting to win work, or using long-term debt to fund short-term stock cycles.",
+    "page": "bizz360"
   },
   {
     "name": "4 Part Business Plan",
@@ -205,7 +224,8 @@
     "purpose": "A comprehensive planning tool combining Market Assumptions, Business Owner Expectations, an 8 Lever Action Plan, and a Revenue Model.",
     "helpsOwner": "It aligns the business's growth stages with the owner's personal goals (e.g., desired income, weekly hours, weeks of annual leave) and clearly tracks business development over multiple years.",
     "helpsAdvisor": "It secures long-term engagement by breaking growth into manageable stages (Stage 1, 2, 3) and mapping out the specific tasks required.",
-    "indicators": "The client feels overworked (seeking \"Ikigai\" or purpose), wants to significantly scale up, or lacks a long-term strategic direction."
+    "indicators": "The client feels overworked (seeking \"Ikigai\" or purpose), wants to significantly scale up, or lacks a long-term strategic direction.",
+    "page": "id-4919294252"
   },
   {
     "name": "3 Pillars of Financial Management",
@@ -213,7 +233,8 @@
     "purpose": "An educational template to provide practical steps for a business owner to learn financial management.",
     "helpsOwner": "It breaks the process into actionable steps, starting with the 'math' of their own (business variable) assumptions via a suitable revenue model, then a systems review before suggesting they learn ratio analysis.",
     "helpsAdvisor": "It secures long-term engagement by showing a progressive pathway to financial literacy — supported all the way by their trusted advisor.",
-    "indicators": "The client fails to use financial management reports or seeks a cash forecast to support a funding application without knowledge of feasibility or ongoing performance reviews."
+    "indicators": "The client fails to use financial management reports or seeks a cash forecast to support a funding application without knowledge of feasibility or ongoing performance reviews.",
+    "page": "id-7247592654"
   },
   {
     "name": "Debtor Protocols & Business Drag Model",
@@ -221,7 +242,11 @@
     "purpose": "Provides a step-by-step system, phone scripts, and communication templates (like the 'Lolly Letter') to recover outstanding debts, alongside a spreadsheet to model the financial \"drag\" of unpaid invoices.",
     "helpsOwner": "It overcomes the psychological barriers (like role-identification and fear of confrontation) that stop owners from demanding payment, providing them with structured, polite, but firm methods to get their cash back.",
     "helpsAdvisor": "It allows the advisor to implement immediate, tangible cash-flow improvements for the client, proving the value of the advisory relationship.",
-    "indicators": "The client relies heavily on a few large customers who pay late, the person doing admin avoids calling debtors, or the client feels they have \"no right\" to demand payment."
+    "indicators": "The client relies heavily on a few large customers who pay late, the person doing admin avoids calling debtors, or the client feels they have \"no right\" to demand payment.",
+    "pages": [
+      "strategic-review",
+      "id-9261761081"
+    ]
   },
   {
     "name": "Rubbish in - Rubbish Out",
@@ -229,7 +254,8 @@
     "purpose": "To establish clean financial data management by correctly organizing the Chart of Accounts into Variable, Activity, and Fixed costs (using a \"Filing Cabinet\" analogy).",
     "helpsOwner": "It ensures they are gathering accurate data so they can measure the effects of major decisions (e.g., expanding premises or hiring) and know early enough if a decision was wrong.",
     "helpsAdvisor": "It cleans up the client's books, allowing the advisor to generate accurate KPIs and measure what actually matters to the business's success.",
-    "indicators": "The client cannot measure the impact of recent business changes, or their accounts are \"jumbled up\" and unhelpful for decision-making."
+    "indicators": "The client cannot measure the impact of recent business changes, or their accounts are \"jumbled up\" and unhelpful for decision-making.",
+    "page": "learning-to-deliver-advanced-fundamentals"
   },
   {
     "name": "What's Applicable (Technology)",
@@ -237,7 +263,8 @@
     "purpose": "A review to identify where software and technology can be applied across business areas (Inbound, Outbound, Sales, Workflow, Inventory, etc.) to improve either efficiency or effectiveness.",
     "helpsOwner": "It helps them identify repetitive, everyday tasks that can be automated without reducing their effectiveness with customers.",
     "helpsAdvisor": "It provides a structured way to audit a client's operational software and recommend tools (like CRM, workflow management, or OCR receipt feeds).",
-    "indicators": "The client's administration is heavily manual, they struggle to track job costing, or their sales engagement is unorganized."
+    "indicators": "The client's administration is heavily manual, they struggle to track job costing, or their sales engagement is unorganized.",
+    "page": "id-679676385"
   },
   {
     "name": "The Customer Journey",
@@ -245,7 +272,8 @@
     "purpose": "To map out the \"Revenue Story\"—how customers find, trust, and buy from the business—tracking the journey from Total Available Market down to Lifetime Customer Value.",
     "helpsOwner": "It helps identify exactly where the marketing or sales journey is \"breaking down\" and prompts them to address the specific frustrations or frictions stopping target profiles from purchasing.",
     "helpsAdvisor": "It broadens the advisory scope into sales and marketing, allowing the advisor to help construct outbound messaging and product reviews.",
-    "indicators": "The client has high exposure but few prospects, or lots of initial sales but no loyal customers or referrals."
+    "indicators": "The client has high exposure but few prospects, or lots of initial sales but no loyal customers or referrals.",
+    "page": "id-4361586555"
   },
   {
     "name": "Demings Volatility",
@@ -253,7 +281,8 @@
     "purpose": "Explains that calculating simple averages is flawed for predicting performance; introduces Standard Deviation to plot natural business volatility.",
     "helpsOwner": "It establishes a \"likely range\" of performance, helping them avoid making knee-jerk decisions when sales naturally dip, or becoming complacent when sales naturally spike.",
     "helpsAdvisor": "It provides a more sophisticated tool for forecasting and performance review, separating normal variation from actual business decline.",
-    "indicators": "The client has a highly seasonal business, or frequently panics over month-to-month sales fluctuations."
+    "indicators": "The client has a highly seasonal business, or frequently panics over month-to-month sales fluctuations.",
+    "page": "id-9212012331"
   },
   {
     "name": "Quick Fire Diagnosis",
@@ -261,7 +290,8 @@
     "purpose": "A rapid, 30-minute triage tool to determine if a business is in \"Distress\" or \"Growth\" mode, and to pinpoint the biggest problem areas across Getting Organised, Getting the Job, or Doing the Job.",
     "helpsOwner": "It makes the problem-solving logic \"visible\", moving them out of denial or confusion and empowering them with a clear path forward (whether that is salvage, liquidation, or growth).",
     "helpsAdvisor": "It acts as a diagnostic roadmap, telling the advisor exactly which templates (e.g., Quick Position, Revenue Model, Lite Fundamentals) to use based on the client's current crisis or goal.",
-    "indicators": "The client states \"I'm unhappy about our business performance\" or \"I'm worried we might go under,\" but doesn't know the specific root cause."
+    "indicators": "The client states \"I'm unhappy about our business performance\" or \"I'm worried we might go under,\" but doesn't know the specific root cause.",
+    "page": "id-3444141596"
   },
   {
     "name": "The HOPE Recession Model",
@@ -269,7 +299,8 @@
     "purpose": "To map the standard economic cycle and explain the sequence of an economic slowdown: Housing, Orders, Profits, Employment.",
     "helpsOwner": "It forces them to consider macroeconomic threats and develop a Strategic Withdrawal Plan (e.g., identifying assets to sell or staff redundancies) before emotional distress sets in.",
     "helpsAdvisor": "It positions the advisor as a critical sounding board for risk management and contingency planning.",
-    "indicators": "The broader economy is facing inflation or rising interest rates, or the client operates in a highly cyclical industry with no defensive strategy."
+    "indicators": "The broader economy is facing inflation or rising interest rates, or the client operates in a highly cyclical industry with no defensive strategy.",
+    "page": "id-1946196200"
   },
   {
     "name": "KPI's",
@@ -285,7 +316,8 @@
     "purpose": "A tool for assessing the payback, risk, and break-even requirements of a specific asset purchase or funding request.",
     "helpsOwner": "Helps calculate the required utilization rate of new equipment and identify a \"Ripcord\" strategy (how to sell the asset if the venture fails).",
     "helpsAdvisor": "Provides a quick framework to validate or challenge a client's capital expenditure plans before they commit financially.",
-    "indicators": "The client wants to buy new machinery, expand operations, or take out a business loan."
+    "indicators": "The client wants to buy new machinery, expand operations, or take out a business loan.",
+    "page": "id-7757688681"
   },
   {
     "name": "People vs. Process",
@@ -293,7 +325,8 @@
     "purpose": "A diagnostic tool to determine if operational failures are due to the People (Do they Know, Do, and Care?) or the Process (Six Sigma, Lean, Constraint Theory).",
     "helpsOwner": "It clarifies exactly where the bottleneck is, preventing them from unfairly blaming staff for a broken system, or trying to fix a system when staff lack basic skills or motivation.",
     "helpsAdvisor": "It provides an objective framework to analyze operational efficiency and customer promise alignment.",
-    "indicators": "The client complains about staff performance, quality control issues, or frequent production bottlenecks."
+    "indicators": "The client complains about staff performance, quality control issues, or frequent production bottlenecks.",
+    "page": "id-6324353645"
   },
   {
     "name": "Price Rise",
@@ -301,7 +334,8 @@
     "purpose": "An educational template for business owners providing two methods for communicating a price rise to their customers.",
     "helpsOwner": "It allows them to develop scripts based on their own personality and customer relationship dynamics.",
     "helpsAdvisor": "It introduces the methods and scripts are provided to 'get the ball rolling' but are most certainly intended to be revised to suit each owner.",
-    "indicators": "The client fears putting their prices up and lacks a method of communicating their position to customers."
+    "indicators": "The client fears putting their prices up and lacks a method of communicating their position to customers.",
+    "page": "id-4109582337"
   },
   {
     "name": "Business Structure Options",
@@ -309,7 +343,8 @@
     "purpose": "Reviews the primary legal structures (Sole Trader, Partnership, Company, Trust) and explains the concept of the \"Corporate Veil\" and separate legal entities.",
     "helpsOwner": "Ensures they understand how to protect what they build, how liability works, and how their structure impacts their ability to sell the business in the future.",
     "helpsAdvisor": "Allows the advisor to have a proactive conversation about asset protection, succession, and risk without giving formal legal advice.",
-    "indicators": "The client is starting a new business, operating in a highly litigious industry, taking on a partner, or amassing significant working assets."
+    "indicators": "The client is starting a new business, operating in a highly litigious industry, taking on a partner, or amassing significant working assets.",
+    "page": "id-1108511320"
   },
   {
     "name": "Lite Funda Call & Email",
@@ -325,7 +360,8 @@
     "purpose": "A step-by-step presentation slide deck and accompanying advisor script to guide a prospect through a Lite Fundamentals Sales Meeting. The script utilizes the S.P.I.D.E.R. framework (Show, Pin, Investigate, Determine, Ensure, Reveal).",
     "helpsOwner": "Helps them identify exactly where their business currently sits on the Growth Curve and clearly illustrates the structural blockages holding them back. Provides a vision of potential revenue improvements without demanding an immediate commitment.",
     "helpsAdvisor": "Provides a repeatable, psychologically structured sales track that builds the client's desire for the program. Scripts exactly how to set boundaries, requiring three specific commitments from the client (time, focus, and a regular monthly fee arrangement) before working together.",
-    "indicators": "The client has completed the initial business quiz, is open to discussing their results, and desires to improve their revenue or overcome business constraints."
+    "indicators": "The client has completed the initial business quiz, is open to discussing their results, and desires to improve their revenue or overcome business constraints.",
+    "page": "id-4570105459"
   },
   {
     "name": "Lite Fundamentals Proposal",
@@ -333,7 +369,11 @@
     "purpose": "A formal, customizable service proposal document outlining the scope, deliverables, and pricing for the Lite Fundamentals program.",
     "helpsOwner": "It provides total transparency on what the program entails (broken down into Getting Organised, Getting Work, and Doing Profitable Work) and outlines exactly what is required from them to get started.",
     "helpsAdvisor": "It formalizes the commercial relationship, commits the client to an 8-meeting schedule, establishes fixed monthly fees, and protects the advisor's time by including a \"Variation to Scope of Works\" template for any out-of-scope requests.",
-    "indicators": "The client has responded positively during the sales meeting, verbally agreed to the program's three conditions, and is ready to review the financial investment."
+    "indicators": "The client has responded positively during the sales meeting, verbally agreed to the program's three conditions, and is ready to review the financial investment.",
+    "pages": [
+      "id-4234098724",
+      "id-4570105459"
+    ]
   },
   {
     "name": "Lite Framework Philosophy",
@@ -357,7 +397,8 @@
     "purpose": "Part of the Lite Fundamentals programme (Lite.1 Planning). Helps the client align their income, risk, and work hours expectations to their business model and lays a foundation of shared understanding between advisor and client. The supporting document explains strategic language for those new to business planning.",
     "helpsOwner": "Clarifies what they are actually trying to build — income expectations, capital gain, how the business generates money, and what stage of development they are at. Covers Vision, Mission, and Goals in plain language.",
     "helpsAdvisor": "A clean entry point for a Lite Fundamentals engagement. Sets the agenda for the programme and gives the advisor a structured way to establish planning credibility early, especially with clients who are new to structured advisory.",
-    "indicators": "Client is new to advisory, lacks a clear plan or targets, or the advisor is starting a Lite Fundamentals programme. Also useful standalone when the client needs orientation before deeper work begins."
+    "indicators": "Client is new to advisory, lacks a clear plan or targets, or the advisor is starting a Lite Fundamentals programme. Also useful standalone when the client needs orientation before deeper work begins.",
+    "page": "planning-session"
   },
   {
     "name": "Data Session",
@@ -365,7 +406,8 @@
     "purpose": "Part of the Lite Fundamentals programme (Lite.2 Data). Educates the client on the interpretation of financial data (Causation vs. Correlation) and provides foundational knowledge of accounting terminology. The advisor matches the level of detail to the client's comprehension and business complexity. Also clarifies which KPIs to track going forward.",
     "helpsOwner": "Builds financial literacy — reading a P&L, understanding ratios (Current Ratio, Quick Ratio, ROI, ROA), EBIT, Balance Sheet basics, and avoiding over-trading. Helps them connect financial data to real business decisions.",
     "helpsAdvisor": "Provides a scalable education framework — simple for unsophisticated clients, detailed for more complex businesses. Positions the advisor as a trusted financial interpreter rather than just a compliance provider. Sets up the KPI conversation for ongoing advisory.",
-    "indicators": "Client struggles to read or interpret their financials, does not track KPIs, has poor financial literacy, or relies on assumptions instead of data. Also used as Lite.2 within a Lite Fundamentals programme."
+    "indicators": "Client struggles to read or interpret their financials, does not track KPIs, has poor financial literacy, or relies on assumptions instead of data. Also used as Lite.2 within a Lite Fundamentals programme.",
+    "page": "data-session"
   },
   {
     "name": "Lite Marketing",
@@ -373,7 +415,8 @@
     "purpose": "Part of the Lite Fundamentals programme (Lite.3 Marketing). Helps the client identify their target customer and articulate how they add value. Breaks marketing into four key components: Who do you want to talk to? What do you need to tell them? How will you get your message to them? How will you know they've heard you? Also covers Diffusion Theory and Product Lifecycle.",
     "helpsOwner": "Builds a foundational marketing framework without overwhelming complexity. Helps them create a Positioning Statement, Value Proposition, and Visibility Statement, and map their Digital Sales Funnel.",
     "helpsAdvisor": "A practical, structured marketing session suitable for advisors who are not marketing specialists. Covers Product Fit, consumer awareness stages, and a one-page marketing plan. Use with Lite Sales when the client has both a marketing and sales gap.",
-    "indicators": "Client has unclear messaging, undefined target customer, poor awareness of how customers find them, or a marketing spend with no tracking. Also used as Lite.3 within a Lite Fundamentals programme."
+    "indicators": "Client has unclear messaging, undefined target customer, poor awareness of how customers find them, or a marketing spend with no tracking. Also used as Lite.3 within a Lite Fundamentals programme.",
+    "page": "marketing-session"
   },
   {
     "name": "Sales Session",
@@ -381,7 +424,8 @@
     "purpose": "Part of the Lite Fundamentals programme (Lite.4 Sales). Guides the client to break down the customer's journey, identify logical decision points, and ensure their sales process matches their industry or product. Covers sales training basics without requiring the advisor to be a sales specialist — instead, it provides frameworks the client can refine over time.",
     "helpsOwner": "Helps them understand the psychology of the sale (4 stages, 4 Processing Styles), map their actual sales process via flowchart, and identify where conversions are being lost. Covers Sales Tension Points and tender/quoting notes.",
     "helpsAdvisor": "Provides a structured sales coaching session with ready-made frameworks. Suitable for advisors who are not sales specialists. Use for clients with sales volume issues where the advisor and client are not yet ready for the full Sales & Marketing Review.",
-    "indicators": "Client has a sales volume problem, a poor or informal sales process, or low conversion rates. Advisor is newer to sales advisory or client is not yet ready for a full Sales & Marketing Review. Also used as Lite.4 within a Lite Fundamentals programme."
+    "indicators": "Client has a sales volume problem, a poor or informal sales process, or low conversion rates. Advisor is newer to sales advisory or client is not yet ready for a full Sales & Marketing Review. Also used as Lite.4 within a Lite Fundamentals programme.",
+    "page": "sales-session"
   },
   {
     "name": "People Session",
@@ -389,7 +433,8 @@
     "purpose": "Part of the Lite Fundamentals programme (Lite.5 People). Explores the underlying drivers of employee satisfaction; how people naturally respond to learning new material; a proven model for giving staff feedback correctly; and a review of the leadership style that best meets the temperament of the client and their industry/business requirements.",
     "helpsOwner": "Helps business owners understand WHY staff behave as they do, how to give effective feedback without triggering defensive reactions, and how to match their leadership style to the needs of the team and business. Covers the 5 Drivers of Human Performance, the Emotional Reaction to Learning curve, the 80/20 of Employee Motivation, and delegation frameworks.",
     "helpsAdvisor": "A structured, educational framework for the human and psychological side of staff management. Self-contained and suitable for advisors who are newer to people and leadership advisory work. This is a FOUNDATIONAL people tool — not an advanced one. Use this BEFORE the Organisational Review when the issue is staff motivation, engagement, or feedback rather than structural or reporting issues.",
-    "indicators": "Client experiencing staff motivation, morale, or engagement issues. Staff not responding well to feedback or direction. Owner struggling to understand what drives their team or how to adapt their leadership style. Advisor wanting to address the human/psychological side of staff issues before tackling structural or organisational changes."
+    "indicators": "Client experiencing staff motivation, morale, or engagement issues. Staff not responding well to feedback or direction. Owner struggling to understand what drives their team or how to adapt their leadership style. Advisor wanting to address the human/psychological side of staff issues before tackling structural or organisational changes.",
+    "page": "people-session"
   },
   {
     "name": "Process Session",
@@ -397,7 +442,8 @@
     "purpose": "Part of the Lite Fundamentals programme (Lite.6 Process). Explores the philosophy of process improvement that may best serve the client — reminding them that just because something is trending does not make it the best approach for their business. Covers practical ways to develop flowcharts to clarify which system component needs prioritised attention.",
     "helpsOwner": "Introduces process improvement thinking (Dave Nave's Systems Review, Lean, Six Sigma, Constraints Theory) in plain language and helps them map and prioritise the specific process that is causing the most pain.",
     "helpsAdvisor": "Provides a structured process review framework that does not require the advisor to be an operations specialist. Helps identify whether operational problems are process-driven vs. people-driven (use alongside People vs. Process diagnostic).",
-    "indicators": "Client experiencing recurring operational failures, quality control issues, bottlenecks, or inefficiency. Issue has been diagnosed as process-driven rather than people-driven. Also used as Lite.6 within a Lite Fundamentals programme."
+    "indicators": "Client experiencing recurring operational failures, quality control issues, bottlenecks, or inefficiency. Issue has been diagnosed as process-driven rather than people-driven. Also used as Lite.6 within a Lite Fundamentals programme.",
+    "page": "process-session"
   },
   {
     "name": "80/20 Farm Plan",
@@ -405,7 +451,8 @@
     "purpose": "Applies the Pareto Principle (80% of results come from 20% of activities) specifically to agricultural businesses. It breaks the farm down into four focus areas: Financial, Herd, People, and Land Management.",
     "helpsOwner": "Allows the farmer to choose specific focus periods (30, 60, 90 days), set realistic tasks, and map specific daily practices (e.g., herd hydration, pasture management, machinery maintenance) directly to financial consequences and key points of measurement.",
     "helpsAdvisor": "Provides a structured, industry-specific framework to consult on farm metrics and translate physical farming activities into financial discussions.",
-    "indicators": "The client operates an agricultural or farming business and needs help prioritizing daily operations to improve financial yield."
+    "indicators": "The client operates an agricultural or farming business and needs help prioritizing daily operations to improve financial yield.",
+    "page": "id-6756274046"
   },
   {
     "name": "9 Growth Aspect Questions & Graphic",
@@ -413,7 +460,11 @@
     "purpose": "A diagnostic tool that divides a business into nine holistic aspects: Process Improvement, Customer Focus, Sales, Authenticity, Inventory & Equipment, Team Focus, Innovation, Governance, and Harmony/Balance.",
     "helpsOwner": "Prompts deep reflection via specific questions on all facets of their business—from checking their ideal client profile to assessing their own physical fitness and work-life balance.",
     "helpsAdvisor": "Acts as a comprehensive \"health check\" to uncover hidden bottlenecks, allowing the advisor to pinpoint exactly where the client needs the most strategic intervention.",
-    "indicators": "A new client onboarding process, or when an existing client feels \"stuck\" but cannot articulate exactly which part of the business is failing."
+    "indicators": "A new client onboarding process, or when an existing client feels \"stuck\" but cannot articulate exactly which part of the business is failing.",
+    "pages": [
+      "id-6607114703",
+      "id-3009841766"
+    ]
   },
   {
     "name": "ADV.0. Planning Outcomes",
@@ -421,7 +472,8 @@
     "purpose": "Sets the agenda, collaborative rules, and scope for a strategic planning session across four domains: Business Targets, Strategic Orientation, Organisational Review, and Sales & Marketing.",
     "helpsOwner": "Prepares them mentally to explore issues with an \"open heart and an open mind,\" clarifying exactly what deliverables they will walk away with.",
     "helpsAdvisor": "Defines the advisor's role clearly (to \"Challenge What You Believe To Be True!\") and provides a roadmap to structure the planning session without getting derailed.",
-    "indicators": "The beginning of any major strategic planning cycle or workshop."
+    "indicators": "The beginning of any major strategic planning cycle or workshop.",
+    "page": "planning-outcomes-review"
   },
   {
     "name": "Advance.1. Bizz Targets & BO Expectations",
@@ -429,7 +481,11 @@
     "purpose": "Helps define and map out tangible business targets (revenue, profit, debt) and aligns them with Business Owner (BO) lifestyle expectations (income, weekly hours, annual leave) across current and future stages. It also explores the 8 Profit Levers to tacticalize growth.",
     "helpsOwner": "Forces owners to quantify their end-game and lifestyle goals, map their current business development stage (from Design to Maturity/Exit), and clearly see how their personal time must shift from technician duties to strategic duties.",
     "helpsAdvisor": "Translates a client's abstract desires into a numerical roadmap, providing a clear mathematical and tactical gap analysis to consult against.",
-    "indicators": "Business owners who are burnt out, partners who have misaligned goals, or businesses needing to translate goals into mathematical targets."
+    "indicators": "Business owners who are burnt out, partners who have misaligned goals, or businesses needing to translate goals into mathematical targets.",
+    "pages": [
+      "business-targets",
+      "profit-levers-blue-ocean"
+    ]
   },
   {
     "name": "Advance.2 & 2B. Strategic Orientation (Part 1 & 2)",
@@ -437,7 +493,11 @@
     "purpose": "Explores high-level strategic frameworks to review the business model. It utilizes tools like Porter's 5 Forces, Joseph Pine's Progression of Economic Value, the Sigmoid Curve, Blue Ocean Strategy, and Deming's Volatility Theory.",
     "helpsOwner": "Challenges market assumptions, helps anticipate competitor/supplier movements, identifies when a product might become obsolete, and helps shift offerings from commodities to premium experiences. It also helps owners recognize their own \"Psyche Errors\" like Optimism Bias or Complacency.",
     "helpsAdvisor": "Elevates the conversation from operational tactics to high-level market strategy, providing robust frameworks to guide clients through complex market environments.",
-    "indicators": "Clients facing heavy competition, market disruption, stagnant product sales, or those needing to rethink their fundamental value proposition."
+    "indicators": "Clients facing heavy competition, market disruption, stagnant product sales, or those needing to rethink their fundamental value proposition.",
+    "pages": [
+      "strategic-orientation-pt-1",
+      "strategic-orientation-pt-2"
+    ]
   },
   {
     "name": "Advance.4. S.W.O.T PEST",
@@ -453,7 +513,8 @@
     "purpose": "Reviews the entire customer acquisition and retention journey using frameworks like the A.I.D.C.R.A model, 10 Critical Marketing Messages, Digital Funnel Storyboarding, and Packaging/Pricing options.",
     "helpsOwner": "Shifts their focus from loving their product to understanding customer friction. It helps build a structured digital funnel to onboard clients and create sticky, concise marketing messages.",
     "helpsAdvisor": "Provides a step-by-step diagnostic tool to find \"leaks\" in the client's sales pipeline and build a cohesive, multi-channel marketing plan.",
-    "indicators": "Clients with great products but poor sales, high customer acquisition costs, or those transitioning to digital marketing."
+    "indicators": "Clients with great products but poor sales, high customer acquisition costs, or those transitioning to digital marketing.",
+    "page": "advanced-sales-marketing-review"
   },
   {
     "name": "Advance.6. Organisational Review & Org Chart",
@@ -461,7 +522,8 @@
     "purpose": "Focuses on internal efficiencies and team engagement by mapping communication channels, defining cultural core values, and building formal Organizational Charts with clear reporting lines and KPIs.",
     "helpsOwner": "Clarifies \"who is responsible for what,\" helps define a safe social contract (culture) for the team, and establishes a military-style chain of command to ensure consistent actions under pressure.",
     "helpsAdvisor": "Exposes structural bottlenecks, toxic cultural habits, or overlapping leadership roles that are hindering business execution.",
-    "indicators": "Companies experiencing rapid team growth, high staff turnover, operational chaos, or owners struggling to delegate."
+    "indicators": "Companies experiencing rapid team growth, high staff turnover, operational chaos, or owners struggling to delegate.",
+    "page": "organisation-review"
   },
   {
     "name": "Business Dating",
@@ -469,7 +531,8 @@
     "purpose": "Uses the metaphor of relationships (One Night Stand, Dating, Engaged, Married) to evaluate Alliance vs. Acquisition strategies based on the matrix of Attraction vs. Security/Commitment.",
     "helpsOwner": "Prevents owners from rushing into a \"marriage\" (acquisition/merger) without proper due diligence or alignment of cultures.",
     "helpsAdvisor": "Provides a non-threatening, easily understood metaphor to facilitate complex conversations about the risks of M&A and joint ventures.",
-    "indicators": "Clients considering buying a competitor, merging, or forming a deep strategic partnership."
+    "indicators": "Clients considering buying a competitor, merging, or forming a deep strategic partnership.",
+    "page": "id-9293972213"
   },
   {
     "name": "Force Field Analysis",
@@ -477,7 +540,8 @@
     "purpose": "A conflict resolution and brainstorming tool to identify the forces pushing a group toward a goal and the forces holding them back.",
     "helpsOwner": "Visually separates the people from the problem (\"play the ball, not the player\"), reducing guilt/shame while building urgency by defining the \"Worst Case\" scenario.",
     "helpsAdvisor": "Acts as an excellent \"bloodletting\" exercise to manage a group with potential for conflict, enabling the advisor to unblock stalled planning.",
-    "indicators": "Teams facing internal resistance to change, conflict between directors, or a failure to execute past plans due to hidden fears."
+    "indicators": "Teams facing internal resistance to change, conflict between directors, or a failure to execute past plans due to hidden fears.",
+    "page": "id-6883609726"
   },
   {
     "name": "Lite Strategy",
@@ -485,7 +549,8 @@
     "purpose": "A highly condensed, agile business plan encompassing the growth curve, target customer, ethos, profit levers, and a three-part market assumption test (Situation, Business Model, Acid Test).",
     "helpsOwner": "Gets the core business strategy down on paper quickly without being overwhelmed by excessive theoretical models.",
     "helpsAdvisor": "Allows for rapid deployment of a strategic plan for clients who lack the time, budget, or complexity for a massive strategic overhaul.",
-    "indicators": "Startups, small businesses, or agile clients needing a fast strategic roadmap."
+    "indicators": "Startups, small businesses, or agile clients needing a fast strategic roadmap.",
+    "page": "id-1031914952"
   },
   {
     "name": "Pivot",
@@ -493,7 +558,8 @@
     "purpose": "A rapid framework (Identify Resistance -> Choose Fronts -> Rehearse Message -> Trial Prototype -> Review) designed for agile business owners to test new directions.",
     "helpsOwner": "Encourages testing ideas and messaging on a strict budget and timeline before committing massive capital to a full strategic shift.",
     "helpsAdvisor": "Provides a structured way to guide an entrepreneurial client out of a crisis or into a new market iteratively.",
-    "indicators": "Clients facing a sudden market shock, an obsolete product line, or needing to quickly test a new idea."
+    "indicators": "Clients facing a sudden market shock, an obsolete product line, or needing to quickly test a new idea.",
+    "page": "id-3251922216"
   },
   {
     "name": "Porter's & Pine",
@@ -501,7 +567,8 @@
     "purpose": "Fuses Michael Porter's 5 Competitive Forces with Joseph Pine's Progression of Economic Value (Extracting Commodities -> Making Goods -> Delivering Services -> Staging Experiences).",
     "helpsOwner": "Shows them how to escape price wars (commoditization) by elevating their product into a premium, authentic customer experience (like Starbucks did with coffee beans).",
     "helpsAdvisor": "Provides a powerful visual narrative to convince clients that they must invest in customer connection and experience, rather than just lowering prices to fight competitors.",
-    "indicators": "Clients whose margins are being squeezed by competitors, or businesses struggling to differentiate their standard services."
+    "indicators": "Clients whose margins are being squeezed by competitors, or businesses struggling to differentiate their standard services.",
+    "page": "id-4491265764"
   },
   {
     "name": "Asset Review 1",
@@ -509,7 +576,8 @@
     "purpose": "To audit and rate business assets based on their operational necessity (Vital, Necessary, Useful) and calculate their net value, debt, and utilization.",
     "helpsOwner": "It provides clarity on which assets are generating enough utilization to service their debt payments and identifies items that should be held or released to free up capital.",
     "helpsAdvisor": "It gives the advisor a structured, mathematical way to analyze a client's asset register and advise on capital release potential.",
-    "indicators": "The client has cash flow issues, underutilized equipment, high debt tied to physical assets, or needs to restructure their balance sheet."
+    "indicators": "The client has cash flow issues, underutilized equipment, high debt tied to physical assets, or needs to restructure their balance sheet.",
+    "page": "id-9984769921"
   },
   {
     "name": "Bizz Sale Assessment Model",
@@ -517,7 +585,11 @@
     "purpose": "A comprehensive financial modeling spreadsheet used to calculate a business's adjusted asset values, goodwill, payback periods, and return on investment (ROI) for a sale or purchase.",
     "helpsOwner": "It grounds their expectations in data, showing both \"fair market\" and \"worst-case\" realization values, helping them objectively view what their business is worth.",
     "helpsAdvisor": "It provides robust financial calculations—such as EBPITDA multipliers, depreciation, and debt serviceability—to distance valuation advice from arbitrary market guesswork.",
-    "indicators": "The client is actively looking to buy a business, sell their business, or needs a data-driven valuation for succession planning."
+    "indicators": "The client is actively looking to buy a business, sell their business, or needs a data-driven valuation for succession planning.",
+    "pages": [
+      "id-5168118171",
+      "id-4138307831"
+    ]
   },
   {
     "name": "Business Assessment Report",
@@ -525,7 +597,13 @@
     "purpose": "A presentation template designed for a purchaser, breaking down the fair market value, margin for error, and investment scenarios of a prospective business acquisition.",
     "helpsOwner": "It highlights the potential fragility of the business's ability to service the purchase price during economic declines and outlines risks like lease expiry or staff transferability.",
     "helpsAdvisor": "It serves as a structured deliverable to present due diligence findings using \"3-Point Sensitivities\" (serviceability, goodwill repayment, and performance variance) to ground the buyer's decisions in reality.",
-    "indicators": "A client is evaluating a specific business to purchase and needs help assessing the risks and securing bank financing."
+    "indicators": "A client is evaluating a specific business to purchase and needs help assessing the risks and securing bank financing.",
+    "pages": [
+      "capacity-capability-opportunity",
+      "id-2228360143",
+      "id-136069218",
+      "id-9708234603"
+    ]
   },
   {
     "name": "Business Sale Assessment Report",
@@ -533,7 +611,11 @@
     "purpose": "A presentation template designed for a vendor, demonstrating how a potential purchaser will view their business's value, risks, and future maintainable earnings.",
     "helpsOwner": "It empowers the seller to maximize their return by understanding the \"bankable price\" a purchaser can afford, helping them prepare for negotiations and due diligence.",
     "helpsAdvisor": "It provides a framework to manage a seller's \"Confirmation Bias\" and emotional attachment, bringing their asking price in line with realistic market and funding constraints.",
-    "indicators": "A client intends to sell their business, needs to establish a defensible asking price, or is seeking a market valuation."
+    "indicators": "A client intends to sell their business, needs to establish a defensible asking price, or is seeking a market valuation.",
+    "pages": [
+      "id-1908658752",
+      "id-452735813"
+    ]
   },
   {
     "name": "Cafe Turnaround Behaviours",
@@ -541,7 +623,8 @@
     "purpose": "To provide structural considerations and communication scripts designed to improve customer engagement and handle complaints in a hospitality setting.",
     "helpsOwner": "It gives them actionable, scenario-based scripts for their staff (e.g., handling a queue vs. a single customer) to improve the customer experience and increase upselling.",
     "helpsAdvisor": "It serves as a practical, ready-made training tool for the advisor to run role-play sessions and facilitate behavioral change among the client's frontline team.",
-    "indicators": "A hospitality client is suffering from poor customer service, low average transaction values (lack of upselling), or negative online reviews."
+    "indicators": "A hospitality client is suffering from poor customer service, low average transaction values (lack of upselling), or negative online reviews.",
+    "page": "id-629955404"
   },
   {
     "name": "Client Survey",
@@ -573,7 +656,8 @@
     "purpose": "A visual presentation that uses the metaphor of \"building a dream home\" to explain the steps of the farm succession process.",
     "helpsOwner": "It simplifies a daunting, emotionally charged transition into logical, non-threatening steps (wish lists, concept drawings, final design), reducing family friction.",
     "helpsAdvisor": "It gives the advisor a collaborative, visual framework that appeals to both the left and right sides of the brain, minimizing instinctual \"argumentative\" reactions from stakeholders.",
-    "indicators": "Rural or farming clients are preparing to transition the business to the next generation and are experiencing communication breakdowns or entitlement issues."
+    "indicators": "Rural or farming clients are preparing to transition the business to the next generation and are experiencing communication breakdowns or entitlement issues.",
+    "page": "id-5291277413"
   },
   {
     "name": "Financial Systems Review",
@@ -581,7 +665,8 @@
     "purpose": "A \"helicopter view\" audit checklist for evaluating a business's internal controls across revenue, expenditure, inventory, IT systems, and payroll.",
     "helpsOwner": "It identifies operational vulnerabilities to fraud, shrinkage, and inefficiencies, ensuring basic financial safeguards (like blind cash counts or password rotations) are in place.",
     "helpsAdvisor": "It acts as a structured discovery tool to assess client risk quickly and recommend deep-dive audits or new system implementations.",
-    "indicators": "The business relies heavily on manual cash handling, lacks formal delegated authorities, or is experiencing unexplained inventory shrinkage."
+    "indicators": "The business relies heavily on manual cash handling, lacks formal delegated authorities, or is experiencing unexplained inventory shrinkage.",
+    "page": "financial-systems-review"
   },
   {
     "name": "GE.SMART & FAST Goals",
@@ -589,7 +674,8 @@
     "purpose": "A guide to setting SMART goals that emphasizes the psychological importance of \"Affect\" (emotional connection) and strict timeframes.",
     "helpsOwner": "It transforms vague daydreams into concrete, actionable steps, ensuring goals are rooted in deep intrinsic motivation rather than simple repetition.",
     "helpsAdvisor": "It provides a structured workshop format to elicit a client's true life desires across various categories (financial, physical, spiritual) and align them with their business strategy.",
-    "indicators": "The client lacks strategic direction, continually fails to execute on stated business plans, or sets unachievable, open-ended targets."
+    "indicators": "The client lacks strategic direction, continually fails to execute on stated business plans, or sets unachievable, open-ended targets.",
+    "page": "id-1034348000"
   },
   {
     "name": "Indicative Value Questions",
@@ -597,7 +683,8 @@
     "purpose": "A preliminary questionnaire to gather essential context on a business's history, competitors, threats, opportunities, and key dependencies prior to a valuation.",
     "helpsOwner": "It forces them to critically assess their market position, their reliance on key people or suppliers, and the true nature of their past expenditures.",
     "helpsAdvisor": "It collects the raw, qualitative data required to perform an accurate comparative or asset-based business valuation.",
-    "indicators": "A client requests a business valuation for the purposes of succession, a partner buyout, or a potential sale."
+    "indicators": "A client requests a business valuation for the purposes of succession, a partner buyout, or a potential sale.",
+    "page": "id-8913859328"
   },
   {
     "name": "L.Suppt.Alignment",
@@ -605,7 +692,8 @@
     "purpose": "Explains human motivation theories (Maslow, Alderfer's ERG) and the \"5 Domains\" to help craft effective Vision, Purpose, Values, Mission, and Strategy statements.",
     "helpsOwner": "It helps leadership align their \"What We Say\" with \"What We Mean,\" unifying the team, customers, and community under a coherent culture.",
     "helpsAdvisor": "It provides tools to facilitate a strategic retreat, preventing clients from creating hollow, \"narcissistic\" corporate statements by grounding them in cognitive patterns.",
-    "indicators": "The company lacks a clear culture, the team is misaligned, or leadership wants to formally redefine their strategic direction."
+    "indicators": "The company lacks a clear culture, the team is misaligned, or leadership wants to formally redefine their strategic direction.",
+    "page": "alignment-statements"
   },
   {
     "name": "LS.Phone Techniques",
@@ -613,7 +701,8 @@
     "purpose": "A training presentation on standardized phone etiquette, shaping business culture, and handling difficult customers using the \"H.E.A.T\" method.",
     "helpsOwner": "It establishes a minimum communication standard for the team, empowering them to manage \"hotheads\" effectively and create a memorable customer experience.",
     "helpsAdvisor": "It provides a ready-to-deliver training session, complete with role-play exercises, to immediately add value to a client's frontline staff.",
-    "indicators": "The business has a high rate of customer complaints over the phone, inconsistent team greetings, or frontline staff struggling with angry callers."
+    "indicators": "The business has a high rate of customer complaints over the phone, inconsistent team greetings, or frontline staff struggling with angry callers.",
+    "page": "id-2201525362"
   },
   {
     "name": "Managing Poor Performance",
@@ -629,7 +718,8 @@
     "purpose": "A guide on properly assimilating and interpreting financial data using ratio analysis, common size balance sheets, and external benchmarking.",
     "helpsOwner": "It enables them to understand their true year-on-year performance without being misled by one-off events, seasonal cycles, or starting cash advantages.",
     "helpsAdvisor": "It provides a strict methodology to ensure data is \"comparing apples with apples\" before the advisor formulates strategic recommendations.",
-    "indicators": "The client is making decisions based on skewed external benchmark data, misunderstands their financial reports, or experiences highly seasonal business cycles."
+    "indicators": "The client is making decisions based on skewed external benchmark data, misunderstands their financial reports, or experiences highly seasonal business cycles.",
+    "page": "id-7924565511"
   },
   {
     "name": "Remuneration & Incentives",
@@ -637,7 +727,8 @@
     "purpose": "A framework for exploring staff reward options (bonuses, profit share, equity, perks) and aligning incentives with desired business behaviors.",
     "helpsOwner": "It helps them build fair, transparent incentive schemes that drive profitability without accidentally giving away equity or creating an expectation of unearned bonuses.",
     "helpsAdvisor": "It allows the advisor to challenge a client's ad-hoc bonus habits and guide them toward structured, measurable output or efficiency rewards.",
-    "indicators": "The client wants to stop staff from discounting, needs to retain key talent, or is dangerously considering offering shares to an employee without understanding the pros and cons."
+    "indicators": "The client wants to stop staff from discounting, needs to retain key talent, or is dangerously considering offering shares to an employee without understanding the pros and cons.",
+    "page": "employee-incentives"
   },
   {
     "name": "Succession Planning",
@@ -645,7 +736,8 @@
     "purpose": "An advisor preparation guide for facilitating succession planning, focusing on managing entitlement, conflict, and establishing a collaborative visual framework.",
     "helpsOwner": "It smooths the transition of power and assets, ensuring that complex issues—like fair market wages for successors, trigger events, and funding requirements—are discussed openly.",
     "helpsAdvisor": "It reminds the advisor to act as a *facilitator* rather than an expert dictating advice, using metaphors to bypass the client's instinctual \"Argumentative Theory\" defense mechanisms.",
-    "indicators": "An aging business owner is looking to pass the business to family or key staff, bringing a high potential for emotional conflict or complex funding needs."
+    "indicators": "An aging business owner is looking to pass the business to family or key staff, bringing a high potential for emotional conflict or complex funding needs.",
+    "page": "succession-planning"
   },
   {
     "name": "Supplier Survey",
@@ -669,7 +761,8 @@
     "purpose": "A collaborative framework designed by Edward De Bono to guide \"parallel thinking\" and overcome argumentative theory and confirmation bias. It uses different \"hats\" to focus discussions on logic, emotion, caution, optimism, creativity, and organization.",
     "helpsOwner": "It aligns the team to focus on the same topic from the same perspective simultaneously, increasing the effectiveness of planning sessions tenfold and preventing well-meaning individuals from working at cross purposes.",
     "helpsAdvisor": "It provides a structured, guided tool to facilitate client discussions, ensuring everyone contributes and discussions remain focused and productive.",
-    "indicators": "The client indicates a need to improve their \"decision quality\" rather than rule adherence, or meetings frequently derail due to conflicting problem-solving approaches."
+    "indicators": "The client indicates a need to improve their \"decision quality\" rather than rule adherence, or meetings frequently derail due to conflicting problem-solving approaches.",
+    "page": "id-5038284749"
   },
   {
     "name": "Agenda & Notes",
@@ -677,7 +770,8 @@
     "purpose": "A simple, recurring meeting template to allocate time for specific topics, track action plan progress, and note key takeaways.",
     "helpsOwner": "Allows leaders to routinely check financial performance, assess what has gone well or less well, and formalize the main lessons from the meeting.",
     "helpsAdvisor": "Offers a straightforward mechanism for holding clients accountable during regular touchpoints by structuring review sessions.",
-    "indicators": "The client struggles with tracking task status between meetings, or their basic management meetings lack a consistent feedback loop."
+    "indicators": "The client struggles with tracking task status between meetings, or their basic management meetings lack a consistent feedback loop.",
+    "page": "id-9515196091"
   },
   {
     "name": "Annual Board Plan",
@@ -685,7 +779,12 @@
     "purpose": "A yearly matrix mapping out strategic meeting topics (e.g., Scenario Planning, CEO Performance Review, Budgets) month-by-month, alongside required reports and board pack requirements.",
     "helpsOwner": "Ensures that no critical element of strategic governance or compliance is missed over the financial year.",
     "helpsAdvisor": "Provides a roadmap to assist the client in transitioning from ad-hoc meetings to a structured, professional governance rhythm.",
-    "indicators": "The client suffers from a lack of formal protocols, or their board needs to improve \"rule adherence and accountability\"."
+    "indicators": "The client suffers from a lack of formal protocols, or their board needs to improve \"rule adherence and accountability\".",
+    "pages": [
+      "id-8974944498",
+      "id-5336158617",
+      "6-keys-notes"
+    ]
   },
   {
     "name": "Board Member Conduct",
@@ -693,7 +792,8 @@
     "purpose": "A framework to identify a team's functioning levels, highlight boardroom manipulation tactics (like the \"Bully\" or \"Turtle Mentality\"), and establish a firm code of conduct.",
     "helpsOwner": "Promotes self-awareness and helps directors check their egos, align with common goals, and embrace healthy brainstorming and respect.",
     "helpsAdvisor": "Gives the advisor an objective tool to address toxic boardroom dynamics, implement \"safe words\" to manage conduct, and foster authentic contribution.",
-    "indicators": "The board suffers from \"Poor Member Conduct,\" internal drama, manipulation, or entrenched ego-driven conflicts."
+    "indicators": "The board suffers from \"Poor Member Conduct,\" internal drama, manipulation, or entrenched ego-driven conflicts.",
+    "page": "id-4806944979"
   },
   {
     "name": "Board Pack Tables",
@@ -701,7 +801,8 @@
     "purpose": "A checklist designed to track meeting agendas, previous minutes, CEO/Financial reports, and major correspondence, ensuring materials are read and understood.",
     "helpsOwner": "Enforces accountability for meeting preparation, ensuring directors don't waste time reading during the session.",
     "helpsAdvisor": "Helps establish a pre-meeting preparation discipline for clients moving toward formal governance.",
-    "indicators": "The client complains about unprepared directors, or the business lacks reliable protocols for distributing and reviewing board papers."
+    "indicators": "The client complains about unprepared directors, or the business lacks reliable protocols for distributing and reviewing board papers.",
+    "page": "id-8460496871"
   },
   {
     "name": "BoardPack.Agenda",
@@ -733,7 +834,8 @@
     "purpose": "An educational presentation explaining the pillars of governance, the difference between an advisory board and a board of directors, and the basics of CEO reporting.",
     "helpsOwner": "Demystifies governance concepts, helping them decide if they need an advisory board (as a stepping stone) or a formal board of directors.",
     "helpsAdvisor": "Serves as a perfect onboarding or pitching tool to help clients understand what governance is, and the systems required for business success.",
-    "indicators": "The client states \"We need to improve our Governance\" focusing on adherence and accountability, but currently has little to no formal understanding of the subject."
+    "indicators": "The client states \"We need to improve our Governance\" focusing on adherence and accountability, but currently has little to no formal understanding of the subject.",
+    "page": "id-8466205046"
   },
   {
     "name": "Governance Playsheet",
@@ -749,7 +851,11 @@
     "purpose": "A self-reflection questionnaire examining leadership style, cultural alignment (creativity vs. discipline), and inclusivity.",
     "helpsOwner": "Encourages deep introspection about how their ego and personal traits influence team diversity, meetings, and business culture.",
     "helpsAdvisor": "Opens up strategic coaching conversations with the business owner regarding their management style and handling of conflict.",
-    "indicators": "The client struggles with staff retention, low team morale, lacks diversity in thought, or insists on being right over finding the best solution."
+    "indicators": "The client struggles with staff retention, low team morale, lacks diversity in thought, or insists on being right over finding the best solution.",
+    "pages": [
+      "id-3474302012",
+      "id-423558797"
+    ]
   },
   {
     "name": "Quality Decisions",
@@ -757,7 +863,8 @@
     "purpose": "A comprehensive training presentation exploring common \"psyche errors\" (like optimism bias and confirmation bias), how to properly interpret data (causation vs. correlation), and how to create frameworks for robust testing.",
     "helpsOwner": "Teaches them to avoid relying on faulty memory or bias, enabling them to test assumptions through methods like double-blind surveys, and ultimately turning quality decision-making into a habit.",
     "helpsAdvisor": "Allows the advisor to deeply educate clients on statistical interpretation (common vs. special causes) and the psychological pitfalls of business expansion.",
-    "indicators": "The client's business is experiencing complex growth phases, they regularly misinterpret feedback data, or they need structured mechanisms to evaluate \"quality decisions\"."
+    "indicators": "The client's business is experiencing complex growth phases, they regularly misinterpret feedback data, or they need structured mechanisms to evaluate \"quality decisions\".",
+    "page": "id-439870566"
   },
   {
     "name": "Resolutions",
@@ -781,7 +888,8 @@
     "purpose": "A spreadsheet-based sales tracking model (Option A layout) that systematically records advisory sales activities, pipeline velocity, and referral network performance in one transparent view.",
     "helpsOwner": "Gives business owners clear visibility into how their advisor is managing the sales pipeline and referral relationships, reinforcing confidence in the advisory process.",
     "helpsAdvisor": "Provides a structured system to record and analyse sales activities, conversion rates, and referral sources — helping advisors identify where fee growth is coming from and where to focus effort.",
-    "indicators": "Advisors focused on fee growth who want a disciplined, trackable approach to managing their sales pipeline and referral network. Suits both new and experienced advisors."
+    "indicators": "Advisors focused on fee growth who want a disciplined, trackable approach to managing their sales pipeline and referral network. Suits both new and experienced advisors.",
+    "page": "tracker-only"
   },
   {
     "name": "Sales Tracker Opt B",
@@ -789,7 +897,8 @@
     "purpose": "An alternate layout of the Sales Tracker spreadsheet (Option B) offering a different view of pipeline data, activity logs, and referral source tracking for advisors building their fee base.",
     "helpsOwner": "Supports transparency in the advisory engagement process, showing clients that their advisor operates with structured accountability and discipline.",
     "helpsAdvisor": "Provides a second format option for advisors who prefer a different visual layout or tracking methodology. Measures pipeline velocity and referral network effectiveness.",
-    "indicators": "Use when an advisor wants a different tracking layout or when team members have varying reporting preferences. Entry-level tool suitable for all experience levels."
+    "indicators": "Use when an advisor wants a different tracking layout or when team members have varying reporting preferences. Entry-level tool suitable for all experience levels.",
+    "page": "id-4740427390"
   },
   {
     "name": "Our Sales Process",
@@ -797,7 +906,8 @@
     "purpose": "A documented sales process template that maps out the advisory firm's end-to-end approach to winning new business — from initial contact through to signed engagement and first meeting.",
     "helpsOwner": "Sets clear expectations about how the advisor approaches winning clients: methodical, professional, and outcome-focused rather than high-pressure.",
     "helpsAdvisor": "Creates a repeatable, trainable sales process that can be shared with new team members or used to benchmark and improve conversion rates at each pipeline stage.",
-    "indicators": "Advisory firms wanting to formalise, document, and standardise their sales approach across the team. Useful when onboarding new advisors or reviewing why the pipeline is stalling."
+    "indicators": "Advisory firms wanting to formalise, document, and standardise their sales approach across the team. Useful when onboarding new advisors or reviewing why the pipeline is stalling.",
+    "page": "tracking-sales-progress"
   },
   {
     "name": "E Mails",
@@ -805,7 +915,8 @@
     "purpose": "A collection of client portal set-up and onboarding email templates covering initial invitations, login authentication instructions, follow-up for non-registrants, and consent emails for granting external advisor (banker) portal access.",
     "helpsOwner": "Provides clear, friendly instructions to help new clients register on the Advisor-e portal, access their service plan, and grant their banker read-only access to shared financial data if desired.",
     "helpsAdvisor": "Streamlines client onboarding with professionally worded templates that handle portal setup, login issues, spam-folder warnings, and Privacy Act-compliant banker access consent — removing friction from the digital onboarding process.",
-    "indicators": "Use when onboarding a new client to the portal, when a client fails to complete their registration, or when setting up a banker or external advisor as a read-only portal user on a mutual client."
+    "indicators": "Use when onboarding a new client to the portal, when a client fails to complete their registration, or when setting up a banker or external advisor as a read-only portal user on a mutual client.",
+    "page": "mail-chimp-automation"
   },
   {
     "name": "Outbound Emails",
@@ -813,7 +924,8 @@
     "purpose": "A versatile collection of targeted outreach email and SMS templates including the 3rd Quarter Campaign (cash forecasting and business planning), the 90 Day Accounting Best Practice program outreach, and Covid-19 contingency planning communications.",
     "helpsOwner": "Prepares business owners for predictable financial pressure points — Provisional Tax, GST deadlines, holiday-period cash squeezes — and offers structured solutions proactively before a crisis hits.",
     "helpsAdvisor": "Provides pre-written, multi-channel marketing campaigns (email + SMS + phone scripts) to generate advisory meetings, sell structured programs, and demonstrate proactive value during periods of client vulnerability.",
-    "indicators": "Use to proactively engage clients before Q3 tax obligations hit, when clients lack a business plan, when disruptions arise (Covid, lockdowns, supply shortages), or when an advisor wants to run a 90-day accounting best practice program for a Xero/MYOB client with untrained staff."
+    "indicators": "Use to proactively engage clients before Q3 tax obligations hit, when clients lack a business plan, when disruptions arise (Covid, lockdowns, supply shortages), or when an advisor wants to run a 90-day accounting best practice program for a Xero/MYOB client with untrained staff.",
+    "page": "mail-chimp-automation"
   },
   {
     "name": "Gift Approach Letters",
@@ -821,7 +933,8 @@
     "purpose": "Pre-written approach letters designed to open conversations with prospects or re-engage dormant clients by framing the advisor's services as a gift or value-add rather than a sales pitch.",
     "helpsOwner": "Receives a low-pressure, professionally written communication that highlights specific business benefits without feeling like an unsolicited sales call.",
     "helpsAdvisor": "Provides a warm, relationship-first entry point for prospect outreach or client re-engagement, reducing the awkwardness of cold approaches and increasing the likelihood of a follow-up meeting.",
-    "indicators": "Advisors wanting to approach new prospects or lapsed clients with a professional, low-pressure letter. Particularly useful when building a marketing outreach campaign or following up after networking events."
+    "indicators": "Advisors wanting to approach new prospects or lapsed clients with a professional, low-pressure letter. Particularly useful when building a marketing outreach campaign or following up after networking events.",
+    "page": "id-3131916997"
   },
   {
     "name": "Messaging Plan",
@@ -829,7 +942,8 @@
     "purpose": "A strategic marketing framework that uses the C.P.D hierarchy (Concept, Principle, Detail) to align an advisor's social media, articles, seminars, and client communications into a cohesive, problem-focused marketing engine with a broad sequenced timeline.",
     "helpsOwner": "Ensures marketing and client communications are directly tailored to solve specific business problems (e.g., cashflow, teamwork) rather than being generic broadcast content.",
     "helpsAdvisor": "Provides a step-by-step system to build Concept Domains from the Fee Growth Plan, map client problems to specific service offers, create content across videos, articles, speeches, and blogs, and schedule campaigns with a broad timeline to prevent workflow collisions.",
-    "indicators": "Advisory teams or marketing coordinators wanting to move beyond ad-hoc marketing to a structured, problem-anchored strategy. Use when setting up a new service line, launching a seminar series, or systematically building brand authority."
+    "indicators": "Advisory teams or marketing coordinators wanting to move beyond ad-hoc marketing to a structured, problem-anchored strategy. Use when setting up a new service line, launching a seminar series, or systematically building brand authority.",
+    "page": "seminar-delivery"
   },
   {
     "name": "Online Quiz Summary",
@@ -837,7 +951,8 @@
     "purpose": "A set of three interactive lead qualification quizzes (Growth Fundamentals, What's Applicable, HR Maths) hosted on Google Forms, acting as a low-friction micro-step between initial prospect contact and a formal first meeting.",
     "helpsOwner": "Provides a quick, non-pressured way for prospects to reflect on their business fundamentals, technology readiness, or HR practices in under a few minutes on their smartphone.",
     "helpsAdvisor": "Acts as a lead generation and qualification tool. Quiz results prime the upcoming meeting theme, allow the advisor to tailor their pitch toward the Lite Fundamentals package, and provide data on the prospect's receptivity to specific services.",
-    "indicators": "Use with new prospects before a first meeting to warm them up and gather diagnostic data. Also effective for re-engaging existing clients who need a structured way to prioritise their 90-day business focus."
+    "indicators": "Use with new prospects before a first meeting to warm them up and gather diagnostic data. Also effective for re-engaging existing clients who need a structured way to prioritise their 90-day business focus.",
+    "page": "spare-4"
   },
   {
     "name": "Video Hyperlinks",
@@ -845,7 +960,8 @@
     "purpose": "A curated library of 8 short educational video links covering key advisory concepts including the Growth Curve, pricing vs. leakage, portal invitations, and succession planning — designed to support cold calling follow-up and ongoing client education.",
     "helpsOwner": "Allows clients and prospects to consume concise visual explanations of important business and advisory concepts on their own schedule, before or after a meeting.",
     "helpsAdvisor": "Standardises client communications, supports cold calling follow-up with professional reference material, and gives advisors a ready answer to common client questions by linking directly to a specific video rather than scheduling a meeting.",
-    "indicators": "Use after a cold call to send a prospect a relevant explainer video. Load key links into your email signature for passive daily distribution. Recommend specific videos when clients ask about Growth Curve stages, pricing, portal value, or succession planning."
+    "indicators": "Use after a cold call to send a prospect a relevant explainer video. Load key links into your email signature for passive daily distribution. Recommend specific videos when clients ask about Growth Curve stages, pricing, portal value, or succession planning.",
+    "page": "tracking-your-progress"
   },
   {
     "name": "Website Blurbs",
@@ -853,7 +969,8 @@
     "purpose": "A complete website copywriting toolkit providing pre-written band-structured homepage content, service descriptions, calls to action, and social proof frameworks to help accounting and advisory firms redesign their website around clear value positioning.",
     "helpsOwner": "Clearly articulates what the firm solves, presents service options progressively from basic accounting to legacy-level advisory, and builds trust within the first 30 seconds of browsing.",
     "helpsAdvisor": "Eliminates the blank-page problem when briefing a web developer. Provides three distinct copywriting styles (Calling Out the Ghosts, Metaphor, Range Finder) and an ascension model to position the firm as problem-solvers rather than compliance providers.",
-    "indicators": "Use when an advisory firm is updating or redesigning their website, repositioning their service offering, or when the current site fails to articulate advisory value beyond tax compliance."
+    "indicators": "Use when an advisory firm is updating or redesigning their website, repositioning their service offering, or when the current site fails to articulate advisory value beyond tax compliance.",
+    "page": "id-4678322776"
   },
   {
     "name": "Cartoons",
@@ -861,7 +978,8 @@
     "purpose": "A slide deck of professionally designed cartoon visual aids illustrating complex business and financial concepts — including working capital cycles, the Profit Sweet-Spot, the Growth Curve, and cashflow dynamics — using simple, memorable metaphors.",
     "helpsOwner": "Breaks down abstract financial and operational concepts into visual metaphors that are easy to understand, increasing engagement and retention when discussing growth, margins, and business lifecycles.",
     "helpsAdvisor": "Provides ready-to-use presentation assets that simplify client education, spark conversation, and help advisors gauge client understanding without requiring advanced financial literacy from the client.",
-    "indicators": "Use in client presentations, portal documents, and advisory meetings when explaining working capital, Growth Curve stages, or the profit sweet-spot — particularly when a client struggles to grasp abstract financial concepts."
+    "indicators": "Use in client presentations, portal documents, and advisory meetings when explaining working capital, Growth Curve stages, or the profit sweet-spot — particularly when a client struggles to grasp abstract financial concepts.",
+    "page": "id-2313793896"
   },
   {
     "name": "Video Techniques",
@@ -869,7 +987,8 @@
     "purpose": "A guide to using short video as a client communication and sales tool — covering how to record, package, and send advisory videos to prospects and clients as part of the sales and ongoing engagement process.",
     "helpsOwner": "Allows them to consume short, professional video explanations of advisory concepts and service offerings in their own time before or after a meeting.",
     "helpsAdvisor": "Enables the advisor to scale their communication, replace some face-to-face follow-ups with personalised video messages, and use recorded content as part of a systematic marketing and sales funnel.",
-    "indicators": "Use when following up with prospects after a meeting, when explaining a concept that benefits from visual demonstration, or when building a short video content library for target market outreach."
+    "indicators": "Use when following up with prospects after a meeting, when explaining a concept that benefits from visual demonstration, or when building a short video content library for target market outreach.",
+    "page": "id-4868546372"
   },
   {
     "name": "Design & Deliver",
@@ -877,7 +996,8 @@
     "purpose": "A comprehensive end-to-end seminar toolkit covering content design frameworks (CPD hierarchy, 30-40 min template, Blank Platform scripting), audience psychology, team-building exercises (Paper Tower, Spaghetti Tower), storytelling techniques (Magic Formula Stories), seminar entertainment protocols, workshop run sheets, and post-event feedback tools.",
     "helpsOwner": "Delivers professionally structured educational events that help business owners understand complex growth and financial concepts in a memorable, engaging format with clear takeaways and practical team-building experiences.",
     "helpsAdvisor": "Provides a complete seminar-building system from content design through to delivery psychology, room management, AV logistics, and post-event feedback measurement. Includes scripts for using humor, stories, and exercises to build deep audience connection and generate discovery session leads.",
-    "indicators": "Senior or experienced advisors planning and delivering educational seminars, workshops, or networking events. Use when designing new presentation content, running Growth Stage Seminars, facilitating team-building sessions, or developing the advisor's public speaking capability and personal brand."
+    "indicators": "Senior or experienced advisors planning and delivering educational seminars, workshops, or networking events. Use when designing new presentation content, running Growth Stage Seminars, facilitating team-building sessions, or developing the advisor's public speaking capability and personal brand.",
+    "page": "id-2353819376"
   },
   {
     "name": "The Nature of Engagement",
@@ -885,7 +1005,8 @@
     "purpose": "A framework for categorising client work into three distinct engagement types — Advice, Facilitation, and Education — enabling advisors to define their role, delivery method, and fee positioning for each type of interaction.",
     "helpsOwner": "Sets clear expectations about what kind of engagement they are receiving: accepting advice with clear consequences, working through a trigger event via facilitation, or closing a knowledge gap through sequential education.",
     "helpsAdvisor": "Defines the correct advisor positioning for each engagement and introduces the 'Look Both Ways' principle — examining pre-event causes and post-event effects to naturally extend the engagement scope without it feeling like an upsell.",
-    "indicators": "Use when clarifying the nature of an upcoming client engagement — particularly when clients request a loan drawdown, face a major trigger event, or when the advisor wants to reframe compliance work as a billable advisory opportunity."
+    "indicators": "Use when clarifying the nature of an upcoming client engagement — particularly when clients request a loan drawdown, face a major trigger event, or when the advisor wants to reframe compliance work as a billable advisory opportunity.",
+    "page": "winning-the-job-tools"
   },
   {
     "name": "The 5 Steps in the Advisory Staircase",
@@ -893,7 +1014,8 @@
     "purpose": "A visual framework mapping the progressive stages of the advisor-client relationship, from initial observation and tax compliance through to advanced strategic facilitation, performance oversight, and leadership advisory.",
     "helpsOwner": "Helps the client understand the value progression available in the advisory relationship and what richer engagement at each step means for their business outcomes.",
     "helpsAdvisor": "Provides a structured way to explain the natural progression from compliance to high-value advisory, helping advisors articulate and sell deeper services without it feeling like an upsell conversation.",
-    "indicators": "Use in positioning conversations with clients who currently only see the advisor as a compliance provider. Effective in initial advisory pitches, service re-framing discussions, and when the client asks what else the advisor can do for them."
+    "indicators": "Use in positioning conversations with clients who currently only see the advisor as a compliance provider. Effective in initial advisory pitches, service re-framing discussions, and when the client asks what else the advisor can do for them.",
+    "page": "winning-the-job-tools"
   },
   {
     "name": "The Heald Matrix",
@@ -901,7 +1023,8 @@
     "purpose": "A positioning matrix used to map the advisor's service capabilities against client needs and business complexity, identifying the correct level of engagement and where additional value can be added.",
     "helpsOwner": "Provides a structured way to understand which advisory services are most relevant to their current situation, growth stage, and business complexity.",
     "helpsAdvisor": "Helps advisors think strategically about which clients need which services, preventing under-servicing or mismatched proposals. Useful for internal practice management and client portfolio reviews.",
-    "indicators": "Use during internal advisory planning sessions, client portfolio reviews, or when deciding how to position a proposal to a client with complex, multi-dimensional needs spanning multiple service areas."
+    "indicators": "Use during internal advisory planning sessions, client portfolio reviews, or when deciding how to position a proposal to a client with complex, multi-dimensional needs spanning multiple service areas.",
+    "page": "spare-5"
   },
   {
     "name": "The Helicopter Story",
@@ -909,7 +1032,8 @@
     "purpose": "A scripted visual analogy that positions the advisor as the essential Air Control Tower, using the metaphor of a helicopter pilot flying blindfolded to demonstrate why annual accounting meetings are dangerously inadequate and why regular strategic meetings are critical.",
     "helpsOwner": "Helps the business owner visualise how running their business without timely internal dashboards is like a blindfolded pilot navigating storms — making the need for regular strategic check-ins feel obvious and self-generated rather than sold.",
     "helpsAdvisor": "Perfectly positions the advisor as indispensable. By illustrating the risks of high-impact events (fraud, volatility, unexpected debt), the story naturally creates the client's demand for more frequent meetings without the advisor having to make a direct sales pitch.",
-    "indicators": "Use with clients who view accounting as an annual compliance exercise, resist regular meetings, or do not see the value of frequent strategic check-ins. Highly effective in initial positioning conversations and first advisory meetings."
+    "indicators": "Use with clients who view accounting as an annual compliance exercise, resist regular meetings, or do not see the value of frequent strategic check-ins. Highly effective in initial positioning conversations and first advisory meetings.",
+    "page": "spare-2"
   },
   {
     "name": "Capacity, Capability, Opportunity",
@@ -925,7 +1049,8 @@
     "purpose": "A positioning framework that anchors the advisor's value proposition to the three core outcomes business owners are seeking: more time, more control over their business, and more money — connecting advisory services directly to personal owner motivations.",
     "helpsOwner": "Articulates business goals in emotionally resonant terms: having time to enjoy life, genuine control over how the business operates day-to-day, and financial reward that justifies the personal investment of effort.",
     "helpsAdvisor": "Provides a compelling language framework for positioning advisory services beyond technical deliverables. By anchoring the conversation to these three universal desires, the advisor makes their value proposition immediately relevant and personally motivating.",
-    "indicators": "Use in early client conversations, positioning discussions, and initial advisory pitches to connect the advisor's service offering to the owner's personal motivations rather than just business metrics or compliance outcomes."
+    "indicators": "Use in early client conversations, positioning discussions, and initial advisory pitches to connect the advisor's service offering to the owner's personal motivations rather than just business metrics or compliance outcomes.",
+    "page": "id-1950416363"
   },
   {
     "name": "Mastering Positioning",
@@ -933,7 +1058,8 @@
     "purpose": "A deep-dive framework on how advisors transition from being a transactional vendor of hours to a trusted authority — achieved through total congruence between technical advice, body language, tone of voice, and fundamental values.",
     "helpsOwner": "Creates a safe, trusted advisory environment where the owner's biological survival instincts are not triggered. They can engage openly and collaboratively, knowing the advisor is authentic and fully on their side.",
     "helpsAdvisor": "Shifts focus from selling a specific service to selling yourself. By achieving total congruence between advice, delivery style, and values, the advisor removes client resistance and makes influence natural rather than forced.",
-    "indicators": "Use as a core framework for all prospect and client interactions — particularly when establishing a new relationship, recovering from a trust deficit, or when technically sound advice is not translating into client engagement or fee acceptance."
+    "indicators": "Use as a core framework for all prospect and client interactions — particularly when establishing a new relationship, recovering from a trust deficit, or when technically sound advice is not translating into client engagement or fee acceptance.",
+    "page": "id-2089227425"
   },
   {
     "name": "Sales Psychology (Basics)",
@@ -941,7 +1067,8 @@
     "purpose": "An introduction to advisory sales psychology covering the principles of the first prospect meeting, including rapport-building, permission-based conversation flow, the Event-Cause-Effect storytelling model, and how to structure the discovery phase without pressure.",
     "helpsOwner": "Reduces first-meeting anxiety by making the advisory process transparent and structured. The owner understands what will happen next, which removes the tension of feeling like they are being sold to.",
     "helpsAdvisor": "Provides scripted progressions for the crucial first meeting — from building rapport through to setting clear expectations — using Check Time and Ask Permission scripts that maintain advisor control without high-pressure tactics.",
-    "indicators": "New advisors learning to structure prospect meetings, or experienced advisors refreshing their first-meeting approach. Use as preparation for initial discovery sessions and early-stage prospect meetings where trust foundations need to be established."
+    "indicators": "New advisors learning to structure prospect meetings, or experienced advisors refreshing their first-meeting approach. Use as preparation for initial discovery sessions and early-stage prospect meetings where trust foundations need to be established.",
+    "page": "winning-the-job-tools"
   },
   {
     "name": "Phone Scripts",
@@ -949,7 +1076,8 @@
     "purpose": "Ready-to-use phone scripts for cold calling, campaign follow-up calls, and structured call frameworks to secure meetings with prospects and re-engage lapsed clients after email or SMS outreach.",
     "helpsOwner": "Receives a professional, non-pressured call that clearly communicates advisory value and gives a clear next step without obligation.",
     "helpsAdvisor": "Removes the hesitation and inconsistency of unscripted calls by providing structured, tested scripts for different scenarios — cold outreach, post-email follow-up, and meeting request calls.",
-    "indicators": "Use when following up after a marketing email or SMS campaign, making cold calls to prospects, or re-engaging clients who have not responded to written outreach. Also useful for training new staff on client-facing telephone skills."
+    "indicators": "Use when following up after a marketing email or SMS campaign, making cold calls to prospects, or re-engaging clients who have not responded to written outreach. Also useful for training new staff on client-facing telephone skills.",
+    "page": "the-sales-theory"
   },
   {
     "name": "Total Needs Sales Scripts",
@@ -957,7 +1085,8 @@
     "purpose": "A comprehensive bespoke sales scripting system for complex, high-value advisory engagements using the Total Needs Selling approach — an exploratory, fact-finding process that separates the discovery phase from the solution phase entirely.",
     "helpsOwner": "Ensures the advisor takes time to understand the client's unique situation through structured questioning rather than rushing to a pre-packaged solution, building genuine trust and a tailored outcome.",
     "helpsAdvisor": "Provides scripted scoping session prompts, privacy statements, rough budget estimate frameworks, and presentation scripts with Call Out the Ghosts objection neutralisation and trial-closing techniques. Also includes implementation rationale scripts for final negotiation stages.",
-    "indicators": "Use with complex, high-value prospects where a modular campaign approach would miss important nuance. Required when the client has multi-dimensional problems, a larger expected fee, or when the advisor needs a formal scoping session before presenting a bespoke proposal."
+    "indicators": "Use with complex, high-value prospects where a modular campaign approach would miss important nuance. Required when the client has multi-dimensional problems, a larger expected fee, or when the advisor needs a formal scoping session before presenting a bespoke proposal.",
+    "page": "rehearsal-action-plan"
   },
   {
     "name": "Your Sales Process Decision Tree",
@@ -965,7 +1094,8 @@
     "purpose": "A visual flowchart guiding advisors through selecting the optimal sales approach for each prospect — either a pre-packaged Campaign (Modular Delivery) or a bespoke Total Needs process — based on business complexity, advisor confidence, and prospect receptiveness.",
     "helpsOwner": "Ensures they receive an advisory approach calibrated to their specific situation — not over-complicated for a simpler business, and not under-serviced for a complex one.",
     "helpsAdvisor": "Removes guesswork from sales planning. Directs new advisors toward a Free Client Content entry point, routes simpler prospects to the Lite Fundamentals track, and guides complex prospects toward full scoping. Accounts for the four client processing styles (Activist, Pragmatist, Reflector, Theorist).",
-    "indicators": "Use at the beginning of any new prospect engagement to categorise the lead and select the correct sales path. Essential for team-based practices where consistency of approach across multiple advisors matters."
+    "indicators": "Use at the beginning of any new prospect engagement to categorise the lead and select the correct sales path. Essential for team-based practices where consistency of approach across multiple advisors matters.",
+    "page": "learning"
   },
   {
     "name": "Call Reluctance Psychology",
@@ -973,7 +1103,8 @@
     "purpose": "A psychological framework for understanding and overcoming the internal barriers that prevent advisors from making calls, approaching prospects, or asking for business — addressing mindset patterns and behavioural strategies to build consistent sales activity.",
     "helpsOwner": "Ensures clients are proactively contacted by an advisor who has overcome hesitation and can engage confidently rather than only responding to inbound enquiries.",
     "helpsAdvisor": "Provides tools to identify the specific type of call reluctance present (fear of rejection, over-preparation, intrusion sensitivity) and targeted strategies to build the confidence and consistency needed for regular prospect outreach.",
-    "indicators": "Use with advisors who know the sales process but struggle to take consistent action — those who avoid phone calls, over-prepare before approaching prospects, or have a pattern of almost contacting leads but not following through."
+    "indicators": "Use with advisors who know the sales process but struggle to take consistent action — those who avoid phone calls, over-prepare before approaching prospects, or have a pattern of almost contacting leads but not following through.",
+    "page": "id-6785367543"
   },
   {
     "name": "Winning Management Reporting",
@@ -981,7 +1112,8 @@
     "purpose": "A framework for presenting management reporting as a high-value advisory service — demonstrating how regular, structured financial reporting creates the conditions for winning new advisory business and deepening existing client relationships.",
     "helpsOwner": "Shows the business owner how structured management reporting gives real-time visibility into performance against plan, enabling faster and better decisions rather than waiting for end-of-year tax figures.",
     "helpsAdvisor": "Positions the advisor as a proactive, data-driven partner. By framing management reporting as the foundation of the advisory relationship, the advisor creates recurring engagement points and demonstrates continuous value — supporting fee retention and service expansion.",
-    "indicators": "Use when introducing a new client to advisory services, when selling the value of regular meetings, or when an existing compliance-only client needs to understand the value of ongoing strategic oversight throughout the year."
+    "indicators": "Use when introducing a new client to advisory services, when selling the value of regular meetings, or when an existing compliance-only client needs to understand the value of ongoing strategic oversight throughout the year.",
+    "page": "id-5063596715"
   },
   {
     "name": "Campaign Intro Options",
@@ -989,7 +1121,8 @@
     "purpose": "A set of modular, pre-packaged campaign introduction scripts built around the S.P.I.D.E.R acronym (Show, Pin, Investigate, Determine/Dangle, Ensure, Reveal) for delivering the Lite Fundamentals sales process to smaller, less complex prospects in 1-2 meetings.",
     "helpsOwner": "Provides visual context for their business struggles (placing them on the Growth Curve) and clearly outlines the financial potential of fixing their specific constraints through the Revenue Model, without a lengthy scoping process.",
     "helpsAdvisor": "Simplifies the sales process for campaign-style engagements into manageable, scripted steps. The SPIDER sequence introduces predefined conditions the prospect must agree to (time commitment, action orientation, monthly fee) before the final program is revealed.",
-    "indicators": "Use with prospects who are smaller or simpler businesses suited to a modular program rather than a bespoke engagement. Particularly effective when presenting the Lite Fundamentals package and a structured, replicable sales process is needed."
+    "indicators": "Use with prospects who are smaller or simpler businesses suited to a modular program rather than a bespoke engagement. Particularly effective when presenting the Lite Fundamentals package and a structured, replicable sales process is needed.",
+    "page": "id-2297533587"
   },
   {
     "name": "Centre of Influence Scripts",
@@ -997,7 +1130,8 @@
     "purpose": "Scripted frameworks for building referral relationships with bankers, lawyers, and other external professionals (Centres of Influence) — including outreach scripts, portal onboarding emails, referral request language, and shared client advisory protocols.",
     "helpsOwner": "Ensures their advisory team and external financial partners are collaborating effectively, giving them access to the best combined advice without needing to separately manage multiple professional relationships.",
     "helpsAdvisor": "Provides a systematic approach to building a COI referral network. Includes scripts for inviting bankers into the portal ecosystem, Privacy Act-compliant consent processes, and language for positioning shared client relationships as mutually beneficial opportunities.",
-    "indicators": "Use when building a COI referral network, onboarding a banker as an external advisor on the portal, or when a client's banker could benefit from visibility into the client's financial position. Also use when seeking referrals from non-competing professionals such as lawyers or insurance advisors."
+    "indicators": "Use when building a COI referral network, onboarding a banker as an external advisor on the portal, or when a client's banker could benefit from visibility into the client's financial position. Also use when seeking referrals from non-competing professionals such as lawyers or insurance advisors.",
+    "page": "id-477955253"
   },
   {
     "name": "Common Problem Stories",
@@ -1005,7 +1139,8 @@
     "purpose": "A library of scripted Magic Formula Stories (MFS) built around common client business problems — designed to build empathy, lower prospect resistance, and naturally lead conversations toward the advisor's service solutions without overt selling.",
     "helpsOwner": "Hears relatable stories about other business owners who faced similar challenges, which builds trust and normalises their situation — making them more open to exploring solutions rather than defending their current position.",
     "helpsAdvisor": "Provides tested story frameworks that illustrate technical knowledge and empathy without appearing boastful. Each story follows the Draw-Plot-Reveal-Close structure to guide the client's thinking toward a specific advisory service naturally and without pressure.",
-    "indicators": "Use at the start of a prospect meeting to build rapport and identify shared pain points. Also effective when a client is resistant to change or struggling to articulate their problem — a relevant common problem story can unlock the conversation."
+    "indicators": "Use at the start of a prospect meeting to build rapport and identify shared pain points. Also effective when a client is resistant to change or struggling to articulate their problem — a relevant common problem story can unlock the conversation.",
+    "page": "id-2297533587"
   },
   {
     "name": "CA Capacity Planner",
@@ -1013,7 +1148,8 @@
     "purpose": "A scenario-modelling spreadsheet (not an analytical report) that helps accounting and advisory firms optimise team structure, price jobs, and model an advisory transition. Contains three linked sheets: Base Capacity & Job Estimation, Scenario Versioning & Management, and Client Trimming & Advisory Transition.",
     "helpsOwner": "Gives instant visibility into whether the firm has enough staff to complete the work. Reveals when highly-paid senior staff are forced to do junior work due to team skill deficiencies, and mathematically proves that dropping the bottom tier of clients can free up hours and increase profitability.",
     "helpsAdvisor": "Allows advisors to model different fee ranges, client service categories (Growth, Protect, Transition), and advisory transition scenarios using native version history — no duplicate files required. Frames the advisory pivot around Capacity (freed hours), Capability (ready templates), and Opportunity (willing clients).",
-    "indicators": "Firm or practice owners feeling trapped in a high-volume compliance cycle, experiencing margin erosion because senior staff are doing junior work, or wanting to model the financial impact of an advisory transition before committing to the change."
+    "indicators": "Firm or practice owners feeling trapped in a high-volume compliance cycle, experiencing margin erosion because senior staff are doing junior work, or wanting to model the financial impact of an advisory transition before committing to the change.",
+    "page": "capacity-planner-old"
   },
   {
     "name": "Our Strategic Plan",
@@ -1021,7 +1157,8 @@
     "purpose": "A comprehensive strategic planning framework that guides an accounting or advisory firm through five sequential phases — Planning, Packaging, Coaching, Sales, and Delivery — to transition from disorganised compliance work to a structured, profitable advisory practice.",
     "helpsOwner": "Provides a clear roadmap from operational chaos to institutionalised advisory practice. Ensures clients are categorised into Growth, Maintain, and Service tiers so each receives the right level of time and resources.",
     "helpsAdvisor": "Walks the firm through client categorisation, service packaging aligned to the Growth Curve, team coaching structures, EOY and Revenue Model discovery processes, and delivery tracking using Dashboard reports and Global Actions reporting.",
-    "indicators": "Firm partners or practice owners who want to formalise their advisory service model, who are unsure how to sequence the transition from compliance-led to advisory-led practice, or who need a framework to align the whole team around a common growth plan."
+    "indicators": "Firm partners or practice owners who want to formalise their advisory service model, who are unsure how to sequence the transition from compliance-led to advisory-led practice, or who need a framework to align the whole team around a common growth plan.",
+    "page": "id-3309994449"
   },
   {
     "name": "Lite Advisor-e Plan",
@@ -1029,7 +1166,8 @@
     "purpose": "An entry-level, streamlined version of the full CA Firm Strategy framework — providing a simplified 5-phase planning template for firms at the start of their advisory transition or those with smaller teams who need a lighter implementation pathway.",
     "helpsOwner": "Gets the advisory practice organised and moving without the complexity of the full strategic planning process. Ensures the firm's advisory infrastructure is in place before client-facing work begins.",
     "helpsAdvisor": "Provides a quick-start strategic template that can be completed in less time than the full strategic plan, covering capacity assessment, service packaging, team coaching basics, and a simplified delivery cadence.",
-    "indicators": "Smaller firms or recently onboarded advisory practices starting their Advisor-e journey who need a manageable first step into structured advisory planning before taking on the full strategic plan."
+    "indicators": "Smaller firms or recently onboarded advisory practices starting their Advisor-e journey who need a manageable first step into structured advisory planning before taking on the full strategic plan.",
+    "page": "id-9907157360"
   },
   {
     "name": "Strategic Summary Tables",
@@ -1037,7 +1175,8 @@
     "purpose": "Contrast model tables (FM Expectations and FM Stages) that map out the interrelatedness of the firm owners' aspirations and the sequential business development objectives required to achieve them — often described as the best \"bang for buck\" planning tools in the system.",
     "helpsOwner": "Provides a clear visual of where the firm currently sits against where the owners want it to be, and the specific sequential steps required to close the gap. Makes strategic planning tangible rather than abstract.",
     "helpsAdvisor": "Gives partners and directors a shared reference point for strategic conversations. Used as an agenda item in board meetings or quarterly planning sessions to keep the firm's end game visible and to check progress against milestones.",
-    "indicators": "Partners, directors, and firm managers who want to define their firm's End Game in a structured way and track the sequential development objectives required to reach it. Particularly useful during annual planning sessions or when partners are misaligned on direction."
+    "indicators": "Partners, directors, and firm managers who want to define their firm's End Game in a structured way and track the sequential development objectives required to reach it. Particularly useful during annual planning sessions or when partners are misaligned on direction.",
+    "page": "id-2567969417"
   },
   {
     "name": "Our Own Growth Stage",
@@ -1045,7 +1184,8 @@
     "purpose": "A Growth Curve Checklist that aligns the firm's own strategic service offerings directly with the age and developmental stage of each client's business — helping advisors identify which services to push to which clients based on where they sit on the Growth Curve.",
     "helpsOwner": "Ensures the advice being received is contextually relevant to their current business stage (Design, Launch, Growth, Leverage, Maturity) rather than generic guidance that may not apply.",
     "helpsAdvisor": "Acts as a roadmap for cross-selling and up-selling relevant advisory services. Empowers the advisor to proactively push appropriate service solutions (e.g., succession planning for a Maturity-stage client, process improvement for a Leverage-stage client) into the client service plan.",
-    "indicators": "All client-facing advisors who want a systematic way to match their service offerings to client life-cycle stage — particularly useful during annual service plan reviews or when identifying new advisory opportunities within an existing client base."
+    "indicators": "All client-facing advisors who want a systematic way to match their service offerings to client life-cycle stage — particularly useful during annual service plan reviews or when identifying new advisory opportunities within an existing client base.",
+    "page": "adve-lf-opener"
   },
   {
     "name": "Plan For Success",
@@ -1053,7 +1193,8 @@
     "purpose": "A team development planning template that defines the functional skills team members need to improve, schedules coaching content around peak workflow commitments using a work-sprint structure, and ensures training is directly tied to client outcomes.",
     "helpsOwner": "Ensures the professionals advising them are undergoing continuous, structured improvement — not ad-hoc learning that may not be relevant to the client's current situation.",
     "helpsAdvisor": "By scheduling learning in work sprints around busy compliance periods, it structures professional development so it is sustainable rather than deferred. Gives firm managers a clear view of who needs to learn what and by when.",
-    "indicators": "Firm Managers, Internal Coaches, and all team members who need a structured professional development plan. Particularly relevant when onboarding new advisors, addressing skill gaps identified during client reviews, or building out a Visible Learning Culture."
+    "indicators": "Firm Managers, Internal Coaches, and all team members who need a structured professional development plan. Particularly relevant when onboarding new advisors, addressing skill gaps identified during client reviews, or building out a Visible Learning Culture.",
+    "page": "coi-planning"
   },
   {
     "name": "Pricing Tactics",
@@ -1061,7 +1202,8 @@
     "purpose": "A pricing framework and advisory fee structure tool that helps the firm define optimal charge-out rates, structure advisory service tiers, and ensure profitable delivery of advisory services alongside compliance work.",
     "helpsOwner": "Provides full transparency on what is being charged and why — matching the investment to the specific value and time committed at each level of advisory engagement.",
     "helpsAdvisor": "Enables the firm to structure pricing across preparation, travel, and delivery components for different team members. Prevents under-charging for advisory time and ensures the transition from compliance to advisory is financially viable from day one.",
-    "indicators": "Firm partners reviewing their advisory pricing model, firms transitioning from time-based billing to value-based advisory packages, or advisors who are unsure how to price a new advisory service offering without undermining their compliance revenue."
+    "indicators": "Firm partners reviewing their advisory pricing model, firms transitioning from time-based billing to value-based advisory packages, or advisors who are unsure how to price a new advisory service offering without undermining their compliance revenue.",
+    "page": "advisory-logistics"
   },
   {
     "name": "Partner Accountability",
@@ -1077,7 +1219,8 @@
     "purpose": "A transparent, objective 5-year roadmap for transitioning an individual into a partnership role — removing ambiguity by establishing strict benchmarks for experience, character, and core competencies across two structured templates (Pathway 1 guidelines and Pathway 2 Competency Assessment Framework).",
     "helpsOwner": "Provides predictable succession planning. Ensures incoming partners are culturally aligned, have a proven fee management track record ($250k+), generate organic growth ($125k+), maintain pristine personal finances, hold a family trust, and are insurable.",
     "helpsAdvisor": "Serves as a comprehensive evaluation rubric. The Competency Assessment Framework allows assessment partners to rank candidates from 1 (needs serious attention) to 5 (competent to coach others) across financial management, workflow scheduling, delegation, and client engagement competencies.",
-    "indicators": "Professional service firms, accounting practices, or mid-sized businesses looking to cultivate internal talent for equity partnerships or directorship roles. Use when identifying a Partner in Pathway (PIP) or conducting a formal 360-degree partnership review."
+    "indicators": "Professional service firms, accounting practices, or mid-sized businesses looking to cultivate internal talent for equity partnerships or directorship roles. Use when identifying a Partner in Pathway (PIP) or conducting a formal 360-degree partnership review.",
+    "page": "adve-lf-orientation"
   },
   {
     "name": "FM Board Annual Plan",
@@ -1085,7 +1228,8 @@
     "purpose": "A 12-month board calendar that maps out specific strategic focuses month by month (e.g., Strategic Scenario Planning in February, CEO Performance Review in May, Internal Business Culture Review in July) — ensuring the board addresses high-level strategic topics systematically rather than reactively.",
     "helpsOwner": "Prevents the board from being consumed by day-to-day operational issues by guaranteeing that crucial governance topics are scheduled and addressed throughout the year.",
     "helpsAdvisor": "Allows the advisor to prepare focused, thematic advisory sessions well in advance and ensures the firm's governance rhythm is institutionalised rather than ad-hoc.",
-    "indicators": "Maturing firms that need to transition from reactive planning to an institutionalised annual governance rhythm. Use when the board consistently gets bogged down in operational detail rather than strategic direction, or when key annual governance tasks are being missed."
+    "indicators": "Maturing firms that need to transition from reactive planning to an institutionalised annual governance rhythm. Use when the board consistently gets bogged down in operational detail rather than strategic direction, or when key annual governance tasks are being missed.",
+    "page": "id-8527149537"
   },
   {
     "name": "FM Board Pack Tables",
@@ -1093,7 +1237,8 @@
     "purpose": "A pre-meeting compliance table that requires all directors to formally confirm they have \"Read and Understood\" the Boardpack Agenda, CEO Report, financials, and major correspondence before the meeting begins — ensuring all directors share the same factual baseline.",
     "helpsOwner": "Prevents time-wasting in the boardroom caused by directors who have not reviewed materials. Ensures every meeting starts from an informed position and that no director can claim ignorance of documented decisions.",
     "helpsAdvisor": "Gives the advisor a standardised preparation and accountability tool that ensures the board operates with governance discipline rather than casual discussion.",
-    "indicators": "Any firm implementing monthly or quarterly board meetings where preparation quality and pre-reading compliance are currently inconsistent. Use whenever the same topics keep being re-explained in meetings because directors have not reviewed materials beforehand."
+    "indicators": "Any firm implementing monthly or quarterly board meetings where preparation quality and pre-reading compliance are currently inconsistent. Use whenever the same topics keep being re-explained in meetings because directors have not reviewed materials beforehand.",
+    "page": "id-906407785"
   },
   {
     "name": "FM Agenda & Minutes",
@@ -1101,7 +1246,8 @@
     "purpose": "A structured board meeting agenda and minutes template system (Master Agenda, BoardPack Agenda, Meeting Minutes) that transitions casual business conversations into formally governed, accountable board meetings with rigid time allocations, conflict of interest declarations, and mandatory takeaways.",
     "helpsOwner": "Ensures meetings stay on track, legally records all decisions and actions, and holds directors accountable to time and previously assigned items.",
     "helpsAdvisor": "Provides a standardised environment to deliver professional guidance, track progress formally, and record advisory input in a way that creates an auditable governance trail.",
-    "indicators": "Any firm size implementing monthly or quarterly board or advisory board meetings. Critical when meetings regularly overrun, lack clear action items, or fail to formally record decisions that affect partner liability or firm direction."
+    "indicators": "Any firm size implementing monthly or quarterly board or advisory board meetings. Critical when meetings regularly overrun, lack clear action items, or fail to formally record decisions that affect partner liability or firm direction.",
+    "page": "id-2747481002"
   },
   {
     "name": "FM General Notes",
@@ -1109,7 +1255,8 @@
     "purpose": "A flexible meeting notes template for capturing general business discussions, informal decisions, and action items outside of the formal board meeting structure — providing continuity between meetings and a written record of conversations that inform future board decisions.",
     "helpsOwner": "Ensures important ideas, concerns, and commitments raised in informal settings are captured and carried into the formal governance process rather than being lost between meetings.",
     "helpsAdvisor": "Provides a lightweight documentation tool for use in management check-ins, partner catch-ups, and working group sessions — maintaining a continuous paper trail without the formality of full board minutes.",
-    "indicators": "Firm managers and partners who want to maintain governance rigour in day-to-day management conversations and ensure nothing falls through the cracks between formal board meetings."
+    "indicators": "Firm managers and partners who want to maintain governance rigour in day-to-day management conversations and ensure nothing falls through the cracks between formal board meetings.",
+    "page": "id-442254579"
   },
   {
     "name": "FM Board White Paper",
@@ -1117,7 +1264,8 @@
     "purpose": "A formal strategic proposal template that standardises how new ideas or major expenditures are pitched to the board — requiring an Executive Summary, Historical Context, Suggested Solution, Measurable Benefits, and analysis of alternative solutions before any capital or resource commitment is approved.",
     "helpsOwner": "Removes emotional gut-feel pitches from the boardroom. Forces thorough research, feasibility analysis, and a clear business case before the firm commits capital or changes direction.",
     "helpsAdvisor": "Provides a clear framework for drafting or reviewing strategic expansion plans (opening a new branch, adopting new software, entering a new market) with the objectivity required by the board.",
-    "indicators": "Firms evaluating major expenditures, mergers, new market entries, significant technology changes, or any initiative where directors are prone to rushing decisions based on excitement rather than rigorous analysis. Use whenever a proposal involves material capital, resource, or operational risk."
+    "indicators": "Firms evaluating major expenditures, mergers, new market entries, significant technology changes, or any initiative where directors are prone to rushing decisions based on excitement rather than rigorous analysis. Use whenever a proposal involves material capital, resource, or operational risk.",
+    "page": "id-1410890299"
   },
   {
     "name": "FM Quality Decisions",
@@ -1125,7 +1273,8 @@
     "purpose": "A decision-making framework that educates the board on Psyche Errors (Optimism Bias, Confirmation Bias, Complacency) and provides a Decision Workpaper to formally capture the problem, alternative solutions, logic, counter-arguments, and early failure indicators for major decisions.",
     "helpsOwner": "Protects the board from its own cognitive biases and ensures the firm distinguishes between true causation and mere correlation when analysing results (e.g., \"Did the marketing cause the sales spike, or was it something else?\").",
     "helpsAdvisor": "Empowers the advisor to challenge owner assumptions safely using established frameworks (the 5 Whys, W. Edward Deming's Theory of Volatility, Double-Blind testing). Builds a documented habit of quality decision-making.",
-    "indicators": "High-growth firms, firms in transition or succession, or boards prone to emotional or highly biased decision-making. Use whenever a major decision is being rushed, when the board keeps revisiting the same problem, or when previous decisions have had unintended consequences."
+    "indicators": "High-growth firms, firms in transition or succession, or boards prone to emotional or highly biased decision-making. Use whenever a major decision is being rushed, when the board keeps revisiting the same problem, or when previous decisions have had unintended consequences.",
+    "page": "id-8371420367"
   },
   {
     "name": "FM Resolutions",
@@ -1133,7 +1282,8 @@
     "purpose": "Formal legal resolution templates that authorise major financial or operational commitments — such as paying dividends, raising capital, purchasing significant assets, or launching a new company — creating a legally binding, auditable trail of unanimous or majority director votes.",
     "helpsOwner": "Creates a legally compliant, auditable record of major decisions that protects the corporate veil and ensures all significant moves are formally authorised rather than verbally agreed.",
     "helpsAdvisor": "Ensures the firm's major strategic and financial moves are executed with strict legal and compliance rigour, reducing the risk of future disputes about what was agreed and by whom.",
-    "indicators": "Incorporated firms executing binding financial commitments or structural changes. Use whenever a major financial decision is made in a board meeting — capital raising, dividend payments, significant asset purchases, or structural changes — to formalise it immediately."
+    "indicators": "Incorporated firms executing binding financial commitments or structural changes. Use whenever a major financial decision is made in a board meeting — capital raising, dividend payments, significant asset purchases, or structural changes — to formalise it immediately.",
+    "page": "id-8825772953"
   },
   {
     "name": "Formal Risk Management",
@@ -1141,7 +1291,11 @@
     "purpose": "A living Risk Management Cover document that categorises business risks by Probability (likelihood) and Consequence (loss severity), and applies one of four strategies: Accept, Avoid, Reduce, or Transfer — providing the firm with a structured approach to ongoing risk oversight.",
     "helpsOwner": "Protects the firm against operational, legal, reputational, and financial risks by ensuring they are identified, classified, and actively managed rather than discovered reactively.",
     "helpsAdvisor": "Provides a structured, objective risk evaluation tool that can be updated continuously as the firm's situation changes. Anchors risk discussions in evidence and probability rather than emotional response.",
-    "indicators": "Any firm wanting to formalise risk management practices, firms in growth or transition where new risks are emerging rapidly, or boards that currently have no structured approach to identifying and responding to business risk."
+    "indicators": "Any firm wanting to formalise risk management practices, firms in growth or transition where new risks are emerging rapidly, or boards that currently have no structured approach to identifying and responding to business risk.",
+    "pages": [
+      "formal-risk-management",
+      "id-2047777512"
+    ]
   },
   {
     "name": "FM HIre Winners",
@@ -1149,7 +1303,8 @@
     "purpose": "A comprehensive recruitment and onboarding system for advisory firms covering leadership style alignment, candidate vetting using Enneagram psychological profiling, a 3-stage interview process (Feel/Know/Test), FM Team CANOE personality review, Associate job ad templates, and a structured AM/PM orientation schedule for new hires.",
     "helpsOwner": "Prevents the extreme financial and cultural cost of a bad hire by ensuring candidates are assessed for psychological fit, leadership alignment, and technical competence before an offer is made.",
     "helpsAdvisor": "Provides highly targeted behavioural interview questions based on the candidate's Enneagram type, a 360-degree team synergy review (CANOE: Conscientiousness, Agreeableness, Neuroticism, Openness, Extraversion), and a Buddy System orientation framework for the new hire's first two days.",
-    "indicators": "Leadership teams and HR managers actively preparing to recruit advisory staff or restructure the team. Use when a previous bad hire has damaged culture or profitability, when the firm is scaling rapidly and needs a repeatable hiring process, or when preparing a formal Associate Advisor job advertisement."
+    "indicators": "Leadership teams and HR managers actively preparing to recruit advisory staff or restructure the team. Use when a previous bad hire has damaged culture or profitability, when the firm is scaling rapidly and needs a repeatable hiring process, or when preparing a formal Associate Advisor job advertisement.",
+    "page": "get-focused-support"
   },
   {
     "name": "Coaching Content",
@@ -1157,7 +1312,8 @@
     "purpose": "A comprehensive advisor skill development content library based on the 'Flipping the Learning' model — starting with client problems and working backwards to determine what internal training is required, ensuring the firm's learning investment is directly connected to client outcomes.",
     "helpsOwner": "Ensures the advisory firm's time and training resources are dedicated to learning how to solve the exact problems the business owner is currently facing — not generic courses disconnected from real client needs.",
     "helpsAdvisor": "Removes ambiguity from professional development by clarifying exactly who on the team needs to learn what and by when, using a technology-enabled closed feedback loop that monitors common failures and continuously improves the training curriculum.",
-    "indicators": "Practice partners, training managers, and HR leaders responsible for mapping the internal training curriculum. Use when the team's professional development feels disconnected from client delivery, or when advisors are learning in silos rather than as a collaborative team."
+    "indicators": "Practice partners, training managers, and HR leaders responsible for mapping the internal training curriculum. Use when the team's professional development feels disconnected from client delivery, or when advisors are learning in silos rather than as a collaborative team.",
+    "page": "individual-fee-growth-plan"
   },
   {
     "name": "Coaching Outcome Statements",
@@ -1165,7 +1321,8 @@
     "purpose": "A Team Training Operating System (OS) that provides clear Field Outcome Statements defining the responsibilities, boundaries, and expected coaching requirements across each advisory tier — from Advisory Support through to Strategic Advisor and future Partnership Option.",
     "helpsOwner": "Ensures clients are matched with advisors functioning at the correct level of expertise, from software training and educational meetings through to complex, conflict-based business facilitation.",
     "helpsAdvisor": "Sets crystal-clear career expectations. An Associate Advisor knows they manage accounts proactively but are not required to hunt for new prospects. A Strategic Advisor knows exactly what skills they must master to become a Partnership Option. Removes ambiguity and entitlement disputes.",
-    "indicators": "Management tracking the Professional's Journey and team members wanting to understand their specific role boundaries and career progression path. Use during performance reviews, when restructuring the advisory team, or when onboarding a new advisor."
+    "indicators": "Management tracking the Professional's Journey and team members wanting to understand their specific role boundaries and career progression path. Use during performance reviews, when restructuring the advisory team, or when onboarding a new advisor.",
+    "page": "id-3487353495"
   },
   {
     "name": "Planning Templates Directory",
@@ -1173,7 +1330,11 @@
     "purpose": "A structured directory and reference guide that maps all available planning templates to their relevant coaching phases, client situations, and advisory applications — giving firm managers and coaches a clear overview of what tools to deploy and when.",
     "helpsOwner": "Ensures the advisory firm is systematically using the full toolkit available rather than defaulting to the same small set of familiar templates, improving the breadth and quality of client service.",
     "helpsAdvisor": "Provides a navigation reference so advisors can quickly identify the right template for each client situation and coaching phase, reducing preparation time and ensuring consistency across the team.",
-    "indicators": "Firm managers, internal coaches, and advisory teams who want a structured reference to ensure the full template library is being deployed systematically. Use during team coaching sessions, client preparation, or when reviewing whether the full Advisor-e toolkit is being utilised."
+    "indicators": "Firm managers, internal coaches, and advisory teams who want a structured reference to ensure the full template library is being deployed systematically. Use during team coaching sessions, client preparation, or when reviewing whether the full Advisor-e toolkit is being utilised.",
+    "pages": [
+      "coi-planning",
+      "id-1015676757"
+    ]
   },
   {
     "name": "Paper Tower",
@@ -1181,7 +1342,8 @@
     "purpose": "A team-building workshop toolkit containing the Paper Tower financial scoring model, Review Questions debrief script, Task Sheet rules, and Spaghetti Tower alternative exercise — translating a hands-on construction challenge into profound insights about team dynamics, process discipline, and business decision-making.",
     "helpsOwner": "Demonstrates how material costs, time efficiency, and quality directly impact the bottom line. Translates soft skills (team communication, planning) into hard financial metrics, proving that rushing into action without a plan leads to waste and financial loss.",
     "helpsAdvisor": "The facilitator scoring model automates complex profit/loss calculations so the advisor can focus on observing team behaviour. The debrief script introduces a 9-step problem-solving process (Appoint Chairperson, SMART Objective, Brainstorm without assessment, etc.) directly applicable to real business projects.",
-    "indicators": "Facilitators and firm managers running internal team-building days, conflict resolution sessions, or workshops aimed at improving structured decision-making and team collaboration. Also used as an engaging ice-breaker before intensive strategy sessions."
+    "indicators": "Facilitators and firm managers running internal team-building days, conflict resolution sessions, or workshops aimed at improving structured decision-making and team collaboration. Also used as an engaging ice-breaker before intensive strategy sessions.",
+    "page": "id-1449558534"
   },
   {
     "name": "Hire Winners",
@@ -1189,7 +1351,8 @@
     "purpose": "A general hiring framework covering recruitment theory, leadership alignment, 3-stage candidate vetting (Feel/Know/Test), and structured orientation — designed to prevent costly hiring mistakes by assessing cultural fit, technical competence, and growth potential before an offer is made.",
     "helpsOwner": "Protects the firm against the financial and cultural cost of a wrong hire by using a disciplined, multi-stage vetting process before committing to an employment offer.",
     "helpsAdvisor": "Provides a replicable hiring process that can be used across advisory, administrative, and support roles. The structured orientation table ensures new hires are productively integrated from day one rather than left to find their own footing.",
-    "indicators": "Advisory firms and accounting practices preparing to recruit any team member. Use when previous informal hiring has resulted in poor cultural fit, high staff turnover, or when the firm has grown to the point where a repeatable hiring process is needed."
+    "indicators": "Advisory firms and accounting practices preparing to recruit any team member. Use when previous informal hiring has resulted in poor cultural fit, high staff turnover, or when the firm has grown to the point where a repeatable hiring process is needed.",
+    "page": "get-focused-support"
   },
   {
     "name": "Team Bldg Problem Solving",
@@ -1197,7 +1360,8 @@
     "purpose": "A structured 9-step team problem-solving framework and facilitation guide that moves teams from chaotic, jump-to-solution behaviour to process-driven, accountable decision-making — covering Chairperson appointment, SMART objectives, brainstorming without assessment, option evaluation, resource allocation, and action planning.",
     "helpsOwner": "Prevents the team from suffering analysis paralysis or jumping straight to the first solution, ensuring complex business challenges are solved methodically with an Enforcer assigned to maintain implementation momentum.",
     "helpsAdvisor": "Provides an authoritative, institutionally-backed framework for guiding client strategy sessions and ensuring that decisions made in the room result in accountable action plans rather than good intentions.",
-    "indicators": "Facilitators and management teams navigating complex problems, strategic pivots, or internal conflicts. Use when the team regularly starts meetings without a clear objective, when brainstorming sessions consistently end without decisions, or when previously agreed actions are not being implemented."
+    "indicators": "Facilitators and management teams navigating complex problems, strategic pivots, or internal conflicts. Use when the team regularly starts meetings without a clear objective, when brainstorming sessions consistently end without decisions, or when previously agreed actions are not being implemented.",
+    "page": "id-1449558534"
   },
   {
     "name": "Advisor-e Coaching Plan",
@@ -1205,7 +1369,8 @@
     "purpose": "A comprehensive 60-session coaching curriculum spreadsheet that tracks the full advisory development program — including pricing models, session hours, skill outcomes, and progress against field objectives — from technical software usage through to advanced soft skills like sales framing and COI development.",
     "helpsOwner": "Provides measurable ROI on coaching investment by mapping topics, planned attendees, and delivery hours directly against specific field outcomes and client-facing improvements.",
     "helpsAdvisor": "Gives a predictable, structured pathway from technical foundations to strategic advisory capability. Scheduled in work sprints that respect peak compliance periods, with a Weekly Golden Hour dedicated to strategic learning above compliance deliveries.",
-    "indicators": "Practice managers and advisors managing long-term professional development programs. Use when the coaching program lacks a documented curriculum, when it is unclear which sessions have been completed or what remains, or when a new advisor cohort needs a structured onboarding pathway."
+    "indicators": "Practice managers and advisors managing long-term professional development programs. Use when the coaching program lacks a documented curriculum, when it is unclear which sessions have been completed or what remains, or when a new advisor cohort needs a structured onboarding pathway.",
+    "page": "id-9980304581"
   },
   {
     "name": "Advisory Performance Improvement",
@@ -1213,7 +1378,8 @@
     "purpose": "A formal Performance Improvement Plan (PIP) template tailored specifically for advisory roles and portal engagement — documenting exact performance gaps against measurable metrics, defining required behavioural changes, assigning a mentor, and scheduling strict 30/60/90-day review milestones.",
     "helpsOwner": "Protects the firm against fee loss and cultural damage caused by underperforming advisors by ensuring performance issues are formally documented, clearly communicated, and actively managed before they become costly.",
     "helpsAdvisor": "Removes all ambiguity about what the performance gap is and exactly what must change. Outlines specific behaviours to start and stop, details the mentorship available, and establishes clear review timelines — protecting both the firm and the advisor from misunderstanding.",
-    "indicators": "Team members failing to meet minimum portal engagement expectations (e.g., client entities not created, post-meeting actions not tagged), advisors resisting the advisory engagement model, or any situation where informal performance conversations have not produced change."
+    "indicators": "Team members failing to meet minimum portal engagement expectations (e.g., client entities not created, post-meeting actions not tagged), advisors resisting the advisory engagement model, or any situation where informal performance conversations have not produced change.",
+    "page": "id-7534574842"
   },
   {
     "name": "Group Coaching Sessions",
@@ -1221,7 +1387,8 @@
     "purpose": "A suite of 6 video-based interactive group coaching tutorials — each with a presentation video (including timed breakout sessions), a Coach Prep guide, a session run sheet, and supporting templates — covering disruption, structured networking, COI development (Parts 1 & 2), Event-Cause-Effect storytelling, and fee/job creep discussions.",
     "helpsOwner": "Demonstrates the firm's commitment to a Visible Learning Culture — ensuring the advisory team is continuously developing the skills needed to solve real client problems and create competitive advantage.",
     "helpsAdvisor": "Provides a turnkey team training system. Each session is designed to be fun, interactive, and quick to prepare: just turn on the video and pause at the breakout questions. Covers the core skills needed for advisory growth: coping with disruption, building referral networks, handling difficult fee conversations, and engaging passive-aggressive prospects.",
-    "indicators": "Firm managers and internal coaches pursuing a Visible Learning Culture. Use when the advisory team needs structured group development that goes beyond individual coaching, particularly when building COI skills, improving client communication, or establishing a culture of psychological safety and continuous learning."
+    "indicators": "Firm managers and internal coaches pursuing a Visible Learning Culture. Use when the advisory team needs structured group development that goes beyond individual coaching, particularly when building COI skills, improving client communication, or establishing a culture of psychological safety and continuous learning.",
+    "page": "id-9120294725"
   },
   {
     "name": "Coping With Disruption",
@@ -1229,7 +1396,8 @@
     "purpose": "A 90-minute group coaching tutorial (34-min video + 5 breakouts) that builds a Visible Learning Culture by teaching the team about the Reticular Activating System, Enneagram coping styles, how to learn from failure without emotional blackmail, and how to translate new skills into competitive advantage for clients.",
     "helpsOwner": "Ensures the advisory team takes collective responsibility for developing competitive advantage — creating a culture of progression and honesty where learning is a continuous journey rather than a one-off event.",
     "helpsAdvisor": "Helps advisors recognise how the R.A.S limits their SWOT analysis, teaches them to use feedback frameworks to fail forward, and builds a structured 90-day learning focus — clarifying how each new skill benefits the client, the advisor, and the firm.",
-    "indicators": "Advisory teams experiencing resistance to new technology, AI adoption, or process changes. Use as the first session in a team development program when establishing a Visible Learning Culture, or whenever the team needs to collectively develop resilience and adaptability."
+    "indicators": "Advisory teams experiencing resistance to new technology, AI adoption, or process changes. Use as the first session in a team development program when establishing a Visible Learning Culture, or whenever the team needs to collectively develop resilience and adaptability.",
+    "page": "id-392677477"
   },
   {
     "name": "Structured Networking",
@@ -1237,7 +1405,8 @@
     "purpose": "A 90-minute group coaching tutorial (40-min video + 5 breakouts) that teaches advisors to develop intentional relationships with existing clients through structured networking — covering psychological blockages, the Advisor-e Relationship Staircase, how to avoid giving free advice during coffee chats, and managing internal dialogue.",
     "helpsOwner": "Helps advisors transition from reactive relationship management to strategic relationship building with existing clients and centres of influence, increasing the value each relationship delivers over time.",
     "helpsAdvisor": "Provides frameworks including the Jo-Hari Window, Freud's Psyche Structure, Coded Behaviour, and micro-habit building to analyse client communication styles, grade relationship depth, and manage the internal dialogue that prevents advisors from executing networking tactics. Homework: approach 3 identified clients.",
-    "indicators": "Advisory teams who know they should be networking more intentionally but struggle to take consistent action, or whose \"coffee chats\" consistently result in free advice being given rather than strategic relationship progression."
+    "indicators": "Advisory teams who know they should be networking more intentionally but struggle to take consistent action, or whose \"coffee chats\" consistently result in free advice being given rather than strategic relationship progression.",
+    "page": "id-8759181508"
   },
   {
     "name": "COI Development pt1",
@@ -1245,7 +1414,8 @@
     "purpose": "The first of three COI coaching modules (47-min video + 5 breakouts) covering the psychology of Centre of Influence development — including the 3 relation types, Honey & Mumford processing styles, 4 requirements for successful business relationships, 4 referral styles, 5 approach options, and the Advisor-e COI process (Could We / How Would We / Will We / Test Review).",
     "helpsOwner": "Ensures the advisor has undergone rigorous, scenario-based training in building authentic referral relationships — resulting in a more structured and professional business relationship rather than a haphazard sales pitch.",
     "helpsAdvisor": "Provides the psychological framework for understanding COI dynamics, identifying referral-style mismatches, and progressing relationships deliberately through the four stages of the Advisor-e COI process. Homework: identify 3 COI targets and secure a coffee chat.",
-    "indicators": "Advisory teams starting to build a structured referral network. Use as the foundational module before attempting COI outreach — critical for advisors who have tried referral development before but found it felt inauthentic or yielded poor results."
+    "indicators": "Advisory teams starting to build a structured referral network. Use as the foundational module before attempting COI outreach — critical for advisors who have tried referral development before but found it felt inauthentic or yielded poor results.",
+    "page": "id-815572309"
   },
   {
     "name": "COI Development pt2",
@@ -1253,7 +1423,8 @@
     "purpose": "The second COI coaching module (23-min video + 5 breakouts) covering the logistics and compelling offer phase — starting within a comfort-range COI profile, mapping logistics using the COI Logistics Model, building a value proposition through the Time/Control/Money lens, and establishing a feedback loop to refine the offer.",
     "helpsOwner": "Results in an advisory offer that focuses directly on the value the COI's clients understand and desire, rather than internal firm metrics or technical jargon.",
     "helpsAdvisor": "Forces advisors to define their ideal COI profile (geography, demographics, client mix), calculate how many prospecting hours are required to secure their target number of COIs, and validate their offer against the Time/Control/Money framework before taking it to market.",
-    "indicators": "Advisory teams who have completed COI Development Part 1 and are ready to operationalise their networking strategy with specific logistics, a compelling offer, and a defined COI target profile."
+    "indicators": "Advisory teams who have completed COI Development Part 1 and are ready to operationalise their networking strategy with specific logistics, a compelling offer, and a defined COI target profile.",
+    "page": "id-2511220452"
   },
   {
     "name": "Event, Cause, Effect",
@@ -1261,7 +1432,8 @@
     "purpose": "A 90-minute group coaching tutorial (33-min video + 5 breakouts) teaching the Event-Cause-Effect storytelling framework — a 3rd-person dissociation technique using the 'rule of 5 and 3' (5 Causes, 3 Effects) that positions advisory conversations as problem-solving rather than selling, specifically designed for handling passive-aggressive or resistant prospects ('Mr Prickly').",
     "helpsOwner": "Ensures the advisor operates with genuine congruence rather than rehearsed sales scripts — creating conversations centred on \"let's fix the problem, not the blame\" that feel collaborative rather than adversarial.",
     "helpsAdvisor": "Provides the advisor with a mental anchor that reduces performance anxiety. Teaches them to illustrate technical expertise via 3rd-person dissociation while building emotional connection via 1st-person empathy, and to use the 'Look Both Ways' (pre and post-event) approach to naturally extend engagement scope.",
-    "indicators": "Advisors struggling with resistant, disengaged, or guarded prospects. Use after COI Development Parts 1 & 2 to train advisors in the advanced client engagement skill of building common problem stories that create trust and open doors without triggering sales resistance."
+    "indicators": "Advisors struggling with resistant, disengaged, or guarded prospects. Use after COI Development Parts 1 & 2 to train advisors in the advanced client engagement skill of building common problem stories that create trust and open doors without triggering sales resistance.",
+    "page": "id-6063400289"
   },
   {
     "name": "Fee Estimate & Job Creep Discussions",
@@ -1269,7 +1441,8 @@
     "purpose": "A 90-minute group coaching tutorial (31-min video + 5 breakouts) equipping advisors to handle the two fee scenarios that 'sneak up' on professionals: Scenario 1 (client downplays a job to influence the estimate) and Scenario 2 (client uses an 'assumed close' to avoid discussing price) — using Prime & Range-Link scripts, Blow-out warnings, and the Old Car Maintenance philosophy.",
     "helpsOwner": "Standardises the firm's response to problematic client pricing behaviours, protecting profitability and ensuring fee conversations are handled consistently and confidently across the entire advisory team.",
     "helpsAdvisor": "Provides psychological tools to understand when the \"balance of power\" shifts in a fee conversation, and equips advisors with literal scripts (using the word \"because\" as a logical justifier) and role-play practice to build confidence before facing real clients.",
-    "indicators": "Advisory firms where advisors regularly discount fees under pressure, fail to raise job creep issues with clients, or avoid fee estimate conversations due to discomfort. Use as a team training module when write-offs are increasing or when client fee disputes are occurring."
+    "indicators": "Advisory firms where advisors regularly discount fees under pressure, fail to raise job creep issues with clients, or avoid fee estimate conversations due to discomfort. Use as a team training module when write-offs are increasing or when client fee disputes are occurring.",
+    "page": "id-8441130110"
   },
   {
     "name": "My Improvement Plan",
@@ -1277,7 +1450,8 @@
     "purpose": "A structured advisor coaching and self-development tool built around the Review → Observe → Prepare → Do cycle. Used in weekly coaching check-ins to track what went well and less well, plan Get Organised / Get the Job / Do the Job actions for the coming week, and surface operational blockers that are preventing forward progress.",
     "helpsOwner": "Ensures the advisor serving the client is continuously improving their skills, empathy, and service delivery by turning every client interaction into a structured learning loop — directly lifting the quality and consistency of advice received.",
     "helpsAdvisor": "Structures weekly reflection and planning into five clear buckets: past performance, preparation actions, prospecting actions, client delivery actions, and blockers. Prevents advisors from operating on instinct alone and creates an auditable trail of their development progress. Used in coaching sessions to diagnose whether underperformance is a skill gap, market resistance, or an operational blocker.",
-    "indicators": "Advisors in an active coaching or performance improvement program. Use at the start of every weekly coaching session, or whenever an advisor's activity levels, conversion rates, or client satisfaction appear to have stalled and a structured diagnostic is needed."
+    "indicators": "Advisors in an active coaching or performance improvement program. Use at the start of every weekly coaching session, or whenever an advisor's activity levels, conversion rates, or client satisfaction appear to have stalled and a structured diagnostic is needed.",
+    "page": "service-matrix"
   },
   {
     "name": "My Fee Growth Plan",
@@ -1285,7 +1459,8 @@
     "purpose": "A personal advisory fee growth model that helps individual advisors define their target clients, niche service offers, marketing statements, conversion assumptions, and activity targets — turning fee growth from a vague aspiration into a mathematically modelled personal plan.",
     "helpsOwner": "Ensures clients are categorised and targeted by advisors who have a clear, documented strategy for growing their fee base — leading to more focused, value-driven advisory relationships rather than reactive account management.",
     "helpsAdvisor": "Defines target clients (Growth, Maintain, Service tiers), outlines niche service offers, and sets personal fee targets with conversion assumptions. Helps advisors take autonomous ownership of their pipeline rather than relying on the firm to generate all opportunities.",
-    "indicators": "Advisors with full or shared autonomy who are responsible for growing their portion of the fee base. Use during annual planning, when an advisor is transitioning from associate to strategic tier, or when fee growth has stalled and a structured reset is needed."
+    "indicators": "Advisors with full or shared autonomy who are responsible for growing their portion of the fee base. Use during annual planning, when an advisor is transitioning from associate to strategic tier, or when fee growth has stalled and a structured reset is needed.",
+    "page": "individual-fee-growth-plan"
   },
   {
     "name": "My Network/Entertainment Schedule",
@@ -1293,7 +1468,8 @@
     "purpose": "A personal networking and client entertainment planning template that maps out the advisor's scheduled relationship-building activities — coffee chats, dinners, events, and COI meetings — against their fee growth targets and client priority tiers.",
     "helpsOwner": "Ensures the advisor is proactively investing time in relationship maintenance and development rather than only engaging clients reactively around compliance deadlines.",
     "helpsAdvisor": "Provides a structured schedule to track relationship-building activities and ensure the advisor is consistently progressing relationships up the Relationship Staircase. Links entertainment and networking spend to client value and fee growth targets.",
-    "indicators": "Advisors at any level who want to formalise their networking activities, who are building a COI referral network, or whose relationship-building activities currently lack structure or accountability."
+    "indicators": "Advisors at any level who want to formalise their networking activities, who are building a COI referral network, or whose relationship-building activities currently lack structure or accountability.",
+    "page": "id-6203812261"
   },
   {
     "name": "Platinum Case Study",
@@ -1301,7 +1477,8 @@
     "purpose": "A structured client case study preparation format used in the firm's Platinum Hr team sessions — guiding the presenting advisor through how to introduce client financials and observed trends, frame the client's issues against the Get Organised / Get the Job / Do the Job framework, explain the service offer, and capture peer feedback.",
     "helpsOwner": "Ensures client situations are analysed by the entire advisory team rather than in isolation, leading to richer, more validated advice and solutions that have been stress-tested before the client conversation.",
     "helpsAdvisor": "Provides a structured template for presenting client cases to peers in the Golden Hr / Platinum Hr learning cycle. Ensures the advisor is fully prepared before entering a client meeting and captures group intelligence in a reusable format.",
-    "indicators": "Advisors preparing for complex client reviews, strategy sessions, or difficult conversations. Use as the standard preparation format for all Platinum Hr team sessions within a Visible Learning Culture program."
+    "indicators": "Advisors preparing for complex client reviews, strategy sessions, or difficult conversations. Use as the standard preparation format for all Platinum Hr team sessions within a Visible Learning Culture program.",
+    "page": "adve-lf-6-keys"
   },
   {
     "name": "My CPD Log",
@@ -1309,7 +1486,8 @@
     "purpose": "A personal Continuing Professional Development (CPD) log that tracks learning hours, session topics, competencies developed, and progress against the firm's required CPD framework — providing an auditable record of professional development for compliance, partnership pathway assessment, and personal accountability.",
     "helpsOwner": "Ensures the advisor providing services is maintaining their professional competence through documented, structured learning rather than ad-hoc development.",
     "helpsAdvisor": "Automates accountability by providing a simple log for recording each learning activity, the time spent, and the competency developed. Required for partnership pathway progression and used in conjunction with the Coaching Progress Plan to track 60-session curriculum completion.",
-    "indicators": "All advisors in the Advisor-e ecosystem. Particularly important for those on the Directorship Pathway who must demonstrate a minimum number of CPD hours, and for practice managers tracking team-wide professional development compliance."
+    "indicators": "All advisors in the Advisor-e ecosystem. Particularly important for those on the Directorship Pathway who must demonstrate a minimum number of CPD hours, and for practice managers tracking team-wide professional development compliance.",
+    "page": "my-fee-growth-plan-old"
   },
   {
     "name": "My Sales Logistics & Mktg Plan",
@@ -1317,7 +1495,8 @@
     "purpose": "A Google Sheet scenario model for forecasting an advisor's probable annual earnings based on combined assumptions about their skill level and market acceptance. Models conversion ratios, time allocation per client tier, commission structures (upfront, volume, lapse rates), best/worst case revenue scenarios, and time surplus or deficit — helping advisors validate whether their activity targets are achievable before the year begins.",
     "helpsOwner": "Advisors who have stress-tested their own capacity and revenue model deliver more consistent, reliable service — the tool prevents advisors from overcommitting to clients they cannot adequately serve given realistic time constraints.",
     "helpsAdvisor": "Determines exactly where the advisor should spend their time to hit probable revenue targets. Highlights time deficits or unachievable goals early. Allows multiple scenarios to be saved and compared (best case vs worst case). Tracks actual conversion against model assumptions so the advisor can identify whether a shortfall is a skill gap or market resistance, then adjust activity volume or technique accordingly.",
-    "indicators": "Advisors, risk advisors, and practice managers planning annual fee targets. Use at the start of the planning year, when an advisor's revenue has stalled without an obvious cause, or when onboarding a new advisor and setting realistic first-year income expectations."
+    "indicators": "Advisors, risk advisors, and practice managers planning annual fee targets. Use at the start of the planning year, when an advisor's revenue has stalled without an obvious cause, or when onboarding a new advisor and setting realistic first-year income expectations.",
+    "page": "practice-capacity-planner"
   },
   {
     "name": "Revenue & Feasibility Industry Model",
@@ -1325,7 +1504,71 @@
     "purpose": "An industry-specific revenue and feasibility model used as the vital first step in an advisory engagement. More than 74 industry variants exist (Cafe, Hairdressing, Construction, Dentist, etc.) — each one clarifies the specific variables that drive that industry's revenue and profit, calculates the client's true financial capacity, and compares current reality against probable potential.",
     "helpsOwner": "Eliminates guesswork about the business's financial position. Gives the client and advisor a shared, data-driven understanding of where revenue comes from, where margin is lost, and what realistic improvement potential looks like — specific to their industry.",
     "helpsAdvisor": "Demonstrates commercial knowledge in the client's specific industry context, building instant credibility and alignment. Creates the data foundation needed to identify performance gaps, set improvement targets, and secure client buy-in to a deeper advisory engagement. Particularly valuable with new clients or when repositioning the relationship from compliance to advisory.",
-    "indicators": "Any new or existing client where the advisor does not yet have a clear picture of the revenue model, margin drivers, and capacity constraints. Use at the start of an engagement, when a client's profitability has declined without a clear cause, when setting a financial improvement plan, or when a client needs to see the advisor's industry knowledge before committing to a deeper engagement."
+    "indicators": "Any new or existing client where the advisor does not yet have a clear picture of the revenue model, margin drivers, and capacity constraints. Use at the start of an engagement, when a client's profitability has declined without a clear cause, when setting a financial improvement plan, or when a client needs to see the advisor's industry knowledge before committing to a deeper engagement.",
+    "pages": [
+      "id-3892948252",
+      "id-329534784",
+      "id-448611359",
+      "id-7325651781",
+      "id-6386895650",
+      "id-2656438043",
+      "id-4336328485",
+      "id-8171543327",
+      "id-2363382326",
+      "id-4393936700",
+      "id-9500594254",
+      "id-9850884917",
+      "id-4976805070",
+      "id-7833593692",
+      "id-2924428930",
+      "id-3908104417",
+      "id-196230307",
+      "id-8797736868",
+      "id-6812423554",
+      "id-9464472464",
+      "id-3263743632",
+      "id-2874439569",
+      "id-2031013565",
+      "id-3071922878",
+      "id-3443941670",
+      "id-4671298680",
+      "id-739082913",
+      "id-9055555447",
+      "id-9440392920",
+      "id-2363028463",
+      "id-4785641745",
+      "id-7083515495",
+      "id-4212038247",
+      "id-102938972",
+      "id-458386486",
+      "id-7300493666",
+      "id-2994412897",
+      "id-7926022344",
+      "id-6135077820",
+      "id-2031816767",
+      "id-4496283136",
+      "id-8630195960",
+      "id-6913003200",
+      "id-9528768263",
+      "id-7880718875",
+      "id-7911507941",
+      "id-4839857390",
+      "id-8663037039",
+      "id-5968387608",
+      "id-2564764117",
+      "id-8113313872",
+      "id-7595084187",
+      "id-9520016666",
+      "id-3167861288",
+      "id-9422408981",
+      "id-2405526495",
+      "id-9838262016",
+      "id-3652967577",
+      "id-4159320328",
+      "id-8331651557",
+      "id-2765249803",
+      "id-3757497372"
+    ]
   },
   {
     "name": "Assumptions",
@@ -1333,7 +1576,8 @@
     "purpose": "The input and setup sheet for revenue and feasibility models — where the advisor captures the key business assumptions (pricing, volume, costs, staffing ratios) that drive all downstream calculations in the model.",
     "helpsOwner": "Ensures the business owner's assumptions about their own numbers are made explicit and stress-tested before committing to a financial plan — surfacing unrealistic expectations early.",
     "helpsAdvisor": "Provides a single reference point for all model inputs, making it easy to run scenario changes by adjusting one assumption rather than editing the model directly. Creates a transparent audit trail of what was agreed at the start of the engagement.",
-    "indicators": "Use at the start of any revenue or feasibility modelling engagement to establish the baseline assumptions before building out the full model."
+    "indicators": "Use at the start of any revenue or feasibility modelling engagement to establish the baseline assumptions before building out the full model.",
+    "page": "advanced-fundamentals-delivery-tools"
   },
   {
     "name": "Break-Even",
@@ -1341,7 +1585,8 @@
     "purpose": "Calculates the exact revenue level at which the business covers all fixed and variable costs and begins to generate profit. Includes contribution margin analysis to show which products or services carry the most margin weight.",
     "helpsOwner": "Gives the business owner a clear, non-negotiable revenue target they must hit before the business is sustainable — removing any ambiguity about minimum performance requirements.",
     "helpsAdvisor": "Provides an instant benchmark for assessing whether a client's current revenue is above or below the survival threshold, and by how much. Essential for crisis clients, new business feasibility assessments, and businesses considering a major cost restructure.",
-    "indicators": "New business start-ups, clients facing declining revenue, businesses considering a significant cost restructure, or any engagement where the viability of the current business model is in question."
+    "indicators": "New business start-ups, clients facing declining revenue, businesses considering a significant cost restructure, or any engagement where the viability of the current business model is in question.",
+    "page": "id-6335013800"
   },
   {
     "name": "Back Costing",
@@ -1349,7 +1594,8 @@
     "purpose": "Works backward from a desired profit or owner salary outcome to calculate the revenue, pricing, and volume needed to achieve it — reversing the typical bottom-up P&L approach.",
     "helpsOwner": "Reveals whether the owner's financial goals are achievable given their current cost structure and pricing — preventing them from setting aspirational targets that the business model simply cannot support.",
     "helpsAdvisor": "Quickly identifies the gap between where the client is and what they need to achieve their target, framing improvement priorities clearly in terms of price increase, volume growth, or cost reduction.",
-    "indicators": "Clients who know what they want to earn but have no clear plan for how to get there. Use when setting financial targets during a strategy or planning session, or when a client's salary expectations are misaligned with their current revenue."
+    "indicators": "Clients who know what they want to earn but have no clear plan for how to get there. Use when setting financial targets during a strategy or planning session, or when a client's salary expectations are misaligned with their current revenue.",
+    "page": "id-2687849712"
   },
   {
     "name": "EBITDA",
@@ -1357,7 +1603,8 @@
     "purpose": "Normalises a client's earnings by removing financing decisions, tax positions, depreciation schedules, and owner-specific costs — producing a clean EBITDA figure for benchmarking, valuation, and performance comparison.",
     "helpsOwner": "Provides a clear picture of the business's true operating performance, separate from how it is financed or what the owner chooses to pay themselves.",
     "helpsAdvisor": "Essential for valuation conversations, business sale preparation, and benchmarking against industry peers. Also exposes distorted profitability caused by unusual owner drawings, related-party transactions, or non-recurring costs.",
-    "indicators": "Clients considering a sale or valuation, businesses preparing for a capital raise, any engagement where the P&L is distorted by owner remuneration or unusual depreciation, or when a multiple-of-earnings valuation is being discussed."
+    "indicators": "Clients considering a sale or valuation, businesses preparing for a capital raise, any engagement where the P&L is distorted by owner remuneration or unusual depreciation, or when a multiple-of-earnings valuation is being discussed.",
+    "page": "id-8990592804"
   },
   {
     "name": "Margin vs Markup",
@@ -1365,7 +1612,8 @@
     "purpose": "A teaching and calculation tool that clarifies the mathematical difference between margin (profit as a percentage of sale price) and markup (profit as a percentage of cost) — and shows how confusing the two leads to systematic underpricing.",
     "helpsOwner": "Corrects one of the most common and costly pricing mistakes small business owners make — believing they are operating on a certain margin when they are actually operating on a lower one.",
     "helpsAdvisor": "Provides a simple, visual demonstration that can be delivered quickly in a client meeting, building credibility while directly improving the client's pricing literacy. Often a high-impact, fast-win conversation.",
-    "indicators": "Any client who sets prices using a markup but talks about their business in terms of margin, or whose gross profit is consistently lower than expected despite hitting revenue targets. Retail, hospitality, and trade businesses are particularly susceptible to this confusion."
+    "indicators": "Any client who sets prices using a markup but talks about their business in terms of margin, or whose gross profit is consistently lower than expected despite hitting revenue targets. Retail, hospitality, and trade businesses are particularly susceptible to this confusion.",
+    "page": "id-7744014253"
   },
   {
     "name": "Volatility Scenario",
@@ -1373,7 +1621,8 @@
     "purpose": "Models the financial impact of revenue or cost volatility on business performance — running multiple scenarios to show how changes in key variables (price, volume, input costs, exchange rates) affect profitability under different conditions.",
     "helpsOwner": "Prepares the business owner for unexpected market changes by quantifying the financial impact of various scenarios before they occur, enabling proactive rather than reactive decision-making.",
     "helpsAdvisor": "Creates the evidence base for risk management and contingency planning conversations, showing clients which variables they are most exposed to and which levers to pull if conditions deteriorate.",
-    "indicators": "Businesses in volatile industries (hospitality, rural, construction, import), clients facing rising input costs, or any engagement where a single key variable (fuel cost, exchange rate, commodity price) could materially affect viability."
+    "indicators": "Businesses in volatile industries (hospitality, rural, construction, import), clients facing rising input costs, or any engagement where a single key variable (fuel cost, exchange rate, commodity price) could materially affect viability.",
+    "page": "id-483900379"
   },
   {
     "name": "Worst Case Scenario",
@@ -1381,7 +1630,8 @@
     "purpose": "A dedicated downside planning model that stress-tests the business against its worst plausible outcome — used to establish the floor of financial performance and determine whether the business can survive it.",
     "helpsOwner": "Forces a realistic assessment of downside risk before it materialises, allowing the owner to prepare contingency measures rather than being caught off-guard by a predictable event.",
     "helpsAdvisor": "Provides the data needed for risk management and business continuity conversations. Establishes whether the client needs a cash buffer, an insurance strategy, or a structural change to survive a worst-case event.",
-    "indicators": "Clients who have never modelled a downside scenario, businesses with high fixed cost bases, and any engagement involving risk management, succession planning, or a significant strategic decision with meaningful downside exposure."
+    "indicators": "Clients who have never modelled a downside scenario, businesses with high fixed cost bases, and any engagement involving risk management, succession planning, or a significant strategic decision with meaningful downside exposure.",
+    "page": "id-6276187822"
   },
   {
     "name": "Forecasting",
@@ -1389,7 +1639,8 @@
     "purpose": "A forward-looking revenue and cost projection model for building 12-month or multi-year financial forecasts. Tracks assumptions against actuals to continuously improve forecast accuracy over time.",
     "helpsOwner": "Replaces gut-feel planning with a structured, data-driven forward view — allowing the owner to see cash flow implications, staffing requirements, and growth milestones before they arrive.",
     "helpsAdvisor": "Creates a regular financial anchor point for advisory meetings. Each month's actuals update the forecast, giving the advisor concrete data to work from and making performance gap conversations more precise and productive.",
-    "indicators": "Clients who are planning growth, preparing for a finance application, managing cash flow uncertainty, or who currently have no formal forward financial plan in place."
+    "indicators": "Clients who are planning growth, preparing for a finance application, managing cash flow uncertainty, or who currently have no formal forward financial plan in place.",
+    "page": "id-1799860252"
   },
   {
     "name": "Sales Dashboard",
@@ -1397,7 +1648,8 @@
     "purpose": "A real-time sales performance tracking tool that monitors revenue against target, conversion rates, average transaction value, and sales pipeline activity — providing a live view of sales health at a glance.",
     "helpsOwner": "Replaces anecdotal reporting with objective data, allowing the owner to identify sales shortfalls early enough to intervene rather than discovering them at month-end when it is too late.",
     "helpsAdvisor": "Provides a structured conversation starter for every advisory meeting — if sales are tracking below target, the dashboard immediately surfaces whether the issue is volume, conversion rate, or average transaction value.",
-    "indicators": "Businesses with a dedicated sales function, clients with declining revenue who lack visibility into their pipeline, and any client where improving sales performance is a key advisory objective."
+    "indicators": "Businesses with a dedicated sales function, clients with declining revenue who lack visibility into their pipeline, and any client where improving sales performance is a key advisory objective.",
+    "page": "id-9678770136"
   },
   {
     "name": "Labour Only",
@@ -1405,7 +1657,8 @@
     "purpose": "A labour-cost-focused revenue model for businesses where labour is the primary cost driver and revenue is directly tied to hours or units of labour deployed.",
     "helpsOwner": "Shows the exact relationship between staffing levels, chargeable hours, and revenue — making it clear how many staff or hours are needed to generate a target revenue figure.",
     "helpsAdvisor": "Simplifies the modelling conversation for pure service businesses where the margin equation is straightforward: more chargeable hours at a higher rate equals more profit.",
-    "indicators": "Professional services firms, trade businesses, healthcare providers, cleaning companies, and any business where staff time is the primary revenue-generating asset and there is minimal product cost."
+    "indicators": "Professional services firms, trade businesses, healthcare providers, cleaning companies, and any business where staff time is the primary revenue-generating asset and there is minimal product cost.",
+    "page": "id-8315250902"
   },
   {
     "name": "Labour, Margin",
@@ -1413,7 +1666,8 @@
     "purpose": "Extends the Labour Only model by adding a margin layer — used for businesses that generate revenue from both labour and products or materials sold at a margin.",
     "helpsOwner": "Clarifies which revenue stream (labour vs. product/materials) contributes most to profit, and where pricing changes will have the greatest impact on the bottom line.",
     "helpsAdvisor": "Identifies whether profitability is being undermined by low margin on materials or products even when labour revenue is strong — a common issue in trade and construction businesses.",
-    "indicators": "Trade businesses, construction companies, workshop-based businesses, and any business that bills for both time and materials."
+    "indicators": "Trade businesses, construction companies, workshop-based businesses, and any business that bills for both time and materials.",
+    "page": "id-8835402008"
   },
   {
     "name": "Labour, Margin, Sales",
@@ -1421,7 +1675,8 @@
     "purpose": "The most comprehensive of the labour-based models — adds a sales volume layer to the Labour + Margin structure, modelling how changes in sales activity feed through to labour demand, margin, and net profit.",
     "helpsOwner": "Provides a complete picture of how a sales campaign or growth initiative will translate into operational requirements and financial outcomes before the owner commits resources.",
     "helpsAdvisor": "Enables end-to-end planning conversations where growth in sales must be balanced against capacity, margin, and cost — preventing clients from growing into unprofitability by taking on more work than they can deliver profitably.",
-    "indicators": "Businesses planning a sales push, firms entering a growth phase, or any client where the connection between sales activity and operational capacity needs to be explicitly quantified."
+    "indicators": "Businesses planning a sales push, firms entering a growth phase, or any client where the connection between sales activity and operational capacity needs to be explicitly quantified.",
+    "page": "id-4271103145"
   },
   {
     "name": "Labour Margin Mix",
@@ -1429,7 +1684,8 @@
     "purpose": "Models revenue for businesses with a mixed labour and margin revenue structure — used when the ratio of labour to product revenue varies significantly across different service or product lines.",
     "helpsOwner": "Shows how changing the product/service mix affects overall profitability, enabling more strategic decisions about which offerings to promote or scale.",
     "helpsAdvisor": "Allows scenario testing of different revenue mixes, helping clients understand which combination of labour and product revenue produces the highest margin at their current cost structure.",
-    "indicators": "Businesses with multiple revenue streams that mix time-billing with product sales, or service businesses considering adding a product line to their offering."
+    "indicators": "Businesses with multiple revenue streams that mix time-billing with product sales, or service businesses considering adding a product line to their offering.",
+    "page": "id-3613015604"
   },
   {
     "name": "Lease vs. Buy",
@@ -1437,7 +1693,8 @@
     "purpose": "A financial comparison model for evaluating whether it is more cost-effective to lease or purchase a capital asset (vehicle, equipment, property) — factoring in cash flow, tax treatment, depreciation, and total cost of ownership.",
     "helpsOwner": "Provides an objective financial basis for a major capital decision rather than relying on instinct or the advice of the vendor or financier, who have a conflict of interest.",
     "helpsAdvisor": "Demonstrates tangible financial advisory value by modelling a decision the client is already facing — creating a clear, quantified recommendation that is easy to act on and memorable.",
-    "indicators": "Clients facing a major asset acquisition decision, businesses considering equipment upgrades or replacements, and any engagement where capital allocation is a priority conversation."
+    "indicators": "Clients facing a major asset acquisition decision, businesses considering equipment upgrades or replacements, and any engagement where capital allocation is a priority conversation.",
+    "page": "id-7790271877"
   },
   {
     "name": "Quick Position",
@@ -1445,7 +1702,8 @@
     "purpose": "A rapid financial position tool that provides an immediate, high-level snapshot of a business's revenue, cost structure, and margin — used when a full model is not needed but a quick financial reality check is.",
     "helpsOwner": "Gets a fast, clear picture of where the business stands financially without the setup time of a full feasibility model.",
     "helpsAdvisor": "Enables the advisor to establish financial credibility quickly in an early-stage client conversation by producing a meaningful output from minimal inputs — ideal for prospect meetings.",
-    "indicators": "First meetings with a new prospect, quick-check sessions with existing clients, or any situation where time is limited but a financial anchor point is needed to ground the conversation."
+    "indicators": "First meetings with a new prospect, quick-check sessions with existing clients, or any situation where time is limited but a financial anchor point is needed to ground the conversation.",
+    "page": "id-2939904328"
   },
   {
     "name": "Wages Review",
@@ -1453,7 +1711,8 @@
     "purpose": "A structured wages cost analysis tool that models the total cost of the workforce — including base wages, taxes, and on-costs — and tests the financial impact of wage increases, restructures, or additional hires.",
     "helpsOwner": "Makes the true cost of wages visible and allows the owner to model the impact of pay rises or restructuring before committing, rather than discovering the cost impact after the fact.",
     "helpsAdvisor": "Provides data for staff cost conversations and helps clients understand why wage decisions that feel small on an individual basis can have significant cumulative impact at a business level.",
-    "indicators": "Clients approaching an annual wage review, businesses planning to hire, businesses experiencing wage cost pressure, or any client where staff costs represent a major portion of operating expenses."
+    "indicators": "Clients approaching an annual wage review, businesses planning to hire, businesses experiencing wage cost pressure, or any client where staff costs represent a major portion of operating expenses.",
+    "page": "id-6834300729"
   },
   {
     "name": "Sales Forecaster",
@@ -1461,7 +1720,8 @@
     "purpose": "A dedicated sales forecast model that projects future revenue based on conversion assumptions, pipeline volume, average deal size, and sales cycle length — activity-driven and forward-looking rather than historically based.",
     "helpsOwner": "Translates sales activity (calls made, proposals sent, meetings booked) into projected revenue — giving the owner a leading indicator of future performance rather than a lagging one.",
     "helpsAdvisor": "Creates a basis for holding proactive sales conversations in advisory meetings. If the pipeline suggests a revenue shortfall 60 days out, the advisor can intervene early rather than reviewing a problem that has already happened.",
-    "indicators": "Businesses with a structured sales process, clients building a sales team, or any engagement where improving pipeline visibility and sales predictability is an objective."
+    "indicators": "Businesses with a structured sales process, clients building a sales team, or any engagement where improving pipeline visibility and sales predictability is an objective.",
+    "page": "id-8581344527"
   },
   {
     "name": "Finance & Depreciation",
@@ -1469,7 +1729,8 @@
     "purpose": "Models the cost of financing a capital asset over its useful life — combining loan repayment schedules, interest costs, and depreciation treatment to show the true annual cost of ownership and its impact on profit.",
     "helpsOwner": "Reveals the full financial impact of a financing decision rather than just the monthly repayment figure — particularly important when tax depreciation and interest deductibility are relevant to the decision.",
     "helpsAdvisor": "Enables precise modelling of any scenario involving asset financing, making capital investment conversations far more credible and actionable than a rough estimate.",
-    "indicators": "Clients considering equipment, vehicle, or property financing; businesses preparing for a capital expenditure round; any engagement where depreciation treatment and its effect on reported profit needs to be explained."
+    "indicators": "Clients considering equipment, vehicle, or property financing; businesses preparing for a capital expenditure round; any engagement where depreciation treatment and its effect on reported profit needs to be explained.",
+    "page": "id-520637887"
   },
   {
     "name": "Finance and Depreciation",
@@ -1477,7 +1738,8 @@
     "purpose": "Models the cost of financing a capital asset over its useful life — combining loan repayment schedules, interest costs, and depreciation treatment to show the true annual cost of ownership and its impact on profit.",
     "helpsOwner": "Reveals the full financial impact of a financing decision rather than just the monthly repayment figure — particularly important when tax depreciation and interest deductibility are relevant to the decision.",
     "helpsAdvisor": "Enables precise modelling of any scenario involving asset financing, making capital investment conversations far more credible and actionable than a rough estimate.",
-    "indicators": "Clients considering equipment, vehicle, or property financing; businesses preparing for a capital expenditure round; any engagement where depreciation treatment and its effect on reported profit needs to be explained."
+    "indicators": "Clients considering equipment, vehicle, or property financing; businesses preparing for a capital expenditure round; any engagement where depreciation treatment and its effect on reported profit needs to be explained.",
+    "page": "id-520637887"
   },
   {
     "name": "Personal Budget",
@@ -1485,7 +1747,8 @@
     "purpose": "A personal financial budget model that maps the owner's household income requirements against the business's ability to generate those drawings — ensuring personal financial needs are factored into business planning.",
     "helpsOwner": "Clarifies exactly how much the business needs to generate to support the owner's personal lifestyle, making the connection between business performance and personal financial security explicit and undeniable.",
     "helpsAdvisor": "Provides the critical input for determining a client's true financial target. A business plan that does not account for personal drawings may achieve its stated financial goals while leaving the owner financially stressed — this template prevents that gap.",
-    "indicators": "Owner-operated businesses, clients setting revenue targets for the year ahead, and any engagement where the owner's salary or drawings have been inconsistent, underpaid, or unclear."
+    "indicators": "Owner-operated businesses, clients setting revenue targets for the year ahead, and any engagement where the owner's salary or drawings have been inconsistent, underpaid, or unclear.",
+    "page": "id-1637972585"
   },
   {
     "name": "High Level Budget",
@@ -1493,6 +1756,7 @@
     "purpose": "A top-down budgeting model that establishes the overall revenue and cost framework for the business — used when a detailed line-by-line budget is not required but a structured financial plan is.",
     "helpsOwner": "Provides a financial plan that is simple enough to understand and use without requiring deep accounting knowledge — giving the owner something they will actually refer to during the year.",
     "helpsAdvisor": "Creates a financial baseline for the year that can be referenced in every subsequent advisory meeting, making performance tracking conversations precise and efficient without requiring full management account complexity.",
-    "indicators": "SME clients without a formal budget in place, businesses entering a new financial year without a financial plan, and early-stage advisory engagements where establishing a financial baseline is the first priority."
+    "indicators": "SME clients without a formal budget in place, businesses entering a new financial year without a financial plan, and early-stage advisory engagements where establishing a financial baseline is the first priority.",
+    "page": "id-5397004441"
   }
 ]
