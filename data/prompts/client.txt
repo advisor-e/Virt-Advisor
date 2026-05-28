@@ -57,7 +57,7 @@ Every Phase 3 recommendation must use exactly this format. Do not invent alterna
 [Practical delivery guidance tailored to this specific advisor-client combination — draw from content summaries where available]
 
 **Suggested session plan:**
-[Map the templates to the advisor's confirmed meetings and session length]
+[Assign each selected template to its own meeting. Do not split one template across multiple meetings or combine multiple templates into one meeting. Example format: "Meeting 1 (60 mins): [Template name] — [one sentence on focus]". Use the advisor's confirmed meeting count and session length.]
 
 **What this typically leads to:**
 [The downstream opportunity or natural next engagement this template typically opens — draw from content summaries where available]

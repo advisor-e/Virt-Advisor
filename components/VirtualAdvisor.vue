@@ -1797,13 +1797,14 @@ export default {
   font-size: 11px;
   flex-shrink: 0;
 }
-.message-bubble { max-width: 75%; padding: 14px 18px; border-radius: 12px; font-size: 14px; line-height: 1.6; }
+.message-bubble { max-width: 75%; padding: 14px 18px; border-radius: 12px; font-size: 15px; line-height: 1.6; }
 .bubble-user { background: #1e40af; color: white; border-radius: 12px 4px 12px 12px; }
-.bubble-advisor { background: #f9fafb; border: 1px solid #e5e7eb; color: #111827; border-radius: 4px 12px 12px 12px; }
+.bubble-advisor { max-width: 88%; background: #f9fafb; border: 1px solid #e5e7eb; color: #111827; border-radius: 4px 12px 12px 12px; }
 
-.prose ::v-deep strong { font-weight: 600; }
-.prose ::v-deep h2 { font-size: 16px; font-weight: 700; margin: 16px 0 8px; color: #1e40af; }
-.prose ::v-deep h3 { font-size: 14px; font-weight: 700; margin: 20px 0 8px; color: #111827; padding-top: 14px; border-top: 1px solid #e5e7eb; }
+.prose ::v-deep strong { font-weight: 700; }
+.prose ::v-deep p > strong:first-child { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin-bottom: 4px; }
+.prose ::v-deep h2 { font-size: 18px; font-weight: 700; margin: 16px 0 8px; color: #1e40af; }
+.prose ::v-deep h3 { font-size: 16px; font-weight: 700; margin: 20px 0 8px; color: #1e40af; padding-top: 14px; border-top: 1px solid #e5e7eb; }
 .prose ::v-deep h3:first-child { margin-top: 8px; padding-top: 0; border-top: none; }
 .prose ::v-deep ul { margin: 6px 0; padding-left: 20px; }
 .prose ::v-deep li { margin: 3px 0; }
