@@ -1205,7 +1205,7 @@ async function handleQuery (rawBody, res) {
         '- "Why this fits your client" → Helps the owner field\n' +
         '- "Why this suits you as the advisor" → Helps the advisor field\n' +
         '- "How to approach it" → Purpose and When to use fields\n' +
-        '- "What this typically leads to" → Where it leads field\n' +
+        '- "What this typically leads to" → write from the collected answers and the natural downstream logic of the template\n' +
         'Adapt to the specific situation — do not copy word-for-word.\n\n' +
         formatSummariesForPrompt(_preSelectedSummaries)
       : ''

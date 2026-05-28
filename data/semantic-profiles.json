@@ -1,0 +1,1289 @@
+[
+  {
+    "page": "id-904072826",
+    "title": "FBT Questionnaire",
+    "subSection": "EOY Notes & Docs",
+    "profile": {
+      "strategy_needed": 1,
+      "succession_issue": 2,
+      "marketing_gap": 2
+    },
+    "totalSignals": 5,
+    "confidence": "high"
+  },
+  {
+    "page": "id-3779095414",
+    "title": "PDF Storage",
+    "subSection": "EOY Notes & Docs",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-6257902186",
+    "title": "Insurance",
+    "subSection": "External Advisors",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-2913118225",
+    "title": "Legal",
+    "subSection": "External Advisors",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-6817897422",
+    "title": "Loan Estimator",
+    "subSection": "External Advisors",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-3094237070",
+    "title": "Retirement Calcs",
+    "subSection": "External Advisors",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-9601408536",
+    "title": "1 pg Bizz Case",
+    "subSection": "General Tools",
+    "profile": {
+      "strategy_needed": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-4919294252",
+    "title": "4 Part Bizz Plan",
+    "subSection": "General Tools",
+    "profile": {
+      "strategy_needed": 1,
+      "marketing_gap": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-5038284749",
+    "title": "6 Hats",
+    "subSection": "General Tools",
+    "profile": {
+      "staff_problem": 2
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "8-profit-levers",
+    "title": "8 Profit Levers",
+    "subSection": "General Tools",
+    "profile": {
+      "profit_plateau": 5
+    },
+    "totalSignals": 5,
+    "confidence": "high"
+  },
+  {
+    "page": "id-5642754592",
+    "title": "90 Day Best Practice Accounting",
+    "subSection": "General Tools",
+    "profile": {
+      "data_quality": 2,
+      "systems_gap": 1
+    },
+    "totalSignals": 3,
+    "confidence": "medium"
+  },
+  {
+    "page": "bizz360",
+    "title": "Activity Ratios",
+    "subSection": "General Tools",
+    "profile": {
+      "cash_flow_gap": 2
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-4277160310",
+    "title": "Client pre Meeting",
+    "subSection": "General Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-6071441423",
+    "title": "Control Matters",
+    "subSection": "General Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-4361586555",
+    "title": "Customer Journey",
+    "subSection": "General Tools",
+    "profile": {
+      "sales_volume": 3,
+      "marketing_gap": 1
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "id-4007209261",
+    "title": "Dashboard Discussions",
+    "subSection": "General Tools",
+    "profile": {
+      "profit_plateau": 2,
+      "data_quality": 2
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "strategic-review",
+    "title": "Debtor Protocols",
+    "subSection": "General Tools",
+    "profile": {
+      "cash_flow_gap": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-9212012331",
+    "title": "Demings Volatility",
+    "subSection": "General Tools",
+    "profile": {
+      "profit_plateau": 5,
+      "data_quality": 3
+    },
+    "totalSignals": 8,
+    "confidence": "high"
+  },
+  {
+    "page": "id-9515196091",
+    "title": "General Meeting Agenda",
+    "subSection": "General Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low"
+  },
+  {
+    "page": "id-1946196200",
+    "title": "HOPE Recession Model",
+    "subSection": "General Tools",
+    "profile": {
+      "cash_flow_gap": 1,
+      "staff_problem": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-7757688681",
+    "title": "Lite Feasibility",
+    "subSection": "General Tools",
+    "profile": {
+      "cash_flow_gap": 7
+    },
+    "totalSignals": 7,
+    "confidence": "high"
+  },
+  {
+    "page": "id-1031914952",
+    "title": "Lite Strategy",
+    "subSection": "General Tools",
+    "profile": {
+      "profit_plateau": 2,
+      "strategy_needed": 2
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "id-3640303064",
+    "title": "Mgt Annual Plan",
+    "subSection": "General Tools",
+    "profile": {
+      "data_quality": 2,
+      "governance_gap": 7,
+      "strategy_needed": 1
+    },
+    "totalSignals": 10,
+    "confidence": "high"
+  },
+  {
+    "page": "id-5195288668",
+    "title": "Money Matters",
+    "subSection": "General Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-6324353645",
+    "title": "People vs. Process",
+    "subSection": "General Tools",
+    "profile": {
+      "staff_problem": 2,
+      "systems_gap": 1
+    },
+    "totalSignals": 3,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-3444141596",
+    "title": "Quick Fire Diagnosis",
+    "subSection": "General Tools",
+    "profile": {
+      "sales_volume": 3,
+      "cash_flow_gap": 2,
+      "profit_plateau": 1,
+      "staff_problem": 1
+    },
+    "totalSignals": 7,
+    "confidence": "high"
+  },
+  {
+    "page": "id-7069873149",
+    "title": "Receivership vs Liquidation",
+    "subSection": "General Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "learning-to-deliver-advanced-fundamentals",
+    "title": "Rubbish In - Rubbish Out",
+    "subSection": "General Tools",
+    "profile": {
+      "profit_plateau": 1,
+      "data_quality": 2,
+      "staff_problem": 1
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "id-1108511320",
+    "title": "Structure Options",
+    "subSection": "General Tools",
+    "profile": {
+      "succession_issue": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-482414900",
+    "title": "Time Matters",
+    "subSection": "General Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-679676385",
+    "title": "What's Applicable",
+    "subSection": "General Tools",
+    "profile": {
+      "systems_gap": 3
+    },
+    "totalSignals": 3,
+    "confidence": "medium"
+  },
+  {
+    "page": "formal-risk-management",
+    "title": "Formal Risk Management",
+    "subSection": "Governance Tools",
+    "profile": {
+      "governance_gap": 1,
+      "succession_issue": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-8466205046",
+    "title": "Governance Introduction",
+    "subSection": "Governance Tools",
+    "profile": {
+      "governance_gap": 12,
+      "data_quality": 1
+    },
+    "totalSignals": 13,
+    "confidence": "high"
+  },
+  {
+    "page": "id-8974944498",
+    "title": "Partner Accountability",
+    "subSection": "Governance Tools",
+    "profile": {
+      "governance_gap": 5,
+      "data_quality": 2
+    },
+    "totalSignals": 7,
+    "confidence": "high"
+  },
+  {
+    "page": "id-6607114703",
+    "title": "Growth Framework",
+    "subSection": "Growth Framework",
+    "profile": {
+      "governance_gap": 2,
+      "systems_gap": 2
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "data-session",
+    "title": "Data Session",
+    "subSection": "Lite Fundamentals",
+    "profile": {
+      "data_quality": 7,
+      "succession_issue": 1
+    },
+    "totalSignals": 8,
+    "confidence": "high"
+  },
+  {
+    "page": "marketing-session",
+    "title": "Lite Marketing",
+    "subSection": "Lite Fundamentals",
+    "profile": {
+      "marketing_gap": 8,
+      "succession_issue": 1
+    },
+    "totalSignals": 9,
+    "confidence": "high"
+  },
+  {
+    "page": "people-session",
+    "title": "People Session",
+    "subSection": "Lite Fundamentals",
+    "profile": {
+      "staff_problem": 5
+    },
+    "totalSignals": 5,
+    "confidence": "high"
+  },
+  {
+    "page": "planning-session",
+    "title": "Planning Session",
+    "subSection": "Lite Fundamentals",
+    "profile": {
+      "strategy_needed": 3
+    },
+    "totalSignals": 3,
+    "confidence": "medium"
+  },
+  {
+    "page": "process-session",
+    "title": "Process Session",
+    "subSection": "Lite Fundamentals",
+    "profile": {
+      "systems_gap": 5
+    },
+    "totalSignals": 5,
+    "confidence": "high"
+  },
+  {
+    "page": "sales-session",
+    "title": "Sales Session",
+    "subSection": "Lite Fundamentals",
+    "profile": {
+      "sales_volume": 2,
+      "systems_gap": 3,
+      "marketing_gap": 1
+    },
+    "totalSignals": 6,
+    "confidence": "high"
+  },
+  {
+    "page": "id-4466260146",
+    "title": "Dashboard Report",
+    "subSection": "Reporting",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "advanced-fundamentals-delivery-tools",
+    "title": "Assumptions",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "staff_problem": 1,
+      "data_quality": 2
+    },
+    "totalSignals": 3,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-3892948252",
+    "title": "Audio-Opto",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-2687849712",
+    "title": "Back Costing",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1,
+      "strategy_needed": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-6335013800",
+    "title": "Break-Even",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "strategy_needed": 1,
+      "profit_plateau": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-329534784",
+    "title": "Cafe",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-448611359",
+    "title": "Cake Shop",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-7325651781",
+    "title": "Car Importer",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-6386895650",
+    "title": "Childcare Ctr",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-2656438043",
+    "title": "Construction",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-4336328485",
+    "title": "Cost per Mtr",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-2363028463",
+    "title": "Dentist",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-8171543327",
+    "title": "Earth Moving Hrs",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-2363382326",
+    "title": "Engineering",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-4393936700",
+    "title": "Food & Remedy Product'n",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-1799860252",
+    "title": "Forecasting",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "cash_flow_gap": 2,
+      "data_quality": 1,
+      "profit_plateau": 1,
+      "staff_problem": 1
+    },
+    "totalSignals": 5,
+    "confidence": "high"
+  },
+  {
+    "page": "id-9500594254",
+    "title": "Gym & Trainer",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-7833593692",
+    "title": "Hairdressing",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-5397004441",
+    "title": "High Level Budget",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 2,
+      "data_quality": 7
+    },
+    "totalSignals": 9,
+    "confidence": "high"
+  },
+  {
+    "page": "id-9850884917",
+    "title": "Home Services Feasibility",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-4212038247",
+    "title": "Homeware Sales",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-4976805070",
+    "title": "Hospitality",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-3908104417",
+    "title": "Joiner",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-8315250902",
+    "title": "Labour Only",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "staff_problem": 2
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-8835402008",
+    "title": "Labour, Margin",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-4271103145",
+    "title": "Labour, Margin, Sales",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "sales_volume": 1,
+      "profit_plateau": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-7790271877",
+    "title": "Lease vs. Buy",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "cash_flow_gap": 1,
+      "staff_problem": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-102938972",
+    "title": "Manufacturing",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-7083515495",
+    "title": "Midwife",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-196230307",
+    "title": "Motel & Lodge",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-8797736868",
+    "title": "Online Sales",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-1637972585",
+    "title": "Personal Budget",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "strategy_needed": 1,
+      "data_quality": 1,
+      "marketing_gap": 2,
+      "sales_volume": 1,
+      "profit_plateau": 1
+    },
+    "totalSignals": 6,
+    "confidence": "high"
+  },
+  {
+    "page": "id-9440392920",
+    "title": "Physiotherapy",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-6812423554",
+    "title": "Production Output",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-9464472464",
+    "title": "Professional Services Firm",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-2939904328",
+    "title": "Quick Position",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "strategy_needed": 5,
+      "profit_plateau": 1
+    },
+    "totalSignals": 6,
+    "confidence": "high"
+  },
+  {
+    "page": "id-3263743632",
+    "title": "Rental Property",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-2874439569",
+    "title": "Retail",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-2031013565",
+    "title": "Rural Volatility",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-8581344527",
+    "title": "Sales Forecaster",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "systems_gap": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-3071922878",
+    "title": "Shop",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-3443941670",
+    "title": "Tour Operators",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-4671298680",
+    "title": "Tours + Shop",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-739082913",
+    "title": "Trucking/ Haulage",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-483900379",
+    "title": "Volatility Scenario",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "sales_volume": 1,
+      "profit_plateau": 3
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "id-6834300729",
+    "title": "Wages Review",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "staff_problem": 2
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-9055555447",
+    "title": "Workshop / Program Sales",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "profit_plateau": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-6276187822",
+    "title": "Worst Case Scenario",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "succession_issue": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "alignment-statements",
+    "title": "Alignment Statements",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "staff_problem": 2,
+      "strategy_needed": 2
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "id-3560081422",
+    "title": "Business Clock vs Body Clock",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-136069218",
+    "title": "Business Purchase Assessment 1",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "staff_problem": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-1908658752",
+    "title": "Business Sale Assessment 1",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "succession_issue": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-5291277413",
+    "title": "Farm Succession",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "succession_issue": 4,
+      "systems_gap": 1
+    },
+    "totalSignals": 5,
+    "confidence": "high"
+  },
+  {
+    "page": "financial-systems-review",
+    "title": "Financial Systems Review",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "systems_gap": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-7465208849",
+    "title": "Hiring Winners",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-8913859328",
+    "title": "Indicative Value Questions",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "succession_issue": 1,
+      "strategy_needed": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-7015138225",
+    "title": "Key Interviews",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-2201525362",
+    "title": "Phone Techniques",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "staff_problem": 2
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-5001782177",
+    "title": "Pitch Deck",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-9984769921",
+    "title": "Porter's Revenue",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "cash_flow_gap": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-1034348000",
+    "title": "Powerful Goal Setting",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "strategy_needed": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "farmers-model",
+    "title": "Productive Habits",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-2228360143",
+    "title": "Purchase Assessment Report 3",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "staff_problem": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-7924565511",
+    "title": "Ratio Analysis",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "profit_plateau": 2,
+      "data_quality": 1
+    },
+    "totalSignals": 3,
+    "confidence": "medium"
+  },
+  {
+    "page": "employee-incentives",
+    "title": "Remuneration & Incentives",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "staff_problem": 4,
+      "profit_plateau": 1
+    },
+    "totalSignals": 5,
+    "confidence": "high"
+  },
+  {
+    "page": "id-452735813",
+    "title": "Sale Assessment Report 3",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "succession_issue": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium"
+  },
+  {
+    "page": "due-diligence",
+    "title": "Stg. 1 Due Diligence",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "growth-projects-delivery-tools-spare",
+    "title": "Stock Policies",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "succession-planning",
+    "title": "Succession Planning",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "staff_problem": 3,
+      "succession_issue": 2
+    },
+    "totalSignals": 5,
+    "confidence": "high"
+  },
+  {
+    "page": "id-6756274046",
+    "title": "80/20 Farm Plan",
+    "subSection": "Strategic Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low"
+  },
+  {
+    "page": "id-9293972213",
+    "title": "Business Dating",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "staff_problem": 1,
+      "succession_issue": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "business-targets",
+    "title": "Business Targets",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "profit_plateau": 2,
+      "succession_issue": 1,
+      "marketing_gap": 1
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "id-6883609726",
+    "title": "Force Field Analysis",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "staff_problem": 2,
+      "governance_gap": 1
+    },
+    "totalSignals": 3,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-3009841766",
+    "title": "Nine Growth Aspects",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "governance_gap": 2,
+      "systems_gap": 2
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "id-480549223",
+    "title": "Org Chart Only",
+    "subSection": "Strategic Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "organisation-review",
+    "title": "Organisational Review",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "staff_problem": 3,
+      "data_quality": 2
+    },
+    "totalSignals": 5,
+    "confidence": "high"
+  },
+  {
+    "page": "strategic-orientation-pt-1",
+    "title": "Orientation Part 1",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "profit_plateau": 1,
+      "strategy_needed": 2
+    },
+    "totalSignals": 3,
+    "confidence": "medium"
+  },
+  {
+    "page": "strategic-orientation-pt-2",
+    "title": "Orientation Part 2",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "profit_plateau": 1,
+      "strategy_needed": 2
+    },
+    "totalSignals": 3,
+    "confidence": "medium"
+  },
+  {
+    "page": "id-3251922216",
+    "title": "Pivot",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "data_quality": 1,
+      "marketing_gap": 1
+    },
+    "totalSignals": 2,
+    "confidence": "medium"
+  },
+  {
+    "page": "planning-outcomes-review",
+    "title": "Planning Outcomes Review",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "strategy_needed": 2,
+      "governance_gap": 1,
+      "marketing_gap": 1
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "id-4491265764",
+    "title": "Porters & Pine",
+    "subSection": "Strategic Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low"
+  },
+  {
+    "page": "profit-levers-blue-ocean",
+    "title": "Profit Levers & Blue Ocean",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "profit_plateau": 2,
+      "succession_issue": 1,
+      "marketing_gap": 1
+    },
+    "totalSignals": 4,
+    "confidence": "high"
+  },
+  {
+    "page": "advanced-sales-marketing-review",
+    "title": "Sales & Marketing Review",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "sales_volume": 2,
+      "succession_issue": 1,
+      "marketing_gap": 9,
+      "staff_problem": 1,
+      "governance_gap": 2
+    },
+    "totalSignals": 15,
+    "confidence": "high"
+  },
+  {
+    "page": "swot-prompts",
+    "title": "SWOT / PEST",
+    "subSection": "Strategic Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  }
+]
