@@ -193,6 +193,12 @@ function resolveTemplates (caseState, strategyDecision, templates) {
       reasons.push('penalty:modeling_rejected')
     }
 
+    // Contradiction: client already uses management reports — Reporting templates are redundant
+    if (caseState.reportingEngagement === 'regular' && subSection === 'Reporting') {
+      score -= 4
+      reasons.push('penalty:reports_already_in_use')
+    }
+
     // Engagement type → subSection alignment
     if (engagementPreferred[0] === subSection) {
       score += 2
@@ -236,7 +242,24 @@ function resolveTemplates (caseState, strategyDecision, templates) {
 
   const budget = (typeof templateBudget === 'number' && templateBudget >= 0) ? templateBudget : 1
   const selected = ranked.slice(0, budget)
-  const candidates = ranked.slice(0, Math.max(8, budget * 4))
+
+  // Build a diverse candidate pool: cap any single subSection at 3 entries so the
+  // AI receives representation across multiple section types, not just the highest-
+  // scoring subSection monopolising all slots.
+  const MAX_CANDIDATES = Math.max(8, budget * 4)
+  const SUBSECTION_CAP = 3
+  const _subSectionCounts = {}
+  const _diverseCandidates = []
+  for (const t of ranked) {
+    const n = _subSectionCounts[t.subSection] || 0
+    if (n < SUBSECTION_CAP) {
+      _diverseCandidates.push(t)
+      _subSectionCounts[t.subSection] = n + 1
+    }
+    if (_diverseCandidates.length >= MAX_CANDIDATES) { break }
+  }
+  const candidates = _diverseCandidates
+
   const scoringLog = ranked.slice(0, 20)
 
   if (selected.length === 0) {

@@ -1128,6 +1128,33 @@ async function handleQuery (rawBody, res) {
       _copySignals.push('Price communication: advisor flagged a price rise — include "Price Rise" template.')
     }
 
+    // Phase D: surface structured problem signals as explicit copy directives
+    const _PROBLEM_SIGNAL_LABELS = {
+      sales_volume: 'low sales volume or insufficient customers',
+      pricing_issue: 'pricing or price communication',
+      cash_flow_gap: 'cash flow or debtor management',
+      profit_plateau: 'profit plateau or declining margins',
+      modeling_rejected: 'revenue modelling explicitly not required',
+      staff_problem: 'staff, team or HR issues',
+      strategy_needed: 'strategic direction or planning',
+      data_quality: 'data quality or reporting infrastructure',
+      governance_gap: 'governance or accountability structure',
+      succession_issue: 'succession, exit or business sale',
+      systems_gap: 'process or systems improvement',
+      marketing_gap: 'marketing or digital presence'
+    }
+    const _ps = (_caseState && _caseState.problemSignals) ? _caseState.problemSignals : {}
+    const _positiveLabels = Object.entries(_ps)
+      .filter(([sig]) => sig !== 'modeling_rejected' && _ps[sig] > 0)
+      .map(([sig]) => _PROBLEM_SIGNAL_LABELS[sig]).filter(Boolean)
+    const _negativeLabels = (_ps.modeling_rejected || 0) > 0 ? [_PROBLEM_SIGNAL_LABELS.modeling_rejected] : []
+    if (_positiveLabels.length > 0) {
+      _copySignals.push(`Problem focus (from advisor diagnostic): ${_positiveLabels.join(', ')}`)
+    }
+    if (_negativeLabels.length > 0) {
+      _copySignals.push(`Explicitly excluded: ${_negativeLabels.join(', ')}`)
+    }
+
     const _profileNote = advisorProfile
       ? `\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nOnly reference what is explicitly stated. Do not infer seniority or capability from what is absent.`
       : ''

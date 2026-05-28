@@ -146,7 +146,9 @@ function buildCaseState (signals, state) {
     },
     diagnosticSignals: signals.map(s => s.type),
     solutionCategories: deriveSolutionCategories(signals, state.detectedDomain),
-    problemSignals: extractProblemSignals(state.situationDiagnostic || '')
+    problemSignals: extractProblemSignals(state.situationDiagnostic || ''),
+    // 'regular' = client already uses reports; 'none' = no reports in use; null = not asked
+    reportingEngagement: get(SIGNAL_TYPES.REPORTING_ENGAGEMENT) || null
   }
 }
 
