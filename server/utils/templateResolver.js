@@ -22,6 +22,47 @@ function getProfileMap () {
   return _profileMap
 }
 
+// ── Scoring version + config ────────────────────────────────────────────────
+// Bump SCORING_VERSION whenever the algorithm changes so scoring logs are traceable.
+const SCORING_VERSION = '2.0.0'
+
+// Signal attenuation — out-of-domain signals get a reduced multiplier rather than
+// being excluded entirely. Domain detection is imperfect and some signals are
+// legitimately cross-domain. Set enableAttenuation: false to roll back instantly.
+const SCORING_CONFIG = {
+  inDomainWeight: 1.0,
+  outOfDomainWeight: 0.33,
+  enableAttenuation: true
+}
+
+// Domain → signals that belong to this domain's scope.
+// Signals not in scope get outOfDomainWeight in semantic scoring.
+// Empty Set = domain uses structured questions only — suppress all free-text signals.
+// Domain absent from map = no filtering (all signals at full weight).
+const DOMAIN_SIGNAL_SCOPE = {
+  profit:            new Set(['cash_flow_gap', 'profit_plateau', 'pricing_issue']),
+  'sales-marketing': new Set(['sales_volume', 'marketing_gap', 'pricing_issue']),
+  staff:             new Set(['staff_problem']),
+  strategy:          new Set(['strategy_needed']),
+  governance:        new Set(['governance_gap']),
+  'data-systems':    new Set(['data_quality', 'systems_gap']),
+  systems:           new Set(['systems_gap']),
+  succession:        new Set(['succession_issue']),
+  forecasting:       new Set(['cash_flow_gap', 'profit_plateau']),
+  risk:              new Set(),
+  valuation:         new Set(),
+  conflict:          new Set(),
+  'due-diligence':   new Set()
+}
+
+function getSignalWeight (signal, domain) {
+  if (!SCORING_CONFIG.enableAttenuation) { return 1.0 }
+  const scope = DOMAIN_SIGNAL_SCOPE[domain]
+  if (scope === undefined) { return 1.0 }  // domain not mapped — no filtering
+  if (scope.size === 0) { return 0 }        // empty scope — suppress all signals
+  return scope.has(signal) ? SCORING_CONFIG.inDomainWeight : SCORING_CONFIG.outOfDomainWeight
+}
+
 // ── Complexity ceiling → blocked subSections ────────────────────────────────
 // Architecture rule: "Step 1–2 cannot produce Specialist/Governance templates"
 // foundational = staircase 1–2, analytical = 3–4, strategic = 5
@@ -196,7 +237,10 @@ function resolveTemplates (caseState, strategyDecision, templates) {
       for (const [signal, signalCount] of _activeSignalEntries) {
         const profileStrength = _semanticProfile[signal] || 0
         if (profileStrength > 0) {
-          semanticScore += profileStrength * signalCount * SEMANTIC_WEIGHT
+          const signalWeight = getSignalWeight(signal, domain)
+          if (signalWeight > 0) {
+            semanticScore += profileStrength * signalCount * SEMANTIC_WEIGHT * signalWeight
+          }
         }
       }
       if (semanticScore > 0) {
@@ -261,7 +305,11 @@ function resolveTemplates (caseState, strategyDecision, templates) {
   // If testing shows this produces wrong results, revisit with subSection preference rank.
   const ranked = scored
     .filter(s => s.score > 0)
-    .sort((a, b) => b.score - a.score || b.profileRichness - a.profileRichness)
+    .sort((a, b) =>
+      b.score - a.score ||
+      a.profileRichness - b.profileRichness ||          // lower richness = more focused = preferred
+      (a.page || '').localeCompare(b.page || '')        // deterministic final tiebreaker
+    )
 
   const budget = (typeof templateBudget === 'number' && templateBudget >= 0) ? templateBudget : 1
   const selected = ranked.slice(0, budget)
@@ -297,4 +345,4 @@ function resolveTemplates (caseState, strategyDecision, templates) {
   return { selected, candidates, scoringLog, noMatchReason: null }
 }
 
-module.exports = { resolveTemplates }
+module.exports = { resolveTemplates, SCORING_VERSION }

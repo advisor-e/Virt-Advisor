@@ -1,3 +1,18 @@
+// Node version guard — must run on Node 18 or 20 LTS.
+// Node 24 breaks Restify (missing spdy binding) and produces invalid GC behaviour
+// in Nuxt 2 dev mode. Fail fast rather than produce unreliable test results.
+;(function checkNodeVersion () {
+  const major = Number(process.version.slice(1).split('.')[0])
+  if (major !== 18 && major !== 20) {
+    process.stderr.write(
+      '\n[STARTUP ERROR] Node ' + process.version + ' is not supported.\n' +
+      'This app requires Node 18 or 20 LTS.\n' +
+      'Run: nvm use 18\n\n'
+    )
+    process.exit(1)
+  }
+}())
+
 export default {
   target: 'server',
 
