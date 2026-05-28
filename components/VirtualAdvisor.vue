@@ -634,7 +634,7 @@ import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
 
-const _md = new MarkdownIt({ html: false, linkify: false, typographer: false })
+const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 
 export default {
   name: 'VirtualAdvisor',
@@ -1797,18 +1797,21 @@ export default {
   font-size: 11px;
   flex-shrink: 0;
 }
-.message-bubble { max-width: 75%; padding: 14px 18px; border-radius: 12px; font-size: 15px; line-height: 1.6; }
-.bubble-user { background: #1e40af; color: white; border-radius: 12px 4px 12px 12px; }
-.bubble-advisor { max-width: 88%; background: #f9fafb; border: 1px solid #e5e7eb; color: #111827; border-radius: 4px 12px 12px 12px; }
+.message-bubble { width: fit-content; max-width: min(920px, 88%); padding: 20px 24px; border-radius: 14px; font-size: 16px; line-height: 1.7; }
+.bubble-user { background: #1e40af; color: white; border-radius: 14px 4px 14px 14px; }
+.bubble-advisor { background: #ffffff; border: 1px solid #e2e8f0; color: #1f2937; border-radius: 4px 14px 14px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
 
+.prose { font-size: 16px; line-height: 1.7; color: #1f2937; word-break: break-word; }
+.prose ::v-deep p { margin: 10px 0; }
 .prose ::v-deep strong { font-weight: 700; }
-.prose ::v-deep p > strong:first-child { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin-bottom: 4px; }
-.prose ::v-deep h2 { font-size: 18px; font-weight: 700; margin: 16px 0 8px; color: #1e40af; }
-.prose ::v-deep h3 { font-size: 16px; font-weight: 700; margin: 20px 0 8px; color: #1e40af; padding-top: 14px; border-top: 1px solid #e5e7eb; }
+.prose ::v-deep h2 { font-size: 20px; font-weight: 700; margin: 24px 0 12px; color: #1e40af; }
+.prose ::v-deep h3 { font-size: 18px; font-weight: 700; margin: 28px 0 12px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #111827; }
 .prose ::v-deep h3:first-child { margin-top: 8px; padding-top: 0; border-top: none; }
-.prose ::v-deep ul { margin: 6px 0; padding-left: 20px; }
-.prose ::v-deep li { margin: 3px 0; }
-.prose ::v-deep p { margin: 6px 0; line-height: 1.6; }
+.prose ::v-deep h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; margin: 20px 0 6px; padding-top: 16px; border-top: 1px solid #f1f5f9; }
+.prose ::v-deep h4:first-child { margin-top: 4px; padding-top: 0; border-top: none; }
+.prose ::v-deep ul { margin: 12px 0; padding-left: 24px; }
+.prose ::v-deep ol { margin: 12px 0; padding-left: 24px; }
+.prose ::v-deep li { margin: 6px 0; line-height: 1.6; }
 
 .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
 .typing-indicator span { width: 7px; height: 7px; background: #9ca3af; border-radius: 50%; animation: bounce 1.2s infinite; }
