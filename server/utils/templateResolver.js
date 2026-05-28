@@ -150,13 +150,13 @@ function resolveTemplates (caseState, strategyDecision, templates) {
     const purposeLower = (t.purpose || '').toLowerCase()
     const subSection = t.subSection || ''
 
-    // Domain → subSection preference
+    // Domain → subSection preference (weak prior — semantic evidence takes precedence)
     if (preferredSubSections.length > 0) {
       if (preferredSubSections[0] === subSection) {
-        score += 4
+        score += 2
         reasons.push('domain:primary_subsection')
       } else if (preferredSubSections.includes(subSection)) {
-        score += 2
+        score += 1
         reasons.push('domain:secondary_subsection')
       }
     }
@@ -184,18 +184,24 @@ function resolveTemplates (caseState, strategyDecision, templates) {
       }
     }
 
-    // Stage 1 — semantic profile overlap with active problem signals.
-    // Each signal type present in BOTH problemSignals and the template's compiled
-    // semantic profile contributes +4. Degrades to 0 if no profile exists.
+    // Stage 1 — weighted semantic profile match.
+    // For each active problem signal, multiply the template's profile strength for that
+    // signal by the advisor's signal count, then apply SEMANTIC_WEIGHT scale factor.
+    // Richer diagnostics and stronger profile matches both increase the score.
+    // Degrades to 0 if no profile exists or no signals active.
+    const SEMANTIC_WEIGHT = 2.0
     const _semanticProfile = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
     if (_activeSignalEntries.length > 0) {
-      let overlapCount = 0
-      for (const [signal] of _activeSignalEntries) {
-        if ((_semanticProfile[signal] || 0) > 0) { overlapCount++ }
+      let semanticScore = 0
+      for (const [signal, signalCount] of _activeSignalEntries) {
+        const profileStrength = _semanticProfile[signal] || 0
+        if (profileStrength > 0) {
+          semanticScore += profileStrength * signalCount * SEMANTIC_WEIGHT
+        }
       }
-      if (overlapCount > 0) {
-        score += overlapCount * 4
-        reasons.push('semantic:' + overlapCount)
+      if (semanticScore > 0) {
+        score += semanticScore
+        reasons.push('semantic:' + semanticScore.toFixed(1))
       }
     }
 
