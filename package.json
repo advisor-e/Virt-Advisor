@@ -17,6 +17,7 @@
     "build:semantic-profiles": "node scripts/build-semantic-profiles.js",
     "audit:content": "node scripts/audit-content-coverage.js",
     "migrate:ghosts": "node scripts/migrate-ghost-references.js",
+    "generate:signal-maps": "node scripts/generate-signal-maps.js",
     "prepare": "husky install"
   },
   "dependencies": {

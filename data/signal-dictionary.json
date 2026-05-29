@@ -65,18 +65,20 @@
         "money going out (faster|quicker|more) than (it'?s? )?(coming in|income)"
       ]
     },
-    "profit_plateau": {
-      "description": "Stagnant or declining profitability",
+    "revenue_modelling": {
+      "description": "Advisor wants to build a revenue or feasibility model for a client's specific situation",
       "domains": ["profit", "forecasting"],
       "patterns": [
-        "profit (plateau|flat|stagnant|declining|fallen?|dropping)",
-        "margin[s]? (squeezed|shrinking|declining|down|under pressure)",
-        "plateau(ed|ing)?",
-        "not (profitable|making (a )?profit)",
-        "profitability (issue|problem|challenge|concern)",
-        "struggling with profitability",
-        "profit (down|dropping|declining|falling)",
-        "can'?t (seem to )?grow (the )?profit"
+        "build (a |the )?model",
+        "revenue model",
+        "feasibility (model|study|analysis)?",
+        "model (out |their |the )?(revenue|numbers?|business|financials?)",
+        "model(ling|ing)? (their |the )?(business|numbers?|revenue|financials?)",
+        "industry model",
+        "financial model",
+        "what (the |their )?numbers (look|might|could|would) look like",
+        "run (the |some |their )?numbers",
+        "put (the |their )?numbers (together|in|into) (a )?model"
       ]
     },
     "modeling_rejected": {

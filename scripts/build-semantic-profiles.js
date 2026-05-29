@@ -57,19 +57,6 @@ const INDICATOR_SIGNAL_KEYWORDS = {
     'expand operations', 'payback', 'break-even',
     'might go under', 'going under', 'insolvency', 'distress'
   ],
-  profit_plateau: [
-    'profit plateau', 'increase profits', 'profit decline',
-    'margins declining', 'profitability', 'profit falling',
-    'not profitable', 'margins squeezed', 'improve profit',
-    'boost profit', 'profit growth', 'profit levers', 'profit lever',
-    'margin improvement', 'bottom line', 'profit pressure',
-    'profit performance', 'gross profit', 'net profit',
-    'profit structure', 'profit drivers', 'variable costs',
-    'fixed costs', 'activity costs', 'profit sweet spot',
-    'revenue and cost', 'cost structure', 'financial baseline',
-    'seasonal', 'volatility', 'month-to-month', 'fluctuation',
-    'sales fluctuation', 'business performance'
-  ],
   staff_problem: [
     'staff', 'team performance', 'employee', 'people management',
     'hiring', 'retention', 'culture', 'leadership gap',
@@ -124,6 +111,17 @@ const INDICATOR_SIGNAL_KEYWORDS = {
     'operating system', 'tech stack', 'business processes',
     'streamline', 'scale the business', 'scalable'
   ],
+  revenue_modelling: [
+    'revenue model', 'feasibility model', 'industry model', 'financial model',
+    'model their revenue', 'model the revenue', 'revenue and cost model',
+    'revenue structure', 'revenue assumptions', 'revenue drivers',
+    'feasibility analysis', 'feasibility study', 'revenue feasibility',
+    'build a model', 'run the numbers', 'model the numbers',
+    'industry-specific model', 'revenue projection', 'cost model',
+    'labour model', 'margin model', 'sales model', 'pricing model',
+    'budget model', 'high level budget', 'back costing', 'break-even model',
+    'feasibility template', 'revenue template'
+  ],
   marketing_gap: [
     'marketing', 'brand', 'digital', 'online presence', 'awareness',
     'advertising', 'customer journey', 'messaging', 'product fit',
@@ -173,7 +171,7 @@ function confidenceTier (totalSignals) {
 const entries = getClientTemplatesWithSummaries()
 
 const profiles = []
-const stats = { high: 0, medium: 0, low: 0, noSummary: 0 }
+const stats = { high: 0, medium: 0, low: 0, noSummary: 0, reviewed: 0, auto: 0, keyword: 0 }
 
 for (const { template, summary } of entries) {
   if (!summary) {
@@ -190,16 +188,28 @@ for (const { template, summary } of entries) {
     continue
   }
 
-  const indicatorProfile = scoreText(summary.indicators)
-  const purposeProfile = scoreText(summary.purpose)
-  const helpsOwnerProfile = scoreText(summary.helpsOwner)
+  // Priority: reviewed_signal_map (human approved) > auto_signal_map (generated) > keyword scoring
+  let merged
+  let source
+  if (summary.reviewed_signal_map && Object.keys(summary.reviewed_signal_map).length > 0) {
+    merged = summary.reviewed_signal_map
+    source = 'reviewed'
+  } else if (summary.auto_signal_map && Object.keys(summary.auto_signal_map).length > 0) {
+    merged = summary.auto_signal_map
+    source = 'auto'
+  } else {
+    const indicatorProfile = scoreText(summary.indicators)
+    const purposeProfile = scoreText(summary.purpose)
+    const helpsOwnerProfile = scoreText(summary.helpsOwner)
+    merged = mergeProfiles(indicatorProfile, purposeProfile, helpsOwnerProfile)
+    source = 'keyword'
+  }
 
-  // Indicators carry most authority; purpose and helpsOwner are supporting evidence
-  const merged = mergeProfiles(indicatorProfile, purposeProfile, helpsOwnerProfile)
   const totalSignals = Object.values(merged).reduce((sum, n) => sum + n, 0)
   const confidence = confidenceTier(totalSignals)
 
   stats[confidence]++
+  stats[source]++
 
   profiles.push({
     page: template.page,
@@ -207,7 +217,8 @@ for (const { template, summary } of entries) {
     subSection: template.subSection || null,
     profile: merged,
     totalSignals,
-    confidence
+    confidence,
+    source
   })
 }
 
@@ -226,6 +237,11 @@ console.log(`High confidence (4+ signals):   ${stats.high}`)
 console.log(`Medium confidence (1-3 signals): ${stats.medium}`)
 console.log(`Low confidence (0 signals):      ${stats.low}`)
 console.log(`No summary (needs manual work):  ${stats.noSummary}`)
+console.log('')
+console.log(`Profile sources:`)
+console.log(`  Reviewed (human approved): ${stats.reviewed}`)
+console.log(`  Auto-generated:            ${stats.auto}`)
+console.log(`  Keyword fallback:          ${stats.keyword}`)
 console.log('')
 
 // Print low-confidence templates for manual review
