@@ -40,7 +40,7 @@ const SCORING_CONFIG = {
 // Empty Set = domain uses structured questions only — suppress all free-text signals.
 // Domain absent from map = no filtering (all signals at full weight).
 const DOMAIN_SIGNAL_SCOPE = {
-  profit: new Set(['cash_flow_gap', 'profit_plateau', 'pricing_issue']),
+  profit: new Set(['cash_flow_gap', 'profit_plateau', 'pricing_issue', 'sales_volume', 'marketing_gap']),
   'sales-marketing': new Set(['sales_volume', 'marketing_gap', 'pricing_issue']),
   staff: new Set(['staff_problem']),
   strategy: new Set(['strategy_needed']),
@@ -249,10 +249,13 @@ function resolveTemplates (caseState, strategyDecision, templates) {
       }
     }
 
-    // Explicit contradiction penalty: advisor indicated revenue modelling is not the solution
-    if ((_problemSignals.modeling_rejected || 0) > 0 && subSection === 'Revenue & Feasibility Models') {
-      score -= 6
-      reasons.push('penalty:modeling_rejected')
+    // Explicit contradiction penalty: advisor indicated revenue modelling is not the solution.
+    // Fires from free-text keyword match OR from the direct signal (advisor answered No to
+    // the profit driver review question). Either is sufficient to exclude the entire subSection.
+    const _modelingDeclined = caseState.modelingDeclined || (_problemSignals.modeling_rejected || 0) > 0
+    if (_modelingDeclined && subSection === 'Revenue & Feasibility Models') {
+      score -= 50
+      reasons.push('penalty:modeling_declined')
     }
 
     // Contradiction: client already uses management reports — Reporting templates are redundant

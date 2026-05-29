@@ -636,6 +636,25 @@ import caseMixin from '~/mixins/caseMixin'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 
+// gpt-4o-mini intermittently outputs **Field Label** instead of #### Field Label.
+// Applied before every markdown render so it fixes both streaming and final display.
+const _HEADING_LABELS = [
+  'Why this fits your client',
+  'Why this suits you as the advisor',
+  'How to approach it',
+  'Suggested session plan',
+  'What this typically leads to'
+]
+const _HEADING_PATTERNS = _HEADING_LABELS.map(label => ({
+  re: new RegExp(`^\\*\\*${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*:?`, 'gim'),
+  replacement: `#### ${label}`
+}))
+function normaliseHeadings (text) {
+  let out = text
+  _HEADING_PATTERNS.forEach(({ re, replacement }) => { out = out.replace(re, replacement) })
+  return out
+}
+
 export default {
   name: 'VirtualAdvisor',
   mixins: [speechMixin, localeMixin, caseMixin],
@@ -1312,9 +1331,7 @@ export default {
     },
 
     renderMarkdown (text) {
-      // markdown-it with html:false prevents raw HTML in AI output.
-      // DOMPurify removes any remaining unsafe constructs before v-html rendering.
-      const raw = _md.render(String(text || ''))
+      const raw = _md.render(normaliseHeadings(String(text || '')))
       return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
     }
   }
