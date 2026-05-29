@@ -40,26 +40,26 @@ const SCORING_CONFIG = {
 // Empty Set = domain uses structured questions only — suppress all free-text signals.
 // Domain absent from map = no filtering (all signals at full weight).
 const DOMAIN_SIGNAL_SCOPE = {
-  profit:            new Set(['cash_flow_gap', 'profit_plateau', 'pricing_issue']),
+  profit: new Set(['cash_flow_gap', 'profit_plateau', 'pricing_issue']),
   'sales-marketing': new Set(['sales_volume', 'marketing_gap', 'pricing_issue']),
-  staff:             new Set(['staff_problem']),
-  strategy:          new Set(['strategy_needed']),
-  governance:        new Set(['governance_gap']),
-  'data-systems':    new Set(['data_quality', 'systems_gap']),
-  systems:           new Set(['systems_gap']),
-  succession:        new Set(['succession_issue']),
-  forecasting:       new Set(['cash_flow_gap', 'profit_plateau']),
-  risk:              new Set(),
-  valuation:         new Set(),
-  conflict:          new Set(),
-  'due-diligence':   new Set()
+  staff: new Set(['staff_problem']),
+  strategy: new Set(['strategy_needed']),
+  governance: new Set(['governance_gap']),
+  'data-systems': new Set(['data_quality', 'systems_gap']),
+  systems: new Set(['systems_gap']),
+  succession: new Set(['succession_issue']),
+  forecasting: new Set(['cash_flow_gap', 'profit_plateau']),
+  risk: new Set(),
+  valuation: new Set(),
+  conflict: new Set(),
+  'due-diligence': new Set()
 }
 
 function getSignalWeight (signal, domain) {
   if (!SCORING_CONFIG.enableAttenuation) { return 1.0 }
   const scope = DOMAIN_SIGNAL_SCOPE[domain]
-  if (scope === undefined) { return 1.0 }  // domain not mapped — no filtering
-  if (scope.size === 0) { return 0 }        // empty scope — suppress all signals
+  if (scope === undefined) { return 1.0 } // domain not mapped — no filtering
+  if (scope.size === 0) { return 0 } // empty scope — suppress all signals
   return scope.has(signal) ? SCORING_CONFIG.inDomainWeight : SCORING_CONFIG.outOfDomainWeight
 }
 
@@ -307,8 +307,8 @@ function resolveTemplates (caseState, strategyDecision, templates) {
     .filter(s => s.score > 0)
     .sort((a, b) =>
       b.score - a.score ||
-      a.profileRichness - b.profileRichness ||          // lower richness = more focused = preferred
-      (a.page || '').localeCompare(b.page || '')        // deterministic final tiebreaker
+      a.profileRichness - b.profileRichness || // lower richness = more focused = preferred
+      (a.page || '').localeCompare(b.page || '') // deterministic final tiebreaker
     )
 
   const budget = (typeof templateBudget === 'number' && templateBudget >= 0) ? templateBudget : 1

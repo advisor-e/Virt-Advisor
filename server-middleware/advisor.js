@@ -264,6 +264,64 @@ function dbg (msg) {
   } catch (e) {}
 }
 
+// ── normaliseHeadings ─────────────────────────────────────────────────────
+// gpt-4o-mini intermittently ignores the #### instruction and outputs field
+// labels as **bold** instead. This normaliser runs at finish_reason and
+// converts any **label** pattern back to #### before the browser renders it.
+// The five labels are the exact strings defined in client.txt Section 3.
+const _FIELD_LABELS = [
+  'Why this fits your client',
+  'Why this suits you as the advisor',
+  'How to approach it',
+  'Suggested session plan',
+  'What this typically leads to'
+]
+function normaliseHeadings (text) {
+  let out = text
+  for (const label of _FIELD_LABELS) {
+    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    // Matches **label**, **label:**, **label**: — at the start of any line
+    const pattern = new RegExp(`^\\*\\*${escaped}\\*\\*:?`, 'gim')
+    out = out.replace(pattern, `#### ${label}`)
+  }
+  return out
+}
+
+// ── scrubAdvisorHallucinations ─────────────────────────────────────────────
+// R02 enforcement: removes fabricated advisor-specific details from Phase 3 output.
+// Applied to the full buffer at finish_reason — never applied chunk by chunk.
+// Logs to stderr whenever it fires so hallucination frequency is visible in production.
+const _SPECIALISATION_TERMS = /\b(?:compliance|tax advisory|tax specialist|audit|assurance|forensic|insolvency|restructuring|corporate advisory|M&A|mergers and acquisitions)\b/i
+function scrubAdvisorHallucinations (text) {
+  let scrubbed = text
+  let count = 0
+
+  // "as a compliance specialist", "as an insolvency expert", etc.
+  scrubbed = scrubbed.replace(
+    /\bas (?:a|an) [\w\s]{2,30}?(?:specialist|expert|professional)\b/gi,
+    (match) => {
+      if (!_SPECIALISATION_TERMS.test(match)) { return match }
+      count++
+      return 'as an advisor'
+    }
+  )
+
+  // "your compliance work", "your tax background", "your audit experience", etc.
+  scrubbed = scrubbed.replace(
+    /\byour (?:[\w]+\s){0,2}(?:work|practice|background|experience|expertise)\b/gi,
+    (match) => {
+      if (!_SPECIALISATION_TERMS.test(match)) { return match }
+      count++
+      return 'your advisory experience'
+    }
+  )
+
+  if (count > 0) {
+    console.error(`[advisor] R02-scrub: ${count} hallucinated advisor reference(s) removed`)
+  }
+  return scrubbed
+}
+
 // Logs a completed OpenAI call to stderr for operational monitoring.
 // Always on (not gated by VA_DEBUG) — lightweight, one line per call.
 function logAI (label, model, startTime, success, usage) {
@@ -1029,7 +1087,7 @@ async function handleQuery (rawBody, res) {
     const reportsYes = state.usesReports && /\byes\b|already|they do|we do|regular|use them|have them/i.test(state.usesReports)
     const reportsNo = state.usesReports && state.usesReports !== 'pending' && !reportsYes
     const reportsFromAdvisorFirm = state.reportsFromFirm && /\byes\b|we do|our firm|my firm|we provide|we deliver|i do|i deliver|we produce/i.test(state.reportsFromFirm)
-    const reviewYes = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && /\byes\b|yeah|absolutely|definitely|think so|would help|would benefit|good idea/i.test(state.wouldBenefitFromReview)
+    const reviewYes = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && /\byes\b|yeah|absolutely|definitely|would help|would benefit|good idea/i.test(state.wouldBenefitFromReview)
     const reviewNo = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && !reviewYes
     const staircaseStep = state.advisoryStaircase ? (state.advisoryStaircase.match(/Step\s*([1-5])/i) || [])[1] : null
     const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
@@ -1232,6 +1290,7 @@ async function handleQuery (rawBody, res) {
       tier1Capacity,
       clientRaisedIssue: !!clientRaisedIssue,
       priceCommunicationFlag: hasPriceCommunication,
+      needsPricingConsultation: !!(_caseState && _caseState.needsPricingConsultation),
       resolverHit: _resolvedTemplates.selected.length > 0,
       resolverCount: _resolvedTemplates.selected.length,
       resolverNoMatchReason: _resolvedTemplates.noMatchReason || null
@@ -1256,11 +1315,30 @@ async function handleQuery (rawBody, res) {
         source: 'code_resolver'
       }))
     }
-    console.error(
-      `[va-observe] session=${sessionId || 'none'} domain=${state.detectedDomain || 'none'}` +
-      ` signals=${_signals.length} budget=${templateBudget} resolver=${_resolvedTemplates.selected.length}` +
-      (_resolvedTemplates.noMatchReason ? ` noMatch=${_resolvedTemplates.noMatchReason}` : '')
-    )
+    // Always-on structured summary — PII-safe derived fields only, no raw advisor text.
+    // Full debug payload written to log file only when VA_DEBUG=true.
+    const _top = _obsPayload.templateScores[0] || null
+    const _second = _obsPayload.templateScores[1] || null
+    const _scoreGap = (_top && _second) ? +(_top.score - _second.score).toFixed(2) : null
+    const _sessionSummary = {
+      t: new Date().toISOString(),
+      session: sessionId || 'none',
+      domain: state.detectedDomain || 'none',
+      engagement: _strategyDecision.engagementType || null,
+      ceiling: _strategyDecision.complexityCeiling || null,
+      signals: _signals.length,
+      signalTypes: _signals.map(s => s.type),
+      budget: templateBudget,
+      topTemplate: _top ? _top.title : null,
+      topScore: _top ? _top.score : null,
+      runnerUp: _second ? _second.title : null,
+      runnerUpScore: _second ? _second.score : null,
+      scoreGap: _scoreGap,
+      confidence: _scoreGap === null ? 'single' : _scoreGap >= 5 ? 'high' : _scoreGap >= 2 ? 'medium' : 'low',
+      resolverHit: _resolvedTemplates.selected.length > 0,
+      noMatchReason: _resolvedTemplates.noMatchReason || null
+    }
+    console.error('[va-session] ' + JSON.stringify(_sessionSummary))
     dbg('[OBSERVABILITY] ' + JSON.stringify(_obsPayload, null, 2))
 
     const systemPrompt2 = loadPrompt('client') + languageInstruction2
@@ -1300,8 +1378,10 @@ async function handleQuery (rawBody, res) {
           res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
         }
         if (chunk.choices[0]?.finish_reason) {
-          // Post-process for video injection — if it changed the text, send a replace event
-          const processed = injectVideoInfo(_p3Buffer, orgTemplateIds)
+          // Post-process: heading normaliser → R02 scrub → video injection
+          const normalised = normaliseHeadings(_p3Buffer)
+          const scrubbed = scrubAdvisorHallucinations(normalised)
+          const processed = injectVideoInfo(scrubbed, orgTemplateIds)
           if (processed !== _p3Buffer) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }

@@ -5970,9 +5970,7 @@
           "condition": "Audience holds preemptive negative thoughts about the presentation (e.g. rumoured price rises, known objections)",
           "notes": "Call out the ghosts early in the presentation — acknowledge known concerns before the audience can raise them. This preempts negativity and builds immediate trust. Naming the objection disarms it; ignoring it allows it to fester and undermine the rest of the session.",
           "recommendation": "Use Get Seminar template. Address known objections at the opening of the session before the audience can voice them.",
-          "templates": [
-            "Get Seminar"
-          ]
+          "templates": []
         },
         {
           "id": "gs_learning_styles",
@@ -5981,10 +5979,7 @@
           "condition": "Audience includes a mix of learning styles: Reflectors, Pragmatists, Theorists, Activists",
           "notes": "Reflectors: direct them to take a moment and write down their thoughts — they process by reflecting. Pragmatists need facts and real-world application. Theorists need input and conceptual understanding before acting. Activists need to get hands-on immediately. Tailor delivery to accommodate all four styles — do not run a purely lecture-based format.",
           "recommendation": "Use Get Seminar template and Powerful Seminars support content to structure delivery that accommodates all four learning styles.",
-          "templates": [
-            "Get Seminar",
-            "Powerful Seminars"
-          ]
+          "templates": []
         },
         {
           "id": "gs_networking_out_of_bounds",
@@ -5993,9 +5988,7 @@
           "condition": "A client attempts to discuss detailed services or products while being entertained at a networking event",
           "notes": "Politely steer the conversation to a future Monday call and refocus on hospitality. Engaging in detailed service discussions at social events prevents insincerity, loss of control over the environment, and buyer's remorse. The social context is for relationship building, not transacting.",
           "recommendation": "Use Get Seminar template. Redirect to a scheduled follow-up call and maintain the hospitality focus for the event.",
-          "templates": [
-            "Get Seminar"
-          ]
+          "templates": []
         },
         {
           "id": "gs_networking_joining",
@@ -6004,9 +5997,7 @@
           "condition": "Advisor wishes to join an established group of people at a networking event",
           "notes": "Check body position and explicitly ask permission to join (e.g. 'Hey guys, would it be OK if I joined you?'). This mitigates the basic tribal instinct to exclude outsiders and invokes a compassionate response. Simply walking into a group without asking triggers subconscious exclusion behaviour.",
           "recommendation": "Use Get Seminar template. Practise the approach and body language techniques before major networking events.",
-          "templates": [
-            "Get Seminar"
-          ]
+          "templates": []
         },
         {
           "id": "gs_networking_state",
@@ -6015,9 +6006,7 @@
           "condition": "Advisor is naturally quiet, reserved, or feeling drained before a social or networking event",
           "notes": "Take 5 minutes before the event to get into 'state' by imagining confident posture and voice tone. Physicality dictates confidence — otherwise quietness may be mistaken for snobbery. The technique uses physical anchoring: stand tall, breathe deep, visualise a successful interaction before entering.",
           "recommendation": "Use Get Seminar template. Build the pre-event state preparation into standard networking preparation habits.",
-          "templates": [
-            "Get Seminar"
-          ]
+          "templates": []
         },
         {
           "id": "gs_problem_solving",
@@ -6026,10 +6015,7 @@
           "condition": "The group is prematurely assessing ideas and stalling out during a brainstorming or divergent thinking session",
           "notes": "Premature assessment is the most frequent point of failure in divergent thinking and brainstorming. The facilitator must strictly enforce the no-assessment rule — no criticism or evaluation of ideas during the divergent phase. Use mind mapping to capture all ideas visually before any assessment begins. Do not allow idea killing until the full ideation phase is complete.",
           "recommendation": "Use Get Seminar template and Get Team Problem template. The no-assessment rule must be announced and enforced from the start of the session.",
-          "templates": [
-            "Get Seminar",
-            "Get Team Problem"
-          ]
+          "templates": []
         },
         {
           "id": "gs_implementation",
@@ -6038,9 +6024,7 @@
           "condition": "Team has agreed on an Action Plan but risks losing momentum when they return to their normal workplace environment",
           "notes": "Assign an Enforcer — a nominated team member who takes psychological and operational ownership to monitor milestones. The Enforcer is not a manager; they are an internal accountability partner. Without this role, social pressure fades when participants re-enter their day-to-day context and competing priorities take over.",
           "recommendation": "Use Get Seminar template. Assign an Enforcer during the session before participants leave and document their role in the Action Plan.",
-          "templates": [
-            "Get Seminar"
-          ]
+          "templates": []
         }
       ]
     },
@@ -6116,10 +6100,7 @@
           "condition": "Partner group is evaluating a divisive operational strategy such as offshoring or major structural change",
           "notes": "Deploy the Offshoring Review and use the 6 Hats Framework. The chairperson must force all members to wear the same Hat at the same time — this prevents emotional arguments and confirmation bias. The 6 Hats technique separates thinking modes (facts, feelings, caution, benefits, creativity, process) so the group addresses each dimension systematically rather than debating simultaneously from different positions.",
           "recommendation": "Use Offshoring Review to structure evaluation of the specific change. Use De Bono's 6 Hats to facilitate the partner discussion and prevent confirmation bias.",
-          "templates": [
-            "Offshoring Review",
-            "De Bono's 6 Hats"
-          ]
+          "templates": []
         },
         {
           "id": "cas_technology",
@@ -6128,10 +6109,7 @@
           "condition": "Firm wants to test a new AI platform or software suite",
           "notes": "Run the Team AI (Familiarity) Tasks exercise and apply the Software Assessment Criteria. Have team members test inputs across multiple AI models (Gemini, ChatGPT) to learn logic parameters, then compare outputs for bias and accuracy. Familiarity before formal adoption prevents costly mistakes from false confidence in AI outputs.",
           "recommendation": "Use Team AI (Familiarity) Tasks to build staff familiarity with the platform. Apply Software Assessment Criteria to evaluate the tool formally before committing to adoption.",
-          "templates": [
-            "Team AI (Familiarity) Tasks",
-            "Software Assessment Criteria"
-          ]
+          "templates": []
         },
         {
           "id": "cas_capacity",
@@ -6140,9 +6118,7 @@
           "condition": "Workflow is overwhelmed and deadlines are at risk of being missed",
           "notes": "Review the Client Service Standards table. Ensure any necessary service delays or reduced contact hours are absorbed by 'Service' tier clients — protecting the 'Growth' and 'Maintain' client base. Not all clients have equal strategic value; protecting high-value relationships during capacity constraints is a deliberate triage decision.",
           "recommendation": "Use Client Service Standards to triage client contact priorities during the capacity crunch. Absorb delays into the Service tier first.",
-          "templates": [
-            "Client Service Standards"
-          ]
+          "templates": []
         },
         {
           "id": "cas_advisor_role",
@@ -6152,7 +6128,6 @@
           "notes": "Assign the My Fee Growth Model and My Fee Growth Plan. Require the advisor to complete their activity targets and conversion assumptions independently before partner review — this maximises buy-in and forces them to own the numbers. Partners reviewing before the advisor completes their own assumptions creates dependency rather than ownership.",
           "recommendation": "Use My Fee Growth Model for the financial modelling of fee targets. Use My Fee Growth Plan for the activity targets and conversion planning.",
           "templates": [
-            "My Fee Growth Model",
             "My Fee Growth Plan"
           ]
         },
@@ -6174,9 +6149,7 @@
           "condition": "Management needs to verify that advisory advice is translating into completed client tasks",
           "notes": "Run the Global Actions Report. This pulls data from all individual Advisor Action Plans to provide a firm-wide view of task completion, revealing bottlenecks and measuring field effectiveness. Without this, advisory quality is invisible — tasks may be agreed in sessions but never actioned, eroding client outcomes and firm credibility.",
           "recommendation": "Use Global Actions Report to track task completion across all advisors and clients at the firm-wide level.",
-          "templates": [
-            "Global Actions Report"
-          ]
+          "templates": []
         }
       ]
     },
@@ -6256,8 +6229,7 @@
           "notes": "Deploy the Annual Board Plan and BoardPack Agenda. Map out 12 months of meeting topics in advance — scheduling specific themes such as Budgets, Tech Policy, HR Review. This moves the client from reactive management to proactive corporate governance. Without a structured annual plan, board meetings become ad-hoc and reactive rather than strategically driven.",
           "recommendation": "Use Annual Board Plan to map 12 months of meeting themes upfront. Use BoardPack Agenda to structure each individual meeting session.",
           "templates": [
-            "Annual Board Plan",
-            "BoardPack Agenda"
+            "Annual Board Plan"
           ]
         },
         {
@@ -6267,9 +6239,7 @@
           "condition": "Client indicates exposure to market volatility or operational threats",
           "notes": "Deploy the Risk Management Cover matrix. Evaluate risks based on Probability and Consequence. Instruct the client to classify each identified risk into four strategic actions: Accept, Avoid, Reduce, or Transfer. The matrix prevents gut-feel risk prioritisation and forces a structured, evidence-based classification.",
           "recommendation": "Use Risk Mgt Cover matrix to identify, classify, and assign strategic actions to all identified risks.",
-          "templates": [
-            "Risk Mgt Cover"
-          ]
+          "templates": []
         },
         {
           "id": "fbp_strategic_proposals",
@@ -6278,9 +6248,7 @@
           "condition": "Client wants to make a major capital purchase, launch a new product, or enter a new market",
           "notes": "Require completion of a Board White Paper before any capital is committed. Forces the client to objectively outline the historical context, feasible solutions, alternative options, and measurable benefits before spending money. The White Paper process eliminates shiny-object decisions driven by enthusiasm rather than evidence.",
           "recommendation": "Use Board White Paper framework to structure and document the strategic proposal before any board vote or capital commitment.",
-          "templates": [
-            "Board White Paper"
-          ]
+          "templates": []
         },
         {
           "id": "fbp_combating_bias",
@@ -6301,7 +6269,6 @@
           "notes": "Apply the Interpreting Data Correctly framework and Deming's Theory of Volatility. Determine if the data shift is Common cause (normal variation — do not act), Special cause (genuine anomaly — investigate and act), or Seasonal cause (predictable pattern — plan for). Test whether any apparent relationship between variables is actual Causation or merely Correlation or Coincidence.",
           "recommendation": "Use Interpreting Data Correctly framework. Apply Deming's Theory of Volatility to classify the cause type before recommending any action.",
           "templates": [
-            "Interpreting Data Correctly",
             "Demings Volatility"
           ]
         },
@@ -6312,9 +6279,7 @@
           "condition": "The board has reached an agreement on raising capital, paying dividends, or buying major assets",
           "notes": "Generate a formal Resolution. This ensures the board action is legally protected by capturing the date, location, and unanimous or majority signatures of the directors. Without a formal resolution, major financial actions lack legal standing and create governance risk for the business.",
           "recommendation": "Use Board Resolution template to formally document and sign off any major board agreement before action is taken.",
-          "templates": [
-            "Board Resolution"
-          ]
+          "templates": []
         },
         {
           "id": "fbp_accountability",
@@ -6323,9 +6288,7 @@
           "condition": "Directors are arriving at meetings unprepared or having not read required documents",
           "notes": "Implement the Boardpack Table tracker. This mandates that each director signs off confirming they have Read and Understood required documents (financials, legal correspondence) prior to the meeting. The tracker creates a formal pre-meeting accountability step — if a director has not signed off, they are visibly unprepared and cannot credibly participate in the vote.",
           "recommendation": "Use Boardpack Table Tracker to enforce a read-and-sign-off requirement for all directors before each meeting.",
-          "templates": [
-            "Boardpack Table Tracker"
-          ]
+          "templates": []
         }
       ]
     },
@@ -6406,9 +6369,7 @@
           "condition": "Firm states they want to promote a senior staff member to partner",
           "notes": "Initiate Directorship Pathway 1 checklist. Verify if the candidate has 30 months of firm experience and has managed $250k in fees. These baseline requirements must be confirmed before spending time on complex competency testing — they are the entry gate, not the destination.",
           "recommendation": "Use Directorship Pathway 1 to verify baseline requirements before proceeding to any competency assessment.",
-          "templates": [
-            "Directorship Pathway 1"
-          ]
+          "templates": []
         },
         {
           "id": "ol_competency_assessment",
@@ -6417,9 +6378,7 @@
           "condition": "Candidate meets baseline pathway requirements and is ready for formal competency evaluation",
           "notes": "Deploy Directorship Pathway 2 Competency Rating Matrix. Ask the candidate and their peers to rate them from 1-5 on core competencies. Focus on identifying skill gaps (e.g. Financial Management or Presenting) that require coaching before promotion. Peer ratings often reveal blind spots the candidate themselves cannot see.",
           "recommendation": "Use Directorship Pathway 2 Competency Rating Matrix for both self-assessment and peer assessment of the candidate.",
-          "templates": [
-            "Directorship Pathway 2"
-          ]
+          "templates": []
         },
         {
           "id": "ol_behavioural_profiling",
@@ -6428,9 +6387,7 @@
           "condition": "Interviewing a candidate and assessing their personality type and emotional intelligence",
           "notes": "Use Enneagram-based employment questions tailored to the candidate's presenting personality type. Example: if they present as an Achiever (Type 3), ask 'How do you cope when those around you appear to be having more success than you are?' This tests emotional intelligence and competitive drivers specific to that personality structure.",
           "recommendation": "Use Enneagram Employment Questions to structure behavioural interview questions matched to the candidate's personality type.",
-          "templates": [
-            "Enneagram Employment Questions"
-          ]
+          "templates": []
         },
         {
           "id": "ol_boardroom_conflict",
@@ -6439,9 +6396,7 @@
           "condition": "A partner is continuously shutting down creative discussions with cold logic or manipulative behaviour",
           "notes": "Reference Boardroom Manipulation Tactics to identify whether they are acting as 'The Assassin' (attacking ideas rather than engaging with them) or using 'Scorched Earth' tactics (making the cost of disagreement so high that others back down). Accurately labelling the behaviour type allows the chair to address it objectively rather than emotionally.",
           "recommendation": "Use Boardroom Manipulation Tactics to identify and name the specific disruptive behaviour pattern before raising it formally with the partner group.",
-          "templates": [
-            "Boardroom Manipulation Tactics"
-          ]
+          "templates": []
         },
         {
           "id": "ol_conduct_warning",
@@ -6450,10 +6405,7 @@
           "condition": "A partner consistently displays tardiness or grumpiness without improvement despite informal feedback",
           "notes": "Issue a Yellow Card citing the Agreed Response Time Guidelines (e.g. Priority 2 / 30 Days to correct). The Yellow Card is an interim measure — it creates a documented, formal record of the warning. If the partner fails to correct within the timeframe, this escalates to formal Demerit Points. Without documentation, conduct issues cannot be escalated fairly or legally.",
           "recommendation": "Issue a formal Yellow Card using the Agreed Response Time Guidelines. Document the specific behaviour and the correction deadline clearly.",
-          "templates": [
-            "Yellow Card",
-            "Agreed Response Time Guidelines"
-          ]
+          "templates": []
         },
         {
           "id": "ol_performance_tracking",
@@ -6462,9 +6414,7 @@
           "condition": "A partner has exceeded their targets by generating over $100k in new combined client fees",
           "notes": "Refer to the Bonus Points System and award the set bonus (e.g. $12k) prior to profit share calculations. This reinforces positive Finder behaviour and growth through transparent financial incentives. Applying the bonus before profit share makes it visible, material, and unambiguous — not absorbed into a general distribution.",
           "recommendation": "Apply Bonus Points System to calculate and award the performance bonus. Process before profit share calculations.",
-          "templates": [
-            "Bonus Points System"
-          ]
+          "templates": []
         },
         {
           "id": "ol_severe_infraction",
@@ -6473,9 +6423,7 @@
           "condition": "A partner commits gross negligence resulting in catastrophic market fallout or a serious ethical breach",
           "notes": "Apply the Ethics Conduct & Effect matrix to calculate Demerit Points (e.g. Base 4pts + Effect 8pts = 12 Demerit Points). If Demerit Points hit 20 within 12 months, it triggers immediate resignation and trade restrictions. The matrix makes the outcome of severe infractions mathematically predictable and pre-agreed — removing subjectivity from the highest-stakes partner decisions.",
           "recommendation": "Use Ethics Conduct & Effect matrix to calculate and formally record Demerit Points. Apply the resignation threshold if the 20-point limit is reached within 12 months.",
-          "templates": [
-            "Ethics Conduct & Effect"
-          ]
+          "templates": []
         }
       ]
     },

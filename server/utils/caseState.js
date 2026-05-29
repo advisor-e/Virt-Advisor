@@ -148,7 +148,11 @@ function buildCaseState (signals, state) {
     solutionCategories: deriveSolutionCategories(signals, state.detectedDomain),
     problemSignals: extractProblemSignals(state.situationDiagnostic || ''),
     // 'regular' = client already uses reports; 'none' = no reports in use; null = not asked
-    reportingEngagement: get(SIGNAL_TYPES.REPORTING_ENGAGEMENT) || null
+    reportingEngagement: get(SIGNAL_TYPES.REPORTING_ENGAGEMENT) || null,
+    // pricing_issue has zero template coverage — no template addresses pricing as a primary outcome.
+    // Reclassified as a consultation signal: advisor should discuss pricing directly, not via template.
+    // Revisit once a dedicated pricing template exists in the library.
+    needsPricingConsultation: !!get(SIGNAL_TYPES.PRICE_COMMUNICATION_NEED)
   }
 }
 

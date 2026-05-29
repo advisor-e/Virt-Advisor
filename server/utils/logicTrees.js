@@ -29,6 +29,56 @@ function loadReferenceFile (filename) {
   }
 }
 
+// ── Ghost reference validation ─────────────────────────────────────────────
+// Runs once on first load. Logs all logic tree template references that do not
+// exist in the search content (source of truth). These are dead links — when a
+// tree walks to one, the system silently returns a non-existent name and Phase 3
+// AI fabricates a recommendation for a template the advisor cannot find.
+//
+// Set VA_STRICT_CONTENT=true to hard-exit on any ghost reference (for CI/CD).
+// Without the flag, ghosts are logged as errors but the app continues.
+function validateLogicTreeReferences (trees) {
+  let searchContent
+  try {
+    const searchFiles = ['search_content_20260519050251.json', 'search_content_20260518234104.json']
+    for (const file of searchFiles) {
+      try {
+        searchContent = JSON.parse(readFileSync(resolve(process.cwd(), file), 'utf8'))
+        break
+      } catch (e) {}
+    }
+  } catch (e) {}
+
+  if (!Array.isArray(searchContent)) {
+    console.error('[logicTrees] WARNING: Cannot validate ghost references — search content unavailable or invalid')
+    return
+  }
+
+  const validTitles = new Set(searchContent.map(t => t.title))
+  const ghosts = []
+
+  for (const tree of trees) {
+    for (const node of (tree.nodes || [])) {
+      for (const name of (node.templates || [])) {
+        if (name && typeof name === 'string' && name.length < 80 &&
+            !name.startsWith('[') && !name.startsWith('a ') &&
+            !validTitles.has(name) && !ghosts.includes(name)) {
+          ghosts.push(name)
+        }
+      }
+    }
+  }
+
+  if (ghosts.length > 0) {
+    console.error(`[logicTrees] GHOST REFERENCES DETECTED (${ghosts.length}): logic trees reference template names that do not exist in search content. These produce AI hallucinations.`)
+    ghosts.forEach(g => console.error(`  ghost: "${g}"`))
+    if (process.env.VA_STRICT_CONTENT === 'true') {
+      process.stderr.write('\n[STARTUP ERROR] VA_STRICT_CONTENT is enabled. Fix ghost references before starting.\n\n')
+      process.exit(1)
+    }
+  }
+}
+
 function loadLogicTrees () {
   if (_trees) { return _trees }
   const filePath = resolve(process.cwd(), 'data/logic_trees.json')
@@ -39,6 +89,7 @@ function loadLogicTrees () {
     console.error('[logicTrees] Failed to load logic_trees.json:', err.message)
     _trees = []
   }
+  try { validateLogicTreeReferences(_trees) } catch (e) {}
   return _trees
 }
 
