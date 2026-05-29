@@ -1,0 +1,192 @@
+{
+  "version": "1.0.0",
+  "description": "Signal extraction dictionary — the single source of truth for what advisor phrases map to which signals. Edit this file to add or improve phrase coverage. No code changes required. Run npm run build:semantic-profiles after changes.",
+  "signals": {
+    "sales_volume": {
+      "description": "Insufficient sales volume, customer acquisition, or foot traffic",
+      "domains": ["sales-marketing", "profit"],
+      "patterns": [
+        "foot.?traffic",
+        "not enough (customers?|clients?|people|visitors?)",
+        "sales (are|is|were|was) (down|slow|low|poor|flat|weak)",
+        "slow (sales|business|trade)",
+        "(low|poor|bad|poor) conversion",
+        "not (getting|converting|attracting) (enough )?(leads?|inquiries|customers?|business)",
+        "lack of demand",
+        "losing customers?",
+        "customer numbers?",
+        "need (more )?customers?",
+        "grow(ing)? (the )?(customer|client) base",
+        "attract (more )?(customers?|clients?|people)",
+        "build (a )?(client|customer) base",
+        "more (customers?|clients?|sales|business)",
+        "not enough (foot|walk.in|walk in) traffic",
+        "run(ning)? out of (customers?|clients?|people)",
+        "not upselling",
+        "upsell(ing)?.*not happening",
+        "no upsell"
+      ]
+    },
+    "pricing_issue": {
+      "description": "Pricing problems, price rises, or margin pressure due to pricing",
+      "domains": ["profit", "sales-marketing"],
+      "patterns": [
+        "put(ting)?.{0,15}price[s]? up",
+        "price[s]? (rise|increase|hike|going up)",
+        "pricing (issue|problem|concern|challenge)",
+        "charge (more|higher)",
+        "undercharg(e|ing|ed)",
+        "too cheap",
+        "pass(ing)? (on )?(the )?(cost|increase)",
+        "afraid to (raise|increase|put up).{0,20}price[s]?",
+        "can'?t (raise|increase|put up).{0,20}price[s]?",
+        "margin (compression|squeeze|squeezed)",
+        "communicat.{0,30}price"
+      ]
+    },
+    "cash_flow_gap": {
+      "description": "Cash flow problems, working capital issues, or inability to pay bills",
+      "domains": ["profit", "forecasting"],
+      "patterns": [
+        "cash.?flow",
+        "running out of cash",
+        "run(ning)? out of money",
+        "going to run out of money",
+        "gonna run out of money",
+        "overdraft",
+        "late (payment|payer|invoices?)",
+        "debtor[s]?",
+        "working capital",
+        "can'?t pay.{0,20}(bills?|wages?|staff)",
+        "cash.?(tight|squeeze|crunch|crisis)",
+        "owed money",
+        "collecting (payments?|invoices?|debts?)",
+        "liquidity",
+        "money going out (faster|quicker|more) than (it'?s? )?(coming in|income)"
+      ]
+    },
+    "profit_plateau": {
+      "description": "Stagnant or declining profitability",
+      "domains": ["profit", "forecasting"],
+      "patterns": [
+        "profit (plateau|flat|stagnant|declining|fallen?|dropping)",
+        "margin[s]? (squeezed|shrinking|declining|down|under pressure)",
+        "plateau(ed|ing)?",
+        "not (profitable|making (a )?profit)",
+        "profitability (issue|problem|challenge|concern)",
+        "struggling with profitability",
+        "profit (down|dropping|declining|falling)",
+        "can'?t (seem to )?grow (the )?profit"
+      ]
+    },
+    "modeling_rejected": {
+      "description": "Advisor explicitly indicated revenue modelling is not the solution. Penalty-only signal — no positive template matching.",
+      "domains": [],
+      "penaltyOnly": true,
+      "patterns": [
+        "don'?t need (a |the )?model",
+        "already have (a |the )?model",
+        "not about (the )?model(ling|ing)?",
+        "not (really )?(a |about )?financial (issue|problem|challenge)",
+        "operational (problem|issue|challenge)",
+        "wouldn'?t (want|need|benefit from) (a )?model",
+        "not at the stage",
+        "just (keep|focus|need to focus)",
+        "focus on (getting more |the )?sales"
+      ]
+    },
+    "staff_problem": {
+      "description": "Staff, team, HR, or leadership issues",
+      "domains": ["staff"],
+      "patterns": [
+        "staff (issue|problem|challenge|leaving|turnover|performance|morale)",
+        "team (issue|problem|challenge|morale|performance|culture)",
+        "employee (problem|issue|leaving|performance|dissatisfied)",
+        "culture (problem|issue|toxic)",
+        "poor (staff |team )?performance",
+        "hiring (problem|challenge|issue|difficulty)",
+        "retain(ing)? (staff|team|employees?|people)",
+        "people problem",
+        "leadership (issue|problem|gap)"
+      ]
+    },
+    "strategy_needed": {
+      "description": "Strategic direction, planning, or pivot required",
+      "domains": ["strategy"],
+      "patterns": [
+        "strategic (direction|plan(ning)?|review|pivot)",
+        "no (clear |strategic )?direction",
+        "where (to go|the business is going)",
+        "pivot(ing)?",
+        "new (direction|market|product|service|strategy)",
+        "lost direction",
+        "long.?term (plan|strategy|direction)",
+        "growth (plan|strategy|direction)"
+      ]
+    },
+    "data_quality": {
+      "description": "Data integrity, chart of accounts, or financial systems accuracy issues",
+      "domains": ["data-systems"],
+      "patterns": [
+        "data (is|are|was|were) (wrong|bad|messy|dirty|inaccurate|unreliable)",
+        "rubbish in",
+        "chart of accounts",
+        "messy (books?|data|accounts?|records?)",
+        "incorrect (data|reports?|figures?|numbers?)",
+        "can'?t trust (the )?(data|numbers?|figures?|reports?)",
+        "accounts? (in a mess|messy|wrong|incorrect)"
+      ]
+    },
+    "governance_gap": {
+      "description": "Governance structure, accountability, or board issues",
+      "domains": ["governance"],
+      "patterns": [
+        "governance (gap|issue|problem|lacking|needed)",
+        "no (governance|board structure|accountability)",
+        "(needs?|wants?) (a |more )?governance",
+        "accountability (issue|problem|gap)",
+        "board (structure|function|needed|required)",
+        "decision.?making (problem|issue|poor|slow)"
+      ]
+    },
+    "succession_issue": {
+      "description": "Succession planning, exit, or ownership transition",
+      "domains": ["succession"],
+      "patterns": [
+        "succession",
+        "exit(ing)? (the business|plan|strategy)?",
+        "handover",
+        "pass(ing)? (it|the business) on",
+        "retir(e|ing|ement)",
+        "next generation",
+        "sell(ing)? (the )?business"
+      ]
+    },
+    "systems_gap": {
+      "description": "Business systems, process, or technology gaps",
+      "domains": ["systems", "data-systems"],
+      "patterns": [
+        "process(es)? (issue|problem|broken|inefficient)",
+        "system[s]? (issue|problem|needed|outdated|not working)",
+        "technolog(y|ical) (issue|problem|gap|needed)",
+        "manual (process|work|admin)",
+        "inefficient (process|workflow|admin)",
+        "automat(e|ion|ing) (tasks?|processes?|workflows?)",
+        "workflow (issue|problem|broken)"
+      ]
+    },
+    "marketing_gap": {
+      "description": "Marketing, brand awareness, or digital presence gaps",
+      "domains": ["sales-marketing"],
+      "patterns": [
+        "marketing (issue|problem|needed|gap|not working)",
+        "no marketing",
+        "brand (awareness|recognition|issue|problem)",
+        "digital (marketing|presence|strategy)",
+        "online (presence|marketing|visibility)",
+        "not (visible|known|getting found)",
+        "awareness (issue|problem|gap|low)"
+      ]
+    }
+  }
+}
