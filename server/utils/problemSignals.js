@@ -1,10 +1,8 @@
 'use strict'
 
-const { resolve } = require('path')
-
 // Load signal dictionary — the single source of truth for phrase-to-signal mapping.
 // Edit data/signal-dictionary.json to add phrases. No code changes required.
-const _dict = require(resolve(process.cwd(), 'data/signal-dictionary.json'))
+const _dict = require('../../data/signal-dictionary.json')
 
 // Compile regex patterns once at module load — not on every request.
 const _compiled = {}

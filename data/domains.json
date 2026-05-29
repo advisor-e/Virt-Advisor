@@ -57,7 +57,7 @@
   {
     "id": "strategy",
     "label": "strategy and planning",
-    "keywords": "strategy|strategic planning|business plan|growth plan|long.term|vision|mission|goals|objectives|direction|pivot|restructure|business model",
+    "keywords": "strategy|strategic planning|business plan|growth plan|long[- ]?term (plan|strategy|goal|objective|vision)|vision|mission|goals|objectives|direction|pivot|restructure|business model",
     "disambiguationKeywords": "strategy|strategic|planning|vision|goals",
     "questions": [
       {
