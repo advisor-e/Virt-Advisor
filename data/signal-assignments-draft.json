@@ -1,0 +1,2866 @@
+{
+  "meta": {
+    "generatedAt": "2026-06-01T05:14:21.224Z",
+    "sourceFile": "search_content_20260519050251.json",
+    "signalDictionaryVersion": "1.0.0",
+    "totalTemplates": 131,
+    "byPriority": {
+      "P0": 3,
+      "P1": 25,
+      "P2": 32,
+      "P3": 70
+    },
+    "withSignals": 86,
+    "noSignals": 44,
+    "carriedForward": 1
+  },
+  "assignments": [
+    {
+      "template": "Customer Journey",
+      "page": "id-4361586555",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P0",
+      "status": "draft",
+      "suggestedSignals": [
+        "marketing_gap"
+      ],
+      "scores": {
+        "marketing_gap": 10
+      },
+      "attribution": {
+        "marketing_gap": [
+          "purpose: \"customer journey\"",
+          "tags: \"marketing\", \"messaging\", \"product fit\", \"positioning\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:09:49.556Z"
+    },
+    {
+      "template": "Lite Feasibility",
+      "page": "id-7757688681",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P0",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"cashflow\"",
+          "tags: \"cash forecast\"",
+          "indicators: \"business loan\"",
+          "helpsAdvisor: \"capital expenditure\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.208Z"
+    },
+    {
+      "template": "Quick Fire Diagnosis",
+      "page": "id-3444141596",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P0",
+      "status": "draft",
+      "suggestedSignals": [
+        "sales_volume",
+        "cash_flow_gap",
+        "revenue_modelling",
+        "strategy_needed"
+      ],
+      "scores": {
+        "sales_volume": 10,
+        "cash_flow_gap": 10,
+        "revenue_modelling": 5,
+        "strategy_needed": 5
+      },
+      "attribution": {
+        "sales_volume": [
+          "purpose: \"triage\"",
+          "indicators: \"business performance\""
+        ],
+        "cash_flow_gap": [
+          "purpose: \"distress\"",
+          "tags: \"distress\""
+        ],
+        "revenue_modelling": [
+          "helpsAdvisor: \"revenue model\""
+        ],
+        "strategy_needed": [
+          "tags: \"business model\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.194Z"
+    },
+    {
+      "template": "Sales Session",
+      "page": "sales-session",
+      "section": "Do the Job",
+      "subSection": "Lite Fundamentals",
+      "priority": "P0",
+      "status": "draft",
+      "suggestedSignals": [
+        "sales_volume",
+        "marketing_gap"
+      ],
+      "scores": {
+        "sales_volume": 10,
+        "marketing_gap": 3
+      },
+      "attribution": {
+        "sales_volume": [
+          "purpose: \"sales process\"",
+          "tags: \"sales process\"",
+          "indicators: \"sales volume\", \"conversion rate\", \"sales process\"",
+          "helpsOwner: \"sales process\"",
+          "helpsAdvisor: \"sales volume\""
+        ],
+        "marketing_gap": [
+          "indicators: \"marketing\"",
+          "helpsAdvisor: \"marketing\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.196Z"
+    },
+    {
+      "template": "Assumptions",
+      "page": "advanced-fundamentals-delivery-tools",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "revenue_modelling",
+        "staff_problem",
+        "data_quality",
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 5,
+        "revenue_modelling": 10,
+        "staff_problem": 10,
+        "data_quality": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"cash forecast\""
+        ],
+        "revenue_modelling": [
+          "indicators: \"feasibility model\", \"modelling\""
+        ],
+        "staff_problem": [
+          "indicators: \"engagement\"",
+          "helpsAdvisor: \"engagement\""
+        ],
+        "data_quality": [
+          "purpose: \"kpi\"",
+          "helpsOwner: \"financial plan\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.191Z"
+    },
+    {
+      "template": "Dashboard Discussions",
+      "page": "id-4007209261",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "data_quality",
+        "cash_flow_gap",
+        "systems_gap",
+        "marketing_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 3,
+        "data_quality": 10,
+        "systems_gap": 3,
+        "marketing_gap": 3
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "tags: \"cash management\""
+        ],
+        "data_quality": [
+          "purpose: \"management reporting\", \"dashboard\"",
+          "helpsOwner: \"financial data\""
+        ],
+        "systems_gap": [
+          "indicators: \"erp\""
+        ],
+        "marketing_gap": [
+          "helpsAdvisor: \"positioning\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.208Z"
+    },
+    {
+      "template": "Data Session",
+      "page": "data-session",
+      "section": "Do the Job",
+      "subSection": "Lite Fundamentals",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "data_quality",
+        "systems_gap",
+        "governance_gap",
+        "succession_issue"
+      ],
+      "scores": {
+        "data_quality": 10,
+        "governance_gap": 1,
+        "succession_issue": 1,
+        "systems_gap": 4
+      },
+      "attribution": {
+        "data_quality": [
+          "purpose: \"kpi\"",
+          "tags: \"kpi\", \"financial ratios\", \"balance sheet\"",
+          "indicators: \"kpi\", \"financial literacy\"",
+          "helpsOwner: \"financial data\", \"financial literacy\", \"balance sheet\"",
+          "helpsAdvisor: \"kpi\""
+        ],
+        "governance_gap": [
+          "helpsAdvisor: \"compliance\""
+        ],
+        "succession_issue": [
+          "purpose: \"exit\""
+        ],
+        "systems_gap": [
+          "purpose: \"erp\"",
+          "indicators: \"erp\"",
+          "helpsAdvisor: \"scalable\", \"erp\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.195Z"
+    },
+    {
+      "template": "Demings Volatility",
+      "page": "id-9212012331",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "systems_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 10,
+        "systems_gap": 7
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"working capital\", \"cash forecast\", \"cash management\""
+        ],
+        "systems_gap": [
+          "purpose: \"erp\"",
+          "tags: \"erp\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.192Z"
+    },
+    {
+      "template": "Financial Systems Review",
+      "page": "financial-systems-review",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed"
+      ],
+      "scores": {
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "purpose: \"vision\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.199Z"
+    },
+    {
+      "template": "Force Field Analysis",
+      "page": "id-6883609726",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem",
+        "governance_gap"
+      ],
+      "scores": {
+        "staff_problem": 10,
+        "governance_gap": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "tags: \"conflict resolution\""
+        ],
+        "governance_gap": [
+          "tags: \"shareholders\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.208Z"
+    },
+    {
+      "template": "Forecasting",
+      "page": "id-1799860252",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "data_quality"
+      ],
+      "scores": {
+        "cash_flow_gap": 10,
+        "data_quality": 2
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "tags: \"cashflow\", \"working capital\", \"overdraft\"",
+          "indicators: \"cash flow\"",
+          "helpsOwner: \"cash flow\""
+        ],
+        "data_quality": [
+          "indicators: \"financial plan\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "Formal Risk Management",
+      "page": "formal-risk-management",
+      "section": "Do the Job",
+      "subSection": "Governance Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "governance_gap",
+        "succession_issue"
+      ],
+      "scores": {
+        "governance_gap": 10,
+        "succession_issue": 10
+      },
+      "attribution": {
+        "governance_gap": [
+          "tags: \"governance\", \"compliance\""
+        ],
+        "succession_issue": [
+          "indicators: \"transition\"",
+          "helpsAdvisor: \"valuation\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.198Z"
+    },
+    {
+      "template": "Governance Introduction",
+      "page": "id-8466205046",
+      "section": "Do the Job",
+      "subSection": "Governance Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "governance_gap",
+        "staff_problem"
+      ],
+      "scores": {
+        "staff_problem": 1,
+        "governance_gap": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "helpsAdvisor: \"onboarding\""
+        ],
+        "governance_gap": [
+          "purpose: \"governance\", \"advisory board\"",
+          "tags: \"advisory board\"",
+          "indicators: \"governance\"",
+          "helpsOwner: \"governance\", \"advisory board\", \"board of directors\"",
+          "helpsAdvisor: \"governance\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.198Z"
+    },
+    {
+      "template": "Lite Marketing",
+      "page": "marketing-session",
+      "section": "Do the Job",
+      "subSection": "Lite Fundamentals",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "marketing_gap",
+        "succession_issue"
+      ],
+      "scores": {
+        "succession_issue": 1,
+        "marketing_gap": 10
+      },
+      "attribution": {
+        "succession_issue": [
+          "helpsOwner: \"exit\""
+        ],
+        "marketing_gap": [
+          "purpose: \"marketing\"",
+          "tags: \"marketing\", \"digital\", \"advertising\", \"product fit\", \"positioning\", \"sales funnel\"",
+          "indicators: \"marketing\", \"messaging\"",
+          "helpsOwner: \"marketing\", \"digital\", \"positioning\", \"sales funnel\"",
+          "helpsAdvisor: \"marketing\", \"product fit\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.195Z"
+    },
+    {
+      "template": "Lite Strategy",
+      "page": "id-1031914952",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "succession_issue"
+      ],
+      "scores": {
+        "strategy_needed": 10,
+        "succession_issue": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "tags: \"strategic planning\"",
+          "helpsOwner: \"business strategy\""
+        ],
+        "succession_issue": [
+          "tags: \"business value\"",
+          "helpsAdvisor: \"exit\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.192Z"
+    },
+    {
+      "template": "Partner Accountability",
+      "page": "id-8974944498",
+      "section": "Do the Job",
+      "subSection": "Governance Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem",
+        "governance_gap",
+        "systems_gap"
+      ],
+      "scores": {
+        "staff_problem": 10,
+        "governance_gap": 7,
+        "systems_gap": 3
+      },
+      "attribution": {
+        "staff_problem": [
+          "purpose: \"motivation\"",
+          "indicators: \"performance management\", \"conflict resolution\""
+        ],
+        "governance_gap": [
+          "indicators: \"governance\", \"governance structure\""
+        ],
+        "systems_gap": [
+          "helpsAdvisor: \"erp\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.199Z"
+    },
+    {
+      "template": "People Session",
+      "page": "people-session",
+      "section": "Do the Job",
+      "subSection": "Lite Fundamentals",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem",
+        "governance_gap"
+      ],
+      "scores": {
+        "staff_problem": 10,
+        "governance_gap": 1
+      },
+      "attribution": {
+        "staff_problem": [
+          "purpose: \"employee\"",
+          "tags: \"employee\", \"motivation\"",
+          "indicators: \"engagement\", \"motivation\"",
+          "helpsOwner: \"employee\", \"motivation\"",
+          "helpsAdvisor: \"engagement\", \"motivation\""
+        ],
+        "governance_gap": [
+          "helpsAdvisor: \"organisational review\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.196Z"
+    },
+    {
+      "template": "People vs. Process",
+      "page": "id-6324353645",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem",
+        "systems_gap",
+        "marketing_gap"
+      ],
+      "scores": {
+        "staff_problem": 10,
+        "systems_gap": 5,
+        "marketing_gap": 5
+      },
+      "attribution": {
+        "staff_problem": [
+          "indicators: \"staff performance\"",
+          "helpsOwner: \"motivation\""
+        ],
+        "systems_gap": [
+          "helpsAdvisor: \"operational efficiency\""
+        ],
+        "marketing_gap": [
+          "tags: \"positioning\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.193Z"
+    },
+    {
+      "template": "Personal Budget",
+      "page": "id-1637972585",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "marketing_gap",
+        "sales_volume",
+        "staff_problem",
+        "strategy_needed",
+        "systems_gap"
+      ],
+      "scores": {
+        "sales_volume": 5,
+        "cash_flow_gap": 10,
+        "staff_problem": 5,
+        "strategy_needed": 5,
+        "systems_gap": 5,
+        "marketing_gap": 10
+      },
+      "attribution": {
+        "sales_volume": [
+          "helpsOwner: \"business performance\""
+        ],
+        "cash_flow_gap": [
+          "tags: \"cashflow\", \"overdraft\""
+        ],
+        "staff_problem": [
+          "indicators: \"engagement\""
+        ],
+        "strategy_needed": [
+          "helpsAdvisor: \"business plan\""
+        ],
+        "systems_gap": [
+          "indicators: \"erp\""
+        ],
+        "marketing_gap": [
+          "helpsOwner: \"persona\"",
+          "helpsAdvisor: \"persona\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.206Z"
+    },
+    {
+      "template": "Pivot",
+      "page": "id-3251922216",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "marketing_gap"
+      ],
+      "scores": {
+        "strategy_needed": 10,
+        "marketing_gap": 5
+      },
+      "attribution": {
+        "strategy_needed": [
+          "purpose: \"pivot\"",
+          "tags: \"blue ocean\""
+        ],
+        "marketing_gap": [
+          "helpsOwner: \"messaging\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.207Z"
+    },
+    {
+      "template": "Planning Session",
+      "page": "planning-session",
+      "section": "Do the Job",
+      "subSection": "Lite Fundamentals",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "staff_problem"
+      ],
+      "scores": {
+        "staff_problem": 2,
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "helpsAdvisor: \"engagement\""
+        ],
+        "strategy_needed": [
+          "purpose: \"business planning\", \"business model\", \"business plan\"",
+          "tags: \"vision\"",
+          "helpsOwner: \"vision\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.195Z"
+    },
+    {
+      "template": "Process Session",
+      "page": "process-session",
+      "section": "Do the Job",
+      "subSection": "Lite Fundamentals",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "systems_gap"
+      ],
+      "scores": {
+        "systems_gap": 10
+      },
+      "attribution": {
+        "systems_gap": [
+          "tags: \"systems review\"",
+          "helpsOwner: \"systems review\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.196Z"
+    },
+    {
+      "template": "Quick Position",
+      "page": "id-2939904328",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "sales_volume",
+        "cash_flow_gap",
+        "revenue_modelling"
+      ],
+      "scores": {
+        "sales_volume": 10,
+        "cash_flow_gap": 5,
+        "revenue_modelling": 5
+      },
+      "attribution": {
+        "sales_volume": [
+          "indicators: \"prospect\"",
+          "helpsAdvisor: \"prospect\""
+        ],
+        "cash_flow_gap": [
+          "tags: \"liquidity\""
+        ],
+        "revenue_modelling": [
+          "helpsOwner: \"feasibility model\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.204Z"
+    },
+    {
+      "template": "Ratio Analysis",
+      "page": "id-7924565511",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "data_quality",
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 5,
+        "data_quality": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "tags: \"cash management\""
+        ],
+        "data_quality": [
+          "purpose: \"kpi\"",
+          "tags: \"kpi\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.208Z"
+    },
+    {
+      "template": "Remuneration & Incentives",
+      "page": "employee-incentives",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem"
+      ],
+      "scores": {
+        "staff_problem": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "purpose: \"employee\"",
+          "tags: \"remuneration\"",
+          "indicators: \"employee\", \"talent\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.199Z"
+    },
+    {
+      "template": "Succession Planning",
+      "page": "succession-planning",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue"
+      ],
+      "scores": {
+        "succession_issue": 10
+      },
+      "attribution": {
+        "succession_issue": [
+          "purpose: \"succession\"",
+          "tags: \"succession\", \"business sale\"",
+          "helpsOwner: \"transition\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.200Z"
+    },
+    {
+      "template": "Wages Review",
+      "page": "id-6834300729",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.205Z"
+    },
+    {
+      "template": "Working Capital Cycle",
+      "page": "bizz360",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "indicators: \"running out of cash\"",
+          "helpsAdvisor: \"working capital\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.194Z"
+    },
+    {
+      "template": "Worst Case Scenario",
+      "page": "id-6276187822",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P1",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "staff_problem",
+        "succession_issue"
+      ],
+      "scores": {
+        "cash_flow_gap": 10,
+        "staff_problem": 10,
+        "succession_issue": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "tags: \"insolvency\""
+        ],
+        "staff_problem": [
+          "indicators: \"engagement\""
+        ],
+        "succession_issue": [
+          "indicators: \"succession\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.205Z"
+    },
+    {
+      "template": "1 pg Bizz Case",
+      "page": "id-9601408536",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 5,
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"distress\""
+        ],
+        "strategy_needed": [
+          "tags: \"vision\", \"business plan\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.192Z"
+    },
+    {
+      "template": "4 Part Bizz Plan",
+      "page": "id-4919294252",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed"
+      ],
+      "scores": {
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "purpose: \"business plan\"",
+          "tags: \"vision\", \"business plan\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.197Z"
+    },
+    {
+      "template": "6 Hats",
+      "page": "id-5038284749",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "governance_gap"
+      ],
+      "scores": {
+        "governance_gap": 10
+      },
+      "attribution": {
+        "governance_gap": [
+          "tags: \"decision making\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.210Z"
+    },
+    {
+      "template": "8 Profit Levers",
+      "page": "8-profit-levers",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "marketing_gap",
+        "sales_volume"
+      ],
+      "scores": {
+        "sales_volume": 3,
+        "marketing_gap": 10
+      },
+      "attribution": {
+        "sales_volume": [
+          "tags: \"prospect\""
+        ],
+        "marketing_gap": [
+          "tags: \"customer journey\", \"product fit\", \"market exposure\", \"market awareness\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.193Z"
+    },
+    {
+      "template": "90 Day Best Practice Accounting",
+      "page": "id-5642754592",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "data_quality"
+      ],
+      "scores": {
+        "data_quality": 10
+      },
+      "attribution": {
+        "data_quality": [
+          "tags: \"chart of accounts\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.209Z"
+    },
+    {
+      "template": "Alignment Statements",
+      "page": "alignment-statements",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed"
+      ],
+      "scores": {
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "purpose: \"vision\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.196Z"
+    },
+    {
+      "template": "App Review",
+      "page": "id-679676385",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "systems_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 10,
+        "systems_gap": 7
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "tags: \"cashflow\", \"debtor\", \"overdraft\""
+        ],
+        "systems_gap": [
+          "purpose: \"software\"",
+          "tags: \"software\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.191Z"
+    },
+    {
+      "template": "Business Purchase Assessment 1",
+      "page": "id-136069218",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue"
+      ],
+      "scores": {
+        "succession_issue": 10
+      },
+      "attribution": {
+        "succession_issue": [
+          "tags: \"succession\", \"business sale\", \"valuation\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.210Z"
+    },
+    {
+      "template": "Business Sale Assessment 1",
+      "page": "id-1908658752",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue"
+      ],
+      "scores": {
+        "succession_issue": 10
+      },
+      "attribution": {
+        "succession_issue": [
+          "tags: \"business sale\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.209Z"
+    },
+    {
+      "template": "Business Targets",
+      "page": "business-targets",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed"
+      ],
+      "scores": {
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "tags: \"business plan\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.197Z"
+    },
+    {
+      "template": "Debtor Protocols",
+      "page": "strategic-review",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"working capital\"",
+          "tags: \"cashflow\", \"debtor\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.191Z"
+    },
+    {
+      "template": "Growth Framework",
+      "page": "id-6607114703",
+      "section": "Do the Job",
+      "subSection": "Growth Framework",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "succession_issue"
+      ],
+      "scores": {
+        "cash_flow_gap": 10,
+        "succession_issue": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "tags: \"break-even\""
+        ],
+        "succession_issue": [
+          "tags: \"exit\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.189Z"
+    },
+    {
+      "template": "Hiring Winners",
+      "page": "id-7465208849",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem"
+      ],
+      "scores": {
+        "staff_problem": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "purpose: \"hiring\"",
+          "tags: \"culture\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.207Z"
+    },
+    {
+      "template": "Loan Estimator",
+      "page": "id-6817897422",
+      "section": "Do the Job",
+      "subSection": "External Advisors",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"liquidity\"",
+          "tags: \"overdraft\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.190Z"
+    },
+    {
+      "template": "Nine Growth Aspects",
+      "page": "id-3009841766",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "governance_gap",
+        "strategy_needed"
+      ],
+      "scores": {
+        "strategy_needed": 5,
+        "governance_gap": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "tags: \"strategic planning\""
+        ],
+        "governance_gap": [
+          "purpose: \"governance\"",
+          "tags: \"governance\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.198Z"
+    },
+    {
+      "template": "Organisational Review",
+      "page": "organisation-review",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem",
+        "strategy_needed"
+      ],
+      "scores": {
+        "staff_problem": 10,
+        "strategy_needed": 3
+      },
+      "attribution": {
+        "staff_problem": [
+          "purpose: \"culture\", \"engagement\"",
+          "tags: \"culture\""
+        ],
+        "strategy_needed": [
+          "purpose: \"vision\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.197Z"
+    },
+    {
+      "template": "Orientation Part 1",
+      "page": "strategic-orientation-pt-1",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "staff_problem"
+      ],
+      "scores": {
+        "staff_problem": 5,
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "tags: \"collaborative thinking\""
+        ],
+        "strategy_needed": [
+          "purpose: \"strategic planning\"",
+          "tags: \"strategic planning\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.197Z"
+    },
+    {
+      "template": "Orientation Part 2",
+      "page": "strategic-orientation-pt-2",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "systems_gap"
+      ],
+      "scores": {
+        "strategy_needed": 10,
+        "systems_gap": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "purpose: \"blue ocean\""
+        ],
+        "systems_gap": [
+          "purpose: \"technology\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.197Z"
+    },
+    {
+      "template": "Phone Techniques",
+      "page": "id-2201525362",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem"
+      ],
+      "scores": {
+        "staff_problem": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "purpose: \"culture\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.197Z"
+    },
+    {
+      "template": "Pitch Deck",
+      "page": "id-5001782177",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "sales_volume"
+      ],
+      "scores": {
+        "sales_volume": 10
+      },
+      "attribution": {
+        "sales_volume": [
+          "purpose: \"prospect\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.209Z"
+    },
+    {
+      "template": "Planning Outcomes Review",
+      "page": "planning-outcomes-review",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "marketing_gap"
+      ],
+      "scores": {
+        "strategy_needed": 10,
+        "marketing_gap": 5
+      },
+      "attribution": {
+        "strategy_needed": [
+          "purpose: \"business model\"",
+          "tags: \"business plan\""
+        ],
+        "marketing_gap": [
+          "purpose: \"marketing\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.197Z"
+    },
+    {
+      "template": "Porters & Pine",
+      "page": "id-4491265764",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed"
+      ],
+      "scores": {
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "purpose: \"strategic review\"",
+          "tags: \"pivot\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.207Z"
+    },
+    {
+      "template": "Powerful Goal Setting",
+      "page": "id-1034348000",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.193Z"
+    },
+    {
+      "template": "Productive Habits",
+      "page": "farmers-model",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.193Z"
+    },
+    {
+      "template": "Profit Levers & Blue Ocean",
+      "page": "profit-levers-blue-ocean",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed"
+      ],
+      "scores": {
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "purpose: \"strategic planning\", \"blue ocean\"",
+          "tags: \"blue ocean\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.197Z"
+    },
+    {
+      "template": "Purchase Assessment Report 3",
+      "page": "id-2228360143",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue",
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 5,
+        "succession_issue": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"payback\""
+        ],
+        "succession_issue": [
+          "purpose: \"business value\"",
+          "tags: \"valuation\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.209Z"
+    },
+    {
+      "template": "Receivership vs Liquidation",
+      "page": "id-7069873149",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "tags: \"insolvency\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.189Z"
+    },
+    {
+      "template": "Rubbish In - Rubbish Out",
+      "page": "learning-to-deliver-advanced-fundamentals",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "data_quality",
+        "systems_gap"
+      ],
+      "scores": {
+        "data_quality": 10,
+        "systems_gap": 5
+      },
+      "attribution": {
+        "data_quality": [
+          "purpose: \"chart of accounts\"",
+          "tags: \"chart of accounts\""
+        ],
+        "systems_gap": [
+          "purpose: \"erp\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.194Z"
+    },
+    {
+      "template": "Sale Assessment Report 3",
+      "page": "id-452735813",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue",
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 5,
+        "succession_issue": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"payback\"",
+          "tags: \"payback\""
+        ],
+        "succession_issue": [
+          "purpose: \"business value\"",
+          "tags: \"business sale\", \"business purchase\", \"valuation\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.211Z"
+    },
+    {
+      "template": "Sales & Marketing Review",
+      "page": "advanced-sales-marketing-review",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "marketing_gap",
+        "staff_problem"
+      ],
+      "scores": {
+        "staff_problem": 1,
+        "marketing_gap": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "tags: \"remuneration\""
+        ],
+        "marketing_gap": [
+          "purpose: \"messaging\", \"social media\"",
+          "tags: \"digital\", \"advertising\", \"messaging\", \"product fit\", \"digital funnel\", \"sales funnel\", \"persona\", \"website\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.198Z"
+    },
+    {
+      "template": "Stock Policies",
+      "page": "growth-projects-delivery-tools-spare",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue"
+      ],
+      "scores": {
+        "succession_issue": 10
+      },
+      "attribution": {
+        "succession_issue": [
+          "tags: \"due diligence\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.200Z"
+    },
+    {
+      "template": "What's Applicable",
+      "page": "id-679676385",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P2",
+      "status": "draft",
+      "suggestedSignals": [
+        "systems_gap",
+        "marketing_gap"
+      ],
+      "scores": {
+        "systems_gap": 10,
+        "marketing_gap": 5
+      },
+      "attribution": {
+        "systems_gap": [
+          "purpose: \"technology\"",
+          "tags: \"technology\""
+        ],
+        "marketing_gap": [
+          "tags: \"digital\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.210Z"
+    },
+    {
+      "template": "80/20 Farm Plan",
+      "page": "id-6756274046",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "governance_gap"
+      ],
+      "scores": {
+        "governance_gap": 10
+      },
+      "attribution": {
+        "governance_gap": [
+          "purpose: \"decision making\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.198Z"
+    },
+    {
+      "template": "Activity Ratios",
+      "page": "bizz360",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "data_quality"
+      ],
+      "scores": {
+        "cash_flow_gap": 10,
+        "data_quality": 5
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"working capital\", \"cash management\""
+        ],
+        "data_quality": [
+          "tags: \"kpi\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.209Z"
+    },
+    {
+      "template": "Asset Review",
+      "page": "id-9984769921",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.209Z"
+    },
+    {
+      "template": "Audio-Opto",
+      "page": "id-3892948252",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.201Z"
+    },
+    {
+      "template": "Back Costing",
+      "page": "id-2687849712",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "pricing_issue",
+        "strategy_needed"
+      ],
+      "scores": {
+        "pricing_issue": 10,
+        "strategy_needed": 10
+      },
+      "attribution": {
+        "pricing_issue": [
+          "helpsAdvisor: \"price increase\""
+        ],
+        "strategy_needed": [
+          "helpsOwner: \"business model\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.201Z"
+    },
+    {
+      "template": "Break-Even",
+      "page": "id-6335013800",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "sales_volume",
+        "staff_problem",
+        "strategy_needed"
+      ],
+      "scores": {
+        "sales_volume": 10,
+        "staff_problem": 5,
+        "strategy_needed": 5
+      },
+      "attribution": {
+        "sales_volume": [
+          "indicators: \"new business\"",
+          "helpsAdvisor: \"new business\""
+        ],
+        "staff_problem": [
+          "indicators: \"engagement\""
+        ],
+        "strategy_needed": [
+          "indicators: \"business model\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.201Z"
+    },
+    {
+      "template": "Business Clock vs Body Clock",
+      "page": "id-3560081422",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.210Z"
+    },
+    {
+      "template": "Business Dating",
+      "page": "id-9293972213",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem",
+        "succession_issue"
+      ],
+      "scores": {
+        "staff_problem": 10,
+        "succession_issue": 7
+      },
+      "attribution": {
+        "staff_problem": [
+          "purpose: \"culture\"",
+          "tags: \"culture\"",
+          "helpsOwner: \"culture\""
+        ],
+        "succession_issue": [
+          "tags: \"business purchase\"",
+          "helpsOwner: \"due diligence\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.210Z"
+    },
+    {
+      "template": "Cafe",
+      "page": "id-329534784",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.202Z"
+    },
+    {
+      "template": "Cake Shop",
+      "page": "id-448611359",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.202Z"
+    },
+    {
+      "template": "Car Importer",
+      "page": "id-7325651781",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.202Z"
+    },
+    {
+      "template": "Childcare Ctr",
+      "page": "id-6386895650",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.202Z"
+    },
+    {
+      "template": "Client pre Meeting",
+      "page": "id-4277160310",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "marketing_gap"
+      ],
+      "scores": {
+        "marketing_gap": 10
+      },
+      "attribution": {
+        "marketing_gap": [
+          "tags: \"marketing\", \"messaging\", \"product fit\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.189Z"
+    },
+    {
+      "template": "Construction",
+      "page": "id-2656438043",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.202Z"
+    },
+    {
+      "template": "Control Matters",
+      "page": "id-6071441423",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.190Z"
+    },
+    {
+      "template": "Cost per Mtr",
+      "page": "id-4336328485",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.202Z"
+    },
+    {
+      "template": "Dashboard Report",
+      "page": "id-4466260146",
+      "section": "Do the Job",
+      "subSection": "Reporting",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "data_quality"
+      ],
+      "scores": {
+        "data_quality": 10
+      },
+      "attribution": {
+        "data_quality": [
+          "purpose: \"management reporting\", \"financial ratios\", \"financial management\"",
+          "tags: \"management reporting\", \"financial ratios\", \"financial reporting\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.188Z"
+    },
+    {
+      "template": "Dentist",
+      "page": "id-2363028463",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.206Z"
+    },
+    {
+      "template": "Earth Moving Hrs",
+      "page": "id-8171543327",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.202Z"
+    },
+    {
+      "template": "Engineering",
+      "page": "id-2363382326",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.202Z"
+    },
+    {
+      "template": "Farm Succession",
+      "page": "id-5291277413",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue"
+      ],
+      "scores": {
+        "succession_issue": 10
+      },
+      "attribution": {
+        "succession_issue": [
+          "tags: \"succession\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.200Z"
+    },
+    {
+      "template": "FBT Questionnaire",
+      "page": "id-904072826",
+      "section": "Do the Job",
+      "subSection": "EOY Notes & Docs",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.189Z"
+    },
+    {
+      "template": "Finance & Depreciation",
+      "page": "id-520637887",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "revenue_modelling",
+        "staff_problem"
+      ],
+      "scores": {
+        "cash_flow_gap": 10,
+        "revenue_modelling": 10,
+        "staff_problem": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "indicators: \"capital expenditure\""
+        ],
+        "revenue_modelling": [
+          "helpsAdvisor: \"modelling\""
+        ],
+        "staff_problem": [
+          "indicators: \"engagement\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.206Z"
+    },
+    {
+      "template": "Food & Remedy Product'n",
+      "page": "id-4393936700",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.202Z"
+    },
+    {
+      "template": "General Meeting Agenda",
+      "page": "id-9515196091",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.189Z"
+    },
+    {
+      "template": "Gym & Trainer",
+      "page": "id-9500594254",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "marketing_gap"
+      ],
+      "scores": {
+        "marketing_gap": 10
+      },
+      "attribution": {
+        "marketing_gap": [
+          "tags: \"persona\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "Hairdressing",
+      "page": "id-7833593692",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "High Level Budget",
+      "page": "id-5397004441",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "data_quality",
+        "cash_flow_gap",
+        "staff_problem",
+        "succession_issue"
+      ],
+      "scores": {
+        "cash_flow_gap": 5,
+        "staff_problem": 3,
+        "data_quality": 10,
+        "succession_issue": 3
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "tags: \"cashflow\", \"overdraft\""
+        ],
+        "staff_problem": [
+          "indicators: \"engagement\""
+        ],
+        "data_quality": [
+          "indicators: \"financial plan\", \"financial baseline\"",
+          "helpsOwner: \"financial plan\"",
+          "helpsAdvisor: \"financial baseline\""
+        ],
+        "succession_issue": [
+          "helpsAdvisor: \"exit\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.207Z"
+    },
+    {
+      "template": "Home Services Feasibility",
+      "page": "id-9850884917",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "Homeware Sales",
+      "page": "id-4212038247",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "revenue_modelling"
+      ],
+      "scores": {
+        "revenue_modelling": 10
+      },
+      "attribution": {
+        "revenue_modelling": [
+          "purpose: \"revenue model\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.207Z"
+    },
+    {
+      "template": "HOPE Recession Model",
+      "page": "id-1946196200",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.210Z"
+    },
+    {
+      "template": "Hospitality",
+      "page": "id-4976805070",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "Indicative Value Questions",
+      "page": "id-8913859328",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue",
+        "strategy_needed"
+      ],
+      "scores": {
+        "strategy_needed": 1,
+        "succession_issue": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "helpsOwner: \"market position\""
+        ],
+        "succession_issue": [
+          "purpose: \"valuation\"",
+          "tags: \"valuation\"",
+          "indicators: \"succession\", \"business valuation\", \"valuation\"",
+          "helpsAdvisor: \"business valuation\", \"valuation\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.210Z"
+    },
+    {
+      "template": "Insurance",
+      "page": "id-6257902186",
+      "section": "Do the Job",
+      "subSection": "External Advisors",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.189Z"
+    },
+    {
+      "template": "IT Services",
+      "page": "id-2924428930",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "systems_gap",
+        "marketing_gap"
+      ],
+      "scores": {
+        "systems_gap": 10,
+        "marketing_gap": 10
+      },
+      "attribution": {
+        "systems_gap": [
+          "tags: \"software\""
+        ],
+        "marketing_gap": [
+          "tags: \"networking\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "Joiner",
+      "page": "id-3908104417",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "Key Interviews",
+      "page": "id-7015138225",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem"
+      ],
+      "scores": {
+        "staff_problem": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "tags: \"employee\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.208Z"
+    },
+    {
+      "template": "Labour Only",
+      "page": "id-8315250902",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "revenue_modelling"
+      ],
+      "scores": {
+        "revenue_modelling": 10
+      },
+      "attribution": {
+        "revenue_modelling": [
+          "helpsAdvisor: \"modelling\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.200Z"
+    },
+    {
+      "template": "Labour, Margin",
+      "page": "id-8835402008",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.201Z"
+    },
+    {
+      "template": "Labour, Margin, Sales",
+      "page": "id-4271103145",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.201Z"
+    },
+    {
+      "template": "Landscaping & Maintainence",
+      "page": "id-4785641745",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.207Z"
+    },
+    {
+      "template": "Lease vs. Buy",
+      "page": "id-7790271877",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "revenue_modelling",
+        "staff_problem"
+      ],
+      "scores": {
+        "cash_flow_gap": 10,
+        "revenue_modelling": 5,
+        "staff_problem": 5
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "tags: \"cashflow\", \"overdraft\""
+        ],
+        "revenue_modelling": [
+          "helpsAdvisor: \"modelling\""
+        ],
+        "staff_problem": [
+          "indicators: \"engagement\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.200Z"
+    },
+    {
+      "template": "Legal",
+      "page": "id-2913118225",
+      "section": "Do the Job",
+      "subSection": "External Advisors",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.190Z"
+    },
+    {
+      "template": "Manufacturing",
+      "page": "id-102938972",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "revenue_modelling"
+      ],
+      "scores": {
+        "revenue_modelling": 10
+      },
+      "attribution": {
+        "revenue_modelling": [
+          "tags: \"revenue model\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.207Z"
+    },
+    {
+      "template": "Mgt Annual Plan",
+      "page": "id-3640303064",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "data_quality",
+        "governance_gap"
+      ],
+      "scores": {
+        "strategy_needed": 10,
+        "data_quality": 10,
+        "governance_gap": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "tags: \"annual plan\""
+        ],
+        "data_quality": [
+          "tags: \"kpi\""
+        ],
+        "governance_gap": [
+          "tags: \"advisory board\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.208Z"
+    },
+    {
+      "template": "Midwife",
+      "page": "id-7083515495",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap",
+        "data_quality"
+      ],
+      "scores": {
+        "cash_flow_gap": 10,
+        "data_quality": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"cash forecast\""
+        ],
+        "data_quality": [
+          "purpose: \"kpi\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.207Z"
+    },
+    {
+      "template": "Money Matters",
+      "page": "id-5195288668",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "cash_flow_gap"
+      ],
+      "scores": {
+        "cash_flow_gap": 10
+      },
+      "attribution": {
+        "cash_flow_gap": [
+          "purpose: \"debtor\"",
+          "tags: \"debtor\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.190Z"
+    },
+    {
+      "template": "Motel & Lodge",
+      "page": "id-196230307",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "Online Sales",
+      "page": "id-8797736868",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "marketing_gap"
+      ],
+      "scores": {
+        "marketing_gap": 10
+      },
+      "attribution": {
+        "marketing_gap": [
+          "tags: \"marketing\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "Org Chart Only",
+      "page": "id-480549223",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.193Z"
+    },
+    {
+      "template": "PDF Storage",
+      "page": "id-3779095414",
+      "section": "Do the Job",
+      "subSection": "EOY Notes & Docs",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.189Z"
+    },
+    {
+      "template": "Physiotherapy",
+      "page": "id-9440392920",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.205Z"
+    },
+    {
+      "template": "Porter's Revenue",
+      "page": "id-9984769921",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "staff_problem",
+        "succession_issue"
+      ],
+      "scores": {
+        "staff_problem": 5,
+        "strategy_needed": 10,
+        "succession_issue": 5
+      },
+      "attribution": {
+        "staff_problem": [
+          "purpose: \"engagement\""
+        ],
+        "strategy_needed": [
+          "purpose: \"strategic planning\"",
+          "tags: \"strategic planning\""
+        ],
+        "succession_issue": [
+          "tags: \"due diligence\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.209Z"
+    },
+    {
+      "template": "Production Output",
+      "page": "id-6812423554",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.203Z"
+    },
+    {
+      "template": "Professional Services Firm",
+      "page": "id-9464472464",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.204Z"
+    },
+    {
+      "template": "Rental Property",
+      "page": "id-3263743632",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.204Z"
+    },
+    {
+      "template": "Retail",
+      "page": "id-2874439569",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.204Z"
+    },
+    {
+      "template": "Retirement Calcs",
+      "page": "id-3094237070",
+      "section": "Do the Job",
+      "subSection": "External Advisors",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue",
+        "data_quality"
+      ],
+      "scores": {
+        "data_quality": 5,
+        "succession_issue": 10
+      },
+      "attribution": {
+        "data_quality": [
+          "tags: \"financial plan\""
+        ],
+        "succession_issue": [
+          "purpose: \"retirement\"",
+          "tags: \"retirement\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.190Z"
+    },
+    {
+      "template": "Rural Volatility",
+      "page": "id-2031013565",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.204Z"
+    },
+    {
+      "template": "Sales Forecaster",
+      "page": "id-8581344527",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "sales_volume",
+        "staff_problem"
+      ],
+      "scores": {
+        "sales_volume": 10,
+        "staff_problem": 3
+      },
+      "attribution": {
+        "sales_volume": [
+          "indicators: \"sales process\", \"pipeline\"",
+          "helpsAdvisor: \"pipeline\""
+        ],
+        "staff_problem": [
+          "indicators: \"engagement\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.204Z"
+    },
+    {
+      "template": "Shop",
+      "page": "id-3071922878",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.204Z"
+    },
+    {
+      "template": "Stg. 1 Due Diligence",
+      "page": "due-diligence",
+      "section": "Do the Job",
+      "subSection": "Specialist Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "succession_issue"
+      ],
+      "scores": {
+        "succession_issue": 10
+      },
+      "attribution": {
+        "succession_issue": [
+          "purpose: \"due diligence\", \"business purchase\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.199Z"
+    },
+    {
+      "template": "Structure Options",
+      "page": "id-1108511320",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "governance_gap"
+      ],
+      "scores": {
+        "governance_gap": 10
+      },
+      "attribution": {
+        "governance_gap": [
+          "purpose: \"business structure\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.209Z"
+    },
+    {
+      "template": "SWOT / PEST",
+      "page": "swot-prompts",
+      "section": "Do the Job",
+      "subSection": "Strategic Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "strategy_needed",
+        "systems_gap"
+      ],
+      "scores": {
+        "strategy_needed": 10,
+        "systems_gap": 10
+      },
+      "attribution": {
+        "strategy_needed": [
+          "purpose: \"swot\""
+        ],
+        "systems_gap": [
+          "purpose: \"technology\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.197Z"
+    },
+    {
+      "template": "Time Matters",
+      "page": "id-482414900",
+      "section": "Do the Job",
+      "subSection": "General Tools",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.190Z"
+    },
+    {
+      "template": "Tour Operators",
+      "page": "id-3443941670",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.204Z"
+    },
+    {
+      "template": "Tours + Shop",
+      "page": "id-4671298680",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.204Z"
+    },
+    {
+      "template": "Trucking/ Haulage",
+      "page": "id-739082913",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.205Z"
+    },
+    {
+      "template": "Volatility Scenario",
+      "page": "id-483900379",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [
+        "staff_problem"
+      ],
+      "scores": {
+        "staff_problem": 10
+      },
+      "attribution": {
+        "staff_problem": [
+          "indicators: \"engagement\""
+        ]
+      },
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.205Z"
+    },
+    {
+      "template": "Workshop / Program Sales",
+      "page": "id-9055555447",
+      "section": "Do the Job",
+      "subSection": "Revenue & Feasibility Models",
+      "priority": "P3",
+      "status": "draft",
+      "suggestedSignals": [],
+      "scores": {},
+      "attribution": {},
+      "sourceFile": "search_content_20260519050251.json",
+      "generatedAt": "2026-06-01T05:14:21.205Z"
+    }
+  ]
+}

@@ -18,6 +18,7 @@
     "audit:content": "node scripts/audit-content-coverage.js",
     "migrate:ghosts": "node scripts/migrate-ghost-references.js",
     "generate:signal-maps": "node scripts/generate-signal-maps.js",
+    "generate:signal-assignments": "node scripts/generate-signal-assignments.js",
     "prepare": "husky install"
   },
   "dependencies": {
