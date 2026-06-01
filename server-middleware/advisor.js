@@ -492,8 +492,8 @@ async function handleQuery (rawBody, res) {
       // Shared Phase 1 questions
       ownership: null,
       growthStage: null,
-      operatorDataDriven: null,
       operatorPlanning: null,
+      operatorDataDriven: null,
       operatorFinancialLiteracy: null,
       clientMotivation: null,
       advisoryStaircase: null,
@@ -629,6 +629,11 @@ async function handleQuery (rawBody, res) {
           s.disambiguationNeeded = false
         }
       },
+      // ── Universal: Industry ──
+      {
+        field: 'industry',
+        text: 'What industry is the client in?'
+      },
       // ── Domain 1: Profitability / Feasibility ──
       {
         field: 'usesReports',
@@ -643,11 +648,6 @@ async function handleQuery (rawBody, res) {
       {
         field: 'wouldBenefitFromReview',
         text: 'Do you think the client could benefit from a detailed review of their business variables and profit drivers?',
-        skip: s => s.detectedDomain !== 'profit'
-      },
-      {
-        field: 'industry',
-        text: 'What industry is the client in?',
         skip: s => s.detectedDomain !== 'profit'
       },
       // ── Domain 2: Staff ──
@@ -724,16 +724,6 @@ async function handleQuery (rawBody, res) {
       {
         field: 'advisoryStaircase',
         text: 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
-      },
-      {
-        field: 'operatorPlanning',
-        text: 'Do they follow structured plans and act on them, or does the business tend to run day to day?',
-        skip: (s) => {
-          const raised = s.clientRaisedIssue && s.clientRaisedIssue !== 'pending' &&
-            /requested|asked|raised|their own|they came|they want|want(ed)? (some |to |help|advice|ideas)|came to (me|us)|looking for|approached|seeking|\byes\b|\bthey did\b|\bit was them\b/i.test(s.clientRaisedIssue)
-          const deepEngagement = s.advisoryStaircase && s.advisoryStaircase !== 'pending' && /Step [345]/i.test(s.advisoryStaircase)
-          return raised || deepEngagement
-        }
       },
       {
         field: 'clientPersonality',
