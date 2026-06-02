@@ -1,7 +1,7 @@
 # Virt Advisor — Master Design Registry
 
 **Version:** 1.0 — 2026-06-03
-**Status:** In progress — Stage 2 has 11 outstanding flags (2 resolved, 5 new identified from normalization audit). Stage 3 complete for Domain 4 only. All primary issue labels restored to original Workshop 1 language — 2026-06-03.
+**Status:** Stage 2 complete — all 11 flags resolved 2026-06-03. Stage 3 in progress — Domain 4 complete, 10 domains remaining. Primary issue labels restored to original Workshop 1 language throughout.
 **Purpose:** Single source of truth for the complete Virt Advisor decision logic. Every stage, every decision, every item — in sequence. Written to be readable and editable by a firm manager without engineering knowledge.
 **Supersedes:** design/primary-issue-registry.md (superseded 2026-06-03)
 
@@ -225,7 +225,7 @@ The primary issue map is grounded entirely in domain expert language. Every item
 **Resolution — Item 6 (2026-06-03):** Confirmed as distinct primary issue. Roles and responsibilities poorly defined drives a separate intervention from management practices. Mike confirmed.
 
 #### Solution Categories — Workshop 2
-*Not yet started. Pending resolution of Workforce Capability and Management Effectiveness flags.*
+*Not yet started.*
 
 ---
 
@@ -341,7 +341,7 @@ Validated by two independent senior engineering panels, 2026-06-03.
 **Resolution — Items 3 and 4 (2026-06-03):** Confirmed as two distinct primary issues. Over-trading is a deliberate risk position — owner often knows they are doing it — requiring funding strategy and debt restructuring. Cost structure imbalance is a knowledge problem — owner doesn't know real costs due to complicated accounting — requiring cost analysis and accounting clarity. Mike confirmed.
 
 #### Solution Categories — Workshop 2
-*Not yet started. Pending resolution of Financial Structure flag.*
+*Not yet started.*
 
 ---
 
@@ -375,7 +375,7 @@ Validated by two independent senior engineering panels, 2026-06-03.
 **Resolution — Items 4 and 5 (2026-06-03):** Confirmed as two distinct primary issues. Both share a common root (lack of intentional leadership about organisational design) but require different interventions. Item 4 (culture left to chance) — culture definition and values design. Item 5 (personality diversity not pursued) — specialist engagement requiring understanding of personality types; different knowledge and advisory tools. Mike confirmed.
 
 #### Solution Categories — Workshop 2
-*Not yet started. Pending resolution of flags.*
+*Not yet started.*
 
 ---
 
@@ -788,8 +788,8 @@ Restricting the AI to a single task — writing copy about pre-selected template
 | Stage | Description | Design Status | Build Status |
 |---|---|---|---|
 | Stage 1 | Conversation & Signal Capture | Locked | Partial — stub domain questions outstanding for 9 domains |
-| Stage 2 | Primary Issue Classification | In progress — 8 flags outstanding | Not yet built — Phase B and C |
-| Stage 3 | Solution Categories | In progress — Domain 4 complete only | Not yet built — Phase D |
+| Stage 2 | Primary Issue Classification | Complete — all flags resolved 2026-06-03 | Not yet built — Phase B and C |
+| Stage 3 | Solution Categories | In progress — Domain 4 complete, 10 domains remaining | Not yet built — Phase D |
 | Stage 4 | Strategy Resolution | Locked | Not yet built — Phase C |
 | Stage 5 | Template Selection | Locked | Not yet built — Phase D |
 | Stage 6 | AI Narrative | Locked | Partial — requires Stages 3–5 complete — Phase E |
