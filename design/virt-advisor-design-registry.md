@@ -211,16 +211,18 @@ The primary issue map is grounded entirely in domain expert language. Every item
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
 | 1 | Too few qualified staff — insufficient headcount to meet demand | Label restored to original Workshop 1 language | Too few qualified staff | Mike confirmed — 2026-06-03 | Locked |
-| 2 | Inexperienced or insufficiently trained staff — capability gap in the existing team | Split pending — restored to original language pending flag resolution | Inexperienced or insufficiently trained staff | Assumed — flagged | Needs Review |
-| 3 | No internal training structures — no system for building capability over time | Split pending — restored to original language pending flag resolution | No internal training structures | Assumed — flagged | Needs Review |
-| 4 | Poor management practices — weak coaching and accountability from leadership | Split pending — restored to original language pending flag resolution | Poor management practices | Assumed — flagged | Needs Review |
-| 5 | Poor communication and feedback standards — team isn't getting the information or direction it needs | Split pending — restored to original language pending flag resolution | Poor communication and feedback standards | Assumed — flagged | Needs Review |
-| 6 | Roles and responsibilities poorly defined — people don't know what they own | Split pending — restored to original language pending flag resolution | Roles and responsibilities poorly defined | Assumed — flagged | Needs Review |
+| 2 | Inexperienced or insufficiently trained staff — capability gap in the existing team | Confirmed as distinct primary issue — original language retained | Inexperienced or insufficiently trained staff | Mike confirmed — 2026-06-03 | Locked |
+| 3 | No internal training structures — no system for building capability over time | Confirmed as distinct primary issue — original language retained | No internal training structures | Mike confirmed — 2026-06-03 | Locked |
+| 4 | Poor management practices — weak coaching and accountability from leadership | Merged with item 5 — confirmed same engagement covering 3 components | Poor management practices — weak communication, feedback and formal discipline | Mike confirmed — 2026-06-03 | Locked |
+| 5 | Poor communication and feedback standards — team isn't getting the information or direction it needs | Merged with item 4 — confirmed same engagement covering 3 components | Poor management practices — weak communication, feedback and formal discipline | Mike confirmed — 2026-06-03 | Locked |
+| 6 | Roles and responsibilities poorly defined — people don't know what they own | Confirmed as distinct primary issue — original language retained | Roles and responsibilities poorly defined | Mike confirmed — 2026-06-03 | Locked |
 | 7 | Weak hiring practices — no structured process for bringing the right people in | Label restored to original Workshop 1 language | Weak hiring practices | Mike confirmed — 2026-06-03 | Locked |
 
-**Flag — Items 2 and 3 — Workforce Capability:** Item 2 (inexperienced staff) may lead to performance coaching or recruitment of more experienced people. Item 3 (no training system) leads to designing a training framework. These may be distinct primary issues. Requires Mike confirmation.
+**Resolution — Items 2 and 3 (2026-06-03):** Confirmed as two distinct primary issues. Item 2 addresses immediate capability gap in current staff. Item 3 addresses structural absence of a training system. Different intervention pathways. Mike confirmed.
 
-**Flag — Items 4, 5, and 6 — Management Effectiveness:** Three items merged under one label. Item 4 (poor management practices) — management coaching and accountability design. Item 5 (poor communication) — communication framework and feedback systems. Item 6 (poorly defined roles) — role clarity, job design, RACI framework. Requires Mike confirmation on whether these are distinct primary issues or contributors to the same engagement.
+**Resolution — Items 4 and 5 (2026-06-03):** Confirmed as one primary issue — communication of expectations, feedback, and formal discipline enforcement are three components of the same management engagement. Label: "Poor management practices — weak communication, feedback and formal discipline". Mike confirmed.
+
+**Resolution — Item 6 (2026-06-03):** Confirmed as distinct primary issue. Roles and responsibilities poorly defined drives a separate intervention from management practices. Mike confirmed.
 
 #### Solution Categories — Workshop 2
 *Not yet started. Pending resolution of Workforce Capability and Management Effectiveness flags.*
@@ -245,20 +247,20 @@ The primary issue map is grounded entirely in domain expert language. Every item
 
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
-| 1 | No enforceable data capture methods — data either isn't being collected or there's no system to ensure it is | Merged with item 2 — flagged for review | No enforceable data capture methods | Assumed — flagged | Needs Review |
-| 2 | Poor data integrity — over-reliance on manual input creating errors and unreliable numbers | Merged with item 1 — flagged for review | Poor data integrity | Assumed — flagged | Needs Review |
-| 3 | Lack of financial controls — no transparency or governance over purchase and sale decisions | Merged with items 1 and 2 — flagged for review | Lack of financial controls | Assumed — flagged | Needs Review |
-| 4 | Too much lag indicator data, not enough lead indicators — the business is always looking backwards, never forward | Merged with item 5 — flagged for review | Too much lag indicator data, not enough lead indicators | Assumed — flagged | Needs Review |
-| 5 | Narrow data spread — financial performance tracked but business activities, operational metrics, or inventory effectiveness ignored or underreported | Merged with item 4 — flagged for review | Narrow data spread | Assumed — flagged | Needs Review |
+| 1 | No enforceable data capture methods — data either isn't being collected or there's no system to ensure it is | Confirmed as distinct primary issue — process/system intervention | No enforceable data capture methods | Mike confirmed — 2026-06-03 | Locked |
+| 2 | Poor data integrity — over-reliance on manual input creating errors and unreliable numbers | Confirmed as distinct primary issue — technology/tools intervention (software, apps, devices) | Poor data integrity | Mike confirmed — 2026-06-03 | Locked |
+| 3 | Lack of financial controls — no transparency or governance over purchase and sale decisions | Relocated to Domain 6 (Governance & Leadership) — financial controls govern authority over hiring, pay, leave, purchase and sale decisions | — | Mike confirmed — 2026-06-03 | Relocated |
+| 4 | Too much lag indicator data, not enough lead indicators — the business is always looking backwards, never forward | Confirmed as distinct primary issue — original language retained | Too much lag indicator data, not enough lead indicators | Mike confirmed — 2026-06-03 | Locked |
+| 5 | Narrow data spread — financial performance tracked but business activities, operational metrics, or inventory effectiveness ignored or underreported | Confirmed as distinct primary issue — original language retained | Narrow data spread | Mike confirmed — 2026-06-03 | Locked |
 
-**Flag — Items 1 and 2 — Data capture vs data integrity:** Item 1 (no data capture methods) — no system to collect data at all. Item 2 (poor data integrity) — data is being collected but manual input creates errors and unreliable numbers. Requires Mike confirmation: same advisory engagement or distinct primary issues?
+**Resolution — Items 1 and 2 (2026-06-03):** Confirmed as two distinct primary issues. Item 1 is a process/system problem — no mechanism to capture data. Item 2 is a technology problem — manual input causing errors; intervention involves software, apps, and devices. Mike confirmed.
 
-**Flag — Item 3 — Financial Controls placement:** Lack of financial controls covers purchase and sale decisions, transparency, and governance. This is a governance issue as much as a data issue. Placing it alongside data capture and data integrity may route advisors to the wrong intervention. May belong in Domain 6 (Governance & Leadership) or as a standalone primary issue within Domain 3. Requires Mike confirmation.
+**Resolution — Item 3 (2026-06-03):** Relocated to Domain 6 (Governance & Leadership). Financial controls govern authority over hiring, pay, leave, and purchase/sale decisions — these are management governance decisions, not data problems. Mike confirmed.
 
-**Flag — Items 4 and 5 — Reporting type vs reporting breadth:** Item 4 (too much lag indicator data) — the type of data being tracked is wrong: backward-looking rather than forward-looking. Item 5 (narrow data spread) — the breadth of data is too narrow: financial data only, not operational or activity metrics. Requires Mike confirmation: same advisory engagement or distinct primary issues?
+**Resolution — Items 4 and 5 (2026-06-03):** Confirmed as two distinct primary issues. Item 4 addresses the type of data tracked (lag vs lead indicators). Item 5 addresses the breadth of data tracked (financial only vs operational and activity metrics). Different interventions. Mike confirmed.
 
 #### Solution Categories — Workshop 2
-*Not yet started. Pending resolution of financial controls placement flag.*
+*Not yet started.*
 
 ---
 
@@ -291,14 +293,12 @@ The primary issue map is grounded entirely in domain expert language. Every item
 | 4 | Supply line disruptions or poor quality controls — delivery problems undermining sales | Relocated to Domain 8 — if supply failure is the operational root cause, Systems domain handles it | External Integration (Domain 8) | Mike confirmed | Relocated |
 | 5 | No visible sales process — no structured way of moving prospects to clients | Merged with item 6 | Sales Execution | Mike confirmed | Locked |
 | 6 | Poor sales training — the team doesn't know how to sell effectively | Merged with item 5 | Sales Execution | Mike confirmed | Locked |
-| 7 | Poor outbound messaging and lack of marketing systems — nothing going out consistently | Merged with items 8 and 10 under cluster label | Marketing Foundation | Assumed — flagged | Needs Review |
-| 8 | No defined target market personas — the business doesn't know who it's selling to | Merged with items 7 and 10 under cluster label | Marketing Foundation | Assumed — flagged | Needs Review |
+| 7 | Poor outbound messaging and lack of marketing systems — nothing going out consistently | Confirmed as one primary issue with items 8 and 10 — three components of the same marketing problem | Marketing Foundation | Mike confirmed — 2026-06-03 | Locked |
+| 8 | No defined target market personas — the business doesn't know who it's selling to | Confirmed as one primary issue with items 7 and 10 — three components of the same marketing problem | Marketing Foundation | Mike confirmed — 2026-06-03 | Locked |
 | 9 | Poor positioning or brand perception — how the business is seen doesn't match what it wants to be known for | Label restored to original Workshop 1 language | Poor positioning or brand perception | Mike confirmed — 2026-06-03 | Locked |
-| 10 | No defined marketing statements — the business can't answer: what do we say, to whom, and when | Merged with items 7 and 8 under cluster label | Marketing Foundation | Assumed — flagged | Needs Review |
+| 10 | No defined marketing statements — the business can't answer: what do we say, to whom, and when | Confirmed as one primary issue with items 7 and 8 — three components of the same marketing problem | Marketing Foundation | Mike confirmed — 2026-06-03 | Locked |
 
-**Flag — Items 7, 8, and 10 — Marketing Foundation:** Three items merged under one label. Item 7 (outbound messaging and marketing systems) — building marketing infrastructure and output cadence. Item 8 (no target market personas) — market segmentation and targeting design. Item 10 (no defined marketing statements) — value proposition and messaging framework. Requires Mike confirmation: one primary issue or split into distinct issues?
-
-Note: This flag does not affect the Workshop 2 solution categories already completed for Domain 4. If the flag results in a split, solution categories will be revisited for the affected items only.
+**Resolution — Items 7, 8, and 10 (2026-06-03):** Confirmed as one primary issue — Marketing Foundation. Three components of the same marketing problem: who you say it to (target market personas), what you say (messaging and marketing statements), and when and how often (outbound marketing systems). Mike confirmed.
 
 #### Solution Categories — Workshop 2 — COMPLETE
 
@@ -335,10 +335,10 @@ Validated by two independent senior engineering panels, 2026-06-03.
 |---|---|---|---|---|---|
 | 1 | Poor financial literacy — owner focused on wrong numbers, chasing sales volume while ignoring margin or fixed costs | Label restored to original Workshop 1 language | Poor financial literacy | Mike confirmed — 2026-06-03 | Locked |
 | 2 | Artisan-over-commercial mindset — business decisions driven by craft or quality pride rather than market demand | Reclassified as Symptom — probes for underlying cause before routing: financial literacy gap, pricing confidence, or founder identity issue | — | Mike confirmed | Reclassified — S |
-| 3 | Over-trading — growth funded primarily through debt, leaving the business dangerously exposed | Merged with item 4 under cluster label | Financial Structure | Assumed — flagged | Needs Review |
-| 4 | Cost structure imbalance — decisions based on assumptions rather than data, resulting in a cost base that doesn't reflect reality | Merged with item 3 under cluster label | Financial Structure | Assumed — flagged | Needs Review |
+| 3 | Over-trading — growth funded primarily through debt, leaving the business dangerously exposed | Confirmed as distinct primary issue — conscious risk position requiring funding strategy intervention | Over-trading | Mike confirmed — 2026-06-03 | Locked |
+| 4 | Cost structure imbalance — decisions based on assumptions rather than data, resulting in a cost base that doesn't reflect reality | Confirmed as distinct primary issue — knowledge gap caused by poor data and complicated accounting practices | Cost structure imbalance | Mike confirmed — 2026-06-03 | Locked |
 
-**Flag — Items 3 and 4 — Financial Structure:** Materially different problems with different intervention pathways. Item 3 (over-trading) — growth has been funded through debt; the business is overexposed. Intervention is debt restructuring, funding strategy review, and growth pacing. Item 4 (cost structure imbalance) — the cost base doesn't reflect business reality; decisions made on assumptions. Intervention is cost analysis, benchmarking, and cost base redesign. Requires Mike confirmation: split into two primary issues or confirm as one?
+**Resolution — Items 3 and 4 (2026-06-03):** Confirmed as two distinct primary issues. Over-trading is a deliberate risk position — owner often knows they are doing it — requiring funding strategy and debt restructuring. Cost structure imbalance is a knowledge problem — owner doesn't know real costs due to complicated accounting — requiring cost analysis and accounting clarity. Mike confirmed.
 
 #### Solution Categories — Workshop 2
 *Not yet started. Pending resolution of Financial Structure flag.*
@@ -347,7 +347,7 @@ Validated by two independent senior engineering panels, 2026-06-03.
 
 ### Domain 6: Governance & Leadership
 
-**Domain purpose:** Identify whether the business has effective leadership, sound decision-making processes, a deliberate culture, and an appropriately composed team. Routes to conflict facilitation, decision framework, culture design, and governance interventions.
+**Domain purpose:** Identify whether the business has effective leadership, sound decision-making processes, clear financial authority controls, a deliberate culture, and an appropriately composed team. Routes to conflict facilitation, decision framework, financial controls, culture design, and governance interventions.
 
 #### Original Items — Workshop 1, authored by Mike Barnes, 2026-06-02
 
@@ -364,14 +364,15 @@ Validated by two independent senior engineering panels, 2026-06-03.
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
 | 1 | Poor boardroom dynamics or partner/owner disputes — conflict or misalignment at the top affecting the business | Label restored to original Workshop 1 language | Poor boardroom dynamics or partner/owner disputes | Mike confirmed — 2026-06-03 | Locked |
-| 2 | Poor decision quality — no structured process for making and committing to decisions | Merged with item 3 — flagged for review | Poor decision quality | Assumed — flagged | Needs Review |
-| 3 | Weak communication of expectations with no documentation — people aren't held accountable because nothing is written down | Merged with item 2 — flagged for review | Weak communication of expectations with no documentation | Assumed — flagged | Needs Review |
-| 4 | Culture left to chance — no deliberate effort to define and shape what the business stands for | Split pending — restored to original language pending flag resolution | Culture left to chance | Assumed — flagged | Needs Review |
-| 5 | Personality and skill diversity not actively pursued — team not built for complementary strengths | Split pending — restored to original language pending flag resolution | Personality and skill diversity not actively pursued | Assumed — flagged | Needs Review |
+| R1 (relocated from Domain 3) | Lack of financial controls — no transparency or governance over purchase and sale decisions | Relocated from Domain 3 — financial authority over hiring, pay, leave, purchases and sales is a governance decision | Lack of financial controls | Mike confirmed — 2026-06-03 | Locked |
+| 2 | Poor decision quality — no structured process for making and committing to decisions | Confirmed as distinct primary issue — skills and methodology gap; intervention uses structured frameworks (e.g. 6 hats) to reduce bias and argumentative behaviour | Poor decision quality | Mike confirmed — 2026-06-03 | Locked |
+| 3 | Weak communication of expectations with no documentation — people aren't held accountable because nothing is written down | Confirmed as distinct primary issue — social and cultural problem; coded behaviour enabled by less assertive personality types and poor chairmanship | Weak communication of expectations with no documentation | Mike confirmed — 2026-06-03 | Locked |
+| 4 | Culture left to chance — no deliberate effort to define and shape what the business stands for | Confirmed as distinct primary issue — culture design engagement: defining values, standards and acceptable behaviour | Culture left to chance | Mike confirmed — 2026-06-03 | Locked |
+| 5 | Personality and skill diversity not actively pursued — team not built for complementary strengths | Confirmed as distinct primary issue — specialist engagement requiring understanding of personality types (e.g. DISC); different knowledge and tools from culture design | Personality and skill diversity not actively pursued | Mike confirmed — 2026-06-03 | Locked |
 
-**Flag — Items 2 and 3 — Decision & Accountability merge:** Item 2 (poor decision quality) — how decisions are made. Item 3 (weak communication and no accountability documentation) — how decisions and expectations are communicated and enforced. Requires Mike confirmation: same advisory engagement or distinct primary issues?
+**Resolution — Items 2 and 3 (2026-06-03):** Confirmed as two distinct primary issues. Item 2 (poor decision quality) is a skills and methodology gap — intervention uses structured frameworks (e.g. De Bono's 6 hats) to overcome argumentative behaviour and confirmation bias. Item 3 (weak communication with no documentation) is a social and cultural problem — coded behaviour where people go along to maintain the facade of relationships, enabled by less assertive personalities and poor chairmanship. Completely different interventions. Mike confirmed.
 
-**Flag — Items 4 and 5 — Culture left to chance / Personality and skill diversity:** Item 4 (culture left to chance) — values definition, behaviour norms, culture design. Item 5 (skill diversity not pursued) — hiring philosophy, board composition strategy, team design for complementary strengths. Requires Mike confirmation: same advisory engagement or distinct primary issues?
+**Resolution — Items 4 and 5 (2026-06-03):** Confirmed as two distinct primary issues. Both share a common root (lack of intentional leadership about organisational design) but require different interventions. Item 4 (culture left to chance) — culture definition and values design. Item 5 (personality diversity not pursued) — specialist engagement requiring understanding of personality types; different knowledge and advisory tools. Mike confirmed.
 
 #### Solution Categories — Workshop 2
 *Not yet started. Pending resolution of flags.*
@@ -799,15 +800,16 @@ Restricting the AI to a single task — writing copy about pre-selected template
 |---|---|---|---|
 | 1 | Profitability & Feasibility | Cost Structure merges two distinct items — cost of sales has increased (item 1) and fixed overhead costs grown beyond revenue (item 4) | RESOLVED 2026-06-03 — Split into Cost of Sales Increase and Fixed Costs Increase. Mike confirmed. |
 | 2 | Profitability & Feasibility | Revenue label — one word for a specific original item | RESOLVED 2026-06-03 — Renamed to Sales Revenue. Mike confirmed. |
-| 3 | Staff | Workforce Capability merges inexperienced staff (item 2) and no internal training structures (item 3) | Same advisory engagement or distinct primary issues? |
-| 4 | Staff | Management Effectiveness merges poor management practices (item 4), poor communication and feedback standards (item 5), and poorly defined roles and responsibilities (item 6) | Distinct primary issues or contributors to one engagement? |
-| 5a | Data | Items 1 and 2 merged — no data capture methods and poor data integrity | Same advisory engagement or distinct primary issues? |
-| 5b | Data | Lack of financial controls (item 3) placed alongside data capture and data integrity | Belongs in Data, Governance, or as a standalone primary issue? |
-| 5c | Data | Items 4 and 5 merged — lag indicator data and narrow data spread | Reporting type vs reporting breadth — same engagement or distinct? |
-| 6 | Financial Management | Financial Structure merges over-trading (item 3) and cost structure imbalance (item 4) | Split into two primary issues or confirm as one? |
-| 7a | Governance & Leadership | Items 2 and 3 merged — poor decision quality and weak accountability documentation | How decisions are made vs how they are communicated — same engagement or distinct? |
-| 7b | Governance & Leadership | Items 4 and 5 merged — culture left to chance and personality and skill diversity not actively pursued | Same advisory engagement or distinct primary issues? |
-| 8 | Sales & Marketing | Marketing Foundation merges poor outbound messaging and lack of marketing systems (item 7), no defined target market personas (item 8), and no defined marketing statements (item 10) | Confirm as one primary issue or split? |
+| 3 | Staff | Workforce Capability merges inexperienced staff (item 2) and no internal training structures (item 3) | RESOLVED 2026-06-03 — Two distinct primary issues confirmed. Mike confirmed. |
+| 4 | Staff | Items 4 and 5 — poor management practices and poor communication and feedback | RESOLVED 2026-06-03 — Merged as one primary issue: "Poor management practices — weak communication, feedback and formal discipline". Mike confirmed. |
+| 4b | Staff | Item 6 — roles and responsibilities poorly defined | RESOLVED 2026-06-03 — Confirmed as distinct primary issue. Mike confirmed. |
+| 5a | Data | Items 1 and 2 merged — no data capture methods and poor data integrity | RESOLVED 2026-06-03 — Two distinct primary issues. Data capture = process problem. Data integrity = technology problem. Mike confirmed. |
+| 5b | Data | Lack of financial controls (item 3) placed alongside data capture and data integrity | RESOLVED 2026-06-03 — Relocated to Domain 6 (Governance & Leadership). Financial authority decisions are governance, not data. Mike confirmed. |
+| 5c | Data | Items 4 and 5 merged — lag indicator data and narrow data spread | RESOLVED 2026-06-03 — Two distinct primary issues confirmed. Mike confirmed. |
+| 6 | Financial Management | Financial Structure merges over-trading (item 3) and cost structure imbalance (item 4) | RESOLVED 2026-06-03 — Two distinct primary issues. Over-trading = deliberate risk position. Cost structure imbalance = knowledge gap from poor data. Mike confirmed. |
+| 7a | Governance & Leadership | Items 2 and 3 merged — poor decision quality and weak accountability documentation | RESOLVED 2026-06-03 — Two distinct primary issues. Decision quality = skills/methodology gap. Weak communication = social/cultural coded behaviour problem. Mike confirmed. |
+| 7b | Governance & Leadership | Items 4 and 5 merged — culture left to chance and personality and skill diversity not actively pursued | RESOLVED 2026-06-03 — Two distinct primary issues. Culture = values/behaviour design. Personality diversity = specialist engagement requiring personality type knowledge. Mike confirmed. |
+| 8 | Sales & Marketing | Marketing Foundation merges poor outbound messaging and lack of marketing systems (item 7), no defined target market personas (item 8), and no defined marketing statements (item 10) | RESOLVED 2026-06-03 — Confirmed as one primary issue. Three components of the same marketing problem: who, what, when and how often. Mike confirmed. |
 
 ### Build Sequence
 
