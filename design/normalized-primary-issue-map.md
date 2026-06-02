@@ -25,19 +25,24 @@
 
 ## Domain 1: Profitability & Feasibility
 
-*Status: Classified — clustering outstanding for Workshop 2.*
+*Status: Fully locked — 2026-06-02.*
 
-| Entry | Role | Notes |
-|---|---|---|
-| Cost of sales has increased | P | Cost structure intervention |
-| Excessive discounting eroding margin | P | Pricing intervention |
-| Low sales volume pulling profit down | P* | *Cross-domain flag — P here, S in Sales & Marketing. Resolution rule needed in Workshop 2. |
-| Fixed overhead costs grown beyond revenue | P | Cost structure intervention |
-| Asset utilisation below viability threshold | P | Feasibility intervention |
-| Finance strain | S | Routes to Financial Management |
-| Asset realisation / venture extraction | Ctx | Layer 3 meetingContext |
+| Primary Issue | Diagnostic Contributors |
+|---|---|
+| **Cost Structure** | Cost of sales has increased · Fixed overhead costs grown beyond revenue |
+| **Pricing & Margins** | Excessive discounting eroding margin |
+| **Revenue** | Low sales volume pulling profit down |
+| **Feasibility** | Asset utilisation below viability threshold |
 
-*Clustering pending: 5 P entries expected to produce 3 clusters (Cost Structure, Revenue, Feasibility). Outstanding for Workshop 2.*
+*Finance strain → S. Routes to Financial Management.*
+*Asset realisation / venture extraction → Ctx. Layer 3 meetingContext.*
+
+**Low sales volume cross-domain rule — resolved:**
+Low sales volume appears in both Profitability (Revenue cluster) and Sales & Marketing (Symptom). Resolution is handled by the universal question framework — not by code logic:
+- Q3 (situationDiagnostic): "What contributed to this situation?" — advisor's answer reveals whether cause is external (market/economic) or internal (process/product/marketing)
+- Domain-specific Q11 (sales): "Has your client determined if the problem is lack of sales vs profitability from sales?" — directly distinguishes Profitability from Sales & Marketing
+- Domain-specific Q13 (sales): "Is the issue related to Product Fit?" — routes to Product Market Fit primary issue
+The CaseState reads these answers. Routing follows from what the advisor said — no hardcoded rule required.
 
 ---
 
@@ -205,14 +210,14 @@ These domains are not diagnostic — they are engagement contexts. They do not p
 
 ---
 
-## Outstanding Items — Deferred to Workshop 2
+## Outstanding Items
 
-| Item | Detail |
-|---|---|
-| Domain 1 clustering | 5 P entries not yet clustered — expected to produce 3 clusters (Cost Structure, Revenue, Feasibility) |
-| Low sales volume cross-domain rule | P in Domain 1, S in Domain 4 — resolution rule needed |
-| Signal vocabulary overhaul | Generic signals (strategy_needed, staff_problem etc.) to be replaced with granular signals matching primary issues |
-| Artisan mindset observable criteria | Needs evidence requirements so two advisors classify the same client the same way |
+| Item | Status | Detail |
+|---|---|---|
+| Domain 1 clustering | ✓ Resolved 2026-06-02 | 4 clusters locked: Cost Structure, Pricing & Margins, Revenue, Feasibility |
+| Low sales volume cross-domain rule | ✓ Resolved 2026-06-02 | Handled by Q3 + domain questions in conversation. No hardcoded rule needed. |
+| Signal vocabulary overhaul | Deferred to Workshop 3 | Replace generic signals with granular signals matching primary issues |
+| Artisan mindset observable criteria | Pending — low priority | Needs evidence requirements so two advisors classify the same client the same way |
 
 ---
 
