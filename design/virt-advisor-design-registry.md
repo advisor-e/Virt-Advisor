@@ -1,7 +1,7 @@
 # Virt Advisor — Master Design Registry
 
 **Version:** 1.0 — 2026-06-03
-**Status:** In progress — Stage 2 has 8 outstanding flags. Stage 3 complete for Domain 4 only.
+**Status:** In progress — Stage 2 has 11 outstanding flags (2 resolved, 5 new identified from normalization audit). Stage 3 complete for Domain 4 only. All primary issue labels restored to original Workshop 1 language — 2026-06-03.
 **Purpose:** Single source of truth for the complete Virt Advisor decision logic. Every stage, every decision, every item — in sequence. Written to be readable and editable by a firm manager without engineering knowledge.
 **Supersedes:** design/primary-issue-registry.md (superseded 2026-06-03)
 
@@ -175,18 +175,18 @@ The primary issue map is grounded entirely in domain expert language. Every item
 
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
-| 1 | Cost of sales has increased — materials, labour, supplier costs eating into margin | Merged with item 4 under cluster label | Cost Structure | Assumed — flagged | Needs Review |
-| 2 | Excessive discounting eroding margin — pricing confidence or competitive pressure | Renamed | Pricing & Margins | Assumed — acceptable | Locked |
-| 3 | Low sales volume pulling profit down — revenue is the constraint, not cost | Renamed | Sales Revenue | Assumed — acceptable | Locked |
-| 4 | Fixed overhead costs grown beyond what revenue can support | Merged with item 1 under cluster label | Cost Structure | Assumed — flagged | Needs Review |
-| 5 | Asset utilisation below viability threshold — the numbers don't stack up | Renamed | Feasibility | Assumed — acceptable | Locked |
+| 1 | Cost of sales has increased — materials, labour, supplier costs eating into margin | Split from item 4 — restored as distinct primary issue | Cost of sales has increased | Mike confirmed — 2026-06-03 | Locked |
+| 2 | Excessive discounting eroding margin — pricing confidence or competitive pressure | Label restored to original Workshop 1 language | Excessive discounting eroding margin | Mike confirmed — 2026-06-03 | Locked |
+| 3 | Low sales volume pulling profit down — revenue is the constraint, not cost | Renamed | Sales Revenue | Mike confirmed — 2026-06-03 | Locked |
+| 4 | Fixed overhead costs grown beyond what revenue can support | Split from item 1 — restored as distinct primary issue | Fixed overhead costs grown beyond what revenue can support | Mike confirmed — 2026-06-03 | Locked |
+| 5 | Asset utilisation below viability threshold — the numbers don't stack up | Label restored to original Workshop 1 language | Asset utilisation below viability threshold | Mike confirmed — 2026-06-03 | Locked |
 | 6 | Finance strain — funding structure or repayment creating pressure | Reclassified as Symptom — routes to Domain 5 Financial Management | — | Mike confirmed | Reclassified — S |
 | 7 | Asset realisation or venture extraction — owner needs to understand what they can get out or how to exit the risk | Reclassified as Context — Layer 3 strategy override | — | Mike confirmed | Reclassified — Ctx |
 
-**Flag — Items 1 and 4 — Cost Structure:** These are materially different issues with different intervention pathways. Item 1 (cost of sales) — advisor examines margins per job, supplier costs, labour efficiency, delivery costs. Item 4 (fixed overhead) — advisor examines lease, fixed wages, subscriptions, committed overheads. Merged under an AI-generated label during normalization. Confirmed as a normalization failure (2026-06-03). Requires Mike decision: split into two primary issues or confirm as one.
+**Resolution — Items 1 and 4 — Cost Structure split (2026-06-03):** Confirmed normalization failure. "Cost Structure" was an AI-generated cluster label merging two distinct primary issues. Restored to original Workshop 1 language: "Cost of sales has increased" (item 1) and "Fixed overhead costs grown beyond what revenue can support" (item 4). Mike confirmed both labels and the split.
 
 #### Solution Categories — Workshop 2
-*Not yet started. Pending resolution of Cost Structure flag.*
+*Not yet started.*
 
 ---
 
@@ -210,13 +210,13 @@ The primary issue map is grounded entirely in domain expert language. Every item
 
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
-| 1 | Too few qualified staff — insufficient headcount to meet demand | Renamed | Workforce Capacity | Assumed — acceptable | Locked |
-| 2 | Inexperienced or insufficiently trained staff — capability gap in the existing team | Merged with item 3 under cluster label | Workforce Capability | Assumed — flagged | Needs Review |
-| 3 | No internal training structures — no system for building capability over time | Merged with item 2 under cluster label | Workforce Capability | Assumed — flagged | Needs Review |
-| 4 | Poor management practices — weak coaching and accountability from leadership | Merged with items 5 and 6 under cluster label | Management Effectiveness | Assumed — flagged | Needs Review |
-| 5 | Poor communication and feedback standards — team isn't getting the information or direction it needs | Merged with items 4 and 6 under cluster label | Management Effectiveness | Assumed — flagged | Needs Review |
-| 6 | Roles and responsibilities poorly defined — people don't know what they own | Merged with items 4 and 5 under cluster label | Management Effectiveness | Assumed — flagged | Needs Review |
-| 7 | Weak hiring practices — no structured process for bringing the right people in | Renamed | Talent Acquisition | Assumed — acceptable | Locked |
+| 1 | Too few qualified staff — insufficient headcount to meet demand | Label restored to original Workshop 1 language | Too few qualified staff | Mike confirmed — 2026-06-03 | Locked |
+| 2 | Inexperienced or insufficiently trained staff — capability gap in the existing team | Split pending — restored to original language pending flag resolution | Inexperienced or insufficiently trained staff | Assumed — flagged | Needs Review |
+| 3 | No internal training structures — no system for building capability over time | Split pending — restored to original language pending flag resolution | No internal training structures | Assumed — flagged | Needs Review |
+| 4 | Poor management practices — weak coaching and accountability from leadership | Split pending — restored to original language pending flag resolution | Poor management practices | Assumed — flagged | Needs Review |
+| 5 | Poor communication and feedback standards — team isn't getting the information or direction it needs | Split pending — restored to original language pending flag resolution | Poor communication and feedback standards | Assumed — flagged | Needs Review |
+| 6 | Roles and responsibilities poorly defined — people don't know what they own | Split pending — restored to original language pending flag resolution | Roles and responsibilities poorly defined | Assumed — flagged | Needs Review |
+| 7 | Weak hiring practices — no structured process for bringing the right people in | Label restored to original Workshop 1 language | Weak hiring practices | Mike confirmed — 2026-06-03 | Locked |
 
 **Flag — Items 2 and 3 — Workforce Capability:** Item 2 (inexperienced staff) may lead to performance coaching or recruitment of more experienced people. Item 3 (no training system) leads to designing a training framework. These may be distinct primary issues. Requires Mike confirmation.
 
@@ -245,13 +245,17 @@ The primary issue map is grounded entirely in domain expert language. Every item
 
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
-| 1 | No enforceable data capture methods — data either isn't being collected or there's no system to ensure it is | Merged with items 2 and 3 under cluster label | Data Reliability | Assumed — acceptable for items 1 and 2 | Locked |
-| 2 | Poor data integrity — over-reliance on manual input creating errors and unreliable numbers | Merged with items 1 and 3 under cluster label | Data Reliability | Assumed — acceptable for items 1 and 2 | Locked |
-| 3 | Lack of financial controls — no transparency or governance over purchase and sale decisions | Merged with items 1 and 2 under cluster label | Data Reliability | Assumed — flagged | Needs Review |
-| 4 | Too much lag indicator data, not enough lead indicators — the business is always looking backwards, never forward | Merged with item 5 under cluster label | Reporting Quality | Assumed — acceptable | Locked |
-| 5 | Narrow data spread — financial performance tracked but business activities, operational metrics, or inventory effectiveness ignored or underreported | Merged with item 4 under cluster label | Reporting Quality | Assumed — acceptable | Locked |
+| 1 | No enforceable data capture methods — data either isn't being collected or there's no system to ensure it is | Merged with item 2 — flagged for review | No enforceable data capture methods | Assumed — flagged | Needs Review |
+| 2 | Poor data integrity — over-reliance on manual input creating errors and unreliable numbers | Merged with item 1 — flagged for review | Poor data integrity | Assumed — flagged | Needs Review |
+| 3 | Lack of financial controls — no transparency or governance over purchase and sale decisions | Merged with items 1 and 2 — flagged for review | Lack of financial controls | Assumed — flagged | Needs Review |
+| 4 | Too much lag indicator data, not enough lead indicators — the business is always looking backwards, never forward | Merged with item 5 — flagged for review | Too much lag indicator data, not enough lead indicators | Assumed — flagged | Needs Review |
+| 5 | Narrow data spread — financial performance tracked but business activities, operational metrics, or inventory effectiveness ignored or underreported | Merged with item 4 — flagged for review | Narrow data spread | Assumed — flagged | Needs Review |
 
-**Flag — Item 3 — Financial Controls placement:** Lack of financial controls covers purchase and sale decisions, transparency, and governance. This is a governance issue as much as a data issue. Placing it under Data Reliability alongside data capture and data integrity may route advisors to the wrong intervention. May belong in Domain 6 (Governance & Leadership) or as a standalone primary issue within Domain 3. Requires Mike confirmation.
+**Flag — Items 1 and 2 — Data capture vs data integrity:** Item 1 (no data capture methods) — no system to collect data at all. Item 2 (poor data integrity) — data is being collected but manual input creates errors and unreliable numbers. Requires Mike confirmation: same advisory engagement or distinct primary issues?
+
+**Flag — Item 3 — Financial Controls placement:** Lack of financial controls covers purchase and sale decisions, transparency, and governance. This is a governance issue as much as a data issue. Placing it alongside data capture and data integrity may route advisors to the wrong intervention. May belong in Domain 6 (Governance & Leadership) or as a standalone primary issue within Domain 3. Requires Mike confirmation.
+
+**Flag — Items 4 and 5 — Reporting type vs reporting breadth:** Item 4 (too much lag indicator data) — the type of data being tracked is wrong: backward-looking rather than forward-looking. Item 5 (narrow data spread) — the breadth of data is too narrow: financial data only, not operational or activity metrics. Requires Mike confirmation: same advisory engagement or distinct primary issues?
 
 #### Solution Categories — Workshop 2
 *Not yet started. Pending resolution of financial controls placement flag.*
@@ -289,7 +293,7 @@ The primary issue map is grounded entirely in domain expert language. Every item
 | 6 | Poor sales training — the team doesn't know how to sell effectively | Merged with item 5 | Sales Execution | Mike confirmed | Locked |
 | 7 | Poor outbound messaging and lack of marketing systems — nothing going out consistently | Merged with items 8 and 10 under cluster label | Marketing Foundation | Assumed — flagged | Needs Review |
 | 8 | No defined target market personas — the business doesn't know who it's selling to | Merged with items 7 and 10 under cluster label | Marketing Foundation | Assumed — flagged | Needs Review |
-| 9 | Poor positioning or brand perception — how the business is seen doesn't match what it wants to be known for | Renamed | Brand & Positioning | Assumed — acceptable | Locked |
+| 9 | Poor positioning or brand perception — how the business is seen doesn't match what it wants to be known for | Label restored to original Workshop 1 language | Poor positioning or brand perception | Mike confirmed — 2026-06-03 | Locked |
 | 10 | No defined marketing statements — the business can't answer: what do we say, to whom, and when | Merged with items 7 and 8 under cluster label | Marketing Foundation | Assumed — flagged | Needs Review |
 
 **Flag — Items 7, 8, and 10 — Marketing Foundation:** Three items merged under one label. Item 7 (outbound messaging and marketing systems) — building marketing infrastructure and output cadence. Item 8 (no target market personas) — market segmentation and targeting design. Item 10 (no defined marketing statements) — value proposition and messaging framework. Requires Mike confirmation: one primary issue or split into distinct issues?
@@ -308,7 +312,7 @@ Validated by two independent senior engineering panels, 2026-06-03.
 | Marketing Foundation | Develop target market messaging | Renamed from Define to Develop at Mike's direction | Locked — Mike confirmed |
 | Product Market Fit | Assess product market fit | | Locked — Mike confirmed |
 | Product Market Fit | Assess competitive position | Competition fronts defined as specific competitive dimensions: quality, price, convenience. Renamed from Assess competition fronts at Mike's direction. | Locked — Mike confirmed |
-| Brand & Positioning | Design brand positioning strategy | | Locked — Mike confirmed |
+| Poor positioning or brand perception | Design brand positioning strategy | | Locked — Mike confirmed |
 
 ---
 
@@ -329,7 +333,7 @@ Validated by two independent senior engineering panels, 2026-06-03.
 
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
-| 1 | Poor financial literacy — owner focused on wrong numbers, chasing sales volume while ignoring margin or fixed costs | Renamed | Financial Capability | Assumed — acceptable | Locked |
+| 1 | Poor financial literacy — owner focused on wrong numbers, chasing sales volume while ignoring margin or fixed costs | Label restored to original Workshop 1 language | Poor financial literacy | Mike confirmed — 2026-06-03 | Locked |
 | 2 | Artisan-over-commercial mindset — business decisions driven by craft or quality pride rather than market demand | Reclassified as Symptom — probes for underlying cause before routing: financial literacy gap, pricing confidence, or founder identity issue | — | Mike confirmed | Reclassified — S |
 | 3 | Over-trading — growth funded primarily through debt, leaving the business dangerously exposed | Merged with item 4 under cluster label | Financial Structure | Assumed — flagged | Needs Review |
 | 4 | Cost structure imbalance — decisions based on assumptions rather than data, resulting in a cost base that doesn't reflect reality | Merged with item 3 under cluster label | Financial Structure | Assumed — flagged | Needs Review |
@@ -359,16 +363,18 @@ Validated by two independent senior engineering panels, 2026-06-03.
 
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
-| 1 | Poor boardroom dynamics or partner/owner disputes — conflict or misalignment at the top affecting the business | Renamed | Partner Dynamics | Assumed — acceptable | Locked |
-| 2 | Poor decision quality — no structured process for making and committing to decisions | Merged with item 3 | Decision & Accountability | Assumed — acceptable | Locked |
-| 3 | Weak communication of expectations with no documentation — people aren't held accountable because nothing is written down | Merged with item 2 | Decision & Accountability | Assumed — acceptable | Locked |
-| 4 | Culture left to chance — no deliberate effort to define and shape what the business stands for | Merged with item 5 under cluster label | Culture & Composition | Assumed — flagged | Needs Review |
-| 5 | Personality and skill diversity not actively pursued — team not built for complementary strengths | Merged with item 4 under cluster label | Culture & Composition | Assumed — flagged | Needs Review |
+| 1 | Poor boardroom dynamics or partner/owner disputes — conflict or misalignment at the top affecting the business | Label restored to original Workshop 1 language | Poor boardroom dynamics or partner/owner disputes | Mike confirmed — 2026-06-03 | Locked |
+| 2 | Poor decision quality — no structured process for making and committing to decisions | Merged with item 3 — flagged for review | Poor decision quality | Assumed — flagged | Needs Review |
+| 3 | Weak communication of expectations with no documentation — people aren't held accountable because nothing is written down | Merged with item 2 — flagged for review | Weak communication of expectations with no documentation | Assumed — flagged | Needs Review |
+| 4 | Culture left to chance — no deliberate effort to define and shape what the business stands for | Split pending — restored to original language pending flag resolution | Culture left to chance | Assumed — flagged | Needs Review |
+| 5 | Personality and skill diversity not actively pursued — team not built for complementary strengths | Split pending — restored to original language pending flag resolution | Personality and skill diversity not actively pursued | Assumed — flagged | Needs Review |
 
-**Flag — Items 4 and 5 — Culture & Composition:** Item 4 (culture left to chance) — values definition, behaviour norms, culture design. Item 5 (skill diversity not pursued) — hiring philosophy, board composition strategy, team design for complementary strengths. Requires Mike confirmation: same advisory engagement or distinct primary issues?
+**Flag — Items 2 and 3 — Decision & Accountability merge:** Item 2 (poor decision quality) — how decisions are made. Item 3 (weak communication and no accountability documentation) — how decisions and expectations are communicated and enforced. Requires Mike confirmation: same advisory engagement or distinct primary issues?
+
+**Flag — Items 4 and 5 — Culture left to chance / Personality and skill diversity:** Item 4 (culture left to chance) — values definition, behaviour norms, culture design. Item 5 (skill diversity not pursued) — hiring philosophy, board composition strategy, team design for complementary strengths. Requires Mike confirmation: same advisory engagement or distinct primary issues?
 
 #### Solution Categories — Workshop 2
-*Not yet started. Pending resolution of Culture & Composition flag.*
+*Not yet started. Pending resolution of flags.*
 
 ---
 
@@ -388,9 +394,9 @@ Validated by two independent senior engineering panels, 2026-06-03.
 
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
-| 1 | Lack of clarity or belief that the current business model will remain competitive — owner isn't sure the business has a viable future in its current form | Renamed | Business Model Viability | Assumed — acceptable | Locked |
-| 2 | Poor business metrics or undefined operational objectives — no clear targets means inefficient or ineffective activities continue unchallenged | Renamed | Performance Measurement | Assumed — acceptable | Locked |
-| 3 | No defined objectives means no communicated direction — leads to low staff engagement or staff anxiety about job security | Renamed | Strategic Direction | Assumed — acceptable | Locked |
+| 1 | Lack of clarity or belief that the current business model will remain competitive — owner isn't sure the business has a viable future in its current form | Label restored to original Workshop 1 language | Lack of clarity or belief that the current business model will remain competitive | Mike confirmed — 2026-06-03 | Locked |
+| 2 | Poor business metrics or undefined operational objectives — no clear targets means inefficient or ineffective activities continue unchallenged | Label restored to original Workshop 1 language | Poor business metrics or undefined operational objectives | Mike confirmed — 2026-06-03 | Locked |
+| 3 | No defined objectives means no communicated direction — leads to low staff engagement or staff anxiety about job security | Label restored to original Workshop 1 language | No defined objectives means no communicated direction | Mike confirmed — 2026-06-03 | Locked |
 
 *No flags. Each original item became one primary issue with a straightforward rename. Items 2 and 3 are closely related but kept separate: item 2 concerns absence of metrics, item 3 concerns absence of communicated direction — different interventions.*
 
@@ -421,10 +427,10 @@ The following item was relocated from Domain 4 during Workshop 1.5:
 
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
-| 1 | Processes are either undefined or over-engineered — both result in tasks being done ineffectively or inconsistently | Renamed | Process Definition | Assumed — acceptable | Locked |
-| 2 | No regular structured review of practices — the business never stops to ask whether what it's doing is working or could be improved | Renamed | Process Review | Assumed — acceptable | Locked |
-| 3 | Siloed operations — departments or people working independently with no coordination, creating gaps, duplication, and miscommunication | Renamed | Internal Integration | Assumed — acceptable | Locked |
-| 4 (relocated) | Supply line disruptions or poor quality controls — delivery problems undermining sales | Renamed | External Integration | Mike confirmed — relocation and rename | Locked |
+| 1 | Processes are either undefined or over-engineered — both result in tasks being done ineffectively or inconsistently | Label restored to original Workshop 1 language | Processes are either undefined or over-engineered | Mike confirmed — 2026-06-03 | Locked |
+| 2 | No regular structured review of practices — the business never stops to ask whether what it's doing is working or could be improved | Label restored to original Workshop 1 language | No regular structured review of practices | Mike confirmed — 2026-06-03 | Locked |
+| 3 | Siloed operations — departments or people working independently with no coordination, creating gaps, duplication, and miscommunication | Label restored to original Workshop 1 language | Siloed operations | Mike confirmed — 2026-06-03 | Locked |
+| 4 (relocated) | Supply line disruptions or poor quality controls — delivery problems undermining sales | Label restored to original Workshop 1 language | Supply line disruptions or poor quality controls | Mike confirmed — 2026-06-03 | Locked |
 
 *No flags. All renames are straightforward. Relocation of item 4 from Domain 4 confirmed by Mike.*
 
@@ -506,10 +512,10 @@ The following item was relocated from Domain 4 during Workshop 1.5:
 
 | Item # | Original Item | Normalization Action | Resulting Primary Issue | Basis | Status |
 |---|---|---|---|---|---|
-| 1 | Owner has no defined life after work — fear of losing purpose or status causes them to undermine or delay succession activities | Renamed | Owner Purpose & Status | Assumed — acceptable | Locked |
+| 1 | Owner has no defined life after work — fear of losing purpose or status causes them to undermine or delay succession activities | Label updated — "Identity" replaced with "Status" to match original Workshop 1 language | Owner Purpose & Status | Mike confirmed — 2026-06-03 | Locked |
 | 2 | Business scale or profitability insufficient to support both withdrawing owners and incoming successors — the numbers don't work for a clean transition | Reclassified as Symptom — routes to Profitability or Financial Management. Succession reveals the problem; intervention belongs in the domain where the financial issue lives. | — | Mike confirmed | Reclassified — S |
-| 3 | Sibling or family inequality — emotions and family dynamics driving role appointments and business decisions instead of capability or business need | Renamed | Family Dynamics | Assumed — acceptable | Locked |
-| 4 | No clear succession pathway — a general idea exists but no executable plan with defined steps, timelines, or accountabilities | Renamed | Succession Pathway | Assumed — acceptable | Locked |
+| 3 | Sibling or family inequality — emotions and family dynamics driving role appointments and business decisions instead of capability or business need | Label restored to original Workshop 1 language | Sibling or family inequality | Mike confirmed — 2026-06-03 | Locked |
+| 4 | No clear succession pathway — a general idea exists but no executable plan with defined steps, timelines, or accountabilities | Label restored to original Workshop 1 language | No clear succession pathway | Mike confirmed — 2026-06-03 | Locked |
 
 *No flags. Renames are straightforward. Item 2 reclassification confirmed by Mike.*
 
@@ -791,13 +797,16 @@ Restricting the AI to a single task — writing copy about pre-selected template
 
 | # | Domain | Flag | Decision Needed |
 |---|---|---|---|
-| 1 | Profitability & Feasibility | Cost Structure merges two distinct items — cost of sales has increased (item 1) and fixed overhead costs grown beyond revenue (item 4) | Split into two primary issues or confirm as one? |
-| 2 | Profitability & Feasibility | Revenue label — one word for a specific original item | Confirm label is specific enough for routing or rename? |
+| 1 | Profitability & Feasibility | Cost Structure merges two distinct items — cost of sales has increased (item 1) and fixed overhead costs grown beyond revenue (item 4) | RESOLVED 2026-06-03 — Split into Cost of Sales Increase and Fixed Costs Increase. Mike confirmed. |
+| 2 | Profitability & Feasibility | Revenue label — one word for a specific original item | RESOLVED 2026-06-03 — Renamed to Sales Revenue. Mike confirmed. |
 | 3 | Staff | Workforce Capability merges inexperienced staff (item 2) and no internal training structures (item 3) | Same advisory engagement or distinct primary issues? |
 | 4 | Staff | Management Effectiveness merges poor management practices (item 4), poor communication and feedback standards (item 5), and poorly defined roles and responsibilities (item 6) | Distinct primary issues or contributors to one engagement? |
-| 5 | Data | Lack of financial controls (item 3) placed under Data Reliability alongside data capture and data integrity | Belongs in Data, Governance, or as a standalone primary issue? |
+| 5a | Data | Items 1 and 2 merged — no data capture methods and poor data integrity | Same advisory engagement or distinct primary issues? |
+| 5b | Data | Lack of financial controls (item 3) placed alongside data capture and data integrity | Belongs in Data, Governance, or as a standalone primary issue? |
+| 5c | Data | Items 4 and 5 merged — lag indicator data and narrow data spread | Reporting type vs reporting breadth — same engagement or distinct? |
 | 6 | Financial Management | Financial Structure merges over-trading (item 3) and cost structure imbalance (item 4) | Split into two primary issues or confirm as one? |
-| 7 | Governance & Leadership | Culture & Composition merges culture left to chance (item 4) and personality and skill diversity not actively pursued (item 5) | Same advisory engagement or distinct primary issues? |
+| 7a | Governance & Leadership | Items 2 and 3 merged — poor decision quality and weak accountability documentation | How decisions are made vs how they are communicated — same engagement or distinct? |
+| 7b | Governance & Leadership | Items 4 and 5 merged — culture left to chance and personality and skill diversity not actively pursued | Same advisory engagement or distinct primary issues? |
 | 8 | Sales & Marketing | Marketing Foundation merges poor outbound messaging and lack of marketing systems (item 7), no defined target market personas (item 8), and no defined marketing statements (item 10) | Confirm as one primary issue or split? |
 
 ### Build Sequence
