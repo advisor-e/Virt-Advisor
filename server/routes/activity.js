@@ -23,7 +23,7 @@ function emptyTier () {
 
 // ── POST /api/activity/log-course ─────────────────────────────────────────────
 
-async function logCourse (req, res, next) {
+async function logCourse (req, res) {
   const {
     advisorId, firmId, courseId, courseTitle, courseTopic,
     sessionIndex, sessionTitle, sessionResources, quizScore
@@ -31,7 +31,7 @@ async function logCourse (req, res, next) {
 
   if (!advisorId || !firmId || !courseId || sessionIndex === undefined) {
     res.send(400, { success: false, error: { code: 'MISSING_FIELDS', message: 'advisorId, firmId, courseId and sessionIndex are required' } })
-    return next()
+    return
   }
 
   await logCourseSession({
@@ -47,18 +47,18 @@ async function logCourse (req, res, next) {
   })
 
   res.send(200, { success: true })
-  return next()
+  return
 }
 
 // ── GET /api/activity/progression?advisorId=x&firmId=y ───────────────────────
 
-async function getProgression (req, res, next) {
+async function getProgression (req, res) {
   const advisorId = req.query.advisorId
   const firmId = req.query.firmId
 
   if (!advisorId || !firmId) {
     res.send(400, { success: false, error: { code: 'MISSING_PARAMS', message: 'advisorId and firmId are required' } })
-    return next()
+    return
   }
 
   try {
@@ -135,17 +135,17 @@ completedAt: r.completed_at
     res.send(500, { success: false, error: { code: 'DB_ERROR', message: 'Could not load progression data' } })
   }
 
-  return next()
+  return
 }
 
 // ── GET /api/activity/team?firmId=y ──────────────────────────────────────────
 
-async function getTeam (req, res, next) {
+async function getTeam (req, res) {
   const firmId = req.query.firmId
 
   if (!firmId) {
     res.send(400, { success: false, error: { code: 'MISSING_PARAMS', message: 'firmId is required' } })
-    return next()
+    return
   }
 
   try {
@@ -216,7 +216,7 @@ async function getTeam (req, res, next) {
     res.send(500, { success: false, error: { code: 'DB_ERROR', message: 'Could not load team data' } })
   }
 
-  return next()
+  return
 }
 
 module.exports = { logCourse, getProgression, getTeam }

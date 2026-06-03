@@ -60,7 +60,7 @@ function validCategoryValues () {
 
 // ── Document Library ──────────────────────────────────────────────────────────
 
-async function listDocuments (req, res, next) {
+async function listDocuments (req, res) {
   const { category } = req.query
   if (!category || !validCategoryValues().includes(category)) {
     return sendError(res, 400, 'INVALID_CATEGORY',
@@ -79,10 +79,10 @@ async function listDocuments (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DRIVE_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function uploadDocument (req, res, next) {
+async function uploadDocument (req, res) {
   const form = formidable({
     maxFileSize: STORAGE.maxFileSizeBytes,
     filter ({ mimetype }) {
@@ -147,10 +147,10 @@ async function uploadDocument (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'UPLOAD_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function downloadDocument (req, res, next) {
+async function downloadDocument (req, res) {
   const { fileId, fileName } = req.query
   if (!fileId) { return sendError(res, 400, 'NO_FILE_ID', 'fileId query param required') }
   try {
@@ -162,10 +162,10 @@ async function downloadDocument (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DOWNLOAD_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function deleteDocument (req, res, next) {
+async function deleteDocument (req, res) {
   const { fileId } = req.params
   if (!fileId) { return sendError(res, 400, 'NO_FILE_ID', 'fileId route param required') }
 
@@ -193,12 +193,12 @@ async function deleteDocument (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DELETE_ERROR', err)
   }
-  return next()
+  return
 }
 
 // ── Decision Framework ────────────────────────────────────────────────────────
 
-async function getFramework (req, res, next) {
+async function getFramework (req, res) {
   const { configKey } = req.query
   if (!configKey) { return sendError(res, 400, 'NO_CONFIG_KEY', 'configKey query param required') }
   try {
@@ -207,10 +207,10 @@ async function getFramework (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function saveFramework (req, res, next) {
+async function saveFramework (req, res) {
   const { configKey, configJson } = req.body || {}
   if (!configKey) {
     return sendError(res, 400, 'NO_CONFIG_KEY', 'configKey is required')
@@ -224,10 +224,10 @@ async function saveFramework (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function getFrameworkHistory (req, res, next) {
+async function getFrameworkHistory (req, res) {
   const { configKey } = req.query
   if (!configKey) { return sendError(res, 400, 'NO_CONFIG_KEY', 'configKey query param required') }
   try {
@@ -236,10 +236,10 @@ async function getFrameworkHistory (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function restoreFramework (req, res, next) {
+async function restoreFramework (req, res) {
   const { configKey, versionId } = req.body || {}
   if (!configKey || !versionId) {
     return sendError(res, 400, 'MISSING_PARAMS', 'configKey and versionId are required')
@@ -250,12 +250,12 @@ async function restoreFramework (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
 // ── Videos ────────────────────────────────────────────────────────────────────
 
-async function listVideos (req, res, next) {
+async function listVideos (req, res) {
   try {
     const [rows] = await db.execute(
       `SELECT id, domain, title, url, added_by, created_at
@@ -268,10 +268,10 @@ async function listVideos (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function addVideo (req, res, next) {
+async function addVideo (req, res) {
   const { domain, title, url } = req.body || {}
   if (!domain || !title || !url) {
     return sendError(res, 400, 'MISSING_FIELDS', 'domain, title, and url are all required')
@@ -293,10 +293,10 @@ async function addVideo (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function deleteVideo (req, res, next) {
+async function deleteVideo (req, res) {
   const { id } = req.params
   try {
     const [result] = await db.execute(
@@ -310,12 +310,12 @@ async function deleteVideo (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
 // ── Firm Profile ──────────────────────────────────────────────────────────────
 
-async function getProfile (req, res, next) {
+async function getProfile (req, res) {
   try {
     const [rows] = await db.execute(
       `SELECT id, name, slug, logo_url, primary_colour, persona_name, created_at
@@ -327,10 +327,10 @@ async function getProfile (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function updateProfile (req, res, next) {
+async function updateProfile (req, res) {
   const allowed = ['name', 'logo_url', 'primary_colour', 'persona_name']
   const body = req.body || {}
   const setClauses = []
@@ -358,12 +358,12 @@ async function updateProfile (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
 // ── Storage usage ─────────────────────────────────────────────────────────────
 
-async function getStorageUsage (req, res, next) {
+async function getStorageUsage (req, res) {
   try {
     const [rows] = await db.execute(
       'SELECT bytes_used FROM firm_storage_usage WHERE firm_id = ?',
@@ -378,7 +378,7 @@ async function getStorageUsage (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
 // ── Template Library Import ───────────────────────────────────────────────────
@@ -387,7 +387,7 @@ const TEMPLATE_REQUIRED_FIELDS = ['page', 'title', 'section']
 const TEMPLATE_MAX_COUNT = 2000
 const TEMPLATE_IMPORT_MAX_BYTES = 10 * 1024 * 1024 // 10 MB
 
-async function getTemplateImport (req, res, next) {
+async function getTemplateImport (req, res) {
   try {
     const [config, history] = await Promise.all([
       overlay.loadFirmConfig(req.firmId, 'templates'),
@@ -404,10 +404,10 @@ async function getTemplateImport (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function importTemplates (req, res, next) {
+async function importTemplates (req, res) {
   const form = formidable({ maxFileSize: TEMPLATE_IMPORT_MAX_BYTES })
   let files
   try {
@@ -450,10 +450,10 @@ async function importTemplates (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
-async function resetTemplateImport (req, res, next) {
+async function resetTemplateImport (req, res) {
   try {
     await db.execute(
       'DELETE FROM firm_framework_versions WHERE firm_id = ? AND config_key = ?',
@@ -463,7 +463,7 @@ async function resetTemplateImport (req, res, next) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return next()
+  return
 }
 
 module.exports = {

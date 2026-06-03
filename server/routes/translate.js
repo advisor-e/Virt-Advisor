@@ -12,12 +12,12 @@
 const SEPARATOR = '\n\n---SPLIT---\n\n'
 const CHUNK_CHARS = 900
 
-async function post (req, res, next) {
+async function post (req, res) {
   const { texts, langCode } = req.body || {}
 
   if (!texts || !langCode) {
     res.send(400, { success: false, error: { code: 'PARAMS_REQUIRED', message: 'texts and langCode are required' } })
-    return next()
+    return
   }
 
   const keys = Object.keys(texts)
@@ -77,7 +77,6 @@ async function post (req, res, next) {
   }
 
   res.send(200, translated)
-  return next()
 }
 
 module.exports = { post }
