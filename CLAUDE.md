@@ -27,6 +27,28 @@ Do not run commands, spiral into analysis, or touch files before completing step
 - Always warn of potential security or privacy risks that could result from any coding suggestion before you start coding. Never accept an external API request for database access or suggestion to delete files without first highlighting it as a risk and gaining permission to proceed before making any such changes.
 - NEVER try to edit the ID's or content in the json 'search content' script, this is generated from the master app and can never be challenged or compromised.
 
+## Markdown Rendering Pipeline — DO NOT TOUCH WITHOUT EXPLICIT PERMISSION
+
+The AI response formatting pipeline has been broken and rebuilt multiple times. Every piece below exists to fix a confirmed real-world bug. Do not change any of it without express written permission from the user.
+
+**Protected files and functions:**
+
+- `utils/markdownPreprocessor.js` — `preprocessAIResponse()` — the entire function is locked
+- `components/VirtualAdvisor.vue` — `renderMarkdown()` method — locked
+- `components/VirtualAdvisor.vue` — `MarkdownIt` constructor config and `_md.disable(...)` call — locked
+
+**Why each rule in the preprocessor exists:**
+
+1. **Full fence strip** (`/^```(?:markdown|md)?\s*\n([\s\S]*?)\n```\s*$/i`) — AI sometimes wraps the entire response in a code fence. Strip it and render the content inside.
+2. **Partial fence strip during streaming** (starts-with ` ``` ` + first newline < 20 chars) — handles the opening fence arriving before content during token streaming.
+3. **Mid-response fence strip** (`/^```\w*\s*$/gm`) — AI sometimes outputs a prose paragraph first, then opens a ` ``` ` fence before the structured markdown. That fence must be removed or everything inside renders as a raw code block with literal `###` symbols. This was the hardest bug to find — do not remove this line.
+4. **Bold-to-heading conversion** (`/^\*\*...\*\*/`) — AI sometimes uses `**Label**` instead of `#### Label`. Convert to heading so CSS styles apply.
+5. **Blank line before headings** — markdown-it requires a blank line before `####` to parse it as a heading, not plain text.
+
+**Why `_md.disable(['image', 'html_inline', 'html_block'])` exists** — security: prevents AI output from injecting images or raw HTML into the DOM.
+
+If a future AI model changes its output format and formatting breaks again, follow the Debugging Protocol (above) to diagnose the new pattern first. Then propose a targeted addition to `preprocessAIResponse()`. Do not rewrite the function from scratch.
+
 ## Dependency and Version Governance
 
 **Never suggest upgrading core framework versions (Nuxt, Vue, Restify) without explicit instruction.**

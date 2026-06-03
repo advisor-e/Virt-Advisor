@@ -23,6 +23,9 @@ export function preprocessAIResponse (text) {
     }
   }
 
+  // Strip any fence marker lines — AI sometimes embeds ``` mid-response after prose
+  processed = processed.replace(/^```\w*\s*$/gm, '')
+
   // Convert **bold labels** to #### headings (gpt-4o-mini prompt drift fix)
   processed = processed.replace(/^\*\*([^*\n]{3,80}?)\*\*:?\s*$/gm, '#### $1')
 
