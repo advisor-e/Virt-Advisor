@@ -158,8 +158,14 @@ const EXPERIENCE_REQUIRED_SUBSECTIONS = new Set(['Lite Fundamentals', 'Strategic
 // Inputs: CaseState + StrategyDecision (from Phases B/C) + templates array
 // Output: scored, ranked selection capped at templateBudget
 function resolveTemplates (caseState, strategyDecision, templates) {
-  const { domain, solutionCategories, client, complexityCeiling, advisor } = caseState
+  const { domain, primaryIssue, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
+
+  // Primary issue keyword hints — used to add a scoring boost for templates whose
+  // tags or purpose closely match the advisor-confirmed primary issue.
+  const _primaryIssueKeywords = primaryIssue
+    ? primaryIssue.toLowerCase().split(/[\s—\-,]+/).filter(w => w.length > 4)
+    : []
 
   const blocked = CEILING_BLOCKED[complexityCeiling] || new Set()
   const engagementBlocked = ENGAGEMENT_HARD_BLOCKED[engagementType] || new Set()
@@ -219,6 +225,20 @@ function resolveTemplates (caseState, strategyDecision, templates) {
       } else if (preferredSubSections.includes(subSection)) {
         score += 1
         reasons.push('domain:secondary_subsection')
+      }
+    }
+
+    // Primary issue keyword boost — advisor confirmed the specific problem,
+    // so templates whose tags or purpose echo those keywords score higher.
+    if (_primaryIssueKeywords.length > 0) {
+      const _allText = [...tagsLower, purposeLower].join(' ')
+      const _matches = _primaryIssueKeywords.filter(kw => _allText.includes(kw)).length
+      if (_matches >= 2) {
+        score += 3
+        reasons.push('primary_issue:strong_match')
+      } else if (_matches === 1) {
+        score += 1
+        reasons.push('primary_issue:partial_match')
       }
     }
 

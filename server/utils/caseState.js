@@ -125,6 +125,7 @@ function buildCaseState (signals, state) {
 
   return {
     domain: state.detectedDomain || null,
+    primaryIssue: state.primaryIssue && state.primaryIssue !== 'pending' ? state.primaryIssue : null,
     staircaseLevel: staircaseNum,
     complexityCeiling: staircaseToCeiling(staircaseNum),
     client: {

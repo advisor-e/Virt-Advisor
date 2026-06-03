@@ -1,0 +1,64 @@
+{
+  "profit": [
+    "Cost of sales has increased",
+    "Excessive discounting eroding margin",
+    "Sales Revenue — low volume, revenue is the constraint",
+    "Fixed overhead costs grown beyond what revenue can support",
+    "Asset utilisation below viability threshold"
+  ],
+  "staff": [
+    "Too few qualified staff",
+    "Inexperienced or insufficiently trained staff",
+    "No internal training structures",
+    "Poor management practices — weak communication, feedback and formal discipline",
+    "Roles and responsibilities poorly defined",
+    "Weak hiring practices"
+  ],
+  "data-systems": [
+    "No enforceable data capture methods",
+    "Poor data integrity",
+    "Too much lag indicator data, not enough lead indicators",
+    "Narrow data spread"
+  ],
+  "sales-marketing": [
+    "Sales Execution — no visible sales process or poor sales training",
+    "Marketing Foundation — poor outbound messaging, no target market, no marketing statements",
+    "Product Market Fit — poor product fit or market acceptance",
+    "Poor positioning or brand perception"
+  ],
+  "forecasting": [
+    "Poor financial literacy",
+    "Over-trading",
+    "Cost structure imbalance"
+  ],
+  "governance": [
+    "Poor boardroom dynamics or partner/owner disputes",
+    "Lack of financial controls",
+    "Poor decision quality",
+    "Weak communication of expectations with no documentation",
+    "Culture left to chance",
+    "Personality and skill diversity not actively pursued"
+  ],
+  "strategy": [
+    "Lack of clarity or belief that the current business model will remain competitive",
+    "Poor business metrics or undefined operational objectives",
+    "No defined objectives means no communicated direction"
+  ],
+  "systems": [
+    "Processes are either undefined or over-engineered",
+    "No regular structured review of practices",
+    "Siloed operations",
+    "Supply line disruptions or poor quality controls"
+  ],
+  "valuation": [
+    "Transaction Readiness"
+  ],
+  "risk": [
+    "Risk Framework — no systematic process to identify and mitigate risks"
+  ],
+  "succession": [
+    "Owner Purpose and Status — no defined life after work",
+    "Sibling or family inequality",
+    "No clear succession pathway"
+  ]
+}

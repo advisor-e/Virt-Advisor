@@ -28,6 +28,10 @@ const { resolveTemplates } = require('../server/utils/templateResolver')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
+const PRIMARY_ISSUES = require('../data/primary-issues.json')
+
+// Context domains have no primary issues — they override the strategy layer instead
+const CONTEXT_DOMAINS = new Set(['conflict', 'eoy', 'due-diligence'])
 
 // Build detection patterns from domain definitions — compiled once at startup
 const DOMAIN_PATTERNS = DOMAINS.map(d => ({
@@ -503,6 +507,8 @@ async function handleQuery (rawBody, res) {
       advisorEnjoyment: null,
       advisorMeetingCount: null,
       advisorSessionLength: null,
+      // Primary issue — which specific problem within the detected domain
+      primaryIssue: null,
       // Q4 — prior attempts
       clientAlreadyTried: null,
       // Flow state
@@ -633,6 +639,14 @@ async function handleQuery (rawBody, res) {
           }
           s.disambiguationNeeded = false
         }
+      },
+      // ── Primary Issue selector ──
+      // Asks the advisor to identify the specific structural problem within the detected domain.
+      // Skipped for context domains (conflict, eoy, due-diligence) which have no primary issues.
+      {
+        field: 'primaryIssue',
+        textFn: s => `Based on what you've described, which of these best captures the core problem for this client?\n[PRIMARY_ISSUE_SELECTOR:${s.detectedDomain}]`,
+        skip: s => !s.detectedDomain || CONTEXT_DOMAINS.has(s.detectedDomain) || !PRIMARY_ISSUES[s.detectedDomain]
       },
       // ── Universal: Industry ──
       {
@@ -997,6 +1011,8 @@ async function handleQuery (rawBody, res) {
     // Guard: every mandatory question must be answered before the AI fires.
     // If any is still null or 'pending', the QUESTIONS loop fell through unexpectedly.
     // Log the full state for diagnosis and re-ask the first missing question instead.
+    // primaryIssue is mandatory unless the domain is a context domain (conflict/eoy/due-diligence)
+    const _primaryIssueRequired = state.detectedDomain && !CONTEXT_DOMAINS.has(state.detectedDomain) && PRIMARY_ISSUES[state.detectedDomain]
     const _mandatoryAnswered = (
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' &&
       state.situationDiagnostic && state.situationDiagnostic !== 'pending' &&
@@ -1004,7 +1020,8 @@ async function handleQuery (rawBody, res) {
       state.advisoryStaircase && state.advisoryStaircase !== 'pending' &&
       state.advisorConfidence && state.advisorConfidence !== 'pending' &&
       state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' &&
-      state.advisorSessionLength && state.advisorSessionLength !== 'pending'
+      state.advisorSessionLength && state.advisorSessionLength !== 'pending' &&
+      (!_primaryIssueRequired || (state.primaryIssue && state.primaryIssue !== 'pending'))
     )
     if (!_mandatoryAnswered) {
       console.error('[advisor] PHASE3 PREMATURE TRIGGER — mandatory questions incomplete. State:', JSON.stringify({
@@ -1016,6 +1033,7 @@ async function handleQuery (rawBody, res) {
         advisorConfidence: state.advisorConfidence ? '[set]' : null,
         advisorMeetingCount: state.advisorMeetingCount || null,
         advisorSessionLength: state.advisorSessionLength || null,
+        primaryIssue: state.primaryIssue || null,
         histLen: conversationHistory.length,
         session: sessionId ? sessionId.slice(0, 8) : null
       }))
@@ -1040,6 +1058,7 @@ async function handleQuery (rawBody, res) {
     // Build a summary of collected answers for the AI
     const collectedAnswers = [
       `Opening situation: ${(conversationHistory.find(m => m.role === 'user') || { content: query }).content}`,
+      state.primaryIssue && state.primaryIssue !== 'pending' ? `Primary issue (advisor-confirmed): ${state.primaryIssue}` : '',
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' ? `Whether client raised it: ${state.clientRaisedIssue}` : '',
       state.situationDiagnostic && state.situationDiagnostic !== 'pending' ? `Situation diagnostic (contributing factors, priority issue, downstream effects): ${state.situationDiagnostic}` : '',
       state.clientAlreadyTried && state.clientAlreadyTried !== 'pending' ? `What client has already tried (exclude approaches that failed): ${state.clientAlreadyTried}` : '',

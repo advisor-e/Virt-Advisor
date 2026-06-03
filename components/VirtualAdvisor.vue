@@ -271,6 +271,22 @@
           :disabled="!selectedSessionLength"
         ) Confirm selection
 
+      //- Primary issue selector — shown after domain is confirmed
+      .primary-issue-card(v-if="showPrimaryIssueSelector")
+        p.primary-issue-title Which of these best captures the core problem for this client?
+        .primary-issue-list
+          label.primary-issue-opt(
+            v-for="opt in primaryIssueOptions"
+            :key="opt"
+            :class="{ 'primary-issue-selected': selectedPrimaryIssue === opt }"
+          )
+            input(type="radio" :value="opt" v-model="selectedPrimaryIssue")
+            span {{ opt }}
+        button.primary-issue-submit(
+          @click="submitPrimaryIssue"
+          :disabled="!selectedPrimaryIssue"
+        ) Confirm
+
       //- Intake prompt — shown after Phase 3, before advisor dismisses
       .intake-prompt-card(v-if="showIntakePrompt")
         .save-prompt-text
@@ -638,6 +654,21 @@ import caseMixin from '~/mixins/caseMixin'
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 _md.disable(['image', 'html_inline', 'html_block'])
 
+// Primary issues per domain — Workshop 1 output, authored by Mike Barnes 2026-06-02
+const PRIMARY_ISSUES = {
+  profit: ['Cost of sales has increased', 'Excessive discounting eroding margin', 'Sales Revenue — low volume, revenue is the constraint', 'Fixed overhead costs grown beyond what revenue can support', 'Asset utilisation below viability threshold'],
+  staff: ['Too few qualified staff', 'Inexperienced or insufficiently trained staff', 'No internal training structures', 'Poor management practices — weak communication, feedback and formal discipline', 'Roles and responsibilities poorly defined', 'Weak hiring practices'],
+  'data-systems': ['No enforceable data capture methods', 'Poor data integrity', 'Too much lag indicator data, not enough lead indicators', 'Narrow data spread'],
+  'sales-marketing': ['Sales Execution — no visible sales process or poor sales training', 'Marketing Foundation — poor outbound messaging, no target market, no marketing statements', 'Product Market Fit — poor product fit or market acceptance', 'Poor positioning or brand perception'],
+  forecasting: ['Poor financial literacy', 'Over-trading', 'Cost structure imbalance'],
+  governance: ['Poor boardroom dynamics or partner/owner disputes', 'Lack of financial controls', 'Poor decision quality', 'Weak communication of expectations with no documentation', 'Culture left to chance', 'Personality and skill diversity not actively pursued'],
+  strategy: ['Lack of clarity or belief that the current business model will remain competitive', 'Poor business metrics or undefined operational objectives', 'No defined objectives means no communicated direction'],
+  systems: ['Processes are either undefined or over-engineered', 'No regular structured review of practices', 'Siloed operations', 'Supply line disruptions or poor quality controls'],
+  valuation: ['Transaction Readiness'],
+  risk: ['Risk Framework — no systematic process to identify and mitigate risks'],
+  succession: ['Owner Purpose and Status — no defined life after work', 'Sibling or family inequality', 'No clear succession pathway']
+}
+
 export default {
   name: 'VirtualAdvisor',
   mixins: [speechMixin, localeMixin, caseMixin],
@@ -700,6 +731,9 @@ export default {
       showSessionLengthSelector: false,
       selectedSessionLength: null,
       sessionLengthOptions: ['30 mins', '60 mins', '90 mins', '120 mins', 'Other'],
+      showPrimaryIssueSelector: false,
+      selectedPrimaryIssue: null,
+      primaryIssueDomain: null,
       finMgtThemes: [
         { name: 'Stuck in the Mud', problem: 'Clients are \'withdrawn\' from business development due to fatigue, fear of loss or lack of clarity & belief.' },
         { name: 'The Knowledge Gap', problem: 'Clients understand \'money in vs money out\' in a linear fashion; they do not understand the true effects of time and discounting.' },
@@ -731,6 +765,9 @@ export default {
   },
 
   computed: {
+    primaryIssueOptions () {
+      return (this.primaryIssueDomain && PRIMARY_ISSUES[this.primaryIssueDomain]) || []
+    },
     sectionBannerLabel () {
       const labels = {
         client: 'I have a client situation',
@@ -965,6 +1002,9 @@ export default {
       this.selectedFinMgtTheme = null
       this.showSessionLengthSelector = false
       this.selectedSessionLength = null
+      this.showPrimaryIssueSelector = false
+      this.selectedPrimaryIssue = null
+      this.primaryIssueDomain = null
       this.$nextTick(() => this.scrollToBottom())
     },
 
@@ -1061,6 +1101,9 @@ export default {
       this.selectedFinMgtTheme = null
       this.showSessionLengthSelector = false
       this.selectedSessionLength = null
+      this.showPrimaryIssueSelector = false
+      this.selectedPrimaryIssue = null
+      this.primaryIssueDomain = null
       this.showRetry = false
       this.lastQuery = null
     },
@@ -1087,6 +1130,15 @@ export default {
       this.inputText = this.selectedSessionLength
       this.showSessionLengthSelector = false
       this.selectedSessionLength = null
+      this.sendMessage()
+    },
+
+    submitPrimaryIssue () {
+      if (!this.selectedPrimaryIssue) { return }
+      this.inputText = this.selectedPrimaryIssue
+      this.showPrimaryIssueSelector = false
+      this.selectedPrimaryIssue = null
+      this.primaryIssueDomain = null
       this.sendMessage()
     },
 
@@ -1153,7 +1205,7 @@ export default {
 
     async sendMessage (serverQueryOverride = null) {
       const query = this.inputText.trim()
-      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector || this.showSessionLengthSelector) { return }
+      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector || this.showSessionLengthSelector || this.showPrimaryIssueSelector) { return }
 
       this.messages.push({ role: 'user', content: query })
       this.inputText = ''
@@ -1251,6 +1303,12 @@ export default {
                   content = content.replace('[SESSION_LENGTH_SELECTOR]', '').trim()
                   this.showSessionLengthSelector = true
                 }
+                const _piMatch = content.match(/\[PRIMARY_ISSUE_SELECTOR:([^\]]+)\]/)
+                if (_piMatch) {
+                  this.primaryIssueDomain = _piMatch[1]
+                  content = content.replace(_piMatch[0], '').trim()
+                  this.showPrimaryIssueSelector = true
+                }
                 this.messages.push({ role: 'assistant', content })
                 this.streamingText = ''
                 this.isStreaming = false
@@ -1285,6 +1343,12 @@ export default {
             if (content.includes('[SESSION_LENGTH_SELECTOR]')) {
               content = content.replace('[SESSION_LENGTH_SELECTOR]', '').trim()
               this.showSessionLengthSelector = true
+            }
+            const _piMatchFb = content.match(/\[PRIMARY_ISSUE_SELECTOR:([^\]]+)\]/)
+            if (_piMatchFb) {
+              this.primaryIssueDomain = _piMatchFb[1]
+              content = content.replace(_piMatchFb[0], '').trim()
+              this.showPrimaryIssueSelector = true
             }
             this.messages.push({ role: 'assistant', content })
             this.streamingText = ''
@@ -2089,6 +2153,19 @@ export default {
 }
 .session-length-submit:hover:not(:disabled) { background: #1d4ed8; }
 .session-length-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+
+/* Primary issue selector */
+.primary-issue-card { margin: 8px 16px 4px; padding: 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; }
+.primary-issue-title { font-size: 14px; font-weight: 600; color: #14532d; margin: 0 0 12px; }
+.primary-issue-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.primary-issue-opt { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1px solid #86efac; border-radius: 8px; background: #fff; cursor: pointer; font-size: 13px; color: #111827; transition: background 0.15s; }
+.primary-issue-opt:hover { background: #dcfce7; border-color: #4ade80; }
+.primary-issue-opt input[type="radio"] { margin-top: 2px; accent-color: #16a34a; flex-shrink: 0; }
+.primary-issue-selected { background: #16a34a !important; color: #fff !important; border-color: #16a34a !important; }
+.primary-issue-selected span { color: #fff; }
+.primary-issue-submit { padding: 9px 22px; background: #16a34a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.primary-issue-submit:hover:not(:disabled) { background: #15803d; }
+.primary-issue-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 
 .intake-prompt-card {
   display: flex;
