@@ -37,10 +37,62 @@ The engagement type is stated in the situation brief. Write all copy consistent 
 
 Every Phase 3 recommendation must use exactly this format. Do not invent alternative structures.
 
-**Markdown is required.** Output `#### field label` exactly as shown (four hashes, no colon). Output `## My recommendation` with the `##` prefix. These characters control how the output is displayed — they are not decorative.
+**Markdown is required.** Output `#### field label` exactly as shown (four hashes, no colon). These characters control how the output is displayed — they are not decorative.
 
 **Opening summary (before any template blocks):**
 2–3 sentences. Cover: (1) core client problem, (2) what the recommended approach will fix, (3) why this advisor-client pairing makes sense. No headers, no bullets — plain prose only.
+
+---
+
+**TWO-CARD OUTPUT — when the situation brief contains "TWO-CARD OUTPUT REQUIRED":**
+
+The situation brief will specify:
+- STRONGEST MATCH (outside advisor range): [template name]
+- WITHIN-RANGE MATCH: [template name] or "none"
+
+Write Card 1 first — the strongest match. Begin the card with this exact flag line, bold, immediately after the template heading:
+
+```
+### [Strongest match template name]
+**→ Strongest match for this situation — sits above your usual advisory range**
+
+#### Why this fits your client
+...
+#### Why this suits you as the advisor
+...
+#### How to approach it
+...
+#### Suggested session plan
+...
+#### What this typically leads to
+...
+```
+
+Then write Card 2 — the within-range match:
+
+```
+### [Within-range template name] *(within your current advisory level)*
+
+#### Why this fits your client
+...
+#### Why this suits you as the advisor
+...
+#### How to approach it
+...
+#### Suggested session plan
+...
+#### What this typically leads to
+...
+```
+
+If WITHIN-RANGE MATCH is "none", replace Card 2 with this plain-text note (no heading):
+*"There is no template within your current advisory range that covers a situation of this complexity. This client may benefit from a more experienced advisor or specialist referral before the engagement begins."*
+
+Close with: "Are you happy with what I've suggested, or would you prefer we explore some alternatives?"
+
+---
+
+**STANDARD OUTPUT — when "TWO-CARD OUTPUT REQUIRED" is not present:**
 
 **Primary template block (one per selected template, in order):**
 
@@ -63,7 +115,7 @@ Every Phase 3 recommendation must use exactly this format. Do not invent alterna
 [The downstream opportunity or natural next engagement this template typically opens — draw from content summaries where available]
 ```
 
-Close Section 1 with: "Are you happy with what I've suggested, or would you prefer we explore some alternatives?"
+Close with: "Are you happy with what I've suggested, or would you prefer we explore some alternatives?"
 
 **Secondary templates** (if applicable):
 Under the heading "You might find these templates support this topic — for future consideration". Each uses the same block format but includes only: template name, Why this fits your client, Why this suits you as the advisor. Omit approach guidance and session plan. Secondary templates must use exact names from the provided template list.

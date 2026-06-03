@@ -24,7 +24,7 @@ const { logVASession } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
-const { resolveTemplates } = require('../server/utils/templateResolver')
+const { resolveTemplates, resolveTemplatesWithOutlier } = require('../server/utils/templateResolver')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -1154,9 +1154,14 @@ async function handleQuery (rawBody, res) {
     const _caseState = buildCaseState(_signals, state)
     const _strategyDecision = resolveStrategy(_caseState)
 
-    // Phase D — deterministic template resolver (no AI in selection loop)
+    // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
-    const _resolvedTemplates = resolveTemplates(_caseState, _strategyDecision, _resolverTemplatePool)
+    const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool)
+    const _resolvedTemplates = _resolvedResult.primary // primary used for scoring log / observability
+    const _hasOutlier = _resolvedResult.hasOutlier
+    const _fallbackExists = _resolvedResult.fallbackExists
+    const _outlierTemplate = _hasOutlier ? (_resolvedResult.primary.selected[0] || null) : null
+    const _withinRangeTemplate = _hasOutlier ? (_resolvedResult.withinRange.selected[0] || null) : null
 
     // Phase E — situationBrief: AI writes copy only; template selection already done by code
     const DOMAIN_LABELS_E = {
@@ -1240,7 +1245,11 @@ async function handleQuery (rawBody, res) {
 
     let preFilteredNames = null
     if (_resolverCandidates.length > 0) {
-      preFilteredNames = _resolverCandidates.map(t => t.title)
+      // Combine primary (unrestricted) + within-range names so the AI has summaries for both
+      const primaryNames = _resolvedResult.primary.selected.map(t => t.title)
+      const withinRangeNames = _hasOutlier ? _resolvedResult.withinRange.selected.map(t => t.title) : []
+      const combinedNames = [...new Set([...primaryNames, ...withinRangeNames])]
+      preFilteredNames = combinedNames.length > 0 ? combinedNames : _resolverCandidates.map(t => t.title)
     } else {
       const matchedTrees = detectLogicTrees(collectedAnswers)
       const walkedNames = new Set()
@@ -1250,6 +1259,18 @@ async function handleQuery (rawBody, res) {
       if (walkedNames.size > 0) { preFilteredNames = [...walkedNames] }
     }
 
+    // Build outlier context block for the AI — only present when there is a mismatch
+    const _outlierContext = _hasOutlier
+      ? [
+        '',
+        'TWO-CARD OUTPUT REQUIRED',
+        `STRONGEST MATCH (outside advisor range): ${_outlierTemplate ? _outlierTemplate.title : ''}`,
+        `WITHIN-RANGE MATCH: ${_withinRangeTemplate ? _withinRangeTemplate.title : 'none — no entry-level template exists for this situation'}`
+      ].join('\n')
+      : (!_fallbackExists && _resolverCandidates.length > 0
+        ? '\nNO WITHIN-RANGE TEMPLATE: No template within the advisor\'s current parameters covers this situation — include the no-entry-level note after the primary recommendation.'
+        : '')
+
     const _budgetCount = tier1Capacity > 0 ? tier1Capacity : (_strategyDecision.templateBudget || 1)
     const situationBrief = [
       'SITUATION BRIEF',
@@ -1257,6 +1278,7 @@ async function handleQuery (rawBody, res) {
       `Engagement type: ${_strategyDecision.engagementType} — ${_engagementContext}`,
       `Template budget: ${_budgetLabel}`,
       ..._copySignals,
+      _outlierContext,
       '',
       _resolverCandidates.length > 0
         ? `CANDIDATE TEMPLATES — read the collected answers carefully, then select the ${_budgetCount} best-fit template${_budgetCount !== 1 ? 's' : ''} from this list. Choose only from these candidates — do not invent, abbreviate, or paraphrase names:\n` +

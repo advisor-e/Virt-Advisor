@@ -537,21 +537,73 @@ The Firm Manager hub (`/firm-manager`) is a separate authenticated interface for
 | Area | What firm managers can do |
 |---|---|
 | Document Library | Upload, list, download, and delete firm-specific documents (stored in Google Drive) |
-| Decision Framework | View and override the base platform decision rules for their firm (Template 3 and Table 4 of the 4-table governance model) |
+| Decision Framework | View and override the base platform decision rules for their firm |
 | Framework History | View version history of framework overrides and restore an earlier version |
 | Videos | Add and remove video links for firm-specific content |
 | Firm Profile | Update the firm's profile information |
 | Storage | View Drive storage usage |
 | Team Progress | View all advisors' progression tiers and activity (via the AdvisorProgression team view) |
+| **Advisory Distinctions** | **Add domain expert signal vocabulary — phrases that indicate specific client situations** |
 
-### 11.3 Firm Overlay Architecture
+### 11.3 Advisory Distinctions Table — Design Decision (2026-06-04)
+
+**Confirmed design. This is the mechanism by which domain expert knowledge is added to the system without code changes.**
+
+#### What It Is
+
+A table in the Firm Manager hub where the platform administrator (Mike Barnes) and firm managers add rows that teach the system what specific advisor phrases mean. Each row connects a conversational signal to a domain, giving the scoring engine vocabulary it would not otherwise have.
+
+This is the editable version of what would otherwise be hardcoded signal patterns — it puts ownership of advisory vocabulary where it belongs: with the domain expert, not the engineers.
+
+#### The Table Format
+
+| Column | What it contains |
+|---|---|
+| Domain | Which of the 14 advisory domains this distinction applies to |
+| When the advisor says... | A phrase, keyword, or concept the advisor might use (plain English — no regex) |
+| It signals | A short plain-English description of what this means diagnostically |
+| Templates it helps surface | The template names this distinction should boost (optional — system infers if blank) |
+
+#### Example Rows (platform level — authored by Mike Barnes)
+
+| Domain | When the advisor says... | It signals | Templates it helps surface |
+|---|---|---|---|
+| Conflict | shareholders fighting, partner dispute, messy breakup, they're not talking | High-conflict partner scenario | Force Field Analysis, Alignment Statements |
+| Conflict | contribution, equity, not pulling their weight, one does more than the other | Partner accountability issue | Partner Accountability |
+| Conflict | they need to understand the consequences, pull them back from the edge | Pre-escalation mediation opportunity | Force Field Analysis |
+| Succession | kids taking over, passing it on, family business, sibling disagreement | Family succession scenario | Farm Succession, Succession Planning |
+| EOY | end of year, compliance meeting, annual review, tax done | EOY context — convert compliance to value | EOY templates |
+| Governance | no one's accountable, decisions never stick, they undermine each other | Decision quality or accountability gap | 6 Hats, Alignment Statements |
+
+#### Two Levels
+
+**Platform level (platform_admin only — Mike Barnes):**
+Rows that apply to all firms using the platform. These encode 15+ years of advisory experience as reusable signal vocabulary. Every advisor in every firm benefits immediately when a row is added here.
+
+**Firm level (firm_manager role):**
+Rows that apply only to that firm's advisors. Used for firm-specific specialisations, niche industries, or client types the platform level doesn't cover. Firm rows sit on top of platform rows — they do not replace them.
+
+#### How It Feeds the Pipeline
+
+At session time, the system reads all active distinction rows for the detected domain and scans the collected advisor answers (opening description, diagnostic answer, domain question answers) for any of the trigger phrases. When a match is found, it raises the score for the associated templates — the same mechanism as semantic signal scoring, but driven by editable data rather than hardcoded patterns.
+
+This solves the context domain scoring gap: conflict, EOY, and due-diligence domains currently suppress all signals, leaving only subSection priors to discriminate. Advisory distinctions give these domains their own vocabulary without requiring code changes.
+
+#### Build Status
+
+**Designed 2026-06-04. Not yet built.**
+
+Belongs in Firm Manager Phase 2 (after core Firm Manager hub is stable). Database schema: two tables — `platform_distinctions` (platform admin only) and `firm_distinctions` (per firm). UI: simple add/edit/delete table with domain dropdown. Pipeline integration: read at session start, applied in templateResolver scoring pass.
+
+### 11.4 Firm Overlay Architecture
 
 Every layer of the pipeline supports a firm override layer on top of the base platform defaults:
 
 | Layer | Base platform | Firm override |
 |---|---|---|
 | Signal schema | Standard signals | Firm-specific signals for their specialisation |
-| Strategy rules | Base Table 3 | Firm-specific engagement type and ceiling rules |
+| Advisory distinctions | Platform vocabulary (Mike-authored) | Firm-specific vocabulary rows on top |
+| Strategy rules | Base strategy rules | Firm-specific engagement type and ceiling rules |
 | Template pool | Platform library | Firm-uploaded templates scored alongside platform |
 | Content summaries | Platform PDFs / JSON | Firm Google Docs → Drive API sync → firm JSON |
 
@@ -581,7 +633,8 @@ strategyResolver.js — determine engagement structure
 templateResolver.js — score and rank templates
     ├── templates.json (the library)
     ├── semantic-profiles.json (signal weights)
-    └── [routing group pre-filter — designed, not yet in code]
+    ├── Advisory Distinctions (platform + firm rows — boost domain-specific templates)
+    └── Two-pass output: unrestricted best match + within-range match
     ↓
 advisor.js Phase 3 AI call (client.txt prompt)
     ├── Pre-selected templates

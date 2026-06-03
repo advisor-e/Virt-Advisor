@@ -157,7 +157,12 @@ const EXPERIENCE_REQUIRED_SUBSECTIONS = new Set(['Lite Fundamentals', 'Strategic
 // Pure deterministic function. No side effects. No AI calls.
 // Inputs: CaseState + StrategyDecision (from Phases B/C) + templates array
 // Output: scored, ranked selection capped at templateBudget
-function resolveTemplates (caseState, strategyDecision, templates) {
+// ── resolveTemplates (internal) ─────────────────────────────────────────────
+// ignoreEngagementGates: when true, removes engagement-type hard blocks so
+// the best match is found regardless of advisory range. Staircase ceiling
+// is always respected — it protects advisor capability, not system tidiness.
+function resolveTemplates (caseState, strategyDecision, templates, options) {
+  const ignoreEngagementGates = (options && options.ignoreEngagementGates) || false
   const { domain, primaryIssue, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
 
@@ -168,13 +173,14 @@ function resolveTemplates (caseState, strategyDecision, templates) {
     : []
 
   const blocked = CEILING_BLOCKED[complexityCeiling] || new Set()
-  const engagementBlocked = ENGAGEMENT_HARD_BLOCKED[engagementType] || new Set()
+  const engagementBlocked = ignoreEngagementGates ? new Set() : (ENGAGEMENT_HARD_BLOCKED[engagementType] || new Set())
 
   // ── Step 1: Hard filters ─────────────────────────────────────────────────
   // Revenue & Feasibility Models are allowed for Education ONLY when the advisor
   // has explicitly requested modelling (revenue_feasibility signal active).
+  // When ignoring engagement gates, this restriction is also lifted.
   const modellingRequested = (caseState.solutionCategories || []).includes('revenue_feasibility')
-  const revenueModelsBlocked = engagementType === 'education' && !modellingRequested
+  const revenueModelsBlocked = !ignoreEngagementGates && (engagementType === 'education' && !modellingRequested)
 
   const eligible = templates.filter(t =>
     t.includedInClient === true &&
@@ -426,4 +432,25 @@ function resolveTemplates (caseState, strategyDecision, templates) {
   return { selected, candidates, scoringLog, noMatchReason: null }
 }
 
-module.exports = { resolveTemplates, SCORING_VERSION }
+// ── resolveTemplatesWithOutlier ──────────────────────────────────────────────
+// Runs two passes and determines whether the best match sits outside the
+// advisor's current parameters. Returns structured result for two-card output.
+//
+// primary   — best match ignoring engagement gates (staircase ceiling kept)
+// withinRange — best match within advisor parameters (current restrictions)
+// hasOutlier — true when the best unrestricted match differs from within-range
+// fallbackExists — true when at least one within-range template was found
+function resolveTemplatesWithOutlier (caseState, strategyDecision, templates) {
+  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreEngagementGates: true })
+  const withinRange = resolveTemplates(caseState, strategyDecision, templates)
+
+  const primaryTop = primary.selected[0]
+  const withinTop = withinRange.selected[0]
+
+  const hasOutlier = !!(primaryTop && withinTop && primaryTop.title !== withinTop.title)
+  const fallbackExists = withinRange.selected.length > 0
+
+  return { primary, withinRange, hasOutlier, fallbackExists }
+}
+
+module.exports = { resolveTemplates, resolveTemplatesWithOutlier, SCORING_VERSION }
