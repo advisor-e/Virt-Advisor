@@ -637,22 +637,12 @@ import caseMixin from '~/mixins/caseMixin'
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 
 // gpt-4o-mini intermittently outputs **Field Label** instead of #### Field Label.
-// Applied before every markdown render so it fixes both streaming and final display.
-const _HEADING_LABELS = [
-  'Why this fits your client',
-  'Why this suits you as the advisor',
-  'How to approach it',
-  'Suggested session plan',
-  'What this typically leads to'
-]
-const _HEADING_PATTERNS = _HEADING_LABELS.map(label => ({
-  re: new RegExp(`^\\*\\*${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*:?`, 'gim'),
-  replacement: `#### ${label}`
-}))
+// Generic normaliser: any **short text** at the start of a line becomes #### heading.
+// This catches all label variations regardless of exact wording or prompt changes.
+// Scope-limited to 5–80 chars so it never fires on mid-sentence bold or long phrases.
+const _BOLD_TO_HEADING_RE = /^\*\*([^*\n]{5,80}?)\*\*:?\s*$/gim
 function normaliseHeadings (text) {
-  let out = text
-  _HEADING_PATTERNS.forEach(({ re, replacement }) => { out = out.replace(re, replacement) })
-  return out
+  return text.replace(_BOLD_TO_HEADING_RE, '#### $1')
 }
 
 export default {
