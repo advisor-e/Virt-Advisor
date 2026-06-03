@@ -504,6 +504,8 @@ async function handleQuery (rawBody, res) {
       advisorEnjoyment: null,
       advisorMeetingCount: null,
       advisorSessionLength: null,
+      // Q4 — prior attempts
+      clientAlreadyTried: null,
       // Flow state
       readyForRecommendation: false,
       recommendationDelivered: false,
@@ -603,6 +605,10 @@ async function handleQuery (rawBody, res) {
       {
         field: 'situationDiagnostic',
         text: 'What do you feel contributed to this situation, and are there any downstream effects we should factor into the service offer?'
+      },
+      {
+        field: 'clientAlreadyTried',
+        text: 'What has the client already tried to address this situation, and what was the outcome?'
       },
       {
         field: 'disambiguationAnswer',
@@ -1037,6 +1043,7 @@ async function handleQuery (rawBody, res) {
       `Opening situation: ${(conversationHistory.find(m => m.role === 'user') || { content: query }).content}`,
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' ? `Whether client raised it: ${state.clientRaisedIssue}` : '',
       state.situationDiagnostic && state.situationDiagnostic !== 'pending' ? `Situation diagnostic (contributing factors, priority issue, downstream effects): ${state.situationDiagnostic}` : '',
+      state.clientAlreadyTried && state.clientAlreadyTried !== 'pending' ? `What client has already tried (exclude approaches that failed): ${state.clientAlreadyTried}` : '',
       // Domain 1: Profitability answers
       state.detectedDomain === 'profit' && state.usesReports && state.usesReports !== 'pending' ? `Uses management reports: ${state.usesReports}` : '',
       state.detectedDomain === 'profit' && state.reportsFromFirm && state.reportsFromFirm !== 'pending' ? `Reports delivered by advisor's firm: ${state.reportsFromFirm}` : '',
