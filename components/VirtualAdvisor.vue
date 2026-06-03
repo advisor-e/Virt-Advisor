@@ -636,6 +636,15 @@ import caseMixin from '~/mixins/caseMixin'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 
+// Strip code fences — gpt-4o-mini occasionally wraps the entire recommendation in
+// \\\markdown ... \\\ which causes markdown-it to render as <pre><code> showing raw
+// ### and #### symbols instead of styled headings. Strip before rendering.
+const _CODE_FENCE_RE = /^\\\[a-z]*\n?([\s\S]*?)\\\\s*\$/
+function stripCodeFences (text) {
+  const m = text.trim().match(_CODE_FENCE_RE)
+  return m ? m[1].trim() : text
+}
+
 // gpt-4o-mini intermittently outputs **Field Label** instead of #### Field Label.
 // Generic normaliser: any **short text** at the start of a line becomes #### heading.
 // This catches all label variations regardless of exact wording or prompt changes.
@@ -1321,7 +1330,7 @@ export default {
     },
 
     renderMarkdown (text) {
-      const raw = _md.render(normaliseHeadings(String(text || '')))
+      const raw = _md.render(normaliseHeadings(stripCodeFences(String(text || ''))))
       return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
     }
   }
