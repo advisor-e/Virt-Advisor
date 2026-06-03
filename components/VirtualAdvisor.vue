@@ -630,29 +630,13 @@
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import { saveCase } from '~/utils/cases'
+import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
-
-// Strip code fences — gpt-4o-mini occasionally wraps the entire recommendation in
-// \\\markdown ... \\\ which causes markdown-it to render as <pre><code> showing raw
-// ### and #### symbols instead of styled headings. Strip before rendering.
-const _CODE_FENCE_RE = /^\\\[a-z]*\n?([\s\S]*?)\\\\s*\$/
-function stripCodeFences (text) {
-  const m = text.trim().match(_CODE_FENCE_RE)
-  return m ? m[1].trim() : text
-}
-
-// gpt-4o-mini intermittently outputs **Field Label** instead of #### Field Label.
-// Generic normaliser: any **short text** at the start of a line becomes #### heading.
-// This catches all label variations regardless of exact wording or prompt changes.
-// Scope-limited to 5–80 chars so it never fires on mid-sentence bold or long phrases.
-const _BOLD_TO_HEADING_RE = /^\*\*([^*\n]{5,80}?)\*\*:?\s*$/gim
-function normaliseHeadings (text) {
-  return text.replace(_BOLD_TO_HEADING_RE, '#### $1')
-}
+_md.disable(['image', 'html_inline', 'html_block'])
 
 export default {
   name: 'VirtualAdvisor',
@@ -1330,7 +1314,16 @@ export default {
     },
 
     renderMarkdown (text) {
-      const raw = _md.render(normaliseHeadings(stripCodeFences(String(text || ''))))
+      if (!text) return ''
+      const input = String(text)
+      const preprocessed = preprocessAIResponse(input)
+      if (input !== preprocessed) {
+        console.log('[markdown] BEFORE:', input)
+        console.log('[markdown] AFTER:', preprocessed)
+      } else if (input.trim().startsWith('`')) {
+        console.log('[markdown] starts with backtick but preprocessor did NOT strip:', JSON.stringify(input.slice(0, 200)))
+      }
+      const raw = _md.render(preprocessed)
       return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
     }
   }

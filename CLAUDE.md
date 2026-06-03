@@ -6,7 +6,7 @@
 
 1. **Find the broken rule** — read the relevant code/data to prove it is actually broken
 2. **Show the proof** — confirm it is the real cause, not a guess
-3. **Plan the fix** — describe exactly what will change
+3. **Plan the fix** — describe exactly what will change and why the fix is considered best practice
 4. **Get permission** — wait for yes
 5. **Then fix it**
 

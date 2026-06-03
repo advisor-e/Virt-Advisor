@@ -95,8 +95,7 @@ function loadFirmConfig (...args) {
   if (!process.env.OPENAI_API_KEY) {
     console.error('[advisor] FATAL: OPENAI_API_KEY is not set — all advisor requests will fail.')
   } else {
-    const k = process.env.OPENAI_API_KEY
-    console.log('[advisor] OPENAI_API_KEY loaded — last 8 chars: ...' + k.slice(-8))
+    console.log('[advisor] OPENAI_API_KEY present=true')
   }
   const REQUIRED_PROMPTS = ['client', 'discover', 'plan', 'learn']
   for (const name of REQUIRED_PROMPTS) {
