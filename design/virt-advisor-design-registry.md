@@ -1,7 +1,7 @@
 # Virt Advisor — Master Design Registry
 
 **Version:** 1.0 — 2026-06-03
-**Status:** Stage 2 complete — all 11 flags resolved 2026-06-03. Stage 3 in progress — Domain 4 complete, 10 domains remaining. Primary issue labels restored to original Workshop 1 language throughout.
+**Status:** Stage 2 complete — all 11 flags resolved 2026-06-03. Stage 3 in progress — Domain 4 complete, 10 domains remaining. Solution Categories renamed to Routing Groups (RG_ format) — confirmed by 4 independent engineering reviews 2026-06-03. Causal audit chain and 4-table governance model added.
 **Purpose:** Single source of truth for the complete Virt Advisor decision logic. Every stage, every decision, every item — in sequence. Written to be readable and editable by a firm manager without engineering knowledge.
 **Supersedes:** design/primary-issue-registry.md (superseded 2026-06-03)
 
@@ -103,6 +103,20 @@ Every Virt Advisor conversation collects the following information. These 13 que
 | Constrained questions — Financial Management | Built (droptab) |
 | Constrained questions — Governance, Strategy, Systems, Valuation, Risk, Succession | Not yet built — pending Stage 2 flags resolved and Phase B build |
 | Observability logging — full pipeline trace per session | Designed, not yet built — Phase A |
+
+### AI Extraction Boundary Rule — Formal Design Constraint
+
+**Boundary rule (confirmed by 4 independent engineering reviews, 2026-06-03):**
+AI extraction converts free text from Questions 1, 3, and 14 into structured signals only. It does not classify primary issues, routing groups, or templates. The output is a structured JSON object of boolean flags and string arrays. All classification happens in decision Tables 1–4. This boundary is formal and must not be extended.
+
+What AI extracts:
+```
+{ supplier_cost_pressure: true, margin_pressure: true, client_already_tried: ["price_increase"] }
+```
+
+What AI does NOT extract: primary issue, routing group, template recommendation.
+
+If a proposed change requires AI to make a classification decision beyond signal extraction, it is a structural change requiring engineering review — not a content or configuration change.
 
 ### Why This Is Robust
 Constrained questions eliminate the most common failure mode in AI advisory systems: misinterpretation of free text. When an advisor selects Step 3 from the staircase, the system knows with certainty. No inference. No error. The 13-question framework was reviewed by two independent panels of senior engineers (3 engineers each) who confirmed the structure is sound. Question 3 was specifically validated as the correct mechanism for cross-domain disambiguation.
@@ -300,19 +314,19 @@ The primary issue map is grounded entirely in domain expert language. Every item
 
 **Resolution — Items 7, 8, and 10 (2026-06-03):** Confirmed as one primary issue — Marketing Foundation. Three components of the same marketing problem: who you say it to (target market personas), what you say (messaging and marketing statements), and when and how often (outbound marketing systems). Mike confirmed.
 
-#### Solution Categories — Workshop 2 — COMPLETE
+#### Routing Groups — Workshop 2 — COMPLETE
 
-Validated by two independent senior engineering panels, 2026-06-03.
+Validated by two independent senior engineering panels, 2026-06-03. Routing group names updated to RG_ format, 2026-06-03 (confirmed by 4 external engineering reviews). Routing groups are internal classification codes — not shown to advisors, visible to firm managers and auditors in the causal audit chain only.
 
-| Primary Issue | Solution Category | Notes | Status |
-|---|---|---|---|
-| Sales Execution | Map sales process by selling style | Selling style (Point of Sale, Consultative, Territory Management) routes to the correct template within this category | Locked — Mike confirmed |
-| Sales Execution | Develop sales response scripts | Covers scripting and rehearsal of sales responses including tension points and objection handling | Locked — Mike confirmed |
-| Marketing Foundation | Build outbound marketing system | Covers marketing infrastructure and output cadence | Locked — Mike confirmed |
-| Marketing Foundation | Develop target market messaging | Renamed from Define to Develop at Mike's direction | Locked — Mike confirmed |
-| Product Market Fit | Assess product market fit | | Locked — Mike confirmed |
-| Product Market Fit | Assess competitive position | Competition fronts defined as specific competitive dimensions: quality, price, convenience. Renamed from Assess competition fronts at Mike's direction. | Locked — Mike confirmed |
-| Poor positioning or brand perception | Design brand positioning strategy | | Locked — Mike confirmed |
+| Primary Issue | Routing Group | Internal Code | Notes | Status |
+|---|---|---|---|---|
+| Sales Execution | Sales Process | RG_SALES_PROCESS | Selling style (Point of Sale, Consultative, Territory Management) determines which templates score highest within this group | Locked — Mike confirmed |
+| Sales Execution | Sales Capability | RG_SALES_CAPABILITY | Covers scripting, rehearsal, tension point handling, and objection handling templates | Locked — Mike confirmed |
+| Marketing Foundation | Marketing Systems | RG_MARKETING_SYSTEMS | Covers marketing infrastructure and output cadence templates | Locked — Mike confirmed |
+| Marketing Foundation | Market Messaging | RG_MARKET_MESSAGING | Covers target audience definition and messaging design templates | Locked — Mike confirmed |
+| Product Market Fit | Product Fit | RG_PRODUCT_FIT | Covers product-market validation and fit assessment templates | Locked — Mike confirmed |
+| Product Market Fit | Market Position | RG_MARKET_POSITION | Competition fronts = specific competitive dimensions (quality, price, convenience) | Locked — Mike confirmed |
+| Poor positioning or brand perception | Brand Strategy | RG_BRAND_STRATEGY | Covers brand positioning and perception design templates | Locked — Mike confirmed |
 
 ---
 
@@ -599,63 +613,142 @@ These three domains do not produce primary issues. They are engagement contexts 
 
 ---
 
-## Stage 3 — Solution Categories
+## Stage 3 — Routing Groups
 
 ### What This Stage Does
-Using the primary issue identified in Stage 2, the system determines what type of advisory work is needed. A solution category names the intervention — the specific type of engagement the advisor will undertake with the client.
+Using the primary issue identified in Stage 2, the system assigns an internal routing group — a classification code that narrows the template pool to only the templates relevant to that class of intervention. The routing group is an internal implementation detail. Advisors never see it. It exists solely to prevent cross-domain template contamination.
 
 ### Why This Stage Exists
-Before this stage existed, the system scored all 131 templates simultaneously against the primary issue. This caused cross-domain contamination — a template from the wrong domain could outscore the correct template if it shared downstream symptoms. A live test confirmed this: a customer acquisition problem caused the system to recommend a cash flow diagnostic tool as the top result.
+Before this stage existed, the system scored all 131 templates simultaneously against the primary issue. This caused cross-domain contamination — a template from the wrong domain could outscore the correct template because it shared downstream symptoms. A live test confirmed this: a customer acquisition problem caused the system to recommend a cash flow diagnostic tool as the top result.
 
-Solution categories fix this by scoping the template pool before any scoring happens. The system first identifies the solution category, then selects only from templates classified under that category. Scoring within the correct pool is far more reliable than scoring across the entire library.
+The root cause: a primary issue does not map to a single advisory intervention. "Cost of sales has increased" could lead to supplier review, pricing analysis, margin recovery, cost reduction, or operational efficiency — all valid. Without an intermediate routing layer, scoring has to do the work of both routing and ranking simultaneously, and it fails.
+
+Routing groups solve this by creating a hard boundary. The resolver only scores templates within the assigned routing group. Scoring then only has to rank within a correct pool, not route and rank simultaneously.
 
 ### How It Works
-The primary issue (Stage 2) maps to one or more solution categories. The system uses the active solution category to restrict the template library to only the relevant candidates. Stage 5 then scores and ranks within this restricted pool.
+The primary issue (Stage 2) maps to one or more routing groups via Table 2. The system uses the active routing group to restrict the template library. Stage 5 scores and ranks within this restricted pool only.
 
 ### Design Decisions
 
-**Decision 1 — Solution categories are named as interventions, not problems or tools.**
-Naming convention: verb + noun phrase.
-Approved verbs: Build, Design, Diagnose, Map, Create, Develop, Implement, Assess, Plan, Facilitate, Model, Analyse, Align, Establish, Transition.
+**Decision 1 — Routing groups are internal classification codes, not advisory descriptions.**
+Routing groups are never shown to advisors. They are implementation detail. Their purpose is routing only — not to describe the advisory work, not to report on methodology, not to guide the advisor.
+
+Naming convention: `RG_[CLASSIFICATION]` — noun classification, no verbs, no prescription.
 
 | Avoid | Use | Reason |
 |---|---|---|
-| customer acquisition gap | Build customer acquisition system | Problem name, not intervention |
-| sales capability | Develop sales response scripts | Objective, not intervention |
-| Customer Journey template | Map sales process by selling style | Template name, not intervention |
+| Build outbound marketing system | RG_MARKETING_SYSTEMS | Activity name — prescribes work |
+| Develop sales response scripts | RG_SALES_CAPABILITY | Activity name — prescribes work |
+| Assess competitive position | RG_MARKET_POSITION | Activity name — prescribes work |
 
-Naming test: If I gave this category name to an advisor who wasn't in the design session, would they immediately understand what type of work they are about to perform?
+The naming debate is formally closed. Routing groups are noun classifications with an RG_ prefix. No verb-noun requirements. No readability tests for advisors. Decision recorded 2026-06-03, confirmed by 4 independent engineering reviews.
 
-**Decision 2 — Abstraction level: intervention-type, not action and not objective.**
+**Decision 2 — Domain scoping by default.**
+Each routing group belongs to one domain. A routing group named RG_PERFORMANCE_COACHING could apply to sales, staff, and management — making it impossible for the resolver to distinguish. Domain-scoped routing groups prevent this at the source. Exception: if a routing group genuinely applies to multiple domains with the same templates, it may span domains but requires explicit domain mapping.
 
-| Level | Example | Problem |
+**Decision 3 — Granularity target: 15–25 routing groups total across all 11 diagnostic domains.**
+Each routing group must map to 3–10 templates. No routing group with more than 15 templates. No routing group mapping to 1–2 templates only.
+
+**Decision 4 — Routing groups are designed before templates are classified.**
+Template classification does not begin until routing groups are finalised across all domains.
+
+**Decision 5 — Architecture allows future weighted multi-group routing.**
+Today each primary issue maps to one or two routing groups. The architecture must allow a primary issue to eventually map to multiple routing groups with confidence weighting (e.g. 70% RG_COST_MANAGEMENT, 30% RG_PRICING_DISCIPLINE). This is not built now but must not be prevented by the current design.
+
+### The 4-Table Governance Model
+
+All routing decisions are expressed as data tables. Tables are the source of truth. Code executes them. Firm managers edit tables — not code.
+
+**Table 1 — Signal Pattern → Primary Issue** (domain expert edits)
+
+Maps structured signals to primary issues using AND/OR logic with required and prohibited signal columns. Free-text AI extraction feeds this table — it does not replace it.
+
+| Rule ID | Domain | Logic | Required Signals | Prohibited Signals | Primary Issue |
+|---|---|---|---|---|---|
+| P001 | Profitability | AND | supplier_cost_pressure, margin_pressure | revenue_growth | Cost of sales has increased |
+| P002 | Profitability | OR | discounting_mentioned, price_resistance | — | Excessive discounting eroding margin |
+| (all rules to be completed) | | | | | |
+
+**Table 2 — Primary Issue → Routing Group** (domain expert edits)
+
+| Primary Issue | Routing Group | Internal Code |
 |---|---|---|
-| Objective — too broad | Build sales capability | Does not tell an advisor what work they are doing |
-| Intervention-type — correct | Develop sales response scripts | Advisor knows the engagement type; templates provide the specific tool |
-| Action/tactic — too narrow | Script price-objection responses for café owners | Nearly a template name; produces 60–90 categories |
+| Cost of sales has increased | Cost Management | RG_COST_MANAGEMENT |
+| Excessive discounting eroding margin | Pricing Discipline | RG_PRICING_DISCIPLINE |
+| Sales Revenue | Revenue Growth | RG_REVENUE_GROWTH |
+| (all primary issues to be mapped) | | |
 
-Validated by two independent senior engineering panels, 2026-06-03.
+**Table 3 — Strategy Resolution** (firm manager edits)
 
-Useful design test from external review: A solution category should describe a repeatable advisory engagement that could reasonably take 2–20 hours of advisor effort.
+| Staircase | Confidence | Context | Engagement Type | Complexity Ceiling |
+|---|---|---|---|---|
+| Step 1 | Low | Standard | Education | Step 1 only |
+| Step 2 | Medium | Standard | Education | Step 1–2 |
+| Step 3 | Medium | Standard | Facilitation | Step 1–3 |
+| Step 4 | High | Standard | Advice | Step 1–4 |
+| Step 5 | High | Standard | Advice | All |
+| Any | Any | Conflict | Facilitation | Override |
+| Any | Any | Compliance | Education | Override |
+| Any | Any | Transaction | Advice | Due diligence only |
+| (confidence constraints and stretch rules to be added) | | | | |
 
-**Decision 3 — Domain scoping by default.**
-Each solution category belongs to one domain. A category named "performance coaching" could apply to sales, staff, and management — making it impossible for the system to distinguish between them. Domain-scoped categories prevent this ambiguity at the source. Exception: if a category genuinely applies to multiple domains with the same templates, it may span domains but requires explicit domain mapping.
+**Table 4 — Template Eligibility** (firm manager edits)
 
-**Decision 4 — Granularity target: 15–25 solution categories total across all 11 diagnostic domains.**
-Each category must contain 3–10 templates. No category with more than 15 templates. No category mapping to 1–2 templates only.
+| Routing Group | Engagement Type | Complexity Ceiling | Template IDs | Exclude When |
+|---|---|---|---|---|
+| RG_SALES_PROCESS | Education | Step 1–2 | [to be done — template classification not yet run] | |
+| RG_SALES_PROCESS | Facilitation | Step 3–4 | [to be done] | |
+| RG_SALES_CAPABILITY | Education | Step 1–2 | [to be done] | client_already_tried: sales_scripting |
+| (all routing groups × engagement types × complexity levels to be completed) | | | | |
 
-**Decision 5 — Categories are designed before templates are classified.**
-Template classification does not begin until solution categories are finalised.
+### Who Sees What
+
+| Audience | What They See | Can Edit |
+|---|---|---|
+| Advisors | Primary Issue + Recommended Templates + AI Narrative | No |
+| Firm managers | Primary Issue + Routing Group + Template Pool in audit view | Table 3, Table 4 only |
+| Auditors and designers | Full causal chain (see below) + all four tables | Tables 1–4 |
+
+### The Causal Audit Chain — Required for Every Recommendation
+
+Every recommendation must produce an inspectable causal chain. Without this there is no audit — only a log.
+
+```
+Advisor described: "[free text from Q1, Q3, or Q14]"
+  ↓ AI extraction → structured signal
+Signal detected: [signal name and value]
+  ↓ Table 1 rule [Rule ID] matched
+Primary Issue: [primary issue label]
+  ↓ Table 2 mapping
+Routing Group: [RG_CODE] — [human-readable name]
+  ↓ Table 3 rule — [staircase] + [confidence] + [context]
+Engagement: [type], Complexity ceiling [level]
+  ↓ Table 4 — highest scoring templates within [RG_CODE] + [engagement] + [ceiling]
+Templates: [template names]
+  ↓ Exclusions applied: [any exclusions from Q14 or context]
+Final template pool: [template names]
+```
+
+A firm manager who believes the wrong templates were recommended opens:
+- Table 4 to change the template pool for a routing group + strategy combination
+- Table 2 to change which routing group a primary issue maps to
+- Table 1 to adjust signal pattern logic if classification is wrong
+
+No scenario requires code changes.
 
 ### Current Status
 
-| Domain | Solution Categories | Status |
+| Domain | Routing Groups | Status |
 |---|---|---|
-| Domain 4 — Sales & Marketing | 7 categories across 4 primary issues | Complete — locked |
-| All other diagnostic domains | Not yet started | Pending — Stage 2 flags must be resolved first |
+| Domain 4 — Sales & Marketing | 7 routing groups across 4 primary issues | Complete — locked |
+| All other diagnostic domains | Not yet started | Pending |
+| Table 1 — Signal → Primary Issue | Partially designed | Signals and primary issues locked; AND/OR rules not yet built |
+| Table 2 — Primary Issue → Routing Group | Domain 4 complete | All other domains pending |
+| Table 3 — Strategy Resolution | Design locked | Specific row values to be confirmed |
+| Table 4 — Template Eligibility | Not yet built | Requires routing groups complete across all domains and templates classified |
 
 ### Why This Is Robust
-The solution category design was reviewed by two independent panels of senior engineers (3 engineers each, 2 rounds of review). Both panels confirmed the intervention-type abstraction level is structurally correct for a template resolver, 7 categories across 4 primary issues is a healthy ratio, and domain scoping with explicit cross-domain mapping is the correct model.
+Confirmed by 4 independent engineering reviews (2 external panels, 2 counter-argument responses), 2026-06-03. The intermediate routing layer correctly solves the cross-domain contamination problem. Position B (direct routing without this layer) was unanimously rejected — complexity migrates into template tags and the audit trail becomes unreadable. The 4-table governance model ensures every routing decision is visible, editable, and traceable without code changes.
 
 ---
 
@@ -789,7 +882,7 @@ Restricting the AI to a single task — writing copy about pre-selected template
 |---|---|---|---|
 | Stage 1 | Conversation & Signal Capture | Locked | Partial — stub domain questions outstanding for 9 domains |
 | Stage 2 | Primary Issue Classification | Complete — all flags resolved 2026-06-03 | Not yet built — Phase B and C |
-| Stage 3 | Solution Categories | In progress — Domain 4 complete, 10 domains remaining | Not yet built — Phase D |
+| Stage 3 | Routing Groups | In progress — Domain 4 complete, 10 domains remaining | Not yet built — Phase D |
 | Stage 4 | Strategy Resolution | Locked | Not yet built — Phase C |
 | Stage 5 | Template Selection | Locked | Not yet built — Phase D |
 | Stage 6 | AI Narrative | Locked | Partial — requires Stages 3–5 complete — Phase E |
