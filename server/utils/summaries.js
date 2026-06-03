@@ -2,9 +2,10 @@
  * Content summaries loader — detailed per-template guidance extracted from
  * the Advisor-e content Google Doc. Covers 97 templates across 8 sections.
  *
- * Fallback: for templates not in content-summaries.json, a minimal entry is
- * built from the purpose field in data/templates.json so all 131 client-facing
- * templates are visible to scoring and the AI narrative context.
+ * All 131 client-facing templates already have a purpose field in data/templates.json.
+ * For templates not yet in content-summaries.json, that purpose field is now read
+ * directly so all 131 templates are visible to scoring and the AI narrative context.
+ * The data was always there — it just wasn't connected to this loader.
  */
 
 const { readFileSync } = require('fs')
