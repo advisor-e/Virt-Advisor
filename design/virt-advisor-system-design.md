@@ -649,7 +649,9 @@ logVASession() → activity.js → MySQL (domain, tier, timestamp)
 
 These principles govern all decisions in the system. Any proposed change that violates one of them is a structural change requiring full engineering review.
 
-1. **AI classifies micro-signals. Code makes macro-decisions.** Domain detection, primary issue classification, routing, strategy, and template selection are all in code. AI writes copy only.
+1. **If in doubt, ask the advisor.** When the system needs a categorical decision and cannot determine it with certainty from signals or conversation context, the right answer is always a constrained question to the advisor — not an inference, not a default, not an AI guess. The advisor knows their client. This principle takes precedence over pipeline elegance. It applies at every stage: domain detection ties trigger a disambiguation question; primary issue uncertainty triggers a primary issue selector; any ambiguity in strategy or context triggers a clarifying question. Never silently assume.
+
+2. **AI classifies micro-signals. Code makes macro-decisions.** Domain detection, primary issue classification, routing, strategy, and template selection are all in code. AI writes copy only.
 
 2. **Decision-grade normalisation, not perfect extraction.** Constrained questions are preferred over free-text wherever a categorical answer is needed. Free-text is only used where richness matters.
 
