@@ -328,7 +328,7 @@ function logAI (label, model, startTime, success, usage) {
   const tokens = usage
     ? `prompt=${usage.prompt_tokens} completion=${usage.completion_tokens} total=${usage.total_tokens}`
     : 'tokens=unknown'
-  console.error(`[openai] ${label} model=${model} status=${success ? 'ok' : 'error'} latency=${latency}ms ${tokens}`)
+  console.log(`[openai] ${label} model=${model} status=${success ? 'ok' : 'error'} latency=${latency}ms ${tokens}`)
 }
 
 const BODY_LIMIT = 256 * 1024 // 256 KB — protects against memory-exhaustion DoS
@@ -1334,7 +1334,7 @@ async function handleQuery (rawBody, res) {
       resolverHit: _resolvedTemplates.selected.length > 0,
       noMatchReason: _resolvedTemplates.noMatchReason || null
     }
-    console.error('[va-session] ' + JSON.stringify(_sessionSummary))
+    console.log('[va-session] ' + JSON.stringify(_sessionSummary))
     dbg('[OBSERVABILITY] ' + JSON.stringify(_obsPayload, null, 2))
 
     const systemPrompt2 = loadPrompt('client') + languageInstruction2

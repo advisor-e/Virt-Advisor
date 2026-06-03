@@ -1315,14 +1315,7 @@ export default {
 
     renderMarkdown (text) {
       if (!text) return ''
-      const input = String(text)
-      const preprocessed = preprocessAIResponse(input)
-      if (input !== preprocessed) {
-        console.log('[markdown] BEFORE:', input)
-        console.log('[markdown] AFTER:', preprocessed)
-      } else if (input.trim().startsWith('`')) {
-        console.log('[markdown] starts with backtick but preprocessor did NOT strip:', JSON.stringify(input.slice(0, 200)))
-      }
+      const preprocessed = preprocessAIResponse(String(text))
       const raw = _md.render(preprocessed)
       return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
     }
