@@ -601,7 +601,58 @@ logVASession() → activity.js → MySQL (domain, tier, timestamp)
 
 ---
 
-## 13. Build Status — What Is Complete and What Is Not
+## 13. Template Recommendation Output — Design Decision (2026-06-04)
+
+### The Two-Card Output Model
+
+**Confirmed design. Supersedes all prior hard-exclusion logic in the template resolver.**
+
+When the system selects templates, it runs two passes:
+
+**Pass 1 — Unrestricted:** Find the best-matching template across the full eligible library, regardless of the advisor's staircase position, engagement type, or subSection preference. Relevance to the client's situation is the only criterion.
+
+**Pass 2 — Within parameters:** Find the best-matching template that respects the advisor's current staircase ceiling and engagement type. Apply all normal filters.
+
+The output depends on what the two passes return:
+
+| Scenario | Output |
+|---|---|
+| Pass 1 and Pass 2 return the same template | Single recommendation card — normal flow, no flags |
+| Pass 1 returns a better template than Pass 2 | Two recommendation cards — see below |
+| Pass 2 returns nothing (no within-range template exists) | Pass 1 template only, with "no entry-level option" note |
+
+**Two-card output format:**
+
+**Card 1 — Most relevant (may be outside your range):**
+Includes the best-matched template with a visible flag:
+*"This template sits above your current advisory range — it is the strongest match for this client's situation. Consider it if you are comfortable stretching for this engagement."*
+
+**Card 2 — Within your current range:**
+Includes the best within-parameters match with no flag — this is the safe choice.
+
+If no within-parameters template exists, Card 2 is replaced with a plain-language note:
+*"There is no entry-level template suited to a situation of this complexity. This client may need a more experienced advisor or a specialist referral before a structured advisory engagement can begin."*
+
+This message is a feature, not a failure. It tells the advisor the honest truth about the situation and their current capability match — which is exactly what a good virtual advisor should do.
+
+### Why This Replaces Hard Exclusions
+
+Previously, the resolver used hard exclusion rules (engagement type gates, domain subsection hard blocks) to prevent "unsuitable" templates from appearing. This caused silent failure — the best template for a situation was excluded without the advisor knowing it existed, and worse alternatives were recommended instead.
+
+**Hard exclusions are removed from the resolver.** They are replaced by:
+- Soft preferences (subSection maps become ranking boosts, not gates)
+- The two-card output (transparency over suppression)
+- The staircase complexity ceiling (the ONLY remaining hard block — protects against recommending Step 5 engagements to a Step 1 advisor)
+
+The staircase ceiling remains as a hard block because it protects advisor capability, not system tidiness. Every other exclusion is replaced by ranking and flagging.
+
+### Design Principles This Enforces
+
+This decision directly implements Principle 1 (if in doubt, ask the advisor) by showing the advisor the full picture and letting them decide — rather than making the decision silently on their behalf.
+
+---
+
+## 13b. Build Status — What Is Complete and What Is Not
 
 ### Pipeline Stages
 
