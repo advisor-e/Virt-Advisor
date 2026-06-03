@@ -1,8 +1,9 @@
 # Virt Advisor — Master Design Registry
 
 **Version:** 1.0 — 2026-06-03
-**Status:** Stage 2 complete — all 11 flags resolved 2026-06-03. Stage 3 in progress — Domain 4 complete, 10 domains remaining. Solution Categories renamed to Routing Groups (RG_ format) — confirmed by 4 independent engineering reviews 2026-06-03. Causal audit chain and 4-table governance model added.
-**Purpose:** Single source of truth for the complete Virt Advisor decision logic. Every stage, every decision, every item — in sequence. Written to be readable and editable by a firm manager without engineering knowledge.
+**Status:** DOMAIN DETAIL REFERENCE — use alongside virt-advisor-system-design.md. Contains the full primary issue tables, normalization decisions, routing groups (Domain 4), and 4-table governance model detail. Stage 2 complete for all 14 domains. Stage 3 (Routing Groups) complete for Domain 4 only.
+**Purpose:** Detailed domain-by-domain record of every primary issue, every normalization decision, every Mike-confirmed flag. This is the working reference for Workshop 2 (completing routing groups for domains 1–3 and 5–11).
+**Read alongside:** design/virt-advisor-system-design.md (system overview and build status)
 **Supersedes:** design/primary-issue-registry.md (superseded 2026-06-03)
 
 ---
