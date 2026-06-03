@@ -163,6 +163,7 @@ const EXPERIENCE_REQUIRED_SUBSECTIONS = new Set(['Lite Fundamentals', 'Strategic
 // is always respected — it protects advisor capability, not system tidiness.
 function resolveTemplates (caseState, strategyDecision, templates, options) {
   const ignoreEngagementGates = (options && options.ignoreEngagementGates) || false
+  const distinctionBoosts = (options && options.distinctionBoosts) || {}
   const { domain, primaryIssue, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
 
@@ -246,6 +247,13 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
         score += 1
         reasons.push('primary_issue:partial_match')
       }
+    }
+
+    // Advisory distinctions boost — domain expert vocabulary matched against advisor text
+    const _distinctionBoost = distinctionBoosts[t.title] || 0
+    if (_distinctionBoost > 0) {
+      score += _distinctionBoost
+      reasons.push('distinction:+' + _distinctionBoost)
     }
 
     // Solution category → tag keyword match
@@ -440,9 +448,10 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
 // withinRange — best match within advisor parameters (current restrictions)
 // hasOutlier — true when the best unrestricted match differs from within-range
 // fallbackExists — true when at least one within-range template was found
-function resolveTemplatesWithOutlier (caseState, strategyDecision, templates) {
-  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreEngagementGates: true })
-  const withinRange = resolveTemplates(caseState, strategyDecision, templates)
+function resolveTemplatesWithOutlier (caseState, strategyDecision, templates, options) {
+  const opts = options || {}
+  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreEngagementGates: true, distinctionBoosts: opts.distinctionBoosts })
+  const withinRange = resolveTemplates(caseState, strategyDecision, templates, { distinctionBoosts: opts.distinctionBoosts })
 
   const primaryTop = primary.selected[0]
   const withinTop = withinRange.selected[0]

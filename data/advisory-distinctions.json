@@ -1,0 +1,69 @@
+{
+  "version": "1.0",
+  "description": "Platform-level advisory distinctions — authored by Mike Barnes. Each row teaches the system what specific advisor phrases mean diagnostically, boosting the right templates for each domain. Edit via Firm Manager hub (platform admin only). Firm-level rows stored in database on top of these.",
+  "platform": [
+    {
+      "domain": "conflict",
+      "triggers": ["fight", "fighting", "argument", "arguing", "at each other", "at each others"],
+      "description": "Active interpersonal conflict",
+      "templates": ["Force Field Analysis"],
+      "boost": 5
+    },
+    {
+      "domain": "conflict",
+      "triggers": ["dispute", "shareholder dispute", "partner dispute", "shareholders disputing"],
+      "description": "Formal conflict between owners",
+      "templates": ["Force Field Analysis", "Partner Accountability"],
+      "boost": 5
+    },
+    {
+      "domain": "conflict",
+      "triggers": ["not pulling their weight", "contribution", "one does more", "equity issue", "unfair", "pulling their weight", "inequity", "not contributing"],
+      "description": "Imbalance in partner contribution",
+      "templates": ["Partner Accountability"],
+      "boost": 5
+    },
+    {
+      "domain": "conflict",
+      "triggers": ["patch it up", "mediation", "help them talk", "facilitate a conversation", "mediator", "sit in the middle"],
+      "description": "Mediation engagement needed",
+      "templates": ["Force Field Analysis"],
+      "boost": 5
+    },
+    {
+      "domain": "conflict",
+      "triggers": ["legal proceedings", "lawyers", "solicitor", "going legal", "messy breakup", "legal action", "court"],
+      "description": "Escalating conflict with legal risk",
+      "templates": ["Force Field Analysis"],
+      "boost": 5
+    },
+    {
+      "domain": "conflict",
+      "triggers": ["festered", "never talked about it", "built up over time", "past issues", "simmering", "been going on for years", "long running"],
+      "description": "Accumulated unresolved tension",
+      "templates": ["Force Field Analysis", "Alignment Statements"],
+      "boost": 5
+    },
+    {
+      "domain": "conflict",
+      "triggers": ["pull them back", "save the partnership", "stop the bleeding", "before it gets worse", "back from the edge", "back from the cliff"],
+      "description": "Crisis prevention — pre-escalation",
+      "templates": ["Force Field Analysis"],
+      "boost": 5
+    },
+    {
+      "domain": "conflict",
+      "triggers": ["not talking", "stopped communicating", "communication breakdown", "won't speak", "not speaking"],
+      "description": "Communication failure between parties",
+      "templates": ["Alignment Statements"],
+      "boost": 5
+    },
+    {
+      "domain": "conflict",
+      "triggers": ["working shareholders", "both in the business", "owner-operators", "owner operators", "both owners", "partners in the business"],
+      "description": "Operational conflict between owner-operators",
+      "templates": ["Partner Accountability", "Force Field Analysis"],
+      "boost": 5
+    }
+  ]
+}

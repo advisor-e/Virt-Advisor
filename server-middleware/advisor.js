@@ -29,9 +29,29 @@ const { resolveTemplates, resolveTemplatesWithOutlier } = require('../server/uti
 // Reference data
 const DOMAINS = require('../data/domains.json')
 const PRIMARY_ISSUES = require('../data/primary-issues.json')
+const ADVISORY_DISTINCTIONS = require('../data/advisory-distinctions.json')
 
 // Context domains have no primary issues — they override the strategy layer instead
 const CONTEXT_DOMAINS = new Set(['conflict', 'eoy', 'due-diligence'])
+
+// ── matchAdvisoryDistinctions ────────────────────────────────────────────────
+// Scans advisor text against platform-level advisory distinctions for the
+// detected domain. Returns a map of template title → cumulative boost score.
+function matchAdvisoryDistinctions (domain, advisorText) {
+  if (!domain || !advisorText) { return {} }
+  const lower = advisorText.toLowerCase()
+  const boostMap = {}
+  const rows = (ADVISORY_DISTINCTIONS.platform || []).filter(r => r.domain === domain)
+  for (const row of rows) {
+    const matched = (row.triggers || []).some(trigger => lower.includes(trigger.toLowerCase()))
+    if (matched) {
+      for (const templateTitle of (row.templates || [])) {
+        boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
+      }
+    }
+  }
+  return boostMap
+}
 
 // Build detection patterns from domain definitions — compiled once at startup
 const DOMAIN_PATTERNS = DOMAINS.map(d => ({
@@ -1154,9 +1174,20 @@ async function handleQuery (rawBody, res) {
     const _caseState = buildCaseState(_signals, state)
     const _strategyDecision = resolveStrategy(_caseState)
 
+    // Advisory distinctions — scan all advisor text against platform vocabulary rows for this domain
+    const _advisorFullText = [
+      (conversationHistory.find(m => m.role === 'user') || { content: query }).content,
+      state.situationDiagnostic || '',
+      state.clientAlreadyTried || '',
+      ...DOMAINS.filter(d => d.id === state.detectedDomain).flatMap(d =>
+        (d.questions || []).map(q => state[q.field] || '')
+      )
+    ].join(' ')
+    const _distinctionBoosts = matchAdvisoryDistinctions(state.detectedDomain, _advisorFullText)
+
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
-    const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool)
+    const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool, { distinctionBoosts: _distinctionBoosts })
     const _resolvedTemplates = _resolvedResult.primary // primary used for scoring log / observability
     const _hasOutlier = _resolvedResult.hasOutlier
     const _fallbackExists = _resolvedResult.fallbackExists
