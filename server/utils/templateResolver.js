@@ -26,12 +26,13 @@ function getProfileMap () {
 // Bump SCORING_VERSION whenever the algorithm changes so scoring logs are traceable.
 const SCORING_VERSION = '2.0.0'
 
-// Signal attenuation — out-of-domain signals get a reduced multiplier rather than
-// being excluded entirely. Domain detection is imperfect and some signals are
-// legitimately cross-domain. Set enableAttenuation: false to roll back instantly.
+// Signal attenuation — out-of-domain signals are excluded entirely (weight 0).
+// Each domain's scope is defined in DOMAIN_SIGNAL_SCOPE. Signals outside the scope
+// are downstream effects, not primary causes — they must not drive template selection.
+// Set outOfDomainWeight: 0.33 to roll back to soft attenuation if needed.
 const SCORING_CONFIG = {
   inDomainWeight: 1.0,
-  outOfDomainWeight: 0.33,
+  outOfDomainWeight: 0,
   enableAttenuation: true
 }
 
@@ -128,12 +129,23 @@ const CATEGORY_KEYWORDS = {
 }
 
 // ── Engagement type → preferred subSections ─────────────────────────────────
-// Source: content headers spec (revenue models = EDUCATION; strategic = FACILITATION; specialist = ADVICE)
+// Source: content headers spec — Education = General/Lite only; Facilitation = Revenue/Strategic;
+// Advice = Specialist/Governance. Revenue & Feasibility Models are Facilitation level, not Education.
 // First entry = primary (score +2); remaining = secondary (score +1)
 const ENGAGEMENT_SUBSECTION_PREFERENCE = {
-  education: ['Revenue & Feasibility Models', 'General Tools', 'Lite Fundamentals', 'Reporting', 'Growth Framework'],
-  facilitation: ['Strategic Tools', 'Governance Tools', 'Lite Fundamentals', 'General Tools'],
+  education: ['General Tools', 'Lite Fundamentals', 'Reporting', 'Growth Framework'],
+  facilitation: ['Revenue & Feasibility Models', 'Strategic Tools', 'Governance Tools', 'Lite Fundamentals', 'General Tools'],
   advice: ['Specialist Tools', 'Governance Tools', 'Strategic Tools', 'External Advisors']
+}
+
+// ── Engagement type → hard-blocked subSections ───────────────────────────────
+// Engagement type gates applied BEFORE scoring — not just preferences.
+// Education removes Specialist, Strategic, Governance, and Revenue/Feasibility Models
+// unless a revenue_feasibility signal specifically requests modelling.
+const ENGAGEMENT_HARD_BLOCKED = {
+  education: new Set(['Strategic Tools', 'Specialist Tools', 'Governance Tools', 'External Advisors']),
+  facilitation: new Set(['Specialist Tools', 'External Advisors']),
+  advice: new Set()
 }
 
 // ── Advisor confidence → subSection fit ──────────────────────────────────────
@@ -150,13 +162,21 @@ function resolveTemplates (caseState, strategyDecision, templates) {
   const { engagementType, templateBudget } = strategyDecision
 
   const blocked = CEILING_BLOCKED[complexityCeiling] || new Set()
+  const engagementBlocked = ENGAGEMENT_HARD_BLOCKED[engagementType] || new Set()
 
   // ── Step 1: Hard filters ─────────────────────────────────────────────────
+  // Revenue & Feasibility Models are allowed for Education ONLY when the advisor
+  // has explicitly requested modelling (revenue_feasibility signal active).
+  const modellingRequested = (caseState.solutionCategories || []).includes('revenue_feasibility')
+  const revenueModelsBlocked = engagementType === 'education' && !modellingRequested
+
   const eligible = templates.filter(t =>
     t.includedInClient === true &&
     t.menuSection !== 'get-organised' &&
     t.menuSection !== 'get-the-job' &&
-    !(t.subSection && blocked.has(t.subSection))
+    !(t.subSection && blocked.has(t.subSection)) &&
+    !(t.subSection && engagementBlocked.has(t.subSection)) &&
+    !(revenueModelsBlocked && t.subSection === 'Revenue & Feasibility Models')
   )
 
   if (eligible.length === 0) {
@@ -232,6 +252,7 @@ function resolveTemplates (caseState, strategyDecision, templates) {
     // Degrades to 0 if no profile exists or no signals active.
     const SEMANTIC_WEIGHT = 2.0
     const _semanticProfile = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
+    const _hasSemanticProfile = Object.keys(_semanticProfile).length > 0
     if (_activeSignalEntries.length > 0) {
       let semanticScore = 0
       for (const [signal, signalCount] of _activeSignalEntries) {
@@ -246,6 +267,43 @@ function resolveTemplates (caseState, strategyDecision, templates) {
       if (semanticScore > 0) {
         score += semanticScore
         reasons.push('semantic:' + semanticScore.toFixed(1))
+      }
+    }
+
+    // Stage 1b — purpose text fallback for templates without a semantic profile.
+    // Maps active in-domain signals to keyword sets and scores purpose/tag text matches.
+    // Ensures templates in the 90-missing-summary set can still compete on content.
+    if (!_hasSemanticProfile && _activeSignalEntries.length > 0) {
+      const PURPOSE_FALLBACK_KEYWORDS = {
+        sales_volume: ['sales', 'customer', 'foot traffic', 'marketing', 'conversion', 'prospect', 'revenue'],
+        marketing_gap: ['marketing', 'market', 'brand', 'message', 'customer', 'digital', 'outbound'],
+        pricing_issue: ['price', 'pricing', 'margin', 'discount', 'value'],
+        cash_flow_gap: ['cash flow', 'cashflow', 'debtor', 'liquidity', 'working capital'],
+        profit_plateau: ['profit', 'margin', 'profitab', 'levers', 'growth'],
+        staff_problem: ['staff', 'team', 'employee', 'people', 'performance', 'delegation'],
+        data_quality: ['data', 'reporting', 'accounts', 'kpi', 'indicator', 'dashboard'],
+        governance_gap: ['governance', 'board', 'accountab', 'director', 'decision'],
+        succession_issue: ['succession', 'exit', 'sale', 'transition', 'business sale'],
+        strategy_needed: ['strategy', 'planning', 'strategic', 'swot', 'competitive'],
+        systems_gap: ['system', 'process', 'workflow', 'procedure', 'operation']
+      }
+      const _purposeText = [purposeLower, (t.support || '').toLowerCase()].join(' ')
+      let purposeFallbackScore = 0
+      for (const [signal] of _activeSignalEntries) {
+        const signalWeight = getSignalWeight(signal, domain)
+        if (signalWeight > 0) {
+          const keywords = PURPOSE_FALLBACK_KEYWORDS[signal] || []
+          for (const kw of keywords) {
+            if (_purposeText.includes(kw)) {
+              purposeFallbackScore += 1.5 * signalWeight
+              break // one match per signal
+            }
+          }
+        }
+      }
+      if (purposeFallbackScore > 0) {
+        score += purposeFallbackScore
+        reasons.push('purpose_fallback:' + purposeFallbackScore.toFixed(1))
       }
     }
 

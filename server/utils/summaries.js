@@ -1,6 +1,10 @@
 /**
  * Content summaries loader — detailed per-template guidance extracted from
  * the Advisor-e content Google Doc. Covers 97 templates across 8 sections.
+ *
+ * Fallback: for templates not in content-summaries.json, a minimal entry is
+ * built from the purpose field in data/templates.json so all 131 client-facing
+ * templates are visible to scoring and the AI narrative context.
  */
 
 const { readFileSync } = require('fs')
@@ -12,13 +16,48 @@ let _sectionDescriptions = null
 
 function loadSummaries () {
   if (_summaries) { return _summaries }
-  const filePath = resolve(process.cwd(), 'data/content-summaries.json')
+
+  // Load rich content summaries
+  let rich = []
   try {
-    _summaries = JSON.parse(readFileSync(filePath, 'utf8'))
+    rich = JSON.parse(readFileSync(resolve(process.cwd(), 'data/content-summaries.json'), 'utf8'))
   } catch (err) {
     console.error('[summaries] Failed to load content-summaries.json:', err.message)
-    _summaries = []
   }
+
+  // Build fallback entries from templates.json for any template not already covered.
+  // Uses the purpose field so all 131 client-facing Do the Job templates are visible.
+  try {
+    const allTemplates = JSON.parse(readFileSync(resolve(process.cwd(), 'data/templates.json'), 'utf8'))
+    const richNames = new Set(rich.map(s => s.name))
+    // Also check alias targets so we don't duplicate aliased entries
+    const aliasTargets = new Set(Object.values(TEMPLATE_SUMMARY_ALIASES))
+    const richNamesWithAliases = new Set([...richNames, ...aliasTargets])
+
+    for (const t of allTemplates) {
+      if (
+        t.includedInClient === true &&
+        t.section === 'Do the Job' &&
+        t.purpose &&
+        t.purpose.trim() &&
+        !richNames.has(t.title) &&
+        !richNamesWithAliases.has(t.title)
+      ) {
+        rich.push({
+          name: t.title,
+          section: t.subSection || '',
+          purpose: t.purpose.trim(),
+          indicators: t.topic || '',
+          helpsOwner: '',
+          helpsAdvisor: ''
+        })
+      }
+    }
+  } catch (err) {
+    console.error('[summaries] Failed to build purpose fallbacks from templates.json:', err.message)
+  }
+
+  _summaries = rich
   return _summaries
 }
 
