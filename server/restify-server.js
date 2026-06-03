@@ -32,17 +32,28 @@
 
 const restify = require('restify')
 
-// ── Startup guards — fail fast on placeholder config ──────────────────────────
+// ── Startup guards — fail fast on placeholder config in production ────────────
 ;(function assertConfig () {
   const { AUTH, DB } = require('../config/integration')
-  const placeholders = [
-    [AUTH.secret, 'REPLACE_ME_WITH_ADVISOR_E_JWT_SECRET', 'JWT_SECRET'],
-    [DB.password, 'REPLACE_ME', 'MYSQL_PASSWORD']
-  ]
-  for (const [value, sentinel, envVar] of placeholders) {
-    if (value === sentinel) {
-      console.error(`[startup] FATAL: ${envVar} is still set to the placeholder value. Set the real value in your .env file and restart.`)
+  const isProd = process.env.NODE_ENV === 'production'
+
+  // JWT secret is always required — without it, firm auth cannot verify tokens.
+  if (AUTH.secret === 'REPLACE_ME_WITH_ADVISOR_E_JWT_SECRET') {
+    if (isProd) {
+      console.error('[startup] FATAL: JWT_SECRET is still set to the placeholder value.')
       process.exit(1)
+    } else {
+      console.error('[startup] WARNING: JWT_SECRET is placeholder — firm auth will not work in dev.')
+    }
+  }
+
+  // DB password — fatal in production, warning in dev (MySQL may not be local).
+  if (DB.password === 'REPLACE_ME') {
+    if (isProd) {
+      console.error('[startup] FATAL: MYSQL_PASSWORD is still set to the placeholder value.')
+      process.exit(1)
+    } else {
+      console.error('[startup] WARNING: MYSQL_PASSWORD is placeholder — activity/progression routes will return empty data.')
     }
   }
 })()
