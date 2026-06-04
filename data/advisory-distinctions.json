@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "description": "Platform-level advisory distinctions — authored by Mike Barnes. Each row teaches the system what specific advisor phrases mean diagnostically, boosting the right templates for each domain. Edit via Firm Manager hub (platform admin only). Firm-level rows stored in database on top of these.",
+  "version": "1.1",
+  "description": "Platform-level advisory distinctions — authored by Mike Barnes. Each row teaches the system what specific advisor phrases mean diagnostically, boosting the right templates for each domain. Platform rows apply to all firms. Firm-level rows stored in database on top of these. Edit via Firm Manager hub (platform admin only).",
   "platform": [
     {
       "domain": "conflict",
@@ -64,6 +64,426 @@
       "description": "Operational conflict between owner-operators",
       "templates": ["Partner Accountability", "Force Field Analysis"],
       "boost": 5
+    },
+
+    {
+      "domain": "profit",
+      "triggers": ["margins are squeezed", "margin is thin", "can't make a profit", "margin is down", "margins shrinking", "losing margin", "profit is down"],
+      "description": "General profitability pressure",
+      "templates": ["8 Profit Levers", "Quick Fire Diagnosis"],
+      "boost": 5
+    },
+    {
+      "domain": "profit",
+      "triggers": ["cost of sales too high", "materials costing more", "supplier costs going up", "labour costs rising", "cost of goods", "direct costs out of control"],
+      "description": "Cost of sales has increased",
+      "templates": ["Quick Fire Diagnosis", "Working Capital Cycle"],
+      "boost": 5
+    },
+    {
+      "domain": "profit",
+      "triggers": ["too much discounting", "giving it away", "price cutting", "undercutting", "can't hold price", "discounting to get the work", "no pricing confidence"],
+      "description": "Excessive discounting eroding margin",
+      "templates": ["8 Profit Levers", "Working Capital Cycle"],
+      "boost": 5
+    },
+    {
+      "domain": "profit",
+      "triggers": ["overheads too high", "fixed costs out of control", "rent killing them", "wages too high", "overhead is drowning them", "fixed costs grown too big"],
+      "description": "Fixed overhead costs grown beyond revenue",
+      "templates": ["Quick Fire Diagnosis", "Dashboard Discussions"],
+      "boost": 5
+    },
+    {
+      "domain": "profit",
+      "triggers": ["doesn't stack up", "numbers don't work", "break-even", "viability", "barely covering costs", "can it survive", "is the model viable"],
+      "description": "Asset utilisation below viability threshold",
+      "templates": ["Lite Feasibility", "Quick Fire Diagnosis"],
+      "boost": 5
+    },
+    {
+      "domain": "profit",
+      "triggers": ["not enough sales", "revenue down", "turnover down", "foot traffic", "not enough customers", "volume is the problem", "revenue is the issue"],
+      "description": "Revenue is the constraint — not cost",
+      "templates": ["Customer Journey", "8 Profit Levers", "Sales Session"],
+      "boost": 5
+    },
+    {
+      "domain": "profit",
+      "triggers": ["slow payers", "can't collect", "overdue accounts", "debtors are bad", "waiting to be paid", "cash is stuck in debtors"],
+      "description": "Debtor and cashflow pressure",
+      "templates": ["Debtor Protocols", "Working Capital Cycle"],
+      "boost": 5
+    },
+
+    {
+      "domain": "staff",
+      "triggers": ["can't find staff", "short staffed", "not enough people", "struggling to hire", "no applicants", "no one wants to work"],
+      "description": "Too few qualified staff",
+      "templates": ["Hiring Winners"],
+      "boost": 5
+    },
+    {
+      "domain": "staff",
+      "triggers": ["staff aren't performing", "undertrained", "don't know what they're doing", "capability gap", "not skilled enough", "not competent"],
+      "description": "Inexperienced or insufficiently trained staff",
+      "templates": ["Productive Habits", "People Session"],
+      "boost": 5
+    },
+    {
+      "domain": "staff",
+      "triggers": ["no training system", "winging it with new staff", "no onboarding", "no induction", "no way of building capability", "nothing in place for training"],
+      "description": "No internal training structures",
+      "templates": ["Productive Habits", "People Session"],
+      "boost": 5
+    },
+    {
+      "domain": "staff",
+      "triggers": ["not holding people accountable", "poor management", "don't follow through", "no consequences", "manager isn't managing", "weak leadership"],
+      "description": "Poor management practices",
+      "templates": ["Remuneration & Incentives", "Alignment Statements"],
+      "boost": 5
+    },
+    {
+      "domain": "staff",
+      "triggers": ["don't know who does what", "roles not clear", "everyone doing everything", "overlap", "confusion about responsibilities", "no job descriptions"],
+      "description": "Roles and responsibilities poorly defined",
+      "templates": ["Alignment Statements"],
+      "boost": 5
+    },
+    {
+      "domain": "staff",
+      "triggers": ["bad hires", "keep hiring wrong people", "no hiring process", "high turnover", "wrong fit", "keep losing people"],
+      "description": "Weak hiring practices",
+      "templates": ["Hiring Winners"],
+      "boost": 5
+    },
+    {
+      "domain": "staff",
+      "triggers": ["staff are disengaged", "don't care", "just showing up", "no motivation", "low morale", "culture is bad"],
+      "description": "Motivation and engagement gap",
+      "templates": ["People vs. Process", "Alignment Statements"],
+      "boost": 5
+    },
+
+    {
+      "domain": "data-systems",
+      "triggers": ["data not being captured", "no system for collecting data", "numbers are unreliable", "can't trust the data", "data is a mess"],
+      "description": "No enforceable data capture methods",
+      "templates": ["Financial Systems Review", "App Review"],
+      "boost": 5
+    },
+    {
+      "domain": "data-systems",
+      "triggers": ["manual entry errors", "data entry mistakes", "garbage in garbage out", "human error in the numbers", "wrong numbers", "data is corrupted"],
+      "description": "Poor data integrity — manual input causing errors",
+      "templates": ["Rubbish In - Rubbish Out", "Financial Systems Review", "90 Day Best Practice Accounting"],
+      "boost": 5
+    },
+    {
+      "domain": "data-systems",
+      "triggers": ["always looking backwards", "only see results after the fact", "no early warning", "lag data", "find out too late", "reactive not proactive with data"],
+      "description": "Too much lag data, not enough lead indicators",
+      "templates": ["Dashboard Discussions", "Data Session"],
+      "boost": 5
+    },
+    {
+      "domain": "data-systems",
+      "triggers": ["only tracking financials", "no operational data", "missing activity data", "no KPIs", "only watching the bank account", "no leading indicators"],
+      "description": "Narrow data spread — financials only",
+      "templates": ["Activity Ratios", "Data Session", "Dashboard Report"],
+      "boost": 5
+    },
+
+    {
+      "domain": "sales-marketing",
+      "triggers": ["no sales process", "winging it with sales", "lost deals", "don't know how to sell", "no structure to selling", "sales is all over the place"],
+      "description": "No visible sales process",
+      "templates": ["Customer Journey", "Sales Session"],
+      "boost": 5
+    },
+    {
+      "domain": "sales-marketing",
+      "triggers": ["can't close", "get to end but don't buy", "losing at the last minute", "prospects go cold", "can't convert", "falling over at the finish line"],
+      "description": "Closing and conversion failure",
+      "templates": ["Phone Techniques", "Sales Session"],
+      "boost": 5
+    },
+    {
+      "domain": "sales-marketing",
+      "triggers": ["no marketing", "nothing going out", "no presence", "nobody knows they exist", "invisible in the market", "no outbound activity"],
+      "description": "Poor outbound marketing",
+      "templates": ["Lite Marketing"],
+      "boost": 5
+    },
+    {
+      "domain": "sales-marketing",
+      "triggers": ["don't know who their customer is", "trying to sell to everyone", "no target market", "no niche", "no ideal client defined"],
+      "description": "No defined target market",
+      "templates": ["Lite Marketing"],
+      "boost": 5
+    },
+    {
+      "domain": "sales-marketing",
+      "triggers": ["brand is weak", "no point of difference", "look like everyone else", "no identity", "can't articulate what makes them different", "no positioning"],
+      "description": "Poor brand positioning",
+      "templates": ["Lite Strategy", "Porters & Pine"],
+      "boost": 5
+    },
+    {
+      "domain": "sales-marketing",
+      "triggers": ["product isn't selling", "market has moved on", "competition eating their lunch", "outdated offer", "product is tired", "customers don't want it anymore"],
+      "description": "Poor product or market fit",
+      "templates": ["SWOT / PEST", "Lite Strategy"],
+      "boost": 5
+    },
+    {
+      "domain": "sales-marketing",
+      "triggers": ["no repeat business", "customers don't come back", "no referrals", "one-and-done clients", "can't retain customers"],
+      "description": "Customer retention failure",
+      "templates": ["Customer Journey", "8 Profit Levers"],
+      "boost": 5
+    },
+
+    {
+      "domain": "forecasting",
+      "triggers": ["doesn't understand their numbers", "focuses on sales not profit", "chasing turnover", "doesn't understand margin", "wrong numbers focus", "obsessed with revenue"],
+      "description": "Poor financial literacy — owner focused on wrong numbers",
+      "templates": ["Money Matters", "Planning Session", "Data Session"],
+      "boost": 5
+    },
+    {
+      "domain": "forecasting",
+      "triggers": ["growing too fast", "funded by debt", "overdraft always stretched", "dangerous growth", "cash poor profit rich", "borrowing to grow"],
+      "description": "Over-trading — debt-funded growth",
+      "templates": ["Working Capital Cycle", "Forecasting"],
+      "boost": 5
+    },
+    {
+      "domain": "forecasting",
+      "triggers": ["doesn't know real costs", "assumptions not matching reality", "costing wrong", "pricing from gut feel", "no idea what things actually cost", "cost base doesn't make sense"],
+      "description": "Cost structure imbalance — knowledge gap",
+      "templates": ["Data Session", "Planning Session"],
+      "boost": 5
+    },
+
+    {
+      "domain": "governance",
+      "triggers": ["board doesn't work", "directors fighting", "no governance", "no board structure", "need an advisory board", "governance is a mess"],
+      "description": "Poor boardroom dynamics",
+      "templates": ["Governance Introduction", "Partner Accountability"],
+      "boost": 5
+    },
+    {
+      "domain": "governance",
+      "triggers": ["no financial controls", "anyone can sign off", "purchases not approved", "no approval process", "money going out without authority", "no authorisation"],
+      "description": "Lack of financial controls",
+      "templates": ["Formal Risk Management", "Governance Introduction"],
+      "boost": 5
+    },
+    {
+      "domain": "governance",
+      "triggers": ["decisions never stick", "can't make a decision", "analysis paralysis", "going in circles", "meetings are useless", "no resolution", "can't agree"],
+      "description": "Poor decision quality",
+      "templates": ["6 Hats"],
+      "boost": 5
+    },
+    {
+      "domain": "governance",
+      "triggers": ["nobody knows what's expected", "no accountability", "verbal agreements only", "not documented", "he said she said", "nothing is written down"],
+      "description": "Weak communication of expectations — no documentation",
+      "templates": ["Alignment Statements"],
+      "boost": 5
+    },
+    {
+      "domain": "governance",
+      "triggers": ["culture is toxic", "values not defined", "culture left to chance", "no deliberate culture", "team doesn't reflect what the business stands for"],
+      "description": "Culture left to chance",
+      "templates": ["Alignment Statements"],
+      "boost": 5
+    },
+    {
+      "domain": "governance",
+      "triggers": ["everyone thinks the same", "no diversity", "yes men", "wrong people at the table", "nobody challenges the owner", "echo chamber"],
+      "description": "Personality and skill diversity not pursued",
+      "templates": ["6 Hats", "Alignment Statements"],
+      "boost": 5
+    },
+
+    {
+      "domain": "strategy",
+      "triggers": ["not sure if the model still works", "market is changing", "competitors taking over", "business model outdated", "not sure about the future", "relevance at risk"],
+      "description": "Lack of clarity that business model will remain competitive",
+      "templates": ["Lite Strategy", "SWOT / PEST", "Porters & Pine"],
+      "boost": 5
+    },
+    {
+      "domain": "strategy",
+      "triggers": ["no targets", "no KPIs", "don't measure anything", "no objectives", "flying blind", "no scorecard", "nothing to aim at"],
+      "description": "Poor business metrics — no operational objectives",
+      "templates": ["1 pg Bizz Case", "Mgt Annual Plan"],
+      "boost": 5
+    },
+    {
+      "domain": "strategy",
+      "triggers": ["staff don't know where they're going", "no direction", "team is lost", "no strategic plan", "nobody knows the goal", "no shared vision"],
+      "description": "No defined objectives — no communicated direction",
+      "templates": ["4 Part Bizz Plan", "1 pg Bizz Case"],
+      "boost": 5
+    },
+
+    {
+      "domain": "systems",
+      "triggers": ["no documented processes", "everyone does it differently", "inconsistent", "winging it operationally", "no systems", "processes aren't written down"],
+      "description": "Processes are undefined",
+      "templates": ["Process Session"],
+      "boost": 5
+    },
+    {
+      "domain": "systems",
+      "triggers": ["too many steps", "over-complicated", "bureaucratic", "too much red tape", "processes slowing them down", "system is getting in the way"],
+      "description": "Processes are over-engineered",
+      "templates": ["Process Session"],
+      "boost": 5
+    },
+    {
+      "domain": "systems",
+      "triggers": ["never review how they do things", "same problems keep coming up", "no improvement", "repeat mistakes", "no retrospective", "never stops to check"],
+      "description": "No regular structured review of practices",
+      "templates": ["Process Session"],
+      "boost": 5
+    },
+    {
+      "domain": "systems",
+      "triggers": ["departments don't talk", "left hand doesn't know what right hand doing", "siloed", "no coordination", "gaps between teams", "nobody communicates across"],
+      "description": "Siloed operations",
+      "templates": ["People vs. Process"],
+      "boost": 5
+    },
+    {
+      "domain": "systems",
+      "triggers": ["supply chain issues", "quality problems", "delivery failures", "supplier letting them down", "product quality dropping", "stock issues"],
+      "description": "Supply line disruptions or poor quality controls",
+      "templates": ["App Review", "What's Applicable"],
+      "boost": 5
+    },
+
+    {
+      "domain": "valuation",
+      "triggers": ["thinking about selling", "wants to sell the business", "what's it worth", "sale price", "exit", "put it on the market"],
+      "description": "Transaction readiness — sale",
+      "templates": ["Business Sale Assessment 1", "Indicative Value Questions", "Sale Assessment Report 3"],
+      "boost": 5
+    },
+    {
+      "domain": "valuation",
+      "triggers": ["inconsistent performance", "lumpy earnings", "profits all over the place", "unreliable history", "can't show a clean track record"],
+      "description": "Earnings consistency issue reducing valuation",
+      "templates": ["Business Sale Assessment 1", "Sale Assessment Report 3"],
+      "boost": 5
+    },
+    {
+      "domain": "valuation",
+      "triggers": ["assets on books don't match reality", "stock overvalued", "assets inflated", "what are the assets actually worth"],
+      "description": "Asset valuation concerns",
+      "templates": ["Sale Assessment Report 3", "Asset Review"],
+      "boost": 5
+    },
+    {
+      "domain": "valuation",
+      "triggers": ["goodwill", "what can I get for it", "what's the business worth", "pie in the sky valuation", "overvaluing it", "expectations are unrealistic"],
+      "description": "Goodwill and valuation methodology",
+      "templates": ["Indicative Value Questions", "Porter's Revenue"],
+      "boost": 5
+    },
+
+    {
+      "domain": "risk",
+      "triggers": ["key person risk", "what if they get hit by a bus", "relies on one person", "no backup", "single point of failure", "everything depends on the owner"],
+      "description": "Key person dependency risk",
+      "templates": ["Formal Risk Management"],
+      "boost": 5
+    },
+    {
+      "domain": "risk",
+      "triggers": ["just insure everything", "over-reliant on insurance", "insurance is their only risk strategy", "no active mitigation"],
+      "description": "Over-reliance on insurance as risk strategy",
+      "templates": ["Formal Risk Management"],
+      "boost": 5
+    },
+    {
+      "domain": "risk",
+      "triggers": ["always caught off guard", "reactive not proactive", "never see it coming", "no contingency plan", "no risk process", "flying blind on risk"],
+      "description": "No systematic risk identification process",
+      "templates": ["Formal Risk Management"],
+      "boost": 5
+    },
+
+    {
+      "domain": "succession",
+      "triggers": ["doesn't know what to do after", "scared of retiring", "identity wrapped up in the business", "life after work", "no life outside the business", "purpose beyond the business"],
+      "description": "Owner purpose and status — no defined life after work",
+      "templates": ["Succession Planning"],
+      "boost": 5
+    },
+    {
+      "domain": "succession",
+      "triggers": ["kids fighting over it", "siblings can't agree", "family dynamics", "one child in business one not", "sibling rivalry", "family inequality"],
+      "description": "Sibling or family inequality in succession",
+      "templates": ["Farm Succession", "Succession Planning"],
+      "boost": 5
+    },
+    {
+      "domain": "succession",
+      "triggers": ["wants to hand over but no plan", "no succession plan", "no exit strategy", "what happens when they want out", "no pathway", "vague about transition"],
+      "description": "No clear succession pathway",
+      "templates": ["Succession Planning"],
+      "boost": 5
+    },
+
+    {
+      "domain": "eoy",
+      "triggers": ["end of year meeting", "annual review", "compliance meeting", "tax meeting", "year end", "doing their accounts", "EOY"],
+      "description": "EOY context — convert compliance to advisory value",
+      "templates": ["Dashboard Discussions", "8 Profit Levers", "Quick Fire Diagnosis"],
+      "boost": 5
+    },
+    {
+      "domain": "eoy",
+      "triggers": ["client treats it as just compliance", "just sign and go", "no value added", "tick and flick", "in and out", "nothing advisory about it"],
+      "description": "Compliance meeting with no advisory content",
+      "templates": ["Dashboard Discussions", "Planning Session"],
+      "boost": 5
+    },
+    {
+      "domain": "eoy",
+      "triggers": ["client doesn't understand why they need advisory", "knowledge gap", "can't upsell", "client won't pay for advice", "don't see the value"],
+      "description": "Knowledge gap blocking the advisory upsell",
+      "templates": ["Money Matters", "8 Profit Levers"],
+      "boost": 5
+    },
+
+    {
+      "domain": "due-diligence",
+      "triggers": ["buying a business", "acquisition", "purchasing", "they want to buy", "due diligence", "looking at a business to buy"],
+      "description": "Acquisition due diligence context",
+      "templates": ["Stg. 1 Due Diligence", "Business Purchase Assessment 1"],
+      "boost": 5
+    },
+    {
+      "domain": "due-diligence",
+      "triggers": ["selling a business", "selling up", "being acquired", "buyer is doing due diligence", "someone wants to buy them"],
+      "description": "Sale due diligence context",
+      "templates": ["Business Sale Assessment 1", "Sale Assessment Report 3"],
+      "boost": 5
+    },
+    {
+      "domain": "due-diligence",
+      "triggers": ["deadline on the deal", "time pressure", "settlement approaching", "close to signing", "they need to move fast", "transaction is live"],
+      "description": "Transaction urgency — live deal",
+      "templates": ["Stg. 1 Due Diligence"],
+      "boost": 5
     }
+
   ]
 }
