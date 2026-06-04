@@ -725,6 +725,7 @@ This decision directly implements Principle 1 (if in doubt, ask the advisor) by 
 
 | Section | Status |
 |---|---|
+| Advisor course correction (contradiction detector + None of these apply) | Designed 2026-06-04 — not yet built |
 | Invisible mode swap (HOW detection) | Built and working |
 | Discover mode | Built and working |
 | Learn mode | Built and working |
@@ -749,19 +750,72 @@ This decision directly implements Principle 1 (if in doubt, ask the advisor) by 
 
 ---
 
-## 14. Key Design Principles
+## 14. Advisor Course Correction — Design Decision (2026-06-04)
+
+**Confirmed design. The system guides advisors — it does not trap them.**
+
+### The Problem This Solves
+
+The pipeline assumes the AI will correctly detect the domain and ask the right questions. When it does not — due to ambiguous language, a typo, selector label contamination, or any other cause — the advisor currently has no way to redirect. They are forced to answer increasingly wrong questions until a wrong recommendation is delivered. This is a waste of their time and damages trust.
+
+The solution is not to make the AI more accurate at prediction. The solution is to make the system responsive to the advisor when it goes wrong.
+
+### Contradiction Detection
+
+The pipeline monitors every advisor response for signals that indicate the conversation has gone in the wrong direction. These signals include:
+
+- **Explicit negation of options:** "none of these", "that doesn't apply", "none of that", "not really"
+- **Direct contradiction of the current direction:** describing a situation that clearly belongs to a different domain than the one being followed
+- **Dismissal or frustration:** phrases that indicate the current questions are missing the point entirely
+- **Non-answers:** responses that do not address the question asked and introduce a new topic
+
+When a contradiction signal fires, the AI does not restart, go backwards, or abandon the session. Instead it pauses, surfaces its current understanding, and invites the advisor to confirm or correct:
+
+*"It sounds like I may have the wrong read on this situation — let me check. From what you've described: [one sentence summary]. Is that right, or should we look at this from a different angle?"*
+
+The advisor's correction is taken as free text, re-enters the pipeline naturally, and the conversation continues forward from that point. No backwards navigation. No lost answers.
+
+### None of These Apply — Required on All Selectors
+
+Every constrained selector in the conversation pipeline — primary issue selector, disambiguation question, and any domain-specific option set — must include a "None of these fit — let me describe it differently" escape option.
+
+When selected, the AI acknowledges the mismatch and invites a fresh free-text description:
+
+*"No problem — tell me in your own words what's actually going on with this client."*
+
+The free-text response re-enters domain detection from the top. The conversation continues forward.
+
+This option is not a failure state. It is the system being honest that its current read is wrong and trusting the advisor to correct it.
+
+### The Improvement Engine
+
+The system will never predict every combination of 14 domains, hundreds of primary issues, and natural advisor language through pre-emptive testing and keyword expansion. That approach will always be incomplete and always require patching.
+
+**The feedback loop and case studies are the improvement mechanism — not pre-emptive code.**
+
+Every advisor correction (contradiction response, "none of these" selection, course correction after a wrong recommendation) is captured as session data. Case studies record what the advisor actually said, what the system did with it, and what the correct answer was. Over time, real session patterns — not hypothetical test scenarios — identify where the system needs improvement.
+
+Engineering decisions that require constant patching to handle edge cases are a signal that the wrong layer is doing the work. If an edge case cannot be resolved by the advisor correcting the system in-session and that correction being captured as learning, escalate it as a structural issue — do not patch it.
+
+---
+
+## 15. Key Design Principles
 
 These principles govern all decisions in the system. Any proposed change that violates one of them is a structural change requiring full engineering review.
 
 1. **If in doubt, ask the advisor.** When the system needs a categorical decision and cannot determine it with certainty from signals or conversation context, the right answer is always a constrained question to the advisor — not an inference, not a default, not an AI guess. The advisor knows their client. This principle takes precedence over pipeline elegance. It applies at every stage: domain detection ties trigger a disambiguation question; primary issue uncertainty triggers a primary issue selector; any ambiguity in strategy or context triggers a clarifying question. Never silently assume.
 
-2. **AI classifies micro-signals. Code makes macro-decisions.** Domain detection, primary issue classification, routing, strategy, and template selection are all in code. AI writes copy only.
+2. **Guide and show thinking — do not trap.** The system guides advisors through a conversation. It shows its current understanding, asks for confirmation, and responds to correction. It never forces an advisor to choose from wrong options with no exit, and never ploughs forward when the advisor has signalled a mismatch. Advisor judgment always takes precedence over AI inference.
 
-2. **Decision-grade normalisation, not perfect extraction.** Constrained questions are preferred over free-text wherever a categorical answer is needed. Free-text is only used where richness matters.
+3. **Real sessions improve the system. Not pre-emptive patches.** Feedback, case studies, and advisor corrections captured from live sessions are the improvement engine. Engineering time spent on pre-emptive edge case patching — keyword expansion, test scenario multiplication, scoring micro-adjustments — is misallocated. Build the correction and capture mechanism first. Let real data identify what needs fixing.
 
-3. **Each layer has one contract.** Signal extraction, classification, routing, strategy, selection, and narrative are separate steps. Mixing them produces untestable, unpredictable output.
+4. **AI classifies micro-signals. Code makes macro-decisions.** Domain detection, primary issue classification, routing, strategy, and template selection are all in code. AI writes copy only.
 
-4. **Signals age slowly, template names age fast.** Logic trees emit signals, not template names. Template names change as the library evolves; signals do not.
+5. **Decision-grade normalisation, not perfect extraction.** Constrained questions are preferred over free-text wherever a categorical answer is needed. Free-text is only used where richness matters.
+
+6. **Each layer has one contract.** Signal extraction, classification, routing, strategy, selection, and narrative are separate steps. Mixing them produces untestable, unpredictable output.
+
+7. **Signals age slowly, template names age fast.** Logic trees emit signals, not template names. Template names change as the library evolves; signals do not.
 
 5. **The template section boundary is absolute.** Do the Job templates are for clients. Get the Job and Get Organised templates are for advisors. This boundary cannot be crossed.
 

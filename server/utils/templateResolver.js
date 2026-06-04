@@ -24,7 +24,7 @@ function getProfileMap () {
 
 // ── Scoring version + config ────────────────────────────────────────────────
 // Bump SCORING_VERSION whenever the algorithm changes so scoring logs are traceable.
-const SCORING_VERSION = '2.0.0'
+const SCORING_VERSION = '2.1.0'
 
 // Signal attenuation — out-of-domain signals are excluded entirely (weight 0).
 // Each domain's scope is defined in DOMAIN_SIGNAL_SCOPE. Signals outside the scope
@@ -87,7 +87,7 @@ const DOMAIN_SUBSECTION_MAP = {
   valuation: ['Specialist Tools'],
   risk: ['Specialist Tools', 'External Advisors'],
   succession: ['Specialist Tools'],
-  conflict: ['Specialist Tools', 'General Tools'],
+  conflict: ['Strategic Tools', 'Governance Tools', 'General Tools'],
   eoy: ['EOY Notes & Docs', 'General Tools'],
   'due-diligence': ['Specialist Tools'],
   'stock-purchasing': ['General Tools', 'Specialist Tools'],
@@ -138,15 +138,6 @@ const ENGAGEMENT_SUBSECTION_PREFERENCE = {
   advice: ['Specialist Tools', 'Governance Tools', 'Strategic Tools', 'External Advisors']
 }
 
-// ── Engagement type → hard-blocked subSections ───────────────────────────────
-// Engagement type gates applied BEFORE scoring — not just preferences.
-// Education removes Specialist, Strategic, Governance, and Revenue/Feasibility Models
-// unless a revenue_feasibility signal specifically requests modelling.
-const ENGAGEMENT_HARD_BLOCKED = {
-  education: new Set(['Strategic Tools', 'Specialist Tools', 'Governance Tools', 'External Advisors']),
-  facilitation: new Set(['Specialist Tools', 'External Advisors']),
-  advice: new Set()
-}
 
 // ── Advisor confidence → subSection fit ──────────────────────────────────────
 // Source: content headers spec — new-advisor-friendly vs experience-required subSections
@@ -158,11 +149,11 @@ const EXPERIENCE_REQUIRED_SUBSECTIONS = new Set(['Lite Fundamentals', 'Strategic
 // Inputs: CaseState + StrategyDecision (from Phases B/C) + templates array
 // Output: scored, ranked selection capped at templateBudget
 // ── resolveTemplates (internal) ─────────────────────────────────────────────
-// ignoreEngagementGates: when true, removes engagement-type hard blocks so
-// the best match is found regardless of advisory range. Staircase ceiling
-// is always respected — it protects advisor capability, not system tidiness.
+// ignoreCeiling: when true (Pass 1 / unrestricted), removes the staircase ceiling
+// hard block so the best-matched template is found regardless of advisor range.
+// Engagement type is always a soft scoring preference only — never a hard gate.
 function resolveTemplates (caseState, strategyDecision, templates, options) {
-  const ignoreEngagementGates = (options && options.ignoreEngagementGates) || false
+  const ignoreCeiling = (options && options.ignoreCeiling) || false
   const distinctionBoosts = (options && options.distinctionBoosts) || {}
   const { domain, primaryIssue, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
@@ -173,23 +164,17 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     ? primaryIssue.toLowerCase().split(/[\s—\-,]+/).filter(w => w.length > 4)
     : []
 
-  const blocked = CEILING_BLOCKED[complexityCeiling] || new Set()
-  const engagementBlocked = ignoreEngagementGates ? new Set() : (ENGAGEMENT_HARD_BLOCKED[engagementType] || new Set())
+  const blocked = ignoreCeiling ? new Set() : (CEILING_BLOCKED[complexityCeiling] || new Set())
 
   // ── Step 1: Hard filters ─────────────────────────────────────────────────
-  // Revenue & Feasibility Models are allowed for Education ONLY when the advisor
-  // has explicitly requested modelling (revenue_feasibility signal active).
-  // When ignoring engagement gates, this restriction is also lifted.
-  const modellingRequested = (caseState.solutionCategories || []).includes('revenue_feasibility')
-  const revenueModelsBlocked = !ignoreEngagementGates && (engagementType === 'education' && !modellingRequested)
-
+  // Only the staircase ceiling is a hard block. Engagement type is a scoring
+  // preference only (see ENGAGEMENT_SUBSECTION_PREFERENCE). ignoreCeiling=true
+  // lifts even the ceiling for Pass 1 (unrestricted best-match).
   const eligible = templates.filter(t =>
     t.includedInClient === true &&
     t.menuSection !== 'get-organised' &&
     t.menuSection !== 'get-the-job' &&
-    !(t.subSection && blocked.has(t.subSection)) &&
-    !(t.subSection && engagementBlocked.has(t.subSection)) &&
-    !(revenueModelsBlocked && t.subSection === 'Revenue & Feasibility Models')
+    !(t.subSection && blocked.has(t.subSection))
   )
 
   if (eligible.length === 0) {
@@ -450,7 +435,7 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
 // fallbackExists — true when at least one within-range template was found
 function resolveTemplatesWithOutlier (caseState, strategyDecision, templates, options) {
   const opts = options || {}
-  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreEngagementGates: true, distinctionBoosts: opts.distinctionBoosts })
+  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreCeiling: true, distinctionBoosts: opts.distinctionBoosts })
   const withinRange = resolveTemplates(caseState, strategyDecision, templates, { distinctionBoosts: opts.distinctionBoosts })
 
   const primaryTop = primary.selected[0]

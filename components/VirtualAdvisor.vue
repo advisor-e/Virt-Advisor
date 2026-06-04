@@ -42,6 +42,7 @@
             path(stroke-linecap="round" stroke-linejoin="round" d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z")
           span.btn-cases-label Case Studies
           span.cases-badge {{ myCases.length }}
+        a.btn-firm-manager(href="/firm-manager" target="_blank") Firm Manager
         button.btn-clear(v-if="mode" @click="reset") {{ $t('header.backToMenu') }}
         button.btn-close(@click="closeSession" :title="$t('header.close')") ✕
 
@@ -1506,6 +1507,17 @@ export default {
 @keyframes spin { to { transform: rotate(360deg); } }
 .lang-error { font-size: 11px; color: #fca5a5; padding: 8px 14px; margin: 0; }
 
+.btn-firm-manager {
+  font-size: 12px;
+  color: #bfdbfe;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  padding: 5px 11px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-firm-manager:hover { background: rgba(255,255,255,0.18); color: #ffffff; }
 .btn-clear {
   font-size: 13px;
   color: #bfdbfe;

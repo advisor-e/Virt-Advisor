@@ -13,10 +13,13 @@
             </p>
           </div>
         </div>
-        <div class="level-right">
+        <div class="level-right" style="gap:12px;display:flex;align-items:center;">
           <b-tag type="is-info is-light" size="is-medium">
             Storage: {{ storagePercent }}% used
           </b-tag>
+          <a href="/advisor" class="button is-light is-small">
+            ← Back to Advisor
+          </a>
         </div>
       </div>
 

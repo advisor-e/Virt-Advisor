@@ -88,11 +88,18 @@ server.use((req, res, next) => {
   }
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
   res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-  if (req.method === 'OPTIONS') {
-    res.send(204)
-    return
-  }
   return next()
+})
+
+// Restify rejects OPTIONS before middleware — explicit wildcard handler for CORS preflight
+server.opts(/.*/, async (req, res) => {
+  const origin = req.headers.origin || ''
+  if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+  }
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  res.send(204)
 })
 
 // ── Routes ──
