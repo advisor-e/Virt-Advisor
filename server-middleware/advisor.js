@@ -357,6 +357,24 @@ function logAI (label, model, startTime, success, usage) {
 
 const BODY_LIMIT = 256 * 1024 // 256 KB — protects against memory-exhaustion DoS
 
+// ── Contradiction detection ────────────────────────────────────────────────
+// Signals that the advisor's answer indicates the conversation has gone in the
+// wrong direction — explicit negation, dismissal, or a clear topic redirect.
+const _CONTRADICTION_PATTERN = /\bnone of these\b|that doesn.t apply|none of that\b|not really relevant|doesn.t (?:apply|fit|work|match)\b|missing the point|wrong direction|not what I |you.?ve got (?:it |the |this )?wrong|that.?s not the (?:issue|situation|problem)\b|actually it.?s (?:more )?about|not related to this\b|this isn.?t (?:about|a )\b|wrong (?:area|topic)\b/i
+
+function detectContradiction (query) {
+  return _CONTRADICTION_PATTERN.test(query)
+}
+
+function buildCourseCorrectionMsg (state) {
+  const domainEntry = DOMAINS.find(d => d.id === state.detectedDomain)
+  const domainLabel = domainEntry ? domainEntry.label : 'this area'
+  const issueClause = state.primaryIssue && state.primaryIssue !== 'pending'
+    ? `, specifically around "${state.primaryIssue}"`
+    : ''
+  return `It sounds like I may have the wrong read on this situation — let me check. From what you've described, I've been approaching this as a **${domainLabel}** situation${issueClause}. Is that right, or should we look at this from a different angle?`
+}
+
 module.exports = function advisorMiddleware (req, res, next) {
   dbg('MW: method=' + req.method + ' url=' + req.url)
   if (req.method !== 'POST' || req.url !== '/query') {
@@ -542,7 +560,9 @@ async function handleQuery (rawBody, res) {
       conversationComplete: false,
       postRecAiResponses: 0,
       intakeActive: false,
-      intakeTurn: 0
+      intakeTurn: 0,
+      awaitingCourseCorrection: false,
+      courseCorrections: 0
     }, storedState || {})
 
     // Always re-detect domain from the first user message.
@@ -561,6 +581,19 @@ async function handleQuery (rawBody, res) {
     // Helper: set the active domain, clear disambiguation state
     function setDetectedDomain (id) {
       state.detectedDomain = id
+    }
+
+    // ── COURSE CORRECTION pre-detection: if the advisor redirected, unlock domain so re-detection runs ──
+    if (state.awaitingCourseCorrection) {
+      const _confirmCorrectionPattern = /\b(yes|yeah|yep|correct|that.?s right|right|that.?s it|carry on|that.?s accurate|exactly|spot on|go ahead|continue)\b/i
+      if (!_confirmCorrectionPattern.test(query)) {
+        state.detectedDomain = null
+        state.disambiguationNeeded = false
+        state.disambiguationScenarios = []
+        state.disambiguationAnswer = null
+        state.primaryIssue = null
+      }
+      state.awaitingCourseCorrection = false
     }
 
     // Lock domain once resolved — only re-score on the very first turn or if disambiguation is still pending
@@ -849,6 +882,16 @@ async function handleQuery (rawBody, res) {
       return
     }
 
+    // ── NONE OF THESE APPLY escape ──
+    if (query === '__none_of_these__') {
+      state.detectedDomain = null
+      state.disambiguationNeeded = false
+      state.disambiguationScenarios = []
+      state.disambiguationAnswer = null
+      state.primaryIssue = null
+      return sendQuestion("No problem — tell me in your own words what's actually going on with this client.")
+    }
+
     dbg('SEQUENCER: checking pipeline, detectedDomain=' + state.detectedDomain)
     console.log('[advisor] TURN histLen=' + conversationHistory.length + ' session=' + (sessionId ? sessionId.slice(0, 8) : 'none') + ' domain=' + (state.detectedDomain || 'none') + ' recDelivered=' + state.recommendationDelivered)
 
@@ -869,6 +912,16 @@ async function handleQuery (rawBody, res) {
           state[q.field] = query
           // Allow the question to react to its answer (e.g. disambiguation resolving a scenario)
           if (q.onAnswer) { q.onAnswer(query, state) }
+          // Contradiction check: if the answer signals the conversation has gone wrong, pause and verify
+          if (
+            state.detectedDomain &&
+            state.courseCorrections < 2 &&
+            detectContradiction(query)
+          ) {
+            state.awaitingCourseCorrection = true
+            state.courseCorrections++
+            return sendQuestion(buildCourseCorrectionMsg(state))
+          }
         }
       }
     }

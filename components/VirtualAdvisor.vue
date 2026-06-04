@@ -287,6 +287,7 @@
           @click="submitPrimaryIssue"
           :disabled="!selectedPrimaryIssue"
         ) Confirm
+        button.primary-issue-none(@click="noneOfTheseApply") None of these fit — let me describe it differently
 
       //- Intake prompt — shown after Phase 3, before advisor dismisses
       .intake-prompt-card(v-if="showIntakePrompt")
@@ -1141,6 +1142,14 @@ export default {
       this.selectedPrimaryIssue = null
       this.primaryIssueDomain = null
       this.sendMessage()
+    },
+
+    noneOfTheseApply () {
+      this.showPrimaryIssueSelector = false
+      this.selectedPrimaryIssue = null
+      this.primaryIssueDomain = null
+      this.inputText = 'None of these fit my situation'
+      this.sendMessage('__none_of_these__')
     },
 
     submitGrowthStage () {
@@ -2178,6 +2187,8 @@ export default {
 .primary-issue-submit { padding: 9px 22px; background: #16a34a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
 .primary-issue-submit:hover:not(:disabled) { background: #15803d; }
 .primary-issue-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+.primary-issue-none { display: block; width: 100%; margin-top: 10px; padding: 8px; background: none; border: none; color: #6b7280; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.primary-issue-none:hover { color: #374151; }
 
 .intake-prompt-card {
   display: flex;
