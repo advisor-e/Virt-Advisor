@@ -25,7 +25,6 @@ const { extractSignals, deriveInferredState, buildObservabilityPayload } = requi
 const { buildCaseState } = require('../server/utils/caseState')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplates, resolveTemplatesWithOutlier } = require('../server/utils/templateResolver')
-const db = require('../server/utils/db')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -1268,16 +1267,8 @@ async function handleQuery (rawBody, res) {
     let _firmDistinctionRows = []
     if (firmId) {
       try {
-        const [_dRows] = await db.execute(
-          'SELECT domain, triggers, templates, boost FROM firm_advisory_distinctions WHERE firm_id = ?',
-          [firmId]
-        )
-        _firmDistinctionRows = _dRows.map(r => ({
-          domain: r.domain,
-          triggers: typeof r.triggers === 'string' ? JSON.parse(r.triggers) : r.triggers,
-          templates: typeof r.templates === 'string' ? JSON.parse(r.templates) : r.templates,
-          boost: r.boost
-        }))
+        const _stored = await loadFirmConfig(firmId, 'advisory-distinctions')
+        _firmDistinctionRows = Array.isArray(_stored) ? _stored : []
       } catch (_e) { /* DB unavailable in dev — fall back to platform rows only */ }
     }
 

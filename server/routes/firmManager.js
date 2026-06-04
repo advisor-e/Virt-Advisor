@@ -467,6 +467,10 @@ async function resetTemplateImport (req, res) {
 }
 
 // ── Advisory Distinctions (firm-level rows) ───────────────────────────────────
+// Stored in firm_framework_versions under config_key='advisory-distinctions'.
+// Same table already used for Decision Framework overrides — no new schema needed.
+
+const DISTINCTIONS_KEY = 'advisory-distinctions'
 
 const DISTINCTION_DOMAINS = new Set([
   'profit', 'staff', 'data-systems', 'sales-marketing', 'forecasting',
@@ -474,29 +478,15 @@ const DISTINCTION_DOMAINS = new Set([
   'succession', 'conflict', 'eoy', 'due-diligence'
 ])
 
-function parseDistinctionRow (row) {
-  return {
-    id: row.id,
-    domain: row.domain,
-    description: row.description,
-    triggers: typeof row.triggers === 'string' ? JSON.parse(row.triggers) : row.triggers,
-    templates: typeof row.templates === 'string' ? JSON.parse(row.templates) : row.templates,
-    boost: row.boost,
-    created_by: row.created_by,
-    created_at: row.created_at
-  }
+async function _loadDistinctions (firmId) {
+  const stored = await overlay.loadFirmConfig(firmId, DISTINCTIONS_KEY)
+  return Array.isArray(stored) ? stored : []
 }
 
 async function listDistinctions (req, res) {
   try {
-    const [rows] = await db.execute(
-      `SELECT id, domain, description, triggers, templates, boost, created_by, created_at
-       FROM firm_advisory_distinctions
-       WHERE firm_id = ?
-       ORDER BY domain, id`,
-      [req.firmId]
-    )
-    res.send(200, { distinctions: rows.map(parseDistinctionRow) })
+    const rows = await _loadDistinctions(req.firmId)
+    res.send(200, { distinctions: rows })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -512,26 +502,29 @@ async function createDistinction (req, res) {
   if (!description || typeof description !== 'string' || !description.trim()) {
     return sendError(res, 400, 'INVALID_DESCRIPTION', 'description is required')
   }
-  if (!Array.isArray(triggers) || triggers.length === 0 || triggers.some(t => typeof t !== 'string' || !t.trim())) {
+  if (!Array.isArray(triggers) || triggers.length === 0) {
     return sendError(res, 400, 'INVALID_TRIGGERS', 'triggers must be a non-empty array of strings')
   }
-  if (!Array.isArray(templates) || templates.length === 0 || templates.some(t => typeof t !== 'string' || !t.trim())) {
+  if (!Array.isArray(templates) || templates.length === 0) {
     return sendError(res, 400, 'INVALID_TEMPLATES', 'templates must be a non-empty array of strings')
   }
-  const boostVal = Number(boost) || 5
-  if (boostVal < 1 || boostVal > 20) {
-    return sendError(res, 400, 'INVALID_BOOST', 'boost must be between 1 and 20')
-  }
+  const boostVal = Math.min(20, Math.max(1, Number(boost) || 5))
 
   try {
-    const [result] = await db.execute(
-      `INSERT INTO firm_advisory_distinctions
-         (firm_id, domain, description, triggers, templates, boost, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [req.firmId, domain, description.trim(), JSON.stringify(triggers.map(t => t.trim())),
-        JSON.stringify(templates.map(t => t.trim())), boostVal, req.userEmail]
-    )
-    res.send(201, { id: result.insertId, created: true })
+    const existing = await _loadDistinctions(req.firmId)
+    const nextId = existing.length > 0 ? Math.max(...existing.map(r => r.id || 0)) + 1 : 1
+    const newRow = {
+      id: nextId,
+      domain,
+      description: description.trim(),
+      triggers: triggers.map(t => String(t).trim()).filter(Boolean),
+      templates: templates.map(t => String(t).trim()).filter(Boolean),
+      boost: boostVal,
+      created_by: req.userEmail,
+      created_at: new Date().toISOString()
+    }
+    await overlay.saveFirmConfig(req.firmId, DISTINCTIONS_KEY, [...existing, newRow], req.userEmail)
+    res.send(201, { id: nextId, created: true })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -547,36 +540,28 @@ async function updateDistinction (req, res) {
   if (domain && !DISTINCTION_DOMAINS.has(domain)) {
     return sendError(res, 400, 'INVALID_DOMAIN', 'domain must be one of the 14 advisory domains')
   }
-  if (triggers && (!Array.isArray(triggers) || triggers.length === 0)) {
+  if (triggers !== undefined && (!Array.isArray(triggers) || triggers.length === 0)) {
     return sendError(res, 400, 'INVALID_TRIGGERS', 'triggers must be a non-empty array of strings')
   }
-  if (templates && (!Array.isArray(templates) || templates.length === 0)) {
+  if (templates !== undefined && (!Array.isArray(templates) || templates.length === 0)) {
     return sendError(res, 400, 'INVALID_TEMPLATES', 'templates must be a non-empty array of strings')
-  }
-  const boostVal = boost !== undefined ? Number(boost) : null
-  if (boostVal !== null && (boostVal < 1 || boostVal > 20)) {
-    return sendError(res, 400, 'INVALID_BOOST', 'boost must be between 1 and 20')
   }
 
   try {
-    const sets = []
-    const params = []
-    if (domain) { sets.push('domain = ?'); params.push(domain) }
-    if (description !== undefined) { sets.push('description = ?'); params.push(description.trim()) }
-    if (triggers) { sets.push('triggers = ?'); params.push(JSON.stringify(triggers.map(t => t.trim()))) }
-    if (templates) { sets.push('templates = ?'); params.push(JSON.stringify(templates.map(t => t.trim()))) }
-    if (boostVal !== null) { sets.push('boost = ?'); params.push(boostVal) }
-
-    if (sets.length === 0) { return sendError(res, 400, 'NO_FIELDS', 'No fields to update') }
-
-    params.push(id, req.firmId)
-    const [result] = await db.execute(
-      `UPDATE firm_advisory_distinctions SET ${sets.join(', ')} WHERE id = ? AND firm_id = ?`,
-      params
-    )
-    if (result.affectedRows === 0) {
-      return sendError(res, 404, 'NOT_FOUND', 'Distinction not found or does not belong to your firm')
+    const existing = await _loadDistinctions(req.firmId)
+    const idx = existing.findIndex(r => r.id === id)
+    if (idx === -1) {
+      return sendError(res, 404, 'NOT_FOUND', 'Distinction not found')
     }
+    const updated = { ...existing[idx] }
+    if (domain) { updated.domain = domain }
+    if (description !== undefined) { updated.description = description.trim() }
+    if (triggers) { updated.triggers = triggers.map(t => String(t).trim()).filter(Boolean) }
+    if (templates) { updated.templates = templates.map(t => String(t).trim()).filter(Boolean) }
+    if (boost !== undefined) { updated.boost = Math.min(20, Math.max(1, Number(boost) || 5)) }
+    const newList = [...existing]
+    newList[idx] = updated
+    await overlay.saveFirmConfig(req.firmId, DISTINCTIONS_KEY, newList, req.userEmail)
     res.send(200, { updated: true })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -589,13 +574,12 @@ async function deleteDistinction (req, res) {
   if (!id) { return sendError(res, 400, 'INVALID_ID', 'id must be a positive integer') }
 
   try {
-    const [result] = await db.execute(
-      'DELETE FROM firm_advisory_distinctions WHERE id = ? AND firm_id = ?',
-      [id, req.firmId]
-    )
-    if (result.affectedRows === 0) {
-      return sendError(res, 404, 'NOT_FOUND', 'Distinction not found or does not belong to your firm')
+    const existing = await _loadDistinctions(req.firmId)
+    const filtered = existing.filter(r => r.id !== id)
+    if (filtered.length === existing.length) {
+      return sendError(res, 404, 'NOT_FOUND', 'Distinction not found')
     }
+    await overlay.saveFirmConfig(req.firmId, DISTINCTIONS_KEY, filtered, req.userEmail)
     res.send(200, { deleted: true })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
