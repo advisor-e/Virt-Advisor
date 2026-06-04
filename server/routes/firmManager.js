@@ -1,5 +1,26 @@
 'use strict'
 
+const path = require('path')
+const DEV_DISTINCTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-distinctions.json')
+const IS_DEV = process.env.NODE_ENV !== 'production'
+
+function _devReadDistinctions (firmId) {
+  try {
+    const raw = fs.readFileSync(DEV_DISTINCTIONS_FILE, 'utf8')
+    const all = JSON.parse(raw)
+    return Array.isArray(all[firmId]) ? all[firmId] : []
+  } catch { return [] }
+}
+
+function _devWriteDistinctions (firmId, rows) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_DISTINCTIONS_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = rows
+  fs.writeFileSync(DEV_DISTINCTIONS_FILE, JSON.stringify(all, null, 2))
+}
+
 /**
  * firmManager routes
  *
@@ -479,8 +500,22 @@ const DISTINCTION_DOMAINS = new Set([
 ])
 
 async function _loadDistinctions (firmId) {
-  const stored = await overlay.loadFirmConfig(firmId, DISTINCTIONS_KEY)
-  return Array.isArray(stored) ? stored : []
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, DISTINCTIONS_KEY)
+    return Array.isArray(stored) ? stored : []
+  } catch (err) {
+    if (IS_DEV) { return _devReadDistinctions(firmId) }
+    throw err
+  }
+}
+
+async function _saveDistinctions (firmId, rows, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, DISTINCTIONS_KEY, rows, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteDistinctions(firmId, rows); return }
+    throw err
+  }
 }
 
 async function listDistinctions (req, res) {
@@ -523,7 +558,7 @@ async function createDistinction (req, res) {
       created_by: req.userEmail,
       created_at: new Date().toISOString()
     }
-    await overlay.saveFirmConfig(req.firmId, DISTINCTIONS_KEY, [...existing, newRow], req.userEmail)
+    await _saveDistinctions(req.firmId, [...existing, newRow], req.userEmail)
     res.send(201, { id: nextId, created: true })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -561,7 +596,7 @@ async function updateDistinction (req, res) {
     if (boost !== undefined) { updated.boost = Math.min(20, Math.max(1, Number(boost) || 5)) }
     const newList = [...existing]
     newList[idx] = updated
-    await overlay.saveFirmConfig(req.firmId, DISTINCTIONS_KEY, newList, req.userEmail)
+    await _saveDistinctions(req.firmId, newList, req.userEmail)
     res.send(200, { updated: true })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -579,7 +614,7 @@ async function deleteDistinction (req, res) {
     if (filtered.length === existing.length) {
       return sendError(res, 404, 'NOT_FOUND', 'Distinction not found')
     }
-    await overlay.saveFirmConfig(req.firmId, DISTINCTIONS_KEY, filtered, req.userEmail)
+    await _saveDistinctions(req.firmId, filtered, req.userEmail)
     res.send(200, { deleted: true })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
