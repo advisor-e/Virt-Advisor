@@ -562,7 +562,8 @@ async function handleQuery (rawBody, res) {
       intakeActive: false,
       intakeTurn: 0,
       awaitingCourseCorrection: false,
-      courseCorrections: 0
+      courseCorrections: 0,
+      domainConfirmed: null
     }, storedState || {})
 
     // Always re-detect domain from the first user message.
@@ -667,6 +668,27 @@ async function handleQuery (rawBody, res) {
       {
         field: 'clientAlreadyTried',
         text: 'What has the client already tried to address this situation, and what was the outcome?'
+      },
+      // ── Domain confirmation — replaces keyword-only detection with advisor-confirmed selection ──
+      // Always fires after the situation is described. Server pre-suggests based on keyword scores;
+      // advisor confirms or corrects. Eliminates the root cause of wrong-domain pipelines.
+      {
+        field: 'domainConfirmed',
+        textFn: s => {
+          const detected = DOMAINS.find(d => d.id === s.detectedDomain)
+          const hint = detected
+            ? `Based on what you've described, I'm reading this as a **${detected.label}** situation — but you know this client best.`
+            : `I want to make sure I focus on the right area for this client.`
+          return `${hint} Which area best describes the primary focus?\n[DOMAIN_SELECTOR:${s.detectedDomain || ''}]`
+        },
+        onAnswer: (answer, s) => {
+          const match = DOMAINS.find(d => d.id === answer)
+          if (match) {
+            s.detectedDomain = match.id
+            s.disambiguationNeeded = false
+            s.disambiguationScenarios = []
+          }
+        }
       },
       {
         field: 'disambiguationAnswer',

@@ -272,6 +272,22 @@
           :disabled="!selectedSessionLength"
         ) Confirm selection
 
+      //- Domain selector — advisor confirms the detected advisory area before domain questions begin
+      .domain-selector-card(v-if="showDomainSelector")
+        p.domain-selector-title Which area best describes the primary focus for this client?
+        .domain-selector-list
+          label.domain-selector-opt(
+            v-for="opt in domainSelectorOptions"
+            :key="opt.id"
+            :class="{ 'domain-selector-selected': selectedDomainId === opt.id, 'domain-selector-suggested': opt.id === suggestedDomainId && selectedDomainId !== opt.id }"
+          )
+            input(type="radio" :value="opt.id" v-model="selectedDomainId")
+            span {{ opt.label }}
+        button.domain-selector-submit(
+          @click="submitDomainSelection"
+          :disabled="!selectedDomainId"
+        ) Confirm
+
       //- Primary issue selector — shown after domain is confirmed
       .primary-issue-card(v-if="showPrimaryIssueSelector")
         p.primary-issue-title Which of these best captures the core problem for this client?
@@ -733,6 +749,9 @@ export default {
       showSessionLengthSelector: false,
       selectedSessionLength: null,
       sessionLengthOptions: ['30 mins', '60 mins', '90 mins', '120 mins', 'Other'],
+      showDomainSelector: false,
+      selectedDomainId: null,
+      suggestedDomainId: null,
       showPrimaryIssueSelector: false,
       selectedPrimaryIssue: null,
       primaryIssueDomain: null,
@@ -769,6 +788,24 @@ export default {
   computed: {
     primaryIssueOptions () {
       return (this.primaryIssueDomain && PRIMARY_ISSUES[this.primaryIssueDomain]) || []
+    },
+    domainSelectorOptions () {
+      return [
+        { id: 'profit', label: 'Profitability & Feasibility' },
+        { id: 'staff', label: 'Staff & Team' },
+        { id: 'data-systems', label: 'Data & Financial Systems' },
+        { id: 'sales-marketing', label: 'Sales & Marketing' },
+        { id: 'forecasting', label: 'Financial Management & Forecasting' },
+        { id: 'governance', label: 'Governance & Leadership' },
+        { id: 'strategy', label: 'Strategy & Planning' },
+        { id: 'systems', label: 'Business Systems' },
+        { id: 'valuation', label: 'Business Valuation' },
+        { id: 'risk', label: 'Risk Management' },
+        { id: 'succession', label: 'Succession & Exit Planning' },
+        { id: 'conflict', label: 'Conflict & Dispute' },
+        { id: 'eoy', label: 'End of Year' },
+        { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
+      ]
     },
     sectionBannerLabel () {
       const labels = {
@@ -1004,6 +1041,9 @@ export default {
       this.selectedFinMgtTheme = null
       this.showSessionLengthSelector = false
       this.selectedSessionLength = null
+      this.showDomainSelector = false
+      this.selectedDomainId = null
+      this.suggestedDomainId = null
       this.showPrimaryIssueSelector = false
       this.selectedPrimaryIssue = null
       this.primaryIssueDomain = null
@@ -1103,6 +1143,9 @@ export default {
       this.selectedFinMgtTheme = null
       this.showSessionLengthSelector = false
       this.selectedSessionLength = null
+      this.showDomainSelector = false
+      this.selectedDomainId = null
+      this.suggestedDomainId = null
       this.showPrimaryIssueSelector = false
       this.selectedPrimaryIssue = null
       this.primaryIssueDomain = null
@@ -1138,13 +1181,30 @@ export default {
     submitPrimaryIssue () {
       if (!this.selectedPrimaryIssue) { return }
       this.inputText = this.selectedPrimaryIssue
+      this.showDomainSelector = false
+      this.selectedDomainId = null
+      this.suggestedDomainId = null
       this.showPrimaryIssueSelector = false
       this.selectedPrimaryIssue = null
       this.primaryIssueDomain = null
       this.sendMessage()
     },
 
+    submitDomainSelection () {
+      if (!this.selectedDomainId) { return }
+      const domain = this.domainSelectorOptions.find(d => d.id === this.selectedDomainId)
+      const domainId = this.selectedDomainId
+      this.inputText = domain ? domain.label : domainId
+      this.showDomainSelector = false
+      this.selectedDomainId = null
+      this.suggestedDomainId = null
+      this.sendMessage(domainId)
+    },
+
     noneOfTheseApply () {
+      this.showDomainSelector = false
+      this.selectedDomainId = null
+      this.suggestedDomainId = null
       this.showPrimaryIssueSelector = false
       this.selectedPrimaryIssue = null
       this.primaryIssueDomain = null
@@ -1215,7 +1275,7 @@ export default {
 
     async sendMessage (serverQueryOverride = null) {
       const query = this.inputText.trim()
-      if (!query || this.isStreaming || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector || this.showSessionLengthSelector || this.showPrimaryIssueSelector) { return }
+      if (!query || this.isStreaming || this.showDomainSelector || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector || this.showSessionLengthSelector || this.showPrimaryIssueSelector) { return }
 
       this.messages.push({ role: 'user', content: query })
       this.inputText = ''
@@ -1312,6 +1372,13 @@ export default {
                 if (content.includes('[SESSION_LENGTH_SELECTOR]')) {
                   content = content.replace('[SESSION_LENGTH_SELECTOR]', '').trim()
                   this.showSessionLengthSelector = true
+                }
+                const _dsMatch = content.match(/\[DOMAIN_SELECTOR:([^\]]*)\]/)
+                if (_dsMatch) {
+                  this.suggestedDomainId = _dsMatch[1] || null
+                  this.selectedDomainId = this.suggestedDomainId
+                  content = content.replace(_dsMatch[0], '').trim()
+                  this.showDomainSelector = true
                 }
                 const _piMatch = content.match(/\[PRIMARY_ISSUE_SELECTOR:([^\]]+)\]/)
                 if (_piMatch) {
@@ -2176,6 +2243,18 @@ export default {
 .session-length-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 
 /* Primary issue selector */
+.domain-selector-card { margin: 8px 16px 4px; padding: 16px; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 10px; }
+.domain-selector-title { font-size: 14px; font-weight: 600; color: #1e3a8a; margin: 0 0 12px; }
+.domain-selector-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+.domain-selector-opt { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #bfdbfe; border-radius: 8px; background: #fff; cursor: pointer; font-size: 12px; color: #111827; transition: background 0.15s; }
+.domain-selector-opt:hover { background: #dbeafe; border-color: #60a5fa; }
+.domain-selector-opt input[type="radio"] { accent-color: #1d4ed8; flex-shrink: 0; }
+.domain-selector-selected { background: #1d4ed8 !important; color: #fff !important; border-color: #1d4ed8 !important; }
+.domain-selector-selected span { color: #fff; }
+.domain-selector-suggested { border-color: #60a5fa !important; background: #dbeafe !important; }
+.domain-selector-submit { padding: 9px 22px; background: #1d4ed8; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.domain-selector-submit:hover:not(:disabled) { background: #1e40af; }
+.domain-selector-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 .primary-issue-card { margin: 8px 16px 4px; padding: 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; }
 .primary-issue-title { font-size: 14px; font-weight: 600; color: #14532d; margin: 0 0 12px; }
 .primary-issue-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }

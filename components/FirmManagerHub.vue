@@ -386,6 +386,54 @@
           </div>
         </b-tab-item>
 
+        <!-- ── Tab 5: Advisory Distinctions ─────────────────────────────── -->
+        <b-tab-item label="Advisory Distinctions" icon="brain">
+          <div class="columns">
+            <div class="column is-3">
+              <b-menu>
+                <b-menu-list label="Domain">
+                  <b-menu-item
+                    v-for="d in distinctionDomains"
+                    :key="d.id"
+                    :label="d.label"
+                    :active="selectedDistinctionDomain === d.id"
+                    @click="selectedDistinctionDomain = d.id"
+                  />
+                </b-menu-list>
+              </b-menu>
+            </div>
+            <div class="column">
+              <p class="has-text-weight-semibold mb-3">
+                Platform distinctions — {{ currentDistinctionDomainLabel }}
+              </p>
+              <b-notification type="is-info is-light" :closable="false" class="mb-4">
+                These distinctions teach the system what specific advisor phrases mean diagnostically,
+                boosting the right templates for each domain. Platform rows apply to all firms.
+              </b-notification>
+              <b-table
+                :data="activeDistinctions"
+                :hoverable="true"
+                empty-string="No distinctions for this domain"
+              >
+                <b-table-column v-slot="{ row }" field="description" label="Pattern">
+                  {{ row.description }}
+                </b-table-column>
+                <b-table-column v-slot="{ row }" label="Trigger phrases">
+                  <span class="is-size-7 has-text-grey">{{ row.triggers.join(', ') }}</span>
+                </b-table-column>
+                <b-table-column v-slot="{ row }" label="Templates boosted">
+                  <b-tag v-for="t in row.templates" :key="t" class="mr-1" size="is-small">
+                    {{ t }}
+                  </b-tag>
+                </b-table-column>
+                <b-table-column v-slot="{ row }" label="Boost" width="70" numeric>
+                  +{{ row.boost }}
+                </b-table-column>
+              </b-table>
+            </div>
+          </div>
+        </b-tab-item>
+
         <!-- ── Tab 4: Firm Profile ───────────────────────────────────────── -->
         <b-tab-item label="Firm Profile" icon="domain">
           <div class="columns">
@@ -427,6 +475,25 @@
 
 <script>
 const BACKEND = 'http://localhost:4000'
+
+const ADVISORY_DISTINCTIONS = require('~/data/advisory-distinctions.json')
+
+const DISTINCTION_DOMAINS = [
+  { id: 'conflict', label: 'Conflict & Dispute' },
+  { id: 'profit', label: 'Profitability & Feasibility' },
+  { id: 'staff', label: 'Staff & Team' },
+  { id: 'data-systems', label: 'Data & Financial Systems' },
+  { id: 'sales-marketing', label: 'Sales & Marketing' },
+  { id: 'forecasting', label: 'Financial Management' },
+  { id: 'governance', label: 'Governance & Leadership' },
+  { id: 'strategy', label: 'Strategy & Planning' },
+  { id: 'systems', label: 'Business Systems' },
+  { id: 'valuation', label: 'Business Valuation' },
+  { id: 'risk', label: 'Risk Management' },
+  { id: 'succession', label: 'Succession & Exit Planning' },
+  { id: 'eoy', label: 'End of Year' },
+  { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
+]
 
 const DOCUMENT_CATEGORIES = [
   { key: 'logic-tables', label: 'Logic Tables' },
@@ -493,7 +560,21 @@ export default {
       savingProfile: false,
 
       // Storage
-      storagePercent: 0
+      storagePercent: 0,
+
+      // Advisory Distinctions
+      distinctionDomains: DISTINCTION_DOMAINS,
+      selectedDistinctionDomain: DISTINCTION_DOMAINS[0].id
+    }
+  },
+
+  computed: {
+    activeDistinctions () {
+      return (ADVISORY_DISTINCTIONS.platform || []).filter(r => r.domain === this.selectedDistinctionDomain)
+    },
+    currentDistinctionDomainLabel () {
+      const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
+      return d ? d.label : ''
     }
   },
 
