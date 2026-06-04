@@ -389,6 +389,7 @@
         <!-- ── Tab 5: Advisory Distinctions ─────────────────────────────── -->
         <b-tab-item label="Advisory Distinctions" icon="brain">
           <div class="columns">
+            <!-- Domain sidebar -->
             <div class="column is-3">
               <b-menu>
                 <b-menu-list label="Domain">
@@ -397,23 +398,27 @@
                     :key="d.id"
                     :label="d.label"
                     :active="selectedDistinctionDomain === d.id"
-                    @click="selectedDistinctionDomain = d.id"
+                    @click="selectedDistinctionDomain = d.id; closeDistinctionForm()"
                   />
                 </b-menu-list>
               </b-menu>
             </div>
+
             <div class="column">
-              <p class="has-text-weight-semibold mb-3">
+              <!-- Platform rows (read-only) -->
+              <p class="has-text-weight-semibold mb-2">
                 Platform distinctions — {{ currentDistinctionDomainLabel }}
               </p>
-              <b-notification type="is-info is-light" :closable="false" class="mb-4">
-                These distinctions teach the system what specific advisor phrases mean diagnostically,
-                boosting the right templates for each domain. Platform rows apply to all firms.
+              <b-notification type="is-info is-light" :closable="false" class="mb-3" style="font-size:0.85rem">
+                Platform rows are shared across all firms and cannot be edited here.
+                Add your own rows below to boost specific templates for situations unique to your practice.
               </b-notification>
               <b-table
                 :data="activeDistinctions"
                 :hoverable="true"
-                empty-string="No distinctions for this domain"
+                size="is-small"
+                class="mb-5"
+                empty-string="No platform distinctions for this domain"
               >
                 <b-table-column v-slot="{ row }" field="description" label="Pattern">
                   {{ row.description }}
@@ -422,14 +427,170 @@
                   <span class="is-size-7 has-text-grey">{{ row.triggers.join(', ') }}</span>
                 </b-table-column>
                 <b-table-column v-slot="{ row }" label="Templates boosted">
-                  <b-tag v-for="t in row.templates" :key="t" class="mr-1" size="is-small">
-                    {{ t }}
-                  </b-tag>
+                  <b-tag v-for="t in row.templates" :key="t" class="mr-1 mb-1" size="is-small">{{ t }}</b-tag>
                 </b-table-column>
-                <b-table-column v-slot="{ row }" label="Boost" width="70" numeric>
+                <b-table-column v-slot="{ row }" label="Boost" width="60" numeric>
                   +{{ row.boost }}
                 </b-table-column>
               </b-table>
+
+              <!-- Firm-level rows -->
+              <div class="level mb-3">
+                <div class="level-left">
+                  <p class="has-text-weight-semibold">
+                    Your firm's distinctions — {{ currentDistinctionDomainLabel }}
+                  </p>
+                </div>
+                <div class="level-right">
+                  <b-button
+                    v-if="!showDistinctionForm"
+                    type="is-primary"
+                    size="is-small"
+                    icon-left="plus"
+                    @click="openDistinctionForm(null)"
+                  >
+                    Add distinction
+                  </b-button>
+                </div>
+              </div>
+
+              <b-table
+                v-if="!loadingFirmDistinctions && activeFirmDistinctions.length > 0"
+                :data="activeFirmDistinctions"
+                :hoverable="true"
+                size="is-small"
+                class="mb-4"
+              >
+                <b-table-column v-slot="{ row }" field="description" label="Pattern">
+                  {{ row.description }}
+                </b-table-column>
+                <b-table-column v-slot="{ row }" label="Trigger phrases">
+                  <span class="is-size-7 has-text-grey">{{ row.triggers.join(', ') }}</span>
+                </b-table-column>
+                <b-table-column v-slot="{ row }" label="Templates boosted">
+                  <b-tag v-for="t in row.templates" :key="t" class="mr-1 mb-1" size="is-small" type="is-success is-light">{{ t }}</b-tag>
+                </b-table-column>
+                <b-table-column v-slot="{ row }" label="Boost" width="60" numeric>
+                  +{{ row.boost }}
+                </b-table-column>
+                <b-table-column v-slot="{ row }" label="" width="110">
+                  <b-button size="is-small" class="mr-1" @click="openDistinctionForm(row)">Edit</b-button>
+                  <b-button size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)">Remove</b-button>
+                </b-table-column>
+              </b-table>
+
+              <p
+                v-else-if="!loadingFirmDistinctions && activeFirmDistinctions.length === 0 && !showDistinctionForm"
+                class="has-text-grey is-size-7 mb-4"
+              >
+                No firm distinctions for this domain yet. Add one to boost specific templates when advisors use particular phrases.
+              </p>
+
+              <!-- Add / Edit form -->
+              <div v-if="showDistinctionForm" class="box distinction-form">
+                <p class="has-text-weight-semibold mb-4">
+                  {{ editingDistinctionId ? 'Edit distinction' : 'New distinction' }}
+                </p>
+
+                <b-field label="Domain">
+                  <b-select v-model="distinctionForm.domain" expanded>
+                    <option v-for="d in distinctionDomains" :key="d.id" :value="d.id">
+                      {{ d.label }}
+                    </option>
+                  </b-select>
+                </b-field>
+
+                <b-field label="Description" message="A short label for this pattern — shown in the table above.">
+                  <b-input
+                    v-model="distinctionForm.description"
+                    placeholder="e.g. Client mentions technology gap"
+                    maxlength="255"
+                  />
+                </b-field>
+
+                <b-field label="Trigger phrases" message="Type a phrase and press Enter or comma to add. Matching is case-insensitive and partial — 'growth' matches 'growing' etc.">
+                  <b-taginput
+                    v-model="distinctionForm.triggers"
+                    :confirm-key-codes="[13, 188]"
+                    placeholder="Add a phrase…"
+                    aria-close-label="Remove phrase"
+                  />
+                </b-field>
+
+                <b-field label="Templates to boost">
+                  <div class="template-picker">
+                    <div class="template-picker-filters">
+                      <b-select v-model="templatePickerSubSection" size="is-small" style="flex:0 0 200px">
+                        <option value="">All areas</option>
+                        <option v-for="ss in templateSubSections" :key="ss" :value="ss">{{ ss }}</option>
+                      </b-select>
+                      <b-input
+                        v-model="templatePickerSearch"
+                        size="is-small"
+                        placeholder="Search by title…"
+                        icon="magnify"
+                        style="flex:1"
+                      />
+                    </div>
+                    <div class="template-picker-list">
+                      <label
+                        v-for="t in filteredTemplateOptions"
+                        :key="t.title"
+                        class="template-picker-opt"
+                        :class="{ 'is-selected': distinctionForm.templates.includes(t.title) }"
+                      >
+                        <input
+                          type="checkbox"
+                          :value="t.title"
+                          :checked="distinctionForm.templates.includes(t.title)"
+                          @change="toggleTemplateSelection(t.title)"
+                        />
+                        <span class="template-picker-title">{{ t.title }}</span>
+                        <span class="template-picker-sub">{{ t.subSection }}</span>
+                      </label>
+                      <p v-if="filteredTemplateOptions.length === 0" class="has-text-grey is-size-7 p-2">
+                        No templates match — try clearing the filters.
+                      </p>
+                    </div>
+                    <div v-if="distinctionForm.templates.length > 0" class="template-picker-selected">
+                      <span class="is-size-7 has-text-grey mr-2">Selected:</span>
+                      <b-tag
+                        v-for="t in distinctionForm.templates"
+                        :key="t"
+                        closable
+                        class="mr-1 mb-1"
+                        type="is-success is-light"
+                        @close="toggleTemplateSelection(t)"
+                      >
+                        {{ t }}
+                      </b-tag>
+                    </div>
+                  </div>
+                </b-field>
+
+                <b-field label="Boost score" message="How many points to add to each matched template's score (1–20). Default 5.">
+                  <b-input
+                    v-model.number="distinctionForm.boost"
+                    type="number"
+                    min="1"
+                    max="20"
+                    style="width:90px"
+                  />
+                </b-field>
+
+                <div class="field is-grouped mt-4">
+                  <b-button
+                    type="is-primary"
+                    :loading="savingDistinction"
+                    @click="saveDistinction"
+                  >
+                    {{ editingDistinctionId ? 'Save changes' : 'Add distinction' }}
+                  </b-button>
+                  <b-button @click="closeDistinctionForm">
+                    Cancel
+                  </b-button>
+                </div>
+              </div>
             </div>
           </div>
         </b-tab-item>
@@ -477,6 +638,13 @@
 const BACKEND = 'http://localhost:4000'
 
 const ADVISORY_DISTINCTIONS = require('~/data/advisory-distinctions.json')
+
+const ALL_CLIENT_TEMPLATES = require('~/data/templates.json')
+  .filter(t => t.includedInClient)
+  .map(t => ({ title: t.title, subSection: t.subSection }))
+  .sort((a, b) => a.title.localeCompare(b.title))
+
+const TEMPLATE_SUBSECTIONS = [...new Set(ALL_CLIENT_TEMPLATES.map(t => t.subSection))].sort()
 
 const DISTINCTION_DOMAINS = [
   { id: 'conflict', label: 'Conflict & Dispute' },
@@ -564,7 +732,19 @@ export default {
 
       // Advisory Distinctions
       distinctionDomains: DISTINCTION_DOMAINS,
-      selectedDistinctionDomain: DISTINCTION_DOMAINS[0].id
+      selectedDistinctionDomain: DISTINCTION_DOMAINS[0].id,
+      firmDistinctions: [],
+      loadingFirmDistinctions: false,
+      showDistinctionForm: false,
+      editingDistinctionId: null,
+      distinctionForm: { domain: '', description: '', triggers: [], templates: [], boost: 5 },
+      savingDistinction: false,
+      deletingDistinctionId: null,
+      confirmDeleteDistinctionId: null,
+      templatePickerSearch: '',
+      templatePickerSubSection: '',
+      allClientTemplates: ALL_CLIENT_TEMPLATES,
+      templateSubSections: TEMPLATE_SUBSECTIONS
     }
   },
 
@@ -575,6 +755,20 @@ export default {
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
+    },
+    activeFirmDistinctions () {
+      return this.firmDistinctions.filter(r => r.domain === this.selectedDistinctionDomain)
+    },
+    filteredTemplateOptions () {
+      let list = this.allClientTemplates
+      if (this.templatePickerSubSection) {
+        list = list.filter(t => t.subSection === this.templatePickerSubSection)
+      }
+      if (this.templatePickerSearch) {
+        const q = this.templatePickerSearch.toLowerCase()
+        list = list.filter(t => t.title.toLowerCase().includes(q))
+      }
+      return list
     }
   },
 
@@ -586,6 +780,7 @@ export default {
     this.loadProfile()
     this.loadStorage()
     this.loadDomains()
+    this.loadFirmDistinctions()
   },
 
   methods: {
@@ -913,6 +1108,116 @@ export default {
       }
     },
 
+    // ── Advisory Distinctions (firm-level CRUD) ─────────────────────────────
+    async loadFirmDistinctions () {
+      this.loadingFirmDistinctions = true
+      try {
+        const data = await this.api('GET', '/api/firm-manager/distinctions')
+        this.firmDistinctions = data.distinctions || []
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.loadingFirmDistinctions = false
+      }
+    },
+
+    openDistinctionForm (row) {
+      if (row) {
+        this.editingDistinctionId = row.id
+        this.distinctionForm = {
+          domain: row.domain,
+          description: row.description,
+          triggers: [...row.triggers],
+          templates: [...row.templates],
+          boost: row.boost
+        }
+      } else {
+        this.editingDistinctionId = null
+        this.distinctionForm = {
+          domain: this.selectedDistinctionDomain,
+          description: '',
+          triggers: [],
+          templates: [],
+          boost: 5
+        }
+      }
+      this.templatePickerSearch = ''
+      this.templatePickerSubSection = ''
+      this.showDistinctionForm = true
+    },
+
+    closeDistinctionForm () {
+      this.showDistinctionForm = false
+      this.editingDistinctionId = null
+      this.distinctionForm = { domain: '', description: '', triggers: [], templates: [], boost: 5 }
+      this.templatePickerSearch = ''
+      this.templatePickerSubSection = ''
+    },
+
+    toggleTemplateSelection (title) {
+      const idx = this.distinctionForm.templates.indexOf(title)
+      if (idx === -1) {
+        this.distinctionForm.templates.push(title)
+      } else {
+        this.distinctionForm.templates.splice(idx, 1)
+      }
+    },
+
+    async saveDistinction () {
+      if (!this.distinctionForm.domain) {
+        this.$buefy.toast.open({ message: 'Please select a domain.', type: 'is-warning' })
+        return
+      }
+      if (!this.distinctionForm.description.trim()) {
+        this.$buefy.toast.open({ message: 'Description is required.', type: 'is-warning' })
+        return
+      }
+      if (this.distinctionForm.triggers.length === 0) {
+        this.$buefy.toast.open({ message: 'Add at least one trigger phrase.', type: 'is-warning' })
+        return
+      }
+      if (this.distinctionForm.templates.length === 0) {
+        this.$buefy.toast.open({ message: 'Select at least one template to boost.', type: 'is-warning' })
+        return
+      }
+
+      this.savingDistinction = true
+      try {
+        if (this.editingDistinctionId) {
+          await this.api('PUT', `/api/firm-manager/distinctions/${this.editingDistinctionId}`, this.distinctionForm)
+          this.$buefy.toast.open({ message: 'Distinction updated.', type: 'is-success' })
+        } else {
+          await this.api('POST', '/api/firm-manager/distinctions', this.distinctionForm)
+          this.$buefy.toast.open({ message: 'Distinction added.', type: 'is-success' })
+        }
+        this.closeDistinctionForm()
+        this.loadFirmDistinctions()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.savingDistinction = false
+      }
+    },
+
+    confirmDeleteDistinction (id) {
+      this.$buefy.dialog.confirm({
+        message: 'Remove this distinction? It will no longer boost templates during scoring.',
+        type: 'is-danger',
+        confirmText: 'Remove',
+        onConfirm: () => this.deleteDistinction(id)
+      })
+    },
+
+    async deleteDistinction (id) {
+      try {
+        await this.api('DELETE', `/api/firm-manager/distinctions/${id}`)
+        this.$buefy.toast.open({ message: 'Distinction removed.', type: 'is-success' })
+        this.loadFirmDistinctions()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
+    },
+
     // ── Helpers ─────────────────────────────────────────────────────────────
     formatDate (iso) {
       return iso ? new Date(iso).toLocaleDateString() : ''
@@ -929,5 +1234,50 @@ export default {
 .is-family-monospace {
   font-family: 'Courier New', monospace;
   font-size: 0.85rem;
+}
+
+/* Advisory Distinctions — form + template picker */
+.distinction-form { border: 1px solid #dbdbdb; }
+
+.template-picker { border: 1px solid #dbdbdb; border-radius: 4px; overflow: hidden; }
+
+.template-picker-filters {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.template-picker-list {
+  max-height: 220px;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.template-picker-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.85rem;
+  transition: background 0.1s;
+}
+.template-picker-opt:hover { background: #f0f7ff; }
+.template-picker-opt.is-selected { background: #ebf8ee; }
+.template-picker-opt input[type="checkbox"] { flex-shrink: 0; accent-color: #48c78e; }
+.template-picker-title { flex: 1; color: #363636; }
+.template-picker-sub { font-size: 0.75rem; color: #9a9a9a; }
+
+.template-picker-selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-top: 1px solid #dbdbdb;
+  min-height: 38px;
 }
 </style>

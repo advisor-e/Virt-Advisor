@@ -135,6 +135,10 @@ server.get('/api/firm-manager/storage', ...fmGuard, fm.getStorageUsage)
 server.get('/api/firm-manager/templates', ...fmGuard, fm.getTemplateImport)
 server.post('/api/firm-manager/templates', ...fmGuard, fm.importTemplates)
 server.del('/api/firm-manager/templates', ...fmGuard, fm.resetTemplateImport)
+server.get('/api/firm-manager/distinctions', ...fmGuard, fm.listDistinctions)
+server.post('/api/firm-manager/distinctions', ...fmGuard, fm.createDistinction)
+server.put('/api/firm-manager/distinctions/:id', ...fmGuard, fm.updateDistinction)
+server.del('/api/firm-manager/distinctions/:id', ...fmGuard, fm.deleteDistinction)
 
 // ── Start ──
 server.listen(PORT, () => {

@@ -25,6 +25,7 @@ const { extractSignals, deriveInferredState, buildObservabilityPayload } = requi
 const { buildCaseState } = require('../server/utils/caseState')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplates, resolveTemplatesWithOutlier } = require('../server/utils/templateResolver')
+const db = require('../server/utils/db')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -37,12 +38,15 @@ const CONTEXT_DOMAINS = new Set(['conflict', 'eoy', 'due-diligence'])
 // ── matchAdvisoryDistinctions ────────────────────────────────────────────────
 // Scans advisor text against platform-level advisory distinctions for the
 // detected domain. Returns a map of template title → cumulative boost score.
-function matchAdvisoryDistinctions (domain, advisorText) {
+function matchAdvisoryDistinctions (domain, advisorText, firmRows) {
   if (!domain || !advisorText) { return {} }
   const lower = advisorText.toLowerCase()
   const boostMap = {}
-  const rows = (ADVISORY_DISTINCTIONS.platform || []).filter(r => r.domain === domain)
-  for (const row of rows) {
+  const platformRows = (ADVISORY_DISTINCTIONS.platform || []).filter(r => r.domain === domain)
+  const allRows = firmRows && firmRows.length > 0
+    ? [...platformRows, ...firmRows.filter(r => r.domain === domain)]
+    : platformRows
+  for (const row of allRows) {
     const matched = (row.triggers || []).some(trigger => lower.includes(trigger.toLowerCase()))
     if (matched) {
       for (const templateTitle of (row.templates || [])) {
@@ -1251,7 +1255,7 @@ async function handleQuery (rawBody, res) {
     const _caseState = buildCaseState(_signals, state)
     const _strategyDecision = resolveStrategy(_caseState)
 
-    // Advisory distinctions — scan all advisor text against platform vocabulary rows for this domain
+    // Advisory distinctions — scan all advisor text against platform + firm vocabulary rows
     const _advisorFullText = [
       (conversationHistory.find(m => m.role === 'user') || { content: query }).content,
       state.situationDiagnostic || '',
@@ -1260,7 +1264,24 @@ async function handleQuery (rawBody, res) {
         (d.questions || []).map(q => state[q.field] || '')
       )
     ].join(' ')
-    const _distinctionBoosts = matchAdvisoryDistinctions(state.detectedDomain, _advisorFullText)
+
+    let _firmDistinctionRows = []
+    if (firmId) {
+      try {
+        const [_dRows] = await db.execute(
+          'SELECT domain, triggers, templates, boost FROM firm_advisory_distinctions WHERE firm_id = ?',
+          [firmId]
+        )
+        _firmDistinctionRows = _dRows.map(r => ({
+          domain: r.domain,
+          triggers: typeof r.triggers === 'string' ? JSON.parse(r.triggers) : r.triggers,
+          templates: typeof r.templates === 'string' ? JSON.parse(r.templates) : r.templates,
+          boost: r.boost
+        }))
+      } catch (_e) { /* DB unavailable in dev — fall back to platform rows only */ }
+    }
+
+    const _distinctionBoosts = matchAdvisoryDistinctions(state.detectedDomain, _advisorFullText, _firmDistinctionRows)
 
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
