@@ -592,6 +592,7 @@ async function handleQuery (rawBody, res) {
         state.disambiguationNeeded = false
         state.disambiguationScenarios = []
         state.disambiguationAnswer = null
+        state.domainConfirmed = null
         state.primaryIssue = null
       }
       state.awaitingCourseCorrection = false
@@ -910,6 +911,7 @@ async function handleQuery (rawBody, res) {
       state.disambiguationNeeded = false
       state.disambiguationScenarios = []
       state.disambiguationAnswer = null
+      state.domainConfirmed = null
       state.primaryIssue = null
       return sendQuestion("No problem — tell me in your own words what's actually going on with this client.")
     }
