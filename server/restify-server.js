@@ -92,7 +92,8 @@ server.use((req, res, next) => {
 })
 
 // Restify rejects OPTIONS before middleware — explicit wildcard handler for CORS preflight
-server.opts(/.*/, async (req, res) => {
+// Restify 11 uses find-my-way (radix router) which requires a string path, not a RegExp
+server.opts('/*', async (req, res) => {
   const origin = req.headers.origin || ''
   if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) {
     res.header('Access-Control-Allow-Origin', origin)
