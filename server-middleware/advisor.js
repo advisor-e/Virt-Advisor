@@ -1269,7 +1269,13 @@ async function handleQuery (rawBody, res) {
       try {
         const _stored = await loadFirmConfig(firmId, 'advisory-distinctions')
         _firmDistinctionRows = Array.isArray(_stored) ? _stored : []
-      } catch (_e) { /* DB unavailable in dev — fall back to platform rows only */ }
+      } catch (_e) {
+        try {
+          const _devFile = require('path').resolve(process.cwd(), 'data/dev-firm-distinctions.json')
+          const _devData = JSON.parse(require('fs').readFileSync(_devFile, 'utf8'))
+          _firmDistinctionRows = Array.isArray(_devData[firmId]) ? _devData[firmId] : []
+        } catch (_fe) { /* file not yet created — no firm distinctions in dev */ }
+      }
     }
 
     const _distinctionBoosts = matchAdvisoryDistinctions(state.detectedDomain, _advisorFullText, _firmDistinctionRows)
