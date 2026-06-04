@@ -46,7 +46,8 @@ const DB = {
   database: process.env.MYSQL_DATABASE || 'virt_advisor', // TODO: replace
   user: process.env.MYSQL_USER || 'root', // TODO: replace
   password: process.env.MYSQL_PASSWORD || 'REPLACE_ME', // TODO: replace
-  connectionLimit: 10
+  connectionLimit: 10,
+  connectTimeout: 2000 // fail fast in dev when MySQL is not running
 }
 
 // ── Google Drive ──────────────────────────────────────────────────────────────

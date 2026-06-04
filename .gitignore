@@ -29,5 +29,8 @@ logs
 # Generated search exports (not for version control)
 search_content_*.json
 
+# Dev-only firm distinctions (created locally when MySQL is unavailable)
+data/dev-firm-distinctions.json
+
 # Local CA cert bundle (machine-specific export from Windows cert store)
 certs/
