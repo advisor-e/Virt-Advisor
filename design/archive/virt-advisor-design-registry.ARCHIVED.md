@@ -1,4 +1,11 @@
-# Virt Advisor — Master Design Registry
+> # ⛔ ARCHIVED — DO NOT USE AS AUTHORITATIVE ⛔
+> **This file is SUPERSEDED and retained for historical reference ONLY.**
+> The live registry is **`design/virt-advisor-registry-DRAFT.md`** (and its promoted successor).
+> This document was built around the now-**dead "routing groups"** concept and contains build-status claims that are **wrong** (it says Stages 2/4/5 are "not yet built" when they run live today).
+> **Why it's kept:** the verbatim Workshop-1 primary-issue history (the *why* behind each split/merge). Nothing here may be copied forward, merged, or cited as current. Read for history, never for truth.
+> ─────────────────────────────────────────────────────────────────────
+
+# [ARCHIVED] Virt Advisor — Master Design Registry
 
 **Version:** 1.0 — 2026-06-03
 **Status:** DOMAIN DETAIL REFERENCE — use alongside virt-advisor-system-design.md. Contains the full primary issue tables, normalization decisions, routing groups (Domain 4), and 4-table governance model detail. Stage 2 complete for all 14 domains. Stage 3 (Routing Groups) complete for Domain 4 only.
