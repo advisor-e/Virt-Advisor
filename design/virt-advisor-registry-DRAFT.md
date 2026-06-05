@@ -341,6 +341,14 @@ Note: the Growth Curve, Staircase, and Fin-Mgt option content is currently hard-
 - **Full domain detail — all 14 domains — is preserved in [Part 7A](#part-7a) below** (harvested verbatim from the old registry; Mike-authored Workshop 1 + Workshop 1.5 normalization; the genuinely good asset).
 - **⚠ TO MAP:** how primary issue is actually derived in code today vs the logic-tree design.
 
+### Course-correction safeguards (Principle P2 in practice) *(spans Stages 1–2)*
+Three built mechanisms keep the advisor in control and catch a wrong read early (verified in `advisor.js` + `VirtualAdvisor.vue`):
+- **Domain-confirmation selector** — after the situation is described, the pipeline always asks the advisor to confirm the domain (`domainConfirmed` → `[DOMAIN_SELECTOR]` card). The server pre-suggests its keyword-detected domain ("I'm reading this as **X**, but you know this client best"); the advisor confirms or corrects, and `onAnswer` sets `detectedDomain` to their choice. Removes the root cause of wrong-domain pipelines.
+- **Contradiction detector** — every advisor answer is tested against `_CONTRADICTION_PATTERN` (negation / dismissal / redirect — "none of these", "that's not the issue", "wrong area"). On a hit the pipeline pauses and asks a domain-specific check; capped at **2 per session** (`courseCorrections < 2`) so it can't loop.
+- **"None of these fit" escape** — the primary-issue selector offers a `__none_of_these__` sentinel; the server resets `detectedDomain` / `domainConfirmed` / `primaryIssue` + disambiguation state and invites a free-text redescription.
+
+Together these deliver P2: *more precision must never cost fewer check-ins.*
+
 ### Stage 3 — Strategy Resolution
 
 **What:** deterministically converts the lens readings into a strategy: *engagement type, complexity ceiling, template budget, sequencing.* Pure function — same inputs always give the same output. **Code:** `strategyResolver.js`. **Live:** ✓. **Editable in Firm Mgr:** ✗ (target: Strategy table).
@@ -431,7 +439,7 @@ The second key prefers the **more focused** template (lower total profile streng
 - **What:** AI writes the recommendation from the pre-selected templates + case summary + content.
 - **Assets:** `data/prompts/*.txt`, `content-summaries.json`, ~25 `*-domain-support.json`, ~13 `*-reference.json`, `coaching-reference.json`.
 - **Live:** ✓ running. **Editable in Firm Mgr:** ✗.
-- **⚠ TO MAP:** prompt structure, two-card output, course-correction features (contradiction detector, none-of-these escape, domain-confirmation selector).
+- **⚠ TO MAP:** prompt structure (the assembly of `client.txt` + content + case summary into the final AI call). *(Two-card output now documented in Stage 4; course-correction safeguards documented after Stage 2.)*
 
 **Revenue-model delivery method — Trial Fit vs Cautious Reveal.** When a revenue/profit model is in play, Stage 5 injects a *how-to-reveal* directive into the AI prompt. This is **not** a Stage 3 engagement-type decision — it is a delivery instruction, gated by two advisor answers (parsed in `advisor.js`): did the **client raise** the issue (`clientRaisedIssue`), and would the client **benefit from a revenue-model review** (`reviewYes`).
 
@@ -689,7 +697,7 @@ Improved recommendation on the next session
 1. ⚠ The 7 non-Client app functions (Discover, Plan, Learn, Course, Progression, Profile, Firm Manager) — each needs its flow + assets mapped (Part 1 placeholders).
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ⚠ Map each Part 2A logic/support pair → its extracted JSON; flag PDFs with no JSON yet (3 Engagement Types, 5 Advisor-e Steps pending extraction).
-4. ⚠ Stage 3/4/5 detail — confirm against verified code behaviour (scoring model, two-card output, course-correction features).
+4. ⚠ Stage 5 prompt structure — only remaining stage-detail gap. (Stage 3 + Stage 4 scoring/two-card DONE; course-correction safeguards DONE — documented after Stage 2.)
 5. ✅ Data questions — DONE: `domains.json` = 22 live domains (14 original + 8 newer, all keyword-detected + engine-wired; 8 have no domain questions yet); `signal-assignments-draft.json` = draft generator artifact, not loaded at runtime.
 6. **★ TOP PRIORITY — Extract the 3 proprietary frameworks** (Growth Fundamentals, Advisory Staircase, 3 Engagement Types) into editable JSON + logic trees, then wire into Firm Manager — closing the GAPs. Until done, Governing Principle P1 is only partially met. *Per-framework:* Growth Fundamentals (JSON → wire); Staircase + 3 Engagement Types (PDF/code → extract → wire).
 7. Final read-through together → promote to official registry (old one already archived, not deleted — Part 10).
