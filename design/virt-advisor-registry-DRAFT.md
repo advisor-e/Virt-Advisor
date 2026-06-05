@@ -33,7 +33,7 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 
 | # | Function (menu label) | What it does | Mode id | In this registry |
 |---|---|---|---|---|
-| 1 | **Client** — "I have a client situation" | Guided advisory: diagnose the client situation → recommend templates → explain why | `client` | ✅ Parts 3–7 (the 5-stage pipeline) |
+| 1 | **Client** — "I have a client situation" | Guided advisory: diagnose the client situation → recommend templates → explain why | `client` | ✅ Parts 3–7 (the 7-stage closed loop) |
 | 2 | **Discover** — "I want to find a template" | Template search by concept, capability, or half-remembered name | `discover` | ⚠ TO MAP |
 | 3 | **Plan** — "I want to plan ahead" | Advisor's own practice / fee / development planning | `plan` | ⚠ TO MAP |
 | 4 | **Learn** — "I want to learn more" | Skill-development coaching (also the target of the invisible HOW-swap) | `learn` | ⚠ TO MAP (see Part 8) |
@@ -175,7 +175,7 @@ Stage 6 — Capture & Review                                               │
           Advisor saves the case study + records, after delivering to the client,
           what actually happened (post-delivery review).                │
                ↓                                                         │
-Stage 7 — Improve & Feed Back ───────────────────────────────────────────┘
+Stage 7 — System Improvement ────────────────────────────────────────────┘
           Strong cases promoted to coaching reference; firm manager edits
           distinctions / weights / logic. The system is now better for next time.
 ```
@@ -248,6 +248,8 @@ Verified against the `QUESTIONS` array in `server-middleware/advisor.js`. The **
 | 14 | What client already tried | Situation | — | down-weights failed approaches | Strong | _tbd_ |
 
 Multi-lens (need a weight *per lens* later): **Q2** (Client Acumen + Relationship), **Q7 Staircase** (Relationship + complexity ceiling). Q4 / primaryIssue / domainConfirmed are routing mechanics, not lens questions.
+
+**On the Weight column.** There is **no numeric per-question weight table in code today** — each question's influence is encoded as the scattered scoring point-values and gates documented in Stages 3–4 (e.g. domain subSection +2, strong primary-issue match +3, modeling-declined −50, the confidence/stretch gates). The qualitative **Influence** column above is therefore the current **baseline expert calibration** — frozen as the as-built behaviour. The numeric **Weight** column (`_tbd_`) is the **editable target**: a future Firm-Manager control (per-lens sliders) exposing this calibration for adjustment without code.
 
 ---
 
@@ -411,7 +413,7 @@ Both methods also have detailed **learn-mode coaching references** — `trial-fi
 - **Code/assets:** `utils/cases.js` (capture — localStorage), review panel in `VirtualAdvisor.vue`.
 - **Live:** ✓ (localStorage; DB migration pending). **Full detail:** Part 9.
 
-### Stage 7 — Improve & Feed Back *(closes the loop)*
+### Stage 7 — System Improvement *(closes the loop)*
 - **What:** strong reviewed cases promoted to coaching reference; firm manager edits distinctions / weights / logic. The adjusted building blocks drive Stages 1–5 better next time.
 - **Code/assets:** `coaching-reference.json` (promote), `advisory-distinctions.json` (+ DB), Firm Manager.
 - **Live:** distinctions ✓ editable; coaching promote ✓; rest ⚠ target. **Full detail:** Part 9.
@@ -587,6 +589,8 @@ In `advisor.js` (post-recommendation): regex detects HOW-phrasing + tool referen
 
 This is how the system gets better **without code** — the realisation of Governing Principles P1 (editable) and P2 (real sessions over rigid weights). It is arguably the point of the whole system. *(Absent from the old registry entirely.)*
 
+**Loop status:** the foundation is built — capture ✓, post-delivery review ✓, promote-to-coaching ✓, and Advisory Distinctions editing ✓. Fully *closing* the loop still needs the case-study **DB migration** plus bringing **14-question weights / strategy / logic editing** under Firm Manager (see item 4 + ⚠ TO MAP below).
+
 **The loop that closes the system:**
 ```
 Guided session (Client function)
@@ -611,6 +615,10 @@ Improved recommendation on the next session
 **Principle restated:** improvement is **data + configuration, not code**. If improving an outcome requires a code change, that signals a structural problem — escalate it, don't patch. *(See [[content_feedback_loop]], [[feedback_design_philosophy]].)*
 
 *(The live/editable status of each loop mechanism is in the Master Asset Table, Part 2 — not repeated here.)*
+
+**Design goals — auditability (target, not yet built).**
+- **Decision Trace** — every recommendation should be able to emit a full trace: the primary issue (+ why), which lenses fired and with what weights, the templates considered vs selected with their scores, and any coaching-reference influence. Makes each recommendation auditable after the fact (covers the Stage 1–5 output).
+- **Config versioning** — editable assets (distinctions, weights, logic, coaching content) should carry edit history, and each saved case study should be tagged with the **active config version** that produced it — so a past recommendation can always be audited against the configuration in force at the time.
 
 **⚠ TO MAP:** DB migration of case studies; wiring coaching-reference editing into Firm Manager; the case-study → suggested-distinction flow (turn a reviewed case directly into an editable distinction).
 
