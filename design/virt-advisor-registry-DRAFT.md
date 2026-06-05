@@ -339,7 +339,8 @@ Note: the Growth Curve, Staircase, and Fin-Mgt option content is currently hard-
 - **Assets:** `primary-issues.json` (the canonical per-domain list), `logic_trees.json` (42 trees, currently dormant fallback).
 - **Live:** ✓ partial — primary-issue selector fires in sessions. **Editable in Firm Mgr:** ✗.
 - **Full domain detail — all 14 domains — is preserved in [Part 7A](#part-7a) below** (harvested verbatim from the old registry; Mike-authored Workshop 1 + Workshop 1.5 normalization; the genuinely good asset).
-- **⚠ TO MAP:** how primary issue is actually derived in code today vs the logic-tree design.
+- **How primary issue is derived (today):** the advisor **selects** it from a `[PRIMARY_ISSUE_SELECTOR:domain]` card populated from `primary-issues.json[domain]` (skipped for context domains conflict/eoy/due-diligence, which have none). The 42 `logic_trees.json` trees are a **dormant fallback** — the live path is advisor selection, not tree traversal.
+- **⚠ DESIGN DEBT — replace the cold selector (decided 2026-06-06).** The current pick-from-a-list card is disliked: it shows no reasoning and makes the advisor do the classifying. **Intended design:** the system proposes the single most likely primary issue *with a one-line reason* and asks the advisor to confirm or reframe in their own words — the same propose→confirm pattern as the domain step, but conversational (no menu). The confirmed answer still maps to a canonical Workshop-1 primary issue (Part 7A) so Stages 3–4 stay auditable. The confirmation step stays (P2); only its form changes. **Build task — not yet done.**
 
 ### Course-correction safeguards (Principle P2 in practice) *(spans Stages 1–2)*
 Three built mechanisms keep the advisor in control and catch a wrong read early (verified in `advisor.js` + `VirtualAdvisor.vue`):
@@ -439,7 +440,7 @@ The second key prefers the **more focused** template (lower total profile streng
 - **What:** AI writes the recommendation from the pre-selected templates + case summary + content.
 - **Assets:** `data/prompts/*.txt`, `content-summaries.json`, ~25 `*-domain-support.json`, ~13 `*-reference.json`, `coaching-reference.json`.
 - **Live:** ✓ running. **Editable in Firm Mgr:** ✗.
-- **⚠ TO MAP:** prompt structure (the assembly of `client.txt` + content + case summary into the final AI call). *(Two-card output now documented in Stage 4; course-correction safeguards documented after Stage 2.)*
+- **Prompt assembly (the final AI call).** System = `client.txt` (protected) + language instruction. The session is replayed as a short conversation: (1) **context message** (`buildClientContext()`) — the eligible template list (≤25, excl. get-organised/get-the-job, + firm templates) + content-summaries for the pre-selected templates + the domain-support "how to approach it" text; (2) the canned **opening**; (3) **situation brief** — domain, engagement type (+ delivery context), template budget, the Stage-5 copy directives (`_copySignals`: Trial Fit/Cautious Reveal, reports status, price communication, problem focus), the two-card **outlier context**, the **pre-scored Stage-4 candidates** (with IDs), the **collected answers**, and a profile note — ending "Now produce the recommendation." Model `gpt-4o-mini`, `max_tokens 2500`, streamed. *(Two-card output documented in Stage 4; course-correction safeguards after Stage 2.)*
 
 **Revenue-model delivery method — Trial Fit vs Cautious Reveal.** When a revenue/profit model is in play, Stage 5 injects a *how-to-reveal* directive into the AI prompt. This is **not** a Stage 3 engagement-type decision — it is a delivery instruction, gated by two advisor answers (parsed in `advisor.js`): did the **client raise** the issue (`clientRaisedIssue`), and would the client **benefit from a revenue-model review** (`reviewYes`).
 
@@ -697,7 +698,7 @@ Improved recommendation on the next session
 1. ⚠ The 7 non-Client app functions (Discover, Plan, Learn, Course, Progression, Profile, Firm Manager) — each needs its flow + assets mapped (Part 1 placeholders).
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ⚠ Map each Part 2A logic/support pair → its extracted JSON; flag PDFs with no JSON yet (3 Engagement Types, 5 Advisor-e Steps pending extraction).
-4. ⚠ Stage 5 prompt structure — only remaining stage-detail gap. (Stage 3 + Stage 4 scoring/two-card DONE; course-correction safeguards DONE — documented after Stage 2.)
+4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
 5. ✅ Data questions — DONE: `domains.json` = 22 live domains (14 original + 8 newer, all keyword-detected + engine-wired; 8 have no domain questions yet); `signal-assignments-draft.json` = draft generator artifact, not loaded at runtime.
 6. **★ TOP PRIORITY — Extract the 3 proprietary frameworks** (Growth Fundamentals, Advisory Staircase, 3 Engagement Types) into editable JSON + logic trees, then wire into Firm Manager — closing the GAPs. Until done, Governing Principle P1 is only partially met. *Per-framework:* Growth Fundamentals (JSON → wire); Staircase + 3 Engagement Types (PDF/code → extract → wire).
 7. Final read-through together → promote to official registry (old one already archived, not deleted — Part 10).
