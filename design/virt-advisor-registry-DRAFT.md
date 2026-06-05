@@ -319,8 +319,20 @@ Excluded from the model: `Help` (learning guide, never client-facing); `Reportin
 - **Capture methods:** constrained selectors (preferred), rule-based extraction, sparing AI extraction (signals only).
 - **Assets:** `domains.json` (domain detection + domain questions), `signal-dictionary.json`, `growth-fundamentals.json` (Growth Curve), `fin-mgt-table.json` (droptab), `section-descriptions.json`. Questions live in `advisor.js` QUESTIONS array.
 - **Live:** ✓ running. **Editable in Firm Mgr:** ✗.
-- **⚠ TO MAP:** the constrained selectors (Growth Curve / Advisory Staircase / Session Length / Fin Mgt droptab) → which lens each feeds + edit status.
-- **⚠ CONFIRM:** `domains.json` shows 22 entries incl `get-*`/`org-*` variants — legacy or live? `signal-assignments-draft.json` — live or abandoned?
+**Constrained selectors → lens + edit status** (verified against `advisor.js` QUESTIONS + `VirtualAdvisor.vue`)
+
+| Selector (token) | Question / field | Lens | Drives | Editable in Firm Mgr |
+|---|---|---|---|---|
+| Growth Curve `[GROWTH_CURVE_SELECTOR]` | Q6 `growthStage` (skipped if NFP/listed) | **Lens 2 — Client Acumen** | scale → fee sensitivity + complexity ceiling | ✗ (options hard-coded in `VirtualAdvisor.vue`; framework not wired) |
+| Advisory Staircase `[STAIRCASE_SELECTOR]` | Q7 `advisoryStaircase` | **Lens 3 — Relationship Dynamics** | relationship depth → complexity ceiling + comprehensiveness/count | ✗ (steps hard-coded in `VirtualAdvisor.vue`) |
+| Session Length `[SESSION_LENGTH_SELECTOR]` | Q13 `advisorSessionLength` | **Lens 3 — Relationship Dynamics** | templates-per-session → template budget | ✗ |
+| Fin-Mgt Theme `[FIN_MGT_THEME_SELECTOR]` | forecasting `finMgtTheme` | **Lens 1 — Situation** | client's financial-management starting point → forecasting topic/sequence | ⚠ `fin-mgt-table.json` asset exists, but live `finMgtThemes` are hard-coded in `VirtualAdvisor.vue` (to reconcile) |
+
+Note: the Growth Curve, Staircase, and Fin-Mgt option content is currently hard-coded in `VirtualAdvisor.vue` (`growthStages` / `staircaseSteps` / `finMgtThemes`) — these in-component copies are exactly what the frameworks-extraction work (top migration priority) must replace.
+
+**Data questions — resolved (verified 2026-06-06):**
+- **`domains.json` = 22 live domains, not legacy.** The original 14 plus 8 newer (stock-purchasing, raising-capital, fm-coach-culture, org-firm-strategy, org-capacity-planner, org-leadership, org-board-pack, people-power). All 22 carry rich detection keyword sets (≈190–240 each) and are wired into the engine (`DOMAIN_NATURAL_ENGAGEMENT` in `caseState.js`, `DOMAIN_SUBSECTION_MAP` in `templateResolver.js`). The 8 newer ones have **no domain-specific follow-up questions yet** — they run on the general 14-question flow. No `get-*` ids exist in `domains.json` (that premise was wrong). All domains are equal-priority; "14" was the original count, since extended to 22.
+- **`signal-assignments-draft.json` = a draft staging artifact, not live.** Output by `scripts/generate-signal-assignments.js` (Phase 1 of the content feedback loop). Not loaded by any server runtime — the live signal path is `signal-dictionary.json` + `semantic-profiles.json`. Keep as a generator draft; not wired.
 
 ### Stage 2 — Primary Issue Classification
 - **What:** identifies the single primary issue (the structural problem the engagement addresses).
@@ -675,9 +687,9 @@ Improved recommendation on the next session
 
 **Still open:**
 1. ⚠ The 7 non-Client app functions (Discover, Plan, Learn, Course, Progression, Profile, Firm Manager) — each needs its flow + assets mapped (Part 1 placeholders).
-2. ⚠ Stage 1 constrained selectors (Growth Curve, Staircase, Session Length, Fin Mgt droptab) → which lens each feeds + edit status.
+2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ⚠ Map each Part 2A logic/support pair → its extracted JSON; flag PDFs with no JSON yet (3 Engagement Types, 5 Advisor-e Steps pending extraction).
 4. ⚠ Stage 3/4/5 detail — confirm against verified code behaviour (scoring model, two-card output, course-correction features).
-5. ⚠ CONFIRM data questions: `domains.json` 22-vs-14 entries; `signal-assignments-draft.json` live or abandoned.
+5. ✅ Data questions — DONE: `domains.json` = 22 live domains (14 original + 8 newer, all keyword-detected + engine-wired; 8 have no domain questions yet); `signal-assignments-draft.json` = draft generator artifact, not loaded at runtime.
 6. **★ TOP PRIORITY — Extract the 3 proprietary frameworks** (Growth Fundamentals, Advisory Staircase, 3 Engagement Types) into editable JSON + logic trees, then wire into Firm Manager — closing the GAPs. Until done, Governing Principle P1 is only partially met. *Per-framework:* Growth Fundamentals (JSON → wire); Staircase + 3 Engagement Types (PDF/code → extract → wire).
 7. Final read-through together → promote to official registry (old one already archived, not deleted — Part 10).
