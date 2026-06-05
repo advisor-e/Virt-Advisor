@@ -201,6 +201,29 @@ Discovery is viewed through 4 lenses, captured in Stage 1 and consumed in Stages
 - **Detection layer** — WHICH templates are relevant (logic trees + keywords + signals)
 - **Lens layer** — HOW to apply them (decision matrices + branch logic directing the AI)
 
+### Lenses in practice
+
+One worked example per lens, then one combined case threading all four — grounded in the real engine mechanics (Stages 3–4).
+
+**Lens 1 — Situation** *(→ topic + sequence)*
+> Advisor: *"Client runs a café. Profit's been flat two years even though sales are up. They tried discounting; it didn't work."*
+> Reads → priority issue = profit plateau; driver = margin erosion (sales up but profit flat points to cost/price, not volume); tried-and-failed = discounting. → **Determines:** topic = **Profit** domain; sequence = diagnose margins *before* any growth play; discount-led templates down-weighted (Q14).
+
+**Lens 2 — Client Acumen** *(→ engagement type + ceiling)*
+> Advisor: *owner-operator, early-growth, "doesn't really read their numbers," and didn't raise the issue themselves.*
+> Reads → low awareness/desire; client did **not** request help. → **Determines:** engagement forced to **Education**; the revenue-model reveal runs as **Cautious Reveal** (don't open the model in meeting 1); ceiling stays low unless acumen pushes it up.
+
+**Lens 3 — Relationship Dynamics** *(→ how delivered + how many)*
+> Advisor: staircase droptab at **Step 2** (early relationship); 2 meetings planned; 60-min sessions.
+> Reads → weak/early relationship → foundational ceiling (blocks Strategic/Specialist/Governance/External); budget from meetings × session length. → **Determines:** **1–2 templates only**, paced gently; heavyweight tools hidden.
+
+**Lens 4 — Advisor Capability** *(→ in-reach vs stretch)*
+> Advisor: experience low, confidence low, but writes *"happy to give it a go."*
+> Reads → confidence = low, but stretch-willingness = **true** (matches the stretch phrase). → **Determines:** a low-confidence advisor would normally be capped at Education, but the stretch flag **removes that constraint** — the domain's natural engagement is allowed and experience-required tools stop being penalised.
+
+**Combined — all four on the café case**
+> Situation → **Profit** domain, margins-first sequence · Acumen → **Education**, Cautious Reveal · Relationship (Step 2) → **foundational** ceiling, **1–2** templates · Capability (low but stretching) → constraint lifted, focused tool allowed. **Result:** one or two foundational profit/margin templates, taught gently, model introduced only once the concept lands.
+
 ---
 
 ## Part 5 — The 14 General Questions → 4 Lenses
