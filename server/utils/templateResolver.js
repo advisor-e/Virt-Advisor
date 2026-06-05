@@ -380,8 +380,8 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   })
 
   // ── Step 3: Rank and cap ─────────────────────────────────────────────────
-  // Primary sort: score descending. Tiebreaker: profile richness descending
-  // (total signal strength across all signal types — richer profile = more specific authoring).
+  // Primary sort: score descending. Tiebreaker: profile richness ascending
+  // (lower total signal strength = more focused authoring = preferred).
   // If testing shows this produces wrong results, revisit with subSection preference rank.
   const ranked = scored
     .filter(s => s.score > 0)

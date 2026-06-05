@@ -322,10 +322,48 @@ Domain natural types: **Education** — profit, data-systems, forecasting, stock
 **Plain language:** Stage 3 answers *"how should we engage, how deep can we go, and how much do we hand over?"* — without picking the actual templates yet (that's Stage 4).
 
 ### Stage 4 — Template Selection
-- **What:** scores/ranks Do-the-Job templates; produces candidate pool; AI relevance-gates it.
-- **Code:** `templateResolver.js`. **Assets:** `semantic-profiles.json` (scoring weights), `advisory-distinctions.json` (+ firm distinctions), the relevance gate (R17 in `client.txt`).
-- **Live:** ✓ running. **Editable in Firm Mgr:** distinctions ✓ (built); scoring/profiles ✗.
-- **⚠ TO MAP:** full scoring model, two-pass outlier/two-card output, the relevance gate as an interim stopgap (note: it slightly crosses the "AI selects" boundary — acceptable until selection logic matures).
+
+**What:** deterministically scores and ranks the client-facing ("Do-the-Job") templates, produces a diverse candidate pool, and hands it to the AI relevance gate. Pure function — no AI calls inside, same inputs always give the same ranking. **Code:** `templateResolver.js` (`SCORING_VERSION = '2.1.0'`). **Assets:** `semantic-profiles.json` (per-template problem "fingerprints", pre-built by `scripts/build-semantic-profiles.js`), `advisory-distinctions.json` (+ firm distinctions), the relevance gate (R17 in `client.txt`). **Live:** ✓. **Editable in Firm Mgr:** distinctions ✓ (built); scoring weights / profiles ✗.
+
+> **Plain-English walkthrough** (keep — the engine in advisor language)
+> By Stage 4 the engine already knows the **domain**, the confirmed **primary issue**, and the Stage 3 **strategy** (engagement, depth, budget). Its only job here is to pick the actual templates — like a librarian told the topic, now choosing the right few tools off a shelf of ~130.
+> 1. **Throw out what's not allowed.** Remove non-client templates, advisor-admin shelves, and anything **above the relationship ceiling** (the staircase rule — heavyweight tools stay hidden for new relationships). That ceiling is the *only* hard cut-off; engagement type never bins a template, it only nudges scoring.
+> 2. **Score every survivor.** Points for fitting (right shelf, words echoing the primary issue, and above all a strong match to the *problem fingerprint*), minus points for contradicting (client doesn't need modelling → revenue-model tools effectively removed; client already runs reports → reporting tools penalised). Out-of-domain noise is silenced, and four domains (risk, valuation, conflict, due-diligence) ignore loose wording entirely.
+> 3. **Rank, break ties, cap.** Highest score wins; ties go to the **more focused** template, then a fixed ID order so the result is never random; keep only as many as the template budget allows.
+> 4. **Two answers, not one.** The whole thing runs twice — "best possible" (ceiling ignored) and "best that fits now" (ceiling kept). When they differ, the advisor sees **both cards**: the ideal tool and the one that fits the current client relationship.
+
+**Step 1 — Hard filters (only two gates).** (a) Eligibility: `includedInClient === true`, excludes `get-organised` and `get-the-job` menu sections. (b) Staircase **complexity ceiling** (`CEILING_BLOCKED`) blocks subSections above the relationship level (foundational blocks Strategic/Specialist/Governance/External; analytical blocks Specialist/External; strategic blocks nothing). **Engagement type is never a hard gate** — soft scoring only.
+
+**Step 2 — Scoring (additive points + penalties).**
+
+| Signal | Condition | Points |
+|---|---|---|
+| Domain subSection — primary / secondary | matches `DOMAIN_SUBSECTION_MAP` (1st / later entry) | +2 / +1 |
+| Primary-issue keyword — strong / partial | ≥2 / exactly 1 keyword hits across tags + purpose | +3 / +1 |
+| Advisory distinction boost | firm-configured boost for this template title | + (1–20) |
+| Solution category — tag / purpose hit | category keyword in tags / in purpose only | +3 / +1 each |
+| Semantic profile match | Σ (profile strength × signal count × 2.0 × signal weight) | variable |
+| Purpose fallback (no profile) | 1.5 × signal weight per matched signal (one per signal) | variable |
+| Engagement subSection — primary / secondary | `ENGAGEMENT_SUBSECTION_PREFERENCE` (1st / later) | +2 / +1 |
+| Advisor confidence — match / boost | low-conf + new-advisor shelf / high-conf + experience shelf | +1 |
+| Growth stage exact | client growth stage == template growth stage | +2 |
+| **Penalty** — modeling declined | advisor declined modelling **and** Revenue & Feasibility subSection | **−50** (effectively excludes) |
+| **Penalty** — reports already in use | client uses reports regularly **and** Reporting subSection | −4 |
+| **Penalty** — advisor confidence mismatch | low-conf + experience-required shelf | −1 |
+
+**Signal attenuation (`DOMAIN_SIGNAL_SCOPE`).** In-domain signals weight **1.0**; out-of-domain signals weight **0** (excluded, not just reduced — rollback constant `outOfDomainWeight: 0.33` exists if soft attenuation is ever wanted). Four domains map to an **empty scope** (risk, valuation, conflict, due-diligence) → all free-text signals suppressed; these run on structured questions only. A domain absent from the map gets no filtering.
+
+**Step 3 — Rank, tie-break, cap.** Keep only `score > 0`, then sort:
+
+`score DESC → profileRichness ASC → page-id ASC (deterministic)`
+
+The second key prefers the **more focused** template (lower total profile strength = more narrowly authored = preferred). **Note:** a previously stale header comment that read "profile richness *descending*" was corrected to "ascending (focused-wins)" to match the code; the code is and always was authoritative. Then cap to `templateBudget` (default 1) → `selected`.
+
+**Candidate pool.** Beyond the capped selection, a diverse pool is built for the AI: each subSection capped at 3 entries, total `MAX_CANDIDATES = max(8, budget × 4)`, so the AI sees representation across shelves rather than one subSection monopolising the slots. `scoringLog` retains the top 20 for auditing.
+
+**Two-pass / two-card output (`resolveTemplatesWithOutlier`).** Runs `resolveTemplates` twice: **Pass 1 "primary"** with `ignoreCeiling: true` (best match regardless of staircase), **Pass 2 "withinRange"** with the ceiling enforced. `hasOutlier` = the two top picks differ; `fallbackExists` = at least one within-range template found. This is what powers the *ideal vs fits-your-range* two-card recommendation.
+
+**⚠ Relevance gate (R17, interim).** After scoring, an AI relevance gate in `client.txt` drops candidates that don't genuinely fit. It slightly crosses the "deterministic engine selects, AI only narrates" boundary — accepted as a stopgap until the scoring model matures, then to be retired.
 
 ### Stage 5 — AI Narrative
 - **What:** AI writes the recommendation from the pre-selected templates + case summary + content.
