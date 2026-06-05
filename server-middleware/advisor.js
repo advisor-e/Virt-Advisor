@@ -34,26 +34,62 @@ const ADVISORY_DISTINCTIONS = require('../data/advisory-distinctions.json')
 // Context domains have no primary issues — they override the strategy layer instead
 const CONTEXT_DOMAINS = new Set(['conflict', 'eoy', 'due-diligence'])
 
-// ── matchAdvisoryDistinctions ────────────────────────────────────────────────
-// Scans advisor text against platform-level advisory distinctions for the
-// detected domain. Returns a map of template title → cumulative boost score.
-function matchAdvisoryDistinctions (domain, advisorText, firmRows) {
+// ── classifyDistinctions ──────────────────────────────────────────────────────
+// Replaces exact keyword matching with a single gpt-4o-mini classification call.
+// The AI reads all distinction descriptions against the advisor's text and returns
+// which ones apply semantically — regardless of exact wording used.
+// Triggers (if present) are included as examples to guide the AI, not as exact matches.
+async function classifyDistinctions (domain, advisorText, firmRows) {
   if (!domain || !advisorText) { return {} }
-  const lower = advisorText.toLowerCase()
-  const boostMap = {}
   const platformRows = (ADVISORY_DISTINCTIONS.platform || []).filter(r => r.domain === domain)
   const allRows = firmRows && firmRows.length > 0
     ? [...platformRows, ...firmRows.filter(r => r.domain === domain)]
     : platformRows
-  for (const row of allRows) {
-    const matched = (row.triggers || []).some(trigger => lower.includes(trigger.toLowerCase()))
-    if (matched) {
-      for (const templateTitle of (row.templates || [])) {
-        boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
+  if (allRows.length === 0) { return {} }
+
+  const patternList = allRows.map((row, i) => {
+    const examples = (row.triggers || []).length > 0
+      ? ` (example phrases: ${row.triggers.slice(0, 5).join(', ')})`
+      : ''
+    return `${i + 1}. ${row.description}${examples}`
+  }).join('\n')
+
+  const prompt = `You are evaluating whether an advisor's description of a client situation matches any of the following advisory patterns. A match means the advisor's text meaningfully suggests that situation — it does not need to use the exact words.
+
+Patterns:
+${patternList}
+
+Advisor's description:
+${advisorText.slice(0, 1500)}
+
+Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matching patterns. Return {"matches":[]} if none apply. No explanation.`
+
+  const _t0 = Date.now()
+  try {
+    const response = await getOpenAI().chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 80,
+      temperature: 0,
+      messages: [{ role: 'user', content: prompt }]
+    })
+    logAI('distinction-classify', 'gpt-4o-mini', _t0, true, response.usage)
+    const raw = response.choices[0]?.message?.content || '{}'
+    const parsed = JSON.parse((raw.match(/\{[\s\S]*\}/) || ['{}'])[0])
+    const matchedIds = Array.isArray(parsed.matches) ? parsed.matches : []
+    const boostMap = {}
+    for (const id of matchedIds) {
+      const row = allRows[Number(id) - 1]
+      if (row) {
+        for (const templateTitle of (row.templates || [])) {
+          boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
+        }
       }
     }
+    return boostMap
+  } catch (_e) {
+    logAI('distinction-classify', 'gpt-4o-mini', _t0, false, null)
+    return {}
   }
-  return boostMap
 }
 
 // Build detection patterns from domain definitions — compiled once at startup
@@ -1278,7 +1314,7 @@ async function handleQuery (rawBody, res) {
       }
     }
 
-    const _distinctionBoosts = matchAdvisoryDistinctions(state.detectedDomain, _advisorFullText, _firmDistinctionRows)
+    const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _firmDistinctionRows)
 
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
