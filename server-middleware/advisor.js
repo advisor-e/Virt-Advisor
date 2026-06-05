@@ -1443,7 +1443,7 @@ async function handleQuery (rawBody, res) {
       _outlierContext,
       '',
       _resolverCandidates.length > 0
-        ? `CANDIDATE TEMPLATES — read the collected answers carefully, then select the ${_budgetCount} best-fit template${_budgetCount !== 1 ? 's' : ''} from this list. Choose only from these candidates — do not invent, abbreviate, or paraphrase names:\n` +
+        ? `CANDIDATE TEMPLATES — this is a wide net from automated scoring and may contain templates that do not genuinely fit this client. Read the collected answers carefully, then select up to ${_budgetCount} template${_budgetCount !== 1 ? 's' : ''} that GENUINELY fit this client's situation and industry. ${_budgetCount} is a maximum, not a target — recommending fewer (even one) is correct when only one genuinely fits. Exclude any candidate whose design context or industry does not match this client (see Rule R17). Choose only from these candidates — do not invent, abbreviate, or paraphrase names:\n` +
           _resolverCandidates.map((t, i) => `${i + 1}. ${t.title} (ID: ${t.page})`).join('\n')
         : 'No templates pre-scored — choose the best match from the template list above.',
       '',
