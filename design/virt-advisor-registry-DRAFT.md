@@ -280,11 +280,46 @@ Excluded from the model: `Help` (learning guide, never client-facing); `Reportin
 - **⚠ TO MAP:** how primary issue is actually derived in code today vs the logic-tree design.
 
 ### Stage 3 — Strategy Resolution
-- **What:** sets engagement type, complexity ceiling, template budget, sequencing — deterministically.
-- **Asset/code:** `strategyResolver.js`, `section-descriptions.json`, Trial Fit / Cautious Reveal references.
-- **Live:** ✓ running. **Editable in Firm Mgr:** ✗ (target: Strategy table).
-- **Lenses consumed:** Client Acumen (ceiling), Relationship (count/delivery), Advisor Capability (gate).
-- **⚠ TO MAP:** full strategy rules + firm-override layer.
+
+**What:** deterministically converts the lens readings into a strategy: *engagement type, complexity ceiling, template budget, sequencing.* Pure function — same inputs always give the same output. **Code:** `strategyResolver.js`. **Live:** ✓. **Editable in Firm Mgr:** ✗ (target: Strategy table).
+
+**Inputs → which lens each comes from**
+
+| Input field | Lens | Source |
+|---|---|---|
+| `client.requestedHelp` | Lens 2 (Relationship/awareness) | `client_awareness === 'client_raised'` |
+| `complexityCeiling` | Lens 3 (Client Acumen / staircase) | `staircaseToCeiling(staircase)` |
+| `advisor.confidence` + `advisor.stretchWillingness` | Lens 4 (Advisor Capability) | confidence signal + free-text stretch regex |
+| `domain` | — | natural type via `DOMAIN_NATURAL_ENGAGEMENT` |
+| `constraints.templateBudget` | session constraints | `template_budget` signal |
+
+**Rule 1 — Engagement type** (Education / Facilitation / Advice)
+
+| Condition (checked in order) | Result |
+|---|---|
+| Client did **not** request help | `education` |
+| Advisor confidence `low` **and** not willing to stretch | `education` (sets `advisorConstraintApplied`) |
+| Otherwise | domain's **natural** type |
+
+Domain natural types: **Education** — profit, data-systems, forecasting, stock-purchasing, raising-capital. **Facilitation** — staff, sales-marketing, governance, strategy, systems, conflict, eoy (+ org/people domains). **Advice** — valuation, risk, succession, due-diligence, org-firm-strategy.
+
+**Rule 2 — Complexity ceiling** (staircase only, independent of engagement type)
+
+| Staircase step | Ceiling |
+|---|---|
+| 1–2 | `foundational` |
+| 3–4 | `analytical` |
+| 5 | `strategic` |
+
+**Rule 3 — Template budget:** `templateBudget` from constraints, default **1**.
+
+**Rule 4 — Sequencing:** `education` → `education_first`; otherwise `standard`.
+
+**Firm-override layer:** any of `engagementType`, `complexityCeiling`, `templateBudget`, `sequencingRule` supplied by the firm overrides the computed value. `advisorConstraintApplied` is never overridable (it records what happened).
+
+**⚠ Intervention Urgency — derived but not yet wired (TO-BE).** `caseState.client.urgency` is computed (`high`/`medium`/`low` via `deriveUrgency`) but **no stage consumes it today**. Target: make urgency a named Stage 3 output that, when `high` (cash crisis / partner dispute / live deal / covenant breach), compresses sequencing and cuts the template count so the advisor gets to the critical move faster.
+
+**Plain language:** Stage 3 answers *"how should we engage, how deep can we go, and how much do we hand over?"* — without picking the actual templates yet (that's Stage 4).
 
 ### Stage 4 — Template Selection
 - **What:** scores/ranks Do-the-Job templates; produces candidate pool; AI relevance-gates it.
@@ -297,6 +332,18 @@ Excluded from the model: `Help` (learning guide, never client-facing); `Reportin
 - **Assets:** `data/prompts/*.txt`, `content-summaries.json`, ~25 `*-domain-support.json`, ~13 `*-reference.json`, `coaching-reference.json`.
 - **Live:** ✓ running. **Editable in Firm Mgr:** ✗.
 - **⚠ TO MAP:** prompt structure, two-card output, course-correction features (contradiction detector, none-of-these escape, domain-confirmation selector).
+
+**Revenue-model delivery method — Trial Fit vs Cautious Reveal.** When a revenue/profit model is in play, Stage 5 injects a *how-to-reveal* directive into the AI prompt. This is **not** a Stage 3 engagement-type decision — it is a delivery instruction, gated by two advisor answers (parsed in `advisor.js`): did the **client raise** the issue (`clientRaisedIssue`), and would the client **benefit from a revenue-model review** (`reviewYes`).
+
+| Condition | Method | Directive to the AI |
+|---|---|---|
+| Client raised it **and** review agreed (`clientRaisedIssue && reviewYes`) | **Trial Fit** | Introduce the model in stages. |
+| Advisor noticed (client did **not** raise) **and** review agreed (`!clientRaisedIssue && reviewYes`) | **Cautious Reveal** | Establish the concept before opening the model. Do **not** open the model in meeting 1. |
+| Review not agreed (`reviewYes` false) | — | No revenue-model delivery directive emitted. |
+
+Both methods also have detailed **learn-mode coaching references** — `trial-fit-reference.json` and `cautious-reveal-reference.json` — formatted into the learn-mode prompt via `LEARN_REFERENCE_FORMATTERS` in `logicTrees.js`.
+
+**Plain language:** the engine has already decided *what* to recommend; Trial Fit / Cautious Reveal decide *how gently* to put a revenue model in front of the client based on whether they asked for help.
 
 ### Stage 6 — Capture & Review *(closes the loop)*
 - **What:** advisor saves the session as a case study, and after delivering to the real client records what actually happened (post-delivery review).
