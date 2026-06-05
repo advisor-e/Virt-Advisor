@@ -83,7 +83,7 @@ The single global view of every asset and building block: what triggers it, whic
 | Source PDFs — `Domain Support/` (49) | source docs | — | — | human source for `*-domain-support.json` / `*-reference.json` — **itemised in Part 2A** | n/a | n/a |
 | Source docs — root (Common Problem Framework, Do the Job headers/summaries, Get the Job, 3 Engagement Types) | source docs | — | — | reference for categorisation + engagement types | n/a | n/a |
 
-**Reading it:** Advisory Distinctions is the only block both live AND editable in Firm Manager. Two proprietary frameworks (Advisory Staircase, 3 Engagement Types) are **GAPs** — locked in code/PDF, not editable. Closing the "✗ editable" column one row at a time is the registry's working backlog.
+**Reading it:** Advisory Distinctions is the only block both live AND editable in Firm Manager. The **three proprietary frameworks are the top migration priority** — until they're editable, Governing Principle P1 is only partially met (the system's whole point goes unrealised for its most valuable IP). They sit at different distances: **Growth Fundamentals** is already JSON and only needs Firm-Manager wiring; **Advisory Staircase (5 Advisor-e Steps)** and the **3 Engagement Types** are still locked in PDF/code and must first be extracted into a logic tree + domain-support JSON, then wired. Closing the "✗ editable" column — **frameworks first** — is the registry's working backlog.
 
 ⚠ TO MAP — fold in any remaining per-file detail from `registry_compilation_wip.md` (memory).
 
@@ -654,5 +654,5 @@ Improved recommendation on the next session
 3. ⚠ Map each Part 2A logic/support pair → its extracted JSON; flag PDFs with no JSON yet (3 Engagement Types, 5 Advisor-e Steps pending extraction).
 4. ⚠ Stage 3/4/5 detail — confirm against verified code behaviour (scoring model, two-card output, course-correction features).
 5. ⚠ CONFIRM data questions: `domains.json` 22-vs-14 entries; `signal-assignments-draft.json` live or abandoned.
-6. **Extract the 3 proprietary frameworks** (Growth Fundamentals, Advisory Staircase, 3 Engagement Types) from PDF/code into editable JSON + logic trees — close the GAPs.
+6. **★ TOP PRIORITY — Extract the 3 proprietary frameworks** (Growth Fundamentals, Advisory Staircase, 3 Engagement Types) into editable JSON + logic trees, then wire into Firm Manager — closing the GAPs. Until done, Governing Principle P1 is only partially met. *Per-framework:* Growth Fundamentals (JSON → wire); Staircase + 3 Engagement Types (PDF/code → extract → wire).
 7. Final read-through together → promote to official registry (old one already archived, not deleted — Part 10).
