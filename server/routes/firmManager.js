@@ -98,7 +98,7 @@ async function listDocuments (req, res) {
       firm: firmFiles.map(f => ({ ...f, source: 'firm' }))
     })
   } catch (err) {
-    if (IS_DEV) { return res.send(200, { base: [], firm: [] }) }
+    if (IS_DEV) { res.send(200, { base: [], firm: [] }); return }
     return serverError(res, 500, 'DRIVE_ERROR', err)
   }
   return
@@ -227,7 +227,7 @@ async function getFramework (req, res) {
     const firmOverride = await overlay.loadFirmConfig(req.firmId, configKey)
     res.send(200, { configKey, firmOverride, hasOverride: firmOverride !== null })
   } catch (err) {
-    if (IS_DEV) { return res.send(200, { configKey, firmOverride: null, hasOverride: false }) }
+    if (IS_DEV) { res.send(200, { configKey, firmOverride: null, hasOverride: false }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
   return
@@ -257,7 +257,7 @@ async function getFrameworkHistory (req, res) {
     const history = await overlay.getVersionHistory(req.firmId, configKey)
     res.send(200, { history })
   } catch (err) {
-    if (IS_DEV) { return res.send(200, { history: [] }) }
+    if (IS_DEV) { res.send(200, { history: [] }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
   return
@@ -290,7 +290,7 @@ async function listVideos (req, res) {
     )
     res.send(200, { videos: rows })
   } catch (err) {
-    if (IS_DEV) { return res.send(200, { videos: [] }) }
+    if (IS_DEV) { res.send(200, { videos: [] }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
   return
@@ -351,7 +351,7 @@ async function getProfile (req, res) {
     res.send(200, { firm: rows[0] })
   } catch (err) {
     if (IS_DEV) {
-      return res.send(200, { firm: { id: req.firmId, name: 'Dev Firm', slug: 'dev', logo_url: null, primary_colour: '#000000', persona_name: null } })
+      res.send(200, { firm: { id: req.firmId, name: 'Dev Firm', slug: 'dev', logo_url: null, primary_colour: '#000000', persona_name: null } }); return
     }
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -404,7 +404,7 @@ async function getStorageUsage (req, res) {
       percentUsed: Math.round((bytesUsed / STORAGE.maxFirmStorageBytes) * 100)
     })
   } catch (err) {
-    if (IS_DEV) { return res.send(200, { bytesUsed: 0, maxBytes: STORAGE.maxFirmStorageBytes, percentUsed: 0 }) }
+    if (IS_DEV) { res.send(200, { bytesUsed: 0, maxBytes: STORAGE.maxFirmStorageBytes, percentUsed: 0 }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
   return
@@ -431,7 +431,7 @@ async function getTemplateImport (req, res) {
       history: history || []
     })
   } catch (err) {
-    if (IS_DEV) { return res.send(200, { hasImport: false, templateCount: 0, history: [] }) }
+    if (IS_DEV) { res.send(200, { hasImport: false, templateCount: 0, history: [] }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
   return
