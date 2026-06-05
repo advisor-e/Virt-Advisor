@@ -98,6 +98,7 @@ async function listDocuments (req, res) {
       firm: firmFiles.map(f => ({ ...f, source: 'firm' }))
     })
   } catch (err) {
+    if (IS_DEV) { return res.send(200, { base: [], firm: [] }) }
     return serverError(res, 500, 'DRIVE_ERROR', err)
   }
   return

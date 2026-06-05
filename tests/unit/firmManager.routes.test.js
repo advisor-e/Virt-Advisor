@@ -115,7 +115,7 @@ describe('listDocuments', () => {
     expect(res._body.firm[0].source).toBe('firm')
   })
 
-  test('returns empty firm list gracefully when Drive call fails', async () => {
+  test('returns empty lists in dev when Drive call fails', async () => {
     drive.listBaseDocuments.mockResolvedValue([])
     drive.listFirmDocuments.mockRejectedValue(new Error('Drive error'))
 
@@ -125,7 +125,10 @@ describe('listDocuments', () => {
 
     await listDocuments(req, res, next)
 
-    expect(res._status).toBe(500)
+    // In dev/test mode, Drive failure returns empty lists rather than 500
+    expect(res._status).toBe(200)
+    expect(res._body.base).toEqual([])
+    expect(res._body.firm).toEqual([])
   })
 })
 
