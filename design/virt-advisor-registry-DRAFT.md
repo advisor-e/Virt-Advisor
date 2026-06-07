@@ -169,7 +169,26 @@ Every logic table and domain-support document, listed as an asset. Most topics h
 
 **Support / reference docs with no logic-table counterpart** (content only): Coaching Content.pdf · Do the Job Content summaries (2).pdf · Get the Job Content SPT.pdf · Org. Advisor Content.pdf · Org. Firm Content Spt.pdf · Powerful Seminars.pdf · Sales & Marketing Slides table.pdf · Why Use Rev Models.pdf · _Do the Job Content headers (3).pdf
 
-⚠ TO MAP — map each pair to its extracted JSON (`logic_trees.json` tree id + `*-domain-support.json` / `*-reference.json`); flag any PDF with no extracted JSON yet (e.g. 3 Engagement Types, 5 Advisor-e Steps — both pending extraction).
+**Mapping to extracted JSON — resolved 2026-06-08** (verified against `logic_trees.json` (42 trees) + on-disk `data/*.json`).
+
+*Rule:* the logic PDFs map to the **42 `logic_trees.json` trees** essentially 1:1 by topic; most support PDFs have a matching `*-domain-support.json` / `*-reference.json`. All 42 trees are accounted for — 41 map to a topic above; the 42nd, `profitability_feasibility`, is the **Profit domain** (a domain, not a method PDF, so it has no row here).
+
+*Resolved ambiguities:* **Get — Sales** → tree `sales_process`; **Get — Public Speaking** → tree `public_speaking`. Topics with no support PDF (Cashflow, Client Sales, Financial Systems Review, Frameworks Find, Quickfire) correctly have no support JSON.
+
+*Exceptions — the only rows with a missing JSON (the extraction backlog):*
+
+| Topic | Logic tree (`logic_trees.json`) | Support JSON | Gap |
+|---|---|---|---|
+| **3 Engagement Types** *(proprietary framework)* | — | — | ✅ now extracted → `engagement-types.json` (Phase 1, 2026-06-08). Lives as its own framework file, **not** a `logic_trees` entry |
+| **5 Advisor-e Steps / Staircase** *(proprietary framework)* | — | — | ✅ now extracted → `advisory-staircase.json` (Phase 1, 2026-06-08). Own framework file, **not** a `logic_trees` entry |
+| 3 Pill Financial Management | `three_pill_fin_mgt` ✓ | ✗ | support PDF not yet extracted |
+| Cash Tactics | `cash_tactics` ✓ | ✗ | support PDF not yet extracted |
+| Client Planning | `client_planning` ✓ | ✗ | support PDF not yet extracted |
+| Lite Feasibility | ✗ (no `lite_feasibility` tree) | ✗ | neither extracted |
+| Org — CA Capacity Planner | ✗ (no tree) | `org-capacity-planner-domain-support.json` ✓ | no tree — logic PDF mislabelled "Support" in the Logic folder (may be a phantom) |
+| People Power | ✗ (no `people_power` tree) | `people-power-domain-support.json` ✓ | no `people_power` tree |
+
+*JSON outside this table:* the domain-level supports `profit-`, `data-systems-`, `forecasting-`, `sales-marketing-`, `strategy-domain-support.json` belong to the 14 domains (not method PDFs), so they don't appear above. **This Part 2A table is the *method* inventory, not the complete JSON inventory.**
 
 ---
 
@@ -697,7 +716,7 @@ Improved recommendation on the next session
 **Still open:**
 1. ⚠ The 7 non-Client app functions (Discover, Plan, Learn, Course, Progression, Profile, Firm Manager) — each needs its flow + assets mapped (Part 1 placeholders).
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
-3. ⚠ Map each Part 2A logic/support pair → its extracted JSON; flag PDFs with no JSON yet (3 Engagement Types, 5 Advisor-e Steps pending extraction).
+3. ✅ Map each Part 2A logic/support pair → its extracted JSON — DONE 2026-06-08 (mapping rule + exceptions table in Part 2A). All 42 `logic_trees.json` trees accounted for; gaps flagged: 3 support PDFs unextracted (3-Pill, Cash Tactics, Client Planning), Lite Feasibility has neither, Capacity Planner + People Power are tree-less. The two frameworks (3 Engagement Types, 5 Advisor-e Steps) are now extracted to their own JSON.
 4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
 5. ✅ Data questions — DONE: `domains.json` = 22 live domains (14 original + 8 newer, all keyword-detected + engine-wired; 8 have no domain questions yet); `signal-assignments-draft.json` = draft generator artifact, not loaded at runtime.
 6. **★ TOP PRIORITY — the 3 proprietary frameworks.** **Phase 1 (extract to editable JSON) ✅ done 2026-06-08:** Advisory Staircase → `advisory-staircase.json`; 3 Engagement Types → `engagement-types.json`; Growth Fundamentals already JSON (`growth-fundamentals.json`). All three are **inert / part-wired** — **Phase 2 (wire the selectors/logic to read the JSON, then surface in Firm Manager) is the remaining work.** Until wired, Governing Principle P1 is only partially met. **Wiring acceptance criteria (definition of done):** (a) *Growth* — point the `VirtualAdvisor.vue` selector + `growth.js` detector at the JSON (kill the 3-copy duplication); (b) *Engagement Types* — **Option C**: relocate `DOMAIN_NATURAL_ENGAGEMENT` to a per-domain field in `domains.json` (single source of truth) before the task is "done"; (c) *Staircase* — move the steps + ceiling out of `caseState.js` / `VirtualAdvisor.vue`. **Captured design notes:** `education-gates-ascent` (staircase — not wired), `domain-heuristic-vs-client-readiness` (engagement — as-built observation).
