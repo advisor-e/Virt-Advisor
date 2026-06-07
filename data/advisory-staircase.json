@@ -1,0 +1,26 @@
+{
+  "id": "advisory-staircase",
+  "name": "Advisory Staircase — 5 Advisor-e Steps",
+  "type": "proprietary-framework",
+  "lens": "relationship-dynamics",
+  "purpose": "Where the advisor's current engagement with the client sits on the relationship-depth ladder. Sets the complexity ceiling ONLY — independent of engagement type.",
+  "selectorPrompt": "Where would you say your current engagement with this client sits on the Advisory Staircase?",
+  "defaultCeiling": "foundational",
+  "steps": [
+    { "step": 1, "name": "Compilation & Verification", "complexityCeiling": "foundational", "selectorDescription": "You're primarily doing the compliance and accounting work — getting the client's data in clean, accurate and timely. The engagement is still largely transactional." },
+    { "step": 2, "name": "Assimilation", "complexityCeiling": "foundational", "selectorDescription": "You're turning that data into clear reports — filtering and rendering many data points into formats that are easy to present and digest. Where the client lacks a foundational grasp of financial management, this is the stage to introduce education — without it, climbing any higher on the staircase is near impossible." },
+    { "step": 3, "name": "Interpretation", "complexityCeiling": "analytical", "selectorDescription": "The conversation has broadened beyond the figures to making sense of them — helping the client get comfortable enough with what the data means to make decisions from it." },
+    { "step": 4, "name": "Application", "complexityCeiling": "analytical", "selectorDescription": "You're acting on it together — prioritising the real tasks, identifying the resources to deliver them, and getting things applied." },
+    { "step": 5, "name": "Observation", "complexityCeiling": "strategic", "selectorDescription": "You're in an established coaching relationship — reviewing both hard-fact and soft-fact data and asking the deeper questions, like 'was the plan flawed, or just poorly executed?'" }
+  ],
+  "designIntent": [
+    {
+      "id": "education-gates-ascent",
+      "status": "not-wired",
+      "summary": "Education is the enabler to ascend the staircase. Where a client lacks foundational financial-management knowledge, education must be introduced (commonly surfaces at Step 2, Assimilation) before they can progress up the steps.",
+      "trigger": "Client financial literacy — Lens 2 (Client Acumen); Domain 5 primary issue 'poor financial literacy'. NOT the staircase step itself.",
+      "ruleGuard": "Must never couple staircase step -> engagement type. Staircase stays ceiling-only; the education decision lives in the acumen lens.",
+      "note": "Display-only guidance for now (Step 2 selectorDescription). Wiring to be designed as a separate task."
+    }
+  ]
+}
