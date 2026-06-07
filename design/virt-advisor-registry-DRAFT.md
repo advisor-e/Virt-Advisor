@@ -122,7 +122,23 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 
 **vs Client/Discover/Plan:** advisor-facing skill development; no diagnostic pipeline; get-the-job + get-organised primary scoping; uniquely, it both **activates the 14 coaching trees** and is the **HOW-swap destination**.
 
-*(⚠ TO MAP — remaining non-Client functions: Course, Progression, Profile, Firm Manager.)*
+### Course — "I want to build a course"
+**What:** the advisor builds **and** delivers a structured, multi-session learning program for their **own** development. **Separate subsystem** — not an `advisor.js` mode. **Endpoint:** POST `/api/course` (`server-middleware/course.js`). **Frontend:** `components/CourseBuilder.vue`. **Prompts:** `course-design.txt`, `course-session.txt`. **Menu label:** "I want to build a course" (tag: Guided · Learning Program). **Model:** `gpt-4o` (heavier than the `gpt-4o-mini` used by the chat modes). **Live:** ✓. **Editable in Firm Mgr:** ✗ (prompts protected; quiz overrides are data).
+
+**Five operations (dispatched by `body.type`):**
+1. **design** (SSE) — course-design conversation → outline. A **code-controlled** question sequence (`COURSE_DESIGN_QUESTIONS`, asked one at a time with no AI call): current level/experience → intensity (consistent vs progressively harder) → session length & count. First message = primary goal (`_detectCourseMultiGoal` flags selling + delivery together). When all collected, `generateOutline` builds full context (query-filtered templates + **all** content-summaries + section descriptions + detected domains + advisor profile) + `course-design.txt` → streams an outline, emitting `[COURSE_OUTLINE]…[/COURSE_OUTLINE]` JSON parsed into `pendingOutline`. If an outline already exists, the next message is treated as a **revision** request.
+2. **session** (SSE) — delivers one session via `course-session.txt` + the session context (title/focus/objectives/resources/duration) + matched **domain support** JSON + a matched **`mode: learn` logic tree** (`detectLogicTree` → `buildLearnReferenceText`) + advisor profile + templates.
+3. **quiz-generate** (JSON) — 3 open-ended questions per session; **fixed overrides from `course-quizzes.json` take priority**, else `gpt-4o` generates.
+4. **quiz-grade** (JSON) — grades one answer (70+ = pass, deliberately generous, with revisit guidance on a low score).
+5. **progress** (JSON) — records session completion via `CourseReminderService.markComplete`. **⚠ Stub (labelled in code, not silently parked):** Phase-1 stub only; **Phase-2 persists to MySQL** + firm-level reporting.
+
+**Assets:** `course-design.txt`, `course-session.txt`; `course-starters.json` (course starters — title/blurb/session-count, used by `CourseBuilder.vue`); `course-quizzes.json` (fixed quiz overrides); `CourseReminderService`. Reuses templates, content-summaries (all injected at design), section descriptions, domain-support JSONs, and the `mode: learn` trees (session delivery), + advisor profile.
+
+**Scope (get/client lens):** advisor-development oriented (building the advisor's own learning program), but pulls relevant templates **across sections** as course material (`filterTemplatesByQuery`, no section restriction).
+
+**vs the chat modes:** separate endpoint + screen, `gpt-4o`, a code-controlled design questionnaire (not free conversation), and a quiz/grade/progress loop. No diagnostic pipeline.
+
+*(⚠ TO MAP — remaining non-Client functions: Progression, Profile, Firm Manager.)*
 
 ---
 
@@ -773,7 +789,7 @@ Improved recommendation on the next session
 **Done so far:** asset inventory (Parts 2 + 2A) · logic-table/domain-support inventory · proprietary frameworks listed · Stage-2 primary-issue registry harvested · improvement loop integrated · structure ordered global→local.
 
 **Still open:**
-1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover**, **Plan**, **Learn** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing get-organised-primary; Learn = advisor development, active home of the 14 coaching trees + HOW-swap target). Remaining: Course, Progression, Profile, Firm Manager.
+1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover**, **Plan**, **Learn**, **Course** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing get-organised-primary; Learn = advisor development, active home of the 14 coaching trees + HOW-swap target; Course = separate /api/course subsystem, design→deliver→quiz→grade→progress, progress is a Phase-2 stub). Remaining: Progression, Profile, Firm Manager.
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ✅ Map each Part 2A logic/support pair → its extracted JSON — DONE 2026-06-08 (mapping rule + exceptions table in Part 2A). All 42 `logic_trees.json` trees accounted for; gaps flagged: 3 support PDFs unextracted (3-Pill, Cash Tactics, Client Planning), Lite Feasibility has neither, Capacity Planner + People Power are tree-less. The two frameworks (3 Engagement Types, 5 Advisor-e Steps) are now extracted to their own JSON.
 4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
