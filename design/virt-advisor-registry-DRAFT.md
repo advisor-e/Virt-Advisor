@@ -107,7 +107,22 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 
 **vs Client/Discover:** advisor-facing (own growth), no diagnostic pipeline, no domain detection, get-organised-primary scoping. Its real decision logic lives **inside the prompt** — live but ✗-editable.
 
-*(⚠ TO MAP — remaining non-Client functions: Learn, Course, Progression, Profile, Firm Manager.)*
+### Learn — "I'm interested in learning more"
+**What:** helps the advisor develop their **own** professional skills and knowledge — *"their growth as an advisor — not about their clients"* (`learn.txt`). Facilitative/encouraging; always reminds the advisor the resources live inside Advisor-e. **Mode id:** `learn` (one of the 4 `advisor.js` AI-chat modes). **Prompt:** `learn.txt`. **Menu label:** "I'm interested in learning more" (tag: Facilitative · Development). **Live:** ✓. **Editable in Firm Mgr:** ✗ (prompt protected). Development areas: selling/winning clients, positioning/messaging, facilitation, psychology, networking/referrals, financial analysis & reporting, business fundamentals, revenue modelling.
+
+**Flow:** one open question at a time across *what they want to develop → where they're starting from → how they like to learn* (build a picture before recommending — never after only 1–2 exchanges), then a 5-part recommendation (My recommendation / Why this fits / What you'll get from it / How to use it / What to explore next).
+
+**Template scoping (verified `advisor.js`):** `MODE_SECTIONS.learn = ['get-the-job', 'get-organised']` → both advisor-development sections as the **primary** pool + a query-matched top-up (≤10) from other sections (can pull do-the-job when the advisor needs something to practise on).
+
+**This is the active home of the sequential coaching trees** — the **14 `mode: learn` trees** from the dormant-asset register (Part 2). Verified wiring: in learn mode, `detectLogicTree` runs on the conversation and any `mode: learn` tree is injected as coaching reference (`buildLearnReferenceText` → context). `learn.txt` carries a detailed coaching protocol for each: **Sales Process** (`sales_process`), **Trial Fit** (`trial_fit`), **Cautious Reveal** (`cautious_reveal`), **Seminar & Presentation** (`public_speaking`), **Dashboard Discussions** (`dashboard_discussions`), **Working Capital Cycle** (`working_capital_cycle`), **Ratio Analysis** (`ratio_analysis`), **Deming's Volatility** (`demings_volatility`), **Conflict Meeting Facilitation** (`conflict_meeting`). The pattern is always: *ask where the advisor is → coach one stage at a time from the reference content → progress when ready* — the tree IS the recommendation, not a source of template picks. Each tree pairs with a `*-reference.json` coaching library (trial-fit, cautious-reveal, powerful-seminars, dashboard-discussions, working-capital-cycle, ratio-analysis, demings-volatility, conflict-meeting, etc.).
+
+**Target of the invisible HOW-swap (verified, Part 8).** In the Client post-recommendation path, `isHowToRequest && mentionsTool` → the system prompt silently swaps `client.txt` → `learn.txt` **for that message only** (`advisor.js:1115`), then reverts. So an advisor mid-Client-session who asks "how do I actually use this?" gets Learn's coaching brain without changing modes.
+
+**Assets:** `learn.txt`; canned opening; `MODE_SECTIONS` scoping; the 14 `mode: learn` trees + their `*-reference.json` libraries; coaching reference (after 4 exchanges). **Does NOT use** content-summaries, case studies, section descriptions, domain support, growth reference, the Phase-2 intercept, or domain detection (client/discover only).
+
+**vs Client/Discover/Plan:** advisor-facing skill development; no diagnostic pipeline; get-the-job + get-organised primary scoping; uniquely, it both **activates the 14 coaching trees** and is the **HOW-swap destination**.
+
+*(⚠ TO MAP — remaining non-Client functions: Course, Progression, Profile, Firm Manager.)*
 
 ---
 
@@ -758,7 +773,7 @@ Improved recommendation on the next session
 **Done so far:** asset inventory (Parts 2 + 2A) · logic-table/domain-support inventory · proprietary frameworks listed · Stage-2 primary-issue registry harvested · improvement loop integrated · structure ordered global→local.
 
 **Still open:**
-1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover** + **Plan** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing, get-organised-primary, two prompt-embedded decision frameworks). Remaining: Learn, Course, Progression, Profile, Firm Manager.
+1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover**, **Plan**, **Learn** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing get-organised-primary; Learn = advisor development, active home of the 14 coaching trees + HOW-swap target). Remaining: Course, Progression, Profile, Firm Manager.
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ✅ Map each Part 2A logic/support pair → its extracted JSON — DONE 2026-06-08 (mapping rule + exceptions table in Part 2A). All 42 `logic_trees.json` trees accounted for; gaps flagged: 3 support PDFs unextracted (3-Pill, Cash Tactics, Client Planning), Lite Feasibility has neither, Capacity Planner + People Power are tree-less. The two frameworks (3 Engagement Types, 5 Advisor-e Steps) are now extracted to their own JSON.
 4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
