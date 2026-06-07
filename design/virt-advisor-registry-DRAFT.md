@@ -92,7 +92,22 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 
 **Logic trees — DORMANT here.** `discover.txt` Step 1 tells the AI to use a "Diagnostic Logic Tree if provided in the context", but the server **never injects one** into discover mode (verified: the only tree-derived text discover can receive is a `mode: learn` deep-dive reference, after 2+ messages). So that instruction always falls through to a generic clarifying question. **Decision 2026-06-08 — Option 1:** leave as-is, documented dormant, not wired (a quick search tool asking a plain question is fine). Part of the broader **28-dormant-diagnostic-trees** question — see the Part 2 dormant-asset register.
 
-*(⚠ TO MAP — remaining non-Client functions: Plan, Learn, Course, Progression, Profile, Firm Manager.)*
+### Plan — "I want to plan ahead"
+**What:** helps the advisor plan their **own** career, practice, and development — explicitly *"not about their clients… about them"* (`plan.txt`). Facilitative/exploratory. **Mode id:** `plan` (one of the 4 `advisor.js` AI-chat modes). **Prompt:** `plan.txt`. **Menu label:** "I want to plan ahead" (tag: Facilitative · Advisor Planning). **Live:** ✓. **Editable in Firm Mgr:** ✗ (prompt protected).
+
+**Flow:** open questions one at a time across current situation → 12-month goals → what they've tried (~3–4 exchanges), then a 5-part recommendation (My recommendation / Why this fits where you are / What this will help you achieve / How to use it / What this typically leads to).
+
+**Template scoping (verified `advisor.js`):** `MODE_SECTIONS.plan = ['get-organised']` → all get-organised templates (advisor planning / career dev / firm logistics) as the **primary** pool, **plus** a query-matched top-up (≤10) from other sections. Leads with the advisor's own development tools but can pull get-the-job (selling) or do-the-job (delivery) when the conversation moves there (`plan.txt` Rule: *"the advisor's needs come first, not the section boundary"*).
+
+**Two proprietary decision frameworks embedded IN the prompt** (live, but locked in `plan.txt` — not in the editable layer; a "locked-in-prompt" GAP):
+- **Sales-Process matching** — match the sales approach to advisor experience/confidence. New/unconfident → always Free Client Content / TCM (softest entry). Confident/experienced → a decision table (Campaign / Lite Fundamentals vs Total Needs vs Planning Outcomes Review) by client type. Plus the **HOW-you-sell ≠ WHAT-you-deliver** rule (sales process vs Modular/Bespoke solution are separate decisions).
+- **Fee-Growth role-based routing** — identify role + firm position, then give **two tools (model first, then plan)**: partner/director → Practice Capacity Planner + My Fee Growth Plan; advisor growing own fees → My Fee Growth Model + My Fee Growth Plan; financial planner → Financial Advisor model + My Fee Growth Plan.
+
+**Assets:** `plan.txt`; canned opening; `MODE_SECTIONS` scoping; **Advisor Profile** (Fee-Growth routing reads the role field, asks if unset); coaching reference (after 4 exchanges). **Does NOT use** content-summaries, case studies, section descriptions, domain support, growth reference, or the Phase-2 intercept — those are client/discover only.
+
+**vs Client/Discover:** advisor-facing (own growth), no diagnostic pipeline, no domain detection, get-organised-primary scoping. Its real decision logic lives **inside the prompt** — live but ✗-editable.
+
+*(⚠ TO MAP — remaining non-Client functions: Learn, Course, Progression, Profile, Firm Manager.)*
 
 ---
 
@@ -743,7 +758,7 @@ Improved recommendation on the next session
 **Done so far:** asset inventory (Parts 2 + 2A) · logic-table/domain-support inventory · proprietary frameworks listed · Stage-2 primary-issue registry harvested · improvement loop integrated · structure ordered global→local.
 
 **Still open:**
-1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover done 2026-06-08** (universal finder; all-section search by design; diagnostic-tree instruction documented dormant). Remaining: Plan, Learn, Course, Progression, Profile, Firm Manager.
+1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover** + **Plan** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing, get-organised-primary, two prompt-embedded decision frameworks). Remaining: Learn, Course, Progression, Profile, Firm Manager.
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ✅ Map each Part 2A logic/support pair → its extracted JSON — DONE 2026-06-08 (mapping rule + exceptions table in Part 2A). All 42 `logic_trees.json` trees accounted for; gaps flagged: 3 support PDFs unextracted (3-Pill, Cash Tactics, Client Planning), Lite Feasibility has neither, Capacity Planner + People Power are tree-less. The two frameworks (3 Engagement Types, 5 Advisor-e Steps) are now extracted to their own JSON.
 4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
