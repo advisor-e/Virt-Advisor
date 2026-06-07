@@ -7,11 +7,11 @@
 
 ### How this document is ordered
 **Global understanding first (Parts 0–3), then local detail (Parts 4–10).**
-0. Governing Principles · 0A. Plain-Language Glossary · 1. App Functions · 2. Master Asset Table · 2A. Logic/Support inventory · 3. Decision Pipeline (the 7-stage loop)
+0. Governing Principles · 0A. Plain-Language Glossary · 1. App Functions · 1A. Non-Client Function Detail · 2. Master Asset Table · 2A. Logic/Support inventory · 3. Decision Pipeline (the 7-stage loop)
 4. Lenses · 5. 14 Questions→Lenses · 6. Categorisation Axes · 7. Stage Detail · 7A. Stage-2 Primary Issue Registry · 8. Invisible HOW-Swap · 9. Improvement Engine · 10. Migration Checklist
 
 ### Note for external reviewers
-This describes one of 8 app functions in full (the **Client** advisory function, Parts 3–7); the other 7 functions are listed in Part 1 and flagged ⚠ TO MAP. Please focus feedback on **structure, completeness, clarity, and whether the decision logic is sound** — not on the items already marked ⚠ TO MAP (we know those are outstanding). The system is largely **built and running**; this registry's job is to make it auditable and to expose every building block for no-code editing (Principle P1).
+This describes the **Client** advisory function's engine in full (Parts 3–7); the other 7 functions are now documented in **Part 1A**. Please focus feedback on **structure, completeness, clarity, and whether the decision logic is sound**. Remaining open work is flagged inline (⚠ TO MAP / GAP) — chiefly the framework Phase-2 wiring (Outstanding item 6) and the case-study DB migration. The system is largely **built and running**; this registry's job is to make it auditable and to expose every building block for no-code editing (Principle P1).
 
 ---
 
@@ -54,18 +54,18 @@ Technical terms used in this registry, in advisor language. (One line each.)
 
 ## Part 1 — The App Functions
 
-Virt Advisor is **8 functions**, not one. The advisor picks a function from the menu; only the first (Client) runs the diagnostic pipeline. The rest are documented as their own flows. **The bulk of this registry (Parts 3–7) currently describes the Client function's engine** — the other functions need their own mapping (flagged ⚠ TO MAP).
+Virt Advisor is **8 functions**, not one. The advisor picks a function from the menu; only the first (Client) runs the diagnostic pipeline. **The bulk of this registry (Parts 3–7) describes the Client function's engine**; the other 7 functions are documented in **Part 1A**. Note the **Type** column: only Client/Discover/Plan/Learn are `advisor.js` AI-chat *modes* — Course/Progression/Profile/Firm Manager are separate subsystems with their own routes/pages, not modes.
 
-| # | Function (menu label) | What it does | Mode id | In this registry |
+| # | Function (menu label) | What it does | Type · id | In this registry |
 |---|---|---|---|---|
-| 1 | **Client** — "I have a client situation" | Guided advisory: diagnose the client situation → recommend templates → explain why | `client` | ✅ Parts 3–7 (the 7-stage closed loop) |
-| 2 | **Discover** — "I want to find a template" | Template search by concept, capability, or half-remembered name | `discover` | ⚠ TO MAP |
-| 3 | **Plan** — "I want to plan ahead" | Advisor's own practice / fee / development planning | `plan` | ⚠ TO MAP |
-| 4 | **Learn** — "I want to learn more" | Skill-development coaching (also the target of the invisible HOW-swap) | `learn` | ⚠ TO MAP (see Part 8) |
-| 5 | **Course** — "I want to build a course" | Builds + delivers a structured learning course | `course` | ⚠ TO MAP |
-| 6 | **Progression** — "My Progress" | Tracks the advisor's capability across tiers | `progression` | ⚠ TO MAP |
-| 7 | **Profile** — Advisor Profile | Stores known advisor facts to personalise all functions | `profile` | ⚠ TO MAP |
-| 8 | **Firm Manager** — admin hub | The **editing surface** for building blocks: documents, advisory distinctions, decision framework, videos, firm profile | `/firm-manager` | ⚠ TO MAP |
+| 1 | **Client** — "I have a client situation" | Guided advisory: diagnose the client situation → recommend templates → explain why | chat mode · `client` | ✅ Parts 3–7 (the 7-stage closed loop) |
+| 2 | **Discover** — "I want to find something specific" | Universal template finder (any section) by concept, capability, or half-remembered name | chat mode · `discover` | ✅ Part 1A |
+| 3 | **Plan** — "I want to plan ahead" | Advisor's own practice / fee / development planning | chat mode · `plan` | ✅ Part 1A |
+| 4 | **Learn** — "I'm interested in learning more" | Skill-development coaching; home of the 14 coaching trees; HOW-swap target | chat mode · `learn` | ✅ Part 1A (+ Part 8) |
+| 5 | **Course** — "I want to build a course" | Builds + delivers a structured learning course | subsystem · `/api/course` | ✅ Part 1A |
+| 6 | **Progression** — "My Progress" | Tracks the advisor's capability across tiers (DB-backed) | subsystem · `/api/activity/*` | ✅ Part 1A |
+| 7 | **Profile** — "Your advisor profile" | Stores known advisor facts to personalise all functions | form · localStorage | ✅ Part 1A |
+| 8 | **Firm Manager** — "Team Dashboard" / admin hub | The **editing surface** for building blocks: documents, advisory distinctions, decision framework, videos, firm profile | subsystem · `/api/firm-manager/*` | ✅ Part 1A |
 
 **Key relationships:**
 - Functions 2–7 draw on the same asset library but use different prompts/flows (e.g. `discover.txt`, `plan.txt`, `learn.txt`, course files).
@@ -220,7 +220,7 @@ The single global view of every asset and building block: what triggers it, whic
 | Source PDFs — `Domain Support/` (49) | source docs | — | — | human source for `*-domain-support.json` / `*-reference.json` — **itemised in Part 2A** | n/a | n/a |
 | Source docs — root (Common Problem Framework, Do the Job headers/summaries, Get the Job, 3 Engagement Types) | source docs | — | — | reference for categorisation + engagement types | n/a | n/a |
 
-**Reading it:** Advisory Distinctions is the only block both live AND editable in Firm Manager. The **three proprietary frameworks are the top migration priority** — until they're editable, Governing Principle P1 is only partially met (the system's whole point goes unrealised for its most valuable IP). They sit at different distances: **Growth Fundamentals** is already JSON and only needs Firm-Manager wiring; **Advisory Staircase (5 Advisor-e Steps)** and the **3 Engagement Types** are still locked in PDF/code and must first be extracted into a logic tree + domain-support JSON, then wired. Closing the "✗ editable" column — **frameworks first** — is the registry's working backlog.
+**Reading it:** Advisory Distinctions is the only block both live AND editable in Firm Manager. The **three proprietary frameworks are the top migration priority** — until they're editable, Governing Principle P1 is only partially met (the system's whole point goes unrealised for its most valuable IP). All three now have JSON: **Growth Fundamentals** (`growth-fundamentals.json`, already drives the AI narrative), **Advisory Staircase** (`advisory-staircase.json`, extracted 2026-06-08) and **3 Engagement Types** (`engagement-types.json`, extracted 2026-06-08). **Phase 1 (extract to editable JSON) is done; Phase 2 (wire the selectors/logic to read the JSON, then surface in Firm Manager) is the remaining work** — see Outstanding item 6 for the per-framework wiring acceptance criteria. Closing the "✗ editable" column — **frameworks first** — is the registry's working backlog.
 
 **Dormant-asset register — `logic_trees.json` (the "no silent parking" rule).** The 42 trees, split by *real* usage (verified 2026-06-08 against the `mode` field):
 - **14 active** (`mode: learn`) — used as how-to coaching content in Learn mode + the Client/Discover deep-dive offer: `sales_process`, `public_speaking`, `trial_fit`, `cautious_reveal`, `eoy_meeting`, `facilitation_101`, `reveal_growth_curve`, `conflict_meeting`, `capacity_capability_opportunity`, `heald_matrix`, `demings_volatility`, `working_capital_cycle`, `ratio_analysis`, `dashboard_discussions`.
@@ -838,4 +838,4 @@ Improved recommendation on the next session
 4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
 5. ✅ Data questions — DONE: `domains.json` = 22 live domains (14 original + 8 newer, all keyword-detected + engine-wired; 8 have no domain questions yet); `signal-assignments-draft.json` = draft generator artifact, not loaded at runtime.
 6. **★ TOP PRIORITY — the 3 proprietary frameworks.** **Phase 1 (extract to editable JSON) ✅ done 2026-06-08:** Advisory Staircase → `advisory-staircase.json`; 3 Engagement Types → `engagement-types.json`; Growth Fundamentals already JSON (`growth-fundamentals.json`). All three are **inert / part-wired** — **Phase 2 (wire the selectors/logic to read the JSON, then surface in Firm Manager) is the remaining work.** Until wired, Governing Principle P1 is only partially met. **Wiring acceptance criteria (definition of done):** (a) *Growth* — point the `VirtualAdvisor.vue` selector + `growth.js` detector at the JSON (kill the 3-copy duplication); (b) *Engagement Types* — **Option C**: relocate `DOMAIN_NATURAL_ENGAGEMENT` to a per-domain field in `domains.json` (single source of truth) before the task is "done"; (c) *Staircase* — move the steps + ceiling out of `caseState.js` / `VirtualAdvisor.vue`. **Captured design notes:** `education-gates-ascent` (staircase — not wired), `domain-heuristic-vs-client-readiness` (engagement — as-built observation).
-7. Final read-through together → promote to official registry (old one already archived, not deleted — Part 10).
+7. ✅ Final read-through done 2026-06-08 — front-section stale items cleared (reviewer note, Part 1 table + Type column, Part 2 framework status, nav, Part 1A added). **Ready to promote:** on approval, flip the STATUS banner DRAFT→official and remove the draft warnings (old registry already archived, not deleted — Part 10). Genuine open work stays flagged inline (framework Phase-2 wiring; loop DB migration; HOW-swap edge case).
