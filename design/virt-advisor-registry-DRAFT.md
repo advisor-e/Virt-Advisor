@@ -74,6 +74,28 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 
 ---
 
+## Part 1A — Non-Client Function Detail
+
+> The Client function's engine is Parts 3–7. This part documents the **other** functions, built up one at a time and verified against live code. Each entry states what the function is, its flow, its assets, and — per the no-silent-parking rule — what is actually wired vs dormant.
+
+### Discover — "I want to find something specific"
+**What:** a universal template **finder** — the advisor locates a specific template by concept, capability, or half-remembered name, then gets delivery help. **Searches the whole library (any section) by design** — the advisor may be hunting a client-facing Do-the-Job tool *or* one of their own get-the-job / get-organised tools (Mike-confirmed 2026-06-08). **Not** a diagnostic pipeline. **Mode id:** `discover` (one of the 4 `advisor.js` AI-chat modes). **Prompt:** `discover.txt`. **Menu label:** "I want to find something specific" (`en.json mode.discover`). **Live:** ✓. **Editable in Firm Mgr:** ✗ (prompt protected).
+
+**Flow (strict 3 steps):**
+1. **Find** — match to the best template; ask ONE clarifying question if vague. Tracks every rejected template, never re-suggests one. Honest "no match" fallback. Output: **Best match / How it works / Also worth considering**, ending with the fixed line *"Is that what you had in mind…?"*
+2. **Confirm** — never skipped. If wrong, ask what was missing (+ keywords) and re-search without repeats; if confirmed → Step 3.
+3. **Deliver** — only after confirmation, offer approach help / email / opening script. Deliberately does **not** ask experience or confidence — actively searching is signal enough.
+
+**Template scoping (verified `advisor.js` + `templates.js`):** Discover is **not** in `MODE_SECTIONS`, so `primarySections = null` → the AI receives the **top-25 query-matched templates across all sections** (`filterTemplatesByQuery`, no section filter). Each result is labelled *"Client-facing delivery tool"* vs *"Advisor reference/learning resource"* (`formatTemplatesForPrompt`) — so the get/client distinction is preserved by **labelling, not exclusion**. *(Contrast: Client hard-excludes get-the-job / get-organised via `excludeSections`.)*
+
+**Assets:** `discover.txt`; canned opening; coaching reference (always on in discover); `content-summaries.json`; case summaries; section descriptions; advisor profile. Shares Client's context-assembly path (`mode === 'client' || 'discover'`) but **skips the diagnostic engine (Stages 1–4)** entirely. A `[POST-RECOMMENDATION]` guard stops it restarting the search and hard-binds it to the exact template list (no invented names).
+
+**Logic trees — DORMANT here.** `discover.txt` Step 1 tells the AI to use a "Diagnostic Logic Tree if provided in the context", but the server **never injects one** into discover mode (verified: the only tree-derived text discover can receive is a `mode: learn` deep-dive reference, after 2+ messages). So that instruction always falls through to a generic clarifying question. **Decision 2026-06-08 — Option 1:** leave as-is, documented dormant, not wired (a quick search tool asking a plain question is fine). Part of the broader **28-dormant-diagnostic-trees** question — see the Part 2 dormant-asset register.
+
+*(⚠ TO MAP — remaining non-Client functions: Plan, Learn, Course, Progression, Profile, Firm Manager.)*
+
+---
+
 ## Part 2 — Master Asset Table
 
 The single global view of every asset and building block: what triggers it, which stage/section it supports, how it influences the decision, whether it's live, and whether it's editable in the Firm Manager (Governing Principle P1). **Proprietary frameworks are first-class assets and listed here.** This table replaces the old separate "asset inventory" and "building-block status" tables — one source, no duplication.
@@ -721,7 +743,7 @@ Improved recommendation on the next session
 **Done so far:** asset inventory (Parts 2 + 2A) · logic-table/domain-support inventory · proprietary frameworks listed · Stage-2 primary-issue registry harvested · improvement loop integrated · structure ordered global→local.
 
 **Still open:**
-1. ⚠ The 7 non-Client app functions (Discover, Plan, Learn, Course, Progression, Profile, Firm Manager) — each needs its flow + assets mapped (Part 1 placeholders).
+1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover done 2026-06-08** (universal finder; all-section search by design; diagnostic-tree instruction documented dormant). Remaining: Plan, Learn, Course, Progression, Profile, Firm Manager.
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ✅ Map each Part 2A logic/support pair → its extracted JSON — DONE 2026-06-08 (mapping rule + exceptions table in Part 2A). All 42 `logic_trees.json` trees accounted for; gaps flagged: 3 support PDFs unextracted (3-Pill, Cash Tactics, Client Planning), Lite Feasibility has neither, Capacity Planner + People Power are tree-less. The two frameworks (3 Engagement Types, 5 Advisor-e Steps) are now extracted to their own JSON.
 4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
