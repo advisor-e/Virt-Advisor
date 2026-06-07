@@ -152,7 +152,18 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 
 **⚠ Dependency:** needs the MySQL tables provisioned; `restify-server.js` warns when `MYSQL_PASSWORD` is a placeholder → routes return empty.
 
-*(⚠ TO MAP — remaining non-Client functions: Profile, Firm Manager.)*
+### Profile — "Your advisor profile"
+**What:** stores known facts about the advisor, captured **once**, then reused to personalise recommendations across functions — *"Answer a few questions once — I'll use your background in every recommendation, without asking again."* **Not** a chat mode or separate endpoint — a **modal form inside `VirtualAdvisor.vue`** (reached from a menu card). **Menu label:** "Your advisor profile". **Live:** ✓. **Editable in Firm Mgr:** n/a (advisor-owned).
+
+**Fields (7):** `advisorRole`, `experience`, `clientDemographic`, `enjoyment`, `technicalStrengths`, `toolsComfort`, `notes`. **Adaptive questioning:** the wording switches between standard and **beginner** variants (`enjoymentBeginner`, `clientDemographicBeginner`, `technicalStrengthsBeginner`) based on the advisor's stated role/experience. Supports **voice input** per field.
+
+**How it's used (the cross-cutting personalisation layer):** passed as `advisorProfile` into Client/Discover (`formatAdvisorProfile` → context, drives the "Why this suits you as the advisor" section, and lets the **Phase-2 intercept** skip re-asking when a profile exists), Plan (Fee-Growth routing reads the role field), Learn, and Course (design + session context). One profile feeds five functions.
+
+**Storage:** **localStorage only** (client-side) — not synced across devices, not in the firm DB (same limitation as case studies; same migration target). Switch device → profile is gone.
+
+**Privacy by design:** the `clientDemographic` question explicitly instructs *"please don't mention names"*; the profile stores the **advisor's own** professional background, not client PII.
+
+*(⚠ TO MAP — remaining non-Client function: Firm Manager.)*
 
 ---
 
@@ -803,7 +814,7 @@ Improved recommendation on the next session
 **Done so far:** asset inventory (Parts 2 + 2A) · logic-table/domain-support inventory · proprietary frameworks listed · Stage-2 primary-issue registry harvested · improvement loop integrated · structure ordered global→local.
 
 **Still open:**
-1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover**, **Plan**, **Learn**, **Course** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing get-organised-primary; Learn = advisor development, active home of the 14 coaching trees + HOW-swap target; Course = separate /api/course subsystem, design→deliver→quiz→grade→progress, progress is a Phase-2 stub). Remaining: Profile, Firm Manager.
+1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover**, **Plan**, **Learn**, **Course** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing get-organised-primary; Learn = advisor development, active home of the 14 coaching trees + HOW-swap target; Course = separate /api/course subsystem, design→deliver→quiz→grade→progress, progress is a Phase-2 stub). Remaining: Firm Manager.
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ✅ Map each Part 2A logic/support pair → its extracted JSON — DONE 2026-06-08 (mapping rule + exceptions table in Part 2A). All 42 `logic_trees.json` trees accounted for; gaps flagged: 3 support PDFs unextracted (3-Pill, Cash Tactics, Client Planning), Lite Feasibility has neither, Capacity Planner + People Power are tree-less. The two frameworks (3 Engagement Types, 5 Advisor-e Steps) are now extracted to their own JSON.
 4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
