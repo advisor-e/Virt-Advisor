@@ -163,7 +163,25 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 
 **Privacy by design:** the `clientDemographic` question explicitly instructs *"please don't mention names"*; the profile stores the **advisor's own** professional background, not client PII.
 
-*(⚠ TO MAP — remaining non-Client function: Firm Manager.)*
+### Firm Manager — the editing hub (admin)
+**What:** the **no-code editing surface** for the firm's building blocks — the delivery of Governing Principle P1 (auditable AND editable). Cross-cutting (Function 8): it edits the assets the other functions consume. **Separate page:** `pages/firm-manager.vue` (+ `components/FirmManagerHub.vue`). **Backend:** `server/routes/firmManager.js`. **Menu label:** "Team Dashboard" / Firm Manager. **Live:** ✓ (Advisory Distinctions fully; others per below). **This IS the Firm-Mgr "editable" column** referenced throughout Part 2.
+
+**Security — the reference implementation for secure multi-tenancy.** Every route is guarded by `[firmAuth, requireManagerRole]` (registered in `restify-server.js`): a valid JWT + a `firm_manager` / `platform_admin` role, with `firmId` **derived from the verified token** (the line-130 standard). This is the correct pattern that the Progression/case-study routes still need to adopt (see HANDOFF Security Notes).
+
+**What a manager edits (routes):**
+- **Documents** — `GET/POST /documents`, `/documents/download`, `DEL /documents/:fileId`. Stored in **Google Drive**; PDF-only, MIME-validated, size + per-firm quota enforced.
+- **Decision Framework** — `GET/POST /framework` + `GET /framework/history` + `POST /framework/restore`. **Versioned with one-click restore** — a real config-versioning implementation (the auditability goal in Part 9, realised here).
+- **Advisory Distinctions** — full CRUD (`GET/POST/PUT/DEL /distinctions/:id`). The proven, live, editable building block — proof-of-concept for the whole "edit without code" model; has dev-mode file fallbacks (`_devRead/_WriteDistinctions`).
+- **Videos** — `GET/POST/DEL /videos/:id` (HTTPS training videos).
+- **Firm Profile** — `GET/PUT /profile`.
+- **Template Import** — `GET/POST/DEL /templates` (import / reset the firm's templates).
+- **Storage usage** — `GET /storage` (per-firm quota view).
+
+**Loop role:** drives the **Stage-7** action — `POST /api/cases/promote` (`firmAuth` + `requireManagerRole`) promotes a strong reviewed case into the coaching reference.
+
+**vs everything else:** not a recommendation function — it's the **control surface** that makes the other seven functions' building blocks editable. Closing the "✗ editable" column across Part 2 = bringing more blocks under *these* routes.
+
+*(✅ All 7 non-Client functions now documented in Part 1A.)*
 
 ---
 
@@ -814,7 +832,7 @@ Improved recommendation on the next session
 **Done so far:** asset inventory (Parts 2 + 2A) · logic-table/domain-support inventory · proprietary frameworks listed · Stage-2 primary-issue registry harvested · improvement loop integrated · structure ordered global→local.
 
 **Still open:**
-1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover**, **Plan**, **Learn**, **Course** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing get-organised-primary; Learn = advisor development, active home of the 14 coaching trees + HOW-swap target; Course = separate /api/course subsystem, design→deliver→quiz→grade→progress, progress is a Phase-2 stub). Remaining: Firm Manager.
+1. ✅ **DONE 2026-06-08 — all 7 non-Client app functions documented in Part 1A.** Discover (universal finder), Plan (advisor-facing get-organised-primary), Learn (advisor development; active home of the 14 coaching trees + HOW-swap target), Course (separate /api/course subsystem; progress is a Phase-2 stub), Progression (DB-backed tier dashboard; flagged IDOR gap → HANDOFF), Profile (cross-cutting personalisation; localStorage-only), Firm Manager (the secured no-code editing hub; reference impl for multi-tenant auth).
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ✅ Map each Part 2A logic/support pair → its extracted JSON — DONE 2026-06-08 (mapping rule + exceptions table in Part 2A). All 42 `logic_trees.json` trees accounted for; gaps flagged: 3 support PDFs unextracted (3-Pill, Cash Tactics, Client Planning), Lite Feasibility has neither, Capacity Planner + People Power are tree-less. The two frameworks (3 Engagement Types, 5 Advisor-e Steps) are now extracted to their own JSON.
 4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
