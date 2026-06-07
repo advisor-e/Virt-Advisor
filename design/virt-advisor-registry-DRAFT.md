@@ -87,7 +87,8 @@ The single global view of every asset and building block: what triggers it, whic
 | `domains.json` | data | Q1/Q3 + domain questions | Stage 1 detection · Stage 2 | domain routing + domain questions | ✓ | editable |
 | `signal-dictionary.json` | data | Q1/Q3/Q14 free text | Stage 1 | free-text → signals | ✓ | editable |
 | `primary-issues.json` (10 domains) | data | domain + answers | Stage 2 | primary-issue options | ✓ | ✗ — target table |
-| `logic_trees.json` (42) | **proprietary decision trees** | advisor answers | Stage 2 (dormant fallback) | diagnostic pathway → templates | ⚠ dormant | ✗ — target flowchart |
+| `logic_trees.json` — **14 active** (`mode: learn`) | **proprietary decision trees** | topic mentioned in chat | Learn mode + Client/Discover deep-dive | how-to **coaching reference** content | ✓ **live & used** | ✗ — editor target |
+| `logic_trees.json` — **28 dormant** (diagnostic, no `mode`) | **proprietary decision trees** | — (consumed by no live path) | Stage 2 diagnosis — **built but NOT wired** | *intended:* diagnostic pathway → templates; *actual:* idle (advisor selects the primary issue instead) | ⚠ **DORMANT / parked** | ✗ — target flowchart |
 | `semantic-profiles.json` (125) | auto-generated | signals | Stage 4 | template scoring weights | ✓ | ✗ (auto-gen) |
 | `advisory-distinctions.json` + firm DB (67) | data | advisor free text (AI-classified) | Stage 4 boost | phrase/theme → template boost | ✓ | ✓ **built** |
 | Relevance gate (R17) | prompt rule (`client.txt`) | candidate pool | Stage 4 | AI excludes ill-fitting templates | ✓ (interim) | ✗ |
@@ -109,6 +110,12 @@ The single global view of every asset and building block: what triggers it, whic
 | Source docs — root (Common Problem Framework, Do the Job headers/summaries, Get the Job, 3 Engagement Types) | source docs | — | — | reference for categorisation + engagement types | n/a | n/a |
 
 **Reading it:** Advisory Distinctions is the only block both live AND editable in Firm Manager. The **three proprietary frameworks are the top migration priority** — until they're editable, Governing Principle P1 is only partially met (the system's whole point goes unrealised for its most valuable IP). They sit at different distances: **Growth Fundamentals** is already JSON and only needs Firm-Manager wiring; **Advisory Staircase (5 Advisor-e Steps)** and the **3 Engagement Types** are still locked in PDF/code and must first be extracted into a logic tree + domain-support JSON, then wired. Closing the "✗ editable" column — **frameworks first** — is the registry's working backlog.
+
+**Dormant-asset register — `logic_trees.json` (the "no silent parking" rule).** The 42 trees, split by *real* usage (verified 2026-06-08 against the `mode` field):
+- **14 active** (`mode: learn`) — used as how-to coaching content in Learn mode + the Client/Discover deep-dive offer: `sales_process`, `public_speaking`, `trial_fit`, `cautious_reveal`, `eoy_meeting`, `facilitation_101`, `reveal_growth_curve`, `conflict_meeting`, `capacity_capability_opportunity`, `heald_matrix`, `demings_volatility`, `working_capital_cycle`, `ratio_analysis`, `dashboard_discussions`.
+- **28 dormant** (diagnostic, no `mode`) — **built but consumed by NO live decision path** (the Client flow uses advisor primary-issue selection instead): `quickfire`, `client_sales`, `cashflow`, `governance`, `client_planning`, `staff_performance`, `frameworks_find`, `systems`, `risk_management`, `valuation`, `succession`, `profitability_feasibility`, `due_diligence`, `get_sales_tracker`, `get_marketing`, `get_positioning`, `get_team_problem`, `get_pricing_proposals`, `stock_purchasing`, `raising_capital`, `fm_coach_culture`, `get_seminar`, `org_ca_firm_strategy`, `org_firm_board_pack`, `org_leadership`, `financial_systems_review`, `three_pill_fin_mgt`, `cash_tactics`.
+
+**Governance rule (Principle P1 — no silent parking):** every asset must carry an honest status — **live & used** / **built but dormant** / **parked** — and anything *built-but-not-wired* must appear as a **named** backlog item, never absorbed into an aggregate count. No asset may be parked without a registry entry + status + reason. *(The 28 dormant diagnostic trees are the standing example of what this rule exists to prevent.)*
 
 ⚠ TO MAP — fold in any remaining per-file detail from `registry_compilation_wip.md` (memory).
 
