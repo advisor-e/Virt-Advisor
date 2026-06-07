@@ -780,7 +780,7 @@ export default {
         { name: 'Reach', description: 'The business is now enjoying multiple locations as the brand is beginning to spread. New products are also part of the picture.' },
         { name: 'Leapfrog', description: 'The business enjoys the ability to purchase or merge with like-minded competitors. Market share is now substantial.' },
         { name: 'Maturity', description: 'The business commands a sizeable market-share and creates a barrier to entry for any business looking to compete against it.' },
-        { name: 'Exit / Decline', description: 'The owners realise their capital gain via sale, MBO, or succession to family. (If successful.) Or the business dwindles as the owner/s seek retirement. (If they missed the mark.)' }
+        { name: 'Exit / Decline', description: 'The owners realise their capital gain via sale, MBO, or succession. (If successful.) Or the business dwindles as the owner/s seek retirement. (If they missed the mark.)' }
       ]
     }
   },
