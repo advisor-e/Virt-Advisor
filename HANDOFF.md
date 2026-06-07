@@ -135,6 +135,17 @@ All endpoints require `Authorization: Bearer <token>` with a `firm_manager` or `
 - Uploaded files are validated by MIME type on the server before being sent to Drive.
 - The `firmAuth` middleware returns 401/403 before any handler runs if the token is invalid or the role is insufficient.
 
+### ⚠ KNOWN GAP — client-supplied identity on non-Firm-Manager routes (must-fix before real data)
+
+The JWT-derived-identity standard above currently applies to the **Firm Manager** routes only. Two subsystems still trust **client-supplied** `advisorId` / `firmId` and must be brought up to that standard when the auth layer is wired:
+
+- **Activity / Progression** — `server/routes/activity.js` (`/api/activity/log-course`, `/api/activity/progression`, `/api/activity/team`). IDs come from query/body params. As-is this is **broken access control (IDOR)**: a caller can read another advisor's or firm's progression data by changing the IDs.
+- **Case studies** — `utils/cases.js` → future `/api/cases/*` (see Learning Loop section + the field table where `advisor_id` / `firm_id` are noted as "Client prop"). Same pattern.
+
+**Fix (both, against the line-130 standard):** derive `advisorId` / `firmId` from the verified JWT (the `firmAuth` pattern), never from the request; scope every DB query to those values; enforce ownership — an advisor sees only their own data, a firm manager only their own firm.
+**Gate:** close before the Progression feature serves real firm data.
+*(Surfaced per the registry's no-silent-parking rule — cross-ref registry Part 1A → Progression.)*
+
 ---
 
 ## Learning Loop — Case Studies

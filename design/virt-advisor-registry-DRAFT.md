@@ -138,7 +138,21 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 
 **vs the chat modes:** separate endpoint + screen, `gpt-4o`, a code-controlled design questionnaire (not free conversation), and a quiz/grade/progress loop. No diagnostic pipeline.
 
-*(⚠ TO MAP — remaining non-Client functions: Progression, Profile, Firm Manager.)*
+### Progression — "My Progress"
+**What:** a dashboard tracking the advisor's capability progression across three tiers (**entry-level / intermediate / advanced**) — counts of VA (client) sessions and course sessions, average quiz scores, and last-active per tier; plus a **team overview** for the firm manager. **Separate subsystem** — not an `advisor.js` mode. **Frontend:** `components/AdvisorProgression.vue`. **Backend:** `server/routes/activity.js` (Restify, registered in `restify-server.js`). **Menu label:** "My Progress" (tag: Development). **Live:** ✓ (DB-backed). **Editable in Firm Mgr:** n/a (reporting view).
+
+**Routes (registered in `restify-server.js`):**
+- `POST /api/activity/log-course` — log a completed course session
+- `GET /api/activity/progression?advisorId&firmId` — advisor's own tier progression
+- `GET /api/activity/team?firmId` — firm-manager team overview
+
+**Data store:** MySQL tables `advisor_va_sessions` + `advisor_course_completions`, written by `server/utils/activityLogger.js` — `logVASession` (domain + recommended templates + highest tier from a completed Client session) and `logCourseSession` (course session + quiz score + tier). The dashboard aggregates both per tier (vaSessions, courseSessions, avgQuizScore, lastActive). DB calls fall back to empty data if the DB is unavailable (graceful).
+
+**⚠ SECURITY GAP — broken access control / IDOR (labelled in code).** `advisorId` / `firmId` are **client-supplied** query/body params, not verified. The route's own INTEGRATION NOTE says replace with **JWT-derived** values once auth is wired. As-is, a caller can request another advisor's or firm's data by changing the IDs. **Must be closed before real firm data goes live** — derive identity from the authenticated session and enforce ownership (advisor → own only; firm-manager → own firm only) on all three routes. *(Distinct from the Course `progress` stub — the activity routes DO write to the real DB.)*
+
+**⚠ Dependency:** needs the MySQL tables provisioned; `restify-server.js` warns when `MYSQL_PASSWORD` is a placeholder → routes return empty.
+
+*(⚠ TO MAP — remaining non-Client functions: Profile, Firm Manager.)*
 
 ---
 
@@ -789,7 +803,7 @@ Improved recommendation on the next session
 **Done so far:** asset inventory (Parts 2 + 2A) · logic-table/domain-support inventory · proprietary frameworks listed · Stage-2 primary-issue registry harvested · improvement loop integrated · structure ordered global→local.
 
 **Still open:**
-1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover**, **Plan**, **Learn**, **Course** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing get-organised-primary; Learn = advisor development, active home of the 14 coaching trees + HOW-swap target; Course = separate /api/course subsystem, design→deliver→quiz→grade→progress, progress is a Phase-2 stub). Remaining: Progression, Profile, Firm Manager.
+1. ⚠ The 7 non-Client app functions — detail now lives in **Part 1A**. ✅ **Discover**, **Plan**, **Learn**, **Course** done 2026-06-08 (Discover = universal finder; Plan = advisor-facing get-organised-primary; Learn = advisor development, active home of the 14 coaching trees + HOW-swap target; Course = separate /api/course subsystem, design→deliver→quiz→grade→progress, progress is a Phase-2 stub). Remaining: Profile, Firm Manager.
 2. ✅ Stage 1 constrained selectors → lens + edit status — DONE (table in Stage 1 detail; Growth Curve→Lens 2, Staircase + Session Length→Lens 3, Fin-Mgt Theme→Lens 1; options hard-coded in `VirtualAdvisor.vue`).
 3. ✅ Map each Part 2A logic/support pair → its extracted JSON — DONE 2026-06-08 (mapping rule + exceptions table in Part 2A). All 42 `logic_trees.json` trees accounted for; gaps flagged: 3 support PDFs unextracted (3-Pill, Cash Tactics, Client Planning), Lite Feasibility has neither, Capacity Planner + People Power are tree-less. The two frameworks (3 Engagement Types, 5 Advisor-e Steps) are now extracted to their own JSON.
 4. ✅ Stage 3/4/5 detail — DONE. Stage 3 + Stage 4 (scoring/two-card), course-correction safeguards, Stage 2 primary-issue derivation (+ redesign-intent debt note), and Stage 5 prompt assembly all documented against verified code.
