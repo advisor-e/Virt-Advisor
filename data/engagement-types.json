@@ -1,0 +1,74 @@
+{
+  "id": "engagement-types",
+  "name": "The 3 Engagement Types",
+  "type": "proprietary-framework",
+  "lens": "Lens 2 (Client Acumen) + Lens 4 (Advisor Capability)",
+  "purpose": "How the advisor works with the client — teach (Education), work through together (Facilitation), or give expert recommendations (Advice). Derived, not asked. Independent of the staircase / complexity ceiling.",
+  "types": [
+    {
+      "id": "education",
+      "name": "Education",
+      "advisorDefinition": "Client lacks the knowledge to make informed decisions.",
+      "deliveryGuidance": "Sequential, foundational, build-up logic. Reassure and teach. Never make the client feel judged.",
+      "driver": "Knowledge Gap",
+      "clientRequirement": "Sequential Comprehension",
+      "advisorPosition": "Feedback Loop",
+      "deliveryImperative": "Chunking",
+      "note": "Client needs some baseline knowledge to even recognise the gap."
+    },
+    {
+      "id": "facilitation",
+      "name": "Facilitation",
+      "advisorDefinition": "Client needs to change but is emotionally attached to current behaviour.",
+      "deliveryGuidance": "Pace the reveal. Stay professionally detached. Overwhelming the client causes avoidance or over-assertiveness.",
+      "driver": "Trigger Event",
+      "clientRequirement": "Global & Local Relevance",
+      "advisorPosition": "Professionally Detached",
+      "deliveryImperative": "The Reveal",
+      "note": "Needs a visible 6–12 month structured plan the client buys into, or they bail when it gets hard."
+    },
+    {
+      "id": "advice",
+      "name": "Advice",
+      "advisorDefinition": "Client knows the problem and wants it solved.",
+      "deliveryGuidance": "Direct, expert, outcome-focused. The work is pre-sold — focus on accuracy and a clean outcome.",
+      "driver": "Clear Consequence",
+      "clientRequirement": "Acceptance",
+      "advisorPosition": "Hierarchical Position",
+      "deliveryImperative": "Accuracy",
+      "note": "Client is ~90% through the buying process; no selling needed."
+    }
+  ],
+  "selection": {
+    "description": "As-built engine logic (strategyResolver.js). Independent of the staircase.",
+    "rules": [
+      "Start from the domain's natural engagement type (domainNaturalEngagement below).",
+      "If the client did NOT request help -> force Education.",
+      "If advisor confidence is low AND not willing to stretch -> cap at Education.",
+      "Sequencing: Education -> education_first; otherwise standard.",
+      "Firm overrides may replace the computed engagementType."
+    ],
+    "domainNaturalEngagement": {
+      "education": ["profit", "data-systems", "forecasting", "stock-purchasing", "raising-capital"],
+      "facilitation": ["staff", "sales-marketing", "governance", "strategy", "systems", "conflict", "eoy", "fm-coach-culture", "org-capacity-planner", "org-board-pack", "people-power", "org-leadership"],
+      "advice": ["valuation", "risk", "succession", "due-diligence", "org-firm-strategy"],
+      "default": "education"
+    },
+    "revisit": {
+      "status": "must-do-at-wiring",
+      "decision": "Option C — relocate domainNaturalEngagement to a per-domain field in domains.json (single source of truth, kills drift).",
+      "reason": "This map is kept here as a convenient INERT snapshot only. Domain names also live in domains.json; holding the engagement assignment in two files risks drift once wired.",
+      "acceptanceCriterion": "The Phase-2 wiring task for engagement types is NOT done until each domain carries its own naturalEngagement in domains.json and this block is removed."
+    }
+  },
+  "designNote": {
+    "id": "domain-heuristic-vs-client-readiness",
+    "status": "as-built-observation",
+    "summary": "PDF diagnoses engagement type from CLIENT psychological readiness (knowledge gap -> Education; emotional attachment -> Facilitation; ready-to-execute -> Advice). The engine instead starts from a fixed DOMAIN->type map + downgrade gates. The domain map is a heuristic shortcut for the client-readiness diagnosis; a future refinement could use client-readiness signals directly.",
+    "ruleGuard": "Engagement type stays independent of the staircase / complexity ceiling (Lens 2 + Lens 4 only)."
+  },
+  "crossLinks": [
+    "PDF hierarchy ('start with Education if the client lacks baseline knowledge') independently confirms the education-gates-ascent rule on the Advisory Staircase.",
+    "PDF 'Specific Business Event -> Look Both Ways (Pre/Post)' corresponds to the Trial Fit / Cautious Reveal delivery methods already documented in Stage 5."
+  ]
+}
