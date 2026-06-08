@@ -14,17 +14,14 @@ function loadGrowthData () {
   return _data
 }
 
-const GROWTH_STAGE_NAMES = [
-  'Design', 'Launch', 'Break-even', 'Lifestyle', 'Leverage',
-  'Reach', 'Leapfrog', 'Maturity', 'Exit / Decline', 'Exit/Decline'
-]
-
 /**
  * Returns true if the conversation history contains a growth stage selection.
+ * Stage names are read from the single source of truth (growth-fundamentals.json)
+ * via loadGrowthData(), so this can never drift from the on-screen selector.
  */
 function conversationHasGrowthStage (conversationHistory) {
-  const text = conversationHistory.map(m => m.content || '').join(' ')
-  return GROWTH_STAGE_NAMES.some(name => text.toLowerCase().includes(name.toLowerCase()))
+  const text = conversationHistory.map(m => m.content || '').join(' ').toLowerCase()
+  return loadGrowthData().stages.some(stage => text.includes(stage.name.toLowerCase()))
 }
 
 /**

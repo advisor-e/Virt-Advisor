@@ -668,6 +668,7 @@ import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
+import growthFundamentals from '~/data/growth-fundamentals.json'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 _md.disable(['image', 'html_inline', 'html_block'])
@@ -771,17 +772,9 @@ export default {
         { name: 'Step 4: Application', description: 'Working together on strategy and planning — scenario modelling, forecasting, testing ideas.' },
         { name: 'Step 5: Observation', description: 'Established strategic advisor — regular review meetings, dashboards, ratio analysis, benchmarking.' }
       ],
-      growthStages: [
-        { name: 'Design', description: 'Developing the business concept, getting ready to leave their job.' },
-        { name: 'Launch', description: 'Opening the doors and sharing their dream with the world.' },
-        { name: 'Break-even', description: 'The business makes enough money to cover costs.' },
-        { name: 'Lifestyle', description: 'The business makes enough profit to allow the owner/s to draw sufficient funds to meet their lifestyle and save money each month.' },
-        { name: 'Leverage', description: 'The business can sustain the lifestyle of the owner/s without them being directly hands-on on a daily basis.' },
-        { name: 'Reach', description: 'The business is now enjoying multiple locations as the brand is beginning to spread. New products are also part of the picture.' },
-        { name: 'Leapfrog', description: 'The business enjoys the ability to purchase or merge with like-minded competitors. Market share is now substantial.' },
-        { name: 'Maturity', description: 'The business commands a sizeable market-share and creates a barrier to entry for any business looking to compete against it.' },
-        { name: 'Exit / Decline', description: 'The owners realise their capital gain via sale, MBO, or succession. (If successful.) Or the business dwindles as the owner/s seek retirement. (If they missed the mark.)' }
-      ]
+      // Single source of truth — the on-screen selector reads name + description
+      // from data/growth-fundamentals.json (the full framework rides along, unused here).
+      growthStages: growthFundamentals.stages
     }
   },
 
