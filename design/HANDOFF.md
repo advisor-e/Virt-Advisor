@@ -24,6 +24,7 @@ All content changes are scoped to the firm. The platform base layer is read-only
 | Field | What to set |
 |---|---|
 | `AUTH.firmIdClaim` | Name of the firmId field in the Advisor-e JWT payload |
+| `AUTH.advisorIdClaim` | Name of the advisorId field in the Advisor-e JWT payload (used to scope the Activity/Progression routes; falls back to the standard `sub` claim if absent) |
 | `AUTH.roleClaim` | Name of the role field in the Advisor-e JWT payload |
 | `AUTH.emailClaim` | Name of the email field in the JWT payload |
 | `AUTH.managerRole` | The role string that grants Firm Manager access |
@@ -135,15 +136,13 @@ All endpoints require `Authorization: Bearer <token>` with a `firm_manager` or `
 - Uploaded files are validated by MIME type on the server before being sent to Drive.
 - The `firmAuth` middleware returns 401/403 before any handler runs if the token is invalid or the role is insufficient.
 
-### ⚠ KNOWN GAP — client-supplied identity on non-Firm-Manager routes (must-fix before real data)
+### ⚠ Client-supplied identity on non-Firm-Manager routes
 
-The JWT-derived-identity standard above currently applies to the **Firm Manager** routes only. Two subsystems still trust **client-supplied** `advisorId` / `firmId` and must be brought up to that standard when the auth layer is wired:
+The JWT-derived-identity standard above originally applied to the **Firm Manager** routes only. Two subsystems trusted **client-supplied** `advisorId` / `firmId`:
 
-- **Activity / Progression** — `server/routes/activity.js` (`/api/activity/log-course`, `/api/activity/progression`, `/api/activity/team`). IDs come from query/body params. As-is this is **broken access control (IDOR)**: a caller can read another advisor's or firm's progression data by changing the IDs.
-- **Case studies** — `utils/cases.js` → future `/api/cases/*` (see Learning Loop section + the field table where `advisor_id` / `firm_id` are noted as "Client prop"). Same pattern.
+- **Activity / Progression** — `server/routes/activity.js` (`/api/activity/log-course`, `/api/activity/progression`, `/api/activity/team`). **RESOLVED 2026-06-09:** all three routes now sit behind `firmAuth`; `advisorId` and `firmId` are derived from the verified JWT, never from query/body. `/api/activity/team` additionally requires `requireManagerRole` (advisor → own data only; manager → own firm only). `firmAuth` now attaches `req.advisorId` from `AUTH.advisorIdClaim` (falling back to the JWT `sub` claim), with a matching dev-bypass advisor ID. The front-end (`AdvisorProgression.vue`, `CourseBuilder.vue` via `VirtualAdvisor.vue`) sends the Bearer token and no longer sends IDs in the request. Proven by `tests/unit/activity.routes.test.js` — a spoofed ID in the request is ignored. **Integration note:** confirm `AUTH.advisorIdClaim` matches the advisor-ID field name in the Advisor-e token (see Step 1).
+- **Case studies (STILL OPEN)** — `utils/cases.js` → future `/api/cases/*` (see Learning Loop section + the field table where `advisor_id` / `firm_id` are noted as "Client prop"). This is client-side localStorage today, so there is no server endpoint to exploit yet; its IDOR fix lands with the Case-study MySQL migration, where the data first becomes shared/server-side. **Fix (against the line-130 standard):** derive `advisorId` / `firmId` from the verified JWT, scope every query to them, enforce ownership. **Gate:** close as part of the migration, before case data is shared across devices/advisors.
 
-**Fix (both, against the line-130 standard):** derive `advisorId` / `firmId` from the verified JWT (the `firmAuth` pattern), never from the request; scope every DB query to those values; enforce ownership — an advisor sees only their own data, a firm manager only their own firm.
-**Gate:** close before the Progression feature serves real firm data.
 *(Surfaced per the registry's no-silent-parking rule — cross-ref registry Part 1A → Progression.)*
 
 ---
