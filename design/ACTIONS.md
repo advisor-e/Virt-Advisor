@@ -4,6 +4,8 @@
 >
 > **Governance rule (no silent parking, applied to tasks):** no item may be deferred in an inline note anywhere (registry / HANDOFF / code) **without also adding a line here**. The note and the backlog line are created together. See memory `feedback-no-silent-parking`.
 >
+> **Stack-deviation rule (binding, see `CLAUDE.md` → Stack Constitution):** any variance from the team's locked stack spec — a dependency version bump, a new plugin, a framework variation — is logged here as a **P1 (critical) reconcile task the moment it is found or introduced**. Drift is never silently accepted as the new normal.
+>
 > **Legend** — Status: ☐ open · ◐ in progress · ✅ done. Type: **SEC** security · **WIRE** framework wiring · **BUILD** · **DECISION** (needs Mike) · **EDIT-TARGET** (bring a building block under Firm-Manager no-code editing) · **DOC**.
 >
 > **Last swept:** 2026-06-09.
@@ -13,6 +15,12 @@
 ---
 
 ## P1 — do first (security blockers + the core-principle work + the quick win)
+
+- ☐ **STACK DRIFT — Nuxt version.** `nuxt 2.18.1` is installed; team baseline is **2.14.0** (`CLAUDE.md` → Stack Constitution req. 1). Decide: pin to 2.14.0, or have the team ratify 2.18.1 as the new baseline and update the spec. **Why:** AI bumped the framework version away from the locked spec without sign-off. *Source:* governance reconciliation 2026-06-09; `package.json`.
+
+- ☐ **STACK DRIFT — Restify 11 vs Node 14.15 (the root one).** `restify ^11.1.0` is installed; restify 11 requires **Node 16+**, which conflicts with the locked **Node 14.15** target (Stack Constitution req. 9). This is the actual cause of the earlier "we run on Node 18/20" claim. Decide: downgrade restify to a Node-14-compatible line, OR have the team formally raise the Node target (which then ripples into the Node-14 code rules). **Why:** the repo as installed cannot run on the spec'd runtime. **Gate:** reverting a live backend dependency is a real change → its own reviewed task, not an inline edit. *Source:* governance reconciliation 2026-06-09; `package.json`.
+
+- ☐ **STACK DRIFT — No `engines` pin.** `package.json` has no `engines` field, so nothing enforces the Node target and each session is free to wander. Add an `engines` pin once the Node-version question above is settled. **Why:** the missing pin is what let the drift happen unnoticed. *Source:* governance reconciliation 2026-06-09.
 
 - ☐ **SEC — Client-supplied identity (IDOR).** The `/api/activity/*` routes (Progression) and `utils/cases.js` trust `advisorId`/`firmId` sent from the browser. Derive both from the verified JWT (the `firmAuth` pattern) and enforce ownership (advisor → own only; manager → own firm only). **Why:** as-is, anyone can read another advisor's or firm's data by changing the IDs. **Gate:** must close before real firm data goes live. *Source:* registry Part 1A → Progression; HANDOFF Security Notes.
 
