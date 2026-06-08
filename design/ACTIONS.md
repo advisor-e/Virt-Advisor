@@ -16,6 +16,8 @@
 
 ## P1 — do first (security blockers + the core-principle work + the quick win)
 
+> **The three STACK DRIFT items below have a written execution plan + runbook:** [`design/STACK-RECONCILIATION-PLAN.md`](STACK-RECONCILIATION-PLAN.md) (target versions, verified facts, end-of-day install steps, risks). Status there: PLAN — not yet executed.
+
 - ☐ **STACK DRIFT — Nuxt version.** `nuxt 2.18.1` is installed; team baseline is **2.14.0** (`CLAUDE.md` → Stack Constitution req. 1). Decide: pin to 2.14.0, or have the team ratify 2.18.1 as the new baseline and update the spec. **Why:** AI bumped the framework version away from the locked spec without sign-off. *Source:* governance reconciliation 2026-06-09; `package.json`.
 
 - ☐ **STACK DRIFT — Restify 11 vs Node 14.15 (the root one).** `restify ^11.1.0` is installed; restify 11 requires **Node 16+**, which conflicts with the locked **Node 14.15** target (Stack Constitution req. 9). This is the actual cause of the earlier "we run on Node 18/20" claim. Decide: downgrade restify to a Node-14-compatible line, OR have the team formally raise the Node target (which then ripples into the Node-14 code rules). **Why:** the repo as installed cannot run on the spec'd runtime. **Gate:** reverting a live backend dependency is a real change → its own reviewed task, not an inline edit. *Source:* governance reconciliation 2026-06-09; `package.json`.
