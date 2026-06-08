@@ -61,6 +61,7 @@ const drive = require('../services/driveService')
 const overlay = require('../utils/firmOverlay')
 const db = require('../utils/db')
 const { STORAGE, DRIVE } = require('../../config/integration')
+const DOMAINS = require('../../data/domains.json')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -502,11 +503,10 @@ async function resetTemplateImport (req, res) {
 
 const DISTINCTIONS_KEY = 'advisory-distinctions'
 
-const DISTINCTION_DOMAINS = new Set([
-  'profit', 'staff', 'data-systems', 'sales-marketing', 'forecasting',
-  'governance', 'strategy', 'systems', 'valuation', 'risk',
-  'succession', 'conflict', 'eoy', 'due-diligence'
-])
+// Built from data/domains.json (single source of truth) so every current and
+// future domain is automatically valid for distinctions — no code change needed
+// when a domain is added.
+const DISTINCTION_DOMAINS = new Set(DOMAINS.map(d => d.id))
 
 async function _loadDistinctions (firmId) {
   try {
@@ -541,7 +541,7 @@ async function createDistinction (req, res) {
   const { domain, description, triggers, templates, boost } = req.body || {}
 
   if (!domain || !DISTINCTION_DOMAINS.has(domain)) {
-    return sendError(res, 400, 'INVALID_DOMAIN', 'domain must be one of the 14 advisory domains')
+    return sendError(res, 400, 'INVALID_DOMAIN', 'domain must be a recognised advisory domain')
   }
   if (!description || typeof description !== 'string' || !description.trim()) {
     return sendError(res, 400, 'INVALID_DESCRIPTION', 'description is required')
@@ -582,7 +582,7 @@ async function updateDistinction (req, res) {
   const { domain, description, triggers, templates, boost } = req.body || {}
 
   if (domain && !DISTINCTION_DOMAINS.has(domain)) {
-    return sendError(res, 400, 'INVALID_DOMAIN', 'domain must be one of the 14 advisory domains')
+    return sendError(res, 400, 'INVALID_DOMAIN', 'domain must be a recognised advisory domain')
   }
   if (triggers !== undefined && (!Array.isArray(triggers) || triggers.length === 0)) {
     return sendError(res, 400, 'INVALID_TRIGGERS', 'triggers must be a non-empty array of strings')

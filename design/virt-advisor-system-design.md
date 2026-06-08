@@ -579,7 +579,7 @@ This is the editable version of what would otherwise be hardcoded signal pattern
 
 | Column | What it contains |
 |---|---|
-| Domain | Which of the 14 advisory domains this distinction applies to |
+| Domain | Which advisory domain this distinction applies to |
 | When the advisor says... | A phrase, keyword, or concept the advisor might use (plain English — no regex) |
 | It signals | A short plain-English description of what this means diagnostically |
 | Templates it helps surface | The template names this distinction should boost (optional — system infers if blank) |

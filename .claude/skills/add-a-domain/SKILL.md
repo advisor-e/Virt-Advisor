@@ -50,10 +50,11 @@ Not every domain needs every file. State explicitly which you are creating and w
 
 ## 3. Code touch-points & known gotchas
 
-- **Hardcoded domain lists drift.** Search the codebase for any inline list of domain ids and update
-  it — or better, make it read from `data/domains.json`. **Known example:** `DISTINCTION_DOMAINS`
-  in `server/routes/firmManager.js` is a hardcoded 14-domain set; domains added after it cannot get
-  Advisory Distinctions until that list is updated. Prefer fixing such lists via `single-source-wiring`.
+- **Hardcoded domain lists drift.** Search the codebase for any inline list of domain ids and make
+  it read from `data/domains.json` instead. **Good example to follow:** `DISTINCTION_DOMAINS` in
+  `server/routes/firmManager.js` now builds its allowed-domain set from `domains.json`, so a new
+  domain is accepted for Advisory Distinctions automatically — no code change needed. If you find
+  any remaining inline domain list, fix it the same way (see `single-source-wiring`).
 - **`engagementType` is already single-source** in `domains.json` — never add a parallel domain→type
   map in code.
 - **Never hand-edit the master `search_content` export** to add a domain's templates — templates are

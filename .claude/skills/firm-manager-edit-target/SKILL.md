@@ -72,10 +72,10 @@ the user before writing copy (CLAUDE.md).
 
 ## Gotcha: don't re-hardcode a list that already lives in data
 
-`createDistinction` hardcodes `DISTINCTION_DOMAINS` (a 14-domain set) for its allowed-domain check.
-That kind of inline list drifts from `data/domains.json`. When you add a new edit-target, prefer to
-**read the allowed values from the data file** (see the `single-source-wiring` skill) rather than
-pasting another hardcoded list.
+`createDistinction` builds its allowed-domain set (`DISTINCTION_DOMAINS`) from `data/domains.json`,
+so it never drifts and new domains are accepted automatically. Follow that pattern: when a new
+edit-target needs an allowed-value list, **read it from the data file** (see the
+`single-source-wiring` skill) rather than pasting a hardcoded list.
 
 ## Definition of done
 
