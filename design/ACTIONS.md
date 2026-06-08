@@ -6,7 +6,9 @@
 >
 > **Legend** — Status: ☐ open · ◐ in progress · ✅ done. Type: **SEC** security · **WIRE** framework wiring · **BUILD** · **DECISION** (needs Mike) · **EDIT-TARGET** (bring a building block under Firm-Manager no-code editing) · **DOC**.
 >
-> **Last swept:** 2026-06-08.
+> **Last swept:** 2026-06-09.
+>
+> **▶ NEXT SESSION — START HERE:** Finish the ★ frameworks-wiring task — only **3 Engagement Types** remains (Growth Fundamentals ✅ + Advisory Staircase ✅ done & pushed 2026-06-09). This is the involved one: acceptance = **Option C** — relocate the `DOMAIN_NATURAL_ENGAGEMENT` map (currently `server/utils/caseState.js` lines ~8-34) into a **per-domain field in `data/domains.json`** (single source of truth), then wire the live code to read `data/engagement-types.json`. Investigate first, propose in stages, one edit at a time.
 
 ---
 
