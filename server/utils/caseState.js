@@ -2,6 +2,7 @@
 
 const { SIGNAL_TYPES } = require('./signals')
 const { extractProblemSignals } = require('./problemSignals')
+const ADVISORY_STAIRCASE = require('../../data/advisory-staircase.json')
 
 // Domain natural engagement type — what kind of delivery the domain typically requires.
 // clientRequestedHelp must also be true before facilitation or advice is used.
@@ -33,12 +34,13 @@ const DOMAIN_NATURAL_ENGAGEMENT = {
   'org-firm-strategy': 'advice'
 }
 
-// Staircase level → complexity ceiling for template selection (Phase D)
+// Staircase level → complexity ceiling for template selection (Phase D).
+// Read from data/advisory-staircase.json (single source of truth); falls back
+// to the data file's defaultCeiling when no step is set.
 function staircaseToCeiling (staircaseNum) {
-  if (!staircaseNum) { return 'foundational' }
-  if (staircaseNum <= 2) { return 'foundational' }
-  if (staircaseNum <= 4) { return 'analytical' }
-  return 'strategic'
+  if (!staircaseNum) { return ADVISORY_STAIRCASE.defaultCeiling }
+  const step = ADVISORY_STAIRCASE.steps.find(s => s.step === staircaseNum)
+  return step ? step.complexityCeiling : ADVISORY_STAIRCASE.defaultCeiling
 }
 
 // Signal → solution category mappings — used by Phase D template scorer

@@ -16,7 +16,7 @@
 
 - ☐ **WIRE — The 3 proprietary frameworks, Phase 2** (the ★ top priority — this is what delivers Principle P1 for the most valuable IP). Phase 1 (extract to JSON) is done; now wire the live code to **read** the JSON:
   - ✅ **Growth Fundamentals** — DONE 2026-06-09. On-screen selector (`VirtualAdvisor.vue growthStages`) now imports `growth-fundamentals.json`; detector (`growth.js conversationHasGrowthStage`) reads stage names from the same file; hard-coded `GROWTH_STAGE_NAMES` array removed. 3-copy duplication closed — single source of truth.
-  - ☐ **Advisory Staircase** — wire `advisory-staircase.json`; move the steps + ceiling out of `caseState.js` / `VirtualAdvisor.vue`. Honour the `education-gates-ascent` design note (still a DECISION to wire — see P2).
+  - ✅ **Advisory Staircase** — DONE 2026-06-09. Selector (`VirtualAdvisor.vue staircaseSteps`) now imports `advisory-staircase.json` (label keeps "Step N:" prefix for the server's number-finder; descriptions use data-file `selectorDescription` wording); ceiling logic (`caseState.js staircaseToCeiling`) reads `complexityCeiling` from the same file. Steps + ceiling de-duplicated. NOTE: `education-gates-ascent` remains display-only / not-wired — separate DECISION in P2.
   - ☐ **3 Engagement Types** — wire `engagement-types.json`; **acceptance criterion = Option C**: relocate `DOMAIN_NATURAL_ENGAGEMENT` to a per-domain field in `domains.json` (single source of truth) before this is "done".
   - ☐ Then **surface all three in Firm Manager** so a firm can edit them. *Source:* registry Part 2 + Outstanding item 6; memory `design-engagement-types-extraction`, `design-education-gates-ascent`.
 

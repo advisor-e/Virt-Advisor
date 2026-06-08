@@ -669,6 +669,7 @@ import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
 import growthFundamentals from '~/data/growth-fundamentals.json'
+import advisoryStaircase from '~/data/advisory-staircase.json'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 _md.disable(['image', 'html_inline', 'html_block'])
@@ -765,13 +766,14 @@ export default {
         { name: 'Measure What Matters', problem: 'Clients view financial reporting as being somewhat disconnected from how their business \'works\'. Most decisions are based on current bank balance and inventory levels.' },
         { name: 'Under the Microscope', problem: 'If clients aren\'t sure what they can do (in practical terms) upon reviewing their performance, there\'s little point agreeing to regular meetings.' }
       ],
-      staircaseSteps: [
-        { name: 'Step 1: Compilation & Verification', description: 'Primarily doing compliance and accounting work — getting data in, clean and timely.' },
-        { name: 'Step 2: Assimilation', description: 'Started having broader business conversations — helping the client understand their numbers.' },
-        { name: 'Step 3: Interpretation', description: 'Delivering structured business advice — identifying what drives performance and what to change.' },
-        { name: 'Step 4: Application', description: 'Working together on strategy and planning — scenario modelling, forecasting, testing ideas.' },
-        { name: 'Step 5: Observation', description: 'Established strategic advisor — regular review meetings, dashboards, ratio analysis, benchmarking.' }
-      ],
+      // Single source of truth — steps read from data/advisory-staircase.json.
+      // Label keeps the "Step N:" prefix (the server derives the step number from it);
+      // description uses the data file's selectorDescription wording.
+      staircaseSteps: advisoryStaircase.steps.map(s => ({
+        ...s,
+        name: `Step ${s.step}: ${s.name}`,
+        description: s.selectorDescription
+      })),
       // Single source of truth — the on-screen selector reads name + description
       // from data/growth-fundamentals.json (the full framework rides along, unused here).
       growthStages: growthFundamentals.stages
