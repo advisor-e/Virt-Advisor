@@ -31,6 +31,8 @@
 - ☐ **BUILD — Course progress persistence.** The `progress` handler is a labelled stub (`CourseReminderService.markComplete`); wire to MySQL + firm-level reporting. *Source:* registry Part 1A → Course.
 - ☐ **BUILD — Primary-issue selector redesign.** Replace the cold pick-from-a-list card with a system-led, reasoned **propose→confirm** conversational step (still maps to a canonical Workshop-1 issue). *Source:* registry Stage 2 design-debt note; memory `design-primary-issue-step`.
 
+- ☐ **BUILD — Firm Manager: master-export self-service upload (Stage 2 of the search_content plan).** Replace the developer-managed export file with a Firm Manager screen where a firm downloads the template export from Advisor-e and uploads it themselves. Per-firm Google Drive folder (`/VirtAdvisor/firms/{firmId}/`), schema-validated upload (size cap, JSON-only, shape check, last-known-good fallback), version history + restore (= auditability), firm_manager role-gated. **Blocked on** Firm Manager Auth (hub Phase 1) — no verified firmId to scope the file to until then; lands as part of hub Phase 5 (Template & Video Library). **Stage 1** (single central loader + validation, single-firm interim, file in one defined folder) ships first and this swaps in behind it via that one loader. *Source:* memory `firm-manager-hub`; 2026-06-08 master-export design discussion.
+
 ---
 
 ## P3 — improvements, editing-targets, auditability
