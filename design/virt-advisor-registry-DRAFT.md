@@ -817,7 +817,7 @@ Coaching Reference  (curated real cases the AI draws on)
 Improved recommendation on the next session
 ```
 
-**1. Case Study capture** — `utils/cases.js`. Saves transcript, mode, domain, recommended templates, staircase/growth/fin-mgt selections, summary, visibility (shared/private). The "Record a quick observation?" intake captures fresh post-session notes. **Built — but `localStorage` only**; pending DB migration (schema in `HANDOFF.md`) so "shared" cases are visible across devices and to the firm.
+**1. Case Study capture** — `utils/cases.js`. Saves transcript, mode, domain, recommended templates, staircase/growth/fin-mgt selections, summary, visibility (shared/private). The "Record a quick observation?" intake captures fresh post-session notes. **Built — but `localStorage` only**; pending DB migration (schema in `design/HANDOFF.md`) so "shared" cases are visible across devices and to the firm.
 
 **2. Post-Delivery Review** — after the advisor delivers to the real client: *what went well / what went less well / changes recommended for similar cases*. Captures what **actually happened** vs what was recommended. Built (review panel in `VirtualAdvisor.vue`).
 

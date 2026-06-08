@@ -13,7 +13,7 @@
  *   3. Set DRIVE fields to point to the service account and root folder
  *   4. Review STORAGE limits and ROLES if Advisor-e uses different values
  *
- * See HANDOFF.md for the full integration checklist.
+ * See design/HANDOFF.md for the full integration checklist.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 

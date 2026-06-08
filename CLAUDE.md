@@ -59,7 +59,7 @@ This app is locked to specific versions to match the Advisor-e master app stack:
 - **Restify** — locked. Must also remain compatible with Node.js 18 or 20 LTS (Node 24 breaks Restify via a missing `spdy` binding).
 
 **npm audit high-severity warnings from the Nuxt 2 dependency tree are accepted risk.**
-All affected packages (`braces`, `vue-template-compiler`, `serialize-javascript`, `cacache`, `watchpack`, etc.) are build-time tools only — webpack, watchpack, template compiler. They run during `npm run dev` and `npm run build` on developer machines. They are not present in or reachable from the deployed runtime. The risk is formally accepted in `SECURITY-AUDIT-NOTES.md`.
+All affected packages (`braces`, `vue-template-compiler`, `serialize-javascript`, `cacache`, `watchpack`, etc.) are build-time tools only — webpack, watchpack, template compiler. They run during `npm run dev` and `npm run build` on developer machines. They are not present in or reachable from the deployed runtime. The risk is formally accepted in `design/SECURITY-AUDIT-NOTES.md`.
 
 **The pre-commit hook is intentionally set to `--audit-level=critical` only.** High-severity warnings do not block commits by design. Do not suggest changing this policy.
 
