@@ -115,7 +115,9 @@ export default {
   props: {
     advisorId: { type: String, default: 'local-advisor' },
     firmId: { type: String, default: 'local-firm' },
-    isFirmManager: { type: Boolean, default: false }
+    isFirmManager: { type: Boolean, default: false },
+    // Verified login pass (JWT). Defaults to the safe local-dev bypass token.
+    apiToken: { type: String, default: 'dev-local-bypass' }
   },
 
   data () {
@@ -152,8 +154,10 @@ export default {
       this.loading = true
       this.error = null
       try {
+        // Identity (advisor + firm) is derived server-side from this pass — not sent in the request.
+        const authHeaders = { Authorization: `Bearer ${this.apiToken}` }
         if (this.isFirmManager) {
-          const res = await fetch(`${BACKEND}/api/activity/team?firmId=${encodeURIComponent(this.firmId)}`)
+          const res = await fetch(`${BACKEND}/api/activity/team`, { headers: authHeaders })
           const data = await res.json()
           if (data.success) {
             this.advisors = data.advisors || []
@@ -161,9 +165,7 @@ export default {
             this.error = 'Could not load team progress. Please try again.'
           }
         } else {
-          const res = await fetch(
-            `${BACKEND}/api/activity/progression?advisorId=${encodeURIComponent(this.advisorId)}&firmId=${encodeURIComponent(this.firmId)}`
-          )
+          const res = await fetch(`${BACKEND}/api/activity/progression`, { headers: authHeaders })
           const data = await res.json()
           if (data.success) {
             this.tiers = data.tiers || this.tiers

@@ -153,6 +153,7 @@
     v-if="mode === 'course'"
     :advisorId="advisorId"
     :firmId="firmId"
+    :apiToken="apiToken"
     :advisorProfile="advisorProfile"
     :orgTemplateIds="orgTemplateIds"
     :isFirmManager="isFirmManager"
@@ -172,6 +173,7 @@
     v-else-if="mode === 'progression'"
     :advisorId="advisorId"
     :firmId="firmId"
+    :apiToken="apiToken"
     :isFirmManager="isFirmManager"
     @exit="reset"
   )

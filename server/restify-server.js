@@ -100,9 +100,9 @@ server.post('/api/translate/locale', translateRoute.post)
 server.post('/api/advisor/query', advisorRoute.post)
 server.get('/api/firm/advisors', firmAuth, firmRoute.getAdvisors)
 server.post('/api/firm/insights', firmAuth, firmRoute.postInsights)
-server.post('/api/activity/log-course', activityRoute.logCourse)
-server.get('/api/activity/progression', activityRoute.getProgression)
-server.get('/api/activity/team', activityRoute.getTeam)
+server.post('/api/activity/log-course', firmAuth, activityRoute.logCourse)
+server.get('/api/activity/progression', firmAuth, activityRoute.getProgression)
+server.get('/api/activity/team', firmAuth, requireManagerRole, activityRoute.getTeam)
 
 // ── Cases routes ──
 server.post('/api/cases/promote', firmAuth, requireManagerRole, casesRoute.promote)

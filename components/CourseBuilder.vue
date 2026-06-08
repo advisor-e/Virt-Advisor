@@ -408,7 +408,9 @@ export default {
     firmId: { type: String, default: 'local-firm' },
     advisorProfile: { type: Object, default: null },
     orgTemplateIds: { type: Array, default: null },
-    isFirmManager: { type: Boolean, default: false }
+    isFirmManager: { type: Boolean, default: false },
+    // Verified login pass (JWT). Defaults to the safe local-dev bypass token.
+    apiToken: { type: String, default: 'dev-local-bypass' }
   },
 
   data () {
@@ -1225,10 +1227,9 @@ export default {
       try {
         await fetch(`${BACKEND}/api/activity/log-course`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          // Advisor + firm are derived server-side from this pass — not sent in the body.
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
-            advisorId: this.advisorId,
-            firmId: this.firmId,
             courseId: this.activeCourse.id,
             courseTitle: this.activeCourse.outline.title,
             courseTopic: this.activeCourse.outline.topic || null,

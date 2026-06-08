@@ -23,6 +23,7 @@
 
 const AUTH = {
   firmIdClaim: 'firmId', // JWT claim that carries the firm's unique ID
+  advisorIdClaim: 'advisorId', // JWT claim that carries the advisor's unique ID. TODO: confirm with Advisor-e auth team
   roleClaim: 'role', // JWT claim that carries the user's role string
   emailClaim: 'email', // JWT claim for the user's email (falls back to 'sub')
 

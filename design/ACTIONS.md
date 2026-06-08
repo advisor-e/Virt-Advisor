@@ -10,7 +10,7 @@
 >
 > **Last swept:** 2026-06-09.
 >
-> **▶ NEXT SESSION — START HERE:** The ★ frameworks-wiring task is **COMPLETE** — all three frameworks (Growth Fundamentals ✅, Advisory Staircase ✅, 3 Engagement Types ✅) are wired to single sources of truth (done & pushed 2026-06-09). The only remaining engagement-types work is the separate **"surface all three in Firm Manager"** sub-task below (an EDIT-TARGET, not wiring). Otherwise triage from P1: the new **STACK DRIFT** items (Node/restify/Nuxt reconciliation) and the **IDOR** security gate.
+> **▶ NEXT SESSION — START HERE:** The ★ frameworks-wiring task is **COMPLETE** — all three frameworks (Growth Fundamentals ✅, Advisory Staircase ✅, 3 Engagement Types ✅) are wired to single sources of truth (done & pushed 2026-06-09). The only remaining engagement-types work is the separate **"surface all three in Firm Manager"** sub-task below (an EDIT-TARGET, not wiring). Otherwise triage from P1: the new **STACK DRIFT** items (Node/restify/Nuxt reconciliation). The **IDOR** security gate is now part-closed — the `/api/activity/*` routes are fixed (2026-06-09); only the `utils/cases.js` portion remains, gated to the Case-study DB migration (P2).
 
 ---
 
@@ -22,7 +22,10 @@
 
 - ☐ **STACK DRIFT — No `engines` pin.** `package.json` has no `engines` field, so nothing enforces the Node target and each session is free to wander. Add an `engines` pin once the Node-version question above is settled. **Why:** the missing pin is what let the drift happen unnoticed. *Source:* governance reconciliation 2026-06-09.
 
-- ☐ **SEC — Client-supplied identity (IDOR).** The `/api/activity/*` routes (Progression) and `utils/cases.js` trust `advisorId`/`firmId` sent from the browser. Derive both from the verified JWT (the `firmAuth` pattern) and enforce ownership (advisor → own only; manager → own firm only). **Why:** as-is, anyone can read another advisor's or firm's data by changing the IDs. **Gate:** must close before real firm data goes live. *Source:* registry Part 1A → Progression; HANDOFF Security Notes.
+- ◐ **SEC — Client-supplied identity (IDOR).**
+  - ✅ **`/api/activity/*` routes — DONE 2026-06-09.** All three activity routes (`log-course`, `progression`, `team`) now sit behind `firmAuth`; advisor + firm are derived from the verified JWT, never the client. `team` additionally requires `requireManagerRole` (advisor → own only; manager → own firm only). Advisor identity added to `firmAuth` as `req.advisorId` (configurable `advisorIdClaim` in `config/integration.js`, falls back to the JWT `sub` claim; matching dev-bypass advisor ID). Front-end screens now send the pass and no longer send IDs in the request. New test `tests/unit/activity.routes.test.js` (6 tests) proves a spoofed ID in the request is ignored.
+  - ☐ **`utils/cases.js` — STILL OPEN.** Still trusts `advisorId`/`firmId`, but it is client-side localStorage today (no server endpoint to exploit). Its IDOR fix lands with the **Case-study DB migration (P2)**, where the data first becomes shared/server-side.
+  - **Why:** as-is, anyone could read another advisor's or firm's data by changing the IDs. **Gate:** activity routes closed; cases.js gated to the DB migration. *Source:* registry Part 1A → Progression; HANDOFF Security Notes.
 
 - ☐ **WIRE — The 3 proprietary frameworks, Phase 2** (the ★ top priority — this is what delivers Principle P1 for the most valuable IP). Phase 1 (extract to JSON) is done; now wire the live code to **read** the JSON:
   - ✅ **Growth Fundamentals** — DONE 2026-06-09. On-screen selector (`VirtualAdvisor.vue growthStages`) now imports `growth-fundamentals.json`; detector (`growth.js conversationHasGrowthStage`) reads stage names from the same file; hard-coded `GROWTH_STAGE_NAMES` array removed. 3-copy duplication closed — single source of truth.
@@ -56,6 +59,7 @@
 - ☐ **DECISION (Mike) — HOW-swap scope.** Confirm whether the invisible client→learn swap should also fire in discover mode and pre-recommendation. *Source:* registry Part 8.
 - ☐ **EDIT — Fin-Mgt Theme reconcile.** Live `finMgtThemes` are hard-coded in `VirtualAdvisor.vue` while `fin-mgt-table.json` exists — reconcile to one source. *Source:* registry Stage 1.
 - ☐ **DOC tidy** — fold any remaining per-file detail from `registry_compilation_wip` (Part 2 note); resolve the Org CA Capacity Planner mislabelled-PDF flag (Part 2A). *Source:* registry.
+- ☐ **QUALITY — Clear pre-existing ESLint errors.** Lint is currently *skipped* in the pre-commit hook (eslint package needs `npm install` to restore — see `.husky/pre-commit`), so these errors sit dormant rather than blocking commits. **4 errors:** `server/routes/activity.js` — 3× `no-useless-return` (the trailing `return` at the end of `logCourse`, `getProgression`, `getTeam`); `components/VirtualAdvisor.vue` — 1× `curly` (missing `{ }` after an `if`, ~line 1455). Also assorted `no-console` *warnings* across both files and a DOMPurify named-export warning. **Why:** these predate the IDOR fix and were surfaced when those files were touched on 2026-06-09 — logging them so they are not lost when lint is re-enabled. Fix when eslint is restored and pre-commit lint is turned back on. *Source:* lint run during the IDOR fix, 2026-06-09.
 
 ---
 

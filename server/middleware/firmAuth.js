@@ -28,6 +28,7 @@ const { sendError } = require('../utils/sendError')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 const DEV_TOKEN = 'dev-local-bypass'
 const DEV_FIRM_ID = 'dev-firm-001'
+const DEV_ADVISOR_ID = 'dev-advisor-001'
 
 function firmAuth (req, res, next) {
   const header = req.headers.authorization || ''
@@ -40,6 +41,7 @@ function firmAuth (req, res, next) {
   // Dev bypass — only active outside production; never reaches this branch in prod
   if (IS_DEV && token === DEV_TOKEN) {
     req.firmId = DEV_FIRM_ID
+    req.advisorId = DEV_ADVISOR_ID
     req.userRole = AUTH.managerRole
     req.userEmail = 'dev@local'
     return next()
@@ -62,6 +64,10 @@ function firmAuth (req, res, next) {
   }
 
   req.firmId = firmId
+  // Advisor ID is read where present (falling back to the JWT 'sub' subject claim).
+  // It is NOT required here — the team-overview route needs only firmId; the routes
+  // that key on an individual advisor enforce its presence themselves.
+  req.advisorId = payload[AUTH.advisorIdClaim] || payload.sub || null
   req.userRole = role || null
   req.userEmail = payload[AUTH.emailClaim] || payload.sub || 'unknown'
 

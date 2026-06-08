@@ -7,9 +7,10 @@
  * GET  /api/activity/progression       — advisor's own tier progression view
  * GET  /api/activity/team              — firm manager's team overview
  *
- * INTEGRATION NOTE (for Advisor-e team):
- *   advisorId and firmId are currently client-supplied query/body params.
- *   Replace with JWT-derived values once the auth layer is wired in.
+ * SECURITY: advisorId and firmId are derived from the verified JWT (firmAuth
+ * middleware attaches req.advisorId / req.firmId) — never trusted from the
+ * client request. This prevents one advisor or firm reading another's data.
+ * The team-overview route additionally requires a firm-manager role.
  */
 
 const db = require('../utils/db')
@@ -24,13 +25,21 @@ function emptyTier () {
 // ── POST /api/activity/log-course ─────────────────────────────────────────────
 
 async function logCourse (req, res) {
+  // Identity comes from the verified JWT, not the request body.
+  const advisorId = req.advisorId
+  const firmId = req.firmId
   const {
-    advisorId, firmId, courseId, courseTitle, courseTopic,
+    courseId, courseTitle, courseTopic,
     sessionIndex, sessionTitle, sessionResources, quizScore
   } = req.body || {}
 
-  if (!advisorId || !firmId || !courseId || sessionIndex === undefined) {
-    res.send(400, { success: false, error: { code: 'MISSING_FIELDS', message: 'advisorId, firmId, courseId and sessionIndex are required' } })
+  if (!advisorId) {
+    res.send(403, { success: false, error: { code: 'NO_ADVISOR_IDENTITY', message: 'Your session does not identify an advisor' } })
+    return
+  }
+
+  if (!courseId || sessionIndex === undefined) {
+    res.send(400, { success: false, error: { code: 'MISSING_FIELDS', message: 'courseId and sessionIndex are required' } })
     return
   }
 
@@ -50,14 +59,16 @@ async function logCourse (req, res) {
   return
 }
 
-// ── GET /api/activity/progression?advisorId=x&firmId=y ───────────────────────
+// ── GET /api/activity/progression (advisor + firm from verified JWT) ─────────
 
 async function getProgression (req, res) {
-  const advisorId = req.query.advisorId
-  const firmId = req.query.firmId
+  // Advisor and firm both come from the verified JWT — an advisor can only
+  // ever read their own progression, never another's.
+  const advisorId = req.advisorId
+  const firmId = req.firmId
 
-  if (!advisorId || !firmId) {
-    res.send(400, { success: false, error: { code: 'MISSING_PARAMS', message: 'advisorId and firmId are required' } })
+  if (!advisorId) {
+    res.send(403, { success: false, error: { code: 'NO_ADVISOR_IDENTITY', message: 'Your session does not identify an advisor' } })
     return
   }
 
@@ -138,10 +149,12 @@ completedAt: r.completed_at
   return
 }
 
-// ── GET /api/activity/team?firmId=y ──────────────────────────────────────────
+// ── GET /api/activity/team (firm from verified JWT; manager role required) ───
 
 async function getTeam (req, res) {
-  const firmId = req.query.firmId
+  // Firm comes from the verified JWT — a manager can only ever see their own
+  // firm's team. Role is already enforced by requireManagerRole middleware.
+  const firmId = req.firmId
 
   if (!firmId) {
     res.send(400, { success: false, error: { code: 'MISSING_PARAMS', message: 'firmId is required' } })
