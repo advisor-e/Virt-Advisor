@@ -15,6 +15,7 @@
 
 const db = require('../utils/db')
 const { logCourseSession } = require('../utils/activityLogger')
+const { sendError } = require('../utils/sendError')
 
 const TIERS = ['entry-level', 'intermediate', 'advanced']
 
@@ -22,8 +23,17 @@ function emptyTier () {
   return { vaSessions: 0, courseSessions: 0, avgQuizScore: null, lastActive: null }
 }
 
-// ── POST /api/activity/log-course ─────────────────────────────────────────────
-
+/**
+ * Log a completed course session for the authenticated advisor.
+ *
+ * @route POST /api/activity/log-course
+ * @param {object} req.body - session detail only (no identity): { courseId, courseTitle,
+ *   courseTopic, sessionIndex, sessionTitle, sessionResources, quizScore }
+ * @param {string} req.advisorId - advisor identity from the verified JWT (firmAuth)
+ * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
+ * @returns {200} { success: true }
+ * @returns {403} NO_ADVISOR_IDENTITY · {400} MISSING_FIELDS (standard error envelope)
+ */
 async function logCourse (req, res) {
   // Identity comes from the verified JWT, not the request body.
   const advisorId = req.advisorId
@@ -34,12 +44,12 @@ async function logCourse (req, res) {
   } = req.body || {}
 
   if (!advisorId) {
-    res.send(403, { success: false, error: { code: 'NO_ADVISOR_IDENTITY', message: 'Your session does not identify an advisor' } })
+    sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
     return
   }
 
   if (!courseId || sessionIndex === undefined) {
-    res.send(400, { success: false, error: { code: 'MISSING_FIELDS', message: 'courseId and sessionIndex are required' } })
+    sendError(res, 400, 'MISSING_FIELDS', 'courseId and sessionIndex are required')
     return
   }
 
@@ -59,8 +69,16 @@ async function logCourse (req, res) {
   return
 }
 
-// ── GET /api/activity/progression (advisor + firm from verified JWT) ─────────
-
+/**
+ * Return the authenticated advisor's own tier-progression view.
+ *
+ * @route GET /api/activity/progression
+ * @param {string} req.advisorId - advisor identity from the verified JWT (firmAuth); the
+ *   only advisor whose data is returned — a client cannot request another advisor's record
+ * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
+ * @returns {200} { success: true, advisorId, tiers, recentActivity }
+ * @returns {403} NO_ADVISOR_IDENTITY · {500} DB_ERROR (standard error envelope)
+ */
 async function getProgression (req, res) {
   // Advisor and firm both come from the verified JWT — an advisor can only
   // ever read their own progression, never another's.
@@ -68,7 +86,7 @@ async function getProgression (req, res) {
   const firmId = req.firmId
 
   if (!advisorId) {
-    res.send(403, { success: false, error: { code: 'NO_ADVISOR_IDENTITY', message: 'Your session does not identify an advisor' } })
+    sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
     return
   }
 
@@ -143,21 +161,29 @@ completedAt: r.completed_at
     res.send(200, { success: true, advisorId, tiers, recentActivity })
   } catch (err) {
     console.error('[activity] getProgression error:', err.message)
-    res.send(500, { success: false, error: { code: 'DB_ERROR', message: 'Could not load progression data' } })
+    sendError(res, 500, 'DB_ERROR', 'Could not load progression data')
   }
 
   return
 }
 
-// ── GET /api/activity/team (firm from verified JWT; manager role required) ───
-
+/**
+ * Return the authenticated manager's firm-wide team progression overview.
+ * Manager/admin role is enforced upstream by the requireManagerRole middleware.
+ *
+ * @route GET /api/activity/team
+ * @param {string} req.firmId - firm identity from the verified JWT (firmAuth); the only
+ *   firm whose team is returned — a client cannot request another firm's data
+ * @returns {200} { success: true, firmId, advisors }
+ * @returns {400} MISSING_PARAMS · {500} DB_ERROR (standard error envelope)
+ */
 async function getTeam (req, res) {
   // Firm comes from the verified JWT — a manager can only ever see their own
   // firm's team. Role is already enforced by requireManagerRole middleware.
   const firmId = req.firmId
 
   if (!firmId) {
-    res.send(400, { success: false, error: { code: 'MISSING_PARAMS', message: 'firmId is required' } })
+    sendError(res, 400, 'MISSING_PARAMS', 'firmId is required')
     return
   }
 
@@ -226,7 +252,7 @@ async function getTeam (req, res) {
     res.send(200, { success: true, firmId, advisors })
   } catch (err) {
     console.error('[activity] getTeam error:', err.message)
-    res.send(500, { success: false, error: { code: 'DB_ERROR', message: 'Could not load team data' } })
+    sendError(res, 500, 'DB_ERROR', 'Could not load team data')
   }
 
   return

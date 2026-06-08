@@ -24,7 +24,11 @@ function makeMockRes () {
   return {
     _status: null,
     _body: null,
-    send (status, body) { this._status = status; this._body = body }
+    headersSent: false,
+    // Success responses use res.send; error envelopes (sendError) use writeHead + end.
+    send (status, body) { this._status = status; this._body = body },
+    writeHead (status) { this._status = status; this.headersSent = true },
+    end (body) { try { this._body = JSON.parse(body) } catch (e) { this._body = body } }
   }
 }
 
@@ -53,6 +57,9 @@ describe('logCourse', () => {
 
     expect(res._status).toBe(403)
     expect(res._body.error.code).toBe('NO_ADVISOR_IDENTITY')
+    // Error envelope must match the standard shape: { success: false, error, timestamp }.
+    expect(res._body.success).toBe(false)
+    expect(typeof res._body.timestamp).toBe('string')
     expect(logCourseSession).not.toHaveBeenCalled()
   })
 
