@@ -10,7 +10,7 @@
 >
 > **Last swept:** 2026-06-09.
 >
-> **▶ NEXT SESSION — START HERE:** Finish the ★ frameworks-wiring task — only **3 Engagement Types** remains (Growth Fundamentals ✅ + Advisory Staircase ✅ done & pushed 2026-06-09). This is the involved one: acceptance = **Option C** — relocate the `DOMAIN_NATURAL_ENGAGEMENT` map (currently `server/utils/caseState.js` lines ~8-34) into a **per-domain field in `data/domains.json`** (single source of truth), then wire the live code to read `data/engagement-types.json`. Investigate first, propose in stages, one edit at a time.
+> **▶ NEXT SESSION — START HERE:** The ★ frameworks-wiring task is **COMPLETE** — all three frameworks (Growth Fundamentals ✅, Advisory Staircase ✅, 3 Engagement Types ✅) are wired to single sources of truth (done & pushed 2026-06-09). The only remaining engagement-types work is the separate **"surface all three in Firm Manager"** sub-task below (an EDIT-TARGET, not wiring). Otherwise triage from P1: the new **STACK DRIFT** items (Node/restify/Nuxt reconciliation) and the **IDOR** security gate.
 
 ---
 
@@ -27,7 +27,7 @@
 - ☐ **WIRE — The 3 proprietary frameworks, Phase 2** (the ★ top priority — this is what delivers Principle P1 for the most valuable IP). Phase 1 (extract to JSON) is done; now wire the live code to **read** the JSON:
   - ✅ **Growth Fundamentals** — DONE 2026-06-09. On-screen selector (`VirtualAdvisor.vue growthStages`) now imports `growth-fundamentals.json`; detector (`growth.js conversationHasGrowthStage`) reads stage names from the same file; hard-coded `GROWTH_STAGE_NAMES` array removed. 3-copy duplication closed — single source of truth.
   - ✅ **Advisory Staircase** — DONE 2026-06-09. Selector (`VirtualAdvisor.vue staircaseSteps`) now imports `advisory-staircase.json` (label keeps "Step N:" prefix for the server's number-finder; descriptions use data-file `selectorDescription` wording); ceiling logic (`caseState.js staircaseToCeiling`) reads `complexityCeiling` from the same file. Steps + ceiling de-duplicated. NOTE: `education-gates-ascent` remains display-only / not-wired — separate DECISION in P2.
-  - ☐ **3 Engagement Types** — wire `engagement-types.json`; **acceptance criterion = Option C**: relocate `DOMAIN_NATURAL_ENGAGEMENT` to a per-domain field in `domains.json` (single source of truth) before this is "done".
+  - ✅ **3 Engagement Types** — DONE 2026-06-09. **Option C satisfied:** the `DOMAIN_NATURAL_ENGAGEMENT` map was relocated to a per-domain `engagementType` field on all 22 domains in `domains.json` (single source of truth); `caseState.js` now builds the map from that file; the duplicate map block was removed from `engagement-types.json` and the revisit block marked done; `strategyResolver.js` reads the unknown-domain fallback from `engagement-types.json` `defaultEngagement`. Behaviour-preserving (174/174 tests pass; engagement types resolve identically).
   - ☐ Then **surface all three in Firm Manager** so a firm can edit them. *Source:* registry Part 2 + Outstanding item 6; memory `design-engagement-types-extraction`, `design-education-gates-ascent`.
 
 - ☐ **DOC — Promote the registry DRAFT → official.** Flip the top banner DRAFT→official + remove draft warnings (old registry already archived). **Gate:** after Mike's read-through. *Source:* registry Outstanding item 7.

@@ -1,6 +1,7 @@
 'use strict'
 
 const { DOMAIN_NATURAL_ENGAGEMENT } = require('./caseState')
+const ENGAGEMENT_TYPES = require('../../data/engagement-types.json')
 
 // ── resolveStrategy ────────────────────────────────────────────────────────
 // Pure deterministic function. Same inputs always produce same output.
@@ -22,7 +23,7 @@ function resolveStrategy (caseState, firmOverrides) {
 
   // ── Engagement type ──────────────────────────────────────────────────────
   // Start from domain natural type, gated by whether client requested help
-  const domainNatural = DOMAIN_NATURAL_ENGAGEMENT[caseState.domain] || 'education'
+  const domainNatural = DOMAIN_NATURAL_ENGAGEMENT[caseState.domain] || ENGAGEMENT_TYPES.defaultEngagement
   let engagementType = caseState.client.requestedHelp ? domainNatural : 'education'
 
   // Lens 4 advisor gate

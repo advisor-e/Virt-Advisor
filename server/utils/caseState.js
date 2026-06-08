@@ -3,36 +3,15 @@
 const { SIGNAL_TYPES } = require('./signals')
 const { extractProblemSignals } = require('./problemSignals')
 const ADVISORY_STAIRCASE = require('../../data/advisory-staircase.json')
+const DOMAINS = require('../../data/domains.json')
 
 // Domain natural engagement type — what kind of delivery the domain typically requires.
-// clientRequestedHelp must also be true before facilitation or advice is used.
-const DOMAIN_NATURAL_ENGAGEMENT = {
-  // Education — teaching clients to understand their numbers/situation
-  profit: 'education',
-  'data-systems': 'education',
-  forecasting: 'education',
-  'stock-purchasing': 'education',
-  'raising-capital': 'education',
-  // Facilitation — working through options and decisions together
-  staff: 'facilitation',
-  'sales-marketing': 'facilitation',
-  governance: 'facilitation',
-  strategy: 'facilitation',
-  systems: 'facilitation',
-  conflict: 'facilitation',
-  eoy: 'facilitation',
-  'fm-coach-culture': 'facilitation',
-  'org-capacity-planner': 'facilitation',
-  'org-board-pack': 'facilitation',
-  'people-power': 'facilitation',
-  'org-leadership': 'facilitation',
-  // Advice — specific expert recommendations required
-  valuation: 'advice',
-  risk: 'advice',
-  succession: 'advice',
-  'due-diligence': 'advice',
-  'org-firm-strategy': 'advice'
-}
+// Built from data/domains.json (single source of truth); clientRequestedHelp must also
+// be true before facilitation or advice is used.
+const DOMAIN_NATURAL_ENGAGEMENT = DOMAINS.reduce((map, d) => {
+  if (d.engagementType) { map[d.id] = d.engagementType }
+  return map
+}, {})
 
 // Staircase level → complexity ceiling for template selection (Phase D).
 // Read from data/advisory-staircase.json (single source of truth); falls back

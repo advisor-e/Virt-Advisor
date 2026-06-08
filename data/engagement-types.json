@@ -4,6 +4,7 @@
   "type": "proprietary-framework",
   "lens": "Lens 2 (Client Acumen) + Lens 4 (Advisor Capability)",
   "purpose": "How the advisor works with the client — teach (Education), work through together (Facilitation), or give expert recommendations (Advice). Derived, not asked. Independent of the staircase / complexity ceiling.",
+  "defaultEngagement": "education",
   "types": [
     {
       "id": "education",
@@ -42,23 +43,17 @@
   "selection": {
     "description": "As-built engine logic (strategyResolver.js). Independent of the staircase.",
     "rules": [
-      "Start from the domain's natural engagement type (domainNaturalEngagement below).",
+      "Start from the domain's natural engagement type (the per-domain engagementType field in domains.json — single source of truth).",
       "If the client did NOT request help -> force Education.",
       "If advisor confidence is low AND not willing to stretch -> cap at Education.",
       "Sequencing: Education -> education_first; otherwise standard.",
       "Firm overrides may replace the computed engagementType."
     ],
-    "domainNaturalEngagement": {
-      "education": ["profit", "data-systems", "forecasting", "stock-purchasing", "raising-capital"],
-      "facilitation": ["staff", "sales-marketing", "governance", "strategy", "systems", "conflict", "eoy", "fm-coach-culture", "org-capacity-planner", "org-board-pack", "people-power", "org-leadership"],
-      "advice": ["valuation", "risk", "succession", "due-diligence", "org-firm-strategy"],
-      "default": "education"
-    },
     "revisit": {
-      "status": "must-do-at-wiring",
-      "decision": "Option C — relocate domainNaturalEngagement to a per-domain field in domains.json (single source of truth, kills drift).",
-      "reason": "This map is kept here as a convenient INERT snapshot only. Domain names also live in domains.json; holding the engagement assignment in two files risks drift once wired.",
-      "acceptanceCriterion": "The Phase-2 wiring task for engagement types is NOT done until each domain carries its own naturalEngagement in domains.json and this block is removed."
+      "status": "done",
+      "completedOn": "2026-06-09",
+      "decision": "Option C applied — domain→engagement map relocated to a per-domain engagementType field in domains.json (single source of truth); the duplicate map block here was removed.",
+      "wiredBy": "caseState.js builds DOMAIN_NATURAL_ENGAGEMENT from domains.json; defaultEngagement read from this file."
     }
   },
   "designNote": {

@@ -1,6 +1,7 @@
 [
   {
     "id": "profit",
+    "engagementType": "education",
     "label": "profitability and feasibility",
     "keywords": "profit|profitability|margin|margins|fuel cost|fuel costs|rising cost|rising costs|cost increase|increasing cost|expenses|cost pressure|squeeze|feasib",
     "disambiguationKeywords": "profit|margin|cost|expense|squeeze|feasib",
@@ -8,6 +9,7 @@
   },
   {
     "id": "staff",
+    "engagementType": "facilitation",
     "label": "staff, productivity and leadership",
     "keywords": "\\b(staff|employees|team|efficiency|productivity|effectiveness|leadership|HR|morale|culture|disharmony|poor communication)\\b",
     "disambiguationKeywords": "staff|team|employee|leadership|hr|morale|culture",
@@ -15,6 +17,7 @@
   },
   {
     "id": "data-systems",
+    "engagementType": "education",
     "label": "data integrity and financial systems",
     "keywords": "data integrity|\\bdata\\b|inaccurate|not accurate|can't rely|cannot rely|not reliable|accurate data|financial data|data quality|quality reports|financial reports|financial reporting|management reports|their financials|the financials|the figures|their figures|the numbers|the books|chart of accounts|financial literacy|generating reports|monthly reporting|financial systems|accounting systems|bookkeeping|unreliable|clean accounts|bad data|poor data|trust the numbers",
     "disambiguationKeywords": "data|system|chart|financial literacy|accounting",
@@ -22,6 +25,7 @@
   },
   {
     "id": "sales-marketing",
+    "engagementType": "facilitation",
     "label": "sales and marketing",
     "keywords": "\\b(sales|marketing|messaging|advertising)\\b|drop in revenue|drop in sales|drop in income|low sales|media campaigns|brand awareness",
     "disambiguationKeywords": "sales|marketing|revenue|advertising|brand|conversion",
@@ -29,6 +33,7 @@
   },
   {
     "id": "forecasting",
+    "engagementType": "education",
     "label": "financial management",
     "keywords": "cash forecast|budgets|dashboard discussions|dashboard|ratio analysis|financial management report",
     "disambiguationKeywords": "forecast|budget|dashboard|ratio",
@@ -36,6 +41,7 @@
   },
   {
     "id": "governance",
+    "engagementType": "facilitation",
     "label": "governance and leadership",
     "keywords": "governance|board|directors|compliance|accountability|leadership structure|reporting structure|decision.making|policies|procedures|corporate governance",
     "disambiguationKeywords": "governance|board|compliance|accountability",
@@ -56,6 +62,7 @@
   },
   {
     "id": "strategy",
+    "engagementType": "facilitation",
     "label": "strategy and planning",
     "keywords": "strategy|strategic planning|business plan|growth plan|long[- ]?term (plan|strategy|goal|objective|vision)|vision|mission|goals|objectives|direction|pivot|restructure|business model",
     "disambiguationKeywords": "strategy|strategic|planning|vision|goals",
@@ -76,6 +83,7 @@
   },
   {
     "id": "systems",
+    "engagementType": "facilitation",
     "label": "systems",
     "keywords": "\\bsystems\\b|processes|workflows|automation|\\btechnology\\b|\\bsoftware\\b|\\bCRM\\b|\\bERP\\b|operational efficiency|infrastructure|inefficiency|bottleneck",
     "disambiguationKeywords": "systems|process|workflow|automation|technology",
@@ -96,6 +104,7 @@
   },
   {
     "id": "valuation",
+    "engagementType": "advice",
     "label": "valuation",
     "keywords": "valuation|value the business|business worth|what is it worth|enterprise value|EBITDA|business value|how much is it worth|price the business|sale price",
     "disambiguationKeywords": "valuation|value|worth|enterprise|EBITDA",
@@ -116,6 +125,7 @@
   },
   {
     "id": "risk",
+    "engagementType": "advice",
     "label": "risk management",
     "keywords": "risk management|risk exposure|liability|business risk|contingency|disaster recovery|business continuity|mitigate risk|downside risk|key person|key man",
     "disambiguationKeywords": "risk|liability|insurance|contingency|continuity",
@@ -136,6 +146,7 @@
   },
   {
     "id": "succession",
+    "engagementType": "advice",
     "label": "succession planning",
     "keywords": "succession|exit plan|retire|retiring|handover|next generation|family business|ownership transfer|management buyout|sell the business|exit strategy|ownership transition",
     "disambiguationKeywords": "succession|exit|retire|handover|transition",
@@ -156,6 +167,7 @@
   },
   {
     "id": "conflict",
+    "engagementType": "facilitation",
     "label": "conflict and conflict meetings",
     "keywords": "conflict|dispute|disagreement|tension|falling out|relationship breakdown|mediation|partnership dispute|directors fighting|ownership dispute|irreconcilable",
     "disambiguationKeywords": "conflict|dispute|disagreement|tension|mediation",
@@ -176,6 +188,7 @@
   },
   {
     "id": "eoy",
+    "engagementType": "facilitation",
     "label": "end of year meetings",
     "keywords": "end of year|year end|annual review|year.end meeting|\\bEOY\\b|financial year end|tax year|annual planning|end.of.year",
     "disambiguationKeywords": "year end|annual review|eoy|financial year",
@@ -196,6 +209,7 @@
   },
   {
     "id": "due-diligence",
+    "engagementType": "advice",
     "label": "due diligence",
     "keywords": "due diligence|acquisition|acquire|merger|buying a business|purchase a business|buying the business|DD report|information memorandum",
     "disambiguationKeywords": "due diligence|acquisition|merger|buying",
@@ -216,6 +230,7 @@
   },
   {
     "id": "stock-purchasing",
+    "engagementType": "education",
     "label": "stock purchasing and inventory management",
     "keywords": "stock purchasing|inventory management|stock levels|reorder point|purchase assessment|stock replenishment|days on hand|unit cost risk|stock policies|ordering quantities|bulk purchasing|stock cash flow",
     "disambiguationKeywords": "stock|inventory|purchasing|reorder|stock levels",
@@ -223,6 +238,7 @@
   },
   {
     "id": "raising-capital",
+    "engagementType": "education",
     "label": "raising capital and business acquisition",
     "keywords": "raising capital|raise capital|pitch deck|venture capital|equity funding|term sheet|capital raise|business acquisition|search fund|entrepreneur|franchise model|cost of capital|capital structure",
     "disambiguationKeywords": "capital|pitch|investor|equity|acquisition|funding",
@@ -230,6 +246,7 @@
   },
   {
     "id": "fm-coach-culture",
+    "engagementType": "facilitation",
     "label": "firm management coaching and culture",
     "keywords": "firm manager|firm culture|visible learning|coaching plan|advisory coaching|performance improvement|PIP|fee estimate|job creep|scope creep|applicant screening|team feedback|COI prospect|paper tower|group coaching|team building",
     "disambiguationKeywords": "firm manager|coaching|visible learning|PIP|COI|paper tower",
@@ -237,6 +254,7 @@
   },
   {
     "id": "org-firm-strategy",
+    "engagementType": "advice",
     "label": "CA firm strategy and partner management",
     "keywords": "firm strategy|partner admission|partner retirement|CA firm|accounting firm|practice strategy|AI adoption|software adoption|capacity management|fee growth|partner equity|practice management|firm direction|practice direction",
     "disambiguationKeywords": "firm strategy|partner admission|practice strategy|CA firm|accounting firm",
@@ -244,6 +262,7 @@
   },
   {
     "id": "org-capacity-planner",
+    "engagementType": "facilitation",
     "label": "CA firm capacity planning",
     "keywords": "capacity planner|capacity planning|capacity model|scenario versioning|client trimming|WIP management|staff utilisation|fee earner capacity|practice capacity|resource planning|workload management|practice load",
     "disambiguationKeywords": "capacity planning|capacity model|WIP|utilisation|client trimming",
@@ -251,6 +270,7 @@
   },
   {
     "id": "org-leadership",
+    "engagementType": "facilitation",
     "label": "leadership development and partner management",
     "keywords": "partner promotion|leadership development|conduct management|enneagram|ethics demerit|partner checklist|leadership pipeline|performance management|professional conduct|culture leadership|values alignment|demerit system",
     "disambiguationKeywords": "partner promotion|leadership development|enneagram|conduct management|demerit",
@@ -258,6 +278,7 @@
   },
   {
     "id": "org-board-pack",
+    "engagementType": "facilitation",
     "label": "firm board governance and reporting",
     "keywords": "board pack|board governance|annual board plan|risk matrix|white paper|board meeting|quality decisions|Deming|governance calendar|firm reporting|partner meeting|strategic review|board reporting",
     "disambiguationKeywords": "board pack|board governance|risk matrix|white paper|Deming|governance calendar",
@@ -265,6 +286,7 @@
   },
   {
     "id": "people-power",
+    "engagementType": "facilitation",
     "label": "people engagement, recruitment and performance",
     "keywords": "people power|owner alignment|team engagement|customer engagement|recruitment|remuneration|SMART goals|staff retention|employee engagement|performance goals|salary review|incentive structure|people strategy|workforce planning|NPS|net promoter",
     "disambiguationKeywords": "people power|owner alignment|team engagement|recruitment|remuneration|SMART goals",
