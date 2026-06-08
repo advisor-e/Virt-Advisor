@@ -6,6 +6,26 @@
 
 ---
 
+## North-Star Vision
+
+**Virt Advisor is a platform a firm makes its own.** The platform ships a strong shared base, but the lasting value — and the reason a firm pays for it — is that a firm can pour its own intellectual property into the system and have that IP reach its advisors automatically, without writing code. Four commitments sit at the heart of every design decision:
+
+**1. A firm can add its own IP — and steer what its advisors are shown.**
+A firm's managers (and the platform owner) teach the system their own advisory knowledge through plain-English editing screens, never code. Through **"distinctions"** — plain-English rules that influence template selection — a firm manager makes the engine surface the templates *they* judge best suited to **their staff and their client base**, not just the platform defaults. The platform base is a starting point a firm overrides and extends, never a ceiling. *Delivered by:* the layered-override model (reset to default any time), the Advisory Distinctions table, and the Firm Manager edit-targets.
+
+**2. A firm controls its own template library — "the search table."**
+The library of advisory tools the engine draws from is the firm's to shape. A firm edits its content upstream, exports it as JSON, and uploads it to its own account — with validation, version history, and one-click restore — so the firm's evolving library, not a fixed platform list, is what its advisors are matched against. *Delivered by:* the master-export lifecycle (per-firm storage, base → diverge) and the Firm Manager self-service upload.
+
+**3. A firm's team finds its stuff effortlessly.**
+Adding IP is only worth it if the firm's advisors actually get it at the moment they need it. Every piece of firm content — distinctions, overrides, templates, documents, videos — surfaces to that firm's advisors through the same single natural conversation, with no folder-hunting and no need to know where anything lives. The advisor asks; the firm's own IP answers. *Delivered by:* firm content flowing into the recommendation/scoring engine and the Discover (template search) mode, scoped to the firm.
+
+**4. Real client work continuously sharpens the firm's system.**
+A firm manager can **review real-world case studies** from their own advisors' sessions and feed what they learn straight back in — refining distinctions and template selection so the system keeps getting better at matching their staff and their client base. The improvement engine is the firm's own live work, not pre-emptive guesswork. *Delivered by:* the case-study-review → suggested-distinction loop and firm-level feedback capture. *(This makes design principle #3 concrete — real sessions, not pre-emptive patches, improve the system.)*
+
+**Why this is the heart.** The shared platform makes Virt Advisor useful on day one. These four commitments make it *theirs* — and a firm's own IP, shaped by its own client work and reaching its own team automatically, is what turns a tool into a durable, white-labelable product. Every component supports firm-specific overrides on top of platform defaults; nothing is single-tenant. When a design decision is unclear, the test is simple: *does this make it easier for a firm to add its IP, control its library, get it to its team, and learn from its own client work?*
+
+---
+
 ## 1. What Virt Advisor Is
 
 Virt Advisor is an AI-assisted advisory preparation tool for accounting and business advisors. It has one core job: help an advisor prepare for a client meeting by identifying the right advisory tools (templates) and understanding how to use them.
