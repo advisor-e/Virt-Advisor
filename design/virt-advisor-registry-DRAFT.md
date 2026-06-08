@@ -1,7 +1,7 @@
-# Virt Advisor — System Registry (DRAFT v0.2)
+  # Virt Advisor — System Registry (DRAFT v0.2)
 
 > **STATUS: DRAFT — NOT FINAL. For review (Mike + Claude + external reviewers).**
-> Replaces `virt-advisor-design-registry.md`, which was built around the now-dead "routing groups" concept and described an unbuilt system. This draft documents the system **as it actually works today**, verified against live code and data on 2026-06-05.
+> Replaces `virt-advisor-design-registry.md`, and documents the system **as it actually works today**, verified against live code and data on 2026-06-05.
 > Verification marks: **⚠ TO MAP** = mapping not yet completed · **⚠ CONFIRM** = needs the domain expert's decision · **GAP** = built but locked in code/PDF, should become editable.
 > When complete and checked, this is promoted to the official registry. The old file is **archived, not deleted** — moved to `design/archive/virt-advisor-design-registry.ARCHIVED.md` with a do-not-use banner (Part 10).
 
@@ -67,6 +67,22 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 | 7 | **Profile** — "Your advisor profile" | Stores known advisor facts to personalise all functions | form · localStorage | ✅ Part 1A |
 | 8 | **Firm Manager** — "Team Dashboard" / admin hub | The **editing surface** for building blocks: documents, advisory distinctions, decision framework, videos, firm profile | subsystem · `/api/firm-manager/*` | ✅ Part 1A |
 
+**What the advisor / firm manager actually sees → internal name.** The menu labels on screen differ from the internal names used in this registry. (9 on-screen labels → 7 internal functions: Progression wears two labels, and Profile is a pop-up rather than a chat.)
+
+| On-screen label | Internal name (this registry) | App reference |
+|---|---|---|
+| "I have a client situation" | Client | chat mode `client` |
+| "I want to find something specific" | Discover | chat mode `discover` |
+| "I want to plan ahead" | Plan | chat mode `plan` |
+| "I'm interested in learning more" | Learn | chat mode `learn` |
+| "I want to build a course" | Course | mode `course` → `/api/course` |
+| "My Progress" | Progression *(advisor's own view)* | mode `progression` → `/api/activity/progression` |
+| "Team Dashboard" | Progression *(firm-manager team view)* | mode `firm` → `/api/activity/team` |
+| "Your advisor profile" | Profile | profile pop-up (localStorage) |
+| "Firm Manager" | Firm Manager *(editing hub)* | separate page `/firm-manager` → `/api/firm-manager/*` |
+
+*Note:* "My Progress" and "Team Dashboard" are two views of the **same** Progression system (your own tiers vs your team's); "Firm Manager" is a **separate** editing-hub page (documents / distinctions / framework), not the same thing as "Team Dashboard".
+
 **Key relationships:**
 - Functions 2–7 draw on the same asset library but use different prompts/flows (e.g. `discover.txt`, `plan.txt`, `learn.txt`, course files).
 - **Function 8 (Firm Manager) is cross-cutting** — it's where Governing Principle P1 ("editable without code") is delivered for every building block in Part 2 (Master Asset Table).
@@ -79,6 +95,8 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 > The Client function's engine is Parts 3–7. This part documents the **other** functions, built up one at a time and verified against live code. Each entry states what the function is, its flow, its assets, and — per the no-silent-parking rule — what is actually wired vs dormant.
 
 ### Discover — "I want to find something specific"
+**In plain terms:** **"I want to find something specific"** *(internal: Discover)* — the menu button an advisor taps to hunt down a specific template: they describe what they're after, and the AI finds the closest matches from across the whole library.
+
 **What:** a universal template **finder** — the advisor locates a specific template by concept, capability, or half-remembered name, then gets delivery help. **Searches the whole library (any section) by design** — the advisor may be hunting a client-facing Do-the-Job tool *or* one of their own get-the-job / get-organised tools (Mike-confirmed 2026-06-08). **Not** a diagnostic pipeline. **Mode id:** `discover` (one of the 4 `advisor.js` AI-chat modes). **Prompt:** `discover.txt`. **Menu label:** "I want to find something specific" (`en.json mode.discover`). **Live:** ✓. **Editable in Firm Mgr:** ✗ (prompt protected).
 
 **Flow (strict 3 steps):**
@@ -93,6 +111,8 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 **Logic trees — DORMANT here.** `discover.txt` Step 1 tells the AI to use a "Diagnostic Logic Tree if provided in the context", but the server **never injects one** into discover mode (verified: the only tree-derived text discover can receive is a `mode: learn` deep-dive reference, after 2+ messages). So that instruction always falls through to a generic clarifying question. **Decision 2026-06-08 — Option 1:** leave as-is, documented dormant, not wired (a quick search tool asking a plain question is fine). Part of the broader **28-dormant-diagnostic-trees** question — see the Part 2 dormant-asset register.
 
 ### Plan — "I want to plan ahead"
+**In plain terms:** **"I want to plan ahead"** *(internal: Plan)* — the menu button for working on the advisor's **own** business: career, fees, and how they run their practice — not a client's.
+
 **What:** helps the advisor plan their **own** career, practice, and development — explicitly *"not about their clients… about them"* (`plan.txt`). Facilitative/exploratory. **Mode id:** `plan` (one of the 4 `advisor.js` AI-chat modes). **Prompt:** `plan.txt`. **Menu label:** "I want to plan ahead" (tag: Facilitative · Advisor Planning). **Live:** ✓. **Editable in Firm Mgr:** ✗ (prompt protected).
 
 **Flow:** open questions one at a time across current situation → 12-month goals → what they've tried (~3–4 exchanges), then a 5-part recommendation (My recommendation / Why this fits where you are / What this will help you achieve / How to use it / What this typically leads to).
@@ -108,6 +128,8 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 **vs Client/Discover:** advisor-facing (own growth), no diagnostic pipeline, no domain detection, get-organised-primary scoping. Its real decision logic lives **inside the prompt** — live but ✗-editable.
 
 ### Learn — "I'm interested in learning more"
+**In plain terms:** **"I'm interested in learning more"** *(internal: Learn)* — the menu button for an advisor to build their **own** skills, and where the step-by-step coaching guides (Trial Fit, Conflict, Dashboards…) actually run.
+
 **What:** helps the advisor develop their **own** professional skills and knowledge — *"their growth as an advisor — not about their clients"* (`learn.txt`). Facilitative/encouraging; always reminds the advisor the resources live inside Advisor-e. **Mode id:** `learn` (one of the 4 `advisor.js` AI-chat modes). **Prompt:** `learn.txt`. **Menu label:** "I'm interested in learning more" (tag: Facilitative · Development). **Live:** ✓. **Editable in Firm Mgr:** ✗ (prompt protected). Development areas: selling/winning clients, positioning/messaging, facilitation, psychology, networking/referrals, financial analysis & reporting, business fundamentals, revenue modelling.
 
 **Flow:** one open question at a time across *what they want to develop → where they're starting from → how they like to learn* (build a picture before recommending — never after only 1–2 exchanges), then a 5-part recommendation (My recommendation / Why this fits / What you'll get from it / How to use it / What to explore next).
@@ -123,6 +145,8 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 **vs Client/Discover/Plan:** advisor-facing skill development; no diagnostic pipeline; get-the-job + get-organised primary scoping; uniquely, it both **activates the 14 coaching trees** and is the **HOW-swap destination**.
 
 ### Course — "I want to build a course"
+**In plain terms:** **"I want to build a course"** *(internal: Course)* — a separate area where the advisor builds and works through their own multi-session training course, with quizzes and progress tracking.
+
 **What:** the advisor builds **and** delivers a structured, multi-session learning program for their **own** development. **Separate subsystem** — not an `advisor.js` mode. **Endpoint:** POST `/api/course` (`server-middleware/course.js`). **Frontend:** `components/CourseBuilder.vue`. **Prompts:** `course-design.txt`, `course-session.txt`. **Menu label:** "I want to build a course" (tag: Guided · Learning Program). **Model:** `gpt-4o` (heavier than the `gpt-4o-mini` used by the chat modes). **Live:** ✓. **Editable in Firm Mgr:** ✗ (prompts protected; quiz overrides are data).
 
 **Five operations (dispatched by `body.type`):**
@@ -139,6 +163,8 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 **vs the chat modes:** separate endpoint + screen, `gpt-4o`, a code-controlled design questionnaire (not free conversation), and a quiz/grade/progress loop. No diagnostic pipeline.
 
 ### Progression — "My Progress"
+**In plain terms:** **"My Progress"** / **"Team Dashboard"** *(internal: Progression)* — the dashboard of sessions and courses completed and how the advisor is scoring; "My Progress" is the advisor's own view, "Team Dashboard" is the manager's team view.
+
 **What:** a dashboard tracking the advisor's capability progression across three tiers (**entry-level / intermediate / advanced**) — counts of VA (client) sessions and course sessions, average quiz scores, and last-active per tier; plus a **team overview** for the firm manager. **Separate subsystem** — not an `advisor.js` mode. **Frontend:** `components/AdvisorProgression.vue`. **Backend:** `server/routes/activity.js` (Restify, registered in `restify-server.js`). **Menu label:** "My Progress" (tag: Development). **Live:** ✓ (DB-backed). **Editable in Firm Mgr:** n/a (reporting view).
 
 **Routes (registered in `restify-server.js`):**
@@ -153,6 +179,8 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 **⚠ Dependency:** needs the MySQL tables provisioned; `restify-server.js` warns when `MYSQL_PASSWORD` is a placeholder → routes return empty.
 
 ### Profile — "Your advisor profile"
+**In plain terms:** **"Your advisor profile"** *(internal: Profile)* — a one-time set of questions about the advisor themselves, so the system personalises every recommendation without re-asking.
+
 **What:** stores known facts about the advisor, captured **once**, then reused to personalise recommendations across functions — *"Answer a few questions once — I'll use your background in every recommendation, without asking again."* **Not** a chat mode or separate endpoint — a **modal form inside `VirtualAdvisor.vue`** (reached from a menu card). **Menu label:** "Your advisor profile". **Live:** ✓. **Editable in Firm Mgr:** n/a (advisor-owned).
 
 **Fields (7):** `advisorRole`, `experience`, `clientDemographic`, `enjoyment`, `technicalStrengths`, `toolsComfort`, `notes`. **Adaptive questioning:** the wording switches between standard and **beginner** variants (`enjoymentBeginner`, `clientDemographicBeginner`, `technicalStrengthsBeginner`) based on the advisor's stated role/experience. Supports **voice input** per field.
@@ -164,6 +192,8 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 **Privacy by design:** the `clientDemographic` question explicitly instructs *"please don't mention names"*; the profile stores the **advisor's own** professional background, not client PII.
 
 ### Firm Manager — the editing hub (admin)
+**In plain terms:** **"Firm Manager"** *(this is the one label the manager actually sees on screen)* — the admin area where a firm manager edits the building blocks (documents, distinctions, decision framework) without touching code.
+
 **What:** the **no-code editing surface** for the firm's building blocks — the delivery of Governing Principle P1 (auditable AND editable). Cross-cutting (Function 8): it edits the assets the other functions consume. **Separate page:** `pages/firm-manager.vue` (+ `components/FirmManagerHub.vue`). **Backend:** `server/routes/firmManager.js`. **Menu label:** "Team Dashboard" / Firm Manager. **Live:** ✓ (Advisory Distinctions fully; others per below). **This IS the Firm-Mgr "editable" column** referenced throughout Part 2.
 
 **Security — the reference implementation for secure multi-tenancy.** Every route is guarded by `[firmAuth, requireManagerRole]` (registered in `restify-server.js`): a valid JWT + a `firm_manager` / `platform_admin` role, with `firmId` **derived from the verified token** (the line-130 standard). This is the correct pattern that the Progression/case-study routes still need to adopt (see HANDOFF Security Notes).
