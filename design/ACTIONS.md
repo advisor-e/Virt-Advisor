@@ -10,7 +10,10 @@
 >
 > **Last swept:** 2026-06-09.
 >
-> **▶ NEXT SESSION — START HERE:** The ★ frameworks-wiring task is **COMPLETE** — all three frameworks (Growth Fundamentals ✅, Advisory Staircase ✅, 3 Engagement Types ✅) are wired to single sources of truth (done & pushed 2026-06-09). The only remaining engagement-types work is the separate **"surface all three in Firm Manager"** sub-task below (an EDIT-TARGET, not wiring). Otherwise triage from P1: the new **STACK DRIFT** items (Node/restify/Nuxt reconciliation). The **IDOR** security gate is now part-closed — the `/api/activity/*` routes are fixed (2026-06-09); only the `utils/cases.js` portion remains, gated to the Case-study DB migration (P2).
+> **▶ NEXT SESSION — START HERE:** Done & pushed: IDOR `/api/activity/*` fix + compliance pass, the registry promoted to **official v1.0** (`design/virt-advisor-registry.md`), and frameworks Phase-2 **wiring** complete. **Genuinely-next P1 work:**
+> 1. **STACK DRIFT** (×3) — restify 11→9.1.0, nuxt 2.18.1→2.14.0, add `engines` pin. **The plan + runbook is written:** `design/STACK-RECONCILIATION-PLAN.md`. This is **end-of-day work** (scoped install, VS Code closed, never wipe `node_modules`).
+> 2. **Frameworks → Firm Manager** — wiring is done; the remaining piece is surfacing all three for no-code firm editing (an EDIT-TARGET).
+> 3. **IDOR `utils/cases.js`** — the only remaining IDOR piece; gated to the Case-study DB migration (P2).
 
 ---
 
@@ -64,6 +67,9 @@
 - ☐ **QUALITY — Clear pre-existing ESLint errors.** Lint is currently *skipped* in the pre-commit hook (eslint package needs `npm install` to restore — see `.husky/pre-commit`), so these errors sit dormant rather than blocking commits. **4 errors:** `server/routes/activity.js` — 3× `no-useless-return` (the trailing `return` at the end of `logCourse`, `getProgression`, `getTeam`); `components/VirtualAdvisor.vue` — 1× `curly` (missing `{ }` after an `if`, ~line 1455). Also assorted `no-console` *warnings* across both files and a DOMPurify named-export warning. **Why:** these predate the IDOR fix and were surfaced when those files were touched on 2026-06-09 — logging them so they are not lost when lint is re-enabled. Fix when eslint is restored and pre-commit lint is turned back on. *Source:* lint run during the IDOR fix, 2026-06-09.
 
 ---
+
+## Recently completed (2026-06-09)
+✅ Closed IDOR on `/api/activity/*` (JWT-derived identity + manager-role gate + tests) · ✅ Activity routes brought to standard (shared `sendError` envelope + JSDoc) · ✅ HANDOFF updated (activity IDOR resolved; `advisorIdClaim` added) · ✅ Stack-drift reconciliation plan written (`STACK-RECONCILIATION-PLAN.md`) · ✅ Registry promoted DRAFT→official **v1.0** (renamed, refs updated) · ✅ Logged pre-existing ESLint errors as a P3 task.
 
 ## Recently completed (2026-06-08)
 ✅ Extracted Advisory Staircase + 3 Engagement Types to JSON (Phase 1) · ✅ Fixed Growth Curve selector drift · ✅ Resolved Part 2A PDF→JSON mapping · ✅ Itemised logic trees (14 active / 28 dormant) + no-silent-parking rule · ✅ Documented all 7 non-Client functions (Part 1A) · ✅ Elevated the IDOR gap in HANDOFF · ✅ Registry final read-through + plain-language pass.
