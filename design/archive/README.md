@@ -2,7 +2,7 @@
 
 ⛔ **Nothing in this folder is authoritative. Reference only.**
 
-Files here are kept for historical context — never to be copied forward, merged, or cited as the current design. The live registry is `design/virt-advisor-registry-DRAFT.md` (and its promoted successor).
+Files here are kept for historical context — never to be copied forward, merged, or cited as the current design. The live registry is `design/virt-advisor-registry.md` (official).
 
 | File | Why archived | Safe to read for |
 |---|---|---|

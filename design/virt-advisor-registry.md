@@ -1,17 +1,15 @@
-  # Virt Advisor — System Registry (DRAFT v0.2)
+  # Virt Advisor — System Registry (v1.0)
 
-> **STATUS: DRAFT — NOT FINAL. For review (Mike + Claude + external reviewers).**
-> Replaces `virt-advisor-design-registry.md`, and documents the system **as it actually works today**, verified against live code and data on 2026-06-05.
-> Verification marks: **⚠ TO MAP** = mapping not yet completed · **⚠ CONFIRM** = needs the domain expert's decision · **GAP** = built but locked in code/PDF, should become editable.
-> When complete and checked, this is promoted to the official registry. The old file is **archived, not deleted** — moved to `design/archive/virt-advisor-design-registry.ARCHIVED.md` with a do-not-use banner (Part 10).
+> **STATUS: OFFICIAL — the authoritative registry of how the system works.** Documents the system **as it actually works today**, verified against live code and data (baseline 2026-06-05); promoted from DRAFT on 2026-06-09 after Mike's read-through. Supersedes `virt-advisor-design-registry.md`, which is **archived, not deleted** — `design/archive/virt-advisor-design-registry.ARCHIVED.md`, do-not-use banner (Part 10).
+> Verification marks flag **genuine open build/decision work — tracked here on purpose (no silent parking), not documentation gaps**: **⚠ TO MAP** = a mapping or decision still to be made · **GAP** = built but locked in code/PDF, should become firm-editable. They stay flagged until the underlying work is done.
 
 ### How this document is ordered
 **Global understanding first (Parts 0–3), then local detail (Parts 4–10).**
 0. Governing Principles · 0A. Plain-Language Glossary · 1. App Functions · 1A. Non-Client Function Detail · 2. Master Asset Table · 2A. Logic/Support inventory · 3. Decision Pipeline (the 7-stage loop)
 4. Lenses · 5. 14 Questions→Lenses · 6. Categorisation Axes · 7. Stage Detail · 7A. Stage-2 Primary Issue Registry · 8. Invisible HOW-Swap · 9. Improvement Engine · 10. Migration Checklist
 
-### Note for external reviewers
-This describes the **Client** advisory function's engine in full (Parts 3–7); the other 7 functions are now documented in **Part 1A**. Please focus feedback on **structure, completeness, clarity, and whether the decision logic is sound**. Remaining open work is flagged inline (⚠ TO MAP / GAP) — chiefly the framework Phase-2 wiring (Outstanding item 6) and the case-study DB migration. The system is largely **built and running**; this registry's job is to make it auditable and to expose every building block for no-code editing (Principle P1).
+### Scope
+This describes the **Client** advisory function's engine in full (Parts 3–7); the other 7 functions are documented in **Part 1A**. The system is **built and running**; this registry's job is to make it auditable and to expose every building block for no-code editing (Principle P1). Remaining open work is flagged inline (⚠ TO MAP / GAP) — chiefly surfacing the 3 frameworks in Firm Manager and the case-study DB migration.
 
 ---
 

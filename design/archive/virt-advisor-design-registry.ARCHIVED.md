@@ -1,6 +1,6 @@
 > # ⛔ ARCHIVED — DO NOT USE AS AUTHORITATIVE ⛔
 > **This file is SUPERSEDED and retained for historical reference ONLY.**
-> The live registry is **`design/virt-advisor-registry-DRAFT.md`** (and its promoted successor).
+> The live registry is **`design/virt-advisor-registry.md`** (official).
 > This document was built around the now-**dead "routing groups"** concept and contains build-status claims that are **wrong** (it says Stages 2/4/5 are "not yet built" when they run live today).
 > **Why it's kept:** the verbatim Workshop-1 primary-issue history (the *why* behind each split/merge). Nothing here may be copied forward, merged, or cited as current. Read for history, never for truth.
 > ─────────────────────────────────────────────────────────────────────

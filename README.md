@@ -6,7 +6,7 @@ Project documentation is in the **[`design/`](design/)** folder:
 
 | Document | What it is |
 |---|---|
-| [`design/virt-advisor-registry-DRAFT.md`](design/virt-advisor-registry-DRAFT.md) | **The system registry** — the authoritative map of how the whole app works (the 8 functions, the decision pipeline, every asset). **Start here.** |
+| [`design/virt-advisor-registry.md`](design/virt-advisor-registry.md) | **The system registry** — the authoritative map of how the whole app works (the 8 functions, the decision pipeline, every asset). **Start here.** |
 | [`design/ACTIONS.md`](design/ACTIONS.md) | **The action backlog** — the single prioritised list of open tasks. Triage from here. |
 | [`design/HANDOFF.md`](design/HANDOFF.md) | Integration / handover checklist (auth, DB, Google Drive wiring). |
 | [`design/SECURITY-AUDIT-NOTES.md`](design/SECURITY-AUDIT-NOTES.md) | Security audit notes + formally accepted risks. |
