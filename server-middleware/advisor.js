@@ -732,17 +732,24 @@ async function handleQuery (rawBody, res) {
       // advisor confirms or corrects. Eliminates the root cause of wrong-domain pipelines.
       {
         field: 'domainConfirmed',
+        // Conversational — NO drop-tab. Proposes the area in plain words; the
+        // advisor confirms or corrects in their own words.
         textFn: s => {
           const detected = DOMAINS.find(d => d.id === s.detectedDomain)
-          const hint = detected
-            ? `Based on what you've described, I'm reading this as a **${detected.label}** situation — but you know this client best.`
-            : `I want to make sure I focus on the right area for this client.`
-          return `${hint} Which area best describes the primary focus?\n[DOMAIN_SELECTOR:${s.detectedDomain || ''}]`
+          if (detected) {
+            return `Based on what you've described, I'm reading this as a **${detected.label}** situation — have I got that right, or is it really about a different area?`
+          }
+          return `I want to make sure I focus on the right area for this client — in a sentence, what would you say the core issue is really about?`
         },
         onAnswer: (answer, s) => {
-          const match = DOMAINS.find(d => d.id === answer)
-          if (match) {
-            s.detectedDomain = match.id
+          // If the advisor names a different area, switch to it; otherwise the
+          // proposed domain stands. An explicit rejection ("that's not the issue /
+          // wrong area") is caught by the contradiction check that runs right after
+          // this, which re-opens the question — so no risky reset here.
+          const lower = (answer || '').toLowerCase()
+          const named = DOMAINS.find(d => lower.includes(d.label.toLowerCase()))
+          if (named) {
+            setDetectedDomain(named.id)
             s.disambiguationNeeded = false
             s.disambiguationScenarios = []
           }
@@ -773,13 +780,17 @@ async function handleQuery (rawBody, res) {
           s.disambiguationNeeded = false
         }
       },
-      // ── Primary Issue selector ──
-      // Asks the advisor to identify the specific structural problem within the detected domain.
-      // Skipped for context domains (conflict, eoy, due-diligence) which have no primary issues.
+      // ── Primary Issue ──
+      // REMOVED from intake (no drop-tab). Per the conversational-intake spec
+      // (memory design-conversational-intake): the primary issue is inferred from
+      // the conversation, and only clarified at recommendation time IF the template
+      // scoring hits a genuine fork. Stage 2 wires that inference + end-of-process
+      // clarification; for now the field stays null and the engine reads the
+      // problem from signals + domain.
       {
         field: 'primaryIssue',
-        textFn: s => `Based on what you've described, which of these best captures the core problem for this client?\n[PRIMARY_ISSUE_SELECTOR:${s.detectedDomain}]`,
-        skip: s => !s.detectedDomain || CONTEXT_DOMAINS.has(s.detectedDomain) || !PRIMARY_ISSUES[s.detectedDomain]
+        text: '(primary issue inferred — not asked during intake)',
+        skip: () => true
       },
       // ── Universal: Industry ──
       {
