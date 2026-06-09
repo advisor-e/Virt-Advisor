@@ -14,12 +14,15 @@ const DOMAIN_NATURAL_ENGAGEMENT = DOMAINS.reduce((map, d) => {
 }, {})
 
 // Staircase level → complexity ceiling for template selection (Phase D).
-// Read from data/advisory-staircase.json (single source of truth); falls back
-// to the data file's defaultCeiling when no step is set.
-function staircaseToCeiling (staircaseNum) {
-  if (!staircaseNum) { return ADVISORY_STAIRCASE.defaultCeiling }
-  const step = ADVISORY_STAIRCASE.steps.find(s => s.step === staircaseNum)
-  return step ? step.complexityCeiling : ADVISORY_STAIRCASE.defaultCeiling
+// Reads from a staircase config (steps + defaultCeiling). Defaults to the
+// platform base (data/advisory-staircase.json, the single source of truth); the
+// request handler may pass a firm-specific staircase (base + firm override already
+// blended) so a firm's customisation changes the ceiling. Falls back to the
+// config's defaultCeiling when no step is set or the step is unknown.
+function staircaseToCeiling (staircaseNum, staircase = ADVISORY_STAIRCASE) {
+  if (!staircaseNum) { return staircase.defaultCeiling }
+  const step = staircase.steps.find(s => s.step === staircaseNum)
+  return step ? step.complexityCeiling : staircase.defaultCeiling
 }
 
 // Signal → solution category mappings — used by Phase D template scorer
@@ -86,7 +89,10 @@ function deriveUrgency (signals) {
 // ── buildCaseState ─────────────────────────────────────────────────────────
 // Pure function. Takes signals array + raw state → canonical typed CaseState.
 // This is the authoritative input for the strategy resolver and template resolver.
-function buildCaseState (signals, state) {
+// `staircase` is an optional pre-blended staircase config (base + firm override);
+// when omitted it defaults to the platform base, so behaviour is unchanged for
+// any firm that has not customised it.
+function buildCaseState (signals, state, staircase = ADVISORY_STAIRCASE) {
   const get = (type) => {
     const s = signals.find(s => s.type === type)
     return s ? s.value : null
@@ -108,7 +114,7 @@ function buildCaseState (signals, state) {
     domain: state.detectedDomain || null,
     primaryIssue: state.primaryIssue && state.primaryIssue !== 'pending' ? state.primaryIssue : null,
     staircaseLevel: staircaseNum,
-    complexityCeiling: staircaseToCeiling(staircaseNum),
+    complexityCeiling: staircaseToCeiling(staircaseNum, staircase),
     client: {
       requestedHelp: clientRequestedHelp,
       growthStage: get(SIGNAL_TYPES.CLIENT_GROWTH_STAGE),

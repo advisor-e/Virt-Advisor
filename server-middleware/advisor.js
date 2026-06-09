@@ -30,6 +30,7 @@ const { resolveTemplates, resolveTemplatesWithOutlier } = require('../server/uti
 const DOMAINS = require('../data/domains.json')
 const PRIMARY_ISSUES = require('../data/primary-issues.json')
 const ADVISORY_DISTINCTIONS = require('../data/advisory-distinctions.json')
+const BASE_STAIRCASE = require('../data/advisory-staircase.json')
 
 // Context domains have no primary issues — they override the strategy layer instead
 const CONTEXT_DOMAINS = new Set(['conflict', 'eoy', 'due-diligence'])
@@ -150,6 +151,12 @@ let _loadFirmConfig = null
 function loadFirmConfig (...args) {
   if (!_loadFirmConfig) { _loadFirmConfig = require('../server/utils/firmOverlay').loadFirmConfig }
   return _loadFirmConfig(...args)
+}
+
+let _deepMerge = null
+function deepMerge (...args) {
+  if (!_deepMerge) { _deepMerge = require('../server/utils/firmOverlay').deepMerge }
+  return _deepMerge(...args)
 }
 
 // ── Startup checks ──
@@ -526,6 +533,17 @@ async function handleQuery (rawBody, res) {
   const firmTemplates = firmId
     ? await loadFirmConfig(firmId, 'templates').catch(() => null)
     : null
+
+  // Load the firm's Advisory Staircase override and blend it over the platform
+  // base. A firm that has not customised it falls through to the base unchanged,
+  // so behaviour is identical to before for those firms. The blended config is
+  // handed to buildCaseState so a firm's edits change the complexity ceiling.
+  const firmStaircaseOverride = firmId
+    ? await loadFirmConfig(firmId, 'advisory-staircase').catch(() => null)
+    : null
+  const staircaseConfig = firmStaircaseOverride
+    ? deepMerge(BASE_STAIRCASE, firmStaircaseOverride)
+    : BASE_STAIRCASE
 
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
@@ -1287,7 +1305,7 @@ async function handleQuery (rawBody, res) {
     }
     const _signals = extractSignals(state, _derivedForSignals)
     const _inferredState = deriveInferredState(_signals, state)
-    const _caseState = buildCaseState(_signals, state)
+    const _caseState = buildCaseState(_signals, state, staircaseConfig)
     const _strategyDecision = resolveStrategy(_caseState)
 
     // Advisory distinctions — scan all advisor text against platform + firm vocabulary rows

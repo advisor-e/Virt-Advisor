@@ -2,6 +2,7 @@
 
 const path = require('path')
 const DEV_DISTINCTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-distinctions.json')
+const DEV_STAIRCASE_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase.json')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 function _devReadDistinctions (firmId) {
@@ -46,6 +47,12 @@ function _devWriteDistinctions (firmId, rows) {
  *     POST /api/firm-manager/videos               add a video link
  *     DEL  /api/firm-manager/videos/:id           remove a video link
  *
+ *   Advisory Staircase (whole-config firm override)
+ *     GET  /api/firm-manager/staircase            get base + firm override (merged view)
+ *     POST /api/firm-manager/staircase            save a validated firm override
+ *     (history + restore reuse /framework/history + /framework/restore with
+ *      configKey='advisory-staircase')
+ *
  *   Firm Profile
  *     GET  /api/firm-manager/profile              get firm profile
  *     PUT  /api/firm-manager/profile              update firm profile
@@ -62,6 +69,7 @@ const overlay = require('../utils/firmOverlay')
 const db = require('../utils/db')
 const { STORAGE, DRIVE } = require('../../config/integration')
 const DOMAINS = require('../../data/domains.json')
+const BASE_STAIRCASE = require('../../data/advisory-staircase.json')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -631,6 +639,114 @@ async function deleteDistinction (req, res) {
   return
 }
 
+// ── Advisory Staircase (whole-config firm override) ───────────────────────────
+// Stored in firm_framework_versions under config_key='advisory-staircase' (same
+// table as Decision Framework + Advisory Distinctions — no new schema). Version
+// history + restore reuse the generic getFrameworkHistory/restoreFramework routes
+// with configKey='advisory-staircase'. Read returns the platform base alongside
+// the firm override so the editor can show the starting point.
+
+const STAIRCASE_KEY = 'advisory-staircase'
+
+// Allowed complexity-ceiling values are derived from the base data file (single
+// source of truth) — never hardcoded — so they track the framework if it changes.
+const STAIRCASE_CEILINGS = new Set(
+  BASE_STAIRCASE.steps.map(s => s.complexityCeiling).concat(BASE_STAIRCASE.defaultCeiling)
+)
+
+function _devReadStaircase (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_STAIRCASE_FILE, 'utf8'))
+    return all[firmId] || null
+  } catch { return null }
+}
+
+function _devWriteStaircase (firmId, cfg) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_STAIRCASE_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = cfg
+  fs.writeFileSync(DEV_STAIRCASE_FILE, JSON.stringify(all, null, 2))
+}
+
+async function _loadStaircase (firmId) {
+  try {
+    return await overlay.loadFirmConfig(firmId, STAIRCASE_KEY)
+  } catch (err) {
+    if (IS_DEV) { return _devReadStaircase(firmId) }
+    throw err
+  }
+}
+
+async function _saveStaircaseOverride (firmId, cfg, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(firmId, STAIRCASE_KEY, cfg, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteStaircase(firmId, cfg); return null }
+    throw err
+  }
+}
+
+// Returns an error string if the override is invalid, or null if it is well-formed.
+function _validateStaircase (cfg) {
+  if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) {
+    return 'staircase must be a non-array JSON object'
+  }
+  if (!Array.isArray(cfg.steps) || cfg.steps.length === 0) {
+    return 'steps must be a non-empty array'
+  }
+  const allowed = [...STAIRCASE_CEILINGS].join(', ')
+  const seen = new Set()
+  for (const s of cfg.steps) {
+    if (!s || typeof s !== 'object' || Array.isArray(s)) {
+      return 'each step must be an object'
+    }
+    if (!Number.isInteger(s.step)) {
+      return 'each step needs an integer "step" number'
+    }
+    if (seen.has(s.step)) {
+      return `duplicate step number: ${s.step}`
+    }
+    seen.add(s.step)
+    if (!s.name || typeof s.name !== 'string' || !s.name.trim()) {
+      return 'each step needs a non-empty name'
+    }
+    if (!STAIRCASE_CEILINGS.has(s.complexityCeiling)) {
+      return `each step's complexityCeiling must be one of: ${allowed}`
+    }
+  }
+  if (!STAIRCASE_CEILINGS.has(cfg.defaultCeiling)) {
+    return `defaultCeiling must be one of: ${allowed}`
+  }
+  return null
+}
+
+async function getStaircase (req, res) {
+  try {
+    const firmOverride = await _loadStaircase(req.firmId)
+    res.send(200, { base: BASE_STAIRCASE, firmOverride, hasOverride: firmOverride !== null })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+  return
+}
+
+async function saveStaircase (req, res) {
+  const { staircase } = req.body || {}
+  const validationError = _validateStaircase(staircase)
+  if (validationError) {
+    return sendError(res, 400, 'INVALID_STAIRCASE', validationError)
+  }
+  try {
+    const version = await _saveStaircaseOverride(req.firmId, staircase, req.userEmail)
+    res.send(200, { saved: true, version })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+  return
+}
+
 module.exports = {
   listDocuments,
   uploadDocument,
@@ -652,5 +768,7 @@ module.exports = {
   listDistinctions,
   createDistinction,
   updateDistinction,
-  deleteDistinction
+  deleteDistinction,
+  getStaircase,
+  saveStaircase
 }

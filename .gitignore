@@ -33,5 +33,8 @@ search_content_*.json
 # Dev-only firm distinctions (created locally when MySQL is unavailable)
 data/dev-firm-distinctions.json
 
+# Dev-only firm staircase override (created locally when MySQL is unavailable)
+data/dev-firm-staircase.json
+
 # Local CA cert bundle (machine-specific export from Windows cert store)
 certs/

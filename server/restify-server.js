@@ -131,6 +131,8 @@ server.get('/api/firm-manager/distinctions', ...fmGuard, fm.listDistinctions)
 server.post('/api/firm-manager/distinctions', ...fmGuard, fm.createDistinction)
 server.put('/api/firm-manager/distinctions/:id', ...fmGuard, fm.updateDistinction)
 server.del('/api/firm-manager/distinctions/:id', ...fmGuard, fm.deleteDistinction)
+server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
+server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 
 // ── Start ──
 server.listen(PORT, () => {

@@ -42,7 +42,9 @@ const {
   deleteVideo,
   getProfile,
   updateProfile,
-  getStorageUsage
+  getStorageUsage,
+  getStaircase,
+  saveStaircase
 } = require('../../server/routes/firmManager')
 
 // ── Test helpers ──────────────────────────────────────────────────────────────
@@ -496,5 +498,155 @@ describe('getStorageUsage', () => {
 
     expect(res._status).toBe(200)
     expect(res._body.percentUsed).toBe(50)
+  })
+})
+
+// ── Advisory Staircase ────────────────────────────────────────────────────────
+
+// A minimal but fully valid staircase override used by the save tests.
+function validStaircase () {
+  return {
+    defaultCeiling: 'foundational',
+    steps: [
+      { step: 1, name: 'Compilation', complexityCeiling: 'foundational' },
+      { step: 2, name: 'Observation', complexityCeiling: 'strategic' }
+    ]
+  }
+}
+
+describe('getStaircase', () => {
+  test('returns the platform base and hasOverride: false when no override exists', async () => {
+    overlay.loadFirmConfig.mockResolvedValue(null)
+
+    const req = makeReq()
+    const res = makeMockRes()
+
+    await getStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(200)
+    expect(res._body.hasOverride).toBe(false)
+    expect(res._body.firmOverride).toBeNull()
+    // base is always sent so the editor can show the starting point
+    expect(Array.isArray(res._body.base.steps)).toBe(true)
+    expect(res._body.base.defaultCeiling).toBeDefined()
+  })
+
+  test('returns hasOverride: true and the override when one exists', async () => {
+    const override = validStaircase()
+    overlay.loadFirmConfig.mockResolvedValue(override)
+
+    const req = makeReq()
+    const res = makeMockRes()
+
+    await getStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(200)
+    expect(res._body.hasOverride).toBe(true)
+    expect(res._body.firmOverride).toEqual(override)
+  })
+
+  test('dev fallback: returns base + null override when the DB is unavailable', async () => {
+    // No MySQL in test → loadFirmConfig rejects; _devReadStaircase reads a
+    // (missing) dev file and yields null, so the route still answers 200.
+    overlay.loadFirmConfig.mockRejectedValue(new Error('no DB'))
+
+    const req = makeReq()
+    const res = makeMockRes()
+
+    await getStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(200)
+    expect(res._body.hasOverride).toBe(false)
+    expect(res._body.base.defaultCeiling).toBeDefined()
+  })
+})
+
+describe('saveStaircase', () => {
+  test('returns 400 when no staircase is provided', async () => {
+    const req = makeReq({ body: {} })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(400)
+  })
+
+  test('returns 400 when staircase is an array', async () => {
+    const req = makeReq({ body: { staircase: [] } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(400)
+  })
+
+  test('returns 400 when steps is empty', async () => {
+    const req = makeReq({ body: { staircase: { defaultCeiling: 'foundational', steps: [] } } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(400)
+  })
+
+  test('returns 400 when a step has an unknown complexityCeiling', async () => {
+    const bad = validStaircase()
+    bad.steps[0].complexityCeiling = 'banana'
+    const req = makeReq({ body: { staircase: bad } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(400)
+  })
+
+  test('returns 400 when two steps share the same step number', async () => {
+    const bad = validStaircase()
+    bad.steps[1].step = 1 // duplicate
+    const req = makeReq({ body: { staircase: bad } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(400)
+  })
+
+  test('returns 400 when a step is missing its name', async () => {
+    const bad = validStaircase()
+    delete bad.steps[0].name
+    const req = makeReq({ body: { staircase: bad } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(400)
+  })
+
+  test('returns 400 when defaultCeiling is invalid', async () => {
+    const bad = validStaircase()
+    bad.defaultCeiling = 'banana'
+    const req = makeReq({ body: { staircase: bad } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(400)
+  })
+
+  test('saves and returns the new version number on success', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(2)
+
+    const req = makeReq({ body: { staircase: validStaircase() } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(200)
+    expect(res._body.saved).toBe(true)
+    expect(res._body.version).toBe(2)
+    // override is scoped to the verified firm + the fixed config key
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith(
+      'firm-test-123', 'advisory-staircase', expect.any(Object), 'mgr@testfirm.com'
+    )
   })
 })
