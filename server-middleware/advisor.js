@@ -35,6 +35,19 @@ const BASE_STAIRCASE = require('../data/advisory-staircase.json')
 // Context domains have no primary issues — they override the strategy layer instead
 const CONTEXT_DOMAINS = new Set(['conflict', 'eoy', 'due-diligence'])
 
+// The per-domain diagnostic "question battery" — REMOVED from the intake (memory
+// design-conversational-intake). These accreted on top of the locked 14 and turned
+// the intake into an interrogation. The intake now sticks to the 14 + conversation;
+// any disambiguation happens as a single clarification at recommendation time.
+// (Hard-coded domain fields below; the domains.json-loaded ones are tagged _battery.)
+const BATTERY_FIELDS = new Set([
+  'usesReports', 'reportsFromFirm', 'wouldBenefitFromReview',
+  'staffScope', 'staffOrigin', 'staffCategory',
+  'dataSystemsChartAccounts', 'dataSystemsTeam', 'dataSystemsComplexity',
+  'salesDiagnosis', 'salesTracking', 'salesProductFit',
+  'forecastingTheme'
+])
+
 // ── classifyDistinctions ──────────────────────────────────────────────────────
 // Replaces exact keyword matching with a single gpt-4o-mini classification call.
 // The AI reads all distinction descriptions against the advisor's text and returns
@@ -872,6 +885,7 @@ async function handleQuery (rawBody, res) {
         d.questions.map(q => ({
           field: q.field,
           text: q.text,
+          _battery: true, // per-domain diagnostic — removed from intake (see BATTERY_FIELDS)
           skip: s => s.detectedDomain !== d.id
         }))
       ),
@@ -992,6 +1006,8 @@ async function handleQuery (rawBody, res) {
     // question if domain re-detection produces a different score than the original turn.
     if (!state.recommendationDelivered) {
       for (const q of QUESTIONS) {
+        // Skip the per-domain question battery — intake = the 14 + conversation.
+        if (BATTERY_FIELDS.has(q.field) || q._battery) { continue }
         if (q.skip && q.skip(state)) { continue }
         if (!state[q.field]) {
           // Not yet asked — ask it now
@@ -1176,8 +1192,11 @@ async function handleQuery (rawBody, res) {
     // Guard: every mandatory question must be answered before the AI fires.
     // If any is still null or 'pending', the QUESTIONS loop fell through unexpectedly.
     // Log the full state for diagnosis and re-ask the first missing question instead.
-    // primaryIssue is mandatory unless the domain is a context domain (conflict/eoy/due-diligence)
-    const _primaryIssueRequired = state.detectedDomain && !CONTEXT_DOMAINS.has(state.detectedDomain) && PRIMARY_ISSUES[state.detectedDomain]
+    // primaryIssue is NO LONGER a mandatory intake field — it is inferred from the
+    // conversation, and any disambiguation moved to a recommendation-time
+    // clarification (memory design-conversational-intake). Leaving it required here
+    // is what caused the post-intake infinite loop (the gate could never pass, so
+    // the recovery branch force-asked ownership forever).
     const _mandatoryAnswered = (
       state.clientRaisedIssue && state.clientRaisedIssue !== 'pending' &&
       state.situationDiagnostic && state.situationDiagnostic !== 'pending' &&
@@ -1185,8 +1204,7 @@ async function handleQuery (rawBody, res) {
       state.advisoryStaircase && state.advisoryStaircase !== 'pending' &&
       state.advisorConfidence && state.advisorConfidence !== 'pending' &&
       state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' &&
-      state.advisorSessionLength && state.advisorSessionLength !== 'pending' &&
-      (!_primaryIssueRequired || (state.primaryIssue && state.primaryIssue !== 'pending'))
+      state.advisorSessionLength && state.advisorSessionLength !== 'pending'
     )
     if (!_mandatoryAnswered) {
       console.error('[advisor] PHASE3 PREMATURE TRIGGER — mandatory questions incomplete. State:', JSON.stringify({
@@ -1204,6 +1222,8 @@ async function handleQuery (rawBody, res) {
       }))
       // Re-run the QUESTIONS array to find and ask the first genuinely missing question
       for (const q of QUESTIONS) {
+        // Skip the per-domain question battery — intake = the 14 + conversation.
+        if (BATTERY_FIELDS.has(q.field) || q._battery) { continue }
         if (q.skip && q.skip(state)) { continue }
         if (!state[q.field] || state[q.field] === 'pending') {
           if (!state[q.field]) { state[q.field] = 'pending' }
