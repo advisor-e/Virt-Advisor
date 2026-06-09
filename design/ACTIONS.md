@@ -35,7 +35,7 @@
   - ✅ **3 Engagement Types** — DONE 2026-06-09. **Option C satisfied:** the `DOMAIN_NATURAL_ENGAGEMENT` map was relocated to a per-domain `engagementType` field on all 22 domains in `domains.json` (single source of truth); `caseState.js` now builds the map from that file; the duplicate map block was removed from `engagement-types.json` and the revisit block marked done; `strategyResolver.js` reads the unknown-domain fallback from `engagement-types.json` `defaultEngagement`. Behaviour-preserving (174/174 tests pass; engagement types resolve identically).
   - ☐ Then **surface all three in Firm Manager** so a firm can edit them. *Source:* registry Part 2 + Outstanding item 6; memory `design-engagement-types-extraction`, `design-education-gates-ascent`.
 
-- ☐ **DOC — Promote the registry DRAFT → official.** Flip the top banner DRAFT→official + remove draft warnings (old registry already archived). **Gate:** after Mike's read-through. *Source:* registry Outstanding item 7.
+- ✅ **DOC — Promote the registry DRAFT → official. DONE 2026-06-09.** Mike read it through and approved; banner flipped DRAFT→official (v1.0), draft warnings removed, file renamed `design/virt-advisor-registry-DRAFT.md` → `design/virt-advisor-registry.md` (git mv, history preserved), the 3 in-repo references + archive note updated. Deliberate inline ⚠/GAP future-work flags retained by design. *Source:* registry Outstanding item 7.
 
 ---
 
