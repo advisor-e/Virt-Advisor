@@ -1,637 +1,478 @@
-<template>
-  <section class="firm-manager-hub section">
-    <div class="container is-fluid">
-      <!-- Header -->
-      <div class="level mb-5">
-        <div class="level-left">
-          <div>
-            <p class="title is-4">
-              Firm Manager Hub
-            </p>
-            <p class="subtitle is-6 has-text-grey">
-              {{ firmProfile.name || firmId }}
-            </p>
-          </div>
-        </div>
-        <div class="level-right" style="gap:12px;display:flex;align-items:center;">
-          <b-tag type="is-info is-light" size="is-medium">
-            Storage: {{ storagePercent }}% used
-          </b-tag>
-          <a href="/advisor" class="button is-light is-small">
-            ← Back to Advisor
-          </a>
-        </div>
-      </div>
+<template lang="pug">
+section.firm-manager-hub.section
+  .container.is-fluid
+    //- Header
+    .level.mb-5
+      .level-left
+        div
+          p.title.is-4 Firm Manager Hub
+          p.subtitle.is-6.has-text-grey {{ firmProfile.name || firmId }}
+      .level-right(style="gap:12px;display:flex;align-items:center;")
+        b-tag(type="is-info is-light" size="is-medium") Storage: {{ storagePercent }}% used
+        a.button.is-light.is-small(href="/advisor") ← Back to Advisor
 
-      <!-- Main tabs -->
-      <b-tabs v-model="activeTab" type="is-boxed" animated>
-        <!-- ── Tab 1: Document Library ───────────────────────────────────── -->
-        <b-tab-item label="Document Library" icon="file-pdf-box">
-          <div class="columns">
-            <div class="column is-3">
-              <b-menu>
-                <b-menu-list label="Category">
-                  <b-menu-item
-                    v-for="cat in documentCategories"
-                    :key="cat.key"
-                    :label="cat.label"
-                    :active="selectedCategory === cat.key"
-                    @click="selectCategory(cat.key)"
-                  />
-                </b-menu-list>
-              </b-menu>
-            </div>
-            <div class="column">
-              <!-- Upload -->
-              <div class="box mb-4">
-                <p class="has-text-weight-semibold mb-3">
-                  Upload a document
-                </p>
-                <b-field grouped>
-                  <b-field expanded label="File (PDF only)">
-                    <b-upload v-model="uploadFile" accept=".pdf" expanded>
-                      <a class="button is-light is-fullwidth">
-                        <b-icon icon="upload" />
-                        <span>{{ uploadFile ? uploadFile.name : 'Choose PDF…' }}</span>
-                      </a>
-                    </b-upload>
-                  </b-field>
-                  <b-field label="&nbsp;">
-                    <b-button
-                      type="is-primary"
-                      :loading="uploading"
-                      :disabled="!uploadFile"
-                      @click="submitUpload"
-                    >
-                      Upload
-                    </b-button>
-                  </b-field>
-                </b-field>
-              </div>
-
-              <!-- Document list -->
-              <div v-if="loadingDocs" class="has-text-centered py-5">
-                <b-loading :is-full-page="false" :active="true" />
-              </div>
-              <div v-else>
-                <p class="has-text-weight-semibold mb-2">
-                  Platform documents
-                </p>
-                <b-table
-                  :data="baseDocs"
-                  :hoverable="true"
-                  class="mb-5"
-                  empty-string="No platform documents in this category"
-                >
-                  <b-table-column v-slot="{ row }" field="name" label="File name">
-                    {{ row.name }}
-                  </b-table-column>
-                  <b-table-column v-slot="{ row }" label="Actions" width="120">
-                    <b-button size="is-small" icon-left="download" @click="downloadDoc(row)">
-                      Download
-                    </b-button>
-                  </b-table-column>
-                </b-table>
-
-                <p class="has-text-weight-semibold mb-2">
-                  Your firm's documents
-                </p>
-                <b-table
-                  :data="firmDocs"
-                  :hoverable="true"
-                  empty-string="No documents uploaded yet"
-                >
-                  <b-table-column v-slot="{ row }" field="name" label="File name">
-                    {{ row.name }}
-                  </b-table-column>
-                  <b-table-column v-slot="{ row }" label="Actions" width="200">
-                    <b-button
-                      size="is-small"
-                      icon-left="download"
-                      class="mr-1"
-                      @click="downloadDoc(row)"
-                    >
-                      Download
-                    </b-button>
-                    <b-button
-                      size="is-small"
-                      type="is-danger is-light"
-                      icon-left="delete"
-                      @click="confirmDeleteDoc(row)"
-                    >
-                      Remove
-                    </b-button>
-                  </b-table-column>
-                </b-table>
-              </div>
-            </div>
-          </div>
-        </b-tab-item>
-
-        <!-- ── Tab 2: Decision Framework ────────────────────────────────── -->
-        <b-tab-item label="Decision Framework" icon="code-json">
-          <div class="columns">
-            <div class="column is-3">
-              <b-menu>
-                <b-menu-list label="Framework section">
-                  <b-menu-item
-                    v-for="fk in frameworkKeys"
-                    :key="fk.key"
-                    :label="fk.label"
-                    :active="selectedFrameworkKey === fk.key"
-                    @click="selectFrameworkKey(fk.key)"
-                  />
-                </b-menu-list>
-              </b-menu>
-            </div>
-            <div class="column">
-              <div v-if="loadingFramework" class="has-text-centered py-5">
-                <b-loading :is-full-page="false" :active="true" />
-              </div>
-              <template v-else>
-                <b-notification
-                  v-if="!frameworkOverride"
-                  type="is-info is-light"
-                  :closable="false"
-                  class="mb-4"
-                >
-                  No firm override saved for this section. The AI uses the platform default.
-                  Add your overrides below and save to activate them.
-                </b-notification>
-
-                <b-field label="Your firm's override JSON">
-                  <b-input
-                    v-model="frameworkJson"
-                    type="textarea"
-                    rows="16"
-                    custom-class="is-family-monospace"
-                    placeholder="{ &quot;key&quot;: &quot;value&quot; }"
-                  />
-                </b-field>
-
-                <b-field grouped>
-                  <b-button
+    //- Main tabs
+    b-tabs(v-model="activeTab" type="is-boxed" animated)
+      //- ── Tab 1: Document Library ─────────────────────────────────────
+      b-tab-item(label="Document Library" icon="file-pdf-box")
+        .columns
+          .column.is-3
+            b-menu
+              b-menu-list(label="Category")
+                b-menu-item(
+                  v-for="cat in documentCategories"
+                  :key="cat.key"
+                  :label="cat.label"
+                  :active="selectedCategory === cat.key"
+                  @click="selectCategory(cat.key)"
+                )
+          .column
+            //- Upload
+            .box.mb-4
+              p.has-text-weight-semibold.mb-3 Upload a document
+              b-field(grouped)
+                b-field(expanded label="File (PDF only)")
+                  b-upload(v-model="uploadFile" accept=".pdf" expanded)
+                    a.button.is-light.is-fullwidth
+                      b-icon(icon="upload")
+                      span {{ uploadFile ? uploadFile.name : 'Choose PDF…' }}
+                b-field(:label="' '")
+                  b-button(
                     type="is-primary"
-                    :loading="savingFramework"
-                    @click="saveFramework"
-                  >
-                    Save override
-                  </b-button>
-                  <b-button
-                    type="is-light"
-                    :disabled="!frameworkOverride"
-                    @click="clearFrameworkEditor"
-                  >
-                    Reset editor
-                  </b-button>
-                  <b-button
-                    type="is-light"
-                    :disabled="!frameworkHistory.length"
-                    @click="showHistoryModal = true"
-                  >
-                    Version history ({{ frameworkHistory.length }})
-                  </b-button>
-                </b-field>
+                    :loading="uploading"
+                    :disabled="!uploadFile"
+                    @click="submitUpload"
+                  ) Upload
 
-                <!-- Version history modal -->
-                <b-modal v-model="showHistoryModal" has-modal-card>
-                  <div class="modal-card">
-                    <header class="modal-card-head">
-                      <p class="modal-card-title">
-                        Version history
-                      </p>
-                    </header>
-                    <section class="modal-card-body">
-                      <b-table :data="frameworkHistory" :hoverable="true">
-                        <b-table-column v-slot="{ row }" field="version" label="Version" width="80">
-                          v{{ row.version }}
-                        </b-table-column>
-                        <b-table-column v-slot="{ row }" field="saved_by" label="Saved by">
-                          {{ row.saved_by }}
-                        </b-table-column>
-                        <b-table-column v-slot="{ row }" field="created_at" label="Date">
-                          {{ formatDate(row.created_at) }}
-                        </b-table-column>
-                        <b-table-column v-slot="{ row }" label="" width="100">
-                          <b-button
-                            v-if="!row.is_active"
-                            size="is-small"
-                            @click="restoreVersion(row)"
-                          >
-                            Restore
-                          </b-button>
-                          <b-tag v-else type="is-success is-light">
-                            Active
-                          </b-tag>
-                        </b-table-column>
-                      </b-table>
-                    </section>
-                    <footer class="modal-card-foot">
-                      <b-button @click="showHistoryModal = false">
-                        Close
-                      </b-button>
-                    </footer>
-                  </div>
-                </b-modal>
-              </template>
-            </div>
-          </div>
-        </b-tab-item>
-
-        <!-- ── Tab 3: Templates & Videos ────────────────────────────────── -->
-        <b-tab-item label="Templates &amp; Videos" icon="play-box-multiple">
-          <div class="columns">
-            <!-- Template Library column -->
-            <div class="column">
-              <p class="has-text-weight-semibold mb-3">
-                Template library
-              </p>
-
-              <!-- Current status -->
-              <div class="box mb-4">
-                <div v-if="loadingTemplateImport" class="has-text-centered py-3">
-                  <b-loading :is-full-page="false" :active="true" />
-                </div>
-                <template v-else>
-                  <div v-if="templateImport.hasImport" class="mb-3">
-                    <b-tag type="is-success is-light" size="is-medium">
-                      {{ templateImport.templateCount }} templates loaded
-                    </b-tag>
-                    <p class="is-size-7 has-text-grey mt-1">
-                      Version {{ templateImport.history[0] && templateImport.history[0].version }}
-                      &middot; saved {{ formatDate(templateImport.history[0] && templateImport.history[0].created_at) }}
-                    </p>
-                  </div>
-                  <div v-else class="mb-3">
-                    <b-tag type="is-warning is-light" size="is-medium">
-                      Using platform default
-                    </b-tag>
-                    <p class="is-size-7 has-text-grey mt-1">
-                      No firm-specific template library imported yet
-                    </p>
-                  </div>
-
-                  <!-- Upload -->
-                  <b-field grouped>
-                    <b-field expanded label="Import JSON from master app">
-                      <b-upload v-model="templateImportFile" accept=".json" expanded>
-                        <a class="button is-light is-fullwidth">
-                          <b-icon icon="upload" />
-                          <span>{{ templateImportFile ? templateImportFile.name : 'Choose JSON file…' }}</span>
-                        </a>
-                      </b-upload>
-                    </b-field>
-                    <b-field label="&nbsp;">
-                      <b-button
-                        type="is-primary"
-                        :loading="importingTemplates"
-                        :disabled="!templateImportFile"
-                        @click="submitTemplateImport"
-                      >
-                        Import
-                      </b-button>
-                    </b-field>
-                  </b-field>
-
-                  <b-button
-                    v-if="templateImport.hasImport"
-                    type="is-danger is-light"
-                    size="is-small"
-                    icon-left="restore"
-                    @click="confirmResetTemplates"
-                  >
-                    Reset to platform default
-                  </b-button>
-                </template>
-              </div>
-
-              <!-- Version history -->
-              <div v-if="templateImport.history && templateImport.history.length > 1">
-                <p class="has-text-weight-semibold mb-2">
-                  Import history
-                </p>
-                <b-table :data="templateImport.history" :hoverable="true" size="is-small">
-                  <b-table-column v-slot="{ row }" field="version" label="Version" width="80">
-                    v{{ row.version }}
-                    <b-tag v-if="row.is_active" type="is-success is-light" size="is-small">current</b-tag>
-                  </b-table-column>
-                  <b-table-column v-slot="{ row }" field="created_at" label="Imported">
-                    {{ formatDate(row.created_at) }}
-                  </b-table-column>
-                  <b-table-column v-slot="{ row }" label="" width="80">
-                    <b-button
-                      v-if="!row.is_active"
-                      size="is-small"
-                      type="is-info is-light"
-                      @click="restoreTemplateVersion(row)"
-                    >
-                      Restore
-                    </b-button>
-                  </b-table-column>
-                </b-table>
-              </div>
-            </div>
-
-            <!-- Videos column -->
-            <div class="column">
-              <p class="has-text-weight-semibold mb-3">
-                Video links
-              </p>
-              <div class="box mb-4">
-                <b-field label="Domain">
-                  <b-select v-model="newVideo.domain" placeholder="Select domain" expanded>
-                    <option v-for="d in domains" :key="d" :value="d">
-                      {{ d }}
-                    </option>
-                  </b-select>
-                </b-field>
-                <b-field label="Title">
-                  <b-input v-model="newVideo.title" placeholder="e.g. Cash Flow Masterclass" />
-                </b-field>
-                <b-field label="URL (HTTPS)">
-                  <b-input v-model="newVideo.url" type="url" placeholder="https://…" />
-                </b-field>
-                <b-button
-                  type="is-primary"
-                  :loading="addingVideo"
-                  :disabled="!newVideo.domain || !newVideo.title || !newVideo.url"
-                  @click="addVideo"
-                >
-                  Add video
-                </b-button>
-              </div>
-
-              <b-table
-                :data="videos"
+            //- Document list
+            .has-text-centered.py-5(v-if="loadingDocs")
+              b-loading(:is-full-page="false" :active="true")
+            div(v-else)
+              p.has-text-weight-semibold.mb-2 Platform documents
+              b-table.mb-5(
+                :data="baseDocs"
                 :hoverable="true"
-                :loading="loadingVideos"
-                empty-string="No videos added yet"
-              >
-                <b-table-column v-slot="{ row }" field="domain" label="Domain">
-                  <b-tag>{{ row.domain }}</b-tag>
-                </b-table-column>
-                <b-table-column v-slot="{ row }" field="title" label="Title">
-                  <a :href="row.url" target="_blank" rel="noopener noreferrer">{{ row.title }}</a>
-                </b-table-column>
-                <b-table-column v-slot="{ row }" label="" width="80">
-                  <b-button
+                empty-string="No platform documents in this category"
+              )
+                b-table-column(v-slot="{ row }" field="name" label="File name") {{ row.name }}
+                b-table-column(v-slot="{ row }" label="Actions" width="120")
+                  b-button(size="is-small" icon-left="download" @click="downloadDoc(row)") Download
+
+              p.has-text-weight-semibold.mb-2 Your firm's documents
+              b-table(
+                :data="firmDocs"
+                :hoverable="true"
+                empty-string="No documents uploaded yet"
+              )
+                b-table-column(v-slot="{ row }" field="name" label="File name") {{ row.name }}
+                b-table-column(v-slot="{ row }" label="Actions" width="200")
+                  b-button.mr-1(
+                    size="is-small"
+                    icon-left="download"
+                    @click="downloadDoc(row)"
+                  ) Download
+                  b-button(
                     size="is-small"
                     type="is-danger is-light"
                     icon-left="delete"
-                    @click="confirmDeleteVideo(row)"
-                  />
-                </b-table-column>
-              </b-table>
-            </div>
-          </div>
-        </b-tab-item>
+                    @click="confirmDeleteDoc(row)"
+                  ) Remove
 
-        <!-- ── Tab 5: Advisory Distinctions ─────────────────────────────── -->
-        <b-tab-item label="Advisory Distinctions" icon="brain">
-          <div class="columns">
-            <!-- Domain sidebar -->
-            <div class="column is-3">
-              <b-menu>
-                <b-menu-list label="Domain">
-                  <b-menu-item
-                    v-for="d in distinctionDomains"
-                    :key="d.id"
-                    :label="d.label"
-                    :active="selectedDistinctionDomain === d.id"
-                    @click="selectedDistinctionDomain = d.id; closeDistinctionForm()"
-                  />
-                </b-menu-list>
-              </b-menu>
-            </div>
+      //- ── Tab 2: Decision Framework ──────────────────────────────────
+      b-tab-item(label="Decision Framework" icon="code-json")
+        .columns
+          .column.is-3
+            b-menu
+              b-menu-list(label="Framework section")
+                b-menu-item(
+                  v-for="fk in frameworkKeys"
+                  :key="fk.key"
+                  :label="fk.label"
+                  :active="selectedFrameworkKey === fk.key"
+                  @click="selectFrameworkKey(fk.key)"
+                )
+          .column
+            .has-text-centered.py-5(v-if="loadingFramework")
+              b-loading(:is-full-page="false" :active="true")
+            template(v-else)
+              b-notification.mb-4(
+                v-if="!frameworkOverride"
+                type="is-info is-light"
+                :closable="false"
+              )
+                | No firm override saved for this section. The AI uses the platform default.
+                | Add your overrides below and save to activate them.
 
-            <div class="column">
-              <!-- Platform rows (read-only) -->
-              <p class="has-text-weight-semibold mb-2">
-                Platform distinctions — {{ currentDistinctionDomainLabel }}
-              </p>
-              <b-notification type="is-info is-light" :closable="false" class="mb-3" style="font-size:0.85rem">
-                Platform rows are shared across all firms and cannot be edited here.
-                Add your own rows below to boost specific templates for situations unique to your practice.
-              </b-notification>
-              <b-table
-                :data="activeDistinctions"
-                :hoverable="true"
-                size="is-small"
-                class="mb-5"
-                empty-string="No platform distinctions for this domain"
-              >
-                <b-table-column v-slot="{ row }" field="description" label="Pattern">
-                  {{ row.description }}
-                </b-table-column>
-                <b-table-column v-slot="{ row }" label="Trigger phrases">
-                  <span class="is-size-7 has-text-grey">{{ row.triggers.join(', ') }}</span>
-                </b-table-column>
-                <b-table-column v-slot="{ row }" label="Templates boosted">
-                  <b-tag v-for="t in row.templates" :key="t" class="mr-1 mb-1" size="is-small">{{ t }}</b-tag>
-                </b-table-column>
-                <b-table-column v-slot="{ row }" label="Boost" width="60" numeric>
-                  +{{ row.boost }}
-                </b-table-column>
-              </b-table>
+              b-field(label="Your firm's override JSON")
+                b-input(
+                  v-model="frameworkJson"
+                  type="textarea"
+                  rows="16"
+                  custom-class="is-family-monospace"
+                  placeholder='{ "key": "value" }'
+                )
 
-              <!-- Firm-level rows -->
-              <div class="level mb-3">
-                <div class="level-left">
-                  <p class="has-text-weight-semibold">
-                    Your firm's distinctions — {{ currentDistinctionDomainLabel }}
-                  </p>
-                </div>
-                <div class="level-right">
-                  <b-button
-                    v-if="!showDistinctionForm"
-                    type="is-primary"
-                    size="is-small"
-                    icon-left="plus"
-                    @click="openDistinctionForm(null)"
-                  >
-                    Add distinction
-                  </b-button>
-                </div>
-              </div>
-
-              <b-table
-                v-if="!loadingFirmDistinctions && activeFirmDistinctions.length > 0"
-                :data="activeFirmDistinctions"
-                :hoverable="true"
-                size="is-small"
-                class="mb-4"
-              >
-                <b-table-column v-slot="{ row }" field="description" label="Pattern">
-                  {{ row.description }}
-                </b-table-column>
-                <b-table-column v-slot="{ row }" label="Trigger phrases">
-                  <span class="is-size-7 has-text-grey">{{ row.triggers.join(', ') }}</span>
-                </b-table-column>
-                <b-table-column v-slot="{ row }" label="Templates boosted">
-                  <b-tag v-for="t in row.templates" :key="t" class="mr-1 mb-1" size="is-small" type="is-success is-light">{{ t }}</b-tag>
-                </b-table-column>
-                <b-table-column v-slot="{ row }" label="Boost" width="60" numeric>
-                  +{{ row.boost }}
-                </b-table-column>
-                <b-table-column v-slot="{ row }" label="" width="110">
-                  <b-button size="is-small" class="mr-1" @click="openDistinctionForm(row)">Edit</b-button>
-                  <b-button size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)">Remove</b-button>
-                </b-table-column>
-              </b-table>
-
-              <p
-                v-else-if="!loadingFirmDistinctions && activeFirmDistinctions.length === 0 && !showDistinctionForm"
-                class="has-text-grey is-size-7 mb-4"
-              >
-                No firm distinctions for this domain yet. Add one to boost specific templates when advisors use particular phrases.
-              </p>
-
-              <!-- Add / Edit form -->
-              <div v-if="showDistinctionForm" class="box distinction-form">
-                <p class="has-text-weight-semibold mb-4">
-                  {{ editingDistinctionId ? 'Edit distinction' : 'New distinction' }}
-                </p>
-
-                <b-field label="Domain">
-                  <b-select v-model="distinctionForm.domain" expanded>
-                    <option v-for="d in distinctionDomains" :key="d.id" :value="d.id">
-                      {{ d.label }}
-                    </option>
-                  </b-select>
-                </b-field>
-
-                <b-field label="Description" message="A short label for this pattern — shown in the table above.">
-                  <b-input
-                    v-model="distinctionForm.description"
-                    placeholder="e.g. Client mentions technology gap"
-                    maxlength="255"
-                  />
-                </b-field>
-
-                <b-field label="Trigger phrases" message="Type a phrase and press Enter or comma to add. Matching is case-insensitive and partial — 'growth' matches 'growing' etc.">
-                  <b-taginput
-                    v-model="distinctionForm.triggers"
-                    :confirm-key-codes="[13, 188]"
-                    placeholder="Add a phrase…"
-                    aria-close-label="Remove phrase"
-                  />
-                </b-field>
-
-                <b-field label="Templates to boost">
-                  <div class="template-picker">
-                    <div class="template-picker-filters">
-                      <b-select v-model="templatePickerSubSection" size="is-small" style="flex:0 0 200px">
-                        <option value="">All areas</option>
-                        <option v-for="ss in templateSubSections" :key="ss" :value="ss">{{ ss }}</option>
-                      </b-select>
-                      <b-input
-                        v-model="templatePickerSearch"
-                        size="is-small"
-                        placeholder="Search by title…"
-                        icon="magnify"
-                        style="flex:1"
-                      />
-                    </div>
-                    <div class="template-picker-list">
-                      <label
-                        v-for="t in filteredTemplateOptions"
-                        :key="t.title"
-                        class="template-picker-opt"
-                        :class="{ 'is-selected': distinctionForm.templates.includes(t.title) }"
-                      >
-                        <input
-                          type="checkbox"
-                          :value="t.title"
-                          :checked="distinctionForm.templates.includes(t.title)"
-                          @change="toggleTemplateSelection(t.title)"
-                        />
-                        <span class="template-picker-title">{{ t.title }}</span>
-                        <span class="template-picker-sub">{{ t.subSection }}</span>
-                      </label>
-                      <p v-if="filteredTemplateOptions.length === 0" class="has-text-grey is-size-7 p-2">
-                        No templates match — try clearing the filters.
-                      </p>
-                    </div>
-                    <div v-if="distinctionForm.templates.length > 0" class="template-picker-selected">
-                      <span class="is-size-7 has-text-grey mr-2">Selected:</span>
-                      <b-tag
-                        v-for="t in distinctionForm.templates"
-                        :key="t"
-                        closable
-                        class="mr-1 mb-1"
-                        type="is-success is-light"
-                        @close="toggleTemplateSelection(t)"
-                      >
-                        {{ t }}
-                      </b-tag>
-                    </div>
-                  </div>
-                </b-field>
-
-                <b-field label="Boost score" message="How many points to add to each matched template's score (1–20). Default 5.">
-                  <b-input
-                    v-model.number="distinctionForm.boost"
-                    type="number"
-                    min="1"
-                    max="20"
-                    style="width:90px"
-                  />
-                </b-field>
-
-                <div class="field is-grouped mt-4">
-                  <b-button
-                    type="is-primary"
-                    :loading="savingDistinction"
-                    @click="saveDistinction"
-                  >
-                    {{ editingDistinctionId ? 'Save changes' : 'Add distinction' }}
-                  </b-button>
-                  <b-button @click="closeDistinctionForm">
-                    Cancel
-                  </b-button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </b-tab-item>
-
-        <!-- ── Tab 4: Firm Profile ───────────────────────────────────────── -->
-        <b-tab-item label="Firm Profile" icon="domain">
-          <div class="columns">
-            <div class="column is-6">
-              <div v-if="loadingProfile" class="has-text-centered py-5">
-                <b-loading :is-full-page="false" :active="true" />
-              </div>
-              <template v-else>
-                <b-field label="Firm name">
-                  <b-input v-model="profileForm.name" />
-                </b-field>
-                <b-field label="Logo URL">
-                  <b-input v-model="profileForm.logo_url" type="url" placeholder="https://…" />
-                </b-field>
-                <b-field label="Brand colour (hex)">
-                  <b-input v-model="profileForm.primary_colour" placeholder="#000000" maxlength="7" />
-                </b-field>
-                <b-field
-                  label="AI persona name"
-                  message="The name your advisors see when using the AI advisor (leave blank to use the default)"
-                >
-                  <b-input v-model="profileForm.persona_name" placeholder="e.g. Max" />
-                </b-field>
-                <b-button
+              b-field(grouped)
+                b-button(
                   type="is-primary"
-                  :loading="savingProfile"
-                  @click="saveProfile"
-                >
-                  Save profile
-                </b-button>
-              </template>
-            </div>
-          </div>
-        </b-tab-item>
-      </b-tabs>
-    </div>
-  </section>
+                  :loading="savingFramework"
+                  @click="saveFramework"
+                ) Save override
+                b-button(
+                  type="is-light"
+                  :disabled="!frameworkOverride"
+                  @click="clearFrameworkEditor"
+                ) Reset editor
+                b-button(
+                  type="is-light"
+                  :disabled="!frameworkHistory.length"
+                  @click="showHistoryModal = true"
+                ) Version history ({{ frameworkHistory.length }})
+
+              //- Version history modal
+              b-modal(v-model="showHistoryModal" has-modal-card)
+                .modal-card
+                  header.modal-card-head
+                    p.modal-card-title Version history
+                  section.modal-card-body
+                    b-table(:data="frameworkHistory" :hoverable="true")
+                      b-table-column(v-slot="{ row }" field="version" label="Version" width="80") v{{ row.version }}
+                      b-table-column(v-slot="{ row }" field="saved_by" label="Saved by") {{ row.saved_by }}
+                      b-table-column(v-slot="{ row }" field="created_at" label="Date") {{ formatDate(row.created_at) }}
+                      b-table-column(v-slot="{ row }" label="" width="100")
+                        b-button(
+                          v-if="!row.is_active"
+                          size="is-small"
+                          @click="restoreVersion(row)"
+                        ) Restore
+                        b-tag(v-else type="is-success is-light") Active
+                  footer.modal-card-foot
+                    b-button(@click="showHistoryModal = false") Close
+
+      //- ── Tab: Advisory Staircase ────────────────────────────────────
+      b-tab-item(label="Advisory Staircase" icon="stairs")
+        .columns
+          .column
+            .has-text-centered.py-5(v-if="loadingStaircase")
+              b-loading(:is-full-page="false" :active="true")
+            template(v-else)
+              b-notification.mb-4(
+                v-if="!staircaseOverride"
+                type="is-info is-light"
+                :closable="false"
+              ) No firm changes saved — the AI uses the platform-default Advisory Staircase. Edit the steps below and save to make them your firm's.
+
+              .box.mb-3(v-for="step in staircaseForm.steps" :key="step.step")
+                p.has-text-weight-semibold.mb-3 Step {{ step.step }}
+                b-field(label="Step name")
+                  b-input(v-model="step.name" maxlength="120")
+                b-field(label="What this step looks like")
+                  b-input(v-model="step.selectorDescription" type="textarea" rows="3")
+                b-field(label="Complexity ceiling")
+                  b-select(v-model="step.complexityCeiling")
+                    option(v-for="c in staircaseCeilingOptions" :key="c" :value="c") {{ capitalise(c) }}
+
+              b-field.mt-4(label="Default complexity ceiling" message="Used when a step has no ceiling set.")
+                b-select(v-model="staircaseForm.defaultCeiling")
+                  option(v-for="c in staircaseCeilingOptions" :key="c" :value="c") {{ capitalise(c) }}
+
+              b-field.mt-4(grouped)
+                b-button(
+                  type="is-primary"
+                  :loading="savingStaircase"
+                  @click="saveStaircase"
+                ) Save changes
+                b-button(type="is-light" @click="resetStaircase") Reset
+                b-button(
+                  type="is-light"
+                  :disabled="!staircaseHistory.length"
+                  @click="showStaircaseHistoryModal = true"
+                ) Version history ({{ staircaseHistory.length }})
+
+              //- Version history modal
+              b-modal(v-model="showStaircaseHistoryModal" has-modal-card)
+                .modal-card
+                  header.modal-card-head
+                    p.modal-card-title Version history
+                  section.modal-card-body
+                    b-table(:data="staircaseHistory" :hoverable="true")
+                      b-table-column(v-slot="{ row }" field="version" label="Version" width="80") v{{ row.version }}
+                      b-table-column(v-slot="{ row }" field="saved_by" label="Saved by") {{ row.saved_by }}
+                      b-table-column(v-slot="{ row }" field="created_at" label="Date") {{ formatDate(row.created_at) }}
+                      b-table-column(v-slot="{ row }" label="" width="100")
+                        b-button(
+                          v-if="!row.is_active"
+                          size="is-small"
+                          @click="restoreStaircaseVersion(row)"
+                        ) Restore
+                        b-tag(v-else type="is-success is-light") Active
+                  footer.modal-card-foot
+                    b-button(@click="showStaircaseHistoryModal = false") Close
+
+      //- ── Tab 3: Templates & Videos ──────────────────────────────────
+      b-tab-item(label="Templates & Videos" icon="play-box-multiple")
+        .columns
+          //- Template Library column
+          .column
+            p.has-text-weight-semibold.mb-3 Template library
+
+            //- Current status
+            .box.mb-4
+              .has-text-centered.py-3(v-if="loadingTemplateImport")
+                b-loading(:is-full-page="false" :active="true")
+              template(v-else)
+                .mb-3(v-if="templateImport.hasImport")
+                  b-tag(type="is-success is-light" size="is-medium") {{ templateImport.templateCount }} templates loaded
+                  p.is-size-7.has-text-grey.mt-1
+                    | Version {{ templateImport.history[0] && templateImport.history[0].version }}
+                    | &middot; saved {{ formatDate(templateImport.history[0] && templateImport.history[0].created_at) }}
+                .mb-3(v-else)
+                  b-tag(type="is-warning is-light" size="is-medium") Using platform default
+                  p.is-size-7.has-text-grey.mt-1 No firm-specific template library imported yet
+
+                //- Upload
+                b-field(grouped)
+                  b-field(expanded label="Import JSON from master app")
+                    b-upload(v-model="templateImportFile" accept=".json" expanded)
+                      a.button.is-light.is-fullwidth
+                        b-icon(icon="upload")
+                        span {{ templateImportFile ? templateImportFile.name : 'Choose JSON file…' }}
+                  b-field(:label="' '")
+                    b-button(
+                      type="is-primary"
+                      :loading="importingTemplates"
+                      :disabled="!templateImportFile"
+                      @click="submitTemplateImport"
+                    ) Import
+
+                b-button(
+                  v-if="templateImport.hasImport"
+                  type="is-danger is-light"
+                  size="is-small"
+                  icon-left="restore"
+                  @click="confirmResetTemplates"
+                ) Reset to platform default
+
+            //- Version history
+            div(v-if="templateImport.history && templateImport.history.length > 1")
+              p.has-text-weight-semibold.mb-2 Import history
+              b-table(:data="templateImport.history" :hoverable="true" size="is-small")
+                b-table-column(v-slot="{ row }" field="version" label="Version" width="80")
+                  | v{{ row.version }}
+                  b-tag(v-if="row.is_active" type="is-success is-light" size="is-small") current
+                b-table-column(v-slot="{ row }" field="created_at" label="Imported") {{ formatDate(row.created_at) }}
+                b-table-column(v-slot="{ row }" label="" width="80")
+                  b-button(
+                    v-if="!row.is_active"
+                    size="is-small"
+                    type="is-info is-light"
+                    @click="restoreTemplateVersion(row)"
+                  ) Restore
+
+          //- Videos column
+          .column
+            p.has-text-weight-semibold.mb-3 Video links
+            .box.mb-4
+              b-field(label="Domain")
+                b-select(v-model="newVideo.domain" placeholder="Select domain" expanded)
+                  option(v-for="d in domains" :key="d" :value="d") {{ d }}
+              b-field(label="Title")
+                b-input(v-model="newVideo.title" placeholder="e.g. Cash Flow Masterclass")
+              b-field(label="URL (HTTPS)")
+                b-input(v-model="newVideo.url" type="url" placeholder="https://…")
+              b-button(
+                type="is-primary"
+                :loading="addingVideo"
+                :disabled="!newVideo.domain || !newVideo.title || !newVideo.url"
+                @click="addVideo"
+              ) Add video
+
+            b-table(
+              :data="videos"
+              :hoverable="true"
+              :loading="loadingVideos"
+              empty-string="No videos added yet"
+            )
+              b-table-column(v-slot="{ row }" field="domain" label="Domain")
+                b-tag {{ row.domain }}
+              b-table-column(v-slot="{ row }" field="title" label="Title")
+                a(:href="row.url" target="_blank" rel="noopener noreferrer") {{ row.title }}
+              b-table-column(v-slot="{ row }" label="" width="80")
+                b-button(
+                  size="is-small"
+                  type="is-danger is-light"
+                  icon-left="delete"
+                  @click="confirmDeleteVideo(row)"
+                )
+
+      //- ── Tab 5: Advisory Distinctions ───────────────────────────────
+      b-tab-item(label="Advisory Distinctions" icon="brain")
+        .columns
+          //- Domain sidebar
+          .column.is-3
+            b-menu
+              b-menu-list(label="Domain")
+                b-menu-item(
+                  v-for="d in distinctionDomains"
+                  :key="d.id"
+                  :label="d.label"
+                  :active="selectedDistinctionDomain === d.id"
+                  @click="selectedDistinctionDomain = d.id; closeDistinctionForm()"
+                )
+
+          .column
+            //- Platform rows (read-only)
+            p.has-text-weight-semibold.mb-2 Platform distinctions — {{ currentDistinctionDomainLabel }}
+            b-notification.mb-3(type="is-info is-light" :closable="false" style="font-size:0.85rem")
+              | Platform rows are shared across all firms and cannot be edited here.
+              | Add your own rows below to boost specific templates for situations unique to your practice.
+            b-table.mb-5(
+              :data="activeDistinctions"
+              :hoverable="true"
+              size="is-small"
+              empty-string="No platform distinctions for this domain"
+            )
+              b-table-column(v-slot="{ row }" field="description" label="Pattern") {{ row.description }}
+              b-table-column(v-slot="{ row }" label="Trigger phrases")
+                span.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
+              b-table-column(v-slot="{ row }" label="Templates boosted")
+                b-tag.mr-1.mb-1(v-for="t in row.templates" :key="t" size="is-small") {{ t }}
+              b-table-column(v-slot="{ row }" label="Boost" width="60" numeric) +{{ row.boost }}
+
+            //- Firm-level rows
+            .level.mb-3
+              .level-left
+                p.has-text-weight-semibold Your firm's distinctions — {{ currentDistinctionDomainLabel }}
+              .level-right
+                b-button(
+                  v-if="!showDistinctionForm"
+                  type="is-primary"
+                  size="is-small"
+                  icon-left="plus"
+                  @click="openDistinctionForm(null)"
+                ) Add distinction
+
+            b-table.mb-4(
+              v-if="!loadingFirmDistinctions && activeFirmDistinctions.length > 0"
+              :data="activeFirmDistinctions"
+              :hoverable="true"
+              size="is-small"
+            )
+              b-table-column(v-slot="{ row }" field="description" label="Pattern") {{ row.description }}
+              b-table-column(v-slot="{ row }" label="Trigger phrases")
+                span.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
+              b-table-column(v-slot="{ row }" label="Templates boosted")
+                b-tag.mr-1.mb-1(v-for="t in row.templates" :key="t" size="is-small" type="is-success is-light") {{ t }}
+              b-table-column(v-slot="{ row }" label="Boost" width="60" numeric) +{{ row.boost }}
+              b-table-column(v-slot="{ row }" label="" width="110")
+                b-button.mr-1(size="is-small" @click="openDistinctionForm(row)") Edit
+                b-button(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)") Remove
+
+            p.has-text-grey.is-size-7.mb-4(
+              v-else-if="!loadingFirmDistinctions && activeFirmDistinctions.length === 0 && !showDistinctionForm"
+            ) No firm distinctions for this domain yet. Add one to boost specific templates when advisors use particular phrases.
+
+            //- Add / Edit form
+            .box.distinction-form(v-if="showDistinctionForm")
+              p.has-text-weight-semibold.mb-4 {{ editingDistinctionId ? 'Edit distinction' : 'New distinction' }}
+
+              b-field(label="Domain")
+                b-select(v-model="distinctionForm.domain" expanded)
+                  option(v-for="d in distinctionDomains" :key="d.id" :value="d.id") {{ d.label }}
+
+              b-field(label="Description" message="A short label for this pattern — shown in the table above.")
+                b-input(
+                  v-model="distinctionForm.description"
+                  placeholder="e.g. Client mentions technology gap"
+                  maxlength="255"
+                )
+
+              b-field(label="Trigger phrases" message="Type a phrase and press Enter or comma to add. Matching is case-insensitive and partial — 'growth' matches 'growing' etc.")
+                b-taginput(
+                  v-model="distinctionForm.triggers"
+                  :confirm-key-codes="[13, 188]"
+                  placeholder="Add a phrase…"
+                  aria-close-label="Remove phrase"
+                )
+
+              b-field(label="Templates to boost")
+                .template-picker
+                  .template-picker-filters
+                    b-select(v-model="templatePickerSubSection" size="is-small" style="flex:0 0 200px")
+                      option(value="") All areas
+                      option(v-for="ss in templateSubSections" :key="ss" :value="ss") {{ ss }}
+                    b-input(
+                      v-model="templatePickerSearch"
+                      size="is-small"
+                      placeholder="Search by title…"
+                      icon="magnify"
+                      style="flex:1"
+                    )
+                  .template-picker-list
+                    label.template-picker-opt(
+                      v-for="t in filteredTemplateOptions"
+                      :key="t.title"
+                      :class="{ 'is-selected': distinctionForm.templates.includes(t.title) }"
+                    )
+                      input(
+                        type="checkbox"
+                        :value="t.title"
+                        :checked="distinctionForm.templates.includes(t.title)"
+                        @change="toggleTemplateSelection(t.title)"
+                      )
+                      span.template-picker-title {{ t.title }}
+                      span.template-picker-sub {{ t.subSection }}
+                    p.has-text-grey.is-size-7.p-2(v-if="filteredTemplateOptions.length === 0") No templates match — try clearing the filters.
+                  .template-picker-selected(v-if="distinctionForm.templates.length > 0")
+                    span.is-size-7.has-text-grey.mr-2 Selected:
+                    b-tag.mr-1.mb-1(
+                      v-for="t in distinctionForm.templates"
+                      :key="t"
+                      closable
+                      type="is-success is-light"
+                      @close="toggleTemplateSelection(t)"
+                    ) {{ t }}
+
+              b-field(label="Boost score" message="How many points to add to each matched template's score (1–20). Default 5.")
+                b-input(
+                  v-model.number="distinctionForm.boost"
+                  type="number"
+                  min="1"
+                  max="20"
+                  style="width:90px"
+                )
+
+              .field.is-grouped.mt-4
+                b-button(
+                  type="is-primary"
+                  :loading="savingDistinction"
+                  @click="saveDistinction"
+                ) {{ editingDistinctionId ? 'Save changes' : 'Add distinction' }}
+                b-button(@click="closeDistinctionForm") Cancel
+
+      //- ── Tab 4: Firm Profile ────────────────────────────────────────
+      b-tab-item(label="Firm Profile" icon="domain")
+        .columns
+          .column.is-6
+            .has-text-centered.py-5(v-if="loadingProfile")
+              b-loading(:is-full-page="false" :active="true")
+            template(v-else)
+              b-field(label="Firm name")
+                b-input(v-model="profileForm.name")
+              b-field(label="Logo URL")
+                b-input(v-model="profileForm.logo_url" type="url" placeholder="https://…")
+              b-field(label="Brand colour (hex)")
+                b-input(v-model="profileForm.primary_colour" placeholder="#000000" maxlength="7")
+              b-field(
+                label="AI persona name"
+                message="The name your advisors see when using the AI advisor (leave blank to use the default)"
+              )
+                b-input(v-model="profileForm.persona_name" placeholder="e.g. Max")
+              b-button(
+                type="is-primary"
+                :loading="savingProfile"
+                @click="saveProfile"
+              ) Save profile
 </template>
 
 <script>
@@ -708,6 +549,15 @@ export default {
       savingFramework: false,
       showHistoryModal: false,
 
+      // Advisory Staircase
+      staircaseBase: null,
+      staircaseOverride: null,
+      staircaseForm: { steps: [], defaultCeiling: '' },
+      staircaseHistory: [],
+      loadingStaircase: false,
+      savingStaircase: false,
+      showStaircaseHistoryModal: false,
+
       // Template import
       templateImport: { hasImport: false, templateCount: 0, history: [] },
       loadingTemplateImport: false,
@@ -769,6 +619,14 @@ export default {
         list = list.filter(t => t.title.toLowerCase().includes(q))
       }
       return list
+    },
+    // Allowed complexity-ceiling values, derived from the platform base the
+    // backend sends (single source of truth) — never a hardcoded list.
+    staircaseCeilingOptions () {
+      if (!this.staircaseBase) { return [] }
+      const set = new Set(this.staircaseBase.steps.map(s => s.complexityCeiling))
+      set.add(this.staircaseBase.defaultCeiling)
+      return [...set]
     }
   },
 
@@ -781,6 +639,7 @@ export default {
     this.loadStorage()
     this.loadDomains()
     this.loadFirmDistinctions()
+    this.loadStaircase()
   },
 
   methods: {
@@ -1218,9 +1077,75 @@ export default {
       }
     },
 
+    // ── Advisory Staircase (whole-config firm override) ─────────────────────
+    async loadStaircase () {
+      this.loadingStaircase = true
+      try {
+        const data = await this.api('GET', '/api/firm-manager/staircase')
+        this.staircaseBase = data.base
+        this.staircaseOverride = data.firmOverride || null
+        // Edit the firm's saved override if it exists, otherwise start from the base.
+        this.staircaseForm = JSON.parse(JSON.stringify(data.firmOverride || data.base))
+        const hist = await this.api('GET',
+          '/api/firm-manager/framework/history?configKey=advisory-staircase')
+        this.staircaseHistory = hist.history || []
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.loadingStaircase = false
+      }
+    },
+
+    // Discard unsaved edits — revert to the last saved state (override, or base if none).
+    resetStaircase () {
+      const source = this.staircaseOverride || this.staircaseBase
+      this.staircaseForm = JSON.parse(JSON.stringify(source))
+    },
+
+    async saveStaircase () {
+      const blankStep = this.staircaseForm.steps.find(s => !s.name || !s.name.trim())
+      if (blankStep) {
+        this.$buefy.toast.open({ message: 'Every step needs a name.', type: 'is-warning' })
+        return
+      }
+      this.savingStaircase = true
+      try {
+        const res = await this.api('POST', '/api/firm-manager/staircase', {
+          staircase: this.staircaseForm
+        })
+        this.$buefy.toast.open({
+          message: res.version ? `Saved as version ${res.version}.` : 'Saved.',
+          type: 'is-success'
+        })
+        this.loadStaircase()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.savingStaircase = false
+      }
+    },
+
+    async restoreStaircaseVersion (row) {
+      try {
+        const res = await this.api('POST', '/api/firm-manager/framework/restore', {
+          configKey: 'advisory-staircase',
+          versionId: row.id
+        })
+        this.$buefy.toast.open({ message: `Restored as version ${res.version}.`, type: 'is-success' })
+        this.showStaircaseHistoryModal = false
+        this.loadStaircase()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
+    },
+
     // ── Helpers ─────────────────────────────────────────────────────────────
     formatDate (iso) {
       return iso ? new Date(iso).toLocaleDateString() : ''
+    },
+
+    capitalise (s) {
+      return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''
     }
   }
 }
