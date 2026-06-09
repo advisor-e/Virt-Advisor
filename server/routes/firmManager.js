@@ -3,6 +3,7 @@
 const path = require('path')
 const DEV_DISTINCTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-distinctions.json')
 const DEV_STAIRCASE_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase.json')
+const DEV_TEMPLATES_FILE = path.resolve(__dirname, '../../data/dev-firm-templates.json')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 function _devReadDistinctions (firmId) {
@@ -62,7 +63,10 @@ function _devWriteDistinctions (firmId, rows) {
  */
 
 const fs = require('fs')
-const formidable = require('formidable')
+// formidable v3 exports the factory as a named export (require() returns a
+// namespace object, not a callable) — destructure it, or `formidable(...)` throws
+// "formidable is not a function". Used by uploadDocument + importTemplates.
+const { formidable } = require('formidable')
 const { sendError } = require('../utils/sendError')
 const drive = require('../services/driveService')
 const overlay = require('../utils/firmOverlay')
@@ -425,6 +429,39 @@ const TEMPLATE_REQUIRED_FIELDS = ['page', 'title', 'section']
 const TEMPLATE_MAX_COUNT = 2000
 const TEMPLATE_IMPORT_MAX_BYTES = 10 * 1024 * 1024 // 10 MB
 
+// ⚠⚠ DEV/TEST-ONLY persistence fallback — NOT production storage. ⚠⚠
+// When MySQL is unavailable on a local dev machine, template imports fall back to
+// a gitignored local JSON file so the feature can be exercised end-to-end without
+// a database. This is a TESTING convenience ONLY and is gated behind IS_DEV — it
+// can never run in production. Real persistence MUST go through the
+// firm_framework_versions table via firmOverlay. Wiring the live MySQL persistence
+// (and retiring these dev-file fallbacks) is a tracked task — see HANDOFF.md and
+// design/ACTIONS.md ("Firm Manager config persistence → MySQL").
+function _devReadTemplates (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_TEMPLATES_FILE, 'utf8'))
+    return Array.isArray(all[firmId]) ? all[firmId] : null
+  } catch { return null }
+}
+
+function _devWriteTemplates (firmId, rows) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_TEMPLATES_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = rows
+  fs.writeFileSync(DEV_TEMPLATES_FILE, JSON.stringify(all, null, 2))
+}
+
+function _devClearTemplates (firmId) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_TEMPLATES_FILE, 'utf8'))
+  } catch {}
+  delete all[firmId]
+  fs.writeFileSync(DEV_TEMPLATES_FILE, JSON.stringify(all, null, 2))
+}
+
 async function getTemplateImport (req, res) {
   try {
     const [config, history] = await Promise.all([
@@ -440,7 +477,16 @@ async function getTemplateImport (req, res) {
       history: history || []
     })
   } catch (err) {
-    if (IS_DEV) { res.send(200, { hasImport: false, templateCount: 0, history: [] }); return }
+    // DEV/TEST-ONLY: fall back to the local dev file (see banner above).
+    if (IS_DEV) {
+      const devConfig = _devReadTemplates(req.firmId)
+      res.send(200, {
+        hasImport: !!devConfig,
+        templateCount: Array.isArray(devConfig) ? devConfig.length : 0,
+        history: []
+      })
+      return
+    }
     return serverError(res, 500, 'DB_ERROR', err)
   }
   return
@@ -484,7 +530,14 @@ async function importTemplates (req, res) {
   }
 
   try {
-    const version = await overlay.saveFirmConfig(req.firmId, 'templates', parsed, req.userEmail)
+    let version
+    try {
+      version = await overlay.saveFirmConfig(req.firmId, 'templates', parsed, req.userEmail)
+    } catch (err) {
+      if (!IS_DEV) { throw err }
+      _devWriteTemplates(req.firmId, parsed) // DEV/TEST-ONLY fallback (see banner above)
+      version = null
+    }
     res.send(201, { imported: true, templateCount: parsed.length, version })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -500,6 +553,8 @@ async function resetTemplateImport (req, res) {
     )
     res.send(200, { reset: true })
   } catch (err) {
+    // DEV/TEST-ONLY: clear the local dev file instead (see banner above).
+    if (IS_DEV) { _devClearTemplates(req.firmId); res.send(200, { reset: true }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
   return

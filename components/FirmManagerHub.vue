@@ -162,15 +162,27 @@ section.firm-manager-hub.section
                 :closable="false"
               ) No firm changes saved — the AI uses the platform-default Advisory Staircase. Edit the steps below and save to make them your firm's.
 
-              .box.mb-3(v-for="step in staircaseForm.steps" :key="step.step")
-                p.has-text-weight-semibold.mb-3 Step {{ step.step }}
-                b-field(label="Step name")
-                  b-input(v-model="step.name" maxlength="120")
-                b-field(label="What this step looks like")
-                  b-input(v-model="step.selectorDescription" type="textarea" rows="3")
-                b-field(label="Complexity ceiling")
-                  b-select(v-model="step.complexityCeiling")
-                    option(v-for="c in staircaseCeilingOptions" :key="c" :value="c") {{ capitalise(c) }}
+              .staircase-step(
+                v-for="step in staircaseForm.steps"
+                :key="step.step"
+                :style="{ borderLeftColor: stepColour(step.step).accent, backgroundColor: stepColour(step.step).tint }"
+              )
+                .staircase-step-head
+                  span.staircase-step-badge(:style="{ backgroundColor: stepColour(step.step).accent }") {{ step.step }}
+                  span.staircase-step-title Step {{ step.step }}
+                b-field(grouped)
+                  b-field(label="Step name" expanded)
+                    b-input(v-model="step.name" maxlength="120")
+                  b-field(label="Complexity ceiling")
+                    b-select(v-model="step.complexityCeiling")
+                      option(v-for="c in staircaseCeilingOptions" :key="c" :value="c") {{ capitalise(c) }}
+                b-field.mb-0(label="What this step looks like")
+                  b-input(
+                    v-model="step.selectorDescription"
+                    type="textarea"
+                    rows="2"
+                    @input.native="autoGrow"
+                  )
 
               b-field.mt-4(label="Default complexity ceiling" message="Used when a step has no ceiling set.")
                 b-select(v-model="staircaseForm.defaultCeiling")
@@ -517,6 +529,17 @@ const FRAMEWORK_KEYS = [
   { key: 'custom-prompts', label: 'Custom prompts' }
 ]
 
+// Per-step accent + faint background tint so each staircase step reads as its own
+// block (avoids "map-shock" — steps blending into one). Cycles if a firm ever has
+// more steps than colours.
+const STAIRCASE_STEP_COLORS = [
+  { accent: '#3e8ed0', tint: '#eef6fc' },
+  { accent: '#48c78e', tint: '#eefbf4' },
+  { accent: '#f4793b', tint: '#fdf2eb' },
+  { accent: '#7957d5', tint: '#f3effb' },
+  { accent: '#f14668', tint: '#fdecf0' }
+]
+
 export default {
   name: 'FirmManagerHub',
 
@@ -627,6 +650,14 @@ export default {
       const set = new Set(this.staircaseBase.steps.map(s => s.complexityCeiling))
       set.add(this.staircaseBase.defaultCeiling)
       return [...set]
+    }
+  },
+
+  watch: {
+    // A textarea reports scrollHeight 0 while its tab is hidden, so size the
+    // staircase descriptions whenever the active tab changes (and it becomes visible).
+    activeTab () {
+      this.$nextTick(() => this.sizeStaircaseTextareas())
     }
   },
 
@@ -823,7 +854,9 @@ export default {
         form.append('file', this.templateImportFile)
         const res = await this.api('POST', '/api/firm-manager/templates', form, true)
         this.$buefy.toast.open({
-          message: `${res.templateCount} templates imported (version ${res.version}).`,
+          message: res.version
+            ? `${res.templateCount} templates imported (version ${res.version}).`
+            : `${res.templateCount} templates imported.`,
           type: 'is-success'
         })
         this.templateImportFile = null
@@ -1089,6 +1122,7 @@ export default {
         const hist = await this.api('GET',
           '/api/firm-manager/framework/history?configKey=advisory-staircase')
         this.staircaseHistory = hist.history || []
+        this.$nextTick(() => this.sizeStaircaseTextareas())
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       } finally {
@@ -1100,6 +1134,31 @@ export default {
     resetStaircase () {
       const source = this.staircaseOverride || this.staircaseBase
       this.staircaseForm = JSON.parse(JSON.stringify(source))
+      this.$nextTick(() => this.sizeStaircaseTextareas())
+    },
+
+    // Per-step accent colour (cycles if there are ever more steps than colours).
+    stepColour (stepNum) {
+      return STAIRCASE_STEP_COLORS[(stepNum - 1) % STAIRCASE_STEP_COLORS.length]
+    },
+
+    // Grow a description textarea to fit its content — no inner scrollbar.
+    autoGrow (e) {
+      const el = e && e.target
+      if (!el || el.tagName !== 'TEXTAREA') { return }
+      el.style.height = 'auto'
+      el.style.height = el.scrollHeight + 'px'
+    },
+
+    // Size every visible description textarea to its content (after load / reset /
+    // tab reveal — scrollHeight is 0 while the tab is hidden, so skip hidden ones).
+    sizeStaircaseTextareas () {
+      if (!process.client || !this.$el) { return }
+      this.$el.querySelectorAll('.staircase-step textarea').forEach((el) => {
+        if (el.offsetParent === null) { return }
+        el.style.height = 'auto'
+        el.style.height = el.scrollHeight + 'px'
+      })
     },
 
     async saveStaircase () {
@@ -1160,6 +1219,34 @@ export default {
   font-family: 'Courier New', monospace;
   font-size: 0.85rem;
 }
+
+/* Advisory Staircase — colour-coded, compact per-step rows (avoid map-shock) */
+.staircase-step {
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.6rem;
+  border-left: 4px solid #dbdbdb;
+  border-radius: 5px;
+}
+.staircase-step-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.staircase-step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.staircase-step-title { font-weight: 600; color: #363636; }
+.staircase-step textarea { overflow: hidden; }
 
 /* Advisory Distinctions — form + template picker */
 .distinction-form { border: 1px solid #dbdbdb; }

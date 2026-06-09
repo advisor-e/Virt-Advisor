@@ -277,3 +277,23 @@ Phase 3 recommendation stream is set to `max_tokens: 2500` (raised from 1500 —
 Restify v11 depends on `spdy`, which uses a native `http_parser` binding that was removed in Node.js v24. The backend (`server/restify-server.js`) will fail to start on Node 24 with a binding error.
 
 **Fix:** Use Node.js 18 LTS or 20 LTS for the backend process. This is an upstream Restify issue — no changes to the Firm Manager code are required. Track the upstream fix at the `restify` npm package.
+
+---
+
+### File-upload import shape (`formidable` v3) — RESOLVED
+
+`server/routes/firmManager.js` imported `formidable` as `const formidable = require('formidable')` (the v2 API) while v3.5.4 is installed. In v3 the factory is a **named** export, so the old import resolved to a non-callable object and every upload threw `TypeError: formidable is not a function` (HTTP 500) — affecting **both** the document upload and the template-library import. Fixed to `const { formidable } = require('formidable')`. No action needed; noted because it predated the staircase work and was only surfaced by live upload testing.
+
+---
+
+### ⚠ DEV/TEST-ONLY persistence fallbacks — MUST be wired to MySQL before production
+
+So the Firm Manager screens can be exercised on a local machine **without** a MySQL instance, three config **writes** fall back to a gitignored local JSON file when the database is unavailable. **This is a testing convenience only** — it is gated behind `IS_DEV` (`NODE_ENV !== 'production'`) and can never run in production, where the write would correctly surface a `DB_ERROR` instead.
+
+| Feature | Route | Dev file (gitignored) |
+|---|---|---|
+| Template-library import | `POST /api/firm-manager/templates` | `data/dev-firm-templates.json` |
+| Advisory Staircase override | `POST /api/firm-manager/staircase` | `data/dev-firm-staircase.json` |
+| Advisory Distinctions | `POST/PUT/DELETE /api/firm-manager/distinctions` | `data/dev-firm-distinctions.json` |
+
+**Real persistence is the `firm_framework_versions` table via `server/utils/firmOverlay.js`** (whole-config + version history + restore). **Required before production:** a live MySQL instance with the schema in `config/db-schema.sql`; the dev-file fallbacks are then never hit. They are **not** a storage mechanism — they hold one firm's latest value with **no version history** and must not be relied upon. Tracked in `design/ACTIONS.md` ("Firm Manager config persistence → MySQL").
