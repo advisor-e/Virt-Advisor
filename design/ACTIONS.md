@@ -8,15 +8,15 @@
 >
 > **Legend** — Status: ☐ open · ◐ in progress · ✅ done. Type: **SEC** security · **WIRE** framework wiring · **BUILD** · **DECISION** (needs Mike) · **EDIT-TARGET** (bring a building block under Firm-Manager no-code editing) · **DOC**.
 >
-> **Last swept:** 2026-06-10.
+> **Last swept:** 2026-06-11.
 >
 > **▶ NEXT SESSION — START HERE:** The conversational-intake redesign **shipped 2026-06-10** (all committed/pushed + live-tested; 272 tests): cause-first confirmation (`2bbb5bd`), prep-mode (`025e6a1`), the **cause-signal lever Phase 1+2** (`22ce271` — the advisor's check-in answer now drives selection; the confirmation anchors on the extracted signal; uncertainty-gated dig-in), and a meeting-count voice-homophone fix (`0a8bbc8`). Key fact: the recommendation is ~77% driven by `problemSignals` from the cause answer; the confirmed domain is worth only ~1–2 pts (see memory `session-2026-06-10`). **Genuinely-next work:**
-> 1. **★ DOC — Registry reconciliation.** `design/virt-advisor-registry.md` is **OUT OF SYNC** with the new intake (Stage 1/2 still describe the old flow — no prep-mode, no dig-in, `problemSignals` from the cause answer only, plain domain confirmation). Reconcile before it misleads. Its own pass.
-> 2. **★ CONTENT — `signal-dictionary.json` coverage.** Phase 1 only helps when the advisor's correction uses a dictionary phrase ("sales issues" doesn't match). `[signal-miss]` logging is now in place to surface gaps — improving coverage is the real robustness lever for the cause-signal feature.
-> 3. **EXPERIENCE — resistance/frustration "fall back to the 14"** (memory `design-intake-resistance-fallback`) — designed, NOT built. Lighter now the battery's gone, but the original café frustration (anger/profanity sailing past) is still unhandled.
-> 4. **STACK DRIFT** (×3) — restify, nuxt, add `engines` pin. Plan: `design/STACK-RECONCILIATION-PLAN.md`. **End-of-day work** (scoped install, VS Code closed, never wipe `node_modules`).
-> 5. **Frameworks → Firm Manager** — repeat the staircase pattern for **Growth Fundamentals** + **3 Engagement Types**.
-> 6. **IDOR `utils/cases.js`** — gated to the Case-study DB migration (P2).
+> 0. ✅ **DOC — Registry reconciliation — DONE 2026-06-11.** `design/virt-advisor-registry.md` brought back in sync with the shipped intake: Stage 1 gains prep-mode + voice-safe meeting parsing + battery-removed note; Stage 2 rewritten to the **cause-signal lever** (cold primary-issue selector removed; `problemSignals` from `situationDiagnostic` + `domainConfirmed`, ≈77% of score, domain ~1–2 pts); the domain-confirmation safeguard updated to **cause-first** + uncertainty dig-in; "none of these fit" re-homed to the domain selector; a Stage-4 cross-ref added. Every claim verified against `advisor.js` / `caseState.js`. Deliberate ⚠/GAP flags retained.
+> 1. **★ CONTENT — `signal-dictionary.json` coverage.** Phase 1 only helps when the advisor's correction uses a dictionary phrase ("sales issues" doesn't match). `[signal-miss]` logging is now in place to surface gaps — improving coverage is the real robustness lever for the cause-signal feature.
+> 2. **EXPERIENCE — resistance/frustration "fall back to the 14"** (memory `design-intake-resistance-fallback`) — designed, NOT built. Lighter now the battery's gone, but the original café frustration (anger/profanity sailing past) is still unhandled.
+> 3. **STACK DRIFT** (×3) — restify, nuxt, add `engines` pin. Plan: `design/STACK-RECONCILIATION-PLAN.md`. **End-of-day work** (scoped install, VS Code closed, never wipe `node_modules`).
+> 4. **Frameworks → Firm Manager** — repeat the staircase pattern for **Growth Fundamentals** + **3 Engagement Types**.
+> 5. **IDOR `utils/cases.js`** — gated to the Case-study DB migration (P2).
 
 ---
 
