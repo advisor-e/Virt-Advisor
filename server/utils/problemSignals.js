@@ -18,6 +18,13 @@ const SIGNAL_REGISTRY = Object.fromEntries(
   }])
 )
 
+// Plain-English description per signal — used by the cause-first confirmation to
+// show the advisor the driver the engine identified (Phase 2). Sourced from the
+// dictionary's own `description` field, so no new data is introduced.
+const SIGNAL_DESCRIPTIONS = Object.fromEntries(
+  Object.entries(_dict.signals).map(([name, entry]) => [name, entry.description || name])
+)
+
 /**
  * Extract structured problem signals from a free-text situationDiagnostic string.
  * Returns { signalName: matchCount } for any signal with at least one match.
@@ -44,4 +51,4 @@ function extractProblemSignals (text) {
   return result
 }
 
-module.exports = { extractProblemSignals, SIGNAL_REGISTRY }
+module.exports = { extractProblemSignals, SIGNAL_REGISTRY, SIGNAL_DESCRIPTIONS }

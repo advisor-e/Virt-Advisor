@@ -87,6 +87,19 @@ function deriveUrgency (signals) {
 }
 
 // ── buildCaseState ─────────────────────────────────────────────────────────
+// Cause text for problem-signal extraction = the advisor's "what contributed?"
+// answer (situationDiagnostic) PLUS their answer to the cause-first confirmation
+// (domainConfirmed). Including the confirmation makes the advisor's correction at
+// the check-in actually steer the selection — the problemSignals are the dominant
+// scoring lever (memory design-cause-first-not-problem-first). A plain "yes, that's
+// right" matches no dictionary phrase, so behaviour is unchanged unless the advisor
+// says something signal-bearing. 'pending'/'skipped' sentinels are excluded.
+function causeText (state) {
+  return [state.situationDiagnostic, state.domainConfirmed]
+    .filter(v => v && v !== 'pending' && v !== 'skipped')
+    .join(' ')
+}
+
 // Pure function. Takes signals array + raw state → canonical typed CaseState.
 // This is the authoritative input for the strategy resolver and template resolver.
 // `staircase` is an optional pre-blended staircase config (base + firm override);
@@ -134,7 +147,7 @@ function buildCaseState (signals, state, staircase = ADVISORY_STAIRCASE) {
     },
     diagnosticSignals: signals.map(s => s.type),
     solutionCategories: deriveSolutionCategories(signals, state.detectedDomain),
-    problemSignals: extractProblemSignals(state.situationDiagnostic || ''),
+    problemSignals: extractProblemSignals(causeText(state)),
     // 'regular' = client already uses reports; 'none' = no reports in use; null = not asked
     reportingEngagement: get(SIGNAL_TYPES.REPORTING_ENGAGEMENT) || null,
     // Advisor explicitly declined the profit driver / revenue model review.
@@ -147,4 +160,4 @@ function buildCaseState (signals, state, staircase = ADVISORY_STAIRCASE) {
   }
 }
 
-module.exports = { buildCaseState, DOMAIN_NATURAL_ENGAGEMENT, staircaseToCeiling }
+module.exports = { buildCaseState, DOMAIN_NATURAL_ENGAGEMENT, staircaseToCeiling, causeText }
