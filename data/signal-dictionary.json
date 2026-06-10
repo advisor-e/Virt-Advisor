@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Signal extraction dictionary — the single source of truth for what advisor phrases map to which signals. Edit this file to add or improve phrase coverage. No code changes required. Run npm run build:semantic-profiles after changes.",
   "signals": {
     "sales_volume": {
@@ -24,7 +24,12 @@
         "run(ning)? out of (customers?|clients?|people)",
         "not upselling",
         "upsell(ing)?.*not happening",
-        "no upsell"
+        "no upsell",
+        "sales (issue|problem|trouble|struggle|struggling)",
+        "struggling (to|with) (sell|sales)",
+        "(low|declining|dropping|falling) sales",
+        "can'?t (win|land|close|get) (new )?(clients?|customers?|work|business)",
+        "few (prospects?|leads?|enquiries|inquiries)"
       ]
     },
     "pricing_issue": {
@@ -41,7 +46,11 @@
         "afraid to (raise|increase|put up).{0,20}price[s]?",
         "can'?t (raise|increase|put up).{0,20}price[s]?",
         "margin (compression|squeeze|squeezed)",
-        "communicat.{0,30}price"
+        "communicat.{0,30}price",
+        "not charging enough",
+        "prices? (are )?too low",
+        "under.?pric(ed|ing)",
+        "reluctant to (raise|increase|put up).{0,20}price"
       ]
     },
     "cash_flow_gap": {
@@ -62,7 +71,12 @@
         "owed money",
         "collecting (payments?|invoices?|debts?)",
         "liquidity",
-        "money going out (faster|quicker|more) than (it'?s? )?(coming in|income)"
+        "money going out (faster|quicker|more) than (it'?s? )?(coming in|income)",
+        "cash (is )?(tight|short)",
+        "tight on cash",
+        "struggling to pay",
+        "behind on (payments?|bills?|invoices?)",
+        "can'?t (afford|cover).{0,20}(bills?|wages?|staff|costs?|rent)"
       ]
     },
     "revenue_modelling": {
@@ -109,7 +123,12 @@
         "hiring (problem|challenge|issue|difficulty)",
         "retain(ing)? (staff|team|employees?|people)",
         "people problem",
-        "leadership (issue|problem|gap)"
+        "leadership (issue|problem|gap)",
+        "can'?t (find|hire|keep|retain) (good )?(staff|people)",
+        "people (issues?|problems?)",
+        "short.?staffed|under.?staffed",
+        "morale (is )?(low|down|poor)",
+        "team (isn'?t|is not|not) (performing|working|gelling)"
       ]
     },
     "strategy_needed": {
@@ -123,7 +142,10 @@
         "new (direction|market|product|service|strategy)",
         "lost direction",
         "long.?term (plan|strategy|direction)",
-        "growth (plan|strategy|direction)"
+        "growth (plan|strategy|direction)",
+        "need(s)? (a )?(clear )?strategy",
+        "no (clear )?plan",
+        "business (is )?(stuck|stagnant|plateaued|treading water)"
       ]
     },
     "data_quality": {
@@ -136,7 +158,11 @@
         "messy (books?|data|accounts?|records?)",
         "incorrect (data|reports?|figures?|numbers?)",
         "can'?t trust (the )?(data|numbers?|figures?|reports?)",
-        "accounts? (in a mess|messy|wrong|incorrect)"
+        "accounts? (in a mess|messy|wrong|incorrect)",
+        "data (issue|problem)",
+        "numbers (don'?t|do not|aren'?t) (add up|right|reliable|accurate)",
+        "reporting (is )?(poor|weak|unreliable|wrong|a mess)",
+        "bad (data|numbers)"
       ]
     },
     "governance_gap": {
@@ -148,7 +174,10 @@
         "(needs?|wants?) (a |more )?governance",
         "accountability (issue|problem|gap)",
         "board (structure|function|needed|required)",
-        "decision.?making (problem|issue|poor|slow)"
+        "decision.?making (problem|issue|poor|slow)",
+        "partners? (disagree|fall(ing)? out|at odds|not aligned|don'?t agree)",
+        "no (clear )?(controls?|oversight)",
+        "decisions? (take|taking).{0,15}(too long|forever|ages)"
       ]
     },
     "succession_issue": {
@@ -161,7 +190,12 @@
         "pass(ing)? (it|the business) on",
         "retir(e|ing|ement)",
         "next generation",
-        "sell(ing)? (the )?business"
+        "sell(ing)? (the )?business",
+        "step(ping)? back from the business",
+        "wind(ing)? down",
+        "no (successor|one to take over)",
+        "who('?ll| will| is going to) (take over|run (it|the business))",
+        "plan(ning)? (my|their|his|her|the) exit"
       ]
     },
     "systems_gap": {
@@ -174,7 +208,11 @@
         "manual (process|work|admin)",
         "inefficient (process|workflow|admin)",
         "automat(e|ion|ing) (tasks?|processes?|workflows?)",
-        "workflow (issue|problem|broken)"
+        "workflow (issue|problem|broken)",
+        "everything('?s| is)? manual",
+        "(doing (it|everything)) by hand",
+        "processes? (are )?(a mess|messy|broken|undefined)",
+        "no (proper )?(systems?|processes?)"
       ]
     },
     "marketing_gap": {
@@ -187,7 +225,11 @@
         "digital (marketing|presence|strategy)",
         "online (presence|marketing|visibility)",
         "not (visible|known|getting found)",
-        "awareness (issue|problem|gap|low)"
+        "awareness (issue|problem|gap|low)",
+        "marketing (isn'?t|is not|not) working",
+        "no (online|social|web|digital) presence",
+        "poor (brand|positioning)",
+        "no ?(one|body) (knows|has heard of) (us|them|the business)"
       ]
     }
   }
