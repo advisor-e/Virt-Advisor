@@ -672,6 +672,7 @@ import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
 import growthFundamentals from '~/data/growth-fundamentals.json'
 import advisoryStaircase from '~/data/advisory-staircase.json'
+import finMgtTable from '~/data/fin-mgt-table.json'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 _md.disable(['image', 'html_inline', 'html_block'])
@@ -759,15 +760,10 @@ export default {
       showPrimaryIssueSelector: false,
       selectedPrimaryIssue: null,
       primaryIssueDomain: null,
-      finMgtThemes: [
-        { name: 'Stuck in the Mud', problem: 'Clients are \'withdrawn\' from business development due to fatigue, fear of loss or lack of clarity & belief.' },
-        { name: 'The Knowledge Gap', problem: 'Clients understand \'money in vs money out\' in a linear fashion; they do not understand the true effects of time and discounting.' },
-        { name: 'The Wake Up Call', problem: 'Clients accept \'ups & downs\' but don\'t have any way of quantifying their range; leading to poor data conclusions.' },
-        { name: 'Eyes On The Prize', problem: 'Clients carry too many ideas in their \'neck-top computer\'; they need a place to \'unpack their thoughts\' so future moves become clear.' },
-        { name: 'Test & Learn', problem: 'If clients view a financial forecast as a \'static prediction\' they fall victim to feelings of judgement & frustration. They miss the joy that comes from learning.' },
-        { name: 'Measure What Matters', problem: 'Clients view financial reporting as being somewhat disconnected from how their business \'works\'. Most decisions are based on current bank balance and inventory levels.' },
-        { name: 'Under the Microscope', problem: 'If clients aren\'t sure what they can do (in practical terms) upon reviewing their performance, there\'s little point agreeing to regular meetings.' }
-      ],
+      // Single source of truth — themes read from data/fin-mgt-table.json (the
+      // selector uses name + problem; the file's extra solution/template fields
+      // ride along, unused here). Mirrors growthStages / staircaseSteps below.
+      finMgtThemes: finMgtTable.themes,
       // Single source of truth — steps read from data/advisory-staircase.json.
       // Label keeps the "Step N:" prefix (the server derives the step number from it);
       // description uses the data file's selectorDescription wording.
