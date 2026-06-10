@@ -469,6 +469,24 @@ function detectUncertainty (text) {
   return _UNCERTAINTY_PATTERN.test(text.toLowerCase().replace(/’/g, "'"))
 }
 
+// Parse a free-text meeting-count answer → a number, or null if none found.
+// Folds in spoken/voice forms so a speech-to-text slip doesn't silently halve the
+// template budget: "too" → two (the live café-session bug), "a couple" → 2,
+// "a few" → 3. Bare "to" is deliberately NOT mapped — it is a function word
+// ("happy to commit to three") that would mis-parse normal answers. For a range
+// ("two to three") the upper bound is taken so capacity covers all sessions.
+function parseMeetingCount (text) {
+  if (!text || typeof text !== 'string' || text === 'pending') { return null }
+  const t = text.toLowerCase()
+  const map = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, too: 2, couple: 2, few: 3 }
+  const num = '(one|two|three|four|five|six|too|couple|few|\\d)'
+  const range = t.match(new RegExp('\\b' + num + '\\s+(?:to|or|maybe|-)\\s+' + num + '\\b', 'i'))
+  if (range) { return map[range[2]] || parseInt(range[2], 10) || null }
+  const single = t.match(new RegExp('\\b' + num + '\\b', 'i'))
+  if (single) { return map[single[1]] || parseInt(single[1], 10) || null }
+  return null
+}
+
 function buildCourseCorrectionMsg (state) {
   const domainEntry = DOMAINS.find(d => d.id === state.detectedDomain)
   const domainLabel = domainEntry ? domainEntry.label : 'this area'
@@ -1464,15 +1482,7 @@ async function handleQuery (rawBody, res) {
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated|spoke\s+to\s+(?:me|us)\s+about|called\s+(?:me|us)\s+about|phoned\s+(?:me|us)|reached\s+out|got\s+in\s+touch|contacted\s+(?:me|us)|they\s+(?:called|rang|phoned|messaged|emailed|texted)/i.test(state.clientRaisedIssue)
 
     // Parse meeting count — upper bound of a range taken so capacity covers all planned sessions
-    const _meetingText = state.advisorMeetingCount && state.advisorMeetingCount !== 'pending' ? state.advisorMeetingCount.toLowerCase() : ''
-    const _meetingWordMap = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6 }
-    const _countRangeMatch = _meetingText.match(/\b(one|two|three|four|five|six|\d)\s+(?:to|or|maybe|-)\s+(one|two|three|four|five|six|\d)\b/i)
-    const _countSingleMatch = _meetingText.match(/\b(one|two|three|four|five|six|\d)\b/i)
-    const meetingNum = _countRangeMatch
-      ? (_meetingWordMap[_countRangeMatch[2]] || parseInt(_countRangeMatch[2]) || null)
-      : _countSingleMatch
-        ? (_meetingWordMap[_countSingleMatch[1]] || parseInt(_countSingleMatch[1]) || null)
-        : null
+    const meetingNum = parseMeetingCount(state.advisorMeetingCount)
 
     // Session length → templates per session
     // 30 mins = 0 (not enough for template delivery), 60/90 mins = 1, 120 mins = 2, other = 1
@@ -2052,3 +2062,4 @@ module.exports._isValidConfirmation = _isValidConfirmation
 module.exports.detectNotMetClient = detectNotMetClient
 module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
 module.exports.detectUncertainty = detectUncertainty
+module.exports.parseMeetingCount = parseMeetingCount
