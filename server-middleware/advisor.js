@@ -425,6 +425,35 @@ function detectContradiction (query) {
   return _CONTRADICTION_PATTERN.test(query)
 }
 
+// ── Prep-mode detection ─────────────────────────────────────────────────────
+// The advisor signals they have NOT yet met this client (preparing for a first
+// meeting). On a match the intake OFFERS prep-mode: skip the client-about
+// questions, keep the advisor/relationship ones (memory
+// design-intake-resistance-fallback). Wording-check by design — this is a
+// narrow, factual signal (unlike open-ended frustration). A guard ensures
+// "I've met them several times" never trips it. Generous on purpose: a false
+// positive only produces an offer the advisor can decline.
+const _NOT_MET_PATTERN = /\b(haven't (?:yet )?met|not (?:yet )?met|yet to meet|before (?:i|we) meet|before (?:i|we)'ve met|haven't had (?:the |our |a )?(?:first )?(?:meeting|session)|first meeting|initial meeting|first time meeting|never met|about to meet|going to meet|due to meet|upcoming meeting|preparing for (?:the|this|our|a) meeting|prepping for|getting ready for (?:the|this|our|a) meeting|ahead of (?:the|our|this) meeting|haven't sat down with|haven't (?:spoken|talked) (?:with|to) them|don't know them yet|brand[- ]?new client|new client|prospective client|haven't worked with them|haven't engaged|no relationship yet|haven't onboarded)\b/i
+// Guard: explicit "already met / existing relationship" phrasings must NOT trip prep-mode.
+const _ALREADY_MET_PATTERN = /\b((?:have|i've|we've|had|already|previously) met|met them (?:before|already|several|many|a few|lots|twice|three|numerous)|meet (?:them )?(?:regularly|weekly|monthly|often)|know them well|long[- ]?standing|existing client|ongoing (?:client|relationship))\b/i
+
+function detectNotMetClient (text) {
+  if (!text || typeof text !== 'string') { return false }
+  const t = text.toLowerCase().replace(/’/g, "'")
+  if (_ALREADY_MET_PATTERN.test(t)) { return false }
+  return _NOT_MET_PATTERN.test(t)
+}
+
+// Client-about questions skipped in prep-mode; the advisor/relationship ones are
+// kept (Mike 2026-06-10). A skipped field gets a 'skipped' sentinel so the
+// Phase-3 mandatory gate passes honestly — recorded as intentionally absent.
+const PREP_SKIP_FIELDS = new Set([
+  'clientRaisedIssue', 'situationDiagnostic', 'clientAlreadyTried',
+  'industry', 'ownership', 'growthStage'
+])
+
+const PREP_MODE_OFFER = "It sounds like you haven't met this client yet — want me to skip the questions about them and just prep what you can answer now?"
+
 function buildCourseCorrectionMsg (state) {
   const domainEntry = DOMAINS.find(d => d.id === state.detectedDomain)
   const domainLabel = domainEntry ? domainEntry.label : 'this area'
@@ -466,7 +495,7 @@ async function buildDomainConfirmationMessage (state, conversationHistory, fallb
   const detected = DOMAINS.find(d => d.id === state.detectedDomain)
   if (!detected) { return fallbackText } // no area detected → existing no-domain line
 
-  const situationDiag = (state.situationDiagnostic && state.situationDiagnostic !== 'pending')
+  const situationDiag = (state.situationDiagnostic && state.situationDiagnostic !== 'pending' && state.situationDiagnostic !== 'skipped')
     ? state.situationDiagnostic
     : ''
   const userMsgs = (conversationHistory || []).filter(m => m.role === 'user').map(m => m.content)
@@ -703,6 +732,9 @@ async function handleQuery (rawBody, res) {
       intakeTurn: 0,
       awaitingCourseCorrection: false,
       courseCorrections: 0,
+      prepMode: false,
+      prepModeOffered: false,
+      awaitingPrepModeChoice: false,
       domainConfirmed: null
     }, storedState || {})
 
@@ -736,6 +768,15 @@ async function handleQuery (rawBody, res) {
         state.primaryIssue = null
       }
       state.awaitingCourseCorrection = false
+    }
+
+    // ── PREP-MODE choice: the advisor is answering the "haven't met them?" offer ──
+    // On yes, prep-mode turns on and the sequencer skips the client-about questions.
+    if (state.awaitingPrepModeChoice) {
+      state.awaitingPrepModeChoice = false
+      const _prepYes = /\b(yes|yeah|yep|sure|ok|okay|please|go ahead|do that|good idea|sounds good|that.?d help|that would help|skip them|skip the client|prep)\b/i
+      if (_prepYes.test(query)) { state.prepMode = true }
+      // Either way, fall through to the sequencer to ask the next (non-skipped) question.
     }
 
     // Lock domain once resolved — only re-score on the very first turn or if disambiguation is still pending
@@ -1078,6 +1119,12 @@ async function handleQuery (rawBody, res) {
       for (const q of QUESTIONS) {
         // Skip the per-domain question battery — intake = the 14 + conversation.
         if (BATTERY_FIELDS.has(q.field) || q._battery) { continue }
+        // Prep-mode: skip the client-about questions; 'skipped' sentinel so the
+        // Phase-3 mandatory gate passes honestly (intentionally absent, not lost).
+        if (state.prepMode && PREP_SKIP_FIELDS.has(q.field)) {
+          if (!state[q.field]) { state[q.field] = 'skipped' }
+          continue
+        }
         if (q.skip && q.skip(state)) { continue }
         if (!state[q.field]) {
           // Not yet asked — ask it now
@@ -1104,6 +1151,13 @@ async function handleQuery (rawBody, res) {
             state.awaitingCourseCorrection = true
             state.courseCorrections++
             return sendQuestion(buildCourseCorrectionMsg(state))
+          }
+          // Prep-mode: the advisor signals they haven't met the client → offer to
+          // skip the client-about questions. Offered once; they confirm next turn.
+          if (!state.prepMode && !state.prepModeOffered && detectNotMetClient(query)) {
+            state.awaitingPrepModeChoice = true
+            state.prepModeOffered = true
+            return sendQuestion(PREP_MODE_OFFER, state)
           }
         }
       }
@@ -1299,6 +1353,11 @@ async function handleQuery (rawBody, res) {
       for (const q of QUESTIONS) {
         // Skip the per-domain question battery — intake = the 14 + conversation.
         if (BATTERY_FIELDS.has(q.field) || q._battery) { continue }
+        // Prep-mode: client-about questions stay skipped (sentinel), never force-asked.
+        if (state.prepMode && PREP_SKIP_FIELDS.has(q.field)) {
+          if (!state[q.field]) { state[q.field] = 'skipped' }
+          continue
+        }
         if (q.skip && q.skip(state)) { continue }
         if (!state[q.field] || state[q.field] === 'pending') {
           if (!state[q.field]) { state[q.field] = 'pending' }
@@ -1560,6 +1619,7 @@ async function handleQuery (rawBody, res) {
     const _budgetCount = tier1Capacity > 0 ? tier1Capacity : (_strategyDecision.templateBudget || 1)
     const situationBrief = [
       'SITUATION BRIEF',
+      state.prepMode ? 'PRE-MEETING PREP: The advisor has NOT yet met this client, so client-specific questions were intentionally skipped. Frame this as preparation for an upcoming first meeting — what the advisor should focus on and confirm with the client when they meet — not as firm conclusions about a client you have full detail on.' : null,
       `Domain: ${_domainLabel}`,
       `Engagement type: ${_strategyDecision.engagementType} — ${_engagementContext}`,
       `Template budget: ${_budgetLabel}`,
@@ -1952,3 +2012,5 @@ async function handleQuery (rawBody, res) {
 // Exposed for unit testing (the middleware function itself is the default export above).
 module.exports.buildDomainConfirmationMessage = buildDomainConfirmationMessage
 module.exports._isValidConfirmation = _isValidConfirmation
+module.exports.detectNotMetClient = detectNotMetClient
+module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
