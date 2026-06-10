@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Signal extraction dictionary — the single source of truth for what advisor phrases map to which signals. Edit this file to add or improve phrase coverage. No code changes required. Run npm run build:semantic-profiles after changes.",
   "signals": {
     "sales_volume": {
@@ -230,6 +230,63 @@
         "no (online|social|web|digital) presence",
         "poor (brand|positioning)",
         "no ?(one|body) (knows|has heard of) (us|them|the business)"
+      ]
+    },
+    "stock_management": {
+      "description": "Stock/inventory management problems — overstocking, stockouts, slow stock turn, high days on hand, supply chain disruption",
+      "domains": ["stock-purchasing"],
+      "patterns": [
+        "not turning (stock|inventory) over",
+        "stock (isn'?t|is not|not) turning over",
+        "(slow|poor|low) stock turn(over)?",
+        "stock turn(over)? (is )?(slow|poor|low|down)",
+        "(too many|high|excess) days on hand",
+        "days on hand (is|are) (too )?high",
+        "too much (stock|inventory)",
+        "over.?stock(ed|ing)?",
+        "excess (stock|inventory)",
+        "stock (sitting|piling up|gathering dust)",
+        "(money|cash|capital) tied up in (stock|inventory)",
+        "running out of (stock|inventory)",
+        "stock.?outs?",
+        "out of stock",
+        "can'?t keep (stock|product|shelves) (stocked|full|on the shelf)",
+        "supply chain (disruption|issues?|problems?|delays?|shortages?)",
+        "suppl(y|ier) (disruption|issues?|problems?|delays?|shortages?)",
+        "dead stock",
+        "obsolete (stock|inventory)",
+        "stock (wastage|spoilage|write.?offs?)",
+        "reorder(ing)? (issue|problem|too late|too much|too little)",
+        "ordering (too much|too little|the wrong)",
+        "(stock|inventory) (management|control) (issue|problem|poor|a mess)"
+      ]
+    },
+    "capital_raising": {
+      "description": "Raising capital or funding an acquisition — needs investment to grow, seeking investors, undercapitalised, can't self-fund, funding a purchase",
+      "domains": ["raising-capital"],
+      "patterns": [
+        "raise (money|capital|funds?|finance|equity)",
+        "raising (money|capital|funds?|finance|equity)",
+        "need(s)? (to raise |more )?(capital|funding|finance|investment)",
+        "need (money|funding|finance|capital) to grow",
+        "can'?t self.?fund",
+        "(can'?t|unable to|struggling to) fund (their|its|the) (growth|expansion)",
+        "looking for (an? )?investors?",
+        "(seeking|find|attract|bring in) (an? )?investors?",
+        "pitch(ing)? (to )?(investors?|VCs?|venture)",
+        "pitch deck",
+        "venture capital",
+        "equity (funding|raise|investment)",
+        "term sheet",
+        "capital raise",
+        "under.?capitalis(ed|ation)",
+        "under.?funded",
+        "(don'?t|doesn'?t|do not) (know|understand) (their )?cost of capital",
+        "capital structure (issue|problem|review|advice)",
+        "working capital review",
+        "(raise|raising) (money|capital|finance|funds?) to (buy|acquire)",
+        "fund(ing)? (an?|the )?acquisition",
+        "money to (buy|acquire) (a|another|the) (business|competitor|company|rival)"
       ]
     }
   }
