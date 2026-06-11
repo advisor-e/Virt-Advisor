@@ -7,6 +7,16 @@ infers from the installed packages. Where the repo has drifted from this spec, *
 wins and the drift is logged for reconciliation** (see the drift box below and
 `design/ACTIONS.md`) — drift is never treated as the new policy.
 
+> **🔒 ONE-DIRECTIONAL RULE (absolute, no exceptions).** Reconciliation only ever moves
+> the repo **toward** this spec. "Ratifying" a drift, raising a locked version, or adopting
+> an installed-but-non-compliant package as the new baseline is **NOT a valid option** and
+> must **never be proposed, offered as a choice, recorded as a to-do option, or actioned** —
+> not by a human, not by the AI, not in code, not in any planning or task document. If a
+> change does not fit this Stack Constitution, the change does not happen. There is no
+> "or we could just update the spec" escape hatch. The locked versions (incl. Node 14.15)
+> are fixed; only the drift gets reverted, never the spec relaxed. Any document found
+> offering such an option is itself a defect to be corrected on sight.
+
 **Two-part system:**
 - **Frontend — Nuxt 2 (port 3000):** UI, routing, state display only. No business logic,
   no database, no third-party APIs.
