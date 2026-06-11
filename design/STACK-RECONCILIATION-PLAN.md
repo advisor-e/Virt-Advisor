@@ -1,6 +1,8 @@
 # Stack-Drift Reconciliation Plan
 
-> **Status: PLAN — not yet executed.** Authored 2026-06-09. Captures the agreed approach for
+> **Status: PLAN — env prep done 2026-06-11, install not yet executed.** Node 14.15.0 is now
+> installed and ready (see Runbook step 2); the risky end-of-day dependency install still pending.
+> Authored 2026-06-09. Captures the agreed approach for
 > bringing the two drifting dependencies back into line with the Stack Constitution
 > (`CLAUDE.md`). The risky step (the install) is **end-of-day work** — see Runbook.
 >
@@ -111,8 +113,20 @@ proceeding. Recommended, since the missing guard rail is exactly what let the dr
 1. **Branch first** (recommended for this one change — dependency downgrades carry real
    rollback risk; a branch lets us bail cleanly if the backend won't boot):
    `git checkout -b chore/stack-reconciliation`
-2. **Confirm the runtime is on Node 14.15 via NVM** before anything: `node -v` → must be
-   `v14.15.x`. If not, `nvm use 14.15.0` (install via nvm if absent).
+2. **Confirm the runtime is on Node 14.15 before anything.**
+   - **Node 14.15.0 is already installed** (done 2026-06-11). `nvm install 14.15.0` **fails on
+     this machine** — a known nvm-windows bug where antivirus removes the bundled-npm temp zip
+     mid-extract (`...npm-v6.14.8.zip: The system cannot find the file specified`), rolling the
+     whole install back. It was instead **placed manually**: the official
+     `node-v14.15.0-win-x64.zip` from nodejs.org was extracted into
+     `…\AppData\Local\nvm\v14.15.0\`; nvm now lists `14.15.0` and it runs (node v14.15.0 /
+     npm 6.14.8). **Do NOT re-run `nvm install 14.15.0` — it will fail; the version is already there.**
+   - **A standalone `C:\Program Files\nodejs` (Node 20) shadows nvm on PATH**, so `nvm use 14.15.0`
+     may NOT change `node -v` (it can still report 20). **Therefore do not rely on `nvm use`** for
+     this task. Instead **invoke the 14.15 runtime directly** for the install + every verify step,
+     e.g. `& "$env:LOCALAPPDATA\nvm\v14.15.0\node.exe" "$env:LOCALAPPDATA\nvm\v14.15.0\node_modules\npm\bin\npm-cli.js" …`,
+     so the work genuinely runs on 14.15 regardless of PATH. (Fixing the shadowing is a machine-wide
+     change affecting other projects — deliberately avoided.)
 3. **Edit `package.json`:** pin `"nuxt": "2.14.0"`, `"restify": "9.1.0"` (exact, no `^`), add
    the `engines` block (§4). Add `.npmrc` with `engine-strict=true`.
 4. **Scoped install (no wipe):**
