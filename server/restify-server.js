@@ -4,7 +4,8 @@
  * Restify backend — runs on port 4000 (separate process from Nuxt on port 4001).
  *
  * Start: node server/restify-server.js
- * Requires Node 20 LTS. Node 22+ breaks Restify via missing spdy binding.
+ * Requires Node 14.15 (the locked runtime — CLAUDE.md Stack Constitution req. 9).
+ * Node 22+ additionally breaks Restify via a missing spdy binding.
  *
  * Development: run alongside Nuxt with `npm run backend` in a second terminal.
  * When the Nuxt server-middleware proxy (phase 2 of the Restify migration) is
@@ -12,20 +13,22 @@
  */
 
 // ── Node version guard ────────────────────────────────────────────────────────
+// The locked runtime is Node 14.15 (CLAUDE.md Stack Constitution req. 9) — warn
+// when running on anything else so drift is visible, never recommended.
 ;(function checkNodeVersion () {
   const major = Number(process.version.slice(1).split('.')[0])
   if (major >= 22) {
     process.stderr.write(
       '\n[STARTUP ERROR] Node ' + process.version + ' is not supported.\n' +
       'Node 22+ breaks Restify via a missing spdy binding.\n' +
-      'Run: nvm use 20\n\n'
+      'The locked runtime is Node 14.15 — run: nvm use 14.15.0\n\n'
     )
     process.exit(1)
   }
-  if (major !== 20) {
+  if (major !== 14) {
     process.stderr.write(
-      '\n[WARNING] Node ' + process.version + ' is not the tested runtime.\n' +
-      'Recommended: Node 20 LTS. Run: nvm use 20\n\n'
+      '\n[WARNING] Node ' + process.version + ' is not the locked runtime.\n' +
+      'The team spec requires Node 14.15 — run: nvm use 14.15.0\n\n'
     )
   }
 }())
