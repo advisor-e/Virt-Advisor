@@ -63,10 +63,22 @@ function _devWriteDistinctions (firmId, rows) {
  */
 
 const fs = require('fs')
-// formidable v3 exports the factory as a named export (require() returns a
-// namespace object, not a callable) — destructure it, or `formidable(...)` throws
-// "formidable is not a function". Used by uploadDocument + importTemplates.
+// formidable is pinned to v2.1.2 (the last v2 release before it pulled in a
+// crypto helper that requires Node > 14.15 — see design/ACTIONS.md). Both v2 and
+// v3 expose the factory as a `.formidable` named export, so this destructure works
+// on either. Used by uploadDocument + importTemplates.
 const { formidable } = require('formidable')
+
+// formidable v2's parse() is callback-style (returns the form, not a promise),
+// so wrap it to keep the `await [fields, files]` usage in the upload handlers.
+function parseForm (form, req) {
+  return new Promise((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) { reject(err); return }
+      resolve([fields, files])
+    })
+  })
+}
 const { sendError } = require('../utils/sendError')
 const drive = require('../services/driveService')
 const overlay = require('../utils/firmOverlay')
@@ -127,7 +139,7 @@ async function uploadDocument (req, res) {
 
   let fields, files
   try {
-    ;[fields, files] = await form.parse(req)
+    ;[fields, files] = await parseForm(form, req)
   } catch (err) {
     return serverError(res, 400, 'PARSE_ERROR', err)
   }
@@ -496,7 +508,7 @@ async function importTemplates (req, res) {
   const form = formidable({ maxFileSize: TEMPLATE_IMPORT_MAX_BYTES })
   let files
   try {
-    ;[, files] = await form.parse(req)
+    ;[, files] = await parseForm(form, req)
   } catch (err) {
     return serverError(res, 400, 'PARSE_ERROR', err)
   }
