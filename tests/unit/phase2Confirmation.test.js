@@ -26,17 +26,17 @@ describe('detectUncertainty — clear uncertainty only, mild hedges excluded', (
     "I can't really tell",
     "it's a bit unclear to me"
   ]
-  test.each(unsure)('flags as unsure: %s', (t) => expect(detectUncertainty(t)).toBe(true))
+  test.each(unsure)('flags as unsure: %s', t => expect(detectUncertainty(t)).toBe(true))
 
   const confident = [
-    'I think the issue is foot traffic',        // mild hedge — NOT uncertainty
-    "they're probably struggling with sales",   // mild hedge — NOT uncertainty
+    'I think the issue is foot traffic', // mild hedge — NOT uncertainty
+    "they're probably struggling with sales", // mild hedge — NOT uncertainty
     'the main driver is rising costs',
     "they've lost customers and cash is tight",
     // Mike's EXACT live café answer — confident, despite "I think" / "probably":
     "I just think they've struggled with foot traffic and they're probably upsold clients as much as they could have so they're gonna run out of cash going forward"
   ]
-  test.each(confident)('does NOT flag as unsure: %s', (t) => expect(detectUncertainty(t)).toBe(false))
+  test.each(confident)('does NOT flag as unsure: %s', t => expect(detectUncertainty(t)).toBe(false))
 
   test('null / non-string → false', () => {
     expect(detectUncertainty(null)).toBe(false)

@@ -36,7 +36,7 @@ section.firm-manager-hub.section
                     a.button.is-light.is-fullwidth
                       b-icon(icon="upload")
                       span {{ uploadFile ? uploadFile.name : 'Choose PDF…' }}
-                b-field(:label="' '")
+                b-field(:label="'\u00a0'")
                   b-button(
                     type="is-primary"
                     :loading="uploading"
@@ -249,7 +249,7 @@ section.firm-manager-hub.section
                       a.button.is-light.is-fullwidth
                         b-icon(icon="upload")
                         span {{ templateImportFile ? templateImportFile.name : 'Choose JSON file…' }}
-                  b-field(:label="' '")
+                  b-field(:label="'\u00a0'")
                     b-button(
                       type="is-primary"
                       :loading="importingTemplates"

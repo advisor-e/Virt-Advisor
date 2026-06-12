@@ -7,7 +7,7 @@
  * 3. Partial opening fence present during streaming (stripped early so ``` never renders)
  */
 export function preprocessAIResponse (text) {
-  if (!text || typeof text !== 'string') return ''
+  if (!text || typeof text !== 'string') { return '' }
 
   let processed = text.trim()
 

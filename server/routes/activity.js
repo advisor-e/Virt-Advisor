@@ -66,7 +66,6 @@ async function logCourse (req, res) {
   })
 
   res.send(200, { success: true })
-  return
 }
 
 /**
@@ -163,8 +162,6 @@ completedAt: r.completed_at
     console.error('[activity] getProgression error:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load progression data')
   }
-
-  return
 }
 
 /**
@@ -254,8 +251,6 @@ async function getTeam (req, res) {
     console.error('[activity] getTeam error:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load team data')
   }
-
-  return
 }
 
 module.exports = { logCourse, getProgression, getTeam }

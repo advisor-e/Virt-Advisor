@@ -1,7 +1,7 @@
 'use strict'
 
-const { DOMAIN_NATURAL_ENGAGEMENT } = require('./caseState')
 const ENGAGEMENT_TYPES = require('../../data/engagement-types.json')
+const { DOMAIN_NATURAL_ENGAGEMENT } = require('./caseState')
 
 // ── resolveStrategy ────────────────────────────────────────────────────────
 // Pure deterministic function. Same inputs always produce same output.

@@ -25,16 +25,12 @@ const { extractSignals, deriveInferredState, buildObservabilityPayload } = requi
 const { buildCaseState } = require('../server/utils/caseState')
 const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
-const { resolveTemplates, resolveTemplatesWithOutlier } = require('../server/utils/templateResolver')
+const { resolveTemplatesWithOutlier } = require('../server/utils/templateResolver')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
-const PRIMARY_ISSUES = require('../data/primary-issues.json')
 const ADVISORY_DISTINCTIONS = require('../data/advisory-distinctions.json')
 const BASE_STAIRCASE = require('../data/advisory-staircase.json')
-
-// Context domains have no primary issues — they override the strategy layer instead
-const CONTEXT_DOMAINS = new Set(['conflict', 'eoy', 'due-diligence'])
 
 // The per-domain diagnostic "question battery" — REMOVED from the intake (memory
 // design-conversational-intake). These accreted on top of the locked 14 and turned
@@ -912,12 +908,12 @@ async function handleQuery (rawBody, res) {
         field: 'domainConfirmed',
         // Conversational — NO drop-tab. Proposes the area in plain words; the
         // advisor confirms or corrects in their own words.
-        textFn: s => {
+        textFn: (s) => {
           const detected = DOMAINS.find(d => d.id === s.detectedDomain)
           if (detected) {
             return `Based on what you've described, I'm reading this as a **${detected.label}** situation — have I got that right, or is it really about a different area?`
           }
-          return `I want to make sure I focus on the right area for this client — in a sentence, what would you say the core issue is really about?`
+          return 'I want to make sure I focus on the right area for this client — in a sentence, what would you say the core issue is really about?'
         },
         onAnswer: (answer, s) => {
           // If the advisor names a different area, switch to it; otherwise the

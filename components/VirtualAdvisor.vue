@@ -1448,7 +1448,7 @@ export default {
     },
 
     renderMarkdown (text) {
-      if (!text) return ''
+      if (!text) { return '' }
       const preprocessed = preprocessAIResponse(String(text))
       const raw = _md.render(preprocessed)
       return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })

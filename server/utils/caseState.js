@@ -1,9 +1,9 @@
 'use strict'
 
-const { SIGNAL_TYPES } = require('./signals')
-const { extractProblemSignals } = require('./problemSignals')
 const ADVISORY_STAIRCASE = require('../../data/advisory-staircase.json')
 const DOMAINS = require('../../data/domains.json')
+const { SIGNAL_TYPES } = require('./signals')
+const { extractProblemSignals } = require('./problemSignals')
 
 // Domain natural engagement type — what kind of delivery the domain typically requires.
 // Built from data/domains.json (single source of truth); clientRequestedHelp must also

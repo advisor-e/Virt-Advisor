@@ -5,11 +5,10 @@
 [ -n "$NVM_SYMLINK" ] && export PATH="$(cygpath -u "$NVM_SYMLINK"):$PATH"
 
 # Run via node directly — bypasses .bin shims which can break on Windows after partial npm installs.
-# Lint is warnings-only and does not block merges per SECURITY-AUDIT-NOTES.md policy.
-# eslint disabled — package corrupted by partial npm install (ENOTEMPTY on buefy).
-# Restore with: npm install
-# Lint is warnings-only per SECURITY-AUDIT-NOTES.md — does not block merges.
-echo "[pre-commit] INFO: lint skipped — run npm install to restore eslint."
+# Lint RE-ENABLED 2026-06-12 (eslint restored by the full stack-reconciliation install;
+# the 44 dormant errors were cleared the same day). Errors block; warnings (no-console
+# etc.) pass — per SECURITY-AUDIT-NOTES.md policy.
+node node_modules/eslint/bin/eslint.js --ext .js,.vue .
 
 node node_modules/jest/bin/jest.js
 

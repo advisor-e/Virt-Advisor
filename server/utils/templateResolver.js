@@ -138,7 +138,6 @@ const ENGAGEMENT_SUBSECTION_PREFERENCE = {
   advice: ['Specialist Tools', 'Governance Tools', 'Strategic Tools', 'External Advisors']
 }
 
-
 // ── Advisor confidence → subSection fit ──────────────────────────────────────
 // Source: content headers spec — new-advisor-friendly vs experience-required subSections
 const NEW_ADVISOR_SUBSECTIONS = new Set(['Revenue & Feasibility Models', 'General Tools', 'EOY Notes & Docs'])

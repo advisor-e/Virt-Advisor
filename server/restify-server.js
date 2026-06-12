@@ -95,7 +95,7 @@ server.use((req, res, next) => {
 })
 
 // OPTIONS preflight — middleware already sets CORS headers, just respond 204
-server.opts('/*', async (req, res) => { res.send(204) })
+server.opts('/*', (req, res, next) => { res.send(204); return next() })
 
 // ── Routes ──
 server.get('/api/health', healthRoute.get)

@@ -126,7 +126,6 @@ async function listDocuments (req, res) {
     if (IS_DEV) { res.send(200, { base: [], firm: [] }); return }
     return serverError(res, 500, 'DRIVE_ERROR', err)
   }
-  return
 }
 
 async function uploadDocument (req, res) {
@@ -194,7 +193,6 @@ async function uploadDocument (req, res) {
   } catch (err) {
     return serverError(res, 500, 'UPLOAD_ERROR', err)
   }
-  return
 }
 
 async function downloadDocument (req, res) {
@@ -209,7 +207,6 @@ async function downloadDocument (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DOWNLOAD_ERROR', err)
   }
-  return
 }
 
 async function deleteDocument (req, res) {
@@ -240,7 +237,6 @@ async function deleteDocument (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DELETE_ERROR', err)
   }
-  return
 }
 
 // ── Decision Framework ────────────────────────────────────────────────────────
@@ -255,7 +251,6 @@ async function getFramework (req, res) {
     if (IS_DEV) { res.send(200, { configKey, firmOverride: null, hasOverride: false }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function saveFramework (req, res) {
@@ -272,7 +267,6 @@ async function saveFramework (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function getFrameworkHistory (req, res) {
@@ -285,7 +279,6 @@ async function getFrameworkHistory (req, res) {
     if (IS_DEV) { res.send(200, { history: [] }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function restoreFramework (req, res) {
@@ -299,7 +292,6 @@ async function restoreFramework (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 // ── Videos ────────────────────────────────────────────────────────────────────
@@ -318,7 +310,6 @@ async function listVideos (req, res) {
     if (IS_DEV) { res.send(200, { videos: [] }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function addVideo (req, res) {
@@ -343,7 +334,6 @@ async function addVideo (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function deleteVideo (req, res) {
@@ -360,7 +350,6 @@ async function deleteVideo (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 // ── Firm Profile ──────────────────────────────────────────────────────────────
@@ -380,7 +369,6 @@ async function getProfile (req, res) {
     }
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function updateProfile (req, res) {
@@ -411,7 +399,6 @@ async function updateProfile (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 // ── Storage usage ─────────────────────────────────────────────────────────────
@@ -432,7 +419,6 @@ async function getStorageUsage (req, res) {
     if (IS_DEV) { res.send(200, { bytesUsed: 0, maxBytes: STORAGE.maxFirmStorageBytes, percentUsed: 0 }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 // ── Template Library Import ───────────────────────────────────────────────────
@@ -501,7 +487,6 @@ async function getTemplateImport (req, res) {
     }
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function importTemplates (req, res) {
@@ -554,7 +539,6 @@ async function importTemplates (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function resetTemplateImport (req, res) {
@@ -569,7 +553,6 @@ async function resetTemplateImport (req, res) {
     if (IS_DEV) { _devClearTemplates(req.firmId); res.send(200, { reset: true }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 // ── Advisory Distinctions (firm-level rows) ───────────────────────────────────
@@ -609,7 +592,6 @@ async function listDistinctions (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function createDistinction (req, res) {
@@ -647,7 +629,6 @@ async function createDistinction (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function updateDistinction (req, res) {
@@ -685,7 +666,6 @@ async function updateDistinction (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function deleteDistinction (req, res) {
@@ -703,7 +683,6 @@ async function deleteDistinction (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 // ── Advisory Staircase (whole-config firm override) ───────────────────────────
@@ -796,7 +775,6 @@ async function getStaircase (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 async function saveStaircase (req, res) {
@@ -811,7 +789,6 @@ async function saveStaircase (req, res) {
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
-  return
 }
 
 module.exports = {
