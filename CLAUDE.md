@@ -130,7 +130,12 @@ await, or any Node 16/18/20 built-in. Backend files are CommonJS (`require`/
   Secrets live only on the Restify backend via `process.env`.
 - All LLM/AI calls go through a Restify route. Never import the `openai` SDK in Nuxt.
 - All user-generated content rendered with `v-html` is sanitised with
-  `isomorphic-dompurify` first.
+  `isomorphic-dompurify` first. **Pinned to exact `1.3.0`** (no caret) — the coding team's
+  ruling for Node 14.15 compatibility: `1.11+`/2.x/3.x pull `jsdom` builds that need
+  Node ≥18, whereas `1.3.0` uses `jsdom@21` (`node>=14`) and still ships a modern DOMPurify
+  3.x, so it satisfies both the named-package requirement and the Node 14.15 lock. This is a
+  *lower* compatible version, fully consistent with the one-directional rule — not a version
+  bump. See `design/ACTIONS.md` and `design/SECURITY-AUDIT-NOTES.md`.
 - Strip internal DB IDs and PII before sending anything to an LLM. Never trust LLM output
   as structured data — parse and validate its shape before saving to state or the database.
 - Treat user input in prompts as hostile: wrap it in explicit delimiters on the backend;

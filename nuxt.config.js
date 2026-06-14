@@ -1,19 +1,21 @@
-// Node version guard — must run on Node 20 LTS.
-// Node 22+ breaks Restify (missing spdy binding). Node 20 is the supported runtime.
+// ── Node version guard ────────────────────────────────────────────────────────
+// The locked runtime is Node 14.15 (CLAUDE.md Stack Constitution req. 9) — warn
+// when running on anything else so drift is visible, never recommended. Mirrors the
+// backend guard in server/restify-server.js.
 ;(function checkNodeVersion () {
   const major = Number(process.version.slice(1).split('.')[0])
   if (major >= 22) {
     process.stderr.write(
       '\n[STARTUP ERROR] Node ' + process.version + ' is not supported.\n' +
       'Node 22+ breaks Restify via a missing spdy binding.\n' +
-      'Run: nvm use 20\n\n'
+      'The locked runtime is Node 14.15 — run: nvm use 14.15.0\n\n'
     )
     process.exit(1)
   }
-  if (major !== 20) {
+  if (major !== 14) {
     process.stderr.write(
-      '\n[WARNING] Node ' + process.version + ' is not the tested runtime.\n' +
-      'Recommended: Node 20 LTS. Run: nvm use 20\n\n'
+      '\n[WARNING] Node ' + process.version + ' is not the locked runtime.\n' +
+      'The team spec requires Node 14.15 — run: nvm use 14.15.0\n\n'
     )
   }
 }())
@@ -22,7 +24,7 @@ export default {
   target: 'server',
 
   server: {
-    port: 4001,
+    port: 3000,
     host: 'localhost'
   },
 

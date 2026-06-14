@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * Restify backend — runs on port 4000 (separate process from Nuxt on port 4001).
+ * Restify backend — runs on port 4000 (separate process from Nuxt on port 3000).
  *
  * Start: node server/restify-server.js
  * Requires Node 14.15 (the locked runtime — CLAUDE.md Stack Constitution req. 9).
@@ -83,7 +83,7 @@ server.use(restify.plugins.queryParser())
 // Note: multipart/form-data (file uploads) is parsed per-route by formidable
 // inside firmManager.js — it bypasses jsonBodyParser intentionally.
 
-// CORS — allow Nuxt frontend on port 4001 in development
+// CORS — allow Nuxt frontend on port 3000 in development
 server.use((req, res, next) => {
   const origin = req.headers.origin || ''
   if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) {

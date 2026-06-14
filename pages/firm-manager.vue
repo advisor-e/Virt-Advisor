@@ -1,30 +1,23 @@
-<template>
-  <div class="firm-manager-page">
-    <div v-if="checking" class="has-text-centered" style="padding: 4rem;">
-      <b-loading :is-full-page="false" :active="true" />
-    </div>
+<template lang="pug">
+.firm-manager-page
+  .has-text-centered(v-if="checking" style="padding: 4rem;")
+    b-loading(:is-full-page="false" :active="true")
 
-    <div v-else-if="!authorised" class="hero is-fullheight-with-navbar">
-      <div class="hero-body">
-        <div class="container has-text-centered">
-          <p class="title is-4">
-            Access Restricted
-          </p>
-          <p class="subtitle is-6">
-            The Firm Manager hub requires a Firm Manager or Platform Admin role.<br>
-            Please contact your account administrator.
-          </p>
-        </div>
-      </div>
-    </div>
+  .hero.is-fullheight-with-navbar(v-else-if="!authorised")
+    .hero-body
+      .container.has-text-centered
+        p.title.is-4 Access Restricted
+        p.subtitle.is-6
+          | The Firm Manager hub requires a Firm Manager or Platform Admin role.
+          br
+          | Please contact your account administrator.
 
-    <firm-manager-hub
-      v-else
-      :firm-id="firmId"
-      :user-email="userEmail"
-      :api-token="apiToken"
-    />
-  </div>
+  firm-manager-hub(
+    v-else
+    :firm-id="firmId"
+    :user-email="userEmail"
+    :api-token="apiToken"
+  )
 </template>
 
 <script>
