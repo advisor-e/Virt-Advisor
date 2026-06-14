@@ -39,6 +39,12 @@
 
 > **The three STACK DRIFT items below have a written execution plan + runbook:** [`design/STACK-RECONCILIATION-PLAN.md`](STACK-RECONCILIATION-PLAN.md) (target versions, verified facts, end-of-day install steps, risks). Status there: PLAN — not yet executed.
 
+> **─ Code-governance audit (2026-06-15) — Engineering-Standards findings (distinct from the Stack Constitution). Read-only sweep; fixes gated on Mike, one at a time. ─**
+
+- ✅ **SEC/DATA — Shape-validate AI JSON output (the grade path drives course pass/fail). DONE 2026-06-15 [P1 #1].** The live AI JSON parses are guarded against *parse failure* (try/catch) but NOT against *valid-JSON-wrong-shape*: [course.js:424](../server-middleware/course.js#L424) (quiz-grade) returns the model's `passed`/`score`/`feedback` straight through with no type/range check — an advisor's course pass/fail rides on unvalidated AI output. Same class: [course.js:385](../server-middleware/course.js#L385) (quiz-generate), [advisor.js:88](../server-middleware/advisor.js#L88) (distinction-classify, partly checked via `Array.isArray`). **Important:** the purpose-built [server/utils/validateAIResponse.js](../server/utils/validateAIResponse.js) (tested, 100%-coverage-gated) validates a `{content:string}` shape that **matches none of these live shapes**, and `parseSSELine` targets SSE lines the frontend already parses inline (guarded) — so both util fns are effectively orphaned. Fix = targeted shape validators (boolean / number-in-range / non-empty-string) with safe fallbacks + tests (AI-validation = 100% per the testing rule), and retarget or retire the orphaned utils. **Done:** `validateQuizGenerate` + `validateQuizGrade` added to `validateAIResponse.js` (100% coverage retained), wired into both `course.js` quiz handlers; an invalid shape now routes to the existing fail-safe error (never auto-passes). +30 tests, full suite 302 pass. **Still open:** the orphaned `validateAIResponse({content})` / `parseSSELine` retarget-or-retire decision. *Source:* code-gov audit 2026-06-15.
+
+- ☐ **ERR — Standard error envelope not used in the Nuxt AI middleware.** [server/utils/sendError.js](../server/utils/sendError.js) emits the spec envelope `{success:false,error:{code,message},timestamp}` (tested) and the Restify routes use it, but the `server-middleware/` handlers return bare-string errors — e.g. [course.js:391](../server-middleware/course.js#L391) → `{success:false, error:'Failed to…'}` (no `code`, no `timestamp`). Bring the middleware error responses to the standard shape. *Source:* code-gov audit 2026-06-15.
+
 - ✅ **STACK DRIFT — Nuxt version — DONE on branch `chore/stack-reconciliation` (2026-06-12).** `package.json` now pins **`nuxt: "2.14.0"`** (down from the drifted 2.18.1) and installs clean on Node 14.15. Pending merge to `master`. *Source:* governance reconciliation 2026-06-09; `package.json`.
 
 - ✅ **STACK DRIFT — Restify 11 vs Node 14.15 — DONE on branch `chore/stack-reconciliation` (2026-06-12).** `package.json` now pins **`restify: "9.1.0"`** (the Node-14-compatible line, down from the drifted `^11.1.0` that needed Node 16+). Installs clean on Node 14.15; 272/272 tests pass. Pending merge to `master`. *Source:* governance reconciliation 2026-06-09; `package.json`.
@@ -83,6 +89,10 @@
 
 ## P2 — important, decide/build soon
 
+> **─ Code-governance audit (2026-06-15), P2 items ─**
+- ☐ **SEC — Prompt-injection: raw user input concatenated into prompt strings without delimiters.** [advisor.js:74](../server-middleware/advisor.js#L74) (`${advisorText…}`), [course.js:408-410](../server-middleware/course.js#L408-L410) (question + answer). CLAUDE.md mandates explicit delimiters; never concatenate. Mitigated (constrained tasks, temp 0, truncation, `sanitiseInput` on the advisor body at [advisor.js:662](../server-middleware/advisor.js#L662)) but the delimiter rule isn't met. *Source:* code-gov audit 2026-06-15.
+- ☐ **ARCH — Advisor/course engine + OpenAI SDK live in Nuxt `server-middleware/`, not Restify** (`advisor.js` 2061 lines, `course.js` 507) — not the "thin proxy" the spec requires. Same root as the ⛔ OpenAI/Node referral (P1); the OpenAI move is gated on the team ruling, the rest is a large refactor. *Source:* code-gov audit 2026-06-15.
+
 - ☐ **DECISION (Mike) — The 28 dormant diagnostic trees.** 28 of your 42 decision trees drive no live path. Decide: switch on (wire into Stage 2 diagnosis), retire, or partial. **Why:** significant proprietary IP sitting idle. *Source:* registry Part 2 dormant-asset register.
 - ☐ **BUILD — Case-study DB migration** (localStorage → MySQL). Enables shared cases across devices/firm; also the place the `cases.js` IDOR fix lands. *Source:* HANDOFF → Learning Loop.
 - ☐ **BUILD — Course progress persistence.** The `progress` handler is a labelled stub (`CourseReminderService.markComplete`); wire to MySQL + firm-level reporting. *Source:* registry Part 1A → Course.
@@ -94,6 +104,12 @@
 ---
 
 ## P3 — improvements, editing-targets, auditability
+
+> **─ Code-governance audit (2026-06-15), P3 items ─**
+- ☐ **STRUCT — Monolithic components, no base/shared split.** `VirtualAdvisor.vue` 2708, `CourseBuilder.vue` 2152, `FirmManagerHub.vue` 1295, `FirmDashboard.vue` 665 — far over the "decompose when complex and >200 lines" rule; no `components/base/` or `components/shared/`. *Source:* code-gov audit 2026-06-15.
+- ☐ **STATE (Mike) — Vuex installed but unused; no `store/` dir.** Global state lives in localStorage (profile, courses, cases). Contradicts "Vuex is the only global state mechanism." Best decided alongside the localStorage→MySQL migration (P2). *Source:* code-gov audit 2026-06-15.
+- ☐ **DOC — Sparse JSDoc.** Mixins lack `@param`/`@returns`; `course.js` has none; `advisor.js` ~4 tags across 2061 lines. Rule: document mixins, middleware proxies, routes with `@route`/`@param`/`@returns`. *Source:* code-gov audit 2026-06-15.
+- ☐ **I18N — Hardcoded English in templates** (e.g. "Access Restricted" in `pages/firm-manager.vue`); should route through `$t()`. Infra (`localeMixin`, 8 locales) exists; pervasive sweep. *Source:* code-gov audit 2026-06-15.
 
 - ☐ **EDIT-TARGET — Bring building blocks under Firm-Manager no-code editing** (close the "✗ editable" column in Part 2): 14-question **weight sliders**, **Strategy table** (`strategyResolver` rules), **primary-issues** table, **content-summaries** editor, **coaching-reference** editor, **logic-trees** flowchart editor (tied to the 28-trees decision). *Source:* registry Part 2.
 - ☐ **BUILD — Intervention Urgency.** `caseState.client.urgency` is computed but unused; make it a Stage-3 output that compresses sequencing + cuts template count when `high`. *Source:* registry Stage 3.

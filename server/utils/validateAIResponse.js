@@ -76,4 +76,71 @@ function parseSSELine (line) {
   return parsed
 }
 
-module.exports = { validateAIResponse, parseSSELine }
+/**
+ * Validates a quiz-generation AI response and normalises the questions key.
+ * Accepts the key variations the model may use (questions / quiz_questions /
+ * quiz / items). Valid = a non-empty array of question objects, each carrying a
+ * non-empty `question` string. The whole batch is rejected if any item is
+ * malformed, so a partially-broken quiz is never served.
+ *
+ * @param {*} response - The parsed AI response to validate
+ * @returns {ValidationResult} `data` is `{ questions: Array }` when valid
+ */
+function validateQuizGenerate (response) {
+  if (response === null || typeof response !== 'object' || Array.isArray(response)) {
+    return { valid: false, errors: ['Response must be a plain object'], data: null }
+  }
+
+  const questions = response.questions || response.quiz_questions || response.quiz || response.items
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return { valid: false, errors: ['Missing or empty questions array'], data: null }
+  }
+
+  for (const q of questions) {
+    if (q === null || typeof q !== 'object' || Array.isArray(q)) {
+      return { valid: false, errors: ['Each question must be a plain object'], data: null }
+    }
+    if (typeof q.question !== 'string' || q.question.trim() === '') {
+      return { valid: false, errors: ['Each question must have a non-empty question string'], data: null }
+    }
+  }
+
+  return { valid: true, errors: [], data: { questions } }
+}
+
+/**
+ * Validates a quiz-grade AI response. Valid = a boolean `passed`, a numeric
+ * `score` in [0, 100], and a non-empty `feedback` string. Used before an
+ * advisor's course pass/fail is recorded — an invalid grade must never be
+ * trusted (it could otherwise mark a pass on malformed model output).
+ *
+ * @param {*} response - The parsed AI response to validate
+ * @returns {ValidationResult} `data` is `{ passed, score, feedback }` when valid
+ */
+function validateQuizGrade (response) {
+  if (response === null || typeof response !== 'object' || Array.isArray(response)) {
+    return { valid: false, errors: ['Response must be a plain object'], data: null }
+  }
+
+  const errors = []
+
+  if (typeof response.passed !== 'boolean') {
+    errors.push(`Field 'passed' must be a boolean, got ${typeof response.passed}`)
+  }
+
+  if (typeof response.score !== 'number' || Number.isNaN(response.score) || response.score < 0 || response.score > 100) {
+    errors.push("Field 'score' must be a number between 0 and 100")
+  }
+
+  if (typeof response.feedback !== 'string' || response.feedback.trim() === '') {
+    errors.push("Field 'feedback' must be a non-empty string")
+  }
+
+  if (errors.length > 0) {
+    return { valid: false, errors, data: null }
+  }
+
+  return { valid: true, errors: [], data: { passed: response.passed, score: response.score, feedback: response.feedback } }
+}
+
+module.exports = { validateAIResponse, parseSSELine, validateQuizGenerate, validateQuizGrade }

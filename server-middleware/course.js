@@ -19,6 +19,7 @@ const { getAllSummaries, formatSummariesForPrompt, formatSectionDescriptionsForP
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { sendError } = require('../server/utils/sendError')
+const { validateQuizGenerate, validateQuizGrade } = require('../server/utils/validateAIResponse')
 const CourseReminderService = require('../server/services/CourseReminderService')
 
 // Node.js 15+ crashes on unhandled rejections — guard against OpenAI SDK stream cleanup errors
@@ -383,9 +384,12 @@ Return ONLY valid JSON with no other text:
       response_format: { type: 'json_object' }
     })
     const data = JSON.parse(completion.choices[0].message.content)
-    // Accept common key name variations the model may use
-    const questions = data.questions || data.quiz_questions || data.quiz || data.items || []
-    jsonResponse(res, 200, { success: true, questions })
+    const result = validateQuizGenerate(data)
+    if (!result.valid) {
+      console.error('[course:quiz-generate] invalid AI response shape:', result.errors.join('; '))
+      return jsonResponse(res, 500, { success: false, error: 'Failed to generate quiz questions' })
+    }
+    jsonResponse(res, 200, { success: true, questions: result.data.questions })
   } catch (e) {
     console.error('[course:quiz-generate]', e.message)
     jsonResponse(res, 500, { success: false, error: 'Failed to generate quiz questions' })
@@ -422,7 +426,12 @@ Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfect
       response_format: { type: 'json_object' }
     })
     const data = JSON.parse(completion.choices[0].message.content)
-    jsonResponse(res, 200, { success: true, passed: data.passed, score: data.score, feedback: data.feedback })
+    const result = validateQuizGrade(data)
+    if (!result.valid) {
+      console.error('[course:quiz-grade] invalid AI response shape:', result.errors.join('; '))
+      return jsonResponse(res, 500, { success: false, error: 'Failed to grade answer' })
+    }
+    jsonResponse(res, 200, { success: true, passed: result.data.passed, score: result.data.score, feedback: result.data.feedback })
   } catch (e) {
     console.error('[course:quiz-grade]', e.message)
     jsonResponse(res, 500, { success: false, error: 'Failed to grade answer' })
