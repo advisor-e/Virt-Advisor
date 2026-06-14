@@ -387,12 +387,12 @@ Return ONLY valid JSON with no other text:
     const result = validateQuizGenerate(data)
     if (!result.valid) {
       console.error('[course:quiz-generate] invalid AI response shape:', result.errors.join('; '))
-      return jsonResponse(res, 500, { success: false, error: 'Failed to generate quiz questions' })
+      return sendError(res, 500, 'QUIZ_GENERATE_FAILED', 'Failed to generate quiz questions')
     }
     jsonResponse(res, 200, { success: true, questions: result.data.questions })
   } catch (e) {
     console.error('[course:quiz-generate]', e.message)
-    jsonResponse(res, 500, { success: false, error: 'Failed to generate quiz questions' })
+    sendError(res, 500, 'QUIZ_GENERATE_FAILED', 'Failed to generate quiz questions')
   }
 }
 
@@ -401,7 +401,7 @@ Return ONLY valid JSON with no other text:
 async function handleQuizGrade (body, res) {
   const { question, answer, sessionContext } = body
   if (!question || !answer) {
-    return jsonResponse(res, 400, { success: false, error: 'question and answer are required' })
+    return sendError(res, 400, 'PARAMS_REQUIRED', 'question and answer are required')
   }
 
   const openai = getOpenAI()
@@ -429,12 +429,12 @@ Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfect
     const result = validateQuizGrade(data)
     if (!result.valid) {
       console.error('[course:quiz-grade] invalid AI response shape:', result.errors.join('; '))
-      return jsonResponse(res, 500, { success: false, error: 'Failed to grade answer' })
+      return sendError(res, 500, 'QUIZ_GRADE_FAILED', 'Failed to grade answer')
     }
     jsonResponse(res, 200, { success: true, passed: result.data.passed, score: result.data.score, feedback: result.data.feedback })
   } catch (e) {
     console.error('[course:quiz-grade]', e.message)
-    jsonResponse(res, 500, { success: false, error: 'Failed to grade answer' })
+    sendError(res, 500, 'QUIZ_GRADE_FAILED', 'Failed to grade answer')
   }
 }
 
