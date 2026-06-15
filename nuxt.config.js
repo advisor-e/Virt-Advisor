@@ -23,6 +23,11 @@
 export default {
   target: 'server',
 
+  // Telemetry off — @nuxt/telemetry's bundled rc9 uses `node:`-prefixed requires
+  // that the legacy esm loader can't resolve (crashes boot). Locked stack has no
+  // need for it. See design/ACTIONS.md (dev-toolchain drift, P1).
+  telemetry: false,
+
   server: {
     port: 3000,
     host: 'localhost'
