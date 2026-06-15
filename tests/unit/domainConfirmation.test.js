@@ -16,7 +16,7 @@ jest.mock('../../server/utils/openaiClient', () => ({
   })
 }))
 
-const advisor = require('../../server-middleware/advisor')
+const advisor = require('../../server/advisorEngine')
 const { _isValidConfirmation, buildDomainConfirmationMessage } = advisor
 
 const AREA = 'profitability and feasibility' // the live label for domain id 'profit'

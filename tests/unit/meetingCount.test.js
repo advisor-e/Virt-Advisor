@@ -12,7 +12,7 @@ jest.mock('../../server/utils/openaiClient', () => ({
   })
 }))
 
-const { parseMeetingCount } = require('../../server-middleware/advisor')
+const { parseMeetingCount } = require('../../server/advisorEngine')
 
 describe('parseMeetingCount — voice-input-safe', () => {
   test.each([

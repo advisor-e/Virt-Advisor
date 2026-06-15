@@ -63,12 +63,16 @@ const restify = require('restify')
 
 const healthRoute = require('./routes/health')
 const translateRoute = require('./routes/translate')
-const advisorRoute = require('./routes/advisor')
 const firmRoute = require('./routes/firm')
 const firmManagerRoute = require('./routes/firmManager')
 const activityRoute = require('./routes/activity')
 const casesRoute = require('./routes/cases')
 const { firmAuth, requireManagerRole } = require('./middleware/firmAuth')
+// Advisor + course engines — migrated from Nuxt server-middleware per the
+// coding-team Req 7 ruling (OpenAI logic + key backend-only). Connect-style
+// (req, res, next) handlers that read the raw body and stream SSE themselves.
+const advisorEngine = require('./advisorEngine')
+const courseEngine = require('./courseEngine')
 
 const PORT = process.env.BACKEND_PORT || 4000
 
@@ -78,7 +82,14 @@ const server = restify.createServer({
 })
 
 // ── Middleware ──
-server.use(restify.plugins.jsonBodyParser({ mapParams: false }))
+// The advisor + course engines read the raw request body themselves (they stream
+// SSE), so skip JSON body-parsing for those two routes; parse everything else.
+const _jsonParser = restify.plugins.jsonBodyParser({ mapParams: false })
+server.use((req, res, next) => {
+  const p = (req.url || '').split('?')[0]
+  if (p === '/api/advisor/query' || p === '/api/course') { return next() }
+  return _jsonParser(req, res, next)
+})
 server.use(restify.plugins.queryParser())
 // Note: multipart/form-data (file uploads) is parsed per-route by formidable
 // inside firmManager.js — it bypasses jsonBodyParser intentionally.
@@ -100,7 +111,8 @@ server.opts('/*', (req, res, next) => { res.send(204); return next() })
 // ── Routes ──
 server.get('/api/health', healthRoute.get)
 server.post('/api/translate/locale', translateRoute.post)
-server.post('/api/advisor/query', advisorRoute.post)
+server.post('/api/advisor/query', advisorEngine)
+server.post('/api/course', courseEngine)
 server.get('/api/firm/advisors', firmAuth, firmRoute.getAdvisors)
 server.post('/api/firm/insights', firmAuth, firmRoute.postInsights)
 server.post('/api/activity/log-course', firmAuth, activityRoute.logCourse)

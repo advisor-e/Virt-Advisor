@@ -12,7 +12,7 @@ jest.mock('../../server/utils/openaiClient', () => ({
   })
 }))
 
-const advisor = require('../../server-middleware/advisor')
+const advisor = require('../../server/advisorEngine')
 const { detectUncertainty, buildDomainConfirmationMessage } = advisor
 
 beforeEach(() => { mockCreate = jest.fn() })

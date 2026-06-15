@@ -11,7 +11,7 @@ jest.mock('../../server/utils/openaiClient', () => ({
   })
 }))
 
-const advisor = require('../../server-middleware/advisor')
+const advisor = require('../../server/advisorEngine')
 const { detectNotMetClient, PREP_SKIP_FIELDS } = advisor
 
 describe('detectNotMetClient — positive ("not met yet") signals', () => {
