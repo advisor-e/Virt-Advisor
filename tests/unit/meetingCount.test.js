@@ -3,12 +3,14 @@
 // parseMeetingCount — folds in spoken/voice forms so a speech-to-text slip doesn't
 // silently halve the template budget (the live café bug: "too" parsed as nothing →
 // budget 1 → only one template instead of two). Bare "to" is excluded so normal
-// answers ("happy to commit to three") are not mis-parsed. `openai` is mocked only
-// so requiring advisor.js loads under Jest.
+// answers ("happy to commit to three") are not mis-parsed. The backend OpenAI REST
+// client is mocked only so requiring advisor.js loads under Jest.
 
-jest.mock('openai', () => jest.fn().mockImplementation(() => ({
-  chat: { completions: { create: jest.fn() } }
-})))
+jest.mock('../../server/utils/openaiClient', () => ({
+  createOpenAIClient: () => ({
+    chat: { completions: { create: jest.fn() } }
+  })
+}))
 
 const { parseMeetingCount } = require('../../server-middleware/advisor')
 

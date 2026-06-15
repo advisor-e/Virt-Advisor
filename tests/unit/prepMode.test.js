@@ -2,12 +2,14 @@
 
 // Prep-mode detection (Option B — notice the signal and offer). The trigger is a
 // narrow, factual "I haven't met this client yet" wording check, guarded so
-// "I've met them" never trips it. `openai` is mocked only so requiring advisor.js
-// (which imports the SDK) loads cleanly under Jest.
+// "I've met them" never trips it. The backend OpenAI REST client is mocked only so
+// requiring advisor.js loads cleanly under Jest.
 
-jest.mock('openai', () => jest.fn().mockImplementation(() => ({
-  chat: { completions: { create: jest.fn() } }
-})))
+jest.mock('../../server/utils/openaiClient', () => ({
+  createOpenAIClient: () => ({
+    chat: { completions: { create: jest.fn() } }
+  })
+}))
 
 const advisor = require('../../server-middleware/advisor')
 const { detectNotMetClient, PREP_SKIP_FIELDS } = advisor

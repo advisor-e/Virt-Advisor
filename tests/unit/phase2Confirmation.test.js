@@ -2,13 +2,15 @@
 
 // Phase 2 — the cause-first check-in (a) anchors its read to the signal the engine
 // actually extracted, and (b) digs in ONLY when the advisor sounded unsure (never
-// re-asking after a confident answer). `openai` is mocked so requiring advisor.js
-// loads cleanly and the AI path is controllable.
+// re-asking after a confident answer). The backend OpenAI REST client is mocked so
+// requiring advisor.js loads cleanly and the AI path is controllable.
 
 let mockCreate
-jest.mock('openai', () => jest.fn().mockImplementation(() => ({
-  chat: { completions: { create: (...a) => mockCreate(...a) } }
-})))
+jest.mock('../../server/utils/openaiClient', () => ({
+  createOpenAIClient: () => ({
+    chat: { completions: { create: (...a) => mockCreate(...a) } }
+  })
+}))
 
 const advisor = require('../../server-middleware/advisor')
 const { detectUncertainty, buildDomainConfirmationMessage } = advisor

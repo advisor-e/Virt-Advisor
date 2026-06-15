@@ -9,7 +9,7 @@
 const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
-const OpenAI = require('openai')
+const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
@@ -326,7 +326,7 @@ let openaiClient = null
 
 function getOpenAI () {
   if (!openaiClient) {
-    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+    openaiClient = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY })
   }
   return openaiClient
 }

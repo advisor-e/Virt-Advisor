@@ -13,7 +13,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const OpenAI = require('openai')
+const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { getAllSummaries, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
@@ -34,7 +34,7 @@ if (!process._courseMiddlewareGuarded) {
 // OpenAI singleton — one client per process, avoids creating a new connection pool on every request
 let _openaiClient = null
 function getOpenAI () {
-  if (!_openaiClient) { _openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) }
+  if (!_openaiClient) { _openaiClient = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY }) }
   return _openaiClient
 }
 

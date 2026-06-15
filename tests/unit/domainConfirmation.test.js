@@ -6,13 +6,15 @@
 // — per the governance rule that any function processing/validating LLM output is
 // tested for valid / malformed / missing cases.
 //
-// `openai` is mocked so the real SDK (which needs a fetch shim under Jest) never
-// loads, and so the AI call is fully controllable.
+// The backend OpenAI REST client is mocked so no network/key is needed and the
+// AI call is fully controllable.
 
 let mockCreate
-jest.mock('openai', () => jest.fn().mockImplementation(() => ({
-  chat: { completions: { create: (...args) => mockCreate(...args) } }
-})))
+jest.mock('../../server/utils/openaiClient', () => ({
+  createOpenAIClient: () => ({
+    chat: { completions: { create: (...args) => mockCreate(...args) } }
+  })
+}))
 
 const advisor = require('../../server-middleware/advisor')
 const { _isValidConfirmation, buildDomainConfirmationMessage } = advisor
