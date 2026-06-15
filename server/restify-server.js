@@ -84,11 +84,18 @@ const server = restify.createServer({
 // ── Middleware ──
 // The advisor + course engines read the raw request body themselves (they stream
 // SSE), so skip JSON body-parsing for those two routes; parse everything else.
-const _jsonParser = restify.plugins.jsonBodyParser({ mapParams: false })
+// jsonBodyParser returns an ARRAY of handlers in Restify 9 (not a single fn),
+// so run them as a sub-chain. Skip entirely for advisor/course, which read the
+// raw body themselves and stream SSE.
+const _jsonParsers = restify.plugins.jsonBodyParser({ mapParams: false })
 server.use((req, res, next) => {
   const p = (req.url || '').split('?')[0]
   if (p === '/api/advisor/query' || p === '/api/course') { return next() }
-  return _jsonParser(req, res, next)
+  let i = 0
+  ;(function runNext (err) {
+    if (err || i >= _jsonParsers.length) { return next(err) }
+    _jsonParsers[i++](req, res, runNext)
+  })()
 })
 server.use(restify.plugins.queryParser())
 // Note: multipart/form-data (file uploads) is parsed per-route by formidable
