@@ -20,6 +20,7 @@ const { detectDomainForSession, formatDomainContextForSession, formatDomainSumma
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade } = require('../server/utils/validateAIResponse')
+const { fenceUntrusted } = require('../server/utils/promptSafety')
 const CourseReminderService = require('../server/services/CourseReminderService')
 
 // Node.js 15+ crashes on unhandled rejections — guard against OpenAI SDK stream cleanup errors
@@ -221,7 +222,7 @@ function handleDesign (req, body, res) {
   if (state.pendingOutline) {
     const existingOutline = JSON.stringify(state.pendingOutline, null, 2)
     state.pendingOutline = null
-    const revisionMessage = `The advisor has reviewed this course outline:\n\n${existingOutline}\n\nThey want the following changes: ${query}\n\nPlease revise the outline accordingly and present the updated version.`
+    const revisionMessage = `The advisor has reviewed this course outline:\n\n${existingOutline}\n\nThey want the following changes:\n${fenceUntrusted(query)}\n\nPlease revise the outline accordingly and present the updated version.`
     return generateOutline(revisionMessage)
   }
 
@@ -411,7 +412,8 @@ async function handleQuizGrade (body, res) {
 Session: ${sessionContext?.title || 'Unknown'}
 Question: ${question.question}
 Related objective: ${question.objective || 'Not specified'}
-Advisor's answer: ${String(answer).slice(0, 1000)}
+Advisor's answer:
+${fenceUntrusted(String(answer).slice(0, 1000))}
 
 Evaluate whether this answer demonstrates understanding of the objective. Return ONLY valid JSON:
 {"passed":true,"score":80,"feedback":"Specific, encouraging 2-3 sentence feedback explaining what was correct, what was missing if anything, and a key point to remember."}

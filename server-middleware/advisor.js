@@ -17,6 +17,7 @@ const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = requir
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
+const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { extractTemplatesFromText } = require('../server/utils/tierLookup')
@@ -71,7 +72,7 @@ Patterns:
 ${patternList}
 
 Advisor's description:
-${advisorText.slice(0, 1500)}
+${fenceUntrusted(advisorText.slice(0, 1500))}
 
 Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matching patterns. Return {"matches":[]} if none apply. No explanation.`
 
@@ -283,7 +284,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }])
     : null
   const profileText = advisorProfile
-    ? `\n\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}`
+    ? `\n\nADVISOR PROFILE: ${fenceUntrusted(formatAdvisorProfile(advisorProfile))}`
     : ''
 
   // Build summaries: keyword match + tree terminal-node templates (merged, de-duped, capped at 25)
@@ -1674,7 +1675,7 @@ async function handleQuery (rawBody, res) {
         : 'No templates pre-scored — choose the best match from the template list above.',
       '',
       'COLLECTED ANSWERS',
-      collectedAnswers,
+      fenceUntrusted(collectedAnswers),
       _profileNote
     ].filter(line => line !== null && line !== undefined).join('\n') + '\n\nNow produce the Phase 3 recommendation.'
 
