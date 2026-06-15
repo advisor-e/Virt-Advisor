@@ -36,8 +36,17 @@ wins and the drift is logged for reconciliation** (see the drift box below and
 5. **Pug templates** — `pug ^2.x` + `pug-plain-loader ^1.x`. Every `.vue` template is
    `lang="pug"`.
 6. **Bulma + Buefy** for UI. Custom styles allowed but scoped; no second UI library.
-7. **OpenAI `^4.x` on the backend only** — exposed as a Restify route. Never import the
-   `openai` SDK in any Nuxt file.
+7. **OpenAI via the OpenAI REST API, backend only** — the `openai` SDK is **not used**
+   (no version of it runs on the locked Node 14.15 — see req. 9). Call the OpenAI REST API
+   **directly from the Restify backend** (a Node-14-compatible HTTP client), exposed as a
+   Restify route. All OpenAI logic **and the API key** stay backend-only; never call OpenAI,
+   import the SDK, or read its key in any Nuxt file (page, component, plugin,
+   `server-middleware/`, or store).
+   *(Amended by the coding-team ruling of 2026-06-15, which formally supersedes the former
+   "OpenAI `^4.x` SDK" wording to resolve the Req 7 ⊥ Req 9 contradiction; Req 9 — Node 14.15
+   — is unchanged. The current `openai` SDK usage in `server-middleware/advisor.js` and
+   `course.js` is the live boundary violation this ruling directs us to remove; tracked in
+   `design/ACTIONS.md`.)*
 8. **vue-i18n `^8.x`** — Vue 2 compatible. No v9+ APIs (`createI18n`, `useI18n`).
 9. **Node.js 14.15 (via NVM)** — the runtime target. Do not use syntax or APIs unavailable
    in Node 14 (`Array.at()`, `Object.hasOwn()`, top-level await). The backend is CommonJS
