@@ -15,7 +15,7 @@ const fs = require('fs')
 const path = require('path')
 const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
-const { getAllSummaries, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
+const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { sendError } = require('../server/utils/sendError')
@@ -144,8 +144,11 @@ function handleDesign (req, body, res) {
     const filtered = filterTemplatesByQuery(templates, allUserText)
     const templateContext = formatTemplatesForPrompt(filtered)
 
-    // All content summaries injected in full — tells the AI what each template teaches and its complexity
-    const summariesText = formatSummariesForPrompt(getAllSummaries())
+    // Inject summaries for the most query-relevant templates only — mirrors the
+    // advisor engine's capped injection. Injecting all 278 summaries (~52k tokens)
+    // blew the OpenAI per-minute token limit; the AI builds the course from the
+    // already query-filtered template list above, so unrelated summaries add no value.
+    const summariesText = formatSummariesForPrompt(filterSummariesByQuery(allUserText, 12))
     const sectionDescText = formatSectionDescriptionsForPrompt()
 
     const detectedDomains = detectDomainsForDesign(allUserText)
@@ -467,9 +470,7 @@ function parseBody (req) {
 
 // ── Main middleware export ─────────────────────────────────────────────────
 
-module.exports = async function (req, res, next) {
-  if (req.method !== 'POST') { return next() }
-
+module.exports = async function (req, res) {
   if (!checkCourseLimit(req, res)) { return }
 
   let body
