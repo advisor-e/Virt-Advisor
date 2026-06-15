@@ -333,6 +333,31 @@ section.firm-manager-hub.section
                 )
 
           .column
+            //- Help button — how distinction matching works (prominent, top-right)
+            .has-text-right.mb-4
+              b-button(
+                type="is-info"
+                size="is-medium"
+                @click="showDistinctionHelpModal = true"
+              ) How this works
+
+            b-modal(v-model="showDistinctionHelpModal" has-modal-card trap-focus)
+              .modal-card(style="max-width:600px")
+                header.modal-card-head
+                  p.modal-card-title How to write a distinction
+                section.modal-card-body
+                  p.mb-3 A distinction teaches the system to recommend the templates #[em you] trust when a certain kind of client situation comes up. The system reads what the advisor typed and understands the #[strong meaning] — so you just describe the situation in plain English, and it handles the rest. You don't need to guess every word an advisor might use.
+                  p.mb-3 Here's what each box does:
+                  .content
+                    ul
+                      li #[strong Domain] — The advisory area this applies to (Conflict, Staff, Strategy, and so on). Pick where this situation belongs.
+                      li #[strong Description] — Describe the client situation in one plain sentence: what's #[em actually] going on. Aim at the #[strong cause], not just the surface symptom — "the owners aren't aligned on where the business is heading" works far better than "they're arguing." This is the sentence the system reads the advisor's words against, so write it the way you'd explain the situation to a colleague.
+                      li #[strong Trigger phrases] — A few different ways an advisor might describe this in their own words. These are just examples to point the system in the right direction — #[strong not] exact phrases it has to find. Three to six varied examples is plenty; don't try to list every wording.
+                      li #[strong Templates to boost] — The templates you want brought forward when this situation appears. Pick the ones you'd reach for yourself.
+                      li #[strong Boost] — How hard to push those templates up the list when this situation is recognised. Leave it at the default for a gentle nudge; raise it when you want this situation to strongly steer the recommendation.
+                footer.modal-card-foot
+                  b-button(@click="showDistinctionHelpModal = false") Close
+
             //- Platform rows (read-only)
             p.has-text-weight-semibold.mb-2 Platform distinctions — {{ currentDistinctionDomainLabel }}
             b-notification.mb-3(type="is-info is-light" :closable="false" style="font-size:0.85rem")
@@ -344,7 +369,7 @@ section.firm-manager-hub.section
               size="is-small"
               empty-string="No platform distinctions for this domain"
             )
-              b-table-column(v-slot="{ row }" field="description" label="Pattern") {{ row.description }}
+              b-table-column(v-slot="{ row }" field="description" label="Description") {{ row.description }}
               b-table-column(v-slot="{ row }" label="Trigger phrases")
                 span.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
               b-table-column(v-slot="{ row }" label="Templates boosted")
@@ -370,7 +395,7 @@ section.firm-manager-hub.section
               :hoverable="true"
               size="is-small"
             )
-              b-table-column(v-slot="{ row }" field="description" label="Pattern") {{ row.description }}
+              b-table-column(v-slot="{ row }" field="description" label="Description") {{ row.description }}
               b-table-column(v-slot="{ row }" label="Trigger phrases")
                 span.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
               b-table-column(v-slot="{ row }" label="Templates boosted")
@@ -392,14 +417,14 @@ section.firm-manager-hub.section
                 b-select(v-model="distinctionForm.domain" expanded)
                   option(v-for="d in distinctionDomains" :key="d.id" :value="d.id") {{ d.label }}
 
-              b-field(label="Description" message="A short label for this pattern — shown in the table above.")
+              b-field(label="Description" message="Describe the client situation in a plain sentence — this is what the AI matches the advisor's words against. Capture the cause, not just the symptom.")
                 b-input(
                   v-model="distinctionForm.description"
-                  placeholder="e.g. Client mentions technology gap"
+                  placeholder="e.g. The owners aren't aligned on where the business is heading"
                   maxlength="255"
                 )
 
-              b-field(label="Trigger phrases" message="Type a phrase and press Enter or comma to add. Matching is case-insensitive and partial — 'growth' matches 'growing' etc.")
+              b-field(label="Trigger phrases" message="Type a phrase and press Enter or comma to add. These are example ways an advisor might describe this — they guide the AI, which matches on meaning, not exact words, so 3–6 varied examples is plenty.")
                 b-taginput(
                   v-model="distinctionForm.triggers"
                   :confirm-key-codes="[13, 188]"
@@ -609,6 +634,7 @@ export default {
       firmDistinctions: [],
       loadingFirmDistinctions: false,
       showDistinctionForm: false,
+      showDistinctionHelpModal: false,
       editingDistinctionId: null,
       distinctionForm: { domain: '', description: '', triggers: [], templates: [], boost: 5 },
       savingDistinction: false,
