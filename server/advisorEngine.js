@@ -477,7 +477,10 @@ function parseMeetingCount (text) {
   const t = text.toLowerCase()
   const map = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, too: 2, couple: 2, few: 3 }
   const num = '(one|two|three|four|five|six|too|couple|few|\\d)'
-  const range = t.match(new RegExp('\\b' + num + '\\s+(?:to|or|maybe|-)\\s+' + num + '\\b', 'i'))
+  // Allow one OR MORE linking words between the two numbers so "two or maybe
+  // three" reads as a range (upper bound 3), not just the first number. A single
+  // connector ("two or three", "two to three") still works.
+  const range = t.match(new RegExp('\\b' + num + '(?:\\s+(?:to|or|maybe|-))+\\s+' + num + '\\b', 'i'))
   if (range) { return map[range[2]] || parseInt(range[2], 10) || null }
   const single = t.match(new RegExp('\\b' + num + '\\b', 'i'))
   if (single) { return map[single[1]] || parseInt(single[1], 10) || null }

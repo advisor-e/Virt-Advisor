@@ -22,7 +22,10 @@ describe('parseMeetingCount — voice-input-safe', () => {
     ['just a few', 3],
     ['3 meetings', 3],
     ['one', 1],
-    ['two to three', 3] // range → upper bound
+    ['two to three', 3], // range → upper bound
+    ['two or three', 3], // single linking word
+    ['two or maybe three meetings', 3], // two linking words ("or maybe") → still the upper bound
+    ['I would say two or maybe three', 3]
   ])('parses "%s" → %i', (input, expected) => {
     expect(parseMeetingCount(input)).toBe(expected)
   })
