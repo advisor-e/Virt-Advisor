@@ -2,6 +2,8 @@
 
 const path = require('path')
 const DEV_DISTINCTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-distinctions.json')
+const DEV_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-declines.json')
+const DEV_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-overrides.json')
 const DEV_STAIRCASE_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase.json')
 const DEV_TEMPLATES_FILE = path.resolve(__dirname, '../../data/dev-firm-templates.json')
 const IS_DEV = process.env.NODE_ENV !== 'production'
@@ -21,6 +23,43 @@ function _devWriteDistinctions (firmId, rows) {
   } catch {}
   all[firmId] = rows
   fs.writeFileSync(DEV_DISTINCTIONS_FILE, JSON.stringify(all, null, 2))
+}
+
+// Dev-JSON fallbacks for the cascade state (declined platform ids + platform
+// overrides), mirroring the own-rows fallback above. The engine reads the same
+// files (server/utils/firmDistinctions.js) so a dev edit is honoured in a live
+// session. TEST-ONLY (no version history) — replaced by MySQL before production.
+function _devReadDeclines (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_DECLINES_FILE, 'utf8'))
+    return Array.isArray(all[firmId]) ? all[firmId] : []
+  } catch { return [] }
+}
+
+function _devWriteDeclines (firmId, ids) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_DECLINES_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = ids
+  fs.writeFileSync(DEV_DECLINES_FILE, JSON.stringify(all, null, 2))
+}
+
+function _devReadOverrides (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_OVERRIDES_FILE, 'utf8'))
+    const v = all[firmId]
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch { return {} }
+}
+
+function _devWriteOverrides (firmId, obj) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_OVERRIDES_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = obj
+  fs.writeFileSync(DEV_OVERRIDES_FILE, JSON.stringify(all, null, 2))
 }
 
 /**
@@ -86,6 +125,9 @@ const db = require('../utils/db')
 const { STORAGE, DRIVE } = require('../../config/integration')
 const DOMAINS = require('../../data/domains.json')
 const BASE_STAIRCASE = require('../../data/advisory-staircase.json')
+const ADVISORY_DISTINCTIONS = require('../../data/advisory-distinctions.json')
+const { resolveEffectiveDistinctions } = require('../utils/resolveDistinctions')
+const { loadFirmDistinctionState, CONFIG_KEYS } = require('../utils/firmDistinctions')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -685,6 +727,192 @@ async function deleteDistinction (req, res) {
   }
 }
 
+// ── Advisory Distinctions — platform-row cascade (decline + override) ─────────
+// A firm can switch a platform (mentor) distinction OFF for itself (decline) or
+// EDIT it (override — the firm's version replaces the platform original in the
+// effective list). Stored under their own firmOverlay config keys so the existing
+// firm-own rows are untouched and version history/restore come for free. The
+// engine reads the same state via server/utils/firmDistinctions.js, so an edit or
+// decline here changes live advisor sessions. All scoped to the JWT-verified
+// req.firmId — a client-supplied firmId is never trusted (IDOR).
+
+const PLATFORM_DISTINCTION_IDS = new Set((ADVISORY_DISTINCTIONS.platform || []).map(r => r.id))
+
+async function _loadDeclines (firmId) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, CONFIG_KEYS.declines)
+    return Array.isArray(stored) ? stored : []
+  } catch (err) {
+    if (IS_DEV) { return _devReadDeclines(firmId) }
+    throw err
+  }
+}
+
+async function _saveDeclines (firmId, ids, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, CONFIG_KEYS.declines, ids, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteDeclines(firmId, ids); return }
+    throw err
+  }
+}
+
+async function _loadOverrides (firmId) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, CONFIG_KEYS.overrides)
+    return (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+  } catch (err) {
+    if (IS_DEV) { return _devReadOverrides(firmId) }
+    throw err
+  }
+}
+
+async function _saveOverrides (firmId, obj, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, CONFIG_KEYS.overrides, obj, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteOverrides(firmId, obj); return }
+    throw err
+  }
+}
+
+/**
+ * Whitelist + validate the editable fields of a platform-row override. Only the
+ * four editable fields are accepted (a partial edit is fine) — id/domain/source
+ * are never taken from the client, so an override can change wording, triggers,
+ * templates and boost but never a row's identity or domain.
+ * @param {Object} body - request body
+ * @returns {{ok: true, value: Object}|{ok: false, code: string, message: string}}
+ */
+function _sanitiseOverrideFields (body) {
+  const out = {}
+  if (body.description !== undefined) {
+    if (typeof body.description !== 'string' || !body.description.trim()) {
+      return { ok: false, code: 'INVALID_DESCRIPTION', message: 'description must be a non-empty string' }
+    }
+    out.description = body.description.trim().slice(0, 255)
+  }
+  if (body.triggers !== undefined) {
+    if (!Array.isArray(body.triggers) || body.triggers.length === 0) {
+      return { ok: false, code: 'INVALID_TRIGGERS', message: 'triggers must be a non-empty array' }
+    }
+    out.triggers = body.triggers.map(t => String(t).trim()).filter(Boolean)
+  }
+  if (body.templates !== undefined) {
+    if (!Array.isArray(body.templates) || body.templates.length === 0) {
+      return { ok: false, code: 'INVALID_TEMPLATES', message: 'templates must be a non-empty array' }
+    }
+    out.templates = body.templates.map(t => String(t).trim()).filter(Boolean)
+  }
+  if (body.boost !== undefined) {
+    out.boost = Math.min(20, Math.max(1, Number(body.boost) || 5))
+  }
+  if (Object.keys(out).length === 0) {
+    return { ok: false, code: 'NO_FIELDS', message: 'no editable fields provided' }
+  }
+  return { ok: true, value: out }
+}
+
+/**
+ * @route GET /api/firm-manager/distinctions/state
+ * Returns the firm's full distinction state (own rows + declined platform ids +
+ * platform overrides) and the resolved effective list, so the UI can render one
+ * unified, badged list.
+ * @returns {{ownRows: Array, declinedIds: string[], overrides: Object, effective: Array}}
+ */
+async function getDistinctionState (req, res) {
+  try {
+    const state = await loadFirmDistinctionState(req.firmId, overlay.loadFirmConfig)
+    const effective = resolveEffectiveDistinctions(ADVISORY_DISTINCTIONS.platform, state)
+    res.send(200, {
+      ownRows: state.ownRows,
+      declinedIds: state.declinedIds,
+      overrides: state.overrides,
+      effective
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/distinctions/platform/:id
+ * Save a firm override of a platform row — the firm's edited version replaces the
+ * platform original in the effective list (firm wins).
+ * @param {string} id - the platform distinction id (pd-N)
+ * @returns {{updated: true, id: string}}
+ */
+async function setDistinctionOverride (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_DISTINCTION_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
+  }
+  const sani = _sanitiseOverrideFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    const overrides = await _loadOverrides(req.firmId)
+    const next = { ...overrides, [id]: { ...(overrides[id] || {}), ...sani.value } }
+    await _saveOverrides(req.firmId, next, req.userEmail)
+    res.send(200, { updated: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/distinctions/platform/:id
+ * Reset to platform — remove the firm's override so the platform row applies
+ * again. Idempotent (a no-op if there was no override).
+ * @param {string} id - the platform distinction id (pd-N)
+ * @returns {{reset: true, id: string}}
+ */
+async function resetDistinctionOverride (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_DISTINCTION_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
+  }
+  try {
+    const overrides = await _loadOverrides(req.firmId)
+    if (!Object.prototype.hasOwnProperty.call(overrides, id)) {
+      res.send(200, { reset: true, id })
+      return
+    }
+    const next = { ...overrides }
+    delete next[id]
+    await _saveOverrides(req.firmId, next, req.userEmail)
+    res.send(200, { reset: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/distinctions/platform/:id/decline
+ * Switch a platform row off (declined:true) or back on (declined:false) for this
+ * firm. Decline takes precedence over an override, so re-enabling restores any
+ * edit the firm had made.
+ * @param {string} id - the platform distinction id (pd-N)
+ * @returns {{declined: boolean, id: string}}
+ */
+async function setDistinctionDecline (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_DISTINCTION_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
+  }
+  const declined = (req.body || {}).declined
+  if (typeof declined !== 'boolean') {
+    return sendError(res, 400, 'INVALID_DECLINED', 'declined must be a boolean')
+  }
+  try {
+    const set = new Set(await _loadDeclines(req.firmId))
+    if (declined) { set.add(id) } else { set.delete(id) }
+    await _saveDeclines(req.firmId, [...set], req.userEmail)
+    res.send(200, { declined, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 // ── Advisory Staircase (whole-config firm override) ───────────────────────────
 // Stored in firm_framework_versions under config_key='advisory-staircase' (same
 // table as Decision Framework + Advisory Distinctions — no new schema). Version
@@ -813,6 +1041,10 @@ module.exports = {
   createDistinction,
   updateDistinction,
   deleteDistinction,
+  getDistinctionState,
+  setDistinctionOverride,
+  resetDistinctionOverride,
+  setDistinctionDecline,
   getStaircase,
   saveStaircase
 }
