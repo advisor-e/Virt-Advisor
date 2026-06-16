@@ -3,6 +3,7 @@ VirtualAdvisor(
   :org-template-ids="null"
   :advisor-id="advisorId"
   :firm-id="firmId"
+  :api-token="apiToken"
 )
 </template>
 
@@ -11,6 +12,11 @@ VirtualAdvisor(
 // Firm Manager page uses, so an advisor and their firm manager share one firm
 // identity (and the advisor session loads that firm's distinctions/overrides).
 const FIRM_ID_KEY = 'advisor_e_firm_id'
+// localStorage key Advisor-e stores the JWT under after login (same key the Firm
+// Manager page reads). The advisor backend derives firmId/advisorId from this
+// verified token, so it is what actually scopes the session — firmId below is
+// passed only to child UI components, not trusted by the backend.
+const TOKEN_KEY = 'advisor_e_token'
 
 export default {
   name: 'AdvisorPage',
@@ -18,7 +24,8 @@ export default {
     return {
       // Resolved client-side in mounted(): window/localStorage are unavailable
       // during SSR and must never be read in data()/computed/created().
-      firmId: null
+      firmId: null,
+      apiToken: 'dev-local-bypass'
     }
   },
   computed: {
@@ -29,6 +36,7 @@ export default {
   },
   mounted () {
     this.firmId = this.resolveFirmId()
+    this.apiToken = this.resolveApiToken()
   },
   methods: {
     /**
@@ -38,10 +46,9 @@ export default {
      *   3. a localhost dev fallback so firm distinctions load without a login in dev
      * @returns {string|null} the firmId, or null when none can be determined
      *
-     * SECURITY: this firmId is currently client-supplied. The advisor backend
-     * route must verify it (JWT) before trusting it for firm scoping — otherwise
-     * one firm's data is reachable by changing the value. See
-     * design/DISTINCTIONS-CASCADE-PLAN.md Stage 0 (open decision).
+     * NOTE: this value is now used only to seed child UI components. The backend
+     * no longer trusts a client-supplied firmId — it derives the real firmId from
+     * the verified Bearer token (firmAuth), closing the earlier IDOR.
      */
     resolveFirmId () {
       const fromUrl = this.$route && this.$route.query.firmId
@@ -52,6 +59,17 @@ export default {
         return 'dev-firm-001'
       }
       return null
+    },
+    /**
+     * Bearer token sent on every advisor backend call. The real JWT (set by
+     * Advisor-e at login) when present; otherwise the dev-bypass token, which
+     * firmAuth honours only on a non-production backend. In production with no
+     * token the backend correctly returns 401 (fail closed).
+     * @returns {string} the token to send as `Bearer <token>`
+     */
+    resolveApiToken () {
+      const fromStorage = window.localStorage.getItem(TOKEN_KEY)
+      return fromStorage || 'dev-local-bypass'
     }
   }
 }

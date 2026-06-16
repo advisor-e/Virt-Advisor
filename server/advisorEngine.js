@@ -619,7 +619,8 @@ module.exports = function advisorMiddleware (req, res, next) {
 
   req.on('end', () => {
     if (bodyRejected) { return }
-    handleQuery(body, res).catch((err) => {
+    // Identity is taken from the firmAuth-verified request, never the body.
+    handleQuery(body, res, { firmId: req.firmId, advisorId: req.advisorId }).catch((err) => {
       console.error('[advisor] Unhandled error:', err.message)
       if (!res.headersSent) {
         sendError(res, 500, 'INTERNAL_ERROR', 'Internal server error')
@@ -654,7 +655,7 @@ function formatCaseSummaries (cases) {
   return lines.join('\n')
 }
 
-async function handleQuery (rawBody, res) {
+async function handleQuery (rawBody, res, identity) {
   let parsed
   try {
     parsed = JSON.parse(rawBody)
@@ -685,10 +686,16 @@ async function handleQuery (rawBody, res) {
     language,
     languageName,
     caseContext,
-    sessionId: incomingSessionId,
-    advisorId,
-    firmId
+    sessionId: incomingSessionId
   } = sanitised
+
+  // Firm/advisor identity comes ONLY from the firmAuth-verified JWT (req.firmId /
+  // req.advisorId), never from the request body. A body-supplied firmId would be an
+  // IDOR — it scopes firm template/staircase/distinction overrides and the activity
+  // log, so trusting the client would let one firm read another's config and log
+  // activity under any identity. Any firmId/advisorId in the body is ignored.
+  const firmId = (identity && identity.firmId) || null
+  const advisorId = (identity && identity.advisorId) || null
 
   const ALLOWED_MODES = ['client', 'discover', 'plan', 'learn']
   if (!ALLOWED_MODES.includes(mode)) {

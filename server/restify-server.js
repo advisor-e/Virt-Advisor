@@ -118,7 +118,7 @@ server.opts('/*', (req, res, next) => { res.send(204); return next() })
 // ── Routes ──
 server.get('/api/health', healthRoute.get)
 server.post('/api/translate/locale', translateRoute.post)
-server.post('/api/advisor/query', advisorEngine)
+server.post('/api/advisor/query', firmAuth, advisorEngine)
 server.post('/api/course', courseEngine)
 server.get('/api/firm/advisors', firmAuth, firmRoute.getAdvisors)
 server.post('/api/firm/insights', firmAuth, firmRoute.postInsights)

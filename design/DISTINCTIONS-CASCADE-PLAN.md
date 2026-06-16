@@ -63,10 +63,13 @@ The base everything else sits on, and it independently **closes the Q1 bug**.
 - Derive `firmId` in the advisor flow from the authenticated session (mirror `firm-manager.vue`:
   `localStorage 'advisor_e_firm_id'`, localhost dev fallback `dev-firm-001`); keep the URL query
   as an explicit override for testing.
-- ⚠ **Open decision:** the advisor `/api/advisor/query` route currently has **no auth**, so the
-  `firmId` it receives is client-supplied. For production this must be a *verified* firm identity
-  (from the advisor's JWT, as `firmAuth` already provides for Firm Manager routes), or firm
-  scoping is spoofable (IDOR). Dev can use localStorage/URL; production needs the verified path.
+- ✅ **RESOLVED 2026-06-16 — the advisor route is now JWT-scoped.** `/api/advisor/query` sits
+  behind `firmAuth`; `firmId`/`advisorId` come from the verified token (`req.firmId`/`req.advisorId`)
+  and `advisorEngine.handleQuery` ignores any IDs in the request body, closing the IDOR. The
+  front-end sends the Bearer token (real JWT when logged in; dev-bypass on localhost). Verified by
+  `tests/unit/advisor.auth.test.js` + a live run (no token → 401; dev-bypass → session runs). The
+  only remaining production step is the integration team wiring the real login token + secret
+  (HANDOFF Step 4/5); this env uses a placeholder `JWT_SECRET`.
 - **Acceptance:** an advisor session run under a firm loads that firm's distinctions; the dev
   "Lite Strategy" row surfaces in the matching session from the Q1 investigation.
 
@@ -120,7 +123,9 @@ The base everything else sits on, and it independently **closes the Q1 bug**.
 ---
 
 ## 5. Risks / watch-items
-- The Stage 0 auth gap is the only thing that could make this *insecure* if rushed — verified
-  firm identity for the advisor flow is non-negotiable before production.
+- ~~The Stage 0 auth gap is the only thing that could make this *insecure* if rushed — verified
+  firm identity for the advisor flow is non-negotiable before production.~~ **CLOSED 2026-06-16:**
+  the advisor route is now JWT-scoped via `firmAuth` (see Stage 0). The residual is operational —
+  the integration team must wire the real login token/secret (placeholder `JWT_SECRET` in dev).
 - Stages 1–2 are buildable + testable today against the dev firm, but are not *done* until the
   MySQL persistence lands (don't mistake the dev-JSON fallback for finished).

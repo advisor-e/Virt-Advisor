@@ -1051,7 +1051,9 @@ export default {
         this._abortController = new AbortController()
         const response = await fetch('/api/advisor/query', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          // firmId/advisorId are derived server-side from this Bearer token (firmAuth),
+          // never sent in the body — see the IDOR fix in advisorEngine.handleQuery.
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           signal: this._abortController.signal,
           body: JSON.stringify({
             query: '__init__',
@@ -1060,9 +1062,7 @@ export default {
             languageName: this.currentLanguageName,
             orgTemplateIds: this.orgTemplateIds,
             conversationHistory: [],
-            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
-            advisorId: this.advisorId,
-            firmId: this.firmId
+            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null
           })
         })
         if (!response.ok) { throw new Error('Request failed') }
@@ -1285,7 +1285,9 @@ export default {
         this._abortController = new AbortController()
         const response = await fetch('/api/advisor/query', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          // firmId/advisorId are derived server-side from this Bearer token (firmAuth),
+          // never sent in the body — see the IDOR fix in advisorEngine.handleQuery.
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           signal: this._abortController.signal,
           body: JSON.stringify({
             query: serverQueryOverride || query,
@@ -1296,8 +1298,6 @@ export default {
             conversationHistory: this.conversationHistory.slice(0, -1),
             sessionId: this.sessionId,
             advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
-            advisorId: this.advisorId,
-            firmId: this.firmId,
             caseSummaries: this.relevantCases.map(c => ({
               title: c.title,
               mode: c.mode,
