@@ -9,7 +9,7 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "${workspaceFolder}",
       "env": {
-        "NODE_OPTIONS": "--max-old-space-size=8192"
+        "NODE_OPTIONS": "--max-old-space-size=12288"
       },
       "serverReadyAction": {
         "pattern": "Listening on: (http://localhost:\\d+)",
@@ -27,7 +27,7 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "${workspaceFolder}",
       "env": {
-        "NODE_OPTIONS": "--max-old-space-size=8192"
+        "NODE_OPTIONS": "--max-old-space-size=12288"
       },
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"],

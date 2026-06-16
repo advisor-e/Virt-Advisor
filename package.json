@@ -6,10 +6,10 @@
   },
   "scripts": {
     "build": "nuxt build",
-    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=8192 NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem nuxt",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=12288 NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem nuxt",
     "dev:clean": "dev.bat",
     "serve": "serve.bat",
-    "start": "cross-env NODE_OPTIONS=--max-old-space-size=8192 NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem nuxt start",
+    "start": "cross-env NODE_OPTIONS=--max-old-space-size=12288 NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem nuxt start",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue .",
     "lint:fix": "eslint --ext .js,.vue . --fix",

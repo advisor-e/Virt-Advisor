@@ -5,4 +5,4 @@ for /f "tokens=5" %%a in ('netstat -ano 2^>nul ^| findstr ":3000 " ^| findstr "L
 )
 timeout /t 2 /nobreak >nul
 echo Starting dev server...
-cross-env NODE_OPTIONS=--max-old-space-size=8192 nuxt
+cross-env NODE_OPTIONS=--max-old-space-size=12288 nuxt
