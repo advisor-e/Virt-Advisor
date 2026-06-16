@@ -27,6 +27,8 @@ const { buildCaseState } = require('../server/utils/caseState')
 const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplatesWithOutlier } = require('../server/utils/templateResolver')
+const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
+const { loadFirmDistinctionState } = require('../server/utils/firmDistinctions')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -51,15 +53,17 @@ const BATTERY_FIELDS = new Set([
 // The AI reads all distinction descriptions against the advisor's text and returns
 // which ones apply semantically — regardless of exact wording used.
 // Triggers (if present) are included as examples to guide the AI, not as exact matches.
-async function classifyDistinctions (domain, advisorText, firmRows) {
+async function classifyDistinctions (domain, advisorText, candidateRows) {
   if (!domain || !advisorText) { return {} }
-  const platformRows = (ADVISORY_DISTINCTIONS.platform || []).filter(r => r.domain === domain)
-  const allRows = firmRows && firmRows.length > 0
-    ? [...platformRows, ...firmRows.filter(r => r.domain === domain)]
-    : platformRows
-  if (allRows.length === 0) { return {} }
+  // candidateRows is the firm's already-resolved effective list (platform rows with
+  // declines removed + firm overrides swapped in + firm-own rows). We classify only
+  // the rows for the detected domain. The effective-list resolver guarantees an
+  // overridden platform row appears once (the firm's version), so a matched
+  // template's boost is never double-counted here.
+  const rows = (Array.isArray(candidateRows) ? candidateRows : []).filter(r => r.domain === domain)
+  if (rows.length === 0) { return {} }
 
-  const patternList = allRows.map((row, i) => {
+  const patternList = rows.map((row, i) => {
     const examples = (row.triggers || []).length > 0
       ? ` (example phrases: ${row.triggers.slice(0, 5).join(', ')})`
       : ''
@@ -90,7 +94,7 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
     const matchedIds = Array.isArray(parsed.matches) ? parsed.matches : []
     const boostMap = {}
     for (const id of matchedIds) {
-      const row = allRows[Number(id) - 1]
+      const row = rows[Number(id) - 1]
       if (row) {
         for (const templateTitle of (row.templates || [])) {
           boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
@@ -1537,21 +1541,13 @@ async function handleQuery (rawBody, res, identity) {
       )
     ].join(' ')
 
-    let _firmDistinctionRows = []
-    if (firmId) {
-      try {
-        const _stored = await loadFirmConfig(firmId, 'advisory-distinctions')
-        _firmDistinctionRows = Array.isArray(_stored) ? _stored : []
-      } catch (_e) {
-        try {
-          const _devFile = require('path').resolve(process.cwd(), 'data/dev-firm-distinctions.json')
-          const _devData = JSON.parse(require('fs').readFileSync(_devFile, 'utf8'))
-          _firmDistinctionRows = Array.isArray(_devData[firmId]) ? _devData[firmId] : []
-        } catch (_fe) { /* file not yet created — no firm distinctions in dev */ }
-      }
-    }
-
-    const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _firmDistinctionRows)
+    // Load the firm's full distinction state (own rows + declines + edits) and
+    // resolve it into the single effective list the advisor session should see.
+    // With no declines/edits stored, the effective list equals platform + firm-own
+    // rows — identical to the previous concatenation, so behaviour is unchanged.
+    const _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
+    const _effectiveDistinctions = resolveEffectiveDistinctions(ADVISORY_DISTINCTIONS.platform, _firmState)
+    const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
 
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -2071,3 +2067,4 @@ module.exports.detectNotMetClient = detectNotMetClient
 module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
 module.exports.detectUncertainty = detectUncertainty
 module.exports.parseMeetingCount = parseMeetingCount
+module.exports.classifyDistinctions = classifyDistinctions
