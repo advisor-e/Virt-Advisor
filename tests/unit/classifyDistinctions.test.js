@@ -17,7 +17,7 @@ jest.mock('../../server/utils/openaiClient', () => ({
   })
 }))
 
-const { classifyDistinctions } = require('../../server/advisorEngine')
+const { classifyDistinctions, findNearMissDistinctions } = require('../../server/advisorEngine')
 const { resolveEffectiveDistinctions } = require('../../server/utils/resolveDistinctions')
 
 const PLATFORM = [
@@ -90,5 +90,43 @@ describe('classifyDistinctions over the resolved effective list', () => {
     mockCreate = jest.fn().mockRejectedValue(new Error('network'))
     const boosts = await classifyDistinctions('conflict', 'they keep fighting', effective)
     expect(boosts).toEqual({})
+  })
+})
+
+describe('findNearMissDistinctions (cross-domain bridge)', () => {
+  // Effective list with the firm's own rows in OTHER domains than the one detected.
+  const effective = [
+    { id: 'pd-1', domain: 'conflict', description: 'Active conflict', triggers: ['fight'], templates: ['T'], boost: 5, source: 'platform' },
+    { id: 1, domain: 'systems', description: 'Lack of financial controls', triggers: ['no approval'], templates: ['Financial Systems Review'], boost: 10, source: 'firm-own' },
+    { id: 'pd-2', domain: 'profit', description: 'Thin margins (firm-edited)', triggers: ['margins'], templates: ['X'], boost: 9, source: 'firm-override' }
+  ]
+
+  it('returns a firm distinction from another domain that matches the session', async () => {
+    mockCreate = matchReply([1]) // first candidate (the systems firm-own row) matches
+    const out = await findNearMissDistinctions('data-systems', 'they have no financial controls', effective)
+    expect(out).toEqual([{ id: 1, description: 'Lack of financial controls', domain: 'systems', source: 'firm-own' }])
+  })
+
+  it('includes firm-edited (override) rows from other domains, excludes platform rows', async () => {
+    // Candidate set = the two firm rows (systems firm-own + profit firm-override); the
+    // platform conflict row is never a candidate. Match the 2nd candidate.
+    mockCreate = matchReply([2])
+    const out = await findNearMissDistinctions('data-systems', 'margins are thin', effective)
+    expect(out).toEqual([{ id: 'pd-2', description: 'Thin margins (firm-edited)', domain: 'profit', source: 'firm-override' }])
+  })
+
+  it('returns [] when the firm has no distinctions outside the detected domain (no AI call)', async () => {
+    const onlyHere = [
+      { id: 'pd-1', domain: 'conflict', description: 'platform row', source: 'platform' },
+      { id: 1, domain: 'data-systems', description: 'firm thing', templates: ['T'], boost: 5, source: 'firm-own' }
+    ]
+    const out = await findNearMissDistinctions('data-systems', 'anything', onlyHere)
+    expect(out).toEqual([])
+    expect(mockCreate).not.toHaveBeenCalled()
+  })
+
+  it('returns [] for missing domain or text', async () => {
+    expect(await findNearMissDistinctions('', 'text', effective)).toEqual([])
+    expect(await findNearMissDistinctions('data-systems', '', effective)).toEqual([])
   })
 })

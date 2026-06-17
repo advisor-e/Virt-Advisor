@@ -325,6 +325,12 @@
               span Boosted here:
               span.trace-boost(v-for="b in traceBoostList" :key="b.title")  {{ b.title }} (+{{ b.boost }})
             p.trace-note(v-else) No distinction changed the scoring in this area.
+          .trace-section(v-if="lastTrace.distinctions.nearMisses && lastTrace.distinctions.nearMisses.length")
+            .trace-section-title Filed elsewhere — may belong here
+            p.trace-note These distinctions of yours live in another area but matched this situation. Moving one into “{{ lastTrace.domain.label || lastTrace.domain.id }}” (Firm Manager → Advisory Distinctions) would let it apply to sessions like this:
+            p.trace-nearmiss(v-for="nm in lastTrace.distinctions.nearMisses" :key="nm.id")
+              span.trace-value {{ nm.description }}
+              span.trace-note  — currently in {{ nm.domain }}
           .trace-section
             .trace-section-title How the templates scored
             table.trace-scores
@@ -2361,6 +2367,7 @@ export default {
 .trace-section-title { font-weight: 600; color: #374151; margin-bottom: 4px; }
 .trace-note { color: #6b7280; font-size: 12px; line-height: 1.4; margin: 2px 0; }
 .trace-boost { color: #047857; font-weight: 600; }
+.trace-nearmiss { margin: 3px 0; padding: 4px 8px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 3px; }
 .trace-scores { width: 100%; border-collapse: collapse; margin-top: 4px; }
 .trace-scores th, .trace-scores td {
   text-align: left;

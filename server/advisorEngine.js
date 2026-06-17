@@ -53,15 +53,11 @@ const BATTERY_FIELDS = new Set([
 // The AI reads all distinction descriptions against the advisor's text and returns
 // which ones apply semantically — regardless of exact wording used.
 // Triggers (if present) are included as examples to guide the AI, not as exact matches.
-async function classifyDistinctions (domain, advisorText, candidateRows) {
-  if (!domain || !advisorText) { return {} }
-  // candidateRows is the firm's already-resolved effective list (platform rows with
-  // declines removed + firm overrides swapped in + firm-own rows). We classify only
-  // the rows for the detected domain. The effective-list resolver guarantees an
-  // overridden platform row appears once (the firm's version), so a matched
-  // template's boost is never double-counted here.
-  const rows = (Array.isArray(candidateRows) ? candidateRows : []).filter(r => r.domain === domain)
-  if (rows.length === 0) { return {} }
+// Core AI matcher: given distinction rows + the advisor's text, returns the rows that
+// semantically match. Shared by in-domain boosting (classifyDistinctions) and the
+// cross-domain near-miss bridge (findNearMissDistinctions).
+async function _classifyMatchingRows (rows, advisorText, label) {
+  if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return [] }
 
   const patternList = rows.map((row, i) => {
     const examples = (row.triggers || []).length > 0
@@ -88,24 +84,46 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
     })
-    logAI('distinction-classify', 'gpt-4o-mini', _t0, true, response.usage)
+    logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, true, response.usage)
     const raw = response.choices[0]?.message?.content || '{}'
     const parsed = JSON.parse((raw.match(/\{[\s\S]*\}/) || ['{}'])[0])
     const matchedIds = Array.isArray(parsed.matches) ? parsed.matches : []
-    const boostMap = {}
-    for (const id of matchedIds) {
-      const row = rows[Number(id) - 1]
-      if (row) {
-        for (const templateTitle of (row.templates || [])) {
-          boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
-        }
-      }
-    }
-    return boostMap
+    return matchedIds.map(id => rows[Number(id) - 1]).filter(Boolean)
   } catch (_e) {
-    logAI('distinction-classify', 'gpt-4o-mini', _t0, false, null)
-    return {}
+    logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, false, null)
+    return []
   }
+}
+
+// In-domain classification → template boost map. candidateRows is the firm's resolved
+// effective list (platform rows with declines removed + firm overrides swapped in +
+// firm-own rows); we score only the rows for the detected domain. The resolver
+// guarantees an overridden platform row appears once, so a boost is never doubled.
+async function classifyDistinctions (domain, advisorText, candidateRows) {
+  if (!domain || !advisorText) { return {} }
+  const rows = (Array.isArray(candidateRows) ? candidateRows : []).filter(r => r.domain === domain)
+  const matched = await _classifyMatchingRows(rows, advisorText, 'distinction-classify')
+  const boostMap = {}
+  for (const row of matched) {
+    for (const templateTitle of (row.templates || [])) {
+      boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
+    }
+  }
+  return boostMap
+}
+
+// Cross-domain "bridge": the firm's OWN distinctions (firm-own or firm-edited) that
+// live in a DIFFERENT domain than the one detected, yet semantically match this
+// session — i.e. likely filed under the wrong domain. Surfaced in the decision trace
+// so a firm can move them where they'll actually fire. Platform rows are excluded
+// (the bridge is about the firm's own IP, not flagging every platform row everywhere).
+async function findNearMissDistinctions (detectedDomain, advisorText, effectiveDistinctions) {
+  if (!detectedDomain || !advisorText) { return [] }
+  const otherFirmRows = (Array.isArray(effectiveDistinctions) ? effectiveDistinctions : []).filter(r =>
+    r && r.domain !== detectedDomain && (r.source === 'firm-own' || r.source === 'firm-override'))
+  if (otherFirmRows.length === 0) { return [] }
+  const matched = await _classifyMatchingRows(otherFirmRows, advisorText, 'distinction-nearmiss')
+  return matched.map(r => ({ id: r.id, description: r.description, domain: r.domain, source: r.source }))
 }
 
 // Build detection patterns from domain definitions — compiled once at startup
@@ -1548,6 +1566,9 @@ async function handleQuery (rawBody, res, identity) {
     const _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
     const _effectiveDistinctions = resolveEffectiveDistinctions(ADVISORY_DISTINCTIONS.platform, _firmState)
     const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
+    // Cross-domain bridge: firm distinctions filed under OTHER domains that match this
+    // session (likely mis-filed) — surfaced in the decision trace, not scored here.
+    const _nearMissDistinctions = await findNearMissDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
 
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -1808,7 +1829,10 @@ async function handleQuery (rawBody, res, identity) {
         // judging whether a firm's distinction was even in scope for this session.
         evaluatedDomain: state.detectedDomain || null,
         note: 'Distinctions are evaluated only within the detected domain; distinctions filed under other domains are not considered.',
-        boostsApplied: _distinctionBoosts || {}
+        boostsApplied: _distinctionBoosts || {},
+        // Cross-domain bridge: the firm's own distinctions filed under a different
+        // domain that nevertheless matched this session — candidates to move here.
+        nearMisses: _nearMissDistinctions || []
       },
       templateScores: (_obsPayload.templateScores || []).map(t => ({
         rank: t.rank,
@@ -2123,3 +2147,4 @@ module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
 module.exports.detectUncertainty = detectUncertainty
 module.exports.parseMeetingCount = parseMeetingCount
 module.exports.classifyDistinctions = classifyDistinctions
+module.exports.findNearMissDistinctions = findNearMissDistinctions
