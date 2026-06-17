@@ -913,6 +913,72 @@ async function setDistinctionDecline (req, res) {
   }
 }
 
+/**
+ * @route POST /api/firm-manager/distinctions/platform/:id/move
+ * Move a platform distinction into a more suitable domain for this firm. Distinctions
+ * are scored only within the detected domain, so a row filed under the wrong domain
+ * never fires; this relocates it. The distinction's content as it currently reads
+ * (platform base + any firm override) is recreated as a firm-OWN row in the target
+ * domain, and the platform original is switched off in its old domain. Any now-
+ * redundant override of the original is cleared. (Logical move via the firm config
+ * stores; a future MySQL transaction will make the multi-store write atomic.)
+ * @param {string} id - the platform distinction id (pd-N)
+ * @returns {{moved: true, fromId: string, newId: number, targetDomain: string}}
+ */
+async function moveDistinction (req, res) {
+  const id = String(req.params.id || '')
+  const platformRow = (ADVISORY_DISTINCTIONS.platform || []).find(r => r.id === id)
+  if (!platformRow) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
+  }
+  const { targetDomain } = req.body || {}
+  if (!targetDomain || !DISTINCTION_DOMAINS.has(targetDomain)) {
+    return sendError(res, 400, 'INVALID_DOMAIN', 'targetDomain must be a recognised advisory domain')
+  }
+  if (targetDomain === platformRow.domain) {
+    return sendError(res, 400, 'SAME_DOMAIN', 'targetDomain must differ from the distinction\'s current domain')
+  }
+
+  try {
+    // Effective content = platform base with the firm's edits (if any) applied.
+    const overrides = await _loadOverrides(req.firmId)
+    const effective = Object.assign({}, platformRow, overrides[id] || {})
+
+    // Recreate as a firm-own row in the target domain (carries content as it reads).
+    const existing = await _loadDistinctions(req.firmId)
+    const nextId = existing.length > 0 ? Math.max(...existing.map(r => r.id || 0)) + 1 : 1
+    const newRow = {
+      id: nextId,
+      domain: targetDomain,
+      description: String(effective.description || '').trim(),
+      triggers: Array.isArray(effective.triggers) ? effective.triggers : [],
+      templates: Array.isArray(effective.templates) ? effective.templates : [],
+      boost: Math.min(20, Math.max(1, Number(effective.boost) || 5)),
+      created_by: req.userEmail,
+      created_at: new Date().toISOString(),
+      movedFrom: id
+    }
+    await _saveDistinctions(req.firmId, existing.concat([newRow]), req.userEmail)
+
+    // Switch the platform original off in its old domain for this firm.
+    const declines = new Set(await _loadDeclines(req.firmId))
+    declines.add(id)
+    await _saveDeclines(req.firmId, [...declines], req.userEmail)
+
+    // Drop any now-redundant override of the original (the firm-own copy holds the
+    // content; switching the original back on later should give a clean platform base).
+    if (Object.prototype.hasOwnProperty.call(overrides, id)) {
+      const nextOverrides = Object.assign({}, overrides)
+      delete nextOverrides[id]
+      await _saveOverrides(req.firmId, nextOverrides, req.userEmail)
+    }
+
+    res.send(201, { moved: true, fromId: id, newId: nextId, targetDomain })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 // ── Advisory Staircase (whole-config firm override) ───────────────────────────
 // Stored in firm_framework_versions under config_key='advisory-staircase' (same
 // table as Decision Framework + Advisory Distinctions — no new schema). Version
@@ -1045,6 +1111,7 @@ module.exports = {
   setDistinctionOverride,
   resetDistinctionOverride,
   setDistinctionDecline,
+  moveDistinction,
   getStaircase,
   saveStaircase
 }

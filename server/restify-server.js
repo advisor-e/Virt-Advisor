@@ -157,6 +157,7 @@ server.get('/api/firm-manager/distinctions/state', ...fmGuard, fm.getDistinction
 server.put('/api/firm-manager/distinctions/platform/:id', ...fmGuard, fm.setDistinctionOverride)
 server.del('/api/firm-manager/distinctions/platform/:id', ...fmGuard, fm.resetDistinctionOverride)
 server.put('/api/firm-manager/distinctions/platform/:id/decline', ...fmGuard, fm.setDistinctionDecline)
+server.post('/api/firm-manager/distinctions/platform/:id/move', ...fmGuard, fm.moveDistinction)
 server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
 server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 

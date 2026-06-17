@@ -20,8 +20,12 @@ const {
   getDistinctionState,
   setDistinctionOverride,
   resetDistinctionOverride,
-  setDistinctionDecline
+  setDistinctionDecline,
+  moveDistinction
 } = require('../../server/routes/firmManager')
+
+const PLATFORM_ROW = ADVISORY_DISTINCTIONS.platform[0] // pd-1
+const OTHER_DOMAIN = (ADVISORY_DISTINCTIONS.platform.find(r => r.domain !== PLATFORM_ROW.domain) || {}).domain
 
 const FIRM = 'firm-test-123'
 const EMAIL = 'mgr@testfirm.com'
@@ -208,5 +212,59 @@ describe('setDistinctionDecline', () => {
     const res = makeRes()
     await setDistinctionDecline(makeReq({ params: { id: 'pd-999999' }, body: { declined: true } }), res)
     expect(res._status).toBe(404)
+  })
+})
+
+describe('moveDistinction', () => {
+  it('moves a platform row: firm-own copy in the target domain + original declined', async () => {
+    stubConfig({ own: [], declines: [], overrides: {} })
+    const res = makeRes()
+    await moveDistinction(makeReq({ params: { id: VALID_ID }, body: { targetDomain: OTHER_DOMAIN } }), res)
+
+    expect(res._status).toBe(201)
+    expect(res._body).toMatchObject({ moved: true, fromId: VALID_ID, targetDomain: OTHER_DOMAIN })
+    // firm-own copy written in the target domain, carrying the content + provenance
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith(
+      FIRM, 'advisory-distinctions',
+      [expect.objectContaining({ domain: OTHER_DOMAIN, description: PLATFORM_ROW.description, movedFrom: VALID_ID })],
+      EMAIL
+    )
+    // original switched off in its old domain
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith(FIRM, 'distinction-declines', [VALID_ID], EMAIL)
+  })
+
+  it('carries the firm override content when customised, and clears the redundant override', async () => {
+    stubConfig({ own: [], declines: [], overrides: { [VALID_ID]: { boost: 13, templates: ['Custom'] } } })
+    const res = makeRes()
+    await moveDistinction(makeReq({ params: { id: VALID_ID }, body: { targetDomain: OTHER_DOMAIN } }), res)
+
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith(
+      FIRM, 'advisory-distinctions',
+      [expect.objectContaining({ domain: OTHER_DOMAIN, boost: 13, templates: ['Custom'], movedFrom: VALID_ID })],
+      EMAIL
+    )
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith(FIRM, 'distinction-overrides', {}, EMAIL)
+  })
+
+  it('rejects an unknown platform id with 404 and does not save', async () => {
+    const res = makeRes()
+    await moveDistinction(makeReq({ params: { id: 'pd-999999' }, body: { targetDomain: OTHER_DOMAIN } }), res)
+    expect(res._status).toBe(404)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  it('rejects an invalid target domain with 400', async () => {
+    const res = makeRes()
+    await moveDistinction(makeReq({ params: { id: VALID_ID }, body: { targetDomain: 'not-a-domain' } }), res)
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('INVALID_DOMAIN')
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  it('rejects moving to the same domain with 400', async () => {
+    const res = makeRes()
+    await moveDistinction(makeReq({ params: { id: VALID_ID }, body: { targetDomain: PLATFORM_ROW.domain } }), res)
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('SAME_DOMAIN')
   })
 })
