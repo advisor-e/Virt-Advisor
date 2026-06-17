@@ -946,6 +946,13 @@ async function moveDistinction (req, res) {
 
     // Recreate as a firm-own row in the target domain (carries content as it reads).
     const existing = await _loadDistinctions(req.firmId)
+    // Guard: this platform row has already been moved (a firm-own copy exists). Moving
+    // again would create a duplicate and, if the override was cleared by the first move,
+    // silently lose the firm's edits. Block it and point them at the existing copy.
+    if (existing.some(r => r.movedFrom === id)) {
+      return sendError(res, 409, 'ALREADY_MOVED',
+        'This distinction has already been moved to one of your domains — edit or remove that copy instead of moving it again.')
+    }
     const nextId = existing.length > 0 ? Math.max(...existing.map(r => r.id || 0)) + 1 : 1
     const newRow = {
       id: nextId,

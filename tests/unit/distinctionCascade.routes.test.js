@@ -267,4 +267,16 @@ describe('moveDistinction', () => {
     expect(res._status).toBe(400)
     expect(res._body.error.code).toBe('SAME_DOMAIN')
   })
+
+  it('rejects a second move of an already-moved row (no duplicate, no lost edit)', async () => {
+    stubConfig({
+      own: [{ id: 5, domain: OTHER_DOMAIN, movedFrom: VALID_ID, description: 'moved copy', triggers: ['t'], templates: ['x'], boost: 7 }],
+      declines: [VALID_ID]
+    })
+    const res = makeRes()
+    await moveDistinction(makeReq({ params: { id: VALID_ID }, body: { targetDomain: 'profit' } }), res)
+    expect(res._status).toBe(409)
+    expect(res._body.error.code).toBe('ALREADY_MOVED')
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
 })
