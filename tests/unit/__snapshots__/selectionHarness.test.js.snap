@@ -1,0 +1,170 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`selection harness — snapshot net (records current ranking per scenario) data-systems · data quality 1`] = `
+Object {
+  "selected": Array [
+    "90 Day Best Practice Accounting",
+    "Data Session",
+  ],
+  "top10": Array [
+    "26 · 90 Day Best Practice Accounting [General Tools]",
+    "24 · Data Session [Lite Fundamentals]",
+    "23 · Dashboard Discussions [General Tools]",
+    "23 · Ratio Analysis [Specialist Tools]",
+    "23 · Rubbish In - Rubbish Out [General Tools]",
+    "20 · High Level Budget [Revenue & Feasibility Models]",
+    "20 · Pivot [Strategic Tools]",
+    "15 · Assumptions [Revenue & Feasibility Models]",
+    "14 · Forecasting [Revenue & Feasibility Models]",
+    "12 · Demings Volatility [General Tools]",
+  ],
+}
+`;
+
+exports[`selection harness — snapshot net (records current ranking per scenario) forecasting · cash flow 1`] = `
+Object {
+  "selected": Array [
+    "Lite Feasibility",
+    "Forecasting",
+  ],
+  "top10": Array [
+    "25 · Lite Feasibility [General Tools]",
+    "25 · Forecasting [Revenue & Feasibility Models]",
+    "22 · Working Capital Cycle [General Tools]",
+    "22 · Activity Ratios [General Tools]",
+    "22 · Quick Fire Diagnosis [General Tools]",
+    "22 · Debtor Protocols [General Tools]",
+    "22 · Lease vs. Buy [Revenue & Feasibility Models]",
+    "20 · Asset Review [Specialist Tools]",
+    "20 · Porter's Revenue [Specialist Tools]",
+    "5 · Farm House Budget [Revenue & Feasibility Models]",
+  ],
+}
+`;
+
+exports[`selection harness — snapshot net (records current ranking per scenario) governance · board/accountability 1`] = `
+Object {
+  "selected": Array [
+    "Governance Introduction",
+    "Partner Accountability",
+  ],
+  "top10": Array [
+    "26 · Governance Introduction [Governance Tools]",
+    "26 · Partner Accountability [Governance Tools]",
+    "26 · Formal Risk Management [Governance Tools]",
+    "25 · Nine Growth Aspects [Strategic Tools]",
+    "24 · Mgt Annual Plan [General Tools]",
+    "20 · Growth Framework [Growth Framework]",
+    "16 · Force Field Analysis [Strategic Tools]",
+    "8 · Planning Outcomes Review [Strategic Tools]",
+    "7.5 · Draft White Papers [Governance Tools]",
+    "7.5 · Leadership Review [Governance Tools]",
+  ],
+}
+`;
+
+exports[`selection harness — snapshot net (records current ranking per scenario) profit · café pricing+feasibility 1`] = `
+Object {
+  "selected": Array [
+    "8 Profit Levers",
+    "Money Matters",
+    "Working Capital Cycle",
+  ],
+  "top10": Array [
+    "9.5 · 8 Profit Levers [General Tools]",
+    "9.5 · Money Matters [General Tools]",
+    "8 · Working Capital Cycle [General Tools]",
+    "7 · 3 Pillars of Financial Management [General Tools]",
+    "7 · 6 Hats [General Tools]",
+    "7 · Lite Feasibility [General Tools]",
+    "7 · People vs. Process [General Tools]",
+    "7 · Mgt Annual Plan [General Tools]",
+    "6.5 · Advisor Prep [General Tools]",
+    "6.5 · Labour Margin Mix [Revenue & Feasibility Models]",
+  ],
+}
+`;
+
+exports[`selection harness — snapshot net (records current ranking per scenario) raising-capital · funding growth 1`] = `
+Object {
+  "selected": Array [
+    "3 Pillars of Financial Management",
+    "Working Capital Cycle",
+  ],
+  "top10": Array [
+    "6 · 3 Pillars of Financial Management [General Tools]",
+    "6 · Working Capital Cycle [General Tools]",
+    "6 · Activity Ratios [General Tools]",
+    "6 · Lite Feasibility [General Tools]",
+    "6 · Mgt Annual Plan [General Tools]",
+    "6 · 4 Part Bizz Plan [General Tools]",
+    "5 · Stock Policies [Specialist Tools]",
+    "5 · Pitch Deck [Specialist Tools]",
+    "5 · Financial Systems Review [Specialist Tools]",
+    "4 · Advisor Prep [General Tools]",
+  ],
+}
+`;
+
+exports[`selection harness — snapshot net (records current ranking per scenario) sales-marketing · low volume 1`] = `
+Object {
+  "selected": Array [
+    "Sales Session",
+    "Customer Journey",
+  ],
+  "top10": Array [
+    "26 · Sales Session [Lite Fundamentals]",
+    "25 · Customer Journey [General Tools]",
+    "22 · Labour, Margin, Sales [Revenue & Feasibility Models]",
+    "10 · Sales & Marketing Review [Strategic Tools]",
+    "6.5 · 8 Profit Levers [General Tools]",
+    "6.5 · Capacity, Capability, Opportunity [General Tools]",
+    "6.5 · IT Services [Revenue & Feasibility Models]",
+    "6.5 · Client pre Meeting [General Tools]",
+    "6.5 · Real Estate Office [Revenue & Feasibility Models]",
+    "6.5 · Entry Fee [Revenue & Feasibility Models]",
+  ],
+}
+`;
+
+exports[`selection harness — snapshot net (records current ranking per scenario) staff · performance 1`] = `
+Object {
+  "selected": Array [
+    "Wages Review",
+    "Remuneration & Incentives",
+  ],
+  "top10": Array [
+    "25 · Wages Review [Revenue & Feasibility Models]",
+    "24 · Remuneration & Incentives [Specialist Tools]",
+    "24 · Organisational Review [Strategic Tools]",
+    "22 · HOPE Recession Model [General Tools]",
+    "22 · 6 Hats [General Tools]",
+    "22 · People Session [Lite Fundamentals]",
+    "22 · People vs. Process [General Tools]",
+    "22 · Labour Only [Revenue & Feasibility Models]",
+    "22 · Lease vs. Buy [Revenue & Feasibility Models]",
+    "21 · Business Purchase Assessment 1 [Specialist Tools]",
+  ],
+}
+`;
+
+exports[`selection harness — snapshot net (records current ranking per scenario) stock-purchasing · overstock 1`] = `
+Object {
+  "selected": Array [
+    "Money Matters",
+    "Customer Journey",
+  ],
+  "top10": Array [
+    "5 · Money Matters [General Tools]",
+    "5 · Customer Journey [General Tools]",
+    "4 · 8 Profit Levers [General Tools]",
+    "4 · Capacity, Capability, Opportunity [General Tools]",
+    "4 · Capacity, Capability, Opportunity [General Tools]",
+    "4 · Stg. 1 Due Diligence [Specialist Tools]",
+    "4 · Stock Policies [Specialist Tools]",
+    "4 · Advisor Prep [General Tools]",
+    "4 · Quick & Worst [General Tools]",
+    "4 · Price Rise [General Tools]",
+  ],
+}
+`;
