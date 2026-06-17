@@ -307,6 +307,36 @@
         ) Confirm
         button.primary-issue-none(@click="noneOfTheseApply") None of these fit — let me describe it differently
 
+      //- Why this recommendation — decision trace (shown after a recommendation)
+      .trace-panel(v-if="lastTrace && recommendationDelivered")
+        button.trace-toggle(@click="showTracePanel = !showTracePanel")
+          | {{ showTracePanel ? '▾' : '▸' }} Why this recommendation
+        .trace-body(v-if="showTracePanel")
+          .trace-row
+            span.trace-label Area I focused on
+            span.trace-value {{ lastTrace.domain.label || lastTrace.domain.id || '—' }}
+          .trace-row
+            span.trace-label What shaped the advice
+            span.trace-value {{ traceLensSummary }}
+          .trace-section
+            .trace-section-title Distinctions
+            p.trace-note {{ lastTrace.distinctions.note }}
+            p.trace-value(v-if="traceBoostList.length")
+              span Boosted here:
+              span.trace-boost(v-for="b in traceBoostList" :key="b.title")  {{ b.title }} (+{{ b.boost }})
+            p.trace-note(v-else) No distinction changed the scoring in this area.
+          .trace-section
+            .trace-section-title How the templates scored
+            table.trace-scores
+              tr
+                th Template
+                th Score
+                th Why
+              tr(v-for="t in lastTrace.templateScores.slice(0, 6)" :key="t.rank")
+                td {{ t.title }}
+                td {{ t.score }}
+                td.trace-reasons {{ humanizeReasons(t.matchReasons) }}
+
       //- Intake prompt — shown after Phase 3, before advisor dismisses
       .intake-prompt-card(v-if="showIntakePrompt")
         .save-prompt-text
@@ -742,6 +772,10 @@ export default {
       recommendationDelivered: false,
       sessionDomain: null,
       sessionTemplates: [],
+      // Decision trace for the "Why this recommendation" panel (set on the SSE
+      // 'trace' event at recommendation time); null until a recommendation lands.
+      lastTrace: null,
+      showTracePanel: false,
       intakeDismissed: false,
       intakeActive: false,
       intakeComplete: false,
@@ -779,6 +813,20 @@ export default {
   },
 
   computed: {
+    // Decision-trace helpers (the "Why this recommendation" panel).
+    traceLensSummary () {
+      if (!this.lastTrace) { return '' }
+      const l = this.lastTrace.lenses || {}
+      const parts = []
+      if (l.engagementType) { parts.push(`${l.engagementType} engagement`) }
+      if (l.complexityCeiling) { parts.push(`${l.complexityCeiling} ceiling`) }
+      if (l.templateBudget !== null && l.templateBudget !== undefined) { parts.push(`budget ${l.templateBudget}`) }
+      return parts.join(' · ')
+    },
+    traceBoostList () {
+      const boosts = (this.lastTrace && this.lastTrace.distinctions && this.lastTrace.distinctions.boostsApplied) || {}
+      return Object.keys(boosts).map(title => ({ title, boost: boosts[title] }))
+    },
     primaryIssueOptions () {
       return (this.primaryIssueDomain && PRIMARY_ISSUES[this.primaryIssueDomain]) || []
     },
@@ -935,6 +983,19 @@ export default {
   },
 
   methods: {
+    // Translate the engine's terse score reasons into plain language for the
+    // "Why this recommendation" panel. Unknown reasons pass through as-is.
+    humanizeReasons (reasons) {
+      return (reasons || []).map((r) => {
+        const m = /^distinction:\+(\d+)$/.exec(r)
+        if (m) { return `firm distinction +${m[1]}` }
+        if (r.startsWith('tag:')) { return 'matches the area' }
+        if (r === 'domain:primary_subsection') { return 'core to this area' }
+        if (r.startsWith('engagement:')) { return 'fits the engagement type' }
+        return r
+      }).join(', ')
+    },
+
     autoResizeTextarea (el) {
       if (!el) { return }
       el.style.height = '0'
@@ -1021,6 +1082,8 @@ export default {
       }
       this.sessionId = null
       this.recommendationDelivered = false
+      this.lastTrace = null
+      this.showTracePanel = false
       this.sessionDomain = null
       this.sessionTemplates = []
       this.intakeDismissed = false
@@ -1118,6 +1181,8 @@ export default {
       this.streamingText = ''
       this.sessionId = null
       this.recommendationDelivered = false
+      this.lastTrace = null
+      this.showTracePanel = false
       this.sessionDomain = null
       this.sessionTemplates = []
       this.intakeDismissed = false
@@ -1333,6 +1398,9 @@ export default {
               } else if (data.type === 'session_meta') {
                 this.sessionDomain = data.domain || null
                 this.sessionTemplates = data.templates || []
+              } else if (data.type === 'trace') {
+                // Decision trace — powers the "Why this recommendation" panel.
+                this.lastTrace = data.trace || null
               } else if (data.type === 'recommendation_delivered') {
                 this.recommendationDelivered = true
               } else if (data.type === 'delta') {
@@ -2261,6 +2329,48 @@ export default {
 .primary-issue-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 .primary-issue-none { display: block; width: 100%; margin-top: 10px; padding: 8px; background: none; border: none; color: #6b7280; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .primary-issue-none:hover { color: #374151; }
+
+.trace-panel {
+  margin: 8px 16px 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafafa;
+  overflow: hidden;
+}
+.trace-toggle {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+}
+.trace-toggle:hover { background: #f3f4f6; }
+.trace-body {
+  padding: 4px 16px 14px;
+  font-size: 13px;
+  color: #374151;
+}
+.trace-row { display: flex; gap: 10px; padding: 3px 0; }
+.trace-label { flex: 0 0 150px; color: #6b7280; }
+.trace-value { color: #111827; }
+.trace-section { margin-top: 10px; }
+.trace-section-title { font-weight: 600; color: #374151; margin-bottom: 4px; }
+.trace-note { color: #6b7280; font-size: 12px; line-height: 1.4; margin: 2px 0; }
+.trace-boost { color: #047857; font-weight: 600; }
+.trace-scores { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.trace-scores th, .trace-scores td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  vertical-align: top;
+}
+.trace-scores th { color: #6b7280; font-weight: 600; }
+.trace-reasons { color: #6b7280; }
 
 .intake-prompt-card {
   display: flex;
