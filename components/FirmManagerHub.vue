@@ -358,6 +358,27 @@ section.firm-manager-hub.section
                 footer.modal-card-foot
                   b-button(@click="showDistinctionHelpModal = false") Close
 
+            //- Move-to-domain modal
+            b-modal(v-model="showMoveModal" has-modal-card trap-focus)
+              .modal-card(style="max-width:480px")
+                header.modal-card-head
+                  p.modal-card-title Move distinction to another domain
+                section.modal-card-body
+                  p.mb-3(v-if="moveRow") Move #[strong {{ moveRow.description }}] into:
+                  b-field
+                    b-select(v-model="moveTargetDomain" placeholder="Choose a domain…" expanded)
+                      option(v-for="d in moveDomainOptions" :key="d.id" :value="d.id") {{ d.label }}
+                  p.has-text-grey.is-size-7.mt-2(v-if="moveRow && moveRow.kind !== 'firm-own'")
+                    | This creates your firm's copy in the new domain and switches the platform original off here.
+                footer.modal-card-foot
+                  b-button(
+                    type="is-primary"
+                    :disabled="!moveTargetDomain"
+                    :loading="movingDistinction"
+                    @click="confirmMoveDistinction"
+                  ) Move
+                  b-button(@click="closeMoveModal") Cancel
+
             //- Unified list — platform, customised, switched-off and firm-own rows together
             .level.mb-3
               .level-left
@@ -395,19 +416,22 @@ section.firm-manager-hub.section
                 ) {{ t }}
               b-table-column(v-slot="{ row }" label="Boost" width="60" numeric)
                 span(v-if="row.kind !== 'declined'") +{{ row.boost }}
-              b-table-column(v-slot="{ row }" label="" width="240")
+              b-table-column(v-slot="{ row }" label="" width="320")
                 template(v-if="row.kind === 'platform'")
-                  b-button.mr-1(size="is-small" @click="openDistinctionForm(row)") Edit
-                  b-button(size="is-small" @click="switchOffDistinction(row.id)") Switch off
+                  b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
+                  b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
+                  b-button.mb-1(size="is-small" @click="switchOffDistinction(row.id)") Switch off
                 template(v-else-if="row.kind === 'customised'")
-                  b-button.mr-1(size="is-small" @click="openDistinctionForm(row)") Edit
-                  b-button.mr-1(size="is-small" @click="confirmResetDistinction(row.id)") Reset to platform
-                  b-button(size="is-small" @click="switchOffDistinction(row.id)") Switch off
+                  b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
+                  b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
+                  b-button.mr-1.mb-1(size="is-small" @click="confirmResetDistinction(row.id)") Reset to platform
+                  b-button.mb-1(size="is-small" @click="switchOffDistinction(row.id)") Switch off
                 template(v-else-if="row.kind === 'declined'")
                   b-button(size="is-small" type="is-primary is-light" @click="switchOnDistinction(row.id)") Switch on
                 template(v-else)
-                  b-button.mr-1(size="is-small" @click="openDistinctionForm(row)") Edit
-                  b-button(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)") Remove
+                  b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
+                  b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
+                  b-button.mb-1(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)") Remove
 
             p.has-text-grey.is-size-7.mb-4(
               v-else-if="!loadingFirmDistinctions && domainDistinctions.length === 0 && !showDistinctionForm"
@@ -647,6 +671,11 @@ export default {
       editingDistinctionKind: null,
       distinctionForm: { domain: '', description: '', triggers: [], templates: [], boost: 5 },
       savingDistinction: false,
+      // Move-to-domain modal state
+      showMoveModal: false,
+      moveRow: null,
+      moveTargetDomain: '',
+      movingDistinction: false,
       deletingDistinctionId: null,
       confirmDeleteDistinctionId: null,
       templatePickerSearch: '',
@@ -688,6 +717,11 @@ export default {
     // True while the form is editing a platform-sourced row (its domain is fixed).
     editingPlatformRow () {
       return this.editingDistinctionKind === 'platform' || this.editingDistinctionKind === 'customised'
+    },
+    // Domains a distinction can be moved to — all except its current one.
+    moveDomainOptions () {
+      const current = this.moveRow ? this.moveRow.domain : null
+      return this.distinctionDomains.filter(d => d.id !== current)
     },
     filteredTemplateOptions () {
       let list = this.allClientTemplates
@@ -1241,6 +1275,48 @@ export default {
     // Grey out switched-off rows in the unified list.
     distinctionRowClass (row) {
       return row.kind === 'declined' ? 'distinction-off' : ''
+    },
+
+    openMoveDistinction (row) {
+      this.moveRow = row
+      this.moveTargetDomain = ''
+      this.showMoveModal = true
+    },
+
+    closeMoveModal () {
+      this.showMoveModal = false
+      this.moveRow = null
+      this.moveTargetDomain = ''
+    },
+
+    // Move a distinction into another domain. A platform/customised row goes via the
+    // backend move endpoint (firm-own copy in the target + original switched off); a
+    // firm-own row is a straight domain change on its own record.
+    async confirmMoveDistinction () {
+      const row = this.moveRow
+      const target = this.moveTargetDomain
+      if (!row || !target) { return }
+      this.movingDistinction = true
+      try {
+        if (row.kind === 'firm-own') {
+          await this.api('PUT', `/api/firm-manager/distinctions/${row.id}`, {
+            domain: target,
+            description: row.description,
+            triggers: row.triggers,
+            templates: row.templates,
+            boost: row.boost
+          })
+        } else {
+          await this.api('POST', `/api/firm-manager/distinctions/platform/${row.id}/move`, { targetDomain: target })
+        }
+        this.$buefy.toast.open({ message: 'Distinction moved.', type: 'is-success' })
+        this.closeMoveModal()
+        this.loadFirmDistinctions()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.movingDistinction = false
+      }
     },
 
     // ── Advisory Staircase (whole-config firm override) ─────────────────────
