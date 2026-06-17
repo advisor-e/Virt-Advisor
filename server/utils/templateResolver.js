@@ -170,7 +170,12 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   // preference only (see ENGAGEMENT_SUBSECTION_PREFERENCE). ignoreCeiling=true
   // lifts even the ceiling for Pass 1 (unrestricted best-match).
   const eligible = templates.filter(t =>
-    t.includedInClient === true &&
+    // NOTE: do NOT filter on includedInClient here. That field only governs whether a
+    // CLIENT, self-serving in Advisor-e without an advisor, can SEE the template in their
+    // own search. It is NOT a statement about whether an advisor may recommend it to use
+    // WITH a client. Filtering on it wrongly excluded 77 advisor-with-client do-the-job
+    // templates (e.g. E.O.Y Meeting, 5 Layers Questionnaire, Advisory Proposal). The real
+    // content-type boundary is the menuSection gate below (do-the-job only).
     t.menuSection !== 'get-organised' &&
     t.menuSection !== 'get-the-job' &&
     !(t.subSection && blocked.has(t.subSection))

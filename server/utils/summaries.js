@@ -2,10 +2,10 @@
  * Content summaries loader — detailed per-template guidance extracted from
  * the Advisor-e content Google Doc. Covers 97 templates across 8 sections.
  *
- * All 131 client-facing templates already have a purpose field in data/templates.json.
- * For templates not yet in content-summaries.json, that purpose field is now read
- * directly so all 131 templates are visible to scoring and the AI narrative context.
- * The data was always there — it just wasn't connected to this loader.
+ * Every Do the Job template already has a purpose field in data/templates.json.
+ * For templates not yet in content-summaries.json, that purpose field is read
+ * directly so all Do the Job templates are visible to scoring and the AI narrative
+ * context. The data was always there — it just wasn't connected to this loader.
  */
 
 const { readFileSync } = require('fs')
@@ -27,7 +27,12 @@ function loadSummaries () {
   }
 
   // Build fallback entries from templates.json for any template not already covered.
-  // Uses the purpose field so all 131 client-facing Do the Job templates are visible.
+  // Uses the purpose field so every Do the Job template is visible to the AI copy layer.
+  // NOTE: this deliberately does NOT gate on includedInClient. That field only governs
+  // whether a CLIENT self-serving in Advisor-e can see the template — not whether an
+  // advisor may recommend it with a client. It was removed here to stay consistent with
+  // the recommendation engine (see templateResolver.js), so the ~77 advisor-with-client
+  // templates that are now recommendable also get their purpose-based copy.
   try {
     const allTemplates = JSON.parse(readFileSync(resolve(process.cwd(), 'data/templates.json'), 'utf8'))
     const richNames = new Set(rich.map(s => s.name))
@@ -37,7 +42,6 @@ function loadSummaries () {
 
     for (const t of allTemplates) {
       if (
-        t.includedInClient === true &&
         t.section === 'Do the Job' &&
         t.purpose &&
         t.purpose.trim() &&

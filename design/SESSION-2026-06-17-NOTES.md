@@ -111,7 +111,22 @@ All three are **fully built but blank in dev** because they need infrastructure 
 
 ---
 
-## 9. ⚠ OPEN — template inclusion-field semantics (found 2026-06-17, SORT TOMORROW)
+## 9. ✅ RESOLVED 2026-06-18 — template inclusion-field semantics
+
+**Outcome:** the inclusion fields each govern a *different* Advisor-e surface and none belongs in
+advisor selection — `includedInClient` = whether a CLIENT self-serving in Advisor-e can see the
+template; `cpd.isHidden` = CPD log widget; `growth.isHidden` = Growth framework. The advisor engine
+was wrongly using `includedInClient` as a proxy for "advisor-recommendable." Fix was engine-side only
+(no new field, no master-app change): removed the `includedInClient` filter from the selection path
+([`templateResolver.js:173`](../server/utils/templateResolver.js#L173)) and the copy path
+([`summaries.js:40`](../server/utils/summaries.js#L40)), with why-comments at both sites. The
+`menuSection` (do-the-job-only) gate, the staircase ceiling, the `subSection` logic and scoring were
+already correct and were left untouched. Recommendable library widens **131 → ~208** `do-the-job`
+templates. 375 tests pass. (Original finding kept below for the record.)
+
+---
+
+### (original finding, 2026-06-17)
 
 **Found while Mike tested EOY:** only 2 of the 4 EOY templates appeared as options. Cause: the
 recommendation engine hard-filters the candidate pool to `includedInClient === true`
