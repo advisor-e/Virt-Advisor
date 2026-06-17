@@ -83,6 +83,12 @@ export default {
       if (isDev) {
         config.optimization = config.optimization || {}
         config.optimization.splitChunks = { chunks: 'async' }
+        // Use an incremental (eval-based) source map in dev. Nuxt 2's default
+        // (cheap-module-source-map) regenerates the FULL map on every HMR rebuild,
+        // which is the main driver of the dev server's memory climb -> OOM over a
+        // long edit session. eval-cheap-module-source-map rebuilds far less and
+        // still maps to source lines in the browser. Dev-only; no production effect.
+        config.devtool = 'eval-cheap-module-source-map'
       }
     }
   },
