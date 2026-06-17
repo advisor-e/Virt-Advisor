@@ -1775,6 +1775,53 @@ async function handleQuery (rawBody, res, identity) {
     console.log('[va-session] ' + JSON.stringify(_sessionSummary))
     dbg('[OBSERVABILITY] ' + JSON.stringify(_obsPayload, null, 2))
 
+    // ── Decision trace (case-study feedback loop, Part 1) ───────────────────────
+    // An honest, structured explanation of how this recommendation was reached, so
+    // a firm manager can review the reasoning ("I agree" / "that should have fired")
+    // and act on it (e.g. move a distinction to a better domain). Assembled from the
+    // SAME data the engine just used — no new inference. Emitted with the
+    // recommendation below and intended to be stored on a saved case study.
+    const _decisionTrace = {
+      session: sessionId || null,
+      generatedAt: _sessionSummary.t,
+      // The advisor's own words for the situation (their intake answers).
+      situation: collectedAnswers || {},
+      domain: {
+        id: state.detectedDomain || null,
+        label: (DOMAINS.find(d => d.id === state.detectedDomain) || {}).label || null
+      },
+      lenses: {
+        engagementType: _strategyDecision.engagementType || null,
+        complexityCeiling: _strategyDecision.complexityCeiling || null,
+        problemSignals: _caseState.problemSignals || {},
+        templateBudget,
+        signalTypes: _signals.map(s => s.type)
+      },
+      distinctions: {
+        // Distinctions are scored ONLY within the detected domain — the key fact for
+        // judging whether a firm's distinction was even in scope for this session.
+        evaluatedDomain: state.detectedDomain || null,
+        note: 'Distinctions are evaluated only within the detected domain; distinctions filed under other domains are not considered.',
+        boostsApplied: _distinctionBoosts || {}
+      },
+      templateScores: (_obsPayload.templateScores || []).map(t => ({
+        rank: t.rank,
+        title: t.title,
+        score: t.score,
+        matchReasons: t.matchReasons || []
+      })),
+      recommendation: {
+        selected: [],
+        top: _top ? _top.title : null,
+        topScore: _top ? _top.score : null,
+        runnerUp: _second ? _second.title : null,
+        runnerUpScore: _second ? _second.score : null,
+        scoreGap: _scoreGap,
+        confidence: _sessionSummary.confidence,
+        noMatchReason: _resolvedTemplates.noMatchReason || null
+      }
+    }
+
     const systemPrompt2 = loadPrompt('client') + languageInstruction2
 
     const messages2 = [
@@ -1820,6 +1867,8 @@ async function handleQuery (rawBody, res, identity) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
           state.recommendedTemplates = extractTemplatesFromText(_p3Buffer)
+          _decisionTrace.recommendation.selected = state.recommendedTemplates
+          res.write('data: ' + JSON.stringify({ type: 'trace', trace: _decisionTrace }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'session_meta', domain: state.detectedDomain, templates: state.recommendedTemplates }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'recommendation_delivered' }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
