@@ -501,8 +501,12 @@ function parseMeetingCount (text) {
   const num = '(one|two|three|four|five|six|too|couple|few|\\d)'
   // Allow one OR MORE linking words between the two numbers so "two or maybe
   // three" reads as a range (upper bound 3), not just the first number. A single
-  // connector ("two or three", "two to three") still works.
-  const range = t.match(new RegExp('\\b' + num + '(?:\\s+(?:to|or|maybe|-))+\\s+' + num + '\\b', 'i'))
+  // connector ("two or three", "two to three") still works. The connector list
+  // covers the natural hedging words advisors use when committing to a range
+  // ("two possibly three", "two perhaps three", "two or ideally three") — the
+  // upper bound is taken so we fill the engagement to the level agreed.
+  const connectors = '(?:to|or|maybe|possibly|perhaps|ideally|even|up\\s+to)'
+  const range = t.match(new RegExp('\\b' + num + '(?:\\s+' + connectors + ')+\\s+' + num + '\\b', 'i'))
   if (range) { return map[range[2]] || parseInt(range[2], 10) || null }
   const single = t.match(new RegExp('\\b' + num + '\\b', 'i'))
   if (single) { return map[single[1]] || parseInt(single[1], 10) || null }
