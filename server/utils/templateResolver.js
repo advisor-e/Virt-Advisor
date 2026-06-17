@@ -2,6 +2,7 @@
 
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
+const { SIGNAL_REGISTRY } = require('./problemSignals')
 
 // ── Semantic profile loader ─────────────────────────────────────────────────
 // Reads the pre-compiled semantic profiles (built by scripts/build-semantic-profiles.js).
@@ -36,25 +37,39 @@ const SCORING_CONFIG = {
   enableAttenuation: true
 }
 
-// Domain → signals that belong to this domain's scope.
-// Signals not in scope get outOfDomainWeight in semantic scoring.
-// Empty Set = domain uses structured questions only — suppress all free-text signals.
-// Domain absent from map = no filtering (all signals at full weight).
-const DOMAIN_SIGNAL_SCOPE = {
-  profit: new Set(['cash_flow_gap', 'profit_plateau', 'pricing_issue', 'sales_volume', 'marketing_gap']),
-  'sales-marketing': new Set(['sales_volume', 'marketing_gap', 'pricing_issue']),
-  staff: new Set(['staff_problem']),
-  strategy: new Set(['strategy_needed']),
-  governance: new Set(['governance_gap']),
-  'data-systems': new Set(['data_quality', 'systems_gap']),
-  systems: new Set(['systems_gap']),
-  succession: new Set(['succession_issue']),
-  forecasting: new Set(['cash_flow_gap', 'profit_plateau']),
-  risk: new Set(),
-  valuation: new Set(),
-  conflict: new Set(),
-  'due-diligence': new Set()
+// Domain → in-scope signals, DERIVED from the signal dictionary's per-signal
+// `domains` field (the single source of truth). Signals not in scope get
+// outOfDomainWeight in semantic scoring (they're downstream effects, not primary
+// causes, so must not drive selection).
+//
+// This was previously a hand-maintained duplicate that drifted out of sync with
+// signal-dictionary.json — it omitted `revenue_modelling` from `profit` (silently
+// zeroing the dominant semantic lever for profitability/feasibility cases — the
+// café bug), carried a phantom `profit_plateau` signal that no longer exists, and
+// lacked all 8 newer domains. Deriving it from the dictionary kills that whole
+// class of drift: add a signal/domain in the dictionary and the scope follows.
+//
+// Empty Set = domain runs on STRUCTURED questions only → suppress all free-text
+// signals. The dictionary declares no signals for these, so they're set
+// explicitly (derivation alone would leave them unfiltered — wrong). Domain absent
+// from the map = no filtering (all signals at full weight).
+const STRUCTURED_ONLY_DOMAINS = ['risk', 'valuation', 'conflict', 'due-diligence']
+
+function buildDomainSignalScope () {
+  const scope = {}
+  for (const d of STRUCTURED_ONLY_DOMAINS) { scope[d] = new Set() }
+  for (const [signal, meta] of Object.entries(SIGNAL_REGISTRY)) {
+    if (meta.penaltyOnly) { continue } // penalty-only signals never positively scope a domain
+    for (const domain of meta.domains || []) {
+      if (STRUCTURED_ONLY_DOMAINS.includes(domain)) { continue }
+      if (!scope[domain]) { scope[domain] = new Set() }
+      scope[domain].add(signal)
+    }
+  }
+  return scope
 }
+
+const DOMAIN_SIGNAL_SCOPE = buildDomainSignalScope()
 
 function getSignalWeight (signal, domain) {
   if (!SCORING_CONFIG.enableAttenuation) { return 1.0 }
@@ -154,13 +169,21 @@ const EXPERIENCE_REQUIRED_SUBSECTIONS = new Set(['Lite Fundamentals', 'Strategic
 function resolveTemplates (caseState, strategyDecision, templates, options) {
   const ignoreCeiling = (options && options.ignoreCeiling) || false
   const distinctionBoosts = (options && options.distinctionBoosts) || {}
-  const { domain, primaryIssue, solutionCategories, client, complexityCeiling, advisor } = caseState
+  const { domain, primaryIssue, industry, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
 
   // Primary issue keyword hints — used to add a scoring boost for templates whose
   // tags or purpose closely match the advisor-confirmed primary issue.
   const _primaryIssueKeywords = primaryIssue
     ? primaryIssue.toLowerCase().split(/[\s—\-,]+/).filter(w => w.length > 4)
+    : []
+
+  // Industry keyword hints — the client's stated industry (e.g. "cafe") is a key
+  // selection factor: an industry-specific template should win for a matching client.
+  // Tokens length > 3 only, so noise words don't match. Matched against template
+  // title + tags below (see the industry boost in the scoring loop).
+  const _industryKeywords = industry
+    ? industry.toLowerCase().split(/[\s—\-,/&]+/).filter(w => w.length > 3)
     : []
 
   const blocked = ignoreCeiling ? new Set() : (CEILING_BLOCKED[complexityCeiling] || new Set())
@@ -235,6 +258,47 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
       } else if (_matches === 1) {
         score += 1
         reasons.push('primary_issue:partial_match')
+      }
+    }
+
+    // Industry boost — the client's industry is a key selection factor. An
+    // industry-specific template (above all the Revenue & Feasibility models, which
+    // are named by industry) should win for a matching client. A title match is
+    // decisive (+8); a tag match is a softer signal (+4). Plural/stem tolerant
+    // (>=4-char prefix) so "cafes" matches the "Cafe" model.
+    let _industryMatched = false
+    if (_industryKeywords.length > 0) {
+      const _titleWords = (t.title || '').toLowerCase().split(/[\s—\-,/&]+/).filter(Boolean)
+      const _matchesWord = (a, b) => a === b || (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a)))
+      const _titleHit = _industryKeywords.some(kw => _titleWords.some(w => _matchesWord(kw, w)))
+      const _tagHit = !_titleHit && _industryKeywords.some(kw =>
+        tagsLower.some(tag => tag.split(/[\s—\-,/&]+/).some(w => _matchesWord(kw, w)))
+      )
+      _industryMatched = _titleHit || _tagHit
+      if (_titleHit) {
+        score += 8
+        reasons.push('industry:title_match')
+      } else if (_tagHit) {
+        score += 4
+        reasons.push('industry:tag_match')
+      }
+    }
+
+    // Hold back WRONG-industry models. A pure industry revenue model is fingerprinted
+    // as exactly {revenue_modelling} (that is how the content is tagged — "a revenue
+    // model for industry X", nothing more). When the client's industry is stated and
+    // this is such a model but it does NOT match (a Manufacturing model for a café), it
+    // is irrelevant — heavy penalty so it drops below the generic, industry-agnostic
+    // tools. Matching models keep their +8 boost; generic feasibility tools (Break-Even,
+    // EBITDA — different/no fingerprint) are untouched.
+    // NOTE: this keys on the semantic-profile SHAPE to recognise an industry model;
+    // revisit if the master app ever re-fingerprints these models.
+    if (_industryKeywords.length > 0 && !_industryMatched) {
+      const _p = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
+      const _pk = Object.keys(_p)
+      if (_pk.length === 1 && _pk[0] === 'revenue_modelling') {
+        score -= 15
+        reasons.push('industry:mismatch_specific_model')
       }
     }
 

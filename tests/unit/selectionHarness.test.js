@@ -29,10 +29,11 @@ const templates = require('../../data/templates.json')
 // Build a minimal CaseState the resolver reads. solutionCategories mirrors the
 // CURRENT live behaviour (deriveSolutionCategories returns ~[domain] post-battery)
 // so the baseline is honest; the fix will widen it from the live signal lever.
-function caseFor ({ domain, problemSignals = {}, growthStage = null, confidence = null }) {
+function caseFor ({ domain, problemSignals = {}, growthStage = null, confidence = null, industry = null }) {
   return {
     domain,
     primaryIssue: '', // null in the live flow since the cold selector was removed
+    industry,
     solutionCategories: [domain],
     client: growthStage ? { growthStage } : {},
     complexityCeiling: 'analytical',
@@ -59,6 +60,7 @@ const SCENARIOS = {
     budget: 3,
     growthStage: 'Leverage',
     confidence: 'low',
+    industry: 'a couple of cafes', // the real (voice-transcribed) industry answer
     problemSignals: { revenue_modelling: 1, pricing_issue: 1 }
   },
   'forecasting · cash flow': {
@@ -117,12 +119,12 @@ describe('selection harness — snapshot net (records current ranking per scenar
 // These encode Mike's stated correct outcomes. They are `.skip` while the known
 // scoring bugs suppress them; each flips to `test()` as its fix lands.
 describe('selection harness — TARGET outcomes (flip .skip → test as fixes land)', () => {
-  // The café case: revenue_modelling must reach the candidate pool. Today the
-  // Cafe model scores 0 because DOMAIN_SIGNAL_SCOPE.profit omits revenue_modelling
-  // (semantic weight → 0). Flips live with the single-source signal-scope fix.
-  test.skip('café profitability surfaces the Cafe revenue model', () => {
+  // The café case: revenue_modelling now in-scope for profit (single-source signal
+  // scope) lights the semantic match, and the industry boost lifts the café-specific
+  // Cafe model above the other (tied) industry models. LIVE now.
+  test('café profitability surfaces the Cafe revenue model', () => {
     const { top10 } = run(SCENARIOS['profit · café pricing+feasibility'])
-    expect(top10.join('\n')).toMatch(/\bCafe\b/)
+    expect(top10.join('\n')).toMatch(/· Cafe \[/)
   })
 
   // Upselling mentioned → a sales tool should be reachable in a profit/sales case.

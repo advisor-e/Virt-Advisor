@@ -66,21 +66,21 @@ Object {
 exports[`selection harness — snapshot net (records current ranking per scenario) profit · café pricing+feasibility 1`] = `
 Object {
   "selected": Array [
-    "8 Profit Levers",
-    "Money Matters",
-    "Working Capital Cycle",
+    "Cafe",
+    "Assumptions",
+    "4 Part Bizz Plan",
   ],
   "top10": Array [
+    "30 · Cafe [Revenue & Feasibility Models]",
+    "22 · Assumptions [Revenue & Feasibility Models]",
+    "16 · 4 Part Bizz Plan [General Tools]",
+    "15 · 1 pg Bizz Case [General Tools]",
+    "12 · Personal Budget [Revenue & Feasibility Models]",
+    "11 · FBT Questionnaire [EOY Notes & Docs]",
     "9.5 · 8 Profit Levers [General Tools]",
     "9.5 · Money Matters [General Tools]",
     "8 · Working Capital Cycle [General Tools]",
-    "7 · 3 Pillars of Financial Management [General Tools]",
-    "7 · 6 Hats [General Tools]",
-    "7 · Lite Feasibility [General Tools]",
-    "7 · People vs. Process [General Tools]",
-    "7 · Mgt Annual Plan [General Tools]",
-    "6.5 · Advisor Prep [General Tools]",
-    "6.5 · Labour Margin Mix [Revenue & Feasibility Models]",
+    "8 · Labour Only [Revenue & Feasibility Models]",
   ],
 }
 `;

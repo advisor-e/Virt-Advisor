@@ -126,6 +126,10 @@ function buildCaseState (signals, state, staircase = ADVISORY_STAIRCASE) {
   return {
     domain: state.detectedDomain || null,
     primaryIssue: state.primaryIssue && state.primaryIssue !== 'pending' ? state.primaryIssue : null,
+    // Client industry (free text, e.g. "cafe") — a key selection factor: industry-
+    // specific templates (the Revenue & Feasibility models) should win for a matching
+    // client. Read by templateResolver to boost title/tag matches. null when not asked.
+    industry: state.industry && state.industry !== 'pending' && state.industry !== 'skipped' ? state.industry : null,
     staircaseLevel: staircaseNum,
     complexityCeiling: staircaseToCeiling(staircaseNum, staircase),
     client: {
