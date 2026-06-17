@@ -1556,7 +1556,6 @@ async function handleQuery (rawBody, res, identity) {
     const _hasOutlier = _resolvedResult.hasOutlier
     const _fallbackExists = _resolvedResult.fallbackExists
     const _outlierTemplate = _hasOutlier ? (_resolvedResult.primary.selected[0] || null) : null
-    const _withinRangeTemplate = _hasOutlier ? (_resolvedResult.withinRange.selected[0] || null) : null
 
     // Phase E — situationBrief: AI writes copy only; template selection already done by code
     const DOMAIN_LABELS_E = {
@@ -1654,13 +1653,20 @@ async function handleQuery (rawBody, res, identity) {
       if (walkedNames.size > 0) { preFilteredNames = [...walkedNames] }
     }
 
-    // Build outlier context block for the AI — only present when there is a mismatch
+    // Build outlier context block for the AI — only present when there is a mismatch.
+    // The strongest match is offered as an EXTENDING (stretch) option, and the
+    // in-range matches fill the rest of the budget — so a stretch session still
+    // leans to the upper end of the budget rather than capping at two cards.
+    const _withinRangeFill = _hasOutlier
+      ? _resolvedResult.withinRange.selected.map(t => t.title).join(', ')
+      : ''
     const _outlierContext = _hasOutlier
       ? [
         '',
-        'TWO-CARD OUTPUT REQUIRED',
-        `STRONGEST MATCH (outside advisor range): ${_outlierTemplate ? _outlierTemplate.title : ''}`,
-        `WITHIN-RANGE MATCH: ${_withinRangeTemplate ? _withinRangeTemplate.title : 'none — no entry-level template exists for this situation'}`
+        'STRETCH + IN-RANGE OUTPUT',
+        `The STRONGEST match sits ABOVE the advisor's current range — offer it as an EXTENDING (stretch) option, clearly framed as beyond their current level: ${_outlierTemplate ? _outlierTemplate.title : ''}`,
+        `IN-RANGE options to fill the rest of the budget: ${_withinRangeFill || 'none — no entry-level template exists for this situation'}`,
+        'Lead with the stretch match, then add in-range options up to the template budget — aim for the upper end of the budget rather than the minimum.'
       ].join('\n')
       : (!_fallbackExists && _resolverCandidates.length > 0
         ? '\nNO WITHIN-RANGE TEMPLATE: No template within the advisor\'s current parameters covers this situation — include the no-entry-level note after the primary recommendation.'
@@ -1677,7 +1683,7 @@ async function handleQuery (rawBody, res, identity) {
       _outlierContext,
       '',
       _resolverCandidates.length > 0
-        ? `CANDIDATE TEMPLATES — this is a wide net from automated scoring and may contain templates that do not genuinely fit this client. Read the collected answers carefully, then select up to ${_budgetCount} template${_budgetCount !== 1 ? 's' : ''} that GENUINELY fit this client's situation and industry. ${_budgetCount} is a maximum, not a target — recommending fewer (even one) is correct when only one genuinely fits. Exclude any candidate whose design context or industry does not match this client (see Rule R17). Choose only from these candidates — do not invent, abbreviate, or paraphrase names:\n` +
+        ? `CANDIDATE TEMPLATES — this is a wide net from automated scoring and may contain templates that do not genuinely fit this client. Read the collected answers carefully, then select templates that GENUINELY fit this client's situation and industry. AIM FOR ${_budgetCount} template${_budgetCount !== 1 ? 's' : ''} — the advisor has committed to that many sessions, so fill the engagement and lean to the upper end rather than the minimum. When the best-fitting matches sit ABOVE the advisor's current advisory range, INCLUDE them as extending/stretch options (clearly framed as beyond their current level) rather than dropping them to land under budget. Recommend fewer than ${_budgetCount} ONLY when there genuinely are not ${_budgetCount} relevant candidates — never pad with a template that does not truly fit. Exclude any candidate whose design context or industry does not match this client (see Rule R17). Choose only from these candidates — do not invent, abbreviate, or paraphrase names:\n` +
           _resolverCandidates.map((t, i) => `${i + 1}. ${t.title} (ID: ${t.page})`).join('\n')
         : 'No templates pre-scored — choose the best match from the template list above.',
       '',
