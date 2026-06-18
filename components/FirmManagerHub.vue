@@ -560,13 +560,23 @@ const BACKEND = 'http://localhost:4000'
 
 const ADVISORY_DISTINCTIONS = require('~/data/advisory-distinctions.json')
 
-// The distinctions picker offers the templates a distinction can meaningfully boost —
-// i.e. the pool the resolver actually scores: every Do-the-Job template. Do NOT filter
-// on includedInClient (that field only governs client self-serve visibility, not whether
-// an advisor can recommend it) — that wrongly hid ~150 templates from the picker. Derived
+// The distinctions picker offers the Do-the-Job templates a distinction can meaningfully
+// boost. Do NOT filter on includedInClient (that field only governs client self-serve
+// visibility, not advisor recommendability) — that wrongly hid ~150 templates. Derived
 // straight from templates.json, so it reflects the JSON automatically.
+//
+// Two subSections are deliberately kept OUT of the per-template list:
+//  - Revenue & Feasibility Models (87 industry/concept models) — represented instead by
+//    the two group targets (@rf-industry / @rf-general), so the firm picks the group and
+//    the engine auto-matches the specific model. Listing all 87 just floods the picker.
+//  - Non-advisory plumbing/admin shelves (Help, Firm Manager/Risk Advisor Access, External
+//    Advisors, and untitled section pages) — never a meaningful distinction target.
+const PICKER_EXCLUDED_SUBSECTIONS = new Set([
+  'Revenue & Feasibility Models',
+  'Help', 'Firm Manager Access', 'Risk Advisor Access', 'External Advisors', ''
+])
 const ALL_CLIENT_TEMPLATES = require('~/data/templates.json')
-  .filter(t => t.menuSection === 'do-the-job')
+  .filter(t => t.menuSection === 'do-the-job' && !PICKER_EXCLUDED_SUBSECTIONS.has(t.subSection || ''))
   .map(t => ({ title: t.title, subSection: t.subSection }))
   .sort((a, b) => a.title.localeCompare(b.title))
 
