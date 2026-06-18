@@ -1,5 +1,73 @@
 [
   {
+    "page": "lite-fundamental-resource",
+    "title": "Programme Pages",
+    "subSection": null,
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "learning-to-deliver-elite-fundamentals",
+    "title": "Specialist Content 1",
+    "subSection": null,
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-8456555412",
+    "title": "5 Layers Questionnaire",
+    "subSection": "Client On Boarding",
+    "profile": {
+      "strategy_needed": 10,
+      "succession_issue": 10,
+      "marketing_gap": 10,
+      "revenue_modelling": 5
+    },
+    "totalSignals": 35,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-4774716093",
+    "title": "Advisory Proposal",
+    "subSection": "Client On Boarding",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "source": "keyword"
+  },
+  {
+    "page": "id-7154906006",
+    "title": "E.O.Y Meeting",
+    "subSection": "EOY Notes & Docs",
+    "profile": {
+      "systems_gap": 10,
+      "data_quality": 5,
+      "governance_gap": 5,
+      "succession_issue": 5
+    },
+    "totalSignals": 25,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-631140983",
+    "title": "EOY Quiz",
+    "subSection": "EOY Notes & Docs",
+    "profile": {
+      "cash_flow_gap": 10,
+      "sales_volume": 5,
+      "data_quality": 5
+    },
+    "totalSignals": 20,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-904072826",
     "title": "FBT Questionnaire",
     "subSection": "EOY Notes & Docs",
@@ -17,6 +85,24 @@
     "page": "id-3779095414",
     "title": "PDF Storage",
     "subSection": "EOY Notes & Docs",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-7507553035",
+    "title": "Cost of Capital",
+    "subSection": "External Advisors",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-884860044",
+    "title": "Crypto Asset Allocations",
+    "subSection": "External Advisors",
     "profile": {},
     "totalSignals": 0,
     "confidence": "low",
@@ -59,6 +145,38 @@
     "note": "no summary — manual profile needed"
   },
   {
+    "page": "know-your-numbers-global",
+    "title": "CA Firm Strategy",
+    "subSection": "Firm Manager Access",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-8460496871",
+    "title": "Firm Board Pack",
+    "subSection": "Firm Manager Access",
+    "profile": {
+      "governance_gap": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-423558797",
+    "title": "Leadership",
+    "subSection": "Firm Manager Access",
+    "profile": {
+      "staff_problem": 10,
+      "marketing_gap": 2
+    },
+    "totalSignals": 12,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-9601408536",
     "title": "1 pg Bizz Case",
     "subSection": "General Tools",
@@ -67,6 +185,19 @@
       "revenue_modelling": 5
     },
     "totalSignals": 15,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-7247592654",
+    "title": "3 Pillars of Financial Management",
+    "subSection": "General Tools",
+    "profile": {
+      "systems_gap": 10,
+      "data_quality": 7,
+      "revenue_modelling": 3
+    },
+    "totalSignals": 20,
     "confidence": "high",
     "source": "auto"
   },
@@ -127,6 +258,26 @@
     "source": "auto"
   },
   {
+    "page": "id-2057808138",
+    "title": "Advisor Prep",
+    "subSection": "General Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "capacity-capability-opportunity",
+    "title": "Capacity, Capability, Opportunity",
+    "subSection": "General Tools",
+    "profile": {
+      "staff_problem": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-4277160310",
     "title": "Client pre Meeting",
     "subSection": "General Tools",
@@ -138,6 +289,15 @@
   {
     "page": "id-6071441423",
     "title": "Control Matters",
+    "subSection": "General Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-5773184106",
+    "title": "Covid Agendas",
     "subSection": "General Tools",
     "profile": {},
     "totalSignals": 0,
@@ -266,6 +426,27 @@
     "source": "auto"
   },
   {
+    "page": "id-4109582337",
+    "title": "Price Rise",
+    "subSection": "General Tools",
+    "profile": {
+      "pricing_issue": 10,
+      "marketing_gap": 10
+    },
+    "totalSignals": 20,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-3314827163",
+    "title": "Quick & Worst",
+    "subSection": "General Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
     "page": "id-3444141596",
     "title": "Quick Fire Diagnosis",
     "subSection": "General Tools",
@@ -329,6 +510,40 @@
     "source": "auto"
   },
   {
+    "page": "id-5336158617",
+    "title": "Annual Board Plan",
+    "subSection": "Governance Tools",
+    "profile": {
+      "governance_gap": 10,
+      "data_quality": 3
+    },
+    "totalSignals": 13,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-4806944979",
+    "title": "Board Member Conduct",
+    "subSection": "Governance Tools",
+    "profile": {
+      "governance_gap": 10,
+      "staff_problem": 5,
+      "marketing_gap": 3
+    },
+    "totalSignals": 18,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-2665394735",
+    "title": "Draft White Papers",
+    "subSection": "Governance Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
     "page": "formal-risk-management",
     "title": "Formal Risk Management",
     "subSection": "Governance Tools",
@@ -353,6 +568,18 @@
     "source": "auto"
   },
   {
+    "page": "id-3474302012",
+    "title": "Leadership Review",
+    "subSection": "Governance Tools",
+    "profile": {
+      "staff_problem": 10,
+      "marketing_gap": 2
+    },
+    "totalSignals": 12,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-8974944498",
     "title": "Partner Accountability",
     "subSection": "Governance Tools",
@@ -361,6 +588,36 @@
       "data_quality": 3
     },
     "totalSignals": 13,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-439870566",
+    "title": "Quality Decisions",
+    "subSection": "Governance Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "source": "keyword"
+  },
+  {
+    "page": "id-9763482347",
+    "title": "Free Draw 3x3",
+    "subSection": "Growth Framework",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-7982468813",
+    "title": "Growth Curve Checklist",
+    "subSection": "Growth Framework",
+    "profile": {
+      "succession_issue": 10,
+      "strategy_needed": 5
+    },
+    "totalSignals": 15,
     "confidence": "high",
     "source": "auto"
   },
@@ -377,6 +634,24 @@
     "source": "auto"
   },
   {
+    "page": "id-8349162326",
+    "title": "Advisory Playsheets",
+    "subSection": "Help",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "lite-data-pre-meeting",
+    "title": "Learning Graphics",
+    "subSection": "Help",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
     "page": "data-session",
     "title": "Data Session",
     "subSection": "Lite Fundamentals",
@@ -385,6 +660,26 @@
       "succession_issue": 1
     },
     "totalSignals": 11,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-4234098724",
+    "title": "Lite Fundamentals Proposal",
+    "subSection": "Lite Fundamentals",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "source": "keyword"
+  },
+  {
+    "page": "id-4570105459",
+    "title": "Lite Fundamentals Visual Aids",
+    "subSection": "Lite Fundamentals",
+    "profile": {
+      "strategy_needed": 10
+    },
+    "totalSignals": 10,
     "confidence": "high",
     "source": "auto"
   },
@@ -491,11 +786,44 @@
     "source": "auto"
   },
   {
+    "page": "id-458386486",
+    "title": "Baking Apple Pie",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-7911507941",
+    "title": "Beverages",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-6335013800",
     "title": "Break-Even",
     "subSection": "Revenue & Feasibility Models",
     "profile": {
       "strategy_needed": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-2405526495",
+    "title": "Butcher",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
     },
     "totalSignals": 10,
     "confidence": "high",
@@ -546,8 +874,30 @@
     "source": "auto"
   },
   {
+    "page": "id-9838262016",
+    "title": "Cleaners",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-2656438043",
     "title": "Construction",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-3652967577",
+    "title": "Consultancy Pricing",
     "subSection": "Revenue & Feasibility Models",
     "profile": {
       "revenue_modelling": 10
@@ -568,8 +918,74 @@
     "source": "auto"
   },
   {
+    "page": "id-4839857390",
+    "title": "Craft Production",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-9528768263",
+    "title": "Deliver and Hire",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-2363028463",
     "title": "Dentist",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-4496283136",
+    "title": "Doctor",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-5968387608",
+    "title": "Dress Maker",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-3167861288",
+    "title": "Drilling & Pumps",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-7300493666",
+    "title": "Dry Stock Farming",
     "subSection": "Revenue & Feasibility Models",
     "profile": {
       "revenue_modelling": 10
@@ -590,8 +1006,72 @@
     "source": "auto"
   },
   {
+    "page": "id-8990592804",
+    "title": "EBITDA",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "source": "keyword"
+  },
+  {
     "page": "id-2363382326",
     "title": "Engineering",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-7595084187",
+    "title": "Entry Fee",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-2031816767",
+    "title": "Farm House Budget",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-9422408981",
+    "title": "Fencing Cost pr Mtr",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-520637887",
+    "title": "Finance and Depreciation",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "cash_flow_gap": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-4159320328",
+    "title": "Financial Advisor",
     "subSection": "Revenue & Feasibility Models",
     "profile": {
       "revenue_modelling": 10
@@ -647,6 +1127,28 @@
     "source": "auto"
   },
   {
+    "page": "id-2564764117",
+    "title": "Hard & Software Sales",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-8630195960",
+    "title": "Health Spa",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-5397004441",
     "title": "High Level Budget",
     "subSection": "Revenue & Feasibility Models",
@@ -691,8 +1193,30 @@
     "source": "auto"
   },
   {
+    "page": "id-2924428930",
+    "title": "IT Services",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-3908104417",
     "title": "Joiner",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-3613015604",
+    "title": "Labour Margin Mix",
     "subSection": "Revenue & Feasibility Models",
     "profile": {
       "revenue_modelling": 10
@@ -734,6 +1258,28 @@
     "source": "auto"
   },
   {
+    "page": "id-4785641745",
+    "title": "Landscaping & Maintenance",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-2765249803",
+    "title": "Learn-from-Home",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-7790271877",
     "title": "Lease vs. Buy",
     "subSection": "Revenue & Feasibility Models",
@@ -757,6 +1303,28 @@
     "source": "auto"
   },
   {
+    "page": "id-7744014253",
+    "title": "Margin vs Markup",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "pricing_issue": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-2994412897",
+    "title": "Marine Harvest",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-7083515495",
     "title": "Midwife",
     "subSection": "Revenue & Feasibility Models",
@@ -768,8 +1336,30 @@
     "source": "auto"
   },
   {
+    "page": "id-7880718875",
+    "title": "Mobile Services",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-196230307",
     "title": "Motel & Lodge",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-7926022344",
+    "title": "Mussel Farm 2",
     "subSection": "Revenue & Feasibility Models",
     "profile": {
       "revenue_modelling": 10
@@ -804,8 +1394,30 @@
     "source": "auto"
   },
   {
+    "page": "id-8113313872",
+    "title": "Pet Shop",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-9440392920",
     "title": "Physiotherapy",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-8331651557",
+    "title": "Plumber",
     "subSection": "Revenue & Feasibility Models",
     "profile": {
       "revenue_modelling": 10
@@ -848,6 +1460,28 @@
     "source": "auto"
   },
   {
+    "page": "id-8663037039",
+    "title": "Raw Food",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-6135077820",
+    "title": "Real Estate Office",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-3263743632",
     "title": "Rental Property",
     "subSection": "Revenue & Feasibility Models",
@@ -881,6 +1515,18 @@
     "source": "auto"
   },
   {
+    "page": "id-9678770136",
+    "title": "Sales Dashboard",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "sales_volume": 10,
+      "data_quality": 10
+    },
+    "totalSignals": 20,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-8581344527",
     "title": "Sales Forecaster",
     "subSection": "Revenue & Feasibility Models",
@@ -892,8 +1538,50 @@
     "source": "auto"
   },
   {
+    "page": "id-9520016666",
+    "title": "Sales Teams",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-3757497372",
+    "title": "Scaffolding",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-1283439703",
+    "title": "Section Brief",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
     "page": "id-3071922878",
     "title": "Shop",
+    "subSection": "Revenue & Feasibility Models",
+    "profile": {
+      "revenue_modelling": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-6913003200",
+    "title": "Support Person",
     "subSection": "Revenue & Feasibility Models",
     "profile": {
       "revenue_modelling": 10
@@ -980,6 +1668,26 @@
     "source": "auto"
   },
   {
+    "page": "id-9261761081",
+    "title": "Business Insurance Model",
+    "subSection": "Risk Advisor Access",
+    "profile": {
+      "cash_flow_gap": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-3306202362",
+    "title": "Advisor Prep",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
     "page": "alignment-statements",
     "title": "Alignment Statements",
     "subSection": "Specialist Tools",
@@ -1021,6 +1729,15 @@
     "totalSignals": 10,
     "confidence": "high",
     "source": "auto"
+  },
+  {
+    "page": "id-1203724614",
+    "title": "Customer Reliance",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
   },
   {
     "page": "id-5291277413",
@@ -1069,6 +1786,15 @@
   {
     "page": "id-7015138225",
     "title": "Key Interviews",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-7390480359",
+    "title": "Location Review",
     "subSection": "Specialist Tools",
     "profile": {},
     "totalSignals": 0,
@@ -1127,6 +1853,19 @@
     "note": "no summary — manual profile needed"
   },
   {
+    "page": "id-5168118171",
+    "title": "Purchase Assessment Model 2",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "succession_issue": 10,
+      "cash_flow_gap": 5,
+      "revenue_modelling": 5
+    },
+    "totalSignals": 20,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-2228360143",
     "title": "Purchase Assessment Report 3",
     "subSection": "Specialist Tools",
@@ -1156,6 +1895,19 @@
       "staff_problem": 10
     },
     "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
+    "page": "id-4138307831",
+    "title": "Sale Assessment Model 2",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "succession_issue": 10,
+      "cash_flow_gap": 5,
+      "revenue_modelling": 5
+    },
+    "totalSignals": 20,
     "confidence": "high",
     "source": "auto"
   },
@@ -1201,6 +1953,26 @@
     "source": "auto"
   },
   {
+    "page": "id-6537846405",
+    "title": "Supply Chain Review",
+    "subSection": "Specialist Tools",
+    "profile": {},
+    "totalSignals": 0,
+    "confidence": "low",
+    "note": "no summary — manual profile needed"
+  },
+  {
+    "page": "id-629955404",
+    "title": "Turnaround Behaviours",
+    "subSection": "Specialist Tools",
+    "profile": {
+      "staff_problem": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
+  },
+  {
     "page": "id-6756274046",
     "title": "80/20 Farm Plan",
     "subSection": "Strategic Tools",
@@ -1208,6 +1980,17 @@
     "totalSignals": 0,
     "confidence": "low",
     "source": "keyword"
+  },
+  {
+    "page": "id-1015676757",
+    "title": "BNZ Templates",
+    "subSection": "Strategic Tools",
+    "profile": {
+      "governance_gap": 10
+    },
+    "totalSignals": 10,
+    "confidence": "high",
+    "source": "auto"
   },
   {
     "page": "id-9293972213",

@@ -17,7 +17,7 @@
 
 const { writeFileSync } = require('fs')
 const { resolve } = require('path')
-const { getClientTemplatesWithSummaries } = require('../server/utils/templateRegistry')
+const { getDoTheJobTemplatesWithSummaries } = require('../server/utils/templateRegistry')
 
 // ── Indicator keyword index ────────────────────────────────────────────────
 // Maps each signal type to keyword phrases found in indicator/purpose prose.
@@ -168,7 +168,7 @@ function confidenceTier (totalSignals) {
 }
 
 // ── Main ───────────────────────────────────────────────────────────────────
-const entries = getClientTemplatesWithSummaries()
+const entries = getDoTheJobTemplatesWithSummaries()
 
 const profiles = []
 const stats = { high: 0, medium: 0, low: 0, noSummary: 0, reviewed: 0, auto: 0, keyword: 0 }

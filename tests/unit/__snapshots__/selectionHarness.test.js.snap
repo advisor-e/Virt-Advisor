@@ -14,9 +14,9 @@ Object {
     "23 · Rubbish In - Rubbish Out [General Tools]",
     "20 · High Level Budget [Revenue & Feasibility Models]",
     "20 · Pivot [Strategic Tools]",
+    "20 · Sales Dashboard [Revenue & Feasibility Models]",
+    "18 · 3 Pillars of Financial Management [General Tools]",
     "15 · Assumptions [Revenue & Feasibility Models]",
-    "14 · Forecasting [Revenue & Feasibility Models]",
-    "12 · Demings Volatility [General Tools]",
   ],
 }
 `;
@@ -33,11 +33,11 @@ Object {
     "22 · Working Capital Cycle [General Tools]",
     "22 · Activity Ratios [General Tools]",
     "22 · Quick Fire Diagnosis [General Tools]",
+    "22 · Finance & Depreciation [Revenue & Feasibility Models]",
+    "22 · Finance and Depreciation [Revenue & Feasibility Models]",
     "22 · Debtor Protocols [General Tools]",
     "22 · Lease vs. Buy [Revenue & Feasibility Models]",
-    "20 · Asset Review [Specialist Tools]",
-    "20 · Porter's Revenue [Specialist Tools]",
-    "5 · Farm House Budget [Revenue & Feasibility Models]",
+    "20 · Business Insurance Model [Risk Advisor Access]",
   ],
 }
 `;
@@ -53,12 +53,12 @@ Object {
     "26 · Partner Accountability [Governance Tools]",
     "26 · Formal Risk Management [Governance Tools]",
     "25 · Nine Growth Aspects [Strategic Tools]",
+    "24 · Annual Board Plan [Governance Tools]",
     "24 · Mgt Annual Plan [General Tools]",
+    "24 · Board Member Conduct [Governance Tools]",
+    "23 · Firm Board Pack [Firm Manager Access]",
+    "22 · BNZ Templates [Strategic Tools]",
     "20 · Growth Framework [Growth Framework]",
-    "16 · Force Field Analysis [Strategic Tools]",
-    "8 · Planning Outcomes Review [Strategic Tools]",
-    "7.5 · Draft White Papers [Governance Tools]",
-    "7.5 · Leadership Review [Governance Tools]",
   ],
 }
 `;
@@ -67,20 +67,20 @@ exports[`selection harness — snapshot net (records current ranking per scenari
 Object {
   "selected": Array [
     "Cafe",
-    "Assumptions",
-    "4 Part Bizz Plan",
+    "Margin vs Markup",
+    "Price Rise",
   ],
   "top10": Array [
     "30 · Cafe [Revenue & Feasibility Models]",
+    "25 · Margin vs Markup [Revenue & Feasibility Models]",
+    "25 · Price Rise [General Tools]",
     "22 · Assumptions [Revenue & Feasibility Models]",
     "16 · 4 Part Bizz Plan [General Tools]",
     "15 · 1 pg Bizz Case [General Tools]",
+    "13 · 3 Pillars of Financial Management [General Tools]",
     "12 · Personal Budget [Revenue & Feasibility Models]",
+    "11 · Sale Assessment Model 2 [Specialist Tools]",
     "11 · FBT Questionnaire [EOY Notes & Docs]",
-    "9.5 · 8 Profit Levers [General Tools]",
-    "9.5 · Money Matters [General Tools]",
-    "8 · Working Capital Cycle [General Tools]",
-    "8 · Labour Only [Revenue & Feasibility Models]",
   ],
 }
 `;
@@ -88,16 +88,16 @@ Object {
 exports[`selection harness — snapshot net (records current ranking per scenario) raising-capital · funding growth 1`] = `
 Object {
   "selected": Array [
-    "3 Pillars of Financial Management",
     "Working Capital Cycle",
+    "Activity Ratios",
   ],
   "top10": Array [
-    "6 · 3 Pillars of Financial Management [General Tools]",
     "6 · Working Capital Cycle [General Tools]",
     "6 · Activity Ratios [General Tools]",
     "6 · Lite Feasibility [General Tools]",
     "6 · Mgt Annual Plan [General Tools]",
     "6 · 4 Part Bizz Plan [General Tools]",
+    "6 · 3 Pillars of Financial Management [General Tools]",
     "5 · Stock Policies [Specialist Tools]",
     "5 · Pitch Deck [Specialist Tools]",
     "5 · Financial Systems Review [Specialist Tools]",
@@ -115,14 +115,14 @@ Object {
   "top10": Array [
     "26 · Sales Session [Lite Fundamentals]",
     "25 · Customer Journey [General Tools]",
+    "25 · Sales Dashboard [Revenue & Feasibility Models]",
     "22 · Labour, Margin, Sales [Revenue & Feasibility Models]",
     "10 · Sales & Marketing Review [Strategic Tools]",
+    "10 · EOY Quiz [EOY Notes & Docs]",
     "6.5 · 8 Profit Levers [General Tools]",
-    "6.5 · Capacity, Capability, Opportunity [General Tools]",
-    "6.5 · IT Services [Revenue & Feasibility Models]",
     "6.5 · Client pre Meeting [General Tools]",
-    "6.5 · Real Estate Office [Revenue & Feasibility Models]",
-    "6.5 · Entry Fee [Revenue & Feasibility Models]",
+    "6 · Lite Marketing [Lite Fundamentals]",
+    "5 · Capacity, Capability, Opportunity [General Tools]",
   ],
 }
 `;
@@ -137,13 +137,13 @@ Object {
     "25 · Wages Review [Revenue & Feasibility Models]",
     "24 · Remuneration & Incentives [Specialist Tools]",
     "24 · Organisational Review [Strategic Tools]",
+    "23 · Leadership Review [Governance Tools]",
+    "22 · Capacity, Capability, Opportunity [General Tools]",
+    "22 · Capacity, Capability, Opportunity [General Tools]",
     "22 · HOPE Recession Model [General Tools]",
     "22 · 6 Hats [General Tools]",
     "22 · People Session [Lite Fundamentals]",
     "22 · People vs. Process [General Tools]",
-    "22 · Labour Only [Revenue & Feasibility Models]",
-    "22 · Lease vs. Buy [Revenue & Feasibility Models]",
-    "21 · Business Purchase Assessment 1 [Specialist Tools]",
   ],
 }
 `;
@@ -158,13 +158,13 @@ Object {
     "5 · Money Matters [General Tools]",
     "5 · Customer Journey [General Tools]",
     "4 · 8 Profit Levers [General Tools]",
-    "4 · Capacity, Capability, Opportunity [General Tools]",
-    "4 · Capacity, Capability, Opportunity [General Tools]",
     "4 · Stg. 1 Due Diligence [Specialist Tools]",
     "4 · Stock Policies [Specialist Tools]",
     "4 · Advisor Prep [General Tools]",
     "4 · Quick & Worst [General Tools]",
-    "4 · Price Rise [General Tools]",
+    "4 · Client pre Meeting [General Tools]",
+    "4 · Time Matters [General Tools]",
+    "4 · Covid Agendas [General Tools]",
   ],
 }
 `;

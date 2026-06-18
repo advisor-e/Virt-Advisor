@@ -75,18 +75,26 @@ function getTemplateByPage (pageId) {
 }
 
 /**
- * Returns all client-facing templates with their summaries.
- * Used by Stage 1 semantic selection.
+ * Returns every Do-the-Job template with its summary — the pool the template
+ * resolver actually scores. Used by scripts/build-semantic-profiles.js to build a
+ * fingerprint for each one.
+ *
+ * IMPORTANT: this must NOT filter on `includedInClient`. That field only governs
+ * whether a CLIENT self-serving in Advisor-e can see a template — not whether an
+ * advisor may recommend it. Filtering on it left ~150 templates (incl. the
+ * advisor-with-client tools unblocked in the resolver) with no fingerprint, so they
+ * could not compete on the dominant semantic lever. The boundary is menuSection
+ * (do-the-job only) — exactly what the resolver's eligibility filter uses.
  */
-function getClientTemplatesWithSummaries () {
+function getDoTheJobTemplatesWithSummaries () {
   const registry = getRegistry()
   const result = []
   for (const entry of registry.values()) {
-    if (entry.template.includedInClient === true) {
+    if (entry.template.menuSection === 'do-the-job') {
       result.push(entry)
     }
   }
   return result
 }
 
-module.exports = { getRegistry, getEntry, getSummaryByPage, getTemplateByPage, getClientTemplatesWithSummaries }
+module.exports = { getRegistry, getEntry, getSummaryByPage, getTemplateByPage, getDoTheJobTemplatesWithSummaries }
