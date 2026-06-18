@@ -474,6 +474,25 @@ const PREP_SKIP_FIELDS = new Set([
 
 const PREP_MODE_OFFER = "It sounds like you haven't met this client yet — want me to skip the questions about them and just prep what you can answer now?"
 
+// ── WIN-WORK INTENT ──────────────────────────────────────────────────────────
+// The advisor signals there's no specific client problem — they want to win/sell
+// more advisory work (get-the-job), not diagnose a problem (do-the-job). This
+// triggers a permission-based offer to switch to Learn mode (how-to-sell), mirroring
+// the prep-mode offer. The trigger is the INTENT, not the meeting type — so End-of-
+// Year client-delivery templates stay reachable for an advisor who genuinely needs
+// them, and a false trigger only ever costs the advisor a "No".
+const _WIN_WORK_PATTERN = /\b(up-?\s?sell|cross-?\s?sell|sell (?:them|him|her|the client|more|advisory|additional|extra|other services)|win (?:more |additional |further |extra )?(?:advisory |consulting )?(?:work|business|fees)|secure (?:them|him|her|the client)\b[^.!?]{0,40}\b(?:future|more|ongoing|further|advisory|services|work)|open(?:ing|s|ed)? (?:their|them|his|her)\b[^.!?]{0,30}\b(?:mind|eyes|up)\b|more advisory work|drum up (?:more )?(?:work|business)|grow (?:the|my|our|this) (?:relationship|account))\b/i
+const _NO_PROBLEM_PATTERN = /\b(no specific (?:problem|situation|issue)|not (?:really )?a (?:specific )?problem|don'?t (?:have|think there'?s) (?:a |any )?(?:specific )?(?:problem|issue)|nothing specific|no (?:real |particular )?(?:problem|issue) (?:right now|as such|yet|currently)|haven'?t got a (?:specific )?(?:problem|issue)|no problem (?:as such|right now))\b/i
+
+function detectWinWorkIntent (text) {
+  if (!text || typeof text !== 'string') { return false }
+  const t = text.toLowerCase().replace(/’/g, "'")
+  return _WIN_WORK_PATTERN.test(t) || _NO_PROBLEM_PATTERN.test(t)
+}
+
+// Approved wording (Mike 2026-06-19). [SELL_SWITCH_OFFER] renders the Yes/No buttons.
+const SALES_SWITCH_OFFER = "It sounds like there isn't a specific client problem to solve here — what you really want is to win more advisory work from this client. That's a different kind of help, and I've got a track built for exactly that: how to actually sell and position advisory services. Would you like me to switch to that instead?\n[SELL_SWITCH_OFFER]"
+
 // ── Uncertainty detection (Phase 2) ─────────────────────────────────────────
 // The advisor sounded UNSURE about what's driving the situation. Gates the
 // cause-first "dig-in": we only help them pin the driver when they're genuinely
@@ -829,6 +848,9 @@ async function handleQuery (rawBody, res, identity) {
       prepMode: false,
       prepModeOffered: false,
       awaitingPrepModeChoice: false,
+      // Win-work switch (offer to move to Learn / how-to-sell) — offered once.
+      salesSwitchOffered: false,
+      awaitingSalesSwitchChoice: false,
       domainConfirmed: null
     }, storedState || {})
 
@@ -908,6 +930,20 @@ async function handleQuery (rawBody, res, identity) {
       res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
       res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       res.end()
+    }
+
+    // ── WIN-WORK SWITCH choice: the advisor is answering the "switch to selling
+    // help?" offer. On yes, hand off to Learn mode (how-to-sell) — the Yes button
+    // flips the screen to Learn directly; the [SWITCH_TO_LEARN] signal also covers
+    // a free-text "yes". On no, fall through and carry on with the normal questions.
+    // (Placed after sendQuestion is defined, since it calls it.)
+    if (state.awaitingSalesSwitchChoice) {
+      state.awaitingSalesSwitchChoice = false
+      const _salesYes = /\b(yes|yeah|yep|sure|ok|okay|please|go ahead|do that|sounds good|switch|help me sell|let.?s|i do|definitely)\b/i
+      if (_salesYes.test(query)) {
+        return sendQuestion('[SWITCH_TO_LEARN]')
+      }
+      // Declined → fall through to the sequencer to continue the questions.
     }
 
     // ── INIT: create session, return opening question and session ID ──
@@ -1252,6 +1288,16 @@ async function handleQuery (rawBody, res, identity) {
             state.awaitingPrepModeChoice = true
             state.prepModeOffered = true
             return sendQuestion(PREP_MODE_OFFER, state)
+          }
+          // Win-work intent: the advisor signals there's no specific client problem —
+          // they want to win/sell more advisory work. Offer (once) to switch to Learn
+          // mode (how-to-sell). On yes the screen flips to Learn carrying context; on
+          // no we carry on with the questions. Triggered by intent, not the meeting
+          // type, so EOY client-delivery stays reachable for a genuine delivery need.
+          if (!state.salesSwitchOffered && !state.prepMode && detectWinWorkIntent(query)) {
+            state.awaitingSalesSwitchChoice = true
+            state.salesSwitchOffered = true
+            return sendQuestion(SALES_SWITCH_OFFER)
           }
         }
       }
@@ -2154,6 +2200,7 @@ module.exports.buildDomainConfirmationMessage = buildDomainConfirmationMessage
 module.exports._isValidConfirmation = _isValidConfirmation
 module.exports.detectNotMetClient = detectNotMetClient
 module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
+module.exports.detectWinWorkIntent = detectWinWorkIntent
 module.exports.detectUncertainty = detectUncertainty
 module.exports.parseMeetingCount = parseMeetingCount
 module.exports.classifyDistinctions = classifyDistinctions
