@@ -1,4 +1,4 @@
-import { listCases, updateCaseReview, deleteCase, setCaseVisibility } from '~/utils/cases'
+import { listCases, updateCaseReview, deleteCase, setCaseVisibility, migrateLegacyCases } from '~/utils/cases'
 
 const BACKEND = 'http://localhost:4000'
 
@@ -31,7 +31,10 @@ export default {
     }
   },
 
-  mounted () {
+  async mounted () {
+    // One-time lift of any pre-database cases from this browser's localStorage,
+    // then load from the backend. Migration failure must never block the load.
+    try { await migrateLegacyCases(this.apiToken) } catch (e) { /* keep going */ }
     this.refreshMyCases()
   },
 

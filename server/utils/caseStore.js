@@ -255,6 +255,11 @@ function _devList (advisorId, firmId) {
 
 function _devCreate (row) {
   const all = _devReadAll()
+  // Mirror the DB primary-key constraint: a duplicate id is rejected (the live
+  // INSERT would throw), so a migration re-run can never create duplicates here.
+  if (all.some(c => c.id === row.id)) {
+    throw new Error(`duplicate case id: ${row.id}`)
+  }
   const now = new Date().toISOString()
   const entry = {
     ...rowToCase({ ...row, created_at: now, updated_at: now }),
