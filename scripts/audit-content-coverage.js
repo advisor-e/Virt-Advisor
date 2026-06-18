@@ -32,7 +32,9 @@ const profiles = load('data/semantic-profiles.json')
 const summaries = load('data/content-summaries.json')
 const logicTrees = load('data/logic_trees.json')
 
-const clientTemplates = searchContent.filter(t => t.includedInClient)
+// Do-the-Job templates — the pool the resolver scores (NOT the includedInClient
+// client-self-serve flag, which hid the advisor-with-client tools)
+const clientTemplates = searchContent.filter(t => t.menuSection === 'do-the-job')
 const allTitles = new Set(searchContent.map(t => t.title))
 const summaryNames = new Set(summaries.map(s => s.name))
 const profileTitles = new Set(profiles.map(p => p.title))

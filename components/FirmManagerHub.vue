@@ -560,8 +560,13 @@ const BACKEND = 'http://localhost:4000'
 
 const ADVISORY_DISTINCTIONS = require('~/data/advisory-distinctions.json')
 
+// The distinctions picker offers the templates a distinction can meaningfully boost —
+// i.e. the pool the resolver actually scores: every Do-the-Job template. Do NOT filter
+// on includedInClient (that field only governs client self-serve visibility, not whether
+// an advisor can recommend it) — that wrongly hid ~150 templates from the picker. Derived
+// straight from templates.json, so it reflects the JSON automatically.
 const ALL_CLIENT_TEMPLATES = require('~/data/templates.json')
-  .filter(t => t.includedInClient)
+  .filter(t => t.menuSection === 'do-the-job')
   .map(t => ({ title: t.title, subSection: t.subSection }))
   .sort((a, b) => a.title.localeCompare(b.title))
 

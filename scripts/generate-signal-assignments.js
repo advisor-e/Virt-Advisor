@@ -271,8 +271,9 @@ const summaryByName = new Map(summaries.map(s => [s.name, s]))
 // Build logic-tree template set for P3 detection
 const logicTreeTemplates = buildLogicTreeSet()
 
-// Client-facing templates only
-const clientTemplates = searchContent.filter(t => t.includedInClient)
+// Do-the-Job templates — the pool the resolver scores (NOT the includedInClient
+// client-self-serve flag, which hid the advisor-with-client tools)
+const clientTemplates = searchContent.filter(t => t.menuSection === 'do-the-job')
 console.log(`Client templates found: ${clientTemplates.length}`)
 
 let counts = { P0: 0, P1: 0, P2: 0, P3: 0, withSignals: 0, noSignals: 0, carried: 0 }
