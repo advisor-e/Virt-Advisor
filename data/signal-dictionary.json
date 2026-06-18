@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Signal extraction dictionary — the single source of truth for what advisor phrases map to which signals. Edit this file to add or improve phrase coverage. No code changes required. Run npm run build:semantic-profiles after changes.",
   "signals": {
     "sales_volume": {
@@ -25,6 +25,10 @@
         "not upselling",
         "upsell(ing)?.*not happening",
         "no upsell",
+        "upsell(ing)?",
+        "cross.?sell(ing)?",
+        "sell(ing)? more",
+        "increase (their )?(average )?(spend|transaction|basket|order value)",
         "sales (issue|problem|trouble|struggle|struggling)",
         "struggling (to|with) (sell|sales)",
         "(low|declining|dropping|falling) sales",

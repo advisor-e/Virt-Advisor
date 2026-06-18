@@ -61,7 +61,9 @@ const SCENARIOS = {
     growthStage: 'Leverage',
     confidence: 'low',
     industry: 'a couple of cafes', // the real (voice-transcribed) industry answer
-    problemSignals: { revenue_modelling: 1, pricing_issue: 1 }
+    // revenue_modelling + pricing from "don't understand costs / guessing prices";
+    // sales_volume from "how to upsell" (now caught by the dictionary's opportunity patterns)
+    problemSignals: { revenue_modelling: 1, pricing_issue: 1, sales_volume: 1 }
   },
   'forecasting · cash flow': {
     domain: 'forecasting',
@@ -127,8 +129,9 @@ describe('selection harness — TARGET outcomes (flip .skip → test as fixes la
     expect(top10.join('\n')).toMatch(/· Cafe \[/)
   })
 
-  // Upselling mentioned → a sales tool should be reachable in a profit/sales case.
-  test.skip('profit/sales case surfaces Sales Session', () => {
+  // Upselling mentioned → sales_volume now fires (dictionary opportunity patterns),
+  // so a sales tool is reachable in the café case. LIVE now.
+  test('profit/sales case surfaces Sales Session', () => {
     const { top10 } = run(SCENARIOS['profit · café pricing+feasibility'])
     expect(top10.join('\n')).toMatch(/Sales Session/)
   })

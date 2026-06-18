@@ -67,20 +67,20 @@ exports[`selection harness — snapshot net (records current ranking per scenari
 Object {
   "selected": Array [
     "Cafe",
+    "Labour, Margin, Sales",
     "Margin vs Markup",
-    "Price Rise",
   ],
   "top10": Array [
     "30 · Cafe [Revenue & Feasibility Models]",
+    "25 · Labour, Margin, Sales [Revenue & Feasibility Models]",
     "25 · Margin vs Markup [Revenue & Feasibility Models]",
+    "25 · Customer Journey [General Tools]",
     "25 · Price Rise [General Tools]",
     "22 · Assumptions [Revenue & Feasibility Models]",
+    "22 · Sales Dashboard [Revenue & Feasibility Models]",
+    "21 · Sales Session [Lite Fundamentals]",
     "16 · 4 Part Bizz Plan [General Tools]",
     "15 · 1 pg Bizz Case [General Tools]",
-    "13 · 3 Pillars of Financial Management [General Tools]",
-    "12 · Personal Budget [Revenue & Feasibility Models]",
-    "11 · Sale Assessment Model 2 [Specialist Tools]",
-    "11 · FBT Questionnaire [EOY Notes & Docs]",
   ],
 }
 `;
