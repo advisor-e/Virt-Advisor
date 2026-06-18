@@ -88,20 +88,20 @@ Object {
 exports[`selection harness — snapshot net (records current ranking per scenario) raising-capital · funding growth 1`] = `
 Object {
   "selected": Array [
+    "Pitch Deck",
     "Working Capital Cycle",
-    "Activity Ratios",
   ],
   "top10": Array [
+    "6.5 · Pitch Deck [Specialist Tools]",
     "6 · Working Capital Cycle [General Tools]",
     "6 · Activity Ratios [General Tools]",
     "6 · Lite Feasibility [General Tools]",
     "6 · Mgt Annual Plan [General Tools]",
     "6 · 4 Part Bizz Plan [General Tools]",
     "6 · 3 Pillars of Financial Management [General Tools]",
+    "5.5 · Advisor Prep [General Tools]",
+    "5.5 · Quick & Worst [General Tools]",
     "5 · Stock Policies [Specialist Tools]",
-    "5 · Pitch Deck [Specialist Tools]",
-    "5 · Financial Systems Review [Specialist Tools]",
-    "4 · Advisor Prep [General Tools]",
   ],
 }
 `;
@@ -152,14 +152,14 @@ exports[`selection harness — snapshot net (records current ranking per scenari
 Object {
   "selected": Array [
     "Money Matters",
-    "Customer Journey",
+    "Stock Policies",
   ],
   "top10": Array [
-    "5 · Money Matters [General Tools]",
+    "6.5 · Money Matters [General Tools]",
+    "5.5 · Stock Policies [Specialist Tools]",
     "5 · Customer Journey [General Tools]",
     "4 · 8 Profit Levers [General Tools]",
     "4 · Stg. 1 Due Diligence [Specialist Tools]",
-    "4 · Stock Policies [Specialist Tools]",
     "4 · Advisor Prep [General Tools]",
     "4 · Quick & Worst [General Tools]",
     "4 · Client pre Meeting [General Tools]",

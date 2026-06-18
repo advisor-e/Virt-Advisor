@@ -361,18 +361,25 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     // Maps active in-domain signals to keyword sets and scores purpose/tag text matches.
     // Ensures templates in the 90-missing-summary set can still compete on content.
     if (!_hasSemanticProfile && _activeSignalEntries.length > 0) {
+      // Keyword sets keyed by the live signal-dictionary signals. Kept in step with
+      // signal-dictionary.json (the single source) — every non-penalty signal has an
+      // entry. (Previously this drifted: it carried a phantom `profit_plateau` and
+      // lacked revenue_modelling / stock_management / capital_raising, so no-profile
+      // templates couldn't score on those signals.)
       const PURPOSE_FALLBACK_KEYWORDS = {
-        sales_volume: ['sales', 'customer', 'foot traffic', 'marketing', 'conversion', 'prospect', 'revenue'],
+        sales_volume: ['sales', 'customer', 'foot traffic', 'marketing', 'conversion', 'prospect', 'revenue', 'upsell', 'cross-sell'],
         marketing_gap: ['marketing', 'market', 'brand', 'message', 'customer', 'digital', 'outbound'],
         pricing_issue: ['price', 'pricing', 'margin', 'discount', 'value'],
         cash_flow_gap: ['cash flow', 'cashflow', 'debtor', 'liquidity', 'working capital'],
-        profit_plateau: ['profit', 'margin', 'profitab', 'levers', 'growth'],
+        revenue_modelling: ['revenue model', 'feasibility', 'forecast', 'projection', 'cost model', 'pricing model', 'break-even', 'industry model'],
         staff_problem: ['staff', 'team', 'employee', 'people', 'performance', 'delegation'],
         data_quality: ['data', 'reporting', 'accounts', 'kpi', 'indicator', 'dashboard'],
         governance_gap: ['governance', 'board', 'accountab', 'director', 'decision'],
         succession_issue: ['succession', 'exit', 'sale', 'transition', 'business sale'],
         strategy_needed: ['strategy', 'planning', 'strategic', 'swot', 'competitive'],
-        systems_gap: ['system', 'process', 'workflow', 'procedure', 'operation']
+        systems_gap: ['system', 'process', 'workflow', 'procedure', 'operation'],
+        stock_management: ['stock', 'inventory', 'reorder', 'overstock', 'stockout', 'supply chain', 'days on hand'],
+        capital_raising: ['capital', 'funding', 'investor', 'investment', 'undercapitalised', 'raise finance']
       }
       const _purposeText = [purposeLower, (t.support || '').toLowerCase()].join(' ')
       let purposeFallbackScore = 0
