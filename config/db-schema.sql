@@ -165,3 +165,58 @@ CREATE TABLE IF NOT EXISTS `advisor_course_completions` (
   CONSTRAINT `fk_course_comp_firm`
     FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- va_case_studies
+-- One row per saved case study. Stored centrally (not in browser localStorage)
+-- so a case follows the advisor across every device they log in from.
+--
+-- `visibility` is the entire privacy model:
+--   'private' = the owning advisor only, on any of their devices (access-
+--               controlled by advisor_id from the verified JWT — team and firm
+--               manager cannot see it);
+--   'shared'  = the whole firm (team + manager).
+-- An advisor can flip a case BOTH ways (private <-> shared); the toggle simply
+-- UPDATEs this one column. Default is 'private' as a fail-safe — the save UI
+-- always sends an explicit choice, so the default only ever applies if a write
+-- somehow arrives without one, in which case we fail to least exposure.
+--
+-- Reads are scoped from the verified JWT: an advisor sees their own cases (any
+-- visibility) plus their firm's 'shared' cases. This closes the legacy
+-- localStorage IDOR (identity was previously trusted from the client).
+--
+-- `id` is a client-generated UUID (crypto.randomUUID) preserved as-is across the
+-- localStorage -> DB migration. advisor_id is NOT FK-constrained — the advisors
+-- table belongs to the Advisor-e platform, not this schema.
+-- Retention (future): age-based purge can key off `created_at` — no extra column.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `va_case_studies` (
+  `id`                         VARCHAR(64)              NOT NULL,
+  `advisor_id`                 VARCHAR(64)              NOT NULL,
+  `firm_id`                    VARCHAR(64)              NOT NULL,
+  `title`                      VARCHAR(255)             NOT NULL,
+  `mode`                       VARCHAR(32)              NOT NULL,
+  `visibility`                 ENUM('private','shared') NOT NULL DEFAULT 'private',
+  `domain`                     VARCHAR(128)                      DEFAULT NULL,
+  `staircase_step`             VARCHAR(128)                      DEFAULT NULL,
+  `growth_stage`               VARCHAR(64)                       DEFAULT NULL,
+  `fin_mgt_theme`              VARCHAR(128)                      DEFAULT NULL,
+  `templates`                  JSON                              DEFAULT NULL,
+  `summary`                    TEXT                              DEFAULT NULL,
+  `transcript`                 LONGTEXT                          DEFAULT NULL,
+  `feedback_pending`           TINYINT(1)               NOT NULL DEFAULT 1,
+  `review_went_well`           TEXT                              DEFAULT NULL,
+  `review_went_less`           TEXT                              DEFAULT NULL,
+  `review_changes_recommended` TEXT                              DEFAULT NULL,
+  `reviewed_at`                DATETIME                          DEFAULT NULL,
+  `created_at`                 DATETIME                 NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`                 DATETIME                 NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                                        ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_cases_advisor`          (`advisor_id`),
+  KEY `idx_cases_firm_visibility`  (`firm_id`, `visibility`),
+  KEY `idx_cases_domain`           (`domain`),
+  KEY `idx_cases_feedback_pending` (`firm_id`, `feedback_pending`),
+  CONSTRAINT `fk_cases_firm`
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
