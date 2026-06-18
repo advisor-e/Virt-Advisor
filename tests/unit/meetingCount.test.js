@@ -30,7 +30,11 @@ describe('parseMeetingCount — voice-input-safe', () => {
     ['two perhaps three', 3],
     ['two or ideally three', 3],
     ['two or even three', 3],
-    ['two up to three', 3]
+    ['two up to three', 3],
+    ['two meetings possibly 3 if need be', 3], // live bug: "meetings" between the numbers → was 2
+    ['two meetings, possibly 3', 3],
+    ['2 or 3 meetings', 3],
+    ['up to 4 sessions', 4]
   ])('parses "%s" → %i', (input, expected) => {
     expect(parseMeetingCount(input)).toBe(expected)
   })

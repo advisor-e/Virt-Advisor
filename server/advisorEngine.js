@@ -498,19 +498,25 @@ function parseMeetingCount (text) {
   if (!text || typeof text !== 'string' || text === 'pending') { return null }
   const t = text.toLowerCase()
   const map = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, too: 2, couple: 2, few: 3 }
-  const num = '(one|two|three|four|five|six|too|couple|few|\\d)'
-  // Allow one OR MORE linking words between the two numbers so "two or maybe
-  // three" reads as a range (upper bound 3), not just the first number. A single
-  // connector ("two or three", "two to three") still works. The connector list
-  // covers the natural hedging words advisors use when committing to a range
-  // ("two possibly three", "two perhaps three", "two or ideally three") — the
-  // upper bound is taken so we fill the engagement to the level agreed.
-  const connectors = '(?:to|or|maybe|possibly|perhaps|ideally|even|up\\s+to)'
-  const range = t.match(new RegExp('\\b' + num + '(?:\\s+' + connectors + ')+\\s+' + num + '\\b', 'i'))
-  if (range) { return map[range[2]] || parseInt(range[2], 10) || null }
-  const single = t.match(new RegExp('\\b' + num + '\\b', 'i'))
-  if (single) { return map[single[1]] || parseInt(single[1], 10) || null }
-  return null
+  const numToken = '(one|two|three|four|five|six|too|couple|few|\\d+)'
+
+  // Collect EVERY number word/digit in the answer (word-bounded so "one" inside
+  // "money" doesn't match), mapped to a value and capped to a realistic meeting
+  // count (1–6) so a stray figure elsewhere can't skew it.
+  const tokens = t.match(new RegExp('\\b' + numToken + '\\b', 'gi')) || []
+  const nums = tokens
+    .map(tok => map[tok] || parseInt(tok, 10))
+    .filter(n => Number.isInteger(n) && n >= 1 && n <= 6)
+  if (nums.length === 0) { return null }
+
+  // When the answer HEDGES to a higher figure — "two possibly three", "two
+  // meetings, possibly 3", "2 or 3", "up to 4" — take the upper bound so we fill
+  // the engagement to the level agreed, regardless of words sitting between the
+  // numbers (the old pattern needed the linking word immediately after the first
+  // number, so "two MEETINGS possibly 3" wrongly read as 2). A plain "2 meetings"
+  // (no hedge word) keeps the single figure.
+  const hedged = /\b(to|or|maybe|possibly|perhaps|ideally|even|up\s+to)\b/.test(t)
+  return hedged ? Math.max(...nums) : nums[0]
 }
 
 function buildCourseCorrectionMsg (state) {
