@@ -709,7 +709,10 @@ export default {
       deletingDistinctionId: null,
       confirmDeleteDistinctionId: null,
       templatePickerSearch: '',
-      templatePickerSubSection: '',
+      // Default the picker to a single area so it opens on a short, focused list
+      // (not all ~106 templates at once). The advisor switches areas via the dropdown
+      // or types in search; the two revenue-model group options are always shown on top.
+      templatePickerSubSection: 'General Tools',
       // Revenue-model GROUP targets — let a distinction boost a whole group of revenue
       // models instead of one named model; the engine auto-matches the specific model to
       // the client's industry. Tokens are stored in distinctionForm.templates and read by
@@ -1171,7 +1174,7 @@ export default {
         }
       }
       this.templatePickerSearch = ''
-      this.templatePickerSubSection = ''
+      this.templatePickerSubSection = 'General Tools'
       this.showDistinctionForm = true
     },
 
@@ -1181,7 +1184,7 @@ export default {
       this.editingDistinctionKind = null
       this.distinctionForm = { domain: '', description: '', triggers: [], templates: [], boost: 5 }
       this.templatePickerSearch = ''
-      this.templatePickerSubSection = ''
+      this.templatePickerSubSection = 'General Tools'
     },
 
     toggleTemplateSelection (title) {
