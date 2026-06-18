@@ -67,6 +67,9 @@ describe('listCases', () => {
 
     expect(res._status).toBe(200)
     expect(res._body.success).toBe(true)
+    // The authenticated advisor is echoed back so the client knows which cases
+    // are its own — never trusting a client-held id.
+    expect(res._body.advisorId).toBe('advisor-from-jwt')
     // The visibility scope lives in the SQL; identity params are the trusted ones.
     const params = db.execute.mock.calls[0][1]
     expect(params).toEqual(['advisor-from-jwt', 'firm-from-jwt'])

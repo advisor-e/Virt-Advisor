@@ -701,7 +701,7 @@
 <script>
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
-import { saveCase } from '~/utils/cases'
+import { createCase } from '~/utils/cases'
 import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
@@ -1035,15 +1035,14 @@ export default {
       this.intakeDismissed = true
     },
 
-    saveSession () {
+    async saveSession () {
       this.saveError = null
       if (!this.saveTitle.trim()) { return }
       try {
         const lastAI = [...this.messages].reverse().find(m => m.role === 'assistant')
         const summary = lastAI ? lastAI.content.slice(0, 600) + (lastAI.content.length > 600 ? '…' : '') : ''
-        saveCase({
-          advisorId: this.advisorId,
-          firmId: this.firmId,
+        // advisorId/firmId are NOT sent — the backend derives them from the token.
+        await createCase({
           title: this.saveTitle.trim(),
           mode: this.mode,
           transcript: this.messages,
@@ -1055,8 +1054,8 @@ export default {
           growthStage: this.selectedGrowthStage,
           finMgtTheme: this.selectedFinMgtTheme,
           feedbackPending: !this.intakeComplete
-        })
-        this.refreshMyCases()
+        }, this.apiToken)
+        await this.refreshMyCases()
         this.saveSuccess = true
         this.saveTitle = ''
         if (this._saveTimer) { clearTimeout(this._saveTimer) }

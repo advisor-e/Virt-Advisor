@@ -12,9 +12,11 @@ const caseStore = require('../utils/caseStore')
 
 /**
  * GET /api/cases — the cases visible to the authenticated advisor: their own
- * (any visibility) plus their firm's shared cases.
+ * (any visibility) plus their firm's shared cases. The authenticated `advisorId`
+ * is echoed back so the client can tell which cases are the advisor's own (it
+ * must not rely on a client-held id — identity is server-derived here).
  * @route GET /api/cases
- * @returns {200} { success: true, cases: object[] }
+ * @returns {200} { success: true, advisorId: string, cases: object[] }
  * @returns {403} NO_ADVISOR_IDENTITY · {500} DB_ERROR
  */
 async function listCases (req, res) {
@@ -25,7 +27,7 @@ async function listCases (req, res) {
   }
   try {
     const cases = await caseStore.listForAdvisor(advisorId, firmId)
-    res.send(200, { success: true, cases })
+    res.send(200, { success: true, advisorId, cases })
   } catch (err) {
     console.error('[cases] listCases failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load case studies')

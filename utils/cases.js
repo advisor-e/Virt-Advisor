@@ -1,79 +1,88 @@
 /**
- * Case study storage — localStorage now, MySQL API later.
- * To migrate: replace the four functions below with API calls.
- * The rest of the app is storage-agnostic.
+ * Case study API client — talks to the secured /api/cases backend routes.
+ *
+ * Storage moved from browser localStorage to the firm database (2026-06-19, see
+ * design memory `design-case-study-visibility-model`) so a case follows the
+ * advisor across devices and a "shared" case actually reaches the firm.
+ *
+ * Identity (advisorId/firmId) is derived server-side from the Bearer token and is
+ * never sent in the body — so these functions only carry the token + payload.
+ *
+ * The cases routes live on the Restify backend with no Nuxt proxy, so they are
+ * called at the absolute backend URL (the same pattern as the promote button).
  */
 
-const STORAGE_KEY = 'va_case_studies'
+const BACKEND = 'http://localhost:4000'
 
-function generateId () {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID()
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-}
-
-function persistCases (cases) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cases))
-  } catch (e) {
-    if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
-      // Storage full — drop the oldest half and retry once
-      const trimmed = cases.slice(0, Math.max(1, Math.floor(cases.length / 2)))
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed))
-      } catch (e2) {
-        throw new Error('Storage quota exceeded. Please delete some saved cases to free up space.')
-      }
-    } else {
-      throw e
-    }
-  }
-}
-
-export function getCases () {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-  } catch (e) {
-    return []
-  }
-}
-
-export function saveCase (caseData) {
-  const cases = getCases()
-  const entry = {
-    ...caseData,
-    id: generateId(),
-    createdAt: new Date().toISOString()
-  }
-  cases.unshift(entry)
-  persistCases(cases)
-  return entry
-}
-
-export function updateCaseReview (id, review) {
-  const cases = getCases().map(c => c.id === id ? { ...c, review, feedbackPending: false } : c)
-  persistCases(cases)
-}
-
-export function deleteCase (id) {
-  const cases = getCases().filter(c => c.id !== id)
-  persistCases(cases)
+function authHeaders (token) {
+  return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
 }
 
 /**
- * Returns cases relevant to the current session:
- * - Advisor's own cases (any visibility)
- * - Shared cases from the same firm
- * Filtered to the same mode, most recent first, capped at limit.
+ * Fetch the cases visible to the signed-in advisor (their own, any visibility,
+ * plus their firm's shared cases). Returns the authenticated advisorId too, so
+ * the caller can tell which cases are the advisor's own.
+ * @param {string} token - Bearer token
+ * @returns {Promise<{cases: object[], advisorId: string|null}>}
  */
-export function getRelevantCases (advisorId, firmId, mode, limit = 4) {
-  return getCases()
-    .filter((c) => {
-      if (c.mode !== mode) { return false }
-      const isOwn = c.advisorId === advisorId
-      const isFirmShared = c.firmId === firmId && c.visibility === 'shared'
-      return isOwn || isFirmShared
-    })
-    .slice(0, limit)
+export async function listCases (token) {
+  const res = await fetch(`${BACKEND}/api/cases`, { headers: authHeaders(token) })
+  if (!res.ok) { throw new Error(`Failed to load cases (${res.status})`) }
+  const data = await res.json()
+  return { cases: data.cases || [], advisorId: data.advisorId || null }
+}
+
+/**
+ * Save a new case. advisorId/firmId are NOT sent — the backend derives them from
+ * the token. Returns the stored case (with its server-assigned fields).
+ * @param {object} caseData
+ * @param {string} token - Bearer token
+ * @returns {Promise<object>}
+ */
+export async function createCase (caseData, token) {
+  const res = await fetch(`${BACKEND}/api/cases`, {
+    method: 'POST', headers: authHeaders(token), body: JSON.stringify(caseData)
+  })
+  if (!res.ok) { throw new Error(`Failed to save case (${res.status})`) }
+  return (await res.json()).case
+}
+
+/**
+ * Record the post-delivery review on an owned case.
+ * @param {string} id
+ * @param {{wentWell?:string, wentLess?:string, changesRecommended?:string}} review
+ * @param {string} token - Bearer token
+ */
+export async function updateCaseReview (id, review, token) {
+  const res = await fetch(`${BACKEND}/api/cases/${encodeURIComponent(id)}/review`, {
+    method: 'PUT', headers: authHeaders(token), body: JSON.stringify(review)
+  })
+  if (!res.ok) { throw new Error(`Failed to save review (${res.status})`) }
+}
+
+/**
+ * Flip an owned case between 'private' and 'shared'.
+ * @param {string} id
+ * @param {'private'|'shared'} visibility
+ * @param {string} token - Bearer token
+ * @returns {Promise<string>} the new visibility
+ */
+export async function setCaseVisibility (id, visibility, token) {
+  const res = await fetch(`${BACKEND}/api/cases/${encodeURIComponent(id)}/visibility`, {
+    method: 'PUT', headers: authHeaders(token), body: JSON.stringify({ visibility })
+  })
+  if (!res.ok) { throw new Error(`Failed to change visibility (${res.status})`) }
+  return (await res.json()).visibility
+}
+
+/**
+ * Delete an owned case.
+ * @param {string} id
+ * @param {string} token - Bearer token
+ */
+export async function deleteCase (id, token) {
+  const res = await fetch(`${BACKEND}/api/cases/${encodeURIComponent(id)}`, {
+    method: 'DELETE', headers: authHeaders(token)
+  })
+  if (!res.ok) { throw new Error(`Failed to delete case (${res.status})`) }
 }

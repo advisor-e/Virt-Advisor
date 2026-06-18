@@ -1,4 +1,4 @@
-import { getRelevantCases, updateCaseReview, deleteCase, getCases } from '~/utils/cases'
+import { listCases, updateCaseReview, deleteCase } from '~/utils/cases'
 
 const BACKEND = 'http://localhost:4000'
 
@@ -6,6 +6,10 @@ export default {
   data () {
     return {
       myCases: [],
+      // The full set the advisor may see (own + firm-shared), loaded from the
+      // backend. `relevantCases` is derived from this; `myCases` is the own subset.
+      visibleCases: [],
+      casesError: false,
       showCasesPanel: false,
       expandedCaseId: null,
       transcriptOpenId: null,
@@ -20,7 +24,9 @@ export default {
   computed: {
     relevantCases () {
       if (!this.mode) { return [] }
-      return getRelevantCases(this.advisorId, this.firmId, this.mode)
+      // Own + firm-shared cases for this mode (the backend already scoped them);
+      // most-recent-first is preserved from the server ordering. Cap at 4.
+      return this.visibleCases.filter(c => c.mode === this.mode).slice(0, 4)
     }
   },
 
@@ -29,8 +35,20 @@ export default {
   },
 
   methods: {
-    refreshMyCases () {
-      this.myCases = getCases().filter(c => c.advisorId === this.advisorId)
+    async refreshMyCases () {
+      try {
+        const { cases, advisorId } = await listCases(this.apiToken)
+        this.visibleCases = cases
+        // "My" cases are the ones the SIGNED-IN advisor owns — keyed on the
+        // server-returned identity, not the (possibly placeholder) advisorId
+        // prop. Firm-shared cases from others stay in visibleCases (for the AI
+        // reference) but are not listed as "mine".
+        this.myCases = advisorId ? cases.filter(c => c.advisorId === advisorId) : cases
+        this.casesError = false
+      } catch (e) {
+        // Never crash the session on a load failure; keep any cases already shown.
+        this.casesError = true
+      }
     },
 
     closeCasesPanel () {
@@ -61,10 +79,15 @@ export default {
         : { wentWell: '', wentLess: '', changesRecommended: '' }
     },
 
-    saveReview (caseId) {
-      updateCaseReview(caseId, { ...this.reviewDraft, reviewedAt: new Date().toISOString() })
-      this.refreshMyCases()
-      this.closeCasesPanel()
+    async saveReview (caseId) {
+      try {
+        await updateCaseReview(caseId, { ...this.reviewDraft, reviewedAt: new Date().toISOString() }, this.apiToken)
+        await this.refreshMyCases()
+        this.closeCasesPanel()
+      } catch (e) {
+        // Keep the panel open with the draft intact so the advisor can retry.
+        this.casesError = true
+      }
     },
 
     async promoteCase (c) {
@@ -96,11 +119,15 @@ export default {
       }
     },
 
-    deleteCaseAndRefresh (id) {
-      deleteCase(id)
-      this.refreshMyCases()
-      this.expandedCaseId = null
-      this.confirmDeleteId = null
+    async deleteCaseAndRefresh (id) {
+      try {
+        await deleteCase(id, this.apiToken)
+        await this.refreshMyCases()
+        this.expandedCaseId = null
+        this.confirmDeleteId = null
+      } catch (e) {
+        this.casesError = true
+      }
     },
 
     modeName (mode) {
