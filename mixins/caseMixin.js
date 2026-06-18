@@ -1,4 +1,4 @@
-import { listCases, updateCaseReview, deleteCase } from '~/utils/cases'
+import { listCases, updateCaseReview, deleteCase, setCaseVisibility } from '~/utils/cases'
 
 const BACKEND = 'http://localhost:4000'
 
@@ -10,6 +10,7 @@ export default {
       // backend. `relevantCases` is derived from this; `myCases` is the own subset.
       visibleCases: [],
       casesError: false,
+      visibilityBusyId: null,
       showCasesPanel: false,
       expandedCaseId: null,
       transcriptOpenId: null,
@@ -116,6 +117,24 @@ export default {
       } catch (e) {
         this.promoteErrorId = c.id
         setTimeout(() => { this.promoteErrorId = null }, 3000)
+      }
+    },
+
+    // Flip a case between private and shared (both directions). Owner-only is
+    // enforced server-side; identity rides the token. Keeps the case expanded so
+    // the advisor sees the new state immediately.
+    async toggleVisibility (caseId) {
+      const c = this.myCases.find(x => x.id === caseId)
+      if (!c) { return }
+      const next = c.visibility === 'shared' ? 'private' : 'shared'
+      this.visibilityBusyId = caseId
+      try {
+        await setCaseVisibility(caseId, next, this.apiToken)
+        await this.refreshMyCases()
+      } catch (e) {
+        this.casesError = true
+      } finally {
+        this.visibilityBusyId = null
       }
     },
 
