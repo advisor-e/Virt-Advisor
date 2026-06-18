@@ -358,28 +358,31 @@ section.firm-manager-hub.section
                 footer.modal-card-foot
                   b-button(@click="showDistinctionHelpModal = false") Close
 
-            //- Platform rows (read-only)
-            p.has-text-weight-semibold.mb-2 Platform distinctions — {{ currentDistinctionDomainLabel }}
-            b-notification.mb-3(type="is-info is-light" :closable="false" style="font-size:0.85rem")
-              | Platform rows are shared across all firms and cannot be edited here.
-              | Add your own rows below to boost specific templates for situations unique to your practice.
-            b-table.mb-5(
-              :data="activeDistinctions"
-              :hoverable="true"
-              size="is-small"
-              empty-string="No platform distinctions for this domain"
-            )
-              b-table-column(v-slot="{ row }" field="description" label="Description") {{ row.description }}
-              b-table-column(v-slot="{ row }" label="Trigger phrases")
-                span.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
-              b-table-column(v-slot="{ row }" label="Templates boosted")
-                b-tag.mr-1.mb-1(v-for="t in row.templates" :key="t" size="is-small") {{ t }}
-              b-table-column(v-slot="{ row }" label="Boost" width="60" numeric) +{{ row.boost }}
+            //- Move-to-domain modal
+            b-modal(v-model="showMoveModal" has-modal-card trap-focus)
+              .modal-card(style="max-width:480px")
+                header.modal-card-head
+                  p.modal-card-title Move distinction to another domain
+                section.modal-card-body
+                  p.mb-3(v-if="moveRow") Move #[strong {{ moveRow.description }}] into:
+                  b-field
+                    b-select(v-model="moveTargetDomain" placeholder="Choose a domain…" expanded)
+                      option(v-for="d in moveDomainOptions" :key="d.id" :value="d.id") {{ d.label }}
+                  p.has-text-grey.is-size-7.mt-2(v-if="moveRow && moveRow.kind !== 'firm-own'")
+                    | This creates your firm's copy in the new domain and switches the platform original off here.
+                footer.modal-card-foot
+                  b-button(
+                    type="is-primary"
+                    :disabled="!moveTargetDomain"
+                    :loading="movingDistinction"
+                    @click="confirmMoveDistinction"
+                  ) Move
+                  b-button(@click="closeMoveModal") Cancel
 
-            //- Firm-level rows
+            //- Unified list — platform, customised, switched-off and firm-own rows together
             .level.mb-3
               .level-left
-                p.has-text-weight-semibold Your firm's distinctions — {{ currentDistinctionDomainLabel }}
+                p.has-text-weight-semibold Advisory Distinctions — {{ currentDistinctionDomainLabel }}
               .level-right
                 b-button(
                   v-if="!showDistinctionForm"
@@ -388,33 +391,58 @@ section.firm-manager-hub.section
                   icon-left="plus"
                   @click="openDistinctionForm(null)"
                 ) Add distinction
+            b-notification.mb-3(type="is-info is-light" :closable="false" style="font-size:0.85rem")
+              | Edit any distinction to make it your firm's own, or switch one off.
+              | Platform rows are shared defaults; your changes apply to your firm only.
 
             b-table.mb-4(
-              v-if="!loadingFirmDistinctions && activeFirmDistinctions.length > 0"
-              :data="activeFirmDistinctions"
+              v-if="!loadingFirmDistinctions && domainDistinctions.length > 0"
+              :data="domainDistinctions"
               :hoverable="true"
+              :row-class="distinctionRowClass"
               size="is-small"
             )
               b-table-column(v-slot="{ row }" field="description" label="Description") {{ row.description }}
+              b-table-column(v-slot="{ row }" label="Source" width="110")
+                b-tag(:type="distinctionBadge(row.kind).type" size="is-small") {{ distinctionBadge(row.kind).label }}
               b-table-column(v-slot="{ row }" label="Trigger phrases")
                 span.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
               b-table-column(v-slot="{ row }" label="Templates boosted")
-                b-tag.mr-1.mb-1(v-for="t in row.templates" :key="t" size="is-small" type="is-success is-light") {{ t }}
-              b-table-column(v-slot="{ row }" label="Boost" width="60" numeric) +{{ row.boost }}
-              b-table-column(v-slot="{ row }" label="" width="110")
-                b-button.mr-1(size="is-small" @click="openDistinctionForm(row)") Edit
-                b-button(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)") Remove
+                b-tag.mr-1.mb-1(
+                  v-for="t in row.templates"
+                  :key="t"
+                  size="is-small"
+                  :type="row.kind === 'firm-own' || row.kind === 'customised' ? 'is-success is-light' : ''"
+                ) {{ t }}
+              b-table-column(v-slot="{ row }" label="Boost" width="60" numeric)
+                span(v-if="row.kind !== 'declined'") +{{ row.boost }}
+              b-table-column(v-slot="{ row }" label="" width="320")
+                template(v-if="row.kind === 'platform'")
+                  b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
+                  b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
+                  b-button.mb-1(size="is-small" @click="switchOffDistinction(row.id)") Switch off
+                template(v-else-if="row.kind === 'customised'")
+                  b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
+                  b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
+                  b-button.mr-1.mb-1(size="is-small" @click="confirmResetDistinction(row.id)") Reset to platform
+                  b-button.mb-1(size="is-small" @click="switchOffDistinction(row.id)") Switch off
+                template(v-else-if="row.kind === 'declined'")
+                  b-button(size="is-small" type="is-primary is-light" @click="switchOnDistinction(row.id)") Switch on
+                template(v-else)
+                  b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
+                  b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
+                  b-button.mb-1(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)") Remove
 
             p.has-text-grey.is-size-7.mb-4(
-              v-else-if="!loadingFirmDistinctions && activeFirmDistinctions.length === 0 && !showDistinctionForm"
-            ) No firm distinctions for this domain yet. Add one to boost specific templates when advisors use particular phrases.
+              v-else-if="!loadingFirmDistinctions && domainDistinctions.length === 0 && !showDistinctionForm"
+            ) No distinctions for this domain yet. Add one to boost specific templates when advisors use particular phrases.
 
             //- Add / Edit form
             .box.distinction-form(v-if="showDistinctionForm")
               p.has-text-weight-semibold.mb-4 {{ editingDistinctionId ? 'Edit distinction' : 'New distinction' }}
 
               b-field(label="Domain")
-                b-select(v-model="distinctionForm.domain" expanded)
+                b-select(v-model="distinctionForm.domain" expanded :disabled="editingPlatformRow")
                   option(v-for="d in distinctionDomains" :key="d.id" :value="d.id") {{ d.label }}
 
               b-field(label="Description" message="Describe the client situation in a plain sentence — this is what the AI matches the advisor's words against. Capture the cause, not just the symptom.")
@@ -446,6 +474,21 @@ section.firm-manager-hub.section
                       style="flex:1"
                     )
                   .template-picker-list
+                    //- Revenue-model GROUP targets: boost a whole group rather than one
+                    //- named model; the engine auto-picks the right one by client industry.
+                    label.template-picker-opt.template-picker-group(
+                      v-for="g in templateGroupTargets"
+                      :key="g.token"
+                      :class="{ 'is-selected': distinctionForm.templates.includes(g.token) }"
+                    )
+                      input(
+                        type="checkbox"
+                        :value="g.token"
+                        :checked="distinctionForm.templates.includes(g.token)"
+                        @change="toggleTemplateSelection(g.token)"
+                      )
+                      span.template-picker-title {{ g.label }}
+                      span.template-picker-sub {{ g.hint }}
                     label.template-picker-opt(
                       v-for="t in filteredTemplateOptions"
                       :key="t.title"
@@ -468,7 +511,7 @@ section.firm-manager-hub.section
                       closable
                       type="is-success is-light"
                       @close="toggleTemplateSelection(t)"
-                    ) {{ t }}
+                    ) {{ templateChipLabel(t) }}
 
               b-field(label="Boost score" message="How many points to add to each matched template's score (1–20). Default 5.")
                 b-input(
@@ -517,8 +560,23 @@ const BACKEND = 'http://localhost:4000'
 
 const ADVISORY_DISTINCTIONS = require('~/data/advisory-distinctions.json')
 
+// The distinctions picker offers the Do-the-Job templates a distinction can meaningfully
+// boost. Do NOT filter on includedInClient (that field only governs client self-serve
+// visibility, not advisor recommendability) — that wrongly hid ~150 templates. Derived
+// straight from templates.json, so it reflects the JSON automatically.
+//
+// Two subSections are deliberately kept OUT of the per-template list:
+//  - Revenue & Feasibility Models (87 industry/concept models) — represented instead by
+//    the two group targets (@rf-industry / @rf-general), so the firm picks the group and
+//    the engine auto-matches the specific model. Listing all 87 just floods the picker.
+//  - Non-advisory plumbing/admin shelves (Help, Firm Manager/Risk Advisor Access, External
+//    Advisors, and untitled section pages) — never a meaningful distinction target.
+const PICKER_EXCLUDED_SUBSECTIONS = new Set([
+  'Revenue & Feasibility Models',
+  'Help', 'Firm Manager Access', 'Risk Advisor Access', 'External Advisors', ''
+])
 const ALL_CLIENT_TEMPLATES = require('~/data/templates.json')
-  .filter(t => t.includedInClient)
+  .filter(t => t.menuSection === 'do-the-job' && !PICKER_EXCLUDED_SUBSECTIONS.has(t.subSection || ''))
   .map(t => ({ title: t.title, subSection: t.subSection }))
   .sort((a, b) => a.title.localeCompare(b.title))
 
@@ -631,32 +689,80 @@ export default {
       // Advisory Distinctions
       distinctionDomains: DISTINCTION_DOMAINS,
       selectedDistinctionDomain: DISTINCTION_DOMAINS[0].id,
-      firmDistinctions: [],
+      // Full firm state from GET /distinctions/state: own rows + the cascade
+      // (declined platform ids + platform overrides). The unified list is derived
+      // from this plus the imported platform rows.
+      distinctionState: { ownRows: [], declinedIds: [], overrides: {} },
       loadingFirmDistinctions: false,
       showDistinctionForm: false,
       showDistinctionHelpModal: false,
       editingDistinctionId: null,
+      // Which kind of row the form is editing: 'platform' | 'customised' | 'firm-own' | null
+      editingDistinctionKind: null,
       distinctionForm: { domain: '', description: '', triggers: [], templates: [], boost: 5 },
       savingDistinction: false,
+      // Move-to-domain modal state
+      showMoveModal: false,
+      moveRow: null,
+      moveTargetDomain: '',
+      movingDistinction: false,
       deletingDistinctionId: null,
       confirmDeleteDistinctionId: null,
       templatePickerSearch: '',
-      templatePickerSubSection: '',
+      // Default the picker to a single area so it opens on a short, focused list
+      // (not all ~106 templates at once). The advisor switches areas via the dropdown
+      // or types in search; the two revenue-model group options are always shown on top.
+      templatePickerSubSection: 'General Tools',
+      // Revenue-model GROUP targets — let a distinction boost a whole group of revenue
+      // models instead of one named model; the engine auto-matches the specific model to
+      // the client's industry. Tokens are stored in distinctionForm.templates and read by
+      // the resolver (templateResolver.js group-boost block). Revenue models only, by design.
+      templateGroupTargets: [
+        { token: '@rf-industry', label: 'Revenue & Feasibility Model — Industry (auto-matched)', hint: 'Engine picks the model matching the client\'s industry' },
+        { token: '@rf-general', label: 'Revenue & Feasibility Model — General', hint: 'Generic feasibility/concept tools (Break-Even, EBITDA…)' }
+      ],
       allClientTemplates: ALL_CLIENT_TEMPLATES,
       templateSubSections: TEMPLATE_SUBSECTIONS
     }
   },
 
   computed: {
-    activeDistinctions () {
-      return (ADVISORY_DISTINCTIONS.platform || []).filter(r => r.domain === this.selectedDistinctionDomain)
-    },
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
     },
-    activeFirmDistinctions () {
-      return this.firmDistinctions.filter(r => r.domain === this.selectedDistinctionDomain)
+    // The unified, badged list for the selected domain: every platform row tagged
+    // platform / customised (firm-edited) / declined (switched off), then the firm's
+    // own rows. Built client-side from the imported platform rows + the firm state,
+    // so a declined row still shows (greyed) rather than just disappearing.
+    domainDistinctions () {
+      const dom = this.selectedDistinctionDomain
+      const declined = new Set(this.distinctionState.declinedIds || [])
+      const overrides = this.distinctionState.overrides || {}
+      const rows = []
+      for (const p of (ADVISORY_DISTINCTIONS.platform || [])) {
+        if (p.domain !== dom) { continue }
+        if (declined.has(p.id)) {
+          rows.push({ ...p, kind: 'declined' })
+        } else if (overrides[p.id]) {
+          rows.push({ ...p, ...overrides[p.id], id: p.id, kind: 'customised' })
+        } else {
+          rows.push({ ...p, kind: 'platform' })
+        }
+      }
+      for (const o of (this.distinctionState.ownRows || [])) {
+        if (o.domain === dom) { rows.push({ ...o, kind: 'firm-own' }) }
+      }
+      return rows
+    },
+    // True while the form is editing a platform-sourced row (its domain is fixed).
+    editingPlatformRow () {
+      return this.editingDistinctionKind === 'platform' || this.editingDistinctionKind === 'customised'
+    },
+    // Domains a distinction can be moved to — all except its current one.
+    moveDomainOptions () {
+      const current = this.moveRow ? this.moveRow.domain : null
+      return this.distinctionDomains.filter(d => d.id !== current)
     },
     filteredTemplateOptions () {
       let list = this.allClientTemplates
@@ -1030,8 +1136,12 @@ export default {
     async loadFirmDistinctions () {
       this.loadingFirmDistinctions = true
       try {
-        const data = await this.api('GET', '/api/firm-manager/distinctions')
-        this.firmDistinctions = data.distinctions || []
+        const data = await this.api('GET', '/api/firm-manager/distinctions/state')
+        this.distinctionState = {
+          ownRows: data.ownRows || [],
+          declinedIds: data.declinedIds || [],
+          overrides: data.overrides || {}
+        }
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       } finally {
@@ -1042,6 +1152,9 @@ export default {
     openDistinctionForm (row) {
       if (row) {
         this.editingDistinctionId = row.id
+        // Platform/customised rows save via the override route; firm-own rows via
+        // the firm-row route. A row with no kind (legacy call) is treated as firm-own.
+        this.editingDistinctionKind = row.kind || 'firm-own'
         this.distinctionForm = {
           domain: row.domain,
           description: row.description,
@@ -1051,6 +1164,7 @@ export default {
         }
       } else {
         this.editingDistinctionId = null
+        this.editingDistinctionKind = null
         this.distinctionForm = {
           domain: this.selectedDistinctionDomain,
           description: '',
@@ -1060,16 +1174,17 @@ export default {
         }
       }
       this.templatePickerSearch = ''
-      this.templatePickerSubSection = ''
+      this.templatePickerSubSection = 'General Tools'
       this.showDistinctionForm = true
     },
 
     closeDistinctionForm () {
       this.showDistinctionForm = false
       this.editingDistinctionId = null
+      this.editingDistinctionKind = null
       this.distinctionForm = { domain: '', description: '', triggers: [], templates: [], boost: 5 }
       this.templatePickerSearch = ''
-      this.templatePickerSubSection = ''
+      this.templatePickerSubSection = 'General Tools'
     },
 
     toggleTemplateSelection (title) {
@@ -1079,6 +1194,13 @@ export default {
       } else {
         this.distinctionForm.templates.splice(idx, 1)
       }
+    },
+
+    // Friendly label for a selected target chip — a group token shows its label,
+    // an ordinary template shows its title.
+    templateChipLabel (value) {
+      const group = this.templateGroupTargets.find(g => g.token === value)
+      return group ? group.label : value
     },
 
     async saveDistinction () {
@@ -1101,7 +1223,17 @@ export default {
 
       this.savingDistinction = true
       try {
-        if (this.editingDistinctionId) {
+        if (this.editingPlatformRow) {
+          // Editing a platform row saves a firm override (the firm's version
+          // replaces the platform original). Only the editable fields are sent.
+          await this.api('PUT', `/api/firm-manager/distinctions/platform/${this.editingDistinctionId}`, {
+            description: this.distinctionForm.description,
+            triggers: this.distinctionForm.triggers,
+            templates: this.distinctionForm.templates,
+            boost: this.distinctionForm.boost
+          })
+          this.$buefy.toast.open({ message: 'Distinction updated for your firm.', type: 'is-success' })
+        } else if (this.editingDistinctionId) {
           await this.api('PUT', `/api/firm-manager/distinctions/${this.editingDistinctionId}`, this.distinctionForm)
           this.$buefy.toast.open({ message: 'Distinction updated.', type: 'is-success' })
         } else {
@@ -1133,6 +1265,105 @@ export default {
         this.loadFirmDistinctions()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
+    },
+
+    // Switch a platform distinction off for this firm (decline).
+    async switchOffDistinction (id) {
+      try {
+        await this.api('PUT', `/api/firm-manager/distinctions/platform/${id}/decline`, { declined: true })
+        this.$buefy.toast.open({ message: 'Distinction switched off for your firm.', type: 'is-success' })
+        this.loadFirmDistinctions()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
+    },
+
+    // Switch a previously declined platform distinction back on.
+    async switchOnDistinction (id) {
+      try {
+        await this.api('PUT', `/api/firm-manager/distinctions/platform/${id}/decline`, { declined: false })
+        this.$buefy.toast.open({ message: 'Distinction switched back on.', type: 'is-success' })
+        this.loadFirmDistinctions()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
+    },
+
+    confirmResetDistinction (id) {
+      this.$buefy.dialog.confirm({
+        message: "Reset this distinction to the platform version? Your firm's edits to it will be discarded.",
+        type: 'is-warning',
+        confirmText: 'Reset',
+        onConfirm: () => this.resetDistinction(id)
+      })
+    },
+
+    // Remove the firm's override of a platform row — the platform version applies again.
+    async resetDistinction (id) {
+      try {
+        await this.api('DELETE', `/api/firm-manager/distinctions/platform/${id}`)
+        this.$buefy.toast.open({ message: 'Reset to the platform version.', type: 'is-success' })
+        this.loadFirmDistinctions()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
+    },
+
+    // Badge label + Buefy tag type for a unified-list row's kind.
+    distinctionBadge (kind) {
+      switch (kind) {
+        case 'customised': return { label: 'Customised', type: 'is-success' }
+        case 'declined': return { label: 'Switched off', type: 'is-warning is-light' }
+        case 'firm-own': return { label: 'Your firm', type: 'is-primary is-light' }
+        default: return { label: 'Platform', type: 'is-light' }
+      }
+    },
+
+    // Grey out switched-off rows in the unified list.
+    distinctionRowClass (row) {
+      return row.kind === 'declined' ? 'distinction-off' : ''
+    },
+
+    openMoveDistinction (row) {
+      this.moveRow = row
+      this.moveTargetDomain = ''
+      this.showMoveModal = true
+    },
+
+    closeMoveModal () {
+      this.showMoveModal = false
+      this.moveRow = null
+      this.moveTargetDomain = ''
+    },
+
+    // Move a distinction into another domain. A platform/customised row goes via the
+    // backend move endpoint (firm-own copy in the target + original switched off); a
+    // firm-own row is a straight domain change on its own record.
+    async confirmMoveDistinction () {
+      const row = this.moveRow
+      const target = this.moveTargetDomain
+      if (!row || !target) { return }
+      this.movingDistinction = true
+      try {
+        if (row.kind === 'firm-own') {
+          await this.api('PUT', `/api/firm-manager/distinctions/${row.id}`, {
+            domain: target,
+            description: row.description,
+            triggers: row.triggers,
+            templates: row.templates,
+            boost: row.boost
+          })
+        } else {
+          await this.api('POST', `/api/firm-manager/distinctions/platform/${row.id}/move`, { targetDomain: target })
+        }
+        this.$buefy.toast.open({ message: 'Distinction moved.', type: 'is-success' })
+        this.closeMoveModal()
+        this.loadFirmDistinctions()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.movingDistinction = false
       }
     },
 
@@ -1276,6 +1507,9 @@ export default {
 
 /* Advisory Distinctions — form + template picker */
 .distinction-form { border: 1px solid #dbdbdb; }
+
+/* Switched-off (declined) rows in the unified distinctions list read as muted. */
+.distinction-off { opacity: 0.5; }
 
 .template-picker { border: 1px solid #dbdbdb; border-radius: 4px; overflow: hidden; }
 

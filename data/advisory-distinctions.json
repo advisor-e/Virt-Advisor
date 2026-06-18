@@ -3,6 +3,7 @@
   "description": "Platform-level advisory distinctions — authored by Mike Barnes. Each row teaches the system what specific advisor phrases mean diagnostically, boosting the right templates for each domain. Platform rows apply to all firms. Firm-level rows stored in database on top of these. Edit via Firm Manager hub (platform admin only).",
   "platform": [
     {
+      "id": "pd-1",
       "domain": "conflict",
       "triggers": ["fight", "fighting", "argument", "arguing", "at each other", "at each others"],
       "description": "Active interpersonal conflict",
@@ -10,6 +11,7 @@
       "boost": 5
     },
     {
+      "id": "pd-2",
       "domain": "conflict",
       "triggers": ["dispute", "shareholder dispute", "partner dispute", "shareholders disputing"],
       "description": "Formal conflict between owners",
@@ -17,6 +19,7 @@
       "boost": 5
     },
     {
+      "id": "pd-3",
       "domain": "conflict",
       "triggers": ["not pulling their weight", "contribution", "one does more", "equity issue", "unfair", "pulling their weight", "inequity", "not contributing"],
       "description": "Imbalance in partner contribution",
@@ -24,6 +27,7 @@
       "boost": 5
     },
     {
+      "id": "pd-4",
       "domain": "conflict",
       "triggers": ["patch it up", "mediation", "help them talk", "facilitate a conversation", "mediator", "sit in the middle"],
       "description": "Mediation engagement needed",
@@ -31,6 +35,7 @@
       "boost": 5
     },
     {
+      "id": "pd-5",
       "domain": "conflict",
       "triggers": ["legal proceedings", "lawyers", "solicitor", "going legal", "messy breakup", "legal action", "court"],
       "description": "Escalating conflict with legal risk",
@@ -38,6 +43,7 @@
       "boost": 5
     },
     {
+      "id": "pd-6",
       "domain": "conflict",
       "triggers": ["festered", "never talked about it", "built up over time", "past issues", "simmering", "been going on for years", "long running"],
       "description": "Accumulated unresolved tension",
@@ -45,6 +51,7 @@
       "boost": 5
     },
     {
+      "id": "pd-7",
       "domain": "conflict",
       "triggers": ["pull them back", "save the partnership", "stop the bleeding", "before it gets worse", "back from the edge", "back from the cliff"],
       "description": "Crisis prevention — pre-escalation",
@@ -52,6 +59,7 @@
       "boost": 5
     },
     {
+      "id": "pd-8",
       "domain": "conflict",
       "triggers": ["not talking", "stopped communicating", "communication breakdown", "won't speak", "not speaking"],
       "description": "Communication failure between parties",
@@ -59,6 +67,7 @@
       "boost": 5
     },
     {
+      "id": "pd-9",
       "domain": "conflict",
       "triggers": ["working shareholders", "both in the business", "owner-operators", "owner operators", "both owners", "partners in the business"],
       "description": "Operational conflict between owner-operators",
@@ -67,6 +76,7 @@
     },
 
     {
+      "id": "pd-10",
       "domain": "profit",
       "triggers": ["margins are squeezed", "margin is thin", "can't make a profit", "margin is down", "margins shrinking", "losing margin", "profit is down"],
       "description": "General profitability pressure",
@@ -74,6 +84,7 @@
       "boost": 5
     },
     {
+      "id": "pd-11",
       "domain": "profit",
       "triggers": ["cost of sales too high", "materials costing more", "supplier costs going up", "labour costs rising", "cost of goods", "direct costs out of control"],
       "description": "Cost of sales has increased",
@@ -81,6 +92,7 @@
       "boost": 5
     },
     {
+      "id": "pd-12",
       "domain": "profit",
       "triggers": ["too much discounting", "giving it away", "price cutting", "undercutting", "can't hold price", "discounting to get the work", "no pricing confidence"],
       "description": "Excessive discounting eroding margin",
@@ -88,6 +100,7 @@
       "boost": 5
     },
     {
+      "id": "pd-13",
       "domain": "profit",
       "triggers": ["overheads too high", "fixed costs out of control", "rent killing them", "wages too high", "overhead is drowning them", "fixed costs grown too big"],
       "description": "Fixed overhead costs grown beyond revenue",
@@ -95,6 +108,7 @@
       "boost": 5
     },
     {
+      "id": "pd-14",
       "domain": "profit",
       "triggers": ["doesn't stack up", "numbers don't work", "break-even", "viability", "barely covering costs", "can it survive", "is the model viable"],
       "description": "Asset utilisation below viability threshold",
@@ -102,6 +116,7 @@
       "boost": 5
     },
     {
+      "id": "pd-15",
       "domain": "profit",
       "triggers": ["not enough sales", "revenue down", "turnover down", "foot traffic", "not enough customers", "volume is the problem", "revenue is the issue"],
       "description": "Revenue is the constraint — not cost",
@@ -109,6 +124,7 @@
       "boost": 5
     },
     {
+      "id": "pd-16",
       "domain": "profit",
       "triggers": ["slow payers", "can't collect", "overdue accounts", "debtors are bad", "waiting to be paid", "cash is stuck in debtors"],
       "description": "Debtor and cashflow pressure",
@@ -117,6 +133,7 @@
     },
 
     {
+      "id": "pd-17",
       "domain": "staff",
       "triggers": ["can't find staff", "short staffed", "not enough people", "struggling to hire", "no applicants", "no one wants to work"],
       "description": "Too few qualified staff",
@@ -124,6 +141,7 @@
       "boost": 5
     },
     {
+      "id": "pd-18",
       "domain": "staff",
       "triggers": ["staff aren't performing", "undertrained", "don't know what they're doing", "capability gap", "not skilled enough", "not competent"],
       "description": "Inexperienced or insufficiently trained staff",
@@ -131,6 +149,7 @@
       "boost": 5
     },
     {
+      "id": "pd-19",
       "domain": "staff",
       "triggers": ["no training system", "winging it with new staff", "no onboarding", "no induction", "no way of building capability", "nothing in place for training"],
       "description": "No internal training structures",
@@ -138,6 +157,7 @@
       "boost": 5
     },
     {
+      "id": "pd-20",
       "domain": "staff",
       "triggers": ["not holding people accountable", "poor management", "don't follow through", "no consequences", "manager isn't managing", "weak leadership"],
       "description": "Poor management practices",
@@ -145,6 +165,7 @@
       "boost": 5
     },
     {
+      "id": "pd-21",
       "domain": "staff",
       "triggers": ["don't know who does what", "roles not clear", "everyone doing everything", "overlap", "confusion about responsibilities", "no job descriptions"],
       "description": "Roles and responsibilities poorly defined",
@@ -152,6 +173,7 @@
       "boost": 5
     },
     {
+      "id": "pd-22",
       "domain": "staff",
       "triggers": ["bad hires", "keep hiring wrong people", "no hiring process", "high turnover", "wrong fit", "keep losing people"],
       "description": "Weak hiring practices",
@@ -159,6 +181,7 @@
       "boost": 5
     },
     {
+      "id": "pd-23",
       "domain": "staff",
       "triggers": ["staff are disengaged", "don't care", "just showing up", "no motivation", "low morale", "culture is bad"],
       "description": "Motivation and engagement gap",
@@ -167,6 +190,7 @@
     },
 
     {
+      "id": "pd-24",
       "domain": "data-systems",
       "triggers": ["data not being captured", "no system for collecting data", "numbers are unreliable", "can't trust the data", "data is a mess"],
       "description": "No enforceable data capture methods",
@@ -174,6 +198,7 @@
       "boost": 5
     },
     {
+      "id": "pd-25",
       "domain": "data-systems",
       "triggers": ["manual entry errors", "data entry mistakes", "garbage in garbage out", "human error in the numbers", "wrong numbers", "data is corrupted"],
       "description": "Poor data integrity — manual input causing errors",
@@ -181,6 +206,7 @@
       "boost": 5
     },
     {
+      "id": "pd-26",
       "domain": "data-systems",
       "triggers": ["always looking backwards", "only see results after the fact", "no early warning", "lag data", "find out too late", "reactive not proactive with data"],
       "description": "Too much lag data, not enough lead indicators",
@@ -188,6 +214,7 @@
       "boost": 5
     },
     {
+      "id": "pd-27",
       "domain": "data-systems",
       "triggers": ["only tracking financials", "no operational data", "missing activity data", "no KPIs", "only watching the bank account", "no leading indicators"],
       "description": "Narrow data spread — financials only",
@@ -196,6 +223,7 @@
     },
 
     {
+      "id": "pd-28",
       "domain": "sales-marketing",
       "triggers": ["no sales process", "winging it with sales", "lost deals", "don't know how to sell", "no structure to selling", "sales is all over the place"],
       "description": "No visible sales process",
@@ -203,6 +231,7 @@
       "boost": 5
     },
     {
+      "id": "pd-29",
       "domain": "sales-marketing",
       "triggers": ["can't close", "get to end but don't buy", "losing at the last minute", "prospects go cold", "can't convert", "falling over at the finish line"],
       "description": "Closing and conversion failure",
@@ -210,6 +239,7 @@
       "boost": 5
     },
     {
+      "id": "pd-30",
       "domain": "sales-marketing",
       "triggers": ["no marketing", "nothing going out", "no presence", "nobody knows they exist", "invisible in the market", "no outbound activity"],
       "description": "Poor outbound marketing",
@@ -217,6 +247,7 @@
       "boost": 5
     },
     {
+      "id": "pd-31",
       "domain": "sales-marketing",
       "triggers": ["don't know who their customer is", "trying to sell to everyone", "no target market", "no niche", "no ideal client defined"],
       "description": "No defined target market",
@@ -224,6 +255,7 @@
       "boost": 5
     },
     {
+      "id": "pd-32",
       "domain": "sales-marketing",
       "triggers": ["brand is weak", "no point of difference", "look like everyone else", "no identity", "can't articulate what makes them different", "no positioning"],
       "description": "Poor brand positioning",
@@ -231,6 +263,7 @@
       "boost": 5
     },
     {
+      "id": "pd-33",
       "domain": "sales-marketing",
       "triggers": ["product isn't selling", "market has moved on", "competition eating their lunch", "outdated offer", "product is tired", "customers don't want it anymore"],
       "description": "Poor product or market fit",
@@ -238,6 +271,7 @@
       "boost": 5
     },
     {
+      "id": "pd-34",
       "domain": "sales-marketing",
       "triggers": ["no repeat business", "customers don't come back", "no referrals", "one-and-done clients", "can't retain customers"],
       "description": "Customer retention failure",
@@ -246,6 +280,7 @@
     },
 
     {
+      "id": "pd-35",
       "domain": "forecasting",
       "triggers": ["doesn't understand their numbers", "focuses on sales not profit", "chasing turnover", "doesn't understand margin", "wrong numbers focus", "obsessed with revenue"],
       "description": "Poor financial literacy — owner focused on wrong numbers",
@@ -253,6 +288,7 @@
       "boost": 5
     },
     {
+      "id": "pd-36",
       "domain": "forecasting",
       "triggers": ["growing too fast", "funded by debt", "overdraft always stretched", "dangerous growth", "cash poor profit rich", "borrowing to grow"],
       "description": "Over-trading — debt-funded growth",
@@ -260,6 +296,7 @@
       "boost": 5
     },
     {
+      "id": "pd-37",
       "domain": "forecasting",
       "triggers": ["doesn't know real costs", "assumptions not matching reality", "costing wrong", "pricing from gut feel", "no idea what things actually cost", "cost base doesn't make sense"],
       "description": "Cost structure imbalance — knowledge gap",
@@ -268,6 +305,7 @@
     },
 
     {
+      "id": "pd-38",
       "domain": "governance",
       "triggers": ["board doesn't work", "directors fighting", "no governance", "no board structure", "need an advisory board", "governance is a mess"],
       "description": "Poor boardroom dynamics",
@@ -275,6 +313,7 @@
       "boost": 5
     },
     {
+      "id": "pd-39",
       "domain": "governance",
       "triggers": ["no financial controls", "anyone can sign off", "purchases not approved", "no approval process", "money going out without authority", "no authorisation"],
       "description": "Lack of financial controls",
@@ -282,6 +321,7 @@
       "boost": 5
     },
     {
+      "id": "pd-40",
       "domain": "governance",
       "triggers": ["decisions never stick", "can't make a decision", "analysis paralysis", "going in circles", "meetings are useless", "no resolution", "can't agree"],
       "description": "Poor decision quality",
@@ -289,6 +329,7 @@
       "boost": 5
     },
     {
+      "id": "pd-41",
       "domain": "governance",
       "triggers": ["nobody knows what's expected", "no accountability", "verbal agreements only", "not documented", "he said she said", "nothing is written down"],
       "description": "Weak communication of expectations — no documentation",
@@ -296,6 +337,7 @@
       "boost": 5
     },
     {
+      "id": "pd-42",
       "domain": "governance",
       "triggers": ["culture is toxic", "values not defined", "culture left to chance", "no deliberate culture", "team doesn't reflect what the business stands for"],
       "description": "Culture left to chance",
@@ -303,6 +345,7 @@
       "boost": 5
     },
     {
+      "id": "pd-43",
       "domain": "governance",
       "triggers": ["everyone thinks the same", "no diversity", "yes men", "wrong people at the table", "nobody challenges the owner", "echo chamber"],
       "description": "Personality and skill diversity not pursued",
@@ -311,6 +354,7 @@
     },
 
     {
+      "id": "pd-44",
       "domain": "strategy",
       "triggers": ["not sure if the model still works", "market is changing", "competitors taking over", "business model outdated", "not sure about the future", "relevance at risk"],
       "description": "Lack of clarity that business model will remain competitive",
@@ -318,6 +362,7 @@
       "boost": 5
     },
     {
+      "id": "pd-45",
       "domain": "strategy",
       "triggers": ["no targets", "no KPIs", "don't measure anything", "no objectives", "flying blind", "no scorecard", "nothing to aim at"],
       "description": "Poor business metrics — no operational objectives",
@@ -325,6 +370,7 @@
       "boost": 5
     },
     {
+      "id": "pd-46",
       "domain": "strategy",
       "triggers": ["staff don't know where they're going", "no direction", "team is lost", "no strategic plan", "nobody knows the goal", "no shared vision"],
       "description": "No defined objectives — no communicated direction",
@@ -333,6 +379,7 @@
     },
 
     {
+      "id": "pd-47",
       "domain": "systems",
       "triggers": ["no documented processes", "everyone does it differently", "inconsistent", "winging it operationally", "no systems", "processes aren't written down"],
       "description": "Processes are undefined",
@@ -340,6 +387,7 @@
       "boost": 5
     },
     {
+      "id": "pd-48",
       "domain": "systems",
       "triggers": ["too many steps", "over-complicated", "bureaucratic", "too much red tape", "processes slowing them down", "system is getting in the way"],
       "description": "Processes are over-engineered",
@@ -347,6 +395,7 @@
       "boost": 5
     },
     {
+      "id": "pd-49",
       "domain": "systems",
       "triggers": ["never review how they do things", "same problems keep coming up", "no improvement", "repeat mistakes", "no retrospective", "never stops to check"],
       "description": "No regular structured review of practices",
@@ -354,6 +403,7 @@
       "boost": 5
     },
     {
+      "id": "pd-50",
       "domain": "systems",
       "triggers": ["departments don't talk", "left hand doesn't know what right hand doing", "siloed", "no coordination", "gaps between teams", "nobody communicates across"],
       "description": "Siloed operations",
@@ -361,6 +411,7 @@
       "boost": 5
     },
     {
+      "id": "pd-51",
       "domain": "systems",
       "triggers": ["supply chain issues", "quality problems", "delivery failures", "supplier letting them down", "product quality dropping", "stock issues"],
       "description": "Supply line disruptions or poor quality controls",
@@ -369,6 +420,7 @@
     },
 
     {
+      "id": "pd-52",
       "domain": "valuation",
       "triggers": ["thinking about selling", "wants to sell the business", "what's it worth", "sale price", "exit", "put it on the market"],
       "description": "Transaction readiness — sale",
@@ -376,6 +428,7 @@
       "boost": 5
     },
     {
+      "id": "pd-53",
       "domain": "valuation",
       "triggers": ["inconsistent performance", "lumpy earnings", "profits all over the place", "unreliable history", "can't show a clean track record"],
       "description": "Earnings consistency issue reducing valuation",
@@ -383,6 +436,7 @@
       "boost": 5
     },
     {
+      "id": "pd-54",
       "domain": "valuation",
       "triggers": ["assets on books don't match reality", "stock overvalued", "assets inflated", "what are the assets actually worth"],
       "description": "Asset valuation concerns",
@@ -390,6 +444,7 @@
       "boost": 5
     },
     {
+      "id": "pd-55",
       "domain": "valuation",
       "triggers": ["goodwill", "what can I get for it", "what's the business worth", "pie in the sky valuation", "overvaluing it", "expectations are unrealistic"],
       "description": "Goodwill and valuation methodology",
@@ -398,6 +453,7 @@
     },
 
     {
+      "id": "pd-56",
       "domain": "risk",
       "triggers": ["key person risk", "what if they get hit by a bus", "relies on one person", "no backup", "single point of failure", "everything depends on the owner"],
       "description": "Key person dependency risk",
@@ -405,6 +461,7 @@
       "boost": 5
     },
     {
+      "id": "pd-57",
       "domain": "risk",
       "triggers": ["just insure everything", "over-reliant on insurance", "insurance is their only risk strategy", "no active mitigation"],
       "description": "Over-reliance on insurance as risk strategy",
@@ -412,6 +469,7 @@
       "boost": 5
     },
     {
+      "id": "pd-58",
       "domain": "risk",
       "triggers": ["always caught off guard", "reactive not proactive", "never see it coming", "no contingency plan", "no risk process", "flying blind on risk"],
       "description": "No systematic risk identification process",
@@ -420,6 +478,7 @@
     },
 
     {
+      "id": "pd-59",
       "domain": "succession",
       "triggers": ["doesn't know what to do after", "scared of retiring", "identity wrapped up in the business", "life after work", "no life outside the business", "purpose beyond the business"],
       "description": "Owner purpose and status — no defined life after work",
@@ -427,6 +486,7 @@
       "boost": 5
     },
     {
+      "id": "pd-60",
       "domain": "succession",
       "triggers": ["kids fighting over it", "siblings can't agree", "family dynamics", "one child in business one not", "sibling rivalry", "family inequality"],
       "description": "Sibling or family inequality in succession",
@@ -434,6 +494,7 @@
       "boost": 5
     },
     {
+      "id": "pd-61",
       "domain": "succession",
       "triggers": ["wants to hand over but no plan", "no succession plan", "no exit strategy", "what happens when they want out", "no pathway", "vague about transition"],
       "description": "No clear succession pathway",
@@ -442,6 +503,7 @@
     },
 
     {
+      "id": "pd-62",
       "domain": "eoy",
       "triggers": ["end of year meeting", "annual review", "compliance meeting", "tax meeting", "year end", "doing their accounts", "EOY"],
       "description": "EOY context — convert compliance to advisory value",
@@ -449,6 +511,7 @@
       "boost": 5
     },
     {
+      "id": "pd-63",
       "domain": "eoy",
       "triggers": ["client treats it as just compliance", "just sign and go", "no value added", "tick and flick", "in and out", "nothing advisory about it"],
       "description": "Compliance meeting with no advisory content",
@@ -456,6 +519,7 @@
       "boost": 5
     },
     {
+      "id": "pd-64",
       "domain": "eoy",
       "triggers": ["client doesn't understand why they need advisory", "knowledge gap", "can't upsell", "client won't pay for advice", "don't see the value"],
       "description": "Knowledge gap blocking the advisory upsell",
@@ -464,6 +528,7 @@
     },
 
     {
+      "id": "pd-65",
       "domain": "due-diligence",
       "triggers": ["buying a business", "acquisition", "purchasing", "they want to buy", "due diligence", "looking at a business to buy"],
       "description": "Acquisition due diligence context",
@@ -471,6 +536,7 @@
       "boost": 5
     },
     {
+      "id": "pd-66",
       "domain": "due-diligence",
       "triggers": ["selling a business", "selling up", "being acquired", "buyer is doing due diligence", "someone wants to buy them"],
       "description": "Sale due diligence context",
@@ -478,6 +544,7 @@
       "boost": 5
     },
     {
+      "id": "pd-67",
       "domain": "due-diligence",
       "triggers": ["deadline on the deal", "time pressure", "settlement approaching", "close to signing", "they need to move fast", "transaction is live"],
       "description": "Transaction urgency — live deal",

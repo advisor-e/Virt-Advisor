@@ -2,6 +2,7 @@
 
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
+const { SIGNAL_REGISTRY } = require('./problemSignals')
 
 // ── Semantic profile loader ─────────────────────────────────────────────────
 // Reads the pre-compiled semantic profiles (built by scripts/build-semantic-profiles.js).
@@ -36,25 +37,39 @@ const SCORING_CONFIG = {
   enableAttenuation: true
 }
 
-// Domain → signals that belong to this domain's scope.
-// Signals not in scope get outOfDomainWeight in semantic scoring.
-// Empty Set = domain uses structured questions only — suppress all free-text signals.
-// Domain absent from map = no filtering (all signals at full weight).
-const DOMAIN_SIGNAL_SCOPE = {
-  profit: new Set(['cash_flow_gap', 'profit_plateau', 'pricing_issue', 'sales_volume', 'marketing_gap']),
-  'sales-marketing': new Set(['sales_volume', 'marketing_gap', 'pricing_issue']),
-  staff: new Set(['staff_problem']),
-  strategy: new Set(['strategy_needed']),
-  governance: new Set(['governance_gap']),
-  'data-systems': new Set(['data_quality', 'systems_gap']),
-  systems: new Set(['systems_gap']),
-  succession: new Set(['succession_issue']),
-  forecasting: new Set(['cash_flow_gap', 'profit_plateau']),
-  risk: new Set(),
-  valuation: new Set(),
-  conflict: new Set(),
-  'due-diligence': new Set()
+// Domain → in-scope signals, DERIVED from the signal dictionary's per-signal
+// `domains` field (the single source of truth). Signals not in scope get
+// outOfDomainWeight in semantic scoring (they're downstream effects, not primary
+// causes, so must not drive selection).
+//
+// This was previously a hand-maintained duplicate that drifted out of sync with
+// signal-dictionary.json — it omitted `revenue_modelling` from `profit` (silently
+// zeroing the dominant semantic lever for profitability/feasibility cases — the
+// café bug), carried a phantom `profit_plateau` signal that no longer exists, and
+// lacked all 8 newer domains. Deriving it from the dictionary kills that whole
+// class of drift: add a signal/domain in the dictionary and the scope follows.
+//
+// Empty Set = domain runs on STRUCTURED questions only → suppress all free-text
+// signals. The dictionary declares no signals for these, so they're set
+// explicitly (derivation alone would leave them unfiltered — wrong). Domain absent
+// from the map = no filtering (all signals at full weight).
+const STRUCTURED_ONLY_DOMAINS = ['risk', 'valuation', 'conflict', 'due-diligence']
+
+function buildDomainSignalScope () {
+  const scope = {}
+  for (const d of STRUCTURED_ONLY_DOMAINS) { scope[d] = new Set() }
+  for (const [signal, meta] of Object.entries(SIGNAL_REGISTRY)) {
+    if (meta.penaltyOnly) { continue } // penalty-only signals never positively scope a domain
+    for (const domain of meta.domains || []) {
+      if (STRUCTURED_ONLY_DOMAINS.includes(domain)) { continue }
+      if (!scope[domain]) { scope[domain] = new Set() }
+      scope[domain].add(signal)
+    }
+  }
+  return scope
 }
+
+const DOMAIN_SIGNAL_SCOPE = buildDomainSignalScope()
 
 function getSignalWeight (signal, domain) {
   if (!SCORING_CONFIG.enableAttenuation) { return 1.0 }
@@ -154,13 +169,21 @@ const EXPERIENCE_REQUIRED_SUBSECTIONS = new Set(['Lite Fundamentals', 'Strategic
 function resolveTemplates (caseState, strategyDecision, templates, options) {
   const ignoreCeiling = (options && options.ignoreCeiling) || false
   const distinctionBoosts = (options && options.distinctionBoosts) || {}
-  const { domain, primaryIssue, solutionCategories, client, complexityCeiling, advisor } = caseState
+  const { domain, primaryIssue, industry, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
 
   // Primary issue keyword hints — used to add a scoring boost for templates whose
   // tags or purpose closely match the advisor-confirmed primary issue.
   const _primaryIssueKeywords = primaryIssue
     ? primaryIssue.toLowerCase().split(/[\s—\-,]+/).filter(w => w.length > 4)
+    : []
+
+  // Industry keyword hints — the client's stated industry (e.g. "cafe") is a key
+  // selection factor: an industry-specific template should win for a matching client.
+  // Tokens length > 3 only, so noise words don't match. Matched against template
+  // title + tags below (see the industry boost in the scoring loop).
+  const _industryKeywords = industry
+    ? industry.toLowerCase().split(/[\s—\-,/&]+/).filter(w => w.length > 3)
     : []
 
   const blocked = ignoreCeiling ? new Set() : (CEILING_BLOCKED[complexityCeiling] || new Set())
@@ -170,7 +193,12 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   // preference only (see ENGAGEMENT_SUBSECTION_PREFERENCE). ignoreCeiling=true
   // lifts even the ceiling for Pass 1 (unrestricted best-match).
   const eligible = templates.filter(t =>
-    t.includedInClient === true &&
+    // NOTE: do NOT filter on includedInClient here. That field only governs whether a
+    // CLIENT, self-serving in Advisor-e without an advisor, can SEE the template in their
+    // own search. It is NOT a statement about whether an advisor may recommend it to use
+    // WITH a client. Filtering on it wrongly excluded 77 advisor-with-client do-the-job
+    // templates (e.g. E.O.Y Meeting, 5 Layers Questionnaire, Advisory Proposal). The real
+    // content-type boundary is the menuSection gate below (do-the-job only).
     t.menuSection !== 'get-organised' &&
     t.menuSection !== 'get-the-job' &&
     !(t.subSection && blocked.has(t.subSection))
@@ -233,11 +261,71 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
       }
     }
 
+    // Industry boost — the client's industry is a key selection factor. An
+    // industry-specific template (above all the Revenue & Feasibility models, which
+    // are named by industry) should win for a matching client. A title match is
+    // decisive (+8); a tag match is a softer signal (+4). Plural/stem tolerant
+    // (>=4-char prefix) so "cafes" matches the "Cafe" model.
+    let _industryMatched = false
+    if (_industryKeywords.length > 0) {
+      const _titleWords = (t.title || '').toLowerCase().split(/[\s—\-,/&]+/).filter(Boolean)
+      const _matchesWord = (a, b) => a === b || (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a)))
+      const _titleHit = _industryKeywords.some(kw => _titleWords.some(w => _matchesWord(kw, w)))
+      const _tagHit = !_titleHit && _industryKeywords.some(kw =>
+        tagsLower.some(tag => tag.split(/[\s—\-,/&]+/).some(w => _matchesWord(kw, w)))
+      )
+      _industryMatched = _titleHit || _tagHit
+      if (_titleHit) {
+        score += 8
+        reasons.push('industry:title_match')
+      } else if (_tagHit) {
+        score += 4
+        reasons.push('industry:tag_match')
+      }
+    }
+
+    // Hold back WRONG-industry models. A pure industry revenue model is fingerprinted
+    // as exactly {revenue_modelling} (that is how the content is tagged — "a revenue
+    // model for industry X", nothing more). When the client's industry is stated and
+    // this is such a model but it does NOT match (a Manufacturing model for a café), it
+    // is irrelevant — heavy penalty so it drops below the generic, industry-agnostic
+    // tools. Matching models keep their +8 boost; generic feasibility tools (Break-Even,
+    // EBITDA — different/no fingerprint) are untouched.
+    // NOTE: this keys on the semantic-profile SHAPE to recognise an industry model;
+    // revisit if the master app ever re-fingerprints these models.
+    if (_industryKeywords.length > 0 && !_industryMatched) {
+      const _p = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
+      const _pk = Object.keys(_p)
+      if (_pk.length === 1 && _pk[0] === 'revenue_modelling') {
+        score -= 15
+        reasons.push('industry:mismatch_specific_model')
+      }
+    }
+
     // Advisory distinctions boost — domain expert vocabulary matched against advisor text
     const _distinctionBoost = distinctionBoosts[t.title] || 0
     if (_distinctionBoost > 0) {
       score += _distinctionBoost
       reasons.push('distinction:+' + _distinctionBoost)
+    }
+
+    // Advisory distinctions — GROUP boost (Revenue & Feasibility models only).
+    // A firm distinction can target a group rather than a single named model:
+    //   '@rf-industry' → the industry-specific models (auto-matched to the client's
+    //                    industry by the industry boost + hold-back above)
+    //   '@rf-general'  → the generic feasibility/concept tools (Break-Even, EBITDA…)
+    // This lets a firm say "for a costing problem, use the right revenue model" without
+    // naming an industry — the engine + conversation pick the specific one. Industry vs
+    // general is read from the fingerprint shape (a pure industry model is exactly
+    // {revenue_modelling}), the same signature the wrong-industry hold-back uses.
+    if (subSection === 'Revenue & Feasibility Models' && (distinctionBoosts['@rf-industry'] || distinctionBoosts['@rf-general'])) {
+      const _gpk = Object.keys((t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {})
+      const _isIndustryRf = _gpk.length === 1 && _gpk[0] === 'revenue_modelling'
+      const _groupBoost = _isIndustryRf ? (distinctionBoosts['@rf-industry'] || 0) : (distinctionBoosts['@rf-general'] || 0)
+      if (_groupBoost > 0) {
+        score += _groupBoost
+        reasons.push('distinction:' + (_isIndustryRf ? '@rf-industry' : '@rf-general') + '+' + _groupBoost)
+      }
     }
 
     // Solution category → tag keyword match
@@ -292,18 +380,25 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     // Maps active in-domain signals to keyword sets and scores purpose/tag text matches.
     // Ensures templates in the 90-missing-summary set can still compete on content.
     if (!_hasSemanticProfile && _activeSignalEntries.length > 0) {
+      // Keyword sets keyed by the live signal-dictionary signals. Kept in step with
+      // signal-dictionary.json (the single source) — every non-penalty signal has an
+      // entry. (Previously this drifted: it carried a phantom `profit_plateau` and
+      // lacked revenue_modelling / stock_management / capital_raising, so no-profile
+      // templates couldn't score on those signals.)
       const PURPOSE_FALLBACK_KEYWORDS = {
-        sales_volume: ['sales', 'customer', 'foot traffic', 'marketing', 'conversion', 'prospect', 'revenue'],
+        sales_volume: ['sales', 'customer', 'foot traffic', 'marketing', 'conversion', 'prospect', 'revenue', 'upsell', 'cross-sell'],
         marketing_gap: ['marketing', 'market', 'brand', 'message', 'customer', 'digital', 'outbound'],
         pricing_issue: ['price', 'pricing', 'margin', 'discount', 'value'],
         cash_flow_gap: ['cash flow', 'cashflow', 'debtor', 'liquidity', 'working capital'],
-        profit_plateau: ['profit', 'margin', 'profitab', 'levers', 'growth'],
+        revenue_modelling: ['revenue model', 'feasibility', 'forecast', 'projection', 'cost model', 'pricing model', 'break-even', 'industry model'],
         staff_problem: ['staff', 'team', 'employee', 'people', 'performance', 'delegation'],
         data_quality: ['data', 'reporting', 'accounts', 'kpi', 'indicator', 'dashboard'],
         governance_gap: ['governance', 'board', 'accountab', 'director', 'decision'],
         succession_issue: ['succession', 'exit', 'sale', 'transition', 'business sale'],
         strategy_needed: ['strategy', 'planning', 'strategic', 'swot', 'competitive'],
-        systems_gap: ['system', 'process', 'workflow', 'procedure', 'operation']
+        systems_gap: ['system', 'process', 'workflow', 'procedure', 'operation'],
+        stock_management: ['stock', 'inventory', 'reorder', 'overstock', 'stockout', 'supply chain', 'days on hand'],
+        capital_raising: ['capital', 'funding', 'investor', 'investment', 'undercapitalised', 'raise finance']
       }
       const _purposeText = [purposeLower, (t.support || '').toLowerCase()].join(' ')
       let purposeFallbackScore = 0

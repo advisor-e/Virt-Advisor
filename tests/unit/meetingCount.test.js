@@ -25,7 +25,12 @@ describe('parseMeetingCount — voice-input-safe', () => {
     ['two to three', 3], // range → upper bound
     ['two or three', 3], // single linking word
     ['two or maybe three meetings', 3], // two linking words ("or maybe") → still the upper bound
-    ['I would say two or maybe three', 3]
+    ['I would say two or maybe three', 3],
+    ['I would say two possibly three meetings', 3], // the live café bug: "possibly" was not a connector → parsed 2
+    ['two perhaps three', 3],
+    ['two or ideally three', 3],
+    ['two or even three', 3],
+    ['two up to three', 3]
   ])('parses "%s" → %i', (input, expected) => {
     expect(parseMeetingCount(input)).toBe(expected)
   })

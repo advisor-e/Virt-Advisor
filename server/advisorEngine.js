@@ -27,6 +27,8 @@ const { buildCaseState } = require('../server/utils/caseState')
 const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplatesWithOutlier } = require('../server/utils/templateResolver')
+const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
+const { loadFirmDistinctionState } = require('../server/utils/firmDistinctions')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -51,15 +53,13 @@ const BATTERY_FIELDS = new Set([
 // The AI reads all distinction descriptions against the advisor's text and returns
 // which ones apply semantically — regardless of exact wording used.
 // Triggers (if present) are included as examples to guide the AI, not as exact matches.
-async function classifyDistinctions (domain, advisorText, firmRows) {
-  if (!domain || !advisorText) { return {} }
-  const platformRows = (ADVISORY_DISTINCTIONS.platform || []).filter(r => r.domain === domain)
-  const allRows = firmRows && firmRows.length > 0
-    ? [...platformRows, ...firmRows.filter(r => r.domain === domain)]
-    : platformRows
-  if (allRows.length === 0) { return {} }
+// Core AI matcher: given distinction rows + the advisor's text, returns the rows that
+// semantically match. Shared by in-domain boosting (classifyDistinctions) and the
+// cross-domain near-miss bridge (findNearMissDistinctions).
+async function _classifyMatchingRows (rows, advisorText, label) {
+  if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return [] }
 
-  const patternList = allRows.map((row, i) => {
+  const patternList = rows.map((row, i) => {
     const examples = (row.triggers || []).length > 0
       ? ` (example phrases: ${row.triggers.slice(0, 5).join(', ')})`
       : ''
@@ -84,24 +84,46 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
       temperature: 0,
       messages: [{ role: 'user', content: prompt }]
     })
-    logAI('distinction-classify', 'gpt-4o-mini', _t0, true, response.usage)
+    logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, true, response.usage)
     const raw = response.choices[0]?.message?.content || '{}'
     const parsed = JSON.parse((raw.match(/\{[\s\S]*\}/) || ['{}'])[0])
     const matchedIds = Array.isArray(parsed.matches) ? parsed.matches : []
-    const boostMap = {}
-    for (const id of matchedIds) {
-      const row = allRows[Number(id) - 1]
-      if (row) {
-        for (const templateTitle of (row.templates || [])) {
-          boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
-        }
-      }
-    }
-    return boostMap
+    return matchedIds.map(id => rows[Number(id) - 1]).filter(Boolean)
   } catch (_e) {
-    logAI('distinction-classify', 'gpt-4o-mini', _t0, false, null)
-    return {}
+    logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, false, null)
+    return []
   }
+}
+
+// In-domain classification → template boost map. candidateRows is the firm's resolved
+// effective list (platform rows with declines removed + firm overrides swapped in +
+// firm-own rows); we score only the rows for the detected domain. The resolver
+// guarantees an overridden platform row appears once, so a boost is never doubled.
+async function classifyDistinctions (domain, advisorText, candidateRows) {
+  if (!domain || !advisorText) { return {} }
+  const rows = (Array.isArray(candidateRows) ? candidateRows : []).filter(r => r.domain === domain)
+  const matched = await _classifyMatchingRows(rows, advisorText, 'distinction-classify')
+  const boostMap = {}
+  for (const row of matched) {
+    for (const templateTitle of (row.templates || [])) {
+      boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
+    }
+  }
+  return boostMap
+}
+
+// Cross-domain "bridge": the firm's OWN distinctions (firm-own or firm-edited) that
+// live in a DIFFERENT domain than the one detected, yet semantically match this
+// session — i.e. likely filed under the wrong domain. Surfaced in the decision trace
+// so a firm can move them where they'll actually fire. Platform rows are excluded
+// (the bridge is about the firm's own IP, not flagging every platform row everywhere).
+async function findNearMissDistinctions (detectedDomain, advisorText, effectiveDistinctions) {
+  if (!detectedDomain || !advisorText) { return [] }
+  const otherFirmRows = (Array.isArray(effectiveDistinctions) ? effectiveDistinctions : []).filter(r =>
+    r && r.domain !== detectedDomain && (r.source === 'firm-own' || r.source === 'firm-override'))
+  if (otherFirmRows.length === 0) { return [] }
+  const matched = await _classifyMatchingRows(otherFirmRows, advisorText, 'distinction-nearmiss')
+  return matched.map(r => ({ id: r.id, description: r.description, domain: r.domain, source: r.source }))
 }
 
 // Build detection patterns from domain definitions — compiled once at startup
@@ -479,8 +501,12 @@ function parseMeetingCount (text) {
   const num = '(one|two|three|four|five|six|too|couple|few|\\d)'
   // Allow one OR MORE linking words between the two numbers so "two or maybe
   // three" reads as a range (upper bound 3), not just the first number. A single
-  // connector ("two or three", "two to three") still works.
-  const range = t.match(new RegExp('\\b' + num + '(?:\\s+(?:to|or|maybe|-))+\\s+' + num + '\\b', 'i'))
+  // connector ("two or three", "two to three") still works. The connector list
+  // covers the natural hedging words advisors use when committing to a range
+  // ("two possibly three", "two perhaps three", "two or ideally three") — the
+  // upper bound is taken so we fill the engagement to the level agreed.
+  const connectors = '(?:to|or|maybe|possibly|perhaps|ideally|even|up\\s+to)'
+  const range = t.match(new RegExp('\\b' + num + '(?:\\s+' + connectors + ')+\\s+' + num + '\\b', 'i'))
   if (range) { return map[range[2]] || parseInt(range[2], 10) || null }
   const single = t.match(new RegExp('\\b' + num + '\\b', 'i'))
   if (single) { return map[single[1]] || parseInt(single[1], 10) || null }
@@ -1537,21 +1563,16 @@ async function handleQuery (rawBody, res, identity) {
       )
     ].join(' ')
 
-    let _firmDistinctionRows = []
-    if (firmId) {
-      try {
-        const _stored = await loadFirmConfig(firmId, 'advisory-distinctions')
-        _firmDistinctionRows = Array.isArray(_stored) ? _stored : []
-      } catch (_e) {
-        try {
-          const _devFile = require('path').resolve(process.cwd(), 'data/dev-firm-distinctions.json')
-          const _devData = JSON.parse(require('fs').readFileSync(_devFile, 'utf8'))
-          _firmDistinctionRows = Array.isArray(_devData[firmId]) ? _devData[firmId] : []
-        } catch (_fe) { /* file not yet created — no firm distinctions in dev */ }
-      }
-    }
-
-    const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _firmDistinctionRows)
+    // Load the firm's full distinction state (own rows + declines + edits) and
+    // resolve it into the single effective list the advisor session should see.
+    // With no declines/edits stored, the effective list equals platform + firm-own
+    // rows — identical to the previous concatenation, so behaviour is unchanged.
+    const _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
+    const _effectiveDistinctions = resolveEffectiveDistinctions(ADVISORY_DISTINCTIONS.platform, _firmState)
+    const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
+    // Cross-domain bridge: firm distinctions filed under OTHER domains that match this
+    // session (likely mis-filed) — surfaced in the decision trace, not scored here.
+    const _nearMissDistinctions = await findNearMissDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
 
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -1560,7 +1581,6 @@ async function handleQuery (rawBody, res, identity) {
     const _hasOutlier = _resolvedResult.hasOutlier
     const _fallbackExists = _resolvedResult.fallbackExists
     const _outlierTemplate = _hasOutlier ? (_resolvedResult.primary.selected[0] || null) : null
-    const _withinRangeTemplate = _hasOutlier ? (_resolvedResult.withinRange.selected[0] || null) : null
 
     // Phase E — situationBrief: AI writes copy only; template selection already done by code
     const DOMAIN_LABELS_E = {
@@ -1658,13 +1678,20 @@ async function handleQuery (rawBody, res, identity) {
       if (walkedNames.size > 0) { preFilteredNames = [...walkedNames] }
     }
 
-    // Build outlier context block for the AI — only present when there is a mismatch
+    // Build outlier context block for the AI — only present when there is a mismatch.
+    // The strongest match is offered as an EXTENDING (stretch) option, and the
+    // in-range matches fill the rest of the budget — so a stretch session still
+    // leans to the upper end of the budget rather than capping at two cards.
+    const _withinRangeFill = _hasOutlier
+      ? _resolvedResult.withinRange.selected.map(t => t.title).join(', ')
+      : ''
     const _outlierContext = _hasOutlier
       ? [
         '',
-        'TWO-CARD OUTPUT REQUIRED',
-        `STRONGEST MATCH (outside advisor range): ${_outlierTemplate ? _outlierTemplate.title : ''}`,
-        `WITHIN-RANGE MATCH: ${_withinRangeTemplate ? _withinRangeTemplate.title : 'none — no entry-level template exists for this situation'}`
+        'STRETCH + IN-RANGE OUTPUT',
+        `The STRONGEST match sits ABOVE the advisor's current range — offer it as an EXTENDING (stretch) option, clearly framed as beyond their current level: ${_outlierTemplate ? _outlierTemplate.title : ''}`,
+        `IN-RANGE options to fill the rest of the budget: ${_withinRangeFill || 'none — no entry-level template exists for this situation'}`,
+        'Lead with the stretch match, then add in-range options up to the template budget — aim for the upper end of the budget rather than the minimum.'
       ].join('\n')
       : (!_fallbackExists && _resolverCandidates.length > 0
         ? '\nNO WITHIN-RANGE TEMPLATE: No template within the advisor\'s current parameters covers this situation — include the no-entry-level note after the primary recommendation.'
@@ -1681,7 +1708,7 @@ async function handleQuery (rawBody, res, identity) {
       _outlierContext,
       '',
       _resolverCandidates.length > 0
-        ? `CANDIDATE TEMPLATES — this is a wide net from automated scoring and may contain templates that do not genuinely fit this client. Read the collected answers carefully, then select up to ${_budgetCount} template${_budgetCount !== 1 ? 's' : ''} that GENUINELY fit this client's situation and industry. ${_budgetCount} is a maximum, not a target — recommending fewer (even one) is correct when only one genuinely fits. Exclude any candidate whose design context or industry does not match this client (see Rule R17). Choose only from these candidates — do not invent, abbreviate, or paraphrase names:\n` +
+        ? `CANDIDATE TEMPLATES — this is a wide net from automated scoring and may contain templates that do not genuinely fit this client. Read the collected answers carefully, then select templates that GENUINELY fit this client's situation and industry. AIM FOR ${_budgetCount} template${_budgetCount !== 1 ? 's' : ''} — the advisor has committed to that many sessions, so fill the engagement and lean to the upper end rather than the minimum. When the best-fitting matches sit ABOVE the advisor's current advisory range, INCLUDE them as extending/stretch options (clearly framed as beyond their current level) rather than dropping them to land under budget. Recommend fewer than ${_budgetCount} ONLY when there genuinely are not ${_budgetCount} relevant candidates — never pad with a template that does not truly fit. Exclude any candidate whose design context or industry does not match this client (see Rule R17). Choose only from these candidates — do not invent, abbreviate, or paraphrase names:\n` +
           _resolverCandidates.map((t, i) => `${i + 1}. ${t.title} (ID: ${t.page})`).join('\n')
         : 'No templates pre-scored — choose the best match from the template list above.',
       '',
@@ -1779,6 +1806,56 @@ async function handleQuery (rawBody, res, identity) {
     console.log('[va-session] ' + JSON.stringify(_sessionSummary))
     dbg('[OBSERVABILITY] ' + JSON.stringify(_obsPayload, null, 2))
 
+    // ── Decision trace (case-study feedback loop, Part 1) ───────────────────────
+    // An honest, structured explanation of how this recommendation was reached, so
+    // a firm manager can review the reasoning ("I agree" / "that should have fired")
+    // and act on it (e.g. move a distinction to a better domain). Assembled from the
+    // SAME data the engine just used — no new inference. Emitted with the
+    // recommendation below and intended to be stored on a saved case study.
+    const _decisionTrace = {
+      session: sessionId || null,
+      generatedAt: _sessionSummary.t,
+      // The advisor's own words for the situation (their intake answers).
+      situation: collectedAnswers || {},
+      domain: {
+        id: state.detectedDomain || null,
+        label: (DOMAINS.find(d => d.id === state.detectedDomain) || {}).label || null
+      },
+      lenses: {
+        engagementType: _strategyDecision.engagementType || null,
+        complexityCeiling: _strategyDecision.complexityCeiling || null,
+        problemSignals: _caseState.problemSignals || {},
+        templateBudget,
+        signalTypes: _signals.map(s => s.type)
+      },
+      distinctions: {
+        // Distinctions are scored ONLY within the detected domain — the key fact for
+        // judging whether a firm's distinction was even in scope for this session.
+        evaluatedDomain: state.detectedDomain || null,
+        note: 'Distinctions are evaluated only within the detected domain; distinctions filed under other domains are not considered.',
+        boostsApplied: _distinctionBoosts || {},
+        // Cross-domain bridge: the firm's own distinctions filed under a different
+        // domain that nevertheless matched this session — candidates to move here.
+        nearMisses: _nearMissDistinctions || []
+      },
+      templateScores: (_obsPayload.templateScores || []).map(t => ({
+        rank: t.rank,
+        title: t.title,
+        score: t.score,
+        matchReasons: t.matchReasons || []
+      })),
+      recommendation: {
+        selected: [],
+        top: _top ? _top.title : null,
+        topScore: _top ? _top.score : null,
+        runnerUp: _second ? _second.title : null,
+        runnerUpScore: _second ? _second.score : null,
+        scoreGap: _scoreGap,
+        confidence: _sessionSummary.confidence,
+        noMatchReason: _resolvedTemplates.noMatchReason || null
+      }
+    }
+
     const systemPrompt2 = loadPrompt('client') + languageInstruction2
 
     const messages2 = [
@@ -1824,6 +1901,8 @@ async function handleQuery (rawBody, res, identity) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
           state.recommendedTemplates = extractTemplatesFromText(_p3Buffer)
+          _decisionTrace.recommendation.selected = state.recommendedTemplates
+          res.write('data: ' + JSON.stringify({ type: 'trace', trace: _decisionTrace }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'session_meta', domain: state.detectedDomain, templates: state.recommendedTemplates }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'recommendation_delivered' }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
@@ -2071,3 +2150,5 @@ module.exports.detectNotMetClient = detectNotMetClient
 module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
 module.exports.detectUncertainty = detectUncertainty
 module.exports.parseMeetingCount = parseMeetingCount
+module.exports.classifyDistinctions = classifyDistinctions
+module.exports.findNearMissDistinctions = findNearMissDistinctions
