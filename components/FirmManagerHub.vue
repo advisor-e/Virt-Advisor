@@ -474,6 +474,21 @@ section.firm-manager-hub.section
                       style="flex:1"
                     )
                   .template-picker-list
+                    //- Revenue-model GROUP targets: boost a whole group rather than one
+                    //- named model; the engine auto-picks the right one by client industry.
+                    label.template-picker-opt.template-picker-group(
+                      v-for="g in templateGroupTargets"
+                      :key="g.token"
+                      :class="{ 'is-selected': distinctionForm.templates.includes(g.token) }"
+                    )
+                      input(
+                        type="checkbox"
+                        :value="g.token"
+                        :checked="distinctionForm.templates.includes(g.token)"
+                        @change="toggleTemplateSelection(g.token)"
+                      )
+                      span.template-picker-title {{ g.label }}
+                      span.template-picker-sub {{ g.hint }}
                     label.template-picker-opt(
                       v-for="t in filteredTemplateOptions"
                       :key="t.title"
@@ -496,7 +511,7 @@ section.firm-manager-hub.section
                       closable
                       type="is-success is-light"
                       @close="toggleTemplateSelection(t)"
-                    ) {{ t }}
+                    ) {{ templateChipLabel(t) }}
 
               b-field(label="Boost score" message="How many points to add to each matched template's score (1–20). Default 5.")
                 b-input(
@@ -680,6 +695,14 @@ export default {
       confirmDeleteDistinctionId: null,
       templatePickerSearch: '',
       templatePickerSubSection: '',
+      // Revenue-model GROUP targets — let a distinction boost a whole group of revenue
+      // models instead of one named model; the engine auto-matches the specific model to
+      // the client's industry. Tokens are stored in distinctionForm.templates and read by
+      // the resolver (templateResolver.js group-boost block). Revenue models only, by design.
+      templateGroupTargets: [
+        { token: '@rf-industry', label: 'Revenue & Feasibility Model — Industry (auto-matched)', hint: 'Engine picks the model matching the client\'s industry' },
+        { token: '@rf-general', label: 'Revenue & Feasibility Model — General', hint: 'Generic feasibility/concept tools (Break-Even, EBITDA…)' }
+      ],
       allClientTemplates: ALL_CLIENT_TEMPLATES,
       templateSubSections: TEMPLATE_SUBSECTIONS
     }
@@ -1153,6 +1176,13 @@ export default {
       } else {
         this.distinctionForm.templates.splice(idx, 1)
       }
+    },
+
+    // Friendly label for a selected target chip — a group token shows its label,
+    // an ordinary template shows its title.
+    templateChipLabel (value) {
+      const group = this.templateGroupTargets.find(g => g.token === value)
+      return group ? group.label : value
     },
 
     async saveDistinction () {

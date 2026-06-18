@@ -309,6 +309,25 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
       reasons.push('distinction:+' + _distinctionBoost)
     }
 
+    // Advisory distinctions — GROUP boost (Revenue & Feasibility models only).
+    // A firm distinction can target a group rather than a single named model:
+    //   '@rf-industry' → the industry-specific models (auto-matched to the client's
+    //                    industry by the industry boost + hold-back above)
+    //   '@rf-general'  → the generic feasibility/concept tools (Break-Even, EBITDA…)
+    // This lets a firm say "for a costing problem, use the right revenue model" without
+    // naming an industry — the engine + conversation pick the specific one. Industry vs
+    // general is read from the fingerprint shape (a pure industry model is exactly
+    // {revenue_modelling}), the same signature the wrong-industry hold-back uses.
+    if (subSection === 'Revenue & Feasibility Models' && (distinctionBoosts['@rf-industry'] || distinctionBoosts['@rf-general'])) {
+      const _gpk = Object.keys((t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {})
+      const _isIndustryRf = _gpk.length === 1 && _gpk[0] === 'revenue_modelling'
+      const _groupBoost = _isIndustryRf ? (distinctionBoosts['@rf-industry'] || 0) : (distinctionBoosts['@rf-general'] || 0)
+      if (_groupBoost > 0) {
+        score += _groupBoost
+        reasons.push('distinction:' + (_isIndustryRf ? '@rf-industry' : '@rf-general') + '+' + _groupBoost)
+      }
+    }
+
     // Solution category → tag keyword match
     for (const cat of (solutionCategories || [])) {
       const keywords = CATEGORY_KEYWORDS[cat] || [cat.toLowerCase()]

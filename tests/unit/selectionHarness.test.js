@@ -136,3 +136,30 @@ describe('selection harness — TARGET outcomes (flip .skip → test as fixes la
     expect(top10.join('\n')).toMatch(/Sales Session/)
   })
 })
+
+// A firm distinction can target a GROUP of revenue models (@rf-industry / @rf-general)
+// rather than one named model; the engine auto-matches the specific one to the client.
+describe('selection harness — R&F group distinction target', () => {
+  const cafeCase = caseFor({
+    domain: 'profit',
+    industry: 'a couple of cafes',
+    growthStage: 'Leverage',
+    confidence: 'low',
+    problemSignals: { revenue_modelling: 1 }
+  })
+  const strategy = { engagementType: 'education', templateBudget: 3 }
+
+  test('@rf-industry boost lifts the industry-matched model (Cafe), not a generic one', () => {
+    const res = resolveTemplates(cafeCase, strategy, templates, { ignoreCeiling: true, distinctionBoosts: { '@rf-industry': 10 } })
+    const cafe = res.scoringLog.find(t => t.title === 'Cafe')
+    expect(cafe.matchReasons).toContain('distinction:@rf-industry+10')
+    expect(res.scoringLog[0].title).toBe('Cafe')
+  })
+
+  test('@rf-general boost goes to concept tools, not the industry models', () => {
+    const res = resolveTemplates(cafeCase, strategy, templates, { ignoreCeiling: true, distinctionBoosts: { '@rf-general': 10 } })
+    const cafe = res.scoringLog.find(t => t.title === 'Cafe')
+    // Cafe is a pure industry model → it must NOT receive the @rf-general boost
+    expect(cafe.matchReasons).not.toContain('distinction:@rf-general+10')
+  })
+})
