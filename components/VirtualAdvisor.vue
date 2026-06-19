@@ -1282,14 +1282,25 @@ export default {
       this.sendMessage('__none_of_these__')
     },
 
-    // Win-work switch — advisor accepts the offer to move to Learn (how-to-sell).
-    // Flip to Learn mode and send their intent; the conversation history carries the
-    // context (EOY meeting, never sold, wants to open the client up to more work).
-    acceptSellSwitch () {
+    // Hand off to Learn mode carrying the advisor's ACTUAL opening (their stated
+    // goal) as the query the engine acts on — so Learn responds to what they really
+    // want (e.g. "run an end-of-year meeting AND upsell") and matches the right
+    // templates, instead of a generic "sell". The visible bubble stays friendly;
+    // the goal text is what's sent. Falls back to the friendly line if no opening
+    // is found. (The AI reads dictation garbles like "ND year" as "end of year"
+    // fine — it's the brittle keyword tree-picker that doesn't; that's a separate fix.)
+    _handoffToLearn (displayText) {
       this.showSellSwitch = false
       this.mode = 'learn'
-      this.inputText = 'Yes, help me sell'
-      this.sendMessage()
+      const opening = this.messages.find(m => m.role === 'user')
+      const goal = opening && opening.content && opening.content.trim() ? opening.content.trim() : null
+      this.inputText = displayText
+      this.sendMessage(goal)
+    },
+
+    // Win-work switch — advisor accepts the offer to move to Learn (how-to-sell).
+    acceptSellSwitch () {
+      this._handoffToLearn('Yes, help me sell')
     },
 
     // Advisor declines — stay in the client flow; the backend continues the questions.
@@ -1300,12 +1311,9 @@ export default {
     },
 
     // Free-text "yes" path: the backend returned [SWITCH_TO_LEARN]. Flip to Learn
-    // mode and kick off the selling coaching, carrying the conversation context.
+    // mode the same way, carrying the advisor's stated goal.
     switchToLearn () {
-      this.showSellSwitch = false
-      this.mode = 'learn'
-      this.inputText = 'Help me with how to win more advisory work from this client'
-      this.sendMessage()
+      this._handoffToLearn('Help me win more advisory work from this client')
     },
 
     submitGrowthStage () {
