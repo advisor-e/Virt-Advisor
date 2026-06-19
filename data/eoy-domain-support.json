@@ -52,7 +52,7 @@
             },
             {
               "name": "Rural Deck",
-              "use_when": "Agribusiness and farming clients. Replaces standard growth language with farmer-specific concepts and aligns strategic spending decisions (e.g. new equipment vs overseas holidays) to agricultural seasons and cycles."
+              "use_when": "Agribusiness and farming clients. Replaces the standard Growth Curve with the 8-tier Farmer's Growth Position (Stage 1 Labourer up to Stage 8 Vertical/Consortium Owner — map where they are now, e.g. Herd Manager, versus their target, e.g. Sharemilker, and the timeframe). Builds a 5-year Strategic Spending Plan splitting upcoming capex into Lifestyle (e.g. a new boat), Operational (e.g. a new tractor) and Strategic (e.g. an irrigation system, herd home or feed pad), each with monthly timeframes. The standard 6-step Accounts Review remains the foundational opening step."
             }
           ]
         },
@@ -132,15 +132,15 @@
           "key_concepts": [
             {
               "concept": "Personal Zone to Business Zone",
-              "description": "The deliberate transition from opening in personal territory (lifestyle, goals, family) to professional territory (numbers, strategy, performance). This shift feels natural when framed well and is the psychological foundation of the EOY meeting structure."
+              "description": "The deliberate transition from opening in personal territory (lifestyle, goals, family) to professional territory (numbers, strategy, performance). Open with the exact bridge script to assume permission and cross the zones: 'How're you going for time today?' then 'If it's o-k with you...' — take control, then share the power. This shift feels natural when framed well and is the psychological foundation of the EOY meeting structure."
             },
             {
-              "concept": "Growth Curve",
-              "description": "The 9-stage model of business growth used to show the client where they currently sit and what challenges and decisions come next. The conceptual anchor for every topic discussed in the meeting."
+              "concept": "Growth Curve (Global Reference)",
+              "description": "The 9-stage model of business growth — the Global Reference, the big-picture 'Where am I going?' hook and conceptual anchor — used to show the client where they currently sit and what challenges and decisions come next. Reveal it in the third person first through the 'Bob the Chocolate maker' persona to create safe psychological dissociation, then connect the framework back to the client so they can anticipate future issues."
             },
             {
-              "concept": "Volatility Framework — WHAT-HOW",
-              "description": "Addresses cash flow instability with four strategic levers: (1) Products and Services — what offerings fill revenue gaps during dips? (2) Admin Procedures — how can money get into the business faster? (3) Marketing and Sales — how can the business attract more customers more often? (4) Working Capital — how should the business finance and manage cash to cope with swings?"
+              "concept": "Volatility Framework — WHAT-HOW (Local Reference)",
+              "description": "The Local Reference — the micro-vision 'What's happening to me right now?' hook. Open it with the 'speed wobbles' analogy ('the faster you go, the bigger the mess' — you cannot grow safely until the systems are balanced). First classify the cause of volatility as Common, Special, Seasonal or Tampering (Tampering = over-reacting to misread data), then address cash flow instability with the four WHAT-HOW levers: (1) Products and Services — what offerings fill revenue gaps during dips? (2) Admin Procedures — how can money get into the business faster? (3) Marketing and Sales — how can the business attract more customers more often? (4) Working Capital — how should the business finance and manage cash to cope with swings?"
             },
             {
               "concept": "Start/Stop/Keep",
@@ -160,6 +160,7 @@
             "Document outcomes using the General Agenda — record objectives, items covered, and specific action points with owners and due dates.",
             "Three closing questions: (1) What is the one thing you are most committed to actioning before we meet again? (2) What support do you need from us to make that happen? (3) When shall we schedule our next session?",
             "For mature businesses ready for structured ongoing advisory, introduce the Management Reporting Annual Plan as their advisory board calendar.",
+            "A natural next advisory service is the Basic Targets method: connect the owner's personal income and leisure expectations to a custom management dashboard, built using the 5-step Advisory staircase (Compilation/Verification, Assimilation, Interpretation, Application, Observation), core ratios (Current Ratio for solvency, Gross Margin for pricing) and Working Capital Cycle KPIs (Debtors, Cash, Stock, Sales) — selecting only the headline KPIs the owner can actually adjust, so the dashboard answers the five monthly questions (e.g. 'Can we pay our bills?', 'Are we improving?').",
             "The Growth Curve, Volatility framework, and Start/Stop/Keep actions create enough momentum and unanswered questions that the client naturally wants to continue."
           ]
         }
