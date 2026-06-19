@@ -1246,6 +1246,18 @@ async function handleQuery (rawBody, res, identity) {
     // Without this, a post-rec turn can re-trigger disambiguation or any unanswered
     // question if domain re-detection produces a different score than the original turn.
     if (!state.recommendationDelivered) {
+      // Win-work intent stated up front (e.g. right in the opening line): catch it
+      // before any question is pending, so the answer isn't mis-recorded. The
+      // in-answer check further down covers it when it surfaces later instead.
+      if (
+        !state.salesSwitchOffered && !state.prepMode &&
+        !QUESTIONS.some(q => state[q.field] === 'pending') &&
+        detectWinWorkIntent(query)
+      ) {
+        state.awaitingSalesSwitchChoice = true
+        state.salesSwitchOffered = true
+        return sendQuestion(SALES_SWITCH_OFFER)
+      }
       for (const q of QUESTIONS) {
         // Skip the per-domain question battery — intake = the 14 + conversation.
         if (BATTERY_FIELDS.has(q.field) || q._battery) { continue }
