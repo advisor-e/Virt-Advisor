@@ -10,7 +10,21 @@
 >
 > **Last swept:** 2026-06-11.
 >
-> **★★ TOMORROW'S PRIORITY (2026-06-20) — IP DEPTH AUDIT.** Find how much quality IP is under-served by thin/stale JSON conversions (proven by today's EOY case: the JSON existed but was the old/thin version, shortchanging the firm's method). Coverage is broad (≈all 90 source PDFs map to a JSON) — the risk is DEPTH + the few genuine zero-JSON gaps (`Why Use Rev Models.pdf`; People Power has no logic tree; verify Coaching Content + Sales & Marketing Slides). Method + findings + the 3-file EOY flow are in **`design/SESSION-2026-06-19-WINWORK-EOY-NOTES.md` §5–6**. Also today (branch `feat/win-work-redirect`, pushed, NOT merged): win-work→Learn redirect, AI-picks-the-coaching-tree, EOY content upgrade, anti-script-fabrication guardrail. Separate branch `feat/case-study-db` (shared case-study DB) also pushed + unmerged.
+> **★★ IP DEPTH AUDIT — DONE + FOLD-INS EXECUTED 2026-06-20 (NOT committed yet).** Full audit ran
+> (pdftotext extract → depth-ratio screen → corpus-level named-concept coverage → read-verify).
+> **Findings + the verified genuinely-missing list + the executed fold-ins are in
+> `design/SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md`.** Headline: coverage broad, depth mostly
+> sound; gaps were short + modest + clustered in DORMANT specialist trees. A methodology trap was
+> caught (IP folded into a SIBLING file looked "missing" — People Power lives in `staff_performance`,
+> get_seminar methods in `powerful-seminars.json`); the screen now checks the whole corpus.
+> **8 fold-ins applied (transcribed faithfully from the source PDFs, no invented IP); 1 LIVE
+> (ratio_analysis named ratios + a formatter block in `logicTrees.js`), the rest dormant-and-ready.
+> dashboard_discussions verified NO change needed. 421/421 tests pass, lint clean, all JSON valid.**
+> Files touched: `data/ratio-analysis-reference.json`, `get-seminar-`, `raising-capital-`,
+> `fm-coach-culture-`, `valuation-`, `org-leadership-`, `org-board-pack-`, `org-firm-strategy-domain-support.json`,
+> + `server/utils/logicTrees.js`. **Dormant fold-ins only reach the AI when those trees go live (see
+> the 28-dormant-trees DECISION, P2).** Branch `feat/win-work-redirect` (pushed, NOT merged) still
+> carries the win-work→Learn redirect + EOY upgrade work; `feat/case-study-db` also pushed + unmerged.
 >
 > **✅ STACK-RECONCILIATION INSTALL — UNBLOCKED 2026-06-12.** The branch now installs to **exit 0** and the full suite passes **(272/272) on Node 14.15**. Resolution chain:
 > 1. **`isomorphic-dompurify` contradiction — RULED ON by the coding team (2026-06-11):** pin to the Node-14-compatible **`1.3.0`** (keeps the spec-named package *and* Node 14.15; `1.3.0`'s `jsdom@21` allows `node>=14`, and it still ships a modern DOMPurify 3.x). Exact pin, no caret (`1.11+` needs Node ≥18).

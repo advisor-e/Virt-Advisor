@@ -71,6 +71,21 @@
         "impact_scale": "1 (Negligible — no material impact), 2 (Minor — manageable with normal operations), 3 (Moderate — significant disruption or cost), 4 (Severe — existential threat to the firm or a major client relationship)",
         "risk_score": "Likelihood × Impact. Scores of 9+ are critical risks requiring immediate mitigation. Scores of 6-8 are high risks requiring active management. Scores of 3-5 are medium risks requiring monitoring. Scores below 3 are low risks requiring documentation only.",
         "risk_ownership": "Every risk on the register must have a named owner who is accountable for the mitigation actions and reports on status at each quarterly board meeting."
+      },
+
+      "risk_treatment_strategies": {
+        "principle": "Once a risk is scored by Probability and Consequence, select a treatment strategy for it. The four strategies are Accept, Avoid, Reduce, and Transfer.",
+        "strategies": [
+          { "name": "Accept", "guidance": "Tolerate the risk where it sits within the firm's risk appetite and the cost of action outweighs the benefit." },
+          { "name": "Avoid", "guidance": "Eliminate the activity or exposure that creates the risk." },
+          { "name": "Reduce", "guidance": "Take action to lower the likelihood or the impact of the risk." },
+          { "name": "Transfer", "guidance": "Shift the risk to another party — for example through insurance or contractual terms." }
+        ]
+      },
+
+      "board_accountability_signoff": {
+        "boardpack_table": "Where directors arrive at meetings unprepared, implement the Boardpack Table tracker: each director signs off that they have 'Read and Understood' the required documents (financials, legal, and board papers) before the meeting.",
+        "purpose": "Converts a casual business chat into a structured, accountable board meeting and creates an evidence trail that each director engaged with the material."
       }
     },
 

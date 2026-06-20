@@ -164,6 +164,23 @@
           "Closing reflection — brief individual sharing of one insight from the session"
         ],
         "facilitator_role": "The group coach facilitates but does not dominate. The most valuable learning in group coaching comes from peer-to-peer challenge and shared experience, not from the coach providing answers. Hold space for the group to work through problems — intervene when the discussion loses direction, not when it becomes uncomfortable."
+      },
+
+      "visible_learning_culture": {
+        "flipping_the_learning": {
+          "principle": "Also called Flipping the Training Process — a technology-enabled closed feedback loop in which training is strictly driven by real client needs rather than generic, firm-led learning paths.",
+          "traditional_vs_flipped": "A traditional path starts by determining what the firm wants to deliver, develops the content, and has an advisor present it. The flipped process starts by identifying the common problems clients are facing, then works backward: what the client needs to do, what the advisor needs to learn to facilitate that, and finally tracking the tasks to find common failures and update the templates."
+        },
+        "platinum_hr_loop": {
+          "principle": "The Golden Hr is the advisor's individual preparation before a client meeting. The Platinum Hr is the group session dedicated to team feedback and group problem solving, where a client case is workshopped before and after the engagement.",
+          "steps": [
+            { "step": 1, "name": "Golden Hr (prepare)", "guidance": "Before the client meeting, the advisor outlines exactly what they need to do (the Golden Hr preparation)." },
+            { "step": 2, "name": "Group Transition", "guidance": "The member transitions into the Platinum Hr session, dedicated to team feedback and group problem solving — capturing ideas and objections from peers before facing the client." },
+            { "step": 3, "name": "Present the Case", "guidance": "Using the structured Platinum Case Study Format, the member presents the client's financials, observed trends, and service offer to the team." },
+            { "step": 4, "name": "Validate via Feedback", "guidance": "The team uses the VISIBLE Learning Culture Feedback Model to explicitly state what 'stands out' and what they want to clarify or challenge." },
+            { "step": 5, "name": "Review Real-World Output", "guidance": "After dealing with the client, the member returns to the next Platinum Hr to run a Review session — what went well, what went less well, and future actions." }
+          ]
+        }
       }
     },
 

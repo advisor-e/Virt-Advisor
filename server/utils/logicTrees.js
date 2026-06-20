@@ -942,6 +942,16 @@ function formatRatioAnalysisReferenceForPrompt () {
     lines.push('')
   }
 
+  if (ref.ratio_categories) {
+    lines.push('### Ratio Categories and Key Formulas')
+    lines.push(ref.ratio_categories.description)
+    for (const c of (ref.ratio_categories.categories || [])) {
+      lines.push(`**${c.name}:** ${c.examples}`)
+    }
+    lines.push(`Advisor note: ${ref.ratio_categories.advisor_note}`)
+    lines.push('')
+  }
+
   if (ref.interrogate_benchmark_data) {
     lines.push('### Interrogate External Benchmark Data')
     lines.push('Questions to ask of any purchased benchmark data:')
