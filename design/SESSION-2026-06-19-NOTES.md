@@ -7,6 +7,33 @@
 
 ---
 
+## ⚠ UPDATE 2026-06-20 — premature merge found & safely backed out (READ FIRST)
+
+**What a fresh session needs to know:**
+
+- At the start of 2026-06-20 the repo was discovered **mid-merge**: a merge of
+  `feat/case-study-db` into `master` had been started with **conflicts resolved and staged,
+  but the merge commit never made** (git was sitting at "all conflicts fixed but you are
+  still merging"). A dangling, unfinished merge from a prior session — not a completed one.
+- **The merge was premature** — the merge gate (§4 click-through + clean `nuxt build`) had
+  **not** been met, and Mike confirmed the click-through had **not** been done.
+- **Action taken:** `git merge --abort`. `master` returned to a clean `dfc2197`, working tree
+  clean. **No work was lost** — all 6 commits of `feat/case-study-db` (`b37879a` → this
+  branch head) remained fully intact on the branch and on `origin`.
+
+**Git state at end of 2026-06-20 (clean handoff):**
+- `master` = `dfc2197`, clean, **pushed to origin**.
+- `feat/case-study-db` = pushed to origin (local == remote). Untouched build, ready.
+- Nothing staged, nothing uncommitted, no in-progress merge.
+
+**Next session — the merge is still PENDING and gated. Do NOT merge until, in order:**
+1. Run the app (§3) and complete the **8-step browser click-through** (§4).
+2. Confirm a clean `nuxt build`.
+3. *Then* merge `feat/case-study-db` → `master` and push.
+4. Provision the `va_case_studies` table in MySQL before production (§5).
+
+---
+
 ## 0. TL;DR — where things stand
 
 - **Branch:** `feat/case-study-db` (5 commits, **NOT merged** to `master`). `master` untouched.
