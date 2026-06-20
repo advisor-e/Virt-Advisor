@@ -224,13 +224,13 @@ These are confirmed pre-production issues. They are not blocking for initial han
 
 ~~`/api/advisor/query` and `/api/course` have zero throttling. Unbounded API spend is possible under load or abuse.~~
 
-**Resolved:** Per-IP rate limiting is implemented in `server-middleware/advisor.js` via `createLimiter` (imported from `./rateLimit`). The advisor query endpoint is limited at 30 requests per window. The `rateLimit.js` middleware handles the response directly and blocks over-limit requests before they reach OpenAI.
+**Resolved:** Per-IP rate limiting is implemented in `server/advisorEngine.js` (and `server/courseEngine.js`) via `createLimiter` (imported from `server/utils/rateLimit.js`). The advisor query endpoint is limited at 30 requests per window. The `rateLimit.js` middleware handles the response directly and blocks over-limit requests before they reach OpenAI. *(Note: the engine moved from the Nuxt `server-middleware/` layer to the Restify backend during the OpenAI SDK→REST migration; the `server-middleware/` files are now thin SSE proxies.)*
 
 ### L2 — Conversation state round-trips via client (HIGH — architectural) — RESOLVED
 
 ~~`conversationState` (14+ fields including `recommendationDelivered`, `happyConfirmed`, `detectedDomain`) is serialised into every SSE response and trusted back from the client on the next request. An attacker can modify state in transit to skip the question pipeline entirely.~~
 
-**Resolved:** Server-side session storage is implemented in `server-middleware/advisor.js`. All conversation state is held in a server-side `Map` (`sessionStore`) keyed by a 16-byte random session ID. The client receives only the session ID; no state is round-tripped. Sessions expire after 2 hours of inactivity and are pruned every 15 minutes. For multi-process deployments, replace the `Map` with a Redis-backed store.
+**Resolved:** Server-side session storage is implemented in `server/advisorEngine.js`. All conversation state is held in a server-side `Map` (`sessionStore`) keyed by a 16-byte random session ID. The client receives only the session ID; no state is round-tripped. Sessions expire after 2 hours of inactivity and are pruned every 15 minutes. For multi-process deployments, replace the `Map` with a Redis-backed store.
 
 ### L3 — `/api/firm/advisors` and `/api/firm/insights` are stub-only
 
@@ -259,17 +259,17 @@ Case studies saved by advisors exist only in their browser's localStorage. This 
 
 ### L5 — Phase 3 `max_tokens` configuration
 
-Phase 3 recommendation stream is set to `max_tokens: 2500` (raised from 1500 — the original value was truncating multi-template recommendations). If the recommendation format expands further (e.g. more templates, longer Content Summaries), this may need adjustment. The setting is in `server-middleware/advisor.js` at the `getOpenAI().chat.completions.create()` call that produces the main stream.
+Phase 3 recommendation stream is set to `max_tokens: 2500` (raised from 1500 — the original value was truncating multi-template recommendations). If the recommendation format expands further (e.g. more templates, longer Content Summaries), this may need adjustment. The setting is in `server/advisorEngine.js` (around line 1989) at the OpenAI client call that produces the main recommendation stream.
 
 ---
 
 ## Known Issues
 
-### Startup diagnostic log — API key fragment (REMOVE BEFORE PRODUCTION)
+### Startup diagnostic log — API key (RESOLVED 2026-06-20)
 
-`server-middleware/advisor.js` line 109 logs the last 8 characters of `OPENAI_API_KEY` to the console on every server start. This is intentionally left in to make it easy to confirm the correct key is loaded during development and testing.
+~~`server-middleware/advisor.js` line 109 logs the last 8 characters of `OPENAI_API_KEY` to the console on every server start.~~
 
-**Remove before production deployment.** Delete or comment out the `console.log` line at `server-middleware/advisor.js:109`. The surrounding `if (!process.env.OPENAI_API_KEY)` error check on line 105 should be kept — only the key fragment log needs to go.
+**Resolved during the OpenAI SDK→REST migration.** The startup check now lives in `server/advisorEngine.js` (`startupCheck`, ~line 197) and logs only a **boolean presence** flag — `[advisor] OPENAI_API_KEY present=true` — never any part of the key. No key fragment is logged anywhere in the codebase (verified 2026-06-20). The `present=true` line is a harmless diagnostic and is safe to leave in production, or remove if you prefer a silent startup; the `if (!process.env.OPENAI_API_KEY)` FATAL check should be kept.
 
 ---
 
