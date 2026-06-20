@@ -129,6 +129,17 @@
     },
 
     {
+      "name": "Tracking and Accountability — Global Actions Report and CPD Log",
+      "purpose": "Centralises accountability so advice converts into action and learning is evidenced. The Global Actions Report summarises every action promised to clients; the CPD Log (CPD Table) tracks all learning and hours.",
+      "core_principle": "Advice only creates value when it is acted on and when the advisor keeps developing. Automating reminders means nothing is forgotten post-meeting, and tracking CPD provides evidence of progress and effectiveness 'in the field'.",
+      "when_to_use": "Use to embed post-meeting follow-through across the firm and to schedule structured learning. Pair the CPD Table with a protected 'Weekly Golden Hr' for strategic learning, kept above routine compliance deliveries.",
+      "components": [
+        { "name": "Global Actions Report", "guidance": "Summarises all actions promised to clients and automates reminders so nothing is forgotten after a meeting." },
+        { "name": "CPD Log (CPD Table)", "guidance": "Tracks all learning and hours. Schedule learning in 'work sprints' that respect peak workflow, and prioritise the Weekly Golden Hr for strategic learning above compliance deliveries." }
+      ]
+    },
+
+    {
       "name": "CA Firm Strategy — If-Then Guidance",
       "purpose": "Decision logic for the most common firm strategy complications — partner admission disputes, technology adoption failures, capacity crises, and fee growth resistance.",
       "if_then_logic": [

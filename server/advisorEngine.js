@@ -14,7 +14,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
-const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -353,6 +353,49 @@ function getOpenAI () {
   return openaiClient
 }
 
+/**
+ * AI-assisted coaching-tree selection for Learn mode. The deterministic keyword
+ * matcher (detectLogicTree) is brittle: exact-substring, single winner, ties
+ * broken by file order, and defeated by dictation garbles ("end of year" ->
+ * "ND year"). This reads the advisor's goal semantically and returns the single
+ * most relevant `mode: learn` tree object, or null. On ANY failure the caller
+ * falls back to the keyword matcher, so Learn mode never breaks. Output is
+ * validated strictly against the known learn-tree ids — raw model text is never
+ * trusted as a result.
+ *
+ * @param {string} advisorText - the advisor's own words (their goal / intent)
+ * @returns {Promise<object|null>}
+ */
+async function pickLearnTreeAI (advisorText) {
+  if (!advisorText || !advisorText.trim()) { return null }
+  const learnTrees = loadLogicTrees().filter(t => t && t.mode === 'learn')
+  if (learnTrees.length === 0) { return null }
+
+  const menu = learnTrees
+    .map(t => `- ${t.id}: ${t.name}${t.description ? ' — ' + String(t.description).slice(0, 150) : ''}`)
+    .join('\n')
+  const system = 'You match an advisor to the single most relevant coaching guide for what they want help with. The advisor text may contain speech-to-text errors — read it for meaning (e.g. "ND year" / "India meeting" means "end of year"). Reply with ONLY the guide id exactly as written in the list, or the word none if nothing clearly fits. No other words.'
+  const user = `Coaching guides:\n${menu}\n\nThe advisor said:\n${fenceUntrusted(advisorText.slice(0, 1000))}\n\nWhich one guide id best fits?`
+
+  try {
+    const response = await getOpenAI().chat.completions.create({
+      model: 'gpt-4o-mini',
+      temperature: 0,
+      max_tokens: 20,
+      messages: [{ role: 'system', content: system }, { role: 'user', content: user }]
+    })
+    const raw = (response.choices && response.choices[0] && response.choices[0].message && response.choices[0].message.content) || ''
+    const out = raw.trim().toLowerCase().replace(/[^a-z0-9_]+/g, ' ').trim()
+    const tokens = out ? out.split(/\s+/) : []
+    if (!out || tokens.includes('none')) { return null }
+    const match = learnTrees.find(t => out === t.id || tokens.includes(t.id))
+    return match || null
+  } catch (err) {
+    console.error('[advisor] learn tree AI-pick failed:', err.message)
+    return null
+  }
+}
+
 const _dbgLog = require('os').tmpdir() + '/va-debug.log'
 const _dbgMaxBytes = 5 * 1024 * 1024 // 5 MB cap — prevents runaway disk usage if debug left on
 let _dbgBytesWritten = 0
@@ -473,6 +516,25 @@ const PREP_SKIP_FIELDS = new Set([
 ])
 
 const PREP_MODE_OFFER = "It sounds like you haven't met this client yet — want me to skip the questions about them and just prep what you can answer now?"
+
+// ── WIN-WORK INTENT ──────────────────────────────────────────────────────────
+// The advisor signals there's no specific client problem — they want to win/sell
+// more advisory work (get-the-job), not diagnose a problem (do-the-job). This
+// triggers a permission-based offer to switch to Learn mode (how-to-sell), mirroring
+// the prep-mode offer. The trigger is the INTENT, not the meeting type — so End-of-
+// Year client-delivery templates stay reachable for an advisor who genuinely needs
+// them, and a false trigger only ever costs the advisor a "No".
+const _WIN_WORK_PATTERN = /\b(up-?\s?sell|cross-?\s?sell|sell (?:them|him|her|the client|more|advisory|additional|extra|other services)|win (?:more |additional |further |extra )?(?:advisory |consulting )?(?:work|business|fees)|secure (?:them|him|her|the client)\b[^.!?]{0,40}\b(?:future|more|ongoing|further|advisory|services|work)|open(?:ing|s|ed)? (?:their|them|his|her)\b[^.!?]{0,30}\b(?:mind|eyes|up)\b|more advisory work|drum up (?:more )?(?:work|business)|grow (?:the|my|our|this) (?:relationship|account))\b/i
+const _NO_PROBLEM_PATTERN = /\b(no specific (?:problem|situation|issue)|not (?:really )?a (?:specific )?problem|don'?t (?:have|think there'?s) (?:a |any )?(?:specific )?(?:problem|issue)|nothing specific|no (?:real |particular )?(?:problem|issue) (?:right now|as such|yet|currently)|haven'?t got a (?:specific )?(?:problem|issue)|no problem (?:as such|right now))\b/i
+
+function detectWinWorkIntent (text) {
+  if (!text || typeof text !== 'string') { return false }
+  const t = text.toLowerCase().replace(/’/g, "'")
+  return _WIN_WORK_PATTERN.test(t) || _NO_PROBLEM_PATTERN.test(t)
+}
+
+// Approved wording (Mike 2026-06-19). [SELL_SWITCH_OFFER] renders the Yes/No buttons.
+const SALES_SWITCH_OFFER = "It sounds like there isn't a specific client problem to solve here — what you really want is to win more advisory work from this client. That's a different kind of help, and I've got a track built for exactly that: how to actually sell and position advisory services. Would you like me to switch to that instead?\n[SELL_SWITCH_OFFER]"
 
 // ── Uncertainty detection (Phase 2) ─────────────────────────────────────────
 // The advisor sounded UNSURE about what's driving the situation. Gates the
@@ -829,6 +891,9 @@ async function handleQuery (rawBody, res, identity) {
       prepMode: false,
       prepModeOffered: false,
       awaitingPrepModeChoice: false,
+      // Win-work switch (offer to move to Learn / how-to-sell) — offered once.
+      salesSwitchOffered: false,
+      awaitingSalesSwitchChoice: false,
       domainConfirmed: null
     }, storedState || {})
 
@@ -908,6 +973,20 @@ async function handleQuery (rawBody, res, identity) {
       res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
       res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       res.end()
+    }
+
+    // ── WIN-WORK SWITCH choice: the advisor is answering the "switch to selling
+    // help?" offer. On yes, hand off to Learn mode (how-to-sell) — the Yes button
+    // flips the screen to Learn directly; the [SWITCH_TO_LEARN] signal also covers
+    // a free-text "yes". On no, fall through and carry on with the normal questions.
+    // (Placed after sendQuestion is defined, since it calls it.)
+    if (state.awaitingSalesSwitchChoice) {
+      state.awaitingSalesSwitchChoice = false
+      const _salesYes = /\b(yes|yeah|yep|sure|ok|okay|please|go ahead|do that|sounds good|switch|help me sell|let.?s|i do|definitely)\b/i
+      if (_salesYes.test(query)) {
+        return sendQuestion('[SWITCH_TO_LEARN]')
+      }
+      // Declined → fall through to the sequencer to continue the questions.
     }
 
     // ── INIT: create session, return opening question and session ID ──
@@ -1210,6 +1289,18 @@ async function handleQuery (rawBody, res, identity) {
     // Without this, a post-rec turn can re-trigger disambiguation or any unanswered
     // question if domain re-detection produces a different score than the original turn.
     if (!state.recommendationDelivered) {
+      // Win-work intent stated up front (e.g. right in the opening line): catch it
+      // before any question is pending, so the answer isn't mis-recorded. The
+      // in-answer check further down covers it when it surfaces later instead.
+      if (
+        !state.salesSwitchOffered && !state.prepMode &&
+        !QUESTIONS.some(q => state[q.field] === 'pending') &&
+        detectWinWorkIntent(query)
+      ) {
+        state.awaitingSalesSwitchChoice = true
+        state.salesSwitchOffered = true
+        return sendQuestion(SALES_SWITCH_OFFER)
+      }
       for (const q of QUESTIONS) {
         // Skip the per-domain question battery — intake = the 14 + conversation.
         if (BATTERY_FIELDS.has(q.field) || q._battery) { continue }
@@ -1252,6 +1343,16 @@ async function handleQuery (rawBody, res, identity) {
             state.awaitingPrepModeChoice = true
             state.prepModeOffered = true
             return sendQuestion(PREP_MODE_OFFER, state)
+          }
+          // Win-work intent: the advisor signals there's no specific client problem —
+          // they want to win/sell more advisory work. Offer (once) to switch to Learn
+          // mode (how-to-sell). On yes the screen flips to Learn carrying context; on
+          // no we carry on with the questions. Triggered by intent, not the meeting
+          // type, so EOY client-delivery stays reachable for a genuine delivery need.
+          if (!state.salesSwitchOffered && !state.prepMode && detectWinWorkIntent(query)) {
+            state.awaitingSalesSwitchChoice = true
+            state.salesSwitchOffered = true
+            return sendQuestion(SALES_SWITCH_OFFER)
           }
         }
       }
@@ -1991,8 +2092,12 @@ async function handleQuery (rawBody, res, identity) {
   // Learn mode logic trees — detect from conversation for sales_process and public_speaking trees
   let learnSalesTreeText = null
   if (mode === 'learn') {
-    const allLearnMessages = [...trimmedHistory.map(m => m.content), query].join(' ')
-    const learnTree = detectLogicTree(allLearnMessages)
+    // Pick the coaching guide from the advisor's own words. AI-first (semantic,
+    // survives dictation garbles + red-herring keyword ties); fall back to the
+    // deterministic keyword matcher if the AI is unavailable.
+    const learnUserText = [...trimmedHistory.filter(m => m.role === 'user').map(m => m.content), query].join(' ')
+    let learnTree = await pickLearnTreeAI(learnUserText)
+    if (!learnTree) { learnTree = detectLogicTree(learnUserText) }
     if (learnTree && learnTree.mode === 'learn') {
       learnSalesTreeText = buildLearnReferenceText(learnTree)
     }
@@ -2154,6 +2259,8 @@ module.exports.buildDomainConfirmationMessage = buildDomainConfirmationMessage
 module.exports._isValidConfirmation = _isValidConfirmation
 module.exports.detectNotMetClient = detectNotMetClient
 module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
+module.exports.detectWinWorkIntent = detectWinWorkIntent
+module.exports.pickLearnTreeAI = pickLearnTreeAI
 module.exports.detectUncertainty = detectUncertainty
 module.exports.parseMeetingCount = parseMeetingCount
 module.exports.classifyDistinctions = classifyDistinctions

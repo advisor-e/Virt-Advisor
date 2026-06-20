@@ -31,10 +31,12 @@
           "action": "Determine the true earnings of the business by taking net profit and adding back expenses peculiar to the current vendor. Common Add Backs include depreciation, interest, personal legal fees, owner's wages, and sponsorships. The resulting figure shows the potential purchaser the actual free cash flow available to them.",
           "two_earnings_measures": [
             {
+              "method_name": "Owner's Discretionary Earnings",
               "measure": "EBPITDA — Earnings Before Proprietor's Income, Interest, Tax, Depreciation and Amortised Expenses",
               "use_when": "The business requires a hands-on owner who works in it. The purchaser is effectively buying a job. Owner is treated as a critical labour unit."
             },
             {
+              "method_name": "Future Maintainable Earnings",
               "measure": "EBITDA — Earnings Before Interest, Tax, Depreciation and Amortisation",
               "use_when": "The purchaser is a passive investor not intending to work in the business. Evaluates true distributable free cash flow prior to capital expenditure."
             }

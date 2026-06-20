@@ -104,7 +104,30 @@
         "purpose": "Converts all P&L items to a percentage of total revenue, enabling meaningful comparison of cost structure and margin performance across different periods."
       }
     ],
-    "advisor_note": "Common sizing also filters out the distorting effects of one-off events and seasonal differences — reinforcing the 'When Data Is Less Relevant' principles."
+    "advisor_note": "Common sizing also filters out the distorting effects of one-off events and seasonal differences — reinforcing the 'When Data Is Less Relevant' principles. Applying the Common Size method to compare year-over-year data is also referred to as Data Normalization."
+  },
+
+  "ratio_categories": {
+    "description": "The Common Size Trend Analysis template inputs up to six years of actuals and automatically calculates key formulas across four main categories of ratio, drawn from the Profit & Loss and Balance Sheet. All formulas are clearly defined on the template's 'Ratios' tab, so the advisor can verify every calculation before using the trends in conversation.",
+    "categories": [
+      {
+        "name": "Activity Ratios",
+        "examples": "How efficiently the business uses its assets — e.g., Debtors Days on Hand (how quickly debtors are converted to cash)."
+      },
+      {
+        "name": "Profitability Ratios",
+        "examples": "e.g., Gross Margin; Return on Equity = Net Profit / Total Equity; Return on Assets = (Net Profit + Bank Interest + Finance Interest) / Total Assets."
+      },
+      {
+        "name": "Liquidity Ratios",
+        "examples": "The business's ability to meet short-term obligations. The specific formulas are defined on the template's 'Ratios' tab."
+      },
+      {
+        "name": "Leverage Ratios",
+        "examples": "The business's financing structure and gearing. The specific formulas are defined on the template's 'Ratios' tab."
+      }
+    ],
+    "advisor_note": "Because every formula is defined on the template's 'Ratios' tab, the advisor can quickly process a client's historical data, verify the calculations, and use the resulting trends to facilitate high-level advisory conversations. Look for large percentage changes in the trend columns to identify the areas that need deeper investigation."
   },
 
   "collaborative_approach": {

@@ -34,7 +34,8 @@
           "name": "Design the Seminar",
           "steps": [
             { "name": "Define audience and outcomes", "guidance": "Use the Powerful Seminars guide to write down exactly who you are presenting to and what you want them to think, feel, and do by the end. Do not open a slide deck until this is clear." },
-            { "name": "Apply the CPD Hierarchy", "guidance": "Structure each section: Concept (the big idea) → Principle (the rule or framework) → Detail (maximum 3 supporting points per principle). Cut anything beyond 3 details per principle — it will overwhelm the audience." }
+            { "name": "Apply the CPD Hierarchy", "guidance": "Structure each section: Concept (the big idea) → Principle (the rule or framework) → Detail (maximum 3 supporting points per principle). Cut anything beyond 3 details per principle — it will overwhelm the audience." },
+            { "name": "Assign presenter slots (Content / Why / Remember)", "guidance": "In a multi-presenter seminar, structure each presenter's content slot using the Content / Why / Remember framework, with the M.O.C (Master of Ceremonies) coordinating the run order. The 30 to 40 Presentation Template provides space for three details per principle — no more." }
           ]
         },
         {
@@ -71,7 +72,7 @@
         "Funny Stories guide covers the 7 steps to mastering timing, pacing, and punchline delivery — turns anecdotes into effective presentation tools",
         "MFS Drafting Template provides a worksheet for scripting any concept into a Magic Formula Story before the seminar"
       ],
-      "advisor_confidence_note": "Review the dry or technical sections of your seminar agenda and build a Magic Formula Story for each one. Script your 'Draw' to capture attention (a connecting story, or calling out the ghosts in the room). Anchor your 'Plot' points sequentially. Make sure your 'Reveal' cleanly makes the business point before the 'Close'. Practice your pacing and pauses using the Funny Stories guide.",
+      "advisor_confidence_note": "Review the dry or technical sections of your seminar agenda and build a Magic Formula Story for each one. Script your 'Draw' to capture attention (a connecting story, or calling out the ghosts in the room). List your Story Anchors (the 'Plot' points) in logical, sequential order. Make sure your 'Reveal' cleanly makes the business point before the 'Close'. Practice your pacing and pauses using the Funny Stories guide.",
       "phases": [
         {
           "phase": 1,

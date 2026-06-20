@@ -38,6 +38,18 @@
         "principle": "Every equity round dilutes the founder's ownership percentage. Model the dilution waterfall across anticipated future rounds before accepting any term sheet — the effective ownership at exit is what matters, not the headline percentage.",
         "dilution_formula": "Post-round founder ownership = (Pre-round shares held by founder) ÷ (Total post-round shares outstanding)",
         "advisory_guidance": "Founders consistently underestimate cumulative dilution across multiple rounds. Map the expected dilution through Series A, B, and C before accepting Seed terms. A 20% Series A dilution on top of a 25% Seed round leaves the founder at 60% before any option pool — which becomes 45-50% after option pool creation."
+      },
+
+      "investor_outreach_process": {
+        "principle": "Equity raising follows a structured outreach sequence from first contact to funding. Knowing the stages lets the advisor prepare the client for what each investor interaction will require.",
+        "steps": [
+          { "step": 1, "name": "Warm Introduction", "guidance": "Secure an initial contact with the VC firm." },
+          { "step": 2, "name": "Pitch Deck Submission", "guidance": "Send the formal business overview via email." },
+          { "step": 3, "name": "Initial Screen", "guidance": "Conduct a preliminary phone conversation to gauge investor interest." },
+          { "step": 4, "name": "First Meeting", "guidance": "Present a deep dive into the business model and the team." },
+          { "step": 5, "name": "Second Meeting", "guidance": "Provide granular data (e.g., Lifetime Value / Customer Acquisition Cost) for a larger partner group or technical review." },
+          { "step": 6, "name": "Deal Structuring", "guidance": "Finalize the approval of fundraising documents and transfer the cash." }
+        ]
       }
     },
 

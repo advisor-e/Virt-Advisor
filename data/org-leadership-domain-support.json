@@ -103,7 +103,14 @@
         { "level": 3, "action": "Written warning — formal letter documenting the breach, prior warnings, the required improvement, and the consequence of a further breach." },
         { "level": 4, "action": "Final written warning or suspension — used for serious or repeated breaches. Requires HR or legal review before issuing." },
         { "level": 5, "action": "Termination — requires legal advice and, in the case of a partner, review of the partnership agreement. Never proceed without documented evidence at all prior levels." }
-      ]
+      ],
+      "conduct_and_effect_matrix": {
+        "principle": "A 'Conduct & Effect' matrix links behavioural or performance failures directly to financial consequences (profit share), governed by a Code of Conduct and the distinction between Gross Negligence and an honest Mistake.",
+        "boardroom_manipulation_tactics": "The matrix names specific disruptive boardroom archetypes to make them recognisable and addressable — for example the 'Taxi Driver mentality', 'The Assassin', 'The Bully & The Donkey', and 'Machiavellian' behaviour.",
+        "yellow_card": "When a partner displays disruptive boardroom behaviour, issue a Yellow Card to put them 'on notice' with a specific timeline (e.g., 24 hours or 7 days) to correct the behaviour before demerit points are applied.",
+        "bonus_points_system": "The positive counterpart to the demerit system: it incentivises growth — for example an extra 12k bonus for generating more than 100k in new client fees.",
+        "demerit_link": "Demerit points tie infractions to profit share entitlement; accumulating 20 points in 12 months results in immediate resignation and forfeiture of the client base (see the Ethics Demerit System tool for thresholds)."
+      }
     },
 
     {
