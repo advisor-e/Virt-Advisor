@@ -566,6 +566,13 @@
               span.case-chevron {{ expandedCaseId === c.id ? '▲' : '▼' }}
 
           .case-body(v-if="expandedCaseId === c.id")
+            .case-visibility-row
+              button.visibility-toggle-btn(
+                :class="c.visibility === 'shared' ? 'vis-btn-make-private' : 'vis-btn-share'"
+                :disabled="visibilityBusyId === c.id"
+                @click="toggleVisibility(c.id)"
+              ) {{ c.visibility === 'shared' ? 'Make private' : 'Share with the firm' }}
+
             .case-summary
               p.case-summary-label AI Recommendation Summary
               p.case-summary-text {{ c.summary }}
@@ -706,7 +713,7 @@
 <script>
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
-import { saveCase } from '~/utils/cases'
+import { createCase } from '~/utils/cases'
 import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
@@ -1041,15 +1048,14 @@ export default {
       this.intakeDismissed = true
     },
 
-    saveSession () {
+    async saveSession () {
       this.saveError = null
       if (!this.saveTitle.trim()) { return }
       try {
         const lastAI = [...this.messages].reverse().find(m => m.role === 'assistant')
         const summary = lastAI ? lastAI.content.slice(0, 600) + (lastAI.content.length > 600 ? '…' : '') : ''
-        saveCase({
-          advisorId: this.advisorId,
-          firmId: this.firmId,
+        // advisorId/firmId are NOT sent — the backend derives them from the token.
+        await createCase({
           title: this.saveTitle.trim(),
           mode: this.mode,
           transcript: this.messages,
@@ -1061,8 +1067,8 @@ export default {
           growthStage: this.selectedGrowthStage,
           finMgtTheme: this.selectedFinMgtTheme,
           feedbackPending: !this.intakeComplete
-        })
-        this.refreshMyCases()
+        }, this.apiToken)
+        await this.refreshMyCases()
         this.saveSuccess = true
         this.saveTitle = ''
         if (this._saveTimer) { clearTimeout(this._saveTimer) }
@@ -2771,6 +2777,24 @@ export default {
 .case-body { padding: 16px; border-top: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 16px; }
 .case-summary-label { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 4px; }
 .case-summary-text { font-size: 13px; color: #374151; line-height: 1.5; margin: 0; max-height: 80px; overflow-y: auto; }
+
+.case-visibility-row { display: flex; justify-content: flex-end; }
+.visibility-toggle-btn {
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s ease;
+}
+.visibility-toggle-btn:disabled { opacity: 0.6; cursor: default; }
+/* "Share with the firm" is the call to action — clear primary. */
+.vis-btn-share { background: #2563eb; color: #fff; border-color: #2563eb; }
+.vis-btn-share:hover:not(:disabled) { background: #1d4ed8; }
+/* "Make private" is a quiet reversal — neutral secondary. */
+.vis-btn-make-private { background: #fff; color: #6b7280; border-color: #d1d5db; }
+.vis-btn-make-private:hover:not(:disabled) { background: #f9fafb; }
 
 .case-review-section { background: #fafbff; border: 1px solid #dbeafe; border-radius: 10px; padding: 16px; }
 .review-heading { font-size: 14px; font-weight: 700; color: #1e40af; margin: 0 0 4px; }

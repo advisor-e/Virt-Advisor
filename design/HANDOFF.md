@@ -184,11 +184,13 @@ The JWT-derived-identity standard above originally applied to the **Firm Manager
 
 ## Learning Loop — Case Studies
 
+> **✅ STATUS 2026-06-19 — the localStorage→DB migration described below is BUILT on branch `feat/case-study-db`** (not yet merged). `utils/cases.js` is now an API client over secured `/api/cases` routes; `server/utils/caseStore.js` does the raw-SQL data access (with a dev-JSON fallback); identity is JWT-derived (IDOR closed). The `va_case_studies` table is in `config/db-schema.sql`. Schema below kept for reference; the *as-built* table is the one in `config/db-schema.sql` (it added `updated_at`, defaults `visibility` to `private`, and FKs `firm_id` to `firms`). Visibility model: private = advisor-only across their devices; shared = whole firm; two-way toggle. **Before production: provision the table in MySQL** (dev runs on the dev-JSON fallback). See `design/SESSION-2026-06-19-NOTES.md`.
+
 The VA session system supports saving case studies for advisor learning and AI improvement. Each saved case captures the full conversation, session context, and post-delivery observations.
 
-### Current storage: localStorage
+### Storage: firm database (was localStorage)
 
-Case data is stored in `utils/cases.js` via localStorage. The file explicitly notes the migration path — replace the four CRUD functions with API calls. The rest of the app is storage-agnostic by design. **Shared visibility (`visibility: 'shared'`) is stored correctly but cannot actually be shared across devices until the MySQL migration is complete.**
+Case data now lives in the `va_case_studies` table via `server/utils/caseStore.js`, reached through the secured `/api/cases` routes. The four former localStorage CRUD functions in `utils/cases.js` are now API calls. **Shared visibility now actually reaches the firm** (and follows an advisor across devices) once the table is provisioned in MySQL; locally it runs on the dev-JSON fallback.
 
 ### MySQL migration — table schema
 
@@ -241,12 +243,12 @@ CREATE TABLE va_case_studies (
 | `feedback_pending` | Client | `true` until AI-guided intake is completed in-session |
 | `review_*` | Post-delivery review UI | Filled in after advisor delivers session to client |
 
-### Migration steps
+### Migration steps — DONE on `feat/case-study-db` 2026-06-19 (except step 1, a deploy task)
 
-1. Run the schema above against the Advisor-e MySQL database
-2. Replace the four functions in `utils/cases.js` (`getCases`, `saveCase`, `updateCaseReview`, `deleteCase`) with API calls to new `/api/cases/*` routes — scope all DB queries to `firmId` from the JWT, never from the request body
-3. Register new routes in `server/restify-server.js`
-4. Build a one-time browser-side migration utility to export existing localStorage cases and POST them to the new API
+1. ☐ **Run the schema against MySQL** — `va_case_studies` is in `config/db-schema.sql`; provision it in the Advisor-e MySQL instance before production. (Dev uses the dev-JSON fallback, so this is the one remaining environment step.)
+2. ✅ Replaced the `utils/cases.js` functions with API calls to `/api/cases/*` — all DB queries scoped to JWT identity, never the request body. Data access in `server/utils/caseStore.js`.
+3. ✅ Registered the routes in `server/restify-server.js` (all `firmAuth`-guarded).
+4. ✅ Built the one-time browser→API migration (`migrateLegacyCases` in `utils/cases.js`, run once from `caseMixin.mounted`; preserves ids, keeps the localStorage backup).
 
 ---
 
@@ -282,14 +284,11 @@ This map is well-contained in one file but must be manually updated when:
 
 No consolidation is required — the alias map is intentionally separate from the data files. The integration team should audit the map after any bulk template rename.
 
-### L6 — Case study storage is localStorage only (MEDIUM — pre-production)
+### L6 — Case study storage — ✅ RESOLVED 2026-06-19 (on `feat/case-study-db`, pending merge + table provisioning)
 
-Case studies saved by advisors exist only in their browser's localStorage. This means:
-- "Shared with firm" cases are not visible to other advisors on different devices
-- Firm managers cannot access team case data
-- Cases are lost if the advisor clears browser storage
+Case studies have moved from browser localStorage to the firm database (`va_case_studies` via `caseStore.js` + `/api/cases`). "Shared" cases now genuinely reach the firm and follow an advisor across devices; identity is JWT-derived so the IDOR is closed; a one-time migration lifts any pre-existing localStorage cases.
 
-**Fix required before production:** Migrate `utils/cases.js` to MySQL using the schema and steps documented in the "Learning Loop — Case Studies" section above. The migration path is already prepared — the four functions in `utils/cases.js` are the only files to replace.
+**Remaining before this is live in production:** (1) merge the branch, (2) provision the `va_case_studies` table in MySQL (`config/db-schema.sql`) — locally it runs on the dev-JSON fallback. The earlier risks (cross-device invisibility, no manager access, loss on clearing storage) are addressed by the migration once the table exists.
 
 ### L5 — Phase 3 `max_tokens` configuration
 

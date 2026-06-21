@@ -127,6 +127,14 @@ server.get('/api/activity/progression', firmAuth, activityRoute.getProgression)
 server.get('/api/activity/team', firmAuth, requireManagerRole, activityRoute.getTeam)
 
 // ── Cases routes ──
+// All firmAuth-guarded: identity (advisorId/firmId) comes from the verified JWT,
+// never the request body — closes the legacy localStorage IDOR. Each advisor
+// sees their own cases + their firm's shared cases; mutations are owner-only.
+server.get('/api/cases', firmAuth, casesRoute.listCases)
+server.post('/api/cases', firmAuth, casesRoute.createCase)
+server.put('/api/cases/:id/review', firmAuth, casesRoute.reviewCase)
+server.put('/api/cases/:id/visibility', firmAuth, casesRoute.setCaseVisibility)
+server.del('/api/cases/:id', firmAuth, casesRoute.deleteCase)
 server.post('/api/cases/promote', firmAuth, requireManagerRole, casesRoute.promote)
 
 // ── Firm Manager routes (firm_manager or platform_admin role required) ──

@@ -20,6 +20,7 @@ const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
+const { logUnverifiedQuotes } = require('../server/utils/fabricationWatch')
 const { extractTemplatesFromText } = require('../server/utils/tierLookup')
 const { logVASession } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
@@ -1475,13 +1476,14 @@ async function handleQuery (rawBody, res, identity) {
       let _postUsage = null
       let _postOk = false
       let _postBuffer = ''
+      const _postMessages = [{ role: 'system', content: (isLearnRequest ? loadPrompt('learn') : loadPrompt('client')) + postRecInstruction }, ...messagesPost]
       try {
         const streamPost = await getOpenAI().chat.completions.create({
           model: 'gpt-4o-mini',
           max_tokens: 1500,
           stream: true,
           stream_options: { include_usage: true },
-          messages: [{ role: 'system', content: (isLearnRequest ? loadPrompt('learn') : loadPrompt('client')) + postRecInstruction }, ...messagesPost]
+          messages: _postMessages
         })
         for await (const chunk of streamPost) {
           if (chunk.usage) { _postUsage = chunk.usage }
@@ -1493,6 +1495,8 @@ async function handleQuery (rawBody, res, identity) {
               state.movingForwardHelped = true
             }
             state.postRecAiResponses = (state.postRecAiResponses || 0) + 1
+            // Tier 2 (log-only): watch for invented quoted wording. Observes, never alters.
+            logUnverifiedQuotes(isLearnRequest ? 'learn-post-rec' : 'client-post-rec', _postBuffer, _postMessages)
             const processed = injectVideoInfo(_postBuffer, orgTemplateIds)
             res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
             if (sessionId) { sessionSave(sessionId, state) }
@@ -1983,13 +1987,14 @@ async function handleQuery (rawBody, res, identity) {
     let _p3Usage = null
     let _p3Ok = false
     let _p3Buffer = ''
+    const _p3Messages = [{ role: 'system', content: systemPrompt2 }, ...messages2]
     try {
       const stream2 = await getOpenAI().chat.completions.create({
         model: 'gpt-4o-mini',
         max_tokens: 2500,
         stream: true,
         stream_options: { include_usage: true },
-        messages: [{ role: 'system', content: systemPrompt2 }, ...messages2]
+        messages: _p3Messages
       })
       for await (const chunk of stream2) {
         if (chunk.usage) { _p3Usage = chunk.usage }
@@ -2000,6 +2005,8 @@ async function handleQuery (rawBody, res, identity) {
           res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
         }
         if (chunk.choices[0]?.finish_reason) {
+          // Tier 2 (log-only): watch for invented quoted wording. Observes, never alters.
+          logUnverifiedQuotes('phase3-recommendation', _p3Buffer, _p3Messages)
           // Post-process: heading normaliser → R02 scrub → video injection
           const normalised = normaliseHeadings(_p3Buffer)
           const scrubbed = scrubAdvisorHallucinations(normalised)
@@ -2205,16 +2212,14 @@ async function handleQuery (rawBody, res, identity) {
 
   const _t0main = Date.now()
   let stream
+  const _mainMessages = [{ role: 'system', content: systemPrompt }, ...messages]
   try {
     stream = await getOpenAI().chat.completions.create({
       model,
       max_tokens: 2500,
       stream: true,
       stream_options: { include_usage: true },
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages
-      ]
+      messages: _mainMessages
     })
   } catch (createErr) {
     console.error('[advisor] OpenAI stream create error:', createErr.message)
@@ -2237,6 +2242,8 @@ async function handleQuery (rawBody, res, identity) {
         : ''
       if (text) { _mainBuffer += text }
       if (chunk.choices[0] && chunk.choices[0].finish_reason) {
+        // Tier 2 (log-only): watch for invented quoted wording. Observes, never alters.
+        logUnverifiedQuotes(mode, _mainBuffer, _mainMessages)
         const processed = injectVideoInfo(_mainBuffer, orgTemplateIds)
         res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
         res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
