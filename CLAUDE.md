@@ -27,7 +27,7 @@ wins and the drift is logged for reconciliation** (see the drift box below and
 
 **The 9 locked requirements:**
 1. **Nuxt 2** — not Nuxt 3. Pages, plugins, middleware follow the Nuxt 2 structure.
-   (Team baseline 2.14.0; repo currently 2.18.1 — drift, see box.)
+   (Team baseline 2.14.0; repo pinned to 2.14.0 — reconciled, see box.)
 2. **JavaScript only** — no TypeScript, ever. No `typescript`, `vue-tsc`, `@types/node`.
    No `.ts` files.
 3. **Raw MySQL via the Restify backend** — no Prisma, no ORM. All DB access is raw SQL on
@@ -42,23 +42,29 @@ wins and the drift is logged for reconciliation** (see the drift box below and
    Restify route. All OpenAI logic **and the API key** stay backend-only; never call OpenAI,
    import the SDK, or read its key in any Nuxt file (page, component, plugin,
    `server-middleware/`, or store).
-   *(Amended by the coding-team ruling of 2026-06-15, which formally supersedes the former
-   "OpenAI `^4.x` SDK" wording to resolve the Req 7 ⊥ Req 9 contradiction; Req 9 — Node 14.15
-   — is unchanged. The current `openai` SDK usage in `server-middleware/advisor.js` and
-   `course.js` is the live boundary violation this ruling directs us to remove; tracked in
-   `design/ACTIONS.md`.)*
+   *(Amended by the coding-team ruling of 2026-06-15 — reaffirmed by the head-team note of
+   2026-06-21 — which formally supersedes the former "OpenAI `^4.x` SDK" wording to resolve the
+   Req 7 ⊥ Req 9 contradiction; Req 9 — Node 14.15 — is unchanged. **This migration is complete
+   (2026-06-16):** the `openai` SDK dependency is removed, all OpenAI logic and the API key live
+   on the Restify backend (`server/advisorEngine.js`, `server/courseEngine.js`,
+   `server/utils/openaiClient.js`), and `server-middleware/advisor.js` / `course.js` are now thin
+   SSE proxies — the former boundary violation is closed.)*
 8. **vue-i18n `^8.x`** — Vue 2 compatible. No v9+ APIs (`createI18n`, `useI18n`).
 9. **Node.js 14.15 (via NVM)** — the runtime target. Do not use syntax or APIs unavailable
    in Node 14 (`Array.at()`, `Object.hasOwn()`, top-level await). The backend is CommonJS
    (`require`/`module.exports`), not ESM.
 
-> **⚠ Current drift to reconcile (logged as P1 in `design/ACTIONS.md` — do not silently "fix"):**
-> - `nuxt 2.18.1` installed vs team baseline 2.14.0.
-> - `restify ^11.1.0` installed — restify 11 needs Node 16+, which conflicts with the Node
->   14.15 requirement above. This is the root cause of the earlier "we're on Node 18/20"
->   claim. Reverting live dependencies is a real change → its own reviewed task, not an
->   inline edit.
-> - No `engines` field pins the Node version — nothing currently holds the line.
+> **✅ Stack drift RECONCILED (June 2026, merged to `master`).** The items below were brought
+> back to spec — this records reconciliation completed *toward* this Constitution, never a
+> relaxation of it (the locked targets are unchanged):
+> - `nuxt` pinned to **2.14.0** (was drifted 2.18.1).
+> - `restify` pinned to **9.1.0** — the Node-14-compatible line (was drifted `^11.1.0`);
+>   installs and boots on Node 14.15.
+> - `engines: { node: "14.15.x" }` added to `package.json` to hold the line.
+>
+> Residual dev-toolchain drift (build tools that declare a higher Node floor) is tracked as its
+> own P1 in `design/ACTIONS.md`; `engine-strict` is currently `false` pending two transitive
+> `overrides`.
 
 **Deviation logging rule (binding).** Any deviation from this Stack Constitution — a
 dependency version bump, a new plugin, a framework variation, anything that doesn't match
@@ -254,9 +260,8 @@ master app stack:
 - **Nuxt 2** — locked. Upgrading to Nuxt 3/4 is a full application rewrite, not a dependency bump.
 - **Vue 2** — locked. Required by Nuxt 2. Vue 3 migration would require rewriting every component.
 - **Restify** — locked. **Runtime target is Node.js 14.15 (via NVM)** per the team spec.
-  ⚠ The installed `restify ^11.1.0` requires Node 16+ and conflicts with that target — this
-  is logged drift (see Stack Constitution box and `design/ACTIONS.md`), to be reconciled as
-  its own reviewed task, not silently accepted.
+  ✅ Reconciled (June 2026): `restify` pinned to **9.1.0** (the Node-14-compatible line), down
+  from the drifted `^11.1.0`. See the Stack Constitution box and `design/ACTIONS.md`.
 
 **npm audit policy.** High-severity warnings from the Nuxt 2 dependency tree are accepted
 *build-time* risk. The affected packages (`braces`, `vue-template-compiler`,

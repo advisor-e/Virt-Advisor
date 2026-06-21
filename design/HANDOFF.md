@@ -17,6 +17,40 @@ All content changes are scoped to the firm. The platform base layer is read-only
 
 ---
 
+## Local Setup / Run
+
+Getting the repo running on a developer machine. The runtime is **locked to Node.js 14.15** (Stack Constitution, Req 9) — do not substitute a newer Node. **Ports:** Nuxt frontend **3000**, Restify backend **4000**.
+
+**Prerequisites**
+
+- **Node.js 14.15** as the active runtime (via nvm). If a system-wide Node install shadows nvm on `PATH`, invoke the 14.15 binary by its **exact path** for every command rather than relying on `nvm use`.
+- **npm 8** for installs — the `overrides` block in `package.json` (`shell-quote`, `@nuxt/friendly-errors-webpack-plugin`) is **silently ignored by the bundled npm 6**.
+- **`NODE_EXTRA_CA_CERTS`** on any network doing TLS interception (corporate proxy / AV that re-signs HTTPS). Without it, `npm install` fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` and the backend's OpenAI TLS call fails. The committed dev bundle is `certs/digicert-bundle.pem`, and the `dev`/`start` npm scripts already point `NODE_EXTRA_CA_CERTS` at it; substitute your own trusted root CA in your environment.
+
+**Install**
+
+```
+NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem npm install   # run with an npm 8 binary so overrides apply
+```
+
+**Run**
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Nuxt dev server on :3000 (12 GB heap + cert preset) |
+| `npm run backend` | Restify backend on :4000 |
+| `npm run dev:all` | Both together (`concurrently`) |
+| `npm run start` | Production `nuxt start` on :3000 |
+| `npm test` | Jest suite |
+| `npm run build` | `nuxt build` (CI gate) |
+
+**Two gotchas that cost time**
+
+- **The backend does NOT auto-load `.env`.** Only Nuxt loads `.env`. When running `npm run backend` standalone, export what it needs into that shell — at minimum `OPENAI_API_KEY` and `NODE_EXTRA_CA_CERTS` (the OpenAI REST call is TLS-verified).
+- **LAN / incognito access:** Nuxt's default host can bind IPv6-only, which breaks `localhost` from another device or in incognito. Start with `nuxt start -H 0.0.0.0` (or `HOST=0.0.0.0`) when you need LAN access.
+
+---
+
 ## Integration Checklist
 
 ### Step 1 — Edit `config/integration.js` (the ONLY file you should need to touch)
@@ -226,13 +260,13 @@ These are confirmed pre-production issues. They are not blocking for initial han
 
 ~~`/api/advisor/query` and `/api/course` have zero throttling. Unbounded API spend is possible under load or abuse.~~
 
-**Resolved:** Per-IP rate limiting is implemented in `server-middleware/advisor.js` via `createLimiter` (imported from `./rateLimit`). The advisor query endpoint is limited at 30 requests per window. The `rateLimit.js` middleware handles the response directly and blocks over-limit requests before they reach OpenAI.
+**Resolved:** Per-IP rate limiting is implemented in `server/advisorEngine.js` (and `server/courseEngine.js`) via `createLimiter` (imported from `server/utils/rateLimit.js`). The advisor query endpoint is limited at 30 requests per window. The `rateLimit.js` middleware handles the response directly and blocks over-limit requests before they reach OpenAI. *(Note: the engine moved from the Nuxt `server-middleware/` layer to the Restify backend during the OpenAI SDK→REST migration; the `server-middleware/` files are now thin SSE proxies.)*
 
 ### L2 — Conversation state round-trips via client (HIGH — architectural) — RESOLVED
 
 ~~`conversationState` (14+ fields including `recommendationDelivered`, `happyConfirmed`, `detectedDomain`) is serialised into every SSE response and trusted back from the client on the next request. An attacker can modify state in transit to skip the question pipeline entirely.~~
 
-**Resolved:** Server-side session storage is implemented in `server-middleware/advisor.js`. All conversation state is held in a server-side `Map` (`sessionStore`) keyed by a 16-byte random session ID. The client receives only the session ID; no state is round-tripped. Sessions expire after 2 hours of inactivity and are pruned every 15 minutes. For multi-process deployments, replace the `Map` with a Redis-backed store.
+**Resolved:** Server-side session storage is implemented in `server/advisorEngine.js`. All conversation state is held in a server-side `Map` (`sessionStore`) keyed by a 16-byte random session ID. The client receives only the session ID; no state is round-tripped. Sessions expire after 2 hours of inactivity and are pruned every 15 minutes. For multi-process deployments, replace the `Map` with a Redis-backed store.
 
 ### L3 — `/api/firm/advisors` and `/api/firm/insights` are stub-only
 
@@ -258,31 +292,36 @@ Case studies have moved from browser localStorage to the firm database (`va_case
 
 ### L5 — Phase 3 `max_tokens` configuration
 
-Phase 3 recommendation stream is set to `max_tokens: 2500` (raised from 1500 — the original value was truncating multi-template recommendations). If the recommendation format expands further (e.g. more templates, longer Content Summaries), this may need adjustment. The setting is in `server-middleware/advisor.js` at the `getOpenAI().chat.completions.create()` call that produces the main stream.
+Phase 3 recommendation stream is set to `max_tokens: 2500` (raised from 1500 — the original value was truncating multi-template recommendations). If the recommendation format expands further (e.g. more templates, longer Content Summaries), this may need adjustment. The setting is in `server/advisorEngine.js` (around line 1989) at the OpenAI client call that produces the main recommendation stream.
 
 ---
 
 ## Known Issues
 
-### Startup diagnostic log — API key fragment (REMOVE BEFORE PRODUCTION)
+### Startup diagnostic log — API key (RESOLVED 2026-06-20)
 
-`server-middleware/advisor.js` line 109 logs the last 8 characters of `OPENAI_API_KEY` to the console on every server start. This is intentionally left in to make it easy to confirm the correct key is loaded during development and testing.
+~~`server-middleware/advisor.js` line 109 logs the last 8 characters of `OPENAI_API_KEY` to the console on every server start.~~
 
-**Remove before production deployment.** Delete or comment out the `console.log` line at `server-middleware/advisor.js:109`. The surrounding `if (!process.env.OPENAI_API_KEY)` error check on line 105 should be kept — only the key fragment log needs to go.
-
----
-
-### Node.js v24 + Restify v11 incompatibility
-
-Restify v11 depends on `spdy`, which uses a native `http_parser` binding that was removed in Node.js v24. The backend (`server/restify-server.js`) will fail to start on Node 24 with a binding error.
-
-**Fix:** Use Node.js 18 LTS or 20 LTS for the backend process. This is an upstream Restify issue — no changes to the Firm Manager code are required. Track the upstream fix at the `restify` npm package.
+**Resolved during the OpenAI SDK→REST migration.** The startup check now lives in `server/advisorEngine.js` (`startupCheck`, ~line 197) and logs only a **boolean presence** flag — `[advisor] OPENAI_API_KEY present=true` — never any part of the key. No key fragment is logged anywhere in the codebase (verified 2026-06-20). The `present=true` line is a harmless diagnostic and is safe to leave in production, or remove if you prefer a silent startup; the `if (!process.env.OPENAI_API_KEY)` FATAL check should be kept.
 
 ---
 
-### File-upload import shape (`formidable` v3) — RESOLVED
+### Backend runtime — Node.js 14.15 + Restify 9.1.0
 
-`server/routes/firmManager.js` imported `formidable` as `const formidable = require('formidable')` (the v2 API) while v3.5.4 is installed. In v3 the factory is a **named** export, so the old import resolved to a non-callable object and every upload threw `TypeError: formidable is not a function` (HTTP 500) — affecting **both** the document upload and the template-library import. Fixed to `const { formidable } = require('formidable')`. No action needed; noted because it predated the staircase work and was only surfaced by live upload testing.
+The backend runs on the locked **Node.js 14.15** runtime (`engines.node: "14.15.x"` in `package.json`) with **Restify pinned to `9.1.0`** (declares Node ≥10 — in range for 14.15). See **Local Setup / Run** for how to invoke it.
+
+**Do not run the backend on Node 16 / 18 / 20 / 24** — 14.15 is the locked target (Stack Constitution, Req 9).
+
+*Historical note (resolved):* an earlier build ran `restify ^11.1.0`, which pulls `spdy` and a native `http_parser` binding removed in Node 24, so the backend couldn't start on Node 24 and the project briefly ran on Node 18/20. The stack reconciliation (merged to `master`, 2026‑06) pinned Restify back to `9.1.0` and locked the runtime to Node 14.15, which removes that incompatibility on the supported runtime.
+
+---
+
+### File-upload import shape (`formidable`) — RESOLVED
+
+`server/routes/firmManager.js` handles multipart uploads (document upload + template-library import) with **`formidable` pinned to `2.1.2`** — the last v2 release before v3 pulled in a crypto helper requiring Node > 14.15 (see `design/ACTIONS.md`; the runtime is locked to Node 14.15). Two notes for anyone touching this code:
+
+- **Import:** `const { formidable } = require('formidable')` (`firmManager.js:109`). Both v2 and v3 expose the factory as a `.formidable` named export, so the destructure works on either — don't "fix" it to a default import.
+- **Promise wrapper:** v2's `form.parse()` is **callback-style**, so a small `parseForm(form, req)` helper (`firmManager.js:113`) wraps it to keep the `await [fields, files]` usage in the handlers. File-object property names are identical between v2.1 and v3, so the upload/DB code is version-agnostic.
 
 ---
 

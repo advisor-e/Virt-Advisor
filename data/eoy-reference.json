@@ -37,7 +37,7 @@
         },
         {
           "name": "Rural",
-          "use_when": "Agribusiness and farming clients. Replaces standard growth language with farmer-specific concepts and aligns strategic spending decisions (e.g. new equipment vs overseas holidays) to agricultural seasons and cycles."
+          "use_when": "Agribusiness and farming clients. Replaces the Growth Curve with the 8-tier Farmer's Growth Position (Stage 1 Labourer up to Stage 8 Vertical/Consortium Owner — map where they are now, e.g. Herd Manager, versus their target, e.g. Sharemilker, and the timeframe), and builds a 5-year Strategic Spending Plan splitting upcoming capex into Lifestyle (e.g. a new boat), Operational (e.g. a new tractor) and Strategic (e.g. an irrigation system, herd home or feed pad), each with monthly timeframes. The standard 6-step Accounts Review remains the foundational opening step."
         }
       ],
       "helps_advisor": "Provides a visual, step-by-step agenda that controls the meeting's pace, handles psychological framing, and standardises the delivery of advisory concepts.",
@@ -159,6 +159,7 @@
         "The General Agenda is your accountability tool for the next meeting: it shows the client that tasks are tracked and expected to be completed — not just discussed.",
         "If the client is ready for structured ongoing advisory, introduce the Management Reporting Annual Plan — a 12-month calendar that maps governance, financial, and strategic topics month by month.",
         "For mature businesses: frame the Annual Plan as their advisory board calendar. It gives them a professional governance structure and gives you a clear recurring revenue roadmap.",
+        "A natural next advisory service is the Basic Targets method: connect the owner's personal income and leisure expectations to a custom management dashboard, built using the 5-step Advisory staircase (Compilation/Verification, Assimilation, Interpretation, Application, Observation), core ratios (Current Ratio for solvency, Gross Margin for pricing) and Working Capital Cycle KPIs (Debtors, Cash, Stock, Sales). Select only the headline KPIs the owner can actually adjust, so the dashboard answers the five monthly questions (e.g. 'Can we pay our bills?', 'Are we improving?').",
         "Three questions to close every EOY meeting: (1) What is the one thing you are most committed to actioning before we meet again? (2) What support do you need from us to make that happen? (3) When shall we schedule our next session?",
         "The EOY meeting naturally flows into ongoing advisory — the Growth Curve positioning, Volatility framework, and Start/Stop/Keep actions create enough momentum and unanswered questions that the client wants to continue."
       ]
@@ -166,7 +167,8 @@
   ],
 
   "cash_volatility_strategies": {
-    "overview": "High cash volatility is like a vehicle towing a trailer getting speed wobbles — the business cannot safely grow until the balance issue is addressed. Focus on reducing volatility before attempting further growth.",
+    "overview": "High cash volatility is like a vehicle towing a trailer getting speed wobbles — 'the faster you go, the bigger the mess' — the business cannot safely grow until the balance issue is addressed. Focus on reducing volatility before attempting further growth.",
+    "cause_types": "Before fixing volatility, classify its cause: Common (normal, expected variation), Special (a one-off external event), Seasonal (predictable cyclical swings), or Tampering (self-inflicted — over-reacting to misread data). The cause determines whether to change the system, ride it out, or stop interfering.",
     "framework": "WHAT-HOW: for each volatility driver, identify WHAT needs to change and HOW to make it change.",
     "strategies": [
       {
@@ -193,9 +195,9 @@
   },
 
   "key_concepts": {
-    "personal_to_business_zone": "The deliberate transition from opening the meeting in personal territory (lifestyle, goals, family) to professional territory (numbers, strategy, performance). This shift feels natural when framed well and is the psychological foundation of the EOY meeting structure.",
-    "growth_curve": "The 9-stage model of business growth used to show the client where they currently sit and what comes next. Gives context to every challenge and decision discussed — why certain problems exist and what the appropriate strategic response is at their current stage.",
-    "volatility_report": "The section of the EOY meeting that addresses cash flow instability using the WHAT-HOW framework. It legitimises the advisor's role in financial management beyond compliance and creates a natural bridge to ongoing advisory.",
+    "personal_to_business_zone": "The deliberate transition from opening the meeting in personal territory (lifestyle, goals, family) to professional territory (numbers, strategy, performance). Open with the exact bridge script to assume permission and cross the zones: 'How're you going for time today?' then 'If it's o-k with you...' — take control, then share the power. This shift feels natural when framed well and is the psychological foundation of the EOY meeting structure.",
+    "growth_curve": "The 9-stage model of business growth — the Global Reference, the big-picture 'Where am I going?' hook — used to show the client where they currently sit and what comes next. Reveal it in the third person first through the 'Bob the Chocolate maker' persona to create safe psychological dissociation, then connect the framework back to the client. Gives context to every challenge and decision discussed.",
+    "volatility_report": "The section of the EOY meeting — the Local Reference, the micro-vision 'What's happening to me right now?' hook — that addresses cash flow instability. Open with the 'speed wobbles' analogy, classify the cause (Common, Special, Seasonal, or Tampering), then use the WHAT-HOW framework. It legitimises the advisor's role in financial management beyond compliance and creates a natural bridge to ongoing advisory.",
     "start_stop_keep": "A collaborative action planning exercise that closes the advisory section. The client identifies what new behaviours to Start, what existing behaviours to Stop, and what is working well to Keep. Collaborative ownership is the goal — the client co-creates the output so they feel accountable for it.",
     "macro_vs_micro_vision": "Two distinct client thinking styles. Macro-vision clients respond to concepts, big-picture framing, and possibility — keep numbers at a high level and focus on direction. Micro-vision clients need data, specifics, and logical step-by-step flow — do not skip steps. Identifying which type you have early in the meeting determines your language, pacing, and depth of detail throughout.",
     "lite_fundamentals_transition": "The EOY meeting is often the entry point for transitioning a compliance client into the Lite Fundamentals advisory process. The outreach resources and meeting structure are designed to make this transition feel natural rather than like a sales pitch."

@@ -307,6 +307,11 @@
         ) Confirm
         button.primary-issue-none(@click="noneOfTheseApply") None of these fit — let me describe it differently
 
+      //- Win-work switch offer — when the advisor has no client problem and wants to win advisory work
+      .sell-switch-card(v-if="showSellSwitch")
+        button.sell-switch-yes(@click="acceptSellSwitch") Yes, help me sell
+        button.sell-switch-no(@click="declineSellSwitch") No, stay on this
+
       //- Why this recommendation — decision trace (shown after a recommendation)
       .trace-panel(v-if="lastTrace && recommendationDelivered")
         button.trace-toggle(@click="showTracePanel = !showTracePanel")
@@ -795,6 +800,7 @@ export default {
       showGrowthCurveSelector: false,
       selectedGrowthStage: null,
       showStaircaseSelector: false,
+      showSellSwitch: false,
       selectedStaircaseStep: null,
       showFinMgtThemeSelector: false,
       selectedFinMgtTheme: null,
@@ -1282,6 +1288,40 @@ export default {
       this.sendMessage('__none_of_these__')
     },
 
+    // Hand off to Learn mode carrying the advisor's ACTUAL opening (their stated
+    // goal) as the query the engine acts on — so Learn responds to what they really
+    // want (e.g. "run an end-of-year meeting AND upsell") and matches the right
+    // templates, instead of a generic "sell". The visible bubble stays friendly;
+    // the goal text is what's sent. Falls back to the friendly line if no opening
+    // is found. (The AI reads dictation garbles like "ND year" as "end of year"
+    // fine — it's the brittle keyword tree-picker that doesn't; that's a separate fix.)
+    _handoffToLearn (displayText) {
+      this.showSellSwitch = false
+      this.mode = 'learn'
+      const opening = this.messages.find(m => m.role === 'user')
+      const goal = opening && opening.content && opening.content.trim() ? opening.content.trim() : null
+      this.inputText = displayText
+      this.sendMessage(goal)
+    },
+
+    // Win-work switch — advisor accepts the offer to move to Learn (how-to-sell).
+    acceptSellSwitch () {
+      this._handoffToLearn('Yes, help me sell')
+    },
+
+    // Advisor declines — stay in the client flow; the backend continues the questions.
+    declineSellSwitch () {
+      this.showSellSwitch = false
+      this.inputText = 'No, stay on this'
+      this.sendMessage('no')
+    },
+
+    // Free-text "yes" path: the backend returned [SWITCH_TO_LEARN]. Flip to Learn
+    // mode the same way, carrying the advisor's stated goal.
+    switchToLearn () {
+      this._handoffToLearn('Help me win more advisory work from this client')
+    },
+
     submitGrowthStage () {
       if (!this.selectedGrowthStage) { return }
       const stage = this.growthStages.find(s => s.name === this.selectedGrowthStage)
@@ -1352,6 +1392,7 @@ export default {
       this.isStreaming = true
       this.streamingText = ''
       this.showRetry = false
+      this.showSellSwitch = false
       this.lastQuery = query
 
       await this.$nextTick()
@@ -1459,9 +1500,22 @@ export default {
                   content = content.replace(_piMatch[0], '').trim()
                   this.showPrimaryIssueSelector = true
                 }
-                this.messages.push({ role: 'assistant', content })
+                // Win-work switch: show the Yes/No buttons under the offer.
+                if (content.includes('[SELL_SWITCH_OFFER]')) {
+                  content = content.replace('[SELL_SWITCH_OFFER]', '').trim()
+                  this.showSellSwitch = true
+                }
+                // Backend handed the session to Learn mode (free-text "yes" path) —
+                // don't render the bare signal; flip to Learn carrying the context.
+                let _handOffToLearn = false
+                if (content.includes('[SWITCH_TO_LEARN]')) {
+                  content = content.replace('[SWITCH_TO_LEARN]', '').trim()
+                  _handOffToLearn = true
+                }
+                if (content) { this.messages.push({ role: 'assistant', content }) }
                 this.streamingText = ''
                 this.isStreaming = false
+                if (_handOffToLearn) { this.switchToLearn() }
               }
             } catch (parseErr) {
               console.warn('[va:sse] Malformed SSE line skipped:', parseErr.message)
@@ -2341,6 +2395,13 @@ export default {
 .primary-issue-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 .primary-issue-none { display: block; width: 100%; margin-top: 10px; padding: 8px; background: none; border: none; color: #6b7280; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .primary-issue-none:hover { color: #374151; }
+
+/* Win-work switch offer buttons */
+.sell-switch-card { display: flex; gap: 10px; margin: 8px 16px 4px; padding: 14px 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; }
+.sell-switch-yes { padding: 9px 18px; background: #2563eb; color: #fff; border: 1px solid #2563eb; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s ease; }
+.sell-switch-yes:hover { background: #1d4ed8; }
+.sell-switch-no { padding: 9px 18px; background: #fff; color: #6b7280; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s ease; }
+.sell-switch-no:hover { background: #f9fafb; }
 
 .trace-panel {
   margin: 8px 16px 4px;
