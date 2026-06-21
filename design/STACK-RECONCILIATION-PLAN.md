@@ -1,6 +1,13 @@
 # Stack-Drift Reconciliation Plan
 
-> **Status: PLAN — env prep done 2026-06-11, install not yet executed.** Node 14.15.0 is now
+> **✅ EXECUTED — this plan is DONE and merged to `master` (June 2026). Retained for history.**
+> The reconciliation it describes was carried out: `package.json` now pins `nuxt 2.14.0`,
+> `restify 9.1.0`, and `engines.node 14.15.x`, and the full test suite passes on Node 14.15.
+> The **live record** of what actually happened — including the dev-toolchain pinning and the
+> `isomorphic-dompurify 1.3.0` decision — is in `design/ACTIONS.md` and the session notes; read
+> those, not this plan, for current state.
+>
+> **Status (original, for history): PLAN — env prep done 2026-06-11, install not yet executed.** Node 14.15.0 is now
 > installed and ready (see Runbook step 2); the risky end-of-day dependency install still pending.
 > Authored 2026-06-09. Captures the agreed approach for
 > bringing the two drifting dependencies back into line with the Stack Constitution
@@ -16,7 +23,9 @@
 ## 1. What is actually out of line
 
 Only two dependencies drift from the Constitution. Everything else already complies
-(`pug ^2`, `vue ^2.6`, `vue-i18n ^8`, `openai ^4`, JavaScript-only, no `.ts`).
+(`pug ^2`, `vue ^2.6`, `vue-i18n ^8`, JavaScript-only, no `.ts`). *(`openai ^4` originally
+appeared in this list; the SDK has since been removed under the Req 7 amendment — OpenAI is now
+called via REST from the Restify backend.)*
 
 | Dependency | Installed now | Target | Why |
 |---|---|---|---|

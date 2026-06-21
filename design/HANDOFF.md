@@ -17,6 +17,40 @@ All content changes are scoped to the firm. The platform base layer is read-only
 
 ---
 
+## Local Setup / Run
+
+Getting the repo running on a developer machine. The runtime is **locked to Node.js 14.15** (Stack Constitution, Req 9) — do not substitute a newer Node. **Ports:** Nuxt frontend **3000**, Restify backend **4000**.
+
+**Prerequisites**
+
+- **Node.js 14.15** as the active runtime (via nvm). If a system-wide Node install shadows nvm on `PATH`, invoke the 14.15 binary by its **exact path** for every command rather than relying on `nvm use`.
+- **npm 8** for installs — the `overrides` block in `package.json` (`shell-quote`, `@nuxt/friendly-errors-webpack-plugin`) is **silently ignored by the bundled npm 6**.
+- **`NODE_EXTRA_CA_CERTS`** on any network doing TLS interception (corporate proxy / AV that re-signs HTTPS). Without it, `npm install` fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` and the backend's OpenAI TLS call fails. The committed dev bundle is `certs/digicert-bundle.pem`, and the `dev`/`start` npm scripts already point `NODE_EXTRA_CA_CERTS` at it; substitute your own trusted root CA in your environment.
+
+**Install**
+
+```
+NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem npm install   # run with an npm 8 binary so overrides apply
+```
+
+**Run**
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Nuxt dev server on :3000 (12 GB heap + cert preset) |
+| `npm run backend` | Restify backend on :4000 |
+| `npm run dev:all` | Both together (`concurrently`) |
+| `npm run start` | Production `nuxt start` on :3000 |
+| `npm test` | Jest suite |
+| `npm run build` | `nuxt build` (CI gate) |
+
+**Two gotchas that cost time**
+
+- **The backend does NOT auto-load `.env`.** Only Nuxt loads `.env`. When running `npm run backend` standalone, export what it needs into that shell — at minimum `OPENAI_API_KEY` and `NODE_EXTRA_CA_CERTS` (the OpenAI REST call is TLS-verified).
+- **LAN / incognito access:** Nuxt's default host can bind IPv6-only, which breaks `localhost` from another device or in incognito. Start with `nuxt start -H 0.0.0.0` (or `HOST=0.0.0.0`) when you need LAN access.
+
+---
+
 ## Integration Checklist
 
 ### Step 1 — Edit `config/integration.js` (the ONLY file you should need to touch)
@@ -273,17 +307,22 @@ Phase 3 recommendation stream is set to `max_tokens: 2500` (raised from 1500 —
 
 ---
 
-### Node.js v24 + Restify v11 incompatibility
+### Backend runtime — Node.js 14.15 + Restify 9.1.0
 
-Restify v11 depends on `spdy`, which uses a native `http_parser` binding that was removed in Node.js v24. The backend (`server/restify-server.js`) will fail to start on Node 24 with a binding error.
+The backend runs on the locked **Node.js 14.15** runtime (`engines.node: "14.15.x"` in `package.json`) with **Restify pinned to `9.1.0`** (declares Node ≥10 — in range for 14.15). See **Local Setup / Run** for how to invoke it.
 
-**Fix:** Use Node.js 18 LTS or 20 LTS for the backend process. This is an upstream Restify issue — no changes to the Firm Manager code are required. Track the upstream fix at the `restify` npm package.
+**Do not run the backend on Node 16 / 18 / 20 / 24** — 14.15 is the locked target (Stack Constitution, Req 9).
+
+*Historical note (resolved):* an earlier build ran `restify ^11.1.0`, which pulls `spdy` and a native `http_parser` binding removed in Node 24, so the backend couldn't start on Node 24 and the project briefly ran on Node 18/20. The stack reconciliation (merged to `master`, 2026‑06) pinned Restify back to `9.1.0` and locked the runtime to Node 14.15, which removes that incompatibility on the supported runtime.
 
 ---
 
-### File-upload import shape (`formidable` v3) — RESOLVED
+### File-upload import shape (`formidable`) — RESOLVED
 
-`server/routes/firmManager.js` imported `formidable` as `const formidable = require('formidable')` (the v2 API) while v3.5.4 is installed. In v3 the factory is a **named** export, so the old import resolved to a non-callable object and every upload threw `TypeError: formidable is not a function` (HTTP 500) — affecting **both** the document upload and the template-library import. Fixed to `const { formidable } = require('formidable')`. No action needed; noted because it predated the staircase work and was only surfaced by live upload testing.
+`server/routes/firmManager.js` handles multipart uploads (document upload + template-library import) with **`formidable` pinned to `2.1.2`** — the last v2 release before v3 pulled in a crypto helper requiring Node > 14.15 (see `design/ACTIONS.md`; the runtime is locked to Node 14.15). Two notes for anyone touching this code:
+
+- **Import:** `const { formidable } = require('formidable')` (`firmManager.js:109`). Both v2 and v3 expose the factory as a `.formidable` named export, so the destructure works on either — don't "fix" it to a default import.
+- **Promise wrapper:** v2's `form.parse()` is **callback-style**, so a small `parseForm(form, req)` helper (`firmManager.js:113`) wraps it to keep the `await [fields, files]` usage in the handlers. File-object property names are identical between v2.1 and v3, so the upload/DB code is version-agnostic.
 
 ---
 
