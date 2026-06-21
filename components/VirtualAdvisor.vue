@@ -1066,6 +1066,9 @@ export default {
           staircaseStep: this.selectedStaircaseStep,
           growthStage: this.selectedGrowthStage,
           finMgtTheme: this.selectedFinMgtTheme,
+          // The "why this recommendation" trace, stored so a firm manager can
+          // review the reasoning later (null in non-client modes / pre-trace cases).
+          decisionTrace: this.lastTrace,
           feedbackPending: !this.intakeComplete
         }, this.apiToken)
         await this.refreshMyCases()

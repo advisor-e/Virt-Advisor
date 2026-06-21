@@ -66,6 +66,7 @@ async function createCase (req, res) {
       templates: body.templates,
       summary: body.summary,
       transcript: body.transcript,
+      decisionTrace: body.decisionTrace,
       feedbackPending: body.feedbackPending
     })
     res.send(200, { success: true, case: saved })

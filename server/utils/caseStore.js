@@ -82,6 +82,7 @@ function rowToCase (row) {
     templates: parseJSON(row.templates, []),
     summary: row.summary || '',
     transcript: parseJSON(row.transcript, []),
+    decisionTrace: parseJSON(row.decision_trace, null),
     feedbackPending: row.feedback_pending === 1 || row.feedback_pending === true,
     review: (row.review_went_well || row.review_went_less || row.review_changes_recommended || row.reviewed_at)
       ? {
@@ -149,6 +150,7 @@ async function create (input) {
     templates: Array.isArray(input.templates) ? input.templates : [],
     summary: input.summary ? String(input.summary).slice(0, 4000) : null,
     transcript: Array.isArray(input.transcript) ? input.transcript : [],
+    decision_trace: input.decisionTrace && typeof input.decisionTrace === 'object' ? input.decisionTrace : null,
     feedback_pending: input.feedbackPending === false ? 0 : 1
   }
 
@@ -157,14 +159,15 @@ async function create (input) {
       `INSERT INTO va_case_studies
          (id, advisor_id, firm_id, title, mode, visibility, domain,
           staircase_step, growth_stage, fin_mgt_theme, templates, summary,
-          transcript, feedback_pending)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          transcript, decision_trace, feedback_pending)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         row.id, row.advisor_id, row.firm_id, row.title, row.mode, row.visibility,
         row.domain, row.staircase_step, row.growth_stage, row.fin_mgt_theme,
         row.templates.length ? JSON.stringify(row.templates) : null,
         row.summary,
         row.transcript.length ? JSON.stringify(row.transcript) : null,
+        row.decision_trace ? JSON.stringify(row.decision_trace) : null,
         row.feedback_pending
       ]
     )

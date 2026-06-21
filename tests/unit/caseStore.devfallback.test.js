@@ -66,4 +66,26 @@ describe('caseStore dev fallback', () => {
     const otherFirm = await caseStore.listForAdvisor('a9', 'f-other')
     expect(otherFirm).toHaveLength(0)
   })
+
+  test('the decision trace round-trips intact', async () => {
+    const trace = {
+      domain: { id: 'profitability', label: 'Profitability & Feasibility' },
+      lenses: { engagementType: 'advice' },
+      distinctions: { nearMisses: [{ id: 7, description: 'margin erosion', domain: 'sales' }] }
+    }
+    const saved = await caseStore.create({ ...base, id: 'tr1', visibility: 'shared', decisionTrace: trace })
+    expect(saved.decisionTrace).toEqual(trace)
+
+    const [listed] = await caseStore.listForAdvisor('a1', 'f1')
+    expect(listed.decisionTrace).toEqual(trace)
+    expect(listed.decisionTrace.distinctions.nearMisses[0].description).toBe('margin erosion')
+  })
+
+  test('a case saved without a trace has decisionTrace null', async () => {
+    const saved = await caseStore.create({ ...base, id: 'notrace', visibility: 'private' })
+    expect(saved.decisionTrace).toBeNull()
+
+    const [listed] = await caseStore.listForAdvisor('a1', 'f1')
+    expect(listed.decisionTrace).toBeNull()
+  })
 })

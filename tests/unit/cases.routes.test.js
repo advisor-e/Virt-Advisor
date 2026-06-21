@@ -170,6 +170,33 @@ describe('createCase', () => {
 
     expect(res._body.case.visibility).toBe('private')
   })
+
+  test('persists the decision trace from the body (stored as JSON)', async () => {
+    db.execute.mockResolvedValue()
+
+    const trace = { domain: { id: 'profit' }, distinctions: { nearMisses: [] } }
+    const req = makeReq({ body: { title: 'Margins', decisionTrace: trace } })
+    const res = makeMockRes()
+
+    await createCase(req, res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.case.decisionTrace).toEqual(trace)
+    // INSERT order: ... transcript, decision_trace, feedback_pending.
+    const params = db.execute.mock.calls[0][1]
+    expect(JSON.parse(params[params.length - 2])).toEqual(trace)
+  })
+
+  test('a case with no trace stores null (not the string "null")', async () => {
+    db.execute.mockResolvedValue()
+
+    const res = makeMockRes()
+    await createCase(makeReq({ body: { title: 'No trace' } }), res)
+
+    expect(res._body.case.decisionTrace).toBeNull()
+    const params = db.execute.mock.calls[0][1]
+    expect(params[params.length - 2]).toBeNull()
+  })
 })
 
 // ── reviewCase ────────────────────────────────────────────────────────────────

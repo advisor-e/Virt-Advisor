@@ -188,6 +188,10 @@ CREATE TABLE IF NOT EXISTS `advisor_course_completions` (
 -- `id` is a client-generated UUID (crypto.randomUUID) preserved as-is across the
 -- localStorage -> DB migration. advisor_id is NOT FK-constrained — the advisors
 -- table belongs to the Advisor-e platform, not this schema.
+-- `decision_trace` is the structured "why this recommendation" trace the engine
+-- emitted for the session (domain, lenses, distinction boosts, near-misses,
+-- template scores). Stored so a firm manager can review the reasoning later; NULL
+-- for cases saved before the trace was persisted.
 -- Retention (future): age-based purge can key off `created_at` — no extra column.
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `va_case_studies` (
@@ -204,6 +208,7 @@ CREATE TABLE IF NOT EXISTS `va_case_studies` (
   `templates`                  JSON                              DEFAULT NULL,
   `summary`                    TEXT                              DEFAULT NULL,
   `transcript`                 LONGTEXT                          DEFAULT NULL,
+  `decision_trace`             JSON                              DEFAULT NULL,
   `feedback_pending`           TINYINT(1)               NOT NULL DEFAULT 1,
   `review_went_well`           TEXT                              DEFAULT NULL,
   `review_went_less`           TEXT                              DEFAULT NULL,
