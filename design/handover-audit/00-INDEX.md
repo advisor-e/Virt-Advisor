@@ -3,7 +3,18 @@
 > **Purpose.** Read-only audit run Sunday 2026-06-21 in preparation for the Friday hand-over to
 > the senior coding team. Five parallel audits, each read-only (no code changed, no `search_content*.json`
 > touched, no tests run). Every finding in the underlying reports is cited to a real `path:line`.
-> Nothing here has been actioned — this is a findings + decisions package for Mike to triage.
+> Nothing here had been actioned **as of the audit date (2026-06-21)** — it was a findings + decisions
+> package. See the **Resolution log** immediately below for what has since been closed (2026-06-22).
+
+---
+
+## Resolution log (2026-06-22) — actioned since the audit
+> Added after the audit; the five dated reports below are preserved as the original 2026-06-21 snapshot.
+- ✅ **`translate.js` (audit #5 boundary deviation + the Node-14 `fetch` finding) — FIXED** (`master` `9c9fda1`). Backend route moved to the built-in `https` module (Node-14 safe); the Nuxt middleware is now a thin proxy (third-party logic off the Nuxt layer); the duplicate copy is gone; 11 tests; proven live on Node 14.15 (real translation returned). The latent `fetch`-on-Node-14 failure and the architecture-boundary breach are both closed.
+- ✅ **`courseEngine.js:213` unvalidated LLM `JSON.parse` (cross-cutting finding B) — FIXED** (`master` `303c8f9`). New `validateCourseOutline` (100% coverage) + 18 tests; a wrong-shape outline degrades to the safe "no outline" state. The quiz paths (`:390`/`:433`) were already validated.
+- ✅ **`ACTIONS.md:130` contradiction (decision #2) — RECONCILED** (`master` `bfed6a8`). The stale "OpenAI engine still in Nuxt / advisor.js 2061 lines" line is corrected; the boundary work is recorded as done (proxies thin, engines on the backend).
+- ✅ **HANDOFF.md Node guidance (decision #1) — already current.** The on-disk HANDOFF.md carries a Node-14.15 "Local Setup / Run" section; the "Node 18/20" wording the audit flagged predates that fix.
+- ☐ **Still open, now logged in `ACTIONS.md` P3:** the `jest.config.js` coverage-exclusion enforcement gap (audit #3) and the 3 suspected-dead exports (audit #4 — still showing 3–4 refs, so trace-before-remove). Decisions #3 (orphaned `validateAIResponse({content})` / `parseSSELine` retire), #5 (i18n scope), and #6 (28 dormant trees) remain Mike's calls.
 
 ## The five reports
 1. [i18n hardcoded-English sweep](i18n-audit.md)
