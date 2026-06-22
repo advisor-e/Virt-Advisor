@@ -1,127 +1,61 @@
+'use strict'
+
 /**
- * POST /api/translate/locale
+ * Nuxt server-middleware — THIN PROXY for /api/translate.
  *
- * Translates a flat key→value object via MyMemory (mymemory.translated.net).
- * Free with no credit card — just set MYMEMORY_EMAIL in .env to unlock
- * 10,000 words/day (vs 1,000/day anonymous). No email = still works.
+ * The locale-translation logic (chunking + the MyMemory third-party call) now
+ * lives on the Restify backend at server/routes/translate.js, per the
+ * architecture rule that third-party API calls and real logic belong on the
+ * backend, not the Nuxt layer. This file only forwards POST /locale to the
+ * backend and pipes the JSON response straight back.
  *
- * Strings are batched in chunks ≤ CHUNK_CHARS so each chunk fits inside
- * MyMemory's GET URL limit (~2 KB). Each locale load may cost multiple calls
- * but they are sequential and the result is cached client-side.
+ * NOTE: No optional chaining / nullish coalescing — the Nuxt 2.14 server-
+ * middleware loader cannot parse `?.`/`??`. Keep this file plain.
  */
 
-const { sendError } = require('../server/utils/sendError')
+const http = require('http')
+const https = require('https')
+const { URL } = require('url')
 
-const SEPARATOR = '\n\n---SPLIT---\n\n'
-const CHUNK_CHARS = 900 // conservative limit per MyMemory GET request
-const BODY_LIMIT = 128 * 1024 // 128 KB
+const BACKEND = process.env.API_BASE_URL || 'http://localhost:4000'
 
-module.exports = function translateMiddleware (req, res, next) {
+module.exports = function translateProxy (req, res, next) {
   if (req.method !== 'POST' || req.url !== '/locale') {
     return next()
   }
 
-  let body = ''
-  let bodySize = 0
-  let bodyRejected = false
-
-  req.on('error', (err) => {
-    console.error('[translate] Request socket error:', err.message)
-    sendError(res, 400, 'REQUEST_ERROR', 'Request error')
-  })
-
-  req.on('data', (chunk) => {
-    if (bodyRejected) { return }
-    bodySize += chunk.length
-    if (bodySize > BODY_LIMIT) {
-      bodyRejected = true
-      sendError(res, 413, 'BODY_TOO_LARGE', 'Request body too large')
-      req.socket && req.socket.destroy()
-      return
-    }
-    body += chunk.toString('utf8')
-  })
-
-  req.on('end', () => {
-    if (bodyRejected) { return }
-    handleTranslate(body, res).catch((err) => {
-      console.error('[translate] Error:', err.message)
-      sendError(res, 500, 'TRANSLATION_FAILED', 'Translation failed')
-    })
-  })
-}
-
-async function handleTranslate (rawBody, res) {
-  let parsed
-  try { parsed = JSON.parse(rawBody) } catch (e) {
-    sendError(res, 400, 'INVALID_JSON', 'Invalid JSON')
+  let target
+  try {
+    target = new URL('/api/translate/locale', BACKEND)
+  } catch (e) {
+    res.writeHead(500, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ success: false, error: { code: 'BAD_BACKEND_URL', message: 'Invalid backend URL' }, timestamp: new Date().toISOString() }))
     return
   }
 
-  const { texts, langCode } = parsed
-  if (!texts || !langCode) {
-    sendError(res, 400, 'PARAMS_REQUIRED', 'texts and langCode are required')
-    return
+  const lib = target.protocol === 'https:' ? https : http
+  const opts = {
+    hostname: target.hostname,
+    port: target.port || (target.protocol === 'https:' ? 443 : 80),
+    path: target.pathname,
+    method: 'POST',
+    headers: req.headers
   }
 
-  const keys = Object.keys(texts)
-  const email = process.env.MYMEMORY_EMAIL
+  const backendReq = lib.request(opts, function (backendRes) {
+    res.writeHead(backendRes.statusCode || 502, backendRes.headers)
+    backendRes.pipe(res)
+  })
 
-  // Split keys into chunks that fit inside MyMemory's GET URL limit.
-  // Avoids 414 / silent truncation on large locale payloads.
-  const chunks = []
-  let currentChunk = []
-  let currentLen = 0
-  for (const k of keys) {
-    const val = String(texts[k] || '')
-    const addition = currentLen > 0 ? SEPARATOR.length + val.length : val.length
-    if (addition > CHUNK_CHARS && currentChunk.length > 0) {
-      chunks.push(currentChunk)
-      currentChunk = [k]
-      currentLen = val.length
+  backendReq.on('error', function (err) {
+    console.error('[translate-proxy] backend error:', err.message)
+    if (!res.headersSent) {
+      res.writeHead(502, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ success: false, error: { code: 'BACKEND_UNAVAILABLE', message: 'Translation backend unavailable' }, timestamp: new Date().toISOString() }))
     } else {
-      currentChunk.push(k)
-      currentLen += addition
+      try { res.end() } catch (e) {}
     }
-  }
-  if (currentChunk.length > 0) { chunks.push(currentChunk) }
+  })
 
-  const translated = {}
-
-  for (const chunkKeys of chunks) {
-    const combined = chunkKeys.map(k => String(texts[k] || '')).join(SEPARATOR)
-    const params = new URLSearchParams({ q: combined, langpair: `en|${langCode}` })
-    if (email) { params.set('de', email) }
-
-    let mmRes
-    try {
-      mmRes = await fetch(`https://api.mymemory.translated.net/get?${params}`)
-    } catch (netErr) {
-      console.error('[translate] Network error:', netErr.message)
-      chunkKeys.forEach((k) => { translated[k] = texts[k] })
-      continue
-    }
-
-    if (!mmRes.ok) {
-      console.error('[translate] MyMemory HTTP error:', mmRes.status)
-      chunkKeys.forEach((k) => { translated[k] = texts[k] })
-      continue
-    }
-
-    const data = await mmRes.json()
-
-    if (data.responseStatus !== 200) {
-      console.error('[translate] MyMemory rejected:', data.responseDetails)
-      chunkKeys.forEach((k) => { translated[k] = texts[k] })
-      continue
-    }
-
-    const parts = data.responseData.translatedText.split(/\n+---SPLIT---\n+/)
-    chunkKeys.forEach((k, i) => {
-      translated[k] = parts[i] !== undefined ? parts[i] : texts[k]
-    })
-  }
-
-  res.writeHead(200, { 'Content-Type': 'application/json' })
-  res.end(JSON.stringify(translated))
+  req.pipe(backendReq)
 }
