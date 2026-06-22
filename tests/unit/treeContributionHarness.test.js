@@ -121,12 +121,23 @@ const SCENARIOS = {
     engagementType: 'facilitation',
     budget: 3,
     problemSignals: { governance_gap: 1 }
+  },
+  // GOVERNANCE — business NOT READY: the new governance_too_early signal fires when
+  // the advisor describes no clear objectives / failure accepted / no honest feedback.
+  // Harvested from the governance tree's readiness gate; surfaces foundational-management
+  // tools (People vs. Process) instead of pushing straight to board tools.
+  'governance · business not ready for governance': {
+    domain: 'governance',
+    engagementType: 'facilitation',
+    budget: 3,
+    problemSignals: { governance_too_early: 1 }
   }
 }
 
 const SCENARIO_TREE = {
   'valuation · owner wants to sell / exit': 'valuation',
-  'governance · board not functioning': 'governance'
+  'governance · board not functioning': 'governance',
+  'governance · business not ready for governance': 'governance'
 }
 
 describe('tree-contribution harness — current vs tree-assisted (snapshot net)', () => {
@@ -155,14 +166,14 @@ describe('tree-contribution harness — VERDICT (Mike-confirmed correct outcomes
     expect(passB[0]).toMatch(/Sale Assessment/)
   })
 
-  // CONFIRMED but NOT YET MET — this is the acceptance criterion for the NEXT build
-  // step. The readiness-gate tools (Productive Habits / People vs. Process) score too
-  // low for a soft template-name hint to rescue; surfacing them requires a real
-  // "business-not-ready" SIGNAL harvested from the governance tree's gate logic — not
-  // a name boost. Flip .skip → test() when that signal lands. Tracked in design/ACTIONS.md.
-  test.skip('governance case can surface the readiness-gate tools (needs a readiness signal)', () => {
-    const { passB_treeAssisted_top6: passB } = compare(
-      SCENARIOS['governance · board not functioning'], 'governance')
-    expect(passB.join('\n')).toMatch(/Productive Habits|People vs/)
+  // CONFIRMED + MET 2026-06-23. The governance_too_early signal (Option A) makes the
+  // ENGINE ITSELF surface a foundational-management tool when the business is not ready
+  // for governance — no tree hint needed (asserted on Pass A, engine-only). People vs.
+  // Process now carries a governance_too_early profile (reviewed_signal_map). Productive
+  // Habits is deferred — it has no content summary to profile (logged in ACTIONS.md).
+  test('governance not-ready case surfaces a foundational tool (engine, no hint)', () => {
+    const { passA_engineOnly_top6: passA } = compare(
+      SCENARIOS['governance · business not ready for governance'], 'governance')
+    expect(passA.join('\n')).toMatch(/Productive Habits|People vs/)
   })
 })

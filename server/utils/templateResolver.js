@@ -394,6 +394,7 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
         staff_problem: ['staff', 'team', 'employee', 'people', 'performance', 'delegation'],
         data_quality: ['data', 'reporting', 'accounts', 'kpi', 'indicator', 'dashboard'],
         governance_gap: ['governance', 'board', 'accountab', 'director', 'decision'],
+        governance_too_early: ['habit', 'behaviour', 'behavior', 'productiv', 'protocol', 'procedure', 'foundational'],
         succession_issue: ['succession', 'exit', 'sale', 'transition', 'business sale'],
         strategy_needed: ['strategy', 'planning', 'strategic', 'swot', 'competitive'],
         systems_gap: ['system', 'process', 'workflow', 'procedure', 'operation'],

@@ -489,7 +489,11 @@
       "staff_problem": 10,
       "systems_gap": 3
     },
-    "reviewed_signal_map": null
+    "reviewed_signal_map": {
+      "staff_problem": 10,
+      "systems_gap": 3,
+      "governance_too_early": 4
+    }
   },
   {
     "name": "Price Rise",

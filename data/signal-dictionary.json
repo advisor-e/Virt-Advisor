@@ -191,6 +191,23 @@
         "decisions? (take|taking).{0,15}(too long|forever|ages)"
       ]
     },
+    "governance_too_early": {
+      "description": "Business is not yet ready for governance — ineffective foundational management (no clear objectives, failure accepted as normal, no honest feedback). Too Early For Governance.",
+      "domains": ["governance"],
+      "patterns": [
+        "no (clear|measurable) (business )?objectives",
+        "(don'?t|do not|doesn'?t) (have|set|track) .{0,20}objectives",
+        "accept(s|ing)? (task )?fail(ure)?",
+        "fail(ure|ing)? (is )?(seen as |treated as )?(normal|accepted|tolerated|expected)",
+        "(hides?|hiding|hidden|bur(y|ies|ied)|covers?|covered) .{0,12}mistakes",
+        "mistakes (are |get )?(hidden|buried|covered|swept)",
+        "no (honest )?feedback",
+        "(blame|fear) culture",
+        "too early for governance",
+        "not ready for governance",
+        "(ineffective|weak|poor) (foundational )?management"
+      ]
+    },
     "succession_issue": {
       "description": "Succession planning, exit, or ownership transition",
       "domains": ["succession"],
