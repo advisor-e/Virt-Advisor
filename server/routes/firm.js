@@ -17,8 +17,9 @@
  *
  * TODO (OpenAI hookup):
  *   The insights handler currently returns a placeholder. Wire it to OpenAI
- *   using the same client pattern as server/routes/advisor.js. The prompt
- *   should receive summaryStats + per-advisor progress as context.
+ *   using the backend REST client (server/utils/openaiClient.js -> createOpenAIClient),
+ *   NOT the openai SDK (Stack Constitution Req 7). The prompt should receive
+ *   summaryStats + per-advisor progress as context (strip DB IDs/PII first).
  */
 
 const { sendError } = require('../utils/sendError')
@@ -56,18 +57,10 @@ function getAdvisors (req, res, next) {
 function postInsights (req, res, next) {
   // req.firmId available for OpenAI/DB hookup when stubs are wired up
   try {
-    // TODO: replace with OpenAI call
-    // const OpenAI = require('openai')
-    // const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-    //
-    // const prompt = buildInsightPrompt(summaryStats, advisors)
-    // const completion = await client.chat.completions.create({
-    //   model: 'gpt-4o',
-    //   messages: [{ role: 'user', content: prompt }],
-    //   max_tokens: 200
-    // })
-    // const insight = completion.choices[0].message.content.trim()
-    // return res.json({ insight })
+    // TODO: wire to OpenAI via the backend REST client (server/utils/openaiClient.js ->
+    // createOpenAIClient) — NOT the openai SDK (Stack Constitution Req 7). Build the prompt
+    // with buildInsightPrompt(summaryStats, advisors), call chat-completions, and return
+    // { insight }. Strip DB IDs/PII from the stats before sending to the model.
 
     // Stub — FirmDashboard.vue generates its own mock insight for now
     res.json({ insight: '' })

@@ -10,8 +10,16 @@
 > **✅ ALSO 2026-06-23 — 2 of the 6 "Suspected" orphans retired:** `validateAIResponse({content})`
 > and `parseSSELine` (truly orphaned — no production caller, no genuine retarget home) were
 > **removed** (fns + exports + test blocks). The file, its `ValidationResult` typedef, the 3 live
-> validators, and the `jest.config.js` 100% pin are kept (file still 100%-covered). The remaining
-> 4 "Suspected" and the **Dormant-by-design** bucket are unchanged.
+> validators, and the `jest.config.js` 100% pin are kept (file still 100%-covered).
+>
+> **✅ ALSO 2026-06-23 (batch 2) — the remaining 4 "Suspected" resolved (the bucket is now clear):**
+> `server/routes/advisor.js` (a 29-line 501 stub, never mounted, its Phase-2 migration superseded by
+> `advisorEngine`) was **removed**, its misleading `firm.js` TODO pointer corrected to the backend
+> REST client (`openaiClient.js`), and the hazardous commented OpenAI-SDK block in `firm.js` deleted.
+> `DEV_FILES` **export dropped** (the constant stays — it is live internally). `buildInsightPrompt`
+> and `resetCoachingCache` were **kept as logged scaffolding** (the firm-insights prompt and the
+> coaching-cache invalidation hook, both for pending features). 482 tests pass, lint clean. The
+> **Dormant-by-design** bucket is unchanged.
 
 **Audit date:** 2026-06-21 · **Scope:** READ-ONLY. No code changed. No `search_content*.json` touched.
 **Method:** static reference tracing with Grep/Glob/Read only. Every claim below cites `path:line`.
@@ -219,15 +227,14 @@ No commented-out *logic* blocks found beyond the firm.js illustrative TODOs abov
 
 ## Open questions for the team
 
-1. **Retire-vs-retarget on the two orphaned validators** (`validateAIResponse`/`parseSSELine`):
-   confirm RETIRE. They validate/parse shapes no live path produces, and the live equivalents
-   (`validateQuizGenerate`/`validateQuizGrade`, `parseSSEStream`) already exist. Open per
-   `ACTIONS.md:60`.
-2. **Is `server/routes/advisor.js` (the 501 stub) obsolete?** The Phase-2 migration it points to
-   appears done (`advisorEngine` is mounted at `restify-server.js:121`). If confirmed, it is a
-   safe deletion. Its 501 response is unreachable (never routed).
-3. **`SCORING_VERSION`** — was it meant to appear in scoring logs (per its comment) and the
-   logging line was dropped, or is the version tracking abandoned? Decide wire-in vs delete.
+1. ✅ **RESOLVED 2026-06-23 — RETIRED.** `validateAIResponse`/`parseSSELine` validated/parsed shapes
+   no live path produces; both removed (the live `validateQuizGenerate`/`validateQuizGrade`/
+   `validateCourseOutline` remain). File still 100%-covered.
+2. ✅ **RESOLVED 2026-06-23 — REMOVED.** `server/routes/advisor.js` was confirmed obsolete (Phase-2
+   migration done — `advisorEngine` mounted at `restify-server.js:121`; the stub was never routed and
+   had zero code references) and deleted; the misleading `firm.js` pointer to it was corrected.
+3. ✅ **RESOLVED 2026-06-23 — WIRED.** `SCORING_VERSION` is now stamped into the `[va-session]` log
+   and the persisted decision trace (its documented purpose), not deleted.
 4. **The 28 dormant trees** — this is the big standing decision (`ACTIONS.md:140`): wire into
    Stage-2 diagnosis, retire, or leave as fallback. Out of scope for code cleanup; named here
    only so the handover team sees it is *honestly parked*, not hidden.

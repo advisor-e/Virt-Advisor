@@ -87,4 +87,6 @@ async function loadFirmDistinctionState (firmId, loadFirmConfig) {
   }
 }
 
-module.exports = { loadFirmDistinctionState, CONFIG_KEYS, DEV_FILES }
+// DEV_FILES is intentionally NOT exported — it is used only internally (the dev-JSON
+// fallback paths); no external consumer needs it.
+module.exports = { loadFirmDistinctionState, CONFIG_KEYS }
