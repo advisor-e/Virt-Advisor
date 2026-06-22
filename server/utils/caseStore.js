@@ -130,6 +130,30 @@ async function listForAdvisor (advisorId, firmId) {
 }
 
 /**
+ * List a firm's SHARED case studies across all its advisors, most recent first.
+ * For the firm-manager review area. Managers see shared cases only — a private
+ * case stays invisible to them (the visibility model is the access boundary), so
+ * the review queue is opt-in: an advisor shares the cases they want reviewed.
+ * @param {string} firmId - from the verified JWT
+ * @returns {Promise<object[]>}
+ */
+async function listSharedForFirm (firmId) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT * FROM va_case_studies
+        WHERE firm_id = ? AND visibility = 'shared'
+        ORDER BY created_at DESC
+        LIMIT 500`,
+      [firmId]
+    )
+    return rows.map(rowToCase)
+  } catch (err) {
+    if (devFallbackEnabled()) { return _devListSharedForFirm(firmId) }
+    throw err
+  }
+}
+
+/**
  * Insert a new case. Identity (advisorId/firmId) is the caller's verified
  * identity — never trusted from the request body.
  * @param {object} input
@@ -256,6 +280,12 @@ function _devList (advisorId, firmId) {
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
 }
 
+function _devListSharedForFirm (firmId) {
+  return _devReadAll()
+    .filter(c => c.firmId === firmId && c.visibility === 'shared')
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+}
+
 function _devCreate (row) {
   const all = _devReadAll()
   // Mirror the DB primary-key constraint: a duplicate id is rejected (the live
@@ -295,6 +325,7 @@ function _devRemove (id, advisorId) {
 
 module.exports = {
   listForAdvisor,
+  listSharedForFirm,
   create,
   updateReview,
   updateVisibility,

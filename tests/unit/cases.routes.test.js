@@ -10,7 +10,7 @@ jest.mock('../../server/utils/db', () => ({
 
 const db = require('../../server/utils/db')
 const {
-  listCases, createCase, reviewCase, setCaseVisibility, deleteCase
+  listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase
 } = require('../../server/routes/cases')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -115,6 +115,50 @@ describe('listCases', () => {
 
     const res = makeMockRes()
     await listCases(makeReq(), res)
+
+    expect(res._status).toBe(500)
+    expect(res._body.error.code).toBe('DB_ERROR')
+    process.env.NODE_ENV = prev
+  })
+})
+
+// ── listFirmCases (manager review feed) ───────────────────────────────────────
+
+describe('listFirmCases', () => {
+  test('returns 403 when the verified pass carries no firm identity', async () => {
+    const req = makeReq({ firmId: null })
+    const res = makeMockRes()
+
+    await listFirmCases(req, res)
+
+    expect(res._status).toBe(403)
+    expect(res._body.error.code).toBe('NO_FIRM_IDENTITY')
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  test('scopes to the JWT firm and queries shared-only (private never surfaces to a manager)', async () => {
+    db.execute.mockResolvedValue([[]])
+
+    // A hostile firmId in the body must be ignored — identity is from the JWT.
+    const req = makeReq({ body: { firmId: 'ATTACKER-firm' } })
+    const res = makeMockRes()
+
+    await listFirmCases(req, res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.success).toBe(true)
+    const [sql, params] = db.execute.mock.calls[0]
+    expect(sql).toMatch(/visibility = 'shared'/)
+    expect(params).toEqual(['firm-from-jwt'])
+  })
+
+  test('returns 500 when the DB errors in production (no silent dev fallback)', async () => {
+    const prev = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    db.execute.mockRejectedValue(new Error('connection refused'))
+
+    const res = makeMockRes()
+    await listFirmCases(makeReq(), res)
 
     expect(res._status).toBe(500)
     expect(res._body.error.code).toBe('DB_ERROR')

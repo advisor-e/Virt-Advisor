@@ -553,6 +553,74 @@ section.firm-manager-hub.section
                 :loading="savingProfile"
                 @click="saveProfile"
               ) Save profile
+
+      //- ── Tab: Team Case Studies (manager review) ────────────────────
+      b-tab-item(label="Team Case Studies" icon="account-group")
+        .has-text-centered.py-5(v-if="loadingFirmCases")
+          b-loading(:is-full-page="false" :active="true")
+        template(v-else)
+          b-notification.mb-4(type="is-info is-light" :closable="false")
+            | Your advisors' shared case studies. Open one to see how the recommendation was reached, then review it. Private cases are never shown here.
+          p.has-text-grey.has-text-centered.py-6(v-if="firmCases.length === 0")
+            | No shared case studies yet. When an advisor shares a case, it appears here for review.
+          div(v-else)
+            .box.mb-3(v-for="c in firmCases" :key="c.id")
+              .level.is-mobile.mb-0(style="cursor:pointer" @click="toggleReviewCase(c.id)")
+                .level-left
+                  div
+                    p.has-text-weight-semibold {{ c.title }}
+                    p.is-size-7.has-text-grey {{ caseAdvisorLabel(c) }} &middot; {{ c.domain || 'No area recorded' }} &middot; {{ formatDate(c.createdAt) }}
+                .level-right(style="gap:8px")
+                  b-tag(v-if="c.feedbackPending" type="is-warning is-light") Feedback welcome
+                  b-icon(:icon="expandedReviewCaseId === c.id ? 'chevron-up' : 'chevron-down'")
+
+              div(v-if="expandedReviewCaseId === c.id")
+                hr.my-3
+                //- Decision trace — how the recommendation was reached
+                template(v-if="c.decisionTrace")
+                  p.is-size-7
+                    strong Area focused on:
+                    | {{ traceDomainLabel(c.decisionTrace) }}
+                  p.is-size-7
+                    strong What shaped the advice:
+                    | {{ lensSummary(c.decisionTrace) }}
+                  .mt-3
+                    p.is-size-7.has-text-weight-semibold Distinctions
+                    p.is-size-7.has-text-grey(v-if="traceNote(c.decisionTrace)") {{ traceNote(c.decisionTrace) }}
+                    p.is-size-7(v-if="traceBoosts(c.decisionTrace).length")
+                      span.has-text-success.has-text-weight-semibold(v-for="b in traceBoosts(c.decisionTrace)" :key="b.title") {{ b.title }} (+{{ b.boost }})&nbsp;&nbsp;
+                    p.is-size-7.has-text-grey(v-else) No distinction changed the scoring in this area.
+                  .mt-3(v-if="caseNearMisses(c).length")
+                    p.is-size-7.has-text-weight-semibold Filed elsewhere — may belong here
+                    p.is-size-7.has-text-grey These distinctions live in another area but matched this situation.
+                    .nearmiss-row.is-size-7(v-for="nm in caseNearMisses(c)" :key="nm.id")
+                      span {{ nm.description }}
+                      span.has-text-grey  — currently in {{ nm.domain }}
+                  .mt-3(v-if="c.decisionTrace.templateScores && c.decisionTrace.templateScores.length")
+                    p.is-size-7.has-text-weight-semibold How the templates scored
+                    table.table.is-narrow.is-fullwidth.is-size-7
+                      thead
+                        tr
+                          th #
+                          th Template
+                          th Score
+                          th Why
+                      tbody
+                        tr(v-for="t in c.decisionTrace.templateScores.slice(0, 6)" :key="t.rank")
+                          td {{ t.rank }}
+                          td {{ t.title }}
+                          td {{ t.score }}
+                          td.has-text-grey {{ humanizeTraceReasons(t.matchReasons) }}
+                template(v-else)
+                  p.is-size-7.has-text-grey No decision trace was recorded for this case.
+
+                //- Post-delivery review — the advisor's own reflection
+                .mt-4(v-if="c.review")
+                  p.is-size-7.has-text-weight-semibold Post-Delivery Review (by the advisor)
+                  p.is-size-7(v-if="c.review.wentWell") ✓ What went well? — {{ c.review.wentWell }}
+                  p.is-size-7(v-if="c.review.wentLess") ⚠ What went less well? — {{ c.review.wentLess }}
+                  p.is-size-7(v-if="c.review.changesRecommended") What they'd do differently — {{ c.review.changesRecommended }}
+                p.is-size-7.has-text-grey.mt-4(v-else) The advisor hasn't recorded a post-delivery review yet.
 </template>
 
 <script>
@@ -686,6 +754,11 @@ export default {
       // Storage
       storagePercent: 0,
 
+      // Team Case Studies (manager review)
+      firmCases: [],
+      loadingFirmCases: false,
+      expandedReviewCaseId: null,
+
       // Advisory Distinctions
       distinctionDomains: DISTINCTION_DOMAINS,
       selectedDistinctionDomain: DISTINCTION_DOMAINS[0].id,
@@ -803,6 +876,7 @@ export default {
     this.loadDomains()
     this.loadFirmDistinctions()
     this.loadStaircase()
+    this.loadFirmCases()
   },
 
   methods: {
@@ -1456,6 +1530,65 @@ export default {
     },
 
     // ── Helpers ─────────────────────────────────────────────────────────────
+    // ── Team Case Studies (manager review) ──────────────────────────────────
+    async loadFirmCases () {
+      this.loadingFirmCases = true
+      try {
+        const data = await this.api('GET', '/api/firm-manager/cases')
+        this.firmCases = data.cases || []
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.loadingFirmCases = false
+      }
+    },
+
+    toggleReviewCase (id) {
+      this.expandedReviewCaseId = this.expandedReviewCaseId === id ? null : id
+    },
+
+    /** Display name for the advisor who saved the case (id until a name lookup exists). */
+    caseAdvisorLabel (c) {
+      return c.advisorId || 'Unknown advisor'
+    },
+
+    /** The advisory area the engine focused on, from the stored trace. */
+    traceDomainLabel (trace) {
+      const d = (trace && trace.domain) || {}
+      return d.label || d.id || '—'
+    },
+
+    /** One-line summary of the strategy lenses that shaped the advice. */
+    lensSummary (trace) {
+      const l = (trace && trace.lenses) || {}
+      const parts = []
+      if (l.engagementType) { parts.push(l.engagementType) }
+      if (l.complexityCeiling) { parts.push(l.complexityCeiling + ' ceiling') }
+      if (typeof l.templateBudget === 'number') {
+        parts.push(l.templateBudget + ' template' + (l.templateBudget === 1 ? '' : 's'))
+      }
+      return parts.join(' · ') || '—'
+    },
+
+    traceNote (trace) {
+      return (trace && trace.distinctions && trace.distinctions.note) || ''
+    },
+
+    /** The distinction boosts applied, as a [{title, boost}] list for display. */
+    traceBoosts (trace) {
+      const b = (trace && trace.distinctions && trace.distinctions.boostsApplied) || {}
+      return Object.keys(b).map(title => ({ title, boost: b[title] }))
+    },
+
+    /** Cross-domain near-misses from the trace — the Phase 3 "move it here" candidates. */
+    caseNearMisses (c) {
+      return (c.decisionTrace && c.decisionTrace.distinctions && c.decisionTrace.distinctions.nearMisses) || []
+    },
+
+    humanizeTraceReasons (reasons) {
+      return Array.isArray(reasons) ? reasons.join(', ') : ''
+    },
+
     formatDate (iso) {
       return iso ? new Date(iso).toLocaleDateString() : ''
     },
@@ -1471,6 +1604,15 @@ export default {
 .firm-manager-hub {
   background: #f5f5f5;
   min-height: 100vh;
+}
+/* Case-review near-miss — a distinction filed elsewhere that matched this case
+   (the Phase 3 "move it here" candidate); subtle amber highlight, no map-shock. */
+.nearmiss-row {
+  margin: 3px 0;
+  padding: 4px 8px;
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+  border-radius: 3px;
 }
 .is-family-monospace {
   font-family: 'Courier New', monospace;
