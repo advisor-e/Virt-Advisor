@@ -143,4 +143,50 @@ function validateQuizGrade (response) {
   return { valid: true, errors: [], data: { passed: response.passed, score: response.score, feedback: response.feedback } }
 }
 
-module.exports = { validateAIResponse, parseSSELine, validateQuizGenerate, validateQuizGrade }
+/**
+ * Validates a course-outline AI response (the [COURSE_OUTLINE] JSON emitted by
+ * the design stream). Valid = an object with a non-empty `title` string and a
+ * non-empty `sessions` array whose every item is an object carrying a non-empty
+ * `title`. These are the fields the Course Builder screen actually depends on
+ * (`pendingOutline.title`, the `v-for` over `pendingOutline.sessions`, and later
+ * `activeCourse.outline.sessions.length`/index access), so a wrong-shape outline
+ * must never reach state — it would render a broken or blank course view. The
+ * whole outline is rejected if any session is malformed.
+ *
+ * @param {*} response - The parsed AI response to validate
+ * @returns {ValidationResult} `data` is the validated outline object when valid
+ */
+function validateCourseOutline (response) {
+  if (response === null || typeof response !== 'object' || Array.isArray(response)) {
+    return { valid: false, errors: ['Response must be a plain object'], data: null }
+  }
+
+  const errors = []
+
+  if (typeof response.title !== 'string' || response.title.trim() === '') {
+    errors.push("Field 'title' must be a non-empty string")
+  }
+
+  if (!Array.isArray(response.sessions) || response.sessions.length === 0) {
+    errors.push("Field 'sessions' must be a non-empty array")
+  } else {
+    for (const s of response.sessions) {
+      if (s === null || typeof s !== 'object' || Array.isArray(s)) {
+        errors.push('Each session must be a plain object')
+        break
+      }
+      if (typeof s.title !== 'string' || s.title.trim() === '') {
+        errors.push('Each session must have a non-empty title string')
+        break
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    return { valid: false, errors, data: null }
+  }
+
+  return { valid: true, errors: [], data: response }
+}
+
+module.exports = { validateAIResponse, parseSSELine, validateQuizGenerate, validateQuizGrade, validateCourseOutline }

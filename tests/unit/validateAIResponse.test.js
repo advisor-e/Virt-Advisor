@@ -3,7 +3,7 @@
 // Governance framework §11.2: AI response validation functions must have 100% branch coverage.
 // Every branch tested: valid response, malformed, missing fields, wrong types, null/undefined.
 
-const { validateAIResponse, parseSSELine, validateQuizGenerate, validateQuizGrade } = require('../../server/utils/validateAIResponse')
+const { validateAIResponse, parseSSELine, validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../../server/utils/validateAIResponse')
 
 describe('validateAIResponse', () => {
   describe('null and undefined responses (failed API call simulation)', () => {
@@ -343,6 +343,98 @@ describe('validateQuizGrade', () => {
       expect(result.valid).toBe(true)
       expect(result.errors).toHaveLength(0)
       expect(result.data).toEqual(validGrade)
+    })
+  })
+})
+
+describe('validateCourseOutline', () => {
+  const validSession = { id: 1, title: 'Session one', focus: 'x', resources: ['T'], objectives: ['o'], estimatedMinutes: 30 }
+  const validOutline = { title: 'Coffee & A Curve', topic: 'Growth basics', intensity: 'consistent', totalSessions: 1, sessions: [validSession] }
+
+  describe('malformed top-level types', () => {
+    test('rejects null', () => {
+      const result = validateCourseOutline(null)
+      expect(result.valid).toBe(false)
+      expect(result.data).toBeNull()
+    })
+    test('rejects a number', () => {
+      expect(validateCourseOutline(42).valid).toBe(false)
+    })
+    test('rejects an array', () => {
+      const result = validateCourseOutline([validSession])
+      expect(result.valid).toBe(false)
+      expect(result.data).toBeNull()
+    })
+  })
+
+  describe('title field', () => {
+    test('rejects a missing title', () => {
+      const result = validateCourseOutline({ sessions: [validSession] })
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.includes('title'))).toBe(true)
+    })
+    test('rejects a non-string title', () => {
+      expect(validateCourseOutline({ title: 99, sessions: [validSession] }).valid).toBe(false)
+    })
+    test('rejects a whitespace-only title', () => {
+      expect(validateCourseOutline({ title: '   ', sessions: [validSession] }).valid).toBe(false)
+    })
+  })
+
+  describe('sessions field', () => {
+    test('rejects a missing sessions array', () => {
+      const result = validateCourseOutline({ title: 'A course' })
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.includes('sessions'))).toBe(true)
+    })
+    test('rejects an empty sessions array', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [] }).valid).toBe(false)
+    })
+    test('rejects sessions that is not an array', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: 'two' }).valid).toBe(false)
+    })
+  })
+
+  describe('malformed session items', () => {
+    test('rejects a null session', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [null] }).valid).toBe(false)
+    })
+    test('rejects a non-object session (number)', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [5] }).valid).toBe(false)
+    })
+    test('rejects an array session', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [['s']] }).valid).toBe(false)
+    })
+    test('rejects a session missing its title', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [{ id: 1 }] }).valid).toBe(false)
+    })
+    test('rejects a session whose title is not a string', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [{ title: 7 }] }).valid).toBe(false)
+    })
+    test('rejects a session whose title is only whitespace', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [{ title: '  ' }] }).valid).toBe(false)
+    })
+  })
+
+  describe('multiple simultaneous failures', () => {
+    test('accumulates an error for both title and sessions', () => {
+      const result = validateCourseOutline({ title: 42, sessions: 'nope' })
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBe(2)
+    })
+  })
+
+  describe('valid responses', () => {
+    test('accepts a well-formed outline and returns it as data', () => {
+      const result = validateCourseOutline(validOutline)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
+      expect(result.data).toEqual(validOutline)
+    })
+    test('accepts a multi-session outline', () => {
+      const result = validateCourseOutline({ title: 'A course', sessions: [validSession, { title: 'Session two' }] })
+      expect(result.valid).toBe(true)
+      expect(result.data.sessions).toHaveLength(2)
     })
   })
 })

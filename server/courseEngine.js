@@ -19,7 +19,7 @@ const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescripti
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { sendError } = require('../server/utils/sendError')
-const { validateQuizGenerate, validateQuizGrade } = require('../server/utils/validateAIResponse')
+const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const CourseReminderService = require('../server/services/CourseReminderService')
 
@@ -210,7 +210,16 @@ function handleDesign (req, body, res) {
     const finalState = { ...state, pendingOutline: null }
     if (outlineMatch) {
       try {
-        finalState.pendingOutline = JSON.parse(outlineMatch[1].trim())
+        const parsedOutline = JSON.parse(outlineMatch[1].trim())
+        const result = validateCourseOutline(parsedOutline)
+        if (result.valid) {
+          finalState.pendingOutline = result.data
+        } else {
+          // Valid JSON but wrong shape — degrade to "no outline" (the same safe
+          // state as a parse failure); never stream a malformed outline to the
+          // course screen, which would render a broken/blank course view.
+          console.warn('[course:design] Course outline failed shape validation:', result.errors.join('; '))
+        }
       } catch (e) {
         console.warn('[course:design] Could not parse course outline JSON:', e.message)
       }
