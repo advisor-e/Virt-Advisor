@@ -682,6 +682,22 @@ ${causeText.slice(0, 1500)}
   }
 }
 
+// ── Intervention urgency directive (Stage 3 → Phase 3 prompt) ────────────────
+// When the strategy step flags HIGH urgency (governance 'urgent' / risk
+// 'immediate' — a cash crisis, partner dispute, live deal, covenant breach), the
+// recommendation should LEAD with the single most critical move and flag the
+// time-pressure in the AI's OWN words. The template COUNT is unchanged (Mike,
+// 2026-06-23 — urgency affects ordering + framing only, not how many tools).
+// Returns '' for medium/low/unknown so behaviour is identical when urgency is not
+// high. Pure + exported for tests.
+function urgencyDirective (urgency) {
+  if (urgency !== 'high') { return '' }
+  return [
+    'TIME-CRITICAL SITUATION',
+    'This client is in a genuine, time-critical situation (e.g. cash crisis, partner dispute, live deal, covenant breach). LEAD the recommendation with the SINGLE most critical move that addresses the immediate crisis, and flag the time-pressure in your own natural words so the advisor knows to act now. Keep the SAME number of templates as the budget above — do not add or drop templates because of urgency. Stay grounded: do NOT invent, exaggerate, or manufacture facts to dramatise the urgency beyond what the advisor actually described.'
+  ].join('\n')
+}
+
 module.exports = function advisorMiddleware (req, res, next) {
   dbg('MW: method=' + req.method + ' url=' + req.url)
   // Accepts the Nuxt-relative '/query' and the Restify full path '/api/advisor/query'
@@ -1809,9 +1825,12 @@ async function handleQuery (rawBody, res, identity) {
         : '')
 
     const _budgetCount = tier1Capacity > 0 ? tier1Capacity : (_strategyDecision.templateBudget || 1)
+    // Intervention urgency — empty string unless the strategy step flagged HIGH urgency
+    const _urgencyDirective = urgencyDirective(_strategyDecision.urgency)
     const situationBrief = [
       'SITUATION BRIEF',
       state.prepMode ? 'PRE-MEETING PREP: The advisor has NOT yet met this client, so client-specific questions were intentionally skipped. Frame this as preparation for an upcoming first meeting — what the advisor should focus on and confirm with the client when they meet — not as firm conclusions about a client you have full detail on.' : null,
+      _urgencyDirective || null,
       `Domain: ${_domainLabel}`,
       `Engagement type: ${_strategyDecision.engagementType} — ${_engagementContext}`,
       `Template budget: ${_budgetLabel}`,
@@ -2264,6 +2283,7 @@ async function handleQuery (rawBody, res, identity) {
 // Exposed for unit testing (the middleware function itself is the default export above).
 module.exports.buildDomainConfirmationMessage = buildDomainConfirmationMessage
 module.exports._isValidConfirmation = _isValidConfirmation
+module.exports.urgencyDirective = urgencyDirective
 module.exports.detectNotMetClient = detectNotMetClient
 module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
 module.exports.detectWinWorkIntent = detectWinWorkIntent

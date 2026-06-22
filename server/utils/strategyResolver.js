@@ -45,12 +45,22 @@ function resolveStrategy (caseState, firmOverrides) {
   // ── Sequencing rule ──────────────────────────────────────────────────────
   const sequencingRule = engagementType === 'education' ? 'education_first' : 'standard'
 
+  // ── Intervention urgency ─────────────────────────────────────────────────
+  // Passed through from the client's derived urgency (deriveUrgency in caseState).
+  // NOT firm-overridable: urgency reflects the client's real situation (cash
+  // crisis / partner dispute / live deal / covenant breach), not a firm tuning
+  // knob — a firm must never be able to dial down a genuine crisis. Consumed by
+  // the Phase 3 recommendation prompt (advisorEngine) to lead with the critical
+  // move and flag the time-pressure; it does NOT change the template count.
+  const urgency = (caseState.client && caseState.client.urgency) || 'low'
+
   // ── Base decision ────────────────────────────────────────────────────────
   const base = {
     engagementType,
     complexityCeiling,
     templateBudget,
     sequencingRule,
+    urgency,
     advisorConstraintApplied: advisorConstrained,
     firmOverrides
   }
@@ -61,6 +71,8 @@ function resolveStrategy (caseState, firmOverrides) {
     complexityCeiling: firmOverrides.complexityCeiling || base.complexityCeiling,
     templateBudget: firmOverrides.templateBudget || base.templateBudget,
     sequencingRule: firmOverrides.sequencingRule || base.sequencingRule,
+    // urgency is intentionally NOT overridable by firmOverrides (see above)
+    urgency: base.urgency,
     advisorConstraintApplied: base.advisorConstraintApplied,
     firmOverrides
   }

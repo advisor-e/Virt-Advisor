@@ -575,7 +575,7 @@ Domain natural types: **Education** — profit, data-systems, forecasting, stock
 
 **Firm-override layer:** any of `engagementType`, `complexityCeiling`, `templateBudget`, `sequencingRule` supplied by the firm overrides the computed value. `advisorConstraintApplied` is never overridable (it records what happened).
 
-**⚠ Intervention Urgency — derived but not yet wired (TO-BE).** `caseState.client.urgency` is computed (`high`/`medium`/`low` via `deriveUrgency`) but **no stage consumes it today**. Target: make urgency a named Stage 3 output that, when `high` (cash crisis / partner dispute / live deal / covenant breach), compresses sequencing and cuts the template count so the advisor gets to the critical move faster.
+**✅ Intervention Urgency — WIRED 2026-06-23.** `caseState.client.urgency` (`high`/`medium`/`low` via `deriveUrgency`) is now a named **non-overridable** Stage-3 output (`strategyResolver.js`). On `high` (cash crisis / partner dispute / live deal / covenant breach), a tested `urgencyDirective` (`advisorEngine.js`) injects a directive into the Phase-3 recommendation prompt: **lead with the single most critical move + flag the time-pressure (AI-phrased)**. **Note — the original "compress sequencing + cut template count" target was changed by Mike's ruling (2026-06-23): the template count is UNCHANGED** (he chose ordering + framing only); `sequencingRule` was inert (no consumer) so it was not the lever. Trigger coverage is currently governance/risk only — broadening it is a logged follow-up in `design/ACTIONS.md`. *Source:* build 2026-06-23.
 
 **Plain language:** Stage 3 answers *"how should we engage, how deep can we go, and how much do we hand over?"* — without picking the actual templates yet (that's Stage 4).
 
