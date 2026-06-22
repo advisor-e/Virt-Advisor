@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tree-contribution harness — current vs tree-assisted (snapshot net) governance · board not functioning 1`] = `
+Object {
+  "passA_engineOnly_top6": Array [
+    "26 · Governance Introduction [Governance Tools]",
+    "26 · Partner Accountability [Governance Tools]",
+    "26 · Formal Risk Management [Governance Tools]",
+    "25 · Nine Growth Aspects [Strategic Tools]",
+    "24 · Annual Board Plan [Governance Tools]",
+    "24 · Mgt Annual Plan [General Tools]",
+  ],
+  "passB_treeAssisted_top6": Array [
+    "29* · Governance Introduction [Governance Tools]",
+    "29* · Partner Accountability [Governance Tools]",
+    "27* · Annual Board Plan [Governance Tools]",
+    "27* · Board Member Conduct [Governance Tools]",
+    "26  · Formal Risk Management [Governance Tools]",
+    "25  · Nine Growth Aspects [Strategic Tools]",
+  ],
+  "promotedIntoTop6_byTreeHint": Array [
+    "Board Member Conduct",
+  ],
+  "treeReaches": Array [
+    "Productive Habits",
+    "People vs. Process",
+    "Leadership Review",
+    "Organisational Review",
+    "Board Member Conduct",
+    "Porters & Pine",
+    "Governance Introduction",
+    "Annual Board Plan",
+    "Quality Decisions",
+    "Partner Accountability",
+    "6 Hats",
+    "Draft White Papers",
+  ],
+}
+`;
+
+exports[`tree-contribution harness — current vs tree-assisted (snapshot net) valuation · owner wants to sell / exit 1`] = `
+Object {
+  "passA_engineOnly_top6": Array [
+    "5 · Advisor Prep [Specialist Tools]",
+    "5 · Business Purchase Assessment 1 [Specialist Tools]",
+    "5 · Purchase Assessment Report 3 [Specialist Tools]",
+    "5 · Sale Assessment Report 3 [Specialist Tools]",
+    "5 · Indicative Value Questions [Specialist Tools]",
+    "5 · Sale Assessment Model 2 [Specialist Tools]",
+  ],
+  "passB_treeAssisted_top6": Array [
+    "8* · Sale Assessment Report 3 [Specialist Tools]",
+    "8* · Sale Assessment Model 2 [Specialist Tools]",
+    "5  · Advisor Prep [Specialist Tools]",
+    "5  · Business Purchase Assessment 1 [Specialist Tools]",
+    "5  · Purchase Assessment Report 3 [Specialist Tools]",
+    "5  · Indicative Value Questions [Specialist Tools]",
+  ],
+  "promotedIntoTop6_byTreeHint": Array [],
+  "treeReaches": Array [
+    "Business Sale Assessment 1",
+    "Sale Assessment Model 2",
+    "Sale Assessment Report 3",
+    "EBITDA",
+  ],
+}
+`;
