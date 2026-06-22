@@ -10,7 +10,7 @@ jest.mock('../../server/utils/db', () => ({
 
 const db = require('../../server/utils/db')
 const {
-  listCases, createCase, reviewCase, setCaseVisibility, deleteCase
+  listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase
 } = require('../../server/routes/cases')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -122,6 +122,50 @@ describe('listCases', () => {
   })
 })
 
+// ── listFirmCases (manager review feed) ───────────────────────────────────────
+
+describe('listFirmCases', () => {
+  test('returns 403 when the verified pass carries no firm identity', async () => {
+    const req = makeReq({ firmId: null })
+    const res = makeMockRes()
+
+    await listFirmCases(req, res)
+
+    expect(res._status).toBe(403)
+    expect(res._body.error.code).toBe('NO_FIRM_IDENTITY')
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  test('scopes to the JWT firm and queries shared-only (private never surfaces to a manager)', async () => {
+    db.execute.mockResolvedValue([[]])
+
+    // A hostile firmId in the body must be ignored — identity is from the JWT.
+    const req = makeReq({ body: { firmId: 'ATTACKER-firm' } })
+    const res = makeMockRes()
+
+    await listFirmCases(req, res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.success).toBe(true)
+    const [sql, params] = db.execute.mock.calls[0]
+    expect(sql).toMatch(/visibility = 'shared'/)
+    expect(params).toEqual(['firm-from-jwt'])
+  })
+
+  test('returns 500 when the DB errors in production (no silent dev fallback)', async () => {
+    const prev = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    db.execute.mockRejectedValue(new Error('connection refused'))
+
+    const res = makeMockRes()
+    await listFirmCases(makeReq(), res)
+
+    expect(res._status).toBe(500)
+    expect(res._body.error.code).toBe('DB_ERROR')
+    process.env.NODE_ENV = prev
+  })
+})
+
 // ── createCase ────────────────────────────────────────────────────────────────
 
 describe('createCase', () => {
@@ -169,6 +213,33 @@ describe('createCase', () => {
     await createCase(req, res)
 
     expect(res._body.case.visibility).toBe('private')
+  })
+
+  test('persists the decision trace from the body (stored as JSON)', async () => {
+    db.execute.mockResolvedValue()
+
+    const trace = { domain: { id: 'profit' }, distinctions: { nearMisses: [] } }
+    const req = makeReq({ body: { title: 'Margins', decisionTrace: trace } })
+    const res = makeMockRes()
+
+    await createCase(req, res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.case.decisionTrace).toEqual(trace)
+    // INSERT order: ... transcript, decision_trace, feedback_pending.
+    const params = db.execute.mock.calls[0][1]
+    expect(JSON.parse(params[params.length - 2])).toEqual(trace)
+  })
+
+  test('a case with no trace stores null (not the string "null")', async () => {
+    db.execute.mockResolvedValue()
+
+    const res = makeMockRes()
+    await createCase(makeReq({ body: { title: 'No trace' } }), res)
+
+    expect(res._body.case.decisionTrace).toBeNull()
+    const params = db.execute.mock.calls[0][1]
+    expect(params[params.length - 2]).toBeNull()
   })
 })
 

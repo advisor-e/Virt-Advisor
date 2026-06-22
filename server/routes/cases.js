@@ -35,6 +35,30 @@ async function listCases (req, res) {
 }
 
 /**
+ * GET /api/firm-manager/cases — the firm's SHARED case studies across all its
+ * advisors, for the manager review area. Manager-gated (requireManagerRole at the
+ * mount) and firm-scoped from the verified JWT. Private cases are intentionally
+ * excluded: the visibility model is the access boundary, so a manager only ever
+ * sees cases an advisor chose to share.
+ * @route GET /api/firm-manager/cases
+ * @returns {200} { success: true, cases: object[] }
+ * @returns {403} NO_FIRM_IDENTITY · {500} DB_ERROR
+ */
+async function listFirmCases (req, res) {
+  const firmId = req.firmId
+  if (!firmId) {
+    return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm')
+  }
+  try {
+    const cases = await caseStore.listSharedForFirm(firmId)
+    res.send(200, { success: true, cases })
+  } catch (err) {
+    console.error('[cases] listFirmCases failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not load case studies')
+  }
+}
+
+/**
  * POST /api/cases — save a new case study for the authenticated advisor.
  * The advisor/firm identity is taken from the JWT; any ids in the body are ignored.
  * @route POST /api/cases
@@ -66,6 +90,7 @@ async function createCase (req, res) {
       templates: body.templates,
       summary: body.summary,
       transcript: body.transcript,
+      decisionTrace: body.decisionTrace,
       feedbackPending: body.feedbackPending
     })
     res.send(200, { success: true, case: saved })
@@ -202,4 +227,4 @@ function promote (req, res, next) {
   return next()
 }
 
-module.exports = { promote, listCases, createCase, reviewCase, setCaseVisibility, deleteCase }
+module.exports = { promote, listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase }
