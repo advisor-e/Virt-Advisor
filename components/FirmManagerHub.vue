@@ -593,9 +593,21 @@ section.firm-manager-hub.section
                   .mt-3(v-if="caseNearMisses(c).length")
                     p.is-size-7.has-text-weight-semibold Filed elsewhere — may belong here
                     p.is-size-7.has-text-grey These distinctions live in another area but matched this situation.
-                    .nearmiss-row.is-size-7(v-for="nm in caseNearMisses(c)" :key="nm.id")
-                      span {{ nm.description }}
-                      span.has-text-grey  — currently in {{ nm.domain }}
+                    .nearmiss-row(v-for="nm in caseNearMisses(c)" :key="nm.id")
+                      .level.is-mobile.mb-0
+                        .level-left
+                          p.is-size-7
+                            span {{ nm.description }}
+                            span.has-text-grey  — currently in {{ domainLabel(nm.domain) }}
+                        .level-right
+                          span.has-text-success.has-text-weight-semibold.is-size-7(v-if="isNearMissMoved(c, nm)") Moved ✓
+                          b-button(
+                            v-else
+                            size="is-small"
+                            type="is-warning is-light"
+                            :loading="movingNearMissKey === nearMissKey(c, nm)"
+                            @click="moveNearMiss(c, nm)"
+                          ) Move it here
                   .mt-3(v-if="c.decisionTrace.templateScores && c.decisionTrace.templateScores.length")
                     p.is-size-7.has-text-weight-semibold How the templates scored
                     table.table.is-narrow.is-fullwidth.is-size-7
@@ -627,6 +639,7 @@ section.firm-manager-hub.section
 const BACKEND = 'http://localhost:4000'
 
 const ADVISORY_DISTINCTIONS = require('~/data/advisory-distinctions.json')
+const { buildMoveRequest } = require('~/utils/distinctionMove')
 
 // The distinctions picker offers the Do-the-Job templates a distinction can meaningfully
 // boost. Do NOT filter on includedInClient (that field only governs client self-serve
@@ -758,6 +771,10 @@ export default {
       firmCases: [],
       loadingFirmCases: false,
       expandedReviewCaseId: null,
+      // Near-misses moved this session, keyed `${caseId}::${nmId}` (the stored trace
+      // still lists them, so this disables an already-moved row to stop a double-move).
+      movedNearMisses: {},
+      movingNearMissKey: null,
 
       // Advisory Distinctions
       distinctionDomains: DISTINCTION_DOMAINS,
@@ -1587,6 +1604,65 @@ export default {
 
     humanizeTraceReasons (reasons) {
       return Array.isArray(reasons) ? reasons.join(', ') : ''
+    },
+
+    nearMissKey (c, nm) {
+      return `${c.id}::${nm.id}`
+    },
+
+    isNearMissMoved (c, nm) {
+      return !!this.movedNearMisses[this.nearMissKey(c, nm)]
+    },
+
+    /** Human label for a domain id (falls back to the id). */
+    domainLabel (id) {
+      const d = this.distinctionDomains.find(x => x.id === id)
+      return (d && d.label) || id || '—'
+    },
+
+    /**
+     * Move a near-miss distinction into the case's detected area, so it influences
+     * future sessions like this one. Manager-only and confirmed first — it changes
+     * the firm's live distinction config. Routes by the row's cascade source
+     * (firm-own = domain change; firm-override = platform move) via buildMoveRequest.
+     */
+    moveNearMiss (c, nm) {
+      const trace = c.decisionTrace || {}
+      const targetDomain = (trace.domain && trace.domain.id) || null
+      if (!targetDomain) {
+        this.$buefy.toast.open({ message: 'This case has no recorded area to move into.', type: 'is-danger' })
+        return
+      }
+      const targetLabel = this.traceDomainLabel(trace)
+      const fromLabel = this.domainLabel(nm.domain)
+      // Buefy renders the dialog message as HTML, so escape the firm-authored
+      // description (and truncate) before interpolating it.
+      const raw = String(nm.description || 'this distinction')
+      const escaped = raw.replace(/[<>&]/g, ch => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[ch]))
+      const desc = escaped.length > 80 ? escaped.slice(0, 80) + '…' : escaped
+      this.$buefy.dialog.confirm({
+        title: 'Move distinction',
+        message: `Move "${desc}" from ${fromLabel} into ${targetLabel}? It will then influence future ${targetLabel} sessions instead.`,
+        confirmText: 'Move it here',
+        cancelText: 'Cancel',
+        type: 'is-warning',
+        onConfirm: async () => {
+          const key = this.nearMissKey(c, nm)
+          this.movingNearMissKey = key
+          try {
+            const req = buildMoveRequest(nm, targetDomain)
+            await this.api(req.method, req.path, req.body)
+            this.$set(this.movedNearMisses, key, true)
+            this.$buefy.toast.open({ message: `Moved into ${targetLabel}.`, type: 'is-success' })
+            // Keep the Advisory Distinctions screen in step with the move.
+            this.loadFirmDistinctions()
+          } catch (e) {
+            this.$buefy.toast.open({ message: e.message || 'Could not move the distinction.', type: 'is-danger' })
+          } finally {
+            this.movingNearMissKey = null
+          }
+        }
+      })
     },
 
     formatDate (iso) {
