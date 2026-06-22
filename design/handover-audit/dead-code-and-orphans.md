@@ -5,8 +5,13 @@
 > `getSummaryByPage` + `getTemplateByPage` **removed** from `templateRegistry.js`. `SCORING_VERSION`
 > **kept and wired** into the `[va-session]` log + the persisted decision trace (its documented
 > intent), not deleted — it part-delivers the auditability "tag each saved case with the active
-> version" goal. +3 tests; 513/513 pass. See `design/ACTIONS.md` (CLEANUP item, done). The
-> **Suspected (6)** and **Dormant-by-design** buckets below are unchanged.
+> version" goal. +3 tests; 513/513 pass. See `design/ACTIONS.md` (CLEANUP item, done).
+>
+> **✅ ALSO 2026-06-23 — 2 of the 6 "Suspected" orphans retired:** `validateAIResponse({content})`
+> and `parseSSELine` (truly orphaned — no production caller, no genuine retarget home) were
+> **removed** (fns + exports + test blocks). The file, its `ValidationResult` typedef, the 3 live
+> validators, and the `jest.config.js` 100% pin are kept (file still 100%-covered). The remaining
+> 4 "Suspected" and the **Dormant-by-design** bucket are unchanged.
 
 **Audit date:** 2026-06-21 · **Scope:** READ-ONLY. No code changed. No `search_content*.json` touched.
 **Method:** static reference tracing with Grep/Glob/Read only. Every claim below cites `path:line`.
@@ -77,7 +82,7 @@ function operating on raw byte chunks, not `"data: "`-prefixed lines.
 
 → **Keep the file.** Remove only the two orphaned functions if the team accepts the retire
 recommendation. (This is a P1 #1 open sub-item per `ACTIONS.md:60`: "the orphaned
-`validateAIResponse({content})` / `parseSSELine` retarget-or-retire decision" is still open.)
+`validateAIResponse({content})` / `parseSSELine` retarget-or-retire decision" — ✅ RESOLVED 2026-06-23: retired both.)
 
 ---
 

@@ -14,7 +14,7 @@
 - ✅ **`courseEngine.js:213` unvalidated LLM `JSON.parse` (cross-cutting finding B) — FIXED** (`master` `303c8f9`). New `validateCourseOutline` (100% coverage) + 18 tests; a wrong-shape outline degrades to the safe "no outline" state. The quiz paths (`:390`/`:433`) were already validated.
 - ✅ **`ACTIONS.md:130` contradiction (decision #2) — RECONCILED** (`master` `bfed6a8`). The stale "OpenAI engine still in Nuxt / advisor.js 2061 lines" line is corrected; the boundary work is recorded as done (proxies thin, engines on the backend).
 - ✅ **HANDOFF.md Node guidance (decision #1) — already current.** The on-disk HANDOFF.md carries a Node-14.15 "Local Setup / Run" section; the "Node 18/20" wording the audit flagged predates that fix.
-- ☐ **Still open, now logged in `ACTIONS.md` P3:** the `jest.config.js` coverage-exclusion enforcement gap (audit #3) and the 3 suspected-dead exports (audit #4 — still showing 3–4 refs, so trace-before-remove). Decisions #3 (orphaned `validateAIResponse({content})` / `parseSSELine` retire), #5 (i18n scope), and #6 (28 dormant trees) remain Mike's calls.
+- ☐ **Still open, now logged in `ACTIONS.md`:** the `jest.config.js` coverage-exclusion enforcement gap (audit #3). ✅ The 3 confirmed-dead exports (audit #4) and Decision #3 (orphaned `validateAIResponse({content})` / `parseSSELine` retire) were **both DONE 2026-06-23**. Decisions #5 (i18n scope) and #6 (28 dormant trees) remain Mike's calls.
 
 ## The five reports
 1. [i18n hardcoded-English sweep](i18n-audit.md)
@@ -73,9 +73,11 @@ to hand over?" question and the answer is yes.
    architecture item ("advisor.js 2061 lines…") when audit #5 confirms it's **done** (proxies are 56/51
    lines). → *A one-line reconcile; approve and I'll fix it.*
 
-3. **Orphaned-utils retire-or-retarget** (the long-open P1 leftover): audit #4 **confirms** `validateAIResponse({content})`
-   and `parseSSELine` have zero production call sites — only tests reference them. Recommendation: **retire the
-   two functions, keep the file** (its `validateQuizGenerate`/`validateQuizGrade` siblings are live). → *Approve?*
+3. **Orphaned-utils retire-or-retarget** (the long-open P1 leftover): ✅ **DONE 2026-06-23 — RETIRED.**
+   `validateAIResponse({content})` and `parseSSELine` had zero production call sites and no genuine retarget
+   home; both removed (fns + exports + test blocks). The file, its `ValidationResult` typedef, the live
+   `validateQuizGenerate`/`validateQuizGrade`/`validateCourseOutline` validators, and the 100% coverage pin
+   are kept (file still 100%-covered; 482 tests pass). See `design/ACTIONS.md` (P1 #1).
 
 4. **`server-middleware/translate.js` has a real latent Node-14 bug** (new — not previously logged): it calls
    `api.mymemory.translated.net` directly with **global `fetch` (Node 18+)** at `:68,:98`. No secret/DB/LLM so
