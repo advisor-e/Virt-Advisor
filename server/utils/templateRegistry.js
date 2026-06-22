@@ -7,11 +7,9 @@
  * the stable page ID rather than brittle name matching.
  *
  * Usage:
- *   const { getEntry, getSummaryByPage, getTemplateByPage } = require('./templateRegistry')
+ *   const { getEntry } = require('./templateRegistry')
  *
- *   const entry   = getEntry('8-profit-levers')        // { template, summary }
- *   const summary = getSummaryByPage('8-profit-levers') // summary object or null
- *   const tmpl    = getTemplateByPage('8-profit-levers') // template object or null
+ *   const entry = getEntry('8-profit-levers')          // { template, summary }
  */
 
 const { readFileSync } = require('fs')
@@ -64,16 +62,6 @@ function getEntry (pageId) {
   return getRegistry().get(pageId) || null
 }
 
-function getSummaryByPage (pageId) {
-  const entry = getEntry(pageId)
-  return entry ? entry.summary : null
-}
-
-function getTemplateByPage (pageId) {
-  const entry = getEntry(pageId)
-  return entry ? entry.template : null
-}
-
 /**
  * Returns every Do-the-Job template with its summary — the pool the template
  * resolver actually scores. Used by scripts/build-semantic-profiles.js to build a
@@ -97,4 +85,4 @@ function getDoTheJobTemplatesWithSummaries () {
   return result
 }
 
-module.exports = { getRegistry, getEntry, getSummaryByPage, getTemplateByPage, getDoTheJobTemplatesWithSummaries }
+module.exports = { getRegistry, getEntry, getDoTheJobTemplatesWithSummaries }

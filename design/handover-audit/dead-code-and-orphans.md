@@ -1,5 +1,13 @@
 # Dead Code, Orphans & Parked-Asset Inventory — Handover Audit
 
+> **✅ UPDATE 2026-06-23 — the 3 "Confirmed dead" exports are resolved.** Traced each first (the
+> apparent "3–4 refs" were def + `module.exports` + doc-comment examples, not callers).
+> `getSummaryByPage` + `getTemplateByPage` **removed** from `templateRegistry.js`. `SCORING_VERSION`
+> **kept and wired** into the `[va-session]` log + the persisted decision trace (its documented
+> intent), not deleted — it part-delivers the auditability "tag each saved case with the active
+> version" goal. +3 tests; 513/513 pass. See `design/ACTIONS.md` (CLEANUP item, done). The
+> **Suspected (6)** and **Dormant-by-design** buckets below are unchanged.
+
 **Audit date:** 2026-06-21 · **Scope:** READ-ONLY. No code changed. No `search_content*.json` touched.
 **Method:** static reference tracing with Grep/Glob/Read only. Every claim below cites `path:line`.
 **Conservatism rule applied:** an item is only "Confirmed dead" when a whole-repo search shows

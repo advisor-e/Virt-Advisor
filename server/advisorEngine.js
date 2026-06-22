@@ -27,7 +27,7 @@ const { extractSignals, deriveInferredState, buildObservabilityPayload } = requi
 const { buildCaseState } = require('../server/utils/caseState')
 const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
-const { resolveTemplatesWithOutlier } = require('../server/utils/templateResolver')
+const { resolveTemplatesWithOutlier, SCORING_VERSION } = require('../server/utils/templateResolver')
 const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
 const { loadFirmDistinctionState } = require('../server/utils/firmDistinctions')
 
@@ -1917,6 +1917,7 @@ async function handleQuery (rawBody, res, identity) {
     const _sessionSummary = {
       t: new Date().toISOString(),
       session: sessionId || 'none',
+      scoringVersion: SCORING_VERSION,
       domain: state.detectedDomain || 'none',
       engagement: _strategyDecision.engagementType || null,
       ceiling: _strategyDecision.complexityCeiling || null,
@@ -1945,6 +1946,10 @@ async function handleQuery (rawBody, res, identity) {
     const _decisionTrace = {
       session: sessionId || null,
       generatedAt: _sessionSummary.t,
+      // Scoring algorithm version that produced this trace — so a firm manager
+      // reviewing an old saved case knows which engine version made it (part of
+      // the auditability "tag each saved case with the active version" goal).
+      scoringVersion: SCORING_VERSION,
       // The advisor's own words for the situation (their intake answers).
       situation: collectedAnswers || {},
       domain: {
