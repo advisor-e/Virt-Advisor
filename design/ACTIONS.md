@@ -20,7 +20,7 @@
 Two honest answers on different axes — the file used to conflate them:
 
 - **Highest-SEVERITY open item:** the **dev-toolchain reconcile** → add 2 `overrides` + flip `engine-strict` back to `true` (P1, stack governance — the last unclosed Stack-Constitution drift). **But it is overnight-reinstall-gated** — not a now-task. → [§Dev-toolchain](#dev-toolchain)
-- **Next ACTION in-session:** **resolve the current branch** `feat/tree-contribution-harness` (8 commits unmerged). The **valuation provenance decision is now CLOSED** (2026-06-24): `Valuation support.pdf` is the real source for the methodology, and the MBO/BIMBO/Newco branch was ratified upstream by Mike (Indicative Value Questions template) — the valuation soft-hint rests on valid data. Remaining provenance item = **`get_positioning`** only. → [§Tree fidelity](#tree-fidelity) · [§Dormant trees](#dormant-trees)
+- **Next ACTION in-session:** the **tree→template provenance work is COMPLETE** (2026-06-24, branch `feat/tree-contribution-harness`, ~11 commits unmerged): valuation closed (support PDF + upstream MBO ratification), `get_positioning` 4 ghosts deleted, `5 Layers Questionnaire` normalised, all Get-the-Job kit PDF-verified. → [§Tree fidelity](#tree-fidelity). **Start next session on the dormant-tree NEEDS-SIGNAL bucket** (`client_sales`, `systems`, `succession`, `quickfire`) — harvest tree judgment into authored signals, one domain at a time, Mike confirming each. → [§Dormant trees](#dormant-trees). Then consider **merging the branch to `master`** (clean, tests green).
 
 ---
 
