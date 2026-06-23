@@ -77,4 +77,49 @@ The "+3 soft hint" the harness only *modelled* is now a real engine mechanism �
 - **Safety:** 487 tests pass, lint clean, `selectionHarness` cross-domain net clean. Only change is the valuation Pass-B snapshot: two more Sale-side tools (EBITDA, Business Sale Assessment 1) promoted over a buy-side tool — correct sell-direction sharpening.
 - **Still open:** a live valuation-session eyeball (the mechanism is deterministic-proven; live keyword *detection* is the existing `detectLogicTrees` behaviour). The **needs-signal bucket** (`client_sales`, `systems`, `succession`, `quickfire`) is unaffected by this — each still needs a real authored signal, governance-style.
 
-Commit: (this session) — soft-hint mechanism + harness retarget + docs.
+Commit: `327f592` — soft-hint mechanism + harness retarget + docs.
+
+---
+
+## 9. Live eyeball → bigger finding: the app is FIVE modes, and "Get the Job" IP was orphaned
+
+A live valuation sell-session was run. Result: it classified as **`succession`**, not `valuation`, so no Sale tool surfaced. Root cause = **domain keyword gaps** (valuation scored 0: "asking price" isn't a valuation keyword; "business is worth" ≠ "business worth"; "sell the business" is succession-only). Mike's ruling: **the Advisory Distinctions layer sorts that, not keyword patching.** The soft-hint sits *downstream* of domain classification — it can't rescue a wrong lane (and correctly didn't, being a weak +3). Logged but not patched.
+
+The session pivoted to a structural question — **are the trees hooked up across ALL modes?** Facts straightened from `design/virt-advisor-system-design.md`:
+
+- **Five modes** (not just the client guide): Client ("I have a client situation"), Discover ("find a template"), **Learn ("learn more")**, **Plan ("plan ahead")**, **Course ("build a course")** + the invisible client→learn deep-dive (§4).
+- The 14 learn-mode trees are the **backbone of Learn mode + the deep-dive** — already wired (`buildLearnReferenceText`), not a side-channel. My earlier "their own path, not my concern" was wrong.
+
+**The real find — 8 trees mis-counted as "empty" were full of orphaned IP:**
+- **A second, undocumented schema:** `type:"flat_if_then"` stores rules in a top-level `branches[]`, not `nodes[]`. **No code has ever read it** (`flat_if_then` = 0 commits in all history). The audit measured `nodes`/`templates` → read them as empty.
+- They are `section:"get-the-job"` (advisor business-development) and were **never tagged `mode:'learn'`**, so the Learn consumer skipped them.
+- **Origin:** commit `fbcc3ff` (2026-05-06) bulk-imported 7 trees + 7 domain-support files + PDFs; the consuming code was never written. The design doc's "Learn mode: built and working" (§13b) masked it.
+
+**Stage 1 SHIPPED (this session, uncommitted — pending Mike's live check):**
+- `formatFlatBranch` in `logicTrees.js` renders the flat schema; 7 Get-the-Job trees tagged `mode:'learn'`. All 7 now produce real Learn-mode reference.
+- **Boundary fix (Mike's category-error catch):** Get-the-Job "sales/marketing/pricing" = the advisor selling THEIR services — opposite of the client meaning. New `isClientDeliveryLearnTree()` gates the client/discover **deep-dive** to client-delivery trees only (excludes `get-the-job` + `get-organised`). This also **closed a pre-existing leak** — `sales_process` + `public_speaking` were already `get-the-job`+`mode:learn` and could surface in client sessions. `get_seminar`→`get-the-job`, `org_leadership`→`get-organised` tagged.
+- 505 tests pass (`learnReferenceWiring.test.js` locks it + the boundary), lint clean.
+
+**Remaining:** Stage 2 `due_diligence` (client context-domain → harvest to signals); Stage 3 domain-support reachability; `org_leadership` true home (Firm Manager/Plan?). See ACTIONS.md.
+
+**Why it sat ~7 weeks (post-mortem):** data shipped ahead of code (no `flat_if_then` consumer), it looked done on paper (§13b), and every audit measured the wrong field so it read as "empty" and got written off. Lesson: a data import ships with its consumer or a logged task; audits must read **every** schema in a file.
+
+**NOTE the design doc is NOT fully accurate** and should be treated with that caution: §2.4/Principle 7 ("trees emit *signals*") is design *intent* the as-built trees don't meet (they emit template names + coaching text — the harvest closes this); §13b "Learn mode built and working" was true for the original trees but masked the Get-the-Job gap. **(Both now corrected in the design doc, 2026-06-23 — §2.4 carries an "as-built" note, §13b a correction note.)**
+
+---
+
+## 10. Learn-mode "wrong section" handling — reverse of the invisible swap (SHIPPED)
+
+Live-testing the Get-the-Job wiring surfaced a separate, pre-existing gap: an advisor picked **"I'm interested in learning more"** but described a **live client situation** (cafe owner wants to sell, needs a valuation). The system stayed in Learn-mode framing and never flagged the mismatch — a thinner answer than the client diagnosis would give. Domain root-cause (valuation→succession misclass) is **Advisory Distinctions' job, not keyword patching** (Mike).
+
+**Mike's fix direction (the reverse of the §4 client→learn swap):** don't bounce them to the client tool / make them restart and lose context. Recognise it, state it transparently, and **continue in place, expanding into the how-to**.
+
+**Shipped (prompt-level, the right home for AI behaviour/copy):** new rule in `data/prompts/learn.txt` — when the advisor describes a live client situation, the AI gives the right resources, adds a confirmed transparent statement ("…this sounds like a live client situation rather than a skill you're developing… you don't need to switch or start over; I can keep helping right here. Would you like me to walk you through how to actually use these with your client?"), and on "yes" expands into step-by-step how-to coaching with full context. Also refined the conflicting `learn.txt:120` clause that used to say "direct them to the main tool" (the restart behaviour Mike rejected). Wording Mike-confirmed before writing (per `feedback_wording`). Scope = Learn mode (Discover/Plan could follow).
+
+**Live-verified:** the cafe-sell session now leads with the statement, stays in place across turns, and on "yes" drafted a client outreach email + next steps — context preserved. All 3 templates it named are real (no fabrication; Learn mode has no ghost-name guard). Prompts are **cached at startup** → backend restart required to load prompt edits.
+
+**Note:** prompt-level behaviour has no deterministic unit test (it's AI copy) — same as every other mode rule in `learn.txt`; verified by live session.
+
+## Commits this session
+1. `327f592` — soft-hint mechanism + harness retarget (pushed earlier).
+2. (this commit) — Get-the-Job Learn wiring + `isClientDeliveryLearnTree` boundary + Learn-mode mode-mismatch rule + design-doc corrections + notes.

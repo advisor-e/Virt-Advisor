@@ -90,7 +90,7 @@ These two functions share a single conversation interface. The advisor never swi
 | `data/semantic-profiles.json` | Signal weight maps per template — auto-generated from content summaries and purpose fields | templateResolver (scoring) |
 | `data/content-summaries.json` | Rich per-template content: indicators, helpsOwner, helpsAdvisor (41 templates have this) | summaries.js → Phase 3 AI prompt |
 | `data/domains.json` | 14 domain definitions — keywords, disambiguation patterns, domain-specific questions | advisor.js (domain detection + question pipeline) |
-| `data/logic_trees.json` | Diagnostic branching trees — emit signals at terminal nodes | logicTrees.js (signal enrichment) |
+| `data/logic_trees.json` | Diagnostic branching trees. **Design intent:** emit *signals* at terminal nodes (signals age slowly — Principle 7). **As-built (2026-06-23):** trees emit template *names* (client trees) and coaching *text* (learn trees) — no `signals` field exists yet. Two schemas: node-based (`nodes[]`) and `flat_if_then` (`branches[]`). The "harvest judgment into signals" programme is closing this gap toward the intent — do NOT re-spec the intent to match the drift. | logicTrees.js (learn-mode reference + client soft-hint + zero-candidate fallback) |
 | `data/signal-dictionary.json` | Pattern vocabulary for free-text signal extraction | problemSignals.js |
 | `data/*-domain-support.json` | Domain knowledge reference material (one file per domain) — tools, guidance, if-then logic | domainSupport.js → AI prompt injection |
 | `data/prompts/client.txt` | System prompt for client (guided advisory) mode | advisor.js Phase 3 AI call |
@@ -746,9 +746,9 @@ This decision directly implements Principle 1 (if in doubt, ask the advisor) by 
 | Section | Status |
 |---|---|
 | Advisor course correction (contradiction detector + None of these apply) | Designed 2026-06-04 — not yet built |
-| Invisible mode swap (HOW detection) | Built and working |
+| Invisible mode swap (HOW detection) | Built and working. **Reverse (2026-06-23):** when an advisor in Learn mode describes a *live client situation*, the Learn prompt now names the cross-over transparently and offers to expand into how-to **in place** (no restart / no lost context) rather than bouncing them to the client tool. |
 | Discover mode | Built and working |
-| Learn mode | Built and working |
+| Learn mode | Built and working. **Correction 2026-06-23:** "built and working" was true for the original coaching trees but **masked a gap** — the 7 "Get the Job" advisor-development trees (a second `flat_if_then` schema, imported 2026-05-06 in `fbcc3ff`) were loaded but reached no consumer and were mis-counted as "empty." Now wired (`formatFlatBranch` + `mode:'learn'` tags) and gated so they never leak into a client session (`isClientDeliveryLearnTree`). |
 | Plan mode | Built and working |
 | Course Builder | Built and working |
 | My Progress | Built and working |

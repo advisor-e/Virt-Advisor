@@ -14,7 +14,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
-const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -2155,7 +2155,11 @@ async function handleQuery (rawBody, res, identity) {
   if ((mode === 'client' || mode === 'discover') && trimmedHistory.length >= 2) {
     const allConversationText = [...trimmedHistory.map(m => m.content), query].join(' ')
     const deepDiveTree = detectLogicTree(allConversationText)
-    if (deepDiveTree && deepDiveTree.mode === 'learn') {
+    // Only CLIENT-DELIVERY learn trees may deep-dive inside a client session. Advisor
+    // business-development ('get-the-job') and firm ('get-organised') trees are excluded —
+    // their "sales/marketing/pricing" means the advisor selling THEIR services, the opposite
+    // of the client's situation (design §2.5). See isClientDeliveryLearnTree.
+    if (isClientDeliveryLearnTree(deepDiveTree)) {
       deepDiveText = buildLearnReferenceText(deepDiveTree)
     }
   }

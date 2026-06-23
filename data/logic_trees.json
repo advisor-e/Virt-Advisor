@@ -4887,6 +4887,7 @@
     },
     {
       "id": "get_sales_tracker",
+      "mode": "learn",
       "name": "Get the Job - Sales Tracker",
       "source_pdf": "Get Sales Tracker Logic.pdf",
       "source_support": "Get Sales Tracker Support.pdf",
@@ -4976,6 +4977,7 @@
     },
     {
       "id": "get_marketing",
+      "mode": "learn",
       "name": "Get the Job - Marketing",
       "source_pdf": "Get marketing logic.pdf",
       "source_support": "Get Marketing Support.pdf",
@@ -5059,6 +5061,7 @@
     },
     {
       "id": "get_positioning",
+      "mode": "learn",
       "name": "Get the Job - Positioning",
       "source_pdf": "Get Positioning Logic.pdf",
       "source_support": "Get Positioning Support.pdf",
@@ -5127,6 +5130,7 @@
     },
     {
       "id": "get_team_problem",
+      "mode": "learn",
       "name": "Get the Job - Team Problem Solving",
       "source_pdf": "Get Team Problem Logic.pdf",
       "source_support": "Get Team Problem Support.pdf",
@@ -5218,6 +5222,7 @@
     },
     {
       "id": "get_pricing_proposals",
+      "mode": "learn",
       "name": "Get the Job - Pricing & Proposals",
       "source_pdf": "Get Advisory Pricing & Proposal Logic.pdf",
       "source_support": "Get Advisory Pricing & Proposal Support.pdf",
@@ -5904,6 +5909,8 @@
     },
     {
       "id": "get_seminar",
+      "mode": "learn",
+      "section": "get-the-job",
       "name": "Get Seminar",
       "source_pdf": "Get Seminar Logic.pdf",
       "source_support": "Get Seminar Support.pdf",
@@ -6302,6 +6309,8 @@
     },
     {
       "id": "org_leadership",
+      "mode": "learn",
+      "section": "get-organised",
       "name": "Leadership & Partner Development",
       "source_pdf": "Org. Leadership Logic.pdf",
       "source_support": "Org. Leadership Support.pdf",
