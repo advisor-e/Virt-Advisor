@@ -14,8 +14,9 @@
 //
 // Two passes through the SAME real resolver (no AI, fully deterministic):
 //   PASS A — engine today:        signals only.
-//   PASS B — tree-assisted:       signals + a soft boost on the templates the tree
-//                                  names (modelling "the names give SOME indication").
+//   PASS B — tree-assisted:       the SAME real resolver, given the tree's named templates
+//                                  via the production `treeHintNames` option (the wired
+//                                  soft-hint boost — not a hand-rolled model).
 //
 // What this file LOCKS today: the objective comparison (snapshot) — what each pass
 // ranks, and exactly what the tree moved. It needs NO ground truth to be useful.
@@ -30,12 +31,10 @@ const { resolveTemplates } = require('../../server/utils/templateResolver')
 const templates = require('../../data/templates.json')
 const logicTreeData = require('../../data/logic_trees.json')
 
-// How strong is the "soft hint"? Mike's principle: the template names give SOME
-// indication, not authority. So the boost is modest — enough to lift a named
-// template past ties, not enough to bulldoze a strongly-scored signal match.
-// This value is itself a calibration knob (a deliberate, named decision — not a
-// magic number); revisit it if the before/after shows it too weak or too strong.
-const TREE_HINT_BOOST = 3
+// The soft-hint boost now lives in the resolver (templateResolver.js → TREE_HINT_BOOST,
+// applied via the `treeHintNames` option). Pass B below feeds the tree's named templates
+// through that real production option rather than re-ranking by hand, so the harness
+// measures the wired engine, not a model.
 
 // Pull the set of template names a tree can actually reach (its terminal nodes),
 // stripping the placeholder strings ("[...]", "a ...") the tree uses for prose.
@@ -69,23 +68,22 @@ function caseFor ({ domain, problemSignals = {}, growthStage = null, confidence 
 // Run both passes and return a comparable, snapshot-friendly object.
 function compare (scenario, treeId) {
   const strategy = { engagementType: scenario.engagementType || 'facilitation', templateBudget: scenario.budget || 3 }
-  const res = resolveTemplates(caseFor(scenario), strategy, templates, { ignoreCeiling: true })
-
   const hints = treeTemplateNames(treeId)
 
-  // PASS A — engine today.
-  const passA = res.scoringLog
+  // PASS A — engine today (no tree hint).
+  const resA = resolveTemplates(caseFor(scenario), strategy, templates, { ignoreCeiling: true })
+  // PASS B — tree-assisted: the SAME real resolver, given the tree's named templates via the
+  // production `treeHintNames` option (NOT a hand-rolled re-rank). So Pass B is the wired
+  // engine. (Production derives the names from walkLogicTree — situation-specific; here we
+  // pass the tree's flat name set, a conservative superset of what a walk would reach.)
+  const resB = resolveTemplates(caseFor(scenario), strategy, templates, { ignoreCeiling: true, treeHintNames: [...hints] })
+
+  const passA = resA.scoringLog
     .map(t => ({ title: t.title, score: t.score, subSection: t.subSection }))
     .sort((a, b) => b.score - a.score)
 
-  // PASS B — tree-assisted: add the soft hint to any template the tree names, re-rank.
-  const passB = res.scoringLog
-    .map(t => ({
-      title: t.title,
-      score: t.score + (hints.has(t.title) ? TREE_HINT_BOOST : 0),
-      subSection: t.subSection,
-      hinted: hints.has(t.title)
-    }))
+  const passB = resB.scoringLog
+    .map(t => ({ title: t.title, score: t.score, subSection: t.subSection, hinted: hints.has(t.title) }))
     .sort((a, b) => b.score - a.score)
 
   const topA = passA.slice(0, 6).map(t => `${t.score} · ${t.title} [${t.subSection}]`)
@@ -155,9 +153,10 @@ describe('tree-contribution harness — current vs tree-assisted (snapshot net)'
 // selectionHarness.test.js. Nothing self-grades: these are Mike's standard, not
 // the engine's or the tree's.
 describe('tree-contribution harness — VERDICT (Mike-confirmed correct outcomes)', () => {
-  // CONFIRMED + MET. A "sell / exit" valuation engagement leads with the SALE-side
-  // assessment tools — the tree's soft hint breaks the signal-blind tie in the
-  // correct (sell, not buy) direction. LIVE.
+  // CONFIRMED + MET + WIRED. A "sell / exit" valuation engagement leads with the SALE-side
+  // assessment tools — the tree's soft hint breaks the signal-blind tie in the correct (sell,
+  // not buy) direction. Asserted on Pass B, which is now the REAL resolver with the production
+  // `treeHintNames` option applied (not a model) — so this proves the live wiring, not a what-if.
   test('valuation sell-case leads with Sale (not Purchase) assessment tools', () => {
     const { passB_treeAssisted_top6: passB } = compare(
       SCENARIOS['valuation · owner wants to sell / exit'], 'valuation')

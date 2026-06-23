@@ -158,6 +158,17 @@ const ENGAGEMENT_SUBSECTION_PREFERENCE = {
 const NEW_ADVISOR_SUBSECTIONS = new Set(['Revenue & Feasibility Models', 'General Tools', 'EOY Notes & Docs'])
 const EXPERIENCE_REQUIRED_SUBSECTIONS = new Set(['Lite Fundamentals', 'Strategic Tools', 'Specialist Tools', 'Governance Tools'])
 
+// ── Logic-tree soft hint ─────────────────────────────────────────────────────
+// A dormant logic tree's process-of-elimination names the templates that fit the
+// advisor's described situation (see treeHintNames option below + walkLogicTree).
+// Mike's locked principle (memory: design-logic-trees-guide-not-replace): the tree
+// GUIDES the engine, it does not replace it — template names age, the reasoning does
+// not. So a named template gets a deliberately WEAK boost: enough to break a tie in
+// the tree's direction (e.g. sell-side valuation tools over a signal-blind tie), never
+// enough to overrule a strong industry (+8) or semantic match. Same magnitude as a
+// strong primary-issue match. This single owned constant is the calibration knob.
+const TREE_HINT_BOOST = 3
+
 // ── resolveTemplates ────────────────────────────────────────────────────────
 // Pure deterministic function. No side effects. No AI calls.
 // Inputs: CaseState + StrategyDecision (from Phases B/C) + templates array
@@ -169,6 +180,9 @@ const EXPERIENCE_REQUIRED_SUBSECTIONS = new Set(['Lite Fundamentals', 'Strategic
 function resolveTemplates (caseState, strategyDecision, templates, options) {
   const ignoreCeiling = (options && options.ignoreCeiling) || false
   const distinctionBoosts = (options && options.distinctionBoosts) || {}
+  // Templates the matched logic tree points at for THIS situation (walkLogicTree output,
+  // situation-specific). A weak tie-breaking boost — see TREE_HINT_BOOST above.
+  const treeHintNames = new Set((options && options.treeHintNames) || [])
   const { domain, primaryIssue, industry, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
 
@@ -307,6 +321,15 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     if (_distinctionBoost > 0) {
       score += _distinctionBoost
       reasons.push('distinction:+' + _distinctionBoost)
+    }
+
+    // Logic-tree soft hint — the dormant tree's process-of-elimination named this
+    // template for the advisor's described situation. A weak tie-breaker (guide, not
+    // replace): it lifts the tree's judgment past a tie but cannot overrule a strong
+    // signal/industry match. See TREE_HINT_BOOST + memory design-logic-trees-guide-not-replace.
+    if (treeHintNames.has(t.title)) {
+      score += TREE_HINT_BOOST
+      reasons.push('tree_hint:+' + TREE_HINT_BOOST)
     }
 
     // Advisory distinctions — GROUP boost (Revenue & Feasibility models only).
@@ -530,8 +553,8 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
 // fallbackExists — true when at least one within-range template was found
 function resolveTemplatesWithOutlier (caseState, strategyDecision, templates, options) {
   const opts = options || {}
-  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreCeiling: true, distinctionBoosts: opts.distinctionBoosts })
-  const withinRange = resolveTemplates(caseState, strategyDecision, templates, { distinctionBoosts: opts.distinctionBoosts })
+  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreCeiling: true, distinctionBoosts: opts.distinctionBoosts, treeHintNames: opts.treeHintNames })
+  const withinRange = resolveTemplates(caseState, strategyDecision, templates, { distinctionBoosts: opts.distinctionBoosts, treeHintNames: opts.treeHintNames })
 
   const primaryTop = primary.selected[0]
   const withinTop = withinRange.selected[0]

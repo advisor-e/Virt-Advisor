@@ -62,3 +62,19 @@ The governance gate ("too early for governance — fix foundational management f
 - **Productive Habits** content summary (Mike's team) → then wire to `governance_too_early`.
 - Firm-facing trees (`fm_coach_culture`, `org_*`) → measure on the firm/learning surface, not the client engine.
 - The 5 empty `get_*` shells + 2 hollow trees + `due_diligence` (reaches 0 real templates) → retire/build candidates.
+
+---
+
+## 8. Second harvest SHIPPED — the soft-hint mechanism is now LIVE (the tie-breaker bucket)
+
+The "+3 soft hint" the harness only *modelled* is now a real engine mechanism — so the **whole tie-breaker bucket** (`client_planning`, `staff_performance`, `profitability_feasibility`, `risk_management`, `stock_purchasing`) pays off through **one wiring**, no per-tree work. And valuation moves from *stranded* (proven only in the harness) to a **real production result**.
+
+- **Finding that drove it:** the valuation commit (`279742b`) touched zero production code; the live `resolveTemplates` had no tree boost (only `walkLogicTree` as a zero-candidate fallback). So valuation's "MET" was a what-if. Governance, by contrast, was a real *signal* harvest (asserts Pass A, engine-only).
+- **What's wired:**
+  - `server/utils/templateResolver.js` — new `treeHintNames` option applies a weak **+3** (`tree_hint:+3`, owned constant `TREE_HINT_BOOST`), mirroring `distinctionBoosts`, forwarded through both passes in `resolveTemplatesWithOutlier`. Too weak to overrule a strong industry (+8) or semantic match — guide, not replace.
+  - `server/advisorEngine.js` — before resolving, detect the conversation's content tree(s) and **walk each to the situation-specific templates** (`walkLogicTree`; learn-mode trees excluded via `mode !== 'learn'`); pass those names in. Reuses the exact detect+walk the dead-end fallback already used — no new tree machinery.
+  - `tests/unit/treeContributionHarness.test.js` — Pass B now runs through the *real* resolver option (not a hand-rolled +3), so the valuation verdict proves the **wired** engine. Design correction noted in-session: valuation's win is inherently hint-based, so (unlike governance) it must assert the hint path — but that path is now production, not a model.
+- **Safety:** 487 tests pass, lint clean, `selectionHarness` cross-domain net clean. Only change is the valuation Pass-B snapshot: two more Sale-side tools (EBITDA, Business Sale Assessment 1) promoted over a buy-side tool — correct sell-direction sharpening.
+- **Still open:** a live valuation-session eyeball (the mechanism is deterministic-proven; live keyword *detection* is the existing `detectLogicTrees` behaviour). The **needs-signal bucket** (`client_sales`, `systems`, `succession`, `quickfire`) is unaffected by this — each still needs a real authored signal, governance-style.
+
+Commit: (this session) — soft-hint mechanism + harness retarget + docs.

@@ -88,11 +88,14 @@ Object {
     "8* · Sale Assessment Report 3 [Specialist Tools]",
     "8* · Sale Assessment Model 2 [Specialist Tools]",
     "5  · Advisor Prep [Specialist Tools]",
+    "5* · EBITDA [Revenue & Feasibility Models]",
     "5  · Business Purchase Assessment 1 [Specialist Tools]",
-    "5  · Purchase Assessment Report 3 [Specialist Tools]",
-    "5  · Indicative Value Questions [Specialist Tools]",
+    "5* · Business Sale Assessment 1 [Specialist Tools]",
   ],
-  "promotedIntoTop6_byTreeHint": Array [],
+  "promotedIntoTop6_byTreeHint": Array [
+    "EBITDA",
+    "Business Sale Assessment 1",
+  ],
   "treeReaches": Array [
     "Business Sale Assessment 1",
     "Sale Assessment Model 2",
