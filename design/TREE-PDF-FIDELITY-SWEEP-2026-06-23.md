@@ -8,6 +8,18 @@
 
 ## Result: 6 faithful, 1 enrichment-discrepancy, 1 unsupported-by-its-PDF
 
+> **✅ UPDATE 2026-06-24 — `valuation` RESOLVED.** This sweep only read `Valuation Logic.pdf`
+> and never opened the companion **`Domain Support/Valuation support.pdf`**, which IS the real
+> source: it carries the full Business Sale Assessment framework — the seller-in-the-buyer's-seat
+> philosophy, the **6-step methodology** verbatim, the 3-Point Sensitivities, and names the
+> "Valuation **Models**" family. So the seller/buyer/exit body + the Sale Assessment templates are
+> sourced firm IP, not bulk-import invention. The one element in *no* firm PDF — the
+> **MBO / BIMBO / Newco** branch (`val_b4_mbo`) — was **ratified by Mike upstream on 2026-06-24**
+> by updating the **Indicative Value Questions** template in Advisor-e to reflect these
+> considerations. The branch stays as-is; the valuation soft-hint (`327f592`) therefore rests on
+> valid, sourced data. The "⚠️⚠️ unsupported" verdict below is **superseded** — kept for history.
+> Method lesson stands: check a tree against **all** its source PDFs (logic **and** support), not one.
+
 | Tree | Source PDF | Verdict | Detail |
 |---|---|---|---|
 | `get_marketing` | Get marketing logic.pdf | ✅ FAITHFUL | 5 branches, IF/THEN/templates all match |
@@ -17,7 +29,7 @@
 | `get_seminar` | Get Seminar Logic.pdf | ✅ FAITHFUL | 7 situations 1:1 + a synthetic router node; "use X template" lines are app-layer (not in PDF) but benign |
 | `org_leadership` | Org. Leadership Logic.pdf | ✅ FAITHFUL | 7 branches 1:1 + router node; every framework/figure/threshold preserved; only benign notes gloss |
 | `get_positioning` | Get Positioning Logic.pdf | ⚠️ **DISCREPANCY** | 4 branches' IF/THEN/Notes faithful, BUT JSON **appends 5 template names absent from the PDF** |
-| `valuation` | Valuation Logic.pdf | ⚠️⚠️ **UNSUPPORTED BY ITS PDF** | PDF rules preserved in `notes`, but the whole tree skeleton + all template names are NOT in the PDF |
+| `valuation` | Valuation Logic.pdf **+ Valuation support.pdf** | ✅ **RESOLVED 2026-06-24** | Logic.pdf alone = methodology only; **support.pdf** carries the 6-step framework + sensitivities + Models family (sourced). MBO/BIMBO/Newco ratified upstream by Mike (Indicative Value Questions template). Original "unsupported" verdict superseded — see top banner |
 
 ## ⚠️ `get_positioning` — fabricated template mappings (logic itself is faithful)
 
@@ -28,7 +40,7 @@ The PDF is a 4-row IF/THEN/Notes table with **no template column**. The JSON's 4
 
 **Impact:** these are now surfaced in Learn-mode positioning coaching (via this session's `mode:'learn'` wiring + `formatFlatBranch`). The mappings are unsourced — they may be reasonable, but they are not in the firm's positioning PDF. **Decision for Mike:** keep (confirm they're his intended mappings) or strip the `templates` arrays back to what the source supports.
 
-## ⚠️⚠️ `valuation` — the tree skeleton + template names are not in the source PDF
+## ⚠️⚠️ `valuation` — the tree skeleton + template names are not in the source PDF  *(SUPERSEDED — see 2026-06-24 banner at top: support PDF is the source; MBO ratified upstream)*
 
 `Valuation Logic.pdf` is a **flat 13-row IF/THEN table about valuation *methodology***: EBPITDA (hands-on/Owner's Discretionary Earnings) vs EBITDA (passive/Future Maintainable Earnings); goodwill payback <3/3–5/>5yr = Good/Normal/Be Careful; the benchmark double-count trap; perishable stock %, WIP written-acceptance; intangible transferability; stakeholder/staff dependency; lease reinstatement; performance variance.
 
