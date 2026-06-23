@@ -1,48 +1,58 @@
-# Stage 2 — Due Diligence harvest → DRAFT signal proposal
+# Stage 2 — Due Diligence: source-grounded assessment
 
-> **STATUS: DRAFT for Mike's confirmation. Nothing here is wired.** Pre-staged 2026-06-23 so the
-> Stage-2 harvest starts from a sourced draft, not cold. Follows the **governance pattern**
-> (`governance_too_early`): lift the tree's *judgment* into client-mode **signals** that surface
-> the real matching templates. **Mike confirms the correct answer per row before anything is built**
-> (memory `design-logic-trees-guide-not-replace`, `feedback-never-invent-firm-ip`). Detection
-> patterns below are lifted from the DD tree's own gate language — not invented. Signal *names* and
-> template *mappings* are candidates for Mike to confirm/correct.
+> **STATUS: assessment for Mike, grounded in ALL FOUR sources (read 2026-06-23):**
+> `Logic Tables/Due Diligence Logic.pdf`, `Domain Support/Due Diligence support.pdf`,
+> the `due_diligence` tree in `logic_trees.json`, and `due-diligence-domain-support.json`.
+> All four are **consistent and faithful** (no extraction loss). **This replaces an earlier
+> draft that pre-mapped DD risk-checks to library templates — that mapping was unsourced
+> and is RETRACTED** (it failed the "read the source first / never invent firm IP" rule;
+> caught by Mike's probe).
 
-## What already works (no action needed)
+## The decisive finding: DD outputs are METHODOLOGIES, not template recommendations
 
-- `due-diligence` **is a detectable client context-domain** (`domains.json` keywords: due diligence, acquisition, acquire, merger, buying a business, purchase a business…).
-- Its **domain-support reference (7.7 KB) already injects** when a DD session is detected — so the AI already has the 6-step DD framework as coaching context. ✓
-- **13 real DD/acquisition templates exist** in the library (all `Specialist Tools`): Stg. 1 Due Diligence, Key Interviews, Customer Reliance, Supply Chain Review, Location Review, Porter's Revenue, Purchase Assessment Report 3, Business Purchase Assessment 1, Purchase Assessment Model 2, Stock Policies, Business Dating, Advisor Prep.
+The DD logic (identical across the PDF "Logic Branch Table", the tree, and the domain-support
+`if_then_logic`) is six IF→THEN rules. **Every THEN is an advisor action, not a template:**
 
-## The gap
+| IF (trigger) | THEN (action) |
+|---|---|
+| High profit + multiple one-time add-backs / owner perks | Run a **Quality of Earnings** analysis (strip add-backs, re-derive EBITDA) |
+| Heavy reliance on a few long-term supplier/customer contracts | Mandate a **legal review for Change-of-Control clauses** |
+| Single client > 20% of revenue | Flag **deal-breaker**, initiate valuation renegotiation |
+| Operations / key accounts tied to one key person | Structure an **Earn-out clause** in the SPA |
+| Buyer cloud vs target legacy/paper systems | Trigger an **IT & Cyber Audit** (quantify tech debt) |
+| AR ageing shows clients at 90+ days | **Recalculate daily cash-flow** requirements |
 
-- **Zero DD signals exist.** So in a DD client session the 13 real templates score only on the `Specialist Tools` subSection prior — the engine cannot tell *which* DD risk the advisor is describing, so it cannot surface the *right* DD tool for it.
-- The **DD tree itself names no real template** — its terminal nodes point to a generic placeholder *"a due diligence checklist or report template"*. So there is **no template-name to harvest** (unlike valuation); the value is the tree's **6 risk checks**, which must become signals that surface the real templates above.
+None of these surfaces a library template. The DD reference is a **coaching framework** —
+Three-Pillar (Financial/Legal/Operational), the 5-Step Process, the QoE add-back scrutiny, and
+the FORD Model for staff/cultural DD.
 
-## DRAFT mapping — DD tree risk check → candidate signal → template it should surface
+## What this means for Stage 2
 
-> Patterns lifted from the tree's gate language. **Signal names + template mappings = Mike to confirm.**
+1. **The DD judgment already reaches the AI.** `due-diligence-domain-support.json` (7.7 KB,
+   verified read) carries all six rules + the three pillars + FORD + QoE, and **already injects**
+   whenever the DD context-domain is detected. So a DD client session already gets this coaching.
+2. **There is no "harvest the checks into signals to surface templates" task** — because the DD
+   checks do not point at templates. That premise was mine, and it was wrong.
+3. The 13 real library DD/acquisition tools (Customer Reliance, Key Interviews, Supply Chain
+   Review, Stg. 1 Due Diligence, Purchase Assessment tools…) exist, but **the firm's DD reference
+   does not map its checks to them.** Any such mapping would be invention — it must come from
+   Mike, not be pre-staged here.
 
-| DD tree check (source node) | Candidate signal | Detection patterns (from the tree) | Candidate template(s) to surface |
-|---|---|---|---|
-| Revenue concentration (`dd_concentration`) | `dd_revenue_concentration` | "single client >20% of revenue", "one customer", "client concentration", "what happens if that relationship ends" | **Customer Reliance** |
-| Human capital / key person (`dd_human`) | `dd_key_person` | "key person dependency", "tied to a single key person", "owner/seller leaving", "relationships tied to one person" | **Key Interviews** |
-| Legal / contract risk (`dd_legal`) | `dd_contract_risk` | "Change of Control", "major long-term supplier/customer contracts", "contracts survive a change of ownership" | **Supply Chain Review** *(confirm)* |
-| Quality of Earnings (`dd_financial`) | `dd_earnings_quality` | "add-backs", "owner perks", "one-time expenses", "is the profit real/recurring", "QoE" | *(confirm — Purchase Assessment? Stg. 1 DD?)* |
-| Working capital (`dd_working_capital`) | `dd_working_capital_risk` | "AR aging 90+ days", "clients slow to pay", "working capital funding gap" | *(confirm — Working Capital Cycle is a learn tree, not a do-the-job template)* |
-| Tech stack (`dd_tech`) | `dd_tech_debt` | "legacy software", "paper-based processes", "systems incompatible", "tech debt" | *(confirm — is there a real template? maybe none)* |
-| Entry mode (`dd_preassess`) | *(disambiguation, not a signal?)* | buyer full DD vs **quick red-flag screen** vs **seller preparing for incoming DD** | Stg. 1 Due Diligence / Purchase Assessment tools |
+## The one genuine question for Mike (small, optional)
 
-## Open questions for Mike (the confirm/correct pass)
+DD already works as a coaching domain. The only open enhancement is:
 
-1. **Which of the 6 checks are worth harvesting?** Governance shipped one signal (Option A) first — start with the strongest 1–2 (revenue-concentration → Customer Reliance and key-person → Key Interviews look cleanest), or do all six?
-2. **Confirm each template mapping** — especially the three marked *(confirm)*; some checks may have no matching real template (then it stays AI-coaching-only via domain-support).
-3. **Entry mode** — should "quick red-flag screen" vs "full buyer DD" vs "seller prep" be a disambiguation question or a signal? It changes depth, not just which tool.
-4. **Is the domain-support already enough?** DD is a context domain and the 6-step framework already injects as reference. The signals add *template-scoring precision* (surfacing Customer Reliance when concentration is described). Confirm that precision is wanted, vs. leaving DD as coaching-only.
+> **Should specific library DD tools be surfaced alongside the coaching for specific risks** —
+> e.g. when the advisor describes customer concentration, also offer "Customer Reliance"? Or is
+> DD deliberately coaching-led (run the methodology), with template selection left to the advisor?
 
-## Method when confirmed (same as governance)
+This is a **product/IP judgment for Mike**, not an engineering harvest. If "yes, surface tools,"
+Mike supplies the risk→tool mapping (his IP) and *then* it becomes a small signal job. If "no,
+coaching is the point," **Stage 2 is already complete** — DD works via domain-support and needs
+no code change.
 
-1. Add confirmed signal(s) to `signal-dictionary.json` (patterns scoped to `due-diligence`).
-2. Give the target template(s) a `reviewed_signal_map` entry in `content-summaries.json`; rebuild `semantic-profiles.json`.
-3. Add `PURPOSE_FALLBACK_KEYWORDS` entries to keep the dictionary↔resolver invariant.
-4. Add a `treeContributionHarness` scenario + Mike-confirmed verdict; run `selectionHarness` for regressions.
+## Recommendation
+
+Treat Stage 2 as **likely already done** (DD coaching injects and is faithful to the source).
+Do not build signals or map templates without Mike's explicit risk→tool mapping. The honest
+status is: *DD judgment is live via domain-support; optional tool-surfacing awaits Mike's call.*
