@@ -5054,7 +5054,7 @@
           "notes": "This acts as a low-friction qualifier. If they will not invest 3 minutes into a free quiz, they are unlikely to invest in a premium advisory package",
           "templates": [
             "Get. TCM.Quiz Link Email",
-            "Get. 5 Layers Questionnaire"
+            "5 Layers Questionnaire"
           ]
         }
       ]
@@ -5092,9 +5092,7 @@
           "condition": "IF the client asks how to grow their business or is struggling to figure out how to grow",
           "action": "THEN apply the CCO Framework — ask: Is the issue transactional volume (Capacity), team skills (Capability), or market demand (Opportunity)?",
           "notes": "Do not solve it immediately. Tantalize them with a brief assessment to secure a proper strategy meeting",
-          "templates": [
-            "Business Assessment Report"
-          ]
+          "templates": []
         },
         {
           "id": "gp_2",
@@ -5102,10 +5100,7 @@
           "condition": "IF the client requests help with a specific event such as a loan drawdown",
           "action": "THEN use the Look Both Ways method — implement a pre-event revenue model review and post-event management meetings",
           "notes": "This ensures the job is done properly for better outcomes, preventing the perception of up-selling",
-          "templates": [
-            "Revenue Model (What-if Analysis)",
-            "Agenda & Notes"
-          ]
+          "templates": []
         },
         {
           "id": "gp_3",
@@ -5114,8 +5109,7 @@
           "action": "THEN introduce the Helicopter Story — draw the volatile ground and ask: What use is the control tower if the pilot only calls once a year?",
           "notes": "Emphasise that navigating high-impact events (mountains) or internal issues (3-ton loads) requires ongoing dashboard visibility",
           "templates": [
-            "Dashboard Discussions",
-            "Management Reporting Annual Plan (Advisory Board Plan)"
+            "Dashboard Discussions"
           ]
         },
         {
