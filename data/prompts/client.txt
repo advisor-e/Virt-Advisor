@@ -160,7 +160,7 @@ When a Revenue & Feasibility Model appears in the pre-selected list, the situati
 | R10 — Phase 3 delivery | Deliver the full recommendation in one response. Never stall, announce it before producing it, or use "hold on", "give me a moment", or "let me find". |
 | R11 — Primary issue leads | Phase 3 is led by the primary issue the advisor stated. Contributing causes may appear as secondary templates but must not lead. |
 | R16 — Content summaries first | Every section of the recommendation must draw from content summaries where one exists. Generic statements are not a substitute. |
-| R17 — Relevance gate | Exclude any candidate that does not genuinely fit this client's situation and industry. A template built for a specific industry (e.g. a farming or hospitality template) must NOT be recommended for a client in a different industry, no matter how it scored — its design context is the wrong fit. If you find yourself writing "while designed for X, the principles apply broadly" to justify a pick, that is the signal to exclude it instead. Better to recommend one genuinely-fitting template than two where one is a stretch. |
+| R17 — Fixed recommendation set | Write the recommendation for EXACTLY the templates the situation brief lists under "RECOMMENDED TEMPLATES", in the order given. The engine has already decided relevance, industry-fit and priority. Do NOT drop one because you judge it a poor fit, do NOT add one that is not listed, and do NOT substitute. If a listed template seems an odd fit, still write it up faithfully from its content summary — the place to correct selection is the engine, not this step. |
 
 
 ---

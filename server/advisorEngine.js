@@ -27,7 +27,7 @@ const { extractSignals, deriveInferredState, buildObservabilityPayload } = requi
 const { buildCaseState } = require('../server/utils/caseState')
 const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('../server/utils/problemSignals')
 const { resolveStrategy } = require('../server/utils/strategyResolver')
-const { resolveTemplatesWithOutlier, SCORING_VERSION } = require('../server/utils/templateResolver')
+const { resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION } = require('../server/utils/templateResolver')
 const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
 const { loadFirmDistinctionState } = require('../server/utils/firmDistinctions')
 
@@ -1804,19 +1804,19 @@ async function handleQuery (rawBody, res, identity) {
       ? `\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nOnly reference what is explicitly stated. Do not infer seniority or capability from what is absent.`
       : ''
 
-    // Phase D/E: resolver output is the primary preFilter source.
-    // walkLogicTree kept as fallback for the rare case where resolver returns empty.
-    const _resolverCandidates = (_resolvedTemplates.candidates && _resolvedTemplates.candidates.length > 0)
-      ? _resolvedTemplates.candidates
-      : _resolvedTemplates.selected
+    // Phase D/E — DETERMINISTIC display set. The engine, not the AI, decides which
+    // templates appear (Principle 4: code makes macro-decisions, AI writes copy
+    // only). buildDisplaySet turns the two-pass resolver output into the final,
+    // ordered card set; the top-scored template can never be dropped. The AI is
+    // handed exactly this set below and writes the copy for it — it does not select.
+    // walkLogicTree stays as the fallback for the rare case where the resolver
+    // returns nothing at all.
+    const _budgetCount = tier1Capacity > 0 ? tier1Capacity : (_strategyDecision.templateBudget || 1)
+    const _displayTemplates = buildDisplaySet(_resolvedResult, _budgetCount)
 
     let preFilteredNames = null
-    if (_resolverCandidates.length > 0) {
-      // Combine primary (unrestricted) + within-range names so the AI has summaries for both
-      const primaryNames = _resolvedResult.primary.selected.map(t => t.title)
-      const withinRangeNames = _hasOutlier ? _resolvedResult.withinRange.selected.map(t => t.title) : []
-      const combinedNames = [...new Set([...primaryNames, ...withinRangeNames])]
-      preFilteredNames = combinedNames.length > 0 ? combinedNames : _resolverCandidates.map(t => t.title)
+    if (_displayTemplates.length > 0) {
+      preFilteredNames = _displayTemplates.map(t => t.title)
     } else {
       const matchedTrees = detectLogicTrees(collectedAnswers)
       const walkedNames = new Set()
@@ -1826,26 +1826,20 @@ async function handleQuery (rawBody, res, identity) {
       if (walkedNames.size > 0) { preFilteredNames = [...walkedNames] }
     }
 
-    // Build outlier context block for the AI — only present when there is a mismatch.
-    // The strongest match is offered as an EXTENDING (stretch) option, and the
-    // in-range matches fill the rest of the budget — so a stretch session still
-    // leans to the upper end of the budget rather than capping at two cards.
-    const _withinRangeFill = _hasOutlier
-      ? _resolvedResult.withinRange.selected.map(t => t.title).join(', ')
-      : ''
+    // Stretch FRAMING block — only present when the engine flagged an outlier
+    // (§13 two-card model). The template SET is already fixed by buildDisplaySet
+    // above; this only tells the AI HOW to frame the one that sits above range —
+    // it does not ask the AI to choose or fill anything.
     const _outlierContext = _hasOutlier
       ? [
         '',
-        'STRETCH + IN-RANGE OUTPUT',
-        `The STRONGEST match sits ABOVE the advisor's current range — offer it as an EXTENDING (stretch) option, clearly framed as beyond their current level: ${_outlierTemplate ? _outlierTemplate.title : ''}`,
-        `IN-RANGE options to fill the rest of the budget: ${_withinRangeFill || 'none — no entry-level template exists for this situation'}`,
-        'Lead with the stretch match, then add in-range options up to the template budget — aim for the upper end of the budget rather than the minimum.'
+        'STRETCH FRAMING',
+        `Of the recommended templates below, "${_outlierTemplate ? _outlierTemplate.title : ''}" sits ABOVE the advisor's current advisory range — it is the strongest match for this client's situation. Lead with it and frame it clearly as an EXTENDING (stretch) option, beyond their current level. The remaining recommended templates are within the advisor's range.`
       ].join('\n')
-      : (!_fallbackExists && _resolverCandidates.length > 0
+      : (!_fallbackExists && _displayTemplates.length > 0
         ? '\nNO WITHIN-RANGE TEMPLATE: No template within the advisor\'s current parameters covers this situation — include the no-entry-level note after the primary recommendation.'
         : '')
 
-    const _budgetCount = tier1Capacity > 0 ? tier1Capacity : (_strategyDecision.templateBudget || 1)
     // Intervention urgency — empty string unless the strategy step flagged HIGH urgency
     const _urgencyDirective = urgencyDirective(_strategyDecision.urgency)
     const situationBrief = [
@@ -1858,9 +1852,9 @@ async function handleQuery (rawBody, res, identity) {
       ..._copySignals,
       _outlierContext,
       '',
-      _resolverCandidates.length > 0
-        ? `CANDIDATE TEMPLATES — this is a wide net from automated scoring and may contain templates that do not genuinely fit this client. Read the collected answers carefully, then select templates that GENUINELY fit this client's situation and industry. AIM FOR ${_budgetCount} template${_budgetCount !== 1 ? 's' : ''} — the advisor has committed to that many sessions, so fill the engagement and lean to the upper end rather than the minimum. When the best-fitting matches sit ABOVE the advisor's current advisory range, INCLUDE them as extending/stretch options (clearly framed as beyond their current level) rather than dropping them to land under budget. Recommend fewer than ${_budgetCount} ONLY when there genuinely are not ${_budgetCount} relevant candidates — never pad with a template that does not truly fit. Exclude any candidate whose design context or industry does not match this client (see Rule R17). Choose only from these candidates — do not invent, abbreviate, or paraphrase names:\n` +
-          _resolverCandidates.map((t, i) => `${i + 1}. ${t.title} (ID: ${t.page})`).join('\n')
+      _displayTemplates.length > 0
+        ? 'RECOMMENDED TEMPLATES — the engine has already selected these for this client, in this order, and relevance, industry-fit and priority are decided. Write the full recommendation for EVERY one of them. Do NOT add a template, drop one, reorder by your own judgement of relevance, substitute, abbreviate, or paraphrase a name — use the exact names and IDs below:\n' +
+          _displayTemplates.map((t, i) => `${i + 1}. ${t.title} (ID: ${t.page})`).join('\n')
         : 'No templates pre-scored — choose the best match from the template list above.',
       '',
       'COLLECTED ANSWERS',

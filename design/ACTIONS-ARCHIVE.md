@@ -11,6 +11,18 @@
 
 ## Resolved blockers & historical context
 
+> **✅ DISPLAY-DROP DEFECT — FIXED 2026-06-25 (Stage 6 made deterministic; the diagnosis in ACTIONS was wrong).**
+> **Symptom (live crisis-café session `a10ffb66`, 2026-06-24):** `va-session` logged `topTemplate "Cafe" topScore 29` yet the cards shown were *Receivership vs Liquidation* (framed "above your usual advisory range"), *Quick & Worst*, *8 Profit Levers* — `Cafe` (the highest score) was dropped.
+> **Diagnosis CORRECTED:** the open item blamed `resolveTemplatesWithOutlier` / a complexity-ceiling classification dropping `Cafe`. A ground-truth repro (real `templates.json`, the documented caseState) **disproved that**: both passes returned `Cafe (29), Quick & Worst (22), Receivership (22)`, all in unblocked subSections, `hasOutlier:false` — so the resolver never dropped `Cafe` and never produced any "above-range" framing. The real cause was downstream: **Stage 6 (`advisorEngine.js`) handed the AI a wide ~12-template candidate net and instructed it to *pick* the final cards** (`CANDIDATE TEMPLATES … choose only from these … aim for N`), plus R17 licensed the AI to *exclude* candidates "no matter how they scored." So the **AI** dropped the engine's #1 and invented the stretch framing — a violation of System-Design Principle 4 ("Code makes macro-decisions. AI writes copy only") and the Stage 6 contract (§3.7: the AI cannot select/add/substitute).
+> **Fix (Option A — "code decides, AI writes copy"):**
+> 1. New pure, exported helper `buildDisplaySet(resolvedResult, budget)` in `templateResolver.js` — turns the two-pass output into the FINAL ordered card set (outlier-led when `hasOutlier` per §13, else the unrestricted top-N; deduped; budget-capped). Domain-agnostic by construction (reads only the result shape). The engine's #1 can never be dropped.
+> 2. `advisorEngine.js` Stage 6: feeds the AI exactly `_displayTemplates` (was the wide net); `preFilteredNames` now derives from it (so summaries + `buildClientContext` library context both collapse to the chosen set); the candidate-net prompt block was replaced with `RECOMMENDED TEMPLATES — write up EVERY one, no add/drop/reorder/substitute`; the outlier block became framing-only (the set is already fixed).
+> 3. `data/prompts/client.txt` R17 retired — was the AI's exclusion licence; reframed to "Fixed recommendation set" (write up exactly what the engine listed; correct selection at the engine, not here). Industry-mismatch is already handled deterministically by the resolver's −15 wrong-industry hold-back. **This also closes the old P3 "retire the R17 relevance gate once scoring matures."**
+> 4. Tests: `tests/unit/displaySet.test.js` (7) — top-scored never dropped, outlier-led ordering, dedupe, budget cap, budget defaulting, empty→fallback, and the café-crisis acceptance case (`Cafe` always in the set). **Full suite 518/518 green; lint 0 errors; cross-domain `selectionHarness` snapshots unchanged (resolver untouched).**
+> **Why this matters beyond the bug:** it makes the Advisory Distinctions lever *reliable* — a firm's boost that ranks a template #1 is now guaranteed to surface (previously the AI could silently overrule it), and the decision-trace now matches what the advisor actually sees. Files: `server/utils/templateResolver.js`, `server/advisorEngine.js`, `data/prompts/client.txt`, `tests/unit/displaySet.test.js`.
+
+
+
 > **★★ IP DEPTH AUDIT — DONE + FOLD-INS EXECUTED 2026-06-20.** Full audit ran
 > (pdftotext extract → depth-ratio screen → corpus-level named-concept coverage → read-verify).
 > **Findings + the verified genuinely-missing list + the executed fold-ins are in
