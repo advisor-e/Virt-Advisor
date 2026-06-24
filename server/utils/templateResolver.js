@@ -565,4 +565,47 @@ function resolveTemplatesWithOutlier (caseState, strategyDecision, templates, op
   return { primary, withinRange, hasOutlier, fallbackExists }
 }
 
-module.exports = { resolveTemplates, resolveTemplatesWithOutlier, SCORING_VERSION }
+// ── buildDisplaySet ──────────────────────────────────────────────────────────
+// Turns the two-pass resolver result into the FINAL, deterministic set of cards
+// the advisor sees. This is the macro-decision the system design reserves for
+// CODE, not AI (Principle 4: "Code makes macro-decisions. AI writes copy only").
+// Stage 6 used to hand the AI a wide candidate net and let it pick — which let the
+// AI silently drop the top-scored template (the café/crisis defect, ACTIONS
+// §display-drop). The AI now only writes copy for the set this returns; it cannot
+// add, drop, reorder, or substitute a template, so the engine's #1 always appears.
+//
+//   hasOutlier  → §13 two-card model: lead with the outlier (Pass-1 best, which
+//                 sits above the advisor's range), then fill with the within-range
+//                 matches up to budget.
+//   no outlier  → the unrestricted best matches (Pass 1 and Pass 2 agree).
+//
+// Deduped by title, capped at the template budget. Domain-agnostic by construction:
+// it reads only the SHAPE of the resolver output (selected lists, hasOutlier,
+// budget) — never any domain, industry, or keyword — so it behaves identically
+// across all 14 domains and every scenario.
+function buildDisplaySet (resolvedResult, budget) {
+  const cap = (typeof budget === 'number' && budget > 0) ? budget : 1
+  const primarySel = (resolvedResult && resolvedResult.primary && resolvedResult.primary.selected) || []
+  const withinSel = (resolvedResult && resolvedResult.withinRange && resolvedResult.withinRange.selected) || []
+
+  let chosen
+  if (resolvedResult && resolvedResult.hasOutlier) {
+    const outlier = primarySel[0]
+    chosen = outlier ? [outlier].concat(withinSel) : withinSel.slice()
+  } else {
+    chosen = primarySel.slice()
+  }
+
+  const seen = new Set()
+  const out = []
+  for (const t of chosen) {
+    if (t && t.title && !seen.has(t.title)) {
+      seen.add(t.title)
+      out.push(t)
+      if (out.length >= cap) { break }
+    }
+  }
+  return out
+}
+
+module.exports = { resolveTemplates, resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION }
