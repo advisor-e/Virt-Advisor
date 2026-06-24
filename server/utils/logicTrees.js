@@ -191,6 +191,26 @@ function formatNodeForPrompt (node, allNodes) {
 }
 
 /**
+ * Formats a single top-level branch of a `flat_if_then` tree into a readable block.
+ *
+ * `flat_if_then` trees (the "Get the Job" advisor-development logic) store their logic
+ * as a flat list of condition→action→templates rules at `tree.branches`, NOT in `nodes`.
+ * They carry no branching graph, so they are formatted as a plain if-then reference for
+ * Learn-mode coaching — never walked, and never fed into the client recommendation path
+ * (Get-the-Job content must not reach client templates — design §2.5).
+ */
+function formatFlatBranch (branch) {
+  const lines = [`**[${branch.branch_name}]**`]
+  if (branch.condition) { lines.push(`Condition: ${branch.condition}`) }
+  if (branch.action) { lines.push(`Action: ${branch.action}`) }
+  if (branch.templates && branch.templates.length > 0) {
+    lines.push(`Templates: ${branch.templates.join(', ')}`)
+  }
+  if (branch.notes) { lines.push(`Notes: ${branch.notes}`) }
+  return lines.join('\n')
+}
+
+/**
  * Formats a full logic tree into a readable text block for injection into the AI context.
  */
 function formatApproachGuidance (guidance) {
@@ -220,11 +240,16 @@ function formatLogicTreeForPrompt (tree) {
     .map(node => formatNodeForPrompt(node, tree.nodes))
     .join('\n\n')
 
+  // flat_if_then trees keep their rules at the tree level (`tree.branches`), not in nodes.
+  const flatBlocks = (tree.branches || [])
+    .map(formatFlatBranch)
+    .join('\n\n')
+
   const approachBlock = tree.approach_guidance
     ? formatApproachGuidance(tree.approach_guidance)
     : ''
 
-  return header + nodeBlocks + approachBlock
+  return header + nodeBlocks + flatBlocks + approachBlock
 }
 
 function formatTrialFitReferenceForPrompt () {
@@ -1083,6 +1108,22 @@ function buildLearnReferenceText (tree) {
   return text
 }
 
+/**
+ * May this learn tree surface in a CLIENT-mode deep-dive (the mid-session "want to go
+ * deeper on HOW?" offer)? Only CLIENT-DELIVERY learn trees may — skills the advisor uses
+ * WITH a client. Advisor business-development trees (`section: 'get-the-job'`) and firm/
+ * practice trees (`section: 'get-organised'`) must NEVER appear in a client session: the
+ * same words mean the OPPOSITE thing there. "Sales / marketing / pricing" in a Get-the-Job
+ * tree is the advisor selling THEIR consultancy to the owner; in a client session it is the
+ * owner selling to THEIR customers. Surfacing one in the other is a category error and
+ * breaches the Do-the-Job vs Get-the-Job boundary (design §2.5). Dedicated Learn mode is
+ * unaffected — there the advisor has explicitly chosen to develop their own practice.
+ */
+function isClientDeliveryLearnTree (tree) {
+  return !!tree && tree.mode === 'learn' &&
+    tree.section !== 'get-the-job' && tree.section !== 'get-organised'
+}
+
 function buildSignalText (state) {
   const parts = [
     state.detectedDomain, state.industry, state.clientRaisedIssue,
@@ -1144,4 +1185,4 @@ function walkLogicTree (state, treeId) {
   return [...templates]
 }
 
-module.exports = { loadLogicTrees, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree }
+module.exports = { loadLogicTrees, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }

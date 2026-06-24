@@ -419,11 +419,12 @@
     "subSection": "General Tools",
     "profile": {
       "staff_problem": 10,
-      "systems_gap": 3
+      "systems_gap": 3,
+      "governance_too_early": 4
     },
-    "totalSignals": 13,
+    "totalSignals": 17,
     "confidence": "high",
-    "source": "auto"
+    "source": "reviewed"
   },
   {
     "page": "id-4109582337",

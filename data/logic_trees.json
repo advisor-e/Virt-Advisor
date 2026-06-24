@@ -4070,7 +4070,7 @@
           "type": "question",
           "condition": "Wish lists captured — before the concept meeting, run a financial viability check",
           "question": "Before we bring the family together — do the numbers actually work? Can the successor fund the transition without it being financially crippling, and can the incumbent's retirement income requirements be met from what the business generates?",
-          "notes": "Financial viability is the most common reason family successions collapse after the relationship work has been done. Core check: (1) Transfer costs — what is the total cost of the ownership transfer? Includes: stamp duties, legal costs, valuation fees, tax liabilities (capital gains, gift duties if applicable). Are these costs manageable, or do they consume so much value that the incoming successor is immediately burdened? (2) Successor funding capacity — can the successor fund their share of the acquisition? What is the net cost to them after any discounts, gifting, or vendor finance arrangements? Is the monthly repayment burden sustainable from the business's cash flow after the succession takes effect? (3) Incumbent retirement income — does the business generate sufficient income to fund the incumbent's retirement requirements (lump sum extraction, ongoing income, superannuation arrangements) while still leaving the successor with a viable business? Use the Valuation logic tree (Business Sale Assessment framework) to establish a notional fair value before the financial viability check. Key fairness question (Q6 from succession framework): were the successors previously underpaid while building the business? If so, this underpayment may justify a discount on the transfer price — the family must discuss and agree the methodology explicitly. Use the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table to calculate the real-world income loss for a sibling or successor who was chronically underpaid or who provided personal care to ageing parents while siblings pursued external careers.",
+          "notes": "Financial viability is the most common reason family successions collapse after the relationship work has been done. Core check: (1) Transfer costs — what is the total cost of the ownership transfer? Includes: stamp duties, legal costs, valuation fees, tax liabilities (capital gains, gift duties if applicable). Are these costs manageable, or do they consume so much value that the incoming successor is immediately burdened? (2) Successor funding capacity — can the successor fund their share of the acquisition? What is the net cost to them after any discounts, gifting, or vendor finance arrangements? Is the monthly repayment burden sustainable from the business's cash flow after the succession takes effect? (3) Incumbent retirement income — does the business generate sufficient income to fund the incumbent's retirement requirements (lump sum extraction, ongoing income, superannuation arrangements) while still leaving the successor with a viable business? Use the Valuation logic tree (Business Sale Assessment framework) to establish a notional fair value before the financial viability check. Key fairness question (Q6 from succession framework): were the successors previously underpaid while building the business? If so, this underpayment may justify a discount on the transfer price — the family must discuss and agree the methodology explicitly. Use the Salary Sacrifice Table to calculate the real-world income loss for a sibling or successor who was chronically underpaid or who provided personal care to ageing parents while siblings pursued external careers.",
           "branches": [
             {
               "answer_pattern": "financially viable — the transfer costs are manageable and both parties' income needs can be met",
@@ -4095,10 +4095,10 @@
           "branch_name": "Branch 1C(ii) — Disparate Financial Value: Sibling Equity Methodology",
           "type": "recommendation",
           "condition": "Siblings involved in the succession are slated to receive different financial outcomes — the methodology must be explicitly agreed",
-          "notes": "IF siblings are receiving disparate financial figures, THEN utilise the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table to calculate the real-world loss of income for those who provided elderly or family care, and document the agreed equity methodology transparently before the Concept Meeting. Disparate outcomes in family succession are common and legitimate — but only when the reason is explicit, agreed by all parties, and anchored in objective rules. Common legitimate reasons for disparate figures: (1) One sibling worked in the business for years at below-market wages — their labour contribution has an economic value that must be quantified and credited; (2) One sibling provided primary care for ageing parents, forgoing career income — the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table calculates the real-world income loss over the care period; (3) One sibling received prior financial gifts or support from the parents — these must be counted against their succession entitlement if equity is the agreed goal; (4) Siblings have different roles in the future business — an operating successor contributing ongoing labour and risk should receive different consideration than a passive recipient. The a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] calculation: identify the period during which the sibling was underpaid or providing care; calculate the difference between fair market rate and what was actually received or earned; this figure represents a legitimate economic claim that should be offset against their succession payment or credited as an equity adjustment. Transparency requirement: if different figures are provided to different siblings, the methodology and reasons must be thoroughly discussed and agreed by ALL parties — not unilaterally decided by the incumbent. Establishing a Family Constitution early creates the objective framework within which these calculations are accepted as fair rather than contested as arbitrary.",
+          "notes": "IF siblings are receiving disparate financial figures, THEN utilise the Salary Sacrifice Table to calculate the real-world loss of income for those who provided elderly or family care, and document the agreed equity methodology transparently before the Concept Meeting. Disparate outcomes in family succession are common and legitimate — but only when the reason is explicit, agreed by all parties, and anchored in objective rules. Common legitimate reasons for disparate figures: (1) One sibling worked in the business for years at below-market wages — their labour contribution has an economic value that must be quantified and credited; (2) One sibling provided primary care for ageing parents, forgoing career income — the Salary Sacrifice Table calculates the real-world income loss over the care period; (3) One sibling received prior financial gifts or support from the parents — these must be counted against their succession entitlement if equity is the agreed goal; (4) Siblings have different roles in the future business — an operating successor contributing ongoing labour and risk should receive different consideration than a passive recipient. The Salary Sacrifice Table calculation: identify the period during which the sibling was underpaid or providing care; calculate the difference between fair market rate and what was actually received or earned; this figure represents a legitimate economic claim that should be offset against their succession payment or credited as an equity adjustment. Transparency requirement: if different figures are provided to different siblings, the methodology and reasons must be thoroughly discussed and agreed by ALL parties — not unilaterally decided by the incumbent. Establishing a Family Constitution early creates the objective framework within which these calculations are accepted as fair rather than contested as arbitrary.",
           "templates": [
             "Succession Planning",
-            "a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation]"
+            "Salary Sacrifice Table"
           ]
         },
         {
@@ -4106,10 +4106,10 @@
           "branch_name": "Branch 1C(iii) — Successor Compensation: Underpayment Discount",
           "type": "recommendation",
           "condition": "The incoming successor was chronically underpaid relative to market rate while building the business — a purchase price discount may be warranted",
-          "notes": "IF the incoming successor was chronically underpaid while building the business, THEN negotiate whether a discount should be applied to their final purchase price to compensate for the sweat equity contributed at below-market wages. This is a distinct calculation from the Disparate Financial Value branch (which addresses sibling equity across multiple recipients). This branch applies when a single successor — typically a child who joined the business early and accepted below-market wages in exchange for a future ownership stake — is now being asked to pay a full commercial price for a business they helped build. The core question: were the wages previously paid to the successor at a fair market rate? If not, the family must quantify the cumulative shortfall. Calculation approach: (1) Identify the period during which the successor was employed at below-market wages; (2) Establish the fair market rate for an equivalent external hire in that role for each year of the period; (3) Calculate the annual shortfall (market rate minus actual wages paid); (4) Sum the total cumulative underpayment over the full period — this is the sweat equity figure; (5) The family then negotiates what portion of this figure is credited as a discount against the purchase price. There is no universal rule — some families credit 100% of the shortfall, others negotiate a partial credit. What matters is that the methodology is agreed explicitly and documented before finalising the transfer price. Connect to the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table for the calculation. Ensure the agreed discount methodology is recorded in the Family Constitution or the formal succession agreement.",
+          "notes": "IF the incoming successor was chronically underpaid while building the business, THEN negotiate whether a discount should be applied to their final purchase price to compensate for the sweat equity contributed at below-market wages. This is a distinct calculation from the Disparate Financial Value branch (which addresses sibling equity across multiple recipients). This branch applies when a single successor — typically a child who joined the business early and accepted below-market wages in exchange for a future ownership stake — is now being asked to pay a full commercial price for a business they helped build. The core question: were the wages previously paid to the successor at a fair market rate? If not, the family must quantify the cumulative shortfall. Calculation approach: (1) Identify the period during which the successor was employed at below-market wages; (2) Establish the fair market rate for an equivalent external hire in that role for each year of the period; (3) Calculate the annual shortfall (market rate minus actual wages paid); (4) Sum the total cumulative underpayment over the full period — this is the sweat equity figure; (5) The family then negotiates what portion of this figure is credited as a discount against the purchase price. There is no universal rule — some families credit 100% of the shortfall, others negotiate a partial credit. What matters is that the methodology is agreed explicitly and documented before finalising the transfer price. Connect to the Salary Sacrifice Table for the calculation. Ensure the agreed discount methodology is recorded in the Family Constitution or the formal succession agreement.",
           "templates": [
             "Succession Planning",
-            "a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation]"
+            "Salary Sacrifice Table"
           ]
         },
         {
@@ -4132,7 +4132,7 @@
           "type": "question",
           "condition": "Financial viability confirmed — now establish the governance framework before the concept meeting",
           "question": "Here's a critical question for the family to answer: when the business transfers, are the new owners expected to 'own' it outright — to do with it as they choose — or are they acting as stewards, preserving it for the next generation after them?",
-          "notes": "This is one of the most emotionally loaded questions in any succession engagement and it must be answered explicitly before the concept meeting, not assumed. The OECD Principles of Corporate Governance (for family enterprises) prescribe a clear Separation of Powers between three distinct roles: (1) Ownership — who holds the economic interest and voting rights? (2) Governance — who sets the strategic direction and holds the board function? Who can override decisions? (3) Management — who runs the business day-to-day? In many family successions, the incumbent attempts to retain Governance or Management influence after transferring Ownership — this is the primary source of post-succession conflict. The conflict is predictable and preventable only if the separation is made explicit and written down. Family Constitution: the OECD strongly recommends a written Family Constitution for all family enterprise successions. The Family Constitution documents: the agreed rules for family involvement in the business; how disputes between family members will be resolved; the agreed process for future succession events; the conditions under which family members can sell or gift their interest; the rules for remuneration of family members employed in the business. A Family Constitution does not replace legal documents (shareholder agreements, wills, trusts) — it establishes the agreed family rules that sit above and guide those legal structures. Sibling equity (Q5): if multiple siblings are involved and receiving different financial arrangements, the Family Constitution must document the agreed methodology and the reasons — transparency is non-negotiable. Use the a salary sacrifice or remuneration calculation template [Succession or Financial Planning — tags: salary sacrifice, remuneration, compensation] table where siblings provided unequal labour or caregiving contributions.",
+          "notes": "This is one of the most emotionally loaded questions in any succession engagement and it must be answered explicitly before the concept meeting, not assumed. The OECD Principles of Corporate Governance (for family enterprises) prescribe a clear Separation of Powers between three distinct roles: (1) Ownership — who holds the economic interest and voting rights? (2) Governance — who sets the strategic direction and holds the board function? Who can override decisions? (3) Management — who runs the business day-to-day? In many family successions, the incumbent attempts to retain Governance or Management influence after transferring Ownership — this is the primary source of post-succession conflict. The conflict is predictable and preventable only if the separation is made explicit and written down. Family Constitution: the OECD strongly recommends a written Family Constitution for all family enterprise successions. The Family Constitution documents: the agreed rules for family involvement in the business; how disputes between family members will be resolved; the agreed process for future succession events; the conditions under which family members can sell or gift their interest; the rules for remuneration of family members employed in the business. A Family Constitution does not replace legal documents (shareholder agreements, wills, trusts) — it establishes the agreed family rules that sit above and guide those legal structures. Sibling equity (Q5): if multiple siblings are involved and receiving different financial arrangements, the Family Constitution must document the agreed methodology and the reasons — transparency is non-negotiable. Use the Salary Sacrifice Table where siblings provided unequal labour or caregiving contributions.",
           "branches": [
             {
               "answer_pattern": "governance structure agreed and family constitution scope defined — ready for the concept meeting",
@@ -4887,6 +4887,7 @@
     },
     {
       "id": "get_sales_tracker",
+      "mode": "learn",
       "name": "Get the Job - Sales Tracker",
       "source_pdf": "Get Sales Tracker Logic.pdf",
       "source_support": "Get Sales Tracker Support.pdf",
@@ -4976,6 +4977,7 @@
     },
     {
       "id": "get_marketing",
+      "mode": "learn",
       "name": "Get the Job - Marketing",
       "source_pdf": "Get marketing logic.pdf",
       "source_support": "Get Marketing Support.pdf",
@@ -5052,13 +5054,14 @@
           "notes": "This acts as a low-friction qualifier. If they will not invest 3 minutes into a free quiz, they are unlikely to invest in a premium advisory package",
           "templates": [
             "Get. TCM.Quiz Link Email",
-            "Get. 5 Layers Questionnaire"
+            "5 Layers Questionnaire"
           ]
         }
       ]
     },
     {
       "id": "get_positioning",
+      "mode": "learn",
       "name": "Get the Job - Positioning",
       "source_pdf": "Get Positioning Logic.pdf",
       "source_support": "Get Positioning Support.pdf",
@@ -5089,9 +5092,7 @@
           "condition": "IF the client asks how to grow their business or is struggling to figure out how to grow",
           "action": "THEN apply the CCO Framework — ask: Is the issue transactional volume (Capacity), team skills (Capability), or market demand (Opportunity)?",
           "notes": "Do not solve it immediately. Tantalize them with a brief assessment to secure a proper strategy meeting",
-          "templates": [
-            "Business Assessment Report"
-          ]
+          "templates": []
         },
         {
           "id": "gp_2",
@@ -5099,10 +5100,7 @@
           "condition": "IF the client requests help with a specific event such as a loan drawdown",
           "action": "THEN use the Look Both Ways method — implement a pre-event revenue model review and post-event management meetings",
           "notes": "This ensures the job is done properly for better outcomes, preventing the perception of up-selling",
-          "templates": [
-            "Revenue Model (What-if Analysis)",
-            "Agenda & Notes"
-          ]
+          "templates": []
         },
         {
           "id": "gp_3",
@@ -5111,8 +5109,7 @@
           "action": "THEN introduce the Helicopter Story — draw the volatile ground and ask: What use is the control tower if the pilot only calls once a year?",
           "notes": "Emphasise that navigating high-impact events (mountains) or internal issues (3-ton loads) requires ongoing dashboard visibility",
           "templates": [
-            "Dashboard Discussions",
-            "Management Reporting Annual Plan (Advisory Board Plan)"
+            "Dashboard Discussions"
           ]
         },
         {
@@ -5127,6 +5124,7 @@
     },
     {
       "id": "get_team_problem",
+      "mode": "learn",
       "name": "Get the Job - Team Problem Solving",
       "source_pdf": "Get Team Problem Logic.pdf",
       "source_support": "Get Team Problem Support.pdf",
@@ -5218,6 +5216,7 @@
     },
     {
       "id": "get_pricing_proposals",
+      "mode": "learn",
       "name": "Get the Job - Pricing & Proposals",
       "source_pdf": "Get Advisory Pricing & Proposal Logic.pdf",
       "source_support": "Get Advisory Pricing & Proposal Support.pdf",
@@ -5904,6 +5903,8 @@
     },
     {
       "id": "get_seminar",
+      "mode": "learn",
+      "section": "get-the-job",
       "name": "Get Seminar",
       "source_pdf": "Get Seminar Logic.pdf",
       "source_support": "Get Seminar Support.pdf",
@@ -6302,6 +6303,8 @@
     },
     {
       "id": "org_leadership",
+      "mode": "learn",
+      "section": "get-organised",
       "name": "Leadership & Partner Development",
       "source_pdf": "Org. Leadership Logic.pdf",
       "source_support": "Org. Leadership Support.pdf",

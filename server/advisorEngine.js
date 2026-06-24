@@ -14,7 +14,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { formatCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
-const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -1701,9 +1701,23 @@ async function handleQuery (rawBody, res, identity) {
     // session (likely mis-filed) — surfaced in the decision trace, not scored here.
     const _nearMissDistinctions = await findNearMissDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
 
+    // Logic-tree soft hint (guide, not replace — memory design-logic-trees-guide-not-replace).
+    // Detect the content logic tree(s) this conversation matches, and walk each to the
+    // templates its process-of-elimination points at for THIS situation (e.g. the sell-side
+    // valuation tools, not the buy-side). Those names get a weak tie-breaking boost in the
+    // resolver — turning the tree's durable reasoning into a prior without letting aged
+    // template names override a strong signal match. Learn-mode trees are excluded: they
+    // drive the Learn path, not client recommendation. Uses the same detect+walk the
+    // zero-candidate fallback below relies on, so it adds no new tree machinery.
+    const _treeHintNames = []
+    for (const _tree of detectLogicTrees(collectedAnswers)) {
+      if (_tree.mode === 'learn') { continue }
+      for (const _name of walkLogicTree(state, _tree.id)) { _treeHintNames.push(_name) }
+    }
+
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
-    const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool, { distinctionBoosts: _distinctionBoosts })
+    const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool, { distinctionBoosts: _distinctionBoosts, treeHintNames: _treeHintNames })
     const _resolvedTemplates = _resolvedResult.primary // primary used for scoring log / observability
     const _hasOutlier = _resolvedResult.hasOutlier
     const _fallbackExists = _resolvedResult.fallbackExists
@@ -2141,7 +2155,11 @@ async function handleQuery (rawBody, res, identity) {
   if ((mode === 'client' || mode === 'discover') && trimmedHistory.length >= 2) {
     const allConversationText = [...trimmedHistory.map(m => m.content), query].join(' ')
     const deepDiveTree = detectLogicTree(allConversationText)
-    if (deepDiveTree && deepDiveTree.mode === 'learn') {
+    // Only CLIENT-DELIVERY learn trees may deep-dive inside a client session. Advisor
+    // business-development ('get-the-job') and firm ('get-organised') trees are excluded —
+    // their "sales/marketing/pricing" means the advisor selling THEIR services, the opposite
+    // of the client's situation (design §2.5). See isClientDeliveryLearnTree.
+    if (isClientDeliveryLearnTree(deepDiveTree)) {
       deepDiveText = buildLearnReferenceText(deepDiveTree)
     }
   }
