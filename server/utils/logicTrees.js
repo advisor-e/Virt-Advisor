@@ -51,22 +51,36 @@ function validateLogicTreeReferences (trees) {
 
   if (!Array.isArray(searchContent)) {
     console.error('[logicTrees] WARNING: Cannot validate ghost references — search content unavailable or invalid')
-    return
+    return []
   }
 
   const validTitles = new Set(searchContent.map(t => t.title))
   const ghosts = []
 
-  for (const tree of trees) {
-    for (const node of (tree.nodes || [])) {
-      for (const name of (node.templates || [])) {
-        if (name && typeof name === 'string' && name.length < 80 &&
-            !name.startsWith('[') && !name.startsWith('a ') &&
-            !validTitles.has(name) && !ghosts.includes(name)) {
-          ghosts.push(name)
-        }
-      }
+  // A reference is a ghost when it is a real template-name-shaped string (not a
+  // `[placeholder]` or prose fragment) that matches no search-content title.
+  const isGhost = name =>
+    name && typeof name === 'string' && name.length < 80 &&
+    !name.startsWith('[') && !name.startsWith('a ') &&
+    !validTitles.has(name)
+
+  const collectGhosts = (templates) => {
+    for (const name of (templates || [])) {
+      if (isGhost(name) && !ghosts.includes(name)) { ghosts.push(name) }
     }
+  }
+
+  // ONLY client-delivery (node) trees are validated against the search content:
+  // their templates ARE client recommendations, so a dead link becomes a real AI
+  // hallucination. flat_if_then (Get-the-Job) trees are DELIBERATELY NOT scanned
+  // here — they are Learn-mode-only (design §2.5) and their `branches[].templates`
+  // reference advisor-kit / framework materials that legitimately do not live in the
+  // client search JSON (provenance rule: a ref is valid if in the search JSON OR
+  // named in the source PDFs — and the PDFs are not machine-readable here). Checking
+  // those branches against the search content false-positives every legitimate kit
+  // reference, so it is intentionally out of scope. See design/ACTIONS.md.
+  for (const tree of trees) {
+    for (const node of (tree.nodes || [])) { collectGhosts(node.templates) }
   }
 
   if (ghosts.length > 0) {
@@ -77,6 +91,10 @@ function validateLogicTreeReferences (trees) {
       process.exit(1)
     }
   }
+
+  // Returned for tests/callers; loadLogicTrees ignores it (side-effect logging is
+  // the production contract). Empty array = no ghosts found.
+  return ghosts
 }
 
 function loadLogicTrees () {
@@ -1185,4 +1203,4 @@ function walkLogicTree (state, treeId) {
   return [...templates]
 }
 
-module.exports = { loadLogicTrees, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { loadLogicTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
