@@ -1680,9 +1680,16 @@ async function handleQuery (rawBody, res, identity) {
     const _caseState = buildCaseState(_signals, state, staircaseConfig)
     const _strategyDecision = resolveStrategy(_caseState)
 
-    // Advisory distinctions — scan all advisor text against platform + firm vocabulary rows
+    // Advisory distinctions — scan ALL advisor text against platform + firm vocabulary
+    // rows. Use every advisor message, not just the first: the first message is often a
+    // generic opener ("I have a client situation") while the real situation — including
+    // crisis language like "going under / facing liquidation" — is given in the answer to
+    // "What is the core problem". Grabbing only the first message missed that answer, so
+    // a crisis distinction could never match. (The state fields below are also present in
+    // the history; keeping them is harmless and guards any edge case where they are not.)
     const _advisorFullText = [
-      (conversationHistory.find(m => m.role === 'user') || { content: query }).content,
+      ...conversationHistory.filter(m => m.role === 'user').map(m => m.content),
+      query,
       state.situationDiagnostic || '',
       state.clientAlreadyTried || '',
       ...DOMAINS.filter(d => d.id === state.detectedDomain).flatMap(d =>
