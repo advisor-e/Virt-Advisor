@@ -175,6 +175,8 @@ Every client session collects 13 universal data points plus domain-specific ques
 
 **The AI extraction boundary (formally locked):** AI extraction converts free text to structured signals only. It does not classify primary issues, select routing groups, or recommend templates. This boundary must not be extended.
 
+> **Amendment (2026-06-25):** one deliberate, bounded extension is now permitted — an **AI topic-detection backstop**. When literal keyword matching finds no domain, the AI may classify the situation into one of the **existing 14 domains** (and read a distress flag for tone). It still does **not** select routing groups, recommend, rank, or substitute templates — template selection remains code-owned (Principle 4). The backstop is keyword-first (runs only on a keyword miss), boxed to the 14 ids, and logged. See §3.2 "AI semantic backstop".
+
 #### The 13 Universal Questions
 
 | # | Information collected | When asked | Method |
@@ -201,6 +203,8 @@ Question 3 matters because it distinguishes internal causes from external causes
 #### Domain Detection
 
 Domain detection runs continuously as the conversation progresses. All 14 domains are scored simultaneously against the advisor's words using keyword pattern matching. The highest-scoring domain is set as the active domain. If two domains score within a defined threshold of each other, a disambiguation question is triggered.
+
+**AI semantic backstop (amended 2026-06-25 — keyword-first, AI fallback).** Keyword matching remains the **primary** domain driver — when it lands a domain, detection is fully deterministic and no AI runs. But literal keyword matching is brittle to wording: a crisis phrased as "gone to liquidation" or "shut their business down" matches none of the literal triggers ("facing liquidation", "shutting down"), so the session was mis-routed (live evidence, café-liquidation session, 2026-06-25). To close this without abandoning determinism, when the keyword pass finds **no** domain, a single `gpt-4o-mini` classification reads the situation **by meaning** and maps it to one of the **existing 14** domains (it cannot invent a domain or template; an off-list reply is rejected and detection stays unset for the advisor-confirmation question). The choice is logged on the decision trace (`domainSetBy: "ai"`). Separately, a **universal distress read** runs every session (literal phrase-check first, AI meaning-read if that misses) so the sober crisis **tone** fires regardless of exact wording. This is the conscious, documented lifting of the former "topic detection is keyword-only" constraint — keyword-first, AI only as the safety net.
 
 The 14 domains:
 
@@ -829,7 +833,7 @@ These principles govern all decisions in the system. Any proposed change that vi
 
 3. **Real sessions improve the system. Not pre-emptive patches.** Feedback, case studies, and advisor corrections captured from live sessions are the improvement engine. Engineering time spent on pre-emptive edge case patching — keyword expansion, test scenario multiplication, scoring micro-adjustments — is misallocated. Build the correction and capture mechanism first. Let real data identify what needs fixing.
 
-4. **AI classifies micro-signals. Code makes macro-decisions.** Domain detection, primary issue classification, routing, strategy, and template selection are all in code. AI writes copy only.
+4. **AI classifies micro-signals. Code makes macro-decisions.** Domain detection, primary issue classification, routing, strategy, and template selection are all in code. AI writes copy only. *(Amended 2026-06-25: domain detection is keyword-first with an AI **backstop** — when keywords find no domain, the AI maps the situation to one of the existing 14 by meaning, boxed to those ids and logged. Routing, strategy and template selection stay fully code-owned; the AI still never picks or ranks a template. See §3.2.)*
 
 5. **Decision-grade normalisation, not perfect extraction.** Constrained questions are preferred over free-text wherever a categorical answer is needed. Free-text is only used where richness matters.
 
