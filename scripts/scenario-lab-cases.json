@@ -262,5 +262,10 @@
    "opening":"They have run out of cash and genuinely cannot pay this month's bills - they are talking about closing the doors.",
    "situationDiagnostic":"No reserves, creditors chasing, and the bank will not extend any further.",
    "clientAlreadyTried":"They borrowed from family to cover last month and that is now gone too.",
-   "domainConfirmed":"Yes - it started as cash flow but now it is about whether the business survives at all."}
+   "domainConfirmed":"Yes - it started as cash flow but now it is about whether the business survives at all."},
+  {"key":"profit·CRISIS shut down vs risk","domain":"profit","staircase":3,"budget":3,"industry":"a couple of cafes","isCrisis":true,
+   "opening":"I have a client getting into trouble - they could probably end up having to shut down or face liquidation.",
+   "situationDiagnostic":"Financial management and service quality have slipped, and a weakening economy and downturn have not helped.",
+   "clientAlreadyTried":"Nothing really - part of the problem is they have not been paying attention.",
+   "domainConfirmed":"Yes - it is serious; we need to work out if the business is still feasible and what liquidation could look like."}
 ]

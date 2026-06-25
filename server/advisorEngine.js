@@ -158,12 +158,34 @@ function parseDomainClassification (raw, validIds) {
   return (Array.isArray(validIds) && validIds.includes(id)) ? id : null
 }
 
+// One-line BOUNDARY hint per domain for the AI classifier — bare labels are too
+// terse and let it confuse adjacent areas (it routed a failing business to "Risk
+// Management" because the label matched "at risk"). Sourced from System Design §3.2
+// domain purposes; the profit/risk lines encode the locked decision that a business
+// CRISIS lives under Profitability, not Risk. Domains not listed fall back to label.
+const DOMAIN_AI_HINTS = {
+  profit: 'cost, pricing, revenue, margins and financial viability — AND any business in CRISIS or at imminent risk of FAILING, closing, going under, insolvency, receivership or liquidation (a survival/profit crisis belongs HERE, not under risk management)',
+  staff: 'workforce, team performance, delegation, roles, accountability, culture, training and hiring',
+  'data-systems': 'data integrity, reporting, dashboards, bookkeeping and financial-systems accuracy',
+  'sales-marketing': 'sales process, pipeline, lead generation, conversion, marketing, brand and product-market fit',
+  forecasting: 'cash-flow forecasting, budgeting and forward-looking management reporting',
+  governance: 'leadership, decision-making, accountability, board structure and governance',
+  strategy: 'business model, competitive position, direction and strategic planning',
+  systems: 'process design, documentation, workflow, bottlenecks and operational systems',
+  valuation: 'what the business is worth — valuation for a sale, buyout or transaction',
+  risk: 'managing identifiable business RISKS (insurance, contingency, key-person, customer concentration) for an ONGOING business — NOT a business that is already failing or closing (that is profitability/crisis)',
+  succession: 'succession, exit, retirement, handover and ownership transition',
+  conflict: 'conflict or dispute between partners or owners — mediation and alignment',
+  eoy: 'end-of-year / annual review meetings — turning compliance into advisory value',
+  'due-diligence': 'assessing or buying another business — acquisition due diligence and deal risk'
+}
+
 // Maps an advisor's situation text to ONE of the 14 domains by meaning, or null.
 // Fires only when the keyword pass found nothing.
 async function classifyDomainAI (situationText) {
   if (!situationText || !situationText.trim()) { return null }
   const validIds = DOMAINS.map(d => d.id)
-  const domainList = DOMAINS.map(d => `${d.id} — ${d.label}`).join('\n')
+  const domainList = DOMAINS.map(d => `${d.id} — ${DOMAIN_AI_HINTS[d.id] || d.label}`).join('\n')
   const prompt = `An advisor is describing a client's business situation. Decide which ONE of these advisory domains it most fits. Judge by MEANING, not exact words — tense, plurals, single words, or different phrasing for the same idea all count.
 
 Domains (id — label):
