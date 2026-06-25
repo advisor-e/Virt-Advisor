@@ -11,6 +11,30 @@
 
 ## Resolved blockers & historical context
 
+> **✅ DISCOVER (template search) — crisis recognition fixed + DISCOVER LAB built 2026-06-25 (merge `681a398`).**
+> Applied the same day's Client-mode crisis lesson to the second pipeline. Discover = a LITERAL keyword
+> pre-filter (`filterTemplatesByQuery`) → the AI ranks the candidates. A failing business described in
+> plain words ("going under", "going broke", "can't pay the bills") never surfaced the survival tools,
+> because the literal filter matches the library's exact terms (liquidation/receivership/insolvency/worst
+> case) which that wording lacks — and **"Quick & Worst" has no crisis words in its tags at all**
+> ("Covid, Recovery Plan"). Cannot fix via data (`templates.json` is the master export, never hand-edited),
+> so the fix is code + prompt:
+> - **`server/utils/templates.js`** — `filterTemplatesByQuery` detects a crisis-style search and expands
+>   it with insolvency vocabulary so the survival tools enter the candidate set. Fires ONLY on a crisis
+>   query (non-crisis search unchanged); only ADDS candidates (the scorer still ranks).
+> - **`data/prompts/discover.txt`** — STEP 1 "CRISIS FIRST": lead with survival/insolvency tools over a
+>   cash-flow education tool when the business may be failing (the pre-filter surfacing them wasn't enough
+>   on its own — the AI would still pick Working Capital Cycle until told to prioritise).
+> **Measured + live-validated** on the new **Discover Lab** (`scripts/discover-lab.js` + `discover-lab-cases.json`
+> + `design/DISCOVER-LAB-REPORT.md`, 23 fixed searches): survival tool in the pre-filter top-3 for crisis
+> searches **2/5 → 5/5**; live, "in trouble… go under… maybe liquidation" → Receivership vs Liquidation #1,
+> and the "what else" follow-up correctly led with Quick & Worst without repeating. 544 tests green.
+> **Learning:** the same literal-vs-meaning brittleness lived in two differently-built pipelines; the fix
+> *pattern* (meaning-detect + lab-verify) transfers even though the code doesn't. In an AI-ranked pipeline,
+> fixing what's AVAILABLE (pre-filter) and what's PRIORITISED (prompt) are separate jobs.
+
+
+
 > **✅✅ CROSS-DOMAIN ENGINE SWEEP — DONE + MERGED TO `master` + LIVE-VALIDATED 2026-06-25.**
 > A full day's work that started from one display bug and became a measured, cross-domain
 > overhaul. Everything below was verified on a **repeatable scenario lab** (50 fixed advisor
