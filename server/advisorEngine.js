@@ -677,8 +677,9 @@ function detectUncertainty (text) {
 // The advisor is venting at the TOOL — anger, profanity, or "I already told you" /
 // "for the third time" — the original "profanity sailed past" failure (café test
 // 2026-06-09; memory design-intake-resistance-fallback). On a match the engine
-// ACKNOWLEDGES it and re-asks the current question plainly rather than ploughing
-// on. Scoped to clear tool-directed frustration so describing a stressful CLIENT
+// ACKNOWLEDGES it and SKIPS to the next question (re-asking the same one escalates —
+// the advisor literally asks "ask me something else"). Scoped to clear tool-directed
+// frustration so describing a stressful CLIENT
 // situation ("the client is in deep trouble") does not trip it; capped per session
 // so it never loops.
 const _FRUSTRATION_PATTERN = /(\bf+u+c+k|\bf\*+k|\bw ?t ?f\b|\bbull ?shit\b|\bthis is (?:shit|crap|bs|ridiculous|stupid|pointless|useless|nonsense|a (?:joke|farce|waste|shambles))\b|\bwaste of (?:my )?time\b|\b(?:you'?re|you are|are you (?:even )?)(?:not )?listening\b|\bdid you not (?:hear|listen|read)\b|\bi (?:already|just) (?:told|said)\b|\b(?:like|as) i (?:already )?said\b|\bi'?ve (?:already )?(?:told|said) (?:you|that)\b|\bfor the (?:second|third|fourth|last|hundredth|umpteenth) time\b|\bstop asking\b|\bget on with it\b|\bjust (?:answer|tell|give) me\b|\bgoing (?:round )?in circles\b|\bfor (?:god|christ|f\w*)'?s? sake\b|\bbloody hell\b|\bpiss(?:ing|ed)? (?:me )?off\b)/i
@@ -692,9 +693,9 @@ function detectFrustration (text) {
   return _FRUSTRATION_PATTERN.test(t)
 }
 
-// Acknowledgement prepended to the re-asked question on a frustration hit. Draft
-// wording — confirm with Mike (memory feedback-wording).
-const FRUSTRATION_ACK = 'Sorry — I can tell this is frustrating, and I want to get it right. Let me keep it simple:'
+// Acknowledgement prepended to the NEXT question on a frustration hit (we skip the
+// current one). Draft wording — confirm with Mike (memory feedback-wording).
+const FRUSTRATION_ACK = 'Sorry — I can tell this is frustrating. Let me move on:'
 
 // Parse a free-text meeting-count answer → a number, or null if none found.
 // Folds in spoken/voice forms so a speech-to-text slip doesn't silently halve the
@@ -1086,6 +1087,7 @@ async function handleQuery (rawBody, res, identity) {
       awaitingCourseCorrection: false,
       courseCorrections: 0,
       frustrationAcks: 0,
+      frustrationAckPending: false,
       prepMode: false,
       prepModeOffered: false,
       awaitingPrepModeChoice: false,
@@ -1551,23 +1553,31 @@ async function handleQuery (rawBody, res, identity) {
           // domainConfirmed: cause-first AI confirmation (Scope 1) — reflects the
           // driver the advisor described before naming the detected area; the
           // deterministic textFn line is passed in as the fallback.
-          const questionText = q.field === 'domainConfirmed'
+          let questionText = q.field === 'domainConfirmed'
             ? await buildDomainConfirmationMessage(state, conversationHistory, q.textFn(state))
             : (q.textFn ? q.textFn(state) : q.text)
+          // If we just skipped a question because the advisor was frustrated, prepend
+          // the acknowledgement to whatever the NEXT question is (move on, don't repeat).
+          if (state.frustrationAckPending) {
+            questionText = FRUSTRATION_ACK + '\n\n' + questionText
+            state.frustrationAckPending = false
+          }
           return sendQuestion(questionText, state)
         }
         if (state[q.field] === 'pending') {
           // Was asked last turn — record the answer
           state[q.field] = query
           // Frustration check: the advisor is venting at the tool (anger / profanity /
-          // "I already told you"). Acknowledge it and re-ask the current question
-          // plainly rather than treating the venting as a real answer and ploughing on
-          // (the original "profanity sailed past" failure). Capped so it never loops.
-          if (state.frustrationAcks < 2 && detectFrustration(query)) {
+          // "I already told you", "ask me something else"). Acknowledge it and SKIP
+          // this question, moving on to the NEXT one — re-asking the same question
+          // escalates the frustration, and the venting must not be kept as the answer
+          // (the original "profanity sailed past" failure). Capped so it can't skip the
+          // whole intake; 'skipped' is an honest sentinel for the Phase-3 gate.
+          if (state.frustrationAcks < 3 && detectFrustration(query)) {
             state.frustrationAcks++
-            state[q.field] = 'pending'
-            const _reAsk = q.textFn ? q.textFn(state) : q.text
-            return sendQuestion(FRUSTRATION_ACK + '\n\n' + _reAsk, state)
+            state[q.field] = 'skipped'
+            state.frustrationAckPending = true // prepend the ack to the next question
+            continue // advance to the next question in the sequence
           }
           // Allow the question to react to its answer (e.g. disambiguation resolving a scenario)
           if (q.onAnswer) { q.onAnswer(query, state) }
