@@ -46,7 +46,7 @@ const profileTitles = new Set(profiles.map(p => p.title))
 
 // ── All signals tracked by the system ─────────────────────────────────────
 const ALL_SIGNALS = [
-  'sales_volume', 'pricing_issue', 'cash_flow_gap', 'profit_plateau',
+  'sales_volume', 'pricing_issue', 'cash_flow_gap',
   'modeling_rejected', 'staff_problem', 'strategy_needed', 'data_quality',
   'governance_gap', 'succession_issue', 'systems_gap', 'marketing_gap'
 ]

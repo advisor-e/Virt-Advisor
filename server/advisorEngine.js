@@ -2034,7 +2034,6 @@ async function handleQuery (rawBody, res, identity) {
       sales_volume: 'low sales volume or insufficient customers',
       pricing_issue: 'pricing or price communication',
       cash_flow_gap: 'cash flow or debtor management',
-      profit_plateau: 'profit plateau or declining margins',
       modeling_rejected: 'revenue modelling explicitly not required',
       staff_problem: 'staff, team or HR issues',
       strategy_needed: 'strategic direction or planning',
