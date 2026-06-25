@@ -48,7 +48,7 @@ function getAdvisors (req, res, next) {
     return next()
   } catch (err) {
     console.error('[firm:advisors]', err.message)
-    return sendError(res, 500, 'Failed to load advisor data')
+    return sendError(res, 500, 'ADVISOR_LOAD_FAILED', 'Failed to load advisor data')
   }
 }
 
@@ -67,7 +67,7 @@ function postInsights (req, res, next) {
     return next()
   } catch (err) {
     console.error('[firm:insights]', err.message)
-    return sendError(res, 500, 'Failed to generate insights')
+    return sendError(res, 500, 'INSIGHT_GENERATION_FAILED', 'Failed to generate insights')
   }
 }
 

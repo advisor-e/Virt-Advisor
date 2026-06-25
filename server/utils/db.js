@@ -23,6 +23,7 @@ const pool = mysql.createPool({
   user: DB.user,
   password: DB.password,
   connectionLimit: DB.connectionLimit,
+  connectTimeout: DB.connectTimeout,
   waitForConnections: true,
   queueLimit: 0,
   charset: 'utf8mb4'

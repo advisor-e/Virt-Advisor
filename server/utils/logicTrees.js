@@ -9,7 +9,7 @@
  *   const block = formatLogicTreeForPrompt(tree)         // returns formatted string for context
  */
 
-const { readFileSync } = require('fs')
+const { readFileSync, readdirSync } = require('fs')
 const { resolve } = require('path')
 
 let _trees = null
@@ -40,7 +40,15 @@ function loadReferenceFile (filename) {
 function validateLogicTreeReferences (trees) {
   let searchContent
   try {
-    const searchFiles = ['search_content_20260519050251.json', 'search_content_20260518234104.json']
+    // Discover the master export by pattern, newest first — do NOT hardcode the
+    // filename. The export is re-uploaded with a new timestamp each time
+    // (search_content_<YYYYMMDDHHMMSS>.json), so a fixed name would silently stop
+    // matching after any re-upload and disable this whole ghost-reference check.
+    // The timestamp is zero-padded, so a descending lexical sort = newest first.
+    const searchFiles = readdirSync(process.cwd())
+      .filter(f => /^search_content_\d+\.json$/.test(f))
+      .sort()
+      .reverse()
     for (const file of searchFiles) {
       try {
         searchContent = JSON.parse(readFileSync(resolve(process.cwd(), file), 'utf8'))
