@@ -16,6 +16,7 @@
 
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
+const { loadLatestSearchContent, EXPORT_DIR } = require('../server/utils/masterExport')
 
 const STRICT = process.env.VA_STRICT_CONTENT === 'true'
 
@@ -27,7 +28,11 @@ function load (file) {
   return JSON.parse(readFileSync(resolve(process.cwd(), file), 'utf8'))
 }
 
-const searchContent = load('search_content_20260519050251.json')
+const searchContent = loadLatestSearchContent()
+if (!searchContent) {
+  console.error(`[audit:content] No search_content_*.json found in ${EXPORT_DIR}/ — cannot audit.`)
+  process.exit(1)
+}
 const profiles = load('data/semantic-profiles.json')
 const summaries = load('data/content-summaries.json')
 const logicTrees = load('data/logic_trees.json')

@@ -17,10 +17,15 @@
 
 const { readFileSync, writeFileSync } = require('fs')
 const { resolve } = require('path')
+const { loadLatestSearchContent, EXPORT_DIR } = require('../server/utils/masterExport')
 
 const DRY_RUN = process.argv.includes('--dry-run')
 
-const searchContent = JSON.parse(readFileSync(resolve(process.cwd(), 'search_content_20260519050251.json'), 'utf8'))
+const searchContent = loadLatestSearchContent()
+if (!searchContent) {
+  console.error(`[migrate:ghosts] No search_content_*.json found in ${EXPORT_DIR}/ — aborting.`)
+  process.exit(1)
+}
 const logicTreesRaw = readFileSync(resolve(process.cwd(), 'data/logic_trees.json'), 'utf8')
 const logicTrees = JSON.parse(logicTreesRaw)
 

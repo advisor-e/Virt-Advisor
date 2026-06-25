@@ -330,8 +330,8 @@
     "topic": "Financial Solvency",
     "title": "Quick & Worst",
     "link": "id-3314827163",
-    "purpose": "This page contains the Quick Position model - used to identify the immediate finance position in relation to trading cycles and the Worst Case Valuation model - a Liquidation based review of the business net worth. (By the way, the Worst Case model is an EXCELLENT model to help business owners understand the best use of profits and clarify their investment risk position)",
-    "support": "Covid; Recovery Plan",
+    "purpose": "This page contains the Quick Position model - used to identify the immediate finance position in relation to trading cycles AND the Worst Case Valuation model - a Liquidation based review of the business net worth. Both excellent to support conversations with owners in crisis.",
+    "support": "Crisis; Liquidation; Voluntary Administration",
     "position": 10,
     "cpd": {
       "isHidden": false,
@@ -347,8 +347,9 @@
     },
     "status": "--",
     "tags": [
-      "Covid",
-      "Recovery Plan"
+      "Crisis",
+      "Liquidation",
+      "Voluntary Administration"
     ],
     "index": 9
   },
@@ -9408,5 +9409,70 @@
     ],
     "status": "--",
     "index": 277
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "get-the-job",
+    "page": "id-2650760179",
+    "section": "Get the Job",
+    "subSection": "Facilitation Skills",
+    "topic": "Facilitation",
+    "title": "Facilitation 101",
+    "link": "id-2650760179",
+    "purpose": "This template provides a range of practical tools and techniques for you to develop your fundamental facilitation skills. The skills ad tools covered in this session can be applied to sales, public speaking, presentations and strategic planning engagements (+ more)",
+    "support": "Governance; Succession planning; Owner disputes; forcefield analysis; Board meetings",
+    "position": 279,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Governance",
+      "Succession planning",
+      "Owner disputes",
+      "forcefield analysis",
+      "Board meetings"
+    ],
+    "status": "--",
+    "index": 278
+  },
+  {
+    "includedInClient": true,
+    "menuSection": "do-the-job",
+    "page": "id-8248036896",
+    "section": "Do the Job",
+    "subSection": "Specialist Tools",
+    "topic": "Succession Planning",
+    "title": "Salary Sacrifice Table",
+    "link": "id-8248036896",
+    "purpose": "This table is a quick way of quantifying sibling assistance provided to parents in a way that establishes clear economic loss to all parties. A great way of 'breaking down' the issues that can cause resentment or grievences in future.",
+    "support": "Farm Succession; Sibling Equality",
+    "position": 280,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": true,
+      "stage": "",
+      "fundamental": ""
+    },
+    "tags": [
+      "Farm Succession",
+      "Sibling Equality"
+    ],
+    "status": "--",
+    "index": 279
   }
 ]

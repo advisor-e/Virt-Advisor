@@ -9,8 +9,9 @@
  *   const block = formatLogicTreeForPrompt(tree)         // returns formatted string for context
  */
 
-const { readFileSync, readdirSync } = require('fs')
+const { readFileSync } = require('fs')
 const { resolve } = require('path')
+const masterExport = require('./masterExport')
 
 let _trees = null
 const _refCache = new Map()
@@ -38,24 +39,11 @@ function loadReferenceFile (filename) {
 // Set VA_STRICT_CONTENT=true to hard-exit on any ghost reference (for CI/CD).
 // Without the flag, ghosts are logged as errors but the app continues.
 function validateLogicTreeReferences (trees) {
-  let searchContent
-  try {
-    // Discover the master export by pattern, newest first — do NOT hardcode the
-    // filename. The export is re-uploaded with a new timestamp each time
-    // (search_content_<YYYYMMDDHHMMSS>.json), so a fixed name would silently stop
-    // matching after any re-upload and disable this whole ghost-reference check.
-    // The timestamp is zero-padded, so a descending lexical sort = newest first.
-    const searchFiles = readdirSync(process.cwd())
-      .filter(f => /^search_content_\d+\.json$/.test(f))
-      .sort()
-      .reverse()
-    for (const file of searchFiles) {
-      try {
-        searchContent = JSON.parse(readFileSync(resolve(process.cwd(), file), 'utf8'))
-        break
-      } catch (e) {}
-    }
-  } catch (e) {}
+  // Discover the newest master export (in Central Frameworks/) via the shared
+  // helper — do NOT hardcode a filename, which silently goes stale after the next
+  // re-export and disables this whole ghost-reference check. Returns null on a
+  // fresh clone / CI where the gitignored export is absent.
+  const searchContent = masterExport.loadLatestSearchContent()
 
   if (!Array.isArray(searchContent)) {
     console.error('[logicTrees] WARNING: Cannot validate ghost references — search content unavailable or invalid')
