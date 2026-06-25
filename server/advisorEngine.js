@@ -1099,24 +1099,48 @@ async function handleQuery (rawBody, res, identity) {
     state.disambiguationNeeded = false
     state.disambiguationScenarios = []
 
+    // ── Domain decision: keyword-first with a confidence-gated AI backstop ──────
+    // (System Design §3.2, amended 2026-06-25; scenario-lab verified 90% reachability.)
+    //   • CONFIDENT keyword (single domain, >=2 hits) → use it. Deterministic, no AI.
+    //   • TIE → ask the advisor (disambiguation), unchanged.
+    //   • THIN single hit (1) — low confidence — the AI weighs in: if it AGREES (or
+    //     abstains) we keep the keyword; if it DISAGREES we surface BOTH to the advisor
+    //     rather than silently overriding a possibly-correct keyword (Principle 1).
+    //   • NO keyword match → AI backstop decides (boxed to the 14 ids).
+    // This catches the confidently-wrong thin keyword mis-routes the lab found
+    // (staff→governance, strategy→profit…) without overriding the deliberate crisis
+    // keyword routing.
+    const _canAskAI = query !== '__init__' && detectionWindow.trim().length > 12
+    const _labelFor = id => (DOMAINS.find(d => d.id === id) || {}).label || id
     if (domainScores.length > 0) {
       const maxCount = Math.max(...domainScores.map(d => d.count))
       const topMatches = domainScores.filter(d => d.count === maxCount)
 
-      if (topMatches.length === 1) {
-        setDetectedDomain(topMatches[0].id)
-      } else {
-        // Genuine tie — disambiguation question fires after Q1
+      if (topMatches.length > 1) {
+        // Genuine keyword tie — disambiguation question fires after Q1.
         state.disambiguationNeeded = true
         state.disambiguationScenarios = topMatches.map(d => ({ id: d.id, label: d.label }))
+      } else if (maxCount >= 2) {
+        // Confident single keyword match — trust it.
+        setDetectedDomain(topMatches[0].id)
+      } else {
+        // Thin single keyword hit — let the AI read the meaning and arbitrate.
+        const _kwId = topMatches[0].id
+        const _aiDomain = _canAskAI ? await classifyDomainAI(detectionWindow) : null
+        if (!_aiDomain || _aiDomain === _kwId) {
+          setDetectedDomain(_kwId)
+        } else {
+          // AI disagrees with the thin keyword — surface both, let the advisor choose.
+          state.disambiguationNeeded = true
+          state.disambiguationScenarios = [
+            { id: _kwId, label: _labelFor(_kwId) },
+            { id: _aiDomain, label: _labelFor(_aiDomain) }
+          ]
+          state.domainSetBy = 'ai-disambiguation'
+        }
       }
-    } else if (query !== '__init__' && detectionWindow.trim().length > 12) {
-      // SAFETY NET (System Design §3.2, 2026-06-25): the keyword pass found NO
-      // domain. Rather than leaving it unset (where a weaker keyword hit on a later
-      // answer can grab the wrong domain), the AI reads the situation by MEANING and
-      // maps it to one of the 14 — so a crisis phrased without the literal trigger
-      // ("gone to liquidation") still routes correctly. Boxed to the 14 ids; "none"
-      // leaves detection unset for the existing advisor-confirmation question.
+    } else if (_canAskAI) {
+      // No keyword match at all — the AI backstop maps the situation to one of the 14.
       const _aiDomain = await classifyDomainAI(detectionWindow)
       if (_aiDomain) {
         setDetectedDomain(_aiDomain)
