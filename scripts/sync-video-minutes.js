@@ -4,26 +4,22 @@
  * Run once with: node scripts/sync-video-minutes.js
  */
 
-const { readFileSync, writeFileSync, readdirSync } = require('fs')
+const { readFileSync, writeFileSync } = require('fs')
 const { resolve } = require('path')
+const { findLatestSearchContentPath, loadLatestSearchContent, EXPORT_DIR } = require('../server/utils/masterExport')
 
 const root = resolve(__dirname, '..')
 
-// Find the most recent search_content file
-const rootFiles = readdirSync(root)
-const searchFile = rootFiles
-  .filter(f => f.startsWith('search_content_') && f.endsWith('.json'))
-  .sort()
-  .pop()
-
-if (!searchFile) {
-  console.error('No search_content_*.json file found in project root.')
+// Find the most recent search_content file (in Central Frameworks/, via the helper)
+const searchPath = findLatestSearchContentPath()
+if (!searchPath) {
+  console.error(`No search_content_*.json file found in ${EXPORT_DIR}/.`)
   process.exit(1)
 }
 
-console.log(`Using source: ${searchFile}`)
+console.log(`Using source: ${searchPath}`)
 
-const searchContent = JSON.parse(readFileSync(resolve(root, searchFile), 'utf8'))
+const searchContent = loadLatestSearchContent()
 const templatesPath = resolve(root, 'data/templates.json')
 const templates = JSON.parse(readFileSync(templatesPath, 'utf8'))
 

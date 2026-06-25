@@ -20,8 +20,9 @@
  *   npm run generate:signal-assignments
  */
 
-const { readFileSync, writeFileSync, readdirSync, existsSync } = require('fs')
-const { resolve, join } = require('path')
+const { readFileSync, writeFileSync, existsSync } = require('fs')
+const { resolve, join, basename } = require('path')
+const { findLatestSearchContentPath, loadLatestSearchContent, EXPORT_DIR } = require('../server/utils/masterExport')
 
 const ROOT = resolve(__dirname, '..')
 const SIGNAL_DICT_PATH = join(ROOT, 'data', 'signal-dictionary.json')
@@ -29,16 +30,13 @@ const SUMMARIES_PATH = join(ROOT, 'data', 'content-summaries.json')
 const LOGIC_TREES_PATH = join(ROOT, 'data', 'logic_trees.json')
 const OUTPUT_PATH = join(ROOT, 'data', 'signal-assignments-draft.json')
 
-// ── Find latest search_content_*.json in project root ─────────────────────
+// ── Find latest search_content_*.json (in Central Frameworks/, via the helper) ──
 function findLatestSearchContent () {
-  const files = readdirSync(ROOT)
-    .filter(f => /^search_content_\d+\.json$/.test(f))
-    .sort()
-    .reverse()
-  if (files.length === 0) {
-    throw new Error('No search_content_*.json file found in project root. Drop the master-app export there and re-run.')
+  const path = findLatestSearchContentPath()
+  if (!path) {
+    throw new Error(`No search_content_*.json file found in ${EXPORT_DIR}/. Drop the master-app export there and re-run.`)
   }
-  return files[0]
+  return path
 }
 
 // ── Content keyword index ───────────────────────────────────────────────────
@@ -239,10 +237,11 @@ function scoreTemplate (fields, activeSignals) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────
-const sourceFile = findLatestSearchContent()
-console.log(`Source: ${sourceFile}`)
+const sourcePath = findLatestSearchContent()
+const sourceFile = basename(sourcePath) // basename kept for the sourceFile metadata field
+console.log(`Source: ${sourcePath}`)
 
-const searchContent = JSON.parse(readFileSync(join(ROOT, sourceFile), 'utf8'))
+const searchContent = loadLatestSearchContent()
 const summaries = JSON.parse(readFileSync(SUMMARIES_PATH, 'utf8'))
 const signalDict = JSON.parse(readFileSync(SIGNAL_DICT_PATH, 'utf8'))
 
