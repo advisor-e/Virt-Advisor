@@ -1573,7 +1573,16 @@ async function handleQuery (rawBody, res, identity) {
           // escalates the frustration, and the venting must not be kept as the answer
           // (the original "profanity sailed past" failure). Capped so it can't skip the
           // whole intake; 'skipped' is an honest sentinel for the Phase-3 gate.
-          if (state.frustrationAcks < 3 && detectFrustration(query)) {
+          // EXCLUDE the two routing questions (domainConfirmed / disambiguationAnswer):
+          // their onAnswer resolves the domain (tie-break / correction), and skipping
+          // would discard the advisor's own domain-naming words and leave the session
+          // domain-less. There the answer flows normally (onAnswer + the contradiction
+          // check below handle a frustrated-but-informative reply).
+          if (
+            state.frustrationAcks < 3 &&
+            q.field !== 'domainConfirmed' && q.field !== 'disambiguationAnswer' &&
+            detectFrustration(query)
+          ) {
             state.frustrationAcks++
             state[q.field] = 'skipped'
             state.frustrationAckPending = true // prepend the ack to the next question
