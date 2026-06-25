@@ -13,9 +13,16 @@ This describes the **Client** advisory function's engine in full (Parts 3–7); 
 
 ---
 
-## Recent Changes — since v1.0 (2026-06-11 → 2026-06-22)
+## Recent Changes — since v1.0 (2026-06-11 → 2026-06-25)
 
 > Records what shipped and merged to `master` after the v1.0 baseline, so the registry is current at a glance. The detailed Parts below are updated inline where a specific claim changed; this is the summary.
+
+> **2026-06-25 — CROSS-DOMAIN ENGINE SWEEP (merged `872614b`, live-validated; full detail in `design/ACTIONS-ARCHIVE.md`).** The decision pipeline (Part 3) changed in several places, all measured on the new **Scenario Lab** (`scripts/scenario-lab.js`, 50 fixed cases × 14 domains + metrics + the readable `design/SCENARIO-LAB-REPORT.md`):
+> - **Stage 5/6 — code owns the displayed cards** (`buildDisplaySet`). The AI no longer picks the final templates from a wide net (that violated Principle 4 and silently dropped the top-scored card); it writes copy for the code-selected set only. R17's AI exclusion licence retired.
+> - **Stage 1 — domain detection is now keyword-first with a confidence-gated AI backstop** (System Design §3.2, amended). Confident keyword wins; a thin/no match lets `gpt-4o-mini` read the MEANING and map to one of the 14 (boxed; disagreement asks the advisor). The classifier is given one-line domain BOUNDARIES (crisis=profit, not risk). Detection reachability 78%→96%.
+> - **Stage 6 tone** — a recalibrated AI distress read (precision 8%→75%) drives a sober register for a failing business.
+> - **Scoring** — pure industry revenue models suppressed outside profit/forecasting; staff/data/systems signal-dictionary patterns broadened to natural phrasing (coverage 26%→42%).
+> - **Crisis** is now robust end-to-end (recognition + tools + tone), superseding the literal-keyword-only topic gate. **Case studies** persistence confirmed working; an advisor-page stale-token bug ("wipe on refresh") fixed. The **Scenario Lab is the standing cross-domain regression bench** — run it before any selection/detection change.
 
 **1. Advisory Distinctions — full mentor→firm→advisor cascade (shipped, merged).** Distinctions are no longer a flat firm boost list. There is now a 3-tier cascade (platform/mentor → firm → advisor) resolved into one *effective list* per firm: a firm edit *replaces* the platform row, a firm *decline* switches it off, firm-own rows are added (override-replaces / decline-wins / no double-boost). Firms can edit, decline, or **move** a distinction to a better domain. Stable `pd-N` ids. A **cross-domain near-miss bridge** surfaces firm distinctions filed under another domain that match the session. A **"Why this recommendation" decision-trace panel** shows the advisor the issue, lenses, scores, and distinction influence. Code: `server/utils/resolveDistinctions.js`, `firmDistinctions.js`, `advisorEngine.js`. (Updates Part 2 distinctions row, Part 9.)
 

@@ -11,6 +11,66 @@
 
 ## Resolved blockers & historical context
 
+> **✅✅ CROSS-DOMAIN ENGINE SWEEP — DONE + MERGED TO `master` + LIVE-VALIDATED 2026-06-25.**
+> A full day's work that started from one display bug and became a measured, cross-domain
+> overhaul. Everything below was verified on a **repeatable scenario lab** (50 fixed advisor
+> sessions across all 14 domains, with metrics) before merging — not on a single click-through.
+> Merge commit `872614b`; follow-on fixes `e986107` (crisis routing) + `e469f65` (case-study refresh).
+>
+> **The work, in order:**
+> 1. **Display-drop fixed** (`buildDisplaySet`, `2785ada`, merged `01fa170`). The displayed cards
+>    dropped the top-scored template. Ground-truth repro **disproved** the backlog's diagnosis
+>    (resolver/ceiling): the resolver kept `Cafe` #1 in both passes. Real cause — Stage 6 handed
+>    the AI a wide candidate net and let it PICK the cards (a Principle-4 violation). Now the code
+>    owns selection (`buildDisplaySet`: outlier-led per §13 else top-N, deduped, budget-capped;
+>    domain-agnostic), the AI writes copy only, and R17's exclusion licence was retired. This made
+>    the **Advisory Distinctions lever reliable** — a decisive boost that ranks a template #1 now
+>    surfaces, and the decision trace matches what the advisor sees.
+> 2. **AI domain-detection backstop, confidence-gated** (`5bb85c4` + `eee7f28`). Keyword matching
+>    stays the primary, deterministic driver; a CONFIDENT single match (≥2 hits) is used as-is; a
+>    THIN single hit lets the AI weigh in by MEANING (boxed to the 14 ids) and on disagreement
+>    SURFACES both to the advisor (never a silent override, incl. the crisis→profit routing);
+>    no keyword match → AI maps to one of the 14. Detection reachability **78% → 96%** (50 cases).
+> 3. **Distress read recalibrated** (`2a7e03b`). It flagged 37/50 sessions as a crisis (precision
+>    8%). A high-bar prompt + explicit "not distress" examples + a hypothetical-risk exclusion took
+>    it to **precision 75%, recall 100%** (flags 4/50, 3 real + 1 borderline). Drives the sober
+>    crisis tone — recalibrated BEFORE shipping because the lab caught the over-fire.
+> 4. **Industry-model leak fixed** (`2a7e03b`). A pure industry revenue model (fingerprint
+>    {revenue_modelling}) is now suppressed outside profit/forecasting, so it can't out-rank a
+>    domain's real tools on an industry-name match (staff·turnover→Hiring Winners, was a
+>    "Hospitality" model). **3 → 0** leaks.
+> 5. **Signal coverage broadened** (`f7d245f`). staff/data/systems patterns were too rigid and
+>    extracted NO signals on natural phrasing; broadened to delegation/roles/accountability,
+>    spreadsheets/no-reports/single-source-of-truth, bottlenecks/lives-in-their-head/tribal-
+>    knowledge. Coverage **26% → 42%**, score separation 4.9 → 5.4, and the systems→sale-tool leak
+>    cleared. The 4 STRUCTURED_ONLY domains (risk/valuation/conflict/due-diligence) stay
+>    signal-suppressed BY DESIGN (distinctions + structured questions carry them).
+> 6. **Crisis routing fixed** (`e986107`). A live café crisis ("shut down / face liquidation")
+>    mis-routed to **Risk Management** — keywords missed (near-misses of the literal triggers) so
+>    the AI backstop fired, and the bare "risk — Risk Management" label out-pulled profit. Two
+>    fixes: broadened the profit crisis keywords (shut down, face liquidation, go bust, insolvent,
+>    won't survive…) so common phrasings route deterministically; and gave `classifyDomainAI` real
+>    one-line domain BOUNDARIES (crisis=profit, risk-management is for an ONGOING business). Live
+>    café-crisis now → Cafe + Quick & Worst + Receivership vs Liquidation, sober tone.
+> 7. **Scenario Lab + checks** (`b70c10f` and after). `scripts/scenario-lab.js` (50 fixed cases →
+>    metrics + the readable `design/SCENARIO-LAB-REPORT.md` case-study notes) and
+>    `scripts/domain-detection-check.js`. The standing cross-domain test bench: change the engine,
+>    re-run, see what moved in all 14 at once before shipping. Design §3.2 + Principle 4 amended to
+>    record the keyword-first + AI-backstop model (the lifting of the former "topic detection is
+>    keyword-only" lock is a deliberate, documented decision).
+> 8. **Case-study "wipe on refresh" fixed** (`e469f65`). NOT a persistence bug — backend is fine
+>    (a saved shared case is returned by `/api/cases` AND `/api/firm-manager/cases`). The advisor
+>    page resolved its token as `localStorage.advisor_e_token || dev-bypass`, so a STALE browser
+>    token overrode the dev bypass and 401'd the reads (cases looked wiped). Advisor page now
+>    forces the dev token on localhost (matching the Firm Manager page) + caseMixin watches the
+>    token and re-loads when it resolves (hardens the parent/child mount race in production too).
+>
+> **Gates:** 544/544 tests, lint 0 errors, `nuxt build` green, lab metrics measured. Tooling +
+> tests added: `tests/unit/displaySet.test.js`, `tests/unit/domainSafetyNet.test.js`,
+> `interventionUrgency` crisis cases, `scripts/scenario-lab*.js`, `scripts/domain-detection-check.js`.
+
+
+
 > **✅ AI TOPIC-DETECTION BACKSTOP — DECIDED + BUILT 2026-06-25 (closes the P3 "should the topic gate read *feel*?" decision).**
 > **Trigger:** a live café-liquidation session routed to **data-systems** instead of profit and used **growth language** for a failing business. Root cause (proven by replaying both sessions through the real detector): domain detection is **literal keyword matching** — the prior working run said "facing liquidation" (an exact trigger → profit); this run said "gone to liquidation"/"shut their business down", which match **none** of the literal crisis phrases, so it fell through and a later weak keyword hit grabbed the wrong domain. The semantic distinction layer *had* recognised the crisis (near-miss panel), but the literal gate decides the domain before that layer gets a vote.
 > **Design decision (Mike, 2026-06-25):** keep the **14 domains** and **keyword matching as the primary driver**; add an **AI semantic backstop** that only runs when keywords don't land, boxed to the existing 14 ids (never invents a domain/template), fully logged. Plus a **universal distress read** so the sober tone is caught by *meaning* on every session, not exact phrases. This consciously lifts the former "topic detection is keyword-only / AI-extraction-boundary" lock — recorded in the design doc, not silently drifted.
