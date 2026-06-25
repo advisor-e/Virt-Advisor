@@ -280,8 +280,21 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     // are named by industry) should win for a matching client. A title match is
     // decisive (+8); a tag match is a softer signal (+4). Plural/stem tolerant
     // (>=4-char prefix) so "cafes" matches the "Cafe" model.
+    // A PURE industry revenue model is fingerprinted as exactly {revenue_modelling}.
+    // Such models only belong in domains that actually use them (profit, forecasting —
+    // the domains whose subSection map includes Revenue & Feasibility Models). The
+    // scenario lab caught them leaking elsewhere — a "Hospitality" model topping a STAFF
+    // turnover session, lifted purely by the +8 industry-name match. Outside the
+    // revenue-model domains we suppress the model so it cannot outrank the domain's real
+    // tools, even when the client's industry matches by name.
+    const _modelProfileKeys = Object.keys((t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {})
+    const _isPureIndustryModel = subSection === 'Revenue & Feasibility Models' &&
+      _modelProfileKeys.length === 1 && _modelProfileKeys[0] === 'revenue_modelling'
+    const _domainUsesRevenueModels = preferredSubSections.includes('Revenue & Feasibility Models')
+    const _suppressOutOfDomainModel = _isPureIndustryModel && !_domainUsesRevenueModels && _industryKeywords.length > 0
+
     let _industryMatched = false
-    if (_industryKeywords.length > 0) {
+    if (_industryKeywords.length > 0 && !_suppressOutOfDomainModel) {
       const _titleWords = (t.title || '').toLowerCase().split(/[\s—\-,/&]+/).filter(Boolean)
       const _matchesWord = (a, b) => a === b || (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a)))
       const _titleHit = _industryKeywords.some(kw => _titleWords.some(w => _matchesWord(kw, w)))
@@ -298,19 +311,21 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
       }
     }
 
+    // Out-of-domain industry model — neutralise it so it cannot lead the domain's real
+    // tools (scenario-lab fix, 2026-06-25). Distinct from the wrong-industry hold-back.
+    if (_suppressOutOfDomainModel) {
+      score -= 15
+      reasons.push('industry:wrong_domain_model')
+    }
+
     // Hold back WRONG-industry models. A pure industry revenue model is fingerprinted
-    // as exactly {revenue_modelling} (that is how the content is tagged — "a revenue
-    // model for industry X", nothing more). When the client's industry is stated and
-    // this is such a model but it does NOT match (a Manufacturing model for a café), it
-    // is irrelevant — heavy penalty so it drops below the generic, industry-agnostic
-    // tools. Matching models keep their +8 boost; generic feasibility tools (Break-Even,
-    // EBITDA — different/no fingerprint) are untouched.
-    // NOTE: this keys on the semantic-profile SHAPE to recognise an industry model;
-    // revisit if the master app ever re-fingerprints these models.
-    if (_industryKeywords.length > 0 && !_industryMatched) {
-      const _p = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
-      const _pk = Object.keys(_p)
-      if (_pk.length === 1 && _pk[0] === 'revenue_modelling') {
+    // as exactly {revenue_modelling}. When the client's industry is stated and this is
+    // such a model but it does NOT match (a Manufacturing model for a café), it is
+    // irrelevant — heavy penalty so it drops below the generic, industry-agnostic tools.
+    // Matching models keep their +8 boost; generic feasibility tools (Break-Even, EBITDA
+    // — different/no fingerprint) are untouched. Excludes the out-of-domain case above.
+    if (_industryKeywords.length > 0 && !_industryMatched && !_suppressOutOfDomainModel) {
+      if (_modelProfileKeys.length === 1 && _modelProfileKeys[0] === 'revenue_modelling') {
         score -= 15
         reasons.push('industry:mismatch_specific_model')
       }
