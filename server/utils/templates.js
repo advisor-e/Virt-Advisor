@@ -28,9 +28,25 @@ function getOrgTemplates (orgTemplateIds, firmTemplates) {
   return all.filter(t => validIds.includes(t.page))
 }
 
+// ── Crisis-search recognition (Discover mode) ────────────────────────────────
+// A failing business described in plain words ("going under", "going broke",
+// "can't pay the bills", "shut the doors") rarely uses the library's literal terms
+// (liquidation / receivership / insolvency / worst case), so the survival tools
+// (Quick & Worst, Receivership vs Liquidation, Worst Case Scenario, Quick Position)
+// never surface in a keyword search — even though they are the right answer. We
+// cannot add crisis tags to templates.json (the master export is never hand-edited
+// here), so the recognition lives in code: when a SEARCH reads as a crisis, expand
+// it with insolvency vocabulary so the scorer can find the survival tools. Mirrors
+// the Client-mode crisis vocabulary (domains.json profit keywords); only ADDS
+// candidates (the scorer still ranks), so a mild false-positive is low-risk.
+const CRISIS_QUERY_RE = /\b(go(ing)? under|go(ing|ne)? broke|go(ing|ne)? bust|shut(ting)? down|shut the business|close (the doors|down the business)|business fail(ure|ing)?|facing (business )?(closure|liquidation)|face liquidation|into liquidation|receivership|voluntary administration|wind(ing)? up the business|insolven(t|cy)|can'?t pay (its |their |the )?(debts|bills)|cannot pay (its |their |the )?(debts|bills)|may not survive|might not survive|won'?t survive|on the brink|liquidation)\b/i
+const CRISIS_SEARCH_EXPANSION = ' liquidation receivership insolvency insolvent worst bankruptcy creditor administration'
+
 function filterTemplatesByQuery (templates, query, maxResults) {
   maxResults = maxResults || 40
-  const queryLower = query.toLowerCase()
+  // Crisis search → expand with insolvency vocabulary so the survival tools surface.
+  const effectiveQuery = CRISIS_QUERY_RE.test(query) ? query + CRISIS_SEARCH_EXPANSION : query
+  const queryLower = effectiveQuery.toLowerCase()
   const queryWords = queryLower
     .split(/\s+/)
     .filter(w => w.length > 3)

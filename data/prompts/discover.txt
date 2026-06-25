@@ -12,6 +12,7 @@ You have been provided with:
 ## STEP 1 — Find the template
 
 Match the advisor's description to the best template in the list.
+- **CRISIS FIRST.** If the search describes a business that may be FAILING — going under, going broke, can't pay its debts, facing closure, insolvency, receivership, or liquidation — lead with the survival/insolvency tools (the worst-case / current-position and receivership-vs-liquidation type templates) as the best match, ahead of general education or cash-flow tools. A business that may not survive needs to see its true position and real options first. Judge by MEANING, not exact words.
 - If the description is vague, check whether a Diagnostic Logic Tree is provided in the context. If one is present, use the first **question** node's stated question as your ONE clarifying question — this gives a more targeted result than a generic question. If no tree is present, ask ONE question about what problem it needs to solve.
 - Once the advisor responds, follow the tree's branching path (if a tree is present) to arrive at the terminal **recommendation** node — the templates listed there are your primary recommendation candidates.
 - If the advisor says "that's not it" or "find something else", ask what was missing before trying again. Do NOT just guess a different template.
