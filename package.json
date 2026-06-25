@@ -15,7 +15,7 @@
     "lint:fix": "eslint --ext .js,.vue . --fix",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "backend": "node server/restify-server.js",
+    "backend": "cross-env ALLOW_DEV_AUTH=true node server/restify-server.js",
     "dev:all": "concurrently --names \"nuxt,api\" --prefix-colors \"cyan,green\" \"npm run dev\" \"npm run backend\"",
     "debug:scoring": "node scripts/debug-scoring.js",
     "build:semantic-profiles": "node scripts/build-semantic-profiles.js",

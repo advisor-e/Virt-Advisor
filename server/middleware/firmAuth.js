@@ -25,7 +25,11 @@ const jwt = require('jsonwebtoken')
 const { AUTH } = require('../../config/integration')
 const { sendError } = require('../utils/sendError')
 
-const IS_DEV = process.env.NODE_ENV !== 'production'
+// Fail-CLOSED dev bypass: off by default, and never available in production.
+// It activates ONLY when ALLOW_DEV_AUTH is explicitly set to 'true' AND the
+// environment is not production — so simply forgetting NODE_ENV can never expose
+// the bypass. The dev npm scripts set ALLOW_DEV_AUTH=true; production never does.
+const DEV_AUTH_ENABLED = process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEV_AUTH === 'true'
 const DEV_TOKEN = 'dev-local-bypass'
 const DEV_FIRM_ID = 'dev-firm-001'
 const DEV_ADVISOR_ID = 'dev-advisor-001'
@@ -38,8 +42,8 @@ function firmAuth (req, res, next) {
     return sendError(res, 401, 'MISSING_TOKEN', 'Authorization Bearer token required')
   }
 
-  // Dev bypass — only active outside production; never reaches this branch in prod
-  if (IS_DEV && token === DEV_TOKEN) {
+  // Dev bypass — opt-in via ALLOW_DEV_AUTH, never active in production (see above)
+  if (DEV_AUTH_ENABLED && token === DEV_TOKEN) {
     req.firmId = DEV_FIRM_ID
     req.advisorId = DEV_ADVISOR_ID
     req.userRole = AUTH.managerRole

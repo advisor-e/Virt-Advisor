@@ -40,6 +40,13 @@ const restify = require('restify')
   const { AUTH, DB } = require('../config/integration')
   const isProd = process.env.NODE_ENV === 'production'
 
+  // The dev auth bypass must never be enabled in production. This combination
+  // can only happen by mistake — refuse to boot rather than run wide open.
+  if (isProd && process.env.ALLOW_DEV_AUTH === 'true') {
+    console.error('[startup] FATAL: ALLOW_DEV_AUTH=true is set in production — refusing to start.')
+    process.exit(1)
+  }
+
   // JWT secret is always required — without it, firm auth cannot verify tokens.
   if (AUTH.secret === 'REPLACE_ME_WITH_ADVISOR_E_JWT_SECRET') {
     if (isProd) {

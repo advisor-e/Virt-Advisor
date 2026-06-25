@@ -161,6 +161,71 @@ describe('firmAuth', () => {
   })
 })
 
+// ── Dev auth bypass (fail-closed) ───────────────────────────────────────────────
+// The bypass must be OFF unless ALLOW_DEV_AUTH is explicitly 'true' AND the
+// environment is not production. DEV_AUTH_ENABLED is evaluated at module load, so
+// each scenario re-requires firmAuth with the env set via jest.isolateModules.
+
+describe('dev auth bypass', () => {
+  // Re-require firmAuth in an isolated module registry with the given env, so the
+  // module-load-time DEV_AUTH_ENABLED const reflects this scenario's env.
+  function setEnv (key, value) {
+    if (value === undefined) { delete process.env[key] } else { process.env[key] = value }
+  }
+
+  function firmAuthWithEnv ({ allowDevAuth, nodeEnv }) {
+    let fn
+    // Snapshot so we restore EXACTLY (including absence) and never leak state into
+    // other suites — assigning `undefined` would write the string "undefined".
+    const prevAllow = process.env.ALLOW_DEV_AUTH
+    const prevNode = process.env.NODE_ENV
+    setEnv('ALLOW_DEV_AUTH', allowDevAuth)
+    setEnv('NODE_ENV', nodeEnv)
+    jest.isolateModules(() => { fn = require('../../server/middleware/firmAuth').firmAuth })
+    setEnv('ALLOW_DEV_AUTH', prevAllow)
+    setEnv('NODE_ENV', prevNode)
+    return fn
+  }
+
+  const DEV_TOKEN = 'dev-local-bypass'
+
+  test('rejects the dev token by default (ALLOW_DEV_AUTH unset)', () => {
+    const fn = firmAuthWithEnv({ allowDevAuth: undefined, nodeEnv: 'development' })
+    const req = { headers: { authorization: `Bearer ${DEV_TOKEN}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    fn(req, res, next)
+
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+  })
+
+  test('accepts the dev token only when ALLOW_DEV_AUTH=true and not production', () => {
+    const fn = firmAuthWithEnv({ allowDevAuth: 'true', nodeEnv: 'development' })
+    const req = { headers: { authorization: `Bearer ${DEV_TOKEN}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    fn(req, res, next)
+
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(req.firmId).toBe('dev-firm-001')
+  })
+
+  test('rejects the dev token in production even when ALLOW_DEV_AUTH=true', () => {
+    const fn = firmAuthWithEnv({ allowDevAuth: 'true', nodeEnv: 'production' })
+    const req = { headers: { authorization: `Bearer ${DEV_TOKEN}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    fn(req, res, next)
+
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+  })
+})
+
 // ── requireManagerRole ────────────────────────────────────────────────────────
 
 describe('requireManagerRole', () => {
