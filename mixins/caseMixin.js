@@ -38,6 +38,15 @@ export default {
     this.refreshMyCases()
   },
 
+  watch: {
+    // The Bearer token is resolved in the parent page's mounted() — which runs
+    // AFTER this child mounts — so the first load can race a not-yet-ready token
+    // and silently 401 (cases looked "wiped" on refresh). Re-load once it settles.
+    apiToken (next, prev) {
+      if (next && next !== prev) { this.refreshMyCases() }
+    }
+  },
+
   methods: {
     async refreshMyCases () {
       try {

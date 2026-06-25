@@ -68,8 +68,13 @@ export default {
      * @returns {string} the token to send as `Bearer <token>`
      */
     resolveApiToken () {
-      const fromStorage = window.localStorage.getItem(TOKEN_KEY)
-      return fromStorage || 'dev-local-bypass'
+      // On localhost use the dev bypass directly (same as the Firm Manager page) so a
+      // stale advisor_e_token left in the browser can't override it and 401 the
+      // case-study reads — which looked like saved cases being "wiped" on refresh.
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'dev-local-bypass'
+      }
+      return window.localStorage.getItem(TOKEN_KEY) || 'dev-local-bypass'
     }
   }
 }
