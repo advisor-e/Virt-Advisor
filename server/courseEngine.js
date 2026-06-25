@@ -321,7 +321,7 @@ async function handleSession (req, body, res) {
     { role: 'user', content: query }
   ]
 
-  sseHeaders(res)
+  sseHeaders(req, res)
   sseWrite(res, { type: 'state', state: {} })
 
   let stream

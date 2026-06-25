@@ -158,6 +158,10 @@ export default {
         const authHeaders = { Authorization: `Bearer ${this.apiToken}` }
         if (this.isFirmManager) {
           const res = await fetch(`${BACKEND}/api/activity/team`, { headers: authHeaders })
+          if (!res.ok) {
+            this.error = 'Could not load team progress. Please try again.'
+            return
+          }
           const data = await res.json()
           if (data.success) {
             this.advisors = data.advisors || []
@@ -166,6 +170,10 @@ export default {
           }
         } else {
           const res = await fetch(`${BACKEND}/api/activity/progression`, { headers: authHeaders })
+          if (!res.ok) {
+            this.error = 'Could not load your progress. Please try again.'
+            return
+          }
           const data = await res.json()
           if (data.success) {
             this.tiers = data.tiers || this.tiers
@@ -176,8 +184,9 @@ export default {
         }
       } catch (e) {
         this.error = 'Could not connect to the activity service. Please try again.'
+      } finally {
+        this.loading = false
       }
-      this.loading = false
     },
 
     formatDate (dt) {

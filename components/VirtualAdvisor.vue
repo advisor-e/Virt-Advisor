@@ -164,7 +164,7 @@
   //- Firm dashboard
   FirmDashboard(
     v-else-if="mode === 'firm'"
-    :firmId="advisorId"
+    :firmId="firmId"
     :firmName="advisorProfile && advisorProfile.firmName ? advisorProfile.firmName : 'My Firm'"
   )
 

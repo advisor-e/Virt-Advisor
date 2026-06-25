@@ -575,6 +575,16 @@ export default {
     }
   },
 
+  beforeDestroy () {
+    // Stop speech recognition so it doesn't keep auto-restarting (onend) after
+    // the component is torn down, e.g. when the user exits course mode.
+    if (this.recognition) {
+      this.isListening = false
+      this._recognitionRunning = false
+      try { this.recognition.stop() } catch (e) {}
+    }
+  },
+
   methods: {
     toggleListening () {
       if (!this.recognition) { return }

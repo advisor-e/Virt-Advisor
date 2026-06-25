@@ -199,18 +199,18 @@ async function uploadDocument (req, res) {
       `category must be one of: ${validCategoryValues().join(', ')}`)
   }
 
-  // Enforce per-firm storage quota
-  const [usageRows] = await db.execute(
-    'SELECT bytes_used FROM firm_storage_usage WHERE firm_id = ?',
-    [req.firmId]
-  )
-  const bytesUsed = usageRows.length > 0 ? Number(usageRows[0].bytes_used) : 0
-  if (bytesUsed + uploadedFile.size > STORAGE.maxFirmStorageBytes) {
-    return sendError(res, 413, 'QUOTA_EXCEEDED',
-      'This upload would exceed your firm storage limit of 500 MB')
-  }
-
   try {
+    // Enforce per-firm storage quota
+    const [usageRows] = await db.execute(
+      'SELECT bytes_used FROM firm_storage_usage WHERE firm_id = ?',
+      [req.firmId]
+    )
+    const bytesUsed = usageRows.length > 0 ? Number(usageRows[0].bytes_used) : 0
+    if (bytesUsed + uploadedFile.size > STORAGE.maxFirmStorageBytes) {
+      return sendError(res, 413, 'QUOTA_EXCEEDED',
+        'This upload would exceed your firm storage limit of 500 MB')
+    }
+
     const buffer = fs.readFileSync(uploadedFile.filepath)
     const fileName = uploadedFile.originalFilename || uploadedFile.newFilename || 'document.pdf'
     const driveFile = await drive.uploadFirmDocument(
@@ -234,6 +234,11 @@ async function uploadDocument (req, res) {
     res.send(201, { file: driveFile })
   } catch (err) {
     return serverError(res, 500, 'UPLOAD_ERROR', err)
+  } finally {
+    // Always clean up the temp file formidable wrote to disk
+    if (uploadedFile && uploadedFile.filepath) {
+      fs.unlink(uploadedFile.filepath, () => {})
+    }
   }
 }
 
@@ -245,6 +250,12 @@ async function downloadDocument (req, res) {
     res.header('Content-Disposition',
       `attachment; filename="${(fileName || 'document.pdf').replace(/"/g, '')}"`)
     res.header('Content-Type', 'application/pdf')
+    // If the Drive stream errors mid-transfer, headers are already sent — we can't
+    // send an error envelope, so log it and tear the response down cleanly.
+    stream.on('error', (err) => {
+      console.error('[firmManager] DOWNLOAD_STREAM_ERROR:', err.message)
+      res.destroy(err)
+    })
     stream.pipe(res)
   } catch (err) {
     return serverError(res, 500, 'DOWNLOAD_ERROR', err)
@@ -255,17 +266,17 @@ async function deleteDocument (req, res) {
   const { fileId } = req.params
   if (!fileId) { return sendError(res, 400, 'NO_FILE_ID', 'fileId route param required') }
 
-  // Confirm the file belongs to this firm before deleting
-  const [rows] = await db.execute(
-    'SELECT size_bytes FROM firm_documents WHERE drive_file_id = ? AND firm_id = ?',
-    [fileId, req.firmId]
-  )
-  if (rows.length === 0) {
-    return sendError(res, 404, 'NOT_FOUND', 'Document not found for this firm')
-  }
-  const sizeBytes = Number(rows[0].size_bytes)
-
   try {
+    // Confirm the file belongs to this firm before deleting
+    const [rows] = await db.execute(
+      'SELECT size_bytes FROM firm_documents WHERE drive_file_id = ? AND firm_id = ?',
+      [fileId, req.firmId]
+    )
+    if (rows.length === 0) {
+      return sendError(res, 404, 'NOT_FOUND', 'Document not found for this firm')
+    }
+    const sizeBytes = Number(rows[0].size_bytes)
+
     await drive.deleteFirmDocument(fileId)
     await db.execute(
       'DELETE FROM firm_documents WHERE drive_file_id = ? AND firm_id = ?',
@@ -544,6 +555,9 @@ async function importTemplates (req, res) {
     ? (Array.isArray(files.file) ? files.file[0] : files.file)
     : null
   if (!uploadedFile) { return sendError(res, 400, 'NO_FILE', 'A file field named "file" is required') }
+
+  // Clean up the temp file formidable wrote, whichever exit path we take.
+  res.once('finish', () => { fs.unlink(uploadedFile.filepath, () => {}) })
 
   let parsed
   try {
