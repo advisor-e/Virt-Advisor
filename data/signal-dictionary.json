@@ -139,7 +139,16 @@
         "people (issues?|problems?)",
         "short.?staffed|under.?staffed",
         "morale (is )?(low|down|poor)",
-        "team (isn'?t|is not|not) (performing|working|gelling)"
+        "team (isn'?t|is not|not) (performing|working|gelling)",
+        "can'?t (delegate|let go|step back|trust the team)",
+        "(won'?t|will not|unable to|struggles? to|cannot|can not) delegate",
+        "delegat(e|ion|ing)",
+        "(no clear|unclear|undefined|no defined) roles?",
+        "(nobody|no one|no.?one) (is )?(held|holding|being held) .{0,8}account",
+        "owner (does|doing|has to do|ends up doing) everything",
+        "(team|they|staff) (can'?t|cannot|can not) be trusted",
+        "owner('?s)? (is )?drowning|drowning in (the|their)",
+        "second.?in.?charge|2.?ic"
       ]
     },
     "strategy_needed": {
@@ -173,7 +182,16 @@
         "data (issue|problem)",
         "numbers (don'?t|do not|aren'?t) (add up|right|reliable|accurate)",
         "reporting (is )?(poor|weak|unreliable|wrong|a mess)",
-        "bad (data|numbers)"
+        "bad (data|numbers)",
+        "spreadsheets?",
+        "single source of truth",
+        "double.?(entry|enter|keying|keyed)|enter(ed|ing)? .{0,12}twice|re.?key",
+        "no (management |monthly )?reports?|don'?t (have|get|run|produce) .{0,12}reports?",
+        "reports? (are )?(always )?(late|delayed|behind)",
+        "don'?t trust (the|their|our|its)? ?(numbers?|data|books?|figures?|reports?|accounts?)",
+        "flying blind|no (idea|view|visibility|clue) .{0,14}(numbers?|figures?|performance)",
+        "no (real |meaningful )?kpis?|(right|meaningful|relevant|proper) (kpis?|measures?|metrics?)",
+        "books? (are )?(a mess|messy|behind|always behind)"
       ]
     },
     "governance_gap": {
@@ -240,7 +258,15 @@
         "everything('?s| is)? manual",
         "(doing (it|everything)) by hand",
         "processes? (are )?(a mess|messy|broken|undefined)",
-        "no (proper )?(systems?|processes?)"
+        "no (proper )?(systems?|processes?)",
+        "no (standard|standardised|standardized|documented|repeatable) (process|procedure|system|workflow)",
+        "bottleneck",
+        "(lives|sits|all|it'?s all|its all) in (one|someone'?s|their|his|her|the owner'?s) head",
+        "(nothing|none of it|not) .{0,10}(documented|written down)|no documentation|tribal knowledge",
+        "(can'?t|cannot|does not|doesn'?t|won'?t) run without (the owner|them|him|her)|owner.?dependent",
+        "grind(s|ing)? to a halt",
+        "fall(ing)? through the cracks",
+        "(not|isn'?t|aren'?t) (repeatable|consistent|standardised|standardized)|chaotic|chaos"
       ]
     },
     "marketing_gap": {

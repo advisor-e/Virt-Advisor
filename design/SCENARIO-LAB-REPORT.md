@@ -5,9 +5,9 @@
 
 ## Metrics (measure before vs after an engine change)
 
-- **Signal lever fired:** 13/50 sessions (26%) — the rest ran on generic domain priors only.
+- **Signal lever fired:** 21/50 sessions (42%) — the rest ran on generic domain priors only.
 - **Content-driven top pick:** 50/50 (100%) — the #1 recommendation matched on something the advisor actually said (a signal, distinction, industry or topic), not just a domain prior.
-- **Average score separation (top vs 4th):** 4.9 points — higher = more decisive / confident ranking.
+- **Average score separation (top vs 4th):** 5.4 points — higher = more decisive / confident ranking.
 - **Distress read:** fired TRUE in 4/50; of those, 3 were genuine crises → **precision 75%**, **recall 100%** (there are 3 genuine crises in the set).
 
 ## At a glance
@@ -19,14 +19,14 @@
 | 3 | profit | Quick Fire Diagnosis | **no** | yes |  | false |
 | 4 | profit | 8 Profit Levers | **no** | yes |  | false |
 | 5 | profit | Working Capital Cycle | **no** | yes |  | false |
-| 6 | staff | Alignment Statements | **no** | yes |  | false |
+| 6 | staff | Alignment Statements | yes | yes |  | false |
 | 7 | staff | Hiring Winners | **no** | yes |  | false |
 | 8 | staff | Hiring Winners | **no** | yes |  | false |
 | 9 | staff | People vs. Process | **no** | yes |  | false |
-| 10 | data-systems | Financial Systems Review | **no** | yes |  | false |
+| 10 | data-systems | 90 Day Best Practice Accounting | yes | yes |  | false |
 | 11 | data-systems | Data Session | **no** | yes |  | false |
-| 12 | data-systems | 90 Day Best Practice Accounting | **no** | yes |  | false |
-| 13 | data-systems | Data Session | **no** | yes |  | false |
+| 12 | data-systems | 90 Day Best Practice Accounting | yes | yes |  | false |
+| 13 | data-systems | Data Session | yes | yes |  | false |
 | 14 | sales-marketing | Lite Marketing | yes | yes |  | false |
 | 15 | sales-marketing | Lite Marketing | **no** | yes |  | false |
 | 16 | sales-marketing | Sales Session | **no** | yes |  | false |
@@ -39,11 +39,11 @@
 | 23 | governance | Governance Introduction | yes | yes |  | false |
 | 24 | strategy | Lite Strategy | yes | yes |  | false |
 | 25 | strategy | Lite Strategy | **no** | yes |  | false |
-| 26 | strategy | Lite Strategy | **no** | yes |  | false |
+| 26 | strategy | Lite Strategy | yes | yes |  | false |
 | 27 | strategy | Lite Strategy | yes | yes |  | false |
-| 28 | systems | Process Session | **no** | yes |  | false |
-| 29 | systems | Business Sale Assessment 1 | **no** | yes |  | false |
-| 30 | systems | Business Sale Assessment 1 | **no** | yes |  | false |
+| 28 | systems | Process Session | yes | yes |  | false |
+| 29 | systems | Process Session | yes | yes |  | false |
+| 30 | systems | Process Session | yes | yes |  | false |
 | 31 | valuation | Sale Assessment Report 3 | **no** | yes |  | false |
 | 32 | valuation | Sale Assessment Report 3 | **no** | yes |  | false |
 | 33 | valuation | Sale Assessment Report 3 | **no** | yes |  | false |
@@ -185,13 +185,13 @@
 
 **What the engine decided:**
 - **Domain:** staff · **Engagement:** facilitation · **Ceiling:** analytical · **Budget:** 2
-- **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
+- **Problem signals read:** Staff, team, HR, or leadership issues (×4)
 - **Firm distinctions boosting:** Remuneration & Incentives (+5), Alignment Statements (+10)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Alignment Statements** _(score 11)_ — a related tool type for this domain; boosted by a firm distinction (+10).
-2. **CA Firm Strategy** _(score 8)_ — matches the client's industry by name.
+1. **Alignment Statements** _(score 91)_ — a related tool type for this domain; boosted by a firm distinction (+10); strongly matches the problem described (signal weight 80.0).
+2. **People vs. Process** _(score 86)_ — a related tool type for this domain; relevant to the client's industry; strongly matches the problem described (signal weight 80.0); fits the engagement style.
 
 ---
 
@@ -269,13 +269,13 @@
 
 **What the engine decided:**
 - **Domain:** data-systems · **Engagement:** education · **Ceiling:** foundational · **Budget:** 2
-- **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
+- **Problem signals read:** Data integrity, chart of accounts, or financial systems accuracy issues (×3)
 - **Firm distinctions boosting:** Financial Systems Review (+10), App Review (+5), Rubbish In - Rubbish Out (+5), 90 Day Best Practice Accounting (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Financial Systems Review** _(score 13)_ — boosted by a firm distinction (+10); matches the topic "data-systems".
-2. **90 Day Best Practice Accounting** _(score 11)_ — a related tool type for this domain; boosted by a firm distinction (+5); matches the topic "data-systems"; fits the engagement style (preferred).
+1. **90 Day Best Practice Accounting** _(score 71)_ — a related tool type for this domain; boosted by a firm distinction (+5); matches the topic "data-systems"; strongly matches the problem described (signal weight 60.0); fits the engagement style (preferred).
+2. **Rubbish In - Rubbish Out** _(score 68)_ — a related tool type for this domain; boosted by a firm distinction (+5); strongly matches the problem described (signal weight 60.0); fits the engagement style (preferred).
 
 ---
 
@@ -311,13 +311,13 @@
 
 **What the engine decided:**
 - **Domain:** data-systems · **Engagement:** education · **Ceiling:** foundational · **Budget:** 2
-- **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
+- **Problem signals read:** Data integrity, chart of accounts, or financial systems accuracy issues (×1)
 - **Firm distinctions boosting:** Rubbish In - Rubbish Out (+5), Financial Systems Review (+5), 90 Day Best Practice Accounting (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **90 Day Best Practice Accounting** _(score 11)_ — a related tool type for this domain; boosted by a firm distinction (+5); matches the topic "data-systems"; fits the engagement style (preferred).
-2. **Financial Systems Review** _(score 8)_ — boosted by a firm distinction (+5); matches the topic "data-systems".
+1. **90 Day Best Practice Accounting** _(score 31)_ — a related tool type for this domain; boosted by a firm distinction (+5); matches the topic "data-systems"; strongly matches the problem described (signal weight 20.0); fits the engagement style (preferred).
+2. **Rubbish In - Rubbish Out** _(score 28)_ — a related tool type for this domain; boosted by a firm distinction (+5); strongly matches the problem described (signal weight 20.0); fits the engagement style (preferred).
 
 ---
 
@@ -332,13 +332,13 @@
 
 **What the engine decided:**
 - **Domain:** data-systems · **Engagement:** education · **Ceiling:** analytical · **Budget:** 2
-- **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
+- **Problem signals read:** Data integrity, chart of accounts, or financial systems accuracy issues (×1)
 - **Firm distinctions boosting:** Dashboard Discussions (+5), Data Session (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Data Session** _(score 9)_ — a core tool type for this domain; boosted by a firm distinction (+5); purpose mentions "data-systems"; fits the engagement style.
-2. **Business Clock vs Body Clock** _(score 8)_ — matches the client's industry by name.
+1. **Data Session** _(score 29)_ — a core tool type for this domain; boosted by a firm distinction (+5); purpose mentions "data-systems"; strongly matches the problem described (signal weight 20.0); fits the engagement style.
+2. **Dashboard Discussions** _(score 28)_ — a related tool type for this domain; boosted by a firm distinction (+5); strongly matches the problem described (signal weight 20.0); fits the engagement style (preferred).
 
 ---
 
@@ -542,7 +542,7 @@
 
 **What the engine decided:**
 - **Domain:** governance · **Engagement:** facilitation · **Ceiling:** analytical · **Budget:** 2
-- **Problem signals read:** Governance structure, accountability, or board issues (×1)
+- **Problem signals read:** Data integrity, chart of accounts, or financial systems accuracy issues (×1), Governance structure, accountability, or board issues (×1)
 - **Firm distinctions boosting:** Governance Introduction (+5), Partner Accountability (+5)
 - **Distress read:** no
 
@@ -605,7 +605,7 @@
 
 **What the engine decided:**
 - **Domain:** strategy · **Engagement:** facilitation · **Ceiling:** analytical · **Budget:** 2
-- **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
+- **Problem signals read:** Business systems, process, or technology gaps (×1)
 - **Firm distinctions boosting:** Lite Strategy (+5), SWOT / PEST (+5), Porters & Pine (+5), 4 Part Bizz Plan (+5), 1 pg Bizz Case (+5)
 - **Distress read:** no
 
@@ -647,13 +647,13 @@
 
 **What the engine decided:**
 - **Domain:** systems · **Engagement:** facilitation · **Ceiling:** analytical · **Budget:** 2
-- **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
+- **Problem signals read:** Business systems, process, or technology gaps (×2)
 - **Firm distinctions boosting:** Process Session (+10)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Process Session** _(score 14)_ — boosted by a firm distinction (+10); matches the topic "systems"; fits the engagement style.
-2. **App Review** _(score 6)_ — a core tool type for this domain; matches the topic "systems"; fits the engagement style.
+1. **Process Session** _(score 54)_ — boosted by a firm distinction (+10); matches the topic "systems"; strongly matches the problem described (signal weight 40.0); fits the engagement style.
+2. **App Review** _(score 46)_ — a core tool type for this domain; matches the topic "systems"; strongly matches the problem described (signal weight 40.0); fits the engagement style.
 
 ---
 
@@ -668,13 +668,13 @@
 
 **What the engine decided:**
 - **Domain:** systems · **Engagement:** facilitation · **Ceiling:** analytical · **Budget:** 2
-- **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
+- **Problem signals read:** Staff, team, HR, or leadership issues (×1), Business systems, process, or technology gaps (×1)
 - **Firm distinctions boosting:** Process Session (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Business Sale Assessment 1** _(score 11)_ — matches the client's industry by name; matches the topic "systems".
-2. **Business Targets** _(score 10)_ — a related tool type for this domain; matches the client's industry by name; fits the engagement style.
+1. **Process Session** _(score 29)_ — boosted by a firm distinction (+5); matches the topic "systems"; strongly matches the problem described (signal weight 20.0); fits the engagement style.
+2. **App Review** _(score 26)_ — a core tool type for this domain; matches the topic "systems"; strongly matches the problem described (signal weight 20.0); fits the engagement style.
 
 ---
 
@@ -689,13 +689,13 @@
 
 **What the engine decided:**
 - **Domain:** systems · **Engagement:** facilitation · **Ceiling:** foundational · **Budget:** 2
-- **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
+- **Problem signals read:** Business systems, process, or technology gaps (×1)
 - **Firm distinctions boosting:** Process Session (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Business Sale Assessment 1** _(score 11)_ — matches the client's industry by name; matches the topic "systems".
-2. **Process Session** _(score 9)_ — boosted by a firm distinction (+5); matches the topic "systems"; fits the engagement style.
+1. **Process Session** _(score 29)_ — boosted by a firm distinction (+5); matches the topic "systems"; strongly matches the problem described (signal weight 20.0); fits the engagement style.
+2. **App Review** _(score 26)_ — a core tool type for this domain; matches the topic "systems"; strongly matches the problem described (signal weight 20.0); fits the engagement style.
 
 ---
 
@@ -732,7 +732,7 @@
 **What the engine decided:**
 - **Domain:** valuation · **Engagement:** advice · **Ceiling:** analytical · **Budget:** 2
 - **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
-- **Firm distinctions boosting:** Sale Assessment Report 3 (+5), Asset Review (+5), Indicative Value Questions (+5), Porter's Revenue (+5)
+- **Firm distinctions boosting:** Sale Assessment Report 3 (+5), Asset Review (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
@@ -794,7 +794,7 @@
 
 **What the engine decided:**
 - **Domain:** risk · **Engagement:** advice · **Ceiling:** analytical · **Budget:** 2
-- **Problem signals read:** Succession planning, exit, or ownership transition (×1)
+- **Problem signals read:** Succession planning, exit, or ownership transition (×1), Business systems, process, or technology gaps (×1)
 - **Firm distinctions boosting:** Formal Risk Management (+5)
 - **Distress read:** no
 
@@ -942,7 +942,7 @@
 **What the engine decided:**
 - **Domain:** conflict · **Engagement:** facilitation · **Ceiling:** analytical · **Budget:** 2
 - **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
-- **Firm distinctions boosting:** Force Field Analysis (+5), Alignment Statements (+5)
+- **Firm distinctions boosting:** Force Field Analysis (+5), Alignment Statements (+10)
 - **Distress read:** no
 
 **Recommended templates, and why:**
@@ -1005,12 +1005,12 @@
 **What the engine decided:**
 - **Domain:** eoy · **Engagement:** facilitation · **Ceiling:** analytical · **Budget:** 2
 - **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
-- **Firm distinctions boosting:** Dashboard Discussions (+10), 8 Profit Levers (+10), Quick Fire Diagnosis (+5), Planning Session (+5), Money Matters (+5)
+- **Firm distinctions boosting:** Dashboard Discussions (+5), 8 Profit Levers (+10), Quick Fire Diagnosis (+5), Money Matters (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
 1. **8 Profit Levers** _(score 12)_ — a related tool type for this domain; boosted by a firm distinction (+10); fits the engagement style.
-2. **Dashboard Discussions** _(score 12)_ — a related tool type for this domain; boosted by a firm distinction (+10); fits the engagement style.
+2. **Quick Fire Diagnosis** _(score 11)_ — a related tool type for this domain; relevant to the client's industry; boosted by a firm distinction (+5); fits the engagement style.
 
 ---
 
@@ -1047,11 +1047,11 @@
 **What the engine decided:**
 - **Domain:** due-diligence · **Engagement:** advice · **Ceiling:** analytical · **Budget:** 2
 - **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
-- **Firm distinctions boosting:** Stg. 1 Due Diligence (+5), Business Purchase Assessment 1 (+5)
+- **Firm distinctions boosting:** Stg. 1 Due Diligence (+10), Business Purchase Assessment 1 (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Stg. 1 Due Diligence** _(score 10)_ — a core tool type for this domain; boosted by a firm distinction (+5); purpose mentions "due-diligence"; fits the engagement style (preferred).
+1. **Stg. 1 Due Diligence** _(score 15)_ — a core tool type for this domain; boosted by a firm distinction (+10); purpose mentions "due-diligence"; fits the engagement style (preferred).
 2. **Business Dating** _(score 4)_ — matches the topic "due-diligence"; fits the engagement style.
 
 ---
