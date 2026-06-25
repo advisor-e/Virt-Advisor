@@ -90,11 +90,19 @@ if (ghosts.length > 0) {
 }
 
 // ── 3. Client template summary coverage ───────────────────────────────────
+// IMPORTANT: "summaries" here = the OPTIONAL semantic-enrichment layer in
+// data/content-summaries.json (hand-written advisory summaries that sharpen the
+// AI's semantic matching). This is NOT template completeness — the export header
+// fields (Section, Sub Section, Topic, Title, Purpose, Meta Tags, Link ID) are
+// complete and are verified separately. A template "without a summary" still works
+// and is still recommended (via logic trees + keyword search). Revenue & Feasibility
+// spreadsheet models intentionally have no summary. So treat this as a warn-only
+// "could-be-richer" metric, never as broken/incomplete content.
 const missingFromSummaries = clientTemplates.filter(t => !summaryNames.has(t.title))
 const coveragePct = Math.round(((clientTemplates.length - missingFromSummaries.length) / clientTemplates.length) * 100)
 
 if (coveragePct < 90) {
-  const msg = `Coverage: ${coveragePct}% of client templates have summaries (${missingFromSummaries.length} missing)`
+  const msg = `Optional semantic-summary enrichment: ${coveragePct}% of client templates have a summary (${missingFromSummaries.length} without one — NOT incomplete templates; see note in source)`
   if (STRICT) { issues.push('CRITICAL: ' + msg) } else { warnings.push('WARNING: ' + msg) }
 }
 
