@@ -673,6 +673,29 @@ function detectUncertainty (text) {
   return _UNCERTAINTY_PATTERN.test(text.toLowerCase().replace(/’/g, "'"))
 }
 
+// ── Frustration detection (Phase 1 intake) ───────────────────────────────────
+// The advisor is venting at the TOOL — anger, profanity, or "I already told you" /
+// "for the third time" — the original "profanity sailed past" failure (café test
+// 2026-06-09; memory design-intake-resistance-fallback). On a match the engine
+// ACKNOWLEDGES it and re-asks the current question plainly rather than ploughing
+// on. Scoped to clear tool-directed frustration so describing a stressful CLIENT
+// situation ("the client is in deep trouble") does not trip it; capped per session
+// so it never loops.
+const _FRUSTRATION_PATTERN = /(\bf+u+c+k|\bf\*+k|\bw ?t ?f\b|\bbull ?shit\b|\bthis is (?:shit|crap|bs|ridiculous|stupid|pointless|useless|nonsense|a (?:joke|farce|waste|shambles))\b|\bwaste of (?:my )?time\b|\b(?:you'?re|you are|are you (?:even )?)(?:not )?listening\b|\bdid you not (?:hear|listen|read)\b|\bi (?:already|just) (?:told|said)\b|\b(?:like|as) i (?:already )?said\b|\bi'?ve (?:already )?(?:told|said) (?:you|that)\b|\bfor the (?:second|third|fourth|last|hundredth|umpteenth) time\b|\bstop asking\b|\bget on with it\b|\bjust (?:answer|tell|give) me\b|\bgoing (?:round )?in circles\b|\bfor (?:god|christ|f\w*)'?s? sake\b|\bbloody hell\b|\bpiss(?:ing|ed)? (?:me )?off\b)/i
+
+function detectFrustration (text) {
+  if (!text || typeof text !== 'string') { return false }
+  const t = text.toLowerCase().replace(/’/g, "'")
+  // Guard: the advisor NARRATING the client's words ("the owner said fuck it and
+  // walked away") is not frustration at the tool — don't trip on attributed profanity.
+  if (/\b(said|says|saying|told (?:me|him|her|them)|yelled|shouted|swore)\b[^.!?]{0,15}\b(f+u+c+k|shit|crap)/.test(t)) { return false }
+  return _FRUSTRATION_PATTERN.test(t)
+}
+
+// Acknowledgement prepended to the re-asked question on a frustration hit. Draft
+// wording — confirm with Mike (memory feedback-wording).
+const FRUSTRATION_ACK = 'Sorry — I can tell this is frustrating, and I want to get it right. Let me keep it simple:'
+
 // Parse a free-text meeting-count answer → a number, or null if none found.
 // Folds in spoken/voice forms so a speech-to-text slip doesn't silently halve the
 // template budget: "too" → two (the live café-session bug), "a couple" → 2,
@@ -1062,6 +1085,7 @@ async function handleQuery (rawBody, res, identity) {
       intakeTurn: 0,
       awaitingCourseCorrection: false,
       courseCorrections: 0,
+      frustrationAcks: 0,
       prepMode: false,
       prepModeOffered: false,
       awaitingPrepModeChoice: false,
@@ -1535,6 +1559,16 @@ async function handleQuery (rawBody, res, identity) {
         if (state[q.field] === 'pending') {
           // Was asked last turn — record the answer
           state[q.field] = query
+          // Frustration check: the advisor is venting at the tool (anger / profanity /
+          // "I already told you"). Acknowledge it and re-ask the current question
+          // plainly rather than treating the venting as a real answer and ploughing on
+          // (the original "profanity sailed past" failure). Capped so it never loops.
+          if (state.frustrationAcks < 2 && detectFrustration(query)) {
+            state.frustrationAcks++
+            state[q.field] = 'pending'
+            const _reAsk = q.textFn ? q.textFn(state) : q.text
+            return sendQuestion(FRUSTRATION_ACK + '\n\n' + _reAsk, state)
+          }
           // Allow the question to react to its answer (e.g. disambiguation resolving a scenario)
           if (q.onAnswer) { q.onAnswer(query, state) }
           // Contradiction check: if the answer signals the conversation has gone wrong, pause and verify
@@ -2524,6 +2558,7 @@ module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
 module.exports.detectWinWorkIntent = detectWinWorkIntent
 module.exports.pickLearnTreeAI = pickLearnTreeAI
 module.exports.detectUncertainty = detectUncertainty
+module.exports.detectFrustration = detectFrustration
 module.exports.parseMeetingCount = parseMeetingCount
 module.exports.classifyDistinctions = classifyDistinctions
 module.exports.findNearMissDistinctions = findNearMissDistinctions
