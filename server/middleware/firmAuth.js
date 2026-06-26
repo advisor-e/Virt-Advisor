@@ -31,6 +31,7 @@ const { sendError } = require('../utils/sendError')
 // the bypass. The dev npm scripts set ALLOW_DEV_AUTH=true; production never does.
 const DEV_AUTH_ENABLED = process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEV_AUTH === 'true'
 const DEV_TOKEN = 'dev-local-bypass'
+const DEV_MENTOR_TOKEN = 'dev-local-mentor' // dev-only: authenticate as the mentor (platform_admin)
 const DEV_FIRM_ID = 'dev-firm-001'
 const DEV_ADVISOR_ID = 'dev-advisor-001'
 
@@ -48,6 +49,15 @@ function firmAuth (req, res, next) {
     req.advisorId = DEV_ADVISOR_ID
     req.userRole = AUTH.managerRole
     req.userEmail = 'dev@local'
+    return next()
+  }
+  // Dev mentor bypass — authenticate as the cross-firm mentor (platform_admin)
+  // so the Mentor view is testable locally. Never active in production.
+  if (DEV_AUTH_ENABLED && token === DEV_MENTOR_TOKEN) {
+    req.firmId = DEV_FIRM_ID // placeholder; the mentor view is not firm-scoped
+    req.advisorId = null
+    req.userRole = AUTH.mentorRole
+    req.userEmail = 'dev-mentor@local'
     return next()
   }
 
@@ -87,4 +97,18 @@ function requireManagerRole (req, res, next) {
   return next()
 }
 
-module.exports = { firmAuth, requireManagerRole }
+/**
+ * Gate for the cross-firm Mentor view. Only the mentor role (interim:
+ * platform_admin — see AUTH.mentorRole) may read mentor-shared cases across
+ * firms. This is the one place that deliberately crosses the firm boundary, so
+ * the role check is the access boundary.
+ */
+function requireMentorRole (req, res, next) {
+  if (!req.userRole || req.userRole !== AUTH.mentorRole) {
+    return sendError(res, 403, 'FORBIDDEN',
+      `Mentor access requires role '${AUTH.mentorRole}'`)
+  }
+  return next()
+}
+
+module.exports = { firmAuth, requireManagerRole, requireMentorRole }

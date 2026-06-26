@@ -633,6 +633,60 @@ section.firm-manager-hub.section
                   p.is-size-7(v-if="c.review.wentLess") ⚠ What went less well? — {{ c.review.wentLess }}
                   p.is-size-7(v-if="c.review.changesRecommended") What they'd do differently — {{ c.review.changesRecommended }}
                 p.is-size-7.has-text-grey.mt-4(v-else) The advisor hasn't recorded a post-delivery review yet.
+
+                //- Mentor review — share an anonymised copy with the mentor
+                hr.my-3
+                .level.is-mobile.mb-0
+                  .level-left
+                    div
+                      p.is-size-7.has-text-weight-semibold Mentor review
+                      p.is-size-7.has-text-grey(v-if="c.mentorShared") Shared with the mentor (anonymised){{ c.mentorSharedAt ? ' · ' + formatDate(c.mentorSharedAt) : '' }}
+                      p.is-size-7.has-text-grey(v-else) Share an anonymised copy with the mentor to help improve the app. Client details are removed and you approve the copy first.
+                  .level-right
+                    b-button(
+                      v-if="c.mentorShared"
+                      size="is-small"
+                      type="is-danger is-light"
+                      :loading="mentorActionCaseId === c.id"
+                      @click="withdrawFromMentor(c)"
+                    ) Withdraw from mentor
+                    b-button(
+                      v-else
+                      size="is-small"
+                      type="is-primary is-light"
+                      :loading="mentorActionCaseId === c.id"
+                      @click="openMentorPreview(c)"
+                    ) Share with mentor
+
+          //- Mentor-share preview: the manager approves the anonymised copy before it reaches the mentor
+          b-modal(v-model="showMentorPreview" has-modal-card trap-focus :can-cancel="['escape','outside']")
+            .modal-card(style="max-width:680px")
+              header.modal-card-head
+                p.modal-card-title Share with mentor — review the anonymised copy
+              section.modal-card-body
+                b-notification.mb-3(type="is-info is-light" :closable="false" style="font-size:0.85rem")
+                  | This is what the mentor will see. Client names, the business and identifying details have been removed; the wording and tone are kept. Approve only if you're happy it's anonymous.
+                .has-text-centered.py-5(v-if="mentorPreviewLoading")
+                  b-loading(:is-full-page="false" :active="true")
+                  p.is-size-7.has-text-grey.mt-2 Preparing the anonymised copy…
+                template(v-else-if="mentorPreview")
+                  .mb-3(v-if="mentorPreview.summary")
+                    p.is-size-7.has-text-weight-semibold Summary
+                    p.is-size-7 {{ mentorPreview.summary }}
+                  .mb-2(v-if="mentorPreview.transcript && mentorPreview.transcript.length")
+                    p.is-size-7.has-text-weight-semibold Conversation
+                    .mentor-anon-msg(v-for="(m, i) in mentorPreview.transcript" :key="i")
+                      span.has-text-weight-semibold.is-size-7 {{ m.role === 'assistant' ? 'Adviser tool' : 'Adviser' }}:
+                      span.is-size-7  {{ m.content }}
+                  p.is-size-7.has-text-grey(v-if="!mentorPreview.summary && (!mentorPreview.transcript || !mentorPreview.transcript.length)") This case has no shareable content.
+              footer.modal-card-foot
+                b-button(
+                  type="is-primary"
+                  :disabled="mentorPreviewLoading || !mentorPreview"
+                  :loading="mentorSharing"
+                  @click="confirmShareWithMentor"
+                ) Approve & share
+                b-button(@click="closeMentorPreview") Cancel
 </template>
 
 <script>
@@ -771,6 +825,13 @@ export default {
       firmCases: [],
       loadingFirmCases: false,
       expandedReviewCaseId: null,
+      // Mentor-share: preview-and-approve an anonymised copy before it reaches the mentor.
+      showMentorPreview: false,
+      mentorPreview: null, // { summary, transcript } from the anonymise-preview route
+      mentorPreviewCaseId: null,
+      mentorPreviewLoading: false,
+      mentorSharing: false,
+      mentorActionCaseId: null, // case whose share/withdraw button is mid-request
       // Near-misses moved this session, keyed `${caseId}::${nmId}` (the stored trace
       // still lists them, so this disables an already-moved row to stop a double-move).
       movedNearMisses: {},
@@ -1562,6 +1623,63 @@ export default {
 
     toggleReviewCase (id) {
       this.expandedReviewCaseId = this.expandedReviewCaseId === id ? null : id
+    },
+
+    // ── Mentor share (preview → approve → persist) ──────────────────────────
+    /** Open the preview modal and fetch the anonymised copy for this case. */
+    async openMentorPreview (c) {
+      this.mentorPreviewCaseId = c.id
+      this.mentorPreview = null
+      this.showMentorPreview = true
+      this.mentorPreviewLoading = true
+      try {
+        const data = await this.api('POST', `/api/firm-manager/cases/${c.id}/anonymise-preview`)
+        this.mentorPreview = data.anonymised || { summary: '', transcript: [] }
+      } catch (e) {
+        this.$buefy.toast.open({ message: 'Could not prepare an anonymised copy. Please try again.', type: 'is-danger' })
+        this.closeMentorPreview()
+      } finally {
+        this.mentorPreviewLoading = false
+      }
+    },
+
+    closeMentorPreview () {
+      this.showMentorPreview = false
+      this.mentorPreview = null
+      this.mentorPreviewCaseId = null
+    },
+
+    /** Persist the manager-approved anonymised copy and mark the case shared. */
+    async confirmShareWithMentor () {
+      if (!this.mentorPreviewCaseId || !this.mentorPreview) { return }
+      const id = this.mentorPreviewCaseId
+      this.mentorSharing = true
+      try {
+        await this.api('POST', `/api/firm-manager/cases/${id}/share-with-mentor`, { anonymised: this.mentorPreview })
+        const c = this.firmCases.find(x => x.id === id)
+        if (c) { c.mentorShared = true; c.mentorSharedAt = new Date().toISOString() }
+        this.$buefy.toast.open({ message: 'Shared with mentor.', type: 'is-success' })
+        this.closeMentorPreview()
+      } catch (e) {
+        this.$buefy.toast.open({ message: 'Could not share the case. Please try again.', type: 'is-danger' })
+      } finally {
+        this.mentorSharing = false
+      }
+    },
+
+    /** Withdraw a case from the mentor (clears the shared flag and stored copy). */
+    async withdrawFromMentor (c) {
+      this.mentorActionCaseId = c.id
+      try {
+        await this.api('DELETE', `/api/firm-manager/cases/${c.id}/share-with-mentor`)
+        c.mentorShared = false
+        c.mentorSharedAt = null
+        this.$buefy.toast.open({ message: 'Withdrawn from mentor.', type: 'is-success' })
+      } catch (e) {
+        this.$buefy.toast.open({ message: 'Could not withdraw the case. Please try again.', type: 'is-danger' })
+      } finally {
+        this.mentorActionCaseId = null
+      }
     },
 
     /** Display name for the advisor who saved the case (id until a name lookup exists). */

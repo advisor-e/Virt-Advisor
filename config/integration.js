@@ -29,6 +29,11 @@ const AUTH = {
 
   managerRole: 'firm_manager', // role value granting Firm Manager hub access
   adminRole: 'platform_admin', // role value granting platform-wide access
+  // Role value granting the cross-firm Mentor view. Interim = platform_admin
+  // until the master team introduces a distinct 'mentor' role upstream (see
+  // design/USER-LEVEL-CASCADE-HANDOVER.md and the distinctions-cascade Stage 3).
+  // Point this at the real 'mentor' role when it lands — no route change needed.
+  mentorRole: 'platform_admin',
 
   // Signing secret used to verify tokens.
   // If Advisor-e uses RS256 (asymmetric), replace this with the public key

@@ -193,6 +193,59 @@ async function getSharedForFirm (id, firmId) {
 }
 
 /**
+ * Map a row to the MENTOR's view shape — deliberately narrow: the ANONYMISED
+ * summary/transcript (never the raw), the engine-behaviour fields (decision
+ * trace, templates, review) and the firm id, but NO advisor identity and no raw
+ * client text. This is the only read that crosses the firm boundary.
+ */
+function rowToMentorCase (row) {
+  return {
+    id: row.id,
+    firmId: row.firm_id,
+    title: row.title,
+    mode: row.mode,
+    domain: row.domain || null,
+    staircaseStep: row.staircase_step || null,
+    growthStage: row.growth_stage || null,
+    finMgtTheme: row.fin_mgt_theme || null,
+    templates: parseJSON(row.templates, []),
+    decisionTrace: parseJSON(row.decision_trace, null),
+    review: (row.review_went_well || row.review_went_less || row.review_changes_recommended)
+      ? {
+          wentWell: row.review_went_well || '',
+          wentLess: row.review_went_less || '',
+          changesRecommended: row.review_changes_recommended || ''
+        }
+      : null,
+    summary: row.mentor_anon_summary || '',
+    transcript: parseJSON(row.mentor_anon_transcript, []),
+    mentorSharedAt: row.mentor_shared_at || null,
+    createdAt: row.created_at || null
+  }
+}
+
+/**
+ * List every case shared with the mentor, across ALL firms (the cross-firm
+ * mentor review feed). Returns the anonymised, advisor-stripped shape only.
+ * Role-gated to the mentor at the route — this function trusts that gate.
+ * @returns {Promise<object[]>}
+ */
+async function listSharedWithMentor () {
+  try {
+    const [rows] = await db.execute(
+      `SELECT * FROM va_case_studies
+        WHERE mentor_shared = 1
+        ORDER BY mentor_shared_at DESC, created_at DESC
+        LIMIT 500`
+    )
+    return rows.map(rowToMentorCase)
+  } catch (err) {
+    if (devFallbackEnabled()) { return _devListSharedWithMentor() }
+    throw err
+  }
+}
+
+/**
  * Insert a new case. Identity (advisorId/firmId) is the caller's verified
  * identity — never trusted from the request body.
  * @param {object} input
@@ -403,6 +456,29 @@ function _devGetSharedForFirm (id, firmId) {
     .find(c => c.id === id && c.firmId === firmId && c.visibility === 'shared') || null
 }
 
+function _devListSharedWithMentor () {
+  return _devReadAll()
+    .filter(c => c.mentorShared)
+    .map(c => ({
+      id: c.id,
+      firmId: c.firmId,
+      title: c.title,
+      mode: c.mode,
+      domain: c.domain || null,
+      staircaseStep: c.staircaseStep || null,
+      growthStage: c.growthStage || null,
+      finMgtTheme: c.finMgtTheme || null,
+      templates: c.templates || [],
+      decisionTrace: c.decisionTrace || null,
+      review: c.review || null,
+      summary: c.mentorAnonSummary || '',
+      transcript: c.mentorAnonTranscript || [],
+      mentorSharedAt: c.mentorSharedAt || null,
+      createdAt: c.createdAt || null
+    }))
+    .sort((a, b) => new Date(b.mentorSharedAt || 0) - new Date(a.mentorSharedAt || 0))
+}
+
 function _devCreate (row) {
   const all = _devReadAll()
   // Mirror the DB primary-key constraint: a duplicate id is rejected (the live
@@ -458,6 +534,7 @@ module.exports = {
   listForAdvisor,
   listSharedForFirm,
   getSharedForFirm,
+  listSharedWithMentor,
   create,
   updateReview,
   updateVisibility,

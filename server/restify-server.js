@@ -74,7 +74,8 @@ const firmRoute = require('./routes/firm')
 const firmManagerRoute = require('./routes/firmManager')
 const activityRoute = require('./routes/activity')
 const casesRoute = require('./routes/cases')
-const { firmAuth, requireManagerRole } = require('./middleware/firmAuth')
+const mentorRoute = require('./routes/mentor')
+const { firmAuth, requireManagerRole, requireMentorRole } = require('./middleware/firmAuth')
 // Advisor + course engines — migrated from Nuxt server-middleware per the
 // coding-team Req 7 ruling (OpenAI logic + key backend-only). Connect-style
 // (req, res, next) handlers that read the raw body and stream SSE themselves.
@@ -183,6 +184,11 @@ server.get('/api/firm-manager/cases', ...fmGuard, casesRoute.listFirmCases)
 server.post('/api/firm-manager/cases/:id/anonymise-preview', ...fmGuard, casesRoute.anonymiseCasePreview)
 server.post('/api/firm-manager/cases/:id/share-with-mentor', ...fmGuard, casesRoute.shareCaseWithMentor)
 server.del('/api/firm-manager/cases/:id/share-with-mentor', ...fmGuard, casesRoute.withdrawCaseFromMentor)
+
+// ── Mentor view (cross-firm; mentor role only) ──
+// The one read that crosses the firm boundary — only mentor-approved, anonymised
+// cases, role-gated to the mentor.
+server.get('/api/mentor/cases', firmAuth, requireMentorRole, mentorRoute.listMentorCases)
 
 // ── Start ──
 server.listen(PORT, () => {
