@@ -163,3 +163,67 @@ this order," then merges them with the existing `deepMerge`.
 6. `server/advisorEngine.js` — engine read points
 7. `server/routes/firmManager.js` — Firm-Manager read/write routing
 8. `config/db-schema.sql` — storage scope (the open decision above)
+
+---
+
+## Part 4 — Mentor case-study review (BUILT 2026-06-26)
+
+A working feature, not a plan: it lets the **Mentor** review real advisor case
+studies — **with the firm manager's per-case permission** — to find accuracy
+problems and improve the app. Built, tested, `nuxt build` green, and verified live
+end-to-end. This documents what exists and the one thing the master team must wire.
+
+### How it works (the cascade rule, made concrete)
+
+The rule above ("influence flows down; override sits at the firm") applies in
+reverse for *visibility upward*: nothing reaches the Mentor unless the firm
+deliberately sends it. It is a **double opt-in**:
+
+1. The **advisor** shares a case with their **firm** (existing `visibility`:
+   private → shared).
+2. The **firm manager** then chooses **"Share with mentor"** on that specific
+   case. Before it is sent, an **anonymiser** strips client identity (names,
+   company, place, identifying figures) while preserving tone, frustration and
+   jargon; the manager **previews and approves** the scrubbed copy. Only then is
+   it stored and made visible to the Mentor. **"Withdraw from mentor"** reverses
+   it and clears the stored copy.
+3. The **Mentor** sees only approved, anonymised, advisor-stripped cases, on a
+   **separate page only the Mentor can reach** (`/mentor`) — the one read that
+   deliberately crosses the firm boundary.
+
+The raw summary/transcript **never leave the firm**; the Mentor only ever sees
+the anonymised copy a human approved.
+
+### What was built (this app)
+
+- **Data model** — `va_case_studies` gains `mentor_shared` (a flag *separate*
+  from `visibility`, manager-owned), `mentor_anon_summary` / `mentor_anon_transcript`
+  (written only on approval), and `mentor_shared_by` / `mentor_shared_at` (audit).
+- **Anonymiser** — `server/utils/anonymiseCase.js` (OpenAI REST, JSON mode,
+  strict output validation; roles preserved from the original, not the model).
+- **Endpoints** (all manager-gated + firm-scoped except the last):
+  - `POST /api/firm-manager/cases/:id/anonymise-preview` — scrubbed preview (no save)
+  - `POST /api/firm-manager/cases/:id/share-with-mentor` — approve + persist
+  - `DELETE /api/firm-manager/cases/:id/share-with-mentor` — withdraw + clear copy
+  - `GET  /api/mentor/cases` — **mentor-role only**; cross-firm, anonymised feed
+- **UI** — manager actions in `FirmManagerHub.vue` (Team Case Studies); the
+  net-new mentor surface `pages/mentor.vue` + `components/MentorReview.vue`.
+
+### The one thing the master team must wire (the seam)
+
+The Mentor view is gated by **`requireMentorRole`** in `firmAuth.js`, which checks
+**`AUTH.mentorRole`** in `config/integration.js`. That is set to **`platform_admin`
+as an interim** so the feature is usable now. **Action for the master team:** when
+the real Mentor role exists upstream (the same role that sits at the top of the
+Global→Group→Firm cascade — seam files #1 and #2 above), point `AUTH.mentorRole`
+at it. No route or UI change is needed — only that one constant.
+
+> Two clearly-labelled **dev-only** affordances exist for local testing and are
+> inert in production (gated behind `ALLOW_DEV_AUTH` + non-production): the
+> `dev-local-mentor` bypass token in `firmAuth.js`, and the gitignored
+> `data/dev-cases.json` fixture. Neither ships to production.
+
+### New seam files (add to the list above)
+
+9. `server/routes/mentor.js` — the cross-firm Mentor read (role-gated)
+10. `server/utils/caseStore.js` — `listSharedWithMentor` + the mentor-share mutations
