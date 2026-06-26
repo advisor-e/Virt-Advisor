@@ -185,6 +185,16 @@ CREATE TABLE IF NOT EXISTS `advisor_course_completions` (
 -- visibility) plus their firm's 'shared' cases. This closes the legacy
 -- localStorage IDOR (identity was previously trusted from the client).
 --
+-- Mentor review (per-case, manager-gated, anonymised — design 2026-06-26):
+--   `mentor_shared` is a SEPARATE privacy axis from `visibility`. The advisor
+--   owns private<->shared (firm); the firm MANAGER owns shared-with-mentor. It
+--   is a double opt-in — a case reaches the mentor only when it is firm-`shared`
+--   AND a manager has approved `mentor_shared`. The `mentor_anon_*` copies hold
+--   the anonymised summary/transcript and are written ONLY on the manager's
+--   approval; they are the ONLY case content the mentor ever sees — the raw
+--   `summary`/`transcript` never leave the firm. `mentor_shared_by` /
+--   `mentor_shared_at` stamp who approved the share and when (audit).
+--
 -- `id` is a client-generated UUID (crypto.randomUUID) preserved as-is across the
 -- localStorage -> DB migration. advisor_id is NOT FK-constrained — the advisors
 -- table belongs to the Advisor-e platform, not this schema.
@@ -214,6 +224,12 @@ CREATE TABLE IF NOT EXISTS `va_case_studies` (
   `review_went_less`           TEXT                              DEFAULT NULL,
   `review_changes_recommended` TEXT                              DEFAULT NULL,
   `reviewed_at`                DATETIME                          DEFAULT NULL,
+  -- Mentor review (per-case, manager-gated, anonymised — see note above).
+  `mentor_shared`              TINYINT(1)               NOT NULL DEFAULT 0,
+  `mentor_anon_summary`        TEXT                              DEFAULT NULL,
+  `mentor_anon_transcript`     LONGTEXT                          DEFAULT NULL,
+  `mentor_shared_by`           VARCHAR(64)                       DEFAULT NULL,
+  `mentor_shared_at`           DATETIME                          DEFAULT NULL,
   `created_at`                 DATETIME                 NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`                 DATETIME                 NOT NULL DEFAULT CURRENT_TIMESTAMP
                                                         ON UPDATE CURRENT_TIMESTAMP,
@@ -222,6 +238,7 @@ CREATE TABLE IF NOT EXISTS `va_case_studies` (
   KEY `idx_cases_firm_visibility`  (`firm_id`, `visibility`),
   KEY `idx_cases_domain`           (`domain`),
   KEY `idx_cases_feedback_pending` (`firm_id`, `feedback_pending`),
+  KEY `idx_cases_mentor_shared`     (`mentor_shared`, `created_at`),
   CONSTRAINT `fk_cases_firm`
     FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

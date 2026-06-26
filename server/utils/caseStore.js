@@ -6,9 +6,16 @@
  * Storage model (design memory `design-case-study-visibility-model`, confirmed
  * 2026-06-19):
  *   - Every case lives centrally so it follows the advisor across devices.
- *   - `visibility` is the whole privacy model: 'private' = the owning advisor
- *     only (on any device); 'shared' = the whole firm. An advisor may flip a
- *     case either way.
+ *   - `visibility` is the advisor's privacy model: 'private' = the owning
+ *     advisor only (on any device); 'shared' = the whole firm. An advisor may
+ *     flip a case either way.
+ *   - `mentorShared` is a SEPARATE axis owned by the firm MANAGER (not the
+ *     advisor): a per-case, double-opt-in flag that surfaces a firm-`shared`
+ *     case to the mentor for app-accuracy review. The mentor only ever sees the
+ *     anonymised copy written on the manager's approval — never the raw text.
+ *     The share/withdraw mutations and the mentor read live in their own
+ *     functions (added with parts 3-4); this mapping only carries the flag +
+ *     audit stamp so manager screens can show share state.
  *
  * Security:
  *   - Reads are scoped to the caller's verified identity — an advisor sees their
@@ -75,6 +82,12 @@ function rowToCase (row) {
     title: row.title,
     mode: row.mode,
     visibility: row.visibility,
+    // Manager-owned mentor-share axis (separate from `visibility`). The
+    // anonymised copies are deliberately NOT mapped here — they surface only via
+    // the mentor read (part 4), never in advisor/manager case lists.
+    mentorShared: row.mentor_shared === 1 || row.mentor_shared === true,
+    mentorSharedBy: row.mentor_shared_by || null,
+    mentorSharedAt: row.mentor_shared_at || null,
     domain: row.domain || null,
     staircaseStep: row.staircase_step || null,
     growthStage: row.growth_stage || null,
