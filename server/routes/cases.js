@@ -3,6 +3,8 @@
 const { appendCoachingEntry } = require('../utils/coaching')
 const { sendError } = require('../utils/sendError')
 const caseStore = require('../utils/caseStore')
+const { anonymiseCaseContent } = require('../utils/anonymiseCase')
+const { createOpenAIClient } = require('../utils/openaiClient')
 
 /**
  * All case routes derive identity from the verified JWT (firmAuth attaches
@@ -174,6 +176,43 @@ async function deleteCase (req, res) {
 }
 
 /**
+ * POST /api/firm-manager/cases/:id/anonymise-preview — produce (but do NOT save)
+ * an anonymised copy of a firm-shared case, for the manager to preview before
+ * deciding to share it with the mentor (part 3 persists on approval).
+ *
+ * Manager-gated (requireManagerRole at the mount) and firm-scoped: the case must
+ * be this firm's AND already firm-`shared`, else 404. The raw summary/transcript
+ * are read server-side only and never returned — only the scrubbed copy is.
+ * @route POST /api/firm-manager/cases/:id/anonymise-preview
+ * @returns {200} { success: true, anonymised: { summary, transcript } }
+ * @returns {403} NO_FIRM_IDENTITY · {404} NOT_FOUND · {502} ANONYMISE_FAILED
+ */
+async function anonymiseCasePreview (req, res) {
+  const firmId = req.firmId
+  if (!firmId) {
+    return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm')
+  }
+  try {
+    const theCase = await caseStore.getSharedForFirm(req.params.id, firmId)
+    if (!theCase) {
+      return sendError(res, 404, 'NOT_FOUND', 'Case not found or not shared with the firm')
+    }
+    const client = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY })
+    const started = Date.now()
+    const anon = await anonymiseCaseContent(
+      { summary: theCase.summary, transcript: theCase.transcript },
+      client
+    )
+    // LLM-call audit (model / tokens / latency) — never logs the raw content.
+    console.log(`[cases] anonymise-preview id=${req.params.id} msgs=${(theCase.transcript || []).length} latencyMs=${Date.now() - started} tokens=${anon.usage ? anon.usage.total_tokens : 'n/a'}`)
+    res.send(200, { success: true, anonymised: { summary: anon.summary, transcript: anon.transcript } })
+  } catch (err) {
+    console.error('[cases] anonymiseCasePreview failed:', err.message)
+    sendError(res, 502, 'ANONYMISE_FAILED', 'Could not produce an anonymised preview')
+  }
+}
+
+/**
  * POST /api/cases/promote
  *
  * Promotes a case review observation to data/coaching-reference.json so the
@@ -227,4 +266,4 @@ function promote (req, res, next) {
   return next()
 }
 
-module.exports = { promote, listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase }
+module.exports = { promote, listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase, anonymiseCasePreview }

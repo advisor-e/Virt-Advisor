@@ -167,6 +167,32 @@ async function listSharedForFirm (firmId) {
 }
 
 /**
+ * Fetch ONE firm-`shared` case by id, scoped to the caller's firm. Used by the
+ * manager-gated mentor-share flow: a manager may only act on a case that is both
+ * their firm's and already shared (the visibility model is the access boundary).
+ * Returns the full case shape (including raw summary/transcript, read
+ * server-side only) or null if it does not exist / is not shared / is another
+ * firm's.
+ * @param {string} id
+ * @param {string} firmId - from the verified JWT
+ * @returns {Promise<object|null>}
+ */
+async function getSharedForFirm (id, firmId) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT * FROM va_case_studies
+        WHERE id = ? AND firm_id = ? AND visibility = 'shared'
+        LIMIT 1`,
+      [id, firmId]
+    )
+    return rows.length ? rowToCase(rows[0]) : null
+  } catch (err) {
+    if (devFallbackEnabled()) { return _devGetSharedForFirm(id, firmId) }
+    throw err
+  }
+}
+
+/**
  * Insert a new case. Identity (advisorId/firmId) is the caller's verified
  * identity — never trusted from the request body.
  * @param {object} input
@@ -299,6 +325,11 @@ function _devListSharedForFirm (firmId) {
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
 }
 
+function _devGetSharedForFirm (id, firmId) {
+  return _devReadAll()
+    .find(c => c.id === id && c.firmId === firmId && c.visibility === 'shared') || null
+}
+
 function _devCreate (row) {
   const all = _devReadAll()
   // Mirror the DB primary-key constraint: a duplicate id is rejected (the live
@@ -339,6 +370,7 @@ function _devRemove (id, advisorId) {
 module.exports = {
   listForAdvisor,
   listSharedForFirm,
+  getSharedForFirm,
   create,
   updateReview,
   updateVisibility,
