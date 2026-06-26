@@ -213,6 +213,73 @@ async function anonymiseCasePreview (req, res) {
 }
 
 /**
+ * Coerce a client-supplied anonymised payload to a safe shape. The manager is
+ * trusted (role-gated) and is approving exactly what they previewed, so we store
+ * their approved copy — but still normalise types and roles defensively.
+ * @returns {{summary:string, transcript:Array<{role:string,content:string}>}}
+ */
+function sanitiseAnonInput (anon) {
+  const summary = anon && typeof anon.summary === 'string' ? anon.summary : ''
+  const rawT = anon && Array.isArray(anon.transcript) ? anon.transcript : []
+  const transcript = rawT
+    .filter(m => m && typeof m.content === 'string')
+    .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+  return { summary, transcript }
+}
+
+/**
+ * POST /api/firm-manager/cases/:id/share-with-mentor — approve and persist the
+ * mentor share. Body carries the manager-approved anonymised copy (from the
+ * preview); we store exactly what they approved and flip the share on. Scoped to
+ * a firm-`shared` case of the caller's firm.
+ * @route POST /api/firm-manager/cases/:id/share-with-mentor
+ * @param {object} req.body.anonymised - { summary, transcript } the manager approved
+ * @returns {200} { success: true } · {400} INVALID_ANON · {404} NOT_FOUND
+ * @returns {403} NO_FIRM_IDENTITY · {500} DB_ERROR
+ */
+async function shareCaseWithMentor (req, res) {
+  const firmId = req.firmId
+  const approverId = req.advisorId || req.userEmail
+  if (!firmId) {
+    return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm')
+  }
+  const { summary, transcript } = sanitiseAnonInput((req.body || {}).anonymised)
+  if (!summary.trim() && transcript.length === 0) {
+    return sendError(res, 400, 'INVALID_ANON', 'An anonymised summary or conversation is required')
+  }
+  try {
+    const ok = await caseStore.shareWithMentor(req.params.id, firmId, approverId, summary, transcript)
+    if (!ok) { return sendError(res, 404, 'NOT_FOUND', 'Case not found or not shared with the firm') }
+    res.send(200, { success: true })
+  } catch (err) {
+    console.error('[cases] shareCaseWithMentor failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not share the case with the mentor')
+  }
+}
+
+/**
+ * DELETE /api/firm-manager/cases/:id/share-with-mentor — withdraw a mentor share.
+ * Flips the share off and clears the stored anonymised copy. Firm-scoped.
+ * @route DELETE /api/firm-manager/cases/:id/share-with-mentor
+ * @returns {200} { success: true } · {404} NOT_FOUND
+ * @returns {403} NO_FIRM_IDENTITY · {500} DB_ERROR
+ */
+async function withdrawCaseFromMentor (req, res) {
+  const firmId = req.firmId
+  if (!firmId) {
+    return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm')
+  }
+  try {
+    const ok = await caseStore.withdrawFromMentor(req.params.id, firmId)
+    if (!ok) { return sendError(res, 404, 'NOT_FOUND', 'Case not found') }
+    res.send(200, { success: true })
+  } catch (err) {
+    console.error('[cases] withdrawCaseFromMentor failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not withdraw the case')
+  }
+}
+
+/**
  * POST /api/cases/promote
  *
  * Promotes a case review observation to data/coaching-reference.json so the
@@ -266,4 +333,4 @@ function promote (req, res, next) {
   return next()
 }
 
-module.exports = { promote, listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase, anonymiseCasePreview }
+module.exports = { promote, listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase, anonymiseCasePreview, shareCaseWithMentor, withdrawCaseFromMentor }

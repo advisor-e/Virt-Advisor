@@ -10,7 +10,8 @@ jest.mock('../../server/utils/db', () => ({
 
 const db = require('../../server/utils/db')
 const {
-  listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase
+  listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase,
+  shareCaseWithMentor, withdrawCaseFromMentor
 } = require('../../server/routes/cases')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -327,6 +328,86 @@ describe('deleteCase', () => {
     const res = makeMockRes()
     await deleteCase(makeReq({ params: { id: 'not-mine' } }), res)
 
+    expect(res._status).toBe(404)
+  })
+})
+
+// ── shareCaseWithMentor (manager approves the anonymised share) ────────────────
+
+describe('shareCaseWithMentor', () => {
+  test('returns 403 without a firm identity', async () => {
+    const res = makeMockRes()
+    await shareCaseWithMentor(makeReq({ firmId: null, params: { id: 'c1' } }), res)
+    expect(res._status).toBe(403)
+    expect(res._body.error.code).toBe('NO_FIRM_IDENTITY')
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  test('rejects an empty anonymised payload', async () => {
+    const res = makeMockRes()
+    await shareCaseWithMentor(makeReq({
+      params: { id: 'c1' },
+      body: { anonymised: { summary: '   ', transcript: [] } }
+    }), res)
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('INVALID_ANON')
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  test('persists the approved copy, firm-scoped and shared-only, stamping the approver', async () => {
+    db.execute.mockResolvedValue([{ affectedRows: 1 }])
+
+    const req = makeReq({
+      params: { id: 'c1' },
+      body: { anonymised: { summary: 'The owner is worried.', transcript: [{ role: 'user', content: 'scrubbed' }] } }
+    })
+    const res = makeMockRes()
+    await shareCaseWithMentor(req, res)
+
+    expect(res._status).toBe(200)
+    const [sql, params] = db.execute.mock.calls[0]
+    expect(sql).toMatch(/mentor_shared = 1/)
+    expect(sql).toMatch(/visibility = 'shared'/)
+    // params: [summary, transcriptJSON, approverId, id, firmId]
+    expect(params[0]).toBe('The owner is worried.')
+    expect(JSON.parse(params[1])).toEqual([{ role: 'user', content: 'scrubbed' }])
+    expect(params[2]).toBe('advisor-from-jwt') // approver from JWT, not body
+    expect(params[3]).toBe('c1')
+    expect(params[4]).toBe('firm-from-jwt')
+  })
+
+  test('returns 404 when the case is not the firm\'s shared case', async () => {
+    db.execute.mockResolvedValue([{ affectedRows: 0 }])
+    const res = makeMockRes()
+    await shareCaseWithMentor(makeReq({
+      params: { id: 'x' },
+      body: { anonymised: { summary: 'x', transcript: [] } }
+    }), res)
+    expect(res._status).toBe(404)
+    expect(res._body.error.code).toBe('NOT_FOUND')
+  })
+})
+
+// ── withdrawCaseFromMentor ────────────────────────────────────────────────────
+
+describe('withdrawCaseFromMentor', () => {
+  test('clears the share and the stored copy, firm-scoped', async () => {
+    db.execute.mockResolvedValue([{ affectedRows: 1 }])
+
+    const res = makeMockRes()
+    await withdrawCaseFromMentor(makeReq({ params: { id: 'c1' } }), res)
+
+    expect(res._status).toBe(200)
+    const [sql, params] = db.execute.mock.calls[0]
+    expect(sql).toMatch(/mentor_shared = 0/)
+    expect(sql).toMatch(/mentor_anon_summary = NULL/)
+    expect(params).toEqual(['c1', 'firm-from-jwt'])
+  })
+
+  test('returns 404 when there is no such firm case', async () => {
+    db.execute.mockResolvedValue([{ affectedRows: 0 }])
+    const res = makeMockRes()
+    await withdrawCaseFromMentor(makeReq({ params: { id: 'nope' } }), res)
     expect(res._status).toBe(404)
   })
 })

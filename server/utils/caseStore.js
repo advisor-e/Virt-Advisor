@@ -285,6 +285,79 @@ async function updateVisibility (id, advisorId, visibility) {
 }
 
 /**
+ * Approve and persist a mentor share (part 3). Stores the manager-approved
+ * anonymised copy and flips `mentor_shared` on. Scoped to a firm-`shared` case
+ * of the caller's firm — a manager can only share their own firm's shared cases.
+ * The stored copy is exactly what the manager previewed and approved (part 2);
+ * the raw summary/transcript are untouched and never leave the firm.
+ * @param {string} id
+ * @param {string} firmId - from the verified JWT
+ * @param {string} approverId - the approving manager (audit: mentor_shared_by)
+ * @param {string} anonSummary - approved anonymised summary
+ * @param {Array<{role:string, content:string}>} anonTranscript - approved scrubbed transcript
+ * @returns {Promise<boolean>} true if a firm-shared row was updated
+ */
+async function shareWithMentor (id, firmId, approverId, anonSummary, anonTranscript) {
+  const summary = anonSummary ? String(anonSummary).slice(0, 16000) : null
+  const transcript = Array.isArray(anonTranscript) && anonTranscript.length
+    ? JSON.stringify(anonTranscript)
+    : null
+  try {
+    const [result] = await db.execute(
+      `UPDATE va_case_studies
+          SET mentor_shared = 1, mentor_anon_summary = ?, mentor_anon_transcript = ?,
+              mentor_shared_by = ?, mentor_shared_at = NOW()
+        WHERE id = ? AND firm_id = ? AND visibility = 'shared'`,
+      [summary, transcript, String(approverId || '').slice(0, 64), id, firmId]
+    )
+    return result.affectedRows > 0
+  } catch (err) {
+    if (devFallbackEnabled()) {
+      return _devUpdateFirm(id, firmId, true, (c) => {
+        c.mentorShared = true
+        c.mentorAnonSummary = summary
+        c.mentorAnonTranscript = Array.isArray(anonTranscript) ? anonTranscript : []
+        c.mentorSharedBy = String(approverId || '').slice(0, 64)
+        c.mentorSharedAt = new Date().toISOString()
+      })
+    }
+    throw err
+  }
+}
+
+/**
+ * Withdraw a mentor share (part 3). Flips `mentor_shared` off and CLEARS the
+ * stored anonymised copy (least-retention) so it no longer reaches the mentor.
+ * Firm-scoped — a manager may withdraw any of their firm's cases.
+ * @param {string} id
+ * @param {string} firmId - from the verified JWT
+ * @returns {Promise<boolean>} true if a firm row was updated
+ */
+async function withdrawFromMentor (id, firmId) {
+  try {
+    const [result] = await db.execute(
+      `UPDATE va_case_studies
+          SET mentor_shared = 0, mentor_anon_summary = NULL, mentor_anon_transcript = NULL,
+              mentor_shared_by = NULL, mentor_shared_at = NULL
+        WHERE id = ? AND firm_id = ?`,
+      [id, firmId]
+    )
+    return result.affectedRows > 0
+  } catch (err) {
+    if (devFallbackEnabled()) {
+      return _devUpdateFirm(id, firmId, false, (c) => {
+        c.mentorShared = false
+        c.mentorAnonSummary = null
+        c.mentorAnonTranscript = null
+        c.mentorSharedBy = null
+        c.mentorSharedAt = null
+      })
+    }
+    throw err
+  }
+}
+
+/**
  * Delete a case the advisor owns.
  * @returns {Promise<boolean>} true if a row the advisor owns was deleted
  */
@@ -359,6 +432,20 @@ function _devUpdate (id, advisorId, mutate) {
   return true
 }
 
+/**
+ * Firm-scoped dev mutate (mentor-share flow). When `sharedOnly` is true the case
+ * must also be visibility 'shared' (mirrors the live SQL WHERE on share).
+ */
+function _devUpdateFirm (id, firmId, sharedOnly, mutate) {
+  const all = _devReadAll()
+  const c = all.find(x => x.id === id && x.firmId === firmId && (!sharedOnly || x.visibility === 'shared'))
+  if (!c) { return false }
+  mutate(c)
+  c.updatedAt = new Date().toISOString()
+  _devWriteAll(all)
+  return true
+}
+
 function _devRemove (id, advisorId) {
   const all = _devReadAll()
   const next = all.filter(x => !(x.id === id && x.advisorId === advisorId))
@@ -374,6 +461,8 @@ module.exports = {
   create,
   updateReview,
   updateVisibility,
+  shareWithMentor,
+  withdrawFromMentor,
   remove,
   // exported for tests
   generateId,

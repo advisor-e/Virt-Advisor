@@ -178,9 +178,11 @@ server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 // Manager case-review feed: the firm's shared case studies (with their decision
 // traces) for review. Manager-gated + firm-scoped; private cases never surface.
 server.get('/api/firm-manager/cases', ...fmGuard, casesRoute.listFirmCases)
-// Mentor-share (part 2): anonymise a firm-shared case for the manager to preview
-// before approving the share to the mentor. Does not persist.
+// Mentor-share: (part 2) anonymise a firm-shared case for the manager to preview;
+// (part 3) approve+persist the share, or withdraw it. Manager-gated, firm-scoped.
 server.post('/api/firm-manager/cases/:id/anonymise-preview', ...fmGuard, casesRoute.anonymiseCasePreview)
+server.post('/api/firm-manager/cases/:id/share-with-mentor', ...fmGuard, casesRoute.shareCaseWithMentor)
+server.del('/api/firm-manager/cases/:id/share-with-mentor', ...fmGuard, casesRoute.withdrawCaseFromMentor)
 
 // ── Start ──
 server.listen(PORT, () => {
