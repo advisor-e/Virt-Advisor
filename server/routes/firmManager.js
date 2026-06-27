@@ -125,9 +125,9 @@ const db = require('../utils/db')
 const { STORAGE, DRIVE } = require('../../config/integration')
 const DOMAINS = require('../../data/domains.json')
 const BASE_STAIRCASE = require('../../data/advisory-staircase.json')
-const ADVISORY_DISTINCTIONS = require('../../data/advisory-distinctions.json')
 const { resolveEffectiveDistinctions } = require('../utils/resolveDistinctions')
 const { loadFirmDistinctionState, CONFIG_KEYS } = require('../utils/firmDistinctions')
+const { loadPlatformDistinctions } = require('../utils/platformDistinctions')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -750,7 +750,13 @@ async function deleteDistinction (req, res) {
 // decline here changes live advisor sessions. All scoped to the JWT-verified
 // req.firmId — a client-supplied firmId is never trusted (IDOR).
 
-const PLATFORM_DISTINCTION_IDS = new Set((ADVISORY_DISTINCTIONS.platform || []).map(r => r.id))
+// The platform (mentor) set is now dynamic — the mentor can author it (the cascade
+// origin, DISTINCTIONS-CASCADE-PLAN.md §6) — so its ids are loaded per request via
+// the single platform loader (falls back to the committed seed when nothing stored).
+async function _loadPlatformIds () {
+  const rows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  return new Set(rows.map(r => r.id))
+}
 
 async function _loadDeclines (firmId) {
   try {
@@ -837,7 +843,8 @@ function _sanitiseOverrideFields (body) {
 async function getDistinctionState (req, res) {
   try {
     const state = await loadFirmDistinctionState(req.firmId, overlay.loadFirmConfig)
-    const effective = resolveEffectiveDistinctions(ADVISORY_DISTINCTIONS.platform, state)
+    const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+    const effective = resolveEffectiveDistinctions(platformRows, state)
     res.send(200, {
       ownRows: state.ownRows,
       declinedIds: state.declinedIds,
@@ -858,7 +865,7 @@ async function getDistinctionState (req, res) {
  */
 async function setDistinctionOverride (req, res) {
   const id = String(req.params.id || '')
-  if (!PLATFORM_DISTINCTION_IDS.has(id)) {
+  if (!(await _loadPlatformIds()).has(id)) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   const sani = _sanitiseOverrideFields(req.body || {})
@@ -882,7 +889,7 @@ async function setDistinctionOverride (req, res) {
  */
 async function resetDistinctionOverride (req, res) {
   const id = String(req.params.id || '')
-  if (!PLATFORM_DISTINCTION_IDS.has(id)) {
+  if (!(await _loadPlatformIds()).has(id)) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   try {
@@ -910,7 +917,7 @@ async function resetDistinctionOverride (req, res) {
  */
 async function setDistinctionDecline (req, res) {
   const id = String(req.params.id || '')
-  if (!PLATFORM_DISTINCTION_IDS.has(id)) {
+  if (!(await _loadPlatformIds()).has(id)) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   const declined = (req.body || {}).declined
@@ -941,7 +948,8 @@ async function setDistinctionDecline (req, res) {
  */
 async function moveDistinction (req, res) {
   const id = String(req.params.id || '')
-  const platformRow = (ADVISORY_DISTINCTIONS.platform || []).find(r => r.id === id)
+  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRow = platformRows.find(r => r.id === id)
   if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
