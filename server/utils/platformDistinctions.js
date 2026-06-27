@@ -25,6 +25,9 @@
  * also keeps this module unit-testable without a database.
  */
 
+const fs = require('fs')
+const path = require('path')
+
 const ADVISORY_DISTINCTIONS = require('../../data/advisory-distinctions.json')
 
 // Reserved global scope for the mentor-authored platform set. `__platform__` is
@@ -39,15 +42,38 @@ const SEED_PLATFORM_ROWS = Array.isArray(ADVISORY_DISTINCTIONS.platform)
   ? ADVISORY_DISTINCTIONS.platform
   : []
 
+// Dev-JSON fallback: when MySQL is unavailable (dev), the mentor set is persisted
+// to this gitignored file (a plain array — there is only one global scope, so no
+// firmId keying). TEST-ONLY: no version history; replaced by real MySQL before
+// production. Mirrors the firm-distinctions dev fallback (server/utils/firmDistinctions.js).
+const DEV_FILE = path.resolve(process.cwd(), 'data/dev-platform-distinctions.json')
+
+// Evaluated at call time (not module load) so the dev fallback honours the env in
+// force when a write actually happens — never silently swallows a production error.
+function _isDev () { return process.env.NODE_ENV !== 'production' }
+
+function _readDevRows () {
+  try {
+    const arr = JSON.parse(fs.readFileSync(DEV_FILE, 'utf8'))
+    return Array.isArray(arr) ? arr : null
+  } catch (_e) {
+    return null
+  }
+}
+
+function _writeDevRows (rows) {
+  fs.writeFileSync(DEV_FILE, JSON.stringify(rows, null, 2))
+}
+
 /**
  * Load the platform (mentor) distinction rows. Prefers the stored mentor set from
- * the global overlay scope; falls back to the committed seed when nothing is
- * stored, the stored value is not an array, or the loader is unavailable/throws
- * (e.g. no MySQL in dev). A stored EMPTY array is honoured (the mentor genuinely
- * cleared the set) — only null/undefined/non-array/throw falls through to the seed.
+ * the global overlay scope; on a clean miss (null) returns the committed seed; on a
+ * loader error (e.g. no MySQL in dev) tries the dev-JSON fallback, then the seed. A
+ * stored EMPTY array is honoured (the mentor genuinely cleared the set) — only
+ * null/undefined/non-array/throw falls through to the dev file or seed.
  *
  * @param {Function} [loadFirmConfig] - async (firmId, key) => stored value
- *   (firmOverlay.loadFirmConfig). When omitted, the seed is returned.
+ *   (firmOverlay.loadFirmConfig). When omitted, the dev file (if any) then the seed.
  * @returns {Promise<Array>} the platform distinction rows
  */
 async function loadPlatformDistinctions (loadFirmConfig) {
@@ -55,15 +81,43 @@ async function loadPlatformDistinctions (loadFirmConfig) {
     try {
       const stored = await loadFirmConfig(PLATFORM_SCOPE, PLATFORM_CONFIG_KEY)
       if (Array.isArray(stored)) { return stored }
+      return SEED_PLATFORM_ROWS // clean miss (null) — production: nothing stored yet
     } catch (_e) {
-      // No DB (dev) or a read error -> fall through to the committed seed.
+      // No DB (dev) or read error — try the dev-JSON fallback before the seed.
+      const dev = _readDevRows()
+      if (dev) { return dev }
+      return SEED_PLATFORM_ROWS
     }
   }
-  return SEED_PLATFORM_ROWS
+  // No loader injected — dev file (if any) then seed.
+  const dev = _readDevRows()
+  return dev || SEED_PLATFORM_ROWS
+}
+
+/**
+ * Persist the platform (mentor) distinction set. Writes to the global overlay scope
+ * (version history + restore come for free); on a save error in DEV, falls back to
+ * the dev-JSON file. In production a save error is re-thrown so it surfaces — it is
+ * never silently swallowed.
+ *
+ * @param {Array} rows - the full platform set to persist
+ * @param {Function} saveFirmConfig - async (firmId, key, json, savedBy) => version
+ *   (firmOverlay.saveFirmConfig)
+ * @param {string} savedBy - audit attribution (the mentor's email)
+ * @returns {Promise<void>}
+ */
+async function savePlatformDistinctions (rows, saveFirmConfig, savedBy) {
+  try {
+    await saveFirmConfig(PLATFORM_SCOPE, PLATFORM_CONFIG_KEY, rows, savedBy)
+  } catch (err) {
+    if (_isDev()) { _writeDevRows(rows); return }
+    throw err
+  }
 }
 
 module.exports = {
   loadPlatformDistinctions,
+  savePlatformDistinctions,
   PLATFORM_SCOPE,
   PLATFORM_CONFIG_KEY,
   SEED_PLATFORM_ROWS

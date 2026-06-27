@@ -190,6 +190,15 @@ server.del('/api/firm-manager/cases/:id/share-with-mentor', ...fmGuard, casesRou
 // cases, role-gated to the mentor.
 server.get('/api/mentor/cases', firmAuth, requireMentorRole, mentorRoute.listMentorCases)
 
+// Mentor Advisory Distinctions — the cascade ORIGIN (DISTINCTIONS-CASCADE-PLAN.md §6).
+// The mentor authors the platform set every firm receives as its default; plain CRUD
+// (no decline/override at this tier). Global scope — handlers never read req.firmId.
+const mentorGuard = [firmAuth, requireMentorRole]
+server.get('/api/mentor/distinctions', ...mentorGuard, mentorRoute.listMentorDistinctions)
+server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentorDistinction)
+server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)
+server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)
+
 // ── Start ──
 server.listen(PORT, () => {
   console.error(`[restify] virt-advisor-api listening on port ${PORT}`)

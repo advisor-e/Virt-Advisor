@@ -38,6 +38,9 @@ data/dev-firm-distinctions.json
 data/dev-firm-distinction-declines.json
 data/dev-firm-distinction-overrides.json
 
+# Dev-only platform (mentor) distinctions (created locally when MySQL is unavailable)
+data/dev-platform-distinctions.json
+
 # Dev-only firm staircase override (created locally when MySQL is unavailable)
 data/dev-firm-staircase.json
 
