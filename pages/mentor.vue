@@ -12,7 +12,12 @@
           br
           | Please contact your account administrator.
 
-  mentor-review(v-else :api-token="apiToken")
+  .container(v-else style="padding: 2rem 1rem;")
+    b-tabs(v-model="activeTab")
+      b-tab-item(label="Case Reviews" icon="clipboard-text")
+        mentor-review(:api-token="apiToken")
+      b-tab-item(label="Advisory Distinctions" icon="brain")
+        mentor-distinctions(:api-token="apiToken")
 </template>
 
 <script>
@@ -30,6 +35,7 @@
  */
 
 import MentorReview from '~/components/MentorReview.vue'
+import MentorDistinctions from '~/components/MentorDistinctions.vue'
 
 // TODO: update these keys to match how Advisor-e stores auth in localStorage
 const AUTH_STORAGE = {
@@ -44,13 +50,14 @@ const MENTOR_ROLES = ['platform_admin']
 
 export default {
   name: 'MentorPage',
-  components: { MentorReview },
+  components: { MentorReview, MentorDistinctions },
 
   data () {
     return {
       checking: true,
       authorised: false,
-      apiToken: null
+      apiToken: null,
+      activeTab: 0
     }
   },
 
