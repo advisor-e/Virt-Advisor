@@ -64,6 +64,12 @@ describe('resolveEffectiveDistinctions', () => {
       expect(out.some(r => r.id === 'hacked')).toBe(false)
     })
 
+    // INTERIM behaviour (DISTINCTIONS-CASCADE-PLAN.md §6 Stage D, DEFERRED): an
+    // override with no matching platform row is dropped. This is what happens today
+    // when the mentor deletes a master row a firm had customised. The decided rule
+    // ("keep theirs" — promote the firm's edit to a firm-own row) is a cross-firm
+    // write that rides the MySQL-persistence work; when it lands, this expectation
+    // changes (the firm's version is promoted, not dropped). See design/ACTIONS.md.
     it('ignores an override keyed to an unknown id (no phantom row)', () => {
       const out = resolveEffectiveDistinctions(PLATFORM, { overrides: { 'pd-999': { boost: 9 } } })
       expect(out.map(r => r.id)).toEqual(['pd-1', 'pd-2', 'pd-3'])

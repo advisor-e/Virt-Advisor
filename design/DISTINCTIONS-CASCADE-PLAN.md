@@ -181,9 +181,29 @@ already handles firm rows.
   the case reviews) using the firm distinctions form/picker/boost slider in plain-CRUD mode.
   **Acceptance:** the mentor edits the cast on screen; version history/restore works as the firm
   screen's does.
-- **Stage D — delete semantics + tests.** Encode (don't leave to accident) what happens to a firm's
-  override when the mentor *deletes* the underlying platform row — the resolver currently silently
-  drops orphaned overrides. Add route tests (≥90%) and a resolver test for the mentor-delete case.
+- **Stage D — delete semantics + tests. RULE DECIDED; IMPLEMENTATION DEFERRED (2026-06-27).** The rule
+  below is locked; the cross-firm write that enforces it is deferred to ride the MySQL-persistence work
+  (building a dev-only version on the dev-file foundation would be throwaway). Interim behaviour today: a
+  deleted master row simply vanishes (the read path loses nothing it wasn't already losing), pinned by
+  `tests/unit/resolveDistinctions.test.js` ("ignores an override keyed to an unknown id"). Backlogged in
+  `design/ACTIONS.md`.
+  - **DECIDED 2026-06-27 (Mike): keep theirs.** When the mentor
+  deletes a master row, a firm that had *customised* it keeps its version as a standalone firm-own row;
+  only the master default disappears. Honours "firm customisation wins and sticks" — a firm never loses
+  its work because the mentor removed the original. A firm that only *declined* the row needs no action
+  (the decline becomes inert); an untouched firm simply loses the default.
+  - **Implementation shape.** The promotion happens at **delete time** in the mentor handler (which still
+    holds the full master row, incl. its domain, before removing it): enumerate the firms that hold an
+    override for that id, and for each, write a firm-own row = the master base + the firm's edits (with
+    the master row's domain), then drop that override. Today the resolver silently *drops* an override
+    with no matching platform row — that is the behaviour this stage replaces, so the firm's edits are
+    promoted rather than lost.
+  - **Needs:** a cross-firm enumeration (which firms hold an override for this id) — dev: read the
+    dev-overrides JSON; prod: scan `firm_framework_versions` for `config_key='distinction-overrides'`.
+    This is a **cross-firm write from the mentor handler** (it reaches into firm stores) — guard it the
+    same way as the other firm writes, and it rides the MySQL-persistence item for the production path.
+  - **Tests:** ≥90% route coverage + a promotion unit test (full override → promoted firm-own row with
+    the right domain; decline cleared/inert; untouched firm unaffected).
 - **Stage E — mentor-update review (adopt / keep mine) (agreed 2026-06-27).** When the mentor edits
   a row a firm has overridden, the firm is *shielded* (firm-wins-and-sticks) — but they should be
   able to **see the mentor's newer version and choose**. Add a "mentor updated this distinction"
