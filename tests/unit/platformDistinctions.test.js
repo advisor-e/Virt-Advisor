@@ -1,5 +1,23 @@
 'use strict'
 
+// Hermetic: the seed-fallback assertions below must NOT depend on whether a developer
+// has a local dev file (data/dev-platform-distinctions.json), which exists as soon as
+// any mentor edit has been made in dev. We surgically make ONLY that file's read fail,
+// so _readDevRows() returns null and the loader falls back to the committed seed —
+// everything else (incl. the JSON seed load) uses the real fs.
+jest.mock('fs', () => {
+  const actual = jest.requireActual('fs')
+  return {
+    ...actual,
+    readFileSync: jest.fn((p, ...rest) => {
+      if (typeof p === 'string' && p.includes('dev-platform-distinctions.json')) {
+        throw Object.assign(new Error('ENOENT (mocked: no dev file in tests)'), { code: 'ENOENT' })
+      }
+      return actual.readFileSync(p, ...rest)
+    })
+  }
+})
+
 const {
   loadPlatformDistinctions,
   PLATFORM_SCOPE,

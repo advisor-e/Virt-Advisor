@@ -379,6 +379,53 @@ section.firm-manager-hub.section
                   ) Move
                   b-button(@click="closeMoveModal") Cancel
 
+            //- Mentor-update review (Stage E): compare the mentor's current version with
+            //- the firm's version, then Adopt the update or Keep the firm's version.
+            b-modal(v-model="showMentorUpdateModal" has-modal-card trap-focus)
+              .modal-card(style="max-width:720px" v-if="mentorUpdateRow")
+                header.modal-card-head
+                  p.modal-card-title The mentor updated this distinction
+                section.modal-card-body
+                  p.mb-4.has-text-grey
+                    | You customised this distinction, so your version has been kept. The mentor has
+                    | since changed their version. Compare them below, then choose.
+                  .columns
+                    .column
+                      p.has-text-weight-semibold.mb-2 Mentor's current version
+                      .box.is-shadowless(style="background:#fffbeb")
+                        p.is-size-7.has-text-grey.mb-1 Description
+                        p.mb-2 {{ mentorUpdateRow.mentorVersion.description }}
+                        p.is-size-7.has-text-grey.mb-1 Trigger phrases
+                        p.is-size-7.mb-2 {{ mentorUpdateRow.mentorVersion.triggers.join(', ') }}
+                        p.is-size-7.has-text-grey.mb-1 Templates boosted
+                        p.is-size-7.mb-2
+                          b-tag.mr-1.mb-1(v-for="t in mentorUpdateRow.mentorVersion.templates" :key="'m-'+t" size="is-small") {{ t }}
+                        p.is-size-7.has-text-grey.mb-1 Boost
+                        p +{{ mentorUpdateRow.mentorVersion.boost }}
+                    .column
+                      p.has-text-weight-semibold.mb-2 Your version
+                      .box.is-shadowless(style="background:#f0fff4")
+                        p.is-size-7.has-text-grey.mb-1 Description
+                        p.mb-2 {{ mentorUpdateRow.description }}
+                        p.is-size-7.has-text-grey.mb-1 Trigger phrases
+                        p.is-size-7.mb-2 {{ mentorUpdateRow.triggers.join(', ') }}
+                        p.is-size-7.has-text-grey.mb-1 Templates boosted
+                        p.is-size-7.mb-2
+                          b-tag.mr-1.mb-1(v-for="t in mentorUpdateRow.templates" :key="'f-'+t" size="is-small" type="is-success is-light") {{ t }}
+                        p.is-size-7.has-text-grey.mb-1 Boost
+                        p +{{ mentorUpdateRow.boost }}
+                footer.modal-card-foot
+                  b-button(
+                    type="is-primary"
+                    :loading="resolvingMentorUpdate"
+                    @click="adoptMentorUpdate(mentorUpdateRow.id)"
+                  ) Adopt the mentor's version
+                  b-button(
+                    :loading="resolvingMentorUpdate"
+                    @click="keepMineMentorUpdate(mentorUpdateRow.id)"
+                  ) Keep mine
+                  b-button(@click="closeMentorUpdateReview") Cancel
+
             //- Unified list — platform, customised, switched-off and firm-own rows together
             .level.mb-3
               .level-left
@@ -395,6 +442,25 @@ section.firm-manager-hub.section
               | Edit any distinction to make it your firm's own, or switch one off.
               | Platform rows are shared defaults; your changes apply to your firm only.
 
+            //- "Since your last visit" — mentor updates the firm hasn't reviewed yet.
+            //- Count spans all domains; switch domains to find the badged rows.
+            b-notification.mb-3(
+              v-if="distinctionNewUpdateCount > 0"
+              type="is-warning is-light"
+              :closable="false"
+            )
+              .level.is-mobile
+                .level-left
+                  span.has-text-weight-semibold
+                    | {{ distinctionNewUpdateCount }} mentor {{ distinctionNewUpdateCount === 1 ? 'update' : 'updates' }} since your last visit
+                .level-right
+                  b-button(
+                    type="is-warning"
+                    size="is-small"
+                    :loading="markingDistinctionsReviewed"
+                    @click="markDistinctionsReviewed"
+                  ) Mark all as reviewed
+
             b-table.mb-4(
               v-if="!loadingFirmDistinctions && domainDistinctions.length > 0"
               :data="domainDistinctions"
@@ -402,7 +468,18 @@ section.firm-manager-hub.section
               :row-class="distinctionRowClass"
               size="is-small"
             )
-              b-table-column(v-slot="{ row }" field="description" label="Description") {{ row.description }}
+              b-table-column(v-slot="{ row }" field="description" label="Description")
+                | {{ row.description }}
+                b-tag.is-block.mt-1(
+                  v-if="row.mentorUpdated"
+                  type="is-warning"
+                  size="is-small"
+                ) Updated by mentor · {{ formatMentorDate(row.mentorUpdatedAt) }}
+                b-tag.is-block.mt-1(
+                  v-if="row.mentorDrift"
+                  type="is-warning"
+                  size="is-small"
+                ) Mentor updated this distinction
               b-table-column(v-slot="{ row }" label="Source" width="110")
                 b-tag(:type="distinctionBadge(row.kind).type" size="is-small") {{ distinctionBadge(row.kind).label }}
               b-table-column(v-slot="{ row }" label="Trigger phrases")
@@ -422,6 +499,13 @@ section.firm-manager-hub.section
                   b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
                   b-button.mb-1(size="is-small" @click="switchOffDistinction(row.id)") Switch off
                 template(v-else-if="row.kind === 'customised'")
+                  b-button.mr-1.mb-1(
+                    v-if="row.mentorDrift"
+                    size="is-small"
+                    type="is-warning"
+                    icon-left="bell-ring"
+                    @click="openMentorUpdateReview(row)"
+                  ) Review update
                   b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
                   b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
                   b-button.mr-1.mb-1(size="is-small" @click="confirmResetDistinction(row.id)") Reset to platform
@@ -692,7 +776,6 @@ section.firm-manager-hub.section
 <script>
 const BACKEND = 'http://localhost:4000'
 
-const ADVISORY_DISTINCTIONS = require('~/data/advisory-distinctions.json')
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 
 // The distinctions picker offers the Do-the-Job templates a distinction can meaningfully
@@ -842,8 +925,24 @@ export default {
       selectedDistinctionDomain: DISTINCTION_DOMAINS[0].id,
       // Full firm state from GET /distinctions/state: own rows + the cascade
       // (declined platform ids + platform overrides). The unified list is derived
-      // from this plus the imported platform rows.
+      // from this plus the LIVE platform rows the backend returns (the mentor-authored
+      // set — not the committed seed — so mentor edits show here).
       distinctionState: { ownRows: [], declinedIds: [], overrides: {} },
+      // Live platform (mentor) rows from the backend, each flagged mentorUpdated /
+      // mentorUpdatedAt when it changed since this firm last reviewed.
+      livePlatformRows: [],
+      // "Mentor updates since your last visit" — drives the banner + per-row badge
+      // for rows the firm passively inherits (not overridden).
+      distinctionNewUpdateCount: 0,
+      distinctionLastReviewedAt: null,
+      markingDistinctionsReviewed: false,
+      // Stage E — platform ids the firm OVERRODE where the mentor has since changed the
+      // underlying row (drift). These get the "mentor updated this" prompt + Adopt/Keep-mine.
+      distinctionDriftIds: [],
+      // Compare modal (mentor's current version vs the firm's version)
+      showMentorUpdateModal: false,
+      mentorUpdateRow: null,
+      resolvingMentorUpdate: false,
       loadingFirmDistinctions: false,
       showDistinctionForm: false,
       showDistinctionHelpModal: false,
@@ -890,13 +989,26 @@ export default {
       const dom = this.selectedDistinctionDomain
       const declined = new Set(this.distinctionState.declinedIds || [])
       const overrides = this.distinctionState.overrides || {}
+      const drift = new Set(this.distinctionDriftIds || [])
       const rows = []
-      for (const p of (ADVISORY_DISTINCTIONS.platform || [])) {
+      for (const p of (this.livePlatformRows || [])) {
         if (p.domain !== dom) { continue }
+        // p carries mentorUpdated / mentorUpdatedAt from the backend (the passive
+        // "since your last visit" notice — never set on overridden rows).
         if (declined.has(p.id)) {
           rows.push({ ...p, kind: 'declined' })
         } else if (overrides[p.id]) {
-          rows.push({ ...p, ...overrides[p.id], id: p.id, kind: 'customised' })
+          // Customised row: the firm's version is shown; mentorVersion holds the mentor's
+          // CURRENT row (= p, before the override) for the Stage E compare panel, and
+          // mentorDrift flags that the mentor changed it since the firm last reviewed.
+          rows.push({
+            ...p,
+            ...overrides[p.id],
+            id: p.id,
+            kind: 'customised',
+            mentorDrift: drift.has(p.id),
+            mentorVersion: { description: p.description, triggers: p.triggers, templates: p.templates, boost: p.boost }
+          })
         } else {
           rows.push({ ...p, kind: 'platform' })
         }
@@ -1294,10 +1406,79 @@ export default {
           declinedIds: data.declinedIds || [],
           overrides: data.overrides || {}
         }
+        this.livePlatformRows = data.platform || []
+        this.distinctionNewUpdateCount = data.newUpdateCount || 0
+        this.distinctionLastReviewedAt = data.lastReviewedAt || null
+        this.distinctionDriftIds = data.driftIds || []
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       } finally {
         this.loadingFirmDistinctions = false
+      }
+    },
+
+    // Acknowledge the mentor updates — advances the firm's "last reviewed" marker on
+    // the backend, then reloads so the banner + per-row badges clear. The marker only
+    // ever moves on this explicit click, never on page load.
+    async markDistinctionsReviewed () {
+      this.markingDistinctionsReviewed = true
+      try {
+        await this.api('POST', '/api/firm-manager/distinctions/mark-reviewed')
+        await this.loadFirmDistinctions()
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.markingDistinctionsReviewed = false
+      }
+    },
+
+    // "28 Jun" — short, locale-independent date for the "Updated by mentor" badge.
+    formatMentorDate (iso) {
+      if (!iso) { return '' }
+      const d = new Date(iso)
+      if (Number.isNaN(d.getTime())) { return '' }
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      return `${d.getDate()} ${months[d.getMonth()]}`
+    },
+
+    // ── Stage E — review a mentor update to a distinction the firm customised ────
+    // Opens the compare panel (mentor's current version vs the firm's version).
+    openMentorUpdateReview (row) {
+      this.mentorUpdateRow = row
+      this.showMentorUpdateModal = true
+    },
+    closeMentorUpdateReview () {
+      this.showMentorUpdateModal = false
+      this.mentorUpdateRow = null
+    },
+    // Adopt — drop the firm's override and take the mentor's current version (reuses
+    // the Reset-to-platform route, which also clears the drift baseline server-side).
+    async adoptMentorUpdate (id) {
+      this.resolvingMentorUpdate = true
+      try {
+        await this.api('DELETE', `/api/firm-manager/distinctions/platform/${id}`)
+        this.closeMentorUpdateReview()
+        await this.loadFirmDistinctions()
+        this.$buefy.toast.open({ message: 'Adopted the mentor\'s version', type: 'is-success' })
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.resolvingMentorUpdate = false
+      }
+    },
+    // Keep mine — keep the firm's version; re-stamp the baseline so the prompt clears
+    // until the mentor's next edit.
+    async keepMineMentorUpdate (id) {
+      this.resolvingMentorUpdate = true
+      try {
+        await this.api('POST', `/api/firm-manager/distinctions/platform/${id}/keep-mine`)
+        this.closeMentorUpdateReview()
+        await this.loadFirmDistinctions()
+        this.$buefy.toast.open({ message: 'Kept your version', type: 'is-success' })
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.resolvingMentorUpdate = false
       }
     },
 

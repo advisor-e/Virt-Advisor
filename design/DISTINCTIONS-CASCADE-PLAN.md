@@ -3,6 +3,13 @@
 **Status:** PLAN — agreed model, not yet built. Confirmed with Mike 2026-06-16.
 **Update 2026-06-27:** §6 added — the **mentor authoring surface** (give the mentor the firm's
 Advisory Distinctions screen, plain-CRUD, as the UI origin of the cast). Agreed with Mike; not yet built.
+**Update 2026-06-29:** §6 Stages A–C **shipped**; **Stage E BUILT** (mentor-update review: per-override
+content-signature drift detection → "Mentor updated this distinction" badge + Review-update compare
+panel with Adopt / Keep-mine). A complementary "since your last visit" notice covers the *non-overridden*
+(auto-applied) case. Backend: `firmManager.js` (override-baseline store + `keepMineDistinction` +
+`getDistinctionState.driftIds`); UI: `FirmManagerHub.vue`. Tests: `firmManagerStageE.routes.test.js`,
+`firmManagerDistinctionReview.routes.test.js`. **Stage D still deferred** (cross-firm delete promotion,
+rides MySQL). All on branch `feat/mentor-distinctions-authoring`.
 **Audience:** written to be read by domain experts and engineers equally.
 **Related:** `design/virt-advisor-system-design.md` §11 (Firm Manager / Advisory Distinctions),
 memory `design-distinctions-cascade`, `north_star_vision` (commitments #1 add IP + steer, #4
