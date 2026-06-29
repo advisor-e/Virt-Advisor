@@ -36,7 +36,12 @@ const fs = require('fs')
 const crypto = require('crypto')
 const db = require('./db')
 
-const DEV_CASES_FILE = path.resolve(__dirname, '../../data/dev-cases.json')
+// Default dev fallback file; overridable via CASE_DEV_FILE so tests can point at an
+// isolated temp file (keeps a clean `npm test` independent of the shared dev file and
+// of any live backend writing to it). Production never sets this — it uses MySQL.
+const DEV_CASES_FILE = process.env.CASE_DEV_FILE
+  ? path.resolve(process.env.CASE_DEV_FILE)
+  : path.resolve(__dirname, '../../data/dev-cases.json')
 
 /**
  * Whether the DEV/TEST-ONLY JSON fallback may stand in for an unavailable DB.

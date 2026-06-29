@@ -908,6 +908,98 @@ async function _saveOverrideBaselines (firmId, obj, savedBy) {
   }
 }
 
+// ── Stage D — mentor delete → "keep theirs" cross-firm promotion ───────────────
+// When the mentor deletes a master (platform) row, a firm that CUSTOMISED it keeps
+// its version as a standalone firm-own row (honours "firm customisation wins and
+// sticks"); only the master default disappears. Implemented at delete time because
+// the mentor handler still holds the full master row (incl. its domain). This is a
+// cross-firm write — guarded by the mentor role at the route mount.
+
+// Dev fallback: which firms hold an override for `id` (reads the whole dev-overrides map).
+function _devAllOverrideFirms (id) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_OVERRIDES_FILE, 'utf8'))
+    return Object.keys(all).filter(fid => all[fid] && typeof all[fid] === 'object' && all[fid][id])
+  } catch { return [] }
+}
+
+// Every firm that currently overrides platform row `id`. Prod: one indexed query +
+// a per-firm read; dev (no DB): the dev-overrides map. All-DB-or-all-dev (no mix).
+async function _enumerateOverrideFirms (id) {
+  try {
+    const firmIds = await overlay.listFirmIdsWithConfigKey(CONFIG_KEYS.overrides)
+    const out = []
+    for (const fid of firmIds) {
+      const ovr = await overlay.loadFirmConfig(fid, CONFIG_KEYS.overrides)
+      if (ovr && typeof ovr === 'object' && ovr[id]) { out.push(fid) }
+    }
+    return out
+  } catch (err) {
+    if (IS_DEV) { return _devAllOverrideFirms(id) }
+    throw err
+  }
+}
+
+/**
+ * Promote every customising firm's version of a soon-to-be-deleted master row into a
+ * standalone firm-own row, then drop that firm's override + drift baseline. Called by
+ * the mentor delete handler BEFORE the master row is removed, so `deletedRow` still
+ * carries the full master content (incl. domain). Firms that only DECLINED the row
+ * need no action (the decline becomes inert once the master is gone); untouched firms
+ * simply lose the default. Idempotent: a firm that already has a firm-own copy of this
+ * row (e.g. from an earlier "Move to…") is not duplicated — its override is just dropped.
+ * @param {object} deletedRow - the full master row about to be deleted (pd-N)
+ * @param {string} savedBy - audit attribution (the mentor's email)
+ * @returns {Promise<{promoted: string[]}>} firm ids that gained a kept-version row
+ */
+async function promoteOverridesForDeletedRow (deletedRow, savedBy) {
+  const id = deletedRow && deletedRow.id
+  if (!id) { return { promoted: [] } }
+  const by = savedBy || 'mentor-delete'
+  const firmIds = await _enumerateOverrideFirms(id)
+  const promoted = []
+
+  for (const fid of firmIds) {
+    const overrides = await _loadOverrides(fid)
+    const ovr = overrides[id]
+    if (!ovr) { continue }
+
+    const own = await _loadDistinctions(fid)
+    // Skip the firm-own write if a copy of this row already exists (idempotent / prior move).
+    if (!own.some(r => r.movedFrom === id)) {
+      const effective = Object.assign({}, deletedRow, ovr)
+      const nextId = own.length > 0 ? Math.max(...own.map(r => r.id || 0)) + 1 : 1
+      own.push({
+        id: nextId,
+        domain: deletedRow.domain,
+        description: String(effective.description || '').trim(),
+        triggers: Array.isArray(effective.triggers) ? effective.triggers : [],
+        templates: Array.isArray(effective.templates) ? effective.templates : [],
+        boost: Math.min(20, Math.max(1, Number(effective.boost) || 5)),
+        created_by: by,
+        created_at: new Date().toISOString(),
+        movedFrom: id,
+        keptOnMentorDelete: true
+      })
+      await _saveDistinctions(fid, own, by)
+      promoted.push(fid)
+    }
+
+    // Drop the now-orphaned override + its drift baseline.
+    const nextOverrides = Object.assign({}, overrides)
+    delete nextOverrides[id]
+    await _saveOverrides(fid, nextOverrides, by)
+    const baselines = await _loadOverrideBaselines(fid)
+    if (Object.prototype.hasOwnProperty.call(baselines, id)) {
+      const nextB = Object.assign({}, baselines)
+      delete nextB[id]
+      await _saveOverrideBaselines(fid, nextB, by)
+    }
+  }
+
+  return { promoted }
+}
+
 /**
  * Whitelist + validate the editable fields of a platform-row override. Only the
  * four editable fields are accepted (a partial edit is fine) — id/domain/source
@@ -1365,6 +1457,7 @@ module.exports = {
   keepMineDistinction,
   setDistinctionDecline,
   moveDistinction,
+  promoteOverridesForDeletedRow,
   getStaircase,
   saveStaircase
 }

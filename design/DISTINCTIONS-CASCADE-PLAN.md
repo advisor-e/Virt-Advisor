@@ -8,8 +8,17 @@ content-signature drift detection → "Mentor updated this distinction" badge + 
 panel with Adopt / Keep-mine). A complementary "since your last visit" notice covers the *non-overridden*
 (auto-applied) case. Backend: `firmManager.js` (override-baseline store + `keepMineDistinction` +
 `getDistinctionState.driftIds`); UI: `FirmManagerHub.vue`. Tests: `firmManagerStageE.routes.test.js`,
-`firmManagerDistinctionReview.routes.test.js`. **Stage D still deferred** (cross-firm delete promotion,
-rides MySQL). All on branch `feat/mentor-distinctions-authoring`.
+`firmManagerDistinctionReview.routes.test.js`.
+**Update 2026-06-29 (later):** **Stage D BUILT** ("keep theirs" cross-firm promotion). On a mentor
+delete, every firm that OVERRODE the row keeps its version as a standalone firm-own row, then its
+override + drift baseline are dropped; declined-only firms need no action; untouched firms lose the
+default. Promotion runs BEFORE the master is removed (fail-safe — if it throws, the row is not deleted).
+Production enumeration is real now: `firmOverlay.listFirmIdsWithConfigKey` (`SELECT DISTINCT firm_id …`),
+with the dev-overrides map as the dev fallback — so this is **not** throwaway. `firmManager.promoteOverridesForDeletedRow`,
+called from `mentor.deleteMentorDistinction`; tests `firmManagerStageD.routes.test.js`. Also hardened
+test isolation (caseStore dev path now `CASE_DEV_FILE`-overridable; `platformDistinctions` fs-mocked) so
+a clean `npm test` is deterministic. All on branch `feat/mentor-distinctions-authoring`; Stage 3
+(hierarchy/role) is the only cascade stage still open.
 **Audience:** written to be read by domain experts and engineers equally.
 **Related:** `design/virt-advisor-system-design.md` §11 (Firm Manager / Advisory Distinctions),
 memory `design-distinctions-cascade`, `north_star_vision` (commitments #1 add IP + steer, #4
@@ -188,12 +197,12 @@ already handles firm rows.
   the case reviews) using the firm distinctions form/picker/boost slider in plain-CRUD mode.
   **Acceptance:** the mentor edits the cast on screen; version history/restore works as the firm
   screen's does.
-- **Stage D — delete semantics + tests. RULE DECIDED; IMPLEMENTATION DEFERRED (2026-06-27).** The rule
-  below is locked; the cross-firm write that enforces it is deferred to ride the MySQL-persistence work
-  (building a dev-only version on the dev-file foundation would be throwaway). Interim behaviour today: a
-  deleted master row simply vanishes (the read path loses nothing it wasn't already losing), pinned by
-  `tests/unit/resolveDistinctions.test.js` ("ignores an override keyed to an unknown id"). Backlogged in
-  `design/ACTIONS.md`.
+- **Stage D — delete semantics + tests. ✅ BUILT 2026-06-29** (was: rule decided 2026-06-27, impl
+  deferred — brought forward at Mike's request). `firmManager.promoteOverridesForDeletedRow` runs from
+  `mentor.deleteMentorDistinction` BEFORE the master row is removed (fail-safe). Cross-firm enumeration
+  is production-real (`firmOverlay.listFirmIdsWithConfigKey`) with the dev-overrides map as the dev
+  fallback. Tests: `tests/unit/firmManagerStageD.routes.test.js` (override→firm-own with master domain;
+  decline inert; untouched firm; idempotent prior-move; multi-firm). The original rule + shape:
   - **DECIDED 2026-06-27 (Mike): keep theirs.** When the mentor
   deletes a master row, a firm that had *customised* it keeps its version as a standalone firm-own row;
   only the master default disappears. Honours "firm customisation wins and sticks" — a firm never loses

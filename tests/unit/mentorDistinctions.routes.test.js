@@ -6,7 +6,10 @@
 
 jest.mock('../../server/utils/firmOverlay', () => ({
   loadFirmConfig: jest.fn(),
-  saveFirmConfig: jest.fn()
+  saveFirmConfig: jest.fn(),
+  // No firm overrides any row in these tests → delete-promotion (Stage D) is a no-op
+  // and never touches the dev files (keeps the delete tests hermetic).
+  listFirmIdsWithConfigKey: jest.fn(() => Promise.resolve([]))
 }))
 
 const overlay = require('../../server/utils/firmOverlay')

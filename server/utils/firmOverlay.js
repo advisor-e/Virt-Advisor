@@ -104,6 +104,23 @@ async function saveFirmConfig (firmId, configKey, configJson, savedBy) {
   }
 }
 
+/**
+ * List every firm id that has an ACTIVE config under a given key. Used by the
+ * mentor delete-promotion (Stage D) to find the firms that customised a row the
+ * mentor is deleting, without a per-firm probe. Returns a plain array of ids.
+ * @param {string} configKey - e.g. 'distinction-overrides'
+ * @returns {Promise<string[]>}
+ */
+async function listFirmIdsWithConfigKey (configKey) {
+  const [rows] = await db.execute(
+    `SELECT DISTINCT firm_id
+     FROM firm_framework_versions
+     WHERE config_key = ? AND is_active = 1`,
+    [configKey]
+  )
+  return rows.map(r => r.firm_id)
+}
+
 async function getVersionHistory (firmId, configKey) {
   const [rows] = await db.execute(
     `SELECT id, version, is_active, saved_by, created_at
@@ -158,4 +175,4 @@ async function restoreVersion (firmId, configKey, versionId) {
   }
 }
 
-module.exports = { deepMerge, loadFirmConfig, saveFirmConfig, getVersionHistory, restoreVersion }
+module.exports = { deepMerge, loadFirmConfig, saveFirmConfig, listFirmIdsWithConfigKey, getVersionHistory, restoreVersion }

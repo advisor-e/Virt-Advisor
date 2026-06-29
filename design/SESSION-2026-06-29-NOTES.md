@@ -74,16 +74,39 @@ reads the live `platform` rows returned by `getDistinctionState`.
   the Review-update flow under **Firm Manager → Advisory Distinctions → Profitability & Feasibility**.
   Adopt / Keep mine / or revert as desired.
 
+## 4a. Stage D — mentor delete → "keep theirs" (BUILT 2026-06-29, later in the session)
+
+When the mentor deletes a master distinction, a firm that had **customised** it keeps its version as a
+standalone firm-own row; only the master default disappears.
+
+- `firmManager.promoteOverridesForDeletedRow(deletedRow, savedBy)` runs from
+  `mentor.deleteMentorDistinction` **before** the row is removed — **fail-safe**: if promotion throws,
+  the master is NOT deleted, so firm edits are never stranded.
+- Per customising firm: write a firm-own row (master's domain + the firm's edited fields, stamped
+  `movedFrom`/`keptOnMentorDelete`), then drop that firm's override + Stage-E baseline. Declined-only
+  firms = no action (decline inert); untouched firms lose the default; idempotent if the firm already
+  has a copy (prior "Move to…").
+- Cross-firm enumeration is **production-real**: `firmOverlay.listFirmIdsWithConfigKey` (`SELECT DISTINCT
+  firm_id … WHERE config_key='distinction-overrides'`), with the dev-overrides map as the dev fallback.
+- `mentor.js` now `require`s `firmManager.js` (one-way; no cycle).
+- Tests: `tests/unit/firmManagerStageD.routes.test.js` (5).
+
+## 4b. Test isolation hardened (testing is now seamless)
+
+The only two suites that touched real `data/dev-*.json` files are now isolated, so a clean `npm test` is
+deterministic regardless of local dev state or a running backend:
+- `platformDistinctions.test.js` — surgical `fs` mock so the seed-fallback assertions never read a local
+  `dev-platform-distinctions.json`.
+- `caseStore.js` — dev path is now `CASE_DEV_FILE`-overridable; `caseStore.devfallback.test.js` uses a
+  per-PID temp file. **Full suite: 637 green, lint clean.**
+
 ## 5. Outstanding (logged in ACTIONS.md)
 
-- **Stage D** (mentor delete → promote a customising firm's override to firm-own) — rule decided
-  ("keep theirs"), implementation deferred; it's a cross-firm write that rides MySQL persistence.
-- **Firm-Manager config persistence → MySQL** — the Stage-E stores (`distinction-override-baselines`,
-  `distinction-last-seen`) use the dev-JSON fallback today; production needs the real `firmOverlay`/MySQL.
-- **Stage 3** (hierarchy hook-up; "mentor" role vs `platform_admin`) — still open.
-- **Test isolation** — `platformDistinctions` + `caseStore.devfallback` tests aren't hermetic (pass in
-  isolation, can fail in the full run because they share real dev files). New P3 TEST item.
-- **Merge** — this branch (mentor-authoring A–C + E) is unmerged; gate = click-through + `nuxt build`.
+- **Firm-Manager config persistence → MySQL** — the cascade stores (overrides, declines,
+  `distinction-override-baselines`, `distinction-last-seen`) use the dev-JSON fallback today; production
+  needs the real `firmOverlay`/MySQL. Stage D's enumeration query is already MySQL-ready.
+- **Stage 3** (hierarchy hook-up; "mentor" role vs `platform_admin`) — the only cascade stage still open.
+- **Merge** — this branch (mentor-authoring A–C + **D + E**) is unmerged; gate = click-through + `nuxt build`.
 
 ## 6. Registry follow-up
 

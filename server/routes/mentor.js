@@ -7,7 +7,11 @@ const {
   loadPlatformDistinctions,
   savePlatformDistinctions
 } = require('../utils/platformDistinctions')
+// Stage D delete-promotion lives in firmManager (it owns the firm-distinction stores
+// + dev fallbacks); reused here so a mentor delete preserves customising firms' rows.
+// One-way dependency (firmManager never requires mentor) — no cycle.
 const DOMAINS = require('../../data/domains.json')
+const firmManager = require('./firmManager')
 
 /**
  * Mentor routes — the cross-firm review surface. These deliberately cross the
@@ -155,23 +159,28 @@ async function updateMentorDistinction (req, res) {
 
 /**
  * DELETE /api/mentor/distinctions/:id — remove a platform distinction.
- * NB Stage D will define what this does to firms that overrode the row; today the
- * resolver silently drops an override with no matching platform row, so a deleted
- * row simply disappears from every firm.
+ * Stage D ("keep theirs", DISTINCTIONS-CASCADE-PLAN.md §6): before removing the
+ * master row, any firm that CUSTOMISED it keeps its version as a standalone firm-own
+ * row (promoteOverridesForDeletedRow), so a firm never loses its work because the
+ * mentor deleted the original. Promotion runs FIRST — if it throws, the master row is
+ * NOT removed (fail-safe; the firm edits are never stranded). Firms that only declined
+ * the row need no action (the decline becomes inert); untouched firms lose the default.
  * @route DELETE /api/mentor/distinctions/:id
  * @param {string} id - the platform distinction id (pd-N)
- * @returns {200} { success: true }
+ * @returns {200} { success: true, kept: string[] }  kept = firm ids whose version was preserved
  */
 async function deleteMentorDistinction (req, res) {
   const id = String(req.params.id || '')
   try {
     const existing = await loadPlatformDistinctions(overlay.loadFirmConfig)
-    const filtered = existing.filter(r => r.id !== id)
-    if (filtered.length === existing.length) {
+    const row = existing.find(r => r.id === id)
+    if (!row) {
       return sendError(res, 404, 'NOT_FOUND', 'No distinction with that id')
     }
-    await savePlatformDistinctions(filtered, overlay.saveFirmConfig, req.userEmail)
-    res.send(200, { success: true })
+    // Keep-theirs promotion BEFORE the master is removed (it still holds the full row).
+    const { promoted } = await firmManager.promoteOverridesForDeletedRow(row, req.userEmail)
+    await savePlatformDistinctions(existing.filter(r => r.id !== id), overlay.saveFirmConfig, req.userEmail)
+    res.send(200, { success: true, kept: promoted })
   } catch (err) {
     console.error('[mentor] deleteMentorDistinction failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not delete distinction')
