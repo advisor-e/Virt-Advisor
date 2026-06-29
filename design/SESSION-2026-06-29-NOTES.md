@@ -74,6 +74,10 @@ reads the live `platform` rows returned by `getDistinctionState`.
   the Review-update flow under **Firm Manager → Advisory Distinctions → Profitability & Feasibility**.
   Adopt / Keep mine / or revert as desired.
 
+> **LIVE-VERIFIED by Mike 2026-06-29.** Both Stage E (Adopt / Keep-mine compare flow) and Stage D
+> (mentor delete → firm keeps its version) were click-tested end-to-end through the running app and
+> confirmed working.
+
 ## 4a. Stage D — mentor delete → "keep theirs" (BUILT 2026-06-29, later in the session)
 
 When the mentor deletes a master distinction, a firm that had **customised** it keeps its version as a
