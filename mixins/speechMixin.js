@@ -1,3 +1,13 @@
+/**
+ * speechMixin
+ *
+ * Wraps the browser Web Speech API (SpeechRecognition) to provide voice dictation
+ * into three different targets: the main chat input, an advisor-profile field, or
+ * a case-review field. Only one target records at a time. All SpeechRecognition
+ * setup runs in mounted() because the API is browser-only and absent during SSR;
+ * speechSupported stays false when the API is unavailable so the UI can hide the mic.
+ */
+
 // BCP-47 speech recognition language codes, keyed by i18n locale
 export const BCP47_MAP = {
   en: 'en-US',
@@ -34,6 +44,14 @@ export default {
     }
   },
 
+  // Initialise SpeechRecognition in mounted() — window/webkitSpeechRecognition are
+  // browser-only and unavailable during SSR. Wires three handlers:
+  //  - onresult: routes the running transcript to whichever target is active
+  //    (profile field, review field, or the main input).
+  //  - onend: auto-restarts recognition while a target is still active (the API
+  //    stops itself periodically), guarded by _recognitionRunning to avoid a
+  //    double start() race.
+  //  - onerror: stops listening on real errors but ignores transient 'no-speech'.
   mounted () {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (SpeechRecognition) {
@@ -72,6 +90,12 @@ export default {
   },
 
   methods: {
+    /**
+     * Start the recogniser if it isn't already running. The _recognitionRunning
+     * guard prevents an InvalidStateError from calling start() while already
+     * active; a failed start is logged and the guard reset.
+     * @returns {void}
+     */
     _startRecognition () {
       if (this._recognitionRunning) { return }
       this._recognitionRunning = true
@@ -83,6 +107,11 @@ export default {
       }
     },
 
+    /**
+     * Toggle dictation into the main chat input. Stops if already listening;
+     * otherwise clears the other recording targets and the input, then starts.
+     * @returns {void}
+     */
     toggleListening () {
       if (!this.recognition) { return }
       if (this.isListening) {
@@ -97,6 +126,13 @@ export default {
       }
     },
 
+    /**
+     * Toggle dictation into a named advisor-profile field. Stops if that same
+     * field is already recording; otherwise clears the other targets and starts
+     * recording into the given field.
+     * @param {string} field - the advisorProfile key to dictate into
+     * @returns {void}
+     */
     toggleProfileListening (field) {
       if (!this.recognition) { return }
       if (this.profileRecordingField === field) {
@@ -110,6 +146,13 @@ export default {
       }
     },
 
+    /**
+     * Toggle dictation into a named case-review field. Stops if that same field
+     * is already recording; otherwise clears the other targets and starts
+     * recording into the given field.
+     * @param {string} field - the reviewDraft key to dictate into
+     * @returns {void}
+     */
     toggleReviewListening (field) {
       if (!this.recognition) { return }
       if (this.reviewRecordingField === field) {

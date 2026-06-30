@@ -1,5 +1,19 @@
+/**
+ * caseMixin
+ *
+ * Manages the advisor's saved case studies: loads the cases the signed-in
+ * advisor may see (their own + firm-shared), runs the cases panel UI, edits the
+ * post-session review, toggles a case's private/shared visibility, deletes a
+ * case, and promotes a case into the firm's shared team-development library.
+ * All persistence goes through the Restify backend via ~/utils/cases (raw SQL
+ * lives there) — the mixin holds no business logic of its own.
+ */
+
 import { listCases, updateCaseReview, deleteCase, setCaseVisibility, migrateLegacyCases } from '~/utils/cases'
 
+// Restify backend base URL — only used here for the /api/cases/promote call,
+// which has no helper in ~/utils/cases yet. Identity is carried on the Bearer
+// token; the backend, not this URL, is what scopes/authorises the request.
 const BACKEND = 'http://localhost:4000'
 
 export default {
@@ -23,6 +37,11 @@ export default {
   },
 
   computed: {
+    /**
+     * Cases shown to the AI as session reference, filtered to the current mode.
+     * Capped at 4 (the backend already returns own + firm-shared, newest-first).
+     * @returns {Array<object>} up to 4 cases matching this.mode, newest-first
+     */
     relevantCases () {
       if (!this.mode) { return [] }
       // Own + firm-shared cases for this mode (the backend already scoped them);
@@ -48,6 +67,14 @@ export default {
   },
 
   methods: {
+    /**
+     * Reload visible cases from the backend and recompute the "mine" subset.
+     * Identity comes from the server-returned advisorId (not the possibly-
+     * placeholder prop), so firm-shared cases from others stay visible to the
+     * AI but are not listed as the advisor's own. Never throws — a load failure
+     * sets casesError and leaves any already-shown cases in place.
+     * @returns {Promise<void>}
+     */
     async refreshMyCases () {
       try {
         const { cases, advisorId } = await listCases(this.apiToken)
@@ -64,6 +91,12 @@ export default {
       }
     },
 
+    /**
+     * Close the cases panel and reset all transient panel state (expanded row,
+     * review draft, delete/promote confirmations). Also stops any in-progress
+     * review dictation so the mic isn't left running after the panel closes.
+     * @returns {void}
+     */
     closeCasesPanel () {
       this.showCasesPanel = false
       this.expandedCaseId = null
@@ -78,6 +111,12 @@ export default {
       this.promoteErrorId = null
     },
 
+    /**
+     * Expand or collapse a case row. On expand, seeds the review draft from the
+     * case's existing review (or blanks) so the edit form opens pre-filled.
+     * @param {string} id - the case id to toggle
+     * @returns {void}
+     */
     toggleCase (id) {
       if (this.expandedCaseId === id) {
         this.expandedCaseId = null
@@ -92,6 +131,12 @@ export default {
         : { wentWell: '', wentLess: '', changesRecommended: '' }
     },
 
+    /**
+     * Persist the current review draft for a case, then refresh and close the
+     * panel. On failure, keeps the panel open with the draft intact for retry.
+     * @param {string} caseId - the case being reviewed
+     * @returns {Promise<void>}
+     */
     async saveReview (caseId) {
       try {
         await updateCaseReview(caseId, { ...this.reviewDraft, reviewedAt: new Date().toISOString() }, this.apiToken)
@@ -103,6 +148,22 @@ export default {
       }
     },
 
+    /**
+     * Promote a case into the firm's shared team-development library.
+     * POSTs to the backend with the case's title, domain, templates and review
+     * notes; surfaces a transient success/error flag (auto-cleared after 3s).
+     * @route POST {API_BASE_URL}/api/cases/promote
+     *   request body: { caseTitle, domain, templates, wentWell, wentLess,
+     *                    changesRecommended, promotedBy, promotedAt }
+     *   sent with Authorization: Bearer <token> (falls back to dev bypass token)
+     * @param {object} c - the case to promote
+     * @param {string} c.id - case id (used for the success/error flag)
+     * @param {string} c.title - case title
+     * @param {string} [c.domain] - advisory domain
+     * @param {Array} [c.templates] - associated template ids
+     * @param {object} [c.review] - review notes (wentWell/wentLess/changesRecommended)
+     * @returns {Promise<void>}
+     */
     async promoteCase (c) {
       this.promoteSuccessId = null
       this.promoteErrorId = null
@@ -132,9 +193,14 @@ export default {
       }
     },
 
-    // Flip a case between private and shared (both directions). Owner-only is
-    // enforced server-side; identity rides the token. Keeps the case expanded so
-    // the advisor sees the new state immediately.
+    /**
+     * Flip a case between private and shared (both directions). Owner-only is
+     * enforced server-side; identity rides the token. Keeps the case expanded so
+     * the advisor sees the new state immediately, and uses visibilityBusyId to
+     * disable the toggle while the round-trip is in flight.
+     * @param {string} caseId - the case to re-scope (must be one of myCases)
+     * @returns {Promise<void>}
+     */
     async toggleVisibility (caseId) {
       const c = this.myCases.find(x => x.id === caseId)
       if (!c) { return }
@@ -150,6 +216,11 @@ export default {
       }
     },
 
+    /**
+     * Delete a case via the backend, then refresh and collapse the panel.
+     * @param {string} id - the case id to delete
+     * @returns {Promise<void>}
+     */
     async deleteCaseAndRefresh (id) {
       try {
         await deleteCase(id, this.apiToken)
@@ -161,10 +232,20 @@ export default {
       }
     },
 
+    /**
+     * Map an internal mode key to its human-readable label for display.
+     * @param {string} mode - one of 'client' | 'discover' | 'plan' | 'learn'
+     * @returns {string} the display label, or the raw mode if unrecognised
+     */
     modeName (mode) {
       return { client: 'Client situation', discover: 'Discovery', plan: 'Planning', learn: 'Learning' }[mode] || mode
     },
 
+    /**
+     * Format an ISO date string as a short en-GB date (e.g. "5 Jul 2026").
+     * @param {string} iso - ISO 8601 date string (empty/falsy returns '')
+     * @returns {string} the formatted date, or '' if no date given
+     */
     formatDate (iso) {
       if (!iso) { return '' }
       return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })

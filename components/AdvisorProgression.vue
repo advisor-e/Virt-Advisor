@@ -2,22 +2,22 @@
 .advisor-progression
 
   .prog-nav-bar
-    button.btn-prog-back(@click="$emit('exit')") ← Back to Menu
+    button.btn-prog-back(@click="$emit('exit')") {{ $t('advisorProgression.backToMenu') }}
 
   .prog-loading(v-if="loading")
     .prog-loading-inner
       .prog-spinner
-      p Loading progress data...
+      p {{ $t('advisorProgression.loadingProgressData') }}
 
   .prog-error(v-else-if="error")
     p.prog-error-msg {{ error }}
-    button.btn-prog-retry(@click="fetchData") Try again
+    button.btn-prog-retry(@click="fetchData") {{ $t('advisorProgression.tryAgain') }}
 
   //- ── Advisor self-view ────────────────────────────────────────────────
   template(v-else-if="!isFirmManager")
     .prog-header
-      h2.prog-title My Progress
-      p.prog-sub Your advisory capability across all VA cases, courses, and sessions
+      h2.prog-title {{ $t('advisorProgression.myProgress') }}
+      p.prog-sub {{ $t('advisorProgression.myProgressSub') }}
 
     .prog-tiers
       .prog-tier-card(
@@ -31,23 +31,23 @@
         .prog-tier-stats
           .prog-stat
             .prog-stat-num {{ tiers[tier.key].vaSessions }}
-            .prog-stat-label VA Cases
+            .prog-stat-label {{ $t('advisorProgression.vaCases') }}
           .prog-stat
             .prog-stat-num {{ tiers[tier.key].courseSessions }}
-            .prog-stat-label Course Sessions
+            .prog-stat-label {{ $t('advisorProgression.courseSessions') }}
           .prog-stat
             .prog-stat-num(v-if="tiers[tier.key].avgQuizScore !== null") {{ tiers[tier.key].avgQuizScore }}%
             .prog-stat-num(v-else) —
-            .prog-stat-label Avg Quiz
+            .prog-stat-label {{ $t('advisorProgression.avgQuiz') }}
         .prog-tier-footer
-          span.prog-last-active(v-if="tiers[tier.key].lastActive") Last active {{ formatDate(tiers[tier.key].lastActive) }}
-          span.prog-no-activity(v-else) No activity yet
+          span.prog-last-active(v-if="tiers[tier.key].lastActive") {{ $t('advisorProgression.lastActive', { date: formatDate(tiers[tier.key].lastActive) }) }}
+          span.prog-no-activity(v-else) {{ $t('advisorProgression.noActivityYet') }}
 
     .prog-empty-notice(v-if="!hasAnyActivity")
-      p Complete a VA case or course session to start building your progress record here.
+      p {{ $t('advisorProgression.emptyNotice') }}
 
     .prog-recent(v-if="recentActivity.length")
-      h3.prog-recent-heading Recent Activity
+      h3.prog-recent-heading {{ $t('advisorProgression.recentActivity') }}
       .prog-activity-list
         .prog-activity-row(v-for="(item, i) in recentActivity" :key="i")
           .prog-activity-type-icon(:class="item.type === 'va' ? 'type-va' : 'type-course'")
@@ -58,8 +58,8 @@
               path(stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z")
               path(stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422A12.083 12.083 0 0 1 21 18.5a12.083 12.083 0 0 1-9 0 12.083 12.083 0 0 1-9 0A12.083 12.083 0 0 1 3 18.5l9-4.5z")
           .prog-activity-body
-            .prog-activity-title {{ item.type === 'va' ? (item.domain ? domainLabel(item.domain) : 'Advisory Session') : item.courseTitle }}
-            .prog-activity-sub {{ item.type === 'va' ? 'VA Case' : item.sessionTitle }}
+            .prog-activity-title {{ item.type === 'va' ? (item.domain ? domainLabel(item.domain) : $t('advisorProgression.advisorySession')) : item.courseTitle }}
+            .prog-activity-sub {{ item.type === 'va' ? $t('advisorProgression.vaCase') : item.sessionTitle }}
           .prog-activity-meta
             span.prog-tier-pill(:class="'pill-' + item.tier") {{ tierLabel(item.tier) }}
             span.prog-activity-date {{ formatDate(item.completedAt) }}
@@ -67,18 +67,18 @@
   //- ── Firm manager team view ───────────────────────────────────────────
   template(v-else)
     .prog-header
-      h2.prog-title Team Progress
-      p.prog-sub Advisory capability overview across your firm
+      h2.prog-title {{ $t('advisorProgression.teamProgress') }}
+      p.prog-sub {{ $t('advisorProgression.teamProgressSub') }}
 
     .prog-team-empty(v-if="!advisors.length")
-      p No advisor activity recorded yet. This view will populate once your team starts completing VA cases and course sessions.
+      p {{ $t('advisorProgression.teamEmpty') }}
 
     .prog-team-table(v-else)
       .prog-team-header-row
-        .prog-th Advisor
+        .prog-th {{ $t('advisorProgression.colAdvisor') }}
         .prog-th(v-for="tier in tierDefs" :key="tier.key" :class="'th-' + tier.key") {{ tier.shortLabel }}
-        .prog-th Total
-        .prog-th Last Active
+        .prog-th {{ $t('advisorProgression.colTotal') }}
+        .prog-th {{ $t('advisorProgression.colLastActive') }}
       .prog-team-row(v-for="a in advisors" :key="a.advisorId")
         .prog-td.prog-td-advisor {{ a.advisorId }}
         .prog-td(v-for="tier in tierDefs" :key="tier.key")
@@ -92,21 +92,23 @@
 <script>
 const BACKEND = 'http://localhost:4000'
 
-const DOMAIN_LABELS = {
-  profit: 'Profitability',
-  staff: 'Staff & Team',
-  'data-systems': 'Data & Systems',
-  'sales-marketing': 'Sales & Marketing',
-  forecasting: 'Financial Management',
-  strategy: 'Strategy & Planning',
-  governance: 'Governance & Leadership',
-  succession: 'Succession Planning',
-  valuation: 'Valuation',
-  risk: 'Risk Management',
-  conflict: 'Conflict Meetings',
-  'end-of-year': 'End of Year',
-  'due-diligence': 'Due Diligence',
-  systems: 'Systems'
+// Maps a domain key to the i18n key suffix for its display label.
+// Labels themselves live in the locale files under advisorProgression.domain*.
+const DOMAIN_LABEL_KEYS = {
+  profit: 'domainProfit',
+  staff: 'domainStaff',
+  'data-systems': 'domainDataSystems',
+  'sales-marketing': 'domainSalesMarketing',
+  forecasting: 'domainForecasting',
+  strategy: 'domainStrategy',
+  governance: 'domainGovernance',
+  succession: 'domainSuccession',
+  valuation: 'domainValuation',
+  risk: 'domainRisk',
+  conflict: 'domainConflict',
+  'end-of-year': 'domainEndOfYear',
+  'due-diligence': 'domainDueDiligence',
+  systems: 'domainSystems'
 }
 
 export default {
@@ -130,16 +132,21 @@ export default {
         advanced: { vaSessions: 0, courseSessions: 0, avgQuizScore: null, lastActive: null }
       },
       recentActivity: [],
-      advisors: [],
-      tierDefs: [
-        { key: 'entry-level', label: 'Entry Level', shortLabel: 'Entry', desc: 'Foundational advisory tools and techniques' },
-        { key: 'intermediate', label: 'Intermediate', shortLabel: 'Inter.', desc: 'Building advisory depth and selling skills' },
-        { key: 'advanced', label: 'Advanced', shortLabel: 'Advanced', desc: 'Strategic, governance and specialist delivery' }
-      ]
+      advisors: []
     }
   },
 
   computed: {
+    // Tier definitions are derived from $t (not stored in data) so the labels
+    // re-translate reactively when the user switches language at runtime — a value
+    // frozen in data() would keep whatever locale was active at component load.
+    tierDefs () {
+      return [
+        { key: 'entry-level', label: this.$t('advisorProgression.tierEntryLabel'), shortLabel: this.$t('advisorProgression.tierEntryShort'), desc: this.$t('advisorProgression.tierEntryDesc') },
+        { key: 'intermediate', label: this.$t('advisorProgression.tierIntermediateLabel'), shortLabel: this.$t('advisorProgression.tierIntermediateShort'), desc: this.$t('advisorProgression.tierIntermediateDesc') },
+        { key: 'advanced', label: this.$t('advisorProgression.tierAdvancedLabel'), shortLabel: this.$t('advisorProgression.tierAdvancedShort'), desc: this.$t('advisorProgression.tierAdvancedDesc') }
+      ]
+    },
     hasAnyActivity () {
       return Object.values(this.tiers).some(t => t.vaSessions > 0 || t.courseSessions > 0)
     }
@@ -159,19 +166,19 @@ export default {
         if (this.isFirmManager) {
           const res = await fetch(`${BACKEND}/api/activity/team`, { headers: authHeaders })
           if (!res.ok) {
-            this.error = 'Could not load team progress. Please try again.'
+            this.error = this.$t('advisorProgression.errorTeam')
             return
           }
           const data = await res.json()
           if (data.success) {
             this.advisors = data.advisors || []
           } else {
-            this.error = 'Could not load team progress. Please try again.'
+            this.error = this.$t('advisorProgression.errorTeam')
           }
         } else {
           const res = await fetch(`${BACKEND}/api/activity/progression`, { headers: authHeaders })
           if (!res.ok) {
-            this.error = 'Could not load your progress. Please try again.'
+            this.error = this.$t('advisorProgression.errorSelf')
             return
           }
           const data = await res.json()
@@ -179,11 +186,11 @@ export default {
             this.tiers = data.tiers || this.tiers
             this.recentActivity = data.recentActivity || []
           } else {
-            this.error = 'Could not load your progress. Please try again.'
+            this.error = this.$t('advisorProgression.errorSelf')
           }
         }
       } catch (e) {
-        this.error = 'Could not connect to the activity service. Please try again.'
+        this.error = this.$t('advisorProgression.errorConnect')
       } finally {
         this.loading = false
       }
@@ -200,7 +207,8 @@ export default {
     },
 
     domainLabel (domain) {
-      return DOMAIN_LABELS[domain] || domain
+      const keySuffix = DOMAIN_LABEL_KEYS[domain]
+      return keySuffix ? this.$t(`advisorProgression.${keySuffix}`) : domain
     }
   }
 }

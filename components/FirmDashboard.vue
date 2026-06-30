@@ -4,79 +4,79 @@
   //- ── Loading ────────────────────────────────────────────────────────────
   .dashboard-loading(v-if="isLoading")
     .loading-spinner
-    p.loading-text Loading team data...
+    p.loading-text {{ $t('firmDashboard.loadingTeamData') }}
 
   template(v-else)
 
     //- ── Header ─────────────────────────────────────────────────────────────
     .dashboard-header
       .dashboard-header-left
-        h1.dashboard-title Team Learning Dashboard
+        h1.dashboard-title {{ $t('firmDashboard.title') }}
         p.dashboard-firm {{ firmName }}
       .dashboard-header-right
-        span.dashboard-date As of {{ todayFormatted }}
+        span.dashboard-date {{ $t('firmDashboard.asOfDate', { date: todayFormatted }) }}
         button.btn-refresh(@click="loadData" :disabled="isRefreshing")
-          | {{ isRefreshing ? 'Refreshing...' : '↻ Refresh' }}
+          | {{ isRefreshing ? $t('firmDashboard.refreshing') : $t('firmDashboard.refresh') }}
 
     //- ── Summary cards ──────────────────────────────────────────────────────
     .summary-cards
       .summary-card
         span.card-number {{ summaryStats.activeLearners }}
-        span.card-label Active Learners
+        span.card-label {{ $t('firmDashboard.activeLearners') }}
       .summary-card
         span.card-number {{ summaryStats.coursesRunning }}
-        span.card-label Courses Running
+        span.card-label {{ $t('firmDashboard.coursesRunning') }}
       .summary-card(:class="summaryStats.completionRate >= 70 ? 'card-good' : 'card-mid'")
         span.card-number {{ summaryStats.completionRate }}%
-        span.card-label Completion Rate
+        span.card-label {{ $t('firmDashboard.completionRate') }}
       .summary-card(:class="summaryStats.avgQuizScore >= 70 ? 'card-good' : 'card-mid'")
         span.card-number {{ summaryStats.avgQuizScore > 0 ? summaryStats.avgQuizScore + '%' : '—' }}
-        span.card-label Avg. Quiz Score
+        span.card-label {{ $t('firmDashboard.avgQuizScore') }}
 
     //- ── Team Insights (AI) ─────────────────────────────────────────────────
     .insights-panel
       .insights-header
-        span.insights-title Team Insights
+        span.insights-title {{ $t('firmDashboard.teamInsights') }}
         button.btn-generate(
           @click="generateInsights"
           :disabled="isGeneratingInsights"
         )
           span(v-if="isGeneratingInsights")
             span.insights-spinner
-            | Generating...
-          span(v-else) ✦ Generate insights
+            | {{ $t('firmDashboard.generating') }}
+          span(v-else) {{ $t('firmDashboard.generateInsights') }}
       .insights-body(v-if="teamInsights")
         p.insights-text {{ teamInsights }}
-        p.insights-meta Generated {{ insightsGeneratedAt }}
+        p.insights-meta {{ $t('firmDashboard.generatedAt', { time: insightsGeneratedAt }) }}
       .insights-empty(v-else)
-        p Click "Generate insights" for an AI summary of your team's learning progress.
+        p {{ $t('firmDashboard.insightsEmpty') }}
 
     //- ── Filters ────────────────────────────────────────────────────────────
     .filter-bar
       input.filter-search(
         v-model="searchQuery"
-        placeholder="Search advisors..."
+        :placeholder="$t('firmDashboard.searchPlaceholder')"
         type="text"
       )
       select.filter-select(v-model="filterCourse")
-        option(value="") All courses
+        option(value="") {{ $t('firmDashboard.allCourses') }}
         option(v-for="c in uniqueCourses" :key="c" :value="c") {{ c }}
       select.filter-select(v-model="filterStatus")
-        option(value="") All statuses
-        option(value="active") Active
-        option(value="complete") Complete
-        option(value="paused") Paused
-      span.filter-count {{ filteredRows.length }} {{ filteredRows.length === 1 ? 'result' : 'results' }}
+        option(value="") {{ $t('firmDashboard.allStatuses') }}
+        option(value="active") {{ $t('firmDashboard.statusActive') }}
+        option(value="complete") {{ $t('firmDashboard.statusComplete') }}
+        option(value="paused") {{ $t('firmDashboard.statusPaused') }}
+      span.filter-count {{ filteredRows.length === 1 ? $t('firmDashboard.resultCount', { count: filteredRows.length }) : $t('firmDashboard.resultCountPlural', { count: filteredRows.length }) }}
 
     //- ── Table ──────────────────────────────────────────────────────────────
     .advisor-table(v-if="filteredRows.length")
       .table-head
-        .th Advisor
-        .th Course
-        .th Progress
-        .th Avg. Score
-        .th Last Active
-        .th Status
+        .th {{ $t('firmDashboard.colAdvisor') }}
+        .th {{ $t('firmDashboard.colCourse') }}
+        .th {{ $t('firmDashboard.colProgress') }}
+        .th {{ $t('firmDashboard.colAvgScore') }}
+        .th {{ $t('firmDashboard.colLastActive') }}
+        .th {{ $t('firmDashboard.colStatus') }}
 
       template(v-for="row in filteredRows")
         .table-row(
@@ -93,7 +93,7 @@
           .td.td-progress
             .progress-track-mini
               .progress-fill-mini(:style="{ width: row.progressPct + '%' }")
-            span.progress-label {{ row.sessionsComplete }}/{{ row.sessionsTotal }} sessions
+            span.progress-label {{ $t('firmDashboard.sessionsProgress', { complete: row.sessionsComplete, total: row.sessionsTotal }) }}
           .td.td-score
             span(:class="scoreClass(row.avgScore)") {{ row.avgScore > 0 ? row.avgScore + '%' : '—' }}
           .td.td-last {{ row.lastActiveFormatted }}
@@ -105,7 +105,7 @@
         //- Session breakdown (expanded)
         .session-breakdown(:key="row.key + '-bd'" v-if="expandedRows.has(row.key)")
           .breakdown-inner
-            .breakdown-heading Sessions
+            .breakdown-heading {{ $t('firmDashboard.sessionsHeading') }}
             .breakdown-row(v-for="s in row.sessions" :key="s.id")
               span.br-num {{ s.id }}
               span.br-title {{ s.title }}
@@ -119,7 +119,7 @@
                 | {{ s.score !== null ? s.score + '%' : '—' }}
 
     .table-empty(v-else)
-      p No advisors match your current filters.
+      p {{ $t('firmDashboard.noAdvisorsMatch') }}
 
 </template>
 
@@ -263,9 +263,16 @@ export default {
 
       // Mock AI insight
       await new Promise(resolve => setTimeout(resolve, 1200))
-      this.teamInsights = `Your team has ${this.summaryStats.activeLearners} active learners across ${this.summaryStats.coursesRunning} running courses, with an overall completion rate of ${this.summaryStats.completionRate}%. ` +
-        `Quiz performance is ${this.summaryStats.avgQuizScore >= 70 ? 'strong' : 'developing'} at an average of ${this.summaryStats.avgQuizScore}%. ` +
-        'Consider following up with advisors who have been inactive for more than 7 days to keep momentum going.'
+      const performance = this.summaryStats.avgQuizScore >= 70
+        ? this.$t('firmDashboard.insightPerformanceStrong')
+        : this.$t('firmDashboard.insightPerformanceDeveloping')
+      this.teamInsights = this.$t('firmDashboard.insightSummary', {
+        activeLearners: this.summaryStats.activeLearners,
+        coursesRunning: this.summaryStats.coursesRunning,
+        completionRate: this.summaryStats.completionRate,
+        performance,
+        avgQuizScore: this.summaryStats.avgQuizScore
+      })
       this.insightsGeneratedAt = new Date().toLocaleTimeString('en-AU', {
         hour: '2-digit',
         minute: '2-digit'
@@ -287,7 +294,11 @@ export default {
     },
 
     statusLabel (status) {
-      return { active: 'Active', complete: 'Complete', paused: 'Paused' }[status] || status
+      return {
+        active: this.$t('firmDashboard.statusActive'),
+        complete: this.$t('firmDashboard.statusComplete'),
+        paused: this.$t('firmDashboard.statusPaused')
+      }[status] || status
     },
 
     _initials (name) {
@@ -298,9 +309,9 @@ export default {
       if (!iso) { return '—' }
       const d = new Date(iso)
       const diff = Math.floor((Date.now() - d) / 86400000)
-      if (diff === 0) { return 'Today' }
-      if (diff === 1) { return 'Yesterday' }
-      if (diff < 7) { return `${diff} days ago` }
+      if (diff === 0) { return this.$t('firmDashboard.today') }
+      if (diff === 1) { return this.$t('firmDashboard.yesterday') }
+      if (diff < 7) { return this.$t('firmDashboard.daysAgo', { count: diff }) }
       return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })
     },
 

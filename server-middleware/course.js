@@ -18,6 +18,23 @@ const { URL } = require('url')
 
 const BACKEND = process.env.API_BASE_URL || 'http://localhost:4000'
 
+/**
+ * Thin SSE proxy: forwards POST /api/course to the Restify backend and streams
+ * the response straight back. Non-POST requests fall through to the next
+ * middleware untouched.
+ *
+ * @route POST /api/course -> {API_BASE_URL}/api/course
+ *   request: piped through unchanged (headers + JSON body, incl. the Bearer
+ *            token the backend uses to scope/authorise the session).
+ *   response: backend status + headers are mirrored, then the Server-Sent-Events
+ *            stream is piped back token-by-token to the client.
+ *   on backend connect error: 502 { success:false, error:{ code, message }, timestamp }.
+ *
+ * @param {http.IncomingMessage} req - the incoming Nuxt request
+ * @param {http.ServerResponse} res - the response streamed back to the client
+ * @param {Function} next - pass-through for requests this proxy doesn't handle
+ * @returns {void}
+ */
 module.exports = function courseProxy (req, res, next) {
   if (req.method !== 'POST') {
     return next()

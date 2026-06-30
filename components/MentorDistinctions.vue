@@ -4,7 +4,7 @@
     //- Domain sidebar
     .column.is-3
       b-menu
-        b-menu-list(label="Domain")
+        b-menu-list(:label="$t('mentorDistinctions.domainMenuLabel')")
           b-menu-item(
             v-for="d in distinctionDomains"
             :key="d.id"
@@ -20,28 +20,51 @@
           type="is-info"
           size="is-medium"
           @click="showDistinctionHelpModal = true"
-        ) How this works
+        ) {{ $t('mentorDistinctions.howThisWorks') }}
 
       b-modal(v-model="showDistinctionHelpModal" has-modal-card trap-focus)
         .modal-card(style="max-width:600px")
           header.modal-card-head
-            p.modal-card-title How to write a distinction
+            p.modal-card-title {{ $t('mentorDistinctions.helpModalTitle') }}
           section.modal-card-body
-            p.mb-3 A distinction teaches the system to recommend the templates #[em you] trust when a certain kind of client situation comes up. The system reads what the advisor typed and understands the #[strong meaning] — so you just describe the situation in plain English, and it handles the rest. You don't need to guess every word an advisor might use.
-            p.mb-3 Here's what each box does:
+            //- Component interpolation (<i18n>) keeps the inline bold/italic emphasis
+            //- while the surrounding sentence stays fully translatable. Each emphasised
+            //- fragment is its own translatable slot, mapped to a {placeholder} in the key.
+            i18n.mb-3(path="mentorDistinctions.helpIntro" tag="p")
+              template(v-slot:you)
+                em {{ $t('mentorDistinctions.helpIntroYou') }}
+              template(v-slot:meaning)
+                strong {{ $t('mentorDistinctions.helpIntroMeaning') }}
+            p.mb-3 {{ $t('mentorDistinctions.helpBoxesIntro') }}
             .content
               ul
-                li #[strong Domain] — The advisory area this applies to (Conflict, Staff, Strategy, and so on). Pick where this situation belongs.
-                li #[strong Description] — Describe the client situation in one plain sentence: what's #[em actually] going on. Aim at the #[strong cause], not just the surface symptom — "the owners aren't aligned on where the business is heading" works far better than "they're arguing." This is the sentence the system reads the advisor's words against, so write it the way you'd explain the situation to a colleague.
-                li #[strong Trigger phrases] — A few different ways an advisor might describe this in their own words. These are just examples to point the system in the right direction — #[strong not] exact phrases it has to find. Three to six varied examples is plenty; don't try to list every wording.
-                li #[strong Templates to boost] — The templates you want brought forward when this situation appears. Pick the ones you'd reach for yourself.
-                li #[strong Boost] — How hard to push those templates up the list when this situation is recognised. Leave it at the default for a gentle nudge; raise it when you want this situation to strongly steer the recommendation.
+                i18n(path="mentorDistinctions.helpDomain" tag="li")
+                  template(v-slot:label)
+                    strong {{ $t('mentorDistinctions.helpDomainLabel') }}
+                i18n(path="mentorDistinctions.helpDescription" tag="li")
+                  template(v-slot:label)
+                    strong {{ $t('mentorDistinctions.helpDescriptionLabel') }}
+                  template(v-slot:actually)
+                    em {{ $t('mentorDistinctions.helpDescriptionActually') }}
+                  template(v-slot:cause)
+                    strong {{ $t('mentorDistinctions.helpDescriptionCause') }}
+                i18n(path="mentorDistinctions.helpTriggers" tag="li")
+                  template(v-slot:label)
+                    strong {{ $t('mentorDistinctions.helpTriggersLabel') }}
+                  template(v-slot:not)
+                    strong {{ $t('mentorDistinctions.helpTriggersNot') }}
+                i18n(path="mentorDistinctions.helpTemplates" tag="li")
+                  template(v-slot:label)
+                    strong {{ $t('mentorDistinctions.helpTemplatesLabel') }}
+                i18n(path="mentorDistinctions.helpBoost" tag="li")
+                  template(v-slot:label)
+                    strong {{ $t('mentorDistinctions.helpBoostLabel') }}
           footer.modal-card-foot
-            b-button(@click="showDistinctionHelpModal = false") Close
+            b-button(@click="showDistinctionHelpModal = false") {{ $t('mentorDistinctions.close') }}
 
       .level.mb-3
         .level-left
-          p.has-text-weight-semibold Advisory Distinctions — {{ currentDistinctionDomainLabel }}
+          p.has-text-weight-semibold {{ $t('mentorDistinctions.heading', { domain: currentDistinctionDomainLabel }) }}
         .level-right
           b-button(
             v-if="!showDistinctionForm"
@@ -49,9 +72,9 @@
             size="is-small"
             icon-left="plus"
             @click="openDistinctionForm(null)"
-          ) Add distinction
+          ) {{ $t('mentorDistinctions.addDistinction') }}
       b-notification.mb-3(type="is-info is-light" :closable="false" style="font-size:0.85rem")
-        | These are the master Advisory Distinctions. Every firm receives them as defaults, and each firm can then adapt or switch off its own copy. Adding or editing one here changes the default for every firm.
+        | {{ $t('mentorDistinctions.masterNotice') }}
 
       .has-text-centered.py-5(v-if="loadingDistinctions")
         b-loading(:is-full-page="false" :active="true")
@@ -62,58 +85,58 @@
         :hoverable="true"
         size="is-small"
       )
-        b-table-column(v-slot="{ row }" field="description" label="Description") {{ row.description }}
-        b-table-column(v-slot="{ row }" label="Trigger phrases")
+        b-table-column(v-slot="{ row }" field="description" :label="$t('mentorDistinctions.colDescription')") {{ row.description }}
+        b-table-column(v-slot="{ row }" :label="$t('mentorDistinctions.colTriggerPhrases')")
           span.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
-        b-table-column(v-slot="{ row }" label="Templates boosted")
+        b-table-column(v-slot="{ row }" :label="$t('mentorDistinctions.colTemplatesBoosted')")
           b-tag.mr-1.mb-1(
             v-for="t in row.templates"
             :key="t"
             size="is-small"
           ) {{ templateChipLabel(t) }}
-        b-table-column(v-slot="{ row }" label="Boost" width="60" numeric)
+        b-table-column(v-slot="{ row }" :label="$t('mentorDistinctions.colBoost')" width="60" numeric)
           span +{{ row.boost }}
         b-table-column(v-slot="{ row }" label="" width="170")
-          b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
-          b-button.mb-1(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row)") Remove
+          b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") {{ $t('mentorDistinctions.edit') }}
+          b-button.mb-1(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row)") {{ $t('mentorDistinctions.remove') }}
 
       p.has-text-grey.is-size-7.mb-4(
         v-else-if="!showDistinctionForm"
-      ) No distinctions for this domain yet. Add one to boost specific templates when advisors use particular phrases.
+      ) {{ $t('mentorDistinctions.emptyState') }}
 
       //- Add / Edit form
       .box.distinction-form(v-if="showDistinctionForm")
-        p.has-text-weight-semibold.mb-4 {{ editingDistinctionId ? 'Edit distinction' : 'New distinction' }}
+        p.has-text-weight-semibold.mb-4 {{ editingDistinctionId ? $t('mentorDistinctions.formTitleEdit') : $t('mentorDistinctions.formTitleNew') }}
 
-        b-field(label="Domain")
+        b-field(:label="$t('mentorDistinctions.fieldDomain')")
           b-select(v-model="distinctionForm.domain" expanded)
             option(v-for="d in distinctionDomains" :key="d.id" :value="d.id") {{ d.label }}
 
-        b-field(label="Description" message="Describe the client situation in a plain sentence — this is what the AI matches the advisor's words against. Capture the cause, not just the symptom.")
+        b-field(:label="$t('mentorDistinctions.fieldDescription')" :message="$t('mentorDistinctions.fieldDescriptionMsg')")
           b-input(
             v-model="distinctionForm.description"
-            placeholder="e.g. The owners aren't aligned on where the business is heading"
+            :placeholder="$t('mentorDistinctions.fieldDescriptionPlaceholder')"
             maxlength="255"
           )
 
-        b-field(label="Trigger phrases" message="Type a phrase and press Enter or comma to add. These are example ways an advisor might describe this — they guide the AI, which matches on meaning, not exact words, so 3–6 varied examples is plenty.")
+        b-field(:label="$t('mentorDistinctions.fieldTriggers')" :message="$t('mentorDistinctions.fieldTriggersMsg')")
           b-taginput(
             v-model="distinctionForm.triggers"
             :confirm-key-codes="[13, 188]"
-            placeholder="Add a phrase…"
-            aria-close-label="Remove phrase"
+            :placeholder="$t('mentorDistinctions.fieldTriggersPlaceholder')"
+            :aria-close-label="$t('mentorDistinctions.removePhrase')"
           )
 
-        b-field(label="Templates to boost")
+        b-field(:label="$t('mentorDistinctions.fieldTemplatesToBoost')")
           .template-picker
             .template-picker-filters
               b-select(v-model="templatePickerSubSection" size="is-small" style="flex:0 0 200px")
-                option(value="") All areas
+                option(value="") {{ $t('mentorDistinctions.allAreas') }}
                 option(v-for="ss in templateSubSections" :key="ss" :value="ss") {{ ss }}
               b-input(
                 v-model="templatePickerSearch"
                 size="is-small"
-                placeholder="Search by title…"
+                :placeholder="$t('mentorDistinctions.searchByTitle')"
                 icon="magnify"
                 style="flex:1"
               )
@@ -146,9 +169,9 @@
                 )
                 span.template-picker-title {{ t.title }}
                 span.template-picker-sub {{ t.subSection }}
-              p.has-text-grey.is-size-7.p-2(v-if="filteredTemplateOptions.length === 0") No templates match — try clearing the filters.
+              p.has-text-grey.is-size-7.p-2(v-if="filteredTemplateOptions.length === 0") {{ $t('mentorDistinctions.noTemplatesMatch') }}
             .template-picker-selected(v-if="distinctionForm.templates.length > 0")
-              span.is-size-7.has-text-grey.mr-2 Selected:
+              span.is-size-7.has-text-grey.mr-2 {{ $t('mentorDistinctions.selectedLabel') }}
               b-tag.mr-1.mb-1(
                 v-for="t in distinctionForm.templates"
                 :key="t"
@@ -157,7 +180,7 @@
                 @close="toggleTemplateSelection(t)"
               ) {{ templateChipLabel(t) }}
 
-        b-field(label="Boost score" message="How many points to add to each matched template's score (1–20). Default 5.")
+        b-field(:label="$t('mentorDistinctions.fieldBoostScore')" :message="$t('mentorDistinctions.fieldBoostScoreMsg')")
           b-input(
             v-model.number="distinctionForm.boost"
             type="number"
@@ -171,8 +194,8 @@
             type="is-primary"
             :loading="savingDistinction"
             @click="saveDistinction"
-          ) {{ editingDistinctionId ? 'Save changes' : 'Add distinction' }}
-          b-button(@click="closeDistinctionForm") Cancel
+          ) {{ editingDistinctionId ? $t('mentorDistinctions.saveChanges') : $t('mentorDistinctions.addDistinction') }}
+          b-button(@click="closeDistinctionForm") {{ $t('mentorDistinctions.cancel') }}
 </template>
 
 <script>
@@ -366,19 +389,19 @@ export default {
 
     async saveDistinction () {
       if (!this.distinctionForm.domain) {
-        this.$buefy.toast.open({ message: 'Please select a domain.', type: 'is-warning' })
+        this.$buefy.toast.open({ message: this.$t('mentorDistinctions.validateDomain'), type: 'is-warning' })
         return
       }
       if (!this.distinctionForm.description.trim()) {
-        this.$buefy.toast.open({ message: 'Description is required.', type: 'is-warning' })
+        this.$buefy.toast.open({ message: this.$t('mentorDistinctions.validateDescription'), type: 'is-warning' })
         return
       }
       if (this.distinctionForm.triggers.length === 0) {
-        this.$buefy.toast.open({ message: 'Add at least one trigger phrase.', type: 'is-warning' })
+        this.$buefy.toast.open({ message: this.$t('mentorDistinctions.validateTriggers'), type: 'is-warning' })
         return
       }
       if (this.distinctionForm.templates.length === 0) {
-        this.$buefy.toast.open({ message: 'Select at least one template to boost.', type: 'is-warning' })
+        this.$buefy.toast.open({ message: this.$t('mentorDistinctions.validateTemplates'), type: 'is-warning' })
         return
       }
 
@@ -386,10 +409,10 @@ export default {
       try {
         if (this.editingDistinctionId) {
           await this.api('PUT', `/api/mentor/distinctions/${this.editingDistinctionId}`, this.distinctionForm)
-          this.$buefy.toast.open({ message: 'Distinction updated.', type: 'is-success' })
+          this.$buefy.toast.open({ message: this.$t('mentorDistinctions.toastUpdated'), type: 'is-success' })
         } else {
           await this.api('POST', '/api/mentor/distinctions', this.distinctionForm)
-          this.$buefy.toast.open({ message: 'Distinction added.', type: 'is-success' })
+          this.$buefy.toast.open({ message: this.$t('mentorDistinctions.toastAdded'), type: 'is-success' })
         }
         this.closeDistinctionForm()
         this.loadDistinctions()
@@ -402,9 +425,9 @@ export default {
 
     confirmDeleteDistinction (row) {
       this.$buefy.dialog.confirm({
-        title: 'Remove distinction',
-        message: `Remove "<strong>${row.description}</strong>"? It will no longer be a default for any firm.`,
-        confirmText: 'Remove',
+        title: this.$t('mentorDistinctions.deleteTitle'),
+        message: this.$t('mentorDistinctions.deleteMessage', { description: row.description }),
+        confirmText: this.$t('mentorDistinctions.remove'),
         type: 'is-danger',
         hasIcon: true,
         onConfirm: () => this.deleteDistinction(row.id)
@@ -414,7 +437,7 @@ export default {
     async deleteDistinction (id) {
       try {
         await this.api('DELETE', `/api/mentor/distinctions/${id}`)
-        this.$buefy.toast.open({ message: 'Distinction removed.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('mentorDistinctions.toastRemoved'), type: 'is-success' })
         this.loadDistinctions()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })

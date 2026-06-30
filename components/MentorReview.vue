@@ -1,16 +1,16 @@
 <template lang="pug">
 .mentor-review
   .container(style="max-width: 960px; padding: 2rem 1rem;")
-    h1.title.is-4 Mentor — Case Reviews
+    h1.title.is-4 {{ $t('mentorReview.heading') }}
     b-notification.mb-4(type="is-info is-light" :closable="false")
-      | Anonymised case studies that firm managers have shared with you. Client names and identifying details are removed; the wording and tone are kept so you can see how the app performed and where it can improve.
+      | {{ $t('mentorReview.introNotification') }}
 
     .has-text-centered.py-6(v-if="loading")
       b-loading(:is-full-page="false" :active="true")
 
     template(v-else)
       p.has-text-grey.has-text-centered.py-6(v-if="cases.length === 0")
-        | No cases have been shared with you yet. When a firm manager shares one, it appears here.
+        | {{ $t('mentorReview.emptyState') }}
 
       div(v-else)
         .box.mb-3(v-for="c in cases" :key="c.id")
@@ -18,7 +18,7 @@
             .level-left
               div
                 p.has-text-weight-semibold {{ c.title }}
-                p.is-size-7.has-text-grey {{ domainLabel(c) }} &middot; shared {{ formatDate(c.mentorSharedAt) }}
+                p.is-size-7.has-text-grey {{ $t('mentorReview.domainSharedLine', { domain: domainLabel(c), date: formatDate(c.mentorSharedAt) }) }}
             .level-right
               b-icon(:icon="expandedId === c.id ? 'chevron-up' : 'chevron-down'")
 
@@ -27,45 +27,45 @@
 
             //- Anonymised summary
             .mb-4(v-if="c.summary")
-              p.is-size-7.has-text-weight-semibold Summary
+              p.is-size-7.has-text-weight-semibold {{ $t('mentorReview.summaryLabel') }}
               p.is-size-7 {{ c.summary }}
 
             //- Engine behaviour — how the recommendation was reached
             template(v-if="c.decisionTrace")
               p.is-size-7
-                strong Area focused on:
+                strong {{ $t('mentorReview.areaFocusedOnLabel') }}
                 |  {{ traceDomainLabel(c.decisionTrace) }}
               .mt-3(v-if="topTemplates(c).length")
-                p.is-size-7.has-text-weight-semibold How the templates scored
+                p.is-size-7.has-text-weight-semibold {{ $t('mentorReview.howTemplatesScored') }}
                 table.table.is-narrow.is-fullwidth.is-size-7
                   thead
                     tr
-                      th #
-                      th Template
-                      th Score
+                      th {{ $t('mentorReview.colRank') }}
+                      th {{ $t('mentorReview.colTemplate') }}
+                      th {{ $t('mentorReview.colScore') }}
                   tbody
                     tr(v-for="t in topTemplates(c)" :key="t.rank")
                       td {{ t.rank }}
                       td {{ t.title }}
                       td {{ t.score }}
-            p.is-size-7.has-text-grey(v-else) No decision trace was recorded for this case.
+            p.is-size-7.has-text-grey(v-else) {{ $t('mentorReview.noDecisionTrace') }}
 
             //- Advisor's own review
             .mt-4(v-if="c.review")
-              p.is-size-7.has-text-weight-semibold Post-Delivery Review (by the advisor)
-              p.is-size-7(v-if="c.review.wentWell") ✓ What went well? — {{ c.review.wentWell }}
-              p.is-size-7(v-if="c.review.wentLess") ⚠ What went less well? — {{ c.review.wentLess }}
-              p.is-size-7(v-if="c.review.changesRecommended") What they'd do differently — {{ c.review.changesRecommended }}
+              p.is-size-7.has-text-weight-semibold {{ $t('mentorReview.postDeliveryReview') }}
+              p.is-size-7(v-if="c.review.wentWell") {{ $t('mentorReview.wentWell', { value: c.review.wentWell }) }}
+              p.is-size-7(v-if="c.review.wentLess") {{ $t('mentorReview.wentLess', { value: c.review.wentLess }) }}
+              p.is-size-7(v-if="c.review.changesRecommended") {{ $t('mentorReview.changesRecommended', { value: c.review.changesRecommended }) }}
 
             //- Anonymised conversation
             .mt-4(v-if="c.transcript && c.transcript.length")
-              p.is-size-7.has-text-weight-semibold Conversation (anonymised)
+              p.is-size-7.has-text-weight-semibold {{ $t('mentorReview.conversationAnonymised') }}
               .mentor-msg(
                 v-for="(m, i) in c.transcript"
                 :key="i"
                 :class="m.role === 'assistant' ? 'mentor-msg-va' : 'mentor-msg-adviser'"
               )
-                span.mentor-msg-role {{ m.role === 'assistant' ? 'Adviser tool' : 'Adviser' }}
+                span.mentor-msg-role {{ m.role === 'assistant' ? $t('mentorReview.roleAdviserTool') : $t('mentorReview.roleAdviser') }}
                 p.mentor-msg-text {{ m.content }}
 </template>
 
@@ -128,7 +128,7 @@ export default {
         const data = await this.api('GET', '/api/mentor/cases')
         this.cases = data.cases || []
       } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+        this.$buefy.toast.open({ message: e.message || this.$t('mentorReview.loadError'), type: 'is-danger' })
       } finally {
         this.loading = false
       }
@@ -139,7 +139,7 @@ export default {
     },
 
     domainLabel (c) {
-      return DOMAIN_LABELS[c.domain] || c.domain || 'No area recorded'
+      return DOMAIN_LABELS[c.domain] || c.domain || this.$t('mentorReview.noAreaRecorded')
     },
 
     traceDomainLabel (trace) {
@@ -154,9 +154,9 @@ export default {
     },
 
     formatDate (value) {
-      if (!value) { return 'recently' }
+      if (!value) { return this.$t('mentorReview.dateRecently') }
       const d = new Date(value)
-      return isNaN(d.getTime()) ? 'recently' : d.toLocaleDateString()
+      return isNaN(d.getTime()) ? this.$t('mentorReview.dateRecently') : d.toLocaleDateString()
     }
   }
 }
