@@ -170,8 +170,10 @@ server.post('/api/firm-manager/distinctions', ...fmGuard, fm.createDistinction)
 server.put('/api/firm-manager/distinctions/:id', ...fmGuard, fm.updateDistinction)
 server.del('/api/firm-manager/distinctions/:id', ...fmGuard, fm.deleteDistinction)
 server.get('/api/firm-manager/distinctions/state', ...fmGuard, fm.getDistinctionState)
+server.post('/api/firm-manager/distinctions/mark-reviewed', ...fmGuard, fm.markDistinctionsReviewed)
 server.put('/api/firm-manager/distinctions/platform/:id', ...fmGuard, fm.setDistinctionOverride)
 server.del('/api/firm-manager/distinctions/platform/:id', ...fmGuard, fm.resetDistinctionOverride)
+server.post('/api/firm-manager/distinctions/platform/:id/keep-mine', ...fmGuard, fm.keepMineDistinction)
 server.put('/api/firm-manager/distinctions/platform/:id/decline', ...fmGuard, fm.setDistinctionDecline)
 server.post('/api/firm-manager/distinctions/platform/:id/move', ...fmGuard, fm.moveDistinction)
 server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
@@ -189,6 +191,15 @@ server.del('/api/firm-manager/cases/:id/share-with-mentor', ...fmGuard, casesRou
 // The one read that crosses the firm boundary — only mentor-approved, anonymised
 // cases, role-gated to the mentor.
 server.get('/api/mentor/cases', firmAuth, requireMentorRole, mentorRoute.listMentorCases)
+
+// Mentor Advisory Distinctions — the cascade ORIGIN (DISTINCTIONS-CASCADE-PLAN.md §6).
+// The mentor authors the platform set every firm receives as its default; plain CRUD
+// (no decline/override at this tier). Global scope — handlers never read req.firmId.
+const mentorGuard = [firmAuth, requireMentorRole]
+server.get('/api/mentor/distinctions', ...mentorGuard, mentorRoute.listMentorDistinctions)
+server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentorDistinction)
+server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)
+server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)
 
 // ── Start ──
 server.listen(PORT, () => {

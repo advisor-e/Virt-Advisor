@@ -30,10 +30,10 @@ const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION } = require('../server/utils/templateResolver')
 const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
 const { loadFirmDistinctionState } = require('../server/utils/firmDistinctions')
+const { loadPlatformDistinctions } = require('../server/utils/platformDistinctions')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
-const ADVISORY_DISTINCTIONS = require('../data/advisory-distinctions.json')
 const BASE_STAIRCASE = require('../data/advisory-staircase.json')
 
 // The per-domain diagnostic "question battery" — REMOVED from the intake (memory
@@ -1958,7 +1958,8 @@ async function handleQuery (rawBody, res, identity) {
     // With no declines/edits stored, the effective list equals platform + firm-own
     // rows — identical to the previous concatenation, so behaviour is unchanged.
     const _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
-    const _effectiveDistinctions = resolveEffectiveDistinctions(ADVISORY_DISTINCTIONS.platform, _firmState)
+    const _platformRows = await loadPlatformDistinctions(loadFirmConfig)
+    const _effectiveDistinctions = resolveEffectiveDistinctions(_platformRows, _firmState)
     const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
     // Cross-domain bridge: firm distinctions filed under OTHER domains that match this
     // session (likely mis-filed) — surfaced in the decision trace, not scored here.

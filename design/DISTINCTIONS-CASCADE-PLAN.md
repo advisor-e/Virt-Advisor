@@ -1,6 +1,24 @@
 # Advisory Distinctions — Mentor → Firm → Advisor Cascade (Build Plan)
 
 **Status:** PLAN — agreed model, not yet built. Confirmed with Mike 2026-06-16.
+**Update 2026-06-27:** §6 added — the **mentor authoring surface** (give the mentor the firm's
+Advisory Distinctions screen, plain-CRUD, as the UI origin of the cast). Agreed with Mike; not yet built.
+**Update 2026-06-29:** §6 Stages A–C **shipped**; **Stage E BUILT** (mentor-update review: per-override
+content-signature drift detection → "Mentor updated this distinction" badge + Review-update compare
+panel with Adopt / Keep-mine). A complementary "since your last visit" notice covers the *non-overridden*
+(auto-applied) case. Backend: `firmManager.js` (override-baseline store + `keepMineDistinction` +
+`getDistinctionState.driftIds`); UI: `FirmManagerHub.vue`. Tests: `firmManagerStageE.routes.test.js`,
+`firmManagerDistinctionReview.routes.test.js`.
+**Update 2026-06-29 (later):** **Stage D BUILT** ("keep theirs" cross-firm promotion). On a mentor
+delete, every firm that OVERRODE the row keeps its version as a standalone firm-own row, then its
+override + drift baseline are dropped; declined-only firms need no action; untouched firms lose the
+default. Promotion runs BEFORE the master is removed (fail-safe — if it throws, the row is not deleted).
+Production enumeration is real now: `firmOverlay.listFirmIdsWithConfigKey` (`SELECT DISTINCT firm_id …`),
+with the dev-overrides map as the dev fallback — so this is **not** throwaway. `firmManager.promoteOverridesForDeletedRow`,
+called from `mentor.deleteMentorDistinction`; tests `firmManagerStageD.routes.test.js`. Also hardened
+test isolation (caseStore dev path now `CASE_DEV_FILE`-overridable; `platformDistinctions` fs-mocked) so
+a clean `npm test` is deterministic. All on branch `feat/mentor-distinctions-authoring`; Stage 3
+(hierarchy/role) is the only cascade stage still open.
 **Audience:** written to be read by domain experts and engineers equally.
 **Related:** `design/virt-advisor-system-design.md` §11 (Firm Manager / Advisory Distinctions),
 memory `design-distinctions-cascade`, `north_star_vision` (commitments #1 add IP + steer, #4
@@ -129,3 +147,116 @@ The base everything else sits on, and it independently **closes the Q1 bug**.
   the integration team must wire the real login token/secret (placeholder `JWT_SECRET` in dev).
 - Stages 1–2 are buildable + testable today against the dev firm, but are not *done* until the
   MySQL persistence lands (don't mistake the dev-JSON fallback for finished).
+
+---
+
+## 6. Mentor authoring surface — the UI origin of the cast (agreed 2026-06-27)
+
+**The gap.** The cascade below the mentor is built, but the *top* of it is still a hand-edited
+file: the mentor (Mike) authors the platform set by editing `data/advisory-distinctions.json`
+directly. There is no UI. This section is the agreed plan to give the mentor the **same no-code
+Advisory Distinctions screen the firm already has** ([components/FirmManagerHub.vue](../components/FirmManagerHub.vue)
+Tab 5), instantiated one level up on the Mentor page ([pages/mentor.vue](../pages/mentor.vue)), so
+the mentor's authored set becomes the original cast that cascades down to firm → advisor.
+
+**Why this is small.** Nothing in the cascade changes. `resolveEffectiveDistinctions`
+([server/utils/resolveDistinctions.js](../server/utils/resolveDistinctions.js)) still takes
+`platformRows` + a firm's changes and produces the firm's effective list. We are only changing
+**where `platformRows` come from** — a writable store the mentor edits, instead of a static
+`require()` — and adding the screen to edit them. The firm's decline/override/own-row machinery
+is untouched, and "firm customisation wins and sticks" still holds because firm overrides are
+keyed to the platform row's stable `pd-N` id.
+
+**Row model — plain CRUD (DECIDED 2026-06-27).** The firm screen carries *decline / override /
+reset-to-platform* controls because the firm sits **underneath** the mentor. At the very top there
+is no layer above to decline or override, so the mentor screen is the firm screen with **only the
+own-row controls**: Add / Edit / Move / Remove / boost, same form, triggers tag list, template
+picker and boost slider. Every mentor row is simply a platform (`pd-N`) row.
+
+**Storage (recommended).** Reuse the existing `firmOverlay` store (the `firm_framework_versions`
+table) under a single reserved **global / mentor scope** (a fixed key, not a real `firmId`) — this
+inherits **version history + one-click restore for free**, exactly as the firm edits do, with no
+new table. The committed `advisory-distinctions.json` becomes the **seed / fallback** (and the
+dev-mode fallback), mirroring how [server/utils/firmDistinctions.js](../server/utils/firmDistinctions.js)
+already handles firm rows.
+
+### Build sequence (foundation-first)
+
+- **Stage A — storage + single-source loader (no UI).** Add `loadPlatformDistinctions()` (modelled
+  on `firmDistinctions.js`): read mentor rows from the global overlay scope, fall back to the JSON
+  when nothing is stored. Repoint the three direct reads through it —
+  [advisorEngine.js:1961](../server/advisorEngine.js#L1961),
+  [firmManager.js:840](../server/routes/firmManager.js#L840) and `:944`.
+  **Acceptance:** with no stored rows, behaviour is byte-identical to today; existing tests stay green.
+- **Stage B — mentor CRUD routes.** `/api/mentor/distinctions` list / create / update / delete /
+  move, gated `firmAuth + requireMentorRole`, writing to the global mentor scope (never
+  `req.firmId`). New rows get the next stable `pd-N`; edits keep the id pinned.
+  **Acceptance:** a mentor edit reaches a firm that hasn't touched that row; a firm that overrode it
+  keeps its own version.
+- **Stage C — mentor UI.** Add an "Advisory Distinctions" section to the Mentor page (tabs, alongside
+  the case reviews) using the firm distinctions form/picker/boost slider in plain-CRUD mode.
+  **Acceptance:** the mentor edits the cast on screen; version history/restore works as the firm
+  screen's does.
+- **Stage D — delete semantics + tests. ✅ BUILT 2026-06-29** (was: rule decided 2026-06-27, impl
+  deferred — brought forward at Mike's request). `firmManager.promoteOverridesForDeletedRow` runs from
+  `mentor.deleteMentorDistinction` BEFORE the master row is removed (fail-safe). Cross-firm enumeration
+  is production-real (`firmOverlay.listFirmIdsWithConfigKey`) with the dev-overrides map as the dev
+  fallback. Tests: `tests/unit/firmManagerStageD.routes.test.js` (override→firm-own with master domain;
+  decline inert; untouched firm; idempotent prior-move; multi-firm). The original rule + shape:
+  - **DECIDED 2026-06-27 (Mike): keep theirs.** When the mentor
+  deletes a master row, a firm that had *customised* it keeps its version as a standalone firm-own row;
+  only the master default disappears. Honours "firm customisation wins and sticks" — a firm never loses
+  its work because the mentor removed the original. A firm that only *declined* the row needs no action
+  (the decline becomes inert); an untouched firm simply loses the default.
+  - **Implementation shape.** The promotion happens at **delete time** in the mentor handler (which still
+    holds the full master row, incl. its domain, before removing it): enumerate the firms that hold an
+    override for that id, and for each, write a firm-own row = the master base + the firm's edits (with
+    the master row's domain), then drop that override. Today the resolver silently *drops* an override
+    with no matching platform row — that is the behaviour this stage replaces, so the firm's edits are
+    promoted rather than lost.
+  - **Needs:** a cross-firm enumeration (which firms hold an override for this id) — dev: read the
+    dev-overrides JSON; prod: scan `firm_framework_versions` for `config_key='distinction-overrides'`.
+    This is a **cross-firm write from the mentor handler** (it reaches into firm stores) — guard it the
+    same way as the other firm writes, and it rides the MySQL-persistence item for the production path.
+  - **Tests:** ≥90% route coverage + a promotion unit test (full override → promoted firm-own row with
+    the right domain; decline cleared/inert; untouched firm unaffected).
+- **Stage E — mentor-update review (adopt / keep mine) (agreed 2026-06-27).** When the mentor edits
+  a row a firm has overridden, the firm is *shielded* (firm-wins-and-sticks) — but they should be
+  able to **see the mentor's newer version and choose**. Add a "mentor updated this distinction"
+  prompt on the firm's overridden rows with two actions: **Adopt** (drop the firm's override → fall
+  back to the current mentor row; reuses today's *Reset to platform* path) and **Keep mine** (re-stamp
+  the baseline so the badge clears until the mentor edits again). Plus a small **compare panel**
+  (mentor's current version vs the firm's effective version).
+  - **Drift detection (the one genuinely new piece).** A firm's override stores only the *edited
+    fields* (a partial delta — [firmManager.js:801-828](../server/routes/firmManager.js#L801-L828);
+    the resolver does `{...mentorRow, ...firmEdit}`, so unedited fields already track the mentor
+    live, **per-field, not per-row**). There is no record of how the mentor row looked when the firm
+    edited it, so nothing can tell it has since changed. Fix: when a firm overrides a row, also stamp
+    a **baseline marker** (a content-hash or the mentor row's version number at that moment). Current
+    mentor row ≠ stamped baseline → show the badge. Versioning comes for free once mentor authoring
+    rides `firmOverlay`.
+  - **Scope simplification (recommended).** Keep *Adopt* **whole-row** at first (take the mentor's
+    version entirely, or keep the firm's entirely). Field-level cherry-picking ("take the mentor's
+    new templates but keep my boost") is materially more complex — flag as a later refinement, not
+    first-cut.
+  - **Why it's low-risk:** opt-in, nothing changes under a firm silently, and *Adopt* reuses the
+    existing reset machinery. Depends on mentor edits being versioned, so it sequences **after** the
+    mentor-authoring stages (A–C).
+  - **Acceptance:** mentor edits an overridden row → the firm sees a "mentor updated this" badge;
+    *Adopt* gives them the new mentor version; *Keep mine* clears the badge and preserves their
+    version; the badge reappears only on the mentor's *next* edit.
+
+### Deferred decisions (do not block Stage A)
+- **Shared vs copied UI (Stage C).** Extract one `DistinctionsEditor` used by both pages in two
+  modes (cleaner; needs a careful refactor of the shipped firm screen, with its tests as the net),
+  **or** a trimmed mentor-only copy (lower risk; two files to keep in step). Lean: shared.
+- **Delete-cascade rule (Stage D).** What a mentor delete does to firms that overrode that row.
+
+### Risk to state up front
+A mentor edit is **cross-firm and on-by-default**: saving a row instantly changes advisor behaviour
+for every firm that hasn't customised it. `firmOverlay` version-history/restore is the safety net,
+but the blast radius is real and should be visible in the UI.
+
+**Persistence note.** Same as Stages 1–2 above — the mentor scope rides the shared
+*Firm-Manager config persistence → MySQL* item (`design/ACTIONS.md` P2). The dev-JSON fallback is
+test-only; not "done" until real persistence lands.

@@ -5,22 +5,28 @@
 // rejection that mirrors the DB primary key, and the privacy scoping (a private
 // case is invisible to a firm colleague; a shared one is visible).
 //
-// Uses the real gitignored data/dev-cases.json (cleaned around each test) rather
-// than mocking 'fs' — mocking the core fs module breaks jest's own transformer.
-// This matches the firm-manager route tests' dev-fallback convention.
+// Uses an ISOLATED temp dev file (via CASE_DEV_FILE) rather than the shared
+// data/dev-cases.json — so this suite is hermetic: a clean `npm test` is unaffected by
+// local dev state or a live backend writing the real file concurrently. (Mocking the
+// core 'fs' module is avoided because it breaks jest's own transformer.)
 
 process.env.NODE_ENV = 'development'
+
+const fs = require('fs')
+const path = require('path')
+const os = require('os')
+
+// Set BEFORE requiring caseStore — DEV_CASES_FILE is resolved at module load.
+const DEV_FILE = path.join(os.tmpdir(), `va-test-dev-cases-${process.pid}.json`)
+process.env.CASE_DEV_FILE = DEV_FILE
 
 // DB always rejects → forces the dev fallback path.
 jest.mock('../../server/utils/db', () => ({
   execute: jest.fn(() => Promise.reject(new Error('no db in this test')))
 }))
 
-const fs = require('fs')
-const path = require('path')
 const caseStore = require('../../server/utils/caseStore')
 
-const DEV_FILE = path.resolve(__dirname, '../../data/dev-cases.json')
 function clean () { try { fs.unlinkSync(DEV_FILE) } catch (e) { /* not there — fine */ } }
 
 const base = { advisorId: 'a1', firmId: 'f1', title: 'T', mode: 'client' }

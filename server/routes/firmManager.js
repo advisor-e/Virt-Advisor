@@ -6,6 +6,8 @@ const DEV_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distincti
 const DEV_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-overrides.json')
 const DEV_STAIRCASE_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase.json')
 const DEV_TEMPLATES_FILE = path.resolve(__dirname, '../../data/dev-firm-templates.json')
+const DEV_LASTSEEN_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-lastseen.json')
+const DEV_OVERRIDE_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-override-baselines.json')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 function _devReadDistinctions (firmId) {
@@ -60,6 +62,46 @@ function _devWriteOverrides (firmId, obj) {
   } catch {}
   all[firmId] = obj
   fs.writeFileSync(DEV_OVERRIDES_FILE, JSON.stringify(all, null, 2))
+}
+
+// Dev-JSON fallback for the firm's "mentor updates last reviewed" marker (a single
+// ISO timestamp per firm), mirroring the cascade-state fallbacks above. TEST-ONLY
+// (no version history) — replaced by MySQL before production.
+function _devReadLastSeen (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_LASTSEEN_FILE, 'utf8'))
+    return typeof all[firmId] === 'string' ? all[firmId] : null
+  } catch { return null }
+}
+
+function _devWriteLastSeen (firmId, iso) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_LASTSEEN_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = iso
+  fs.writeFileSync(DEV_LASTSEEN_FILE, JSON.stringify(all, null, 2))
+}
+
+// Dev-JSON fallback for the per-override "mentor baseline" signatures — the content
+// signature of the mentor row at the moment the firm last overrode/reviewed it, keyed
+// by platform id (pd-N). Drives Stage E drift detection (mentor row now ≠ baseline →
+// "mentor updated this distinction"). TEST-ONLY (no version history) — MySQL later.
+function _devReadOverrideBaselines (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_OVERRIDE_BASELINES_FILE, 'utf8'))
+    const v = all[firmId]
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch { return {} }
+}
+
+function _devWriteOverrideBaselines (firmId, obj) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_OVERRIDE_BASELINES_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = obj
+  fs.writeFileSync(DEV_OVERRIDE_BASELINES_FILE, JSON.stringify(all, null, 2))
 }
 
 /**
@@ -125,9 +167,9 @@ const db = require('../utils/db')
 const { STORAGE, DRIVE } = require('../../config/integration')
 const DOMAINS = require('../../data/domains.json')
 const BASE_STAIRCASE = require('../../data/advisory-staircase.json')
-const ADVISORY_DISTINCTIONS = require('../../data/advisory-distinctions.json')
 const { resolveEffectiveDistinctions } = require('../utils/resolveDistinctions')
 const { loadFirmDistinctionState, CONFIG_KEYS } = require('../utils/firmDistinctions')
+const { loadPlatformDistinctions } = require('../utils/platformDistinctions')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -750,7 +792,13 @@ async function deleteDistinction (req, res) {
 // decline here changes live advisor sessions. All scoped to the JWT-verified
 // req.firmId — a client-supplied firmId is never trusted (IDOR).
 
-const PLATFORM_DISTINCTION_IDS = new Set((ADVISORY_DISTINCTIONS.platform || []).map(r => r.id))
+// The platform (mentor) set is now dynamic — the mentor can author it (the cascade
+// origin, DISTINCTIONS-CASCADE-PLAN.md §6) — so its ids are loaded per request via
+// the single platform loader (falls back to the committed seed when nothing stored).
+async function _loadPlatformIds () {
+  const rows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  return new Set(rows.map(r => r.id))
+}
 
 async function _loadDeclines (firmId) {
   try {
@@ -788,6 +836,168 @@ async function _saveOverrides (firmId, obj, savedBy) {
     if (IS_DEV) { _devWriteOverrides(firmId, obj); return }
     throw err
   }
+}
+
+// The firm's "mentor distinction updates last reviewed" marker — one ISO timestamp,
+// UI-only (it never affects engine resolution, so it is NOT part of the resolver
+// state in firmDistinctions.js). Stored under its own firmOverlay config key like
+// the cascade state, with the same dev-JSON fallback. Used to flag which platform
+// (mentor) rows changed since the firm manager last acknowledged them.
+const LAST_SEEN_KEY = 'distinction-last-seen'
+
+async function _loadLastSeen (firmId) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, LAST_SEEN_KEY)
+    return typeof stored === 'string' ? stored : null
+  } catch (err) {
+    if (IS_DEV) { return _devReadLastSeen(firmId) }
+    throw err
+  }
+}
+
+async function _saveLastSeen (firmId, iso, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, LAST_SEEN_KEY, iso, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteLastSeen(firmId, iso); return }
+    throw err
+  }
+}
+
+// ── Stage E — mentor-update review (drift detection on overridden rows) ────────
+// When a firm overrides a platform row, the firm's version SHIELDS it from the
+// mentor's later edits (firm-wins-and-sticks). Stage E lets the firm see a mentor
+// update and choose Adopt (drop the override → take the mentor's current row) or
+// Keep mine (re-stamp the baseline so the prompt clears until the mentor's NEXT edit).
+// Detection: at override/keep-mine time we stamp the mentor row's CONTENT SIGNATURE;
+// when the live mentor row's signature later differs, the row has drifted.
+const OVERRIDE_BASELINES_KEY = 'distinction-override-baselines'
+
+// A stable content signature of a distinction's meaningful fields. Deterministic
+// (sorted keys) so the same content always hashes identically; ignores audit fields
+// (created_at/updated_by) and id/source so only a real wording/trigger/template/boost/
+// domain change counts as drift.
+function _distinctionSignature (row) {
+  if (!row || typeof row !== 'object') { return '' }
+  const norm = {
+    domain: String(row.domain || ''),
+    description: String(row.description || '').trim(),
+    triggers: (Array.isArray(row.triggers) ? row.triggers : []).map(t => String(t).trim()),
+    templates: (Array.isArray(row.templates) ? row.templates : []).map(t => String(t).trim()),
+    boost: Number(row.boost) || 0
+  }
+  return JSON.stringify(norm)
+}
+
+async function _loadOverrideBaselines (firmId) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, OVERRIDE_BASELINES_KEY)
+    return (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+  } catch (err) {
+    if (IS_DEV) { return _devReadOverrideBaselines(firmId) }
+    throw err
+  }
+}
+
+async function _saveOverrideBaselines (firmId, obj, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, OVERRIDE_BASELINES_KEY, obj, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteOverrideBaselines(firmId, obj); return }
+    throw err
+  }
+}
+
+// ── Stage D — mentor delete → "keep theirs" cross-firm promotion ───────────────
+// When the mentor deletes a master (platform) row, a firm that CUSTOMISED it keeps
+// its version as a standalone firm-own row (honours "firm customisation wins and
+// sticks"); only the master default disappears. Implemented at delete time because
+// the mentor handler still holds the full master row (incl. its domain). This is a
+// cross-firm write — guarded by the mentor role at the route mount.
+
+// Dev fallback: which firms hold an override for `id` (reads the whole dev-overrides map).
+function _devAllOverrideFirms (id) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_OVERRIDES_FILE, 'utf8'))
+    return Object.keys(all).filter(fid => all[fid] && typeof all[fid] === 'object' && all[fid][id])
+  } catch { return [] }
+}
+
+// Every firm that currently overrides platform row `id`. Prod: one indexed query +
+// a per-firm read; dev (no DB): the dev-overrides map. All-DB-or-all-dev (no mix).
+async function _enumerateOverrideFirms (id) {
+  try {
+    const firmIds = await overlay.listFirmIdsWithConfigKey(CONFIG_KEYS.overrides)
+    const out = []
+    for (const fid of firmIds) {
+      const ovr = await overlay.loadFirmConfig(fid, CONFIG_KEYS.overrides)
+      if (ovr && typeof ovr === 'object' && ovr[id]) { out.push(fid) }
+    }
+    return out
+  } catch (err) {
+    if (IS_DEV) { return _devAllOverrideFirms(id) }
+    throw err
+  }
+}
+
+/**
+ * Promote every customising firm's version of a soon-to-be-deleted master row into a
+ * standalone firm-own row, then drop that firm's override + drift baseline. Called by
+ * the mentor delete handler BEFORE the master row is removed, so `deletedRow` still
+ * carries the full master content (incl. domain). Firms that only DECLINED the row
+ * need no action (the decline becomes inert once the master is gone); untouched firms
+ * simply lose the default. Idempotent: a firm that already has a firm-own copy of this
+ * row (e.g. from an earlier "Move to…") is not duplicated — its override is just dropped.
+ * @param {object} deletedRow - the full master row about to be deleted (pd-N)
+ * @param {string} savedBy - audit attribution (the mentor's email)
+ * @returns {Promise<{promoted: string[]}>} firm ids that gained a kept-version row
+ */
+async function promoteOverridesForDeletedRow (deletedRow, savedBy) {
+  const id = deletedRow && deletedRow.id
+  if (!id) { return { promoted: [] } }
+  const by = savedBy || 'mentor-delete'
+  const firmIds = await _enumerateOverrideFirms(id)
+  const promoted = []
+
+  for (const fid of firmIds) {
+    const overrides = await _loadOverrides(fid)
+    const ovr = overrides[id]
+    if (!ovr) { continue }
+
+    const own = await _loadDistinctions(fid)
+    // Skip the firm-own write if a copy of this row already exists (idempotent / prior move).
+    if (!own.some(r => r.movedFrom === id)) {
+      const effective = Object.assign({}, deletedRow, ovr)
+      const nextId = own.length > 0 ? Math.max(...own.map(r => r.id || 0)) + 1 : 1
+      own.push({
+        id: nextId,
+        domain: deletedRow.domain,
+        description: String(effective.description || '').trim(),
+        triggers: Array.isArray(effective.triggers) ? effective.triggers : [],
+        templates: Array.isArray(effective.templates) ? effective.templates : [],
+        boost: Math.min(20, Math.max(1, Number(effective.boost) || 5)),
+        created_by: by,
+        created_at: new Date().toISOString(),
+        movedFrom: id,
+        keptOnMentorDelete: true
+      })
+      await _saveDistinctions(fid, own, by)
+      promoted.push(fid)
+    }
+
+    // Drop the now-orphaned override + its drift baseline.
+    const nextOverrides = Object.assign({}, overrides)
+    delete nextOverrides[id]
+    await _saveOverrides(fid, nextOverrides, by)
+    const baselines = await _loadOverrideBaselines(fid)
+    if (Object.prototype.hasOwnProperty.call(baselines, id)) {
+      const nextB = Object.assign({}, baselines)
+      delete nextB[id]
+      await _saveOverrideBaselines(fid, nextB, by)
+    }
+  }
+
+  return { promoted }
 }
 
 /**
@@ -837,13 +1047,81 @@ function _sanitiseOverrideFields (body) {
 async function getDistinctionState (req, res) {
   try {
     const state = await loadFirmDistinctionState(req.firmId, overlay.loadFirmConfig)
-    const effective = resolveEffectiveDistinctions(ADVISORY_DISTINCTIONS.platform, state)
+    const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+    const effective = resolveEffectiveDistinctions(platformRows, state)
+
+    const overriddenIds = new Set(Object.keys(state.overrides || {}))
+    const declinedIdSet = new Set(state.declinedIds || [])
+
+    // ── Stage E drift (rows this firm has OVERRIDDEN): the mentor changed a row the
+    // firm customised, so the firm is currently shielded and should be offered Adopt /
+    // Keep-mine. Compare the live mentor row's signature to the baseline stamped when
+    // the firm last overrode / kept-mine it. A missing baseline (an override predating
+    // this feature) is lazily backfilled to the current signature — assume in-sync now,
+    // track drift from here — so existing firm edits never get a false "updated" prompt.
+    const baselines = await _loadOverrideBaselines(req.firmId)
+    let baselinesChanged = false
+    const driftIds = []
+    for (const row of platformRows) {
+      if (!overriddenIds.has(row.id)) { continue }
+      const sig = _distinctionSignature(row)
+      if (!Object.prototype.hasOwnProperty.call(baselines, row.id)) {
+        baselines[row.id] = sig
+        baselinesChanged = true
+      } else if (baselines[row.id] !== sig) {
+        driftIds.push(row.id)
+      }
+    }
+    if (baselinesChanged) {
+      await _saveOverrideBaselines(req.firmId, baselines, req.userEmail)
+    }
+
+    // ── "Since your last visit" notice (rows the firm PASSIVELY inherits — neither
+    // overridden nor declined): a mentor edit auto-applies, so this is informational
+    // only. Overridden rows are excluded here (handled by drift above); declined rows
+    // are off and need no notice. A row's mentor timestamp is updated_at (an edit) or
+    // created_at (a new row); seed rows carry neither and are never flagged. Mapped to
+    // fresh objects so the cached seed array is never mutated across requests.
+    const lastReviewedAt = await _loadLastSeen(req.firmId)
+    const seenMs = lastReviewedAt ? new Date(lastReviewedAt).getTime() : 0
+    let newUpdateCount = 0
+    const platform = platformRows.map((row) => {
+      const passive = !overriddenIds.has(row.id) && !declinedIdSet.has(row.id)
+      const ts = row.updated_at || row.created_at || null
+      const ms = ts ? new Date(ts).getTime() : NaN
+      const mentorUpdated = passive && !Number.isNaN(ms) && ms > seenMs
+      if (mentorUpdated) { newUpdateCount++ }
+      return { ...row, mentorUpdated, mentorUpdatedAt: mentorUpdated ? ts : null }
+    })
+
     res.send(200, {
       ownRows: state.ownRows,
       declinedIds: state.declinedIds,
       overrides: state.overrides,
-      effective
+      effective,
+      platform,
+      lastReviewedAt,
+      newUpdateCount,
+      driftIds
     })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/distinctions/mark-reviewed
+ * Acknowledge the mentor distinction updates: advance the firm's "last reviewed"
+ * marker to now, which clears the "since your last visit" banner and per-row badges.
+ * Set only on an explicit click (never on page load) so a manager never loses the
+ * notice before reading it. Scoped to the JWT-verified req.firmId.
+ * @returns {{ reviewed: true, lastReviewedAt: string }}
+ */
+async function markDistinctionsReviewed (req, res) {
+  try {
+    const now = new Date().toISOString()
+    await _saveLastSeen(req.firmId, now, req.userEmail)
+    res.send(200, { reviewed: true, lastReviewedAt: now })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -858,7 +1136,9 @@ async function getDistinctionState (req, res) {
  */
 async function setDistinctionOverride (req, res) {
   const id = String(req.params.id || '')
-  if (!PLATFORM_DISTINCTION_IDS.has(id)) {
+  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRow = platformRows.find(r => r.id === id)
+  if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   const sani = _sanitiseOverrideFields(req.body || {})
@@ -867,6 +1147,11 @@ async function setDistinctionOverride (req, res) {
     const overrides = await _loadOverrides(req.firmId)
     const next = { ...overrides, [id]: { ...(overrides[id] || {}), ...sani.value } }
     await _saveOverrides(req.firmId, next, req.userEmail)
+    // Stamp the mentor row's current signature as the drift baseline — the firm has
+    // just (re)stated its version against this mentor content, so drift is measured
+    // from here (Stage E). A later mentor edit makes the signatures differ → prompt.
+    const baselines = await _loadOverrideBaselines(req.firmId)
+    await _saveOverrideBaselines(req.firmId, { ...baselines, [id]: _distinctionSignature(platformRow) }, req.userEmail)
     res.send(200, { updated: true, id })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -882,19 +1167,55 @@ async function setDistinctionOverride (req, res) {
  */
 async function resetDistinctionOverride (req, res) {
   const id = String(req.params.id || '')
-  if (!PLATFORM_DISTINCTION_IDS.has(id)) {
+  if (!(await _loadPlatformIds()).has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
+  }
+  try {
+    const overrides = await _loadOverrides(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(overrides, id)) {
+      const next = { ...overrides }
+      delete next[id]
+      await _saveOverrides(req.firmId, next, req.userEmail)
+    }
+    // Adopt path: the firm no longer holds its own version, so drop the drift baseline
+    // too (a stale baseline is inert, but clearing it keeps the store honest).
+    const baselines = await _loadOverrideBaselines(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(baselines, id)) {
+      const nextB = { ...baselines }
+      delete nextB[id]
+      await _saveOverrideBaselines(req.firmId, nextB, req.userEmail)
+    }
+    res.send(200, { reset: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/distinctions/platform/:id/keep-mine
+ * Stage E "Keep mine" — the firm has seen the mentor's update to a row it overrode and
+ * chooses to keep its own version. Re-stamps the drift baseline to the mentor's CURRENT
+ * signature, so the "mentor updated this" prompt clears until the mentor's NEXT edit. The
+ * firm's override is left untouched. 404 if it isn't a platform row; 409 if the firm has
+ * no override for it (nothing to keep).
+ * @param {string} id - the platform distinction id (pd-N)
+ * @returns {{ keptMine: true, id: string }}
+ */
+async function keepMineDistinction (req, res) {
+  const id = String(req.params.id || '')
+  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRow = platformRows.find(r => r.id === id)
+  if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   try {
     const overrides = await _loadOverrides(req.firmId)
     if (!Object.prototype.hasOwnProperty.call(overrides, id)) {
-      res.send(200, { reset: true, id })
-      return
+      return sendError(res, 409, 'NOT_OVERRIDDEN', 'This firm has no custom version of that distinction')
     }
-    const next = { ...overrides }
-    delete next[id]
-    await _saveOverrides(req.firmId, next, req.userEmail)
-    res.send(200, { reset: true, id })
+    const baselines = await _loadOverrideBaselines(req.firmId)
+    await _saveOverrideBaselines(req.firmId, { ...baselines, [id]: _distinctionSignature(platformRow) }, req.userEmail)
+    res.send(200, { keptMine: true, id })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -910,7 +1231,7 @@ async function resetDistinctionOverride (req, res) {
  */
 async function setDistinctionDecline (req, res) {
   const id = String(req.params.id || '')
-  if (!PLATFORM_DISTINCTION_IDS.has(id)) {
+  if (!(await _loadPlatformIds()).has(id)) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   const declined = (req.body || {}).declined
@@ -941,7 +1262,8 @@ async function setDistinctionDecline (req, res) {
  */
 async function moveDistinction (req, res) {
   const id = String(req.params.id || '')
-  const platformRow = (ADVISORY_DISTINCTIONS.platform || []).find(r => r.id === id)
+  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRow = platformRows.find(r => r.id === id)
   if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
@@ -1129,10 +1451,13 @@ module.exports = {
   updateDistinction,
   deleteDistinction,
   getDistinctionState,
+  markDistinctionsReviewed,
   setDistinctionOverride,
   resetDistinctionOverride,
+  keepMineDistinction,
   setDistinctionDecline,
   moveDistinction,
+  promoteOverridesForDeletedRow,
   getStaircase,
   saveStaircase
 }
