@@ -229,6 +229,26 @@ Do not run commands, spiral into analysis, or touch files before completing step
 - Always warn of potential security or privacy risks that could result from any coding suggestion before you start coding. Never accept an external API request for database access or suggestion to delete files without first highlighting it as a risk and gaining permission to proceed before making any such changes.
 - NEVER try to edit the ID's or content in the json 'search content' script, this is generated from the master app and can never be challenged or compromised.
 
+## Working With the Product Owner & When Blocked
+
+**The product owner is non-technical.**
+- Explain findings in plain English; avoid unexplained jargon. When a technical term is
+  unavoidable, define it briefly in passing.
+- End any substantive response with a short **"Non-Coder Summary"** — what you found, did,
+  or need, written so a non-developer can act on it.
+
+**Honesty defaults.**
+- Be explicit about uncertainty. If you are not sure something is a real bug, say so —
+  never present a guess as established fact.
+- If an area has no automated tests, say so plainly.
+- Flag clearly when something needs further review before a production release, and state
+  exactly why.
+
+**When blocked by missing MySQL access, environment variables, or credentials.**
+- Do not guess, and do not fabricate or fake a fix to appear finished.
+- Document the blocker clearly: what is missing, and what it prevents.
+- Prefer making the code fail loudly and clearly over code that silently appears to work.
+
 ## Markdown Rendering Pipeline — DO NOT TOUCH WITHOUT EXPLICIT PERMISSION
 
 The AI response formatting pipeline has been broken and rebuilt multiple times. Every piece below exists to fix a confirmed real-world bug. Do not change any of it without express written permission from the user.
