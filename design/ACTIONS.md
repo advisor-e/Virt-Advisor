@@ -68,9 +68,9 @@ Two honest answers on different axes — the file used to conflate them:
 
 - ☐ **P3 · STRUCT — Monolithic components, no base/shared split.** `VirtualAdvisor.vue` 2708, `CourseBuilder.vue` 2152, `FirmManagerHub.vue` 1295, `FirmDashboard.vue` 665 — over the "decompose when complex and >200 lines" rule; no `components/base/` or `components/shared/`. *Source:* code-gov audit 2026-06-15.
 
-- ☐ **P3 · DOC — Sparse JSDoc.** Mixins lack `@param`/`@returns`; `course.js` has none; `advisor.js` ~4 tags across 2061 lines. *Source:* code-gov audit 2026-06-15.
+- ☐ **P3 · DOC — Sparse JSDoc.** Mixins lack `@param`/`@returns`; `course.js` has none; `advisor.js` ~4 tags across 2061 lines. **Scheduled into the planned cleanup pass — see [`design/CLEANUP-PASS-PLAN.md`](CLEANUP-PASS-PLAN.md)** (gated: runs AFTER the master team's DB + mentor-login wiring lands, on their email + Mike's go-ahead; branch `chore/i18n-jsdoc-cleanup`). *Source:* code-gov audit 2026-06-15.
 
-- ☐ **P3 · I18N — Hardcoded English in templates** (e.g. "Access Restricted" in `pages/firm-manager.vue`); should route through `$t()`. Infra (`localeMixin`, 8 locales) exists; pervasive sweep. *Source:* code-gov audit 2026-06-15.
+- ☐ **P3 · I18N — Hardcoded English in templates** (e.g. "Access Restricted" in `pages/firm-manager.vue`); should route through `$t()`. Infra (`localeMixin`, 8 locales) exists; pervasive sweep. **Measured 2026-06-30: 12 `.vue` screens, only 2 translated → 10 to do. Scheduled into the planned cleanup pass — see [`design/CLEANUP-PASS-PLAN.md`](CLEANUP-PASS-PLAN.md)** (English plumbing only; the other 7 languages are a human-translator job, out of scope; gated: runs AFTER the master team's DB + mentor-login wiring lands, on their email + Mike's go-ahead; branch `chore/i18n-jsdoc-cleanup`). *Source:* code-gov audit 2026-06-15.
 
 - ☐ **P3 · EDIT-TARGET — Bring building blocks under Firm-Manager no-code editing:** 14-question **weight sliders**, **Strategy table** (`strategyResolver` rules), **primary-issues** table, **content-summaries** editor, **coaching-reference** editor, **logic-trees** flowchart editor (tied to the dormant-trees item). *Source:* registry Part 2.
 
