@@ -87,6 +87,8 @@ Two honest answers on different axes — the file used to conflate them:
 
 - ☐ **P3 · DOC tidy** — fold any remaining per-file detail from `registry_compilation_wip`; resolve the Org CA Capacity Planner mislabelled-PDF flag (Part 2A). *Source:* registry.
 
+- ◐ **P2 · BUILD/DECISION — Business Performance Report (NEW feature, in design).** Non-tech accountants drag-and-drop reports exported from Xero → the app runs the supplied financial models → generates a branded, **personalised** Business Performance Report; AI writes the narrative from **anonymised figures only** (no client name / ID / bank numbers leave the app). Reuses the existing engine (i18n, `courseEngine`-style AI route, `firmAuth`, markdown pipeline) — **no stack change**. Launched from Advisory.com's existing "client report button" into a Virt-Advisor-hosted page (Option 1). Currently in **design**; full plan, task board, decisions and integration map in [`design/BUSINESS-PERFORMANCE-REPORT-PLAN.md`](BUSINESS-PERFORMANCE-REPORT-PLAN.md). Open sub-decisions tracked there (dropped file formats; streaming vs JSON; Advisory launch hand-off). *Source:* design sessions with Mike from 2026-07-09.
+
 ---
 
 ## NEEDS A MIKE DECISION (no code until you rule)
