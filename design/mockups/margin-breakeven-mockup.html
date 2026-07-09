@@ -8,16 +8,9 @@
     --good:#4ca52d; --good-soft:#4ca52d1a; --warn:#ff9900; --warn-soft:#ff99001a; --crit:#ff0000; --crit-soft:#ff00000f;
     --shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426; --r:14px;
   }
-  @media (prefers-color-scheme:dark){:root{
-    --bg:#05132a; --panel:#0a1f3d; --panel-2:#07182f; --ink:#e6f0fa; --muted:#9fb4d0; --line:#1a3559;
-    --accent:#00b1e0; --accent-bright:#7fd3f1; --accent-soft:#00b1e022; --accent-contrast:#002b64;
-    --good-soft:#4ca52d26; --warn-soft:#ff990022; --crit-soft:#ff00001f; --shadow:0 1px 2px #0007,0 10px 30px -14px #000a;}}
-  :root[data-theme="dark"]{--bg:#05132a; --panel:#0a1f3d; --panel-2:#07182f; --ink:#e6f0fa; --muted:#9fb4d0; --line:#1a3559;
-    --accent:#00b1e0; --accent-bright:#7fd3f1; --accent-soft:#00b1e022; --accent-contrast:#002b64;
-    --good-soft:#4ca52d26; --warn-soft:#ff990022; --crit-soft:#ff00001f; --shadow:0 1px 2px #0007,0 10px 30px -14px #000a;}
-  :root[data-theme="light"]{--bg:#eef3f8; --panel:#fff; --panel-2:#f1f6fb; --ink:#002b64; --muted:#5b6f8a; --line:#d5e1ee;
-    --accent:#0070c0; --accent-bright:#00b1e0; --accent-soft:#0070c018; --accent-contrast:#fff;
-    --good-soft:#4ca52d1a; --warn-soft:#ff99001a; --crit-soft:#ff00000f; --shadow:0 1px 2px #002b6412,0 8px 24px -12px #002b6426;}
+  @media (prefers-color-scheme:dark){:root{--bg:#05132a; --panel:#0a1f3d; --panel-2:#07182f; --ink:#e6f0fa; --muted:#9fb4d0; --line:#1a3559; --accent:#00b1e0; --accent-bright:#7fd3f1; --accent-soft:#00b1e022; --accent-contrast:#002b64; --good-soft:#4ca52d26; --warn-soft:#ff990022; --crit-soft:#ff00001f; --shadow:0 1px 2px #0007,0 10px 30px -14px #000a;}}
+  :root[data-theme="dark"]{--bg:#05132a; --panel:#0a1f3d; --panel-2:#07182f; --ink:#e6f0fa; --muted:#9fb4d0; --line:#1a3559; --accent:#00b1e0; --accent-bright:#7fd3f1; --accent-soft:#00b1e022; --accent-contrast:#002b64; --good-soft:#4ca52d26; --warn-soft:#ff990022; --crit-soft:#ff00001f; --shadow:0 1px 2px #0007,0 10px 30px -14px #000a;}
+  :root[data-theme="light"]{--bg:#eef3f8; --panel:#fff; --panel-2:#f1f6fb; --ink:#002b64; --muted:#5b6f8a; --line:#d5e1ee; --accent:#0070c0; --accent-bright:#00b1e0; --accent-soft:#0070c018; --accent-contrast:#fff; --good-soft:#4ca52d1a; --warn-soft:#ff99001a; --crit-soft:#ff00000f; --shadow:0 1px 2px #002b6412,0 8px 24px -12px #002b6426;}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:'Open Sans',system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:300;font-feature-settings:"tnum" 1;line-height:1.55;-webkit-font-smoothing:antialiased}
   strong,b{font-weight:600} .num{font-variant-numeric:tabular-nums}
@@ -31,34 +24,31 @@
   @media (max-width:860px){.layout{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
   .card h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .instruct{padding:13px 16px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.5}
-  .instruct b{color:var(--ink)}
-  .group{padding:14px 16px;border-bottom:1px solid var(--line)}.group:last-child{border-bottom:0}
-  .glabel{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
-  .glabel .lft{display:flex;align-items:center;gap:8px}.glabel .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-bright)}
-  .total{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px}
-  .total.ok{color:var(--good);background:var(--good-soft)} .total.bad{color:var(--crit);background:var(--crit-soft)}
-  .field{margin:9px 0}.field:first-of-type{margin-top:0}
-  .frow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px}
-  .frow label{font-size:12px;font-weight:300}.frow output{font-size:12.5px;font-weight:600;color:var(--accent)}
+  .group{padding:15px 16px;border-bottom:1px solid var(--line)}.group:last-child{border-bottom:0}
+  .glabel{display:flex;align-items:center;gap:8px;margin-bottom:10px}.glabel .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-bright)}
+  .field{margin:11px 0}.field:first-of-type{margin-top:0}
+  .frow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px}
+  .frow label{font-size:12.5px;font-weight:300}.frow output{font-size:13px;font-weight:600;color:var(--accent)}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:linear-gradient(var(--accent),var(--accent)) 0/var(--fill,50%) 100% no-repeat,var(--line);outline:none}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--panel);border:2px solid var(--accent);box-shadow:0 1px 3px #0003;cursor:pointer}
-  .setbtn{width:100%;font:inherit;font-weight:600;font-size:12.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:10px;cursor:pointer}
-  .setbtn:hover{border-color:var(--accent)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--panel);border:2px solid var(--accent);box-shadow:0 1px 3px #0003;cursor:pointer}
+  input.wif{background:linear-gradient(var(--warn),var(--warn)) 0/var(--fill,50%) 100% no-repeat,var(--line)}
+  input.wif::-webkit-slider-thumb{border-color:var(--warn)}
   .results{display:flex;flex-direction:column;gap:20px}
-  .chartcard{padding:18px}
-  .chead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:2px}
-  .csub{font-size:12.5px;color:var(--muted)}
-  svg.chart{display:block;width:100%;height:auto;max-width:780px;margin:6px auto 0}
-  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--muted);justify-content:center}
-  .legend span{display:inline-flex;align-items:center;gap:6px}.legend i{width:16px;height:0;border-top:3px solid;border-radius:2px}
   .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
   @media (max-width:640px){.tiles{grid-template-columns:1fr}}
   .tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;box-shadow:var(--shadow)}
+  .tile.two{display:flex;gap:18px}
+  .tile.two > div{flex:1}
   .k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .v{font-size:26px;font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1}
-  .v.crit{color:var(--crit)} .v.good{color:var(--good)} .v.muted{color:var(--muted)}
+  .v{font-size:25px;font-weight:600;letter-spacing:-.01em;margin-top:5px;line-height:1}
+  .v.blue{color:var(--accent-ink,var(--accent))} .v.warn{color:var(--warn)}
   .sub{font-size:12px;color:var(--muted);margin-top:6px}
+  .chartcard{padding:18px}
+  .chead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .csub{font-size:12.5px;color:var(--muted)}
+  svg.chart{display:block;width:100%;height:auto;max-width:780px;margin:8px auto 0}
+  .wif-call{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .wif-call div{font-size:12px;color:var(--muted)} .wif-call b{display:block;font-size:16px;color:var(--ink);font-weight:600;margin-top:2px}
   .edu{border-left:3px solid var(--accent-bright);background:var(--accent-soft);border-radius:0 9px 9px 0;padding:15px 17px}
   .edu .h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--accent);margin-bottom:8px}
   .edu p{margin:0;font-size:14px;line-height:1.6}
@@ -79,7 +69,7 @@
   <div class="top">
     <div>
       <div class="eyebrow">Business Performance Report</div>
-      <h1>Debtor Business Drag</h1>
+      <h1>Margin, Mark-up &amp; Break-even</h1>
       <div class="client">Prepared for <strong>[Client Company]</strong> · by <strong>[Advisor / Firm]</strong></div>
     </div>
     <div class="badge">Mock-up · illustrative</div>
@@ -87,60 +77,44 @@
 
   <div class="layout">
     <aside class="card">
-      <div class="instruct">Set these to the client's situation and click <b>“Freeze as Before”</b>. Then change a decision — the <b style="color:var(--blue)">blue line</b> moves against your grey <b>Before</b>.</div>
-
       <div class="group">
-        <div class="glabel"><span class="lft"><span class="dot"></span><h2>Sales</h2></span></div>
-        <div class="field"><div class="frow"><label>Annual sales</label><output id="o_sales">$3,357,413</output></div><input type="range" id="sales" min="500000" max="6000000" step="50000" value="3357413"></div>
+        <div class="glabel"><span class="dot"></span><h2>The product</h2></div>
+        <div class="field"><div class="frow"><label>Sale price</label><output id="o_price">$250</output></div><input type="range" id="price" min="20" max="1000" step="5" value="250"></div>
+        <div class="field"><div class="frow"><label>Unit cost</label><output id="o_cost">$82.50</output></div><input type="range" id="cost" min="5" max="800" step="2.5" value="82.5"></div>
       </div>
-
       <div class="group">
-        <div class="glabel"><span class="lft"><span class="dot"></span><h2>Debtors — when they pay</h2></span><span class="total" id="dtot">100%</span></div>
-        <div class="field"><div class="frow"><label>Same month</label><output id="o_d0">85%</output></div><input type="range" id="d0" min="0" max="100" step="1" value="85"></div>
-        <div class="field"><div class="frow"><label>1 month later</label><output id="o_d1">7%</output></div><input type="range" id="d1" min="0" max="100" step="1" value="7"></div>
-        <div class="field"><div class="frow"><label>2 months later</label><output id="o_d2">5%</output></div><input type="range" id="d2" min="0" max="100" step="1" value="5"></div>
-        <div class="field"><div class="frow"><label>3 months later</label><output id="o_d3">0%</output></div><input type="range" id="d3" min="0" max="100" step="1" value="0"></div>
-        <div class="field"><div class="frow"><label>4 months later</label><output id="o_d4">0%</output></div><input type="range" id="d4" min="0" max="100" step="1" value="0"></div>
-        <div class="field"><div class="frow"><label>Written off (never paid)</label><output id="o_dwo">3%</output></div><input type="range" id="dwo" min="0" max="100" step="1" value="3"></div>
+        <div class="glabel"><span class="dot"></span><h2>To keep the doors open (monthly)</h2></div>
+        <div class="field"><div class="frow"><label>Overheads</label><output id="o_oh">$11,500</output></div><input type="range" id="oh" min="0" max="60000" step="500" value="11500"></div>
+        <div class="field"><div class="frow"><label>Owner's drawings (target)</label><output id="o_draw">$8,600</output></div><input type="range" id="draw" min="0" max="60000" step="500" value="8600"></div>
       </div>
-
       <div class="group">
-        <div class="glabel"><span class="lft"><span class="dot"></span><h2>Suppliers — when you pay</h2></span><span class="total" id="ctot">100%</span></div>
-        <div class="field"><div class="frow"><label>Same month</label><output id="o_c0">90%</output></div><input type="range" id="c0" min="0" max="100" step="1" value="90"></div>
-        <div class="field"><div class="frow"><label>1 month later</label><output id="o_c1">10%</output></div><input type="range" id="c1" min="0" max="100" step="1" value="10"></div>
-        <div class="field"><div class="frow"><label>2 months later</label><output id="o_c2">0%</output></div><input type="range" id="c2" min="0" max="100" step="1" value="0"></div>
-        <div class="field"><div class="frow"><label>3 months later</label><output id="o_c3">0%</output></div><input type="range" id="c3" min="0" max="100" step="1" value="0"></div>
-        <div class="field"><div class="frow"><label>4 months later</label><output id="o_c4">0%</output></div><input type="range" id="c4" min="0" max="100" step="1" value="0"></div>
+        <div class="glabel"><span class="dot"></span><h2>What if you change the price?</h2></div>
+        <div class="field"><div class="frow"><label>Price change</label><output id="o_wif">0%</output></div><input type="range" id="wif" class="wif" min="-40" max="80" step="1" value="0"></div>
       </div>
-
-      <div class="group">
-        <div class="glabel"><span class="lft"><span class="dot"></span><h2>The business</h2></span></div>
-        <div class="field"><div class="frow"><label>Mark-up</label><output id="o_markup">47%</output></div><input type="range" id="markup" min="10" max="150" step="1" value="47"></div>
-        <div class="field"><div class="frow"><label>Net profit</label><output id="o_np">13%</output></div><input type="range" id="np" min="0" max="40" step="1" value="13"></div>
-        <div class="field"><div class="frow"><label>GST / VAT</label><output id="o_gst">15%</output></div><input type="range" id="gst" min="0" max="30" step="0.5" value="15"></div>
-      </div>
-
-      <div class="group"><button class="setbtn" id="freeze">📌 Freeze current as “Before”</button></div>
     </aside>
 
     <section class="results">
-      <div class="card chartcard">
-        <div class="chead">
-          <h2>Your bank balance, month by month</h2>
-          <div class="csub">slow debtors → you fall behind suppliers → overdraft</div>
+      <div class="tiles">
+        <div class="tile two">
+          <div><div class="k">Margin</div><div class="v num" id="margin">67%</div><div class="sub">profit as % of the <b>sale</b> price</div></div>
+          <div><div class="k">Mark-up</div><div class="v num" id="markup">2.0× · 203%</div><div class="sub">profit as % of the <b>cost</b> price</div></div>
         </div>
-        <svg class="chart" id="chart" viewBox="0 0 780 320" role="img" aria-label="Monthly closing bank balance: Before vs your plan"></svg>
-        <div class="legend">
-          <span><i style="border-color:#8a97a8;border-top-style:dashed"></i>Before</span>
-          <span><i style="border-color:#0070c0"></i>Your plan</span>
-          <span><i style="border-top:none;height:10px;width:10px;border-radius:2px;background:#ff000022"></i>Overdraft</span>
-        </div>
+        <div class="tile"><div class="k">Break-even sales · monthly</div><div class="v num" id="beSales">$30,000</div><div class="sub"><span class="num" id="beUnits">120</span> units — to cover overheads + drawings</div></div>
+        <div class="tile"><div class="k">Cost of sales</div><div class="v num" id="cos">33%</div><div class="sub">of every sale dollar goes to cost</div></div>
       </div>
 
-      <div class="tiles">
-        <div class="tile"><div class="k">Deepest cash low — your plan</div><div class="v num" id="lowPlan">−$34,891</div><div class="sub" id="lowPlanSub">worst month</div></div>
-        <div class="tile"><div class="k">Deepest cash low — Before</div><div class="v num muted" id="lowBefore">−$34,891</div><div class="sub" id="lowBeforeSub">worst month</div></div>
-        <div class="tile"><div class="k">Effect of your decisions</div><div class="v num" id="delta">$0</div><div class="sub" id="deltaSub">freeze a “Before”, then decide</div></div>
+      <div class="card chartcard">
+        <div class="chead">
+          <h2>Sales you must make vs your price</h2>
+          <div class="csub">cut the price and the work explodes; raise it and it shrinks</div>
+        </div>
+        <svg class="chart" id="chart" viewBox="0 0 780 300" role="img" aria-label="Units required to break even across a range of price changes"></svg>
+        <div class="wif-call">
+          <div>At this price<b class="num" id="c_price">$250</b></div>
+          <div>Margin becomes<b class="num" id="c_margin">67%</b></div>
+          <div>You must sell<b class="num" id="c_units">120 units</b></div>
+          <div>vs now<b class="num" id="c_diff">—</b></div>
+        </div>
       </div>
 
       <div class="edu">
@@ -162,87 +136,62 @@
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
-  var money=function(n){return (n<0?"−$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US")};
-  var kf=function(n){return (n<0?"−$":"$")+Math.abs(Math.round(n/1000))+"k"};
-  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  var SHAPE=[100000,137850,207563,215000,232000,347000,356000,432000,318000,323000,365000,324000];
-  var BASE=SHAPE.reduce(function(a,b){return a+b},0);
-  var before=null;
-  function setFill(el){el.style.setProperty("--fill",((el.value-el.min)/(el.max-el.min)*100)+"%")}
+  var money=function(n){return "$"+Math.round(n).toLocaleString("en-US")};
+  var setFill=function(el){el.style.setProperty("--fill",((el.value-el.min)/(el.max-el.min)*100)+"%")};
 
-  // Faithful monthly closing bank balance (matches the source model).
-  // d = [same,+1,+2,+3,+4] debtor collection fractions; c = [same,+1,+2,+3,+4] supplier payment fractions.
-  function cashflow(sales, d, c, markup, np, gst){
-    var n=sales.length, total=sales.reduce(function(a,b){return a+b},0), g=gst/(1+gst);
-    var purch=[], stockPaid=[], tot=0, m, k;
-    for(m=0;m<n;m++){ purch[m]= m>=1 ? sales[m-1]/(1+markup) : 0; }
-    for(m=0;m<n;m++){ var sp=0; for(k=0;k<5;k++){ if(m-k>=0) sp+=purch[m-k]*c[k]; } stockPaid[m]=sp; tot+=sp; }
-    var fixed=(total - tot - total*np)/12;
-    var closing=[], bal=0;
-    for(m=0;m<n;m++){
-      var banked=0; for(k=0;k<5;k++){ if(m-k>=0) banked+=sales[m-k]*d[k]; }
-      bal += (banked + stockPaid[m]*g) - (sales[m]*g + fixed + stockPaid[m]);
-      closing[m]=bal;
-    }
-    return closing;
+  function reqUnits(price, cost, oh, draw, chg){
+    var np=price*(1+chg), m=(np-cost)/np;
+    if(m<=0) return null;
+    var sales=(oh+draw)/m;
+    return {newPrice:np, margin:m, sales:sales, units:sales/np};
   }
-  function liveCurve(){
-    var scale=+$("sales").value/BASE, sales=SHAPE.map(function(v){return v*scale});
-    var d=["d0","d1","d2","d3","d4"].map(function(i){return +$(i).value/100});
-    var c=["c0","c1","c2","c3","c4"].map(function(i){return +$(i).value/100});
-    return cashflow(sales, d, c, +$("markup").value/100, +$("np").value/100, +$("gst").value/100);
-  }
-  function updateTotals(){
-    var dt=["d0","d1","d2","d3","d4","dwo"].reduce(function(a,i){return a+ +$(i).value},0);
-    var ct=["c0","c1","c2","c3","c4"].reduce(function(a,i){return a+ +$(i).value},0);
-    $("dtot").textContent=dt+"%"; $("dtot").className="total "+(dt===100?"ok":"bad");
-    $("ctot").textContent=ct+"%"; $("ctot").className="total "+(ct===100?"ok":"bad");
-  }
-  function buildChart(plan){
-    var W=780,H=320,pl=60,pr=18,pt=16,pb=34, pw=W-pl-pr, ph=H-pt-pb;
-    var series=[plan]; if(before) series.push(before);
-    var lo=0,hi=0; series.forEach(function(a){a.forEach(function(v){lo=Math.min(lo,v);hi=Math.max(hi,v);});});
-    var pad=(hi-lo)*0.08||1000; hi+=pad; lo-=pad;
-    var x=function(m){return pl+pw*(m/11)}, y=function(v){return pt+ph*(1-(v-lo)/(hi-lo))};
-    function line(a){var d="M"+x(0)+" "+y(a[0]);for(var m=1;m<12;m++)d+=" L"+x(m)+" "+y(a[m]);return d;}
-    var z=y(0), s='';
-    s+='<rect x="'+pl+'" y="'+z+'" width="'+pw+'" height="'+(pt+ph-z)+'" fill="#ff000010"/>';
-    for(var g=0;g<=4;g++){var gy=pt+ph*g/4, val=hi-(hi-lo)*g/4;
+  function buildChart(price,cost,oh,draw,chg){
+    var W=780,H=300,pl=58,pr=18,pt=16,pb=34,pw=W-pl-pr,ph=H-pt-pb;
+    var xs=[], pts=[];
+    for(var p=-40;p<=80;p+=2){ var r=reqUnits(price,cost,oh,draw,p/100); if(r){xs.push(p);pts.push({p:p,u:r.units});} }
+    var maxU=0; pts.forEach(function(o){maxU=Math.max(maxU,o.u)}); maxU*=1.08;
+    var xr=function(p){return pl+pw*((p-(-40))/(80-(-40)))}, y=function(u){return pt+ph*(1-u/maxU)};
+    var d="M"+xr(pts[0].p)+" "+y(pts[0].u); for(var i=1;i<pts.length;i++)d+=" L"+xr(pts[i].p)+" "+y(pts[i].u);
+    var s='';
+    for(var g=0;g<=4;g++){var gy=pt+ph*g/4,val=maxU*(1-g/4);
       s+='<line x1="'+pl+'" y1="'+gy+'" x2="'+(W-pr)+'" y2="'+gy+'" stroke="var(--line)" stroke-width="1"/>';
-      s+='<text x="'+(pl-8)+'" y="'+(gy+3)+'" text-anchor="end" fill="var(--muted)" font-size="10">'+kf(val)+'</text>';}
-    s+='<line x1="'+pl+'" y1="'+z+'" x2="'+(W-pr)+'" y2="'+z+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="2 3"/>';
-    for(var mi=0;mi<12;mi++)s+='<text x="'+x(mi)+'" y="'+(H-13)+'" text-anchor="middle" fill="var(--muted)" font-size="10">'+MON[mi]+'</text>';
-    if(before) s+='<path d="'+line(before)+'" fill="none" stroke="#8a97a8" stroke-width="2" stroke-dasharray="5 4"/>';
-    s+='<path d="'+line(plan)+'" fill="none" stroke="#0070c0" stroke-width="2.6"/>';
-    var mm=plan.indexOf(Math.min.apply(null,plan));
-    s+='<circle cx="'+x(mm)+'" cy="'+y(plan[mm])+'" r="4.5" fill="#0070c0"/>';
+      s+='<text x="'+(pl-8)+'" y="'+(gy+3)+'" text-anchor="end" fill="var(--muted)" font-size="10">'+Math.round(val)+'</text>';}
+    [-40,-20,0,20,40,60,80].forEach(function(p){s+='<text x="'+xr(p)+'" y="'+(H-13)+'" text-anchor="middle" fill="var(--muted)" font-size="10">'+(p>0?"+":"")+p+'%</text>';});
+    // zero-change reference
+    s+='<line x1="'+xr(0)+'" y1="'+pt+'" x2="'+xr(0)+'" y2="'+(pt+ph)+'" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 3"/>';
+    s+='<path d="'+d+'" fill="none" stroke="#0070c0" stroke-width="2.6"/>';
+    // current-price dot (now) + chosen dot
+    var now=reqUnits(price,cost,oh,draw,0), ch=reqUnits(price,cost,oh,draw,chg/100);
+    if(now) s+='<circle cx="'+xr(0)+'" cy="'+y(now.units)+'" r="4" fill="#8a97a8"/>';
+    if(ch) s+='<circle cx="'+xr(chg)+'" cy="'+y(ch.units)+'" r="5.5" fill="#ff9900"/>';
     $("chart").innerHTML=s;
   }
   function calc(){
-    updateTotals();
-    var plan=liveCurve(); buildChart(plan);
-    var lowPlan=Math.min.apply(null,plan);
-    $("lowPlan").textContent=money(lowPlan); $("lowPlan").className="v num "+(lowPlan<0?"crit":"good");
-    $("lowPlanSub").textContent=MON[plan.indexOf(lowPlan)]+(lowPlan<0?" — overdraft":"");
-    var coachTail="";
-    if(before){
-      var lowB=Math.min.apply(null,before);
-      $("lowBefore").textContent=money(lowB); $("lowBeforeSub").textContent=MON[before.indexOf(lowB)]+(lowB<0?" — overdraft":"");
-      var dd=lowPlan-lowB;
-      $("delta").textContent=(dd>=0?"+":"−")+"$"+Math.abs(Math.round(dd)).toLocaleString("en-US");
-      $("delta").className="v num "+(dd>=0?"good":"crit");
-      $("deltaSub").textContent=(dd>=0?"better at the worst month":"worse at the worst month");
-      coachTail=" Against your <strong>Before</strong>, this "+(dd>=0?"lifts":"drops")+" the worst month by <strong>"+money(Math.abs(dd))+"</strong>.";
+    var price=+$("price").value, cost=+$("cost").value, oh=+$("oh").value, draw=+$("draw").value, chg=+$("wif").value;
+    var gp=price-cost, m=gp/price, mk=cost?gp/cost:0;
+    $("margin").textContent=Math.round(m*100)+"%";
+    $("markup").textContent=(Math.round(mk*10)/10).toFixed(1)+"× · "+Math.round(mk*100)+"%";
+    $("cos").textContent=Math.round((cost/price)*100)+"%";
+    var now=reqUnits(price,cost,oh,draw,0);
+    $("beSales").textContent=now?money(now.sales):"—";
+    $("beUnits").textContent=now?Math.round(now.units):"—";
+    buildChart(price,cost,oh,draw,chg);
+    var ch=reqUnits(price,cost,oh,draw,chg/100);
+    $("c_price").textContent=ch?money(ch.newPrice):"—";
+    $("c_margin").textContent=ch?Math.round(ch.margin*100)+"%":"loss";
+    $("c_units").textContent=ch?Math.round(ch.units)+" units":"—";
+    var diff=(ch&&now)?ch.units-now.units:0;
+    $("c_diff").textContent=(ch&&now)?((diff>=0?"+":"−")+Math.abs(Math.round(diff))+" units"):"—";
+    var edu=$("edu");
+    if(now){
+      var cut10=reqUnits(price,cost,oh,draw,-0.1), up10=reqUnits(price,cost,oh,draw,0.1);
+      edu.innerHTML="Same deal, two numbers: your <strong>margin is "+Math.round(m*100)+"%</strong> (of the sale) but your <strong>mark-up is "+(Math.round(mk*10)/10).toFixed(1)+"×</strong> (of the cost) — don't confuse them when you quote. To cover <strong>"+money(oh)+"</strong> overheads and take <strong>"+money(draw)+"</strong> in drawings, you must sell <strong>"+money(now.sales)+"</strong> ("+Math.round(now.units)+" units) a month. Cut the price 10% and you'd need <strong>"+(cut10?Math.round(cut10.units-now.units):"—")+" more units</strong> for the same result; raise it 10% and you'd need <strong>"+(up10?Math.round(now.units-up10.units):"—")+" fewer</strong>. That's the conversation: price and drawings decide how hard the business has to work.";
     }
-    var red=plan.filter(function(v){return v<0}).length;
-    $("edu").innerHTML="Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to <strong>"+money(lowPlan)+"</strong> in <strong>"+MON[plan.indexOf(lowPlan)]+"</strong>"+(lowPlan<0?", into overdraft,":"")+" and you're in the red <strong>"+red+" months</strong>. Shift the collection mix earlier, or pay suppliers slower, and the blue line lifts — let collection drift into later months and you're forced to stretch suppliers, choking stock. The cash cycle running backwards."+coachTail;
   }
-  ["sales","d0","d1","d2","d3","d4","dwo","c0","c1","c2","c3","c4","markup","np","gst"].forEach(function(id){var el=$(id);setFill(el);el.addEventListener("input",function(){var o=$("o_"+id);if(o)o.textContent=(id==="sales"?money(el.value):el.value+"%");setFill(el);calc();});});
-  $("o_sales").textContent=money($("sales").value);
-  before=liveCurve();
+  ["price","cost","oh","draw","wif"].forEach(function(id){var el=$(id);setFill(el);el.addEventListener("input",function(){var o=$("o_"+id);if(o)o.textContent=(id==="wif"?(el.value>0?"+":"")+el.value+"%":(id==="cost"?"$"+(+el.value).toFixed(2):money(el.value)));setFill(el);calc();});});
+  $("o_cost").textContent="$"+(+$("cost").value).toFixed(2);
   calc();
   function toast(m){var t=$("toast");t.textContent=m;t.style.opacity=1;t.style.transform="translateX(-50%) translateY(0)";setTimeout(function(){t.style.opacity=0;t.style.transform="translateX(-50%) translateY(20px)"},1800);}
-  $("freeze").addEventListener("click",function(){before=liveCurve();calc();toast("Frozen as “Before” — now model a decision.");});
   $("pdf").addEventListener("click",function(){window.print();});
   $("reset").addEventListener("click",function(){[].forEach.call(document.querySelectorAll("aside input[type=range]"),function(el){el.value=el.defaultValue;el.dispatchEvent(new Event("input",{bubbles:true}));});toast("Reset to defaults");});
   $("ai").addEventListener("click",function(){toast("AI coach panel — coming later");});

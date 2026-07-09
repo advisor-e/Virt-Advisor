@@ -79,6 +79,7 @@
 
       .ddg-actions
         button.ddg-cta(@click="downloadPdf") Download PDF
+        button.ddg-cta.ddg-ghost(@click="reset") ↺ Reset
         button.ddg-cta.ddg-ghost(@click="askCoach") Ask the coach ↗
         span.ddg-foot Figures reproduce your Excel model exactly.
 </template>
@@ -268,6 +269,11 @@ lowY: y(plan[lowIdx])
           this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
         })
     },
+    reset () {
+      this.f = { sales: 3357413, d0: 85, d1: 7, d2: 5, d3: 0, d4: 0, dwo: 3, c0: 90, c1: 10, c2: 0, c3: 0, c4: 0, markup: 47, np: 13, gst: 15 }
+      this.recompute()
+      this.$buefy.toast.open({ message: 'Reset to defaults.', type: 'is-info' })
+    },
     freeze () {
       if (this.plan) {
         this.before = this.plan
@@ -365,4 +371,8 @@ lowY: y(plan[lowIdx])
   .ddg-top, .ddg-results { max-width:none; }
   .ddg-tile, .ddg-card, .ddg-edu { break-inside:avoid; box-shadow:none; }
 }
+/* pop */
+.ddg-v{color:var(--ddg-accent)}
+.ddg-v.crit{color:var(--ddg-crit)} .ddg-v.good{color:var(--ddg-good)} .ddg-v.muted{color:var(--ddg-muted)}
+.ddg-h2{color:var(--ddg-ink)}
 </style>

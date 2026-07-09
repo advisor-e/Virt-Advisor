@@ -108,6 +108,7 @@
 
       .bpr-actions
         button.bpr-cta(@click="downloadPdf") Download PDF
+        button.bpr-cta.bpr-ghost(@click="reset") ↺ Reset
         button.bpr-cta.bpr-ghost(@click="setStartingPoint") Set as starting point
         button.bpr-cta.bpr-ghost(@click="askCoach") Ask the coach ↗
         span.bpr-foot Figures reproduce your Excel model exactly.
@@ -244,6 +245,11 @@ fields: [
       if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
       this.recomputeTimer = setTimeout(this.recompute, 130)
     },
+    reset () {
+      this.inputs = Object.assign({}, DEFAULTS)
+      this.recompute()
+      this.$buefy.toast.open({ message: 'Reset to defaults.', type: 'is-info' })
+    },
     setStartingPoint () {
       if (!this.out) { return }
       this.inputs.priorScenarioAnnualRevenue = Math.round(this.out.annualRevenue)
@@ -378,4 +384,8 @@ fields: [
   .bpr-tile, .bpr-card, .bpr-edu { break-inside:avoid; box-shadow:none; }
   .bpr-coin { animation:none; }
 }
+/* pop */
+.bpr-v{color:var(--bpr-accent)}
+.bpr-h2{color:var(--bpr-ink)}
+.bpr-hero{background:linear-gradient(180deg,var(--bpr-accent-soft),transparent)}
 </style>

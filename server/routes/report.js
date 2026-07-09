@@ -10,6 +10,7 @@
 
 const { computeWorkingCapitalCycle } = require('../report/workingCapitalCycleModel')
 const { computeDebtorCashflow } = require('../report/debtorDragModel')
+const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/marginBreakevenModel')
 
 /**
  * POST /api/report/working-capital-cycle
@@ -46,4 +47,43 @@ function debtorDrag (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag }
+/**
+ * POST /api/report/margin-breakeven
+ * @param {object} req.body - { price, cost, overheads, ownerDrawings, priceChangePct }.
+ * @returns {object} margin/mark-up, cost-of-sales %, break-even sales, and the what-if-price curve.
+ */
+function marginBreakeven (req, res, next) {
+  try {
+    const i = (req.body && typeof req.body === 'object') ? req.body : {}
+    const price = +i.price || 0
+    const cost = +i.cost || 0
+    const overheads = +i.overheads || 0
+    const drawings = +i.ownerDrawings || 0
+    const chg = +i.priceChangePct || 0
+    const mm = computeMarginMarkup(cost, price)
+    const reqSales = requiredSales(overheads, drawings, mm.marginPct)
+    const curve = []
+    for (let pc = -40; pc <= 80; pc += 2) {
+      const r = whatIfPrice({ price, costOfSalesPct: mm.costOfSalesPct, overheads, ownerDrawings: drawings, priceChangePct: pc / 100 })
+      curve.push({ chg: pc, units: r.newMarginPct > 0 ? r.unitsRequired : null })
+    }
+    const chosen = whatIfPrice({ price, costOfSalesPct: mm.costOfSalesPct, overheads, ownerDrawings: drawings, priceChangePct: chg / 100 })
+    const data = {
+      grossProfit: mm.grossProfit,
+      marginPct: mm.marginPct,
+      markup: mm.markup,
+      costOfSalesPct: mm.costOfSalesPct,
+      requiredSales: reqSales,
+      requiredUnits: price ? reqSales / price : 0,
+      curve,
+      chosen: { newPrice: chosen.newPrice, newMarginPct: chosen.newMarginPct, unitsRequired: chosen.unitsRequired, salesRequired: chosen.salesRequired }
+    }
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] margin-breakeven compute failed:', err && err.message)
+    res.send(400, { success: false, error: { code: 'MARGIN_BE_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven }

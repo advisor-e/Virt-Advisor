@@ -97,6 +97,11 @@
     .coin{animation:none}
     *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
+  /* pop */
+  .v{color:var(--accent)}
+  .v.good{color:var(--good)} .v.crit{color:var(--crit)} .v.warn{color:var(--warn)} .v.muted{color:var(--muted)}
+  .card h2,.chartcard h2{color:var(--ink)}
+  .tile.hero{background:linear-gradient(180deg,var(--accent-soft),transparent)}
 </style>
 
 <div class="wrap">
@@ -210,6 +215,7 @@
 
       <div class="actions">
         <button class="cta" id="pdf">Download PDF</button>
+        <button class="cta ghost" id="reset">↺ Reset</button>
         <button class="cta ghost" id="ai">Ask the coach ↗</button>
         <button class="cta ghost" id="setbase">Set as starting point</button>
         <span class="foot">Figures reproduce your Excel model exactly.</span>
@@ -262,6 +268,7 @@
   calc();
   function toast(m){var t=$("toast"); t.textContent=m; t.classList.add("show"); setTimeout(function(){t.classList.remove("show")},1900);}
   $("pdf").addEventListener("click",function(){window.print();});
+  $("reset").addEventListener("click",function(){[].forEach.call(document.querySelectorAll("aside input[type=range]"),function(el){el.value=el.defaultValue;el.dispatchEvent(new Event("input",{bubbles:true}));});toast("Reset to defaults");});
   $("ai").addEventListener("click",function(){toast("AI coach panel — coming in the build");});
   $("setbase").addEventListener("click",function(){var el=$("prev");el.value=Math.round(lastRev);$("o_prev").textContent=money(lastRev);setFill(el);calc();toast("Starting point set to "+money(lastRev));});
 })();
