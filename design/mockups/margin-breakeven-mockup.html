@@ -77,6 +77,25 @@
   .herostrip .hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
   .herostrip .hv{font-size:26px;font-weight:700;color:#ffffff;margin-top:7px;line-height:1.05}
   .herostrip .hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+  .coachwrap{position:fixed;inset:0;z-index:60;display:none}
+  .coachwrap.on{display:block}
+  .coachdim{position:absolute;inset:0;background:#002b6455}
+  .coachpanel{position:absolute;top:0;right:0;height:100%;width:390px;max-width:93vw;background:var(--panel);box-shadow:-16px 0 44px -18px #000a;display:flex;flex-direction:column;border-left:1px solid var(--line)}
+  .coachhead{padding:15px 18px;font-size:14px;font-weight:600;color:var(--ink);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
+  .clead{background:var(--accent);color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 7px;border-radius:5px}
+  .coachx{margin-left:auto;background:none;border:0;font-size:18px;color:var(--muted);cursor:pointer;line-height:1}
+  .coachbody{flex:1;overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:11px}
+  .cmsg{font-size:13.5px;line-height:1.55;padding:11px 13px;border-radius:13px;max-width:92%}
+  .cmsg.cbot{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+  .cmsg.cusr{background:var(--accent);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+  @media (prefers-color-scheme:dark){.cmsg.cusr,.clead,.coachinput button{color:#04283c}}
+  .coachsug{padding:2px 16px 10px;display:flex;flex-wrap:wrap;gap:7px}
+  .coachsug button{font:inherit;font-size:12px;color:var(--accent);background:var(--accent-soft);border:1px solid #0070c033;border-radius:999px;padding:6px 11px;cursor:pointer}
+  .coachsug button:hover{background:#0070c022}
+  .coachinput{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--line)}
+  .coachinput input{flex:1;font:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;outline:none;background:var(--panel);color:var(--ink)}
+  .coachinput input:focus{border-color:var(--accent)}
+  .coachinput button{font:inherit;font-weight:600;font-size:13px;color:#fff;background:var(--accent);border:0;border-radius:9px;padding:9px 15px;cursor:pointer}
 </style>
 
 <div class="wrap">
@@ -145,6 +164,15 @@
 </div>
 <div style="position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--navy);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;transition:.25s;pointer-events:none" id="toast"></div>
 
+<div class="coachwrap" id="coachwrap">
+  <div class="coachdim" id="coachdim"></div>
+  <aside class="coachpanel">
+    <div class="coachhead"><span class="clead">Coach</span> Ask about this report <button class="coachx" id="coachx">&times;</button></div>
+    <div class="coachbody" id="coachlog"><div class="cmsg cbot">Hi &mdash; I can talk you through these numbers. Pick a question below, or type your own.</div></div>
+    <div class="coachsug" id="coachsug"></div>
+    <div class="coachinput"><input id="coachq" placeholder="Ask about pricing, drawings, break-even..."><button id="coachsend">Send</button></div>
+  </aside>
+</div>
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
@@ -206,6 +234,24 @@
   function toast(m){var t=$("toast");t.textContent=m;t.style.opacity=1;t.style.transform="translateX(-50%) translateY(0)";setTimeout(function(){t.style.opacity=0;t.style.transform="translateX(-50%) translateY(20px)"},1800);}
   $("pdf").addEventListener("click",function(){window.print();});
   $("reset").addEventListener("click",function(){[].forEach.call(document.querySelectorAll("aside input[type=range]"),function(el){el.value=el.defaultValue;el.dispatchEvent(new Event("input",{bubbles:true}));});toast("Reset to defaults");});
-  $("ai").addEventListener("click",function(){toast("AI coach panel — coming later");});
+  $("ai").addEventListener("click",function(){$("coachwrap").classList.add("on");});
+
+  function snap(){var price=+$("price").value,cost=+$("cost").value,oh=+$("oh").value,draw=+$("draw").value;var m=price?(price-cost)/price:0,mk=cost?(price-cost)/cost:0,cos=price?cost/price:0;var now=reqUnits(price,cost,oh,draw,0);return {price:price,cost:cost,oh:oh,draw:draw,m:m,mk:mk,cos:cos,beSales:now?now.sales:0,beUnits:now?now.units:0};}
+  var SUG=[
+   {label:"How do I cover my drawings?",mt:function(t){return t.indexOf("drawing")>=0||t.indexOf("cover")>=0||t.indexOf("target")>=0;},a:function(v){return "To take <strong>"+money(v.draw)+"</strong>/mth in drawings on top of <strong>"+money(v.oh)+"</strong> overheads, at a <strong>"+Math.round(v.m*100)+"% margin</strong> you must sell <strong>"+money(v.beSales)+"</strong> ("+Math.round(v.beUnits)+" units) a month. Three levers move it: raise price, cut unit cost, or sell more &mdash; a small price rise usually needs far fewer extra sales.";}},
+   {label:"Margin or mark-up?",mt:function(t){return (t.indexOf("margin")>=0&&t.indexOf("mark")>=0)||t.indexOf("difference")>=0;},a:function(v){return "Same deal, two views. <strong>Margin ("+Math.round(v.m*100)+"%)</strong> is profit as a share of the <strong>sale</strong> price &mdash; use it for break-even. <strong>Mark-up ("+(Math.round(v.mk*10)/10).toFixed(1)+"&times;)</strong> is profit on the <strong>cost</strong> &mdash; use it to price up from a cost. Confusing them is the classic under-pricing trap.";}},
+   {label:"What if I discount 10%?",mt:function(t){return t.indexOf("discount")>=0||t.indexOf("drop")>=0||t.indexOf("cut price")>=0||t.indexOf("lower")>=0;},a:function(v){var d=reqUnits(v.price,v.cost,v.oh,v.draw,-0.1);return "Drop the price 10% and your margin falls to <strong>"+Math.round(d.margin*100)+"%</strong> &mdash; you would then need <strong>"+Math.round(d.units)+" units</strong> ("+Math.round(d.units-v.beUnits)+" more than now) just to stand still. Discounts quietly demand a big volume jump; adding value usually beats cutting price.";}},
+   {label:"Where is my biggest risk?",mt:function(t){return t.indexOf("risk")>=0||t.indexOf("worry")>=0;},a:function(v){return "Cost of sales is <strong>"+Math.round(v.cos*100)+"%</strong> of every dollar. If suppliers lift prices and you do not move yours, margin erodes and the break-even climbs fast. Watch supplier costs and review your price before each cost round.";}}
+  ];
+  function addMsg(html,who){var d=document.createElement("div");d.className="cmsg "+(who==="u"?"cusr":"cbot");d.innerHTML=html;$("coachlog").appendChild(d);$("coachlog").scrollTop=$("coachlog").scrollHeight;}
+  function answer(text){var v=snap();var lc=text.toLowerCase();for(var i=0;i<SUG.length;i++){if(SUG[i].mt(lc))return SUG[i].a(v);}return "Here is where you stand: margin <strong>"+Math.round(v.m*100)+"%</strong>, break-even <strong>"+money(v.beSales)+"/mth</strong> ("+Math.round(v.beUnits)+" units) to cover overheads + drawings. Your three levers are price, cost and volume &mdash; a price rise is usually the most powerful. Try the sliders to watch it move.";}
+  function ask(t){if(!t)return;addMsg(t,"u");setTimeout(function(){addMsg(answer(t),"b");},240);}
+  function renderSug(){$("coachsug").innerHTML=SUG.map(function(s,i){return '<button data-i="'+i+'">'+s.label+'</button>';}).join("");}
+  $("coachsug").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var s=SUG[+b.dataset.i];addMsg(s.label,"u");setTimeout(function(){addMsg(s.a(snap()),"b");},240);});
+  $("coachx").addEventListener("click",function(){$("coachwrap").classList.remove("on");});
+  $("coachdim").addEventListener("click",function(){$("coachwrap").classList.remove("on");});
+  $("coachsend").addEventListener("click",function(){var q=$("coachq").value.trim();if(q){ask(q);$("coachq").value="";}});
+  $("coachq").addEventListener("keydown",function(e){if(e.key==="Enter"){var q=$("coachq").value.trim();if(q){ask(q);$("coachq").value="";}}});
+  renderSug();
 })();
 </script>
