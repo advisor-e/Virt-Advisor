@@ -31,6 +31,19 @@
         button.ddg-setbtn(@click="freeze") 📌 Freeze current as “Before”
 
     section.ddg-results
+      .ddg-herostrip.three
+        .ddg-hs
+          .ddg-hk Deepest cash low — your plan
+          .ddg-hv.num(:class="plan && plan.deepestLow.value < 0 ? 'crit' : 'good'") {{ plan ? money(plan.deepestLow.value) : '—' }}
+          .ddg-hs2 {{ plan ? monthName(plan.deepestLow.month) + (plan.deepestLow.value < 0 ? ' — overdraft' : '') : '' }}
+        .ddg-hs
+          .ddg-hk Deepest cash low — Before
+          .ddg-hv.num {{ before ? money(before.deepestLow.value) : '—' }}
+          .ddg-hs2 {{ before ? monthName(before.deepestLow.month) + (before.deepestLow.value < 0 ? ' — overdraft' : '') : 'freeze a Before' }}
+        .ddg-hs
+          .ddg-hk Effect of your decisions
+          .ddg-hv.num(:class="deltaClass") {{ deltaText }}
+          .ddg-hs2 {{ deltaSub }}
       .ddg-card.ddg-chartcard
         .ddg-chead
           h2.ddg-h2 Your bank balance, month by month
@@ -55,20 +68,6 @@
           span
             i(style="border-top:none;height:10px;width:10px;border-radius:2px;background:#ff000022")
             | Overdraft
-
-      .ddg-tiles
-        .ddg-tile
-          .ddg-k Deepest cash low — your plan
-          .ddg-v.num(:class="plan && plan.deepestLow.value < 0 ? 'crit' : 'good'") {{ plan ? money(plan.deepestLow.value) : '—' }}
-          .ddg-sub {{ plan ? monthName(plan.deepestLow.month) + (plan.deepestLow.value < 0 ? ' — overdraft' : '') : '' }}
-        .ddg-tile
-          .ddg-k Deepest cash low — Before
-          .ddg-v.num.muted {{ before ? money(before.deepestLow.value) : '—' }}
-          .ddg-sub {{ before ? monthName(before.deepestLow.month) + (before.deepestLow.value < 0 ? ' — overdraft' : '') : 'freeze a Before' }}
-        .ddg-tile
-          .ddg-k Effect of your decisions
-          .ddg-v.num(:class="deltaClass") {{ deltaText }}
-          .ddg-sub {{ deltaSub }}
 
       .ddg-edu
         .ddg-edu-h
@@ -375,4 +374,19 @@ lowY: y(plan[lowIdx])
 .ddg-v{color:var(--ddg-accent)}
 .ddg-v.crit{color:var(--ddg-crit)} .ddg-v.good{color:var(--ddg-good)} .ddg-v.muted{color:var(--ddg-muted)}
 .ddg-h2{color:var(--ddg-ink)}
+/* pop2 */
+.ddg-v{color:#0070c0}
+.ddg-v.crit{color:#ff0000} .ddg-v.good{color:#4ca52d} .ddg-v.muted{color:#5b6f8a}
+.ddg-tile{border-top:3px solid #00b1e0}
+.ddg-eyebrow{color:#00b1e0}
+
+.ddg-herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
+.ddg-herostrip.three{grid-template-columns:repeat(3,1fr)}
+@media (max-width:700px){.ddg-herostrip,.ddg-herostrip.three{grid-template-columns:1fr 1fr;gap:14px 0}}
+.ddg-hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.ddg-hs:first-child{border-left:0;padding-left:2px}
+.ddg-hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.ddg-hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
+.ddg-hv.crit{color:#ff8f8f} .ddg-hv.good{color:#7dffa6} .ddg-hv.muted{color:#c7e6fb}
+.ddg-hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
 </style>

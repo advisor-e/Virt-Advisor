@@ -73,6 +73,22 @@
   .v.good{color:var(--good)} .v.crit{color:var(--crit)} .v.warn{color:var(--warn)} .v.muted{color:var(--muted)}
   .card h2,.chartcard h2{color:var(--ink)}
   .tile.hero{background:linear-gradient(180deg,var(--accent-soft),transparent)}
+  /* pop2 */
+  .v{color:#0070c0}
+  .v.good{color:#4ca52d} .v.crit{color:#ff0000} .v.warn{color:#ff9900} .v.muted{color:#5b6f8a}
+  .tile{border-top:3px solid #00b1e0}
+  .tile.hero{background:linear-gradient(135deg,#002b64,#0070c0);border-color:#0070c0}
+  .tile.hero .v,.tile.hero .k,.tile.hero .sub{color:#ffffff}
+  .eyebrow{color:#00b1e0}
+  .herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
+  .herostrip.three{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:700px){.herostrip,.herostrip.three{grid-template-columns:1fr 1fr;gap:14px 0}}
+  .herostrip .hs{padding:2px 16px;border-left:1px solid #ffffff30}
+  .herostrip .hs:first-child{border-left:0;padding-left:2px}
+  .herostrip .hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+  .herostrip .hv{font-size:26px;font-weight:700;color:#ffffff;margin-top:7px;line-height:1.05}
+  .herostrip .hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+  .herostrip .hv.crit{color:#ff8f8f} .herostrip .hv.good{color:#7dffa6} .herostrip .hv.muted{color:#ffffff}
 </style>
 
 <div class="wrap">
@@ -124,6 +140,12 @@
     </aside>
 
     <section class="results">
+            <div class="herostrip three">
+        <div class="hs"><div class="hk">Deepest cash low - your plan</div><div class="hv num" id="lowPlan">-</div><div class="hs2" id="lowPlanSub">worst month</div></div>
+        <div class="hs"><div class="hk">Deepest cash low - Before</div><div class="hv num muted" id="lowBefore">-</div><div class="hs2" id="lowBeforeSub">worst month</div></div>
+        <div class="hs"><div class="hk">Effect of your decisions</div><div class="hv num" id="delta">$0</div><div class="hs2" id="deltaSub">freeze a Before, then decide</div></div>
+      </div>
+
       <div class="card chartcard">
         <div class="chead">
           <h2>Your bank balance, month by month</h2>
@@ -135,12 +157,6 @@
           <span><i style="border-color:#0070c0"></i>Your plan</span>
           <span><i style="border-top:none;height:10px;width:10px;border-radius:2px;background:#ff000022"></i>Overdraft</span>
         </div>
-      </div>
-
-      <div class="tiles">
-        <div class="tile"><div class="k">Deepest cash low — your plan</div><div class="v num" id="lowPlan">−$34,891</div><div class="sub" id="lowPlanSub">worst month</div></div>
-        <div class="tile"><div class="k">Deepest cash low — Before</div><div class="v num muted" id="lowBefore">−$34,891</div><div class="sub" id="lowBeforeSub">worst month</div></div>
-        <div class="tile"><div class="k">Effect of your decisions</div><div class="v num" id="delta">$0</div><div class="sub" id="deltaSub">freeze a “Before”, then decide</div></div>
       </div>
 
       <div class="edu">
@@ -222,7 +238,7 @@
     updateTotals();
     var plan=liveCurve(); buildChart(plan);
     var lowPlan=Math.min.apply(null,plan);
-    $("lowPlan").textContent=money(lowPlan); $("lowPlan").className="v num "+(lowPlan<0?"crit":"good");
+    $("lowPlan").textContent=money(lowPlan); $("lowPlan").className="hv num "+(lowPlan<0?"crit":"good");
     $("lowPlanSub").textContent=MON[plan.indexOf(lowPlan)]+(lowPlan<0?" — overdraft":"");
     var coachTail="";
     if(before){
@@ -230,7 +246,7 @@
       $("lowBefore").textContent=money(lowB); $("lowBeforeSub").textContent=MON[before.indexOf(lowB)]+(lowB<0?" — overdraft":"");
       var dd=lowPlan-lowB;
       $("delta").textContent=(dd>=0?"+":"−")+"$"+Math.abs(Math.round(dd)).toLocaleString("en-US");
-      $("delta").className="v num "+(dd>=0?"good":"crit");
+      $("delta").className="hv num "+(dd>=0?"good":"crit");
       $("deltaSub").textContent=(dd>=0?"better at the worst month":"worse at the worst month");
       coachTail=" Against your <strong>Before</strong>, this "+(dd>=0?"lifts":"drops")+" the worst month by <strong>"+money(Math.abs(dd))+"</strong>.";
     }

@@ -28,27 +28,27 @@
 
     //- RESULTS
     section.bpr-results(v-if="out")
-      .bpr-tiles
-        .bpr-tile.bpr-hero
-          div
-            .bpr-k Working-capital cycle
-            .bpr-v.num {{ round0(out.cycleDays) }} #[span.bpr-unit days]
-            .bpr-sub How long your cash is tied up before you can trade again.
-          .bpr-hero-right
-            .bpr-k Cycle factor
-            .bpr-v.num.bpr-accent {{ round1(out.cycleFactorMonthly) }}×
-            .bpr-sub.num {{ round0(out.cycleFactorAnnual) }}× per year
-        .bpr-tile
-          .bpr-k Annual revenue
-          .bpr-v.num {{ money(out.annualRevenue) }}
-          .bpr-sub from #[span.num {{ money(out.workingCapital) }}] working capital
-        .bpr-tile
-          .bpr-k Net profit · monthly
-          .bpr-v.num {{ money(out.netProfitMonthly) }}
-          .bpr-sub(style="margin-top:9px")
+      .bpr-herostrip
+        .bpr-hs
+          .bpr-hk Working-capital cycle
+          .bpr-hv.num {{ round0(out.cycleDays) }} #[span.bpr-u days]
+          .bpr-hs2 cash tied up before you can trade again
+        .bpr-hs
+          .bpr-hk Cycle factor
+          .bpr-hv.num {{ round1(out.cycleFactorMonthly) }}×
+          .bpr-hs2 {{ round0(out.cycleFactorAnnual) }}× per year
+        .bpr-hs
+          .bpr-hk Annual revenue
+          .bpr-hv.num {{ money(out.annualRevenue) }}
+          .bpr-hs2 from {{ money(out.workingCapital) }} capital
+        .bpr-hs
+          .bpr-hk Net profit · monthly
+          .bpr-hv.num {{ money(out.netProfitMonthly) }}
+          .bpr-hs2
             span.bpr-pill(:class="cashflowClass")
               span.bpr-pill-dot
               | {{ out.cashflowStatus }}
+      .bpr-tiles
         .bpr-tile
           .bpr-k vs your starting point
           .bpr-v.num {{ diffText }}
@@ -388,4 +388,20 @@ fields: [
 .bpr-v{color:var(--bpr-accent)}
 .bpr-h2{color:var(--bpr-ink)}
 .bpr-hero{background:linear-gradient(180deg,var(--bpr-accent-soft),transparent)}
+/* pop2 */
+.bpr-v{color:#0070c0}
+.bpr-tile{border-top:3px solid #00b1e0}
+.bpr-hero{background:linear-gradient(135deg,#002b64,#0070c0);border-color:#0070c0}
+.bpr-hero .bpr-v,.bpr-hero .bpr-k,.bpr-hero .bpr-sub,.bpr-hero .bpr-unit{color:#ffffff}
+.bpr-eyebrow{color:#00b1e0}
+
+.bpr-herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
+@media (max-width:700px){.bpr-herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
+.bpr-hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.bpr-hs:first-child{border-left:0;padding-left:2px}
+.bpr-hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.bpr-hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
+.bpr-hv .bpr-u{font-size:.5em;font-weight:400;opacity:.85}
+.bpr-hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+.bpr-hs .bpr-pill{background:#ffffff26}
 </style>

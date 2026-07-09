@@ -63,6 +63,20 @@
   .v.good{color:var(--good)} .v.crit{color:var(--crit)} .v.warn{color:var(--warn)} .v.muted{color:var(--muted)}
   .card h2,.chartcard h2{color:var(--ink)}
   .tile.hero{background:linear-gradient(180deg,var(--accent-soft),transparent)}
+  /* pop2 */
+  .v{color:#0070c0}
+  .v.good{color:#4ca52d} .v.crit{color:#ff0000} .v.warn{color:#ff9900} .v.muted{color:#5b6f8a}
+  .tile{border-top:3px solid #00b1e0}
+  .tile.hero{background:linear-gradient(135deg,#002b64,#0070c0);border-color:#0070c0}
+  .tile.hero .v,.tile.hero .k,.tile.hero .sub{color:#ffffff}
+  .eyebrow{color:#00b1e0}
+  .herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
+  @media(max-width:640px){.herostrip{grid-template-columns:1fr 1fr;gap:12px 0}}
+  .herostrip .hs{padding:2px 16px;border-left:1px solid #ffffff30}
+  .herostrip .hs:first-child{border-left:0;padding-left:2px}
+  .herostrip .hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+  .herostrip .hv{font-size:26px;font-weight:700;color:#ffffff;margin-top:7px;line-height:1.05}
+  .herostrip .hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
 </style>
 
 <div class="wrap">
@@ -94,13 +108,11 @@
     </aside>
 
     <section class="results">
-      <div class="tiles">
-        <div class="tile two">
-          <div><div class="k">Margin</div><div class="v num" id="margin">67%</div><div class="sub">profit as % of the <b>sale</b> price</div></div>
-          <div><div class="k">Mark-up</div><div class="v num" id="markup">2.0× · 203%</div><div class="sub">profit as % of the <b>cost</b> price</div></div>
-        </div>
-        <div class="tile"><div class="k">Break-even sales · monthly</div><div class="v num" id="beSales">$30,000</div><div class="sub"><span class="num" id="beUnits">120</span> units — to cover overheads + drawings</div></div>
-        <div class="tile"><div class="k">Cost of sales</div><div class="v num" id="cos">33%</div><div class="sub">of every sale dollar goes to cost</div></div>
+            <div class="herostrip">
+        <div class="hs"><div class="hk">Margin</div><div class="hv num" id="margin">67%</div><div class="hs2">of the sale price</div></div>
+        <div class="hs"><div class="hk">Mark-up</div><div class="hv num" id="markup">2.0× · 203%</div><div class="hs2">of the cost price</div></div>
+        <div class="hs"><div class="hk">Cost of sales</div><div class="hv num" id="cos">33%</div><div class="hs2">of each sale dollar</div></div>
+        <div class="hs"><div class="hk">Break-even · monthly</div><div class="hv num" id="beSales">$30,000</div><div class="hs2"><span id="beUnits">120</span> units to cover it</div></div>
       </div>
 
       <div class="card chartcard">
