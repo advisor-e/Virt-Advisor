@@ -7,7 +7,7 @@
 > anything here. Backlog line: [`ACTIONS.md`](ACTIONS.md) (P2 · BUILD/DECISION).
 >
 > **Status:** planning started. **Last updated:** 2026-07-09.
-
+>
 > **⚠ For the master coding team.** This is a **new, self-contained feature, in DESIGN only —
 > no application code has been changed.** It is deliberately isolated on its own branch
 > (`feat/business-performance-report`) and is **not part of the in-progress Virt Advisor →
@@ -26,7 +26,7 @@ update the Status column as we go; anything blocked says why in Notes.
 | ID | Task | Category | Priority | Status | Notes / Depends on |
 | --- | --- | --- | :---: | :---: | --- |
 | T1 | Deconstruct the report mockup into a precise section-by-section spec (each section's inputs, metrics, layout, and narrative) | Design | P1 | ☐ | The mockup is the fixed target; this becomes the build spec |
-| T2 | **Port each Excel model's calculation logic into a live backend calc engine** (inputs → outputs; editable variables → recalculated figures) — not just reference | Design | P1 | ☐ | Core + sizeable; 9 models; backend-only per stack; enables live editing (T17). Start with `Dashboard Reports_` + the P&L / Balance Sheet maths |
+| T2 | **Port each Excel model's calculation logic into a live backend calc engine** (inputs → outputs; editable variables → recalculated figures) — not just reference | Design | P1 | ◐ | Backend-only per stack; enables live editing (T17). **First model DONE (deconstruct + validate): `GE.3c.Working Capital Cycle model` — all 28 calc cells reproduced exactly.** Others to follow, by demand |
 | T3 | Define the report **data model** — every figure the report needs, and where it comes from | Design | P1 | ☐ | Depends on T1 + T2 |
 | T4 | Decide the **data-in approach** — dropped exported files vs. a live Xero API pull (or both) | Design | P1 | ✅ | RESOLVED 2026-07-09 — **files only**, no Xero API link (privacy-first, see §3) |
 | T12 | Define the **privacy & data-handling model** — what data leaves the app, how it's minimised, and where AI runs | Design | P1 | ✅ | RESOLVED 2026-07-09 — option (a): anonymised figures only to backend AI; no client identifiers ever leave. See §3 / §6 Q2 |
@@ -254,6 +254,12 @@ workflow as its own app.
 | 2026-07-09 | **Engine-source correction (owner):** the report's diagnostic/education intelligence points at the AI coach's **diagnostic sections** — `advisorEngine` + **Logic Tables** + **Domain Support** — **NOT** the Course feature (Course = code skeleton only). Pin exact components at engine design (T21). |
 | 2026-07-09 | **~87-model matcher — feasibility discussed.** Part A (catalogue + AI matcher) is achievable + reuses existing matching (T22/T23). Part B (AI auto-builds engines on the fly) is high-risk — **not** pursued. Recommended: a librarian/assembler over a **growing library of pre-validated engines**; AI selects/assembles, never fabricates the maths. Scope (north-star vs v1) = Q10. |
 | 2026-07-09 | **Q10 resolved = validated-library, north-star, incremental.** Core report on key models first; grow the library + matcher over time; AI never auto-generates financial calculations. Adopt the safe build sequence in §9. |
+| 2026-07-09 | **First slice = `GE.3c.Working Capital Cycle model`** (educational; cycle = Days Deliverable + Days on Hand + Days Receivable − Days Payable → Cycle Factor → revenue/profit). Deconstructed; reading confirmed by owner (Step 2). |
+| 2026-07-09 | **Step 3 PASSED — correctness proof.** Independent re-implementation reproduces the spreadsheet's numbers **exactly**: all 28 calculated cells match. These 28 values are the **golden reference** for the future JS engine's tests. |
+| 2026-07-09 | **Note:** this first model is **manual-input / educational** (illustrative numbers, no client data) → it does **not** exercise file-intake/scrubbing; those get proven by a later data-driven slice. |
+| 2026-07-09 | **Brand tokens set** (owner) — Open Sans **Light**; palette Navy `#002B64`, Cyan `#00B1E0`, Sky `#7FD3F1`, Blue `#0070C0`, Pure blue `#0000FF`, Charcoal `#3A3A3A`; semantic Good `#4CA52D` / Caution `#FF9900` / Danger `#FF0000`. Full doc: `design/BRAND-TOKENS.md`. |
+| 2026-07-09 | **First slice BUILT (walking skeleton)** on `feat/business-performance-report`: backend calc engine (`server/report/workingCapitalCycleModel.js`, 31 tests inc. 28 golden) + route (`server/routes/report.js`) + proxy + Nuxt page + `components/BusinessPerformanceReport.vue` (interactive wheel, brand tokens, Open Sans Light) + PDF via browser print. Adds "Set as starting point" (rebase baseline). Verified: lint clean, template compiles. Coach text templated (not AI). |
+| 2026-07-09 | **Screen design APPROVED** by owner — interactive mockup at `design/mockups/working-capital-cycle-mockup.html`: left inputs, live results, and the animated **cash wheel** (Cash→Stock→Sale→Debtors) with fixed costs shown outside it (matches the original model's graphic). Coach text = **templated for first build**, AI enhancement later. |
 
 ---
 
