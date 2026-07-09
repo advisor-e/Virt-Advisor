@@ -26,6 +26,52 @@ Two honest answers on different axes — the file used to conflate them:
 
 ---
 
+## CODE-REVIEW SWEEP — 2026-07-10 (5-reviewer pass, whole app)
+
+> Fresh full-app bug sweep (backend engines, routes, report models, utils, all
+> frontend). Baseline at sweep time: **700 tests green, lint clean** — none of the below
+> is caught by the current suite. **Verified by Claude directly** = ✔ (read the code +
+> confirmed the mechanism); others are reviewer-evidenced with file:line, not yet
+> independently re-proven. **No code changed** — all gated on Mike's per-item approval.
+> Fixing top-down, one at a time. Overlaps with existing backlog items are cross-noted.
+
+**🔴 P1 · SEC — CRITICAL (fix before any deploy)**
+- ✅ **FIXED 2026-07-10 — `/api/course` mounted with NO `firmAuth`** — [`server/restify-server.js`](../server/restify-server.js) L131. Added `firmAuth` guard + attached `Authorization: Bearer` to all 6 course fetches in `CourseBuilder.vue` (mirrors the advisor route). 700 tests green, lint clean. Unauthenticated callers could previously drive GPT-4o on the firm's OpenAI key. ✔ *(still compounded until fixed: no body-size cap + spoofable rate-limit key — see below.)*
+- ✅ **FIXED 2026-07-10 — Stored XSS in "Remove" confirm dialogs** — doc name / video title ([`components/FirmManagerHub.vue`](../components/FirmManagerHub.vue) L1146 & L1328) and distinction description ([`components/MentorDistinctions.vue`](../components/MentorDistinctions.vue) L406). Buefy renders `dialog.message` via `v-html`. Added shared [`utils/escapeHtml.js`](../utils/escapeHtml.js) (+7 unit tests), wrapped all 3 values, and repointed `moveNearMiss` at the shared helper (one auditable copy). 707 tests green, lint clean. ✔
+
+**🟠 P1/P2 · High**
+- ✅ **FIXED 2026-07-10 — Backend URL hardcoded `http://localhost:4000`** in 7 frontend files ([`utils/cases.js`](../utils/cases.js), [`mixins/caseMixin.js`](../mixins/caseMixin.js), [`components/MentorReview.vue`](../components/MentorReview.vue), `MentorDistinctions.vue`, `AdvisorProgression.vue`, `FirmManagerHub.vue`, [`components/CourseBuilder.vue`](../components/CourseBuilder.vue)). Added a generic thin proxy [`server-middleware/apiProxy.js`](../server-middleware/apiProxy.js) registered for `/api/cases`, `/api/activity`, `/api/firm-manager`, `/api/mentor` in `nuxt.config.js`; switched all calls to relative `/api/...` paths (same-origin, no CORS change, backend never exposed). Lint clean, 707 tests green, `nuxt build` green. ⚠ **Runtime round-trip not yet clicked through in a live browser** — recommend verifying one saved-case action + one Firm-Manager action against a running backend. ✔
+- ☐ **Team Dashboard renders fabricated advisors** — [`components/FirmDashboard.vue`](../components/FirmDashboard.vue) L244. `loadData` never calls the API; ships mock "Sarah Chen / James Park" data + a fake AI insight as real firm data. ✔
+- ☐ **OpenAI calls have no effective timeout** — [`server/utils/openaiClient.js`](../server/utils/openaiClient.js) L131. The `{timeout}` the engines pass is silently dropped; a stalled OpenAI socket hangs the SSE stream (user's chat) indefinitely.
+- ☐ **SEC — cross-firm document download (IDOR)** — [`server/routes/firmManager.js`](../server/routes/firmManager.js) L287. `downloadDocument` does no firm-ownership check (unlike `deleteDocument`); Firm A can fetch Firm B's Drive file by id.
+- ☐ **SEC — unauthenticated `/api/course` body has no size limit** — [`server/courseEngine.js`](../server/courseEngine.js) L469. Memory-exhaustion DoS; advisor engine caps at 256 KB.
+- ☐ **SEC — rate limiter keys on spoofable `X-Forwarded-For`** — [`server/utils/rateLimit.js`](../server/utils/rateLimit.js) L11. Rotating the header defeats the only throttle on the open OpenAI routes.
+- ☐ **Config version-history prune over-deletes** — [`server/utils/firmOverlay.js`](../server/utils/firmOverlay.js) L86. Prune count derived from the version number, not the excess-row count; an actively-edited config loses all rollback history. (Related to the Firm-Manager-MySQL persistence item below.)
+- ☐ **Recommended-template extraction misses the AI's bold format** — [`server/utils/tierLookup.js`](../server/utils/tierLookup.js) L96. `**Template**` never matches → `recommendedTemplates`/session metadata come out empty; also common English titles ("Help","Shop") false-match prose.
+- ☐ **Saved-courses picker never refreshes** — [`components/CourseBuilder.vue`](../components/CourseBuilder.vue) L535. A `computed` reading `localStorage` is cached forever; new/paused/deleted courses don't appear until reload.
+- ☐ **Course-completion logging dead in prod** — `CourseBuilder.vue` L401 (localhost hardcode, above) → firm activity feed never receives completions.
+- ☐ **Legacy-case migration self-disables on failure** — [`utils/cases.js`](../utils/cases.js) L149 sets the one-time "done" flag even when every upload failed; [`mixins/caseMixin.js`](../mixins/caseMixin.js) L34 runs it before the real token resolves, so prod migrations 401 then never retry.
+
+**🟡 P2/P3 · Medium (18)**
+- ☐ **Report-model maths** — [`server/report/workingCapitalCycleModel.js`](../server/report/workingCapitalCycleModel.js): contribution margin ~doubles when cash cycle ≠ 30 days (L96); inputs never numerically coerced so a JSON-string input string-concatenates (L75). [`server/report/debtorDragModel.js`](../server/report/debtorDragModel.js): short input array → `NaN`/empty chart (L138); hardcoded `/12` breaks non-12-month data (L143). [`server/report/marginBreakevenModel.js`](../server/report/marginBreakevenModel.js) L55: negative break-even returned for a loss-making product. *(Verify each against the source Excel before changing — per `feedback-never-simplify-source-models`.)*
+- ☐ **SEC — prompt injection** — client-controlled `languageName` ([`server/advisorEngine.js`](../server/advisorEngine.js) L2137) and course `sessionContext` ([`server/courseEngine.js`](../server/courseEngine.js) L286) interpolated unfenced into the system prompt.
+- ☐ **Non-atomic Stage-D delete** across stores — [`server/routes/mentor.js`](../server/routes/mentor.js) L181 — a mid-way failure leaves the master row live while firms lose their overrides.
+- ☐ **Session-state read-modify-write race** on concurrent requests — `advisorEngine.js` L1026 (last-write-wins loses answers).
+- ☐ **Global `unhandledRejection` swallow** hides every other crash — `courseEngine.js` L29.
+- ☐ **Translate chunk-splitting bug** defeats its own URL-length guard → translations silently fall back to English — [`server/routes/translate.js`](../server/routes/translate.js) L64.
+- ☐ **CourseBuilder SSE never aborted** — stale stream lands in a fresh conversation; also no error branch in `initClientSession` ([`components/VirtualAdvisor.vue`](../components/VirtualAdvisor.vue) L1156) → spinner sticks forever.
+- ☐ **Chat input renders under the Team Dashboard** — `VirtualAdvisor.vue` L370 (`v-if` omits `firm`).
+- ☐ **Report-component slider races** show stale numbers — `BusinessPerformanceReport.vue` / `DebtorDragReport.vue` / `MarginBreakevenReport.vue` (no request token / abort).
+- ☐ **Speech mixin no teardown** (mic stays live after destroy) + infinite start→error loop on a permission denial — [`mixins/speechMixin.js`](../mixins/speechMixin.js) L37,L66.
+- ☐ **15 i18n keys missing from all 7 non-English locales** (`mode.*`, several `profile.questions.*`, `opening.course`) → mixed-language menu/profile. *(Extends the existing P3 i18n item.)*
+- ☐ **`server-middleware/course.js`** missing the client-disconnect cleanup that `advisor.js` added → abandoned SSE sockets wedge the dev server.
+- ☐ **`retryLastMessage` duplicates the user turn** — `VirtualAdvisor.vue` L1237 (skews history sent to the model).
+- ☐ **`profileQuestions` index drift** — editing an early answer can skip/mislabel a later question — `VirtualAdvisor.vue` L883.
+
+**⚪ P3 · Low (~20)** — more unauthenticated quota-burning routes (`/api/translate/locale`, `/api/report/*`, [`server/restify-server.js`](../server/restify-server.js) L129,L132-134); check-then-write races (storage quota, config version numbers); 0%-score display bugs (dashboard "—", quiz score hidden); wrong Buefy props (`confirm-key-codes`, `empty-string`); audit-trail fields (`promotedBy`) trusted from the request body; formidable temp-file leak on parse error; `NODE_ENV`-gated dev fallbacks masking DB outages on staging; Drive query `\`-escaping gap; report-page docstring claims a session handoff that isn't checked. *(Full per-item detail held in this sweep's chat record; expand into lines here on request.)*
+
+---
+
 ## OPEN — actionable now (build / decide this session)
 
 - <a id="dormant-trees"></a>◐ **P2 · DECISION+BUILD — 28 dormant trees → harvest JUDGMENT into signals.** Direction LOCKED 2026-06-23 (memory `design-logic-trees-guide-not-replace`): trees GUIDE the engine, don't replace it. **Done:** the soft-hint mechanism (whole tie-breaker bucket, one wiring), valuation wired, `governance_too_early` signal (Option A), name-rot disproven (93/93 real) — all in archive. **Remaining:**

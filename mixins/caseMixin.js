@@ -1,7 +1,5 @@
 import { listCases, updateCaseReview, deleteCase, setCaseVisibility, migrateLegacyCases } from '~/utils/cases'
 
-const BACKEND = 'http://localhost:4000'
-
 export default {
   data () {
     return {
@@ -118,7 +116,7 @@ export default {
         promotedAt: new Date().toISOString()
       }
       try {
-        const res = await fetch(`${BACKEND}/api/cases/promote`, {
+        const res = await fetch('/api/cases/promote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify(body)

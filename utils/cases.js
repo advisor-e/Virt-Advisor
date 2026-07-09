@@ -12,8 +12,6 @@
  * called at the absolute backend URL (the same pattern as the promote button).
  */
 
-const BACKEND = 'http://localhost:4000'
-
 function authHeaders (token) {
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
 }
@@ -26,7 +24,7 @@ function authHeaders (token) {
  * @returns {Promise<{cases: object[], advisorId: string|null}>}
  */
 export async function listCases (token) {
-  const res = await fetch(`${BACKEND}/api/cases`, { headers: authHeaders(token) })
+  const res = await fetch('/api/cases', { headers: authHeaders(token) })
   if (!res.ok) { throw new Error(`Failed to load cases (${res.status})`) }
   const data = await res.json()
   return { cases: data.cases || [], advisorId: data.advisorId || null }
@@ -40,7 +38,7 @@ export async function listCases (token) {
  * @returns {Promise<object>}
  */
 export async function createCase (caseData, token) {
-  const res = await fetch(`${BACKEND}/api/cases`, {
+  const res = await fetch('/api/cases', {
     method: 'POST', headers: authHeaders(token), body: JSON.stringify(caseData)
   })
   if (!res.ok) { throw new Error(`Failed to save case (${res.status})`) }
@@ -54,7 +52,7 @@ export async function createCase (caseData, token) {
  * @param {string} token - Bearer token
  */
 export async function updateCaseReview (id, review, token) {
-  const res = await fetch(`${BACKEND}/api/cases/${encodeURIComponent(id)}/review`, {
+  const res = await fetch(`/api/cases/${encodeURIComponent(id)}/review`, {
     method: 'PUT', headers: authHeaders(token), body: JSON.stringify(review)
   })
   if (!res.ok) { throw new Error(`Failed to save review (${res.status})`) }
@@ -68,7 +66,7 @@ export async function updateCaseReview (id, review, token) {
  * @returns {Promise<string>} the new visibility
  */
 export async function setCaseVisibility (id, visibility, token) {
-  const res = await fetch(`${BACKEND}/api/cases/${encodeURIComponent(id)}/visibility`, {
+  const res = await fetch(`/api/cases/${encodeURIComponent(id)}/visibility`, {
     method: 'PUT', headers: authHeaders(token), body: JSON.stringify({ visibility })
   })
   if (!res.ok) { throw new Error(`Failed to change visibility (${res.status})`) }
@@ -81,7 +79,7 @@ export async function setCaseVisibility (id, visibility, token) {
  * @param {string} token - Bearer token
  */
 export async function deleteCase (id, token) {
-  const res = await fetch(`${BACKEND}/api/cases/${encodeURIComponent(id)}`, {
+  const res = await fetch(`/api/cases/${encodeURIComponent(id)}`, {
     method: 'DELETE', headers: authHeaders(token)
   })
   if (!res.ok) { throw new Error(`Failed to delete case (${res.status})`) }

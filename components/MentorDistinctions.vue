@@ -190,8 +190,6 @@
  * 14 domains mirror FirmManagerHub so the two screens stay visually identical.
  */
 
-const BACKEND = 'http://localhost:4000'
-
 // The picker offers the Do-the-Job templates a distinction can meaningfully boost.
 // Mirrors FirmManagerHub: derived straight from templates.json, excluding the
 // revenue-model shelf (represented by the two group targets) and non-advisory
@@ -201,6 +199,7 @@ const PICKER_EXCLUDED_SUBSECTIONS = new Set([
   'Help', 'Firm Manager Access', 'Risk Advisor Access', 'External Advisors', ''
 ])
 const ALL_CLIENT_TEMPLATES = require('~/data/templates.json')
+const { escapeHtml } = require('~/utils/escapeHtml')
   .filter(t => t.menuSection === 'do-the-job' && !PICKER_EXCLUDED_SUBSECTIONS.has(t.subSection || ''))
   .map(t => ({ title: t.title, subSection: t.subSection }))
   .sort((a, b) => a.title.localeCompare(b.title))
@@ -295,7 +294,7 @@ export default {
         opts.headers['Content-Type'] = 'application/json'
         opts.body = JSON.stringify(body)
       }
-      const res = await fetch(`${BACKEND}${path}`, opts)
+      const res = await fetch(`${path}`, opts)
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: res.statusText }))
         throw new Error((err.error && err.error.message) || err.message || res.statusText)
@@ -403,7 +402,7 @@ export default {
     confirmDeleteDistinction (row) {
       this.$buefy.dialog.confirm({
         title: 'Remove distinction',
-        message: `Remove "<strong>${row.description}</strong>"? It will no longer be a default for any firm.`,
+        message: `Remove "<strong>${escapeHtml(row.description)}</strong>"? It will no longer be a default for any firm.`,
         confirmText: 'Remove',
         type: 'is-danger',
         hasIcon: true,

@@ -70,7 +70,6 @@
 </template>
 
 <script>
-const BACKEND = 'http://localhost:4000'
 
 const DOMAIN_LABELS = {
   conflict: 'Conflict & Dispute',
@@ -111,7 +110,7 @@ export default {
   methods: {
     /** Shared fetch helper — mirrors FirmManagerHub.api (Bearer token + JSON). */
     async api (method, path) {
-      const res = await fetch(`${BACKEND}${path}`, {
+      const res = await fetch(`${path}`, {
         method,
         headers: { Authorization: `Bearer ${this.apiToken}` }
       })

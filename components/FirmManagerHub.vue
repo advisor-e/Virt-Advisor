@@ -774,9 +774,9 @@ section.firm-manager-hub.section
 </template>
 
 <script>
-const BACKEND = 'http://localhost:4000'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
+const { escapeHtml } = require('~/utils/escapeHtml')
 
 // The distinctions picker offers the Do-the-Job templates a distinction can meaningfully
 // boost. Do NOT filter on includedInClient (that field only governs client self-serve
@@ -1083,7 +1083,7 @@ export default {
       if (body && isMultipart) {
         opts.body = body // FormData
       }
-      const res = await fetch(`${BACKEND}${path}`, opts)
+      const res = await fetch(`${path}`, opts)
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: res.statusText }))
         throw new Error(err.message || res.statusText)
@@ -1131,7 +1131,7 @@ export default {
     },
 
     downloadDoc (row) {
-      const url = `${BACKEND}/api/firm-manager/documents/download?fileId=${row.id}&fileName=${encodeURIComponent(row.name)}`
+      const url = `/api/firm-manager/documents/download?fileId=${row.id}&fileName=${encodeURIComponent(row.name)}`
       const a = document.createElement('a')
       a.href = url
       a.setAttribute('download', row.name)
@@ -1143,7 +1143,7 @@ export default {
 
     confirmDeleteDoc (row) {
       this.$buefy.dialog.confirm({
-        message: `Remove <strong>${row.name}</strong> from your firm's library?`,
+        message: `Remove <strong>${escapeHtml(row.name)}</strong> from your firm's library?`,
         type: 'is-danger',
         confirmText: 'Remove',
         onConfirm: () => this.deleteDoc(row)
@@ -1325,7 +1325,7 @@ export default {
 
     confirmDeleteVideo (row) {
       this.$buefy.dialog.confirm({
-        message: `Remove <strong>${row.title}</strong>?`,
+        message: `Remove <strong>${escapeHtml(row.title)}</strong>?`,
         type: 'is-danger',
         confirmText: 'Remove',
         onConfirm: () => this.deleteVideo(row)
@@ -1936,8 +1936,7 @@ export default {
       const fromLabel = this.domainLabel(nm.domain)
       // Buefy renders the dialog message as HTML, so escape the firm-authored
       // description (and truncate) before interpolating it.
-      const raw = String(nm.description || 'this distinction')
-      const escaped = raw.replace(/[<>&]/g, ch => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[ch]))
+      const escaped = escapeHtml(nm.description || 'this distinction')
       const desc = escaped.length > 80 ? escaped.slice(0, 80) + '…' : escaped
       this.$buefy.dialog.confirm({
         title: 'Move distinction',

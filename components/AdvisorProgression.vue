@@ -90,7 +90,6 @@
 </template>
 
 <script>
-const BACKEND = 'http://localhost:4000'
 
 const DOMAIN_LABELS = {
   profit: 'Profitability',
@@ -157,7 +156,7 @@ export default {
         // Identity (advisor + firm) is derived server-side from this pass — not sent in the request.
         const authHeaders = { Authorization: `Bearer ${this.apiToken}` }
         if (this.isFirmManager) {
-          const res = await fetch(`${BACKEND}/api/activity/team`, { headers: authHeaders })
+          const res = await fetch('/api/activity/team', { headers: authHeaders })
           if (!res.ok) {
             this.error = 'Could not load team progress. Please try again.'
             return
@@ -169,7 +168,7 @@ export default {
             this.error = 'Could not load team progress. Please try again.'
           }
         } else {
-          const res = await fetch(`${BACKEND}/api/activity/progression`, { headers: authHeaders })
+          const res = await fetch('/api/activity/progression', { headers: authHeaders })
           if (!res.ok) {
             this.error = 'Could not load your progress. Please try again.'
             return

@@ -398,7 +398,6 @@ import DOMPurify from 'isomorphic-dompurify'
 import courseStarters from '~/data/course-starters.json'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
-const BACKEND = 'http://localhost:4000'
 
 export default {
   name: 'CourseBuilder',
@@ -684,7 +683,7 @@ export default {
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'design',
             query,
@@ -820,7 +819,7 @@ export default {
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'session',
             query: 'Begin session.',
@@ -898,7 +897,7 @@ export default {
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'session',
             query,
@@ -979,7 +978,7 @@ export default {
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'quiz-generate',
             sessionContext: this.currentSession,
@@ -1139,7 +1138,7 @@ export default {
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'quiz-grade',
             question: this.currentQuestion,
@@ -1216,7 +1215,7 @@ export default {
       try {
         await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'progress',
             advisorId: this.advisorId,
@@ -1235,7 +1234,7 @@ export default {
       const session = this.activeCourse.outline.sessions[this.activeSessionIndex]
       if (!session) { return }
       try {
-        await fetch(`${BACKEND}/api/activity/log-course`, {
+        await fetch('/api/activity/log-course', {
           method: 'POST',
           // Advisor + firm are derived server-side from this pass — not sent in the body.
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
