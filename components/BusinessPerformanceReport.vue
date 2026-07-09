@@ -353,7 +353,7 @@ fields: [
 .bpr-cycsum { font-size:13px; color:var(--bpr-muted); }
 .bpr-cycsum b { color:var(--bpr-ink); }
 .bpr-wheel { display:block; width:100%; height:auto; max-width:560px; margin:6px auto 0; }
-.bpr-coin { fill:var(--bpr-warn); stroke:#fff; stroke-width:1.5;
+.bpr-coin { fill:var(--bpr-crit); stroke:#fff; stroke-width:1.5;
   offset-path:path("M330 70 A110 110 0 1 1 329.99 70"); animation:bprOrbit var(--spin,4s) linear infinite; }
 @keyframes bprOrbit { to { offset-distance:100%; } }
 @media (prefers-reduced-motion: reduce) { .bpr-coin { animation:none; } }

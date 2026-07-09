@@ -9,6 +9,7 @@
  */
 
 const { computeWorkingCapitalCycle } = require('../report/workingCapitalCycleModel')
+const { computeDebtorCashflow } = require('../report/debtorDragModel')
 
 /**
  * POST /api/report/working-capital-cycle
@@ -27,4 +28,22 @@ function workingCapitalCycle (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle }
+/**
+ * POST /api/report/debtor-drag
+ * @param {object} req.body - partial debtor cashflow inputs (monthlySales, debtor[], creditor[],
+ *   markup, netProfitPct, gstRate).
+ * @returns {object} { success, data, timestamp } — monthly closing balances + summary.
+ */
+function debtorDrag (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeDebtorCashflow(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] debtor-drag compute failed:', err && err.message)
+    res.send(400, { success: false, error: { code: 'DEBTOR_DRAG_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag }
