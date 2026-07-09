@@ -93,7 +93,15 @@ function computeWorkingCapitalCycle (input) {
   const V36 = V33 - V35 // difference vs prior scenario ($)
   const V37 = V35 ? V36 / V35 : 0 // difference vs prior scenario (%)
   const D25 = V31 - D17 // net profit before tax (monthly)
-  const D20 = V29 ? (V29 - Q15 * V7) / V29 : 0 // contribution margin %
+  // CORRECTED from the source cell D20 =(V29-Q15*V7)/V29, which is mathematically
+  // flawed: it subtracts a PER-BATCH cost (Q15*V7 = Q17) from PER-MONTH revenue
+  // (V29 = batch revenue * V25), so it overstates the margin whenever the cycle
+  // is not 30 days (V25 != 1). A contribution-margin ratio must use same-period
+  // figures = monthly cash GP / monthly cash sales = V31/V29. The sheet's own V31
+  // already multiplies the batch cost by V25, confirming the intended monthly cost.
+  // Identical to the source at the default scenario (V25=1); the source .xlsx has
+  // the same flaw and should be corrected. Proof: design/ACTIONS.md 2026-07-10.
+  const D20 = V29 ? V31 / V29 : 0 // contribution margin % (corrected; = V31/V29)
   const N9 = D25 // cash reserve required
   const J3 = D25 < 0 ? 'Cashflow Negative' : 'Cashflow Positive'
   const Q3 = D25 > 1 ? D25 : 0

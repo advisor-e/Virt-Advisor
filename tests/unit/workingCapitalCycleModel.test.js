@@ -76,4 +76,20 @@ describe('Working Capital Cycle model — behaviour', () => {
     expect(out.netProfitMonthly).toBeLessThan(0)
     expect(out.cashflowStatus).toBe('Cashflow Negative')
   })
+
+  test('contribution margin uses same-period figures when the cycle != 30 days (corrected D20)', () => {
+    // Regression guard for the corrected D20. At a 20-day receivable cycle V25 = 2:
+    // the flawed source formula (V29 - Q15*V7)/V29 gave 0.80 by subtracting a
+    // per-batch cost from per-month revenue; the correct ratio is V31/V29 = 0.60.
+    const out = computeWorkingCapitalCycle(Object.assign({}, DEFAULT_INPUTS, { daysReceivable: 20 }))
+    expect(out.cycleFactorMonthly).toBe(2)
+    expect(out.contributionMarginPct).toBeCloseTo(0.6, 6)
+    // Must always equal monthly cash GP / monthly cash sales.
+    expect(out.contributionMarginPct).toBeCloseTo(out.monthlyCashGP / out.monthlyCashSales, 10)
+  })
+
+  test('contribution margin is unchanged from the source at the default scenario (V25 = 1)', () => {
+    const out = computeWorkingCapitalCycle(DEFAULT_INPUTS)
+    expect(out.contributionMarginPct).toBeCloseTo(0.6, 6) // matches the golden value
+  })
 })
