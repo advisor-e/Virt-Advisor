@@ -466,11 +466,30 @@ function handleProgress (body, res) {
 
 // ── Request body parser ────────────────────────────────────────────────────
 
+// 256 KB — matches advisorEngine's BODY_LIMIT; protects this (unauthenticated-
+// at-the-body-parse-stage) route against a memory-exhaustion DoS.
+const BODY_LIMIT = 256 * 1024
+
 function parseBody (req) {
   return new Promise((resolve, reject) => {
     let data = ''
-    req.on('data', (chunk) => { data += chunk })
+    let size = 0
+    let rejected = false
+    req.on('data', (chunk) => {
+      if (rejected) { return }
+      size += chunk.length
+      if (size > BODY_LIMIT) {
+        rejected = true
+        const err = new Error('Request body too large')
+        err.code = 'BODY_TOO_LARGE'
+        req.socket && req.socket.destroy()
+        reject(err)
+        return
+      }
+      data += chunk
+    })
     req.on('end', () => {
+      if (rejected) { return }
       try { resolve(JSON.parse(data)) } catch (e) { reject(e) }
     })
     req.on('error', reject)
@@ -486,6 +505,9 @@ module.exports = async function (req, res) {
   try {
     body = await parseBody(req)
   } catch (e) {
+    if (e && e.code === 'BODY_TOO_LARGE') {
+      return sendError(res, 413, 'BODY_TOO_LARGE', 'Request body too large')
+    }
     return sendError(res, 400, 'INVALID_JSON', 'Request body must be valid JSON')
   }
 
@@ -526,3 +548,7 @@ module.exports = async function (req, res) {
     if (!res.writableEnded) { res.end() }
   }
 }
+
+// Exposed for unit testing (the default export is the Restify handler).
+module.exports.parseBody = parseBody
+module.exports.BODY_LIMIT = BODY_LIMIT
