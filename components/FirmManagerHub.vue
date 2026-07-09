@@ -1130,15 +1130,36 @@ export default {
       }
     },
 
-    downloadDoc (row) {
-      const url = `/api/firm-manager/documents/download?fileId=${row.id}&fileName=${encodeURIComponent(row.name)}`
-      const a = document.createElement('a')
-      a.href = url
-      a.setAttribute('download', row.name)
-      // The request needs the auth header — for simplicity, open in new tab.
-      // TODO: for Advisor-e integration, use a signed URL or server-side redirect instead.
-      a.setAttribute('target', '_blank')
-      a.click()
+    async downloadDoc (row) {
+      // Fetch with the Bearer token (an <a>-tab navigation can't send it), then
+      // save the returned blob client-side. `source` + `category` let the backend
+      // authorise the file (firm-owned vs platform) before streaming it.
+      try {
+        const params = new URLSearchParams({
+          fileId: row.id,
+          fileName: row.name,
+          source: row.source || 'firm',
+          category: this.selectedCategory
+        })
+        const res = await fetch(`/api/firm-manager/documents/download?${params.toString()}`, {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ message: res.statusText }))
+          throw new Error(err.message || res.statusText)
+        }
+        const blob = await res.blob()
+        const objectUrl = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = objectUrl
+        a.setAttribute('download', row.name)
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(objectUrl)
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
     },
 
     confirmDeleteDoc (row) {

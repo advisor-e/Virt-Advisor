@@ -33,6 +33,7 @@ const overlay = require('../../server/utils/firmOverlay')
 const {
   listDocuments,
   deleteDocument,
+  downloadDocument,
   getFramework,
   saveFramework,
   getFrameworkHistory,
@@ -176,6 +177,71 @@ describe('deleteDocument', () => {
     await deleteDocument(req, res, next)
 
     expect(res._status).toBe(400)
+  })
+})
+
+// ── downloadDocument (authorisation gate — closes the cross-firm IDOR) ─────────
+
+describe('downloadDocument', () => {
+  function fakeStream () { return { on: jest.fn(), pipe: jest.fn() } }
+
+  test('returns 400 when fileId is missing', async () => {
+    const req = makeReq({ query: {} })
+    const res = makeMockRes()
+    await downloadDocument(req, res, jest.fn())
+    expect(res._status).toBe(400)
+  })
+
+  test('firm document: 404 when the file does not belong to this firm', async () => {
+    db.execute.mockResolvedValue([[]]) // ownership lookup finds no row
+    const req = makeReq({ query: { fileId: 'another-firms-file', source: 'firm' } })
+    const res = makeMockRes()
+    await downloadDocument(req, res, jest.fn())
+    expect(res._status).toBe(404)
+    expect(drive.downloadDocument).not.toHaveBeenCalled() // nothing streamed
+  })
+
+  test('firm document: streams when the file belongs to this firm', async () => {
+    db.execute.mockResolvedValue([[{ 1: 1 }]]) // ownership lookup finds the row
+    const stream = fakeStream()
+    drive.downloadDocument.mockResolvedValue(stream)
+    const req = makeReq({ query: { fileId: 'my-firm-file', fileName: 'a.pdf', source: 'firm' } })
+    const res = makeMockRes()
+    await downloadDocument(req, res, jest.fn())
+    expect(db.execute).toHaveBeenCalledWith(
+      expect.stringContaining('firm_documents'),
+      ['my-firm-file', 'firm-test-123']
+    )
+    expect(drive.downloadDocument).toHaveBeenCalledWith('my-firm-file')
+    expect(stream.pipe).toHaveBeenCalledWith(res)
+  })
+
+  test('platform document: 404 when the id is not a real base file in the category', async () => {
+    drive.listBaseDocuments.mockResolvedValue([{ id: 'base-1' }, { id: 'base-2' }])
+    const req = makeReq({ query: { fileId: 'not-a-base-file', source: 'platform', category: 'logic-tables' } })
+    const res = makeMockRes()
+    await downloadDocument(req, res, jest.fn())
+    expect(res._status).toBe(404)
+    expect(drive.downloadDocument).not.toHaveBeenCalled()
+  })
+
+  test('platform document: streams when the id is a real base file in the category', async () => {
+    drive.listBaseDocuments.mockResolvedValue([{ id: 'base-1' }, { id: 'base-2' }])
+    const stream = fakeStream()
+    drive.downloadDocument.mockResolvedValue(stream)
+    const req = makeReq({ query: { fileId: 'base-2', source: 'platform', category: 'logic-tables' } })
+    const res = makeMockRes()
+    await downloadDocument(req, res, jest.fn())
+    expect(drive.downloadDocument).toHaveBeenCalledWith('base-2')
+    expect(stream.pipe).toHaveBeenCalledWith(res)
+  })
+
+  test('platform document: 400 on an invalid category', async () => {
+    const req = makeReq({ query: { fileId: 'base-2', source: 'platform', category: 'not-a-category' } })
+    const res = makeMockRes()
+    await downloadDocument(req, res, jest.fn())
+    expect(res._status).toBe(400)
+    expect(drive.downloadDocument).not.toHaveBeenCalled()
   })
 })
 
