@@ -1,5 +1,11 @@
 # Virt Advisor — Action Backlog
 
+> **📋 2026-07-10 full-app bug-fix pass — master-team handover:**
+> [`SESSION-2026-07-10-NOTES.md`](SESSION-2026-07-10-NOTES.md). 8 commits on
+> `feat/business-performance-report` (`master` untouched); 2 critical + several high
+> fixes, mostly in the **original app**, all tested + stack-audited. Details also in the
+> **CODE-REVIEW SWEEP — 2026-07-10** section below.
+>
 > **The single prioritised list of every OPEN task.** Triage from here.
 > Completed work lives in [`ACTIONS-ARCHIVE.md`](ACTIONS-ARCHIVE.md) (verbatim, by date) — nothing is deleted, only moved once done.
 >
