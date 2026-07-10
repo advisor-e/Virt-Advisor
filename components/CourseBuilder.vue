@@ -430,6 +430,10 @@ export default {
       pendingOutline: null,
       courseVisibility: 'private',
       activeCourse: null,
+      // Courses shown in the "Your saved courses" picker. Held in reactive state
+      // (not a computed) because localStorage is not reactive — refreshed via
+      // _refreshSavedCourses() at every save/delete so the picker never goes stale.
+      savedCourses: [],
 
       // Session phase
       activeSessionIndex: 0,
@@ -529,24 +533,16 @@ export default {
         .find(p => p.completedAt)
       if (!last) { return '' }
       return new Date(last.completedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
-    },
-
-    savedCourses () {
-      if (typeof localStorage === 'undefined') { return [] }
-      try {
-        const stored = localStorage.getItem('va_courses')
-        if (!stored) { return [] }
-        const data = JSON.parse(stored)
-        return (data.courses || []).filter(
-          c => c.advisorId === this.advisorId && (c.status === 'active' || c.status === 'paused')
-        )
-      } catch (e) {
-        return []
-      }
     }
   },
 
+  watch: {
+    // The picker is per-advisor; if the advisorId prop resolves after mount, rebuild it.
+    advisorId () { this._refreshSavedCourses() }
+  },
+
   mounted () {
+    this._refreshSavedCourses()
     this._loadOrStartCourse()
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (SpeechRecognition) {
@@ -658,6 +654,22 @@ export default {
         data.courses = [...(data.courses || []), course]
       }
       localStorage.setItem('va_courses', JSON.stringify(data))
+      this._refreshSavedCourses()
+    },
+
+    // Rebuild the picker list from localStorage (which is not reactive). Called on
+    // mount, when advisorId changes, and after every _saveCourse / _deleteCourse.
+    _refreshSavedCourses () {
+      if (typeof localStorage === 'undefined') { this.savedCourses = []; return }
+      try {
+        const stored = localStorage.getItem('va_courses')
+        const data = stored ? JSON.parse(stored) : { courses: [] }
+        this.savedCourses = (data.courses || []).filter(
+          c => c.advisorId === this.advisorId && (c.status === 'active' || c.status === 'paused')
+        )
+      } catch (e) {
+        this.savedCourses = []
+      }
     },
 
     _generateId () {
@@ -1113,6 +1125,7 @@ export default {
           }
         } catch (e) { /* ignore */ }
       }
+      this._refreshSavedCourses()
       this.activeCourse = null
       this.activeSessionIndex = 0
       this.phase = 'design'
