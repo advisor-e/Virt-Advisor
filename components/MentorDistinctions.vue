@@ -176,6 +176,8 @@
 </template>
 
 <script>
+import DOMPurify from 'isomorphic-dompurify'
+
 /**
  * MentorDistinctions — the mentor authoring surface for Advisory Distinctions
  * (the cascade ORIGIN, design/DISTINCTIONS-CASCADE-PLAN.md §6). The mentor authors
@@ -199,7 +201,6 @@ const PICKER_EXCLUDED_SUBSECTIONS = new Set([
   'Help', 'Firm Manager Access', 'Risk Advisor Access', 'External Advisors', ''
 ])
 const ALL_CLIENT_TEMPLATES = require('~/data/templates.json')
-const { escapeHtml } = require('~/utils/escapeHtml')
   .filter(t => t.menuSection === 'do-the-job' && !PICKER_EXCLUDED_SUBSECTIONS.has(t.subSection || ''))
   .map(t => ({ title: t.title, subSection: t.subSection }))
   .sort((a, b) => a.title.localeCompare(b.title))
@@ -402,7 +403,7 @@ export default {
     confirmDeleteDistinction (row) {
       this.$buefy.dialog.confirm({
         title: 'Remove distinction',
-        message: `Remove "<strong>${escapeHtml(row.description)}</strong>"? It will no longer be a default for any firm.`,
+        message: DOMPurify.sanitize(`Remove "<strong>${row.description}</strong>"? It will no longer be a default for any firm.`, { USE_PROFILES: { html: true } }),
         confirmText: 'Remove',
         type: 'is-danger',
         hasIcon: true,

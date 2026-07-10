@@ -774,9 +774,9 @@ section.firm-manager-hub.section
 </template>
 
 <script>
+import DOMPurify from 'isomorphic-dompurify'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
-const { escapeHtml } = require('~/utils/escapeHtml')
 
 // The distinctions picker offers the Do-the-Job templates a distinction can meaningfully
 // boost. Do NOT filter on includedInClient (that field only governs client self-serve
@@ -1164,7 +1164,7 @@ export default {
 
     confirmDeleteDoc (row) {
       this.$buefy.dialog.confirm({
-        message: `Remove <strong>${escapeHtml(row.name)}</strong> from your firm's library?`,
+        message: DOMPurify.sanitize(`Remove <strong>${row.name}</strong> from your firm's library?`, { USE_PROFILES: { html: true } }),
         type: 'is-danger',
         confirmText: 'Remove',
         onConfirm: () => this.deleteDoc(row)
@@ -1346,7 +1346,7 @@ export default {
 
     confirmDeleteVideo (row) {
       this.$buefy.dialog.confirm({
-        message: `Remove <strong>${escapeHtml(row.title)}</strong>?`,
+        message: DOMPurify.sanitize(`Remove <strong>${row.title}</strong>?`, { USE_PROFILES: { html: true } }),
         type: 'is-danger',
         confirmText: 'Remove',
         onConfirm: () => this.deleteVideo(row)
@@ -1957,7 +1957,8 @@ export default {
       const fromLabel = this.domainLabel(nm.domain)
       // Buefy renders the dialog message as HTML, so escape the firm-authored
       // description (and truncate) before interpolating it.
-      const escaped = escapeHtml(nm.description || 'this distinction')
+      const raw = String(nm.description || 'this distinction')
+      const escaped = raw.replace(/[<>&]/g, ch => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[ch]))
       const desc = escaped.length > 80 ? escaped.slice(0, 80) + '…' : escaped
       this.$buefy.dialog.confirm({
         title: 'Move distinction',
