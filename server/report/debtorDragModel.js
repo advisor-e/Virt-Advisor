@@ -35,6 +35,43 @@ const DEFAULT_INPUTS = {
 }
 
 /**
+ * Coerce a value to a finite number (accepts JSON-string numbers), else fallback.
+ * @param {*} v @param {number} [fallback] @returns {number}
+ */
+function num (v, fallback) {
+  if (fallback === undefined) { fallback = 0 }
+  if (typeof v === 'number') { return Number.isFinite(v) ? v : fallback }
+  const n = parseFloat(v)
+  return Number.isFinite(n) ? n : fallback
+}
+
+/**
+ * Normalise a value to an array of exactly `len` finite numbers (coercing each,
+ * padding short input with 0, ignoring extras). Prevents a short client-supplied
+ * profile from indexing `undefined` and producing NaN downstream.
+ * @param {*} arr @param {number} len @returns {number[]}
+ */
+function numArray (arr, len) {
+  const src = Array.isArray(arr) ? arr : []
+  const out = []
+  for (let k = 0; k < len; k++) { out[k] = num(src[k], 0) }
+  return out
+}
+
+/** Coerce a 5-slot collection/payment profile object to finite-number fields. */
+function normaliseProfile (p, defaults) {
+  const d = Object.assign({}, defaults, p || {})
+  return {
+    sameMonth: num(d.sameMonth, 0),
+    month1: num(d.month1, 0),
+    month2: num(d.month2, 0),
+    month3: num(d.month3, 0),
+    month4: num(d.month4, 0),
+    writeOff: num(d.writeOff, 0)
+  }
+}
+
+/**
  * @typedef {Object} CollectionProfile
  * @property {number} sameMonth - fraction collected in the sale month
  * @property {number} month1 - fraction collected 1 month later
@@ -51,9 +88,10 @@ const DEFAULT_INPUTS = {
  * @returns {{totalSales:number, fundsBanked:number, writeOff:number, grossCashDiff:number, debtorDrag:number}}
  */
 function computeDebtorScenario (monthlySales, p) {
-  const sales = monthlySales
+  const sales = (Array.isArray(monthlySales) ? monthlySales : []).map(function (x) { return num(x, 0) })
   const n = sales.length
   const totalSales = sales.reduce(function (a, b) { return a + b }, 0)
+  p = normaliseProfile(p, {})
 
   // In-year collected: sales from month (m - offset) collected in month m, counted only
   // while m stays within the 12-month window. Offset k's in-year base is sales[0 .. n-1-k].
@@ -121,15 +159,20 @@ const DEFAULT_CASHFLOW_INPUTS = {
  */
 function computeDebtorCashflow (input) {
   const i = Object.assign({}, DEFAULT_CASHFLOW_INPUTS, input || {})
-  const sales = i.monthlySales
-  const d = i.debtor
-  const c = i.creditor
+  // Coerce inputs so bad shapes/types can't produce NaN balances: sales → numbers,
+  // debtor/creditor → exactly 5 finite numbers, rates → finite numbers.
+  const sales = (Array.isArray(i.monthlySales) ? i.monthlySales : []).map(function (x) { return num(x, 0) })
+  const d = numArray(i.debtor, 5)
+  const c = numArray(i.creditor, 5)
+  const markup = num(i.markup, DEFAULT_CASHFLOW_INPUTS.markup)
+  const netProfitPct = num(i.netProfitPct, DEFAULT_CASHFLOW_INPUTS.netProfitPct)
+  const gstRate = num(i.gstRate, DEFAULT_CASHFLOW_INPUTS.gstRate)
   const n = sales.length
-  const g = i.gstRate / (1 + i.gstRate)
+  const g = gstRate / (1 + gstRate)
   const total = sales.reduce(function (a, b) { return a + b }, 0)
 
   const purch = []
-  for (let m = 0; m < n; m++) { purch[m] = m >= 1 ? sales[m - 1] / (1 + i.markup) : 0 }
+  for (let m = 0; m < n; m++) { purch[m] = m >= 1 ? sales[m - 1] / (1 + markup) : 0 }
 
   const stockPaid = []
   let totalStockPaid = 0
@@ -140,7 +183,7 @@ function computeDebtorCashflow (input) {
     totalStockPaid += sp
   }
 
-  const fixedMonthly = (total - totalStockPaid - total * i.netProfitPct) / 12
+  const fixedMonthly = (total - totalStockPaid - total * netProfitPct) / 12
 
   const monthlyBanked = []
   const monthlyClosing = []

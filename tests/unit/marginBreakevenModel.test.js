@@ -73,3 +73,21 @@ describe('Margin · Mark-up — behaviour', () => {
     expect(r.markup).toBeGreaterThan(r.marginPct)
   })
 })
+
+describe('Margin/break-even — input robustness', () => {
+  test('string numeric inputs are coerced (no NaN / concat)', () => {
+    const r = computeMarginMarkup('50', '230')
+    expect(r.grossProfit).toBe(180)
+    expect(Number.isFinite(r.marginPct)).toBe(true)
+  })
+
+  test('requiredSales coerces string inputs', () => {
+    expect(requiredSales('11500', '8600', '0.5')).toBeCloseTo(40200, 6)
+  })
+
+  test('whatIfPrice tolerates missing/blank fields without NaN', () => {
+    const out = whatIfPrice({ price: '250', costOfSalesPct: '0.33', overheads: '11500', ownerDrawings: '8600' })
+    expect(Number.isFinite(out.newPrice)).toBe(true)
+    expect(Number.isFinite(out.salesRequired)).toBe(true)
+  })
+})

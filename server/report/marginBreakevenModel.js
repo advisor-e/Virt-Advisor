@@ -18,12 +18,25 @@
  */
 
 /**
+ * Coerce a value to a finite number (accepts JSON-string numbers), else 0.
+ * The route receives raw JSON, so a numeric field arriving as text must not
+ * string-concatenate or become NaN.
+ * @param {*} v @returns {number}
+ */
+function num (v) {
+  if (typeof v === 'number') { return Number.isFinite(v) ? v : 0 }
+  const n = parseFloat(v)
+  return Number.isFinite(n) ? n : 0
+}
+
+/**
  * Margin vs mark-up from a cost and a sale price.
  * @param {number} cost - unit cost.
  * @param {number} price - sale price.
  * @returns {{grossProfit:number, marginPct:number, markup:number, costOfSalesPct:number}}
  */
 function computeMarginMarkup (cost, price) {
+  cost = num(cost); price = num(price)
   const grossProfit = price - cost
   return {
     grossProfit,
@@ -40,6 +53,7 @@ function computeMarginMarkup (cost, price) {
  * @returns {{price:number, marginPct:number}}
  */
 function priceFromMarkup (cost, markup) {
+  cost = num(cost); markup = num(markup)
   const price = cost + (cost * markup)
   return { price, marginPct: price ? (price - cost) / price : 0 }
 }
@@ -53,6 +67,7 @@ function priceFromMarkup (cost, markup) {
  * @returns {number} sales required.
  */
 function requiredSales (overheads, ownerSalary, marginPct) {
+  overheads = num(overheads); ownerSalary = num(ownerSalary); marginPct = num(marginPct)
   return marginPct ? (overheads + ownerSalary) / marginPct : 0
 }
 
@@ -68,10 +83,14 @@ function requiredSales (overheads, ownerSalary, marginPct) {
  * @returns {{newPrice:number, newMarginPct:number, salesRequired:number, unitsRequired:number, costPerUnit:number}}
  */
 function whatIfPrice (p) {
-  const costPerUnit = p.price * p.costOfSalesPct // $ cost per unit — fixed as price changes
-  const newPrice = p.price * (1 + p.priceChangePct)
+  p = p || {}
+  const price = num(p.price)
+  const costOfSalesPct = num(p.costOfSalesPct)
+  const priceChangePct = num(p.priceChangePct)
+  const costPerUnit = price * costOfSalesPct // $ cost per unit — fixed as price changes
+  const newPrice = price * (1 + priceChangePct)
   const newMarginPct = newPrice ? (newPrice - costPerUnit) / newPrice : 0
-  const gpTarget = p.overheads + p.ownerDrawings
+  const gpTarget = num(p.overheads) + num(p.ownerDrawings)
   const salesRequired = newMarginPct ? gpTarget / newMarginPct : 0
   const unitsRequired = newPrice ? salesRequired / newPrice : 0
   return { newPrice, newMarginPct, salesRequired, unitsRequired, costPerUnit }

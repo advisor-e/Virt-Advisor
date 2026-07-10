@@ -54,8 +54,25 @@ const DEFAULT_INPUTS = {
  * @param {Partial<WccInputs>} [input] - overrides merged over DEFAULT_INPUTS.
  * @returns {Object} named outputs (see below); each corresponds to a source-sheet cell.
  */
+/**
+ * Coerce a value to a finite number, falling back when it is missing or junk.
+ * Accepts JSON-string numbers ("2") — the route receives raw JSON — so a numeric
+ * field arriving as text can never string-concatenate (e.g. V9) or become NaN.
+ * @param {*} v
+ * @param {number} fallback
+ * @returns {number}
+ */
+function num (v, fallback) {
+  if (typeof v === 'number') { return Number.isFinite(v) ? v : fallback }
+  const n = parseFloat(v)
+  return Number.isFinite(n) ? n : fallback
+}
+
 function computeWorkingCapitalCycle (input) {
   const i = Object.assign({}, DEFAULT_INPUTS, input || {})
+  // Coerce every input to a finite number (defaulting to the sample value) so a
+  // non-numeric or string input can't corrupt the arithmetic below.
+  for (const key of Object.keys(DEFAULT_INPUTS)) { i[key] = num(i[key], DEFAULT_INPUTS[key]) }
 
   const E3 = i.initialInvestment
   const E5 = i.plantEquipmentPct

@@ -93,3 +93,16 @@ describe('Working Capital Cycle model — behaviour', () => {
     expect(out.contributionMarginPct).toBeCloseTo(0.6, 6) // matches the golden value
   })
 })
+
+describe('Working Capital Cycle model — input robustness', () => {
+  test('a numeric field arriving as a JSON string is coerced (no string-concat)', () => {
+    const out = computeWorkingCapitalCycle(Object.assign({}, DEFAULT_INPUTS, { unitCost: '1' }))
+    expect(out.fullSalePrice).toBeCloseTo(2.5, 6) // (1*1.5)+1 = 2.5, never "11.5"
+  })
+
+  test('a non-numeric field falls back to its default instead of producing NaN', () => {
+    const out = computeWorkingCapitalCycle(Object.assign({}, DEFAULT_INPUTS, { unitCost: 'abc' }))
+    expect(Number.isFinite(out.fullSalePrice)).toBe(true)
+    expect(out.fullSalePrice).toBeCloseTo(2.5, 6) // fell back to default unitCost = 1
+  })
+})

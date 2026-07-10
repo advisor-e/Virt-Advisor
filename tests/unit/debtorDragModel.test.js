@@ -1,6 +1,6 @@
 'use strict'
 
-const { computeDebtorDrag, computeDebtorScenario, DEFAULT_INPUTS, DEFAULT_MONTHLY_SALES, DEFAULT_SCENARIO_A, DEFAULT_SCENARIO_B } = require('../../server/report/debtorDragModel')
+const { computeDebtorDrag, computeDebtorScenario, computeDebtorCashflow, DEFAULT_INPUTS, DEFAULT_MONTHLY_SALES, DEFAULT_SCENARIO_A, DEFAULT_SCENARIO_B } = require('../../server/report/debtorDragModel')
 
 /**
  * Golden values from GE.4b.Debtor Business Drag Model.xlsx (Cash Movement Figures sheet):
@@ -49,5 +49,27 @@ describe('Debtor Drag model — behaviour', () => {
     const base = computeDebtorScenario(DEFAULT_MONTHLY_SALES, DEFAULT_SCENARIO_A)
     const worse = computeDebtorScenario(DEFAULT_MONTHLY_SALES, Object.assign({}, DEFAULT_SCENARIO_A, { sameMonth: 0.80, writeOff: 0.08 }))
     expect(worse.writeOff).toBeGreaterThan(base.writeOff)
+  })
+})
+
+describe('Debtor model — input robustness', () => {
+  test('a short collection/creditor profile does not produce NaN balances', () => {
+    // Fewer than 5 elements used to index undefined → NaN through every balance.
+    const out = computeDebtorCashflow({ debtor: [1], creditor: [1] })
+    expect(out.monthlyClosing.every(Number.isFinite)).toBe(true)
+    expect(Number.isFinite(out.deepestLow.value)).toBe(true)
+    expect(Number.isFinite(out.yearEndBalance)).toBe(true)
+  })
+
+  test('string numeric inputs are coerced (no NaN)', () => {
+    const out = computeDebtorCashflow({ markup: '0.47', netProfitPct: '0.13', gstRate: '0.15' })
+    expect(out.monthlyClosing.every(Number.isFinite)).toBe(true)
+    expect(Number.isFinite(out.fixedMonthly)).toBe(true)
+  })
+
+  test('non-numeric sales entries are coerced to 0 rather than NaN', () => {
+    const s = computeDebtorScenario([100, 'oops', 200], DEFAULT_SCENARIO_A)
+    expect(Number.isFinite(s.totalSales)).toBe(true)
+    expect(s.totalSales).toBe(300) // 'oops' → 0
   })
 })
