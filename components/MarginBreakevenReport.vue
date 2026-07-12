@@ -2,6 +2,7 @@
 .mbk-root
   header.mbk-top
     .mbk-brand
+      nuxt-link.mbk-backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
       .mbk-eyebrow Business Performance Report
       h1.mbk-h1 Margin, Mark-up &amp; Break-even
       .mbk-client Prepared for #[strong [Client Company]] · by #[strong [Advisor / Firm]]
@@ -231,6 +232,8 @@ path,
 .mbk-root strong, .mbk-root b { font-weight:600; }
 .num { font-variant-numeric: tabular-nums; }
 .mbk-top { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; max-width:1120px; margin:0 auto 22px; }
+.mbk-backlink { display:inline-block; margin-bottom:10px; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--mbk-accent-bright); text-decoration:none; opacity:.85; }
+.mbk-backlink:hover { opacity:1; text-decoration:underline; }
 .mbk-eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--mbk-accent-bright); font-weight:600; }
 .mbk-h1 { margin:2px 0 0; font-size:25px; font-weight:300; letter-spacing:-.01em; }
 .mbk-client { font-size:13px; color:var(--mbk-muted); }

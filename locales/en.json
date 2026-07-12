@@ -94,5 +94,19 @@
     "learn": "Great — this is one of the most valuable things you can invest in.\n\nTo make sure I point you to the right resource, I want to understand what you're looking to develop and what's driving it.\n\n**What area are you most drawn to working on — winning clients, facilitation skills, the psychology side, positioning and messaging, or something else?**",
     "course": "Great — let's design your learning program together.\n\nA good course starts with understanding what you want to develop and why — then we'll shape the right content, pace, and sequence around you.\n\n**What are the skills or advisory concepts you'd like to develop?**"
   },
-  "error": "Sorry, something went wrong. Please try again."
+  "error": "Sorry, something went wrong. Please try again.",
+  "modelLibrary": {
+    "eyebrow": "Advisor-e · Business Performance",
+    "title": "Model Library",
+    "lede": "Choose a model to build a report for your client. Search or filter — the library grows as models are added.",
+    "searchPlaceholder": "Search models — e.g. cash, profit, debtors, valuation…",
+    "searchLabel": "Search models",
+    "filterLabel": "Filter models by category",
+    "categoryAll": "All",
+    "count": "{shown} of {total} models · {ready} ready",
+    "openReport": "Open report →",
+    "comingSoon": "Coming soon",
+    "noMatches": "No models match “{query}”.",
+    "backToLibrary": "← Back to Model Library"
+  }
 }

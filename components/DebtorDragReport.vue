@@ -2,6 +2,7 @@
 .ddg-root
   header.ddg-top
     .ddg-brand
+      nuxt-link.ddg-backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
       .ddg-eyebrow Business Performance Report
       h1.ddg-h1 Debtor Business Drag
       .ddg-client Prepared for #[strong [Client Company]] · by #[strong [Advisor / Firm]]
@@ -311,6 +312,8 @@ lowY: y(plan[lowIdx])
 .ddg-blue { color:#0070c0; }
 .num { font-variant-numeric: tabular-nums; }
 .ddg-top { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; max-width:1120px; margin:0 auto 22px; }
+.ddg-backlink { display:inline-block; margin-bottom:10px; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--ddg-accent-bright); text-decoration:none; opacity:.85; }
+.ddg-backlink:hover { opacity:1; text-decoration:underline; }
 .ddg-eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ddg-accent-bright); font-weight:600; }
 .ddg-h1 { margin:2px 0 0; font-size:25px; font-weight:300; letter-spacing:-.01em; }
 .ddg-client { font-size:13px; color:var(--ddg-muted); }

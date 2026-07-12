@@ -2,6 +2,7 @@
 .bpr-root
   header.bpr-top
     .bpr-brand
+      nuxt-link.bpr-backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
       .bpr-eyebrow Business Performance Report
       h1.bpr-h1 Working Capital Cycle
       .bpr-client Prepared for #[strong [Client Company]] · by #[strong [Advisor / Firm]]
@@ -310,6 +311,8 @@ fields: [
 .num { font-variant-numeric: tabular-nums; }
 
 .bpr-top { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; max-width:1120px; margin:0 auto 22px; }
+.bpr-backlink { display:inline-block; margin-bottom:10px; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--bpr-accent-bright); text-decoration:none; opacity:.85; }
+.bpr-backlink:hover { opacity:1; text-decoration:underline; }
 .bpr-eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--bpr-accent-bright); font-weight:600; }
 .bpr-h1 { margin:2px 0 0; font-size:25px; font-weight:300; letter-spacing:-.01em; }
 .bpr-client { font-size:13px; color:var(--bpr-muted); }
