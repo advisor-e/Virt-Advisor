@@ -4,10 +4,14 @@ import {
   CATEGORY_ALL,
   STATUS_READY,
   STATUS_SOON,
+  CLASS_EDUCATION,
+  CLASS_DECISION,
+  CLASS_REPORT,
   filterModels,
   readyCount,
   colourFor,
-  isOpenable
+  isOpenable,
+  usesRealClientData
 } from '../../utils/reportModelCatalogue'
 
 /**
@@ -62,6 +66,70 @@ describe('report model catalogue', () => {
           expect(m.route).not.toMatch(/\.html$/)
         }
       })
+    })
+  })
+
+  describe('model class (design/MODEL-CLASSIFICATION.md)', () => {
+    it('gives every model exactly one known class', () => {
+      MODELS.forEach((m) => {
+        expect([CLASS_EDUCATION, CLASS_DECISION, CLASS_REPORT]).toContain(m.modelClass)
+      })
+    })
+
+    it('matches the owner-settled classification of 2026-07-13', () => {
+      const by = c => MODELS.filter(m => m.modelClass === c).map(m => m.name).sort()
+
+      expect(by(CLASS_EDUCATION)).toEqual([
+        '8 Levers Model',
+        'Break-Even',
+        'Debtor Business Drag',
+        'Margin · Mark-up · Break-even',
+        'Working Capital Cycle'
+      ])
+      expect(by(CLASS_DECISION)).toEqual([
+        'Cost of Capital (WACC)',
+        'Lease vs Buy',
+        'Multiple Property Assessment',
+        'Retirement Review',
+        'The Loan Estimator'
+      ])
+      expect(by(CLASS_REPORT)).toHaveLength(9)
+    })
+
+    it('classes all three BUILT models as Education', () => {
+      // They are badged "Illustrative" and take no client data — the owner's correction
+      // that reframed the whole data-in design. If a built model ever stops being
+      // Education, its intake, privacy handling and badge all have to change with it.
+      const built = MODELS.filter(m => m.status === STATUS_READY)
+      expect(built).toHaveLength(3)
+      built.forEach(m => expect(m.modelClass).toBe(CLASS_EDUCATION))
+    })
+  })
+
+  describe('usesRealClientData — the privacy trigger', () => {
+    // THE rule: privacy is triggered by the client's real numbers, NOT by a file upload.
+    // A Decision tool imports no file at all yet takes real loan balances and retirement
+    // positions by keyboard. Getting this wrong leaks data, so it is pinned here.
+    it('exempts Education models — nothing real ever enters them', () => {
+      expect(usesRealClientData({ modelClass: CLASS_EDUCATION })).toBe(false)
+    })
+
+    it('does NOT exempt Decision tools, even though they import no file', () => {
+      expect(usesRealClientData({ modelClass: CLASS_DECISION })).toBe(true)
+    })
+
+    it('does not exempt Reports', () => {
+      expect(usesRealClientData({ modelClass: CLASS_REPORT })).toBe(true)
+    })
+
+    it('treats every catalogued non-Education model as carrying real client data', () => {
+      MODELS.forEach((m) => {
+        expect(usesRealClientData(m)).toBe(m.modelClass !== CLASS_EDUCATION)
+      })
+    })
+
+    it('survives a missing model', () => {
+      expect(usesRealClientData(null)).toBe(false)
     })
   })
 

@@ -22,6 +22,26 @@ export const STATUS_READY = 'ready'
 export const STATUS_SOON = 'soon'
 
 /**
+ * Model class — owner-settled 2026-07-13, see `design/MODEL-CLASSIFICATION.md`.
+ *
+ * This is not cosmetic. The class determines whether a model takes the client's real
+ * numbers, whether the privacy/scrubbing boundary applies to it, and whether it may
+ * carry the "Illustrative" badge. An advisor must be able to see, before opening a
+ * model, whether it is a teaching aid or something they can put in front of a client.
+ */
+
+/** Illustrative numbers, chosen to teach a concept. No client data ever enters it. */
+export const CLASS_EDUCATION = 'education'
+/**
+ * The client's REAL numbers, typed in by the advisor (loan amount, property price).
+ * No file intake — but the data is sensitive and the scrubbing boundary applies.
+ * Never badged "Illustrative": someone may sign a loan on the output.
+ */
+export const CLASS_DECISION = 'decision'
+/** The client's real numbers, read from their accounts. Needs file intake + scrubbing. */
+export const CLASS_REPORT = 'report'
+
+/**
  * Categories, in display order, with the brand colour each card is keyed to.
  * Colours are the Advisor-e palette (see `design/BRAND-TOKENS.md`).
  */
@@ -43,29 +63,44 @@ export const CATEGORY_ALL = 'All'
  * `route` is only present on `ready` models and points at the live in-app report
  * page — deliberately not at the mockup HTML, which is a design artefact.
  *
- * @type {Array<{name: string, category: string, summary: string, status: string, route?: string}>}
+ * @type {Array<{name: string, category: string, summary: string, status: string, modelClass: string, route?: string}>}
  */
 export const MODELS = [
-  { name: 'Working Capital Cycle', category: 'Cash Flow', summary: 'How fast a fixed pot of cash recycles through stock and debtors — speed it up to earn more.', status: STATUS_READY, route: '/business-performance-report' },
-  { name: 'Debtor Business Drag', category: 'Cash Flow', summary: 'How slow-paying customers push your bank balance into overdraft, month by month.', status: STATUS_READY, route: '/debtor-drag' },
-  { name: '3-Way Forecast Filter', category: 'Cash Flow', summary: 'Linked P&L, balance sheet and cash-flow projections over three years.', status: STATUS_SOON },
-  { name: 'Dashboard Reports', category: 'Cash Flow', summary: 'Monthly and yearly performance dashboards from your accounting data.', status: STATUS_SOON },
-  { name: 'EBITDA & Discounted Cash Flow', category: 'Profitability', summary: 'Earnings before interest/tax/depreciation, and what future cash is worth today.', status: STATUS_SOON },
-  { name: 'Break-Even', category: 'Profitability', summary: 'The sales you need to cover costs — and the margin of safety above it.', status: STATUS_SOON },
-  { name: 'Margin · Mark-up · Break-even', category: 'Profitability', summary: 'The pricing trio every quote depends on, in one calculator.', status: STATUS_READY, route: '/margin-breakeven' },
-  { name: '8 Levers Model', category: 'Profitability', summary: 'The eight levers that move profit, and which one to pull first.', status: STATUS_SOON },
-  { name: 'Stock Purchasing (Growth Pro)', category: 'Growth', summary: 'Smarter reorder points and buying to free cash without stock-outs.', status: STATUS_SOON },
-  { name: 'Sales Dashboard', category: 'Growth', summary: 'Sales mix, trends and the products carrying the margin.', status: STATUS_SOON },
-  { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_SOON },
-  { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_SOON },
-  { name: 'The Loan Estimator', category: 'Valuation', summary: 'Repayments, interest and total cost across loan options.', status: STATUS_SOON },
-  { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Compare several property investments side by side.', status: STATUS_SOON },
-  { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON },
-  { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_SOON },
-  { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_SOON },
-  { name: 'Mid-Level Budget', category: 'Budgeting', summary: 'A more detailed budget with assumptions and monthly tracking.', status: STATUS_SOON },
-  { name: 'Volatility Report', category: 'Risk', summary: 'How bumpy the numbers are — common, seasonal or special-cause.', status: STATUS_SOON }
+  { name: 'Working Capital Cycle', category: 'Cash Flow', summary: 'How fast a fixed pot of cash recycles through stock and debtors — speed it up to earn more.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/business-performance-report' },
+  { name: 'Debtor Business Drag', category: 'Cash Flow', summary: 'How slow-paying customers push your bank balance into overdraft, month by month.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/debtor-drag' },
+  { name: '3-Way Forecast Filter', category: 'Cash Flow', summary: 'Linked P&L, balance sheet and cash-flow projections over three years.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: 'Dashboard Reports', category: 'Cash Flow', summary: 'Monthly and yearly performance dashboards from your accounting data.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: 'EBITDA & Discounted Cash Flow', category: 'Profitability', summary: 'Earnings before interest/tax/depreciation, and what future cash is worth today.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: 'Break-Even', category: 'Profitability', summary: 'The sales you need to cover costs — and the margin of safety above it.', status: STATUS_SOON, modelClass: CLASS_EDUCATION },
+  { name: 'Margin · Mark-up · Break-even', category: 'Profitability', summary: 'The pricing trio every quote depends on, in one calculator.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/margin-breakeven' },
+  { name: '8 Levers Model', category: 'Profitability', summary: 'The eight levers that move profit, and which one to pull first.', status: STATUS_SOON, modelClass: CLASS_EDUCATION },
+  { name: 'Stock Purchasing (Growth Pro)', category: 'Growth', summary: 'Smarter reorder points and buying to free cash without stock-outs.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: 'Sales Dashboard', category: 'Growth', summary: 'Sales mix, trends and the products carrying the margin.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  { name: 'The Loan Estimator', category: 'Valuation', summary: 'Repayments, interest and total cost across loan options.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Compare several property investments side by side.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: 'Mid-Level Budget', category: 'Budgeting', summary: 'A more detailed budget with assumptions and monthly tracking.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: 'Volatility Report', category: 'Risk', summary: 'How bumpy the numbers are — common, seasonal or special-cause.', status: STATUS_SOON, modelClass: CLASS_REPORT }
 ]
+
+/**
+ * Whether a model takes the client's REAL numbers — and therefore whether the
+ * privacy / scrubbing boundary (T13) applies to it.
+ *
+ * The trigger is real client data, NOT a file upload: a Decision tool imports no file
+ * at all, yet takes the client's real loan balances and retirement position by keyboard.
+ * Only Education models — whose figures are illustrative — are exempt.
+ *
+ * @param {object} model
+ * @returns {boolean}
+ */
+export function usesRealClientData (model) {
+  return Boolean(model) && model.modelClass !== CLASS_EDUCATION
+}
 
 /**
  * The brand colour for a category, falling back to the primary blue for an

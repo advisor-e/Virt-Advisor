@@ -58,6 +58,7 @@
               template(v-else-if="model.category === 'Risk'")
                 polyline(points="3,14 8,8 12,13 16,6 21,12")
           .mlb-ctag {{ model.category }}
+          span.mlb-class(:class="`is-${model.modelClass}`") {{ classLabel(model) }}
 
         .mlb-cbody
           h2.mlb-cname {{ model.name }}
@@ -132,6 +133,16 @@ export default {
     /** A model is a link only if it is ready AND has a route. */
     openable (model) {
       return isOpenable(model)
+    },
+
+    /**
+     * The model's class, shown on the card so the advisor knows what they are opening
+     * BEFORE they open it — a teaching aid with illustrative numbers is a very different
+     * thing to put in front of a client than a report on their real accounts.
+     * See `design/MODEL-CLASSIFICATION.md`.
+     */
+    classLabel (model) {
+      return this.$t(`modelLibrary.class.${model.modelClass}`)
     },
 
     /** The category's brand colour, as the card icon's gradient tile. */
@@ -211,6 +222,17 @@ a.mlb-card:hover {
   font-size:9.5px; letter-spacing:.07em; text-transform:uppercase;
   font-weight:600; color:var(--mlb-muted);
 }
+
+/* The class badge — the advisor must be able to tell a teaching aid from a client
+   report at a glance, so each class is visually distinct, not just differently worded. */
+.mlb-class {
+  display:inline-block; margin-top:3px; padding:2px 7px; border-radius:999px;
+  font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:600;
+  border:1px solid transparent; white-space:nowrap;
+}
+.mlb-class.is-education { color:#0070c0; background:#0070c014; border-color:#0070c033; }
+.mlb-class.is-decision { color:#ff9900; background:#ff990014; border-color:#ff990033; }
+.mlb-class.is-report { color:#4ca52d; background:#4ca52d14; border-color:#4ca52d33; }
 
 .mlb-cbody { padding:9px 15px 15px; }
 .mlb-cname { margin:0 0 4px; font-size:15.5px; font-weight:600; letter-spacing:-.01em; line-height:1.25; }

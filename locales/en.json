@@ -107,6 +107,11 @@
     "openReport": "Open report →",
     "comingSoon": "Coming soon",
     "noMatches": "No models match “{query}”.",
-    "backToLibrary": "← Back to Model Library"
+    "backToLibrary": "← Back to Model Library",
+    "class": {
+      "education": "Teaching tool",
+      "decision": "Decision tool",
+      "report": "Client report"
+    }
   }
 }
