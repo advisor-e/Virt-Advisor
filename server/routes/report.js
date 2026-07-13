@@ -11,6 +11,7 @@
 const { computeWorkingCapitalCycle } = require('../report/workingCapitalCycleModel')
 const { computeDebtorCashflow } = require('../report/debtorDragModel')
 const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/marginBreakevenModel')
+const { computeEightLevers } = require('../report/eightLeversModel')
 
 /**
  * POST /api/report/working-capital-cycle
@@ -86,4 +87,23 @@ function marginBreakeven (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven }
+/**
+ * POST /api/report/eight-levers
+ * @param {object} req.body - partial 8 Levers inputs (mix, activityCosts, trading, labour,
+ *   scenarios, broad) — merged over the source-model defaults.
+ * @returns {object} { success, data, timestamp } — all three sheets: calculations, scenarios,
+ *   broadScenarios.
+ */
+function eightLevers (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeEightLevers(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] eight-levers compute failed:', err && err.message)
+    res.send(400, { success: false, error: { code: 'EIGHT_LEVERS_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers }

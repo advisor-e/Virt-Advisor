@@ -95,6 +95,88 @@
     "course": "Great — let's design your learning program together.\n\nA good course starts with understanding what you want to develop and why — then we'll shape the right content, pace, and sequence around you.\n\n**What are the skills or advisory concepts you'd like to develop?**"
   },
   "error": "Sorry, something went wrong. Please try again.",
+  "report": {
+    "eyebrow": "Business Performance Report",
+    "preparedFor": "Prepared for [Client Company] · by [Advisor / Firm]",
+    "illustrative": "Illustrative",
+    "reset": "Reset to defaults",
+    "resetDone": "Reset to defaults.",
+    "loading": "Calculating…",
+    "calcFailedTitle": "The calculation didn't load",
+    "retry": "Try again",
+    "calcUnreachable": "Could not reach the calculation service.",
+    "eightLevers": {
+      "title": "8 Levers",
+      "instruction": "Move a lever and watch the profit move. The point isn't the numbers — it's which lever pays best. A small lift in margin usually beats a big lift in volume.",
+      "market": "Market",
+      "marketHint": "How many potential customers are in the client's market? Size this to the real business — every scenario below is measured against it.",
+      "funnel": "Getting customers",
+      "value": "What each customer is worth",
+      "labourInputs": "Labour",
+      "labourInput": {
+        "totalWages": "Total wages / salaries / drawings",
+        "workers": "Chargeable workers",
+        "hourlyChargeOutRate": "Charge-out rate / hr",
+        "weeklyHours": "Hours worked per week",
+        "productivityPct": "Chargeable time (productivity)",
+        "weeksAnnualLeave": "Annual leave",
+        "sickAndPublicHolidayDays": "Sick days + public holidays"
+      },
+      "lever": {
+        "marketSize": "Market size",
+        "footTrafficPct": "Foot traffic (% of market)",
+        "prospectsPct": "Prospects (% of foot traffic)",
+        "customersPct": "Customers (% of prospects)",
+        "averageSpend": "Average customer spend",
+        "averageFrequency": "Average customer frequency",
+        "marginPct": "Sales margin",
+        "activityCostPct": "Sales activity costs",
+        "fixedCostPct": "Fixed costs"
+      },
+      "revenue": "Revenue",
+      "profit": "Profit",
+      "profitPct": "Profit margin",
+      "customers": "Customers",
+      "chainTitle": "The lever chain",
+      "chainNote": "Every customer is won through this chain. Each step multiplies the last — which is why a small gain early compounds all the way to revenue.",
+      "chain": {
+        "market": "Market size",
+        "footTraffic": "Foot traffic",
+        "prospects": "Prospects",
+        "customers": "Customers",
+        "spend": "Average spend",
+        "frequency": "Frequency",
+        "revenue": "Revenue"
+      },
+      "compareTitle": "Current vs Option B vs Option C",
+      "compareNote": "The two options from the source model. Look at Option C: it earns LESS revenue than Option B, yet makes MORE profit — because the margin lever outweighs the volume lever. That is the whole lesson.",
+      "measure": "Measure",
+      "current": "Current",
+      "optionB": "Option B",
+      "optionC": "Option C",
+      "row": {
+        "customers": "Customers",
+        "spend": "Average spend",
+        "frequency": "Frequency",
+        "revenue": "Revenue",
+        "margin": "Sales margin",
+        "expenses": "Total expenses",
+        "profit": "Profit",
+        "profitIncrease": "Profit increase vs current"
+      },
+      "labourTitle": "Labour productivity",
+      "labourNote": "What the business charges per hour against what it actually pays per hour — once leave, sick days and non-chargeable time are taken out. The gap between the target margin and the achieved margin is the point: the labour lines look far more profitable on paper than they are in practice. Move the labour inputs on the left and watch the gap open or close.",
+      "labourGap": "Target vs achieved gap",
+      "labour": {
+        "chargeOut": "Charge-out rate / hr",
+        "payRate": "Actual pay rate / hr",
+        "targetMargin": "Target labour margin",
+        "actualMargin": "Achieved labour margin",
+        "weeksLost": "Effective weeks lost",
+        "labourRevenue": "Est. labour revenue"
+      }
+    }
+  },
   "modelLibrary": {
     "eyebrow": "Advisor-e · Business Performance",
     "title": "Model Library",

@@ -71,9 +71,12 @@ export const MODELS = [
   { name: '3-Way Forecast Filter', category: 'Cash Flow', summary: 'Linked P&L, balance sheet and cash-flow projections over three years.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'Dashboard Reports', category: 'Cash Flow', summary: 'Monthly and yearly performance dashboards from your accounting data.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'EBITDA & Discounted Cash Flow', category: 'Profitability', summary: 'Earnings before interest/tax/depreciation, and what future cash is worth today.', status: STATUS_SOON, modelClass: CLASS_REPORT },
-  { name: 'Break-Even', category: 'Profitability', summary: 'The sales you need to cover costs — and the margin of safety above it.', status: STATUS_SOON, modelClass: CLASS_EDUCATION },
+  // NB: there is deliberately no separate "Break-Even" entry. Its source workbook
+  // (`Break-Even_.xlsx`) is one of the TWO sources already ported into the model below —
+  // see the header of `server/report/marginBreakevenModel.js`. Listing it separately
+  // advertised a built model as "coming soon". Removed 2026-07-13 with the owner's approval.
   { name: 'Margin · Mark-up · Break-even', category: 'Profitability', summary: 'The pricing trio every quote depends on, in one calculator.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/margin-breakeven' },
-  { name: '8 Levers Model', category: 'Profitability', summary: 'The eight levers that move profit, and which one to pull first.', status: STATUS_SOON, modelClass: CLASS_EDUCATION },
+  { name: '8 Levers Model', category: 'Profitability', summary: 'The eight levers that move profit, and which one to pull first.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/eight-levers' },
   { name: 'Stock Purchasing (Growth Pro)', category: 'Growth', summary: 'Smarter reorder points and buying to free cash without stock-outs.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'Sales Dashboard', category: 'Growth', summary: 'Sales mix, trends and the products carrying the margin.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_SOON, modelClass: CLASS_DECISION },

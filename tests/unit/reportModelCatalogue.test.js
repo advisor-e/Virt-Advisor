@@ -51,13 +51,21 @@ describe('report model catalogue', () => {
       })
     })
 
-    it('points the ready models at the three live report routes', () => {
+    it('points the ready models at the live report routes', () => {
       const ready = MODELS.filter(m => m.status === STATUS_READY)
       expect(ready.map(m => m.route).sort()).toEqual([
         '/business-performance-report',
         '/debtor-drag',
+        '/eight-levers',
         '/margin-breakeven'
       ])
+    })
+
+    it('does not list a separate "Break-Even" model', () => {
+      // Its source workbook (Break-Even_.xlsx) is already ported into the live
+      // Margin · Mark-up · Break-even model, so a separate card advertised a built model
+      // as "coming soon". Removed 2026-07-13. See marginBreakevenModel.js's header.
+      expect(MODELS.map(m => m.name)).not.toContain('Break-Even')
     })
 
     it('links to in-app routes only — never to a mockup file', () => {
@@ -81,7 +89,6 @@ describe('report model catalogue', () => {
 
       expect(by(CLASS_EDUCATION)).toEqual([
         '8 Levers Model',
-        'Break-Even',
         'Debtor Business Drag',
         'Margin · Mark-up · Break-even',
         'Working Capital Cycle'
@@ -96,12 +103,12 @@ describe('report model catalogue', () => {
       expect(by(CLASS_REPORT)).toHaveLength(9)
     })
 
-    it('classes all three BUILT models as Education', () => {
+    it('classes every BUILT model as Education', () => {
       // They are badged "Illustrative" and take no client data — the owner's correction
       // that reframed the whole data-in design. If a built model ever stops being
       // Education, its intake, privacy handling and badge all have to change with it.
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(3)
+      expect(built).toHaveLength(4)
       built.forEach(m => expect(m.modelClass).toBe(CLASS_EDUCATION))
     })
   })
@@ -214,7 +221,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(3)
+      expect(readyCount(MODELS)).toBe(4)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })
