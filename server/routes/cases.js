@@ -3,6 +3,7 @@
 const { appendCoachingEntry } = require('../utils/coaching')
 const { sendError } = require('../utils/sendError')
 const caseStore = require('../utils/caseStore')
+const clientStore = require('../utils/clientStore')
 const { anonymiseCaseContent } = require('../utils/anonymiseCase')
 const { createOpenAIClient } = require('../utils/openaiClient')
 
@@ -77,11 +78,27 @@ async function createCase (req, res) {
   if (!body.title || !String(body.title).trim()) {
     return sendError(res, 400, 'MISSING_FIELDS', 'A case title is required')
   }
+  // Client-knowledge-base link (design 2026-07-14): a clientId in the body must
+  // belong to the caller's OWN firm — reject a foreign/unknown id loudly rather
+  // than silently unlinking (the "no silence" principle from the 2026-07-14
+  // review). Absent clientId is fine: naming the client is skippable.
+  if (body.clientId) {
+    try {
+      const client = await clientStore.getById(String(body.clientId), firmId)
+      if (!client) {
+        return sendError(res, 400, 'INVALID_CLIENT', 'That client is not in your firm’s register')
+      }
+    } catch (err) {
+      console.error('[cases] client validation failed:', err.message)
+      return sendError(res, 500, 'DB_ERROR', 'Could not verify the client')
+    }
+  }
   try {
     const saved = await caseStore.create({
       id: body.id, // preserved if the client supplies one (e.g. localStorage migration); else generated
       advisorId, // from JWT, not the body
       firmId, // from JWT, not the body
+      clientId: body.clientId, // firm-validated above; undefined saves as NULL
       title: body.title,
       mode: body.mode,
       visibility: body.visibility,

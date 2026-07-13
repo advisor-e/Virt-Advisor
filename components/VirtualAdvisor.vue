@@ -205,6 +205,51 @@
       .retry-row(v-if="showRetry && !isStreaming")
         button.retry-btn(@click="retryLastMessage") Try again
 
+      //- Client step — "Who is this session for?" (client knowledge base, design
+      //- 2026-07-14). Shown before the intake begins in client mode. The question
+      //- + explanation copy is Mike's approved wording, verbatim — do not edit.
+      .client-step-card(v-if="showClientStep")
+        p.client-step-title Who is this session for?
+        p.client-step-desc Give me the business name. I'll use it to keep this client's history together — so next time you come back, I can see what we recommended, what worked, and what didn't, and build on it rather than starting again. You can skip this if you'd rather not save it.
+
+        //- Pick from the firm register — you cannot mistype what you never retype
+        .client-step-list(v-if="clientRegister.length && !clientDuplicates.length")
+          button.client-step-opt(
+            v-for="c in clientRegister"
+            :key="c.id"
+            @click="chooseExistingClient(c)"
+          ) {{ c.name }}
+
+        //- "Did you mean…?" — the typed name nearly matches existing clients
+        .client-step-duplicates(v-if="clientDuplicates.length")
+          p.client-step-dup-title Did you mean one of these existing clients?
+          button.client-step-opt(
+            v-for="c in clientDuplicates"
+            :key="c.id"
+            @click="chooseExistingClient(c)"
+          ) {{ c.name }}
+          button.client-step-create-anyway(
+            @click="submitClientName(true)"
+            :disabled="clientStepBusy"
+          ) No — “{{ clientNameInput.trim() }}” is a new client
+
+        //- Type a new business name
+        .client-step-input-row(v-if="!clientDuplicates.length")
+          input.client-step-input(
+            v-model="clientNameInput"
+            :placeholder="clientRegister.length ? 'Or type a new business name…' : 'Business name…'"
+            maxlength="255"
+            @keyup.enter="submitClientName(false)"
+          )
+          button.client-step-continue(
+            @click="submitClientName(false)"
+            :disabled="!clientNameInput.trim() || clientStepBusy"
+          ) Continue
+
+        p.client-step-error(v-if="clientStepError") {{ clientStepError }}
+        p.client-step-note(v-if="clientRegisterError") Your client list couldn’t be loaded — you can still type a name, or skip.
+        button.client-step-skip(@click="skipClientStep") Skip this session
+
       //- Growth Curve selector — shown when AI signals privately owned branch
       .growth-curve-card(v-if="showGrowthCurveSelector")
         p.growth-curve-title Where would you place them on the Growth Curve?
@@ -714,6 +759,7 @@
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import { createCase } from '~/utils/cases'
+import { listClients, createClient } from '~/utils/clients'
 import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
@@ -813,6 +859,18 @@ export default {
       showPrimaryIssueSelector: false,
       selectedPrimaryIssue: null,
       primaryIssueDomain: null,
+      // Client-knowledge-base step (design 2026-07-14): "Who is this session
+      // for?" shown before the intake begins in client mode. sessionClient is
+      // the chosen register entry ({id, name}) or null when skipped — the id
+      // rides on the saved case so the engine can read the client's history back.
+      showClientStep: false,
+      sessionClient: null,
+      clientRegister: [],
+      clientRegisterError: false,
+      clientNameInput: '',
+      clientDuplicates: [],
+      clientStepBusy: false,
+      clientStepError: null,
       // Single source of truth — themes read from data/fin-mgt-table.json (the
       // selector uses name + problem; the file's extra solution/template fields
       // ride along, unused here). Mirrors growthStages / staircaseSteps below.
@@ -1066,6 +1124,9 @@ export default {
           staircaseStep: this.selectedStaircaseStep,
           growthStage: this.selectedGrowthStage,
           finMgtTheme: this.selectedFinMgtTheme,
+          // The client-register link (null when the advisor skipped naming the
+          // client) — this is what lets the engine read the client's history back.
+          clientId: this.sessionClient ? this.sessionClient.id : null,
           // The "why this recommendation" trace, stored so a firm manager can
           // review the reasoning later (null in non-client modes / pre-trace cases).
           decisionTrace: this.lastTrace,
@@ -1092,11 +1153,21 @@ export default {
       this.isStreaming = false
       this.streamingText = ''
       this.mode = selected
+      // Client-step state resets FIRST — the client branch below re-arms it.
+      this.showClientStep = false
+      this.sessionClient = null
+      this.clientNameInput = ''
+      this.clientDuplicates = []
+      this.clientStepError = null
+      this.clientRegisterError = false
       const noConversation = ['course', 'firm']
       if (!noConversation.includes(selected)) {
         if (selected === 'client') {
+          // "Who is this session for?" comes before the intake (design
+          // 2026-07-14) — initClientSession() runs when the step resolves.
           this.messages = []
-          this.initClientSession()
+          this.showClientStep = true
+          this.loadClientRegister()
         } else {
           this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
         }
@@ -1125,6 +1196,62 @@ export default {
       this.selectedPrimaryIssue = null
       this.primaryIssueDomain = null
       this.$nextTick(() => this.scrollToBottom())
+    },
+
+    // ── Client step ("Who is this session for?", design 2026-07-14) ─────────
+    // Runs between picking Client mode and the intake's first question. The
+    // register is the firm's shared list; picking (not retyping) is what stops
+    // duplicate clients. Skipping is always allowed — the session simply builds
+    // no client history.
+
+    async loadClientRegister () {
+      this.clientRegisterError = false
+      try {
+        this.clientRegister = await listClients(this.apiToken)
+      } catch (e) {
+        // The step still works without the register — type a name, or skip.
+        this.clientRegister = []
+        this.clientRegisterError = true
+      }
+    },
+
+    chooseExistingClient (c) {
+      this.sessionClient = { id: c.id, name: c.name }
+      this.finishClientStep()
+    },
+
+    async submitClientName (confirmed) {
+      const name = this.clientNameInput.trim()
+      if (!name || this.clientStepBusy) { return }
+      this.clientStepBusy = true
+      this.clientStepError = null
+      try {
+        const result = await createClient(name, confirmed, this.apiToken)
+        if (result.created === false) {
+          // Near-duplicates: ask "did you mean…?" instead of creating a twin.
+          this.clientDuplicates = result.possibleDuplicates || []
+          return
+        }
+        this.sessionClient = { id: result.client.id, name: result.client.name }
+        this.finishClientStep()
+      } catch (e) {
+        this.clientStepError = 'Could not save the client. You can try again, or skip.'
+      } finally {
+        this.clientStepBusy = false
+      }
+    },
+
+    skipClientStep () {
+      this.sessionClient = null
+      this.finishClientStep()
+    },
+
+    finishClientStep () {
+      this.showClientStep = false
+      this.clientDuplicates = []
+      this.clientNameInput = ''
+      this.clientStepError = null
+      this.initClientSession()
     },
 
     async initClientSession () {
@@ -1228,6 +1355,12 @@ export default {
       this.showPrimaryIssueSelector = false
       this.selectedPrimaryIssue = null
       this.primaryIssueDomain = null
+      this.showClientStep = false
+      this.sessionClient = null
+      this.clientNameInput = ''
+      this.clientDuplicates = []
+      this.clientStepError = null
+      this.clientRegisterError = false
       this.showRetry = false
       this.lastQuery = null
     },
@@ -2275,6 +2408,96 @@ export default {
 }
 .growth-curve-submit:hover:not(:disabled) { background: #15803d; }
 .growth-curve-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+
+/* Client step — "Who is this session for?" (client knowledge base) */
+.client-step-card {
+  margin: 8px 16px 4px;
+  padding: 16px;
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  border-radius: 10px;
+}
+.client-step-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin: 0 0 6px;
+}
+.client-step-desc {
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.client-step-list,
+.client-step-duplicates {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.client-step-dup-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin: 0 0 4px;
+}
+.client-step-opt {
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e40af;
+  transition: background 0.15s, border-color 0.15s;
+}
+.client-step-opt:hover { background: #dbeafe; border-color: #60a5fa; }
+.client-step-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.client-step-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 7px;
+  font-size: 13px;
+}
+.client-step-input:focus { outline: none; border-color: #2563eb; }
+.client-step-continue,
+.client-step-create-anyway {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.client-step-continue:hover:not(:disabled),
+.client-step-create-anyway:hover:not(:disabled) { background: #1d4ed8; }
+.client-step-continue:disabled,
+.client-step-create-anyway:disabled { background: #9ca3af; cursor: not-allowed; }
+.client-step-create-anyway { align-self: flex-start; margin-top: 4px; }
+.client-step-skip {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 2px 0;
+  text-decoration: underline;
+}
+.client-step-skip:hover { color: #374151; }
+.client-step-error { font-size: 12.5px; color: #b91c1c; margin: 0 0 8px; }
+.client-step-note { font-size: 12px; color: #6b7280; margin: 0 0 8px; }
 
 /* Fin Mgt Theme selector */
 .fin-mgt-card {
