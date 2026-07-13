@@ -122,4 +122,43 @@ function formatPriorEngagementText (summary, clientName) {
   return lines.join('\n')
 }
 
-module.exports = { buildPriorEngagementSummary, formatPriorEngagementText, MAX_ENGAGEMENTS }
+// History hold-back — the scoring penalty for a template this client has
+// already received (Option A, product owner 2026-07-14: DISCOURAGED, never
+// banned — a clearly-still-right tool can outscore the penalty). Same magnitude
+// as the resolver's other hold-backs (wrong-industry model, out-of-domain model).
+const HISTORY_HOLDBACK_PENALTY = 15
+
+/**
+ * Derive the resolver's scoring inputs from a client's history summary.
+ * Reviews are CASE-level, so `wentLess` marks every template from that session —
+ * no per-template attribution is invented (that precision arrives with the
+ * per-template outcome capture, Stage 5b). `reviewPainText` is the advisor's
+ * went-less/would-change words, for problem-signal extraction (rule 3).
+ * @param {object|null} summary - from buildPriorEngagementSummary
+ * @returns {{delivered: string[], wentLessTitles: string[], reviewPainText: string}|null}
+ */
+function deriveHistoryScoringInputs (summary) {
+  if (!summary) { return null }
+  const wentLess = new Set()
+  const painParts = []
+  for (const e of (summary.engagements || [])) {
+    if (e.review && (e.review.wentLess || e.review.changesRecommended)) {
+      for (const t of (e.templates || [])) { wentLess.add(t) }
+      if (e.review.wentLess) { painParts.push(e.review.wentLess) }
+      if (e.review.changesRecommended) { painParts.push(e.review.changesRecommended) }
+    }
+  }
+  return {
+    delivered: summary.templatesDelivered || [],
+    wentLessTitles: Array.from(wentLess),
+    reviewPainText: painParts.join(' ')
+  }
+}
+
+module.exports = {
+  buildPriorEngagementSummary,
+  formatPriorEngagementText,
+  deriveHistoryScoringInputs,
+  MAX_ENGAGEMENTS,
+  HISTORY_HOLDBACK_PENALTY
+}

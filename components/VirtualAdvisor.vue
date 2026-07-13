@@ -1069,6 +1069,8 @@ export default {
         if (r.startsWith('tag:')) { return 'matches the area' }
         if (r === 'domain:primary_subsection') { return 'core to this area' }
         if (r.startsWith('engagement:')) { return 'fits the engagement type' }
+        if (r === 'history:already_delivered') { return 'already delivered to this client — held back' }
+        if (r === 'history:went_less_well') { return 'delivered before and went less well — held back' }
         return r
       }).join(', ')
     },

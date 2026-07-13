@@ -35,7 +35,7 @@ const { loadPlatformDistinctions } = require('../server/utils/platformDistinctio
 // case history back at recommendation time.
 const clientStore = require('../server/utils/clientStore')
 const { listForClient } = require('../server/utils/caseStore')
-const { buildPriorEngagementSummary, formatPriorEngagementText } = require('../server/utils/priorEngagement')
+const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistoryScoringInputs } = require('../server/utils/priorEngagement')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -1930,6 +1930,51 @@ async function handleQuery (rawBody, res, identity) {
     const _signals = extractSignals(state, _derivedForSignals)
     const _inferredState = deriveInferredState(_signals, state)
     const _caseState = buildCaseState(_signals, state, staircaseConfig)
+
+    // ── Client knowledge base (design 2026-07-14): read the client's history back.
+    // Loaded HERE — before strategy/resolver — so history informs scoring, not just
+    // the narrative. The clientId came from the session's client step; it must
+    // belong to the caller's OWN firm (clientStore.getById is the IDOR guard) — a
+    // foreign or unknown id is dropped and logged, never trusted. Retrieval goes
+    // through caseStore.listForClient, whose boundary is IDENTICAL to
+    // listForAdvisor: own cases + firm-shared — a colleague's private case never
+    // informs this session. History must never block a recommendation: any
+    // failure degrades to "no history".
+    let _priorClient = null
+    let _priorSummary = null
+    if (clientId && advisorId && firmId) {
+      try {
+        _priorClient = await clientStore.getById(clientId, firmId)
+        if (!_priorClient) {
+          console.warn('[advisor] clientId not in the caller firm register — ignored')
+        } else {
+          const _priorCases = await listForClient(advisorId, firmId, clientId)
+          _priorSummary = buildPriorEngagementSummary(_priorCases)
+        }
+      } catch (err) {
+        console.error('[advisor] prior-engagement load failed:', err.message)
+        _priorClient = null
+        _priorSummary = null
+      }
+    }
+    const _historyInputs = deriveHistoryScoringInputs(_priorSummary)
+
+    // Rule 3 (Option A, product owner 2026-07-14): the advisor's own words about
+    // what went LESS well last time are fresh problem evidence — extract signals
+    // from them and ADD any the current session has not already raised. Additive
+    // only, and never inflating a current signal's count: today's words dominate,
+    // past pain informs. Recorded in the trace (signalsAdded) — never silent.
+    const _historySignalsAdded = []
+    if (_historyInputs && _historyInputs.reviewPainText) {
+      const _reviewSignals = extractProblemSignals(_historyInputs.reviewPainText)
+      for (const _sig of Object.keys(_reviewSignals)) {
+        if (!_caseState.problemSignals[_sig]) {
+          _caseState.problemSignals[_sig] = _reviewSignals[_sig]
+          _historySignalsAdded.push(_sig)
+        }
+      }
+    }
+
     const _strategyDecision = resolveStrategy(_caseState)
 
     // Advisory distinctions — scan ALL advisor text against platform + firm vocabulary
@@ -1987,7 +2032,13 @@ async function handleQuery (rawBody, res, identity) {
 
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
     const _resolverTemplatePool = getOrgTemplates(orgTemplateIds || null, firmTemplates)
-    const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool, { distinctionBoosts: _distinctionBoosts, treeHintNames: _treeHintNames })
+    const _resolvedResult = resolveTemplatesWithOutlier(_caseState, _strategyDecision, _resolverTemplatePool, {
+      distinctionBoosts: _distinctionBoosts,
+      treeHintNames: _treeHintNames,
+      // Client-history hold-back (Option A): already-delivered templates are
+      // discouraged, never banned — visible in the trace via history:* reasons.
+      priorHoldback: _historyInputs
+    })
     const _resolvedTemplates = _resolvedResult.primary // primary used for scoring log / observability
     const _hasOutlier = _resolvedResult.hasOutlier
     const _fallbackExists = _resolvedResult.fallbackExists
@@ -2102,34 +2153,10 @@ async function handleQuery (rawBody, res, identity) {
         ? '\nNO WITHIN-RANGE TEMPLATE: No template within the advisor\'s current parameters covers this situation — include the no-entry-level note after the primary recommendation.'
         : '')
 
-    // ── Client knowledge base (design 2026-07-14): read the client's history back.
-    // The clientId came from the session's client step; it must belong to the
-    // caller's OWN firm — clientStore.getById is the IDOR guard, so a foreign or
-    // unknown id is dropped (logged server-side) and never trusted. Retrieval
-    // goes through caseStore.listForClient, whose boundary is IDENTICAL to
-    // listForAdvisor: the advisor's own cases plus firm-shared ones — a colleague's
-    // private case never informs this session. History must never block a
-    // recommendation: any failure here degrades to "no history".
-    let _priorClient = null
-    let _priorSummary = null
-    if (clientId && advisorId && firmId) {
-      try {
-        _priorClient = await clientStore.getById(clientId, firmId)
-        if (!_priorClient) {
-          console.warn('[advisor] clientId not in the caller firm register — ignored')
-        } else {
-          const _priorCases = await listForClient(advisorId, firmId, clientId)
-          _priorSummary = buildPriorEngagementSummary(_priorCases)
-        }
-      } catch (err) {
-        console.error('[advisor] prior-engagement load failed:', err.message)
-        _priorClient = null
-        _priorSummary = null
-      }
-    }
     // Prompt text is fenced below: review text is the advisor's own free-text
     // words about a real client — treated as hostile prompt input like all
-    // user content, never concatenated raw.
+    // user content, never concatenated raw. (_priorSummary/_priorClient are
+    // loaded further up, BEFORE the resolver, so history informs scoring too.)
     const _priorContext = _priorSummary
       ? [
         '',
@@ -2293,16 +2320,23 @@ async function handleQuery (rawBody, res, identity) {
       // Client knowledge base: the history that informed this recommendation —
       // register name, session count and template titles only, NO internal ids
       // (PII rule). null when no client was named, the id failed the firm check,
-      // or the client has no visible history. usedInScoring stays false until
-      // the resolver actually consumes history (Stage 5) — the trace must never
-      // claim an influence the engine did not have.
+      // or the client has no visible history. usedInScoring is computed from what
+      // ACTUALLY happened (hold-backs applied / signals added) — the trace never
+      // claims an influence the engine did not have.
       priorEngagement: _priorSummary
         ? {
             clientName: _priorClient.name,
             sessions: _priorSummary.sessions,
             lastSessionAt: _priorSummary.lastSessionAt,
             templatesDelivered: _priorSummary.templatesDelivered,
-            usedInScoring: false
+            // Titles the resolver actually penalised in this run (history:* reason
+            // in the scoring log), and past-review signals added to this session.
+            heldBack: (_resolvedTemplates.scoringLog || [])
+              .filter(t => (t.matchReasons || []).some(r => r.indexOf('history:') === 0))
+              .map(t => t.title),
+            signalsAdded: _historySignalsAdded,
+            usedInScoring: _historySignalsAdded.length > 0 || (_resolvedTemplates.scoringLog || [])
+              .some(t => (t.matchReasons || []).some(r => r.indexOf('history:') === 0))
           }
         : null,
       templateScores: (_obsPayload.templateScores || []).map(t => ({
