@@ -103,6 +103,7 @@
     "resetDone": "Reset to defaults.",
     "loading": "Calculating…",
     "calcFailedTitle": "The calculation didn't load",
+    "staleTitle": "These figures are out of date — the last calculation failed",
     "retry": "Try again",
     "calcUnreachable": "Could not reach the calculation service.",
     "eightLevers": {

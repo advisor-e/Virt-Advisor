@@ -83,7 +83,14 @@
         b-button.lev-btn(type="is-primary" @click="reset") {{ $t('report.reset') }}
 
     main.lev-main(v-if="data")
-      .lev-headline
+      //- A failure AFTER the first load must never sit silently behind stale figures — the
+      //- numbers on screen would look live while describing the previous inputs.
+      .lev-stale(v-if="error")
+        .lev-stalehead {{ $t('report.staleTitle') }}
+        p.lev-stalebody {{ error }}
+        b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
+
+      .lev-headline(:class="{ 'is-stale': error }")
         .lev-stat
           .lev-slabel {{ $t('report.eightLevers.revenue') }}
           .lev-sval {{ money(current.revenue) }}
@@ -525,6 +532,16 @@ export default {
 .lev-gap { border-color:var(--lev-accent); background:var(--lev-panel-2); }
 .lev-error { border-color:var(--lev-crit); }
 .lev-error .lev-ph { color:var(--lev-crit); }
+
+/* Stale-figures banner: the calc failed but earlier numbers are still on screen. They must be
+   visibly untrustworthy — stale figures presented as live are worse than no figures at all. */
+.lev-stale {
+  background:#ff000010; border:1px solid var(--lev-crit); border-radius:var(--lev-r);
+  padding:12px 14px; margin-bottom:14px;
+}
+.lev-stalehead { font-size:13px; font-weight:600; color:var(--lev-crit); margin-bottom:3px; }
+.lev-stalebody { font-size:12.5px; color:var(--lev-muted); margin:0 0 9px; line-height:1.5; }
+.is-stale { opacity:.45; filter:grayscale(0.6); }
 
 @media (prefers-color-scheme: dark) {
   .lev-root {
