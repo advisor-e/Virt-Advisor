@@ -107,3 +107,51 @@ describe('caseStore dev fallback', () => {
     expect(review.map(c => c.id).sort()).toEqual(['s1', 's2'])
   })
 })
+
+// Client-knowledge-base link (design 2026-07-14): a case may carry a clientId,
+// and listForClient reuses listForAdvisor's EXACT visibility boundary — a
+// client's history is built from the cases the advisor can already see.
+describe('caseStore clientId + listForClient', () => {
+  test('clientId round-trips; a case saved without one has clientId null', async () => {
+    const withClient = await caseStore.create({ ...base, id: 'c1', visibility: 'private', clientId: 'client-9' })
+    expect(withClient.clientId).toBe('client-9')
+
+    const without = await caseStore.create({ ...base, id: 'c2', visibility: 'private' })
+    expect(without.clientId).toBeNull()
+  })
+
+  test("listForClient returns only that client's cases, newest last-created first", async () => {
+    await caseStore.create({ ...base, id: 'v1', visibility: 'private', clientId: 'vanoss' })
+    await caseStore.create({ ...base, id: 'k1', visibility: 'private', clientId: 'kirkby' })
+    await caseStore.create({ ...base, id: 'v2', visibility: 'private', clientId: 'vanoss' })
+
+    const history = await caseStore.listForClient('a1', 'f1', 'vanoss')
+    expect(history.map(c => c.id).sort()).toEqual(['v1', 'v2'])
+  })
+
+  test("a colleague sees only the SHARED slice of a client's history (the 5b rule)", async () => {
+    await caseStore.create({ ...base, id: 'priv', visibility: 'private', clientId: 'vanoss' })
+    await caseStore.create({ ...base, id: 'shared', visibility: 'shared', clientId: 'vanoss' })
+
+    // Same firm, different advisor: private stays invisible.
+    const colleague = await caseStore.listForClient('a2', 'f1', 'vanoss')
+    expect(colleague.map(c => c.id)).toEqual(['shared'])
+
+    // The owner sees the full history.
+    const owner = await caseStore.listForClient('a1', 'f1', 'vanoss')
+    expect(owner.map(c => c.id).sort()).toEqual(['priv', 'shared'])
+  })
+
+  test('another firm sees nothing of the client history, even for shared cases', async () => {
+    await caseStore.create({ ...base, id: 'shared', visibility: 'shared', clientId: 'vanoss' })
+    expect(await caseStore.listForClient('a9', 'f-other', 'vanoss')).toHaveLength(0)
+  })
+
+  test('unlinked cases (clientId null) never appear in any client history', async () => {
+    await caseStore.create({ ...base, id: 'legacy', visibility: 'shared' }) // pre-feature case
+    await caseStore.create({ ...base, id: 'linked', visibility: 'shared', clientId: 'vanoss' })
+
+    const history = await caseStore.listForClient('a1', 'f1', 'vanoss')
+    expect(history.map(c => c.id)).toEqual(['linked'])
+  })
+})

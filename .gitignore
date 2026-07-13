@@ -52,5 +52,8 @@ data/dev-firm-templates.json
 # Dev-only case studies (created locally when MySQL is unavailable)
 data/dev-cases.json
 
+# Dev-only client register (created locally when MySQL is unavailable)
+data/dev-clients.json
+
 # Local CA cert bundle (machine-specific export from Windows cert store)
 certs/

@@ -84,6 +84,9 @@ function rowToCase (row) {
     id: row.id,
     advisorId: row.advisor_id,
     firmId: row.firm_id,
+    // Client-knowledge-base link (design 2026-07-14). NULL for cases saved
+    // before the feature or where the advisor skipped naming the client.
+    clientId: row.client_id || null,
     title: row.title,
     mode: row.mode,
     visibility: row.visibility,
@@ -143,6 +146,34 @@ async function listForAdvisor (advisorId, firmId) {
     return rows.map(rowToCase)
   } catch (err) {
     if (devFallbackEnabled()) { return _devList(advisorId, firmId) }
+    throw err
+  }
+}
+
+/**
+ * The cases that inform ONE client's knowledge base, for the calling advisor
+ * (design 2026-07-14). The access boundary is IDENTICAL to listForAdvisor: the
+ * advisor's own cases (any visibility) plus the firm's shared ones — sharing a
+ * case is what contributes it to a colleague's knowledge of the client. No new
+ * permission model; a client_id belonging to another firm returns nothing.
+ * @param {string} advisorId - from the verified JWT, never the request body
+ * @param {string} firmId - from the verified JWT
+ * @param {string} clientId - va_clients id (validate firm ownership via clientStore.getById first)
+ * @returns {Promise<object[]>} newest first, capped at 50
+ */
+async function listForClient (advisorId, firmId, clientId) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT * FROM va_case_studies
+        WHERE client_id = ?
+          AND (advisor_id = ? OR (firm_id = ? AND visibility = 'shared'))
+        ORDER BY created_at DESC
+        LIMIT 50`,
+      [clientId, advisorId, firmId]
+    )
+    return rows.map(rowToCase)
+  } catch (err) {
+    if (devFallbackEnabled()) { return _devListForClient(advisorId, firmId, clientId) }
     throw err
   }
 }
@@ -261,6 +292,7 @@ async function create (input) {
     id: (typeof input.id === 'string' && input.id) ? input.id.slice(0, 64) : generateId(),
     advisor_id: String(input.advisorId).slice(0, 64),
     firm_id: String(input.firmId).slice(0, 64),
+    client_id: (typeof input.clientId === 'string' && input.clientId) ? input.clientId.slice(0, 64) : null,
     title: String(input.title || 'Untitled case').slice(0, 255),
     mode: String(input.mode || 'client').slice(0, 32),
     visibility: safeVisibility(input.visibility),
@@ -278,12 +310,12 @@ async function create (input) {
   try {
     await db.execute(
       `INSERT INTO va_case_studies
-         (id, advisor_id, firm_id, title, mode, visibility, domain,
+         (id, advisor_id, firm_id, client_id, title, mode, visibility, domain,
           staircase_step, growth_stage, fin_mgt_theme, templates, summary,
           transcript, decision_trace, feedback_pending)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        row.id, row.advisor_id, row.firm_id, row.title, row.mode, row.visibility,
+        row.id, row.advisor_id, row.firm_id, row.client_id, row.title, row.mode, row.visibility,
         row.domain, row.staircase_step, row.growth_stage, row.fin_mgt_theme,
         row.templates.length ? JSON.stringify(row.templates) : null,
         row.summary,
@@ -450,6 +482,11 @@ function _devList (advisorId, firmId) {
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
 }
 
+/** Mirrors listForClient's SQL: same visibility boundary, filtered to one client. */
+function _devListForClient (advisorId, firmId, clientId) {
+  return _devList(advisorId, firmId).filter(c => c.clientId === clientId)
+}
+
 function _devListSharedForFirm (firmId) {
   return _devReadAll()
     .filter(c => c.firmId === firmId && c.visibility === 'shared')
@@ -537,6 +574,7 @@ function _devRemove (id, advisorId) {
 
 module.exports = {
   listForAdvisor,
+  listForClient,
   listSharedForFirm,
   getSharedForFirm,
   listSharedWithMentor,
