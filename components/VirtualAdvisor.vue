@@ -1273,7 +1273,10 @@ export default {
             languageName: this.currentLanguageName,
             orgTemplateIds: this.orgTemplateIds,
             conversationHistory: [],
-            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null
+            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
+            // The session's client-register link — lets the engine read this
+            // client's history back (firm-validated server-side; null = skipped).
+            clientId: this.sessionClient ? this.sessionClient.id : null
           })
         })
         if (!response.ok) { throw new Error('Request failed') }
@@ -1552,6 +1555,9 @@ export default {
             conversationHistory: this.conversationHistory.slice(0, -1),
             sessionId: this.sessionId,
             advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
+            // The session's client-register link — lets the engine read this
+            // client's history back (firm-validated server-side; null = skipped).
+            clientId: this.sessionClient ? this.sessionClient.id : null,
             caseSummaries: this.relevantCases.map(c => ({
               title: c.title,
               mode: c.mode,
