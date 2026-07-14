@@ -708,29 +708,115 @@ const FRUSTRATION_ACK = 'Sorry — I can tell this is frustrating. Let me move o
 // "a few" → 3. Bare "to" is deliberately NOT mapped — it is a function word
 // ("happy to commit to three") that would mis-parse normal answers. For a range
 // ("two to three") the upper bound is taken so capacity covers all sessions.
-function parseMeetingCount (text) {
-  if (!text || typeof text !== 'string' || text === 'pending') { return null }
+// The most meetings the system will plan for in ONE engagement. Set by the
+// product owner (Mike Barnes, 2026-07-14) at SIX — a deliberate product
+// decision, not a technical limit: a recommendation is a set of specific
+// templates for the specific issues raised today, NOT a long-term annual
+// meeting plan. Beyond six meetings the right move is for the advisor to
+// return with the client's actual progress and re-plan from where they really
+// got to. A stated count above this is CLAMPED and EXPLAINED to the advisor
+// (see the budget notice) — it is never silently discarded, which was the
+// reported defect (Bug 3, engine-defects review 2026-07-14).
+const MEETING_MAX = 6
+
+/**
+ * Parse a free-text meeting-count answer with full detail:
+ *   { count, stated, clamped } — count is the usable number (≤ MEETING_MAX) or
+ *   null when the answer holds no count at all; stated is the number the
+ *   advisor actually gave (pre-clamp, for the "You mentioned {N}" message);
+ *   clamped is true when stated exceeded the ceiling.
+ *
+ * Meeting counts are CLAMPED, not discarded. The range guard exists to stop a
+ * stray figure ("they've got 40 staff") being read as a meeting count — but
+ * when it rejected EVERY number, the answer became indistinguishable from no
+ * answer at all, and the budget's (meetingNum || 1) silently collapsed the
+ * engagement to ONE meeting: "12 meetings" → 1 template, fewer than saying
+ * "two". In-range numbers always win (the stray-figure guard is intact); an
+ * out-of-range figure is used ONLY when no in-range number was given, clamped
+ * to the ceiling.
+ *
+ * Folds in spoken/voice forms so a speech-to-text slip doesn't silently halve
+ * the budget: "too" → two (the live café bug), "a couple" → 2, "a few" → 3,
+ * and number words through twelve — a SPOKEN "twelve meetings" must clamp,
+ * not vanish (the reported bug in a different costume). Bare "to" is
+ * deliberately NOT mapped ("happy to commit to three"). For a range ("two to
+ * three") the upper bound is taken so capacity covers all planned sessions.
+ * @param {string} text - the advisor's answer
+ * @returns {{count: number|null, stated: number|null, clamped: boolean}}
+ */
+function parseMeetingCountDetailed (text) {
+  const none = { count: null, stated: null, clamped: false }
+  if (!text || typeof text !== 'string' || text === 'pending') { return none }
   const t = text.toLowerCase()
-  const map = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, too: 2, couple: 2, few: 3 }
-  const numToken = '(one|two|three|four|five|six|too|couple|few|\\d+)'
+  const map = {
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    eleven: 11,
+    twelve: 12,
+    too: 2,
+    couple: 2,
+    few: 3
+  }
+  const numToken = '(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|too|couple|few|\\d+)'
 
   // Collect EVERY number word/digit in the answer (word-bounded so "one" inside
-  // "money" doesn't match), mapped to a value and capped to a realistic meeting
-  // count (1–6) so a stray figure elsewhere can't skew it.
+  // "money" doesn't match).
   const tokens = t.match(new RegExp('\\b' + numToken + '\\b', 'gi')) || []
-  const nums = tokens
+  const parsed = tokens
     .map(tok => map[tok] || parseInt(tok, 10))
-    .filter(n => Number.isInteger(n) && n >= 1 && n <= 6)
-  if (nums.length === 0) { return null }
+    .filter(n => Number.isInteger(n) && n >= 1)
+
+  const inRange = parsed.filter(n => n <= MEETING_MAX)
+  const aboveRange = parsed.filter(n => n > MEETING_MAX)
+  // An above-ceiling figure is only BELIEVED as a stated meeting count when it
+  // is plausible as one (≤ 2×MEETING_MAX — the extent of the spoken-number
+  // map). Beyond that it is almost certainly a stray figure from elsewhere in
+  // the sentence ("they've got 40 staff") and must not be promoted over an
+  // in-range number.
+  const plausibleAbove = aboveRange.filter(n => n <= MEETING_MAX * 2)
+
+  if (inRange.length === 0) {
+    if (aboveRange.length === 0) { return none }
+    // A real commitment above the ceiling ("12 meetings"). Clamp — never drop.
+    const stated = Math.max(...aboveRange)
+    return { count: MEETING_MAX, stated, clamped: true }
+  }
 
   // When the answer HEDGES to a higher figure — "two possibly three", "two
   // meetings, possibly 3", "2 or 3", "up to 4" — take the upper bound so we fill
   // the engagement to the level agreed, regardless of words sitting between the
   // numbers (the old pattern needed the linking word immediately after the first
   // number, so "two MEETINGS possibly 3" wrongly read as 2). A plain "2 meetings"
-  // (no hedge word) keeps the single figure.
+  // (no hedge word) keeps the single figure. In-range wins over any stray large
+  // figure ("3 to 4 meetings, they have 40 staff" → 4).
   const hedged = /\b(to|or|maybe|possibly|perhaps|ideally|even|up\s+to)\b/.test(t)
-  return hedged ? Math.max(...nums) : nums[0]
+
+  // A hedged range whose upper bound sits just above the ceiling — "6 or 7
+  // meetings" — is a GENUINE stated commitment of 7, not a stray figure. It
+  // must be honoured as stated and the clamp EXPLAINED; the first live retest
+  // (2026-07-14) said "6 or 7" and was silently given 6 — the exact silence
+  // this fix exists to remove. Only plausible figures are promoted, so the
+  // 40-staff stray guard stands.
+  if (hedged && plausibleAbove.length > 0) {
+    const stated = Math.max(...plausibleAbove)
+    return { count: MEETING_MAX, stated, clamped: true }
+  }
+
+  const stated = hedged ? Math.max(...inRange) : inRange[0]
+  return { count: stated, stated, clamped: false }
+}
+
+/** Back-compat wrapper — the usable (clamped) count, or null. */
+function parseMeetingCount (text) {
+  return parseMeetingCountDetailed(text).count
 }
 
 function buildCourseCorrectionMsg (state) {
@@ -1894,8 +1980,11 @@ async function handleQuery (rawBody, res, identity) {
     const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated|spoke\s+to\s+(?:me|us)\s+about|called\s+(?:me|us)\s+about|phoned\s+(?:me|us)|reached\s+out|got\s+in\s+touch|contacted\s+(?:me|us)|they\s+(?:called|rang|phoned|messaged|emailed|texted)/i.test(state.clientRaisedIssue)
 
-    // Parse meeting count — upper bound of a range taken so capacity covers all planned sessions
-    const meetingNum = parseMeetingCount(state.advisorMeetingCount)
+    // Parse meeting count — upper bound of a range taken so capacity covers all
+    // planned sessions; a count above MEETING_MAX is clamped (never discarded)
+    // and the clamp is EXPLAINED to the advisor via the budget notice below.
+    const _meetingParse = parseMeetingCountDetailed(state.advisorMeetingCount)
+    const meetingNum = _meetingParse.count
 
     // Session length → templates per session
     // 30 mins = 0 (not enough for template delivery), 60/90 mins = 1, 120 mins = 2, other = 1
@@ -1905,8 +1994,17 @@ async function handleQuery (rawBody, res, identity) {
     const _sessionLengthMap = { '30 mins': 0, '60 mins': 1, '90 mins': 1, '120 mins': 2, other: 1 }
     const templatesPerSession = _sessionLen !== null ? (_sessionLengthMap[_sessionLen] ?? 1) : 1
 
-    // Template budget = meetings × templates per session, capped at 3 (Cause + Core + Downstream)
-    const templateBudget = Math.min((meetingNum || 1) * templatesPerSession, 3)
+    // Template budget = meetings × templates per session. NO hard ceiling: the
+    // budget follows the engagement the advisor actually committed to (product
+    // owner's rule — "guided by the largest number provided"). The former
+    // Math.min(..., 3) capped every engagement at 3 templates regardless of the
+    // meetings booked; it was never an authorised requirement (engine-defects
+    // review 2026-07-14, Bug 4) and it silently discarded the advisor's stated
+    // capacity. "Cause + Core + Downstream" remains the intended SHAPE of a
+    // recommendation set — guidance for the narrative, not a numeric limit.
+    // MEETING_MAX (6, product owner) bounds meetingNum upstream, so the maximum
+    // is 6 templates (12 only for six 120-minute sessions).
+    const templateBudget = (meetingNum || 1) * templatesPerSession
     const tier1Capacity = templateBudget
 
     // Detect price communication need — scan all substantive answer fields, not just priority/downstream
@@ -2127,6 +2225,28 @@ async function handleQuery (rawBody, res, identity) {
     const _budgetCount = tier1Capacity > 0 ? tier1Capacity : (_strategyDecision.templateBudget || 1)
     const _displayTemplates = buildDisplaySet(_resolvedResult, _budgetCount)
 
+    // ── Budget notice (Bugs 3+4, engine-defects review 2026-07-14) ──────────
+    // Emitted deterministically in CODE and rendered by the UI — never via the
+    // AI, which paraphrases approved copy (code makes macro-decisions, AI
+    // writes copy only). Wording is the product owner's, verbatim — do not
+    // paraphrase; changes go through Mike. The framing line shows on every
+    // recommendation; the cap message ONLY when the stated meeting count
+    // exceeded MEETING_MAX (something was actually reduced — never noise).
+    // matched < templateBudget data rides along for the trace; its
+    // advisor-facing wording is not yet approved, so the UI shows numbers only
+    // when the product owner supplies the line.
+    const _budgetNotice = {
+      framing: 'These are specific templates for the issues you’ve described today — not a long-term meeting plan.',
+      capped: _meetingParse.clamped,
+      statedMeetings: _meetingParse.stated,
+      plannedMeetings: meetingNum,
+      templateBudget,
+      matched: _displayTemplates.length,
+      capMessage: _meetingParse.clamped
+        ? `You mentioned ${_meetingParse.stated} meetings — I’ve planned the first ${MEETING_MAX}. Work through these, then come back and tell me how the client responded. We’ll build the next stage from where they actually get to, rather than guessing it all now.`
+        : null
+    }
+
     let preFilteredNames = null
     if (_displayTemplates.length > 0) {
       preFilteredNames = _displayTemplates.map(t => t.title)
@@ -2317,6 +2437,16 @@ async function handleQuery (rawBody, res, identity) {
         // domain that nevertheless matched this session — candidates to move here.
         nearMisses: _nearMissDistinctions || []
       },
+      // Budget audit (Bugs 3+4): what the advisor STATED vs what was planned,
+      // and whether the six-meeting ceiling fired — so a manager reviewing a
+      // saved case can see the engagement was reduced and told, not silently cut.
+      budget: {
+        statedMeetings: _budgetNotice.statedMeetings,
+        plannedMeetings: _budgetNotice.plannedMeetings,
+        templateBudget: _budgetNotice.templateBudget,
+        matched: _budgetNotice.matched,
+        capped: _budgetNotice.capped
+      },
       // Client knowledge base: the history that informed this recommendation —
       // register name, session count and template titles only, NO internal ids
       // (PII rule). null when no client was named, the id failed the firm check,
@@ -2406,6 +2536,7 @@ async function handleQuery (rawBody, res, identity) {
           }
           state.recommendedTemplates = extractTemplatesFromText(_p3Buffer)
           _decisionTrace.recommendation.selected = state.recommendedTemplates
+          res.write('data: ' + JSON.stringify({ type: 'budget_notice', notice: _budgetNotice }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'trace', trace: _decisionTrace }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'session_meta', domain: state.detectedDomain, templates: state.recommendedTemplates }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'recommendation_delivered' }) + '\n\n')
@@ -2672,5 +2803,7 @@ module.exports.pickLearnTreeAI = pickLearnTreeAI
 module.exports.detectUncertainty = detectUncertainty
 module.exports.detectFrustration = detectFrustration
 module.exports.parseMeetingCount = parseMeetingCount
+module.exports.parseMeetingCountDetailed = parseMeetingCountDetailed
+module.exports.MEETING_MAX = MEETING_MAX
 module.exports.classifyDistinctions = classifyDistinctions
 module.exports.findNearMissDistinctions = findNearMissDistinctions
