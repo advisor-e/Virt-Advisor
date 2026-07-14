@@ -29,6 +29,12 @@
 > uncalculated formulas that a parser reads as ZERO** (§3.1). One mapping remains unverified
 > (§3.6) because the demo org has no inventory or debtor/creditor accounts. Rows still marked
 > ⚠️ are **not safe to build against**.
+>
+> **§3.6 was CLOSED on 2026-07-15** against a populated real-company export pair supplied by
+> the owner (Electric Bikes NZ Limited — Balance Sheet + "Current financial year by month"
+> P&L; held outside the repo with the other exports, never committed). The stock, debtor and
+> creditor mappings are now verified — see **§3.9** — the monthly-sales gap (§3.5) has a real
+> export that fills it, and the totals rule gained a cross-check nuance (§3.1).
 
 **Decisions already taken** (do not re-open — see the plan's decision log):
 
@@ -82,9 +88,9 @@ export.
 | 5 | `discountPct` (V13) | 0.15 | ADVISOR | Pricing decision |
 | 6 | `fullPricePct` (V19) | 1.00 | ADVISOR | Share of units sold at full price. Pricing/mix decision |
 | 7 | `daysDeliverable` (Q20) | 4 | ADVISOR | Operational lead time |
-| 8 | `daysOnHand` (Q23) | 6 | FILE ⚠️ | Days inventory on hand — derivable from Balance Sheet stock ÷ COGS × 365, if the client carries stock |
-| 9 | `daysReceivable` (D22) | 35 | FILE ⚠️ | Debtor days (DSO) — from Aged Receivables, or Receivables ÷ Revenue × 365 |
-| 10 | `daysPayable` (Q13) | 15 | FILE ⚠️ | Creditor days (DPO) — from Aged Payables, or Payables ÷ COGS × 365 |
+| 8 | `daysOnHand` (Q23) | 6 | FILE ✅ | Days inventory on hand — Balance Sheet stock ÷ COGS × 365, if the client carries stock. **Verified 2026-07-15 (§3.9) — but stock can be split across several differently-named rows (one real company: 4 rows); the advisor confirms which rows count** |
+| 9 | `daysReceivable` (D22) | 35 | FILE ✅ | Debtor days (DSO) — from Aged Receivables, or Receivables ÷ Revenue × 365. **Accounts Receivable verified present on a populated Balance Sheet 2026-07-15 (§3.9)** |
+| 10 | `daysPayable` (Q13) | 15 | FILE ✅ | Creditor days (DPO) — from Aged Payables, or Payables ÷ COGS × 365. **Accounts Payable verified present on a populated Balance Sheet 2026-07-15 (§3.9)** |
 | 11 | `fixedCostsMonthly` (D17) | 180 | FILE ✅ | Monthly overheads — P&L operating expenses ÷ months. **Verified: must be SUMMED from the expense line items — the "Total Operating Expenses" row is an uncalculated formula that reads as zero (§3.1)** |
 | 12 | `priorScenarioAnnualRevenue` (V35) | 2543 | **ADVISOR** ❌ | ~~P&L comparative column~~ — **REFUTED (§3.3): the P&L export has a single year column. Prior-year revenue is not in it.** Needs a second P&L, or the advisor enters it |
 
@@ -94,7 +100,7 @@ export.
 
 | # | Input | Default | Source | Where it comes from |
 | --- | --- | --- | --- | --- |
-| 13 | `monthlySales[12]` | 100000 … 324000 | **ADVISOR** ❌ | ~~Xero income-by-month export~~ — **REFUTED (§3.5): the P&L export is annual, not monthly.** Needs a monthly-columns P&L or an income-by-month export |
+| 13 | `monthlySales[12]` | 100000 … 324000 | FILE ✅ *(specific export)* | ~~Standard P&L~~ — refuted (§3.5): the standard export is annual. **✅ 2026-07-15: the "Current financial year by month" P&L export carries all 12 monthly columns (§3.9)** — the advisor must supply that export. Future months read as `0` (not real sales) and the latest month is likely partial — advisor confirms which months are real |
 | 14 | `scenarioA` — the **current** collection profile (`sameMonth`, `month1`, `month2`, `month3`, `month4`, `writeOff`) | .85 / .07 / .05 / 0 / 0 / .03 | **ADVISOR** ❌ | ~~Derivable from the Aged Receivables ageing buckets — the single most valuable thing the file gives us~~ — **REFUTED (§3.4). Aged Receivables ages by DUE DATE: it shows how overdue today's outstanding balances are, NOT what proportion of a month's sales were collected in-month / 1 month late / 2 months late.** That is a payment *history* and it is not in this report. The ageing spread is a rough proxy at best; the real profile needs invoice-level paid-vs-issued dates |
 | 15 | `scenarioB` — the **alternative** collection profile (same six parts) | .72 / .15 / .10 / 0 / 0 / .03 | ADVISOR | This is the what-if the advisor is exploring. It must never be auto-filled — it is the question being asked, not a fact |
 
@@ -108,7 +114,7 @@ should warn the advisor when a profile does not add up, rather than silently reb
 | --- | --- | --- | --- | --- |
 | 16 | `price` | 250 | ADVISOR | Unit sale price — a product fact |
 | 17 | `cost` | 82.50 | ADVISOR | Unit cost — a product fact |
-| 18 | `overheads` (`oh`) | 11 500 | FILE ⚠️ | Monthly overheads — P&L operating expenses |
+| 18 | `overheads` (`oh`) | 11 500 | FILE ✅ | Monthly overheads — P&L operating expenses. Same source and same rule as #11: **summed from the expense line items, never the Total row** |
 | 19 | `ownerDrawings` (`draw`) | 8 600 | FILE ⚠️ | Owner's salary / drawings — P&L or the owner's current account. May be a deliberate *target* rather than actual, in which case ADVISOR |
 | 20 | `priceChangePct` (`wif`) | 0 | ADVISOR | The what-if being explored. Never auto-filled |
 
@@ -122,6 +128,8 @@ should warn the advisor when a profile does not add up, rather than silently reb
 > (`Demo Company (NZ)` — Xero's own demo org, so no client data): Balance Sheet, Profit and
 > Loss, Aged Receivables Summary, Aged Payables Summary. Files live outside the repo at
 > `c:\Some VS Code\Perf Report\xero reports\` and **must not be committed**.
+> **Extended 2026-07-15** with a populated real-company pair in the same folder (Electric
+> Bikes NZ Limited — Balance Sheet + by-month P&L) — see §3.9.
 >
 > **Three assumptions in the first draft were WRONG.** They are struck out below rather than
 > quietly deleted, because each was the kind of error that produces a plausible-looking wrong
@@ -148,6 +156,13 @@ calculated it. On first read of the P&L, every total came back `0`.
 **Rule: the intake MUST compute totals itself by summing the line items, and MUST NEVER read a
 "Total …" row.** A total row that silently reads as zero is precisely the failure mode the
 intake contract exists to prevent — a report full of zeros looks perfectly normal.
+
+**Nuance (2026-07-15).** The populated real-company exports (§3.9) *do* carry cached values in
+their Total rows — so the zero-read is not universal; it depends on how the file was produced.
+The rule is unchanged (we always sum the line items ourselves — a cached value can never be
+relied on to exist), but it gains a free safety net: **when a cached total IS present, compare
+it against our own sum and warn the advisor on a mismatch** rather than silently trusting
+either figure.
 
 ### 3.2 What each export does and does not carry
 
@@ -183,19 +198,36 @@ The ageing distribution is a **rough proxy at best**. The real profile needs inv
 *(Moot for now: the Debtor model is **Education** — it needs no file at all. This matters only
 when a Report-class model needs a real collection profile.)*
 
-### 3.5 ~~Monthly sales from the P&L~~ — NOT AVAILABLE
+### 3.5 ~~Monthly sales from the P&L~~ — NOT AVAILABLE ~~in the standard export~~ — ✅ a specific export fills it (2026-07-15)
 
-The P&L is annual. The twelve monthly sales figures (#13) are not in it. A monthly-columns P&L
-or an income-by-month export would be needed. *(Also moot for now — same reason.)*
+The *standard* P&L is annual. The twelve monthly sales figures (#13) are not in it. A
+monthly-columns P&L or an income-by-month export would be needed.
 
-### 3.6 Could NOT be verified — the demo org is too sparse
+**Update 2026-07-15 — that export exists and was verified (§3.9).** Xero's **"Current
+financial year by month"** P&L layout carries a column per month (Apr → Mar for an NZ tax
+year) plus a Year-to-date column, with income broken out by line item. So #13 is
+FILE-seedable — *when the advisor supplies that specific export*, not the standard P&L. Two
+caveats:
+
+- **Months after the data cut-off appear as `0`.** In the verified file, a year ending
+  31 Mar 2027 had real figures only through July 2026 — every later month reads as a genuine
+  zero to a parser. The intake must not present "no data yet" as real zero sales; the last
+  populated month is also likely *partial*. The advisor confirms which months are real.
+- **It covers the current financial year only** — it does not solve prior-year revenue
+  (#12, §3.3), which stays advisor-entered unless a second export is supplied.
+
+### 3.6 ~~Could NOT be verified — the demo org is too sparse~~ — ✅ CLOSED 2026-07-15
 
 Xero's Demo Company balance sheet holds a bank account, GST, a historical adjustment and
 current-year earnings — **no Inventory, no Accounts Receivable, no Accounts Payable rows at
 all.** So the mapping for **stock on hand (#8)**, and reading debtor/creditor balances off the
-balance sheet, **could not be confirmed**. A real trading company's balance sheet would carry
-those rows; I cannot prove where from this file. **These stay ⚠️ — do not build against them
-until checked against a populated export.**
+balance sheet, **could not be confirmed** from that file.
+
+**CLOSED 2026-07-15 against a populated real-company balance sheet (§3.9).** Accounts
+Receivable, Accounts Payable and Inventory rows are all present and readable — #8, #9 and #10
+are now verified FILE sources. One finding changes the mapping design: **stock was split
+across four differently-named rows** (a main inventory account plus three per-branch stock
+accounts), so a fixed row-name lookup under-reads it — see §3.9.
 
 ### 3.7 The four files do not share a reporting date
 
@@ -210,6 +242,45 @@ Aged Receivables lists customers by name (*Basket Case, Ridgeway University, Cit
 Aged Payables lists suppliers — **and an `Expense Claims` section naming an individual person**.
 This confirms §5: the aged reports must be reduced to bucket totals **on ingest, before
 storage**.
+
+### 3.9 Populated-export verification — 2026-07-15
+
+> Verified against a real trading company's exports supplied by the owner (**Electric Bikes
+> NZ Limited**, lightly pseudonymised at source): a **Balance Sheet** (as at 30 Jun 2026) and
+> a **"Current financial year by month" P&L** (year ending 31 Mar 2027). Same storage rule as
+> the 2026-07-13 files: they live outside the repo at `c:\Some VS Code\Perf Report\xero reports\`
+> and **must not be committed**.
+
+1. **The three missing mappings are confirmed (closes §3.6).** Accounts Receivable
+   ($269,625.19), Accounts Payable ($122,638.52) and Inventory are all present as readable
+   Balance Sheet rows. #8 / #9 / #10 in §2 are upgraded from ⚠️ to verified.
+2. **Stock can be SPLIT across several differently-named rows.** This company carries
+   `Inventory (Unleashed)` ($1,511,124.74) **plus three per-branch stock rows** — Hamilton,
+   Victoria Park and Wellington "P&A Stock" (~$87.5K together). Account names come from each
+   business's own chart of accounts, not a standard; a parser looking for one row literally
+   called "Inventory" silently under-reads this company's stock by ~$87K. **This validates
+   the hybrid-intake decision:** the file *proposes* candidate rows; the advisor confirms
+   which rows count as stock (and as receivables/payables) before the figure is used.
+3. **Cached totals exist in real-org exports (nuance to §3.1).** Unlike the demo files, every
+   Total row here carries a cached value. Rule unchanged — always sum the line items — but a
+   present cached total becomes a cross-check: mismatch → warn the advisor.
+4. **Monthly sales are FILE-seedable via the by-month export (updates §3.5).** All 12 monthly
+   columns + YTD, income broken out by line item. Future months read as `0` and the latest
+   populated month is likely partial — the advisor confirms which months are real.
+5. **Comparative columns are NOT guaranteed.** The demo Balance Sheet carried 4 comparative
+   years; this real one carries a **single date column**. §3.2's "carries 4 comparative
+   years" is a property of *that file*, not of the export type. The parser must handle both.
+6. **The date-mismatch rule (§3.7) fires again.** Balance Sheet as at 30 Jun 2026; the P&L's
+   year ends 31 Mar 2027. Two files, two periods — the intake's date-alignment warning earns
+   its keep on real data.
+7. **Account row LABELS are themselves identifying (feeds §5).** Inside the account names:
+   bank card number suffixes ("business card -4702", "credit card -9084"), personal names as
+   account rows ("Short-term Loan: Mr x", "Equity Mr y" — pseudonymised in this file; real
+   exports will carry real names), named lenders, and branch locations. Scrubbing must treat
+   **row labels** as identifying content — not just the filename, headers and customer lists.
+   The file pair even disagrees on the company's own name (the Balance Sheet shows both the
+   real name and the pseudonym; the P&L only the pseudonym) — company names appear in
+   multiple places per file.
 
 ---
 
@@ -265,6 +336,7 @@ The rule: **identity never leaves the app; only numbers travel.**
 | Bank account and tax/ID numbers | Category labels ("overheads", "debtor days") |
 | **Individual customer names in Aged Receivables** — verified present (*Basket Case, Ridgeway University, City Limousines…*) | Time periods |
 | **Individual supplier names in Aged Payables — and the `Expense Claims` block, which names a real person** (verified) | — |
+| **Balance Sheet account row LABELS** — verified 2026-07-15 (§3.9): bank card number suffixes, personal names ("Short-term Loan: …", "Equity …"), named lenders and branch locations appear inside the account names themselves | — |
 | Accounting firm branding, logo | — |
 | **The uploaded file's own metadata** (filename, author, sheet names — these routinely carry the client's name) | — |
 
@@ -285,25 +357,27 @@ just before the AI call.
 ✅ **RESOLVED — sample export.** Four real Xero exports supplied 2026-07-13 (Demo Company NZ).
 §3 is now verified, and three of this document's assumptions were refuted by them.
 
+✅ **RESOLVED — populated export.** Supplied 2026-07-15 (Electric Bikes NZ Limited). Stock,
+debtor and creditor mappings verified — with the multi-row stock finding — see §3.9.
+
+✅ **HALF-RESOLVED — the two "missing" exports.** **Monthly sales (#13): resolved as (a)** —
+the "Current financial year by month" P&L export carries all 12 monthly columns (verified
+2026-07-15, §3.5/§3.9); the advisor supplies that export. **Prior-year revenue (#12): still
+open** — a second (prior-year) P&L, or advisor-entered.
+
 Still open:
 
-1. **A populated export is still needed.** Xero's demo org is nearly empty — its balance sheet
-   has no Inventory, no Accounts Receivable and no Accounts Payable rows. So **stock on hand
-   (#8) and reading debtor/creditor balances off the balance sheet remain unverified** (§3.6).
-   A balance sheet from a real trading company (dummy figures fine) would close this.
-2. **The two "missing" exports.** Prior-year revenue (#12) and the twelve monthly sales (#13)
-   are **not** in the standard P&L export (§3.3, §3.5). Do we (a) ask the advisor for a second,
-   monthly/comparative P&L, or (b) let them type those figures in? *(Both are Report-class-only
-   concerns — no built model needs them.)*
-3. **The collection profile has no home (§3.4).** If a Report-class model ever needs a true
+1. **Prior-year revenue (#12)** — see above: second export, or typed in? *(Report-class-only —
+   no built model needs it.)*
+2. **The collection profile has no home (§3.4).** If a Report-class model ever needs a true
    collection profile, it needs invoice-level data (paid vs issued dates) — an Aged Receivables
    **Detail** export, not the Summary. Worth confirming whether that export exists in the form
    we'd need.
-4. **`initialInvestment` (#1)** — a real figure off the Balance Sheet, or a scenario number the
+3. **`initialInvestment` (#1)** — a real figure off the Balance Sheet, or a scenario number the
    advisor chooses?
-5. **Owner's drawings (#19)** — actual (from the accounts) or a target (advisor-set)? The
+4. **Owner's drawings (#19)** — actual (from the accounts) or a target (advisor-set)? The
    Margin model treats it as a target to cover.
-6. **Stock.** `daysOnHand` assumes the client carries inventory. What should a Report-class
+5. **Stock.** `daysOnHand` assumes the client carries inventory. What should a Report-class
    model do for a service business with no stock?
 
 ---
