@@ -9,6 +9,10 @@ export default {
       // The full set the advisor may see (own + firm-shared), loaded from the
       // backend. `relevantCases` is derived from this; `myCases` is the own subset.
       visibleCases: [],
+      // The authenticated advisor id as the SERVER returned it (never a
+      // client-held id) — used to scope owner-only features like the
+      // session-start catch-up card.
+      serverAdvisorId: null,
       casesError: false,
       visibilityBusyId: null,
       showCasesPanel: false,
@@ -54,6 +58,7 @@ export default {
       try {
         const { cases, advisorId } = await listCases(this.apiToken)
         this.visibleCases = cases
+        this.serverAdvisorId = advisorId || null
         // "My" cases are the ones the SIGNED-IN advisor owns — keyed on the
         // server-returned identity, not the (possibly placeholder) advisorId
         // prop. Firm-shared cases from others stay in visibleCases (for the AI

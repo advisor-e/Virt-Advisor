@@ -250,6 +250,38 @@
         p.client-step-note(v-if="clientRegisterError") Your client list couldn’t be loaded — you can still type a name, or skip.
         button.client-step-skip(@click="skipClientStep") Skip this session
 
+      //- Catch-up card (Stage 5c) — a returning client has an own case with
+      //- unrecorded template outcomes; ask once with the review-panel chips.
+      //- Heading/copy approved by the product owner (Option 1, 2026-07-14).
+      .catchup-card(v-if="showCatchUp && catchUpCase")
+        p.catchup-title Before we start — how did last time go?
+        p.catchup-desc Last time with {{ sessionClient ? sessionClient.name : 'this client' }} you took away: {{ catchUpCase.templates.join(', ') }}. Recording how each went sharpens what I recommend today.
+        .review-outcome-row(v-for="t in catchUpCase.templates" :key="t")
+          span.review-outcome-name {{ t }}
+          .review-chip-group
+            button.review-chip(
+              v-for="u in [{ v: 'full', l: 'Used fully' }, { v: 'partial', l: 'Partly used' }, { v: 'none', l: 'Didn\\'t use it' }]"
+              :key="u.v"
+              :class="{ 'review-chip-on': catchUpOutcomes[t] && catchUpOutcomes[t].used === u.v }"
+              @click="catchUpSetUsed(t, u.v)"
+            ) {{ u.l }}
+          .review-chip-group(v-if="catchUpOutcomes[t] && catchUpOutcomes[t].used && catchUpOutcomes[t].used !== 'none'")
+            button.review-chip.review-chip-well(
+              :class="{ 'review-chip-on-well': catchUpOutcomes[t].outcome === 'well' }"
+              @click="catchUpSetResult(t, 'well')"
+            ) Landed well
+            button.review-chip.review-chip-less(
+              :class="{ 'review-chip-on-less': catchUpOutcomes[t].outcome === 'less' }"
+              @click="catchUpSetResult(t, 'less')"
+            ) Didn't land
+        p.client-step-error(v-if="catchUpError") {{ catchUpError }}
+        .catchup-actions
+          button.catchup-save(
+            @click="saveCatchUp"
+            :disabled="catchUpBusy || !Object.values(catchUpOutcomes).some(v => v && v.used)"
+          ) Save & continue
+          button.client-step-skip(@click="skipCatchUp") Not now
+
       //- Growth Curve selector — shown when AI signals privately owned branch
       .growth-curve-card(v-if="showGrowthCurveSelector")
         p.growth-curve-title Where would you place them on the Growth Curve?
@@ -782,7 +814,7 @@
 <script>
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
-import { createCase } from '~/utils/cases'
+import { createCase, findUnrecordedCase, updateCaseReview } from '~/utils/cases'
 import { listClients, createClient } from '~/utils/clients'
 import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
@@ -895,6 +927,14 @@ export default {
       clientDuplicates: [],
       clientStepBusy: false,
       clientStepError: null,
+      // Catch-up card (Stage 5c): when the chosen client has an OWN case with
+      // templates but no recorded outcomes, ask once at session start — same
+      // chips as the review panel, always skippable ("Not now").
+      showCatchUp: false,
+      catchUpCase: null,
+      catchUpOutcomes: {},
+      catchUpBusy: false,
+      catchUpError: null,
       // Single source of truth — themes read from data/fin-mgt-table.json (the
       // selector uses name + problem; the file's extra solution/template fields
       // ride along, unused here). Mirrors growthStages / staircaseSteps below.
@@ -1186,6 +1226,11 @@ export default {
       this.clientDuplicates = []
       this.clientStepError = null
       this.clientRegisterError = false
+      this.showCatchUp = false
+      this.catchUpCase = null
+      this.catchUpOutcomes = {}
+      this.catchUpBusy = false
+      this.catchUpError = null
       const noConversation = ['course', 'firm']
       if (!noConversation.includes(selected)) {
         if (selected === 'client') {
@@ -1277,6 +1322,83 @@ export default {
       this.clientDuplicates = []
       this.clientNameInput = ''
       this.clientStepError = null
+      this.maybeShowCatchUp()
+    },
+
+    // ── Catch-up card (Stage 5c, product owner Option 1 2026-07-14) ─────────
+    // A returning client may have an OWN case with delivered templates but no
+    // recorded outcomes. Ask ONCE at session start with the same chips as the
+    // review panel — deterministic taps, no AI interpretation, so nothing can
+    // be misheard. Always skippable; skipping costs nothing (the 14 are the
+    // floor, this is housekeeping like the client step).
+    maybeShowCatchUp () {
+      const c = this.sessionClient
+        ? findUnrecordedCase(this.visibleCases, this.serverAdvisorId, this.sessionClient.id)
+        : null
+      if (!c) {
+        this.initClientSession()
+        return
+      }
+      const outcomes = {}
+      for (const t of c.templates) { outcomes[t] = { used: null, outcome: null } }
+      this.catchUpCase = c
+      this.catchUpOutcomes = outcomes
+      this.catchUpError = null
+      this.showCatchUp = true
+    },
+
+    catchUpSetUsed (title, used) {
+      const entry = this.catchUpOutcomes[title]
+      if (!entry) { return }
+      entry.used = entry.used === used ? null : used
+      if (entry.used === 'none' || entry.used === null) { entry.outcome = null }
+    },
+
+    catchUpSetResult (title, outcome) {
+      const entry = this.catchUpOutcomes[title]
+      if (!entry || entry.used === 'none' || entry.used === null) { return }
+      entry.outcome = entry.outcome === outcome ? null : outcome
+    },
+
+    async saveCatchUp () {
+      if (this.catchUpBusy || !this.catchUpCase) { return }
+      const marked = Object.entries(this.catchUpOutcomes)
+        .filter(([, v]) => v && v.used)
+        .map(([title, v]) => ({ title, used: v.used, outcome: v.outcome || null }))
+      if (marked.length === 0) { return }
+      this.catchUpBusy = true
+      this.catchUpError = null
+      try {
+        const existing = this.catchUpCase.review || {}
+        // Pass the existing review text through — the review update overwrites
+        // all its fields, and the catch-up must never wipe a written review.
+        await updateCaseReview(this.catchUpCase.id, {
+          wentWell: existing.wentWell || '',
+          wentLess: existing.wentLess || '',
+          changesRecommended: existing.changesRecommended || '',
+          templateOutcomes: marked
+        }, this.apiToken)
+        // Refresh BEFORE the session starts, so the engine's server-side read
+        // of this client's history sees the outcomes just recorded — the
+        // catch-up sharpens TODAY's recommendation, not just future ones.
+        await this.refreshMyCases()
+        this.finishCatchUp()
+      } catch (e) {
+        this.catchUpError = 'Could not save. You can try again, or skip — the session will start either way.'
+        this.catchUpBusy = false
+      }
+    },
+
+    skipCatchUp () {
+      this.finishCatchUp()
+    },
+
+    finishCatchUp () {
+      this.showCatchUp = false
+      this.catchUpCase = null
+      this.catchUpOutcomes = {}
+      this.catchUpBusy = false
+      this.catchUpError = null
       this.initClientSession()
     },
 
@@ -1390,6 +1512,11 @@ export default {
       this.clientDuplicates = []
       this.clientStepError = null
       this.clientRegisterError = false
+      this.showCatchUp = false
+      this.catchUpCase = null
+      this.catchUpOutcomes = {}
+      this.catchUpBusy = false
+      this.catchUpError = null
       this.showRetry = false
       this.lastQuery = null
     },
@@ -3057,6 +3184,45 @@ export default {
 .case-review-section { background: #fafbff; border: 1px solid #dbeafe; border-radius: 10px; padding: 16px; }
 .review-heading { font-size: 14px; font-weight: 700; color: #1e40af; margin: 0 0 4px; }
 .review-sub { font-size: 12px; color: #6b7280; margin: 0 0 14px; line-height: 1.4; }
+
+/* Catch-up card (Stage 5c) — session-start outcome recording */
+.catchup-card {
+  margin: 8px 16px 4px;
+  padding: 16px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+}
+.catchup-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+  margin: 0 0 6px;
+}
+.catchup-desc {
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.catchup-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+.catchup-save {
+  background: #d97706;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.catchup-save:hover:not(:disabled) { background: #b45309; }
+.catchup-save:disabled { background: #9ca3af; cursor: not-allowed; }
 
 /* Per-template outcome chips (Stage 5b) */
 .review-outcomes {
