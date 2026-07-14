@@ -104,6 +104,9 @@ function rowToCase (row) {
     summary: row.summary || '',
     transcript: parseJSON(row.transcript, []),
     decisionTrace: parseJSON(row.decision_trace, null),
+    // Per-template outcomes recorded at review time (2026-07-14); null for
+    // pre-feature reviews — consumers fall back to the case-level review.
+    templateOutcomes: parseJSON(row.template_outcomes, null),
     feedbackPending: row.feedback_pending === 1 || row.feedback_pending === true,
     review: (row.review_went_well || row.review_went_less || row.review_changes_recommended || row.reviewed_at)
       ? {
@@ -331,27 +334,80 @@ async function create (input) {
   }
 }
 
+// Per-template outcome enums (product owner 2026-07-14). `used` is required on
+// every entry; `outcome` may be null (e.g. "partly used" with no verdict yet).
+const OUTCOME_USED = ['full', 'partial', 'none']
+const OUTCOME_RESULT = ['well', 'less']
+
 /**
- * Update the post-delivery review on a case the advisor owns.
+ * Sanitise a per-template outcomes payload against the case's OWN template
+ * list. Entries with unknown titles or invalid enums are dropped (a crafted
+ * request must not be able to attach outcomes for templates the case never
+ * delivered — that would poison the client-history hold-back). Returns null
+ * when nothing valid remains, so an absent/garbage payload stores NULL and the
+ * engine falls back to the case-level review.
+ * @param {*} raw - client-supplied array
+ * @param {string[]} caseTemplates - the case's stored template titles
+ * @returns {Array<{title:string, used:string, outcome:string|null}>|null}
+ */
+function sanitiseTemplateOutcomes (raw, caseTemplates) {
+  if (!Array.isArray(raw) || raw.length === 0) { return null }
+  const allowed = new Map((caseTemplates || []).map(t => [String(t).trim().toLowerCase(), String(t)]))
+  const seen = new Set()
+  const out = []
+  for (const entry of raw.slice(0, 20)) {
+    if (!entry || typeof entry !== 'object') { continue }
+    const key = String(entry.title || '').trim().toLowerCase()
+    const canonical = allowed.get(key)
+    if (!canonical || seen.has(key)) { continue }
+    if (!OUTCOME_USED.includes(entry.used)) { continue }
+    const outcome = OUTCOME_RESULT.includes(entry.outcome) ? entry.outcome : null
+    seen.add(key)
+    out.push({ title: canonical, used: entry.used, outcome })
+  }
+  return out.length > 0 ? out : null
+}
+
+/**
+ * Update the post-delivery review on a case the advisor owns — including the
+ * per-template outcomes (which templates were used / half-used and how each
+ * landed). Outcomes are validated against the case's own template list, which
+ * costs one owner-scoped SELECT; an invalid or absent payload stores NULL.
  * @returns {Promise<boolean>} true if a row the advisor owns was updated
  */
 async function updateReview (id, advisorId, review) {
   const wentWell = review && review.wentWell ? String(review.wentWell).slice(0, 5000) : null
   const wentLess = review && review.wentLess ? String(review.wentLess).slice(0, 5000) : null
   const changes = review && review.changesRecommended ? String(review.changesRecommended).slice(0, 5000) : null
+  const rawOutcomes = review ? review.templateOutcomes : null
 
   try {
+    let outcomes = null
+    if (rawOutcomes) {
+      const [rows] = await db.execute(
+        'SELECT templates FROM va_case_studies WHERE id = ? AND advisor_id = ? LIMIT 1',
+        [id, advisorId]
+      )
+      if (rows.length === 0) { return false }
+      outcomes = sanitiseTemplateOutcomes(rawOutcomes, parseJSON(rows[0].templates, []))
+    }
     const [result] = await db.execute(
       `UPDATE va_case_studies
           SET review_went_well = ?, review_went_less = ?,
-              review_changes_recommended = ?, reviewed_at = NOW(),
-              feedback_pending = 0
+              review_changes_recommended = ?, template_outcomes = ?,
+              reviewed_at = NOW(), feedback_pending = 0
         WHERE id = ? AND advisor_id = ?`,
-      [wentWell, wentLess, changes, id, advisorId]
+      [wentWell, wentLess, changes, outcomes ? JSON.stringify(outcomes) : null, id, advisorId]
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) { return _devUpdate(id, advisorId, (c) => { c.review = { wentWell: wentWell || '', wentLess: wentLess || '', changesRecommended: changes || '', reviewedAt: new Date().toISOString() }; c.feedbackPending = false }) }
+    if (devFallbackEnabled()) {
+      return _devUpdate(id, advisorId, (c) => {
+        c.review = { wentWell: wentWell || '', wentLess: wentLess || '', changesRecommended: changes || '', reviewedAt: new Date().toISOString() }
+        c.templateOutcomes = rawOutcomes ? sanitiseTemplateOutcomes(rawOutcomes, c.templates || []) : null
+        c.feedbackPending = false
+      })
+    }
     throw err
   }
 }
@@ -587,5 +643,6 @@ module.exports = {
   // exported for tests
   generateId,
   safeVisibility,
+  sanitiseTemplateOutcomes,
   VISIBILITIES
 }

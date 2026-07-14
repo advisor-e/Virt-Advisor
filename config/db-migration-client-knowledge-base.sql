@@ -53,12 +53,22 @@ CREATE TABLE IF NOT EXISTS `va_clients` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
--- va_case_studies — link each case to its client (nullable).
+-- va_case_studies — link each case to its client (nullable), and record
+-- PER-TEMPLATE outcomes at review time.
 -- ON DELETE SET NULL: if a client record is ever removed, its cases revert to
 -- unlinked rather than being destroyed — case history is never collateral.
+--
+-- `template_outcomes` (product owner, 2026-07-14): the advisor's per-template
+-- record — which templates were actually used, half-used or not used, and how
+-- each landed. Array of { title, used: 'full'|'partial'|'none',
+-- outcome: 'well'|'less'|null }. Written ONLY via the review route (titles are
+-- validated server-side against the case's own template list). NULL for cases
+-- reviewed before this feature — the engine then falls back to the case-level
+-- review, honestly (no per-template attribution is invented).
 -- -----------------------------------------------------------------------------
 ALTER TABLE `va_case_studies`
   ADD COLUMN `client_id` VARCHAR(64) DEFAULT NULL AFTER `firm_id`,
+  ADD COLUMN `template_outcomes` JSON DEFAULT NULL AFTER `review_changes_recommended`,
   ADD KEY `idx_cases_client` (`client_id`),
   ADD CONSTRAINT `fk_cases_client`
     FOREIGN KEY (`client_id`) REFERENCES `va_clients` (`id`) ON DELETE SET NULL;

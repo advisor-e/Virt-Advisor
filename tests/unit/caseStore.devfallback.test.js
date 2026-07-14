@@ -155,3 +155,56 @@ describe('caseStore clientId + listForClient', () => {
     expect(history.map(c => c.id)).toEqual(['linked'])
   })
 })
+
+// Per-template outcomes (Stage 5b, 2026-07-14): recorded at review time, validated
+// against the case's OWN template list so a crafted request cannot attach outcomes
+// for templates the case never delivered (that would poison the history hold-back).
+describe('sanitiseTemplateOutcomes — validation against the case template list', () => {
+  const CASE_TEMPLATES = ['Quick Fire Diagnosis', 'Working Capital Cycle']
+  const { sanitiseTemplateOutcomes } = caseStore
+
+  test('valid entries are kept, titles canonicalised to the case spelling', () => {
+    const out = sanitiseTemplateOutcomes([
+      { title: '  quick fire diagnosis ', used: 'partial', outcome: 'less' },
+      { title: 'Working Capital Cycle', used: 'full', outcome: 'well' }
+    ], CASE_TEMPLATES)
+    expect(out).toEqual([
+      { title: 'Quick Fire Diagnosis', used: 'partial', outcome: 'less' },
+      { title: 'Working Capital Cycle', used: 'full', outcome: 'well' }
+    ])
+  })
+
+  test('unknown titles, bad enums, duplicates and junk entries are dropped', () => {
+    const out = sanitiseTemplateOutcomes([
+      { title: 'Template The Case Never Had', used: 'full', outcome: 'well' }, // foreign title
+      { title: 'Quick Fire Diagnosis', used: 'sort-of', outcome: 'well' }, // bad enum
+      { title: 'Working Capital Cycle', used: 'full', outcome: 'amazingly' }, // bad outcome → null
+      { title: 'Working Capital Cycle', used: 'none', outcome: null }, // duplicate title
+      null, 'garbage', 42
+    ], CASE_TEMPLATES)
+    expect(out).toEqual([{ title: 'Working Capital Cycle', used: 'full', outcome: null }])
+  })
+
+  test('nothing valid → null (stored as NULL; engine falls back to the case-level review)', () => {
+    expect(sanitiseTemplateOutcomes([], CASE_TEMPLATES)).toBeNull()
+    expect(sanitiseTemplateOutcomes(null, CASE_TEMPLATES)).toBeNull()
+    expect(sanitiseTemplateOutcomes([{ title: 'Foreign', used: 'full' }], CASE_TEMPLATES)).toBeNull()
+    expect(sanitiseTemplateOutcomes('not-an-array', CASE_TEMPLATES)).toBeNull()
+  })
+
+  test('outcomes round-trip through the dev store and never accept foreign titles', async () => {
+    await caseStore.create({ ...base, id: 'oc1', visibility: 'private', templates: ['Quick Fire Diagnosis'] })
+    const ok = await caseStore.updateReview('oc1', 'a1', {
+      wentWell: 'good',
+      templateOutcomes: [
+        { title: 'Quick Fire Diagnosis', used: 'partial', outcome: 'less' },
+        { title: 'Never Delivered Tool', used: 'full', outcome: 'well' }
+      ]
+    })
+    expect(ok).toBe(true)
+    const [saved] = await caseStore.listForAdvisor('a1', 'f1')
+    expect(saved.templateOutcomes).toEqual([
+      { title: 'Quick Fire Diagnosis', used: 'partial', outcome: 'less' }
+    ])
+  })
+})

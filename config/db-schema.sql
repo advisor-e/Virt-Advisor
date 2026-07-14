@@ -258,6 +258,11 @@ CREATE TABLE IF NOT EXISTS `va_case_studies` (
   `review_went_well`           TEXT                              DEFAULT NULL,
   `review_went_less`           TEXT                              DEFAULT NULL,
   `review_changes_recommended` TEXT                              DEFAULT NULL,
+  -- Per-template outcomes recorded at review time (product owner 2026-07-14):
+  -- [{ title, used: 'full'|'partial'|'none', outcome: 'well'|'less'|null }].
+  -- Titles validated server-side against the case's own template list. NULL for
+  -- pre-feature reviews — the engine falls back to the case-level review.
+  `template_outcomes`          JSON                              DEFAULT NULL,
   `reviewed_at`                DATETIME                          DEFAULT NULL,
   -- Mentor review (per-case, manager-gated, anonymised — see note above).
   `mentor_shared`              TINYINT(1)               NOT NULL DEFAULT 0,

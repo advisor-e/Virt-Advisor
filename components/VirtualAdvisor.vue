@@ -640,6 +640,30 @@
               h3.review-heading Post-Delivery Review
               p.review-sub After delivering this session to your client, record what actually happened. The AI will use this to improve future recommendations.
 
+              //- Per-template outcomes (Stage 5b, 2026-07-14) — which templates were
+              //- actually used and how each landed. Feeds the template-precise
+              //- hold-back for this client's future sessions.
+              .review-outcomes(v-if="c.templates && c.templates.length && reviewDraft.templateOutcomes")
+                p.review-outcomes-title How did each template go?
+                .review-outcome-row(v-for="t in c.templates" :key="t")
+                  span.review-outcome-name {{ t }}
+                  .review-chip-group
+                    button.review-chip(
+                      v-for="u in [{ v: 'full', l: 'Used fully' }, { v: 'partial', l: 'Partly used' }, { v: 'none', l: 'Didn\\'t use it' }]"
+                      :key="u.v"
+                      :class="{ 'review-chip-on': reviewDraft.templateOutcomes[t] && reviewDraft.templateOutcomes[t].used === u.v }"
+                      @click="setOutcomeUsed(t, u.v)"
+                    ) {{ u.l }}
+                  .review-chip-group(v-if="reviewDraft.templateOutcomes[t] && reviewDraft.templateOutcomes[t].used && reviewDraft.templateOutcomes[t].used !== 'none'")
+                    button.review-chip.review-chip-well(
+                      :class="{ 'review-chip-on-well': reviewDraft.templateOutcomes[t].outcome === 'well' }"
+                      @click="setOutcomeResult(t, 'well')"
+                    ) Landed well
+                    button.review-chip.review-chip-less(
+                      :class="{ 'review-chip-on-less': reviewDraft.templateOutcomes[t].outcome === 'less' }"
+                      @click="setOutcomeResult(t, 'less')"
+                    ) Didn't land
+
               .review-field
                 label.review-label ⚠ What went less well?
                 .review-voice-bar(v-if="speechSupported")
@@ -3033,6 +3057,47 @@ export default {
 .case-review-section { background: #fafbff; border: 1px solid #dbeafe; border-radius: 10px; padding: 16px; }
 .review-heading { font-size: 14px; font-weight: 700; color: #1e40af; margin: 0 0 4px; }
 .review-sub { font-size: 12px; color: #6b7280; margin: 0 0 14px; line-height: 1.4; }
+
+/* Per-template outcome chips (Stage 5b) */
+.review-outcomes {
+  margin: 0 0 16px;
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+.review-outcomes-title { font-size: 13px; font-weight: 600; color: #374151; margin: 0 0 10px; }
+.review-outcome-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border-top: 1px solid #f3f4f6;
+}
+.review-outcome-row:first-of-type { border-top: none; }
+.review-outcome-name {
+  flex: 1 1 100%;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+.review-chip-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.review-chip {
+  padding: 4px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 11.5px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.review-chip:hover { border-color: #9ca3af; }
+.review-chip-on { background: #1e40af; border-color: #1e40af; color: #fff; }
+.review-chip-on-well { background: #16a34a; border-color: #16a34a; color: #fff; }
+.review-chip-on-less { background: #dc2626; border-color: #dc2626; color: #fff; }
 .review-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
 .review-label { font-size: 12px; font-weight: 600; color: #374151; }
 .review-textarea {

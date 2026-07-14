@@ -135,7 +135,10 @@ async function reviewCase (req, res) {
     const ok = await caseStore.updateReview(req.params.id, advisorId, {
       wentWell: body.wentWell,
       wentLess: body.wentLess,
-      changesRecommended: body.changesRecommended
+      changesRecommended: body.changesRecommended,
+      // Per-template outcomes (2026-07-14). Validated in the store against the
+      // case's OWN template list — unknown titles / bad enums are dropped there.
+      templateOutcomes: body.templateOutcomes
     })
     if (!ok) { return sendError(res, 404, 'NOT_FOUND', 'Case not found') }
     res.send(200, { success: true })

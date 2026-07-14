@@ -182,3 +182,104 @@ describe('deriveHistoryScoringInputs — honest case-level attribution', () => {
     expect(inputs.reviewPainText).toBe('')
   })
 })
+
+// Stage 5b: per-template outcomes make the hold-back TEMPLATE-precise —
+// they are authoritative where present; case-level honesty remains the fallback.
+describe('deriveHistoryScoringInputs — per-template outcome precision (5b)', () => {
+  function summaryFrom (cases) { return buildPriorEngagementSummary(cases) }
+
+  test("'didn't use it' removes the hold-back — the client never actually received it", () => {
+    const s = summaryFrom([{
+      title: 'Session',
+      templates: ['Quick Fire Diagnosis', 'Working Capital Cycle'],
+      review: { wentWell: 'fine', wentLess: '', changesRecommended: '' },
+      templateOutcomes: [
+        { title: 'Quick Fire Diagnosis', used: 'full', outcome: 'well' },
+        { title: 'Working Capital Cycle', used: 'none', outcome: null }
+      ],
+      createdAt: '2026-07-01T00:00:00.000Z'
+    }])
+    const inputs = deriveHistoryScoringInputs(s)
+    expect(inputs.delivered).toEqual(['Quick Fire Diagnosis'])
+    expect(inputs.wentLessTitles).toEqual([])
+  })
+
+  test("outcomes are template-precise: only the 'didn't land' template gets the went-less reason, even though the case review has pain text", () => {
+    const s = summaryFrom([{
+      title: 'Combined session',
+      templates: ['Quick Fire Diagnosis', 'Working Capital Cycle'],
+      review: { wentWell: '', wentLess: 'the working capital half dragged', changesRecommended: '' },
+      templateOutcomes: [
+        { title: 'Quick Fire Diagnosis', used: 'full', outcome: 'well' },
+        { title: 'Working Capital Cycle', used: 'partial', outcome: 'less' }
+      ],
+      createdAt: '2026-07-01T00:00:00.000Z'
+    }])
+    const inputs = deriveHistoryScoringInputs(s)
+    // WITHOUT outcomes, case-level honesty would mark BOTH — with them, precision.
+    expect(inputs.wentLessTitles).toEqual(['Working Capital Cycle'])
+    expect(inputs.delivered.sort()).toEqual(['Quick Fire Diagnosis', 'Working Capital Cycle'])
+    // The pain text still rides along for signal extraction.
+    expect(inputs.reviewPainText).toContain('dragged')
+  })
+
+  test('the NEWEST record for a title wins — went badly in June, went well in July → judged on July', () => {
+    const s = summaryFrom([
+      {
+        title: 'July',
+        templates: ['Quick Fire Diagnosis'],
+        review: null,
+        templateOutcomes: [{ title: 'Quick Fire Diagnosis', used: 'full', outcome: 'well' }],
+        createdAt: '2026-07-01T00:00:00.000Z'
+      },
+      {
+        title: 'June',
+        templates: ['Quick Fire Diagnosis'],
+        review: { wentWell: '', wentLess: 'did not land at all', changesRecommended: '' },
+        templateOutcomes: [{ title: 'Quick Fire Diagnosis', used: 'full', outcome: 'less' }],
+        createdAt: '2026-06-01T00:00:00.000Z'
+      }
+    ])
+    const inputs = deriveHistoryScoringInputs(s)
+    expect(inputs.delivered).toEqual(['Quick Fire Diagnosis'])
+    expect(inputs.wentLessTitles).toEqual([]) // July's 'well' outranks June's 'less'
+  })
+
+  test('engagements without outcomes keep the case-level fallback — mixed history behaves per engagement', () => {
+    const s = summaryFrom([
+      {
+        title: 'With outcomes',
+        templates: ['Quick Fire Diagnosis'],
+        review: null,
+        templateOutcomes: [{ title: 'Quick Fire Diagnosis', used: 'none', outcome: null }],
+        createdAt: '2026-07-01T00:00:00.000Z'
+      },
+      {
+        title: 'Pre-feature review',
+        templates: ['Working Capital Cycle'],
+        review: { wentWell: '', wentLess: 'dragged', changesRecommended: '' },
+        createdAt: '2026-06-01T00:00:00.000Z'
+      }
+    ])
+    const inputs = deriveHistoryScoringInputs(s)
+    expect(inputs.delivered).toEqual(['Working Capital Cycle'])
+    expect(inputs.wentLessTitles).toEqual(['Working Capital Cycle'])
+  })
+
+  test('the prompt text shows per-template outcomes in plain words', () => {
+    const s = summaryFrom([{
+      title: 'Session',
+      templates: ['Quick Fire Diagnosis', 'Working Capital Cycle'],
+      review: null,
+      templateOutcomes: [
+        { title: 'Quick Fire Diagnosis', used: 'full', outcome: 'well' },
+        { title: 'Working Capital Cycle', used: 'partial', outcome: 'less' }
+      ],
+      createdAt: '2026-07-01T00:00:00.000Z'
+    }])
+    const { formatPriorEngagementText } = require('../../server/utils/priorEngagement')
+    const text = formatPriorEngagementText(s, 'Vanoss Scaffolding')
+    expect(text).toContain('Quick Fire Diagnosis: used fully, landed well')
+    expect(text).toContain('Working Capital Cycle: partly used, did not land')
+  })
+})
