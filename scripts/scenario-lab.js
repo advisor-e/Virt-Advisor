@@ -55,6 +55,8 @@ function explainReasons (reasons) {
     if (/^growth:/.test(r)) return 'matches the growth stage'
     if (r === 'engagement:primary') return 'fits the engagement style (preferred)'
     if (r === 'engagement:secondary') return 'fits the engagement style'
+    if (r === 'history:already_delivered') return 'already delivered to this client — held back'
+    if (r === 'history:went_less_well') return 'delivered before and went less well — held back'
     return r
   })
 }

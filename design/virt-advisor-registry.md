@@ -232,7 +232,7 @@ Virt Advisor is **8 functions**, not one. The advisor picks a function from the 
 - **Template Import** — `GET/POST/DEL /templates` (import / reset the firm's templates).
 - **Storage usage** — `GET /storage` (per-firm quota view).
 
-**Loop role:** drives the **Stage-7** action — `POST /api/cases/promote` (`firmAuth` + `requireManagerRole`) promotes a strong reviewed case into the coaching reference.
+**Loop role:** drives the **Stage-7** action — `POST /api/cases/promote` (`firmAuth` + `requireManagerRole`) promotes a strong reviewed case into the coaching reference. **Hardened 2026-07-15 (coaching-reference review, Phase 1):** the body carries only `caseId` — the entry is built server-side from the stored case (audit stamps from the JWT + server clock), and lands in the FIRM's own overlay store (`config_key='coaching-reference'`, versioned) rather than the old global file, so one firm's promoted observations never reach another firm's prompts; firm entries are fenced (`fenceUntrusted`) before prompt injection.
 
 **vs everything else:** not a recommendation function — it's the **control surface** that makes the other seven functions' building blocks editable. Closing the "✗ editable" column across Part 2 = bringing more blocks under *these* routes.
 

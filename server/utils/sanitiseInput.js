@@ -49,7 +49,8 @@ function sanitiseInput (raw) {
     caseSummaries: rawCases = [],
     sessionId: rawSessionId,
     advisorId: rawAdvisorId,
-    firmId: rawFirmId
+    firmId: rawFirmId,
+    clientId: rawClientId
   } = raw
 
   const query = typeof rawQuery === 'string' ? rawQuery.slice(0, MAX_QUERY) : ''
@@ -99,6 +100,10 @@ function sanitiseInput (raw) {
     advisorProfile,
     caseContext,
     sessionId: rawSessionId ? String(rawSessionId).slice(0, 64) : null,
+    // Client-register id from the session's client step (design 2026-07-14).
+    // An id only — the engine must still firm-validate it (clientStore.getById)
+    // before reading any history against it.
+    clientId: rawClientId ? String(rawClientId).slice(0, 64) : null,
     orgTemplateIds,
     advisorId: rawAdvisorId ? String(rawAdvisorId).slice(0, 64) : null,
     firmId: rawFirmId ? String(rawFirmId).slice(0, 64) : null

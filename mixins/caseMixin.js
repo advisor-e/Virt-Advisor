@@ -7,12 +7,18 @@ export default {
       // The full set the advisor may see (own + firm-shared), loaded from the
       // backend. `relevantCases` is derived from this; `myCases` is the own subset.
       visibleCases: [],
+      // The authenticated advisor id as the SERVER returned it (never a
+      // client-held id) — used to scope owner-only features like the
+      // session-start catch-up card.
+      serverAdvisorId: null,
       casesError: false,
       visibilityBusyId: null,
       showCasesPanel: false,
       expandedCaseId: null,
       transcriptOpenId: null,
-      reviewDraft: { wentWell: '', wentLess: '', changesRecommended: '' },
+      // templateOutcomes: per-template chips keyed by title —
+      // { [title]: { used: 'full'|'partial'|'none'|null, outcome: 'well'|'less'|null } }
+      reviewDraft: { wentWell: '', wentLess: '', changesRecommended: '', templateOutcomes: {} },
       reviewSavedId: null,
       confirmDeleteId: null,
       promoteSuccessId: null,
@@ -55,6 +61,7 @@ export default {
       try {
         const { cases, advisorId } = await listCases(this.apiToken)
         this.visibleCases = cases
+        this.serverAdvisorId = advisorId || null
         // "My" cases are the ones the SIGNED-IN advisor owns — keyed on the
         // server-returned identity, not the (possibly placeholder) advisorId
         // prop. Firm-shared cases from others stay in visibleCases (for the AI
@@ -74,7 +81,7 @@ export default {
         this.recognition && this.recognition.stop()
         this.reviewRecordingField = null
       }
-      this.reviewDraft = { wentWell: '', wentLess: '', changesRecommended: '' }
+      this.reviewDraft = { wentWell: '', wentLess: '', changesRecommended: '', templateOutcomes: {} }
       this.reviewSavedId = null
       this.confirmDeleteId = null
       this.promoteSuccessId = null
@@ -90,14 +97,50 @@ export default {
       this.confirmDeleteId = null
       this.reviewSavedId = null
       const c = this.myCases.find(c => c.id === id)
+      // Pre-initialise EVERY template's outcome entry so the chip state is
+      // reactive from the start (Vue 2 cannot observe keys added later),
+      // seeding from any outcomes already saved on the case.
+      const outcomes = {}
+      if (c && Array.isArray(c.templates)) {
+        for (const t of c.templates) {
+          const saved = (c.templateOutcomes || []).find(o => o.title === t)
+          outcomes[t] = saved ? { used: saved.used, outcome: saved.outcome } : { used: null, outcome: null }
+        }
+      }
       this.reviewDraft = c && c.review
-        ? { wentWell: c.review.wentWell || '', wentLess: c.review.wentLess || '', changesRecommended: c.review.changesRecommended || '' }
-        : { wentWell: '', wentLess: '', changesRecommended: '' }
+        ? { wentWell: c.review.wentWell || '', wentLess: c.review.wentLess || '', changesRecommended: c.review.changesRecommended || '', templateOutcomes: outcomes }
+        : { wentWell: '', wentLess: '', changesRecommended: '', templateOutcomes: outcomes }
+    },
+
+    // Chip handlers — setting `used` to "didn't use it" clears the landed
+    // verdict (a template that wasn't used cannot have landed).
+    setOutcomeUsed (title, used) {
+      const entry = this.reviewDraft.templateOutcomes[title]
+      if (!entry) { return }
+      entry.used = entry.used === used ? null : used
+      if (entry.used === 'none' || entry.used === null) { entry.outcome = null }
+    },
+
+    setOutcomeResult (title, outcome) {
+      const entry = this.reviewDraft.templateOutcomes[title]
+      if (!entry || entry.used === 'none' || entry.used === null) { return }
+      entry.outcome = entry.outcome === outcome ? null : outcome
     },
 
     async saveReview (caseId) {
       try {
-        await updateCaseReview(caseId, { ...this.reviewDraft, reviewedAt: new Date().toISOString() }, this.apiToken)
+        // The chips map → the API's array shape; only templates the advisor
+        // actually marked are sent (untouched ones stay unrecorded, honestly).
+        const templateOutcomes = Object.entries(this.reviewDraft.templateOutcomes || {})
+          .filter(([, v]) => v && v.used)
+          .map(([title, v]) => ({ title, used: v.used, outcome: v.outcome || null }))
+        await updateCaseReview(caseId, {
+          wentWell: this.reviewDraft.wentWell,
+          wentLess: this.reviewDraft.wentLess,
+          changesRecommended: this.reviewDraft.changesRecommended,
+          templateOutcomes: templateOutcomes.length ? templateOutcomes : null,
+          reviewedAt: new Date().toISOString()
+        }, this.apiToken)
         await this.refreshMyCases()
         this.closeCasesPanel()
       } catch (e) {
@@ -106,25 +149,22 @@ export default {
       }
     },
 
+    /**
+     * Promote a reviewed case into the FIRM's coaching reference.
+     * Sends ONLY the case id — the backend builds the coaching entry from the
+     * stored case and stamps who/when from the verified token, so the promoted
+     * text and audit trail can never be forged from the browser.
+     * @route POST /api/cases/promote (firmAuth + requireManagerRole)
+     */
     async promoteCase (c) {
       this.promoteSuccessId = null
       this.promoteErrorId = null
       const token = this.apiToken || 'dev-local-bypass'
-      const body = {
-        caseTitle: c.title,
-        domain: c.domain || null,
-        templates: c.templates || [],
-        wentWell: c.review && c.review.wentWell ? c.review.wentWell : '',
-        wentLess: c.review && c.review.wentLess ? c.review.wentLess : '',
-        changesRecommended: c.review && c.review.changesRecommended ? c.review.changesRecommended : '',
-        promotedBy: this.advisorId || 'unknown',
-        promotedAt: new Date().toISOString()
-      }
       try {
         const res = await fetch('/api/cases/promote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(body)
+          body: JSON.stringify({ caseId: c.id })
         })
         if (!res.ok) { throw new Error('Request failed') }
         this.promoteSuccessId = c.id
