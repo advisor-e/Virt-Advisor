@@ -212,13 +212,17 @@
         p.client-step-title Who is this session for?
         p.client-step-desc Give me the business name. I'll use it to keep this client's history together — so next time you come back, I can see what we recommended, what worked, and what didn't, and build on it rather than starting again. You can skip this if you'd rather not save it.
 
-        //- Pick from the firm register — you cannot mistype what you never retype
-        .client-step-list(v-if="clientRegister.length && !clientDuplicates.length")
+        //- Pick from the firm register — you cannot mistype what you never
+        //- retype. Empty input = recently-worked clients first (capped);
+        //- typing filters the whole register live (design approved 2026-07-14).
+        .client-step-list(v-if="clientPicker.clients.length && !clientDuplicates.length")
           button.client-step-opt(
-            v-for="c in clientRegister"
+            v-for="c in clientPicker.clients"
             :key="c.id"
             @click="chooseExistingClient(c)"
           ) {{ c.name }}
+        p.client-step-note(v-if="clientPicker.truncated && !clientDuplicates.length")
+          | Showing your recent clients — type to search all {{ clientRegister.length }}.
 
         //- "Did you mean…?" — the typed name nearly matches existing clients
         .client-step-duplicates(v-if="clientDuplicates.length")
@@ -237,7 +241,7 @@
         .client-step-input-row(v-if="!clientDuplicates.length")
           input.client-step-input(
             v-model="clientNameInput"
-            :placeholder="clientRegister.length ? 'Or type a new business name…' : 'Business name…'"
+            :placeholder="clientRegister.length ? 'Type to search your clients, or enter a new business name…' : 'Business name…'"
             maxlength="255"
             @keyup.enter="submitClientName(false)"
           )
@@ -389,6 +393,13 @@
         button.sell-switch-yes(@click="acceptSellSwitch") Yes, help me sell
         button.sell-switch-no(@click="declineSellSwitch") No, stay on this
 
+      //- Budget notice (Bugs 3+4, 2026-07-14) — code-authored, approved copy.
+      //- Framing line on every recommendation; cap message ONLY when the stated
+      //- meeting count exceeded the six-meeting ceiling (never noise).
+      .budget-notice(v-if="budgetNotice && recommendationDelivered")
+        p.budget-notice-framing {{ budgetNotice.framing }}
+        p.budget-notice-cap(v-if="budgetNotice.capMessage") {{ budgetNotice.capMessage }}
+
       //- Why this recommendation — decision trace (shown after a recommendation)
       .trace-panel(v-if="lastTrace && recommendationDelivered")
         button.trace-toggle(@click="showTracePanel = !showTracePanel")
@@ -435,10 +446,13 @@
           button.save-prompt-no(@click="dismissIntake") Not now
 
       //- Save prompt — only shown after Phase 3 recommendation, never alongside a VA question
+      //- Copy is the product-owner-approved case-study nudge (2026-07-14) — the
+      //- promise it makes ("I can see... and pick up from there") is kept by the
+      //- client knowledge base (Stages 4–5c). Do not paraphrase.
       .save-prompt-card(v-if="showSavePrompt")
         .save-prompt-text
-          strong Save this session?
-          span  Keep a record of this conversation as a case study for future reference.
+          strong Save this as a case study.
+          span  When you return, I can see which templates you used and how they landed — and pick up from there.
         .save-prompt-actions
           button.save-prompt-yes(@click="showSavePanel = true; savePromptDismissed = true") Save case study
           button.save-prompt-no(@click="savePromptDismissed = true") Not now
@@ -815,7 +829,7 @@
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import { createCase, findUnrecordedCase, updateCaseReview } from '~/utils/cases'
-import { listClients, createClient } from '~/utils/clients'
+import { listClients, createClient, filterClientRegister } from '~/utils/clients'
 import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
@@ -895,6 +909,9 @@ export default {
       // Decision trace for the "Why this recommendation" panel (set on the SSE
       // 'trace' event at recommendation time); null until a recommendation lands.
       lastTrace: null,
+      // Code-authored budget messages (framing line + cap explanation) — arrive
+      // on the 'budget_notice' SSE event with the trace; approved copy, verbatim.
+      budgetNotice: null,
       showTracePanel: false,
       intakeDismissed: false,
       intakeActive: false,
@@ -954,6 +971,13 @@ export default {
   },
 
   computed: {
+    // Client picker at scale (design approved 2026-07-14): empty input shows
+    // the recently-worked clients (capped); typing filters the whole register
+    // live — the same box creates a new client when nothing matches.
+    clientPicker () {
+      return filterClientRegister(this.clientRegister, this.visibleCases, this.clientNameInput, 8)
+    },
+
     // Decision-trace helpers (the "Why this recommendation" panel).
     traceLensSummary () {
       if (!this.lastTrace) { return '' }
@@ -1246,6 +1270,7 @@ export default {
       this.sessionId = null
       this.recommendationDelivered = false
       this.lastTrace = null
+      this.budgetNotice = null
       this.showTracePanel = false
       this.sessionDomain = null
       this.sessionTemplates = []
@@ -1481,6 +1506,7 @@ export default {
       this.sessionId = null
       this.recommendationDelivered = false
       this.lastTrace = null
+      this.budgetNotice = null
       this.showTracePanel = false
       this.sessionDomain = null
       this.sessionTemplates = []
@@ -1749,6 +1775,10 @@ export default {
               } else if (data.type === 'trace') {
                 // Decision trace — powers the "Why this recommendation" panel.
                 this.lastTrace = data.trace || null
+              } else if (data.type === 'budget_notice') {
+                // Deterministic, code-authored budget messages (Bugs 3+4) —
+                // approved copy arrives ready to render; never AI-paraphrased.
+                this.budgetNotice = data.notice || null
               } else if (data.type === 'recommendation_delivered') {
                 this.recommendationDelivered = true
               } else if (data.type === 'delta') {
@@ -3184,6 +3214,27 @@ export default {
 .case-review-section { background: #fafbff; border: 1px solid #dbeafe; border-radius: 10px; padding: 16px; }
 .review-heading { font-size: 14px; font-weight: 700; color: #1e40af; margin: 0 0 4px; }
 .review-sub { font-size: 12px; color: #6b7280; margin: 0 0 14px; line-height: 1.4; }
+
+/* Budget notice (Bugs 3+4) — code-authored framing + cap explanation */
+.budget-notice {
+  margin: 8px 16px 4px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-left: 3px solid #64748b;
+  border-radius: 6px;
+}
+.budget-notice-framing {
+  font-size: 12px;
+  font-style: italic;
+  color: #64748b;
+  margin: 0;
+}
+.budget-notice-cap {
+  font-size: 12.5px;
+  color: #334155;
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
 
 /* Catch-up card (Stage 5c) — session-start outcome recording */
 .catchup-card {
