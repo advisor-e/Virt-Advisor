@@ -146,25 +146,22 @@ export default {
       }
     },
 
+    /**
+     * Promote a reviewed case into the FIRM's coaching reference.
+     * Sends ONLY the case id — the backend builds the coaching entry from the
+     * stored case and stamps who/when from the verified token, so the promoted
+     * text and audit trail can never be forged from the browser.
+     * @route POST /api/cases/promote (firmAuth + requireManagerRole)
+     */
     async promoteCase (c) {
       this.promoteSuccessId = null
       this.promoteErrorId = null
       const token = this.apiToken || 'dev-local-bypass'
-      const body = {
-        caseTitle: c.title,
-        domain: c.domain || null,
-        templates: c.templates || [],
-        wentWell: c.review && c.review.wentWell ? c.review.wentWell : '',
-        wentLess: c.review && c.review.wentLess ? c.review.wentLess : '',
-        changesRecommended: c.review && c.review.changesRecommended ? c.review.changesRecommended : '',
-        promotedBy: this.advisorId || 'unknown',
-        promotedAt: new Date().toISOString()
-      }
       try {
         const res = await fetch(`${BACKEND}/api/cases/promote`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(body)
+          body: JSON.stringify({ caseId: c.id })
         })
         if (!res.ok) { throw new Error('Request failed') }
         this.promoteSuccessId = c.id

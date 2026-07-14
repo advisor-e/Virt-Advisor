@@ -1,6 +1,6 @@
 'use strict'
 
-const { appendCoachingEntry } = require('../utils/coaching')
+const { appendFirmCoachingEntry } = require('../utils/coaching')
 const { sendError } = require('../utils/sendError')
 const caseStore = require('../utils/caseStore')
 const clientStore = require('../utils/clientStore')
@@ -300,57 +300,70 @@ async function withdrawCaseFromMentor (req, res) {
 }
 
 /**
- * POST /api/cases/promote
+ * POST /api/cases/promote — promote a reviewed case's observations into the
+ * FIRM's coaching reference (firmOverlay config_key 'coaching-reference'), so
+ * the AI picks them up on that firm's next Phase 3 call. Manager-gated
+ * (requireManagerRole in restify-server.js).
  *
- * Promotes a case review observation to data/coaching-reference.json so the
- * AI picks it up on the next Phase 3 call. Requires firm_manager or
- * platform_admin role (enforced by requireManagerRole middleware in restify-server.js).
+ * The body carries ONLY { caseId }. The entry is built server-side from the
+ * STORED case — the old flow trusted the browser for the promoted text and
+ * even the audit stamps, and wrote to a global file shared by every firm.
+ * Both closed here: content comes from the database, promotedBy/promotedAt
+ * come from the verified JWT and the server clock, and the write is scoped to
+ * the caller's firm (with overlay version history).
  *
- * Body:
- *   caseTitle    {string}   — original case study title (used as the template label)
- *   domain       {string}   — detected advisory domain
- *   templates    {string[]} — recommended templates from the session
- *   wentWell     {string}   — what landed well (from post-delivery review)
- *   wentLess     {string}   — what was harder than expected
- *   changesRecommended {string} — what the advisor would do differently
- *   promotedBy   {string}   — advisor/manager email for auditability
- *   promotedAt   {string}   — ISO timestamp
+ * @route POST /api/cases/promote
+ * @param {string} req.body.caseId - a case within the caller's visibility
+ *   boundary (own, or firm-shared) that has a saved review
+ * @returns {200} { success: true, id } · {400} MISSING_CASE_ID | NO_REVIEW
+ * @returns {403} NO_ADVISOR_IDENTITY · {404} NOT_FOUND · {500} PROMOTE_FAILED
  */
-function promote (req, res, next) {
-  const { caseTitle, domain, templates, wentWell, wentLess, changesRecommended, promotedBy, promotedAt } = req.body || {}
-
-  if (!caseTitle || (!wentWell && !wentLess && !changesRecommended)) {
-    return sendError(res, 400, 'INVALID_PAYLOAD', 'caseTitle and at least one review field are required')
+async function promote (req, res) {
+  const advisorId = req.advisorId
+  const firmId = req.firmId
+  if (!advisorId || !firmId) {
+    return sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
   }
-
-  const templateLabel = Array.isArray(templates) && templates.length > 0
-    ? templates[0]
-    : (caseTitle || 'Case observation')
-
-  const scenarios = []
-  if (wentWell) { scenarios.push(wentWell.slice(0, 200)) }
-  if (wentLess) { scenarios.push(`Note: ${wentLess.slice(0, 200)}`) }
-
-  const entry = {
-    template: templateLabel,
-    domain: domain || null,
-    whatToLookFor: wentWell ? wentWell.slice(0, 500) : 'See scenarios',
-    scenarios,
-    whereMayLead: changesRecommended ? changesRecommended.slice(0, 500) : 'Advisor observation — no follow-up recorded',
-    promotedBy: promotedBy || 'unknown',
-    promotedAt: promotedAt || new Date().toISOString(),
-    sourceCase: caseTitle
+  const caseId = (req.body || {}).caseId
+  if (!caseId || typeof caseId !== 'string') {
+    return sendError(res, 400, 'MISSING_CASE_ID', 'caseId is required')
   }
 
   try {
-    appendCoachingEntry(entry)
-    res.send(200, { ok: true })
+    const theCase = await caseStore.getVisibleCase(caseId, advisorId, firmId)
+    if (!theCase) {
+      return sendError(res, 404, 'NOT_FOUND', 'Case not found')
+    }
+    const review = theCase.review || {}
+    if (!review.wentWell && !review.wentLess && !review.changesRecommended) {
+      return sendError(res, 400, 'NO_REVIEW', 'The case needs a saved review before it can be promoted')
+    }
+
+    const templateLabel = Array.isArray(theCase.templates) && theCase.templates.length > 0
+      ? theCase.templates[0]
+      : (theCase.title || 'Case observation')
+
+    const scenarios = []
+    if (review.wentWell) { scenarios.push(review.wentWell.slice(0, 200)) }
+    if (review.wentLess) { scenarios.push(`Note: ${review.wentLess.slice(0, 200)}`) }
+
+    const entry = {
+      template: templateLabel,
+      domain: theCase.domain || null,
+      whatToLookFor: review.wentWell ? review.wentWell.slice(0, 500) : 'See scenarios',
+      scenarios,
+      whereMayLead: review.changesRecommended ? review.changesRecommended.slice(0, 500) : 'Advisor observation — no follow-up recorded',
+      promotedBy: req.userEmail || advisorId,
+      promotedAt: new Date().toISOString(),
+      sourceCase: theCase.title
+    }
+
+    const id = await appendFirmCoachingEntry(firmId, entry, req.userEmail || advisorId)
+    res.send(200, { success: true, id })
   } catch (err) {
     console.error('[cases] promote failed:', err.message)
-    return sendError(res, 500, 'PROMOTE_FAILED', 'Failed to write coaching reference')
+    sendError(res, 500, 'PROMOTE_FAILED', 'Failed to write coaching reference')
   }
-
-  return next()
 }
 
 module.exports = { promote, listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase, anonymiseCasePreview, shareCaseWithMentor, withdrawCaseFromMentor }

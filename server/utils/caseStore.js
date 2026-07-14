@@ -182,6 +182,32 @@ async function listForClient (advisorId, firmId, clientId) {
 }
 
 /**
+ * Fetch ONE case the caller may see: their own (any visibility) or their
+ * firm's 'shared' — the same boundary as listForAdvisor. Used by the promote
+ * flow so the coaching entry is built from the STORED case, never from
+ * client-supplied text. Returns null when missing or out of boundary.
+ * @param {string} id
+ * @param {string} advisorId - from the verified JWT
+ * @param {string} firmId - from the verified JWT
+ * @returns {Promise<object|null>}
+ */
+async function getVisibleCase (id, advisorId, firmId) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT * FROM va_case_studies
+        WHERE id = ?
+          AND (advisor_id = ? OR (firm_id = ? AND visibility = 'shared'))
+        LIMIT 1`,
+      [id, advisorId, firmId]
+    )
+    return rows.length ? rowToCase(rows[0]) : null
+  } catch (err) {
+    if (devFallbackEnabled()) { return _devGetVisible(id, advisorId, firmId) }
+    throw err
+  }
+}
+
+/**
  * List a firm's SHARED case studies across all its advisors, most recent first.
  * For the firm-manager review area. Managers see shared cases only — a private
  * case stays invisible to them (the visibility model is the access boundary), so
@@ -549,6 +575,12 @@ function _devListSharedForFirm (firmId) {
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
 }
 
+/** Mirrors getVisibleCase's SQL: own case (any visibility) or firm-shared. */
+function _devGetVisible (id, advisorId, firmId) {
+  return _devReadAll()
+    .find(c => c.id === id && (c.advisorId === advisorId || (c.firmId === firmId && c.visibility === 'shared'))) || null
+}
+
 function _devGetSharedForFirm (id, firmId) {
   return _devReadAll()
     .find(c => c.id === id && c.firmId === firmId && c.visibility === 'shared') || null
@@ -633,6 +665,7 @@ module.exports = {
   listForClient,
   listSharedForFirm,
   getSharedForFirm,
+  getVisibleCase,
   listSharedWithMentor,
   create,
   updateReview,

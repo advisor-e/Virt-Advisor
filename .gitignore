@@ -48,6 +48,7 @@ data/dev-firm-staircase.json
 
 # Dev-only firm template import (created locally when MySQL is unavailable)
 data/dev-firm-templates.json
+data/dev-firm-coaching.json
 
 # Dev-only case studies (created locally when MySQL is unavailable)
 data/dev-cases.json

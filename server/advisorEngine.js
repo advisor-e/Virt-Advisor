@@ -11,7 +11,7 @@ const fs = require('fs')
 const path = require('path')
 const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
-const { formatCoachingForPrompt } = require('../server/utils/coaching')
+const { formatCoachingForPrompt, loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
@@ -416,7 +416,8 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     maxTemplates = 25,
     excludeSections = [],
     firmTemplates = null,
-    preFilteredNames = null
+    preFilteredNames = null,
+    firmCoaching = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -429,6 +430,9 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const templatesToUse = relevant.length > 0 ? relevant : baseTemplates.slice(0, maxTemplates)
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = includeCoaching ? formatCoachingForPrompt() : null
+  // The firm's own promoted case observations — advisor free text, so the
+  // formatter returns it FENCED (data to weigh, never instructions).
+  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching) : null
   const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
   const growthText = includeGrowthStage
     ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }])
@@ -466,6 +470,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     templatesText,
     sectionDescText ? '\n---\n\n' + sectionDescText : '',
     coachingText ? '\n---\n\n## Coaching Reference\n\n' + coachingText : '',
+    firmCoachingText ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText : '',
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n' + summariesText : '',
     logicTreeText ? '\n---\n\n' + logicTreeText : ''
@@ -1125,6 +1130,13 @@ async function handleQuery (rawBody, res, identity) {
   // Load firm-specific template override once per request — null if none saved
   const firmTemplates = firmId
     ? await loadFirmConfig(firmId, 'templates').catch(() => null)
+    : null
+
+  // The firm's promoted coaching entries (firm-scoped — one firm's promoted
+  // case observations never reach another firm's prompt). Coaching must never
+  // block a session: any load failure degrades to "no firm entries".
+  const firmCoaching = firmId
+    ? await loadFirmCoaching(firmId).catch(() => null)
     : null
 
   // Load the firm's Advisory Staircase override and blend it over the platform
@@ -1821,7 +1833,7 @@ async function handleQuery (rawBody, res, identity) {
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
-      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates }) +
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -2361,7 +2373,8 @@ async function handleQuery (rawBody, res, identity) {
       maxTemplates: 25,
       excludeSections: ['get-organised', 'get-the-job'],
       firmTemplates,
-      preFilteredNames
+      preFilteredNames,
+      firmCoaching
     }) + _preSelectedSummariesText + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     // Phase C/D — merge strategy + resolver decisions into observability snapshot
@@ -2616,6 +2629,8 @@ async function handleQuery (rawBody, res, identity) {
   // Other modes: defer until conversation is deep enough (4+ exchanges).
   const includeCoaching = mode === 'discover' || trimmedHistory.length >= 4
   const coachingText = includeCoaching ? formatCoachingForPrompt() : null
+  // Firm-promoted entries ride the same gate; fenced by the formatter.
+  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching) : null
 
   // Use gpt-4o-mini throughout — fast and more than capable for conversational Q&A.
   const model = 'gpt-4o-mini'
@@ -2689,6 +2704,9 @@ async function handleQuery (rawBody, res, identity) {
     sectionDescText ? '\n---\n\n' + sectionDescText : '',
     coachingText
       ? '\n---\n\n## Coaching Reference — Expert Guidance on Template Selection\n\n' + coachingText
+      : '',
+    firmCoachingText
+      ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText
       : '',
     domainSupportText ? '\n---\n\n' + domainSupportText : '',
     growthText ? '\n---\n\n' + growthText : '',

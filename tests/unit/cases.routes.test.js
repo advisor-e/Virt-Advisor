@@ -8,10 +8,17 @@ jest.mock('../../server/utils/db', () => ({
   execute: jest.fn()
 }))
 
+// Isolate the route from the coaching store — its own behaviour (overlay write,
+// id assignment, dev fallback) is covered in coaching.test.js.
+jest.mock('../../server/utils/coaching', () => ({
+  appendFirmCoachingEntry: jest.fn()
+}))
+
 const db = require('../../server/utils/db')
+const coaching = require('../../server/utils/coaching')
 const {
   listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase,
-  shareCaseWithMentor, withdrawCaseFromMentor
+  shareCaseWithMentor, withdrawCaseFromMentor, promote
 } = require('../../server/routes/cases')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -459,5 +466,123 @@ describe('withdrawCaseFromMentor', () => {
     const res = makeMockRes()
     await withdrawCaseFromMentor(makeReq({ params: { id: 'nope' } }), res)
     expect(res._status).toBe(404)
+  })
+})
+
+// ── promote (firm-scoped coaching reference, 2026-07-15) ─────────────────────
+// The entry is built from the STORED case; the body carries only caseId. The
+// old flow trusted the browser for the promoted text AND the audit stamps and
+// wrote to a global file every firm's prompt read — both closed here.
+
+describe('promote', () => {
+  // A stored, reviewed case as the DB returns it (snake_case row).
+  const reviewedRow = {
+    id: 'c1',
+    advisor_id: 'advisor-from-jwt',
+    firm_id: 'firm-from-jwt',
+    title: 'Cafe cash crunch',
+    mode: 'client',
+    visibility: 'private',
+    domain: 'profit',
+    templates: JSON.stringify(['Working Capital Cycle', 'EOY Meeting']),
+    review_went_well: 'Cash flow visual landed',
+    review_went_less: 'Owner resisted the tax discussion',
+    review_changes_recommended: 'Bring working capital earlier',
+    reviewed_at: '2026-07-14T00:00:00.000Z'
+  }
+
+  test('returns 403 when the verified pass carries no advisor identity', async () => {
+    const res = makeMockRes()
+    await promote(makeReq({ advisorId: null, body: { caseId: 'c1' } }), res)
+    expect(res._status).toBe(403)
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  test('returns 400 when caseId is missing or not a string', async () => {
+    const res = makeMockRes()
+    await promote(makeReq({ body: {} }), res)
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('MISSING_CASE_ID')
+
+    const res2 = makeMockRes()
+    await promote(makeReq({ body: { caseId: { $ne: null } } }), res2)
+    expect(res2._status).toBe(400)
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  test("returns 404 for a case outside the caller's visibility boundary, scoped to the JWT", async () => {
+    db.execute.mockResolvedValue([[]])
+    const res = makeMockRes()
+    await promote(makeReq({ body: { caseId: 'other-firms-case' } }), res)
+    expect(res._status).toBe(404)
+    // The read is scoped to the verified identity — own OR firm-shared.
+    expect(db.execute.mock.calls[0][1]).toEqual(['other-firms-case', 'advisor-from-jwt', 'firm-from-jwt'])
+    expect(coaching.appendFirmCoachingEntry).not.toHaveBeenCalled()
+  })
+
+  test('returns 400 NO_REVIEW when the case has no saved review', async () => {
+    db.execute.mockResolvedValue([[{ ...reviewedRow, review_went_well: null, review_went_less: null, review_changes_recommended: null, reviewed_at: null }]])
+    const res = makeMockRes()
+    await promote(makeReq({ body: { caseId: 'c1' } }), res)
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('NO_REVIEW')
+    expect(coaching.appendFirmCoachingEntry).not.toHaveBeenCalled()
+  })
+
+  test('builds the entry from the STORED case and stamps audit fields server-side', async () => {
+    db.execute.mockResolvedValue([[reviewedRow]])
+    coaching.appendFirmCoachingEntry.mockResolvedValue(1)
+    const res = makeMockRes()
+
+    // Hostile extras in the body must be ignored — only caseId is read.
+    await promote(makeReq({
+      userEmail: 'manager@firm.test',
+      body: {
+        caseId: 'c1',
+        caseTitle: 'FORGED TITLE',
+        wentWell: 'FORGED TEXT',
+        promotedBy: 'attacker@evil.test',
+        promotedAt: '1999-01-01T00:00:00.000Z'
+      }
+    }), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body).toEqual({ success: true, id: 1 })
+
+    const [firmId, entry, savedBy] = coaching.appendFirmCoachingEntry.mock.calls[0]
+    expect(firmId).toBe('firm-from-jwt')
+    expect(savedBy).toBe('manager@firm.test')
+    expect(entry.template).toBe('Working Capital Cycle') // stored templates[0]
+    expect(entry.domain).toBe('profit')
+    expect(entry.whatToLookFor).toBe('Cash flow visual landed')
+    expect(entry.whereMayLead).toBe('Bring working capital earlier')
+    expect(entry.scenarios).toEqual(['Cash flow visual landed', 'Note: Owner resisted the tax discussion'])
+    expect(entry.sourceCase).toBe('Cafe cash crunch')
+    expect(entry.promotedBy).toBe('manager@firm.test') // JWT, not the body
+    expect(entry.promotedAt).not.toBe('1999-01-01T00:00:00.000Z') // server clock
+    expect(JSON.stringify(entry)).not.toContain('FORGED')
+  })
+
+  test('a case with no templates falls back to its title as the label', async () => {
+    db.execute.mockResolvedValue([[{ ...reviewedRow, templates: null }]])
+    coaching.appendFirmCoachingEntry.mockResolvedValue(1)
+    const res = makeMockRes()
+
+    await promote(makeReq({ userEmail: 'manager@firm.test', body: { caseId: 'c1' } }), res)
+
+    expect(res._status).toBe(200)
+    expect(coaching.appendFirmCoachingEntry.mock.calls[0][1].template).toBe('Cafe cash crunch')
+  })
+
+  test('a store failure returns the safe 500 envelope, never internals', async () => {
+    db.execute.mockResolvedValue([[reviewedRow]])
+    coaching.appendFirmCoachingEntry.mockRejectedValue(new Error('SQL blew up at /secret/path'))
+    const res = makeMockRes()
+
+    await promote(makeReq({ userEmail: 'manager@firm.test', body: { caseId: 'c1' } }), res)
+
+    expect(res._status).toBe(500)
+    expect(res._body.error.code).toBe('PROMOTE_FAILED')
+    expect(JSON.stringify(res._body)).not.toContain('/secret/path')
   })
 })
