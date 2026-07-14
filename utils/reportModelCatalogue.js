@@ -42,6 +42,12 @@ export const CLASS_DECISION = 'decision'
 export const CLASS_REPORT = 'report'
 
 /**
+ * The classes in shelf display order (T26): teaching aids first — they are the
+ * safe, no-client-data end of the library — then the tools that take real numbers.
+ */
+export const CLASS_ORDER = [CLASS_EDUCATION, CLASS_DECISION, CLASS_REPORT]
+
+/**
  * Categories, in display order, with the brand colour each card is keyed to.
  * Colours are the Advisor-e palette (see `design/BRAND-TOKENS.md`).
  */
@@ -56,6 +62,9 @@ export const CATEGORIES = [
 
 /** The filter chip shown first, meaning "don't filter by category". */
 export const CATEGORY_ALL = 'All'
+
+/** The class-filter chip shown first, meaning "don't filter by class". */
+export const CLASS_ALL = 'All'
 
 /**
  * The catalogue.
@@ -118,25 +127,32 @@ export function colourFor (category) {
 }
 
 /**
- * Filter the catalogue by category and free-text query.
+ * Filter the catalogue by class, category and free-text query — the three controls
+ * compose, so "Teaching tools + Cash Flow + 'debtors'" narrows through all three.
  *
  * The query matches name, summary and category, case-insensitively, so a search
  * for "cash" finds both the Cash Flow models and any model whose summary mentions
- * cash. A blank query or the `All` category is treated as "no filter".
+ * cash. A blank query, the `All` category or the `All` class is treated as
+ * "no filter".
  *
  * @param {Array<object>} models   the catalogue to filter (defaults to MODELS)
  * @param {object} [options]
- * @param {string} [options.query]     free-text search; blank/whitespace = no filter
- * @param {string} [options.category]  category name, or `All` = no filter
+ * @param {string} [options.query]       free-text search; blank/whitespace = no filter
+ * @param {string} [options.category]    category name, or `All` = no filter
+ * @param {string} [options.modelClass]  class key (education/decision/report), or `All` = no filter
  * @returns {Array<object>} the matching models, in catalogue order
  */
 export function filterModels (models = MODELS, options = {}) {
   const list = Array.isArray(models) ? models : []
   const category = options.category || CATEGORY_ALL
+  const modelClass = options.modelClass || CLASS_ALL
   const raw = (options.query === null || options.query === undefined) ? '' : options.query
   const query = String(raw).trim().toLowerCase()
 
   return list.filter((m) => {
+    if (modelClass !== CLASS_ALL && m.modelClass !== modelClass) {
+      return false
+    }
     if (category !== CATEGORY_ALL && m.category !== category) {
       return false
     }
@@ -145,6 +161,31 @@ export function filterModels (models = MODELS, options = {}) {
     }
     return `${m.name} ${m.summary} ${m.category}`.toLowerCase().includes(query)
   })
+}
+
+/**
+ * Group a (usually already-filtered) model list into the three class shelves,
+ * in `CLASS_ORDER` (T26). Models keep their relative order inside each shelf.
+ *
+ * A model whose class is unrecognised is NOT silently dropped — it lands in a
+ * trailing `other` group so a data mistake is visible on screen rather than a
+ * model quietly vanishing from the library.
+ *
+ * @param {Array<object>} models
+ * @returns {Array<{classKey: string, models: Array<object>}>} one entry per
+ *   non-empty shelf, in display order
+ */
+export function groupByClass (models = MODELS) {
+  const list = Array.isArray(models) ? models : []
+  const groups = CLASS_ORDER.map(classKey => ({
+    classKey,
+    models: list.filter(m => m && m.modelClass === classKey)
+  }))
+  const other = list.filter(m => m && !CLASS_ORDER.includes(m.modelClass))
+  if (other.length) {
+    groups.push({ classKey: 'other', models: other })
+  }
+  return groups.filter(g => g.models.length > 0)
 }
 
 /**

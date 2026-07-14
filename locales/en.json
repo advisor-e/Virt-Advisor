@@ -185,6 +185,8 @@
     "searchPlaceholder": "Search models — e.g. cash, profit, debtors, valuation…",
     "searchLabel": "Search models",
     "filterLabel": "Filter models by category",
+    "classFilterLabel": "Filter models by type",
+    "classAll": "All",
     "categoryAll": "All",
     "count": "{shown} of {total} models · {ready} ready",
     "openReport": "Open report →",
@@ -195,6 +197,21 @@
       "education": "Teaching tool",
       "decision": "Decision tool",
       "report": "Client report"
+    },
+    "shelfCount": "{n} model | {n} models",
+    "shelf": {
+      "education": {
+        "title": "Teaching tools",
+        "sub": "Illustrative numbers that make a concept land. No client data."
+      },
+      "decision": {
+        "title": "Decision tools",
+        "sub": "The client's real numbers, entered on screen with the advisor."
+      },
+      "report": {
+        "title": "Client reports",
+        "sub": "Built from the client's accounts."
+      }
     }
   }
 }

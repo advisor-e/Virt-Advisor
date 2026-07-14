@@ -15,7 +15,19 @@
         )
       .mlb-count(aria-live="polite") {{ countLabel }}
 
-    .mlb-chips(role="group" :aria-label="$t('modelLibrary.filterLabel')")
+    .mlb-chips.mlb-chips-class(role="group" :aria-label="$t('modelLibrary.classFilterLabel')")
+      button.mlb-chip(
+        v-for="chip in classChips"
+        :key="`class-${chip}`"
+        type="button"
+        :class="{ 'is-on': chip === classFilter }"
+        :aria-pressed="String(chip === classFilter)"
+        @click="classFilter = chip"
+      ) {{ chip === allClass ? $t('modelLibrary.classAll') : $t(`modelLibrary.shelf.${chip}.title`) }}
+
+    //- The topic row is a drill-down: it only appears once a type is chosen
+    //- (owner ruling 2026-07-15), so the first page stays a single, simple choice.
+    .mlb-chips(v-if="classFilter !== allClass" role="group" :aria-label="$t('modelLibrary.filterLabel')")
       button.mlb-chip(
         v-for="chip in chips"
         :key="chip"
@@ -25,47 +37,53 @@
         @click="category = chip"
       ) {{ chip === allChip ? $t('modelLibrary.categoryAll') : chip }}
 
-    .mlb-grid(v-if="visibleModels.length")
-      component.mlb-card(
-        v-for="model in visibleModels"
-        :key="model.name"
-        :is="openable(model) ? 'nuxt-link' : 'div'"
-        v-bind="openable(model) ? { to: model.route } : {}"
-        :class="{ 'is-soon': !openable(model) }"
-      )
-        .mlb-chead
-          .mlb-ico(:style="{ background: iconBackground(model.category) }")
-            svg(viewBox="0 0 24 24" aria-hidden="true")
-              template(v-if="model.category === 'Cash Flow'")
-                path(d="M5 8a7 7 0 0 1 12-2")
-                path(d="M19 6v4h-4")
-                path(d="M19 16a7 7 0 0 1-12 2")
-                path(d="M5 18v-4h4")
-              template(v-else-if="model.category === 'Profitability'")
-                line(x1="6" y1="20" x2="6" y2="13")
-                line(x1="12" y1="20" x2="12" y2="9")
-                line(x1="18" y1="20" x2="18" y2="5")
-              template(v-else-if="model.category === 'Growth'")
-                polyline(points="4,16 10,11 14,14 20,7")
-                polyline(points="15,7 20,7 20,12")
-              template(v-else-if="model.category === 'Valuation'")
-                ellipse(cx="12" cy="7" rx="7" ry="3")
-                path(d="M5 7v6c0 1.7 3.1 3 7 3s7-1.3 7-3V7")
-              template(v-else-if="model.category === 'Budgeting'")
-                line(x1="7" y1="8" x2="17" y2="8")
-                line(x1="7" y1="12" x2="17" y2="12")
-                line(x1="7" y1="16" x2="13" y2="16")
-              template(v-else-if="model.category === 'Risk'")
-                polyline(points="3,14 8,8 12,13 16,6 21,12")
-          .mlb-ctag {{ model.category }}
-          span.mlb-class(:class="`is-${model.modelClass}`") {{ classLabel(model) }}
+    template(v-if="visibleModels.length")
+      section.mlb-shelf(v-for="shelf in shelves" :key="shelf.classKey")
+        .mlb-shelf-head
+          h2.mlb-shelf-title {{ shelfTitle(shelf) }}
+          span.mlb-shelf-count {{ $tc('modelLibrary.shelfCount', shelf.models.length) }}
+        p.mlb-shelf-sub(v-if="shelfSub(shelf)") {{ shelfSub(shelf) }}
+        .mlb-grid
+          component.mlb-card(
+            v-for="model in shelf.models"
+            :key="model.name"
+            :is="openable(model) ? 'nuxt-link' : 'div'"
+            v-bind="openable(model) ? { to: model.route } : {}"
+            :class="{ 'is-soon': !openable(model) }"
+          )
+            .mlb-chead
+              .mlb-ico(:style="{ background: iconBackground(model.category) }")
+                svg(viewBox="0 0 24 24" aria-hidden="true")
+                  template(v-if="model.category === 'Cash Flow'")
+                    path(d="M5 8a7 7 0 0 1 12-2")
+                    path(d="M19 6v4h-4")
+                    path(d="M19 16a7 7 0 0 1-12 2")
+                    path(d="M5 18v-4h4")
+                  template(v-else-if="model.category === 'Profitability'")
+                    line(x1="6" y1="20" x2="6" y2="13")
+                    line(x1="12" y1="20" x2="12" y2="9")
+                    line(x1="18" y1="20" x2="18" y2="5")
+                  template(v-else-if="model.category === 'Growth'")
+                    polyline(points="4,16 10,11 14,14 20,7")
+                    polyline(points="15,7 20,7 20,12")
+                  template(v-else-if="model.category === 'Valuation'")
+                    ellipse(cx="12" cy="7" rx="7" ry="3")
+                    path(d="M5 7v6c0 1.7 3.1 3 7 3s7-1.3 7-3V7")
+                  template(v-else-if="model.category === 'Budgeting'")
+                    line(x1="7" y1="8" x2="17" y2="8")
+                    line(x1="7" y1="12" x2="17" y2="12")
+                    line(x1="7" y1="16" x2="13" y2="16")
+                  template(v-else-if="model.category === 'Risk'")
+                    polyline(points="3,14 8,8 12,13 16,6 21,12")
+              .mlb-ctag {{ model.category }}
+              span.mlb-class(:class="`is-${model.modelClass}`") {{ classLabel(model) }}
 
-        .mlb-cbody
-          h2.mlb-cname {{ model.name }}
-          p.mlb-csum {{ model.summary }}
-          span.mlb-status(:class="openable(model) ? 'is-ready' : 'is-soon'")
-            span.mlb-dot
-            | {{ openable(model) ? $t('modelLibrary.openReport') : $t('modelLibrary.comingSoon') }}
+            .mlb-cbody
+              h3.mlb-cname {{ model.name }}
+              p.mlb-csum {{ model.summary }}
+              span.mlb-status(:class="openable(model) ? 'is-ready' : 'is-soon'")
+                span.mlb-dot
+                | {{ openable(model) ? $t('modelLibrary.openReport') : $t('modelLibrary.comingSoon') }}
 
     .mlb-empty(v-else) {{ $t('modelLibrary.noMatches', { query: query }) }}
 </template>
@@ -88,7 +106,10 @@ import {
   MODELS,
   CATEGORIES,
   CATEGORY_ALL,
+  CLASS_ALL,
+  CLASS_ORDER,
   filterModels,
+  groupByClass,
   readyCount,
   colourFor,
   isOpenable
@@ -101,22 +122,43 @@ export default {
     return {
       /** Free-text search, matched against name, summary and category. */
       query: '',
+      /** Active class filter (T26); `CLASS_ALL` means no class filter. */
+      classFilter: CLASS_ALL,
       /** Active category filter; `CATEGORY_ALL` means no category filter. */
       category: CATEGORY_ALL,
       models: MODELS,
-      allChip: CATEGORY_ALL
+      allChip: CATEGORY_ALL,
+      allClass: CLASS_ALL
     }
   },
 
   computed: {
+    /** `All` first, then the three classes in shelf order (T26). */
+    classChips () {
+      return [CLASS_ALL].concat(CLASS_ORDER)
+    },
+
     /** `All` first, then the categories in their catalogue display order. */
     chips () {
       return [CATEGORY_ALL].concat(CATEGORIES.map(c => c.name))
     },
 
-    /** The catalogue narrowed by the current search box and category chip. */
+    /** The catalogue narrowed by the current search box, class chip and category chip. */
     visibleModels () {
-      return filterModels(this.models, { query: this.query, category: this.category })
+      return filterModels(this.models, {
+        query: this.query,
+        category: this.category,
+        modelClass: this.classFilter
+      })
+    },
+
+    /**
+     * The filtered models split into the three class shelves (T26) — Teaching tools,
+     * Decision tools, Client reports — in `CLASS_ORDER`. Empty shelves are omitted,
+     * so a narrow filter collapses to the shelves that still have cards.
+     */
+    shelves () {
+      return groupByClass(this.visibleModels)
     },
 
     /** e.g. "5 of 19 models · 3 ready" */
@@ -126,6 +168,16 @@ export default {
         total: this.models.length,
         ready: readyCount(this.models)
       })
+    }
+  },
+
+  watch: {
+    /**
+     * The topic row is hidden until a type is chosen, so a topic picked earlier
+     * must never keep filtering invisibly — changing type resets topic to All.
+     */
+    classFilter () {
+      this.category = CATEGORY_ALL
     }
   },
 
@@ -143,6 +195,21 @@ export default {
      */
     classLabel (model) {
       return this.$t(`modelLibrary.class.${model.modelClass}`)
+    },
+
+    /**
+     * The shelf heading. Falls back to the raw class key for an unknown class —
+     * fail loudly and visibly rather than dropping the shelf (see `groupByClass`).
+     */
+    shelfTitle (shelf) {
+      const key = `modelLibrary.shelf.${shelf.classKey}.title`
+      return this.$te(key) ? this.$t(key) : shelf.classKey
+    },
+
+    /** The shelf's one-line description; blank (and not rendered) if none exists. */
+    shelfSub (shelf) {
+      const key = `modelLibrary.shelf.${shelf.classKey}.sub`
+      return this.$te(key) ? this.$t(key) : ''
     },
 
     /** The category's brand colour, as the card icon's gradient tile. */
@@ -187,6 +254,8 @@ export default {
 .mlb-count { font-size:12.5px; color:var(--mlb-muted); white-space:nowrap; }
 
 .mlb-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+/* The class row sits directly above the category row — one filter block, two levels. */
+.mlb-chips-class { margin-bottom:10px; }
 .mlb-chip {
   font:inherit; font-size:12.5px; font-weight:600; color:var(--mlb-muted);
   background:var(--mlb-panel); border:1px solid var(--mlb-line);
@@ -195,6 +264,14 @@ export default {
 }
 .mlb-chip:hover { border-color:var(--mlb-accent); }
 .mlb-chip.is-on { color:#fff; background:var(--mlb-accent); border-color:var(--mlb-accent); }
+
+.mlb-shelf { margin-bottom:34px; }
+.mlb-shelf:last-of-type { margin-bottom:0; }
+.mlb-shelf-head { display:flex; align-items:baseline; gap:10px; }
+.mlb-shelf-title { margin:0; font-size:19px; font-weight:600; letter-spacing:-.01em; }
+.mlb-shelf-count { font-size:12px; font-weight:600; color:var(--mlb-muted); white-space:nowrap; }
+.mlb-shelf-sub { margin:2px 0 0; font-size:12.5px; font-style:italic; color:var(--mlb-muted); }
+.mlb-shelf .mlb-grid { margin-top:12px; }
 
 .mlb-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:16px; }
 .mlb-card {

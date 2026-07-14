@@ -7,7 +7,10 @@ import {
   CLASS_EDUCATION,
   CLASS_DECISION,
   CLASS_REPORT,
+  CLASS_ORDER,
+  CLASS_ALL,
   filterModels,
+  groupByClass,
   readyCount,
   colourFor,
   isOpenable,
@@ -202,6 +205,37 @@ describe('report model catalogue', () => {
       expect(hits[0].name).toBe('Working Capital Cycle')
     })
 
+    it('narrows to a single class via the class chips (T26)', () => {
+      const teaching = filterModels(MODELS, { modelClass: CLASS_EDUCATION })
+      expect(teaching.length).toBeGreaterThan(0)
+      teaching.forEach(m => expect(m.modelClass).toBe(CLASS_EDUCATION))
+
+      const decisions = filterModels(MODELS, { modelClass: CLASS_DECISION })
+      decisions.forEach(m => expect(m.modelClass).toBe(CLASS_DECISION))
+    })
+
+    it('treats the All class chip and an omitted class as no filter', () => {
+      expect(filterModels(MODELS, { modelClass: CLASS_ALL })).toHaveLength(MODELS.length)
+      expect(filterModels(MODELS, {})).toHaveLength(MODELS.length)
+    })
+
+    it('composes class, category and query — all three narrow together', () => {
+      // 'overdraft' appears only in Debtor Business Drag's summary; 'debtor' would
+      // also match Working Capital Cycle ("…stock and debtors…"), which is correct
+      // search behaviour but not the single-hit intersection this test pins.
+      const hits = filterModels(MODELS, {
+        modelClass: CLASS_EDUCATION,
+        category: 'Cash Flow',
+        query: 'overdraft'
+      })
+      expect(hits.map(m => m.name)).toEqual(['Debtor Business Drag'])
+    })
+
+    it('class and category can produce an empty result (drives the empty state)', () => {
+      // No Decision tool lives in Cash Flow — the intersection is honestly empty.
+      expect(filterModels(MODELS, { modelClass: CLASS_DECISION, category: 'Cash Flow' })).toHaveLength(0)
+    })
+
     it('returns nothing when nothing matches (drives the empty state)', () => {
       expect(filterModels(MODELS, { query: 'zzzznotamodel' })).toHaveLength(0)
     })
@@ -236,6 +270,53 @@ describe('report model catalogue', () => {
     it('falls back to the primary blue rather than rendering a colourless card', () => {
       expect(colourFor('Not A Category')).toBe('#0070c0')
       expect(colourFor(undefined)).toBe('#0070c0')
+    })
+  })
+
+  describe('groupByClass — the three shelves (T26)', () => {
+    it('fixes the shelf order: teaching aids first, then decision tools, then client reports', () => {
+      expect(CLASS_ORDER).toEqual([CLASS_EDUCATION, CLASS_DECISION, CLASS_REPORT])
+      expect(groupByClass(MODELS).map(g => g.classKey)).toEqual(CLASS_ORDER)
+    })
+
+    it('loses no model: the shelves partition the whole catalogue', () => {
+      const shelved = groupByClass(MODELS).reduce((n, g) => n + g.models.length, 0)
+      expect(shelved).toBe(MODELS.length)
+    })
+
+    it('puts every model on the shelf matching its class', () => {
+      groupByClass(MODELS).forEach((g) => {
+        g.models.forEach(m => expect(m.modelClass).toBe(g.classKey))
+      })
+    })
+
+    it('preserves catalogue order inside each shelf', () => {
+      groupByClass(MODELS).forEach((g) => {
+        const expected = MODELS.filter(m => m.modelClass === g.classKey)
+        expect(g.models).toEqual(expected)
+      })
+    })
+
+    it('omits an empty shelf rather than rendering an empty band', () => {
+      const educationOnly = MODELS.filter(m => m.modelClass === CLASS_EDUCATION)
+      const groups = groupByClass(educationOnly)
+      expect(groups).toHaveLength(1)
+      expect(groups[0].classKey).toBe(CLASS_EDUCATION)
+    })
+
+    it('does not silently drop a model with an unrecognised class — it lands on a visible "other" shelf', () => {
+      const stray = { name: 'Stray', category: 'Risk', summary: 'x', status: STATUS_SOON, modelClass: 'mystery' }
+      const groups = groupByClass([MODELS[0], stray])
+      const other = groups.find(g => g.classKey === 'other')
+      expect(other).toBeDefined()
+      expect(other.models).toEqual([stray])
+      expect(groups[groups.length - 1]).toBe(other)
+    })
+
+    it('survives malformed input rather than throwing', () => {
+      expect(groupByClass(null)).toEqual([])
+      expect(groupByClass([])).toEqual([])
+      expect(groupByClass([null, undefined])).toEqual([])
     })
   })
 })
