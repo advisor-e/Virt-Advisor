@@ -1,14 +1,14 @@
 # Scenario Lab — Cross-Domain Case-Study Report
 
 > **Auto-generated** by `scripts/scenario-lab.js` over the fixed 50-case set (`scenario-lab-cases.json`). Re-run to refresh; do not hand-edit.
-> Coverage: **50 sessions across all 14 content domains**. AI layer (firm distinctions + distress): **ON**.
+> Coverage: **51 sessions across all 14 content domains**. AI layer (firm distinctions + distress): **ON**.
 
 ## Metrics (measure before vs after an engine change)
 
-- **Signal lever fired:** 21/50 sessions (42%) — the rest ran on generic domain priors only.
-- **Content-driven top pick:** 50/50 (100%) — the #1 recommendation matched on something the advisor actually said (a signal, distinction, industry or topic), not just a domain prior.
-- **Average score separation (top vs 4th):** 5.4 points — higher = more decisive / confident ranking.
-- **Distress read:** fired TRUE in 4/50; of those, 3 were genuine crises → **precision 75%**, **recall 100%** (there are 3 genuine crises in the set).
+- **Signal lever fired:** 21/51 sessions (41%) — the rest ran on generic domain priors only.
+- **Content-driven top pick:** 51/51 (100%) — the #1 recommendation matched on something the advisor actually said (a signal, distinction, industry or topic), not just a domain prior.
+- **Average score separation (top vs 4th):** 5.7 points — higher = more decisive / confident ranking.
+- **Distress read:** fired TRUE in 5/51; of those, 4 were genuine crises → **precision 80%**, **recall 100%** (there are 4 genuine crises in the set).
 
 ## At a glance
 
@@ -18,7 +18,7 @@
 | 2 | profit | Customer Journey | yes | yes | YES | **TRUE** |
 | 3 | profit | Quick Fire Diagnosis | **no** | yes |  | false |
 | 4 | profit | 8 Profit Levers | **no** | yes |  | false |
-| 5 | profit | Working Capital Cycle | **no** | yes |  | false |
+| 5 | profit | 8 Profit Levers | **no** | yes |  | false |
 | 6 | staff | Alignment Statements | yes | yes |  | false |
 | 7 | staff | Hiring Winners | **no** | yes |  | false |
 | 8 | staff | Hiring Winners | **no** | yes |  | false |
@@ -34,8 +34,8 @@
 | 18 | forecasting | Lite Feasibility | yes | yes |  | **TRUE** |
 | 19 | forecasting | Planning Session | yes | yes |  | false |
 | 20 | forecasting | Tour Operators | **no** | yes |  | false |
-| 21 | governance | Firm Board Pack | **no** | yes |  | false |
-| 22 | governance | Business Targets | **no** | yes |  | false |
+| 21 | governance | 6 Hats | **no** | yes |  | false |
+| 22 | governance | 6 Hats | **no** | yes |  | false |
 | 23 | governance | Governance Introduction | yes | yes |  | false |
 | 24 | strategy | Lite Strategy | yes | yes |  | false |
 | 25 | strategy | Lite Strategy | **no** | yes |  | false |
@@ -51,7 +51,7 @@
 | 35 | risk | Formal Risk Management | yes | yes |  | false |
 | 36 | risk | Formal Risk Management | **no** | yes |  | false |
 | 37 | succession | Farm Succession | yes | yes |  | false |
-| 38 | succession | Business Sale Assessment 1 | yes | yes |  | false |
+| 38 | succession | Farm Succession | yes | yes |  | false |
 | 39 | succession | Farm Succession | yes | yes |  | false |
 | 40 | conflict | Force Field Analysis | **no** | yes |  | false |
 | 41 | conflict | Partner Accountability | **no** | yes |  | false |
@@ -64,6 +64,7 @@
 | 48 | due-diligence | Stg. 1 Due Diligence | **no** | yes |  | false |
 | 49 | succession | Farm Succession | yes | yes | YES | **TRUE** |
 | 50 | forecasting | Forecasting | yes | yes | YES | **TRUE** |
+| 51 | profit | Cafe | **no** | yes | YES | **TRUE** |
 
 ---
 
@@ -144,11 +145,11 @@
 **What the engine decided:**
 - **Domain:** profit · **Engagement:** education · **Ceiling:** analytical · **Budget:** 2
 - **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
-- **Firm distinctions boosting:** 8 Profit Levers (+10), Quick Fire Diagnosis (+5), Customer Journey (+5), Sales Session (+5)
+- **Firm distinctions boosting:** 8 Profit Levers (+5), Quick Fire Diagnosis (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **8 Profit Levers** _(score 17)_ — a core tool type for this domain; boosted by a firm distinction (+10); matches the topic "profit"; fits the engagement style (preferred).
+1. **8 Profit Levers** _(score 12)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "profit"; fits the engagement style (preferred).
 2. **Retail** _(score 9)_ — a related tool type for this domain; matches the client's industry by name.
 
 ---
@@ -169,8 +170,8 @@
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Working Capital Cycle** _(score 16)_ — a core tool type for this domain; relevant to the client's industry; boosted by a firm distinction (+5); matches the topic "profit"; fits the engagement style (preferred).
-2. **8 Profit Levers** _(score 12)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "profit"; fits the engagement style (preferred).
+1. **8 Profit Levers** _(score 12)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "profit"; fits the engagement style (preferred).
+2. **Working Capital Cycle** _(score 12)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "profit"; fits the engagement style (preferred).
 
 ---
 
@@ -233,7 +234,7 @@
 
 **Recommended templates, and why:**
 1. **Hiring Winners** _(score 14)_ — a related tool type for this domain; boosted by a firm distinction (+10); matches the topic "staff".
-2. **Business Insurance Model** _(score 8)_ — matches the client's industry by name.
+2. **Debtor Protocols** _(score 6)_ — a related tool type for this domain; relevant to the client's industry; fits the engagement style.
 
 ---
 
@@ -359,7 +360,7 @@
 
 **Recommended templates, and why:**
 1. **Lite Marketing** _(score 31)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "sales-marketing"; strongly matches the problem described (signal weight 20.0); fits the engagement style.
-2. **Business Targets** _(score 29)_ — matches the client's industry by name; strongly matches the problem described (signal weight 20.0); fits the engagement style.
+2. **Sales & Marketing Review** _(score 24)_ — matches the topic "sales-marketing"; strongly matches the problem described (signal weight 20.0); fits the engagement style.
 
 ---
 
@@ -380,7 +381,7 @@
 
 **Recommended templates, and why:**
 1. **Lite Marketing** _(score 11)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "sales-marketing"; fits the engagement style.
-2. **Business Targets** _(score 9)_ — matches the client's industry by name; fits the engagement style.
+2. **Debtor Protocols** _(score 6)_ — a related tool type for this domain; relevant to the client's industry; fits the engagement style.
 
 ---
 
@@ -505,8 +506,8 @@
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Firm Board Pack** _(score 11)_ — matches the client's industry by name; matches the topic "governance".
-2. **6 Hats** _(score 9)_ — boosted by a firm distinction (+5); matches the topic "governance"; fits the engagement style.
+1. **6 Hats** _(score 9)_ — boosted by a firm distinction (+5); matches the topic "governance"; fits the engagement style.
+2. **Draft White Papers** _(score 6)_ — a core tool type for this domain; matches the topic "governance"; fits the engagement style.
 
 ---
 
@@ -526,8 +527,8 @@
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Business Targets** _(score 10)_ — a related tool type for this domain; matches the client's industry by name; fits the engagement style.
-2. **Formal Risk Management** _(score 10)_ — a core tool type for this domain; relevant to the client's industry; matches the topic "governance"; fits the engagement style.
+1. **6 Hats** _(score 9)_ — boosted by a firm distinction (+5); matches the topic "governance"; fits the engagement style.
+2. **Draft White Papers** _(score 6)_ — a core tool type for this domain; matches the topic "governance"; fits the engagement style.
 
 ---
 
@@ -610,8 +611,8 @@
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Lite Strategy** _(score 14)_ — a related tool type for this domain; relevant to the client's industry; boosted by a firm distinction (+5); matches the topic "strategy"; fits the engagement style.
-2. **1 pg Bizz Case** _(score 14)_ — a related tool type for this domain; relevant to the client's industry; boosted by a firm distinction (+5); matches the topic "strategy"; fits the engagement style.
+1. **Lite Strategy** _(score 10)_ — a related tool type for this domain; boosted by a firm distinction (+5); matches the topic "strategy"; fits the engagement style.
+2. **1 pg Bizz Case** _(score 10)_ — a related tool type for this domain; boosted by a firm distinction (+5); matches the topic "strategy"; fits the engagement style.
 
 ---
 
@@ -737,7 +738,7 @@
 
 **Recommended templates, and why:**
 1. **Sale Assessment Report 3** _(score 12)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "valuation"; fits the engagement style (preferred).
-2. **CA Firm Strategy** _(score 8)_ — matches the client's industry by name.
+2. **Advisor Prep** _(score 3)_ — matches the topic "valuation".
 
 ---
 
@@ -799,8 +800,8 @@
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Formal Risk Management** _(score 13)_ — relevant to the client's industry; boosted by a firm distinction (+5); matches the topic "risk"; fits the engagement style.
-2. **Business Clock vs Body Clock** _(score 12)_ — a core tool type for this domain; matches the client's industry by name; fits the engagement style (preferred).
+1. **Formal Risk Management** _(score 9)_ — boosted by a firm distinction (+5); matches the topic "risk"; fits the engagement style.
+2. **Supply Chain Review** _(score 7)_ — a core tool type for this domain; matches the topic "risk"; fits the engagement style (preferred).
 
 ---
 
@@ -820,8 +821,8 @@
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Formal Risk Management** _(score 13)_ — relevant to the client's industry; boosted by a firm distinction (+5); matches the topic "risk"; fits the engagement style.
-2. **Business Clock vs Body Clock** _(score 12)_ — a core tool type for this domain; matches the client's industry by name; fits the engagement style (preferred).
+1. **Formal Risk Management** _(score 9)_ — boosted by a firm distinction (+5); matches the topic "risk"; fits the engagement style.
+2. **Supply Chain Review** _(score 7)_ — a core tool type for this domain; matches the topic "risk"; fits the engagement style (preferred).
 
 ---
 
@@ -862,8 +863,8 @@
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Business Sale Assessment 1** _(score 32)_ — a core tool type for this domain; matches the client's industry by name; strongly matches the problem described (signal weight 20.0); fits the engagement style (preferred).
-2. **Business Targets** _(score 29)_ — matches the client's industry by name; strongly matches the problem described (signal weight 20.0); fits the engagement style.
+1. **Farm Succession** _(score 32)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "succession"; strongly matches the problem described (signal weight 20.0); fits the engagement style (preferred).
+2. **Business Targets** _(score 21)_ — strongly matches the problem described (signal weight 20.0); fits the engagement style.
 
 ---
 
@@ -942,12 +943,12 @@
 **What the engine decided:**
 - **Domain:** conflict · **Engagement:** facilitation · **Ceiling:** analytical · **Budget:** 2
 - **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
-- **Firm distinctions boosting:** Force Field Analysis (+5), Alignment Statements (+10)
+- **Firm distinctions boosting:** Force Field Analysis (+5), Alignment Statements (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
 1. **Force Field Analysis** _(score 11)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "conflict"; fits the engagement style.
-2. **Business Targets** _(score 11)_ — a core tool type for this domain; matches the client's industry by name; fits the engagement style.
+2. **Alignment Statements** _(score 5)_ — boosted by a firm distinction (+5).
 
 ---
 
@@ -1010,7 +1011,7 @@
 
 **Recommended templates, and why:**
 1. **8 Profit Levers** _(score 12)_ — a related tool type for this domain; boosted by a firm distinction (+10); fits the engagement style.
-2. **Quick Fire Diagnosis** _(score 11)_ — a related tool type for this domain; relevant to the client's industry; boosted by a firm distinction (+5); fits the engagement style.
+2. **Money Matters** _(score 7)_ — a related tool type for this domain; boosted by a firm distinction (+5); fits the engagement style.
 
 ---
 
@@ -1047,11 +1048,11 @@
 **What the engine decided:**
 - **Domain:** due-diligence · **Engagement:** advice · **Ceiling:** analytical · **Budget:** 2
 - **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
-- **Firm distinctions boosting:** Stg. 1 Due Diligence (+10), Business Purchase Assessment 1 (+5)
+- **Firm distinctions boosting:** Stg. 1 Due Diligence (+5), Business Purchase Assessment 1 (+5)
 - **Distress read:** no
 
 **Recommended templates, and why:**
-1. **Stg. 1 Due Diligence** _(score 15)_ — a core tool type for this domain; boosted by a firm distinction (+10); purpose mentions "due-diligence"; fits the engagement style (preferred).
+1. **Stg. 1 Due Diligence** _(score 10)_ — a core tool type for this domain; boosted by a firm distinction (+5); purpose mentions "due-diligence"; fits the engagement style (preferred).
 2. **Business Dating** _(score 4)_ — matches the topic "due-diligence"; fits the engagement style.
 
 ---
@@ -1118,5 +1119,27 @@
 1. **Forecasting** _(score 30)_ — a core tool type for this domain; boosted by a firm distinction (+5); matches the topic "forecasting"; strongly matches the problem described (signal weight 20.0).
 2. **Working Capital Cycle** _(score 27)_ — boosted by a firm distinction (+5); strongly matches the problem described (signal weight 20.0); fits the engagement style (preferred).
 3. **Lite Feasibility** _(score 25)_ — matches the topic "forecasting"; strongly matches the problem described (signal weight 20.0); fits the engagement style (preferred).
+
+---
+
+## profit·CRISIS shut down vs risk  ⚠ (genuine crisis)
+
+**The advisor's session (invented):**
+- _Core problem:_ I have a client getting into trouble - they could probably end up having to shut down or face liquidation.
+- _What contributed:_ Financial management and service quality have slipped, and a weakening economy and downturn have not helped.
+- _Already tried:_ Nothing really - part of the problem is they have not been paying attention.
+- _On the check-in:_ Yes - it is serious; we need to work out if the business is still feasible and what liquidation could look like.
+- _Industry:_ a couple of cafes · _Staircase:_ step 3 · _Sessions:_ 3
+
+**What the engine decided:**
+- **Domain:** profit · **Engagement:** education · **Ceiling:** analytical · **Budget:** 3
+- **Problem signals read:** _none — the engine read no problem signals from the words, so this ran on generic priors only_
+- **Firm distinctions boosting:** Lite Feasibility (+5), Quick Fire Diagnosis (+5)
+- **Distress read:** **YES**
+
+**Recommended templates, and why:**
+1. **Cafe** _(score 9)_ — a related tool type for this domain; matches the client's industry by name.
+2. **Quick Fire Diagnosis** _(score 9)_ — a core tool type for this domain; boosted by a firm distinction (+5); fits the engagement style (preferred).
+3. **Lite Feasibility** _(score 9)_ — a core tool type for this domain; boosted by a firm distinction (+5); fits the engagement style (preferred).
 
 ---
