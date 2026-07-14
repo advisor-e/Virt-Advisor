@@ -92,7 +92,7 @@ export.
 | 9 | `daysReceivable` (D22) | 35 | FILE ✅ | Debtor days (DSO) — from Aged Receivables, or Receivables ÷ Revenue × 365. **Accounts Receivable verified present on a populated Balance Sheet 2026-07-15 (§3.9)** |
 | 10 | `daysPayable` (Q13) | 15 | FILE ✅ | Creditor days (DPO) — from Aged Payables, or Payables ÷ COGS × 365. **Accounts Payable verified present on a populated Balance Sheet 2026-07-15 (§3.9)** |
 | 11 | `fixedCostsMonthly` (D17) | 180 | FILE ✅ | Monthly overheads — P&L operating expenses ÷ months. **Verified: must be SUMMED from the expense line items — the "Total Operating Expenses" row is an uncalculated formula that reads as zero (§3.1)** |
-| 12 | `priorScenarioAnnualRevenue` (V35) | 2543 | **ADVISOR** ❌ | ~~P&L comparative column~~ — **REFUTED (§3.3): the P&L export has a single year column. Prior-year revenue is not in it.** Needs a second P&L, or the advisor enters it |
+| 12 | `priorScenarioAnnualRevenue` (V35) | 2543 | FILE *(if supplied)* / ADVISOR | Not in the standard single-year P&L (§3.3). **Owner ruling 2026-07-15: hybrid** — seeded from a prior-year P&L export when the advisor supplies one; manual entry always available. Absence usually means the client doesn't have the data — offer the field, don't chase the file. Never silently zero |
 
 **6 of 12 must be advisor-entered.**
 
@@ -173,12 +173,20 @@ either figure.
 | **Aged Receivables Summary** | Per-customer ageing **by due date**: `Current`, `< 1 Month`, `1 Month`, `2 Months`, `3 Months`, `Older`, `Total` | #9 (debtor days, approx.) — **NOT #14, see 3.4** |
 | **Aged Payables Summary** | Per-supplier ageing. **Different shape to Receivables** — no `Current` column, and a nested `Expense Claims` section below the main table | #10 (creditor days, approx.) |
 
-### 3.3 ~~Prior-year revenue from the P&L~~ — NOT AVAILABLE
+### 3.3 ~~Prior-year revenue from the P&L~~ — NOT AVAILABLE in the standard export — ✅ RESOLVED by owner ruling (2026-07-15)
 
 ~~*Profit & Loss (with comparatives) → prior-year revenue (#12)*~~ — **wrong.** The P&L export
 has a single year column. Prior-year revenue is **not in this export**. (The *Balance Sheet*
 carries four years, which is the reverse of what I assumed.) Either a second P&L for the prior
 year is needed, or #12 becomes ADVISOR-entered.
+
+**Owner ruling 2026-07-15 — both, hybrid.** Prior-year revenue is **FILE-seeded when the
+advisor supplies a prior-year P&L export**, with **manual entry always available** — the same
+seed-then-complete pattern as everything else. And the key product nuance: **if the figure is
+not in what they dropped, the likeliest reason is the client does not have that data at all** —
+so the intake offers the manual field (pre-filled with the model default, tagged *entered*)
+without nagging for a file that probably does not exist. The standing rule holds: a missing
+figure is never silently treated as zero.
 
 ### 3.4 ~~The collection profile from Aged Receivables~~ — NOT DERIVABLE
 
@@ -360,24 +368,23 @@ just before the AI call.
 ✅ **RESOLVED — populated export.** Supplied 2026-07-15 (Electric Bikes NZ Limited). Stock,
 debtor and creditor mappings verified — with the multi-row stock finding — see §3.9.
 
-✅ **HALF-RESOLVED — the two "missing" exports.** **Monthly sales (#13): resolved as (a)** —
-the "Current financial year by month" P&L export carries all 12 monthly columns (verified
-2026-07-15, §3.5/§3.9); the advisor supplies that export. **Prior-year revenue (#12): still
-open** — a second (prior-year) P&L, or advisor-entered.
+✅ **RESOLVED — the two "missing" exports.** **Monthly sales (#13):** the "Current financial
+year by month" P&L export carries all 12 monthly columns (verified 2026-07-15, §3.5/§3.9);
+the advisor supplies that export. **Prior-year revenue (#12): owner ruling 2026-07-15 —
+hybrid** — seeded from a prior-year P&L export if supplied, manual entry always available;
+absence usually means the client doesn't have the data (§3.3).
 
 Still open:
 
-1. **Prior-year revenue (#12)** — see above: second export, or typed in? *(Report-class-only —
-   no built model needs it.)*
-2. **The collection profile has no home (§3.4).** If a Report-class model ever needs a true
+1. **The collection profile has no home (§3.4).** If a Report-class model ever needs a true
    collection profile, it needs invoice-level data (paid vs issued dates) — an Aged Receivables
    **Detail** export, not the Summary. Worth confirming whether that export exists in the form
    we'd need.
-3. **`initialInvestment` (#1)** — a real figure off the Balance Sheet, or a scenario number the
+2. **`initialInvestment` (#1)** — a real figure off the Balance Sheet, or a scenario number the
    advisor chooses?
-4. **Owner's drawings (#19)** — actual (from the accounts) or a target (advisor-set)? The
+3. **Owner's drawings (#19)** — actual (from the accounts) or a target (advisor-set)? The
    Margin model treats it as a target to cover.
-5. **Stock.** `daysOnHand` assumes the client carries inventory. What should a Report-class
+4. **Stock.** `daysOnHand` assumes the client carries inventory. What should a Report-class
    model do for a service business with no stock?
 
 ---
