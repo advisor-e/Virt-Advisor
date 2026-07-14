@@ -1,10 +1,13 @@
 {
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Signal extraction dictionary — the single source of truth for what advisor phrases map to which signals. Edit this file to add or improve phrase coverage. No code changes required. Run npm run build:semantic-profiles after changes.",
   "signals": {
     "sales_volume": {
       "description": "Insufficient sales volume, customer acquisition, or foot traffic",
-      "domains": ["sales-marketing", "profit"],
+      "domains": [
+        "sales-marketing",
+        "profit"
+      ],
       "patterns": [
         "foot.?traffic",
         "not enough (customers?|clients?|people|visitors?)",
@@ -38,7 +41,10 @@
     },
     "pricing_issue": {
       "description": "Pricing problems, price rises, or margin pressure due to pricing",
-      "domains": ["profit", "sales-marketing"],
+      "domains": [
+        "profit",
+        "sales-marketing"
+      ],
       "patterns": [
         "put(ting)?.{0,15}price[s]? up",
         "price[s]? (rise|increase|hike|going up)",
@@ -59,7 +65,10 @@
     },
     "cash_flow_gap": {
       "description": "Cash flow problems, working capital issues, or inability to pay bills",
-      "domains": ["profit", "forecasting"],
+      "domains": [
+        "profit",
+        "forecasting"
+      ],
       "patterns": [
         "cash.?flow",
         "running out of cash",
@@ -85,7 +94,10 @@
     },
     "revenue_modelling": {
       "description": "Advisor wants to build a revenue or feasibility model for a client's specific situation — includes the case where the client doesn't understand their cost base / true costs (a costing model answers it)",
-      "domains": ["profit", "forecasting"],
+      "domains": [
+        "profit",
+        "forecasting"
+      ],
       "patterns": [
         "build (a |the )?model",
         "revenue model",
@@ -124,7 +136,9 @@
     },
     "staff_problem": {
       "description": "Staff, team, HR, or leadership issues",
-      "domains": ["staff"],
+      "domains": [
+        "staff"
+      ],
       "patterns": [
         "staff (issue|problem|challenge|leaving|turnover|performance|morale)",
         "team (issue|problem|challenge|morale|performance|culture)",
@@ -153,7 +167,9 @@
     },
     "strategy_needed": {
       "description": "Strategic direction, planning, or pivot required",
-      "domains": ["strategy"],
+      "domains": [
+        "strategy"
+      ],
       "patterns": [
         "strategic (direction|plan(ning)?|review|pivot)",
         "no (clear |strategic )?direction",
@@ -170,7 +186,9 @@
     },
     "data_quality": {
       "description": "Data integrity, chart of accounts, or financial systems accuracy issues",
-      "domains": ["data-systems"],
+      "domains": [
+        "data-systems"
+      ],
       "patterns": [
         "data (is|are|was|were) (wrong|bad|messy|dirty|inaccurate|unreliable)",
         "rubbish in",
@@ -196,7 +214,9 @@
     },
     "governance_gap": {
       "description": "Governance structure, accountability, or board issues",
-      "domains": ["governance"],
+      "domains": [
+        "governance"
+      ],
       "patterns": [
         "governance (gap|issue|problem|lacking|needed)",
         "no (governance|board structure|accountability)",
@@ -211,7 +231,9 @@
     },
     "governance_too_early": {
       "description": "Business is not yet ready for governance — ineffective foundational management (no clear objectives, failure accepted as normal, no honest feedback). Too Early For Governance.",
-      "domains": ["governance"],
+      "domains": [
+        "governance"
+      ],
       "patterns": [
         "no (clear|measurable) (business )?objectives",
         "(don'?t|do not|doesn'?t) (have|set|track) .{0,20}objectives",
@@ -228,7 +250,9 @@
     },
     "succession_issue": {
       "description": "Succession planning, exit, or ownership transition",
-      "domains": ["succession"],
+      "domains": [
+        "succession"
+      ],
       "patterns": [
         "succession",
         "exit(ing)? (the business|plan|strategy)?",
@@ -246,7 +270,10 @@
     },
     "systems_gap": {
       "description": "Business systems, process, or technology gaps",
-      "domains": ["systems", "data-systems"],
+      "domains": [
+        "systems",
+        "data-systems"
+      ],
       "patterns": [
         "process(es)? (issue|problem|broken|inefficient)",
         "system[s]? (issue|problem|needed|outdated|not working)",
@@ -271,7 +298,9 @@
     },
     "marketing_gap": {
       "description": "Marketing, brand awareness, or digital presence gaps",
-      "domains": ["sales-marketing"],
+      "domains": [
+        "sales-marketing"
+      ],
       "patterns": [
         "marketing (issue|problem|needed|gap|not working)",
         "no marketing",
@@ -288,7 +317,9 @@
     },
     "stock_management": {
       "description": "Stock/inventory management problems — overstocking, stockouts, slow stock turn, high days on hand, supply chain disruption",
-      "domains": ["stock-purchasing"],
+      "domains": [
+        "stock-purchasing"
+      ],
       "patterns": [
         "not turning (stock|inventory) over",
         "stock (isn'?t|is not|not) turning over",
@@ -317,7 +348,9 @@
     },
     "capital_raising": {
       "description": "Raising capital or funding an acquisition — needs investment to grow, seeking investors, undercapitalised, can't self-fund, funding a purchase",
-      "domains": ["raising-capital"],
+      "domains": [
+        "raising-capital"
+      ],
       "patterns": [
         "raise (money|capital|funds?|finance|equity)",
         "raising (money|capital|funds?|finance|equity)",
@@ -340,7 +373,20 @@
         "working capital review",
         "(raise|raising) (money|capital|finance|funds?) to (buy|acquire)",
         "fund(ing)? (an?|the )?acquisition",
-        "money to (buy|acquire) (a|another|the) (business|competitor|company|rival)"
+        "money to (buy|acquire) (a|another|the) (business|competitor|company|rival)",
+        "capital rais(e|ing)",
+        "(can'?t|unable to|struggling to) (fund|finance) (their|its|the|a) (growth|expansion)",
+        "(fund|finance) (a |their |its |the )?growth",
+        "not enough capital",
+        "lack of capital",
+        "(outside|external) (investment|investors?|capital|funding)",
+        "growth (funding|financing)",
+        "debt (vs|versus|or) equity",
+        "buy(ing)? a business",
+        "acquire (a |another )?(competitor|business|company)",
+        "mergers?",
+        "search fund",
+        "buy(ing)? into a franchise"
       ]
     }
   }

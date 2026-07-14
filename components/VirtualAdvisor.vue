@@ -205,6 +205,87 @@
       .retry-row(v-if="showRetry && !isStreaming")
         button.retry-btn(@click="retryLastMessage") Try again
 
+      //- Client step — "Who is this session for?" (client knowledge base, design
+      //- 2026-07-14). Shown before the intake begins in client mode. The question
+      //- + explanation copy is Mike's approved wording, verbatim — do not edit.
+      .client-step-card(v-if="showClientStep")
+        p.client-step-title Who is this session for?
+        p.client-step-desc Give me the business name. I'll use it to keep this client's history together — so next time you come back, I can see what we recommended, what worked, and what didn't, and build on it rather than starting again. You can skip this if you'd rather not save it.
+
+        //- Pick from the firm register — you cannot mistype what you never
+        //- retype. Empty input = recently-worked clients first (capped);
+        //- typing filters the whole register live (design approved 2026-07-14).
+        .client-step-list(v-if="clientPicker.clients.length && !clientDuplicates.length")
+          button.client-step-opt(
+            v-for="c in clientPicker.clients"
+            :key="c.id"
+            @click="chooseExistingClient(c)"
+          ) {{ c.name }}
+        p.client-step-note(v-if="clientPicker.truncated && !clientDuplicates.length")
+          | Showing your recent clients — type to search all {{ clientRegister.length }}.
+
+        //- "Did you mean…?" — the typed name nearly matches existing clients
+        .client-step-duplicates(v-if="clientDuplicates.length")
+          p.client-step-dup-title Did you mean one of these existing clients?
+          button.client-step-opt(
+            v-for="c in clientDuplicates"
+            :key="c.id"
+            @click="chooseExistingClient(c)"
+          ) {{ c.name }}
+          button.client-step-create-anyway(
+            @click="submitClientName(true)"
+            :disabled="clientStepBusy"
+          ) No — “{{ clientNameInput.trim() }}” is a new client
+
+        //- Type a new business name
+        .client-step-input-row(v-if="!clientDuplicates.length")
+          input.client-step-input(
+            v-model="clientNameInput"
+            :placeholder="clientRegister.length ? 'Type to search your clients, or enter a new business name…' : 'Business name…'"
+            maxlength="255"
+            @keyup.enter="submitClientName(false)"
+          )
+          button.client-step-continue(
+            @click="submitClientName(false)"
+            :disabled="!clientNameInput.trim() || clientStepBusy"
+          ) Continue
+
+        p.client-step-error(v-if="clientStepError") {{ clientStepError }}
+        p.client-step-note(v-if="clientRegisterError") Your client list couldn’t be loaded — you can still type a name, or skip.
+        button.client-step-skip(@click="skipClientStep") Skip this session
+
+      //- Catch-up card (Stage 5c) — a returning client has an own case with
+      //- unrecorded template outcomes; ask once with the review-panel chips.
+      //- Heading/copy approved by the product owner (Option 1, 2026-07-14).
+      .catchup-card(v-if="showCatchUp && catchUpCase")
+        p.catchup-title Before we start — how did last time go?
+        p.catchup-desc Last time with {{ sessionClient ? sessionClient.name : 'this client' }} you took away: {{ catchUpCase.templates.join(', ') }}. Recording how each went sharpens what I recommend today.
+        .review-outcome-row(v-for="t in catchUpCase.templates" :key="t")
+          span.review-outcome-name {{ t }}
+          .review-chip-group
+            button.review-chip(
+              v-for="u in [{ v: 'full', l: 'Used fully' }, { v: 'partial', l: 'Partly used' }, { v: 'none', l: 'Didn\\'t use it' }]"
+              :key="u.v"
+              :class="{ 'review-chip-on': catchUpOutcomes[t] && catchUpOutcomes[t].used === u.v }"
+              @click="catchUpSetUsed(t, u.v)"
+            ) {{ u.l }}
+          .review-chip-group(v-if="catchUpOutcomes[t] && catchUpOutcomes[t].used && catchUpOutcomes[t].used !== 'none'")
+            button.review-chip.review-chip-well(
+              :class="{ 'review-chip-on-well': catchUpOutcomes[t].outcome === 'well' }"
+              @click="catchUpSetResult(t, 'well')"
+            ) Landed well
+            button.review-chip.review-chip-less(
+              :class="{ 'review-chip-on-less': catchUpOutcomes[t].outcome === 'less' }"
+              @click="catchUpSetResult(t, 'less')"
+            ) Didn't land
+        p.client-step-error(v-if="catchUpError") {{ catchUpError }}
+        .catchup-actions
+          button.catchup-save(
+            @click="saveCatchUp"
+            :disabled="catchUpBusy || !Object.values(catchUpOutcomes).some(v => v && v.used)"
+          ) Save & continue
+          button.client-step-skip(@click="skipCatchUp") Not now
+
       //- Growth Curve selector — shown when AI signals privately owned branch
       .growth-curve-card(v-if="showGrowthCurveSelector")
         p.growth-curve-title Where would you place them on the Growth Curve?
@@ -312,6 +393,13 @@
         button.sell-switch-yes(@click="acceptSellSwitch") Yes, help me sell
         button.sell-switch-no(@click="declineSellSwitch") No, stay on this
 
+      //- Budget notice (Bugs 3+4, 2026-07-14) — code-authored, approved copy.
+      //- Framing line on every recommendation; cap message ONLY when the stated
+      //- meeting count exceeded the six-meeting ceiling (never noise).
+      .budget-notice(v-if="budgetNotice && recommendationDelivered")
+        p.budget-notice-framing {{ budgetNotice.framing }}
+        p.budget-notice-cap(v-if="budgetNotice.capMessage") {{ budgetNotice.capMessage }}
+
       //- Why this recommendation — decision trace (shown after a recommendation)
       .trace-panel(v-if="lastTrace && recommendationDelivered")
         button.trace-toggle(@click="showTracePanel = !showTracePanel")
@@ -358,10 +446,13 @@
           button.save-prompt-no(@click="dismissIntake") Not now
 
       //- Save prompt — only shown after Phase 3 recommendation, never alongside a VA question
+      //- Copy is the product-owner-approved case-study nudge (2026-07-14) — the
+      //- promise it makes ("I can see... and pick up from there") is kept by the
+      //- client knowledge base (Stages 4–5c). Do not paraphrase.
       .save-prompt-card(v-if="showSavePrompt")
         .save-prompt-text
-          strong Save this session?
-          span  Keep a record of this conversation as a case study for future reference.
+          strong Save this as a case study.
+          span  When you return, I can see which templates you used and how they landed — and pick up from there.
         .save-prompt-actions
           button.save-prompt-yes(@click="showSavePanel = true; savePromptDismissed = true") Save case study
           button.save-prompt-no(@click="savePromptDismissed = true") Not now
@@ -595,6 +686,30 @@
               h3.review-heading Post-Delivery Review
               p.review-sub After delivering this session to your client, record what actually happened. The AI will use this to improve future recommendations.
 
+              //- Per-template outcomes (Stage 5b, 2026-07-14) — which templates were
+              //- actually used and how each landed. Feeds the template-precise
+              //- hold-back for this client's future sessions.
+              .review-outcomes(v-if="c.templates && c.templates.length && reviewDraft.templateOutcomes")
+                p.review-outcomes-title How did each template go?
+                .review-outcome-row(v-for="t in c.templates" :key="t")
+                  span.review-outcome-name {{ t }}
+                  .review-chip-group
+                    button.review-chip(
+                      v-for="u in [{ v: 'full', l: 'Used fully' }, { v: 'partial', l: 'Partly used' }, { v: 'none', l: 'Didn\\'t use it' }]"
+                      :key="u.v"
+                      :class="{ 'review-chip-on': reviewDraft.templateOutcomes[t] && reviewDraft.templateOutcomes[t].used === u.v }"
+                      @click="setOutcomeUsed(t, u.v)"
+                    ) {{ u.l }}
+                  .review-chip-group(v-if="reviewDraft.templateOutcomes[t] && reviewDraft.templateOutcomes[t].used && reviewDraft.templateOutcomes[t].used !== 'none'")
+                    button.review-chip.review-chip-well(
+                      :class="{ 'review-chip-on-well': reviewDraft.templateOutcomes[t].outcome === 'well' }"
+                      @click="setOutcomeResult(t, 'well')"
+                    ) Landed well
+                    button.review-chip.review-chip-less(
+                      :class="{ 'review-chip-on-less': reviewDraft.templateOutcomes[t].outcome === 'less' }"
+                      @click="setOutcomeResult(t, 'less')"
+                    ) Didn't land
+
               .review-field
                 label.review-label ⚠ What went less well?
                 .review-voice-bar(v-if="speechSupported")
@@ -713,7 +828,8 @@
 <script>
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
-import { createCase } from '~/utils/cases'
+import { createCase, findUnrecordedCase, updateCaseReview } from '~/utils/cases'
+import { listClients, createClient, filterClientRegister } from '~/utils/clients'
 import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
@@ -793,6 +909,9 @@ export default {
       // Decision trace for the "Why this recommendation" panel (set on the SSE
       // 'trace' event at recommendation time); null until a recommendation lands.
       lastTrace: null,
+      // Code-authored budget messages (framing line + cap explanation) — arrive
+      // on the 'budget_notice' SSE event with the trace; approved copy, verbatim.
+      budgetNotice: null,
       showTracePanel: false,
       intakeDismissed: false,
       intakeActive: false,
@@ -813,6 +932,26 @@ export default {
       showPrimaryIssueSelector: false,
       selectedPrimaryIssue: null,
       primaryIssueDomain: null,
+      // Client-knowledge-base step (design 2026-07-14): "Who is this session
+      // for?" shown before the intake begins in client mode. sessionClient is
+      // the chosen register entry ({id, name}) or null when skipped — the id
+      // rides on the saved case so the engine can read the client's history back.
+      showClientStep: false,
+      sessionClient: null,
+      clientRegister: [],
+      clientRegisterError: false,
+      clientNameInput: '',
+      clientDuplicates: [],
+      clientStepBusy: false,
+      clientStepError: null,
+      // Catch-up card (Stage 5c): when the chosen client has an OWN case with
+      // templates but no recorded outcomes, ask once at session start — same
+      // chips as the review panel, always skippable ("Not now").
+      showCatchUp: false,
+      catchUpCase: null,
+      catchUpOutcomes: {},
+      catchUpBusy: false,
+      catchUpError: null,
       // Single source of truth — themes read from data/fin-mgt-table.json (the
       // selector uses name + problem; the file's extra solution/template fields
       // ride along, unused here). Mirrors growthStages / staircaseSteps below.
@@ -832,6 +971,13 @@ export default {
   },
 
   computed: {
+    // Client picker at scale (design approved 2026-07-14): empty input shows
+    // the recently-worked clients (capped); typing filters the whole register
+    // live — the same box creates a new client when nothing matches.
+    clientPicker () {
+      return filterClientRegister(this.clientRegister, this.visibleCases, this.clientNameInput, 8)
+    },
+
     // Decision-trace helpers (the "Why this recommendation" panel).
     traceLensSummary () {
       if (!this.lastTrace) { return '' }
@@ -1011,6 +1157,8 @@ export default {
         if (r.startsWith('tag:')) { return 'matches the area' }
         if (r === 'domain:primary_subsection') { return 'core to this area' }
         if (r.startsWith('engagement:')) { return 'fits the engagement type' }
+        if (r === 'history:already_delivered') { return 'already delivered to this client — held back' }
+        if (r === 'history:went_less_well') { return 'delivered before and went less well — held back' }
         return r
       }).join(', ')
     },
@@ -1066,6 +1214,9 @@ export default {
           staircaseStep: this.selectedStaircaseStep,
           growthStage: this.selectedGrowthStage,
           finMgtTheme: this.selectedFinMgtTheme,
+          // The client-register link (null when the advisor skipped naming the
+          // client) — this is what lets the engine read the client's history back.
+          clientId: this.sessionClient ? this.sessionClient.id : null,
           // The "why this recommendation" trace, stored so a firm manager can
           // review the reasoning later (null in non-client modes / pre-trace cases).
           decisionTrace: this.lastTrace,
@@ -1092,11 +1243,26 @@ export default {
       this.isStreaming = false
       this.streamingText = ''
       this.mode = selected
+      // Client-step state resets FIRST — the client branch below re-arms it.
+      this.showClientStep = false
+      this.sessionClient = null
+      this.clientNameInput = ''
+      this.clientDuplicates = []
+      this.clientStepError = null
+      this.clientRegisterError = false
+      this.showCatchUp = false
+      this.catchUpCase = null
+      this.catchUpOutcomes = {}
+      this.catchUpBusy = false
+      this.catchUpError = null
       const noConversation = ['course', 'firm']
       if (!noConversation.includes(selected)) {
         if (selected === 'client') {
+          // "Who is this session for?" comes before the intake (design
+          // 2026-07-14) — initClientSession() runs when the step resolves.
           this.messages = []
-          this.initClientSession()
+          this.showClientStep = true
+          this.loadClientRegister()
         } else {
           this.messages = [{ role: 'assistant', content: this.$t(`opening.${selected}`) }]
         }
@@ -1104,6 +1270,7 @@ export default {
       this.sessionId = null
       this.recommendationDelivered = false
       this.lastTrace = null
+      this.budgetNotice = null
       this.showTracePanel = false
       this.sessionDomain = null
       this.sessionTemplates = []
@@ -1127,6 +1294,139 @@ export default {
       this.$nextTick(() => this.scrollToBottom())
     },
 
+    // ── Client step ("Who is this session for?", design 2026-07-14) ─────────
+    // Runs between picking Client mode and the intake's first question. The
+    // register is the firm's shared list; picking (not retyping) is what stops
+    // duplicate clients. Skipping is always allowed — the session simply builds
+    // no client history.
+
+    async loadClientRegister () {
+      this.clientRegisterError = false
+      try {
+        this.clientRegister = await listClients(this.apiToken)
+      } catch (e) {
+        // The step still works without the register — type a name, or skip.
+        this.clientRegister = []
+        this.clientRegisterError = true
+      }
+    },
+
+    chooseExistingClient (c) {
+      this.sessionClient = { id: c.id, name: c.name }
+      this.finishClientStep()
+    },
+
+    async submitClientName (confirmed) {
+      const name = this.clientNameInput.trim()
+      if (!name || this.clientStepBusy) { return }
+      this.clientStepBusy = true
+      this.clientStepError = null
+      try {
+        const result = await createClient(name, confirmed, this.apiToken)
+        if (result.created === false) {
+          // Near-duplicates: ask "did you mean…?" instead of creating a twin.
+          this.clientDuplicates = result.possibleDuplicates || []
+          return
+        }
+        this.sessionClient = { id: result.client.id, name: result.client.name }
+        this.finishClientStep()
+      } catch (e) {
+        this.clientStepError = 'Could not save the client. You can try again, or skip.'
+      } finally {
+        this.clientStepBusy = false
+      }
+    },
+
+    skipClientStep () {
+      this.sessionClient = null
+      this.finishClientStep()
+    },
+
+    finishClientStep () {
+      this.showClientStep = false
+      this.clientDuplicates = []
+      this.clientNameInput = ''
+      this.clientStepError = null
+      this.maybeShowCatchUp()
+    },
+
+    // ── Catch-up card (Stage 5c, product owner Option 1 2026-07-14) ─────────
+    // A returning client may have an OWN case with delivered templates but no
+    // recorded outcomes. Ask ONCE at session start with the same chips as the
+    // review panel — deterministic taps, no AI interpretation, so nothing can
+    // be misheard. Always skippable; skipping costs nothing (the 14 are the
+    // floor, this is housekeeping like the client step).
+    maybeShowCatchUp () {
+      const c = this.sessionClient
+        ? findUnrecordedCase(this.visibleCases, this.serverAdvisorId, this.sessionClient.id)
+        : null
+      if (!c) {
+        this.initClientSession()
+        return
+      }
+      const outcomes = {}
+      for (const t of c.templates) { outcomes[t] = { used: null, outcome: null } }
+      this.catchUpCase = c
+      this.catchUpOutcomes = outcomes
+      this.catchUpError = null
+      this.showCatchUp = true
+    },
+
+    catchUpSetUsed (title, used) {
+      const entry = this.catchUpOutcomes[title]
+      if (!entry) { return }
+      entry.used = entry.used === used ? null : used
+      if (entry.used === 'none' || entry.used === null) { entry.outcome = null }
+    },
+
+    catchUpSetResult (title, outcome) {
+      const entry = this.catchUpOutcomes[title]
+      if (!entry || entry.used === 'none' || entry.used === null) { return }
+      entry.outcome = entry.outcome === outcome ? null : outcome
+    },
+
+    async saveCatchUp () {
+      if (this.catchUpBusy || !this.catchUpCase) { return }
+      const marked = Object.entries(this.catchUpOutcomes)
+        .filter(([, v]) => v && v.used)
+        .map(([title, v]) => ({ title, used: v.used, outcome: v.outcome || null }))
+      if (marked.length === 0) { return }
+      this.catchUpBusy = true
+      this.catchUpError = null
+      try {
+        const existing = this.catchUpCase.review || {}
+        // Pass the existing review text through — the review update overwrites
+        // all its fields, and the catch-up must never wipe a written review.
+        await updateCaseReview(this.catchUpCase.id, {
+          wentWell: existing.wentWell || '',
+          wentLess: existing.wentLess || '',
+          changesRecommended: existing.changesRecommended || '',
+          templateOutcomes: marked
+        }, this.apiToken)
+        // Refresh BEFORE the session starts, so the engine's server-side read
+        // of this client's history sees the outcomes just recorded — the
+        // catch-up sharpens TODAY's recommendation, not just future ones.
+        await this.refreshMyCases()
+        this.finishCatchUp()
+      } catch (e) {
+        this.catchUpError = 'Could not save. You can try again, or skip — the session will start either way.'
+        this.catchUpBusy = false
+      }
+    },
+
+    skipCatchUp () {
+      this.finishCatchUp()
+    },
+
+    finishCatchUp () {
+      this.showCatchUp = false
+      this.catchUpCase = null
+      this.catchUpOutcomes = {}
+      this.catchUpBusy = false
+      this.catchUpError = null
+      this.initClientSession()
+    },
+
     async initClientSession () {
       this.isStreaming = true
       this.streamingText = ''
@@ -1146,7 +1446,10 @@ export default {
             languageName: this.currentLanguageName,
             orgTemplateIds: this.orgTemplateIds,
             conversationHistory: [],
-            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null
+            advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
+            // The session's client-register link — lets the engine read this
+            // client's history back (firm-validated server-side; null = skipped).
+            clientId: this.sessionClient ? this.sessionClient.id : null
           })
         })
         if (!response.ok) { throw new Error('Request failed') }
@@ -1203,6 +1506,7 @@ export default {
       this.sessionId = null
       this.recommendationDelivered = false
       this.lastTrace = null
+      this.budgetNotice = null
       this.showTracePanel = false
       this.sessionDomain = null
       this.sessionTemplates = []
@@ -1228,6 +1532,17 @@ export default {
       this.showPrimaryIssueSelector = false
       this.selectedPrimaryIssue = null
       this.primaryIssueDomain = null
+      this.showClientStep = false
+      this.sessionClient = null
+      this.clientNameInput = ''
+      this.clientDuplicates = []
+      this.clientStepError = null
+      this.clientRegisterError = false
+      this.showCatchUp = false
+      this.catchUpCase = null
+      this.catchUpOutcomes = {}
+      this.catchUpBusy = false
+      this.catchUpError = null
       this.showRetry = false
       this.lastQuery = null
     },
@@ -1419,6 +1734,9 @@ export default {
             conversationHistory: this.conversationHistory.slice(0, -1),
             sessionId: this.sessionId,
             advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
+            // The session's client-register link — lets the engine read this
+            // client's history back (firm-validated server-side; null = skipped).
+            clientId: this.sessionClient ? this.sessionClient.id : null,
             caseSummaries: this.relevantCases.map(c => ({
               title: c.title,
               mode: c.mode,
@@ -1457,6 +1775,10 @@ export default {
               } else if (data.type === 'trace') {
                 // Decision trace — powers the "Why this recommendation" panel.
                 this.lastTrace = data.trace || null
+              } else if (data.type === 'budget_notice') {
+                // Deterministic, code-authored budget messages (Bugs 3+4) —
+                // approved copy arrives ready to render; never AI-paraphrased.
+                this.budgetNotice = data.notice || null
               } else if (data.type === 'recommendation_delivered') {
                 this.recommendationDelivered = true
               } else if (data.type === 'delta') {
@@ -2276,6 +2598,96 @@ export default {
 .growth-curve-submit:hover:not(:disabled) { background: #15803d; }
 .growth-curve-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 
+/* Client step — "Who is this session for?" (client knowledge base) */
+.client-step-card {
+  margin: 8px 16px 4px;
+  padding: 16px;
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  border-radius: 10px;
+}
+.client-step-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin: 0 0 6px;
+}
+.client-step-desc {
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.client-step-list,
+.client-step-duplicates {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.client-step-dup-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin: 0 0 4px;
+}
+.client-step-opt {
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e40af;
+  transition: background 0.15s, border-color 0.15s;
+}
+.client-step-opt:hover { background: #dbeafe; border-color: #60a5fa; }
+.client-step-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.client-step-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 7px;
+  font-size: 13px;
+}
+.client-step-input:focus { outline: none; border-color: #2563eb; }
+.client-step-continue,
+.client-step-create-anyway {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.client-step-continue:hover:not(:disabled),
+.client-step-create-anyway:hover:not(:disabled) { background: #1d4ed8; }
+.client-step-continue:disabled,
+.client-step-create-anyway:disabled { background: #9ca3af; cursor: not-allowed; }
+.client-step-create-anyway { align-self: flex-start; margin-top: 4px; }
+.client-step-skip {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 2px 0;
+  text-decoration: underline;
+}
+.client-step-skip:hover { color: #374151; }
+.client-step-error { font-size: 12.5px; color: #b91c1c; margin: 0 0 8px; }
+.client-step-note { font-size: 12px; color: #6b7280; margin: 0 0 8px; }
+
 /* Fin Mgt Theme selector */
 .fin-mgt-card {
   margin: 8px 16px 4px;
@@ -2802,6 +3214,107 @@ export default {
 .case-review-section { background: #fafbff; border: 1px solid #dbeafe; border-radius: 10px; padding: 16px; }
 .review-heading { font-size: 14px; font-weight: 700; color: #1e40af; margin: 0 0 4px; }
 .review-sub { font-size: 12px; color: #6b7280; margin: 0 0 14px; line-height: 1.4; }
+
+/* Budget notice (Bugs 3+4) — code-authored framing + cap explanation */
+.budget-notice {
+  margin: 8px 16px 4px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-left: 3px solid #64748b;
+  border-radius: 6px;
+}
+.budget-notice-framing {
+  font-size: 12px;
+  font-style: italic;
+  color: #64748b;
+  margin: 0;
+}
+.budget-notice-cap {
+  font-size: 12.5px;
+  color: #334155;
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+/* Catch-up card (Stage 5c) — session-start outcome recording */
+.catchup-card {
+  margin: 8px 16px 4px;
+  padding: 16px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+}
+.catchup-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+  margin: 0 0 6px;
+}
+.catchup-desc {
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.catchup-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+.catchup-save {
+  background: #d97706;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.catchup-save:hover:not(:disabled) { background: #b45309; }
+.catchup-save:disabled { background: #9ca3af; cursor: not-allowed; }
+
+/* Per-template outcome chips (Stage 5b) */
+.review-outcomes {
+  margin: 0 0 16px;
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+.review-outcomes-title { font-size: 13px; font-weight: 600; color: #374151; margin: 0 0 10px; }
+.review-outcome-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border-top: 1px solid #f3f4f6;
+}
+.review-outcome-row:first-of-type { border-top: none; }
+.review-outcome-name {
+  flex: 1 1 100%;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+.review-chip-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.review-chip {
+  padding: 4px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 11.5px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.review-chip:hover { border-color: #9ca3af; }
+.review-chip-on { background: #1e40af; border-color: #1e40af; color: #fff; }
+.review-chip-on-well { background: #16a34a; border-color: #16a34a; color: #fff; }
+.review-chip-on-less { background: #dc2626; border-color: #dc2626; color: #fff; }
 .review-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
 .review-label { font-size: 12px; font-weight: 600; color: #374151; }
 .review-textarea {

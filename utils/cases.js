@@ -85,6 +85,29 @@ export async function deleteCase (id, token) {
   if (!res.ok) { throw new Error(`Failed to delete case (${res.status})`) }
 }
 
+/**
+ * Find the case the session-start catch-up card should ask about (Stage 5c,
+ * 2026-07-14): the advisor's OWN most recent case for this client that
+ * delivered templates but has no per-template outcomes recorded yet. Own cases
+ * only — outcome writes are owner-scoped server-side, and an advisor should
+ * only vouch for sessions they delivered. Cases arrive newest-first from the
+ * backend; returns null when there is nothing to catch up on.
+ * @param {object[]} cases - the advisor-visible case list (rowToCase shape)
+ * @param {string} advisorId - the authenticated advisor (server-returned)
+ * @param {string} clientId - the session's chosen client
+ * @returns {object|null}
+ */
+export function findUnrecordedCase (cases, advisorId, clientId) {
+  if (!Array.isArray(cases) || !advisorId || !clientId) { return null }
+  return cases.find(c =>
+    c &&
+    c.advisorId === advisorId &&
+    c.clientId === clientId &&
+    Array.isArray(c.templates) && c.templates.length > 0 &&
+    (!Array.isArray(c.templateOutcomes) || c.templateOutcomes.length === 0)
+  ) || null
+}
+
 // Legacy localStorage key the cases used to live under, a one-time COMPLETION flag,
 // and a per-id record of what has already been migrated (so a retry after a partial
 // failure resumes rather than re-sending — or permanently abandoning — cases).
