@@ -200,4 +200,39 @@ describe('renameClient', () => {
     expect(res._status).toBe(400)
     expect(db.execute).not.toHaveBeenCalled()
   })
+
+  test('renameClient without a firm identity → 403', async () => {
+    const res = makeMockRes()
+    await renameClient(makeReq({ firmId: null, params: { id: 'client-1' }, body: { name: 'X' } }), res)
+    expect(res._status).toBe(403)
+    expect(res._body.error.code).toBe('NO_FIRM_IDENTITY')
+  })
+})
+
+// ── Error paths: a DB failure in production is a clean 500, never a stack ────
+// (In production devFallbackEnabled() is false, so the store failure propagates
+// to the route — the same convention the cases routes lock.)
+
+describe('DB failure in production → 500 with the safe envelope', () => {
+  let prevEnv
+  beforeEach(() => {
+    prevEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    db.execute.mockRejectedValue(new Error('connection refused: secret-host:3306'))
+  })
+  afterEach(() => { process.env.NODE_ENV = prevEnv })
+
+  test.each([
+    ['listClients', res => listClients(makeReq(), res)],
+    ['createClient', res => createClient(makeReq({ body: { name: 'Vanoss', confirmed: true } }), res)],
+    ['renameClient', res => renameClient(makeReq({ params: { id: 'client-1' }, body: { name: 'X' } }), res)]
+  ])('%s → 500 DB_ERROR, no internals leaked', async (_name, run) => {
+    const res = makeMockRes()
+    await run(res)
+    expect(res._status).toBe(500)
+    expect(res._body.error.code).toBe('DB_ERROR')
+    // The safe generic message — never the raw error, host, or a stack trace.
+    expect(JSON.stringify(res._body)).not.toContain('secret-host')
+    expect(JSON.stringify(res._body)).not.toContain('connection refused')
+  })
 })
