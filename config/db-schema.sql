@@ -167,6 +167,37 @@ CREATE TABLE IF NOT EXISTS `advisor_course_completions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
+-- va_clients
+-- The firm-scoped client register (client knowledge base, design 2026-07-14).
+-- One row per client business, per firm — every advisor at the firm selects
+-- from this ONE list, so the same client is never registered twice.
+--
+-- The client's NAME IS A LABEL, NOT THE KEY: `id` is a generated UUID the
+-- advisor never sees, so renaming a client never orphans its case history.
+-- `name_key` is a normalised form of the name (lowercased, diacritics and all
+-- non-alphanumerics stripped — see clientStore.normaliseNameKey) used ONLY for
+-- duplicate detection and the "did you mean…?" check. It is deliberately NOT
+-- unique: two genuinely distinct businesses can share a name — the application
+-- warns, the database does not block.
+--
+-- What an advisor can READ about a client remains governed by va_case_studies
+-- `visibility` — sharing a client's name is not sharing their cases.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `va_clients` (
+  `id`          VARCHAR(64)  NOT NULL,
+  `firm_id`     VARCHAR(64)  NOT NULL,
+  `name`        VARCHAR(255) NOT NULL,
+  `name_key`    VARCHAR(255) NOT NULL,
+  `created_by`  VARCHAR(64)  NOT NULL,
+  `created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_clients_firm_name`    (`firm_id`, `name`),
+  KEY `idx_clients_firm_namekey` (`firm_id`, `name_key`),
+  CONSTRAINT `fk_clients_firm`
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
 -- va_case_studies
 -- One row per saved case study. Stored centrally (not in browser localStorage)
 -- so a case follows the advisor across every device they log in from.
@@ -208,6 +239,10 @@ CREATE TABLE IF NOT EXISTS `va_case_studies` (
   `id`                         VARCHAR(64)              NOT NULL,
   `advisor_id`                 VARCHAR(64)              NOT NULL,
   `firm_id`                    VARCHAR(64)              NOT NULL,
+  -- Client-knowledge-base link (design 2026-07-14). NULL when the advisor
+  -- skipped naming the client, and for every case saved before the feature.
+  -- NEVER back-filled from the free-text title — see va_clients note above.
+  `client_id`                  VARCHAR(64)                       DEFAULT NULL,
   `title`                      VARCHAR(255)             NOT NULL,
   `mode`                       VARCHAR(32)              NOT NULL,
   `visibility`                 ENUM('private','shared') NOT NULL DEFAULT 'private',
@@ -223,6 +258,11 @@ CREATE TABLE IF NOT EXISTS `va_case_studies` (
   `review_went_well`           TEXT                              DEFAULT NULL,
   `review_went_less`           TEXT                              DEFAULT NULL,
   `review_changes_recommended` TEXT                              DEFAULT NULL,
+  -- Per-template outcomes recorded at review time (product owner 2026-07-14):
+  -- [{ title, used: 'full'|'partial'|'none', outcome: 'well'|'less'|null }].
+  -- Titles validated server-side against the case's own template list. NULL for
+  -- pre-feature reviews — the engine falls back to the case-level review.
+  `template_outcomes`          JSON                              DEFAULT NULL,
   `reviewed_at`                DATETIME                          DEFAULT NULL,
   -- Mentor review (per-case, manager-gated, anonymised — see note above).
   `mentor_shared`              TINYINT(1)               NOT NULL DEFAULT 0,
@@ -239,6 +279,11 @@ CREATE TABLE IF NOT EXISTS `va_case_studies` (
   KEY `idx_cases_domain`           (`domain`),
   KEY `idx_cases_feedback_pending` (`firm_id`, `feedback_pending`),
   KEY `idx_cases_mentor_shared`     (`mentor_shared`, `created_at`),
+  KEY `idx_cases_client`           (`client_id`),
   CONSTRAINT `fk_cases_firm`
-    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE,
+  -- ON DELETE SET NULL: if a client record is ever removed, its cases revert
+  -- to unlinked rather than being destroyed — case history is never collateral.
+  CONSTRAINT `fk_cases_client`
+    FOREIGN KEY (`client_id`) REFERENCES `va_clients` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

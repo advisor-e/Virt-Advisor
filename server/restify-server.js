@@ -74,6 +74,7 @@ const firmRoute = require('./routes/firm')
 const firmManagerRoute = require('./routes/firmManager')
 const activityRoute = require('./routes/activity')
 const casesRoute = require('./routes/cases')
+const clientsRoute = require('./routes/clients')
 const mentorRoute = require('./routes/mentor')
 const { firmAuth, requireManagerRole, requireMentorRole } = require('./middleware/firmAuth')
 // Advisor + course engines — migrated from Nuxt server-middleware per the
@@ -144,6 +145,13 @@ server.put('/api/cases/:id/review', firmAuth, casesRoute.reviewCase)
 server.put('/api/cases/:id/visibility', firmAuth, casesRoute.setCaseVisibility)
 server.del('/api/cases/:id', firmAuth, casesRoute.deleteCase)
 server.post('/api/cases/promote', firmAuth, requireManagerRole, casesRoute.promote)
+
+// ── Client register (client knowledge base, design 2026-07-14) ──
+// All firmAuth-guarded, firm-scoped from the verified JWT. The register holds
+// NAMES only — reading a client's cases stays behind the case visibility model.
+server.get('/api/clients', firmAuth, clientsRoute.listClients)
+server.post('/api/clients', firmAuth, clientsRoute.createClient)
+server.put('/api/clients/:id', firmAuth, clientsRoute.renameClient)
 
 // ── Firm Manager routes (firm_manager or platform_admin role required) ──
 const fm = firmManagerRoute

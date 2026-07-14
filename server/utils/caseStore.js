@@ -84,6 +84,9 @@ function rowToCase (row) {
     id: row.id,
     advisorId: row.advisor_id,
     firmId: row.firm_id,
+    // Client-knowledge-base link (design 2026-07-14). NULL for cases saved
+    // before the feature or where the advisor skipped naming the client.
+    clientId: row.client_id || null,
     title: row.title,
     mode: row.mode,
     visibility: row.visibility,
@@ -101,6 +104,9 @@ function rowToCase (row) {
     summary: row.summary || '',
     transcript: parseJSON(row.transcript, []),
     decisionTrace: parseJSON(row.decision_trace, null),
+    // Per-template outcomes recorded at review time (2026-07-14); null for
+    // pre-feature reviews — consumers fall back to the case-level review.
+    templateOutcomes: parseJSON(row.template_outcomes, null),
     feedbackPending: row.feedback_pending === 1 || row.feedback_pending === true,
     review: (row.review_went_well || row.review_went_less || row.review_changes_recommended || row.reviewed_at)
       ? {
@@ -143,6 +149,34 @@ async function listForAdvisor (advisorId, firmId) {
     return rows.map(rowToCase)
   } catch (err) {
     if (devFallbackEnabled()) { return _devList(advisorId, firmId) }
+    throw err
+  }
+}
+
+/**
+ * The cases that inform ONE client's knowledge base, for the calling advisor
+ * (design 2026-07-14). The access boundary is IDENTICAL to listForAdvisor: the
+ * advisor's own cases (any visibility) plus the firm's shared ones — sharing a
+ * case is what contributes it to a colleague's knowledge of the client. No new
+ * permission model; a client_id belonging to another firm returns nothing.
+ * @param {string} advisorId - from the verified JWT, never the request body
+ * @param {string} firmId - from the verified JWT
+ * @param {string} clientId - va_clients id (validate firm ownership via clientStore.getById first)
+ * @returns {Promise<object[]>} newest first, capped at 50
+ */
+async function listForClient (advisorId, firmId, clientId) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT * FROM va_case_studies
+        WHERE client_id = ?
+          AND (advisor_id = ? OR (firm_id = ? AND visibility = 'shared'))
+        ORDER BY created_at DESC
+        LIMIT 50`,
+      [clientId, advisorId, firmId]
+    )
+    return rows.map(rowToCase)
+  } catch (err) {
+    if (devFallbackEnabled()) { return _devListForClient(advisorId, firmId, clientId) }
     throw err
   }
 }
@@ -261,6 +295,7 @@ async function create (input) {
     id: (typeof input.id === 'string' && input.id) ? input.id.slice(0, 64) : generateId(),
     advisor_id: String(input.advisorId).slice(0, 64),
     firm_id: String(input.firmId).slice(0, 64),
+    client_id: (typeof input.clientId === 'string' && input.clientId) ? input.clientId.slice(0, 64) : null,
     title: String(input.title || 'Untitled case').slice(0, 255),
     mode: String(input.mode || 'client').slice(0, 32),
     visibility: safeVisibility(input.visibility),
@@ -278,12 +313,12 @@ async function create (input) {
   try {
     await db.execute(
       `INSERT INTO va_case_studies
-         (id, advisor_id, firm_id, title, mode, visibility, domain,
+         (id, advisor_id, firm_id, client_id, title, mode, visibility, domain,
           staircase_step, growth_stage, fin_mgt_theme, templates, summary,
           transcript, decision_trace, feedback_pending)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        row.id, row.advisor_id, row.firm_id, row.title, row.mode, row.visibility,
+        row.id, row.advisor_id, row.firm_id, row.client_id, row.title, row.mode, row.visibility,
         row.domain, row.staircase_step, row.growth_stage, row.fin_mgt_theme,
         row.templates.length ? JSON.stringify(row.templates) : null,
         row.summary,
@@ -299,27 +334,80 @@ async function create (input) {
   }
 }
 
+// Per-template outcome enums (product owner 2026-07-14). `used` is required on
+// every entry; `outcome` may be null (e.g. "partly used" with no verdict yet).
+const OUTCOME_USED = ['full', 'partial', 'none']
+const OUTCOME_RESULT = ['well', 'less']
+
 /**
- * Update the post-delivery review on a case the advisor owns.
+ * Sanitise a per-template outcomes payload against the case's OWN template
+ * list. Entries with unknown titles or invalid enums are dropped (a crafted
+ * request must not be able to attach outcomes for templates the case never
+ * delivered — that would poison the client-history hold-back). Returns null
+ * when nothing valid remains, so an absent/garbage payload stores NULL and the
+ * engine falls back to the case-level review.
+ * @param {*} raw - client-supplied array
+ * @param {string[]} caseTemplates - the case's stored template titles
+ * @returns {Array<{title:string, used:string, outcome:string|null}>|null}
+ */
+function sanitiseTemplateOutcomes (raw, caseTemplates) {
+  if (!Array.isArray(raw) || raw.length === 0) { return null }
+  const allowed = new Map((caseTemplates || []).map(t => [String(t).trim().toLowerCase(), String(t)]))
+  const seen = new Set()
+  const out = []
+  for (const entry of raw.slice(0, 20)) {
+    if (!entry || typeof entry !== 'object') { continue }
+    const key = String(entry.title || '').trim().toLowerCase()
+    const canonical = allowed.get(key)
+    if (!canonical || seen.has(key)) { continue }
+    if (!OUTCOME_USED.includes(entry.used)) { continue }
+    const outcome = OUTCOME_RESULT.includes(entry.outcome) ? entry.outcome : null
+    seen.add(key)
+    out.push({ title: canonical, used: entry.used, outcome })
+  }
+  return out.length > 0 ? out : null
+}
+
+/**
+ * Update the post-delivery review on a case the advisor owns — including the
+ * per-template outcomes (which templates were used / half-used and how each
+ * landed). Outcomes are validated against the case's own template list, which
+ * costs one owner-scoped SELECT; an invalid or absent payload stores NULL.
  * @returns {Promise<boolean>} true if a row the advisor owns was updated
  */
 async function updateReview (id, advisorId, review) {
   const wentWell = review && review.wentWell ? String(review.wentWell).slice(0, 5000) : null
   const wentLess = review && review.wentLess ? String(review.wentLess).slice(0, 5000) : null
   const changes = review && review.changesRecommended ? String(review.changesRecommended).slice(0, 5000) : null
+  const rawOutcomes = review ? review.templateOutcomes : null
 
   try {
+    let outcomes = null
+    if (rawOutcomes) {
+      const [rows] = await db.execute(
+        'SELECT templates FROM va_case_studies WHERE id = ? AND advisor_id = ? LIMIT 1',
+        [id, advisorId]
+      )
+      if (rows.length === 0) { return false }
+      outcomes = sanitiseTemplateOutcomes(rawOutcomes, parseJSON(rows[0].templates, []))
+    }
     const [result] = await db.execute(
       `UPDATE va_case_studies
           SET review_went_well = ?, review_went_less = ?,
-              review_changes_recommended = ?, reviewed_at = NOW(),
-              feedback_pending = 0
+              review_changes_recommended = ?, template_outcomes = ?,
+              reviewed_at = NOW(), feedback_pending = 0
         WHERE id = ? AND advisor_id = ?`,
-      [wentWell, wentLess, changes, id, advisorId]
+      [wentWell, wentLess, changes, outcomes ? JSON.stringify(outcomes) : null, id, advisorId]
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) { return _devUpdate(id, advisorId, (c) => { c.review = { wentWell: wentWell || '', wentLess: wentLess || '', changesRecommended: changes || '', reviewedAt: new Date().toISOString() }; c.feedbackPending = false }) }
+    if (devFallbackEnabled()) {
+      return _devUpdate(id, advisorId, (c) => {
+        c.review = { wentWell: wentWell || '', wentLess: wentLess || '', changesRecommended: changes || '', reviewedAt: new Date().toISOString() }
+        c.templateOutcomes = rawOutcomes ? sanitiseTemplateOutcomes(rawOutcomes, c.templates || []) : null
+        c.feedbackPending = false
+      })
+    }
     throw err
   }
 }
@@ -450,6 +538,11 @@ function _devList (advisorId, firmId) {
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
 }
 
+/** Mirrors listForClient's SQL: same visibility boundary, filtered to one client. */
+function _devListForClient (advisorId, firmId, clientId) {
+  return _devList(advisorId, firmId).filter(c => c.clientId === clientId)
+}
+
 function _devListSharedForFirm (firmId) {
   return _devReadAll()
     .filter(c => c.firmId === firmId && c.visibility === 'shared')
@@ -537,6 +630,7 @@ function _devRemove (id, advisorId) {
 
 module.exports = {
   listForAdvisor,
+  listForClient,
   listSharedForFirm,
   getSharedForFirm,
   listSharedWithMentor,
@@ -549,5 +643,6 @@ module.exports = {
   // exported for tests
   generateId,
   safeVisibility,
+  sanitiseTemplateOutcomes,
   VISIBILITIES
 }

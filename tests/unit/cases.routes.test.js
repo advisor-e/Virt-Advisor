@@ -43,6 +43,56 @@ function makeReq (overrides = {}) {
 
 beforeEach(() => jest.clearAllMocks())
 
+// ── createCase + clientId (client knowledge base, design 2026-07-14) ─────────
+
+describe('createCase clientId link', () => {
+  const clientRow = {
+    id: 'client-1',
+    firm_id: 'firm-from-jwt',
+    name: 'Vanoss Scaffolding',
+    name_key: 'vanossscaffolding',
+    created_by: 'advisor-from-jwt',
+    created_at: '2026-07-14T00:00:00.000Z'
+  }
+
+  test('a clientId in the firm register is validated then saved on the case', async () => {
+    db.execute
+      .mockResolvedValueOnce([[clientRow]]) // clientStore.getById — found in OUR firm
+      .mockResolvedValueOnce([{ affectedRows: 1 }]) // INSERT
+    const res = makeMockRes()
+
+    await createCase(makeReq({ body: { title: 'Vanoss session', clientId: 'client-1' } }), res)
+
+    expect(res._status).toBe(200)
+    // getById is scoped to the JWT firm — the IDOR guard.
+    expect(db.execute.mock.calls[0][1]).toEqual(['client-1', 'firm-from-jwt'])
+    // INSERT column order: (id, advisor_id, firm_id, client_id, title, ...)
+    expect(db.execute.mock.calls[1][1][3]).toBe('client-1')
+  })
+
+  test("a clientId from ANOTHER firm's register is rejected loudly (400), never silently unlinked", async () => {
+    db.execute.mockResolvedValueOnce([[]]) // getById under OUR firm → not found
+    const res = makeMockRes()
+
+    await createCase(makeReq({ body: { title: 'T', clientId: 'other-firms-client' } }), res)
+
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('INVALID_CLIENT')
+    expect(db.execute).toHaveBeenCalledTimes(1) // no INSERT happened
+  })
+
+  test('no clientId saves the case unlinked (client_id NULL) — naming is skippable', async () => {
+    db.execute.mockResolvedValueOnce([{ affectedRows: 1 }]) // INSERT only
+    const res = makeMockRes()
+
+    await createCase(makeReq({ body: { title: 'Quick one-off' } }), res)
+
+    expect(res._status).toBe(200)
+    expect(db.execute).toHaveBeenCalledTimes(1)
+    expect(db.execute.mock.calls[0][1][3]).toBeNull()
+  })
+})
+
 // ── listCases ───────────────────────────────────────────────────────────────
 
 describe('listCases', () => {

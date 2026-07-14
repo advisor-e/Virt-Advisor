@@ -3,6 +3,20 @@
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
 const { SIGNAL_REGISTRY } = require('./problemSignals')
+const { HISTORY_HOLDBACK_PENALTY } = require('./priorEngagement')
+const { STOP_WORDS } = require('./stop-words')
+
+// Commerce-generic words that must never be read as the client's INDUSTRY.
+// Extends the shared STOP_WORDS for the industry matcher ONLY — the search
+// paths keep the shorter shared list, because advisors legitimately SEARCH for
+// "sales". Live session 2026-07-14 (raising-capital domain): the industry
+// answer "car sales a car yard" made "sales" an industry keyword and
+// title-boosted six sales/sale-titled tools to the top of an unrelated
+// engagement — the same defect class as Bug 1's "business", one list short.
+const INDUSTRY_STOPWORDS = new Set([
+  'sales', 'sale', 'service', 'services', 'company', 'group', 'trading',
+  'limited', 'enterprises', 'holdings', 'shop', 'store', 'firm', 'industry'
+])
 
 // ── Semantic profile loader ─────────────────────────────────────────────────
 // Reads the pre-compiled semantic profiles (built by scripts/build-semantic-profiles.js).
@@ -183,6 +197,17 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   // Templates the matched logic tree points at for THIS situation (walkLogicTree output,
   // situation-specific). A weak tie-breaking boost — see TREE_HINT_BOOST above.
   const treeHintNames = new Set((options && options.treeHintNames) || [])
+  // Client-history hold-back (client knowledge base, Option A — product owner
+  // 2026-07-14). Titles this client has ALREADY received are discouraged, never
+  // banned; titles from a session the advisor reviewed as going less well carry
+  // their own reason code. Case-insensitive: saved case templates and library
+  // titles are the same names, but never trust casing to survive a round trip.
+  const _histDelivered = new Set(
+    ((options && options.priorHoldback && options.priorHoldback.delivered) || []).map(t => String(t).trim().toLowerCase())
+  )
+  const _histWentLess = new Set(
+    ((options && options.priorHoldback && options.priorHoldback.wentLessTitles) || []).map(t => String(t).trim().toLowerCase())
+  )
   const { domain, primaryIssue, industry, solutionCategories, client, complexityCeiling, advisor } = caseState
   const { engagementType, templateBudget } = strategyDecision
 
@@ -194,10 +219,18 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
 
   // Industry keyword hints — the client's stated industry (e.g. "cafe") is a key
   // selection factor: an industry-specific template should win for a matching client.
-  // Tokens length > 3 only, so noise words don't match. Matched against template
-  // title + tags below (see the industry boost in the scoring loop).
+  // Matched against template title + tags below (see the industry boost in the
+  // scoring loop). Filtered against the SHARED stop-word set (templates.js /
+  // summaries.js already do) — without it, generic words in a free-text industry
+  // answer are treated as the industry itself: "Vanoss scaffolding business" made
+  // "business" an industry keyword, and every template with "business" in its
+  // title/tags took a false +8/+4 boost. Live session 2026-07-14: "Business
+  // Insurance Model" (28) displaced "Working Capital Cycle" (27) on that boost
+  // alone. (Bug 1, engine-defects review 2026-07-14.)
   const _industryKeywords = industry
-    ? industry.toLowerCase().split(/[\s—\-,/&]+/).filter(w => w.length > 3)
+    ? industry.toLowerCase()
+      .split(/[\s—\-,/&]+/)
+      .filter(w => w.length > 3 && !STOP_WORDS.has(w) && !INDUSTRY_STOPWORDS.has(w))
     : []
 
   const blocked = ignoreCeiling ? new Set() : (CEILING_BLOCKED[complexityCeiling] || new Set())
@@ -507,6 +540,28 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
       }
     }
 
+    // Client-history hold-back (Option A, product owner 2026-07-14): this client
+    // has already received this template, so DISCOURAGE it — a repeat must earn
+    // its place by clearly outscoring the alternatives, and the hold-back is
+    // visible in the trace (never a silent drop). A session the advisor reviewed
+    // as going less well gets its own reason code: the issue is likely unresolved
+    // AND the approach did not land, so steer toward a different tool. Reviews
+    // are case-level — no per-template attribution is invented (Stage 5b).
+    //
+    // Deliberately the LAST scoring rule: applied any earlier, later boosts
+    // (engagement, growth, confidence) leak past the clamp and dilute the
+    // penalty — a real ordering bug the formula test caught on first run.
+    // Clamped at 1, never below: the ranking gate drops score<=0 rows entirely,
+    // and a hold-back that makes a viable template VANISH from the scoring log
+    // would be a silent drop — the exact defect class this feature exists to
+    // remove. Bottom-ranked and labelled beats invisible. Templates that were
+    // not viable anyway (score<=0) are left untouched — no penalty, no reason.
+    const _titleKey = (t.title || '').trim().toLowerCase()
+    if (_histDelivered.has(_titleKey) && score > 0) {
+      score = Math.max(1, score - HISTORY_HOLDBACK_PENALTY)
+      reasons.push(_histWentLess.has(_titleKey) ? 'history:went_less_well' : 'history:already_delivered')
+    }
+
     const _profile = (t.page && _profileMap.has(t.page)) ? _profileMap.get(t.page) : {}
     const profileRichness = Object.values(_profile).reduce((sum, n) => sum + n, 0)
     return { title: t.title, page: t.page, subSection, score, profileRichness, matchReasons: reasons }
@@ -525,16 +580,33 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
     )
 
   const budget = (typeof templateBudget === 'number' && templateBudget >= 0) ? templateBudget : 1
-  const selected = ranked.slice(0, budget)
+
+  // Budget slots must be spent on DISTINCT templates (Bug 2, engine-defects
+  // review 2026-07-14). A library can hold two records with the same title
+  // (different page IDs) — slicing `ranked` directly let both take a slot, and
+  // buildDisplaySet's later title-dedup then dropped the second WITHOUT
+  // returning its slot: budget 3 → only 2 cards, silently. Live session: "Quick
+  // Fire Diagnosis" took two slots and "Working Capital Cycle" never surfaced.
+  // Dedup BEFORE the slice so every slot yields a distinct card.
+  const _seenTitles = new Set()
+  const _distinctRanked = []
+  for (const t of ranked) {
+    const _key = (t.title || '').trim().toLowerCase()
+    if (_key && _seenTitles.has(_key)) { continue }
+    if (_key) { _seenTitles.add(_key) }
+    _distinctRanked.push(t)
+  }
+  const selected = _distinctRanked.slice(0, budget)
 
   // Build a diverse candidate pool: cap any single subSection at 3 entries so the
   // AI receives representation across multiple section types, not just the highest-
-  // scoring subSection monopolising all slots.
+  // scoring subSection monopolising all slots. Iterates the DEDUPED list —
+  // duplicates must not consume candidate slots either.
   const MAX_CANDIDATES = Math.max(8, budget * 4)
   const SUBSECTION_CAP = 3
   const _subSectionCounts = {}
   const _diverseCandidates = []
-  for (const t of ranked) {
+  for (const t of _distinctRanked) {
     const n = _subSectionCounts[t.subSection] || 0
     if (n < SUBSECTION_CAP) {
       _diverseCandidates.push(t)
@@ -544,6 +616,9 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
   }
   const candidates = _diverseCandidates
 
+  // Deliberately UNdeduped: a duplicate title in the library is a genuine
+  // data-quality signal a firm manager should see in the trace, not something
+  // to hide. Only the budget/candidates are deduped — never the evidence.
   const scoringLog = ranked.slice(0, 20)
 
   if (selected.length === 0) {
@@ -568,8 +643,8 @@ function resolveTemplates (caseState, strategyDecision, templates, options) {
 // fallbackExists — true when at least one within-range template was found
 function resolveTemplatesWithOutlier (caseState, strategyDecision, templates, options) {
   const opts = options || {}
-  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreCeiling: true, distinctionBoosts: opts.distinctionBoosts, treeHintNames: opts.treeHintNames })
-  const withinRange = resolveTemplates(caseState, strategyDecision, templates, { distinctionBoosts: opts.distinctionBoosts, treeHintNames: opts.treeHintNames })
+  const primary = resolveTemplates(caseState, strategyDecision, templates, { ignoreCeiling: true, distinctionBoosts: opts.distinctionBoosts, treeHintNames: opts.treeHintNames, priorHoldback: opts.priorHoldback })
+  const withinRange = resolveTemplates(caseState, strategyDecision, templates, { distinctionBoosts: opts.distinctionBoosts, treeHintNames: opts.treeHintNames, priorHoldback: opts.priorHoldback })
 
   const primaryTop = primary.selected[0]
   const withinTop = withinRange.selected[0]
