@@ -1010,9 +1010,11 @@
     "page": "id-8990592804",
     "title": "EBITDA",
     "subSection": "Revenue & Feasibility Models",
-    "profile": {},
-    "totalSignals": 0,
-    "confidence": "low",
+    "profile": {
+      "capital_raising": 1
+    },
+    "totalSignals": 1,
+    "confidence": "medium",
     "source": "keyword"
   },
   {

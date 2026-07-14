@@ -104,6 +104,19 @@ const INDICATOR_SIGNAL_KEYWORDS = {
     'ownership transition', 'passing the business', 'due diligence',
     'business purchase', 'acquire a business', 'buying a business'
   ],
+  // Capital raising / acquisition funding (vocabulary approved by the product
+  // owner 2026-07-14 — live car-yard session: the signal existed in the
+  // dictionary but NO template carried it, so the semantic layer sat silent).
+  // Formal content-summary language, deliberately precise: broad terms like
+  // "debt"/"finance" alone would tag half the library (e.g. "debtor").
+  capital_raising: [
+    'raising capital', 'raise capital', 'capital raise', 'raising finance',
+    'raise finance', 'raising funds', 'investor', 'equity funding',
+    'equity investment', 'funding options', 'growth funding', 'loan',
+    'lender', 'borrowing', 'bank finance', 'debt financing', 'debt funding',
+    'cost of capital', 'capital structure', 'funding an acquisition',
+    'investment ready', 'investment readiness'
+  ],
   systems_gap: [
     'process', 'workflow', 'systems', 'software', 'technology',
     'inefficient', 'manual process', 'automation', 'operational efficiency',
