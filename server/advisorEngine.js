@@ -819,6 +819,41 @@ function parseMeetingCount (text) {
   return parseMeetingCountDetailed(text).count
 }
 
+/**
+ * Build the observation-intake messages. Extracted and TESTED because of the
+ * 2026-07-14 fabrication: the opening call carried ONLY a system instruction —
+ * no user turn — and with nobody to respond to, the model sometimes collapsed
+ * roles and ANSWERED its own two questions in the advisor's first-person voice
+ * (naming the session's real templates). Two-part fix, locked by tests:
+ *   1. the advisor's actual turn ("Yes, let's record it now." — the same words
+ *      the UI shows as their message) anchors the exchange, so the model has a
+ *      conversation to respond TO as the assistant;
+ *   2. an explicit ask-never-answer role guard in the instruction.
+ * @param {'open'|'close'} phase - open = ask the two questions; close = acknowledge
+ * @param {{templateList?: string, domainLabel?: string}} ctx
+ * @param {Array<{role:string, content:string}>} [conversationHistory] - close phase only
+ * @returns {Array<{role:string, content:string}>}
+ */
+function buildIntakeMessages (phase, ctx, conversationHistory) {
+  if (phase === 'open') {
+    return [
+      {
+        role: 'system',
+        content: `After a session using ${ctx.templateList} for a ${ctx.domainLabel} situation, ask the advisor two short, direct questions: (1) What went well in the session, and what was harder than expected? (2) What would you do differently with a similar client next time? You are ASKING the advisor these questions — never write, suggest, or draft the advisor's answers yourself. No filler, no praise, no sign-offs. Plain sentences only, maximum 3 lines total.`
+      },
+      // NEVER omit this turn: a system-only call is how the fabrication happened.
+      { role: 'user', content: "Yes, let's record it now." }
+    ]
+  }
+  return [
+    {
+      role: 'system',
+      content: 'The advisor has just shared post-session observations. In 2 sentences, briefly acknowledge what they noted — reference one or two specific points they raised. No praise, no encouragement. Just a concise, professional close. End your response with the exact marker [INTAKE_COMPLETE] on its own line with nothing after it.'
+    },
+    ...(conversationHistory || []).slice(-4)
+  ]
+}
+
 function buildCourseCorrectionMsg (state) {
   const domainEntry = DOMAINS.find(d => d.id === state.detectedDomain)
   const domainLabel = domainEntry ? domainEntry.label : 'this area'
@@ -1561,22 +1596,11 @@ async function handleQuery (rawBody, res, identity) {
       if (query === '__intake__') {
         state.intakeActive = true
         state.intakeTurn = 1
-        intakeMessages = [
-          {
-            role: 'system',
-            content: `After a session using ${templateList} for a ${domainLabel} situation, ask the advisor two short, direct questions: (1) What went well in the session, and what was harder than expected? (2) What would you do differently with a similar client next time? No filler, no praise, no sign-offs. Plain sentences only, maximum 3 lines total.`
-          }
-        ]
+        intakeMessages = buildIntakeMessages('open', { templateList, domainLabel })
       } else {
         state.intakeActive = false
         state.intakeTurn = 2
-        intakeMessages = [
-          {
-            role: 'system',
-            content: 'The advisor has just shared post-session observations. In 2 sentences, briefly acknowledge what they noted — reference one or two specific points they raised. No praise, no encouragement. Just a concise, professional close. End your response with the exact marker [INTAKE_COMPLETE] on its own line with nothing after it.'
-          },
-          ...conversationHistory.slice(-4)
-        ]
+        intakeMessages = buildIntakeMessages('close', {}, conversationHistory)
       }
 
       try {
@@ -2805,5 +2829,6 @@ module.exports.detectFrustration = detectFrustration
 module.exports.parseMeetingCount = parseMeetingCount
 module.exports.parseMeetingCountDetailed = parseMeetingCountDetailed
 module.exports.MEETING_MAX = MEETING_MAX
+module.exports.buildIntakeMessages = buildIntakeMessages
 module.exports.classifyDistinctions = classifyDistinctions
 module.exports.findNearMissDistinctions = findNearMissDistinctions
