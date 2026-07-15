@@ -86,9 +86,12 @@
             button.vis-opt(:class="{ 'vis-active': courseVisibility === 'private' }" @click="courseVisibility = 'private'")
               span.vis-icon 🔒
               span Private — just me
-            button.vis-opt(:class="{ 'vis-active': courseVisibility === 'firm' }" @click="courseVisibility = 'firm'")
+            //- CB-07 (Mike's ruling 2026-07-15): firm-wide sharing needs server
+            //- storage (CB-16/17) — disabled until then, never a silent no-op.
+            button.vis-opt.vis-disabled(disabled)
               span.vis-icon 🏢
               span Firm-wide — all advisors
+              span.vis-soon-tag Coming soon
         .outline-actions
           button.btn-start-course(@click="confirmOutline") Start this course →
           button.btn-request-changes(@click="requestOutlineChanges") Request changes
@@ -1574,6 +1577,12 @@ export default {
 }
 .vis-opt:hover { border-color: #00b1e0; color: #00b1e0; }
 .vis-opt.vis-active { border-color: #00b1e0; background: #e6f8fd; color: #00b1e0; font-weight: 600; }
+.vis-opt.vis-disabled { opacity: 0.6; cursor: not-allowed; }
+.vis-opt.vis-disabled:hover { border-color: #e5e7eb; color: #6b7280; }
+.vis-soon-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  background: #f3f4f6; color: #6b7280; border-radius: 999px; padding: 2px 8px;
+}
 .vis-icon { font-size: 14px; }
 
 .outline-actions {
