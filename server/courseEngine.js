@@ -430,22 +430,32 @@ Return ONLY valid JSON with no other text:
 // ── Quiz grading ───────────────────────────────────────────────────────────
 
 async function handleQuizGrade (body, res) {
-  const { question, answer, sessionContext } = body
+  const { question, answer, sessionContext, sessionHistory = [] } = body
   if (!question || !answer) {
     return sendError(res, 400, 'PARAMS_REQUIRED', 'question and answer are required')
   }
 
   const openai = getOpenAI()
 
+  // Same capped session summary quiz-generate uses — the marker must judge
+  // against what was actually taught, not GPT-4o's general knowledge (CB-04).
+  const sessionSummary = sessionHistory
+    .filter(m => m.role === 'assistant')
+    .map(m => m.content)
+    .join('\n\n')
+    .slice(0, 3000)
+
   const prompt = `Grade an advisor's quiz answer for a professional development course.
 
 Session: ${sessionContext?.title || 'Unknown'}
 Question: ${question.question}
 Related objective: ${question.objective || 'Not specified'}
+Session content covered (what was taught):
+${sessionSummary || 'Not available'}
 Advisor's answer:
 ${fenceUntrusted(String(answer).slice(0, 1000))}
 
-Evaluate whether this answer demonstrates understanding of the objective. Return ONLY valid JSON:
+Evaluate whether this answer demonstrates understanding of the objective, judged against the session content above where provided. Return ONLY valid JSON:
 {"passed":true,"score":80,"feedback":"Specific, encouraging 2-3 sentence feedback explaining what was correct, what was missing if anything, and a key point to remember."}
 
 Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfectly should still pass. A low score must include specific guidance on what to revisit.`

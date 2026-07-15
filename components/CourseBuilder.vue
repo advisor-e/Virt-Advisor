@@ -1171,7 +1171,10 @@ export default {
             type: 'quiz-grade',
             question: this.currentQuestion,
             answer,
-            sessionContext: this.currentSession
+            sessionContext: this.currentSession,
+            // What was taught — the backend caps and injects it so the marker
+            // grades against the session content, not general knowledge (CB-04).
+            sessionHistory: this.sessionMessages.map(m => ({ role: m.role, content: m.content }))
           })
         })
         const data = await response.json()
