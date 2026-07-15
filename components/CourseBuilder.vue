@@ -304,9 +304,9 @@
             span(v-else) Submit answer
 
         .quiz-result-card(v-if="currentResult")
-          .result-badge(:class="currentResult.passed ? 'badge-pass' : 'badge-fail'")
-            | {{ currentResult.passed ? '✓ Good understanding' : '✗ Review this one' }}
-          p.result-score Score: {{ currentResult.score }}%
+          .result-badge(:class="currentResult.ungraded ? 'badge-ungraded' : (currentResult.passed ? 'badge-pass' : 'badge-fail')")
+            | {{ currentResult.ungraded ? '— Not graded' : (currentResult.passed ? '✓ Good understanding' : '✗ Review this one') }}
+          p.result-score(v-if="!currentResult.ungraded") Score: {{ currentResult.score }}%
           p.result-feedback {{ currentResult.feedback }}
           button.btn-next-q(@click="nextQuestion")
             | {{ quizCurrentIndex < quizQuestions.length - 1 ? 'Next question →' : 'See results' }}
@@ -314,14 +314,15 @@
       //- Quiz complete — results summary
       .quiz-results(v-if="quizComplete")
         .results-score-circle(:class="quizPassed ? 'score-pass' : 'score-needs-work'")
-          span.score-number {{ overallScore }}%
-          span.score-label {{ quizPassed ? 'Passed' : 'Keep going' }}
-        p.results-verdict(v-if="quizPassed") Great work — you've completed this session.
+          span.score-number {{ overallScore === null ? '—' : overallScore + '%' }}
+          span.score-label {{ quizUngraded ? 'Not graded' : (quizPassed ? 'Passed' : 'Keep going') }}
+        p.results-verdict(v-if="quizUngraded") This quiz couldn't be marked this time — your session is still complete, and you can revisit the material any time.
+        p.results-verdict(v-else-if="quizPassed") Great work — you've completed this session.
         p.results-verdict(v-else) No problem — you can revisit the session material any time.
         .results-breakdown
           .result-row(v-for="(r, i) in quizResults" :key="i")
             span.q-num Q{{ i + 1 }}
-            span.q-result-score(:class="r.passed ? 'score-pass-text' : 'score-fail-text'") {{ r.score }}%
+            span.q-result-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : r.score + '%' }}
             p.q-feedback-brief {{ r.feedback.slice(0, 80) }}{{ r.feedback.length > 80 ? '...' : '' }}
         button.btn-continue-course(@click="completeSession")
           | {{ hasMoreSessions ? 'Continue to session ' + (activeSessionIndex + 2) + ' →' : 'Complete course' }}
@@ -336,8 +337,8 @@
         .review-q-row(v-for="(r, i) in reviewResults" :key="i")
           .review-q-meta
             span.review-q-num Q{{ i + 1 }}
-            span.review-q-score(:class="r.passed ? 'score-pass-text' : 'score-fail-text'") {{ r.score }}%
-            span.review-badge(:class="r.passed ? 'badge-pass' : 'badge-fail'") {{ r.passed ? '✓ Good understanding' : '✗ Review this one' }}
+            span.review-q-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : r.score + '%' }}
+            span.review-badge(:class="r.ungraded ? 'badge-ungraded' : (r.passed ? 'badge-pass' : 'badge-fail')") {{ r.ungraded ? '— Not graded' : (r.passed ? '✓ Good understanding' : '✗ Review this one') }}
           p.review-q-text {{ r.question }}
           .review-answer-block
             p.review-answer-label Your answer
@@ -396,6 +397,7 @@
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import courseStarters from '~/data/course-starters.json'
+import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
 
@@ -481,12 +483,19 @@ export default {
     },
 
     quizPassed () {
-      return this.overallScore >= 70
+      return quizPassedRule(this.quizResults)
     },
 
+    // Fully-ungraded quiz — the results screen explains the marking failure
+    // instead of showing a pass/fail verdict (CB-03).
+    quizUngraded () {
+      return quizFullyUngraded(this.quizResults)
+    },
+
+    // Average of GRADED answers only; null when nothing was graded (an
+    // ungraded answer must never inflate the recorded score — CB-03).
     overallScore () {
-      if (!this.quizResults.length) { return 0 }
-      return Math.round(this.quizResults.reduce((sum, r) => sum + (r.score || 0), 0) / this.quizResults.length)
+      return overallQuizScore(this.quizResults)
     },
 
     progressPercent () {
@@ -1163,10 +1172,10 @@ export default {
         if (data.success) {
           this.currentResult = { passed: data.passed, score: data.score, feedback: data.feedback, question: this.currentQuestion.question, answer }
         } else {
-          this.currentResult = { passed: true, score: 75, feedback: 'Could not evaluate — moving on.', question: this.currentQuestion.question, answer }
+          this.currentResult = ungradedResult(this.currentQuestion.question, answer)
         }
       } catch (e) {
-        this.currentResult = { passed: true, score: 75, feedback: 'Could not evaluate — moving on.', question: this.currentQuestion.question, answer }
+        this.currentResult = ungradedResult(this.currentQuestion.question, answer)
       }
 
       this.isGrading = false
@@ -1679,6 +1688,7 @@ export default {
 }
 .badge-pass { background: #dcfce7; color: #166534; }
 .badge-fail { background: #fef2f2; color: #991b1b; }
+.badge-ungraded { background: #f3f4f6; color: #4b5563; }
 .result-score { font-size: 13px; color: #6b7280; margin: 0; font-weight: 500; }
 .result-feedback { font-size: 14px; color: #374151; margin: 0; line-height: 1.6; }
 
@@ -1720,6 +1730,7 @@ export default {
 .q-result-score { font-size: 12px; font-weight: 700; width: 36px; flex-shrink: 0; padding-top: 2px; }
 .score-pass-text { color: #0d9488; }
 .score-fail-text { color: #dc2626; }
+.score-na-text { color: #6b7280; }
 .q-feedback-brief { font-size: 12px; color: #6b7280; margin: 0; line-height: 1.4; flex: 1; }
 
 .btn-continue-course {
