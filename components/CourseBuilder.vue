@@ -590,6 +590,7 @@ export default {
       this._recognitionRunning = false
       try { this.recognition.stop() } catch (e) {}
     }
+    this._abortAllStreams()
   },
 
   methods: {
@@ -611,6 +612,22 @@ export default {
     renderMarkdown (text) {
       const raw = _md.render(String(text || ''))
       return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
+    },
+
+    // Cancel any in-flight AI streams and clear their indicators — called on
+    // every context switch (start fresh, delete, new course, resume, teardown)
+    // so a superseded reply can never land in a fresh conversation (CB-18).
+    _abortAllStreams () {
+      for (const key of ['_designCtrl', '_sessionCtrl']) {
+        if (this[key]) {
+          try { this[key].abort() } catch (e) { /* already settled */ }
+          this[key] = null
+        }
+      }
+      this.isDesignStreaming = false
+      this.designStreamingText = ''
+      this.isSessionStreaming = false
+      this.sessionStreamingText = ''
     },
 
     // ── Persistence ──────────────────────────────────────────────────────
@@ -701,6 +718,10 @@ export default {
       this.designStreamingText = ''
       this.pendingOutline = null
 
+      if (this._designCtrl) { try { this._designCtrl.abort() } catch (e) { /* already settled */ } }
+      const ctrl = new AbortController()
+      this._designCtrl = ctrl
+
       await this.$nextTick()
       this._scrollDesign()
 
@@ -708,6 +729,7 @@ export default {
         const response = await fetch('/api/course', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
+          signal: ctrl.signal,
           body: JSON.stringify({
             type: 'design',
             query,
@@ -771,11 +793,13 @@ export default {
           this.isDesignStreaming = false
         }
       } catch (e) {
+        if (e && e.name === 'AbortError') { return } // superseded by a context switch
         console.error('[course:design]', e.message)
         this.designMessages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' })
         this.isDesignStreaming = false
         this.designStreamingText = ''
       }
+      if (this._designCtrl === ctrl) { this._designCtrl = null }
 
       await this.$nextTick()
       this._scrollDesign()
@@ -843,10 +867,15 @@ export default {
       this.isSessionStreaming = true
       this.sessionStreamingText = ''
 
+      if (this._sessionCtrl) { try { this._sessionCtrl.abort() } catch (e) { /* already settled */ } }
+      const ctrl = new AbortController()
+      this._sessionCtrl = ctrl
+
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
+          signal: ctrl.signal,
           body: JSON.stringify({
             type: 'session',
             query: 'Begin session.',
@@ -894,6 +923,7 @@ export default {
           this.isSessionStreaming = false
         }
       } catch (e) {
+        if (e && e.name === 'AbortError') { return } // superseded by a context switch
         console.error('[course:session:open]', e.message)
         const resources = (session.resources || []).join(' and ') || 'the session material'
         this.sessionMessages = [{
@@ -903,6 +933,7 @@ export default {
         this.isSessionStreaming = false
         this.sessionStreamingText = ''
       }
+      if (this._sessionCtrl === ctrl) { this._sessionCtrl = null }
 
       await this.$nextTick()
       this._scrollSession()
@@ -918,6 +949,10 @@ export default {
       this.isSessionStreaming = true
       this.sessionStreamingText = ''
 
+      if (this._sessionCtrl) { try { this._sessionCtrl.abort() } catch (e) { /* already settled */ } }
+      const ctrl = new AbortController()
+      this._sessionCtrl = ctrl
+
       await this.$nextTick()
       this._scrollSession()
 
@@ -925,6 +960,7 @@ export default {
         const response = await fetch('/api/course', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
+          signal: ctrl.signal,
           body: JSON.stringify({
             type: 'session',
             query,
@@ -980,11 +1016,13 @@ export default {
           this.isSessionStreaming = false
         }
       } catch (e) {
+        if (e && e.name === 'AbortError') { return } // superseded by a context switch
         console.error('[course:session]', e.message)
         this.sessionMessages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' })
         this.isSessionStreaming = false
         this.sessionStreamingText = ''
       }
+      if (this._sessionCtrl === ctrl) { this._sessionCtrl = null }
 
       await this.$nextTick()
       this._scrollSession()
@@ -1060,6 +1098,7 @@ export default {
     },
 
     goToCourses () {
+      this._abortAllStreams()
       if (this.activeCourse && this.phase === 'session') {
         this._saveCourse(this.activeCourse)
       }
@@ -1067,6 +1106,7 @@ export default {
     },
 
     buildNewCourse () {
+      this._abortAllStreams()
       if (this.activeCourse) {
         this.activeCourse = { ...this.activeCourse, status: 'paused' }
         this._saveCourse(this.activeCourse)
@@ -1087,6 +1127,7 @@ export default {
     },
 
     resumeCourse (course) {
+      this._abortAllStreams()
       this.activeCourse = course.status === 'paused' ? { ...course, status: 'active' } : course
       if (course.status === 'paused') { this._saveCourse(this.activeCourse) }
       this.activeSessionIndex = this._findActiveSessionIndex(this.activeCourse)
@@ -1104,6 +1145,7 @@ export default {
     },
 
     startFreshCourse () {
+      this._abortAllStreams()
       this.activeCourse = null
       this.activeSessionIndex = 0
       this.courseVisibility = 'private'
@@ -1130,6 +1172,7 @@ export default {
     },
 
     _deleteCourse () {
+      this._abortAllStreams()
       if (this.activeCourse) {
         try {
           const stored = localStorage.getItem('va_courses')
