@@ -164,10 +164,10 @@ function handleDesign (req, body, res) {
 
     const advisorContextStr = advisorProfile
       ? '\n\n## Advisor profile\n\n' +
-        Object.entries(advisorProfile)
-          .filter(([, v]) => v && v.trim())
+        fenceUntrusted(Object.entries(advisorProfile)
+          .filter(([, v]) => typeof v === 'string' && v.trim())
           .map(([k, v]) => `${k}: ${v}`)
-          .join('\n')
+          .join('\n'))
       : ''
 
     const systemPrompt = loadPrompt('course-design') +
@@ -284,8 +284,9 @@ function handleDesign (req, body, res) {
     `Session format: ${state.sessionDetails}`
   ].filter(Boolean).join('\n')
 
+  // The answers are raw advisor typing — fenced so they read as data (CB-09).
   return generateOutline(
-    `Here is the complete picture of this advisor's learning needs:\n\n${collectedAnswers}\n\nNow generate the complete course outline.`
+    `Here is the complete picture of this advisor's learning needs:\n\n${fenceUntrusted(collectedAnswers)}\n\nNow generate the complete course outline.`
   )
 }
 
@@ -302,13 +303,19 @@ async function handleSession (req, body, res) {
   const filtered = filterTemplatesByQuery(templates, focusQuery)
   const templateContext = formatTemplatesForPrompt(filtered)
 
+  // sessionContext round-trips through the browser, so it is client-controlled
+  // at arrival — fenced before it enters the system prompt (CB-14).
+  const sessionObjectives = Array.isArray(sessionContext?.objectives) ? sessionContext.objectives : []
+  const sessionResources = Array.isArray(sessionContext?.resources) ? sessionContext.resources : []
   const sessionInject = sessionContext
     ? '\n\n## This session\n\n' +
-      `Session ${sessionContext.id}: ${sessionContext.title}\n` +
-      `Focus: ${sessionContext.focus}\n` +
-      `Objectives:\n${(sessionContext.objectives || []).map(o => '- ' + o).join('\n')}\n` +
-      `Resources: ${(sessionContext.resources || []).join(', ')}\n` +
-      `Estimated duration: ${sessionContext.estimatedMinutes || sessionContext.estimatedHours * 60 || 30} minutes`
+      fenceUntrusted(
+        `Session ${sessionContext.id}: ${sessionContext.title}\n` +
+        `Focus: ${sessionContext.focus}\n` +
+        `Objectives:\n${sessionObjectives.map(o => '- ' + o).join('\n')}\n` +
+        `Resources: ${sessionResources.join(', ')}\n` +
+        `Estimated duration: ${sessionContext.estimatedMinutes || sessionContext.estimatedHours * 60 || 30} minutes`
+      )
     : ''
 
   // Domain support context — match session topic to the relevant domain support JSON
@@ -324,10 +331,10 @@ async function handleSession (req, body, res) {
 
   const advisorContext = advisorProfile
     ? '\n\n## Advisor profile\n\n' +
-      Object.entries(advisorProfile)
-        .filter(([, v]) => v && v.trim())
+      fenceUntrusted(Object.entries(advisorProfile)
+        .filter(([, v]) => typeof v === 'string' && v.trim())
         .map(([k, v]) => `${k}: ${v}`)
-        .join('\n')
+        .join('\n'))
     : ''
 
   const systemPrompt = loadPrompt('course-session') +
@@ -393,12 +400,16 @@ async function handleQuizGenerate (body, res) {
     .join('\n\n')
     .slice(0, 3000)
 
+  // Client-supplied at arrival — fenced so it reads as data (CB-14).
+  const quizObjectives = Array.isArray(sessionContext?.objectives) ? sessionContext.objectives : []
   const prompt = `Generate exactly 3 quiz questions to test an advisor's understanding of a course session.
 
-Session title: ${sessionContext?.title || 'Unknown'}
-Session objectives: ${(sessionContext?.objectives || []).join('; ')}
-Session content covered (AI responses):
-${sessionSummary}
+Session details and content covered (AI responses):
+${fenceUntrusted(
+    `Session title: ${sessionContext?.title || 'Unknown'}\n` +
+    `Session objectives: ${quizObjectives.join('; ')}\n` +
+    `Session content covered:\n${sessionSummary}`
+  )}
 
 Requirements:
 - Open-ended questions (not multiple choice)
@@ -447,13 +458,17 @@ async function handleQuizGrade (body, res) {
     .join('\n\n')
     .slice(0, 3000)
 
+  // Title, question, objective and summary are client-supplied at arrival —
+  // fenced so they read as data (CB-14); the answer was already fenced.
   const prompt = `Grade an advisor's quiz answer for a professional development course.
 
-Session: ${sessionContext?.title || 'Unknown'}
-Question: ${question.question}
-Related objective: ${question.objective || 'Not specified'}
-Session content covered (what was taught):
-${sessionSummary || 'Not available'}
+Question and session details:
+${fenceUntrusted(
+    `Session: ${sessionContext?.title || 'Unknown'}\n` +
+    `Question: ${question.question}\n` +
+    `Related objective: ${question.objective || 'Not specified'}\n` +
+    `Session content covered (what was taught):\n${sessionSummary || 'Not available'}`
+  )}
 Advisor's answer:
 ${fenceUntrusted(String(answer).slice(0, 1000))}
 
