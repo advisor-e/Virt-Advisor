@@ -733,10 +733,6 @@ export default {
           body: JSON.stringify({
             type: 'design',
             query,
-            conversationHistory: this.designMessages.slice(0, -1).map(m => ({
-              role: m.role,
-              content: m.content
-            })),
             advisorProfile: this.advisorProfile,
             orgTemplateIds: this.orgTemplateIds,
             courseState: this.courseState

@@ -20,6 +20,7 @@ const { detectDomainForSession, formatDomainContextForSession, formatDomainSumma
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride } = require('../server/utils/quizOverrides')
+const { isClarificationRequest, prefillDesignState } = require('../server/utils/designInterview')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -75,27 +76,26 @@ function jsonResponse (res, status, payload) {
 
 // ── Design conversation ────────────────────────────────────────────────────
 
-// Detects when an advisor's first message mentions both selling and delivering a service
-function _detectCourseMultiGoal (answer) {
-  const lower = answer.toLowerCase()
-  const hasSelling = /\b(sell|selling|sales|win clients|winning clients|get clients|approach clients)\b/.test(lower)
-  const hasDelivery = /\b(deliver|facilitat|run|use|apply|conduct|implement|strateg|planning|profit|staff|governance|systems|valuati|succession|conflict)\b/.test(lower)
-  return hasSelling && hasDelivery
-}
-
-// Code-controlled question sequence — asked one at a time before outline generation
+// Code-controlled question sequence — asked one at a time before outline
+// generation. `reask` is the plainer rephrase sent once when the advisor's
+// reply asks for clarification instead of answering (CB-06; wording approved
+// by Mike 2026-07-15). Questions already answered in the opening message are
+// pre-filled by prefillDesignState and never asked.
 const COURSE_DESIGN_QUESTIONS = [
   {
     field: 'currentLevel',
-    text: "What's your current experience or confidence level in this area — have you had any prior training, coaching, or reading on this topic?"
+    text: "What's your current experience or confidence level in this area — have you had any prior training, coaching, or reading on this topic?",
+    reask: "No problem — put simply: how much have you already done in this area? For example 'complete beginner', or 'some experience but no formal training'."
   },
   {
     field: 'intensity',
-    text: 'Do you prefer each session to stay at a consistent level of depth throughout, or would you like the course to get progressively more challenging as you go?'
+    text: 'Do you prefer each session to stay at a consistent level of depth throughout, or would you like the course to get progressively more challenging as you go?',
+    reask: 'Let me put that another way: would you like every session to feel about the same level, or start easy and get harder as you go?'
   },
   {
     field: 'sessionDetails',
-    text: 'How many minutes would you like each session to aim for, and how many sessions in total would you like to commit to?'
+    text: 'How many minutes would you like each session to aim for, and how many sessions in total would you like to commit to?',
+    reask: "Just the practical details: roughly how many minutes per session, and how many sessions? For example '30 minutes, 4 sessions'."
   }
 ]
 
@@ -108,7 +108,6 @@ function handleDesign (req, body, res) {
   // Restore or initialise design pipeline state
   const state = Object.assign({
     goalsPrimary: null,
-    multiGoalDetected: false,
     currentLevel: null,
     intensity: null,
     sessionDetails: null,
@@ -131,7 +130,6 @@ function handleDesign (req, body, res) {
   async function generateOutline (userMessage, fallbackOutline) {
     const allUserText = [
       state.goalsPrimary,
-      state.goalsSecondary && state.goalsSecondary !== 'pending' ? state.goalsSecondary : '',
       state.currentLevel,
       state.intensity,
       state.sessionDetails
@@ -249,21 +247,29 @@ function handleDesign (req, body, res) {
     return generateOutline(revisionMessage, previousOutline)
   }
 
-  // ── Case 2: First message — capture primary goal, detect multi-goal ──
+  // ── Case 2: First message — capture the goal, pre-fill what it answers ──
   if (!state.goalsPrimary) {
     state.goalsPrimary = query
-    state.multiGoalDetected = _detectCourseMultiGoal(query)
+    // Questions the opening message confidently answers are never asked (CB-06).
+    prefillDesignState(state, query)
     // Fall straight through to pipeline — no separate Q1 needed
   }
 
   // ── Case 3: Discovery pipeline — ask one question at a time ──
   for (const q of COURSE_DESIGN_QUESTIONS) {
-    if (q.skip && q.skip(state)) { continue }
     if (!state[q.field]) {
       state[q.field] = 'pending'
       return sendQuestion(q.text, state)
     }
     if (state[q.field] === 'pending') {
+      // A question about the question → re-ask once in plainer words, never
+      // store it as the answer. Capped at one re-ask so it cannot loop; a
+      // second unclear reply is accepted as the answer (CB-06).
+      const reaskFlag = q.field + 'Reasked'
+      if (isClarificationRequest(query) && !state[reaskFlag]) {
+        state[reaskFlag] = true
+        return sendQuestion(q.reask, state)
+      }
       state[q.field] = query
     }
   }
