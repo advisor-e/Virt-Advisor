@@ -10,9 +10,13 @@ const { validateCourseOutline } = require('../utils/validateAIResponse')
  * JWT (firmAuth attaches req.advisorId / req.firmId); ids in the body/params
  * are NEVER trusted for ownership — the same rule that closed the cases IDOR.
  *
- * Every route is OWNER-scoped: an advisor reads and writes only their own
- * courses. `visibility` 'firm' is accepted and stored, but no firm-wide read
- * exists yet (CB-07 "Coming soon" ruling) — sharing ships as its own feature.
+ * Every course-document route is OWNER-scoped: an advisor reads and writes
+ * only their own courses. The ONE deliberate exception is the CB-07 sharing
+ * pair (listShared / copyShared — Mike's personal-copy ruling 2026-07-16):
+ * both are bounded by the caller's verified firm AND visibility='firm', the
+ * shared list is outline-only (never the author's progress or design
+ * conversation), and "using" a shared course creates a fresh course OWNED by
+ * the caller — the author's document is never written by a teammate.
  *
  * The outline is re-validated at the door with validateCourseOutline (the
  * 100%-covered shape gate): the engine validates + grounds outlines before
@@ -37,6 +41,65 @@ async function listCourses (req, res) {
   } catch (err) {
     console.error('[courses] listCourses failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load your courses')
+  }
+}
+
+/**
+ * GET /api/courses/shared — courses OTHER advisors in the caller's firm have
+ * shared firm-wide (CB-07), outline-only summaries, most recent first.
+ * @route GET /api/courses/shared
+ * @returns {200} { success: true, courses: object[] } - toSharedSummary shapes
+ * @returns {403} NO_ADVISOR_IDENTITY · {500} DB_ERROR
+ */
+async function listShared (req, res) {
+  const advisorId = req.advisorId
+  const firmId = req.firmId
+  if (!advisorId || !firmId) {
+    return sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
+  }
+  try {
+    const courses = await courseStore.listSharedForFirm(firmId, advisorId)
+    res.send(200, { success: true, courses })
+  } catch (err) {
+    console.error('[courses] listShared failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not load your team\'s shared courses')
+  }
+}
+
+/**
+ * POST /api/courses/shared/:id/copy — make the caller's own copy of a
+ * firm-shared course (CB-07 personal-copy model): same outline, fresh
+ * progress, private, owned by the caller, `copiedFrom` audit stamp from the
+ * STORED source. The author's document is untouched; their design
+ * conversation is never copied.
+ * @route POST /api/courses/shared/:id/copy
+ * @returns {200} { success: true, course }
+ * @returns {403} NO_ADVISOR_IDENTITY · {404} NOT_FOUND · {500} DB_ERROR
+ */
+async function copyShared (req, res) {
+  const advisorId = req.advisorId
+  const firmId = req.firmId
+  if (!advisorId || !firmId) {
+    return sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
+  }
+  try {
+    const source = await courseStore.getShared(req.params.id, firmId)
+    if (!source) { return sendError(res, 404, 'NOT_FOUND', 'Shared course not found') }
+    const sessions = (source.outline && Array.isArray(source.outline.sessions)) ? source.outline.sessions : []
+    const course = await courseStore.create({
+      advisorId,
+      firmId,
+      status: 'active',
+      visibility: 'private',
+      outline: source.outline,
+      progress: sessions.map(() => ({ status: 'pending', quizScore: null, completedAt: null, notes: null })),
+      designHistory: null,
+      copiedFrom: source.id
+    })
+    res.send(200, { success: true, course })
+  } catch (err) {
+    console.error('[courses] copyShared failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not copy the shared course')
   }
 }
 
@@ -145,4 +208,4 @@ async function deleteCourse (req, res) {
   }
 }
 
-module.exports = { listCourses, createCourse, updateCourse, deleteCourse }
+module.exports = { listCourses, listShared, copyShared, createCourse, updateCourse, deleteCourse }

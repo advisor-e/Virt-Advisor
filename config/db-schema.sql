@@ -298,11 +298,11 @@ CREATE TABLE IF NOT EXISTS `va_case_studies` (
 -- `visibility` mirrors the va_case_studies privacy model:
 --   'private' = the owning advisor only (access-controlled by advisor_id from
 --               the verified JWT). Default and fail-safe.
---   'firm'    = reserved for firm-wide course sharing. The value is STORED from
---               day one but the UI keeps the option disabled ("Coming soon",
---               Mike's CB-07 ruling 2026-07-15) and no firm-scoped read exists
---               yet — the sharing read ships with the sharing feature, so a
---               'firm' row today is still served to its owner only.
+--   'firm'    = shared firm-wide as a read-only template (CB-07, Mike's
+--               personal-copy ruling 2026-07-16): teammates see the OUTLINE
+--               only (never the author's progress or design conversation) and
+--               "use" it by copying — the copy is a fresh private course owned
+--               by them, with `copied_from` recording the source (audit only).
 --
 -- `outline` is the validated + resource-grounded course outline (title, topic,
 -- intensity, sessions[]). `progress` is the per-session record array (status,
@@ -326,6 +326,7 @@ CREATE TABLE IF NOT EXISTS `va_courses` (
   `outline`        JSON                               NOT NULL,
   `progress`       JSON                                        DEFAULT NULL,
   `design_history` LONGTEXT                                    DEFAULT NULL,
+  `copied_from`    VARCHAR(64)                                 DEFAULT NULL,
   `created_at`     DATETIME                           NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`     DATETIME                           NOT NULL DEFAULT CURRENT_TIMESTAMP
                                                       ON UPDATE CURRENT_TIMESTAMP,

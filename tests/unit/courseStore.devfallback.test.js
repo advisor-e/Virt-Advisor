@@ -3,8 +3,8 @@
 // Exercises courseStore's DEV/TEST-ONLY JSON fallback (CB-16/17 Stage A —
 // reached when the DB is unavailable and not in production). Locks: round-trip,
 // the duplicate-id rejection that mirrors the DB primary key, owner-only
-// scoping (no firm read exists yet — CB-07 "Coming soon"), whole-document
-// updates, delete, and the input sanitisers.
+// scoping (the one exception: the CB-07 firm-shared read, outline-only),
+// whole-document updates, delete, and the input sanitisers.
 //
 // Uses an ISOLATED temp dev file (via COURSE_DEV_FILE) rather than the shared
 // data/dev-courses.json — hermetic `npm test`, same convention as
@@ -69,6 +69,35 @@ describe('courseStore dev fallback (CB-16/17 Stage A)', () => {
     expect(await courseStore.listForAdvisor('a2')).toHaveLength(0)
     expect(await courseStore.getOwn('c1', 'a2')).toBeNull()
     expect(await courseStore.getOwn('c1', 'a1')).not.toBeNull()
+  })
+
+  test("CB-07 shared read: same-firm teammates see a 'firm' course as an outline-only summary; private, own, and cross-firm courses never appear", async () => {
+    await courseStore.create({ ...base, id: 'shared-1', visibility: 'firm', progress: [{ status: 'complete', quizScore: 88 }], designHistory: [{ role: 'user', content: 'my private answers' }] })
+    await courseStore.create({ ...base, id: 'private-1', visibility: 'private' })
+    await courseStore.create({ advisorId: 'other-firm-adv', firmId: 'f2', outline: OUTLINE, id: 'foreign-1', visibility: 'firm' })
+
+    // A same-firm teammate sees only the shared one, stripped to the summary.
+    const shared = await courseStore.listSharedForFirm('f1', 'a2')
+    expect(shared).toHaveLength(1)
+    expect(shared[0].id).toBe('shared-1')
+    expect(shared[0].authorAdvisorId).toBe('a1')
+    expect(shared[0].outline.title).toBe('Selling Valuation Services')
+    expect(shared[0].progress).toBeUndefined()
+    expect(shared[0].designHistory).toBeUndefined()
+
+    // The author does not see their own course in the shared list.
+    expect(await courseStore.listSharedForFirm('f1', 'a1')).toHaveLength(0)
+    // Another firm sees nothing of f1's sharing.
+    expect((await courseStore.listSharedForFirm('f2', 'a2')).map(c => c.id)).toEqual(['foreign-1'])
+  })
+
+  test('CB-07 getShared is firm-bounded and visibility-gated', async () => {
+    await courseStore.create({ ...base, id: 'shared-1', visibility: 'firm' })
+    await courseStore.create({ ...base, id: 'private-1', visibility: 'private' })
+
+    expect(await courseStore.getShared('shared-1', 'f1')).not.toBeNull()
+    expect(await courseStore.getShared('shared-1', 'f2')).toBeNull() // cross-firm
+    expect(await courseStore.getShared('private-1', 'f1')).toBeNull() // not shared
   })
 
   test('create without an outline is refused', async () => {

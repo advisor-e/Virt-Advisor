@@ -33,6 +33,33 @@ export async function listCourses (token) {
 }
 
 /**
+ * Fetch courses OTHER advisors in the caller's firm shared firm-wide (CB-07).
+ * Outline-only summaries — never the author's progress or design conversation.
+ * @param {string} token - Bearer token
+ * @returns {Promise<object[]>} { id, authorAdvisorId, outline, createdAt, updatedAt }
+ */
+export async function listSharedCourses (token) {
+  const res = await fetch('/api/courses/shared', { headers: authHeaders(token) })
+  if (!res.ok) { throw httpError(res, 'load shared courses') }
+  return (await res.json()).courses || []
+}
+
+/**
+ * Make the caller's own copy of a firm-shared course (CB-07 personal-copy
+ * model): fresh progress, private, owned by the caller.
+ * @param {string} id - the shared course's id
+ * @param {string} token - Bearer token
+ * @returns {Promise<object>} the new course
+ */
+export async function copySharedCourse (id, token) {
+  const res = await fetch(`/api/courses/shared/${encodeURIComponent(id)}/copy`, {
+    method: 'POST', headers: authHeaders(token)
+  })
+  if (!res.ok) { throw httpError(res, 'copy shared course') }
+  return (await res.json()).course
+}
+
+/**
  * Save a new course. Identity is NOT sent — the backend derives it from the
  * token. A supplied id is preserved (the migration keeps existing ids).
  * @param {object} course - { id?, status?, visibility?, outline, progress?, designHistory? }

@@ -27,7 +27,21 @@
             p.course-row-meta {{ c.outline.sessions.length }} sessions · {{ (c.progress || []).filter(p => p.status === 'complete').length }} complete
           .course-row-status
             span.course-status-badge(:class="c.status === 'active' ? 'badge-status-active' : 'badge-status-paused'") {{ c.status === 'active' ? 'Active' : 'Paused' }}
+            span.course-shared-badge(v-if="c.visibility === 'firm'") Shared
+          button.btn-share-toggle(@click="toggleShareCourse(c)") {{ c.visibility === 'firm' ? 'Make private' : 'Share with firm' }}
           button.btn-resume-picker-course(@click="resumeCourse(c)") Resume →
+          button.btn-remove-picker-course(@click="removeSavedCourse(c)") ✕ Remove
+
+      //- ── Shared by your team (CB-07) — outline-only summaries; "Use this
+      //-    course" makes the advisor's own fresh copy (personal-copy model).
+      .shared-courses-section(v-if="sharedCourses.length")
+        h3.shared-heading Shared by your team
+        .courses-list
+          .course-row(v-for="c in sharedCourses" :key="'shared-' + c.id")
+            .course-row-info
+              strong.course-row-title {{ c.outline.title }}
+              p.course-row-meta {{ c.outline.sessions.length }} sessions · shared by {{ c.authorAdvisorId }}
+            button.btn-use-shared-course(@click="useSharedCourse(c)" :disabled="isCopyingSharedId === c.id") {{ isCopyingSharedId === c.id ? 'Copying...' : 'Use this course' }}
       .courses-picker-footer
         button.btn-new-course-main(@click="startFreshCourse") + Build a new course
 
@@ -91,12 +105,12 @@
             button.vis-opt(:class="{ 'vis-active': courseVisibility === 'private' }" @click="courseVisibility = 'private'")
               span.vis-icon 🔒
               span Private — just me
-            //- CB-07 (Mike's ruling 2026-07-15): firm-wide sharing needs server
-            //- storage (CB-16/17) — disabled until then, never a silent no-op.
-            button.vis-opt.vis-disabled(disabled)
+            //- CB-07 sharing is LIVE (Mike's personal-copy ruling 2026-07-16):
+            //- a firm-wide course appears in teammates' "Shared by your team"
+            //- list as an outline-only template they copy.
+            button.vis-opt(:class="{ 'vis-active': courseVisibility === 'firm' }" @click="courseVisibility = 'firm'")
               span.vis-icon 🏢
               span Firm-wide — all advisors
-              span.vis-soon-tag Coming soon
         .outline-actions
           button.btn-start-course(@click="confirmOutline" :disabled="isSavingCourse")
             span(v-if="isSavingCourse") Saving...
@@ -408,7 +422,7 @@ import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import courseStarters from '~/data/course-starters.json'
 import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
-import { listCourses, createCourse, updateCourse, deleteCourse, migrateLegacyCourses } from '~/utils/courses'
+import { listCourses, listSharedCourses, copySharedCourse, createCourse, updateCourse, deleteCourse, migrateLegacyCourses } from '~/utils/courses'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
 // Same security call as the locked VirtualAdvisor pipeline (CB-05): AI output
@@ -450,6 +464,10 @@ export default {
       // server (CB-16/17); refreshed via _refreshSavedCourses() after every
       // save/delete so the picker never goes stale.
       savedCourses: [],
+      // Courses OTHER advisors in the firm shared firm-wide (CB-07) — outline-only
+      // summaries; "Use this course" copies one into savedCourses.
+      sharedCourses: [],
+      isCopyingSharedId: null,
       // Server-storage state (CB-16/17): a failed load/save is never silent.
       courseError: '',
       courseLoadFailed: false,
@@ -565,7 +583,7 @@ export default {
 
   watch: {
     // The picker is per-advisor; if the advisorId prop resolves after mount, rebuild it.
-    advisorId () { this._refreshSavedCourses() },
+    advisorId () { this._refreshSavedCourses(); this._refreshSharedCourses() },
     // The real pass can settle after mount (the caseMixin pattern) — re-run the
     // legacy migration + load once it does.
     apiToken () { this._initCourses() }
@@ -667,6 +685,7 @@ export default {
         console.warn('[course] Legacy course migration failed (will retry next load):', e.message)
       }
       await this._refreshSavedCourses()
+      this._refreshSharedCourses() // independent list — never blocks the picker
       this._loadOrStartCourse()
     },
 
@@ -739,6 +758,68 @@ export default {
         this.savedCourses = []
         this.courseError = "We couldn't load your saved courses. Check your connection and try again."
         this.courseLoadFailed = true
+      }
+    },
+
+    // Rebuild the "Shared by your team" list (CB-07). Failures degrade to an
+    // empty section rather than blocking the advisor's own courses.
+    async _refreshSharedCourses () {
+      if (!this.apiToken) { this.sharedCourses = []; return }
+      try {
+        this.sharedCourses = await listSharedCourses(this.apiToken)
+      } catch (e) {
+        console.warn('[course] Failed to load shared courses:', e.message)
+        this.sharedCourses = []
+      }
+    },
+
+    // Two-way share control (CB-07): 'private' <-> 'firm' on a course the
+    // advisor owns. Retracting never claws back copies teammates already made
+    // (the mentor-share no-cascade principle).
+    async toggleShareCourse (course) {
+      const next = course.visibility === 'firm' ? 'private' : 'firm'
+      try {
+        await updateCourse(course.id, { visibility: next }, this.apiToken)
+        course.visibility = next
+        this.courseError = ''
+      } catch (e) {
+        console.warn('[course] Share toggle failed:', e.message)
+        this.courseError = "Couldn't change sharing just now — please try again."
+      }
+    },
+
+    // Remove a saved course from the picker (confirm-gated). Same server
+    // delete the in-course "✕ Delete course" uses.
+    async removeSavedCourse (course) {
+      if (!confirm(`Delete '${course.outline.title}'? Its progress will be lost.`)) { return }
+      try {
+        await deleteCourse(course.id, this.apiToken)
+        if (this._serverCourseIds) { this._serverCourseIds.delete(course.id) }
+        this.courseError = ''
+        await this._refreshSavedCourses()
+      } catch (e) {
+        console.warn('[course] Remove failed:', e.message)
+        this.courseError = "Couldn't delete the course — please try again."
+      }
+    },
+
+    // "Use this course" (CB-07 personal-copy model): the server creates the
+    // caller's own fresh copy; it appears at the top of their saved list.
+    // copiedFrom lets us catch an accidental second copy before it happens.
+    async useSharedCourse (shared) {
+      if (this.isCopyingSharedId) { return }
+      const alreadyCopied = this.savedCourses.some(c => c.copiedFrom === shared.id)
+      if (alreadyCopied && !confirm('You already have a copy of this course. Make another copy?')) { return }
+      this.isCopyingSharedId = shared.id
+      try {
+        await copySharedCourse(shared.id, this.apiToken)
+        await this._refreshSavedCourses()
+        this.courseError = ''
+      } catch (e) {
+        console.warn('[course] Copy shared course failed:', e.message)
+        this.courseError = "Couldn't copy that course just now — please try again."
+      } finally {
+        this.isCopyingSharedId = null
       }
     },
 
@@ -2085,6 +2166,52 @@ export default {
   transition: background 0.15s; flex-shrink: 0;
 }
 .btn-resume-picker-course:hover { background: #0090b8; }
+
+.course-shared-badge {
+  background: #eff6ff; color: #1e40af;
+  border-radius: 6px; padding: 2px 8px;
+  font-size: 11px; font-weight: 600;
+  margin-left: 6px;
+}
+
+.btn-share-toggle {
+  background: none; color: #1e40af;
+  border: 1px solid #bfdbfe; border-radius: 8px;
+  padding: 8px 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: all 0.15s; flex-shrink: 0;
+  margin-right: 8px;
+}
+.btn-share-toggle:hover { background: #eff6ff; }
+
+.btn-remove-picker-course {
+  background: none; color: #9ca3af;
+  border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 8px 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: all 0.15s; flex-shrink: 0;
+  margin-left: 8px;
+}
+.btn-remove-picker-course:hover { color: #dc2626; border-color: #fecaca; background: #fef2f2; }
+
+.shared-courses-section {
+  margin-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+}
+.shared-heading {
+  font-size: 15px; font-weight: 700; color: #374151;
+  margin: 0 0 12px;
+}
+.btn-use-shared-course {
+  background: #1e40af; color: #fff;
+  border: none; border-radius: 8px;
+  padding: 8px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.btn-use-shared-course:hover { background: #1c3a9e; }
+.btn-use-shared-course:disabled { opacity: 0.6; cursor: wait; }
 
 .courses-picker-footer {
   flex-shrink: 0;

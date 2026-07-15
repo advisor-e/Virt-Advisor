@@ -161,10 +161,13 @@ server.put('/api/clients/:id', firmAuth, clientsRoute.renameClient)
 
 // ── Courses (CB-16/17): the course DOCUMENT, owner-scoped ──
 // All firmAuth-guarded; identity from the verified JWT, never the body. An
-// advisor reads/writes only their OWN courses. `visibility` 'firm' is stored
-// but has no firm-wide read yet (CB-07 "Coming soon" — ships with sharing).
+// advisor reads/writes only their OWN courses; the /shared pair (CB-07,
+// personal-copy model) is the one firm-bounded read — outline-only listing +
+// copy-to-own, both scoped to the caller's verified firm.
 server.get('/api/courses', firmAuth, coursesRoute.listCourses)
+server.get('/api/courses/shared', firmAuth, coursesRoute.listShared)
 server.post('/api/courses', firmAuth, coursesRoute.createCourse)
+server.post('/api/courses/shared/:id/copy', firmAuth, coursesRoute.copyShared)
 server.put('/api/courses/:id', firmAuth, coursesRoute.updateCourse)
 server.del('/api/courses/:id', firmAuth, coursesRoute.deleteCourse)
 

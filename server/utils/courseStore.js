@@ -8,14 +8,19 @@
  *   - Every course lives centrally so it follows the advisor across devices and
  *     can feed firm reporting.
  *   - `visibility`: 'private' (owner only — default and fail-safe) or 'firm'
- *     (reserved for firm-wide sharing). The value is stored from day one, but
- *     NO firm-scoped read exists yet — the UI keeps the option disabled
- *     ("Coming soon", Mike's CB-07 ruling 2026-07-15), and every read in this
- *     module is owner-scoped. The firm read ships with the sharing feature.
+ *     (visible to the advisor's whole firm as a read-only template — CB-07,
+ *     Mike's ruling 2026-07-16: personal-copy model). A teammate never works
+ *     on the shared document itself; they copy it (fresh progress, owned by
+ *     them, `copiedFrom` audit stamp) via the /api/courses/shared routes.
  *
  * Security:
  *   - All reads and mutations carry `advisor_id = ?` from the caller's verified
- *     JWT — an advisor can only ever see or change their own courses.
+ *     JWT — an advisor can only ever see or change their own courses. The ONLY
+ *     cross-advisor read is listSharedForFirm/getShared, which is bounded by
+ *     the caller's verified firm_id AND visibility='firm', and the shared list
+ *     is stripped to outline-only (toSharedSummary) — the author's progress
+ *     and design conversation (their private self-assessment) never leave the
+ *     owner scope.
  *
  * DEV/TEST-ONLY fallback: when MySQL is unavailable AND we are not in
  * production, a gitignored JSON file (data/dev-courses.json) stands in so the
@@ -127,8 +132,26 @@ function rowToCourse (row) {
     outline: parseJSON(row.outline, null),
     progress: parseJSON(row.progress, []),
     designHistory: parseJSON(row.design_history, null),
+    copiedFrom: row.copied_from || null,
     createdAt: row.created_at || null,
     updatedAt: row.updated_at || null
+  }
+}
+
+/**
+ * Reduce a course to what a TEAMMATE may see of it (CB-07). Outline only —
+ * the author's progress, quiz results and design conversation (their private
+ * self-assessment) are deliberately absent.
+ * @param {object} course - full course shape (rowToCourse output)
+ * @returns {{id: string, authorAdvisorId: string, outline: object, createdAt: string|null, updatedAt: string|null}}
+ */
+function toSharedSummary (course) {
+  return {
+    id: course.id,
+    authorAdvisorId: course.advisorId,
+    outline: course.outline,
+    createdAt: course.createdAt,
+    updatedAt: course.updatedAt
   }
 }
 
@@ -152,6 +175,56 @@ async function listForAdvisor (advisorId) {
     return rows.map(rowToCourse)
   } catch (err) {
     if (devFallbackEnabled()) { return _devList(advisorId) }
+    throw err
+  }
+}
+
+/**
+ * List courses OTHER advisors in the caller's firm have shared firm-wide
+ * (CB-07). Bounded by the caller's verified firm AND visibility='firm'; the
+ * caller's own courses are excluded (they already appear in listForAdvisor).
+ * Rows are stripped to the shared summary — outline only, never the author's
+ * progress or design conversation.
+ * @param {string} firmId - from the verified JWT
+ * @param {string} excludeAdvisorId - the caller, from the verified JWT
+ * @returns {Promise<object[]>} toSharedSummary shapes, most recent first
+ */
+async function listSharedForFirm (firmId, excludeAdvisorId) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT * FROM va_courses
+        WHERE firm_id = ? AND visibility = 'firm' AND advisor_id <> ?
+        ORDER BY updated_at DESC
+        LIMIT 200`,
+      [firmId, excludeAdvisorId]
+    )
+    return rows.map(rowToCourse).map(toSharedSummary)
+  } catch (err) {
+    if (devFallbackEnabled()) { return _devListShared(firmId, excludeAdvisorId) }
+    throw err
+  }
+}
+
+/**
+ * Fetch ONE firm-shared course for copying (CB-07). Returns null unless the
+ * course belongs to the caller's firm AND is visibility='firm' — a private
+ * course id from the same firm 404s exactly like a foreign one.
+ * @param {string} id
+ * @param {string} firmId - from the verified JWT
+ * @returns {Promise<object|null>} full course shape (route-internal only —
+ *   callers must never send this raw to the client; copy from it instead)
+ */
+async function getShared (id, firmId) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT * FROM va_courses
+        WHERE id = ? AND firm_id = ? AND visibility = 'firm'
+        LIMIT 1`,
+      [id, firmId]
+    )
+    return rows.length ? rowToCourse(rows[0]) : null
+  } catch (err) {
+    if (devFallbackEnabled()) { return _devGetShared(id, firmId) }
     throw err
   }
 }
@@ -194,19 +267,23 @@ async function create (input) {
     visibility: safeVisibility(input.visibility),
     outline: input.outline,
     progress: sanitiseProgress(input.progress),
-    design_history: sanitiseDesignHistory(input.designHistory)
+    design_history: sanitiseDesignHistory(input.designHistory),
+    // Audit-only provenance for a copy of a shared course (CB-07) — set by the
+    // copy route from the STORED source, never trusted from the request body.
+    copied_from: (typeof input.copiedFrom === 'string' && input.copiedFrom) ? input.copiedFrom.slice(0, 64) : null
   }
 
   try {
     await db.execute(
       `INSERT INTO va_courses
-         (id, advisor_id, firm_id, status, visibility, outline, progress, design_history)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, advisor_id, firm_id, status, visibility, outline, progress, design_history, copied_from)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         row.id, row.advisor_id, row.firm_id, row.status, row.visibility,
         JSON.stringify(row.outline),
         row.progress.length ? JSON.stringify(row.progress) : null,
-        row.design_history ? JSON.stringify(row.design_history) : null
+        row.design_history ? JSON.stringify(row.design_history) : null,
+        row.copied_from
       ]
     )
     const now = new Date().toISOString()
@@ -306,6 +383,17 @@ function _devGet (id, advisorId) {
   return _devReadAll().find(c => c.id === id && c.advisorId === advisorId) || null
 }
 
+function _devListShared (firmId, excludeAdvisorId) {
+  return _devReadAll()
+    .filter(c => c.firmId === firmId && c.visibility === 'firm' && c.advisorId !== excludeAdvisorId)
+    .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0))
+    .map(toSharedSummary)
+}
+
+function _devGetShared (id, firmId) {
+  return _devReadAll().find(c => c.id === id && c.firmId === firmId && c.visibility === 'firm') || null
+}
+
 function _devCreate (row) {
   const all = _devReadAll()
   // Mirror the DB primary-key constraint so a migration re-run can never duplicate.
@@ -322,6 +410,7 @@ function _devCreate (row) {
     outline: row.outline,
     progress: row.progress,
     designHistory: row.design_history,
+    copiedFrom: row.copied_from || null,
     createdAt: now,
     updatedAt: now
   }
@@ -351,6 +440,8 @@ function _devRemove (id, advisorId) {
 
 module.exports = {
   listForAdvisor,
+  listSharedForFirm,
+  getShared,
   getOwn,
   create,
   updateOwn,
@@ -361,6 +452,7 @@ module.exports = {
   safeVisibility,
   sanitiseProgress,
   sanitiseDesignHistory,
+  toSharedSummary,
   STATUSES,
   VISIBILITIES
 }

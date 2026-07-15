@@ -11,7 +11,7 @@ jest.mock('../../server/utils/db', () => ({
 }))
 
 const db = require('../../server/utils/db')
-const { listCourses, createCourse, updateCourse, deleteCourse } = require('../../server/routes/courses')
+const { listCourses, listShared, copyShared, createCourse, updateCourse, deleteCourse } = require('../../server/routes/courses')
 
 // ── Helpers (same pattern as clients.routes.test.js) ──────────────────────────
 
@@ -221,5 +221,137 @@ describe('deleteCourse', () => {
     // DELETE is owner-scoped by the JWT advisor id.
     const delArgs = db.execute.mock.calls[1][1]
     expect(delArgs).toEqual(['mine', 'advisor-from-jwt'])
+  })
+})
+
+// ── CB-07 sharing: listShared ─────────────────────────────────────────────────
+
+// A 2-session outline so the fresh-progress sizing in copyShared is a real check.
+const SHARED_OUTLINE = {
+  title: 'Shared by a teammate',
+  topic: 'Sharing',
+  intensity: 'consistent',
+  totalSessions: 2,
+  sessions: [
+    { id: 1, title: 'S1', focus: 'One', resources: [], objectives: [], estimatedMinutes: 30 },
+    { id: 2, title: 'S2', focus: 'Two', resources: [], objectives: [], estimatedMinutes: 30 }
+  ]
+}
+
+function sharedRow (over = {}) {
+  return courseRow({
+    id: 'shared-1',
+    advisor_id: 'teammate-advisor',
+    visibility: 'firm',
+    outline: JSON.stringify(SHARED_OUTLINE),
+    progress: JSON.stringify([{ status: 'complete', quizScore: 91, completedAt: 'x' }]),
+    design_history: JSON.stringify([{ role: 'user', content: 'I am a complete beginner' }]),
+    ...over
+  })
+}
+
+describe('listShared (CB-07)', () => {
+  test('returns 403 when the verified pass carries no advisor identity', async () => {
+    const res = makeMockRes()
+    await listShared(makeReq({ advisorId: null }), res)
+    expect(res._status).toBe(403)
+    expect(res._body.error.code).toBe('NO_ADVISOR_IDENTITY')
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  test('query is bounded to the JWT firm + visibility=firm and excludes the caller', async () => {
+    db.execute.mockResolvedValue([[sharedRow()]])
+    const res = makeMockRes()
+    await listShared(makeReq({ query: { firmId: 'ATTACKER-FIRM' } }), res)
+
+    expect(res._status).toBe(200)
+    expect(db.execute.mock.calls[0][0]).toMatch(/visibility = 'firm'/)
+    expect(db.execute.mock.calls[0][1]).toEqual(['firm-from-jwt', 'advisor-from-jwt'])
+  })
+
+  test("shared summaries carry the outline but NEVER the author's progress or design conversation", async () => {
+    db.execute.mockResolvedValue([[sharedRow()]])
+    const res = makeMockRes()
+    await listShared(makeReq(), res)
+
+    const shared = res._body.courses[0]
+    expect(shared.outline.title).toBe('Shared by a teammate')
+    expect(shared.authorAdvisorId).toBe('teammate-advisor')
+    expect(shared.progress).toBeUndefined()
+    expect(shared.designHistory).toBeUndefined()
+    expect(JSON.stringify(res._body)).not.toContain('complete beginner')
+  })
+
+  test('a DB failure returns the safe envelope, never a stack trace', async () => {
+    process.env.NODE_ENV = 'production'
+    db.execute.mockRejectedValue(new Error('SQLSTATE[HY000] secret details'))
+    const res = makeMockRes()
+    await listShared(makeReq(), res)
+    process.env.NODE_ENV = 'test'
+
+    expect(res._status).toBe(500)
+    expect(res._body.error.code).toBe('DB_ERROR')
+    expect(JSON.stringify(res._body)).not.toContain('SQLSTATE')
+  })
+})
+
+// ── CB-07 sharing: copyShared ─────────────────────────────────────────────────
+
+describe('copyShared (CB-07)', () => {
+  test('returns 403 without identity', async () => {
+    const res = makeMockRes()
+    await copyShared(makeReq({ advisorId: null, params: { id: 'shared-1' } }), res)
+    expect(res._status).toBe(403)
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  test('a private or cross-firm course id 404s — the lookup is firm-bounded + visibility-gated', async () => {
+    db.execute.mockResolvedValue([[]])
+    const res = makeMockRes()
+    await copyShared(makeReq({ params: { id: 'not-shared' } }), res)
+
+    expect(res._status).toBe(404)
+    expect(res._body.error.code).toBe('NOT_FOUND')
+    expect(db.execute.mock.calls[0][0]).toMatch(/visibility = 'firm'/)
+    expect(db.execute.mock.calls[0][1]).toEqual(['not-shared', 'firm-from-jwt'])
+  })
+
+  test('the copy is owned by the caller: private, active, fresh progress, no design history, copiedFrom stamped', async () => {
+    db.execute
+      .mockResolvedValueOnce([[sharedRow()]]) // getShared
+      .mockResolvedValueOnce([{}]) // INSERT
+    const res = makeMockRes()
+    await copyShared(makeReq({ params: { id: 'shared-1' } }), res)
+
+    expect(res._status).toBe(200)
+    const insertArgs = db.execute.mock.calls[1][1]
+    // (id, advisor_id, firm_id, status, visibility, outline, progress, design_history, copied_from)
+    expect(insertArgs[0]).not.toBe('shared-1') // a NEW id — never the source document
+    expect(insertArgs[1]).toBe('advisor-from-jwt')
+    expect(insertArgs[2]).toBe('firm-from-jwt')
+    expect(insertArgs[3]).toBe('active')
+    expect(insertArgs[4]).toBe('private')
+    expect(insertArgs[7]).toBeNull() // design history never copied
+    expect(insertArgs[8]).toBe('shared-1') // audit provenance from the STORED source
+
+    const course = res._body.course
+    expect(course.advisorId).toBe('advisor-from-jwt')
+    expect(course.visibility).toBe('private')
+    expect(course.copiedFrom).toBe('shared-1')
+    // Fresh progress sized to the outline: every session pending, no scores.
+    expect(course.progress).toHaveLength(2)
+    expect(course.progress.every(p => p.status === 'pending' && p.quizScore === null)).toBe(true)
+  })
+
+  test('a DB failure returns the safe envelope', async () => {
+    process.env.NODE_ENV = 'production'
+    db.execute.mockRejectedValue(new Error('SQLSTATE[HY000] secret details'))
+    const res = makeMockRes()
+    await copyShared(makeReq({ params: { id: 'shared-1' } }), res)
+    process.env.NODE_ENV = 'test'
+
+    expect(res._status).toBe(500)
+    expect(res._body.error.code).toBe('DB_ERROR')
+    expect(JSON.stringify(res._body)).not.toContain('SQLSTATE')
   })
 })
