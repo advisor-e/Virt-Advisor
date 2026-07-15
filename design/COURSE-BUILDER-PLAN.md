@@ -106,6 +106,15 @@ engine changes reviewable together.*
 
 This phase needs Mike's input on question/re-ask wording before coding.
 
+> **✅ PHASE 4 COMPLETE 2026-07-15, pushed to GitHub.** CB-06 + CB-11 `f0909f2`
+> (design + all three re-ask wordings approved by Mike; new
+> `server/utils/designInterview.js` — clarification detection capped at one
+> re-ask, conservative opening-message pre-fill; dead code trace-verified and
+> cleared incl. the unused `q.skip` hook). 23 new tests
+> (`designInterview.test.js` + `courseDesignInterview.test.js` end-to-end).
+> Gate: **1,004 tests green** (suite has grown 927→1,004 across Phases 1–4),
+> lint clean, audit-gate pass.
+
 ## Phase 5 — Test coverage back-fill
 
 *About one session.*
