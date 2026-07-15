@@ -1,6 +1,6 @@
 {
   "overrides": {
-    "_comment": "Add fixed quiz questions here keyed by session title. If a key matches the session title, these questions are used instead of AI-generated ones. Each question needs: id, question, objective.",
+    "_comment": "Add fixed quiz questions here keyed by TEMPLATE/RESOURCE NAME (recommended — fires for any session teaching from that template, however the AI titled it) or by exact session title. Matching is case-insensitive; keys starting with _ are ignored. Each question needs: id, question, objective.",
     "_example": {
       "Understanding Profit Drivers": [
         {

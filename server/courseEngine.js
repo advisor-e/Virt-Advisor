@@ -19,6 +19,7 @@ const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescripti
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { groundOutlineResources } = require('../server/utils/outlineResources')
+const { findQuizOverride } = require('../server/utils/quizOverrides')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -376,11 +377,12 @@ async function handleSession (req, body, res) {
 async function handleQuizGenerate (body, res) {
   const { sessionContext, sessionHistory = [] } = body
 
-  // Fixed override questions take priority over AI generation
+  // Fixed override questions take priority over AI generation — matched on
+  // session title, then resource/template names (the stable key; CB-12).
   const overrides = getQuizOverrides()
-  const sessionKey = sessionContext?.title || ''
-  if (overrides.overrides && overrides.overrides[sessionKey]) {
-    return jsonResponse(res, 200, { success: true, questions: overrides.overrides[sessionKey] })
+  const overrideQuestions = findQuizOverride(overrides.overrides, sessionContext)
+  if (overrideQuestions) {
+    return jsonResponse(res, 200, { success: true, questions: overrideQuestions })
   }
 
   const openai = getOpenAI()
