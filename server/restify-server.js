@@ -75,6 +75,7 @@ const firmManagerRoute = require('./routes/firmManager')
 const activityRoute = require('./routes/activity')
 const casesRoute = require('./routes/cases')
 const clientsRoute = require('./routes/clients')
+const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const { firmAuth, requireManagerRole, requireMentorRole } = require('./middleware/firmAuth')
@@ -157,6 +158,15 @@ server.post('/api/cases/promote', firmAuth, requireManagerRole, casesRoute.promo
 server.get('/api/clients', firmAuth, clientsRoute.listClients)
 server.post('/api/clients', firmAuth, clientsRoute.createClient)
 server.put('/api/clients/:id', firmAuth, clientsRoute.renameClient)
+
+// ── Courses (CB-16/17): the course DOCUMENT, owner-scoped ──
+// All firmAuth-guarded; identity from the verified JWT, never the body. An
+// advisor reads/writes only their OWN courses. `visibility` 'firm' is stored
+// but has no firm-wide read yet (CB-07 "Coming soon" — ships with sharing).
+server.get('/api/courses', firmAuth, coursesRoute.listCourses)
+server.post('/api/courses', firmAuth, coursesRoute.createCourse)
+server.put('/api/courses/:id', firmAuth, coursesRoute.updateCourse)
+server.del('/api/courses/:id', firmAuth, coursesRoute.deleteCourse)
 
 // ── Firm Manager routes (firm_manager or platform_admin role required) ──
 const fm = firmManagerRoute
