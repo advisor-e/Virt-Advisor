@@ -9,6 +9,11 @@
   //- ── AI processing bar — visible whenever any AI call is in-flight ────────
   .ai-loading-bar(v-if="isDesignStreaming || isSessionStreaming || isGeneratingQuiz")
 
+  //- Server-storage error (CB-16/17) — a failed load/save is never silent.
+  .course-error-banner(v-if="courseError")
+    span {{ courseError }}
+    button.btn-error-retry(v-if="courseLoadFailed" @click="retryCourseLoad") Try again
+
   //- ── PHASE: Courses (picker) ────────────────────────────────────────────
   template(v-if="phase === 'courses'")
     .courses-picker
@@ -93,8 +98,10 @@
               span Firm-wide — all advisors
               span.vis-soon-tag Coming soon
         .outline-actions
-          button.btn-start-course(@click="confirmOutline") Start this course →
-          button.btn-request-changes(@click="requestOutlineChanges") Request changes
+          button.btn-start-course(@click="confirmOutline" :disabled="isSavingCourse")
+            span(v-if="isSavingCourse") Saving...
+            span(v-else) Start this course →
+          button.btn-request-changes(@click="requestOutlineChanges" :disabled="isSavingCourse") Request changes
 
     .input-area
       .voice-bar(v-if="speechSupported")
@@ -401,6 +408,7 @@ import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import courseStarters from '~/data/course-starters.json'
 import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
+import { listCourses, createCourse, updateCourse, deleteCourse, migrateLegacyCourses } from '~/utils/courses'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
 // Same security call as the locked VirtualAdvisor pipeline (CB-05): AI output
@@ -438,10 +446,14 @@ export default {
       pendingOutline: null,
       courseVisibility: 'private',
       activeCourse: null,
-      // Courses shown in the "Your saved courses" picker. Held in reactive state
-      // (not a computed) because localStorage is not reactive — refreshed via
-      // _refreshSavedCourses() at every save/delete so the picker never goes stale.
+      // Courses shown in the "Your saved courses" picker — fetched from the
+      // server (CB-16/17); refreshed via _refreshSavedCourses() after every
+      // save/delete so the picker never goes stale.
       savedCourses: [],
+      // Server-storage state (CB-16/17): a failed load/save is never silent.
+      courseError: '',
+      courseLoadFailed: false,
+      isSavingCourse: false,
 
       // Session phase
       activeSessionIndex: 0,
@@ -553,12 +565,14 @@ export default {
 
   watch: {
     // The picker is per-advisor; if the advisorId prop resolves after mount, rebuild it.
-    advisorId () { this._refreshSavedCourses() }
+    advisorId () { this._refreshSavedCourses() },
+    // The real pass can settle after mount (the caseMixin pattern) — re-run the
+    // legacy migration + load once it does.
+    apiToken () { this._initCourses() }
   },
 
   mounted () {
-    this._refreshSavedCourses()
-    this._loadOrStartCourse()
+    this._initCourses()
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (SpeechRecognition) {
       this.speechSupported = true
@@ -594,6 +608,11 @@ export default {
       try { this.recognition.stop() } catch (e) {}
     }
     this._abortAllStreams()
+    // Flush a pending debounced note save so nothing typed is lost on exit.
+    if (this._noteSaveTimer) {
+      clearTimeout(this._noteSaveTimer)
+      this._saveCourse(this.activeCourse)
+    }
   },
 
   methods: {
@@ -633,32 +652,46 @@ export default {
       this.sessionStreamingText = ''
     },
 
-    // ── Persistence ──────────────────────────────────────────────────────
+    // ── Persistence (server storage, CB-16/17 Stage D) ───────────────────
+
+    // Migrate any legacy browser-stored courses, load the server list, then
+    // route to the right phase. Called on mount and when the pass settles.
+    async _initCourses () {
+      if (!this.apiToken) { return }
+      try {
+        const result = await migrateLegacyCourses(this.apiToken, this.advisorId)
+        if (result && result.migrated) {
+          console.warn(`[course] Migrated ${result.migrated}/${result.total} legacy courses to the server`)
+        }
+      } catch (e) {
+        console.warn('[course] Legacy course migration failed (will retry next load):', e.message)
+      }
+      await this._refreshSavedCourses()
+      this._loadOrStartCourse()
+    },
+
+    retryCourseLoad () {
+      this.courseError = ''
+      this.courseLoadFailed = false
+      this._initCourses()
+    },
 
     _loadOrStartCourse () {
-      const stored = localStorage.getItem('va_courses')
-      if (stored) {
-        try {
-          const data = JSON.parse(stored)
-          const all = (data.courses || []).filter(
-            c => c.advisorId === this.advisorId && (c.status === 'active' || c.status === 'paused')
-          )
-          const hasPaused = all.some(c => c.status === 'paused')
-          const active = all.find(c => c.status === 'active')
-          if (hasPaused) {
-            this.phase = 'courses'
-            return
-          }
-          if (active) {
-            this.activeCourse = active
-            this.activeSessionIndex = this._findActiveSessionIndex(active)
-            this.phase = 'session'
-            this._startSession(false)
-            return
-          }
-        } catch (e) {
-          console.warn('[course] Failed to load saved course:', e.message)
-        }
+      // Never clobber an in-progress course (e.g. a retry after a save error).
+      if (this.activeCourse) { return }
+      const all = this.savedCourses
+      const hasPaused = all.some(c => c.status === 'paused')
+      const active = all.find(c => c.status === 'active')
+      if (hasPaused) {
+        this.phase = 'courses'
+        return
+      }
+      if (active) {
+        this.activeCourse = active
+        this.activeSessionIndex = this._findActiveSessionIndex(active)
+        this.phase = 'session'
+        this._startSession(false)
+        return
       }
       // No saved courses — start design conversation
       this.designMessages = [{
@@ -673,34 +706,46 @@ export default {
       return next >= 0 ? next : progress.length
     },
 
-    _saveCourse (course) {
-      let data = { courses: [] }
+    // Persist a course to the server: update when the server already knows it,
+    // create otherwise. Fire-and-forget callers keep their local state either
+    // way; a failure surfaces on the banner and retries with the next action.
+    async _saveCourse (course) {
+      if (!course || !this.apiToken) { return }
       try {
-        const stored = localStorage.getItem('va_courses')
-        if (stored) { data = JSON.parse(stored) }
-      } catch (e) { /* start fresh */ }
-      const idx = (data.courses || []).findIndex(c => c.id === course.id)
-      if (idx >= 0) {
-        data.courses[idx] = course
-      } else {
-        data.courses = [...(data.courses || []), course]
+        if (this._serverCourseIds && this._serverCourseIds.has(course.id)) {
+          await updateCourse(course.id, {
+            status: course.status,
+            visibility: course.visibility,
+            progress: course.progress
+          }, this.apiToken)
+        } else {
+          const saved = await createCourse(course, this.apiToken)
+          if (!this._serverCourseIds) { this._serverCourseIds = new Set() }
+          this._serverCourseIds.add(saved.id)
+        }
+        this.courseError = ''
+        this._refreshSavedCourses()
+      } catch (e) {
+        console.warn('[course] Save failed:', e.message)
+        this.courseError = "Couldn't save your progress just now — it will retry with your next action."
       }
-      localStorage.setItem('va_courses', JSON.stringify(data))
-      this._refreshSavedCourses()
     },
 
-    // Rebuild the picker list from localStorage (which is not reactive). Called on
-    // mount, when advisorId changes, and after every _saveCourse / _deleteCourse.
-    _refreshSavedCourses () {
-      if (typeof localStorage === 'undefined') { this.savedCourses = []; return }
+    // Rebuild the picker list from the server. Called on init, when advisorId
+    // changes, and after every _saveCourse / _deleteCourse.
+    async _refreshSavedCourses () {
+      if (!this.apiToken) { this.savedCourses = []; return }
       try {
-        const stored = localStorage.getItem('va_courses')
-        const data = stored ? JSON.parse(stored) : { courses: [] }
-        this.savedCourses = (data.courses || []).filter(
-          c => c.advisorId === this.advisorId && (c.status === 'active' || c.status === 'paused')
-        )
+        const courses = await listCourses(this.apiToken)
+        this._serverCourseIds = new Set(courses.map(c => c.id))
+        this.savedCourses = courses.filter(c => c.status === 'active' || c.status === 'paused')
+        this.courseError = ''
+        this.courseLoadFailed = false
       } catch (e) {
+        console.warn('[course] Failed to load saved courses:', e.message)
         this.savedCourses = []
+        this.courseError = "We couldn't load your saved courses. Check your connection and try again."
+        this.courseLoadFailed = true
       }
     },
 
@@ -804,12 +849,11 @@ export default {
       this._scrollDesign()
     },
 
-    confirmOutline () {
-      if (!this.pendingOutline) { return }
+    async confirmOutline () {
+      if (!this.pendingOutline || this.isSavingCourse) { return }
+      this.isSavingCourse = true
       const course = {
         id: this._generateId(),
-        advisorId: this.advisorId,
-        createdAt: new Date().toISOString(),
         status: 'active',
         visibility: this.courseVisibility,
         outline: this.pendingOutline,
@@ -820,11 +864,21 @@ export default {
         })),
         designHistory: this.designMessages.map(m => ({ role: m.role, content: m.content }))
       }
-      this.activeCourse = course
-      this._saveCourse(course)
-      this.activeSessionIndex = 0
-      this.phase = 'session'
-      this._startSession(true)
+      try {
+        const saved = await createCourse(course, this.apiToken)
+        if (!this._serverCourseIds) { this._serverCourseIds = new Set() }
+        this._serverCourseIds.add(saved.id)
+        this.courseError = ''
+        this.activeCourse = saved
+        this.activeSessionIndex = 0
+        this.phase = 'session'
+        this._startSession(true)
+      } catch (e) {
+        // The outline card stays on screen — the advisor's course is never lost.
+        console.warn('[course] Could not save the new course:', e.message)
+        this.courseError = "Couldn't save your progress just now — it will retry with your next action."
+      }
+      this.isSavingCourse = false
     },
 
     requestOutlineChanges () {
@@ -1089,7 +1143,10 @@ export default {
         return p
       })
       this.activeCourse = { ...this.activeCourse, progress }
-      this._saveCourse(this.activeCourse)
+      // Debounced: notes fire per keystroke, but the server save waits for a
+      // pause in typing (flushed on teardown).
+      clearTimeout(this._noteSaveTimer)
+      this._noteSaveTimer = setTimeout(() => { this._saveCourse(this.activeCourse) }, 800)
     },
 
     printCertificate () {
@@ -1170,17 +1227,18 @@ export default {
       this._deleteCourse()
     },
 
-    _deleteCourse () {
+    async _deleteCourse () {
       this._abortAllStreams()
-      if (this.activeCourse) {
+      if (this.activeCourse && this._serverCourseIds && this._serverCourseIds.has(this.activeCourse.id)) {
         try {
-          const stored = localStorage.getItem('va_courses')
-          if (stored) {
-            const data = JSON.parse(stored)
-            data.courses = (data.courses || []).filter(c => c.id !== this.activeCourse.id)
-            localStorage.setItem('va_courses', JSON.stringify(data))
-          }
-        } catch (e) { /* ignore */ }
+          await deleteCourse(this.activeCourse.id, this.apiToken)
+          this._serverCourseIds.delete(this.activeCourse.id)
+        } catch (e) {
+          // The course still exists on the server — keep it on screen too.
+          console.warn('[course] Delete failed:', e.message)
+          this.courseError = "Couldn't delete the course — please try again."
+          return
+        }
       }
       this._refreshSavedCourses()
       this.activeCourse = null
@@ -1387,6 +1445,23 @@ export default {
   cursor: pointer; transition: background 0.15s;
 }
 .btn-team-dashboard:hover { background: #0d6560; }
+
+/* ── Server-storage error banner (CB-16/17) ─────────────── */
+.course-error-banner {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 8px 24px;
+  background: #fef2f2; color: #991b1b;
+  font-size: 13px; font-weight: 500;
+  border-bottom: 1px solid #fecaca;
+  flex-shrink: 0;
+}
+.btn-error-retry {
+  background: #991b1b; color: #fff;
+  border: none; border-radius: 6px;
+  padding: 4px 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-error-retry:hover { background: #7f1d1d; }
 
 /* ── Messages ─────────────────────────────────────────── */
 .course-messages { flex: 1; overflow-y: auto; padding: 24px; }
