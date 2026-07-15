@@ -150,6 +150,33 @@ describe('courseEngine design revision — CB-01 outline preservation', () => {
     expect(errorEvent.message).toBe('AI response timed out. Please try again.')
   })
 
+  test('invented resource names are stripped from an accepted outline (CB-02)', async () => {
+    // A real library title, straight from the shipped template data.
+    const realTitle = require('../../data/templates.json')[0].title
+    const revised = {
+      ...APPROVED_OUTLINE,
+      title: 'Grounded Course',
+      sessions: [{
+        id: 1,
+        title: 'Session One',
+        focus: 'Basics',
+        resources: [realTitle.toUpperCase(), 'Totally Invented Resource'],
+        objectives: [],
+        estimatedMinutes: 30
+      }]
+    }
+    stubOpenAI(() => makeStream(
+      `Done.\n[COURSE_OUTLINE]\n${JSON.stringify(revised)}\n[/COURSE_OUTLINE]`
+    ))
+    const res = makeRes()
+    await courseEngine(makeReq(revisionBody()), res)
+
+    const outline = finalStateEvent(res).state.pendingOutline
+    expect(outline.title).toBe('Grounded Course')
+    // Real name kept and snapped to the library's exact spelling; invention gone.
+    expect(outline.sessions[0].resources).toEqual([realTitle])
+  })
+
   test('first-time outline generation (no revision) still carries no fallback', async () => {
     stubOpenAI(() => makeStream('Prose only, no outline markers.'))
     const res = makeRes()

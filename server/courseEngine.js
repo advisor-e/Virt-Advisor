@@ -18,6 +18,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
+const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -224,7 +225,13 @@ function handleDesign (req, body, res) {
         const parsedOutline = JSON.parse(outlineMatch[1].trim())
         const result = validateCourseOutline(parsedOutline)
         if (result.valid) {
-          finalState.pendingOutline = result.data
+          // Ground every resource name in the firm's real template library —
+          // the prompt forbids invented names, but only code enforces it (CB-02).
+          const grounded = groundOutlineResources(result.data, templates)
+          if (grounded.dropped.length) {
+            console.warn('[course:design] Dropped invented resource names:', grounded.dropped.join(' | '))
+          }
+          finalState.pendingOutline = grounded.outline
         } else {
           console.warn('[course:design] Course outline failed shape validation:', result.errors.join('; '))
         }
