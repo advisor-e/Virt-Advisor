@@ -679,18 +679,11 @@ export default {
     _loadOrStartCourse () {
       // Never clobber an in-progress course (e.g. a retry after a save error).
       if (this.activeCourse) { return }
-      const all = this.savedCourses
-      const hasPaused = all.some(c => c.status === 'paused')
-      const active = all.find(c => c.status === 'active')
-      if (hasPaused) {
+      // Any saved course → land on the picker, so the advisor's library is
+      // always visible (CB-28: auto-resuming the first active course hid
+      // every other saved course behind the "← My Courses" button).
+      if (this.savedCourses.length > 0) {
         this.phase = 'courses'
-        return
-      }
-      if (active) {
-        this.activeCourse = active
-        this.activeSessionIndex = this._findActiveSessionIndex(active)
-        this.phase = 'session'
-        this._startSession(false)
         return
       }
       // No saved courses — start design conversation
