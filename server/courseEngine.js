@@ -25,14 +25,6 @@ const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = requi
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const CourseReminderService = require('../server/services/CourseReminderService')
 
-// Node.js 15+ crashes on unhandled rejections — guard against OpenAI SDK stream cleanup errors
-if (!process._courseMiddlewareGuarded) {
-  process._courseMiddlewareGuarded = true
-  process.on('unhandledRejection', (reason) => {
-    console.error('[course] Unhandled rejection (server kept alive):', reason?.message || String(reason))
-  })
-}
-
 // OpenAI singleton — one client per process, avoids creating a new connection pool on every request
 let _openaiClient = null
 function getOpenAI () {
