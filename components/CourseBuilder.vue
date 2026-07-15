@@ -400,6 +400,9 @@ import courseStarters from '~/data/course-starters.json'
 import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
+// Same security call as the locked VirtualAdvisor pipeline (CB-05): AI output
+// must not inject images (outbound-request/exfiltration channel) or raw HTML.
+_md.disable(['image', 'html_inline', 'html_block'])
 
 export default {
   name: 'CourseBuilder',
