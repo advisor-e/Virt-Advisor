@@ -222,6 +222,78 @@ describe('validateCourseOutline', () => {
     test('rejects a session whose title is only whitespace', () => {
       expect(validateCourseOutline({ title: 'A course', sessions: [{ title: '  ' }] }).valid).toBe(false)
     })
+    test('rejects a session missing its focus (CB-08 — the advisor reads it to judge the course)', () => {
+      const result = validateCourseOutline({ title: 'A course', sessions: [{ title: 'S1' }] })
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.includes('focus'))).toBe(true)
+    })
+    test('rejects a session whose focus is not a string', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [{ title: 'S1', focus: 9 }] }).valid).toBe(false)
+    })
+    test('rejects a session whose focus is only whitespace', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [{ title: 'S1', focus: '  ' }] }).valid).toBe(false)
+    })
+  })
+
+  describe('normalisation of derivable fields (CB-08)', () => {
+    const bareSession = title => ({ title, focus: 'Focus for ' + title })
+
+    test('rewrites session ids to true positions regardless of the AI numbering', () => {
+      const result = validateCourseOutline({
+        title: 'A course',
+        sessions: [{ ...bareSession('A'), id: 3 }, { ...bareSession('B'), id: 1 }]
+      })
+      expect(result.data.sessions.map(s => s.id)).toEqual([1, 2])
+    })
+
+    test('sets totalSessions to the real count, never the AI claim', () => {
+      const result = validateCourseOutline({
+        title: 'A course',
+        totalSessions: 5,
+        sessions: [bareSession('A'), bareSession('B')]
+      })
+      expect(result.data.totalSessions).toBe(2)
+    })
+
+    test('snaps intensity to its two legal values', () => {
+      const outlineWithIntensity = intensity => ({ title: 'A course', intensity, sessions: [bareSession('A')] })
+      expect(validateCourseOutline(outlineWithIntensity('progressive')).data.intensity).toBe('progressive')
+      expect(validateCourseOutline(outlineWithIntensity('Progressive')).data.intensity).toBe('progressive')
+      expect(validateCourseOutline(outlineWithIntensity('ramping up')).data.intensity).toBe('consistent')
+      expect(validateCourseOutline(outlineWithIntensity(undefined)).data.intensity).toBe('consistent')
+    })
+
+    test('normalises resources and objectives to clean string arrays', () => {
+      const result = validateCourseOutline({
+        title: 'A course',
+        sessions: [
+          { ...bareSession('A'), resources: 'not an array', objectives: ['keep', 7, null] },
+          bareSession('B')
+        ]
+      })
+      expect(result.data.sessions[0].resources).toEqual([])
+      expect(result.data.sessions[0].objectives).toEqual(['keep'])
+      expect(result.data.sessions[1].resources).toEqual([])
+      expect(result.data.sessions[1].objectives).toEqual([])
+    })
+
+    test('defaults estimatedMinutes to 30 on junk, keeps a genuine number', () => {
+      const withMinutes = m => validateCourseOutline({
+        title: 'A course',
+        sessions: [{ ...bareSession('A'), estimatedMinutes: m }]
+      }).data.sessions[0].estimatedMinutes
+      expect(withMinutes(45)).toBe(45)
+      expect(withMinutes('45')).toBe(30)
+      expect(withMinutes(0)).toBe(30)
+      expect(withMinutes(-10)).toBe(30)
+      expect(withMinutes(NaN)).toBe(30)
+      expect(withMinutes(undefined)).toBe(30)
+    })
+
+    test('normalises a non-string topic to an empty string', () => {
+      const result = validateCourseOutline({ title: 'A course', topic: 42, sessions: [bareSession('A')] })
+      expect(result.data.topic).toBe('')
+    })
   })
 
   describe('multiple simultaneous failures', () => {
@@ -240,7 +312,8 @@ describe('validateCourseOutline', () => {
       expect(result.data).toEqual(validOutline)
     })
     test('accepts a multi-session outline', () => {
-      const result = validateCourseOutline({ title: 'A course', sessions: [validSession, { title: 'Session two' }] })
+      // CB-08 spec change: focus is now required on every session.
+      const result = validateCourseOutline({ title: 'A course', sessions: [validSession, { title: 'Session two', focus: 'Applying it' }] })
       expect(result.valid).toBe(true)
       expect(result.data.sessions).toHaveLength(2)
     })
