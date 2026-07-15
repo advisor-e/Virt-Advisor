@@ -78,6 +78,15 @@ full coverage (valid, malformed, missing fields, wrong types).
 *About one session. These already sit in the 2026-07-10 sweep list; batching keeps the
 engine changes reviewable together.*
 
+> **✅ PHASE 3 COMPLETE 2026-07-15, pushed to GitHub.** CB-09 + CB-14 `e64f812`
+> (fencing extended to quiz prompts + advisorProfile; new
+> `tests/unit/courseSession.test.js`) · CB-15 `56dc793` (handler removed —
+> both stated reasons stale) · CB-18 `b8ef0ed` (no automated tests possible —
+> browser-bound; added to the CB-19 live click-through checklist) · CB-20
+> `1887fbc`. Every commit gated: 972 tests green, lint clean, audit-gate
+> pass. Mirrored sweep lines updated (two are half-fixes: advisorEngine
+> `languageName` and VirtualAdvisor `initClientSession` halves remain open).
+
 | Item | What changes |
 | --- | --- |
 | CB-09 | Fence the four collected interview answers with `fenceUntrusted()` before they enter the outline prompt. |
