@@ -36,6 +36,12 @@ wording in Phase 1) is confirmed with Mike before it goes into code.
 
 *Small, contained fixes — about one session.*
 
+> **✅ PHASE 1 COMPLETE 2026-07-15, pushed to GitHub.** CB-01 `03f45e3` ·
+> CB-03 `e713f28` (new `utils/quizScoring.js` + 11 tests) · CB-10 `55780ff` ·
+> CB-05 `a949c16`. Every commit gated: 939 tests green, lint clean, audit-gate
+> pass. Bonus: first-ever tests on the design handler
+> (`tests/unit/courseDesignRevision.test.js`, 6) — CB-13 down payment.
+
 | Item | What changes |
 | --- | --- |
 | CB-01 | Keep the approved outline as a fallback, so a failed revision can never leave the advisor with nothing. (`server/courseEngine.js` L234–238) |
