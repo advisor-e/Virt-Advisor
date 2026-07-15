@@ -497,11 +497,17 @@ Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfect
 
 // ── Progress record (platform integration hook) ────────────────────────────
 
-function handleProgress (body, res) {
-  const { advisorId, courseId, sessionId, score } = body
+function handleProgress (req, body, res) {
+  // Identity from the verified JWT (firmAuth attaches req.advisorId) — never
+  // the body: a crafted request must not log completions against another
+  // advisor (CB-16 Stage C). Course-document persistence rides the Stage D
+  // PUT /api/courses/:id; completions reporting rides /api/activity/log-course.
+  const advisorId = req.advisorId
+  if (!advisorId) {
+    return sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
+  }
+  const { courseId, sessionId, score } = body
 
-  // Phase 1: stub — platform team wires this to their account/reporting system in Phase 2
-  // Phase 2: persist progress to MySQL and update firm-level reporting
   CourseReminderService.markComplete({ advisorId, courseId, sessionId, score })
 
   jsonResponse(res, 200, { success: true })
@@ -578,7 +584,7 @@ module.exports = async function (req, res) {
         await handleQuizGrade(body, res)
         break
       case 'progress':
-        handleProgress(body, res)
+        handleProgress(req, body, res)
         break
       default:
         sendError(res, 400, 'INVALID_TYPE', 'type must be: design, session, quiz-generate, quiz-grade, or progress')

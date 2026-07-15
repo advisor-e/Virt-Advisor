@@ -32,6 +32,8 @@ let reqCount = 0
 function makeReq (body, opts) {
   const req = new EventEmitter()
   req.headers = (opts && opts.headers) || {}
+  // firmAuth attaches the verified identity; tests set it explicitly where needed.
+  req.advisorId = opts && opts.advisorId
   req.socket = { remoteAddress: (opts && opts.ip) || `10.0.4.${++reqCount}`, destroy () {} }
   process.nextTick(() => {
     req.emit('data', Buffer.from(typeof body === 'string' ? body : JSON.stringify(body)))
@@ -109,14 +111,27 @@ describe('quiz-generate (CB-13 back-fill)', () => {
   })
 })
 
-describe('progress (CB-13 back-fill)', () => {
-  test('responds success and notifies the reminder-service hook', async () => {
+describe('progress (CB-13 back-fill + CB-16 Stage C identity hardening)', () => {
+  test('responds success; advisor identity comes from the verified pass, never the body', async () => {
     const spy = jest.spyOn(CourseReminderService, 'markComplete').mockImplementation(() => {})
     const res = makeRes()
-    await courseEngine(makeReq({ type: 'progress', advisorId: 'a1', courseId: 'c1', sessionId: 2, score: 85 }), res)
+    await courseEngine(makeReq(
+      { type: 'progress', advisorId: 'ATTACKER', courseId: 'c1', sessionId: 2, score: 85 },
+      { advisorId: 'advisor-from-jwt' }
+    ), res)
     expect(res.statusCode).toBe(200)
     expect(res.body).toEqual({ success: true })
-    expect(spy).toHaveBeenCalledWith({ advisorId: 'a1', courseId: 'c1', sessionId: 2, score: 85 })
+    expect(spy).toHaveBeenCalledWith({ advisorId: 'advisor-from-jwt', courseId: 'c1', sessionId: 2, score: 85 })
+    spy.mockRestore()
+  })
+
+  test('a request with no verified advisor identity is refused', async () => {
+    const spy = jest.spyOn(CourseReminderService, 'markComplete').mockImplementation(() => {})
+    const res = makeRes()
+    await courseEngine(makeReq({ type: 'progress', courseId: 'c1', sessionId: 1, score: 70 }), res)
+    expect(res.statusCode).toBe(403)
+    expect(res.body.error.code).toBe('NO_ADVISOR_IDENTITY')
+    expect(spy).not.toHaveBeenCalled()
     spy.mockRestore()
   })
 })

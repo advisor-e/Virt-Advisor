@@ -1284,14 +1284,14 @@ export default {
     },
 
     async _recordProgress (score) {
-      // Calls the progress endpoint which triggers CourseReminderService.markComplete
+      // Calls the progress endpoint which triggers CourseReminderService.markComplete.
+      // Advisor identity is derived server-side from the verified pass — not sent.
       try {
         await fetch('/api/course', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'progress',
-            advisorId: this.advisorId,
             courseId: this.activeCourse.id,
             sessionId: this.activeSessionIndex + 1,
             score
