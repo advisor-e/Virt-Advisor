@@ -191,6 +191,9 @@ function handleDesign (req, body, res) {
       }, { timeout: 60000 })
     } catch (createErr) {
       console.error('[course:design] OpenAI create failed:', createErr.message)
+      // Same user-facing message the session handler sends — the design screen
+      // must never end a failed stream with nothing to show (CB-10).
+      sseWrite(res, { type: 'error', message: 'AI response timed out. Please try again.' })
       sseWrite(res, { type: 'state', state: { ...state, pendingOutline: fallbackOutline || null } })
       sseWrite(res, { type: 'done' })
       res.end()

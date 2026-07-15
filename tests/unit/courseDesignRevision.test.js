@@ -140,6 +140,16 @@ describe('courseEngine design revision — CB-01 outline preservation', () => {
     expect(res.writableEnded).toBe(true)
   })
 
+  test('an OpenAI failure emits a user-facing error message, never a silent done (CB-10)', async () => {
+    stubOpenAI(() => { throw new Error('boom') })
+    const res = makeRes()
+    await courseEngine(makeReq(revisionBody()), res)
+
+    const errorEvent = sseEvents(res).find(e => e.type === 'error')
+    expect(errorEvent).toBeDefined()
+    expect(errorEvent.message).toBe('AI response timed out. Please try again.')
+  })
+
   test('first-time outline generation (no revision) still carries no fallback', async () => {
     stubOpenAI(() => makeStream('Prose only, no outline markers.'))
     const res = makeRes()

@@ -746,10 +746,13 @@ export default {
                 this.designStreamingText += data.text
                 await this.$nextTick()
                 this._scrollDesign()
+              } else if (data.type === 'error') {
+                this.designStreamingText = data.message || 'The response timed out. Please try again.'
               } else if (data.type === 'done') {
                 let content = this.designStreamingText
                 content = content.replace(/\[COURSE_OUTLINE\][\s\S]*?\[\/COURSE_OUTLINE\]/g, '').trim()
-                this.designMessages.push({ role: 'assistant', content })
+                // No empty bubbles: an outline-only reply has nothing to say in chat.
+                if (content) { this.designMessages.push({ role: 'assistant', content }) }
                 this.designStreamingText = ''
                 this.isDesignStreaming = false
               }
@@ -760,7 +763,7 @@ export default {
         if (this.isDesignStreaming) {
           let content = this.designStreamingText
           content = content.replace(/\[COURSE_OUTLINE\][\s\S]*?\[\/COURSE_OUTLINE\]/g, '').trim()
-          this.designMessages.push({ role: 'assistant', content })
+          if (content) { this.designMessages.push({ role: 'assistant', content }) }
           this.designStreamingText = ''
           this.isDesignStreaming = false
         }
