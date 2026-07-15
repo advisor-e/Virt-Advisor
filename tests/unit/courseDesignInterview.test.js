@@ -143,3 +143,151 @@ describe('courseEngine design interview — CB-06', () => {
     expect(mockCreate).not.toHaveBeenCalled()
   })
 })
+
+// ── CB-26: requested session count — parser ──────────────────────────────────
+
+const { requestedSessionCount } = require('../../server/utils/designInterview')
+
+describe('requestedSessionCount (CB-26)', () => {
+  test('the live failure case parses: spelled-out count amid a minutes range', () => {
+    expect(requestedSessionCount('say 20 to 30 minutes per session and six sessions in total please')).toBe(6)
+  })
+
+  test('digit and word forms, all session nouns', () => {
+    expect(requestedSessionCount('8 sessions')).toBe(8)
+    expect(requestedSessionCount('eight sessions in total')).toBe(8)
+    expect(requestedSessionCount('4 modules please')).toBe(4)
+    expect(requestedSessionCount('three lessons')).toBe(3)
+    expect(requestedSessionCount('twenty sessions')).toBe(20)
+  })
+
+  test('ranges and alternatives are not a specific request → null', () => {
+    expect(requestedSessionCount('6-8 sessions')).toBeNull()
+    expect(requestedSessionCount('six to eight sessions')).toBeNull()
+    expect(requestedSessionCount('6 or 8 sessions would work')).toBeNull()
+  })
+
+  test('conflicting counts → null; a repeated identical count still parses', () => {
+    expect(requestedSessionCount('6 sessions... actually make it 8 sessions')).toBeNull()
+    expect(requestedSessionCount('6 sessions — yes, 6 sessions')).toBe(6)
+  })
+
+  test('no count, noun-first ordinals, zero, and junk → null', () => {
+    expect(requestedSessionCount('a few sessions')).toBeNull()
+    expect(requestedSessionCount('drop session 2')).toBeNull()
+    expect(requestedSessionCount('0 sessions')).toBeNull()
+    expect(requestedSessionCount('')).toBeNull()
+    expect(requestedSessionCount(null)).toBeNull()
+  })
+})
+
+// ── CB-26: session-count mismatch — code-owned flag through the handler ──────
+
+function outlineJSON (n) {
+  const sessions = Array.from({ length: n }, (_, i) => (
+    { id: i + 1, title: `S${i + 1}`, focus: 'F', resources: [], objectives: [], estimatedMinutes: 30 }
+  ))
+  return JSON.stringify({ title: 'T', topic: 'x', intensity: 'consistent', totalSessions: n, sessions })
+}
+
+function outlineReply (n) {
+  return `Here is your course.\n[COURSE_OUTLINE]${outlineJSON(n)}[/COURSE_OUTLINE]\nDoes this look right?`
+}
+
+const FULL_STATE = {
+  goalsPrimary: 'Learn to sell advisory services',
+  currentLevel: 'complete beginner',
+  intensity: 'progressive'
+}
+
+describe('session-count mismatch flag (CB-26)', () => {
+  test('requested six (spelled out), delivered 4 → the engine flags it; the AI is not trusted to confess', async () => {
+    mockCreate = jest.fn(() => makeStream(outlineReply(4)))
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'design',
+      // The final interview answer — stored as sessionDetails, then the outline generates.
+      query: 'say 20 to 30 minutes per session and six sessions in total please',
+      courseState: { ...FULL_STATE, sessionDetails: 'pending' }
+    }), res)
+
+    const state = stateOf(res)
+    expect(state.pendingOutline.totalSessions).toBe(4)
+    expect(state.sessionCountNotice).toEqual({ requested: 6, delivered: 4 })
+  })
+
+  test('requested four, delivered 4 → no notice', async () => {
+    mockCreate = jest.fn(() => makeStream(outlineReply(4)))
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'design',
+      query: 'four sessions of 30 minutes please',
+      courseState: { ...FULL_STATE, sessionDetails: 'pending' }
+    }), res)
+
+    const state = stateOf(res)
+    expect(state.pendingOutline.totalSessions).toBe(4)
+    expect(state.sessionCountNotice).toBeUndefined()
+  })
+
+  test('an ambiguous request (range) disables the check', async () => {
+    mockCreate = jest.fn(() => makeStream(outlineReply(4)))
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'design',
+      query: '6-8 sessions of 30 minutes',
+      courseState: { ...FULL_STATE, sessionDetails: 'pending' }
+    }), res)
+
+    expect(stateOf(res).sessionCountNotice).toBeUndefined()
+  })
+
+  test('a revision naming a count is checked against the revised outline', async () => {
+    mockCreate = jest.fn(() => makeStream(outlineReply(4)))
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'design',
+      query: 'make it six sessions please',
+      courseState: {
+        ...FULL_STATE,
+        sessionDetails: '20 minutes per session',
+        pendingOutline: JSON.parse(outlineJSON(4))
+      }
+    }), res)
+
+    expect(stateOf(res).sessionCountNotice).toEqual({ requested: 6, delivered: 4 })
+  })
+
+  test('a revision NOT naming a count never re-flags a previously accepted deviation', async () => {
+    mockCreate = jest.fn(() => makeStream(outlineReply(4)))
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'design',
+      query: 'add a video resource to the last session',
+      courseState: {
+        ...FULL_STATE,
+        sessionDetails: 'six sessions of 30 minutes', // the ORIGINAL ask — deliberately not re-checked
+        pendingOutline: JSON.parse(outlineJSON(4))
+      }
+    }), res)
+
+    expect(stateOf(res).sessionCountNotice).toBeUndefined()
+  })
+
+  test('a client-supplied stale notice is stripped — the flag is code-owned per generation', async () => {
+    mockCreate = jest.fn(() => makeStream('Should not be called')) // fresh mock — no leaked calls
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'design',
+      query: 'complete beginner',
+      courseState: {
+        goalsPrimary: 'Learn pricing',
+        currentLevel: 'pending',
+        sessionCountNotice: { requested: 99, delivered: 1 } // hostile/stale round-trip
+      }
+    }), res)
+
+    expect(stateOf(res).sessionCountNotice).toBeUndefined()
+    expect(mockCreate).not.toHaveBeenCalled() // question turn — no AI involved
+  })
+})

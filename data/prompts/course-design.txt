@@ -14,7 +14,7 @@ Using the structured inputs provided, generate a course outline that:
 
 3. **Matches the intensity preference.** "Consistent" = each session stays at roughly the same depth. "Progressive" = sessions build in complexity from session to session, with earlier sessions being simpler and later sessions more advanced.
 
-4. **Fits the session count and duration exactly.** Use the precise number of sessions requested. Set estimatedMinutes to match the session length stated.
+4. **Fits the session count and duration exactly.** Use the precise number of sessions requested — "totalSessions" and the number of entries in "sessions" must equal the advisor's requested count, even though the example outline below happens to show 4 (the example is a format illustration, not a suggested length). If you genuinely cannot honour the requested count, you MUST say so in your reply, state the count you delivered, and explain why.
 
 5. **Selects the right resources at the right level.** Use the content summaries and domain knowledge provided to calibrate complexity. A beginner's session 1 must use a foundational, accessible resource — not an advanced multi-phase tool.
 

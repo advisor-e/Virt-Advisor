@@ -99,6 +99,10 @@
               p.session-focus {{ s.focus }}
               .session-resources(v-if="s.resources && s.resources.length")
                 span.resource-tag(v-for="r in s.resources" :key="r") {{ r }}
+        //- CB-26: code-detected session-count mismatch — the engine flags it;
+        //- the AI is never trusted to confess a deviation itself.
+        .outline-count-notice(v-if="courseState.sessionCountNotice")
+          | You asked for {{ courseState.sessionCountNotice.requested }} sessions — this outline has {{ courseState.sessionCountNotice.delivered }}. Use 'Request changes' if you want {{ courseState.sessionCountNotice.requested }}.
         .outline-visibility
           p.visibility-label Who can access this course?
           .visibility-opts
@@ -2183,6 +2187,13 @@ export default {
   margin-right: 8px;
 }
 .btn-share-toggle:hover { background: #eff6ff; }
+
+.outline-count-notice {
+  background: #fffbeb; color: #92400e;
+  border: 1px solid #fde68a; border-radius: 8px;
+  padding: 10px 14px; margin: 12px 0 0;
+  font-size: 13px; font-weight: 600;
+}
 
 .btn-remove-picker-course {
   background: none; color: #9ca3af;

@@ -20,7 +20,7 @@ const { detectDomainForSession, formatDomainContextForSession, formatDomainSumma
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride } = require('../server/utils/quizOverrides')
-const { isClarificationRequest, prefillDesignState } = require('../server/utils/designInterview')
+const { isClarificationRequest, prefillDesignState, requestedSessionCount } = require('../server/utils/designInterview')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -113,6 +113,8 @@ function handleDesign (req, body, res) {
     sessionDetails: null,
     pendingOutline: null
   }, courseState)
+  // Code-owned per-generation flag (CB-26) — never trusted from the round-trip.
+  delete state.sessionCountNotice
 
   // Helper: send a hardcoded question as instant SSE (no OpenAI call)
   function sendQuestion (text, newState) {
@@ -127,7 +129,9 @@ function handleDesign (req, body, res) {
   // fallbackOutline (revision flow only): the advisor's previously approved
   // outline — restored whenever the AI's reply does not contain a valid
   // replacement, so a failed revision can never destroy an approved outline.
-  async function generateOutline (userMessage, fallbackOutline) {
+  // countText (CB-26): the advisor text carrying their requested session
+  // count — the prompt asks the AI to honour it, but only code checks it.
+  async function generateOutline (userMessage, fallbackOutline, countText) {
     const allUserText = [
       state.goalsPrimary,
       state.currentLevel,
@@ -223,6 +227,14 @@ function handleDesign (req, body, res) {
             console.warn('[course:design] Dropped invented resource names:', grounded.dropped.join(' | '))
           }
           finalState.pendingOutline = grounded.outline
+          // CB-26: the advisor asked for a specific session count — if the
+          // delivered outline differs, code flags it (the outline card shows
+          // the notice); the AI is never trusted to confess the deviation.
+          const requested = requestedSessionCount(countText)
+          if (requested && grounded.outline.totalSessions !== requested) {
+            console.warn(`[course:design] Session-count mismatch: requested ${requested}, delivered ${grounded.outline.totalSessions}`)
+            finalState.sessionCountNotice = { requested, delivered: grounded.outline.totalSessions }
+          }
         } else {
           console.warn('[course:design] Course outline failed shape validation:', result.errors.join('; '))
         }
@@ -244,7 +256,9 @@ function handleDesign (req, body, res) {
     // previousOutline is passed as the fallback so a failed revision restores it.
     state.pendingOutline = null
     const revisionMessage = `The advisor has reviewed this course outline:\n\n${existingOutline}\n\nThey want the following changes:\n${fenceUntrusted(query)}\n\nPlease revise the outline accordingly and present the updated version.`
-    return generateOutline(revisionMessage, previousOutline)
+    // Count check against the revision instruction itself — only a count named
+    // NOW is a live request (a previously accepted deviation is not re-flagged).
+    return generateOutline(revisionMessage, previousOutline, query)
   }
 
   // ── Case 2: First message — capture the goal, pre-fill what it answers ──
@@ -284,7 +298,9 @@ function handleDesign (req, body, res) {
 
   // The answers are raw advisor typing — fenced so they read as data (CB-09).
   return generateOutline(
-    `Here is the complete picture of this advisor's learning needs:\n\n${fenceUntrusted(collectedAnswers)}\n\nNow generate the complete course outline.`
+    `Here is the complete picture of this advisor's learning needs:\n\n${fenceUntrusted(collectedAnswers)}\n\nNow generate the complete course outline.`,
+    undefined,
+    state.sessionDetails
   )
 }
 

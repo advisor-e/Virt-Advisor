@@ -5,12 +5,16 @@
  * Phase 4). Code-only pattern matching, mirroring the intake's frustration
  * detector: narrow on purpose, capped by the caller so it can never loop.
  *
- * Two jobs:
+ * Three jobs:
  *  - isClarificationRequest: is this reply a question about the question
  *    (re-ask it in plainer words) rather than an answer to store?
  *  - prefillDesignState: pre-fill interview fields the advisor's OPENING
  *    message already answers, so those questions are never asked. Only
  *    confident matches fill — anything ambiguous still gets asked.
+ *  - requestedSessionCount: extract the session count the advisor asked for
+ *    (CB-26), so code — not the AI — can notice a delivered outline that
+ *    ignores it. Conservative: ambiguity (ranges, conflicting counts) parses
+ *    as null, which simply disables the check.
  */
 
 // A question about the question. A miss is safe: the reply is stored and the
@@ -88,4 +92,62 @@ function prefillDesignState (state, openingMessage) {
   return state
 }
 
-module.exports = { isClarificationRequest, prefillDesignState }
+// ── Requested session count (CB-26) ─────────────────────────────────────────
+
+const COUNT_WORDS = {
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+  ten: 10,
+  eleven: 11,
+  twelve: 12,
+  thirteen: 13,
+  fourteen: 14,
+  fifteen: 15,
+  sixteen: 16,
+  seventeen: 17,
+  eighteen: 18,
+  nineteen: 19,
+  twenty: 20
+}
+
+const SESSION_NOUN = '(?:sessions?|modules?|parts?|lessons?)'
+const COUNT_TOKEN = '(?:\\d{1,2}|' + Object.keys(COUNT_WORDS).join('|') + ')'
+
+// "6-8 sessions", "six to eight sessions", "6 or 8 sessions" — a range is not
+// a request for a specific count; the check stands down.
+const RANGE_BEFORE_NOUN_RE = new RegExp(
+  COUNT_TOKEN + '\\s*(?:-|–|—|\\bto\\b|\\bor\\b)\\s*' + COUNT_TOKEN + '\\s*' + SESSION_NOUN, 'i'
+)
+const DIGIT_COUNT_RE = new RegExp('\\b(\\d{1,2})\\s*' + SESSION_NOUN, 'gi')
+const WORD_COUNT_RE = new RegExp('\\b(' + Object.keys(COUNT_WORDS).join('|') + ')\\s+' + SESSION_NOUN, 'gi')
+
+/**
+ * Extract the specific session count the advisor asked for, or null when no
+ * single unambiguous count is present ("a few sessions", "6-8 sessions",
+ * conflicting numbers). Word forms ("six sessions") count — the live CB-26
+ * case was spelled out and sailed past the digit-only pre-fill.
+ * @param {string} text - the advisor's session-format answer (raw typing)
+ * @returns {number|null} 1–30, or null to disable the check
+ */
+function requestedSessionCount (text) {
+  const t = String(text || '')
+  if (RANGE_BEFORE_NOUN_RE.test(t)) { return null }
+  const found = new Set()
+  let m
+  DIGIT_COUNT_RE.lastIndex = 0
+  while ((m = DIGIT_COUNT_RE.exec(t))) { found.add(Number(m[1])) }
+  WORD_COUNT_RE.lastIndex = 0
+  while ((m = WORD_COUNT_RE.exec(t))) { found.add(COUNT_WORDS[m[1].toLowerCase()]) }
+  if (found.size !== 1) { return null }
+  const n = found.values().next().value
+  return (n >= 1 && n <= 30) ? n : null
+}
+
+module.exports = { isClarificationRequest, prefillDesignState, requestedSessionCount }
