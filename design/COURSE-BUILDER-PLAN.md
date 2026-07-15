@@ -145,16 +145,24 @@ coverage-gate item in ACTIONS.md.
 
 ## Mike's decisions (no code until ruled)
 
-1. **CB-07 — the "Firm-wide" sharing button.** It cannot work until server storage
-   exists (courses are localStorage-only). Recommendation: **hide it** for now (honest,
-   zero effort) rather than label it "coming soon" (keeps the promise visible but
-   invites questions that can't yet be answered). ⏳ Awaiting ruling.
-2. **CB-16 / CB-17 — real persistence** (courses + progress into MySQL). Stays parked
-   with the existing Firm-Manager-MySQL persistence item — gated on the master team's
-   database work; this plan cannot unblock it.
-3. **CB-19 — verify item.** One live click-through of a course completion with both
-   servers running, then close (the localhost cause was fixed 2026-07-10 by the
-   apiProxy work, `6040abf`).
+1. **CB-07 — the "Firm-wide" sharing button. ✅ RULED by Mike 2026-07-15: "Coming
+   soon".** The button stays visible but disabled with a Coming-soon pill; visibility
+   is always stored private until sharing genuinely works (`7c86f77`).
+2. **CB-16 / CB-17 — real persistence. ◐ BUILT 2026-07-15 (Stages A–D, all pushed).**
+   `va_courses` schema + `courseStore` w/ dev fallback (`9591c47`) · owner-scoped
+   `/api/courses` CRUD behind firmAuth (`8d369cb`) · progress identity from the
+   verified JWT, never the body (`5fb077e`) · screen switch-over + hardened
+   per-advisor localStorage migration, legacy copy never deleted, five failure
+   strings approved (`1c5a585`). Discovery: the reporting half already existed
+   (`/api/activity/log-course` → `advisor_course_completions`). Runs on the dev-file
+   fallback until the master team provisions MySQL. **Remaining: Stage E — the live
+   click-through (merged with CB-19 below).**
+3. **CB-19 + Stage E — the live verification session.** With both servers running:
+   build a course end-to-end, complete a session + quiz (confirms completion logging
+   — the localhost cause was fixed 2026-07-10, `6040abf` — closing CB-19), interrupt
+   a streaming reply with Start-fresh (CB-18), refresh and confirm the course
+   survives in the server store, and re-load to confirm the legacy-course migration
+   ran (CB-16/17 Stage E). Then close all three lines.
 
 ## Deliberately not in this plan
 
