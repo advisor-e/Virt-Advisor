@@ -411,7 +411,9 @@ ${fenceUntrusted(
 
 Requirements:
 - Open-ended questions (not multiple choice)
-- Test conceptual understanding, not memorisation
+- Questions 1 and 2 must test the specific facts, frameworks, or key points actually taught in the session content above — for example: name the stages, list the components, state what the framework says. The advisor must show they absorbed the material, not just give their opinion of it.
+- Question 3 must ask the advisor to apply what was taught to their own practice or a client situation.
+- Only ask about facts that appear in the session content above — never test general knowledge the session did not cover.
 - Each question must relate to a session objective
 - Answerable in 2-4 sentences
 
