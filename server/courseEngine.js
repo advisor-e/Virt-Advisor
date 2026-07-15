@@ -130,8 +130,11 @@ function handleDesign (req, body, res) {
     res.end()
   }
 
-  // Helper: build full context and stream an AI-generated outline
-  async function generateOutline (userMessage) {
+  // Helper: build full context and stream an AI-generated outline.
+  // fallbackOutline (revision flow only): the advisor's previously approved
+  // outline — restored whenever the AI's reply does not contain a valid
+  // replacement, so a failed revision can never destroy an approved outline.
+  async function generateOutline (userMessage, fallbackOutline) {
     const allUserText = [
       state.goalsPrimary,
       state.goalsSecondary && state.goalsSecondary !== 'pending' ? state.goalsSecondary : '',
@@ -188,6 +191,7 @@ function handleDesign (req, body, res) {
       }, { timeout: 60000 })
     } catch (createErr) {
       console.error('[course:design] OpenAI create failed:', createErr.message)
+      sseWrite(res, { type: 'state', state: { ...state, pendingOutline: fallbackOutline || null } })
       sseWrite(res, { type: 'done' })
       res.end()
       return
@@ -207,7 +211,11 @@ function handleDesign (req, body, res) {
     }
 
     const outlineMatch = fullText.match(/\[COURSE_OUTLINE\]([\s\S]*?)\[\/COURSE_OUTLINE\]/)
-    const finalState = { ...state, pendingOutline: null }
+    // Commit-only-on-success: until a replacement outline validates, the final
+    // state carries the fallback (the previously approved outline in the
+    // revision flow, null otherwise) — never a malformed outline, which would
+    // render a broken/blank course view.
+    const finalState = { ...state, pendingOutline: fallbackOutline || null }
     if (outlineMatch) {
       try {
         const parsedOutline = JSON.parse(outlineMatch[1].trim())
@@ -215,9 +223,6 @@ function handleDesign (req, body, res) {
         if (result.valid) {
           finalState.pendingOutline = result.data
         } else {
-          // Valid JSON but wrong shape — degrade to "no outline" (the same safe
-          // state as a parse failure); never stream a malformed outline to the
-          // course screen, which would render a broken/blank course view.
           console.warn('[course:design] Course outline failed shape validation:', result.errors.join('; '))
         }
       } catch (e) {
@@ -232,10 +237,13 @@ function handleDesign (req, body, res) {
 
   // ── Case 1: Outline revision — advisor wants changes to an existing outline ──
   if (state.pendingOutline) {
-    const existingOutline = JSON.stringify(state.pendingOutline, null, 2)
+    const previousOutline = state.pendingOutline
+    const existingOutline = JSON.stringify(previousOutline, null, 2)
+    // Cleared for the in-stream state event only (no card flicker mid-reply);
+    // previousOutline is passed as the fallback so a failed revision restores it.
     state.pendingOutline = null
     const revisionMessage = `The advisor has reviewed this course outline:\n\n${existingOutline}\n\nThey want the following changes:\n${fenceUntrusted(query)}\n\nPlease revise the outline accordingly and present the updated version.`
-    return generateOutline(revisionMessage)
+    return generateOutline(revisionMessage, previousOutline)
   }
 
   // ── Case 2: First message — capture primary goal, detect multi-goal ──
