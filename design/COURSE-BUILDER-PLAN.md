@@ -1,9 +1,17 @@
 # Course Builder Improvement Plan
 
-> **Status:** APPROVED as a plan by Mike 2026-07-15 (drafted from the 2026-07-15
-> course-builder logic review). Each individual fix inside a phase still follows the
-> 5-step protocol — proof shown, change proposed, Mike's yes received — before any code
-> is touched.
+> **Status:** ✅ **ALL 5 PHASES COMPLETE 2026-07-15** — built, tested and pushed the
+> same day the plan was approved. 16 of the 24 CB items closed; the suite grew
+> 927 → 1,015 tests (76 on the course engine, which had zero that morning), every
+> commit individually gated (lint / full suite / audit). **Remaining items are
+> decisions or verification, not code:** CB-07 (Firm-wide button — needs Mike's
+> ruling), CB-16/17 (persistence — parked on master-team MySQL), CB-19 (live
+> click-through, incl. interrupting a streaming reply with Start-fresh), plus the
+> deliberately-deferred riders (CB-21/22/23/24).
+>
+> Originally APPROVED as a plan by Mike 2026-07-15 (drafted from the 2026-07-15
+> course-builder logic review). Each individual fix followed the 5-step protocol —
+> proof shown, change proposed, Mike's yes received — before any code was touched.
 >
 > **Item register:** every CB-xx ID below is a row in the consolidated table
 > **"COURSE BUILDER — consolidated outstanding actions (logged 2026-07-15)"** in
@@ -118,6 +126,15 @@ This phase needs Mike's input on question/re-ask wording before coding.
 ## Phase 5 — Test coverage back-fill
 
 *About one session.*
+
+> **✅ PHASE 5 COMPLETE 2026-07-15, pushed to GitHub.** CB-13 `5153419` —
+> `courseEngineDispatch.test.js` (11 tests: quiz-generate AI/override/reject
+> paths, progress stub, dispatcher rejections, query cap, rate-limit trip,
+> CORS branch, mid-stream failure) lifted the engine to **92.18% lines**;
+> `jest.config.js` locks it at `lines: 90` (per-file precedent). Gate: 1,015
+> tests green. **Honest finding:** the full coverage run fails the repo's
+> pre-existing global threshold (51.3% vs 80) — recorded as evidence on the
+> P3 coverage-gate item in ACTIONS.md; not caused by this work.
 
 Every phase above ships tests for what it touches; CB-13 then fills the remaining gaps
 (interview state machine, outline handling, quiz handlers) so the course engine meets
