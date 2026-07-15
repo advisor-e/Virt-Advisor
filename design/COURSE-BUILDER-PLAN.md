@@ -56,6 +56,13 @@ no score is ever fabricated, and the known image-injection channel is closed.
 
 *About one session.*
 
+> **✅ PHASE 2 COMPLETE 2026-07-15, pushed to GitHub.** CB-02 `cba5585` (new
+> `server/utils/outlineResources.js`) · CB-08 `773de46` (validator 100%
+> coverage held) · CB-04 `6bb9e82` · CB-12 `92559e7` (new
+> `server/utils/quizOverrides.js`; overrides file had no live entries — no
+> migration). Every commit gated: 968 tests green, lint clean, audit-gate
+> pass. Suite has grown 927→968 across Phases 1–2.
+
 | Item | What changes |
 | --- | --- |
 | CB-02 | Every resource name in an AI-generated outline is checked against the real template library before the outline is accepted — hallucinated names are rejected (never-invent-the-firm's-IP rule). |
