@@ -12,6 +12,7 @@ const { computeWorkingCapitalCycle } = require('../report/workingCapitalCycleMod
 const { computeDebtorCashflow } = require('../report/debtorDragModel')
 const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/marginBreakevenModel')
 const { computeEightLevers } = require('../report/eightLeversModel')
+const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 
 /**
  * POST /api/report/working-capital-cycle
@@ -106,4 +107,28 @@ function eightLevers (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers }
+/**
+ * POST /api/report/quick-position
+ * @param {object} req.body - partial Quick Position inputs (merged over the source-sheet
+ *   defaults): asset amounts + realisability factors, monthly outgoings, life-line capital,
+ *   grossMarginPct/discountPct, serviceBusiness, and optionally expenseLines
+ *   [{amount, maintainedPct}] + operatingMonths for the Expenses Review.
+ * @returns {object} { success, data, timestamp } — quick cash, runway months (null = unlimited),
+ *   break-even (null = no margin), the discount example, and expensesReview when lines were sent.
+ */
+function quickPosition (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeQuickPosition(inputs)
+    if (Array.isArray(inputs.expenseLines)) {
+      data.expensesReview = computeExpensesReview(inputs.expenseLines, inputs.operatingMonths)
+    }
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] quick-position compute failed:', err && err.message)
+    res.send(400, { success: false, error: { code: 'QUICK_POSITION_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition }
