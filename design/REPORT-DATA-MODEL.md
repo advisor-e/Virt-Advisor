@@ -374,18 +374,39 @@ the advisor supplies that export. **Prior-year revenue (#12): owner ruling 2026-
 hybrid** — seeded from a prior-year P&L export if supplied, manual entry always available;
 absence usually means the client doesn't have the data (§3.3).
 
-Still open:
+✅ **RESOLVED — the collection profile (§3.4) can NEVER be file-sourced (owner-verified in
+Xero, 2026-07-16).** An **Aged Receivables Detail** export was supplied and read (Kinetic
+Planning (2007) Limited): it IS invoice-level (invoice date, due date, invoice number per
+row) — richer than the Summary — but it lists only invoices **still unpaid** at the run
+date and carries **no paid-date column**. The owner then confirmed in the live product that
+Xero's receivables reports can age only by *due date* or *invoice date*; the date money
+actually arrived is never recorded in them. So a true payment-behaviour profile cannot come
+from a Xero file, full stop. Where a Report-class model needs payment-speed insight it uses
+what the exports DO carry — **debtor days** (Balance Sheet debtors + P&L revenue, both
+verified available) and the **ageing buckets** — or advisor entry. Governed by the design
+principle ruled the same day: **models adapt to the exports, not the exports to the models**
+(plan decision log, 2026-07-16). Privacy note confirmed by the same file: the Detail export
+names the client company and its customers on **every row** — reduce to bucket totals on
+ingest, exactly as §5 requires.
 
-1. **The collection profile has no home (§3.4).** If a Report-class model ever needs a true
-   collection profile, it needs invoice-level data (paid vs issued dates) — an Aged Receivables
-   **Detail** export, not the Summary. Worth confirming whether that export exists in the form
-   we'd need.
-2. **`initialInvestment` (#1)** — a real figure off the Balance Sheet, or a scenario number the
-   advisor chooses?
-3. **Owner's drawings (#19)** — actual (from the accounts) or a target (advisor-set)? The
-   Margin model treats it as a target to cover.
-4. **Stock.** `daysOnHand` assumes the client carries inventory. What should a Report-class
-   model do for a service business with no stock?
+✅ **RESOLVED — `initialInvestment` (#1) = hybrid (owner, 2026-07-16).** Seeded from the
+dropped Balance Sheet when a figure is identifiable; the advisor confirms or overrides;
+tagged *from file* / *entered* — the same pattern as prior-year revenue.
+
+✅ **RESOLVED — owner's drawings (#19) = hybrid (owner, 2026-07-16).** Seeded from the file
+when identifiable, always editable, tagged by source. The Margin model's treatment of
+drawings as a *target to cover* is unchanged — the seeded figure is the starting point for
+that conversation, not its end.
+
+✅ **RESOLVED — no-stock service businesses = ADAPT (owner, 2026-07-16).** When the advisor
+indicates a service business (or the file shows no stock), the model **omits the stock
+inputs and tiles entirely** and calculates the rest correctly — no meaningless zero boxes,
+and no models withheld from service clients.
+
+**§6 now has no open questions.** The Report-class data-model design is decision-complete;
+each Report-class model's *adapted* mathematics (per the models-adapt-to-the-exports
+principle) is still shown to the owner at its own design time — the standing
+"never simplify or remove any element of a source model without asking first" rule holds.
 
 ---
 
