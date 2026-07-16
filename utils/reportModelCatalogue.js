@@ -93,7 +93,7 @@ export const MODELS = [
   { name: 'The Loan Estimator', category: 'Valuation', summary: 'Repayments, interest and total cost across loan options.', status: STATUS_SOON, modelClass: CLASS_DECISION },
   { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Compare several property investments side by side.', status: STATUS_SOON, modelClass: CLASS_DECISION },
   { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON, modelClass: CLASS_DECISION },
-  { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/quick-position' },
   { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'Mid-Level Budget', category: 'Budgeting', summary: 'A more detailed budget with assumptions and monthly tracking.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'Volatility Report', category: 'Risk', summary: 'How bumpy the numbers are — common, seasonal or special-cause.', status: STATUS_SOON, modelClass: CLASS_REPORT }

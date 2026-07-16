@@ -60,7 +60,8 @@ describe('report model catalogue', () => {
         '/business-performance-report',
         '/debtor-drag',
         '/eight-levers',
-        '/margin-breakeven'
+        '/margin-breakeven',
+        '/quick-position'
       ])
     })
 
@@ -106,13 +107,20 @@ describe('report model catalogue', () => {
       expect(by(CLASS_REPORT)).toHaveLength(9)
     })
 
-    it('classes every BUILT model as Education', () => {
-      // They are badged "Illustrative" and take no client data — the owner's correction
-      // that reframed the whole data-in design. If a built model ever stops being
-      // Education, its intake, privacy handling and badge all have to change with it.
+    it('classes the built models correctly — 4 Education + Quick Position (the first Report)', () => {
+      // The four education models are badged "Illustrative" and take no client data.
+      // Quick Position (built 2026-07-16) is deliberately DIFFERENT: the first
+      // Report-class model — real client numbers via file intake, privacy applies,
+      // and it must NEVER carry the Illustrative badge.
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(4)
-      built.forEach(m => expect(m.modelClass).toBe(CLASS_EDUCATION))
+      expect(built).toHaveLength(5)
+      built.forEach((m) => {
+        if (m.name === 'Quick Position') {
+          expect(m.modelClass).toBe(CLASS_REPORT)
+        } else {
+          expect(m.modelClass).toBe(CLASS_EDUCATION)
+        }
+      })
     })
   })
 
@@ -255,7 +263,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(4)
+      expect(readyCount(MODELS)).toBe(5)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

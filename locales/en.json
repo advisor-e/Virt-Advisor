@@ -176,6 +176,121 @@
         "weeksLost": "Effective weeks lost",
         "labourRevenue": "Est. labour revenue"
       }
+    },
+    "quickPosition": {
+      "title": "Quick Position",
+      "eyebrowClass": "Client report",
+      "step1": "Drop the exports",
+      "step2": "Confirm the figures",
+      "step3": "Quick Position report",
+      "drop": {
+        "bsTitle": "Balance Sheet",
+        "bsHow": "Xero → Reports → Balance Sheet → Export as Excel",
+        "bsSeeds": "Seeds: cash, debtors, stock, creditors",
+        "plTitle": "Profit & Loss",
+        "optional": "optional",
+        "plHow": "Xero → Reports → Profit and Loss → Export as Excel",
+        "plSeeds": "Seeds: the operating-expense review → monthly outgoings",
+        "choose": "Choose the file…",
+        "reading": "Reading the file…",
+        "bsRead": "Balance Sheet read — {n} figures proposed",
+        "plRead": "Profit & Loss read — {n} expense lines found",
+        "rules": "Spreadsheets only — .xlsx or .csv. A PDF is refused with a note naming the export to download instead. Anything the files can't supply, you enter in the next step — and every figure is tagged by its source so an assumption can never pass as a fact.",
+        "skip": "No exports handy? Skip and enter everything manually →",
+        "continue": "Continue →",
+        "uploadFailed": "The file could not be read. Please try again.",
+        "wrongKind": "That file was already read — drop the other report here."
+      },
+      "confirm": {
+        "title": "What the files gave us — confirm each figure",
+        "figure": "Figure",
+        "value": "Value",
+        "source": "Source",
+        "fromFile": "from file",
+        "entered": "entered",
+        "cash": "Cash and equivalents",
+        "debtors": "Debtors (accounts receivable)",
+        "stock": "Stock",
+        "stockCandidates": "The Balance Sheet holds stock in {n} rows — tick the ones that count",
+        "creditors": "Immediate creditors payable",
+        "wagesDue": "Salaries, wages & PAYE due",
+        "fixedAssets": "Disposable (under-utilised) fixed assets — sellable in 30–45 days",
+        "datesAgree": "Both files report as at {date} — dates agree",
+        "datesDiffer": "The files carry different reporting dates ({a} vs {b}) — figures may be out of step. Please check the exports.",
+        "serviceToggle": "This is a service business (no stock). The stock line drops out of the model entirely — no empty boxes.",
+        "build": "Looks right — build the report →",
+        "adjustLater": "You can still adjust everything on the report screen."
+      },
+      "aside": {
+        "assets": "Realisable assets",
+        "cashFactor": "Cash",
+        "debtorsFactor": "Debtors realisable",
+        "stockFactor": "Stock realisable",
+        "fixedAssetsFactor": "Fixed assets realisable",
+        "outgoings": "Monthly outgoings",
+        "fixedCosts": "Fixed costs / month",
+        "drawings": "Drawings + wages top-up",
+        "loanRepayments": "Loan repayments",
+        "lifeline": "Life-line capital",
+        "lifelineNote": "(outside the business)",
+        "savings": "Personal savings",
+        "investments": "'Quick' investments",
+        "raised": "Raised capital + secured loans",
+        "margin": "Margin & discounting",
+        "grossMargin": "Gross margin",
+        "discount": "Sales discount being considered"
+      },
+      "hero": {
+        "quickCash": "Quick cash available",
+        "quickCashSub": "realisable now, after immediate debts",
+        "coverZero": "Cover at zero sales",
+        "months": "months",
+        "coverZeroSub": "on the business's own resources",
+        "withLifeline": "With life-line capital",
+        "withLifelineSub": "adds {amount} of outside support",
+        "breakEven": "Break-even sales",
+        "breakEvenSub": "needed per month to stand still",
+        "unlimited": "no monthly outgoings — unlimited cover"
+      },
+      "runway": {
+        "title": "Survival runway",
+        "summary": "burning {outgo} a month at zero sales · life-line adds {lifeline}",
+        "ownCash": "Business's own quick cash",
+        "extension": "Life-line capital extension",
+        "under3": "Under 3 months — act now",
+        "under6": "Under 6 months of cover",
+        "cover": "{n} months of cover"
+      },
+      "discount": {
+        "title": "What a discount really does",
+        "today": "Gross margin today",
+        "after": "Margin after a {d} discount",
+        "extra": "Extra sales needed just to stand still",
+        "destroyed": "margin gone — no volume can recover it"
+      },
+      "expenses": {
+        "title": "Expenses review",
+        "seeded": "— seeded line-by-line from the P&L",
+        "moreLines": "… {n} more lines, each with a \"% maintained\" to trim",
+        "revised": "Revised yearly → average monthly",
+        "use": "Use {amount} as monthly fixed costs",
+        "used": "Monthly fixed costs set from the expenses review",
+        "none": "No P&L was dropped — enter monthly fixed costs on the left."
+      },
+      "coach": {
+        "lead": "Coach",
+        "heading": "What this means",
+        "negative": "Immediate debts exceed what the business can realise quickly. This is a now conversation: which creditors can wait, what can be turned to cash this week, and what outside support exists.",
+        "runway": "If sales stopped today, the business could cover its outgoings for {m0} months from its own quick cash — {ml} months with the life-line capital. To stand still it needs {be} of sales a month at the current margin.",
+        "discountTrap": "And note the discount trap: a {d} discount means selling {up} more just to keep the same gross profit."
+      },
+      "privacy": "Privacy: the client's name and identity never leave the app. If AI narrative is used, it sees anonymised figures only — the finished report is re-personalised locally.",
+      "actions": {
+        "pdf": "Download PDF",
+        "reset": "Reset",
+        "resetDone": "Back to the confirmed figures",
+        "provenance": "Maths reproduces the source model exactly (32 golden checks)."
+      }
     }
   },
   "modelLibrary": {
