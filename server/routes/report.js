@@ -171,7 +171,7 @@ const INTAKE_STATUS = {
  * @param {object} req - multipart request; req.firmId set by firmAuth.
  * @returns {object} { success, data: { kind, companyName, reportDate, proposals|expenseLines, warnings }, timestamp }
  */
-async function quickPositionIntake (req, res, next) {
+async function quickPositionIntake (req, res) {
   const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: false })
   let uploadedFile = null
   try {
@@ -185,13 +185,13 @@ async function quickPositionIntake (req, res, next) {
         error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a Xero report export should be well under that.' : 'The upload could not be read. Please try again.' },
         timestamp: new Date().toISOString()
       })
-      return next()
+      return
     }
 
     uploadedFile = files && (Array.isArray(files.file) ? files.file[0] : files.file)
     if (!uploadedFile || !uploadedFile.filepath) {
       res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the export in the "file" field.' }, timestamp: new Date().toISOString() })
-      return next()
+      return
     }
 
     const buffer = fs.readFileSync(uploadedFile.filepath)
@@ -212,7 +212,6 @@ async function quickPositionIntake (req, res, next) {
       fs.unlink(uploadedFile.filepath, () => {})
     }
   }
-  return next()
 }
 
 module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake }
