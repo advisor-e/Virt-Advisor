@@ -8,11 +8,29 @@
  * posts inputs and renders the returned figures.
  */
 
+const fs = require('fs')
+const { formidable } = require('formidable')
 const { computeWorkingCapitalCycle } = require('../report/workingCapitalCycleModel')
 const { computeDebtorCashflow } = require('../report/debtorDragModel')
 const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/marginBreakevenModel')
 const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
+const { parseUpload } = require('../report/intake/xeroReportParser')
+
+// formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
+// named-export + callback-wrap pattern as the firm-manager uploads.
+
+const INTAKE_MAX_BYTES = 5 * 1024 * 1024 // a Xero report export is well under 1 MB
+
+/** Wrap formidable v2's callback parse() for await use. @param {object} form @param {object} req */
+function parseForm (form, req) {
+  return new Promise((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) { reject(err); return }
+      resolve([fields, files])
+    })
+  })
+}
 
 /**
  * POST /api/report/working-capital-cycle
@@ -131,4 +149,70 @@ function quickPosition (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition }
+/** Stable intake error codes → HTTP status. Anything else is a 400. */
+const INTAKE_STATUS = {
+  PDF_REJECTED: 415,
+  UNRECOGNISED_FILE: 415,
+  UNRECOGNISED_REPORT: 422,
+  FILE_TOO_LARGE: 413
+}
+
+/**
+ * POST /api/report/quick-position/intake  (firmAuth — uploads are never anonymous)
+ *
+ * Multipart upload of ONE Xero report export (.xlsx or .csv, max 5 MB) in the `file`
+ * field. Parses on the backend per the intake contract (REPORT-DATA-MODEL §4): sums
+ * line items (never Total rows), auto-detects Balance Sheet vs P&L, returns proposed
+ * figures tagged `source: 'file'` with per-row candidates, the report's own date, and
+ * any cross-check warnings. Parse-and-discard: the temp file is deleted in `finally`,
+ * nothing is stored, and no client-identifying content (names, labels, filenames) is
+ * ever logged — only stable error codes.
+ *
+ * @param {object} req - multipart request; req.firmId set by firmAuth.
+ * @returns {object} { success, data: { kind, companyName, reportDate, proposals|expenseLines, warnings }, timestamp }
+ */
+async function quickPositionIntake (req, res, next) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: false })
+  let uploadedFile = null
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a Xero report export should be well under that.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return next()
+    }
+
+    uploadedFile = files && (Array.isArray(files.file) ? files.file[0] : files.file)
+    if (!uploadedFile || !uploadedFile.filepath) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the export in the "file" field.' }, timestamp: new Date().toISOString() })
+      return next()
+    }
+
+    const buffer = fs.readFileSync(uploadedFile.filepath)
+    const data = parseUpload(buffer)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    const code = (err && err.code) || 'INTAKE_PARSE_FAILED'
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] quick-position intake rejected:', code)
+    res.send(INTAKE_STATUS[code] || 400, {
+      success: false,
+      error: { code, message: (err && err.message) || 'The file could not be read as a Xero report export.' },
+      timestamp: new Date().toISOString()
+    })
+  } finally {
+    // Parse-and-discard: always remove formidable's temp file
+    if (uploadedFile && uploadedFile.filepath) {
+      fs.unlink(uploadedFile.filepath, () => {})
+    }
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake }

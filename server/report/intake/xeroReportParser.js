@@ -1,0 +1,253 @@
+'use strict'
+
+/**
+ * Xero report parser — turns a raw cell grid (from the xlsx or csv reader) into the
+ * Quick Position intake proposal: which figures the file can seed, each tagged
+ * `source: 'file'`, with multi-row candidates where the chart of accounts splits a
+ * concept across rows (the verified Electric Bikes stock finding, REPORT-DATA-MODEL §3.9).
+ *
+ * Contract rules implemented here (REPORT-DATA-MODEL §4):
+ *  - NEVER read a "Total …" row as a line item — always sum the line items; when the
+ *    file carries a cached section total, use it only as a cross-check and warn on
+ *    mismatch (§3.1 + its 2026-07-15 nuance).
+ *  - Never silently guess: a figure the file can't supply is simply absent from the
+ *    proposal (the screen presents it pre-filled with the model default, tagged *entered*).
+ *  - Wrong file → `recognised: false` with what was expected; no partial parse.
+ *  - Identity stays local: this module returns labels/company name for the advisor's
+ *    own screen, but callers must never log them (see the route).
+ */
+
+const { readXlsx, XlsxReadError } = require('./xlsxReader')
+const { parseCsv } = require('./csvReader')
+
+/** A grid row reduced to its first text cell + first numeric cell. */
+function rowShape (cells) {
+  let label = null
+  let labelCol = -1
+  let value = null
+  for (let c = 0; c < cells.length; c++) {
+    const v = cells[c]
+    if (v === null || v === undefined || v === '') { continue }
+    if (typeof v === 'string' && label === null) { label = v.trim(); labelCol = c; continue }
+    if (typeof v === 'number' && label !== null && c > labelCol && value === null) { value = v; break }
+  }
+  return { label, value }
+}
+
+/** @param {Array<Array<string|number|null>>} grid @returns {Array<{label:string|null, value:number|null}>} */
+function shapeRows (grid) {
+  return grid.map(cells => rowShape(cells || []))
+}
+
+const TOTAL_RE = /^total\b/i
+
+/**
+ * Walk a report body: section headers (label, no value) open a section; "Total X"
+ * rows close it and carry the file's own cached total for the cross-check.
+ * @param {Array<{label:string|null, value:number|null}>} rows
+ * @returns {Array<{section:string[], label:string, value:number}>} line items with their section path
+ */
+function lineItems (rows) {
+  const items = []
+  const stack = []
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i]
+    if (!r.label) { continue }
+    if (TOTAL_RE.test(r.label)) {
+      // never a line item; pop the section it closes (best-effort by name)
+      const closes = r.label.replace(TOTAL_RE, '').trim().toLowerCase()
+      for (let s = stack.length - 1; s >= 0; s--) {
+        if (stack[s].name.toLowerCase() === closes) {
+          stack[s].cachedTotal = (typeof r.value === 'number') ? r.value : null
+          stack.length = s
+          break
+        }
+      }
+      continue
+    }
+    if (r.value === null) {
+      stack.push({ name: r.label, cachedTotal: null })
+      continue
+    }
+    items.push({ section: stack.map(s => s.name), label: r.label, value: r.value })
+  }
+  return items
+}
+
+/** Does any section on the path match the pattern? */
+function inSection (item, re) {
+  return item.section.some(s => re.test(s))
+}
+
+/** Sum a candidate list. @param {Array<{label:string,value:number}>} c */
+function sumCandidates (c) { return c.reduce((t, x) => t + x.value, 0) }
+
+/**
+ * Cross-check the file's own cached section totals against our line-item sums.
+ * @param {Array<{label:string|null, value:number|null}>} rows
+ * @returns {string[]} warnings (label-based, no client identity)
+ */
+function totalCrossChecks (rows) {
+  const warnings = []
+  const sums = Object.create(null)
+  const stack = []
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i]
+    if (!r.label) { continue }
+    if (TOTAL_RE.test(r.label)) {
+      const name = r.label.replace(TOTAL_RE, '').trim()
+      const key = name.toLowerCase()
+      const idx = stack.lastIndexOf(key)
+      if (idx !== -1) {
+        if (typeof r.value === 'number' && sums[key] !== undefined && Math.abs(sums[key] - r.value) > 0.01) {
+          warnings.push('The file\'s own "Total ' + name + '" does not match the sum of its line items — the line-item sum was used. Please check the export.')
+        }
+        stack.length = idx
+      }
+      continue
+    }
+    if (r.value === null) { stack.push(r.label.toLowerCase()); sums[r.label.toLowerCase()] = 0; continue }
+    for (let s = 0; s < stack.length; s++) { sums[stack[s]] += r.value }
+  }
+  return warnings
+}
+
+/** Find the report's own date/period line in the header rows. */
+function headerMeta (rows, titleRe) {
+  const meta = { companyName: null, reportDate: null, titleRow: -1 }
+  const limit = Math.min(rows.length, 8)
+  for (let i = 0; i < limit; i++) {
+    const label = rows[i].label
+    if (!label) { continue }
+    if (meta.titleRow === -1 && titleRe.test(label)) { meta.titleRow = i; continue }
+    const asAt = /^as at\s+(.+)$/i.exec(label)
+    const period = /^for the\s+(.+)$/i.exec(label) || /^(\d{1,2}\s+\w+\s+\d{4})\s*(?:to|[-–])\s*(.+)$/i.exec(label)
+    if (asAt) { meta.reportDate = asAt[1].trim(); continue }
+    if (period) { meta.reportDate = label.trim(); continue }
+    if (meta.companyName === null && meta.titleRow !== -1) { meta.companyName = label } else if (meta.companyName === null && i > 0) { meta.companyName = label }
+  }
+  return meta
+}
+
+const BS_TITLE = /balance\s*sheet/i
+const PL_TITLE = /profit\s*(?:and|&)\s*loss|income\s+statement/i
+
+/**
+ * Extract the Quick Position proposals from a Balance Sheet grid.
+ * @param {Array<Array<string|number|null>>} grid
+ * @returns {object} { recognised, kind, companyName, reportDate, proposals, warnings }
+ */
+function extractBalanceSheet (grid) {
+  const rows = shapeRows(grid)
+  const meta = headerMeta(rows, BS_TITLE)
+  if (meta.titleRow === -1) { return { recognised: false } }
+
+  const items = lineItems(rows)
+  const warnings = totalCrossChecks(rows)
+
+  const bankRows = items.filter(it => inSection(it, /^bank$|bank accounts/i))
+  const debtorRows = items.filter(it => /accounts?\s+receivable|trade\s+(receivable|debtor)|^debtors\b/i.test(it.label))
+  const stockRows = items.filter(it => /stock|inventor/i.test(it.label))
+  const liabItems = items.filter(it => inSection(it, /liabilit/i))
+  const creditorRows = liabItems.filter(it => /accounts?\s+payable|trade\s+(payable|creditor)|^creditors\b/i.test(it.label))
+  const wageRows = liabItems.filter(it => /paye|payroll|wages|salaries/i.test(it.label))
+
+  const proposals = Object.create(null)
+  const propose = (key, candidates) => {
+    if (candidates.length) {
+      proposals[key] = {
+        value: sumCandidates(candidates),
+        source: 'file',
+        candidates: candidates.map(c => ({ label: c.label, value: c.value }))
+      }
+    }
+  }
+  propose('cash', bankRows)
+  propose('debtors', debtorRows)
+  propose('stock', stockRows)
+  propose('creditors', creditorRows)
+  propose('wagesDue', wageRows)
+
+  return {
+    recognised: true,
+    kind: 'balanceSheet',
+    companyName: meta.companyName,
+    reportDate: meta.reportDate,
+    proposals,
+    warnings
+  }
+}
+
+/**
+ * Extract the Expenses Review seed (and an income figure) from a P&L grid.
+ * @param {Array<Array<string|number|null>>} grid
+ * @returns {object} { recognised, kind, companyName, reportDate, expenseLines, incomeTotal, warnings }
+ */
+function extractProfitLoss (grid) {
+  const rows = shapeRows(grid)
+  const meta = headerMeta(rows, PL_TITLE)
+  if (meta.titleRow === -1) { return { recognised: false } }
+
+  const items = lineItems(rows)
+  const warnings = totalCrossChecks(rows)
+
+  const expenseItems = items.filter(it => inSection(it, /operating expenses|^expenses$|overheads/i))
+  const incomeItems = items.filter(it => inSection(it, /^income$|^revenue$|trading income|^sales$/i))
+
+  return {
+    recognised: true,
+    kind: 'profitLoss',
+    companyName: meta.companyName,
+    reportDate: meta.reportDate,
+    expenseLines: expenseItems.map(it => ({ name: it.label, amount: it.value })),
+    incomeTotal: incomeItems.length ? sumCandidates(incomeItems) : null,
+    warnings
+  }
+}
+
+/**
+ * Sniff an uploaded buffer, read it (xlsx or csv), detect which Xero report it is,
+ * and extract the intake proposal. The single entry point the route calls.
+ *
+ * @param {Buffer} buf - the uploaded file's bytes.
+ * @returns {object} on success: the extract result above.
+ * @throws {XlsxReadError|Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
+ *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT
+ */
+function parseUpload (buf) {
+  if (!Buffer.isBuffer(buf) || buf.length === 0) {
+    const e = new Error('The upload was empty'); e.code = 'UNRECOGNISED_FILE'; throw e
+  }
+  if (buf.length >= 4 && buf.toString('latin1', 0, 4) === '%PDF') {
+    const e = new Error('PDF files cannot be read reliably — please export the report from Xero as Excel (.xlsx) or CSV and drop that instead')
+    e.code = 'PDF_REJECTED'
+    throw e
+  }
+
+  let grids
+  if (buf.length >= 4 && buf.readUInt32LE(0) === 0x04034B50) {
+    grids = readXlsx(buf).map(s => s.rows)
+  } else {
+    // Treat as text/CSV only if it decodes as printable text (no binary control bytes)
+    const text = buf.toString('utf8')
+    // eslint-disable-next-line no-control-regex -- deliberately detecting binary bytes
+    if (/[\u0000-\u0008\u000E-\u001F]/.test(text.slice(0, 2000))) {
+      const e = new Error('Unrecognised file type — please drop a Xero report exported as Excel (.xlsx) or CSV')
+      e.code = 'UNRECOGNISED_FILE'
+      throw e
+    }
+    grids = [parseCsv(text)]
+  }
+
+  for (let g = 0; g < grids.length; g++) {
+    const bs = extractBalanceSheet(grids[g])
+    if (bs.recognised) { return bs }
+    const pl = extractProfitLoss(grids[g])
+    if (pl.recognised) { return pl }
+  }
+  const e = new Error('This does not look like a Xero Balance Sheet or Profit and Loss export — expected the report title in the first rows')
+  e.code = 'UNRECOGNISED_REPORT'
+  throw e
+}
+
+module.exports = { parseUpload, extractBalanceSheet, extractProfitLoss, XlsxReadError }
