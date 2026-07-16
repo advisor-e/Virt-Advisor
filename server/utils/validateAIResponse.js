@@ -135,15 +135,31 @@ function validateCourseOutline (response) {
     return { valid: false, errors, data: null }
   }
 
-  const sessions = response.sessions.map((s, i) => ({
-    ...s,
-    id: i + 1,
-    resources: Array.isArray(s.resources) ? s.resources.filter(r => typeof r === 'string') : [],
-    objectives: Array.isArray(s.objectives) ? s.objectives.filter(o => typeof o === 'string') : [],
-    estimatedMinutes: (typeof s.estimatedMinutes === 'number' && Number.isFinite(s.estimatedMinutes) && s.estimatedMinutes > 0)
-      ? s.estimatedMinutes
-      : 30
-  }))
+  const sessions = response.sessions.map((s, i) => {
+    const resources = Array.isArray(s.resources) ? s.resources.filter(r => typeof r === 'string') : []
+    const session = {
+      ...s,
+      id: i + 1,
+      resources,
+      objectives: Array.isArray(s.objectives) ? s.objectives.filter(o => typeof o === 'string') : [],
+      estimatedMinutes: (typeof s.estimatedMinutes === 'number' && Number.isFinite(s.estimatedMinutes) && s.estimatedMinutes > 0)
+        ? s.estimatedMinutes
+        : 30
+    }
+    // CB-25: resourceLinks round-trips through the browser (and a shared
+    // course copies it to teammates), so it is re-validated at the door:
+    // https-only, and only for names actually in this session's resources —
+    // a tampered javascript:/foreign entry is dropped, never stored.
+    const links = {}
+    if (s.resourceLinks && typeof s.resourceLinks === 'object' && !Array.isArray(s.resourceLinks)) {
+      for (const name of resources) {
+        const url = s.resourceLinks[name]
+        if (typeof url === 'string' && /^https:\/\//i.test(url)) { links[name] = url }
+      }
+    }
+    if (Object.keys(links).length) { session.resourceLinks = links } else { delete session.resourceLinks }
+    return session
+  })
 
   const data = {
     ...response,

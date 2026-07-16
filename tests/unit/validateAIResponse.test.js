@@ -318,4 +318,40 @@ describe('validateCourseOutline', () => {
       expect(result.data.sessions).toHaveLength(2)
     })
   })
+
+  // CB-25: resourceLinks round-trips through the browser (and a shared course
+  // copies it to teammates) — it must be re-validated at the door.
+  describe('resourceLinks (CB-25)', () => {
+    function outlineWithLinks (resourceLinks) {
+      return {
+        title: 'A course',
+        sessions: [{ title: 'S1', focus: 'x', resources: ['T', 'U'], resourceLinks }]
+      }
+    }
+
+    test('keeps https links for names in the session resources', () => {
+      const result = validateCourseOutline(outlineWithLinks({ T: 'https://www.advisor-e.com/secure/dashboard#id-1?type=do%20the%20job' }))
+      expect(result.valid).toBe(true)
+      expect(result.data.sessions[0].resourceLinks).toEqual({ T: 'https://www.advisor-e.com/secure/dashboard#id-1?type=do%20the%20job' })
+    })
+
+    test('drops javascript: and plain-http links — a tampered course cannot store a hostile address', () => {
+      const result = validateCourseOutline(outlineWithLinks({
+        T: 'javascript:alert(1)', // eslint-disable-line no-script-url
+        U: 'http://evil.example/phish'
+      }))
+      expect(result.valid).toBe(true)
+      expect(result.data.sessions[0].resourceLinks).toBeUndefined()
+    })
+
+    test('drops links whose name is not one of the session resources', () => {
+      const result = validateCourseOutline(outlineWithLinks({ Foreign: 'https://ok.example/x' }))
+      expect(result.data.sessions[0].resourceLinks).toBeUndefined()
+    })
+
+    test('a non-object resourceLinks is removed, and its absence stays absent', () => {
+      expect(validateCourseOutline(outlineWithLinks('not-an-object')).data.sessions[0].resourceLinks).toBeUndefined()
+      expect(validateCourseOutline({ title: 'A', sessions: [{ title: 'S', focus: 'x' }] }).data.sessions[0].resourceLinks).toBeUndefined()
+    })
+  })
 })

@@ -5,12 +5,12 @@
 // invented names are dropped (and reported for logging), near-miss spellings
 // are snapped to the library's exact title. The outline itself survives.
 
-const { groundOutlineResources } = require('../../server/utils/outlineResources')
+const { groundOutlineResources, templatePageUrl } = require('../../server/utils/outlineResources')
 
 const TEMPLATES = [
-  { title: 'Cafe' },
-  { title: 'Quick & Worst' },
-  { title: '5 Layers Questionnaire' }
+  { title: 'Cafe', link: 'id-1111', section: 'Do the Job' },
+  { title: 'Quick & Worst' }, // no page-link id → grounded but unlinked
+  { title: '5 Layers Questionnaire', link: 'id-2222', section: 'Get the Job' }
 ]
 
 function outlineWith (resources) {
@@ -80,5 +80,47 @@ describe('groundOutlineResources (CB-02)', () => {
     const { outline, dropped } = groundOutlineResources(outlineWith([null, 42, 'Cafe']), TEMPLATES)
     expect(outline.sessions[0].resources).toEqual(['Cafe'])
     expect(dropped).toEqual(['null', '42'])
+  })
+})
+
+// ── CB-25: real Advisor-e page links on grounded resources ────────────────────
+
+describe('templatePageUrl (CB-25)', () => {
+  test('builds the confirmed pattern: base#link?type=section (lowercased + encoded)', () => {
+    expect(templatePageUrl({ link: 'id-7154906006', section: 'Do the Job' }))
+      .toBe('https://www.advisor-e.com/secure/dashboard#id-7154906006?type=do%20the%20job')
+  })
+
+  test('a record with no page-link id gets null — never a broken address', () => {
+    expect(templatePageUrl({ title: 'X' })).toBeNull()
+    expect(templatePageUrl({ link: '   ' })).toBeNull()
+    expect(templatePageUrl(null)).toBeNull()
+  })
+
+  test('a missing section omits the type suffix rather than sending type=', () => {
+    expect(templatePageUrl({ link: 'id-9' })).toBe('https://www.advisor-e.com/secure/dashboard#id-9')
+  })
+})
+
+describe('groundOutlineResources resourceLinks (CB-25)', () => {
+  test('linked templates get their page address; unlinked ones are grounded without one', () => {
+    const { outline } = groundOutlineResources(outlineWith(['Cafe', 'Quick & Worst']), TEMPLATES)
+    const s = outline.sessions[0]
+    expect(s.resources).toEqual(['Cafe', 'Quick & Worst'])
+    expect(s.resourceLinks).toEqual({
+      Cafe: 'https://www.advisor-e.com/secure/dashboard#id-1111?type=do%20the%20job'
+    })
+  })
+
+  test('a session with no linkable resources carries no resourceLinks key at all', () => {
+    const { outline } = groundOutlineResources(outlineWith(['Quick & Worst']), TEMPLATES)
+    expect(outline.sessions[0].resourceLinks).toBeUndefined()
+  })
+
+  test('links key on the CANONICAL library spelling, matching the snapped resource name', () => {
+    const { outline } = groundOutlineResources(outlineWith(['  cafe ']), TEMPLATES)
+    const s = outline.sessions[0]
+    expect(s.resources).toEqual(['Cafe'])
+    expect(Object.keys(s.resourceLinks)).toEqual(['Cafe'])
   })
 })

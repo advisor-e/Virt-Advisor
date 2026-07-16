@@ -98,7 +98,11 @@
               strong.session-title {{ s.title }}
               p.session-focus {{ s.focus }}
               .session-resources(v-if="s.resources && s.resources.length")
-                span.resource-tag(v-for="r in s.resources" :key="r") {{ r }}
+                //- CB-25: a grounded resource with a real Advisor-e page link is
+                //- clickable — new tab always, so the live course chat survives.
+                template(v-for="r in s.resources")
+                  a.resource-tag.resource-tag-link(v-if="s.resourceLinks && s.resourceLinks[r]" :key="r" :href="s.resourceLinks[r]" target="_blank" rel="noopener noreferrer") {{ r }} ↗
+                  span.resource-tag(v-else :key="r") {{ r }}
         //- CB-26: code-detected session-count mismatch — the engine flags it;
         //- the AI is never trusted to confess a deviation itself.
         .outline-count-notice(v-if="courseState.sessionCountNotice")
@@ -178,6 +182,12 @@
         span.session-badge Session {{ activeSessionIndex + 1 }}
         h3.session-title-heading {{ currentSession.title }}
         p.session-focus-text {{ currentSession.focus }}
+        //- CB-25: the session's resource, always visible and clickable here —
+        //- independent of which path (AI or resume) opened the session.
+        .session-header-resources(v-if="currentSession.resources && currentSession.resources.length")
+          template(v-for="r in currentSession.resources")
+            a.resource-tag.resource-tag-link(v-if="currentSession.resourceLinks && currentSession.resourceLinks[r]" :key="r" :href="currentSession.resourceLinks[r]" target="_blank" rel="noopener noreferrer") {{ r }} ↗
+            span.resource-tag(v-else :key="r") {{ r }}
       .session-quiz-actions
         button.btn-view-overview(@click="viewCourseOverview") ≡ Overview
         button.btn-my-notes(@click="showNotes = !showNotes" :class="{ 'notes-active': showNotes }") ✎ My Session Notes
@@ -432,6 +442,16 @@ const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
 // Same security call as the locked VirtualAdvisor pipeline (CB-05): AI output
 // must not inject images (outbound-request/exfiltration channel) or raw HTML.
 _md.disable(['image', 'html_inline', 'html_block'])
+// CB-25: every rendered link opens in a NEW tab — navigating this tab away
+// would destroy the advisor's live course conversation. (This is the Course
+// Builder's own renderer, NOT the locked VirtualAdvisor pipeline.)
+const _defaultLinkOpen = _md.renderer.rules.link_open ||
+  ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options))
+_md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  tokens[idx].attrSet('target', '_blank')
+  tokens[idx].attrSet('rel', 'noopener noreferrer')
+  return _defaultLinkOpen(tokens, idx, options, env, self)
+}
 
 export default {
   name: 'CourseBuilder',
@@ -655,7 +675,9 @@ export default {
 
     renderMarkdown (text) {
       const raw = _md.render(String(text || ''))
-      return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
+      // ADD_ATTR (CB-25): the html profile strips target="_blank" (verified
+      // live), which would make resource links navigate the course chat away.
+      return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true }, ADD_ATTR: ['target'] })
     },
 
     // Cancel any in-flight AI streams and clear their indicators — called on
@@ -763,6 +785,16 @@ export default {
         this.courseError = "We couldn't load your saved courses. Check your connection and try again."
         this.courseLoadFailed = true
       }
+    },
+
+    // CB-25: session-opening text — each resource name becomes a markdown link
+    // when the outline carries its real Advisor-e page address (server-built,
+    // https-validated at the door). Names without a link stay plain text.
+    _linkedResourceNames (session) {
+      const links = (session && session.resourceLinks) || {}
+      return ((session && session.resources) || [])
+        .map(r => links[r] ? `[${r}](${links[r]})` : r)
+        .join(' and ') || 'the session material'
     },
 
     // Rebuild the "Shared by your team" list (CB-07). Failures degrade to an
@@ -984,7 +1016,7 @@ export default {
       if (isNew) {
         this._autoOpenSession()
       } else {
-        const resources = (session.resources || []).join(' and ') || 'the session material'
+        const resources = this._linkedResourceNames(session)
         this.sessionMessages = [{
           role: 'assistant',
           content: `**Session ${session.id}: ${session.title}**\n\n${session.focus}\n\nYour resource for this session is **${resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll discuss what you found.`
@@ -1056,7 +1088,7 @@ export default {
       } catch (e) {
         if (e && e.name === 'AbortError') { return } // superseded by a context switch
         console.error('[course:session:open]', e.message)
-        const resources = (session.resources || []).join(' and ') || 'the session material'
+        const resources = this._linkedResourceNames(session)
         this.sessionMessages = [{
           role: 'assistant',
           content: `**Session ${session.id}: ${session.title}**\n\n${session.focus}\n\nHead to **${resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll pick it apart together.`
@@ -1713,6 +1745,22 @@ export default {
   border: 1px solid #99dff5;
   border-radius: 4px;
   padding: 2px 8px;
+}
+.resource-tag-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.session-header-resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.resource-tag-link:hover {
+  background: #00b1e0;
+  color: #fff;
+  text-decoration: none;
 }
 
 /* Visibility toggle */

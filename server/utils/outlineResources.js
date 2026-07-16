@@ -13,10 +13,31 @@
  * Strip-and-log, not reject: the advisor keeps a working outline, and a
  * session with no surviving resources still works (session matching falls
  * back to its title and focus).
+ *
+ * CB-25 (Mike's ruling 2026-07-16): each grounded resource also gets its real
+ * Advisor-e page address (session.resourceLinks — name → URL), built from the
+ * template's `link` + `section` fields via the TEMPLATE_PAGE seam in
+ * config/integration.js. Server-owned: the URL pattern never lives in browser
+ * code. A record with no `link` simply gets no URL — never a broken one.
  */
+
+const { TEMPLATE_PAGE } = require('../../config/integration')
 
 function normalise (name) {
   return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase()
+}
+
+/**
+ * Build the Advisor-e page address for one template record, or null when the
+ * record carries no page-link id.
+ * @param {{link?: string, section?: string}} template - a search_content record
+ * @returns {string|null}
+ */
+function templatePageUrl (template) {
+  const link = template && typeof template.link === 'string' && template.link.trim()
+  if (!link) { return null }
+  const type = encodeURIComponent(String(template.section || '').toLowerCase())
+  return `${TEMPLATE_PAGE.dashboardBase}#${link.trim()}${type ? `?type=${type}` : ''}`
 }
 
 /**
@@ -27,10 +48,10 @@ function normalise (name) {
  * @returns {{outline: object, dropped: Array<string>}} grounded copy + dropped names
  */
 function groundOutlineResources (outline, templates) {
-  const titleByKey = new Map()
+  const entryByKey = new Map()
   for (const t of (templates || [])) {
     if (t && typeof t.title === 'string' && t.title.trim()) {
-      titleByKey.set(normalise(t.title), t.title)
+      entryByKey.set(normalise(t.title), t)
     }
   }
 
@@ -38,18 +59,23 @@ function groundOutlineResources (outline, templates) {
   const sessions = (outline.sessions || []).map((s) => {
     if (!s || !Array.isArray(s.resources)) { return s }
     const resources = []
+    const resourceLinks = {}
     for (const r of s.resources) {
-      const canonical = titleByKey.get(normalise(r))
-      if (canonical) {
-        resources.push(canonical)
+      const entry = entryByKey.get(normalise(r))
+      if (entry) {
+        resources.push(entry.title)
+        const url = templatePageUrl(entry)
+        if (url) { resourceLinks[entry.title] = url }
       } else {
         dropped.push(String(r))
       }
     }
-    return { ...s, resources }
+    const grounded = { ...s, resources }
+    if (Object.keys(resourceLinks).length) { grounded.resourceLinks = resourceLinks }
+    return grounded
   })
 
   return { outline: { ...outline, sessions }, dropped }
 }
 
-module.exports = { groundOutlineResources }
+module.exports = { groundOutlineResources, templatePageUrl }
