@@ -226,6 +226,11 @@ function handleDesign (req, body, res) {
           if (grounded.dropped.length) {
             console.warn('[course:design] Dropped invented resource names:', grounded.dropped.join(' | '))
           }
+          // CB-27 rescue-snap audit: Original → Snapped, per the
+          // AI-transformation logging rule.
+          if (grounded.snapped.length) {
+            console.warn('[course:design] Snapped near-miss resource names:', grounded.snapped.map(x => `'${x.from}' → '${x.to}'`).join(' | '))
+          }
           finalState.pendingOutline = grounded.outline
           // CB-26: the advisor asked for a specific session count — if the
           // delivered outline differs, code flags it (the outline card shows

@@ -49,13 +49,19 @@ function filterTemplatesByQuery (templates, query, maxResults) {
   const queryLower = effectiveQuery.toLowerCase()
   const queryWords = queryLower
     .split(/\s+/)
-    .filter(w => w.length > 3)
+    // ≥3 (was >3, CB-27): three-letter abbreviations are real search terms —
+    // EOY, FBT, KPI, tax, ROI were invisible. Junk 3-letter words ("the",
+    // "and", "you"…) are already in STOP_WORDS.
+    .filter(w => w.length >= 3)
     .filter(w => !STOP_WORDS.has(w))
 
   if (queryWords.length === 0) { return templates.slice(0, maxResults) }
 
   const scored = templates.map((t) => {
     const titleLower = (t.title || '').toLowerCase()
+    // Dot-blind title form (CB-27): "E.O.Y Meeting" must match a search for
+    // "EOY" and vice versa — dotted abbreviations could never title-match.
+    const titleFlat = titleLower.replace(/\./g, '')
     const searchText = [
       t.purpose,
       t.topic,
@@ -65,7 +71,8 @@ function filterTemplatesByQuery (templates, query, maxResults) {
 
     let score = 0
     for (const word of queryWords) {
-      if (titleLower.includes(word) || (titleLower.length >= 4 && word.startsWith(titleLower))) {
+      const wordFlat = word.replace(/\./g, '')
+      if (titleLower.includes(word) || (wordFlat && titleFlat.includes(wordFlat)) || (titleLower.length >= 4 && word.startsWith(titleLower))) {
         score += 3 // title match — includes plural/derived forms (e.g. "cafes" → "Cafe")
       } else if (searchText.includes(word)) {
         score++

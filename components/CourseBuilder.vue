@@ -103,6 +103,8 @@
                 template(v-for="r in s.resources")
                   a.resource-tag.resource-tag-link(v-if="s.resourceLinks && s.resourceLinks[r]" :key="r" :href="s.resourceLinks[r]" target="_blank" rel="noopener noreferrer") {{ r }} ↗
                   span.resource-tag(v-else :key="r") {{ r }}
+              //- CB-27: an empty slot says so plainly — never a silent blank.
+              p.session-resources-empty(v-else) No library resource matched this session — it runs from the session focus instead.
         //- CB-26: code-detected session-count mismatch — the engine flags it;
         //- the AI is never trusted to confess a deviation itself.
         .outline-count-notice(v-if="courseState.sessionCountNotice")
@@ -188,6 +190,8 @@
           template(v-for="r in currentSession.resources")
             a.resource-tag.resource-tag-link(v-if="currentSession.resourceLinks && currentSession.resourceLinks[r]" :key="r" :href="currentSession.resourceLinks[r]" target="_blank" rel="noopener noreferrer") {{ r }} ↗
             span.resource-tag(v-else :key="r") {{ r }}
+        //- CB-27: an empty slot says so plainly — never a silent blank.
+        p.session-resources-empty(v-else) No library resource matched this session — it runs from the session focus instead.
       .session-quiz-actions
         button.btn-view-overview(@click="viewCourseOverview") ≡ Overview
         button.btn-my-notes(@click="showNotes = !showNotes" :class="{ 'notes-active': showNotes }") ✎ My Session Notes
@@ -1809,6 +1813,12 @@ export default {
   flex-wrap: wrap;
   gap: 4px;
   margin-top: 6px;
+}
+.session-resources-empty {
+  font-size: 11px;
+  font-style: italic;
+  color: #9ca3af;
+  margin: 4px 0 0;
 }
 .resource-tag-link:hover {
   background: #00b1e0;
