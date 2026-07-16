@@ -17,6 +17,7 @@ const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = requir
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
+const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
@@ -1132,11 +1133,17 @@ async function handleQuery (rawBody, res, identity) {
     conversationHistory,
     advisorProfile,
     language,
-    languageName,
     caseContext,
     clientId,
     sessionId: incomingSessionId
   } = sanitised
+
+  // SEC (sweep 2026-07-10): the display name is resolved server-side from the
+  // language CODE against the canonical list — the body's free-text
+  // `languageName` is deliberately ignored, because it was interpolated into
+  // the system prompt and made a 100-char instruction-injection channel.
+  // Unknown code → null → no language instruction (English default).
+  const languageName = nameForLanguageCode(language)
 
   // Firm/advisor identity comes ONLY from the firmAuth-verified JWT (req.firmId /
   // req.advisorId), never from the request body. A body-supplied firmId would be an
@@ -2386,7 +2393,7 @@ async function handleQuery (rawBody, res, identity) {
       : ''
 
     // Fall through to AI call for Phase 3 recommendation
-    const languageInstruction2 = language !== 'en'
+    const languageInstruction2 = (language !== 'en' && languageName)
       ? `\n\nIMPORTANT: Always respond entirely in ${languageName}.`
       : ''
 
@@ -2620,7 +2627,7 @@ async function handleQuery (rawBody, res, identity) {
     return
   }
 
-  const languageInstruction = language !== 'en'
+  const languageInstruction = (language !== 'en' && languageName)
     ? `\n\nIMPORTANT: The advisor is using the ${languageName} interface. Always respond entirely in ${languageName}, regardless of what language the advisor writes in.`
     : ''
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
