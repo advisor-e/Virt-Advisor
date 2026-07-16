@@ -284,11 +284,17 @@
             .overview-progress-fill(:style="{ width: progressPercent + '%' }")
           span.overview-progress-text {{ completedSessionCount }} of {{ activeCourse.outline.sessions.length }} sessions complete
       .overview-sessions
+        //- CB-32 (Mike 2026-07-16): any session opens from here, and ▲▼
+        //- re-orders them — each session's progress record travels with it.
+        //- Progressive courses confirm before a complexity-skipping jump/move.
         .overview-session-row(
           v-for="(s, i) in activeCourse.outline.sessions"
           :key="i"
           :class="{ 'ov-active': i === activeSessionIndex && activeCourse.progress[i].status !== 'complete', 'ov-done': activeCourse.progress[i].status === 'complete' }"
         )
+          .ov-reorder
+            button.btn-move-session(@click="moveSession(i, -1)" :disabled="i === 0" title="Move earlier") ▲
+            button.btn-move-session(@click="moveSession(i, 1)" :disabled="i === activeCourse.outline.sessions.length - 1" title="Move later") ▼
           .ov-session-num {{ i + 1 }}
           .ov-session-info
             strong.ov-session-title {{ s.title }}
@@ -303,6 +309,7 @@
               ) Review
             span.ov-badge.ov-badge-active(v-else-if="i === activeSessionIndex") Active
             span.ov-badge.ov-badge-pending(v-else) Upcoming
+            button.btn-open-session(@click="openSession(i)") Open →
       .overview-footer
         button.btn-resume-session(@click="resumeSession") → Resume Session {{ activeSessionIndex + 1 }}
         button.btn-delete-course(@click="confirmDeleteCourse") ✕ Delete course
@@ -754,6 +761,9 @@ export default {
           await updateCourse(course.id, {
             status: course.status,
             visibility: course.visibility,
+            // Outline included since CB-32: re-ordering changes session order,
+            // which lives in the outline. Re-validated server-side every save.
+            outline: course.outline,
             progress: course.progress
           }, this.apiToken)
         } else {
@@ -1235,6 +1245,49 @@ export default {
 
     resumeSession () {
       this.phase = 'session'
+    },
+
+    // CB-32: open ANY session from the overview — free navigation (Mike's
+    // ruling). On a PROGRESSIVE course, entering an unstarted session while
+    // earlier ones are still open gets the approved skip-complexity confirm.
+    openSession (index) {
+      const course = this.activeCourse
+      if (!course || !course.outline.sessions[index]) { return }
+      const skipsComplexity = course.outline.intensity === 'progressive' &&
+        course.progress[index].status !== 'complete' &&
+        course.progress.slice(0, index).some(p => p.status !== 'complete')
+      if (skipsComplexity &&
+        !confirm(`This course builds up session by session — Session ${index + 1} assumes you've covered the earlier ones. Open it anyway?`)) { return }
+      this.activeSessionIndex = index
+      this.phase = 'session'
+      this._startSession(false)
+    },
+
+    // CB-32: move a session one place up or down. Its progress record travels
+    // with it (progress is positional — separating them would attach quiz
+    // scores to the wrong session). Moving EARLIER on a progressive course
+    // gets the approved confirm. Splice keeps Vue 2 reactivity; ids renumber
+    // to stay positional; the change persists immediately.
+    async moveSession (index, direction) {
+      const course = this.activeCourse
+      const to = index + direction
+      if (!course) { return }
+      const sessions = course.outline.sessions
+      if (to < 0 || to >= sessions.length) { return }
+      if (direction < 0 && course.outline.intensity === 'progressive' &&
+        !confirm(`This course builds up session by session — moving '${sessions[index].title}' earlier may put advanced material before its foundations. Move it anyway?`)) { return }
+      const activeSession = sessions[this.activeSessionIndex]
+      const swap = (arr) => {
+        const moved = arr[index]
+        arr.splice(index, 1, arr[to])
+        arr.splice(to, 1, moved)
+      }
+      swap(sessions)
+      swap(course.progress)
+      sessions.forEach((s, i) => { s.id = i + 1 })
+      const followed = sessions.indexOf(activeSession)
+      if (followed >= 0) { this.activeSessionIndex = followed }
+      await this._saveCourse(course)
     },
 
     viewQuizReview (index) {
@@ -2131,6 +2184,24 @@ export default {
 .ov-badge-done { background: #dcfce7; color: #166534; }
 .ov-badge-active { background: #e6f8fd; color: #00b1e0; }
 .ov-badge-pending { background: #f3f4f6; color: #9ca3af; }
+
+.ov-reorder { display: flex; flex-direction: column; gap: 2px; }
+.btn-move-session {
+  background: none; color: #9ca3af;
+  border: 1px solid #e5e7eb; border-radius: 6px;
+  padding: 1px 7px; font-size: 10px; line-height: 1.4;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-move-session:hover:not(:disabled) { color: #1e40af; border-color: #bfdbfe; background: #eff6ff; }
+.btn-move-session:disabled { opacity: 0.35; cursor: default; }
+.btn-open-session {
+  margin-left: 8px;
+  background: #00b1e0; color: #fff;
+  border: none; border-radius: 6px;
+  padding: 4px 12px; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s; white-space: nowrap;
+}
+.btn-open-session:hover { background: #0090b8; }
 
 .overview-footer {
   padding: 14px 24px;
