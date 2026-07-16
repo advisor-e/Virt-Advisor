@@ -17,6 +17,7 @@
     :firm-id="firmId"
     :user-email="userEmail"
     :api-token="apiToken"
+    :user-role="userRole"
   )
 </template>
 
@@ -55,7 +56,8 @@ export default {
       authorised: false,
       firmId: null,
       userEmail: null,
-      apiToken: null
+      apiToken: null,
+      userRole: null
     }
   },
 
@@ -70,6 +72,9 @@ export default {
         this.apiToken = 'dev-local-bypass'
         this.firmId = 'dev-firm-001'
         this.userEmail = 'dev@local'
+        // Dev runs as the platform admin so admin-gated surfaces (the raw
+        // Decision Framework tab) stay testable locally.
+        this.userRole = 'platform_admin'
         this.authorised = true
         this.checking = false
         return
@@ -85,6 +90,7 @@ export default {
         this.apiToken = token
         this.firmId = firmId
         this.userEmail = email || ''
+        this.userRole = role
         this.authorised = true
       }
 
