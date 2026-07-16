@@ -100,6 +100,29 @@ function formatDomainSupportForPrompt (domainId) {
 }
 
 /**
+ * Learn-mode enrichment (Mike's ruling 2026-07-16): the domain-support file id
+ * for a LEARN coaching tree, or null when the tree has no verified file.
+ * Resolution order: an explicit `domainSupport` field on the tree (the
+ * data-owned mapping in logic_trees.json — used where names don't align, e.g.
+ * sales_process → get-sales) wins; otherwise the mechanical name conversion
+ * (underscore → hyphen) applies when that file exists. No file → null: the
+ * tree stays tree-reference-only. A mapping is NEVER guessed.
+ *
+ * @param {{id?: string, domainSupport?: string}|null} tree - a learn logic tree
+ * @returns {string|null} a domain-support file id (without the suffix)
+ */
+function supportIdForLearnTree (tree) {
+  if (!tree) { return null }
+  const files = getDomainFiles()
+  const explicit = (typeof tree.domainSupport === 'string' && tree.domainSupport.trim()) || null
+  if (explicit) {
+    return files.includes(`${explicit}-domain-support.json`) ? explicit : null
+  }
+  const mechanical = String(tree.id || '').replace(/_/g, '-')
+  return (mechanical && files.includes(`${mechanical}-domain-support.json`)) ? mechanical : null
+}
+
+/**
  * Scans data/ for all *-domain-support.json files and returns the domain ID
  * whose trigger_keywords best match the given query string.
  */
@@ -232,4 +255,4 @@ function detectDomainsForDesign (query) {
     .map(s => s.domainId)
 }
 
-module.exports = { formatDomainSupportForPrompt, detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign }
+module.exports = { formatDomainSupportForPrompt, supportIdForLearnTree, detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign }

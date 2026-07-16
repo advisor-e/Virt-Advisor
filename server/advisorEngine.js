@@ -15,7 +15,7 @@ const { formatCoachingForPrompt, loadFirmCoaching, formatFirmCoachingForPrompt }
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
-const { formatDomainSupportForPrompt } = require('../server/utils/domainSupport')
+const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
@@ -496,7 +496,8 @@ function getOpenAI () {
  * validated strictly against the known learn-tree ids — raw model text is never
  * trusted as a result.
  *
- * @param {string} advisorText - the advisor's own words (their goal / intent)
+ * @param {string} advisorText - the advisor's own words, NEWEST FIRST (see
+ *   newestFirstUserText) so a mid-conversation pivot is always inside the cap
  * @returns {Promise<object|null>}
  */
 async function pickLearnTreeAI (advisorText) {
@@ -507,8 +508,8 @@ async function pickLearnTreeAI (advisorText) {
   const menu = learnTrees
     .map(t => `- ${t.id}: ${t.name}${t.description ? ' — ' + String(t.description).slice(0, 150) : ''}`)
     .join('\n')
-  const system = 'You match an advisor to the single most relevant coaching guide for what they want help with. The advisor text may contain speech-to-text errors — read it for meaning (e.g. "ND year" / "India meeting" means "end of year"). Reply with ONLY the guide id exactly as written in the list, or the word none if nothing clearly fits. No other words.'
-  const user = `Coaching guides:\n${menu}\n\nThe advisor said:\n${fenceUntrusted(advisorText.slice(0, 1000))}\n\nWhich one guide id best fits?`
+  const system = 'You match an advisor to the single most relevant coaching guide for what they want help with. The advisor text may contain speech-to-text errors — read it for meaning (e.g. "ND year" / "India meeting" means "end of year"). The advisor\'s messages are ordered NEWEST FIRST — the first line is what they want help with NOW and outweighs everything after it; later lines are older context, and when the newest line changes topic, follow the newest line. Reply with ONLY the guide id exactly as written in the list, or the word none if nothing clearly fits. No other words.'
+  const user = `Coaching guides:\n${menu}\n\nThe advisor said (newest message first):\n${fenceUntrusted(advisorText.slice(0, 1000))}\n\nWhich one guide id best fits?`
 
   try {
     const response = await getOpenAI().chat.completions.create({
@@ -527,6 +528,30 @@ async function pickLearnTreeAI (advisorText) {
     console.error('[advisor] learn tree AI-pick failed:', err.message)
     return null
   }
+}
+
+/**
+ * The advisor's own words for the Learn topic pickers, ordered NEWEST FIRST
+ * and capped. Joining oldest-first meant a long thread's newest messages were
+ * truncated out of the AI picker's 1000-char input entirely — the live
+ * stuck-routing defect (sales → EOY pivot never re-routed, 2026-07-16).
+ * @param {Array<{role: string, content: string}>} history - trimmed conversation
+ * @param {string} query - the current message (always included first)
+ * @param {number} [cap] - character cap, matching the picker's input slice
+ * @returns {string} newest-first user text, capped
+ */
+function newestFirstUserText (history, query, cap = 1000) {
+  const msgs = [
+    ...(history || []).filter(m => m && m.role === 'user').map(m => String(m.content || '')),
+    String(query || '')
+  ]
+  const parts = []
+  let used = 0
+  for (let i = msgs.length - 1; i >= 0 && used < cap; i--) {
+    const piece = msgs[i].slice(0, cap - used)
+    if (piece) { parts.push(piece); used += piece.length + 1 }
+  }
+  return parts.join('\n').slice(0, cap)
 }
 
 const _dbgLog = require('os').tmpdir() + '/va-debug.log'
@@ -2658,15 +2683,25 @@ async function handleQuery (rawBody, res, identity) {
 
   // Learn mode logic trees — detect from conversation for sales_process and public_speaking trees
   let learnSalesTreeText = null
+  let learnDomainSupportText = null
   if (mode === 'learn') {
     // Pick the coaching guide from the advisor's own words. AI-first (semantic,
     // survives dictation garbles + red-herring keyword ties); fall back to the
-    // deterministic keyword matcher if the AI is unavailable.
-    const learnUserText = [...trimmedHistory.filter(m => m.role === 'user').map(m => m.content), query].join(' ')
-    let learnTree = await pickLearnTreeAI(learnUserText)
-    if (!learnTree) { learnTree = detectLogicTree(learnUserText) }
+    // deterministic keyword matcher if the AI is unavailable. Newest-first +
+    // recent-window-first so a mid-conversation pivot re-routes (P1 2026-07-16).
+    let learnTree = await pickLearnTreeAI(newestFirstUserText(trimmedHistory, query))
+    if (!learnTree) {
+      const userMsgs = trimmedHistory.filter(m => m.role === 'user').map(m => m.content)
+      learnTree = detectLogicTree([...userMsgs.slice(-2), query].join(' ')) ||
+        detectLogicTree([...userMsgs, query].join(' '))
+    }
     if (learnTree && learnTree.mode === 'learn') {
       learnSalesTreeText = buildLearnReferenceText(learnTree)
+      // Learn enrichment (Mike's ruling 2026-07-16): when the picked coaching
+      // tree has a VERIFIED domain-support file (explicit data mapping or
+      // exact name match — never guessed), inject that richer coaching too.
+      const supportId = supportIdForLearnTree(learnTree)
+      if (supportId) { learnDomainSupportText = formatDomainSupportForPrompt(supportId) }
     }
   }
 
@@ -2693,9 +2728,11 @@ async function handleQuery (rawBody, res, identity) {
   // Section descriptions always included for client/discover modes so AI can tier-match from the start
   const sectionDescText = (mode === 'client' || mode === 'discover') ? formatSectionDescriptionsForPrompt() : null
 
-  // Domain support reference — client mode injects this directly in its own block (Phase 3 + post-rec).
-  // Discover/plan/learn modes do not run domain detection, so no support text here.
-  const domainSupportText = null
+  // Domain support reference — client mode injects this directly in its own block
+  // (Phase 3 + post-rec). Learn mode (enrichment ruling 2026-07-16) injects the
+  // picked coaching tree's verified support file; discover/plan run no domain
+  // detection, so nothing here for them.
+  const domainSupportText = learnDomainSupportText
 
   const contextMessage = [
     `## Available Templates for This Organisation (${templatesToUse.length} most relevant shown)`,
@@ -2842,6 +2879,7 @@ module.exports.detectNotMetClient = detectNotMetClient
 module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
 module.exports.detectWinWorkIntent = detectWinWorkIntent
 module.exports.pickLearnTreeAI = pickLearnTreeAI
+module.exports.newestFirstUserText = newestFirstUserText
 module.exports.detectUncertainty = detectUncertainty
 module.exports.detectFrustration = detectFrustration
 module.exports.parseMeetingCount = parseMeetingCount
