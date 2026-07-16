@@ -220,13 +220,16 @@ function formatDomainSummaryForDesign (domainId) {
     lines.push('')
   }
 
-  lines.push('**Tools in this domain (use these as session resources, in sequence):**')
+  // CB-33: these tool names are teaching concepts from the support file, NOT
+  // template names — presenting them as resource candidates made the AI write
+  // them into `resources`, where grounding (CB-02) rightly stripped them.
+  lines.push('**Teaching frameworks in this domain (background knowledge for designing session content and order — these are NOT resource names):**')
   for (const tool of (ref.support_tools || [])) {
     const useNote = tool.when_to_use ? ` — ${tool.when_to_use}` : ''
     lines.push(`- **${tool.name}**: ${tool.purpose}${useNote}`)
   }
   lines.push('')
-  lines.push('*When building sessions in this domain, choose from these tools and sequence them as listed above.*')
+  lines.push('*Use these frameworks to decide what each session teaches and in what order. Session "resources" must come only from the "Available templates and resources" list — never list a framework name above as a resource.*')
 
   return lines.join('\n')
 }

@@ -6,7 +6,7 @@
 // directory, so they also lock the wiring: the three aliased trees in
 // logic_trees.json must keep pointing at files that actually exist.
 
-const { supportIdForLearnTree, formatDomainSupportForPrompt } = require('../../server/utils/domainSupport')
+const { supportIdForLearnTree, formatDomainSupportForPrompt, formatDomainSummaryForDesign } = require('../../server/utils/domainSupport')
 const { loadLogicTrees } = require('../../server/utils/logicTrees')
 
 describe('supportIdForLearnTree — resolution rules', () => {
@@ -59,5 +59,24 @@ describe('learn-tree data wiring (logic_trees.json)', () => {
         expect(supportIdForLearnTree(t)).not.toBeNull()
       }
     }
+  })
+})
+
+describe('formatDomainSummaryForDesign — CB-33: support tools are teaching context, never resource candidates', () => {
+  const summary = formatDomainSummaryForDesign('eoy')
+
+  test('the design summary never tells the AI to use support tools as session resources', () => {
+    expect(summary).toBeTruthy()
+    expect(summary.toLowerCase()).not.toContain('use these as session resources')
+    expect(summary.toLowerCase()).not.toContain('choose from these tools')
+  })
+
+  test('the design summary carries the not-a-resource-name guard and points resources at the template list', () => {
+    expect(summary).toContain('these are NOT resource names')
+    expect(summary).toContain('must come only from the "Available templates and resources" list')
+  })
+
+  test('a missing domain still resolves to null', () => {
+    expect(formatDomainSummaryForDesign('no-such-domain')).toBeNull()
   })
 })
