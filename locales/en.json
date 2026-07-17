@@ -291,6 +291,144 @@
         "resetDone": "Back to the confirmed figures",
         "provenance": "Maths reproduces the source model exactly (32 golden checks)."
       }
+    },
+    "ebitdaDcf": {
+      "title": "EBITDA & DCF Valuation",
+      "eyebrowClass": "Client report",
+      "step1": "Drop the P&L exports",
+      "step2": "Confirm & normalise",
+      "step3": "Valuation report",
+      "back": "← Back",
+      "drop": {
+        "title": "Up to five years of Profit & Loss exports",
+        "how": "Xero → Reports → Profit and Loss → Export as Excel — one file per year",
+        "seeds": "Seeds: sales, cost of sales, operating expenses, other income, interest",
+        "choose": "Choose the files…",
+        "read": "Read the files ({n}) →",
+        "tooMany": "This model reads up to five years — extra files were left out.",
+        "rules": "Spreadsheets only — .xlsx or .csv, one file per year (minimum two years to show growth). A PDF is refused with a note naming the export to download instead. Anything the files can't supply, you enter in the next step — and every figure is tagged by its source so an assumption can never pass as a fact.",
+        "skip": "No exports handy? Skip and enter everything manually →",
+        "uploadFailed": "The files could not be read. Please try again."
+      },
+      "years": {
+        "title": "Assign the years",
+        "note": "Some files did not state their year in the report's own date line. Set each file's financial year and the figures slot into place.",
+        "file": "File",
+        "fileN": "File {n}",
+        "reportDate": "Report date line",
+        "year": "Financial year",
+        "apply": "Apply the years →"
+      },
+      "confirm": {
+        "title": "What the files gave us — confirm & normalise, year by year",
+        "line": "Line",
+        "source": "Source",
+        "fromFile": "from file",
+        "entered": "entered",
+        "group": {
+          "pnl": "The P&L figures",
+          "sundry": "Sundry income",
+          "addBacks": "Add-backs — costs a buyer would not inherit",
+          "fairMarket": "Fair-market owner package — what a replacement manager really costs"
+        },
+        "row": {
+          "sales": "Sales",
+          "costOfSales": "Cost of Sales",
+          "operatingExpenses": "Total Operating Expenses (incl' shareholder salary)",
+          "otherIncome": "Other income",
+          "interestReceived": "Interest received",
+          "dividendsReceived": "Dividends received",
+          "badDebtsRecovered": "Bad debts recovered",
+          "managementFees": "Management fees to Related Parties",
+          "loanInterestPaid": "(Loan) Interest paid",
+          "consentCosts": "One Off Resource Consent Costs",
+          "extraordinaryItems": "Extra-ordinary items",
+          "establishmentCosts": "Establishment costs",
+          "shareholderSalaries": "Shareholder salaries & wages",
+          "insuranceRetirement": "Insurance & Retirement Benefits",
+          "ownersVehicles": "Owners Vehicles",
+          "leaseholdImprovements": "Leasehold Improvements (relating to other $ periods)",
+          "assetUpgrades": "Working Asset Upgrades (relating to other $ periods)",
+          "other3": "Other 3",
+          "other4": "Other 4",
+          "other5": "Other 5",
+          "fmSalaries": "Fair Market Salaries",
+          "fmInsuranceRetirement": "Insurance & Retirement Benefits (fair market)",
+          "fmVehicles": "Owners Vehicles (fair market)",
+          "fmFringeBenefits": "All Other Fringe Benefits (fair market)"
+        },
+        "notesHint": "Add-backs and the fair-market package are judgment calls — they are yours to enter, and the report tags them as such.",
+        "build": "Looks right — build the valuation →",
+        "adjustLater": "You can still adjust the projection on the report screen."
+      },
+      "hero": {
+        "ev": "Enterprise Value",
+        "evSub": "5-yr discounted cash flow + terminal",
+        "ebitda": "Normalised EBITDA {year}",
+        "ebitdaSub": "after owner-pay normalisation",
+        "npv": "Discounted 5-yr cash flow",
+        "npvSub": "{from}–{to}",
+        "terminal": "Terminal value",
+        "terminalSub": "final year × exit multiple"
+      },
+      "bars": {
+        "title": "Earnings history → projection"
+      },
+      "pnl": {
+        "title": "Five-year P&L review",
+        "expand": "Show every line ▾",
+        "collapse": "Show the summary ▴",
+        "grossProfit": "Gross Profit",
+        "netOperatingProfit": "Net Operating Profit/(loss)",
+        "sundrySubtotal": "Sub Total Sundry Income",
+        "netProfitBeforeTax": "Net Profit before Tax",
+        "addBackSubtotal": "+ Add-backs (cost adjustments)",
+        "ebpitda": "Owners Discretionary Cash Flow (EBPITDA)",
+        "ownerBenefitsSubtotal": "− Fair-market owner package",
+        "ebitda": "EBITDA (normalised)"
+      },
+      "workings": {
+        "title": "Valuation workings",
+        "note": "— adjust and watch it recalculate; every edit is computed on the backend",
+        "projection": "Projection",
+        "growth": "Projected growth rate %",
+        "actualAvg": "(actual avg {avg})",
+        "projected": "Projected EBITDA",
+        "discount": "Discount rate %",
+        "discounted": "Discounted cash flow"
+      },
+      "listed": {
+        "title": "Listed-company lens — is a share price cheap or dear?",
+        "open": "Open the lens ▾",
+        "closed": "The same valuation engine pointed at a public company — open it to compare an assessed share price against the market.",
+        "shares": "Shares issued",
+        "price": "Current share price",
+        "multiple": "Terminal multiple",
+        "history": "History (in millions)",
+        "ebitdaM": "EBITDA ($m)",
+        "marketCap": "Market capitalisation",
+        "current": "Current market price",
+        "assessed": "DCF-assessed price",
+        "reading": "Reading",
+        "undervalued": "Undervalued",
+        "overvalued": "Overvalued",
+        "fair": "At fair value"
+      },
+      "coach": {
+        "lead": "Coach",
+        "heading": "What this means",
+        "negative": "On these figures the valuation is not positive — the projected cash flows do not support a price. That is the honest read: the conversation is about restoring earnings before it can be about value.",
+        "body": "{n} years of accounts show normalised earnings moving from {from} to {to} — average actual growth {avg}. On your projected growth and discount rates, the business supports an enterprise value of {ev}.",
+        "dip": "Note the {year} dip ({g}) — growth is not a straight line, and a buyer will ask about that year.",
+        "terminalNote": "The valuation is sensitive to the exit multiple: at {mult} the terminal value is {share} of the total — test it either side before quoting a range."
+      },
+      "privacy": "Privacy: the client's name and identity never leave the app. Files are read and discarded — nothing is stored, and the figures live in this session only.",
+      "actions": {
+        "pdf": "Download PDF",
+        "reset": "Reset the projection",
+        "resetDone": "Back to the default projection",
+        "provenance": "Maths reproduces the source model exactly (96 golden checks)."
+      }
     }
   },
   "modelLibrary": {
