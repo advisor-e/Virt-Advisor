@@ -19,7 +19,7 @@ const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescripti
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { groundOutlineResources } = require('../server/utils/outlineResources')
-const { findQuizOverride } = require('../server/utils/quizOverrides')
+const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
 const { isClarificationRequest, prefillDesignState, requestedSessionCount } = require('../server/utils/designInterview')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
@@ -226,6 +226,11 @@ function handleDesign (req, body, res) {
           if (grounded.dropped.length) {
             console.warn('[course:design] Dropped invented resource names:', grounded.dropped.join(' | '))
           }
+          // CB-27 rescue-snap audit: Original → Snapped, per the
+          // AI-transformation logging rule.
+          if (grounded.snapped.length) {
+            console.warn('[course:design] Snapped near-miss resource names:', grounded.snapped.map(x => `'${x.from}' → '${x.to}'`).join(' | '))
+          }
           finalState.pendingOutline = grounded.outline
           // CB-26: the advisor asked for a specific session count — if the
           // delivered outline differs, code flags it (the outline card shows
@@ -408,6 +413,24 @@ async function handleQuizGenerate (body, res) {
 
   const openai = getOpenAI()
 
+  // CB-30: a firm-authored question bank (keyed by the template the session
+  // teaches from) is mandatory source material — the AI tailors the bank's
+  // questions to the session, never invents its own. Bank content is trusted
+  // repo data (the firm's IP), so it sits outside the untrusted fence.
+  const bank = findQuizBank(overrides.banks, sessionContext)
+  const bankBlock = bank
+    ? '\nFirm-authored question bank for the template this session teaches from (mandatory source material):\n' +
+      bank.entries.map(e => `Entry ${e.id}\nQuestion: ${e.question}\nKey point: ${e.keyPoint}`).join('\n') + '\n'
+    : ''
+  const factRequirements = bank
+    ? `- Build every question from the firm-authored question bank above: choose the 3 entries most relevant to the session content covered, and tailor each to that content — adapt wording and scenario details, keep the entry's substance and key point. Never copy an entry word-for-word and never ask anything the bank does not cover.
+- Each question must carry "bankRef": the id of the bank entry it is built from.`
+    : `- Questions 1 and 2 must test the specific facts, frameworks, or key points actually taught in the session content above — for example: name the stages, list the components, state what the framework says. The advisor must show they absorbed the material, not just give their opinion of it.
+- Only ask about facts that appear in the session content above — never test general knowledge the session did not cover.`
+  const jsonShape = bank
+    ? '{"questions":[{"id":1,"question":"...","objective":"...","bankRef":1},{"id":2,"question":"...","objective":"...","bankRef":2},{"id":3,"question":"...","objective":"...","bankRef":3}]}'
+    : '{"questions":[{"id":1,"question":"...","objective":"..."},{"id":2,"question":"...","objective":"..."},{"id":3,"question":"...","objective":"..."}]}'
+
   const sessionSummary = sessionHistory
     .filter(m => m.role === 'assistant')
     .map(m => m.content)
@@ -424,17 +447,16 @@ ${fenceUntrusted(
     `Session objectives: ${quizObjectives.join('; ')}\n` +
     `Session content covered:\n${sessionSummary}`
   )}
-
+${bankBlock}
 Requirements:
 - Open-ended questions (not multiple choice)
-- Questions 1 and 2 must test the specific facts, frameworks, or key points actually taught in the session content above — for example: name the stages, list the components, state what the framework says. The advisor must show they absorbed the material, not just give their opinion of it.
+${factRequirements}
 - Question 3 must ask the advisor to apply what was taught to their own practice or a client situation.
-- Only ask about facts that appear in the session content above — never test general knowledge the session did not cover.
 - Each question must relate to a session objective
 - Answerable in 2-4 sentences
 
 Return ONLY valid JSON with no other text:
-{"questions":[{"id":1,"question":"...","objective":"..."},{"id":2,"question":"...","objective":"..."},{"id":3,"question":"...","objective":"..."}]}`
+${jsonShape}`
 
   try {
     const completion = await openai.chat.completions.create({
@@ -474,6 +496,21 @@ async function handleQuizGrade (body, res) {
     .join('\n\n')
     .slice(0, 3000)
 
+  // CB-30: when the question was built from a firm-authored bank entry, the
+  // firm's model answer is the authoritative marking guide (extends CB-04).
+  // bankRef arrives from the client but only SELECTS a server-held entry —
+  // the marking-guide text itself is repo data and can never be injected.
+  const bank = findQuizBank(getQuizOverrides().banks, sessionContext)
+  const bankRef = question && Number.isInteger(question.bankRef) ? question.bankRef : null
+  const bankEntry = (bank && bankRef !== null && bank.entries.find(e => e.id === bankRef)) || null
+  const markingGuide = bankEntry
+    ? `Firm-authored marking guide (authoritative — this defines what counts as correct):
+Model answer: ${bankEntry.answer}
+Key point: ${bankEntry.keyPoint}
+
+`
+    : ''
+
   // Title, question, objective and summary are client-supplied at arrival —
   // fenced so they read as data (CB-14); the answer was already fenced.
   const prompt = `Grade an advisor's quiz answer for a professional development course.
@@ -485,10 +522,10 @@ ${fenceUntrusted(
     `Related objective: ${question.objective || 'Not specified'}\n` +
     `Session content covered (what was taught):\n${sessionSummary || 'Not available'}`
   )}
-Advisor's answer:
+${markingGuide}Advisor's answer:
 ${fenceUntrusted(String(answer).slice(0, 1000))}
 
-Evaluate whether this answer demonstrates understanding of the objective, judged against the session content above where provided. Return ONLY valid JSON:
+Evaluate whether this answer demonstrates understanding of the objective, judged ${bankEntry ? 'first against the firm-authored marking guide above, then ' : ''}against the session content above where provided. Return ONLY valid JSON:
 {"passed":true,"score":80,"feedback":"Specific, encouraging 2-3 sentence feedback explaining what was correct, what was missing if anything, and a key point to remember."}
 
 Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfectly should still pass. A low score must include specific guidance on what to revisit.`

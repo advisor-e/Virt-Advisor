@@ -41,6 +41,13 @@ function validateQuizGenerate (response) {
     if (typeof q.question !== 'string' || q.question.trim() === '') {
       return { valid: false, errors: ['Each question must have a non-empty question string'], data: null }
     }
+    // CB-30: bankRef ties a question to a firm bank entry so grading can use
+    // the model answer. Optional enrichment — anything but a positive integer
+    // is stripped (grading then falls back to the session-content marker)
+    // rather than failing the whole quiz.
+    if ('bankRef' in q && !(Number.isInteger(q.bankRef) && q.bankRef >= 1)) {
+      delete q.bankRef
+    }
   }
 
   return { valid: true, errors: [], data: { questions } }

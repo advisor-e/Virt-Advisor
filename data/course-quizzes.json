@@ -20,5 +20,140 @@
         }
       ]
     }
+  },
+  "banks": {
+    "_comment": "CB-30 quiz banks (the firm's IP — transcribed verbatim from authored PDFs, never invented or edited here). Keyed by EXACT template-library title. Unlike overrides (verbatim replacement), a bank is SOURCE MATERIAL: the AI must build the session quiz around these questions and key points, tailored to what the session actually taught, and the model answers are passed to the grader. NOT yet read by the engine — wiring is the CB-30 build step.",
+    "Working Capital Cycle": {
+      "source": "Course Builder Quiz/Working Capital Cycle quiz.pdf",
+      "transcribed": "2026-07-17",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is the fundamental difference between Fixed Capital and Working Capital?",
+          "answer": "Fixed Capital represents the structural requirements and \"the cost of being in business\" (such as a lease, plant and equipment, and staff), whereas Working Capital is \"money in movement\" or \"the money that makes money\" operating in a cycle of cash, stock, sale, and debtors.",
+          "keyPoint": "A business needs structural assets to operate, but it is the continuous turning over of working capital through the trading cycle that actively generates profit."
+        },
+        {
+          "id": 2,
+          "question": "Why is the \"chocolate business\" analogy specifically recommended when explaining the working capital cycle?",
+          "answer": "It creates a \"degree of separation\" that allows the business owner to conceptually understand the financial principles without feeling immediately threatened or defensive about their own specific numbers and business struggles.",
+          "keyPoint": "Getting the conceptual understanding across using a neutral story (preferably in 3rd person) ensures the client doesn't get lost in the defensive details of their own business before the framework is established. (We call this ‘creating dissociation’.)"
+        },
+        {
+          "id": 3,
+          "question": "Scenario: You order stock and receive it in 14 days, sell it on the 21st day, and get paid on the 28th day. However, you still do not have enough money to buy new stock and pay wages. Do you have a cash flow problem?",
+          "answer": "No. You have a profitability problem.",
+          "keyPoint": "Because the trading cycle (including receipt of payment) was completed normally within the trading period, the lack of funds indicates that your gross margin is either too low or your fixed costs are too high."
+        },
+        {
+          "id": 4,
+          "question": "Scenario: You sell your first batch of stock and wait to be paid, but the client immediately requests another 'in-fill' order of stock. You cannot afford to buy more materials from your supplier upfront to meet this new demand. What type of problem is this?",
+          "answer": "A lack of working capital.",
+          "keyPoint": "This is a scenario where appropriate debt funding can be useful. The cost of financing acts as an \"opportunity cost\" that secures the client relationship and achieves a future profit injection."
+        },
+        {
+          "id": 5,
+          "question": "Scenario: A client has to reschedule a meeting due to illness, which delays your confirmation of purchase. Because of this, you miss the billing period for the month and won't get paid until the 28th of the following month. Do you have a cash flow problem?",
+          "answer": "Yes.",
+          "keyPoint": "Operational failures prevented the current trading cycle from completing in the same period. Even though the same cash will arrive eventually, the delay reduces the total number of stock turns (trading cycles) you can achieve in a year, leading to less annual profit."
+        },
+        {
+          "id": 6,
+          "question": "What is the primary danger of allowing a 30-day trading cycle to stretch out into a 60-day cycle?",
+          "answer": "It halves your yearly stock cycles (e.g., dropping from 12 cycles to 6 cycles a year), and the business will go \"bust\" if the item markup is insufficient to cover the prolonged time period.",
+          "keyPoint": "Time delays drastically reduce how many times money can be reinvested to generate profit per annum, requiring higher margins to survive slower cycles."
+        },
+        {
+          "id": 7,
+          "question": "According to the discounting matrix, if a business with a current sales margin of 30% decides to reduce its sale price by 6%, what must happen to maintain the original gross profit levels?",
+          "answer": "The business must sell 25% more volume.",
+          "keyPoint": "Reducing your sale price requires a drastically increased sales volume just to break even with what your original gross profit levels used to be."
+        },
+        {
+          "id": 8,
+          "question": "What is \"Over-Trading\" and what is its primary risk?",
+          "answer": "Over-trading is the term used to describe funding business growth primarily via debt without adequate previously retained profits.",
+          "keyPoint": "Using debt to fund fixed assets \"in the hope\" that it leads to increased future sales knocks the debt-to-equity ratio out of balance, which can be disastrous if the business hits a market downturn."
+        },
+        {
+          "id": 9,
+          "question": "When focusing on \"Cash Preservation Tactics\" regarding debtors, what protocol should be implemented for clients who consistently fall behind on payments?",
+          "answer": "Swap existing clients that have allowed their invoices to creep into 90-day arrears over to a strict \"cash upon delivery\" basis, and refuse to act for those who do not comply.",
+          "keyPoint": "Improving a business's cash position involves proactive management activities, such as enforcing strict debtor protocols, rather than just securing external funding."
+        },
+        {
+          "id": 10,
+          "question": "An audit of fixed costs (\"Getting Organised\") requires reviewing management effectiveness. What are the 3 signs of ineffective management?",
+          "answer": "1. No evidence of clear, measurable, and time-bound business objectives; 2. An existing culture that accepts task failure as 'normal'; 3. No clear evidence of feedback loops where mistakes or 'wins' are shared.",
+          "keyPoint": "If objectives lack priority and failures are not learned from, internal operations will drag down the efficiency of the working capital cycle."
+        }
+      ]
+    },
+    "E.O.Y Meeting": {
+      "source": "Course Builder Quiz/E.O.Y Meeting.pdf",
+      "transcribed": "2026-07-18",
+      "entries": [
+        {
+          "id": 1,
+          "question": "According to the Volatility Options framework, what specific question must be asked when reviewing a business's Working Capital?",
+          "answer": "How should we finance and manage the money to cope with the 'swings'?",
+          "keyPoint": "Reviewing Working Capital is a critical local 'WHAT-HOW' step used to solve volatility-related issues and ensure the business can handle fluctuations in cash flow."
+        },
+        {
+          "id": 2,
+          "question": "What analogy is used to explain to clients the danger of struggling with high cash volatility?",
+          "answer": "It is like driving a vehicle with a trailer or caravan that gets the 'speed wobbles' or 'fishtail' effect, dragging the leading vehicle from side to side.",
+          "keyPoint": "A business cannot progress safely until its balance issues are dealt with; systems that reduce cash volatility must be addressed before attempting to grow."
+        },
+        {
+          "id": 3,
+          "question": "What are three specific business scenarios where a cash volatility graph should NOT be used with a client?",
+          "answer": "1) Businesses that receive semi-regular government subsidies (like childcare centers), 2) Businesses supplying a co-operative or vertical distributor that sets price/yield limits, and 3) Businesses that have a known singular seasonal high-impact event (like an annual product release).",
+          "keyPoint": "Cash volatility graphs are ineffective for businesses with externally predetermined constraints or highly predictable singular cash flow events."
+        },
+        {
+          "id": 4,
+          "question": "In Volatility Analysis, what distinguishes a \"Special Cause\" from a \"Common Cause\"?",
+          "answer": "A \"Special Cause\" is Low Frequency and High Impact (e.g., an earthquake or pandemic), whereas a \"Common Cause\" is High Frequency and Low Impact (e.g., a rainy day for a retail store).",
+          "keyPoint": "Accurately categorizing the cause of data volatility is essential to ensure the information is consistent with business assumptions and to avoid tampering or data misinterpretation."
+        },
+        {
+          "id": 5,
+          "question": "When advising a business on solving volatility-related issues, what is the core objective of reviewing their administrative procedures?",
+          "answer": "To determine how the business could get the money in quicker.",
+          "keyPoint": "Improving the speed of administrative cash collection is a primary tactic for stabilizing cash flow alongside adjusting products, marketing, and working capital."
+        },
+        {
+          "id": 6,
+          "question": "What are the three required steps for effectively revealing the Growth Curve framework to a client?",
+          "answer": "1) Global Positioning of the Growth Curve, 2) Revealing the Growth Curve via a Persona (to ensure talking in the 3rd person and create dissociation), and 3) Creating Client Relevance to the Curve.",
+          "keyPoint": "By introducing the 9 stages of business growth through a persona (like \"Bob the Chocolate maker\"), the advisor can help the client anticipate issues objectively BEFORE they have to cope with them."
+        },
+        {
+          "id": 7,
+          "question": "What are the two 'Attention Hooks' utilized in the EOY Meeting structure to capture the client's focus?",
+          "answer": "The GLOBAL REFERENCE (Option 1: Growth Curve) and the LOCAL REFERENCE (Option 2: Volatility Analysis).",
+          "keyPoint": "The Growth Curve provides a Macro Vision (\"Where am I going?\"), while Volatility Analysis provides a Micro Vision (\"What's happening to me right now?\")."
+        },
+        {
+          "id": 8,
+          "question": "What are the five core components of the EOY Meeting Agenda timeline?",
+          "answer": "Review Accts, Review Growth Curve Position, Review Volatility, Start/Stop/Keep, and Q&A.",
+          "keyPoint": "Following a structured timeline ensures a comprehensive advisory meeting that transitions systematically from immediate account reviews to strategic growth and behavioral changes."
+        },
+        {
+          "id": 9,
+          "question": "What opening phrase is recommended as the psychological bridge to transition a client from the 'Personal Zone' to the 'Business Zone'?",
+          "answer": "\"How're you going for time today?...\".",
+          "keyPoint": "Establishing the timeframe immediately sets up a framing structure that allows the advisor to subsequently assume permission, take control of the accounts review, and share power via feedback."
+        },
+        {
+          "id": 10,
+          "question": "Within the \"Start, Stop, Keep\" automated action plan, what is provided as an example of an action a manager must \"Stop Doing\"?",
+          "answer": "\"I must stop interfering with the middle manager's instructions – if they delegate a job – I have to 'get out of the way'.\".",
+          "keyPoint": "The \"Start, Stop, Keep\" framework requires business owners to explicitly identify and record behavioral changes necessary to support their operational goals."
+        }
+      ]
+    }
   }
 }

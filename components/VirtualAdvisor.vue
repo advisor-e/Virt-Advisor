@@ -1107,6 +1107,10 @@ export default {
       if (this.mode === 'client') {
         return this.recommendationDelivered
       }
+      // Learn chats are the advisor's own development, not client cases —
+      // saving one would feed firm sharing / mentor review / coaching
+      // promotion with non-client material (Mike's ruling 2026-07-16).
+      if (this.mode === 'learn') { return false }
       // Other modes (discover/plan/learn): show after the user has sent 3+ messages,
       // which reliably indicates a full recommendation exchange has occurred
       return this.messages.filter(m => m.role === 'user').length >= 3

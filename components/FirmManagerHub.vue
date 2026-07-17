@@ -78,8 +78,12 @@ section.firm-manager-hub.section
                     @click="confirmDeleteDoc(row)"
                   ) Remove
 
-      //- ── Tab 2: Decision Framework ──────────────────────────────────
-      b-tab-item(label="Decision Framework" icon="code-json")
+      //- ── Tab 2: Decision Framework — PLATFORM ADMIN ONLY (2026-07-16) ──
+      //- Raw-JSON power tool kept for support/debugging; hidden from firm
+      //- managers (the friendly Staircase + Distinctions tabs are their
+      //- editors). UI gate only — the /framework routes stay manager-level
+      //- because the Staircase tab's version history rides them.
+      b-tab-item(v-if="isPlatformAdmin" label="Decision Framework" icon="code-json")
         .columns
           .column.is-3
             b-menu
@@ -847,7 +851,12 @@ export default {
   props: {
     firmId: { type: String, required: true },
     userEmail: { type: String, default: '' },
-    apiToken: { type: String, required: true }
+    apiToken: { type: String, required: true },
+    // The signed-in user's role (UI gating only — the server re-checks every
+    // call). Gates the raw Decision Framework tab to platform admins (Mike's
+    // ruling 2026-07-16: hide, admin-only); firm managers see only the
+    // friendly no-code screens. Default '' = most restrictive.
+    userRole: { type: String, default: '' }
   },
 
   data () {
@@ -977,6 +986,11 @@ export default {
   },
 
   computed: {
+    // Gates the raw Decision Framework tab (platform admin = also the interim
+    // mentor role, so the mentor keeps the support tool).
+    isPlatformAdmin () {
+      return this.userRole === 'platform_admin'
+    },
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
@@ -1058,7 +1072,8 @@ export default {
 
   mounted () {
     this.loadDocuments()
-    this.loadFramework()
+    // Raw Decision Framework data only exists for the admin-gated tab.
+    if (this.isPlatformAdmin) { this.loadFramework() }
     this.loadTemplateImport()
     this.loadVideos()
     this.loadProfile()

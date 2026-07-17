@@ -10,7 +10,8 @@ const { groundOutlineResources, templatePageUrl } = require('../../server/utils/
 const TEMPLATES = [
   { title: 'Cafe', link: 'id-1111', section: 'Do the Job' },
   { title: 'Quick & Worst' }, // no page-link id → grounded but unlinked
-  { title: '5 Layers Questionnaire', link: 'id-2222', section: 'Get the Job' }
+  { title: '5 Layers Questionnaire', link: 'id-2222', section: 'Get the Job' },
+  { title: 'E.O.Y Meeting', link: 'id-7154906006', section: 'Do the Job' }
 ]
 
 function outlineWith (resources) {
@@ -122,5 +123,54 @@ describe('groundOutlineResources resourceLinks (CB-25)', () => {
     const s = outline.sessions[0]
     expect(s.resources).toEqual(['Cafe'])
     expect(Object.keys(s.resourceLinks)).toEqual(['Cafe'])
+  })
+})
+
+// ── CB-27: rescue-snap — an invented name riffing on ONE real template ───────
+
+describe('groundOutlineResources rescue-snap (CB-27)', () => {
+  test("the live case: '5-Stage EOY Meeting Process' snaps to 'E.O.Y Meeting' (dot-blind), link included, audit-reported", () => {
+    const { outline, dropped, snapped } = groundOutlineResources(
+      outlineWith(['5-Stage EOY Meeting Process']), TEMPLATES
+    )
+    const s = outline.sessions[0]
+    expect(s.resources).toEqual(['E.O.Y Meeting'])
+    expect(s.resourceLinks['E.O.Y Meeting']).toContain('#id-7154906006')
+    expect(dropped).toEqual([])
+    expect(snapped).toEqual([{ from: '5-Stage EOY Meeting Process', to: 'E.O.Y Meeting' }])
+  })
+
+  test('an invented name matching TWO real titles is dropped — never guess', () => {
+    const { outline, dropped, snapped } = groundOutlineResources(
+      // ⊇ both 'Quick & Worst' {quick,worst} and '5 Layers Questionnaire' {5,layers,questionnaire}
+      outlineWith(['Quick Worst 5 Layers Questionnaire Masterpack']), TEMPLATES
+    )
+    expect(outline.sessions[0].resources).toEqual([])
+    expect(dropped).toHaveLength(1)
+    expect(snapped).toEqual([])
+  })
+
+  test('a ONE-word real title never snaps — too easy to hit by accident', () => {
+    const { outline, dropped } = groundOutlineResources(
+      outlineWith(['Cafe Revenue Playbook']), TEMPLATES
+    )
+    expect(outline.sessions[0].resources).toEqual([])
+    expect(dropped).toEqual(['Cafe Revenue Playbook'])
+  })
+
+  test('a snap that duplicates an exact match in the same session is not added twice', () => {
+    const { outline, snapped } = groundOutlineResources(
+      outlineWith(['E.O.Y Meeting', '5-Stage EOY Meeting Process']), TEMPLATES
+    )
+    expect(outline.sessions[0].resources).toEqual(['E.O.Y Meeting'])
+    expect(snapped).toHaveLength(1)
+  })
+
+  test('genuinely unrelated inventions still drop (no snap noise)', () => {
+    const { dropped, snapped } = groundOutlineResources(
+      outlineWith(['Difficult Client Temperaments — Handling Guide']), TEMPLATES
+    )
+    expect(dropped).toEqual(['Difficult Client Temperaments — Handling Guide'])
+    expect(snapped).toEqual([])
   })
 })

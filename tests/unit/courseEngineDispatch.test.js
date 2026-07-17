@@ -13,15 +13,21 @@ jest.mock('../../server/utils/openaiClient', () => ({
   })
 }))
 
-// Default: real behaviour (the shipped course-quizzes.json has no live
-// entries, so the AI path runs). A test sets `mockOverrideQuestions` to
-// exercise the authored-override branch.
+// Default: real behaviour (the shipped course-quizzes.json overrides section
+// has no live entries, so the AI path runs). A test sets
+// `mockOverrideQuestions` / `mockBank` to exercise the authored-override and
+// CB-30 bank branches.
 let mockOverrideQuestions = null
+let mockBank = null
 jest.mock('../../server/utils/quizOverrides', () => ({
   findQuizOverride: (...args) =>
     mockOverrideQuestions !== null
       ? mockOverrideQuestions
-      : jest.requireActual('../../server/utils/quizOverrides').findQuizOverride(...args)
+      : jest.requireActual('../../server/utils/quizOverrides').findQuizOverride(...args),
+  findQuizBank: (...args) =>
+    mockBank !== null
+      ? mockBank
+      : jest.requireActual('../../server/utils/quizOverrides').findQuizBank(...args)
 }))
 
 const { EventEmitter } = require('events')
@@ -70,6 +76,7 @@ function makeStream (text) {
 
 beforeEach(() => {
   mockOverrideQuestions = null
+  mockBank = null
   mockCreate = jest.fn(() => makeStream('reply'))
 })
 
@@ -108,6 +115,101 @@ describe('quiz-generate (CB-13 back-fill)', () => {
     expect(res.statusCode).toBe(200)
     expect(res.body.questions).toEqual(mockOverrideQuestions)
     expect(mockCreate).not.toHaveBeenCalled()
+  })
+})
+
+describe('quiz-generate with a firm question bank (CB-30)', () => {
+  const THE_BANK = {
+    source: 'Course Builder Quiz/Working Capital Cycle quiz.pdf',
+    entries: [
+      { id: 1, question: 'BANK-Q-ONE?', answer: 'A1.', keyPoint: 'BANK-KEYPOINT-ONE' },
+      { id: 2, question: 'BANK-Q-TWO?', answer: 'A2.', keyPoint: 'BANK-KEYPOINT-TWO' }
+    ]
+  }
+  const generateBody = () => ({
+    type: 'quiz-generate',
+    sessionContext: { title: 'Foundations', objectives: ['understand the basics'], resources: ['Working Capital Cycle'] },
+    sessionHistory: [{ role: 'assistant', content: 'We covered the basics.' }]
+  })
+  const bankQuestions = () => JSON.stringify({
+    questions: [
+      { id: 1, question: 'Tailored 1?', objective: 'o', bankRef: 1 },
+      { id: 2, question: 'Tailored 2?', objective: 'o', bankRef: 2 },
+      { id: 3, question: 'Tailored 3?', objective: 'o', bankRef: 1 }
+    ]
+  })
+
+  test('the prompt carries the bank entries and demands bankRef tagging', async () => {
+    mockBank = THE_BANK
+    mockCreate = jest.fn(() => Promise.resolve({ choices: [{ message: { content: bankQuestions() } }] }))
+    const res = makeRes()
+    await courseEngine(makeReq(generateBody()), res)
+
+    const prompt = mockCreate.mock.calls[0][0].messages[0].content
+    expect(prompt).toContain('mandatory source material')
+    expect(prompt).toContain('BANK-Q-ONE?')
+    expect(prompt).toContain('BANK-KEYPOINT-TWO')
+    expect(prompt).toContain('"bankRef"')
+    expect(prompt).toContain('never ask anything the bank does not cover')
+    expect(res.statusCode).toBe(200)
+    expect(res.body.questions.map(q => q.bankRef)).toEqual([1, 2, 1])
+  })
+
+  test('the model answers stay out of the generate prompt (only the grader sees them)', async () => {
+    mockBank = THE_BANK
+    mockCreate = jest.fn(() => Promise.resolve({ choices: [{ message: { content: bankQuestions() } }] }))
+    await courseEngine(makeReq(generateBody()), makeRes())
+
+    const prompt = mockCreate.mock.calls[0][0].messages[0].content
+    expect(prompt).not.toContain('A1.')
+    expect(prompt).not.toContain('A2.')
+  })
+
+  test('an authored override still wins over a bank — served verbatim, no AI call', async () => {
+    mockOverrideQuestions = [{ id: 1, question: 'Authored?', objective: 'o' }]
+    mockBank = THE_BANK
+    const res = makeRes()
+    await courseEngine(makeReq(generateBody()), res)
+    expect(res.body.questions).toEqual(mockOverrideQuestions)
+    expect(mockCreate).not.toHaveBeenCalled()
+  })
+
+  test('without a bank the prompt is the plain session-content one', async () => {
+    mockCreate = jest.fn(() => Promise.resolve({
+      choices: [{ message: { content: JSON.stringify({ questions: [{ id: 1, question: 'Q1?', objective: 'o' }] }) } }]
+    }))
+    await courseEngine(makeReq({
+      type: 'quiz-generate',
+      sessionContext: { title: 'Foundations', objectives: ['understand the basics'] },
+      sessionHistory: [{ role: 'assistant', content: 'We covered the basics.' }]
+    }), makeRes())
+
+    const prompt = mockCreate.mock.calls[0][0].messages[0].content
+    expect(prompt).not.toContain('mandatory source material')
+    expect(prompt).not.toContain('bankRef')
+    expect(prompt).toContain('Questions 1 and 2 must test the specific facts')
+  })
+
+  test('a non-integer bankRef from the AI is stripped, the quiz still serves', async () => {
+    mockBank = THE_BANK
+    mockCreate = jest.fn(() => Promise.resolve({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            questions: [
+              { id: 1, question: 'Q1?', objective: 'o', bankRef: 'one' },
+              { id: 2, question: 'Q2?', objective: 'o', bankRef: 2 }
+            ]
+          })
+        }
+      }]
+    }))
+    const res = makeRes()
+    await courseEngine(makeReq(generateBody()), res)
+
+    expect(res.statusCode).toBe(200)
+    expect(res.body.questions[0].bankRef).toBeUndefined()
+    expect(res.body.questions[1].bankRef).toBe(2)
   })
 })
 
