@@ -32,6 +32,37 @@ Two honest answers on different axes — the file used to conflate them:
 
 ---
 
+## CODE-REVIEW SWEEP — 2026-07-18 (report feature, 3-reviewer pass)
+
+> Full review of the business-performance-report feature (Quick Position + EBITDA & DCF
+> A–D + intake pipeline) for tech-plan drift and bugs. **Full detail with file:line and
+> failure scenarios: [`SESSION-2026-07-18-NOTES.md`](SESSION-2026-07-18-NOTES.md)** (R-numbers
+> below refer to it). Baseline at review time: **1,266 tests / 88 suites green on Node
+> 14.15.0** (run live ✔); both intake routes carry `firmAuth` ✔. Stack Constitution,
+> intake contract, privacy boundary and ~20 hand-re-derived golden values all verified
+> clean — see the notes' ✅ section. **No code changed** — all gated on Mike's per-item
+> approval. Fix session planned 2026-07-19; suggested order in the notes.
+
+**🔴 P1 — CRITICAL (fix before more real client files)**
+- ☐ **R1 ✔ — QP intake: edited figure keeps its "from file" badge** — [`components/QuickPositionIntake.vue`](../components/QuickPositionIntake.vue) L48. No `@input` re-tag (EBITDA intake has the correct pattern to copy). Breaks intake contract §4.4.
+- ☐ **R2 ✔ — QP: cleared figure silently becomes the demo sample number, still tagged "from file"** — `QuickPositionIntake.vue` L48 + [`components/QuickPositionReport.vue`](../components/QuickPositionReport.vue) L191–192. Fabricated client-facing figure. Fix with confirm-time validation (also covers R23).
+- ☐ **R3 · SEC — XLSX reader: unbounded row index → OOM/DoS from a ~1 KB crafted file** — [`server/report/intake/xlsxReader.js`](../server/report/intake/xlsxReader.js) L254–256. One-line row-index cap.
+- ☐ **R4 — multi-column exports (by-month P&L, comparative BS) silently read first-column-only, tagged from-file, cross-check can't fire** — [`server/report/intake/xeroReportParser.js`](../server/report/intake/xeroReportParser.js) L24–35. Warn or refuse.
+
+**🟠 P1/P2 · High**
+- ☐ **R5 — EBITDA calc: mismatched growth/discount lengths → NaN → null EV indistinguishable from honesty-null** — [`server/report/ebitdaDcfModel.js`](../server/report/ebitdaDcfModel.js) L144–148.
+- ☐ **R6 · SEC — intake catch echoes unexpected `err.message` → can leak a server file path to the client** — [`server/routes/report.js`](../server/routes/report.js) L229–236, L288–295. Allowlist known intake codes.
+- ☐ **R7 · SEC — global `jsonBodyParser` has NO `maxBodySize`** (unlimited body buffering; six calc routes are anonymous by deliberate, commented decision) — [`server/restify-server.js`](../server/restify-server.js) L101. Cap must clear the largest legit payload.
+- ☐ **R8 · DECISION (Mike) — partial/junk calc input silently blends real client numbers with source-sheet sample figures, unmarked** — `ebitdaDcfModel.js` L47–55, [`server/report/quickPositionModel.js`](../server/report/quickPositionModel.js) L26–31. Minimum: echo which inputs were defaulted.
+- ☐ **R9 — both new reports: failed recompute leaves stale figures with no warning** — solved pattern exists (`report.staleTitle` + `EightLeversReport.vue` L89); copy it.
+- ☐ **R10 — both new reports: debounced-recompute race, older response can overwrite newer** — request-sequence counter. *(Same family as the logged older-report slider race below — fix together.)*
+- ☐ **R11 — EBITDA step-3 report (the screen that prints) has NO from-file/entered badges; QP `useExpensesMonthly` writes file data into an untagged control** — [`components/EbitdaDcfReport.vue`](../components/EbitdaDcfReport.vue).
+- ☐ **R12 — stepper desync + silent wipe of confirmed figures navigating back from step 3** — [`pages/quick-position.vue`](../pages/quick-position.vue) / [`pages/ebitda-dcf.vue`](../pages/ebitda-dcf.vue) L81–90.
+
+**🟡 P2/P3 · Medium/minor — R13–R24, logged in full in the notes (no silent parking):** client-side file validation gaps + dead i18n keys (R13) · "5 MB each" is actually per-request total + late file-count check (R14/R15) · CSV accounting negatives `(1,234)` unparsed → figure silently vanishes (R16) · real "Total …" account labels dropped (R17) · unanchored `trading income` matcher (R18) · multi-section opex under-read (R19) · fiscal-year alignment checks year only + QP date check lives frontend-side not in intake per §4.6 (R20) · calc-route logs drop the stack (R21) · slider hard-caps clamp real figures (R22) · EBITDA `''`-in-arrays + fixed 5-slot listed history sends sample data (R23) · misc small incl. Buefy-vs-native-input ruling wanted (R24).
+
+---
+
 ## CODE-REVIEW SWEEP — 2026-07-10 (5-reviewer pass, whole app)
 
 > Fresh full-app bug sweep (backend engines, routes, report models, utils, all
