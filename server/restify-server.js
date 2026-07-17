@@ -139,6 +139,7 @@ server.post('/api/report/quick-position', reportRoute.quickPosition)
 server.post('/api/report/ebitda-dcf', reportRoute.ebitdaDcf)
 // firmAuth deliberately ON for the intake (unlike the calc-only report routes): it accepts file uploads
 server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPositionIntake)
+server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
 server.get('/api/firm/advisors', firmAuth, firmRoute.getAdvisors)
 server.post('/api/firm/insights', firmAuth, firmRoute.postInsights)
 server.post('/api/activity/log-course', firmAuth, activityRoute.logCourse)

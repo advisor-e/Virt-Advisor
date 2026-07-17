@@ -42,6 +42,16 @@ function shapeRows (grid) {
 const TOTAL_RE = /^total\b/i
 
 /**
+ * Xero opens P&L sections as "Less Cost of Sales" / "Less Operating Expenses" but
+ * closes them as "Total Cost of Sales" — the section's tracked name must drop the
+ * Less/Plus/Add prefix or the close never matches the open and sections nest wrongly
+ * (found by the EBITDA intake tests, 2026-07-17).
+ */
+function sectionName (label) {
+  return label.replace(/^(?:less|plus|add)\s+/i, '')
+}
+
+/**
  * Walk a report body: section headers (label, no value) open a section; "Total X"
  * rows close it and carry the file's own cached total for the cross-check.
  * @param {Array<{label:string|null, value:number|null}>} rows
@@ -66,7 +76,7 @@ function lineItems (rows) {
       continue
     }
     if (r.value === null) {
-      stack.push({ name: r.label, cachedTotal: null })
+      stack.push({ name: sectionName(r.label), cachedTotal: null })
       continue
     }
     items.push({ section: stack.map(s => s.name), label: r.label, value: r.value })
@@ -106,7 +116,7 @@ function totalCrossChecks (rows) {
       }
       continue
     }
-    if (r.value === null) { stack.push(r.label.toLowerCase()); sums[r.label.toLowerCase()] = 0; continue }
+    if (r.value === null) { const key = sectionName(r.label).toLowerCase(); stack.push(key); sums[key] = 0; continue }
     for (let s = 0; s < stack.length; s++) { sums[stack[s]] += r.value }
   }
   return warnings
@@ -178,10 +188,48 @@ function extractBalanceSheet (grid) {
   }
 }
 
+// EBITDA & DCF line classification (2026-07-17). Each income item lands in exactly ONE
+// bucket — interest/dividends/bad-debts match by label first, the remainder splits by
+// section (trading income -> sales, other income -> otherIncome) — so seeding both
+// `sales` and `interestReceived` can never double-count a row.
+const INTEREST_RECEIVED_RE = /interest\s+(income|received)/i
+const DIVIDENDS_RE = /^dividends?\b/i
+const BAD_DEBTS_RECOVERED_RE = /bad\s*debts?\s*recovered/i
+const INTEREST_PAID_RE = /interest\s+(paid|expense)|loan\s+interest/i
+const OTHER_INCOME_SECTION_RE = /other\s+income|non-?operating\s+income/i
+const COST_OF_SALES_SECTION_RE = /cost\s+of\s+(sales|goods)/i
+
+/** Package a candidate list as a file-sourced proposal, or undefined when none found. */
+function proposalOf (candidates) {
+  if (!candidates.length) { return undefined }
+  return {
+    value: sumCandidates(candidates),
+    source: 'file',
+    candidates: candidates.map(c => ({ label: c.label, value: c.value }))
+  }
+}
+
+/** The report's year: the LAST 4-digit year in its own date line ("1 April 2024 to 31 March 2025" -> 2025). */
+function yearOf (reportDate) {
+  if (!reportDate) { return null }
+  const matches = String(reportDate).match(/\b(?:19|20)\d{2}\b/g)
+  return matches ? parseInt(matches[matches.length - 1], 10) : null
+}
+
 /**
- * Extract the Expenses Review seed (and an income figure) from a P&L grid.
+ * Extract the Expenses Review seed (and an income figure) from a P&L grid — plus, since
+ * the EBITDA & DCF model (Stage B, 2026-07-17), the per-figure proposals it needs, in
+ * `plFigures`. Additive: the Quick Position contract (expenseLines, incomeTotal) is
+ * byte-for-byte unchanged.
+ *
  * @param {Array<Array<string|number|null>>} grid
- * @returns {object} { recognised, kind, companyName, reportDate, expenseLines, incomeTotal, warnings }
+ * @returns {object} { recognised, kind, companyName, reportDate, year, expenseLines,
+ *   incomeTotal, plFigures, warnings } — plFigures keys (each {value, source:'file',
+ *   candidates} and present only when the file carries it): sales, costOfSales,
+ *   operatingExpenses, otherIncome, interestReceived, dividendsReceived,
+ *   badDebtsRecovered, loanInterestPaid. operatingExpenses deliberately INCLUDES any
+ *   interest-paid rows (the model adds interest back separately, so its opex total must
+ *   contain it — EBITDA Calcs row 14 vs row 28).
  */
 function extractProfitLoss (grid) {
   const rows = shapeRows(grid)
@@ -193,14 +241,41 @@ function extractProfitLoss (grid) {
 
   const expenseItems = items.filter(it => inSection(it, /operating expenses|^expenses$|overheads/i))
   const incomeItems = items.filter(it => inSection(it, /^income$|^revenue$|trading income|^sales$/i))
+  const otherIncomeItems = items.filter(it => inSection(it, OTHER_INCOME_SECTION_RE))
+  const costOfSalesItems = items.filter(it => inSection(it, COST_OF_SALES_SECTION_RE))
+
+  const allIncome = incomeItems.concat(otherIncomeItems)
+  const interestReceived = allIncome.filter(it => INTEREST_RECEIVED_RE.test(it.label))
+  const dividendsReceived = allIncome.filter(it => DIVIDENDS_RE.test(it.label))
+  const badDebtsRecovered = allIncome.filter(it => BAD_DEBTS_RECOVERED_RE.test(it.label))
+  const claimed = new Set(interestReceived.concat(dividendsReceived, badDebtsRecovered))
+  const salesItems = incomeItems.filter(it => !claimed.has(it))
+  const plainOtherIncome = otherIncomeItems.filter(it => !claimed.has(it))
+  const loanInterestPaid = expenseItems.filter(it => INTEREST_PAID_RE.test(it.label))
+
+  const plFigures = Object.create(null)
+  const put = (key, candidates) => {
+    const p = proposalOf(candidates)
+    if (p) { plFigures[key] = p }
+  }
+  put('sales', salesItems)
+  put('costOfSales', costOfSalesItems)
+  put('operatingExpenses', expenseItems)
+  put('otherIncome', plainOtherIncome)
+  put('interestReceived', interestReceived)
+  put('dividendsReceived', dividendsReceived)
+  put('badDebtsRecovered', badDebtsRecovered)
+  put('loanInterestPaid', loanInterestPaid)
 
   return {
     recognised: true,
     kind: 'profitLoss',
     companyName: meta.companyName,
     reportDate: meta.reportDate,
+    year: yearOf(meta.reportDate),
     expenseLines: expenseItems.map(it => ({ name: it.label, amount: it.value })),
     incomeTotal: incomeItems.length ? sumCandidates(incomeItems) : null,
+    plFigures,
     warnings
   }
 }

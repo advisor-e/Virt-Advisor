@@ -17,6 +17,7 @@ const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
+const { assembleAnnualReports } = require('../report/intake/annualAssembler')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
 // named-export + callback-wrap pattern as the firm-manager uploads.
@@ -179,7 +180,9 @@ const INTAKE_STATUS = {
   PDF_REJECTED: 415,
   UNRECOGNISED_FILE: 415,
   UNRECOGNISED_REPORT: 422,
-  FILE_TOO_LARGE: 413
+  FILE_TOO_LARGE: 413,
+  TOO_MANY_FILES: 400,
+  WRONG_REPORT_KIND: 422
 }
 
 /**
@@ -239,4 +242,63 @@ async function quickPositionIntake (req, res) {
   }
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf }
+/**
+ * POST /api/report/ebitda-dcf/intake  (firmAuth — uploads are never anonymous)
+ *
+ * Multipart upload of 1..5 Xero P&L exports (.xlsx or .csv, max 5 MB each), one per
+ * year, in repeated `file` fields. Each parses per the intake contract (sum line items,
+ * never Total rows); every file must be a P&L or the whole request fails loudly with
+ * the offending positions — no partial parse. Years come from each report's own date
+ * line; when all are known and distinct the response carries the engine-ready
+ * oldest-first arrays (`assembled`), otherwise the screen resolves the years from the
+ * per-file proposals. Parse-and-discard: temp files always deleted, nothing stored, no
+ * client-identifying content (names, labels, filenames) ever logged — error codes only.
+ *
+ * @param {object} req - multipart request; req.firmId set by firmAuth.
+ * @returns {object} { success, data: { files, assembled|null, warnings }, timestamp }
+ */
+async function ebitdaDcfIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'A file is larger than 5 MB — a Xero report export should be well under that.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send each year\'s P&L export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+
+    const parsed = uploaded.map(f => parseUpload(fs.readFileSync(f.filepath)))
+    const data = assembleAnnualReports(parsed)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    const code = (err && err.code) || 'INTAKE_PARSE_FAILED'
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] ebitda-dcf intake rejected:', code)
+    res.send(INTAKE_STATUS[code] || 400, {
+      success: false,
+      error: { code, message: (err && err.message) || 'A file could not be read as a Xero report export.' },
+      timestamp: new Date().toISOString()
+    })
+  } finally {
+    // Parse-and-discard: always remove every temp file formidable wrote
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake }
