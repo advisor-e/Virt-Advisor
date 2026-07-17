@@ -15,6 +15,7 @@ const { computeDebtorCashflow } = require('../report/debtorDragModel')
 const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/marginBreakevenModel')
 const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
+const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
@@ -149,6 +150,30 @@ function quickPosition (req, res, next) {
   return next()
 }
 
+/**
+ * POST /api/report/ebitda-dcf
+ * @param {object} req.body - partial EBITDA & DCF inputs (merged over the source-sheet
+ *   defaults), all per-year arrays oldest-first: sales/costOfSales/operatingExpenses,
+ *   sundry{}, addBacks{}, fairMarket{}, dcf{projectedGrowth, discountRates, exitMultiple},
+ *   listed{sharesIssued, sharePrice, ebitdaHistory, projectedGrowth, discountRates,
+ *   exitMultiple, figuresMultiple}, latestYear.
+ * @returns {object} { success, data, timestamp } — years, periodCount, the full P&L
+ *   review (pnl), the private-business valuation (valuation, incl. enterpriseValue) and
+ *   the listed-company lens (listed, incl. assessedSharePrice). Undefined figures are
+ *   null (zero-share price, zero-prior-year growth), never fabricated.
+ */
+function ebitdaDcf (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeEbitdaDcf(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] ebitda-dcf compute failed:', err && err.message)
+    res.send(400, { success: false, error: { code: 'EBITDA_DCF_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
 /** Stable intake error codes → HTTP status. Anything else is a 400. */
 const INTAKE_STATUS = {
   PDF_REJECTED: 415,
@@ -214,4 +239,4 @@ async function quickPositionIntake (req, res) {
   }
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf }
