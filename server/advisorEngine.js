@@ -21,7 +21,7 @@ const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
-const { logUnverifiedQuotes } = require('../server/utils/fabricationWatch')
+const { logUnverifiedQuotes, appendCorrectionNote } = require('../server/utils/fabricationWatch')
 const { extractTemplatesFromText } = require('../server/utils/tierLookup')
 const { logVASession } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
@@ -1917,9 +1917,10 @@ async function handleQuery (rawBody, res, identity) {
               state.movingForwardHelped = true
             }
             state.postRecAiResponses = (state.postRecAiResponses || 0) + 1
-            // Tier 2 (log-only): watch for invented quoted wording. Observes, never alters.
-            logUnverifiedQuotes(isLearnRequest ? 'learn-post-rec' : 'client-post-rec', _postBuffer, _postMessages)
-            const processed = injectVideoInfo(_postBuffer, orgTemplateIds)
+            // Tier 2: watch for invented quoted wording — a hit appends the
+            // approved correction note (a streamed reply can't be unprinted).
+            const _postFlagged = logUnverifiedQuotes(isLearnRequest ? 'learn-post-rec' : 'client-post-rec', _postBuffer, _postMessages)
+            const processed = appendCorrectionNote(injectVideoInfo(_postBuffer, orgTemplateIds), _postFlagged, _postBuffer, _postMessages)
             res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
             if (sessionId) { sessionSave(sessionId, state) }
             res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
@@ -2594,12 +2595,14 @@ async function handleQuery (rawBody, res, identity) {
           res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
         }
         if (chunk.choices[0]?.finish_reason) {
-          // Tier 2 (log-only): watch for invented quoted wording. Observes, never alters.
-          logUnverifiedQuotes('phase3-recommendation', _p3Buffer, _p3Messages)
+          // Tier 2: watch for invented quoted wording — a hit appends the
+          // approved correction note via the replace frame below (the live
+          // stream has already printed, so the note rides the final rewrite).
+          const _p3Flagged = logUnverifiedQuotes('phase3-recommendation', _p3Buffer, _p3Messages)
           // Post-process: heading normaliser → R02 scrub → video injection
           const normalised = normaliseHeadings(_p3Buffer)
           const scrubbed = scrubAdvisorHallucinations(normalised)
-          const processed = injectVideoInfo(scrubbed, orgTemplateIds)
+          const processed = appendCorrectionNote(injectVideoInfo(scrubbed, orgTemplateIds), _p3Flagged, _p3Buffer, _p3Messages)
           if (processed !== _p3Buffer) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
@@ -2853,9 +2856,10 @@ async function handleQuery (rawBody, res, identity) {
         : ''
       if (text) { _mainBuffer += text }
       if (chunk.choices[0] && chunk.choices[0].finish_reason) {
-        // Tier 2 (log-only): watch for invented quoted wording. Observes, never alters.
-        logUnverifiedQuotes(mode, _mainBuffer, _mainMessages)
-        const processed = injectVideoInfo(_mainBuffer, orgTemplateIds)
+        // Tier 2: watch for invented quoted wording — a hit appends the
+        // approved correction note (a streamed reply can't be unprinted).
+        const _mainFlagged = logUnverifiedQuotes(mode, _mainBuffer, _mainMessages)
+        const processed = appendCorrectionNote(injectVideoInfo(_mainBuffer, orgTemplateIds), _mainFlagged, _mainBuffer, _mainMessages)
         res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
         res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       }
