@@ -1296,6 +1296,7 @@
     {
       "id": "sales_process",
       "name": "Get the Job - Sales Process Decision Tree",
+      "domainSupport": "get-sales",
       "source_pdf": "get sales logic.pdf",
       "source_support": "Get Sales Support.pdf",
       "description": "Guides the advisor to the right sales process and approach method based on client type, sophistication, and relationship warmth. Terminal nodes output a recommended sales process (not a template). After identifying the process, use the approach_guidance table to determine HOW to reach out based on the advisor-client relationship.",
@@ -2045,6 +2046,7 @@
     {
       "id": "eoy_meeting",
       "name": "End of Year Meeting — Planning and Delivery",
+      "domainSupport": "eoy",
       "source_pdf": "EOY Logic.pdf",
       "source_support": "EOY Support.pdf",
       "mode": "learn",
@@ -2307,6 +2309,7 @@
     {
       "id": "conflict_meeting",
       "name": "Framing a Conflict Meeting",
+      "domainSupport": "conflict",
       "source_pdf": "Conflict Logic.pdf",
       "source_support": "Conflict Support.pdf",
       "description": "A sequential coaching guide for advisors preparing to facilitate a conflict meeting. Covers conflict psychology, the detachment pathway, the 6-step facilitation process, the 3 framing concepts, and achieving and sharing status.",

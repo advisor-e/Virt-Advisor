@@ -94,5 +94,377 @@
     "learn": "Great — this is one of the most valuable things you can invest in.\n\nTo make sure I point you to the right resource, I want to understand what you're looking to develop and what's driving it.\n\n**What area are you most drawn to working on — winning clients, facilitation skills, the psychology side, positioning and messaging, or something else?**",
     "course": "Great — let's design your learning program together.\n\nA good course starts with understanding what you want to develop and why — then we'll shape the right content, pace, and sequence around you.\n\n**What are the skills or advisory concepts you'd like to develop?**"
   },
-  "error": "Sorry, something went wrong. Please try again."
+  "error": "Sorry, something went wrong. Please try again.",
+  "report": {
+    "eyebrow": "Business Performance Report",
+    "preparedFor": "Prepared for [Client Company] · by [Advisor / Firm]",
+    "illustrative": "Illustrative",
+    "reset": "Reset to defaults",
+    "resetDone": "Reset to defaults.",
+    "loading": "Calculating…",
+    "calcFailedTitle": "The calculation didn't load",
+    "staleTitle": "These figures are out of date — the last calculation failed",
+    "retry": "Try again",
+    "calcUnreachable": "Could not reach the calculation service.",
+    "eightLevers": {
+      "title": "8 Levers",
+      "instruction": "Move a lever and watch the profit move. The point isn't the numbers — it's which lever pays best. A small lift in margin usually beats a big lift in volume.",
+      "market": "Market",
+      "marketHint": "How many potential customers are in the client's market? Size this to the real business — every scenario below is measured against it.",
+      "funnel": "Getting customers",
+      "value": "What each customer is worth",
+      "labourInputs": "Labour",
+      "labourInput": {
+        "totalWages": "Total wages / salaries / drawings",
+        "workers": "Chargeable workers",
+        "hourlyChargeOutRate": "Charge-out rate / hr",
+        "weeklyHours": "Hours worked per week",
+        "productivityPct": "Chargeable time (productivity)",
+        "weeksAnnualLeave": "Annual leave",
+        "sickAndPublicHolidayDays": "Sick days + public holidays"
+      },
+      "lever": {
+        "marketSize": "Market size",
+        "footTrafficPct": "Foot traffic (% of market)",
+        "prospectsPct": "Prospects (% of foot traffic)",
+        "customersPct": "Customers (% of prospects)",
+        "averageSpend": "Average customer spend",
+        "averageFrequency": "Average customer frequency",
+        "marginPct": "Sales margin",
+        "activityCostPct": "Sales activity costs",
+        "fixedCostPct": "Fixed costs"
+      },
+      "revenue": "Revenue",
+      "profit": "Profit",
+      "profitPct": "Profit margin",
+      "customers": "Customers",
+      "chainTitle": "The lever chain",
+      "chainNote": "Every customer is won through this chain. Each step multiplies the last — which is why a small gain early compounds all the way to revenue.",
+      "chain": {
+        "market": "Market size",
+        "footTraffic": "Foot traffic",
+        "prospects": "Prospects",
+        "customers": "Customers",
+        "spend": "Average spend",
+        "frequency": "Frequency",
+        "revenue": "Revenue"
+      },
+      "compareTitle": "Current vs Option B vs Option C",
+      "compareNote": "The two options from the source model. Look at Option C: it earns LESS revenue than Option B, yet makes MORE profit — because the margin lever outweighs the volume lever. That is the whole lesson.",
+      "measure": "Measure",
+      "current": "Current",
+      "optionB": "Option B",
+      "optionC": "Option C",
+      "row": {
+        "customers": "Customers",
+        "spend": "Average spend",
+        "frequency": "Frequency",
+        "revenue": "Revenue",
+        "margin": "Sales margin",
+        "expenses": "Total expenses",
+        "profit": "Profit",
+        "profitIncrease": "Profit increase vs current"
+      },
+      "labourTitle": "Labour productivity",
+      "labourNote": "What the business charges per hour against what it actually pays per hour — once leave, sick days and non-chargeable time are taken out. The gap between the target margin and the achieved margin is the point: the labour lines look far more profitable on paper than they are in practice. Move the labour inputs on the left and watch the gap open or close.",
+      "labourGap": "Target vs achieved gap",
+      "labour": {
+        "chargeOut": "Charge-out rate / hr",
+        "payRate": "Actual pay rate / hr",
+        "targetMargin": "Target labour margin",
+        "actualMargin": "Achieved labour margin",
+        "weeksLost": "Effective weeks lost",
+        "labourRevenue": "Est. labour revenue"
+      }
+    },
+    "quickPosition": {
+      "title": "Quick Position",
+      "eyebrowClass": "Client report",
+      "step1": "Drop the exports",
+      "step2": "Confirm the figures",
+      "step3": "Quick Position report",
+      "drop": {
+        "bsTitle": "Balance Sheet",
+        "bsHow": "Xero → Reports → Balance Sheet → Export as Excel",
+        "bsSeeds": "Seeds: cash, debtors, stock, creditors",
+        "plTitle": "Profit & Loss",
+        "optional": "optional",
+        "plHow": "Xero → Reports → Profit and Loss → Export as Excel",
+        "plSeeds": "Seeds: the operating-expense review → monthly outgoings",
+        "choose": "Choose the file…",
+        "reading": "Reading the file…",
+        "bsRead": "Balance Sheet read — {n} figures proposed",
+        "plRead": "Profit & Loss read — {n} expense lines found",
+        "rules": "Spreadsheets only — .xlsx or .csv. A PDF is refused with a note naming the export to download instead. Anything the files can't supply, you enter in the next step — and every figure is tagged by its source so an assumption can never pass as a fact.",
+        "skip": "No exports handy? Skip and enter everything manually →",
+        "continue": "Continue →",
+        "uploadFailed": "The file could not be read. Please try again.",
+        "wrongKind": "That file was already read — drop the other report here."
+      },
+      "confirm": {
+        "title": "What the files gave us — confirm each figure",
+        "figure": "Figure",
+        "value": "Value",
+        "source": "Source",
+        "fromFile": "from file",
+        "entered": "entered",
+        "cash": "Cash and equivalents",
+        "debtors": "Debtors (accounts receivable)",
+        "stock": "Stock",
+        "stockCandidates": "The Balance Sheet holds stock in {n} rows — tick the ones that count",
+        "creditors": "Immediate creditors payable",
+        "wagesDue": "Salaries, wages & PAYE due",
+        "fixedAssets": "Disposable (under-utilised) fixed assets — sellable in 30–45 days",
+        "datesAgree": "Both files report as at {date} — dates agree",
+        "datesDiffer": "The files carry different reporting dates ({a} vs {b}) — figures may be out of step. Please check the exports.",
+        "serviceToggle": "This is a service business (no stock). The stock line drops out of the model entirely — no empty boxes.",
+        "build": "Looks right — build the report →",
+        "adjustLater": "You can still adjust everything on the report screen."
+      },
+      "aside": {
+        "assets": "Realisable assets",
+        "cashFactor": "Cash",
+        "debtorsFactor": "Debtors realisable",
+        "stockFactor": "Stock realisable",
+        "fixedAssetsFactor": "Fixed assets realisable",
+        "outgoings": "Monthly outgoings",
+        "fixedCosts": "Fixed costs / month",
+        "drawings": "Drawings + wages top-up",
+        "loanRepayments": "Loan repayments",
+        "lifeline": "Life-line capital",
+        "lifelineNote": "(outside the business)",
+        "savings": "Personal savings",
+        "investments": "'Quick' investments",
+        "raised": "Raised capital + secured loans",
+        "margin": "Margin & discounting",
+        "grossMargin": "Gross margin",
+        "discount": "Sales discount being considered"
+      },
+      "hero": {
+        "quickCash": "Quick cash available",
+        "quickCashSub": "realisable now, after immediate debts",
+        "coverZero": "Cover at zero sales",
+        "months": "months",
+        "coverZeroSub": "on the business's own resources",
+        "withLifeline": "With life-line capital",
+        "withLifelineSub": "adds {amount} of outside support",
+        "breakEven": "Break-even sales",
+        "breakEvenSub": "needed per month to stand still",
+        "unlimited": "no monthly outgoings — unlimited cover"
+      },
+      "runway": {
+        "title": "Survival runway",
+        "summary": "burning {outgo} a month at zero sales · life-line adds {lifeline}",
+        "ownCash": "Business's own quick cash",
+        "extension": "Life-line capital extension",
+        "under3": "Under 3 months — act now",
+        "under6": "Under 6 months of cover",
+        "cover": "{n} months of cover"
+      },
+      "discount": {
+        "title": "What a discount really does",
+        "today": "Gross margin today",
+        "after": "Margin after a {d} discount",
+        "extra": "Extra sales needed just to stand still",
+        "destroyed": "margin gone — no volume can recover it"
+      },
+      "expenses": {
+        "title": "Expenses review",
+        "seeded": "— seeded line-by-line from the P&L",
+        "moreLines": "… {n} more lines, each with a \"% maintained\" to trim",
+        "revised": "Revised yearly → average monthly",
+        "use": "Use {amount} as monthly fixed costs",
+        "used": "Monthly fixed costs set from the expenses review",
+        "none": "No P&L was dropped — enter monthly fixed costs on the left."
+      },
+      "coach": {
+        "lead": "Coach",
+        "heading": "What this means",
+        "negative": "Immediate debts exceed what the business can realise quickly. This is a now conversation: which creditors can wait, what can be turned to cash this week, and what outside support exists.",
+        "runway": "If sales stopped today, the business could cover its outgoings for {m0} months from its own quick cash — {ml} months with the life-line capital. To stand still it needs {be} of sales a month at the current margin.",
+        "discountTrap": "And note the discount trap: a {d} discount means selling {up} more just to keep the same gross profit."
+      },
+      "privacy": "Privacy: the client's name and identity never leave the app. If AI narrative is used, it sees anonymised figures only — the finished report is re-personalised locally.",
+      "actions": {
+        "pdf": "Download PDF",
+        "reset": "Reset",
+        "resetDone": "Back to the confirmed figures",
+        "provenance": "Maths reproduces the source model exactly (32 golden checks)."
+      }
+    },
+    "ebitdaDcf": {
+      "title": "EBITDA & DCF Valuation",
+      "eyebrowClass": "Client report",
+      "step1": "Drop the P&L exports",
+      "step2": "Confirm & normalise",
+      "step3": "Valuation report",
+      "back": "← Back",
+      "drop": {
+        "title": "Up to five years of Profit & Loss exports",
+        "how": "Xero → Reports → Profit and Loss → Export as Excel — one file per year",
+        "seeds": "Seeds: sales, cost of sales, operating expenses, other income, interest",
+        "choose": "Choose the files…",
+        "read": "Read the files ({n}) →",
+        "tooMany": "This model reads up to five years — extra files were left out.",
+        "rules": "Spreadsheets only — .xlsx or .csv, one file per year (minimum two years to show growth). A PDF is refused with a note naming the export to download instead. Anything the files can't supply, you enter in the next step — and every figure is tagged by its source so an assumption can never pass as a fact.",
+        "skip": "No exports handy? Skip and enter everything manually →",
+        "uploadFailed": "The files could not be read. Please try again."
+      },
+      "years": {
+        "title": "Assign the years",
+        "note": "Some files did not state their year in the report's own date line. Set each file's financial year and the figures slot into place.",
+        "file": "File",
+        "fileN": "File {n}",
+        "reportDate": "Report date line",
+        "year": "Financial year",
+        "apply": "Apply the years →"
+      },
+      "confirm": {
+        "title": "What the files gave us — confirm & normalise, year by year",
+        "line": "Line",
+        "source": "Source",
+        "fromFile": "from file",
+        "entered": "entered",
+        "group": {
+          "pnl": "The P&L figures",
+          "sundry": "Sundry income",
+          "addBacks": "Add-backs — costs a buyer would not inherit",
+          "fairMarket": "Fair-market owner package — what a replacement manager really costs"
+        },
+        "row": {
+          "sales": "Sales",
+          "costOfSales": "Cost of Sales",
+          "operatingExpenses": "Total Operating Expenses (incl' shareholder salary)",
+          "otherIncome": "Other income",
+          "interestReceived": "Interest received",
+          "dividendsReceived": "Dividends received",
+          "badDebtsRecovered": "Bad debts recovered",
+          "managementFees": "Management fees to Related Parties",
+          "loanInterestPaid": "(Loan) Interest paid",
+          "consentCosts": "One Off Resource Consent Costs",
+          "extraordinaryItems": "Extra-ordinary items",
+          "establishmentCosts": "Establishment costs",
+          "shareholderSalaries": "Shareholder salaries & wages",
+          "insuranceRetirement": "Insurance & Retirement Benefits",
+          "ownersVehicles": "Owners Vehicles",
+          "leaseholdImprovements": "Leasehold Improvements (relating to other $ periods)",
+          "assetUpgrades": "Working Asset Upgrades (relating to other $ periods)",
+          "other3": "Other 3",
+          "other4": "Other 4",
+          "other5": "Other 5",
+          "fmSalaries": "Fair Market Salaries",
+          "fmInsuranceRetirement": "Insurance & Retirement Benefits (fair market)",
+          "fmVehicles": "Owners Vehicles (fair market)",
+          "fmFringeBenefits": "All Other Fringe Benefits (fair market)"
+        },
+        "notesHint": "Add-backs and the fair-market package are judgment calls — they are yours to enter, and the report tags them as such.",
+        "build": "Looks right — build the valuation →",
+        "adjustLater": "You can still adjust the projection on the report screen."
+      },
+      "hero": {
+        "ev": "Enterprise Value",
+        "evSub": "5-yr discounted cash flow + terminal",
+        "ebitda": "Normalised EBITDA {year}",
+        "ebitdaSub": "after owner-pay normalisation",
+        "npv": "Discounted 5-yr cash flow",
+        "npvSub": "{from}–{to}",
+        "terminal": "Terminal value",
+        "terminalSub": "final year × exit multiple"
+      },
+      "bars": {
+        "title": "Earnings history → projection"
+      },
+      "pnl": {
+        "title": "Five-year P&L review",
+        "expand": "Show every line ▾",
+        "collapse": "Show the summary ▴",
+        "grossProfit": "Gross Profit",
+        "netOperatingProfit": "Net Operating Profit/(loss)",
+        "sundrySubtotal": "Sub Total Sundry Income",
+        "netProfitBeforeTax": "Net Profit before Tax",
+        "addBackSubtotal": "+ Add-backs (cost adjustments)",
+        "ebpitda": "Owners Discretionary Cash Flow (EBPITDA)",
+        "ownerBenefitsSubtotal": "− Fair-market owner package",
+        "ebitda": "EBITDA (normalised)"
+      },
+      "workings": {
+        "title": "Valuation workings",
+        "note": "— adjust and watch it recalculate; every edit is computed on the backend",
+        "projection": "Projection",
+        "growth": "Projected growth rate %",
+        "actualAvg": "(actual avg {avg})",
+        "projected": "Projected EBITDA",
+        "discount": "Discount rate %",
+        "discounted": "Discounted cash flow"
+      },
+      "listed": {
+        "title": "Listed-company lens — is a share price cheap or dear?",
+        "open": "Open the lens ▾",
+        "closed": "The same valuation engine pointed at a public company — open it to compare an assessed share price against the market.",
+        "shares": "Shares issued",
+        "price": "Current share price",
+        "multiple": "Terminal multiple",
+        "history": "History (in millions)",
+        "ebitdaM": "EBITDA ($m)",
+        "marketCap": "Market capitalisation",
+        "current": "Current market price",
+        "assessed": "DCF-assessed price",
+        "reading": "Reading",
+        "undervalued": "Undervalued",
+        "overvalued": "Overvalued",
+        "fair": "At fair value"
+      },
+      "coach": {
+        "lead": "Coach",
+        "heading": "What this means",
+        "negative": "On these figures the valuation is not positive — the projected cash flows do not support a price. That is the honest read: the conversation is about restoring earnings before it can be about value.",
+        "body": "{n} years of accounts show normalised earnings moving from {from} to {to} — average actual growth {avg}. On your projected growth and discount rates, the business supports an enterprise value of {ev}.",
+        "dip": "Note the {year} dip ({g}) — growth is not a straight line, and a buyer will ask about that year.",
+        "terminalNote": "The valuation is sensitive to the exit multiple: at {mult} the terminal value is {share} of the total — test it either side before quoting a range."
+      },
+      "privacy": "Privacy: the client's name and identity never leave the app. Files are read and discarded — nothing is stored, and the figures live in this session only.",
+      "actions": {
+        "pdf": "Download PDF",
+        "reset": "Reset the projection",
+        "resetDone": "Back to the default projection",
+        "provenance": "Maths reproduces the source model exactly (96 golden checks)."
+      }
+    }
+  },
+  "modelLibrary": {
+    "eyebrow": "Advisor-e · Business Performance",
+    "title": "Model Library",
+    "lede": "Choose a model to build a report for your client. Search or filter — the library grows as models are added.",
+    "searchPlaceholder": "Search models — e.g. cash, profit, debtors, valuation…",
+    "searchLabel": "Search models",
+    "filterLabel": "Filter models by category",
+    "classFilterLabel": "Filter models by type",
+    "classAll": "All",
+    "categoryAll": "All",
+    "count": "{shown} of {total} models · {ready} ready",
+    "openReport": "Open report →",
+    "comingSoon": "Coming soon",
+    "noMatches": "No models match “{query}”.",
+    "backToLibrary": "← Back to Model Library",
+    "class": {
+      "education": "Teaching tool",
+      "decision": "Decision tool",
+      "report": "Client report"
+    },
+    "shelfCount": "{n} model | {n} models",
+    "shelf": {
+      "education": {
+        "title": "Teaching tools",
+        "sub": "Illustrative numbers that make a concept land. No client data."
+      },
+      "decision": {
+        "title": "Decision tools",
+        "sub": "The client's real numbers, entered on screen with the advisor."
+      },
+      "report": {
+        "title": "Client reports",
+        "sub": "Built from the client's accounts."
+      }
+    }
+  }
 }

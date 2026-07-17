@@ -176,6 +176,8 @@
 </template>
 
 <script>
+import DOMPurify from 'isomorphic-dompurify'
+
 /**
  * MentorDistinctions — the mentor authoring surface for Advisory Distinctions
  * (the cascade ORIGIN, design/DISTINCTIONS-CASCADE-PLAN.md §6). The mentor authors
@@ -189,8 +191,6 @@
  * may extract the shared add/edit form (ACTIONS.md). The template picker and the
  * 14 domains mirror FirmManagerHub so the two screens stay visually identical.
  */
-
-const BACKEND = 'http://localhost:4000'
 
 // The picker offers the Do-the-Job templates a distinction can meaningfully boost.
 // Mirrors FirmManagerHub: derived straight from templates.json, excluding the
@@ -295,7 +295,7 @@ export default {
         opts.headers['Content-Type'] = 'application/json'
         opts.body = JSON.stringify(body)
       }
-      const res = await fetch(`${BACKEND}${path}`, opts)
+      const res = await fetch(`${path}`, opts)
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: res.statusText }))
         throw new Error((err.error && err.error.message) || err.message || res.statusText)
@@ -403,7 +403,7 @@ export default {
     confirmDeleteDistinction (row) {
       this.$buefy.dialog.confirm({
         title: 'Remove distinction',
-        message: `Remove "<strong>${row.description}</strong>"? It will no longer be a default for any firm.`,
+        message: DOMPurify.sanitize(`Remove "<strong>${row.description}</strong>"? It will no longer be a default for any firm.`, { USE_PROFILES: { html: true } }),
         confirmText: 'Remove',
         type: 'is-danger',
         hasIcon: true,

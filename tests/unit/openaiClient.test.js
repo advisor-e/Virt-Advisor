@@ -112,4 +112,50 @@ describe('createOpenAIClient', () => {
     await expect(client.chat.completions.create({ model: 'gpt-4o', messages }))
       .rejects.toThrow('OpenAI API error 401')
   })
+
+  // ── Inactivity timeout ──
+  // Regression guard: create() previously ignored its second (options) argument
+  // and postCompletions set no socket timeout, so a stalled OpenAI connection hung
+  // the caller forever. These lock the timeout wiring.
+
+  /** Fake request that records the setTimeout ms and exposes the guard callback. */
+  function fakeRequestWithTimeout (res, sink) {
+    return (options, cb) => {
+      process.nextTick(() => cb(res))
+      return {
+        on () { return this },
+        write () {},
+        end () {},
+        setTimeout (ms, handler) { sink.timeoutMs = ms; sink.fire = handler; return this },
+        destroy (err) { sink.destroyedWith = err }
+      }
+    }
+  }
+
+  test('passes an explicit timeout through to the socket', async () => {
+    const sink = {}
+    const body = JSON.stringify({ choices: [{ message: { content: 'x' } }] })
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequestWithTimeout(fakeRes(200, [body]), sink) })
+    await client.chat.completions.create({ model: 'gpt-4o', messages }, { timeout: 12345 })
+    expect(sink.timeoutMs).toBe(12345)
+  })
+
+  test('applies the default inactivity timeout when the caller passes none', async () => {
+    const sink = {}
+    const body = JSON.stringify({ choices: [{ message: { content: 'x' } }] })
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequestWithTimeout(fakeRes(200, [body]), sink) })
+    await client.chat.completions.create({ model: 'gpt-4o', messages })
+    expect(sink.timeoutMs).toBe(60000)
+  })
+
+  test('firing the inactivity guard aborts the request with a timeout error', async () => {
+    const sink = {}
+    const body = JSON.stringify({ choices: [{ message: { content: 'x' } }] })
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequestWithTimeout(fakeRes(200, [body]), sink) })
+    await client.chat.completions.create({ model: 'gpt-4o', messages }, { timeout: 5000 })
+    expect(typeof sink.fire).toBe('function')
+    sink.fire() // simulate the socket going idle past the timeout
+    expect(sink.destroyedWith).toBeInstanceOf(Error)
+    expect(sink.destroyedWith.message).toMatch(/timed out after 5000ms/)
+  })
 })

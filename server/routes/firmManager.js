@@ -285,8 +285,38 @@ async function uploadDocument (req, res) {
 }
 
 async function downloadDocument (req, res) {
-  const { fileId, fileName } = req.query
+  const { fileId, fileName, source, category } = req.query
   if (!fileId) { return sendError(res, 400, 'NO_FILE_ID', 'fileId query param required') }
+
+  // Authorisation gate (closes the cross-firm IDOR): confirm this firm may read
+  // this file before streaming a single byte. A 'firm' document must belong to
+  // req.firmId; a 'platform' document must be a real base file in the named
+  // category. Anything else is reported as not-found so we never reveal — or
+  // stream — another firm's document.
+  try {
+    if (source === 'platform') {
+      const catKey = categoryKeyFromValue(category)
+      if (!catKey) {
+        return sendError(res, 400, 'INVALID_CATEGORY', 'A valid category is required for a platform document')
+      }
+      const baseFiles = await drive.listBaseDocuments(catKey)
+      if (!baseFiles.some(f => f.id === fileId)) {
+        return sendError(res, 404, 'NOT_FOUND', 'Document not found')
+      }
+    } else {
+      // Firm-owned path (also the default for a missing/unknown source).
+      const [rows] = await db.execute(
+        'SELECT 1 FROM firm_documents WHERE drive_file_id = ? AND firm_id = ?',
+        [fileId, req.firmId]
+      )
+      if (rows.length === 0) {
+        return sendError(res, 404, 'NOT_FOUND', 'Document not found for this firm')
+      }
+    }
+  } catch (err) {
+    return serverError(res, 500, 'DOWNLOAD_AUTH_ERROR', err)
+  }
+
   try {
     const stream = await drive.downloadDocument(fileId)
     res.header('Content-Disposition',

@@ -14,6 +14,12 @@ describe('Tier 1 — never-invent guardrail single-sourced onto every prompt', (
     expect(NEVER_INVENT_GUARDRAIL).toMatch(/template names and named methods/i)
   })
 
+  test('the verbatim-honesty rule (2026-07-18) is present: say plainly when text is not held, never pass paraphrase off as quotation', () => {
+    expect(NEVER_INVENT_GUARDRAIL).toMatch(/say so plainly/i)
+    expect(NEVER_INVENT_GUARDRAIL).toMatch(/never present your own paraphrase or reconstruction as a quotation/i)
+    expect(NEVER_INVENT_GUARDRAIL).toMatch(/never imply wording is verbatim when it is not/i)
+  })
+
   // Every prompt loadPrompt can return is a system prompt and must carry the guardrail.
   test.each(['client', 'discover', 'plan', 'learn', 'course-design', 'course-session'])(
     'loadPrompt(%s) is prefixed with the guardrail and still carries its own content',

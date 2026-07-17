@@ -29,6 +29,12 @@ const https = require('https')
 const DEFAULT_HOST = 'api.openai.com'
 const COMPLETIONS_PATH = '/v1/chat/completions'
 
+// Inactivity timeout applied when a caller passes none. This is a per-socket
+// idle guard (see postCompletions), NOT a total-duration cap, so it is safe for
+// long streaming replies — active token traffic keeps resetting it, and only a
+// genuine stall (no bytes for this long) trips it.
+const DEFAULT_TIMEOUT_MS = 60000
+
 /**
  * Parses a raw OpenAI SSE byte stream into completion chunk objects.
  * Yields each parsed `data:` payload; stops at the `[DONE]` sentinel; silently
@@ -70,6 +76,7 @@ async function * parseSSEStream (source) {
  * @param {string}  cfg.apiKey
  * @param {string}  cfg.host
  * @param {object}  cfg.body          - request body (will be JSON-stringified)
+ * @param {number}  [cfg.timeout]     - socket inactivity timeout in ms (0/absent = none)
  * @param {Function} cfg.requestImpl  - https.request-compatible fn (injectable for tests)
  * @returns {Promise<import('http').IncomingMessage>}
  */
@@ -89,6 +96,18 @@ function postCompletions (cfg) {
       },
       res => resolve(res)
     )
+    // Inactivity guard: abort if the socket sees no traffic for `timeout` ms.
+    // Fires on a stalled connect AND a mid-stream stall (any byte resets it), so
+    // a hung OpenAI connection can never block the caller forever. Destroying the
+    // request rejects this promise (connect phase) or errors the response stream
+    // (streaming/buffering phase), which surfaces to the caller as a throw.
+    // (Guarded so injected test doubles without setTimeout still work.)
+    if (cfg.timeout && cfg.timeout > 0 && typeof req.setTimeout === 'function') {
+      req.setTimeout(cfg.timeout, () => {
+        const err = new Error(`OpenAI request timed out after ${cfg.timeout}ms of inactivity`)
+        if (typeof req.destroy === 'function') { req.destroy(err) } else { reject(err) }
+      })
+    }
     req.on('error', reject)
     req.write(payload)
     req.end()
@@ -125,15 +144,20 @@ function createOpenAIClient (opts) {
   /**
    * @param {object} params - OpenAI chat-completions params (model, messages,
    *   max_tokens, temperature, response_format, stream, …)
+   * @param {object} [options] - per-call options
+   * @param {number} [options.timeout] - socket inactivity timeout in ms; defaults
+   *   to DEFAULT_TIMEOUT_MS when omitted. Pass 0 to disable.
    * @returns {Promise<object|AsyncIterable<object>>} parsed completion, or an
    *   async-iterable of chunks when `params.stream` is true
    */
-  async function create (params) {
+  async function create (params, options) {
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY is not set')
     }
 
-    const res = await postCompletions({ apiKey, host, body: params, requestImpl })
+    const timeout = (options && typeof options.timeout === 'number') ? options.timeout : DEFAULT_TIMEOUT_MS
+
+    const res = await postCompletions({ apiKey, host, body: params, requestImpl, timeout })
     const status = res.statusCode || 0
 
     if (status < 200 || status >= 300) {

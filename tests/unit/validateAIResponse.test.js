@@ -82,6 +82,38 @@ describe('validateQuizGenerate', () => {
       expect(result.data.questions).toHaveLength(2)
     })
   })
+
+  // CB-30: bankRef ties a question to a firm bank entry. Optional — valid
+  // positive integers pass through; anything else is stripped (grading falls
+  // back to the session-content marker) rather than failing the quiz.
+  describe('bankRef sanitisation (CB-30)', () => {
+    test('a positive-integer bankRef passes through', () => {
+      const result = validateQuizGenerate({ questions: [{ question: 'Q?', bankRef: 3 }] })
+      expect(result.valid).toBe(true)
+      expect(result.data.questions[0].bankRef).toBe(3)
+    })
+
+    test('a missing bankRef is fine', () => {
+      const result = validateQuizGenerate({ questions: [{ question: 'Q?' }] })
+      expect(result.valid).toBe(true)
+      expect('bankRef' in result.data.questions[0]).toBe(false)
+    })
+
+    test.each([
+      ['a string', 'three'],
+      ['a numeric string', '3'],
+      ['a float', 2.5],
+      ['zero', 0],
+      ['a negative integer', -1],
+      ['NaN', NaN],
+      ['null', null],
+      ['an object', { id: 1 }]
+    ])('%s bankRef is stripped, the question still validates', (_label, bad) => {
+      const result = validateQuizGenerate({ questions: [{ question: 'Q?', bankRef: bad }] })
+      expect(result.valid).toBe(true)
+      expect('bankRef' in result.data.questions[0]).toBe(false)
+    })
+  })
 })
 
 describe('validateQuizGrade', () => {
@@ -222,6 +254,78 @@ describe('validateCourseOutline', () => {
     test('rejects a session whose title is only whitespace', () => {
       expect(validateCourseOutline({ title: 'A course', sessions: [{ title: '  ' }] }).valid).toBe(false)
     })
+    test('rejects a session missing its focus (CB-08 — the advisor reads it to judge the course)', () => {
+      const result = validateCourseOutline({ title: 'A course', sessions: [{ title: 'S1' }] })
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.includes('focus'))).toBe(true)
+    })
+    test('rejects a session whose focus is not a string', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [{ title: 'S1', focus: 9 }] }).valid).toBe(false)
+    })
+    test('rejects a session whose focus is only whitespace', () => {
+      expect(validateCourseOutline({ title: 'A course', sessions: [{ title: 'S1', focus: '  ' }] }).valid).toBe(false)
+    })
+  })
+
+  describe('normalisation of derivable fields (CB-08)', () => {
+    const bareSession = title => ({ title, focus: 'Focus for ' + title })
+
+    test('rewrites session ids to true positions regardless of the AI numbering', () => {
+      const result = validateCourseOutline({
+        title: 'A course',
+        sessions: [{ ...bareSession('A'), id: 3 }, { ...bareSession('B'), id: 1 }]
+      })
+      expect(result.data.sessions.map(s => s.id)).toEqual([1, 2])
+    })
+
+    test('sets totalSessions to the real count, never the AI claim', () => {
+      const result = validateCourseOutline({
+        title: 'A course',
+        totalSessions: 5,
+        sessions: [bareSession('A'), bareSession('B')]
+      })
+      expect(result.data.totalSessions).toBe(2)
+    })
+
+    test('snaps intensity to its two legal values', () => {
+      const outlineWithIntensity = intensity => ({ title: 'A course', intensity, sessions: [bareSession('A')] })
+      expect(validateCourseOutline(outlineWithIntensity('progressive')).data.intensity).toBe('progressive')
+      expect(validateCourseOutline(outlineWithIntensity('Progressive')).data.intensity).toBe('progressive')
+      expect(validateCourseOutline(outlineWithIntensity('ramping up')).data.intensity).toBe('consistent')
+      expect(validateCourseOutline(outlineWithIntensity(undefined)).data.intensity).toBe('consistent')
+    })
+
+    test('normalises resources and objectives to clean string arrays', () => {
+      const result = validateCourseOutline({
+        title: 'A course',
+        sessions: [
+          { ...bareSession('A'), resources: 'not an array', objectives: ['keep', 7, null] },
+          bareSession('B')
+        ]
+      })
+      expect(result.data.sessions[0].resources).toEqual([])
+      expect(result.data.sessions[0].objectives).toEqual(['keep'])
+      expect(result.data.sessions[1].resources).toEqual([])
+      expect(result.data.sessions[1].objectives).toEqual([])
+    })
+
+    test('defaults estimatedMinutes to 30 on junk, keeps a genuine number', () => {
+      const withMinutes = m => validateCourseOutline({
+        title: 'A course',
+        sessions: [{ ...bareSession('A'), estimatedMinutes: m }]
+      }).data.sessions[0].estimatedMinutes
+      expect(withMinutes(45)).toBe(45)
+      expect(withMinutes('45')).toBe(30)
+      expect(withMinutes(0)).toBe(30)
+      expect(withMinutes(-10)).toBe(30)
+      expect(withMinutes(NaN)).toBe(30)
+      expect(withMinutes(undefined)).toBe(30)
+    })
+
+    test('normalises a non-string topic to an empty string', () => {
+      const result = validateCourseOutline({ title: 'A course', topic: 42, sessions: [bareSession('A')] })
+      expect(result.data.topic).toBe('')
+    })
   })
 
   describe('multiple simultaneous failures', () => {
@@ -240,9 +344,46 @@ describe('validateCourseOutline', () => {
       expect(result.data).toEqual(validOutline)
     })
     test('accepts a multi-session outline', () => {
-      const result = validateCourseOutline({ title: 'A course', sessions: [validSession, { title: 'Session two' }] })
+      // CB-08 spec change: focus is now required on every session.
+      const result = validateCourseOutline({ title: 'A course', sessions: [validSession, { title: 'Session two', focus: 'Applying it' }] })
       expect(result.valid).toBe(true)
       expect(result.data.sessions).toHaveLength(2)
+    })
+  })
+
+  // CB-25: resourceLinks round-trips through the browser (and a shared course
+  // copies it to teammates) — it must be re-validated at the door.
+  describe('resourceLinks (CB-25)', () => {
+    function outlineWithLinks (resourceLinks) {
+      return {
+        title: 'A course',
+        sessions: [{ title: 'S1', focus: 'x', resources: ['T', 'U'], resourceLinks }]
+      }
+    }
+
+    test('keeps https links for names in the session resources', () => {
+      const result = validateCourseOutline(outlineWithLinks({ T: 'https://www.advisor-e.com/secure/dashboard#id-1?type=do%20the%20job' }))
+      expect(result.valid).toBe(true)
+      expect(result.data.sessions[0].resourceLinks).toEqual({ T: 'https://www.advisor-e.com/secure/dashboard#id-1?type=do%20the%20job' })
+    })
+
+    test('drops javascript: and plain-http links — a tampered course cannot store a hostile address', () => {
+      const result = validateCourseOutline(outlineWithLinks({
+        T: 'javascript:alert(1)', // eslint-disable-line no-script-url
+        U: 'http://evil.example/phish'
+      }))
+      expect(result.valid).toBe(true)
+      expect(result.data.sessions[0].resourceLinks).toBeUndefined()
+    })
+
+    test('drops links whose name is not one of the session resources', () => {
+      const result = validateCourseOutline(outlineWithLinks({ Foreign: 'https://ok.example/x' }))
+      expect(result.data.sessions[0].resourceLinks).toBeUndefined()
+    })
+
+    test('a non-object resourceLinks is removed, and its absence stays absent', () => {
+      expect(validateCourseOutline(outlineWithLinks('not-an-object')).data.sessions[0].resourceLinks).toBeUndefined()
+      expect(validateCourseOutline({ title: 'A', sessions: [{ title: 'S', focus: 'x' }] }).data.sessions[0].resourceLinks).toBeUndefined()
     })
   })
 })

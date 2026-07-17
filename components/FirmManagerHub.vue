@@ -78,8 +78,12 @@ section.firm-manager-hub.section
                     @click="confirmDeleteDoc(row)"
                   ) Remove
 
-      //- ── Tab 2: Decision Framework ──────────────────────────────────
-      b-tab-item(label="Decision Framework" icon="code-json")
+      //- ── Tab 2: Decision Framework — PLATFORM ADMIN ONLY (2026-07-16) ──
+      //- Raw-JSON power tool kept for support/debugging; hidden from firm
+      //- managers (the friendly Staircase + Distinctions tabs are their
+      //- editors). UI gate only — the /framework routes stay manager-level
+      //- because the Staircase tab's version history rides them.
+      b-tab-item(v-if="isPlatformAdmin" label="Decision Framework" icon="code-json")
         .columns
           .column.is-3
             b-menu
@@ -774,7 +778,7 @@ section.firm-manager-hub.section
 </template>
 
 <script>
-const BACKEND = 'http://localhost:4000'
+import DOMPurify from 'isomorphic-dompurify'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 
@@ -847,7 +851,12 @@ export default {
   props: {
     firmId: { type: String, required: true },
     userEmail: { type: String, default: '' },
-    apiToken: { type: String, required: true }
+    apiToken: { type: String, required: true },
+    // The signed-in user's role (UI gating only — the server re-checks every
+    // call). Gates the raw Decision Framework tab to platform admins (Mike's
+    // ruling 2026-07-16: hide, admin-only); firm managers see only the
+    // friendly no-code screens. Default '' = most restrictive.
+    userRole: { type: String, default: '' }
   },
 
   data () {
@@ -977,6 +986,11 @@ export default {
   },
 
   computed: {
+    // Gates the raw Decision Framework tab (platform admin = also the interim
+    // mentor role, so the mentor keeps the support tool).
+    isPlatformAdmin () {
+      return this.userRole === 'platform_admin'
+    },
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
@@ -1058,7 +1072,8 @@ export default {
 
   mounted () {
     this.loadDocuments()
-    this.loadFramework()
+    // Raw Decision Framework data only exists for the admin-gated tab.
+    if (this.isPlatformAdmin) { this.loadFramework() }
     this.loadTemplateImport()
     this.loadVideos()
     this.loadProfile()
@@ -1083,7 +1098,7 @@ export default {
       if (body && isMultipart) {
         opts.body = body // FormData
       }
-      const res = await fetch(`${BACKEND}${path}`, opts)
+      const res = await fetch(`${path}`, opts)
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: res.statusText }))
         throw new Error(err.message || res.statusText)
@@ -1130,20 +1145,41 @@ export default {
       }
     },
 
-    downloadDoc (row) {
-      const url = `${BACKEND}/api/firm-manager/documents/download?fileId=${row.id}&fileName=${encodeURIComponent(row.name)}`
-      const a = document.createElement('a')
-      a.href = url
-      a.setAttribute('download', row.name)
-      // The request needs the auth header — for simplicity, open in new tab.
-      // TODO: for Advisor-e integration, use a signed URL or server-side redirect instead.
-      a.setAttribute('target', '_blank')
-      a.click()
+    async downloadDoc (row) {
+      // Fetch with the Bearer token (an <a>-tab navigation can't send it), then
+      // save the returned blob client-side. `source` + `category` let the backend
+      // authorise the file (firm-owned vs platform) before streaming it.
+      try {
+        const params = new URLSearchParams({
+          fileId: row.id,
+          fileName: row.name,
+          source: row.source || 'firm',
+          category: this.selectedCategory
+        })
+        const res = await fetch(`/api/firm-manager/documents/download?${params.toString()}`, {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ message: res.statusText }))
+          throw new Error(err.message || res.statusText)
+        }
+        const blob = await res.blob()
+        const objectUrl = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = objectUrl
+        a.setAttribute('download', row.name)
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(objectUrl)
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      }
     },
 
     confirmDeleteDoc (row) {
       this.$buefy.dialog.confirm({
-        message: `Remove <strong>${row.name}</strong> from your firm's library?`,
+        message: DOMPurify.sanitize(`Remove <strong>${row.name}</strong> from your firm's library?`, { USE_PROFILES: { html: true } }),
         type: 'is-danger',
         confirmText: 'Remove',
         onConfirm: () => this.deleteDoc(row)
@@ -1325,7 +1361,7 @@ export default {
 
     confirmDeleteVideo (row) {
       this.$buefy.dialog.confirm({
-        message: `Remove <strong>${row.title}</strong>?`,
+        message: DOMPurify.sanitize(`Remove <strong>${row.title}</strong>?`, { USE_PROFILES: { html: true } }),
         type: 'is-danger',
         confirmText: 'Remove',
         onConfirm: () => this.deleteVideo(row)

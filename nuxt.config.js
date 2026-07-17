@@ -67,7 +67,15 @@ export default {
   serverMiddleware: [
     { path: '/api/advisor', handler: '~/server-middleware/advisor.js' },
     { path: '/api/translate', handler: '~/server-middleware/translate.js' },
-    { path: '/api/course', handler: '~/server-middleware/course.js' }
+    { path: '/api/course', handler: '~/server-middleware/course.js' },
+    { path: '/api/report', handler: '~/server-middleware/report.js' },
+    { path: '/api/cases', handler: '~/server-middleware/apiProxy.js' },
+    // NB '/api/course' (singular, the SSE engine) never prefix-matches
+    // '/api/courses' — connect only mounts on a '/' boundary.
+    { path: '/api/courses', handler: '~/server-middleware/apiProxy.js' },
+    { path: '/api/activity', handler: '~/server-middleware/apiProxy.js' },
+    { path: '/api/firm-manager', handler: '~/server-middleware/apiProxy.js' },
+    { path: '/api/mentor', handler: '~/server-middleware/apiProxy.js' }
   ],
 
   // API_BASE_URL should point to the Restify backend server

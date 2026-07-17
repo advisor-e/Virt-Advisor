@@ -9,6 +9,11 @@
   //- ── AI processing bar — visible whenever any AI call is in-flight ────────
   .ai-loading-bar(v-if="isDesignStreaming || isSessionStreaming || isGeneratingQuiz")
 
+  //- Server-storage error (CB-16/17) — a failed load/save is never silent.
+  .course-error-banner(v-if="courseError")
+    span {{ courseError }}
+    button.btn-error-retry(v-if="courseLoadFailed" @click="retryCourseLoad") Try again
+
   //- ── PHASE: Courses (picker) ────────────────────────────────────────────
   template(v-if="phase === 'courses'")
     .courses-picker
@@ -22,7 +27,21 @@
             p.course-row-meta {{ c.outline.sessions.length }} sessions · {{ (c.progress || []).filter(p => p.status === 'complete').length }} complete
           .course-row-status
             span.course-status-badge(:class="c.status === 'active' ? 'badge-status-active' : 'badge-status-paused'") {{ c.status === 'active' ? 'Active' : 'Paused' }}
+            span.course-shared-badge(v-if="c.visibility === 'firm'") Shared
+          button.btn-share-toggle(@click="toggleShareCourse(c)") {{ c.visibility === 'firm' ? 'Make private' : 'Share with firm' }}
           button.btn-resume-picker-course(@click="resumeCourse(c)") Resume →
+          button.btn-remove-picker-course(@click="removeSavedCourse(c)") ✕ Remove
+
+      //- ── Shared by your team (CB-07) — outline-only summaries; "Use this
+      //-    course" makes the advisor's own fresh copy (personal-copy model).
+      .shared-courses-section(v-if="sharedCourses.length")
+        h3.shared-heading Shared by your team
+        .courses-list
+          .course-row(v-for="c in sharedCourses" :key="'shared-' + c.id")
+            .course-row-info
+              strong.course-row-title {{ c.outline.title }}
+              p.course-row-meta {{ c.outline.sessions.length }} sessions · shared by {{ c.authorAdvisorId }}
+            button.btn-use-shared-course(@click="useSharedCourse(c)" :disabled="isCopyingSharedId === c.id") {{ isCopyingSharedId === c.id ? 'Copying...' : 'Use this course' }}
       .courses-picker-footer
         button.btn-new-course-main(@click="startFreshCourse") + Build a new course
 
@@ -79,19 +98,34 @@
               strong.session-title {{ s.title }}
               p.session-focus {{ s.focus }}
               .session-resources(v-if="s.resources && s.resources.length")
-                span.resource-tag(v-for="r in s.resources" :key="r") {{ r }}
+                //- CB-25: a grounded resource with a real Advisor-e page link is
+                //- clickable — new tab always, so the live course chat survives.
+                template(v-for="r in s.resources")
+                  a.resource-tag.resource-tag-link(v-if="s.resourceLinks && s.resourceLinks[r]" :key="r" :href="s.resourceLinks[r]" target="_blank" rel="noopener noreferrer") {{ r }} ↗
+                  span.resource-tag(v-else :key="r") {{ r }}
+              //- CB-27: an empty slot says so plainly — never a silent blank.
+              p.session-resources-empty(v-else) No library resource matched this session — it runs from the session focus instead.
+        //- CB-26: code-detected session-count mismatch — the engine flags it;
+        //- the AI is never trusted to confess a deviation itself.
+        .outline-count-notice(v-if="courseState.sessionCountNotice")
+          | You asked for {{ courseState.sessionCountNotice.requested }} sessions — this outline has {{ courseState.sessionCountNotice.delivered }}. Use 'Request changes' if you want {{ courseState.sessionCountNotice.requested }}.
         .outline-visibility
           p.visibility-label Who can access this course?
           .visibility-opts
             button.vis-opt(:class="{ 'vis-active': courseVisibility === 'private' }" @click="courseVisibility = 'private'")
               span.vis-icon 🔒
               span Private — just me
+            //- CB-07 sharing is LIVE (Mike's personal-copy ruling 2026-07-16):
+            //- a firm-wide course appears in teammates' "Shared by your team"
+            //- list as an outline-only template they copy.
             button.vis-opt(:class="{ 'vis-active': courseVisibility === 'firm' }" @click="courseVisibility = 'firm'")
               span.vis-icon 🏢
               span Firm-wide — all advisors
         .outline-actions
-          button.btn-start-course(@click="confirmOutline") Start this course →
-          button.btn-request-changes(@click="requestOutlineChanges") Request changes
+          button.btn-start-course(@click="confirmOutline" :disabled="isSavingCourse")
+            span(v-if="isSavingCourse") Saving...
+            span(v-else) Start this course →
+          button.btn-request-changes(@click="requestOutlineChanges" :disabled="isSavingCourse") Request changes
 
     .input-area
       .voice-bar(v-if="speechSupported")
@@ -150,6 +184,14 @@
         span.session-badge Session {{ activeSessionIndex + 1 }}
         h3.session-title-heading {{ currentSession.title }}
         p.session-focus-text {{ currentSession.focus }}
+        //- CB-25: the session's resource, always visible and clickable here —
+        //- independent of which path (AI or resume) opened the session.
+        .session-header-resources(v-if="currentSession.resources && currentSession.resources.length")
+          template(v-for="r in currentSession.resources")
+            a.resource-tag.resource-tag-link(v-if="currentSession.resourceLinks && currentSession.resourceLinks[r]" :key="r" :href="currentSession.resourceLinks[r]" target="_blank" rel="noopener noreferrer") {{ r }} ↗
+            span.resource-tag(v-else :key="r") {{ r }}
+        //- CB-27: an empty slot says so plainly — never a silent blank.
+        p.session-resources-empty(v-else) No library resource matched this session — it runs from the session focus instead.
       .session-quiz-actions
         button.btn-view-overview(@click="viewCourseOverview") ≡ Overview
         button.btn-my-notes(@click="showNotes = !showNotes" :class="{ 'notes-active': showNotes }") ✎ My Session Notes
@@ -246,11 +288,17 @@
             .overview-progress-fill(:style="{ width: progressPercent + '%' }")
           span.overview-progress-text {{ completedSessionCount }} of {{ activeCourse.outline.sessions.length }} sessions complete
       .overview-sessions
+        //- CB-32 (Mike 2026-07-16): any session opens from here, and ▲▼
+        //- re-orders them — each session's progress record travels with it.
+        //- Progressive courses confirm before a complexity-skipping jump/move.
         .overview-session-row(
           v-for="(s, i) in activeCourse.outline.sessions"
           :key="i"
           :class="{ 'ov-active': i === activeSessionIndex && activeCourse.progress[i].status !== 'complete', 'ov-done': activeCourse.progress[i].status === 'complete' }"
         )
+          .ov-reorder
+            button.btn-move-session(@click="moveSession(i, -1)" :disabled="i === 0" title="Move earlier") ▲
+            button.btn-move-session(@click="moveSession(i, 1)" :disabled="i === activeCourse.outline.sessions.length - 1" title="Move later") ▼
           .ov-session-num {{ i + 1 }}
           .ov-session-info
             strong.ov-session-title {{ s.title }}
@@ -265,6 +313,7 @@
               ) Review
             span.ov-badge.ov-badge-active(v-else-if="i === activeSessionIndex") Active
             span.ov-badge.ov-badge-pending(v-else) Upcoming
+            button.btn-open-session(@click="openSession(i)") Open →
       .overview-footer
         button.btn-resume-session(@click="resumeSession") → Resume Session {{ activeSessionIndex + 1 }}
         button.btn-delete-course(@click="confirmDeleteCourse") ✕ Delete course
@@ -304,9 +353,9 @@
             span(v-else) Submit answer
 
         .quiz-result-card(v-if="currentResult")
-          .result-badge(:class="currentResult.passed ? 'badge-pass' : 'badge-fail'")
-            | {{ currentResult.passed ? '✓ Good understanding' : '✗ Review this one' }}
-          p.result-score Score: {{ currentResult.score }}%
+          .result-badge(:class="currentResult.ungraded ? 'badge-ungraded' : (currentResult.passed ? 'badge-pass' : 'badge-fail')")
+            | {{ currentResult.ungraded ? '— Not graded' : (currentResult.passed ? '✓ Good understanding' : '✗ Review this one') }}
+          p.result-score(v-if="!currentResult.ungraded") Score: {{ currentResult.score }}%
           p.result-feedback {{ currentResult.feedback }}
           button.btn-next-q(@click="nextQuestion")
             | {{ quizCurrentIndex < quizQuestions.length - 1 ? 'Next question →' : 'See results' }}
@@ -314,14 +363,15 @@
       //- Quiz complete — results summary
       .quiz-results(v-if="quizComplete")
         .results-score-circle(:class="quizPassed ? 'score-pass' : 'score-needs-work'")
-          span.score-number {{ overallScore }}%
-          span.score-label {{ quizPassed ? 'Passed' : 'Keep going' }}
-        p.results-verdict(v-if="quizPassed") Great work — you've completed this session.
+          span.score-number {{ overallScore === null ? '—' : overallScore + '%' }}
+          span.score-label {{ quizUngraded ? 'Not graded' : (quizPassed ? 'Passed' : 'Keep going') }}
+        p.results-verdict(v-if="quizUngraded") This quiz couldn't be marked this time — your session is still complete, and you can revisit the material any time.
+        p.results-verdict(v-else-if="quizPassed") Great work — you've completed this session.
         p.results-verdict(v-else) No problem — you can revisit the session material any time.
         .results-breakdown
           .result-row(v-for="(r, i) in quizResults" :key="i")
             span.q-num Q{{ i + 1 }}
-            span.q-result-score(:class="r.passed ? 'score-pass-text' : 'score-fail-text'") {{ r.score }}%
+            span.q-result-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : r.score + '%' }}
             p.q-feedback-brief {{ r.feedback.slice(0, 80) }}{{ r.feedback.length > 80 ? '...' : '' }}
         button.btn-continue-course(@click="completeSession")
           | {{ hasMoreSessions ? 'Continue to session ' + (activeSessionIndex + 2) + ' →' : 'Complete course' }}
@@ -336,8 +386,8 @@
         .review-q-row(v-for="(r, i) in reviewResults" :key="i")
           .review-q-meta
             span.review-q-num Q{{ i + 1 }}
-            span.review-q-score(:class="r.passed ? 'score-pass-text' : 'score-fail-text'") {{ r.score }}%
-            span.review-badge(:class="r.passed ? 'badge-pass' : 'badge-fail'") {{ r.passed ? '✓ Good understanding' : '✗ Review this one' }}
+            span.review-q-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : r.score + '%' }}
+            span.review-badge(:class="r.ungraded ? 'badge-ungraded' : (r.passed ? 'badge-pass' : 'badge-fail')") {{ r.ungraded ? '— Not graded' : (r.passed ? '✓ Good understanding' : '✗ Review this one') }}
           p.review-q-text {{ r.question }}
           .review-answer-block
             p.review-answer-label Your answer
@@ -396,9 +446,23 @@
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import courseStarters from '~/data/course-starters.json'
+import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
+import { listCourses, listSharedCourses, copySharedCourse, createCourse, updateCourse, deleteCourse, migrateLegacyCourses } from '~/utils/courses'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
-const BACKEND = 'http://localhost:4000'
+// Same security call as the locked VirtualAdvisor pipeline (CB-05): AI output
+// must not inject images (outbound-request/exfiltration channel) or raw HTML.
+_md.disable(['image', 'html_inline', 'html_block'])
+// CB-25: every rendered link opens in a NEW tab — navigating this tab away
+// would destroy the advisor's live course conversation. (This is the Course
+// Builder's own renderer, NOT the locked VirtualAdvisor pipeline.)
+const _defaultLinkOpen = _md.renderer.rules.link_open ||
+  ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options))
+_md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  tokens[idx].attrSet('target', '_blank')
+  tokens[idx].attrSet('rel', 'noopener noreferrer')
+  return _defaultLinkOpen(tokens, idx, options, env, self)
+}
 
 export default {
   name: 'CourseBuilder',
@@ -431,6 +495,18 @@ export default {
       pendingOutline: null,
       courseVisibility: 'private',
       activeCourse: null,
+      // Courses shown in the "Your saved courses" picker — fetched from the
+      // server (CB-16/17); refreshed via _refreshSavedCourses() after every
+      // save/delete so the picker never goes stale.
+      savedCourses: [],
+      // Courses OTHER advisors in the firm shared firm-wide (CB-07) — outline-only
+      // summaries; "Use this course" copies one into savedCourses.
+      sharedCourses: [],
+      isCopyingSharedId: null,
+      // Server-storage state (CB-16/17): a failed load/save is never silent.
+      courseError: '',
+      courseLoadFailed: false,
+      isSavingCourse: false,
 
       // Session phase
       activeSessionIndex: 0,
@@ -478,12 +554,19 @@ export default {
     },
 
     quizPassed () {
-      return this.overallScore >= 70
+      return quizPassedRule(this.quizResults)
     },
 
+    // Fully-ungraded quiz — the results screen explains the marking failure
+    // instead of showing a pass/fail verdict (CB-03).
+    quizUngraded () {
+      return quizFullyUngraded(this.quizResults)
+    },
+
+    // Average of GRADED answers only; null when nothing was graded (an
+    // ungraded answer must never inflate the recorded score — CB-03).
     overallScore () {
-      if (!this.quizResults.length) { return 0 }
-      return Math.round(this.quizResults.reduce((sum, r) => sum + (r.score || 0), 0) / this.quizResults.length)
+      return overallQuizScore(this.quizResults)
     },
 
     progressPercent () {
@@ -530,25 +613,19 @@ export default {
         .find(p => p.completedAt)
       if (!last) { return '' }
       return new Date(last.completedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
-    },
-
-    savedCourses () {
-      if (typeof localStorage === 'undefined') { return [] }
-      try {
-        const stored = localStorage.getItem('va_courses')
-        if (!stored) { return [] }
-        const data = JSON.parse(stored)
-        return (data.courses || []).filter(
-          c => c.advisorId === this.advisorId && (c.status === 'active' || c.status === 'paused')
-        )
-      } catch (e) {
-        return []
-      }
     }
   },
 
+  watch: {
+    // The picker is per-advisor; if the advisorId prop resolves after mount, rebuild it.
+    advisorId () { this._refreshSavedCourses(); this._refreshSharedCourses() },
+    // The real pass can settle after mount (the caseMixin pattern) — re-run the
+    // legacy migration + load once it does.
+    apiToken () { this._initCourses() }
+  },
+
   mounted () {
-    this._loadOrStartCourse()
+    this._initCourses()
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (SpeechRecognition) {
       this.speechSupported = true
@@ -583,6 +660,12 @@ export default {
       this._recognitionRunning = false
       try { this.recognition.stop() } catch (e) {}
     }
+    this._abortAllStreams()
+    // Flush a pending debounced note save so nothing typed is lost on exit.
+    if (this._noteSaveTimer) {
+      clearTimeout(this._noteSaveTimer)
+      this._saveCourse(this.activeCourse)
+    }
   },
 
   methods: {
@@ -603,35 +686,61 @@ export default {
 
     renderMarkdown (text) {
       const raw = _md.render(String(text || ''))
-      return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
+      // ADD_ATTR (CB-25): the html profile strips target="_blank" (verified
+      // live), which would make resource links navigate the course chat away.
+      return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true }, ADD_ATTR: ['target'] })
     },
 
-    // ── Persistence ──────────────────────────────────────────────────────
+    // Cancel any in-flight AI streams and clear their indicators — called on
+    // every context switch (start fresh, delete, new course, resume, teardown)
+    // so a superseded reply can never land in a fresh conversation (CB-18).
+    _abortAllStreams () {
+      for (const key of ['_designCtrl', '_sessionCtrl']) {
+        if (this[key]) {
+          try { this[key].abort() } catch (e) { /* already settled */ }
+          this[key] = null
+        }
+      }
+      this.isDesignStreaming = false
+      this.designStreamingText = ''
+      this.isSessionStreaming = false
+      this.sessionStreamingText = ''
+    },
+
+    // ── Persistence (server storage, CB-16/17 Stage D) ───────────────────
+
+    // Migrate any legacy browser-stored courses, load the server list, then
+    // route to the right phase. Called on mount and when the pass settles.
+    async _initCourses () {
+      if (!this.apiToken) { return }
+      try {
+        const result = await migrateLegacyCourses(this.apiToken, this.advisorId)
+        if (result && result.migrated) {
+          console.warn(`[course] Migrated ${result.migrated}/${result.total} legacy courses to the server`)
+        }
+      } catch (e) {
+        console.warn('[course] Legacy course migration failed (will retry next load):', e.message)
+      }
+      await this._refreshSavedCourses()
+      this._refreshSharedCourses() // independent list — never blocks the picker
+      this._loadOrStartCourse()
+    },
+
+    retryCourseLoad () {
+      this.courseError = ''
+      this.courseLoadFailed = false
+      this._initCourses()
+    },
 
     _loadOrStartCourse () {
-      const stored = localStorage.getItem('va_courses')
-      if (stored) {
-        try {
-          const data = JSON.parse(stored)
-          const all = (data.courses || []).filter(
-            c => c.advisorId === this.advisorId && (c.status === 'active' || c.status === 'paused')
-          )
-          const hasPaused = all.some(c => c.status === 'paused')
-          const active = all.find(c => c.status === 'active')
-          if (hasPaused) {
-            this.phase = 'courses'
-            return
-          }
-          if (active) {
-            this.activeCourse = active
-            this.activeSessionIndex = this._findActiveSessionIndex(active)
-            this.phase = 'session'
-            this._startSession(false)
-            return
-          }
-        } catch (e) {
-          console.warn('[course] Failed to load saved course:', e.message)
-        }
+      // Never clobber an in-progress course (e.g. a retry after a save error).
+      if (this.activeCourse) { return }
+      // Any saved course → land on the picker, so the advisor's library is
+      // always visible (CB-28: auto-resuming the first active course hid
+      // every other saved course behind the "← My Courses" button).
+      if (this.savedCourses.length > 0) {
+        this.phase = 'courses'
+        return
       }
       // No saved courses — start design conversation
       this.designMessages = [{
@@ -646,19 +755,122 @@ export default {
       return next >= 0 ? next : progress.length
     },
 
-    _saveCourse (course) {
-      let data = { courses: [] }
+    // Persist a course to the server: update when the server already knows it,
+    // create otherwise. Fire-and-forget callers keep their local state either
+    // way; a failure surfaces on the banner and retries with the next action.
+    async _saveCourse (course) {
+      if (!course || !this.apiToken) { return }
       try {
-        const stored = localStorage.getItem('va_courses')
-        if (stored) { data = JSON.parse(stored) }
-      } catch (e) { /* start fresh */ }
-      const idx = (data.courses || []).findIndex(c => c.id === course.id)
-      if (idx >= 0) {
-        data.courses[idx] = course
-      } else {
-        data.courses = [...(data.courses || []), course]
+        if (this._serverCourseIds && this._serverCourseIds.has(course.id)) {
+          await updateCourse(course.id, {
+            status: course.status,
+            visibility: course.visibility,
+            // Outline included since CB-32: re-ordering changes session order,
+            // which lives in the outline. Re-validated server-side every save.
+            outline: course.outline,
+            progress: course.progress
+          }, this.apiToken)
+        } else {
+          const saved = await createCourse(course, this.apiToken)
+          if (!this._serverCourseIds) { this._serverCourseIds = new Set() }
+          this._serverCourseIds.add(saved.id)
+        }
+        this.courseError = ''
+        this._refreshSavedCourses()
+      } catch (e) {
+        console.warn('[course] Save failed:', e.message)
+        this.courseError = "Couldn't save your progress just now — it will retry with your next action."
       }
-      localStorage.setItem('va_courses', JSON.stringify(data))
+    },
+
+    // Rebuild the picker list from the server. Called on init, when advisorId
+    // changes, and after every _saveCourse / _deleteCourse.
+    async _refreshSavedCourses () {
+      if (!this.apiToken) { this.savedCourses = []; return }
+      try {
+        const courses = await listCourses(this.apiToken)
+        this._serverCourseIds = new Set(courses.map(c => c.id))
+        this.savedCourses = courses.filter(c => c.status === 'active' || c.status === 'paused')
+        this.courseError = ''
+        this.courseLoadFailed = false
+      } catch (e) {
+        console.warn('[course] Failed to load saved courses:', e.message)
+        this.savedCourses = []
+        this.courseError = "We couldn't load your saved courses. Check your connection and try again."
+        this.courseLoadFailed = true
+      }
+    },
+
+    // CB-25: session-opening text — each resource name becomes a markdown link
+    // when the outline carries its real Advisor-e page address (server-built,
+    // https-validated at the door). Names without a link stay plain text.
+    _linkedResourceNames (session) {
+      const links = (session && session.resourceLinks) || {}
+      return ((session && session.resources) || [])
+        .map(r => links[r] ? `[${r}](${links[r]})` : r)
+        .join(' and ') || 'the session material'
+    },
+
+    // Rebuild the "Shared by your team" list (CB-07). Failures degrade to an
+    // empty section rather than blocking the advisor's own courses.
+    async _refreshSharedCourses () {
+      if (!this.apiToken) { this.sharedCourses = []; return }
+      try {
+        this.sharedCourses = await listSharedCourses(this.apiToken)
+      } catch (e) {
+        console.warn('[course] Failed to load shared courses:', e.message)
+        this.sharedCourses = []
+      }
+    },
+
+    // Two-way share control (CB-07): 'private' <-> 'firm' on a course the
+    // advisor owns. Retracting never claws back copies teammates already made
+    // (the mentor-share no-cascade principle).
+    async toggleShareCourse (course) {
+      const next = course.visibility === 'firm' ? 'private' : 'firm'
+      try {
+        await updateCourse(course.id, { visibility: next }, this.apiToken)
+        course.visibility = next
+        this.courseError = ''
+      } catch (e) {
+        console.warn('[course] Share toggle failed:', e.message)
+        this.courseError = "Couldn't change sharing just now — please try again."
+      }
+    },
+
+    // Remove a saved course from the picker (confirm-gated). Same server
+    // delete the in-course "✕ Delete course" uses.
+    async removeSavedCourse (course) {
+      if (!confirm(`Delete '${course.outline.title}'? Its progress will be lost.`)) { return }
+      try {
+        await deleteCourse(course.id, this.apiToken)
+        if (this._serverCourseIds) { this._serverCourseIds.delete(course.id) }
+        this.courseError = ''
+        await this._refreshSavedCourses()
+      } catch (e) {
+        console.warn('[course] Remove failed:', e.message)
+        this.courseError = "Couldn't delete the course — please try again."
+      }
+    },
+
+    // "Use this course" (CB-07 personal-copy model): the server creates the
+    // caller's own fresh copy; it appears at the top of their saved list.
+    // copiedFrom lets us catch an accidental second copy before it happens.
+    async useSharedCourse (shared) {
+      if (this.isCopyingSharedId) { return }
+      const alreadyCopied = this.savedCourses.some(c => c.copiedFrom === shared.id)
+      if (alreadyCopied && !confirm('You already have a copy of this course. Make another copy?')) { return }
+      this.isCopyingSharedId = shared.id
+      try {
+        await copySharedCourse(shared.id, this.apiToken)
+        await this._refreshSavedCourses()
+        this.courseError = ''
+      } catch (e) {
+        console.warn('[course] Copy shared course failed:', e.message)
+        this.courseError = "Couldn't copy that course just now — please try again."
+      } finally {
+        this.isCopyingSharedId = null
+      }
     },
 
     _generateId () {
@@ -678,20 +890,21 @@ export default {
       this.designStreamingText = ''
       this.pendingOutline = null
 
+      if (this._designCtrl) { try { this._designCtrl.abort() } catch (e) { /* already settled */ } }
+      const ctrl = new AbortController()
+      this._designCtrl = ctrl
+
       await this.$nextTick()
       this._scrollDesign()
 
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
+          signal: ctrl.signal,
           body: JSON.stringify({
             type: 'design',
             query,
-            conversationHistory: this.designMessages.slice(0, -1).map(m => ({
-              role: m.role,
-              content: m.content
-            })),
             advisorProfile: this.advisorProfile,
             orgTemplateIds: this.orgTemplateIds,
             courseState: this.courseState
@@ -726,10 +939,13 @@ export default {
                 this.designStreamingText += data.text
                 await this.$nextTick()
                 this._scrollDesign()
+              } else if (data.type === 'error') {
+                this.designStreamingText = data.message || 'The response timed out. Please try again.'
               } else if (data.type === 'done') {
                 let content = this.designStreamingText
                 content = content.replace(/\[COURSE_OUTLINE\][\s\S]*?\[\/COURSE_OUTLINE\]/g, '').trim()
-                this.designMessages.push({ role: 'assistant', content })
+                // No empty bubbles: an outline-only reply has nothing to say in chat.
+                if (content) { this.designMessages.push({ role: 'assistant', content }) }
                 this.designStreamingText = ''
                 this.isDesignStreaming = false
               }
@@ -740,27 +956,28 @@ export default {
         if (this.isDesignStreaming) {
           let content = this.designStreamingText
           content = content.replace(/\[COURSE_OUTLINE\][\s\S]*?\[\/COURSE_OUTLINE\]/g, '').trim()
-          this.designMessages.push({ role: 'assistant', content })
+          if (content) { this.designMessages.push({ role: 'assistant', content }) }
           this.designStreamingText = ''
           this.isDesignStreaming = false
         }
       } catch (e) {
+        if (e && e.name === 'AbortError') { return } // superseded by a context switch
         console.error('[course:design]', e.message)
         this.designMessages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' })
         this.isDesignStreaming = false
         this.designStreamingText = ''
       }
+      if (this._designCtrl === ctrl) { this._designCtrl = null }
 
       await this.$nextTick()
       this._scrollDesign()
     },
 
-    confirmOutline () {
-      if (!this.pendingOutline) { return }
+    async confirmOutline () {
+      if (!this.pendingOutline || this.isSavingCourse) { return }
+      this.isSavingCourse = true
       const course = {
         id: this._generateId(),
-        advisorId: this.advisorId,
-        createdAt: new Date().toISOString(),
         status: 'active',
         visibility: this.courseVisibility,
         outline: this.pendingOutline,
@@ -771,11 +988,21 @@ export default {
         })),
         designHistory: this.designMessages.map(m => ({ role: m.role, content: m.content }))
       }
-      this.activeCourse = course
-      this._saveCourse(course)
-      this.activeSessionIndex = 0
-      this.phase = 'session'
-      this._startSession(true)
+      try {
+        const saved = await createCourse(course, this.apiToken)
+        if (!this._serverCourseIds) { this._serverCourseIds = new Set() }
+        this._serverCourseIds.add(saved.id)
+        this.courseError = ''
+        this.activeCourse = saved
+        this.activeSessionIndex = 0
+        this.phase = 'session'
+        this._startSession(true)
+      } catch (e) {
+        // The outline card stays on screen — the advisor's course is never lost.
+        console.warn('[course] Could not save the new course:', e.message)
+        this.courseError = "Couldn't save your progress just now — it will retry with your next action."
+      }
+      this.isSavingCourse = false
     },
 
     requestOutlineChanges () {
@@ -803,7 +1030,7 @@ export default {
       if (isNew) {
         this._autoOpenSession()
       } else {
-        const resources = (session.resources || []).join(' and ') || 'the session material'
+        const resources = this._linkedResourceNames(session)
         this.sessionMessages = [{
           role: 'assistant',
           content: `**Session ${session.id}: ${session.title}**\n\n${session.focus}\n\nYour resource for this session is **${resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll discuss what you found.`
@@ -817,10 +1044,15 @@ export default {
       this.isSessionStreaming = true
       this.sessionStreamingText = ''
 
+      if (this._sessionCtrl) { try { this._sessionCtrl.abort() } catch (e) { /* already settled */ } }
+      const ctrl = new AbortController()
+      this._sessionCtrl = ctrl
+
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
+          signal: ctrl.signal,
           body: JSON.stringify({
             type: 'session',
             query: 'Begin session.',
@@ -868,8 +1100,9 @@ export default {
           this.isSessionStreaming = false
         }
       } catch (e) {
+        if (e && e.name === 'AbortError') { return } // superseded by a context switch
         console.error('[course:session:open]', e.message)
-        const resources = (session.resources || []).join(' and ') || 'the session material'
+        const resources = this._linkedResourceNames(session)
         this.sessionMessages = [{
           role: 'assistant',
           content: `**Session ${session.id}: ${session.title}**\n\n${session.focus}\n\nHead to **${resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll pick it apart together.`
@@ -877,6 +1110,7 @@ export default {
         this.isSessionStreaming = false
         this.sessionStreamingText = ''
       }
+      if (this._sessionCtrl === ctrl) { this._sessionCtrl = null }
 
       await this.$nextTick()
       this._scrollSession()
@@ -892,13 +1126,18 @@ export default {
       this.isSessionStreaming = true
       this.sessionStreamingText = ''
 
+      if (this._sessionCtrl) { try { this._sessionCtrl.abort() } catch (e) { /* already settled */ } }
+      const ctrl = new AbortController()
+      this._sessionCtrl = ctrl
+
       await this.$nextTick()
       this._scrollSession()
 
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
+          signal: ctrl.signal,
           body: JSON.stringify({
             type: 'session',
             query,
@@ -954,11 +1193,13 @@ export default {
           this.isSessionStreaming = false
         }
       } catch (e) {
+        if (e && e.name === 'AbortError') { return } // superseded by a context switch
         console.error('[course:session]', e.message)
         this.sessionMessages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' })
         this.isSessionStreaming = false
         this.sessionStreamingText = ''
       }
+      if (this._sessionCtrl === ctrl) { this._sessionCtrl = null }
 
       await this.$nextTick()
       this._scrollSession()
@@ -979,7 +1220,7 @@ export default {
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'quiz-generate',
             sessionContext: this.currentSession,
@@ -1010,6 +1251,49 @@ export default {
       this.phase = 'session'
     },
 
+    // CB-32: open ANY session from the overview — free navigation (Mike's
+    // ruling). On a PROGRESSIVE course, entering an unstarted session while
+    // earlier ones are still open gets the approved skip-complexity confirm.
+    openSession (index) {
+      const course = this.activeCourse
+      if (!course || !course.outline.sessions[index]) { return }
+      const skipsComplexity = course.outline.intensity === 'progressive' &&
+        course.progress[index].status !== 'complete' &&
+        course.progress.slice(0, index).some(p => p.status !== 'complete')
+      if (skipsComplexity &&
+        !confirm(`This course builds up session by session — Session ${index + 1} assumes you've covered the earlier ones. Open it anyway?`)) { return }
+      this.activeSessionIndex = index
+      this.phase = 'session'
+      this._startSession(false)
+    },
+
+    // CB-32: move a session one place up or down. Its progress record travels
+    // with it (progress is positional — separating them would attach quiz
+    // scores to the wrong session). Moving EARLIER on a progressive course
+    // gets the approved confirm. Splice keeps Vue 2 reactivity; ids renumber
+    // to stay positional; the change persists immediately.
+    async moveSession (index, direction) {
+      const course = this.activeCourse
+      const to = index + direction
+      if (!course) { return }
+      const sessions = course.outline.sessions
+      if (to < 0 || to >= sessions.length) { return }
+      if (direction < 0 && course.outline.intensity === 'progressive' &&
+        !confirm(`This course builds up session by session — moving '${sessions[index].title}' earlier may put advanced material before its foundations. Move it anyway?`)) { return }
+      const activeSession = sessions[this.activeSessionIndex]
+      const swap = (arr) => {
+        const moved = arr[index]
+        arr.splice(index, 1, arr[to])
+        arr.splice(to, 1, moved)
+      }
+      swap(sessions)
+      swap(course.progress)
+      sessions.forEach((s, i) => { s.id = i + 1 })
+      const followed = sessions.indexOf(activeSession)
+      if (followed >= 0) { this.activeSessionIndex = followed }
+      await this._saveCourse(course)
+    },
+
     viewQuizReview (index) {
       this.reviewSessionIndex = index
       this.phase = 'quiz-review'
@@ -1026,7 +1310,10 @@ export default {
         return p
       })
       this.activeCourse = { ...this.activeCourse, progress }
-      this._saveCourse(this.activeCourse)
+      // Debounced: notes fire per keystroke, but the server save waits for a
+      // pause in typing (flushed on teardown).
+      clearTimeout(this._noteSaveTimer)
+      this._noteSaveTimer = setTimeout(() => { this._saveCourse(this.activeCourse) }, 800)
     },
 
     printCertificate () {
@@ -1034,6 +1321,7 @@ export default {
     },
 
     goToCourses () {
+      this._abortAllStreams()
       if (this.activeCourse && this.phase === 'session') {
         this._saveCourse(this.activeCourse)
       }
@@ -1041,6 +1329,7 @@ export default {
     },
 
     buildNewCourse () {
+      this._abortAllStreams()
       if (this.activeCourse) {
         this.activeCourse = { ...this.activeCourse, status: 'paused' }
         this._saveCourse(this.activeCourse)
@@ -1061,6 +1350,7 @@ export default {
     },
 
     resumeCourse (course) {
+      this._abortAllStreams()
       this.activeCourse = course.status === 'paused' ? { ...course, status: 'active' } : course
       if (course.status === 'paused') { this._saveCourse(this.activeCourse) }
       this.activeSessionIndex = this._findActiveSessionIndex(this.activeCourse)
@@ -1078,6 +1368,7 @@ export default {
     },
 
     startFreshCourse () {
+      this._abortAllStreams()
       this.activeCourse = null
       this.activeSessionIndex = 0
       this.courseVisibility = 'private'
@@ -1103,17 +1394,20 @@ export default {
       this._deleteCourse()
     },
 
-    _deleteCourse () {
-      if (this.activeCourse) {
+    async _deleteCourse () {
+      this._abortAllStreams()
+      if (this.activeCourse && this._serverCourseIds && this._serverCourseIds.has(this.activeCourse.id)) {
         try {
-          const stored = localStorage.getItem('va_courses')
-          if (stored) {
-            const data = JSON.parse(stored)
-            data.courses = (data.courses || []).filter(c => c.id !== this.activeCourse.id)
-            localStorage.setItem('va_courses', JSON.stringify(data))
-          }
-        } catch (e) { /* ignore */ }
+          await deleteCourse(this.activeCourse.id, this.apiToken)
+          this._serverCourseIds.delete(this.activeCourse.id)
+        } catch (e) {
+          // The course still exists on the server — keep it on screen too.
+          console.warn('[course] Delete failed:', e.message)
+          this.courseError = "Couldn't delete the course — please try again."
+          return
+        }
       }
+      this._refreshSavedCourses()
       this.activeCourse = null
       this.activeSessionIndex = 0
       this.phase = 'design'
@@ -1139,22 +1433,25 @@ export default {
       try {
         const response = await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'quiz-grade',
             question: this.currentQuestion,
             answer,
-            sessionContext: this.currentSession
+            sessionContext: this.currentSession,
+            // What was taught — the backend caps and injects it so the marker
+            // grades against the session content, not general knowledge (CB-04).
+            sessionHistory: this.sessionMessages.map(m => ({ role: m.role, content: m.content }))
           })
         })
         const data = await response.json()
         if (data.success) {
           this.currentResult = { passed: data.passed, score: data.score, feedback: data.feedback, question: this.currentQuestion.question, answer }
         } else {
-          this.currentResult = { passed: true, score: 75, feedback: 'Could not evaluate — moving on.', question: this.currentQuestion.question, answer }
+          this.currentResult = ungradedResult(this.currentQuestion.question, answer)
         }
       } catch (e) {
-        this.currentResult = { passed: true, score: 75, feedback: 'Could not evaluate — moving on.', question: this.currentQuestion.question, answer }
+        this.currentResult = ungradedResult(this.currentQuestion.question, answer)
       }
 
       this.isGrading = false
@@ -1212,14 +1509,14 @@ export default {
     },
 
     async _recordProgress (score) {
-      // Calls the progress endpoint which triggers CourseReminderService.markComplete
+      // Calls the progress endpoint which triggers CourseReminderService.markComplete.
+      // Advisor identity is derived server-side from the verified pass — not sent.
       try {
         await fetch('/api/course', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
           body: JSON.stringify({
             type: 'progress',
-            advisorId: this.advisorId,
             courseId: this.activeCourse.id,
             sessionId: this.activeSessionIndex + 1,
             score
@@ -1235,7 +1532,7 @@ export default {
       const session = this.activeCourse.outline.sessions[this.activeSessionIndex]
       if (!session) { return }
       try {
-        await fetch(`${BACKEND}/api/activity/log-course`, {
+        await fetch('/api/activity/log-course', {
           method: 'POST',
           // Advisor + firm are derived server-side from this pass — not sent in the body.
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiToken}` },
@@ -1315,6 +1612,23 @@ export default {
   cursor: pointer; transition: background 0.15s;
 }
 .btn-team-dashboard:hover { background: #0d6560; }
+
+/* ── Server-storage error banner (CB-16/17) ─────────────── */
+.course-error-banner {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 8px 24px;
+  background: #fef2f2; color: #991b1b;
+  font-size: 13px; font-weight: 500;
+  border-bottom: 1px solid #fecaca;
+  flex-shrink: 0;
+}
+.btn-error-retry {
+  background: #991b1b; color: #fff;
+  border: none; border-radius: 6px;
+  padding: 4px 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-error-retry:hover { background: #7f1d1d; }
 
 /* ── Messages ─────────────────────────────────────────── */
 .course-messages { flex: 1; overflow-y: auto; padding: 24px; }
@@ -1489,6 +1803,28 @@ export default {
   border-radius: 4px;
   padding: 2px 8px;
 }
+.resource-tag-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.session-header-resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.session-resources-empty {
+  font-size: 11px;
+  font-style: italic;
+  color: #9ca3af;
+  margin: 4px 0 0;
+}
+.resource-tag-link:hover {
+  background: #00b1e0;
+  color: #fff;
+  text-decoration: none;
+}
 
 /* Visibility toggle */
 .outline-visibility {
@@ -1505,6 +1841,12 @@ export default {
 }
 .vis-opt:hover { border-color: #00b1e0; color: #00b1e0; }
 .vis-opt.vis-active { border-color: #00b1e0; background: #e6f8fd; color: #00b1e0; font-weight: 600; }
+.vis-opt.vis-disabled { opacity: 0.6; cursor: not-allowed; }
+.vis-opt.vis-disabled:hover { border-color: #e5e7eb; color: #6b7280; }
+.vis-soon-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  background: #f3f4f6; color: #6b7280; border-radius: 999px; padding: 2px 8px;
+}
 .vis-icon { font-size: 14px; }
 
 .outline-actions {
@@ -1667,6 +2009,7 @@ export default {
 }
 .badge-pass { background: #dcfce7; color: #166534; }
 .badge-fail { background: #fef2f2; color: #991b1b; }
+.badge-ungraded { background: #f3f4f6; color: #4b5563; }
 .result-score { font-size: 13px; color: #6b7280; margin: 0; font-weight: 500; }
 .result-feedback { font-size: 14px; color: #374151; margin: 0; line-height: 1.6; }
 
@@ -1708,6 +2051,7 @@ export default {
 .q-result-score { font-size: 12px; font-weight: 700; width: 36px; flex-shrink: 0; padding-top: 2px; }
 .score-pass-text { color: #0d9488; }
 .score-fail-text { color: #dc2626; }
+.score-na-text { color: #6b7280; }
 .q-feedback-brief { font-size: 12px; color: #6b7280; margin: 0; line-height: 1.4; flex: 1; }
 
 .btn-continue-course {
@@ -1851,6 +2195,24 @@ export default {
 .ov-badge-active { background: #e6f8fd; color: #00b1e0; }
 .ov-badge-pending { background: #f3f4f6; color: #9ca3af; }
 
+.ov-reorder { display: flex; flex-direction: column; gap: 2px; }
+.btn-move-session {
+  background: none; color: #9ca3af;
+  border: 1px solid #e5e7eb; border-radius: 6px;
+  padding: 1px 7px; font-size: 10px; line-height: 1.4;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-move-session:hover:not(:disabled) { color: #1e40af; border-color: #bfdbfe; background: #eff6ff; }
+.btn-move-session:disabled { opacity: 0.35; cursor: default; }
+.btn-open-session {
+  margin-left: 8px;
+  background: #00b1e0; color: #fff;
+  border: none; border-radius: 6px;
+  padding: 4px 12px; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s; white-space: nowrap;
+}
+.btn-open-session:hover { background: #0090b8; }
+
 .overview-footer {
   padding: 14px 24px;
   border-top: 1px solid #e5e7eb;
@@ -1937,6 +2299,59 @@ export default {
   transition: background 0.15s; flex-shrink: 0;
 }
 .btn-resume-picker-course:hover { background: #0090b8; }
+
+.course-shared-badge {
+  background: #eff6ff; color: #1e40af;
+  border-radius: 6px; padding: 2px 8px;
+  font-size: 11px; font-weight: 600;
+  margin-left: 6px;
+}
+
+.btn-share-toggle {
+  background: none; color: #1e40af;
+  border: 1px solid #bfdbfe; border-radius: 8px;
+  padding: 8px 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: all 0.15s; flex-shrink: 0;
+  margin-right: 8px;
+}
+.btn-share-toggle:hover { background: #eff6ff; }
+
+.outline-count-notice {
+  background: #fffbeb; color: #92400e;
+  border: 1px solid #fde68a; border-radius: 8px;
+  padding: 10px 14px; margin: 12px 0 0;
+  font-size: 13px; font-weight: 600;
+}
+
+.btn-remove-picker-course {
+  background: none; color: #9ca3af;
+  border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 8px 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: all 0.15s; flex-shrink: 0;
+  margin-left: 8px;
+}
+.btn-remove-picker-course:hover { color: #dc2626; border-color: #fecaca; background: #fef2f2; }
+
+.shared-courses-section {
+  margin-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+}
+.shared-heading {
+  font-size: 15px; font-weight: 700; color: #374151;
+  margin: 0 0 12px;
+}
+.btn-use-shared-course {
+  background: #1e40af; color: #fff;
+  border: none; border-radius: 8px;
+  padding: 8px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.btn-use-shared-course:hover { background: #1c3a9e; }
+.btn-use-shared-course:disabled { opacity: 0.6; cursor: wait; }
 
 .courses-picker-footer {
   flex-shrink: 0;

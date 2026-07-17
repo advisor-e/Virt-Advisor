@@ -12,8 +12,6 @@
  * called at the absolute backend URL (the same pattern as the promote button).
  */
 
-const BACKEND = 'http://localhost:4000'
-
 function authHeaders (token) {
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
 }
@@ -26,7 +24,7 @@ function authHeaders (token) {
  * @returns {Promise<{cases: object[], advisorId: string|null}>}
  */
 export async function listCases (token) {
-  const res = await fetch(`${BACKEND}/api/cases`, { headers: authHeaders(token) })
+  const res = await fetch('/api/cases', { headers: authHeaders(token) })
   if (!res.ok) { throw new Error(`Failed to load cases (${res.status})`) }
   const data = await res.json()
   return { cases: data.cases || [], advisorId: data.advisorId || null }
@@ -40,7 +38,7 @@ export async function listCases (token) {
  * @returns {Promise<object>}
  */
 export async function createCase (caseData, token) {
-  const res = await fetch(`${BACKEND}/api/cases`, {
+  const res = await fetch('/api/cases', {
     method: 'POST', headers: authHeaders(token), body: JSON.stringify(caseData)
   })
   if (!res.ok) { throw new Error(`Failed to save case (${res.status})`) }
@@ -54,7 +52,7 @@ export async function createCase (caseData, token) {
  * @param {string} token - Bearer token
  */
 export async function updateCaseReview (id, review, token) {
-  const res = await fetch(`${BACKEND}/api/cases/${encodeURIComponent(id)}/review`, {
+  const res = await fetch(`/api/cases/${encodeURIComponent(id)}/review`, {
     method: 'PUT', headers: authHeaders(token), body: JSON.stringify(review)
   })
   if (!res.ok) { throw new Error(`Failed to save review (${res.status})`) }
@@ -68,7 +66,7 @@ export async function updateCaseReview (id, review, token) {
  * @returns {Promise<string>} the new visibility
  */
 export async function setCaseVisibility (id, visibility, token) {
-  const res = await fetch(`${BACKEND}/api/cases/${encodeURIComponent(id)}/visibility`, {
+  const res = await fetch(`/api/cases/${encodeURIComponent(id)}/visibility`, {
     method: 'PUT', headers: authHeaders(token), body: JSON.stringify({ visibility })
   })
   if (!res.ok) { throw new Error(`Failed to change visibility (${res.status})`) }
@@ -81,7 +79,7 @@ export async function setCaseVisibility (id, visibility, token) {
  * @param {string} token - Bearer token
  */
 export async function deleteCase (id, token) {
-  const res = await fetch(`${BACKEND}/api/cases/${encodeURIComponent(id)}`, {
+  const res = await fetch(`/api/cases/${encodeURIComponent(id)}`, {
     method: 'DELETE', headers: authHeaders(token)
   })
   if (!res.ok) { throw new Error(`Failed to delete case (${res.status})`) }
@@ -110,65 +108,98 @@ export function findUnrecordedCase (cases, advisorId, clientId) {
   ) || null
 }
 
-// Legacy localStorage key the cases used to live under, + a one-time migration flag.
+// Legacy localStorage key the cases used to live under, a one-time COMPLETION flag,
+// and a per-id record of what has already been migrated (so a retry after a partial
+// failure resumes rather than re-sending — or permanently abandoning — cases).
 const LEGACY_STORAGE_KEY = 'va_case_studies'
 const MIGRATION_FLAG = 'va_case_studies_migrated_at'
+const MIGRATED_IDS_KEY = 'va_case_studies_migrated_ids'
+
+// Guards against a re-entrant run: caseMixin calls this from both mounted() and the
+// apiToken watcher, which can overlap. A concurrent second call no-ops.
+let migrationInFlight = false
 
 /**
  * One-time lift of any cases saved in the browser BEFORE the move to the database
  * (the old localStorage store) up into the shared DB via the API.
  *
- * - Runs at most once per browser (guarded by a localStorage flag), then no-ops.
- * - Preserves each case's original id, so a re-run can't create duplicates (the
- *   server rejects a duplicate id; such errors are caught and skipped).
- * - Keeps the legacy localStorage copy as a backup — nothing is deleted — so a
- *   case is never lost even if an upload fails.
+ * - Completes at most once per browser. The completion flag is set ONLY when every
+ *   legacy case has actually migrated. If some fail (backend down, or the auth token
+ *   not yet resolved — see caseMixin), the flag is left unset so the next load retries.
+ *   (The previous version set the flag unconditionally, so a first-load failure — the
+ *   common production case where migration runs before the real token resolves —
+ *   permanently abandoned every un-migrated case.)
+ * - Tracks migrated ids and skips them on a retry, so a re-run can never duplicate a
+ *   case, independent of the server's duplicate handling.
+ * - Keeps the legacy localStorage copy as a backup — nothing is deleted.
+ * - Re-entrancy-safe (see migrationInFlight).
  *
  * Safe on the server (no `localStorage`): it returns immediately. Call it from a
  * client lifecycle hook (mounted), never during SSR.
  *
  * @param {string} token - Bearer token
- * @returns {Promise<{migrated:number, total:number, skipped?:boolean}>}
+ * @returns {Promise<{migrated:number, total:number, failed?:number, complete?:boolean, skipped?:boolean}>}
  */
 export async function migrateLegacyCases (token) {
   if (typeof localStorage === 'undefined') { return { migrated: 0, total: 0, skipped: true } }
   if (localStorage.getItem(MIGRATION_FLAG)) { return { migrated: 0, total: 0, skipped: true } }
+  if (migrationInFlight) { return { migrated: 0, total: 0, skipped: true } }
+  migrationInFlight = true
 
-  let legacy
-  try { legacy = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) || '[]') } catch (e) { legacy = [] }
-  if (!Array.isArray(legacy) || legacy.length === 0) {
-    localStorage.setItem(MIGRATION_FLAG, new Date().toISOString())
-    return { migrated: 0, total: 0 }
-  }
-
-  let migrated = 0
-  for (const c of legacy) {
-    try {
-      await createCase({
-        id: c.id, // preserve the original id so a re-run cannot duplicate
-        title: c.title,
-        mode: c.mode,
-        visibility: c.visibility,
-        domain: c.domain,
-        templates: c.templates,
-        summary: c.summary,
-        transcript: c.transcript,
-        staircaseStep: c.staircaseStep,
-        growthStage: c.growthStage,
-        finMgtTheme: c.finMgtTheme,
-        feedbackPending: c.feedbackPending
-      }, token)
-      // Carry across a completed post-delivery review, if one was recorded.
-      if (c.review && (c.review.wentWell || c.review.wentLess || c.review.changesRecommended)) {
-        await updateCaseReview(c.id, c.review, token)
-      }
-      migrated++
-    } catch (e) {
-      // Leave the legacy copy intact and continue; the backup remains recoverable.
+  try {
+    let legacy
+    try { legacy = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) || '[]') } catch (e) { legacy = [] }
+    if (!Array.isArray(legacy) || legacy.length === 0) {
+      localStorage.setItem(MIGRATION_FLAG, new Date().toISOString())
+      return { migrated: 0, total: 0, complete: true }
     }
-  }
 
-  // Record that we've run (exactly once) — the legacy data stays as a backup.
-  localStorage.setItem(MIGRATION_FLAG, new Date().toISOString())
-  return { migrated, total: legacy.length }
+    // Ids already migrated in a previous (possibly partial) run — never re-send them.
+    let done
+    try { done = new Set(JSON.parse(localStorage.getItem(MIGRATED_IDS_KEY) || '[]')) } catch (e) { done = new Set() }
+
+    let migrated = 0
+    let failed = 0
+    for (const c of legacy) {
+      if (c && c.id && done.has(c.id)) { continue } // already landed in an earlier run
+      try {
+        await createCase({
+          id: c.id, // preserve the original id
+          title: c.title,
+          mode: c.mode,
+          visibility: c.visibility,
+          domain: c.domain,
+          templates: c.templates,
+          summary: c.summary,
+          transcript: c.transcript,
+          staircaseStep: c.staircaseStep,
+          growthStage: c.growthStage,
+          finMgtTheme: c.finMgtTheme,
+          feedbackPending: c.feedbackPending
+        }, token)
+        // Carry across a completed post-delivery review, if one was recorded.
+        if (c.review && (c.review.wentWell || c.review.wentLess || c.review.changesRecommended)) {
+          await updateCaseReview(c.id, c.review, token)
+        }
+        if (c && c.id) { done.add(c.id) }
+        migrated++
+      } catch (e) {
+        failed++ // leave it for a later retry; the legacy backup is intact
+      }
+    }
+
+    // Persist per-id progress so a retry resumes where this run stopped.
+    localStorage.setItem(MIGRATED_IDS_KEY, JSON.stringify(Array.from(done)))
+
+    // Mark COMPLETE only when every legacy case is accounted for; otherwise leave the
+    // flag unset so the next load retries the ones that failed.
+    const allDone = legacy.every(c => !c || !c.id || done.has(c.id))
+    if (allDone) {
+      localStorage.setItem(MIGRATION_FLAG, new Date().toISOString())
+      localStorage.removeItem(MIGRATED_IDS_KEY)
+    }
+    return { migrated, total: legacy.length, failed, complete: allDone }
+  } finally {
+    migrationInFlight = false
+  }
 }

@@ -1,4 +1,6 @@
-import { LANGUAGES } from '~/data/languages'
+// Single source shared with the backend (server/utils/languageName.js) — the
+// engine resolves the prompt's language name from this same list, by code.
+import LANGUAGES from '~/data/languages.json'
 
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
 

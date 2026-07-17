@@ -75,7 +75,9 @@ const firmManagerRoute = require('./routes/firmManager')
 const activityRoute = require('./routes/activity')
 const casesRoute = require('./routes/cases')
 const clientsRoute = require('./routes/clients')
+const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
+const reportRoute = require('./routes/report')
 const { firmAuth, requireManagerRole, requireMentorRole } = require('./middleware/firmAuth')
 // Advisor + course engines — migrated from Nuxt server-middleware per the
 // coding-team Req 7 ruling (OpenAI logic + key backend-only). Connect-style
@@ -128,7 +130,16 @@ server.opts('/*', (req, res, next) => { res.send(204); return next() })
 server.get('/api/health', healthRoute.get)
 server.post('/api/translate/locale', translateRoute.post)
 server.post('/api/advisor/query', firmAuth, advisorEngine)
-server.post('/api/course', courseEngine)
+server.post('/api/course', firmAuth, courseEngine)
+server.post('/api/report/working-capital-cycle', reportRoute.workingCapitalCycle)
+server.post('/api/report/debtor-drag', reportRoute.debtorDrag)
+server.post('/api/report/margin-breakeven', reportRoute.marginBreakeven)
+server.post('/api/report/eight-levers', reportRoute.eightLevers)
+server.post('/api/report/quick-position', reportRoute.quickPosition)
+server.post('/api/report/ebitda-dcf', reportRoute.ebitdaDcf)
+// firmAuth deliberately ON for the intake (unlike the calc-only report routes): it accepts file uploads
+server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPositionIntake)
+server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
 server.get('/api/firm/advisors', firmAuth, firmRoute.getAdvisors)
 server.post('/api/firm/insights', firmAuth, firmRoute.postInsights)
 server.post('/api/activity/log-course', firmAuth, activityRoute.logCourse)
@@ -152,6 +163,18 @@ server.post('/api/cases/promote', firmAuth, requireManagerRole, casesRoute.promo
 server.get('/api/clients', firmAuth, clientsRoute.listClients)
 server.post('/api/clients', firmAuth, clientsRoute.createClient)
 server.put('/api/clients/:id', firmAuth, clientsRoute.renameClient)
+
+// ── Courses (CB-16/17): the course DOCUMENT, owner-scoped ──
+// All firmAuth-guarded; identity from the verified JWT, never the body. An
+// advisor reads/writes only their OWN courses; the /shared pair (CB-07,
+// personal-copy model) is the one firm-bounded read — outline-only listing +
+// copy-to-own, both scoped to the caller's verified firm.
+server.get('/api/courses', firmAuth, coursesRoute.listCourses)
+server.get('/api/courses/shared', firmAuth, coursesRoute.listShared)
+server.post('/api/courses', firmAuth, coursesRoute.createCourse)
+server.post('/api/courses/shared/:id/copy', firmAuth, coursesRoute.copyShared)
+server.put('/api/courses/:id', firmAuth, coursesRoute.updateCourse)
+server.del('/api/courses/:id', firmAuth, coursesRoute.deleteCourse)
 
 // ── Firm Manager routes (firm_manager or platform_admin role required) ──
 const fm = firmManagerRoute

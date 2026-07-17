@@ -18,18 +18,13 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
+const { groundOutlineResources } = require('../server/utils/outlineResources')
+const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
+const { isClarificationRequest, prefillDesignState, requestedSessionCount } = require('../server/utils/designInterview')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const CourseReminderService = require('../server/services/CourseReminderService')
-
-// Node.js 15+ crashes on unhandled rejections — guard against OpenAI SDK stream cleanup errors
-if (!process._courseMiddlewareGuarded) {
-  process._courseMiddlewareGuarded = true
-  process.on('unhandledRejection', (reason) => {
-    console.error('[course] Unhandled rejection (server kept alive):', reason?.message || String(reason))
-  })
-}
 
 // OpenAI singleton — one client per process, avoids creating a new connection pool on every request
 let _openaiClient = null
@@ -81,27 +76,26 @@ function jsonResponse (res, status, payload) {
 
 // ── Design conversation ────────────────────────────────────────────────────
 
-// Detects when an advisor's first message mentions both selling and delivering a service
-function _detectCourseMultiGoal (answer) {
-  const lower = answer.toLowerCase()
-  const hasSelling = /\b(sell|selling|sales|win clients|winning clients|get clients|approach clients)\b/.test(lower)
-  const hasDelivery = /\b(deliver|facilitat|run|use|apply|conduct|implement|strateg|planning|profit|staff|governance|systems|valuati|succession|conflict)\b/.test(lower)
-  return hasSelling && hasDelivery
-}
-
-// Code-controlled question sequence — asked one at a time before outline generation
+// Code-controlled question sequence — asked one at a time before outline
+// generation. `reask` is the plainer rephrase sent once when the advisor's
+// reply asks for clarification instead of answering (CB-06; wording approved
+// by Mike 2026-07-15). Questions already answered in the opening message are
+// pre-filled by prefillDesignState and never asked.
 const COURSE_DESIGN_QUESTIONS = [
   {
     field: 'currentLevel',
-    text: "What's your current experience or confidence level in this area — have you had any prior training, coaching, or reading on this topic?"
+    text: "What's your current experience or confidence level in this area — have you had any prior training, coaching, or reading on this topic?",
+    reask: "No problem — put simply: how much have you already done in this area? For example 'complete beginner', or 'some experience but no formal training'."
   },
   {
     field: 'intensity',
-    text: 'Do you prefer each session to stay at a consistent level of depth throughout, or would you like the course to get progressively more challenging as you go?'
+    text: 'Do you prefer each session to stay at a consistent level of depth throughout, or would you like the course to get progressively more challenging as you go?',
+    reask: 'Let me put that another way: would you like every session to feel about the same level, or start easy and get harder as you go?'
   },
   {
     field: 'sessionDetails',
-    text: 'How many minutes would you like each session to aim for, and how many sessions in total would you like to commit to?'
+    text: 'How many minutes would you like each session to aim for, and how many sessions in total would you like to commit to?',
+    reask: "Just the practical details: roughly how many minutes per session, and how many sessions? For example '30 minutes, 4 sessions'."
   }
 ]
 
@@ -114,12 +108,13 @@ function handleDesign (req, body, res) {
   // Restore or initialise design pipeline state
   const state = Object.assign({
     goalsPrimary: null,
-    multiGoalDetected: false,
     currentLevel: null,
     intensity: null,
     sessionDetails: null,
     pendingOutline: null
   }, courseState)
+  // Code-owned per-generation flag (CB-26) — never trusted from the round-trip.
+  delete state.sessionCountNotice
 
   // Helper: send a hardcoded question as instant SSE (no OpenAI call)
   function sendQuestion (text, newState) {
@@ -130,11 +125,15 @@ function handleDesign (req, body, res) {
     res.end()
   }
 
-  // Helper: build full context and stream an AI-generated outline
-  async function generateOutline (userMessage) {
+  // Helper: build full context and stream an AI-generated outline.
+  // fallbackOutline (revision flow only): the advisor's previously approved
+  // outline — restored whenever the AI's reply does not contain a valid
+  // replacement, so a failed revision can never destroy an approved outline.
+  // countText (CB-26): the advisor text carrying their requested session
+  // count — the prompt asks the AI to honour it, but only code checks it.
+  async function generateOutline (userMessage, fallbackOutline, countText) {
     const allUserText = [
       state.goalsPrimary,
-      state.goalsSecondary && state.goalsSecondary !== 'pending' ? state.goalsSecondary : '',
       state.currentLevel,
       state.intensity,
       state.sessionDetails
@@ -159,10 +158,10 @@ function handleDesign (req, body, res) {
 
     const advisorContextStr = advisorProfile
       ? '\n\n## Advisor profile\n\n' +
-        Object.entries(advisorProfile)
-          .filter(([, v]) => v && v.trim())
+        fenceUntrusted(Object.entries(advisorProfile)
+          .filter(([, v]) => typeof v === 'string' && v.trim())
           .map(([k, v]) => `${k}: ${v}`)
-          .join('\n')
+          .join('\n'))
       : ''
 
     const systemPrompt = loadPrompt('course-design') +
@@ -188,6 +187,10 @@ function handleDesign (req, body, res) {
       }, { timeout: 60000 })
     } catch (createErr) {
       console.error('[course:design] OpenAI create failed:', createErr.message)
+      // Same user-facing message the session handler sends — the design screen
+      // must never end a failed stream with nothing to show (CB-10).
+      sseWrite(res, { type: 'error', message: 'AI response timed out. Please try again.' })
+      sseWrite(res, { type: 'state', state: { ...state, pendingOutline: fallbackOutline || null } })
       sseWrite(res, { type: 'done' })
       res.end()
       return
@@ -207,17 +210,37 @@ function handleDesign (req, body, res) {
     }
 
     const outlineMatch = fullText.match(/\[COURSE_OUTLINE\]([\s\S]*?)\[\/COURSE_OUTLINE\]/)
-    const finalState = { ...state, pendingOutline: null }
+    // Commit-only-on-success: until a replacement outline validates, the final
+    // state carries the fallback (the previously approved outline in the
+    // revision flow, null otherwise) — never a malformed outline, which would
+    // render a broken/blank course view.
+    const finalState = { ...state, pendingOutline: fallbackOutline || null }
     if (outlineMatch) {
       try {
         const parsedOutline = JSON.parse(outlineMatch[1].trim())
         const result = validateCourseOutline(parsedOutline)
         if (result.valid) {
-          finalState.pendingOutline = result.data
+          // Ground every resource name in the firm's real template library —
+          // the prompt forbids invented names, but only code enforces it (CB-02).
+          const grounded = groundOutlineResources(result.data, templates)
+          if (grounded.dropped.length) {
+            console.warn('[course:design] Dropped invented resource names:', grounded.dropped.join(' | '))
+          }
+          // CB-27 rescue-snap audit: Original → Snapped, per the
+          // AI-transformation logging rule.
+          if (grounded.snapped.length) {
+            console.warn('[course:design] Snapped near-miss resource names:', grounded.snapped.map(x => `'${x.from}' → '${x.to}'`).join(' | '))
+          }
+          finalState.pendingOutline = grounded.outline
+          // CB-26: the advisor asked for a specific session count — if the
+          // delivered outline differs, code flags it (the outline card shows
+          // the notice); the AI is never trusted to confess the deviation.
+          const requested = requestedSessionCount(countText)
+          if (requested && grounded.outline.totalSessions !== requested) {
+            console.warn(`[course:design] Session-count mismatch: requested ${requested}, delivered ${grounded.outline.totalSessions}`)
+            finalState.sessionCountNotice = { requested, delivered: grounded.outline.totalSessions }
+          }
         } else {
-          // Valid JSON but wrong shape — degrade to "no outline" (the same safe
-          // state as a parse failure); never stream a malformed outline to the
-          // course screen, which would render a broken/blank course view.
           console.warn('[course:design] Course outline failed shape validation:', result.errors.join('; '))
         }
       } catch (e) {
@@ -232,27 +255,40 @@ function handleDesign (req, body, res) {
 
   // ── Case 1: Outline revision — advisor wants changes to an existing outline ──
   if (state.pendingOutline) {
-    const existingOutline = JSON.stringify(state.pendingOutline, null, 2)
+    const previousOutline = state.pendingOutline
+    const existingOutline = JSON.stringify(previousOutline, null, 2)
+    // Cleared for the in-stream state event only (no card flicker mid-reply);
+    // previousOutline is passed as the fallback so a failed revision restores it.
     state.pendingOutline = null
     const revisionMessage = `The advisor has reviewed this course outline:\n\n${existingOutline}\n\nThey want the following changes:\n${fenceUntrusted(query)}\n\nPlease revise the outline accordingly and present the updated version.`
-    return generateOutline(revisionMessage)
+    // Count check against the revision instruction itself — only a count named
+    // NOW is a live request (a previously accepted deviation is not re-flagged).
+    return generateOutline(revisionMessage, previousOutline, query)
   }
 
-  // ── Case 2: First message — capture primary goal, detect multi-goal ──
+  // ── Case 2: First message — capture the goal, pre-fill what it answers ──
   if (!state.goalsPrimary) {
     state.goalsPrimary = query
-    state.multiGoalDetected = _detectCourseMultiGoal(query)
+    // Questions the opening message confidently answers are never asked (CB-06).
+    prefillDesignState(state, query)
     // Fall straight through to pipeline — no separate Q1 needed
   }
 
   // ── Case 3: Discovery pipeline — ask one question at a time ──
   for (const q of COURSE_DESIGN_QUESTIONS) {
-    if (q.skip && q.skip(state)) { continue }
     if (!state[q.field]) {
       state[q.field] = 'pending'
       return sendQuestion(q.text, state)
     }
     if (state[q.field] === 'pending') {
+      // A question about the question → re-ask once in plainer words, never
+      // store it as the answer. Capped at one re-ask so it cannot loop; a
+      // second unclear reply is accepted as the answer (CB-06).
+      const reaskFlag = q.field + 'Reasked'
+      if (isClarificationRequest(query) && !state[reaskFlag]) {
+        state[reaskFlag] = true
+        return sendQuestion(q.reask, state)
+      }
       state[q.field] = query
     }
   }
@@ -265,8 +301,11 @@ function handleDesign (req, body, res) {
     `Session format: ${state.sessionDetails}`
   ].filter(Boolean).join('\n')
 
+  // The answers are raw advisor typing — fenced so they read as data (CB-09).
   return generateOutline(
-    `Here is the complete picture of this advisor's learning needs:\n\n${collectedAnswers}\n\nNow generate the complete course outline.`
+    `Here is the complete picture of this advisor's learning needs:\n\n${fenceUntrusted(collectedAnswers)}\n\nNow generate the complete course outline.`,
+    undefined,
+    state.sessionDetails
   )
 }
 
@@ -283,13 +322,19 @@ async function handleSession (req, body, res) {
   const filtered = filterTemplatesByQuery(templates, focusQuery)
   const templateContext = formatTemplatesForPrompt(filtered)
 
+  // sessionContext round-trips through the browser, so it is client-controlled
+  // at arrival — fenced before it enters the system prompt (CB-14).
+  const sessionObjectives = Array.isArray(sessionContext?.objectives) ? sessionContext.objectives : []
+  const sessionResources = Array.isArray(sessionContext?.resources) ? sessionContext.resources : []
   const sessionInject = sessionContext
     ? '\n\n## This session\n\n' +
-      `Session ${sessionContext.id}: ${sessionContext.title}\n` +
-      `Focus: ${sessionContext.focus}\n` +
-      `Objectives:\n${(sessionContext.objectives || []).map(o => '- ' + o).join('\n')}\n` +
-      `Resources: ${(sessionContext.resources || []).join(', ')}\n` +
-      `Estimated duration: ${sessionContext.estimatedMinutes || sessionContext.estimatedHours * 60 || 30} minutes`
+      fenceUntrusted(
+        `Session ${sessionContext.id}: ${sessionContext.title}\n` +
+        `Focus: ${sessionContext.focus}\n` +
+        `Objectives:\n${sessionObjectives.map(o => '- ' + o).join('\n')}\n` +
+        `Resources: ${sessionResources.join(', ')}\n` +
+        `Estimated duration: ${sessionContext.estimatedMinutes || sessionContext.estimatedHours * 60 || 30} minutes`
+      )
     : ''
 
   // Domain support context — match session topic to the relevant domain support JSON
@@ -305,10 +350,10 @@ async function handleSession (req, body, res) {
 
   const advisorContext = advisorProfile
     ? '\n\n## Advisor profile\n\n' +
-      Object.entries(advisorProfile)
-        .filter(([, v]) => v && v.trim())
+      fenceUntrusted(Object.entries(advisorProfile)
+        .filter(([, v]) => typeof v === 'string' && v.trim())
         .map(([k, v]) => `${k}: ${v}`)
-        .join('\n')
+        .join('\n'))
     : ''
 
   const systemPrompt = loadPrompt('course-session') +
@@ -358,14 +403,33 @@ async function handleSession (req, body, res) {
 async function handleQuizGenerate (body, res) {
   const { sessionContext, sessionHistory = [] } = body
 
-  // Fixed override questions take priority over AI generation
+  // Fixed override questions take priority over AI generation — matched on
+  // session title, then resource/template names (the stable key; CB-12).
   const overrides = getQuizOverrides()
-  const sessionKey = sessionContext?.title || ''
-  if (overrides.overrides && overrides.overrides[sessionKey]) {
-    return jsonResponse(res, 200, { success: true, questions: overrides.overrides[sessionKey] })
+  const overrideQuestions = findQuizOverride(overrides.overrides, sessionContext)
+  if (overrideQuestions) {
+    return jsonResponse(res, 200, { success: true, questions: overrideQuestions })
   }
 
   const openai = getOpenAI()
+
+  // CB-30: a firm-authored question bank (keyed by the template the session
+  // teaches from) is mandatory source material — the AI tailors the bank's
+  // questions to the session, never invents its own. Bank content is trusted
+  // repo data (the firm's IP), so it sits outside the untrusted fence.
+  const bank = findQuizBank(overrides.banks, sessionContext)
+  const bankBlock = bank
+    ? '\nFirm-authored question bank for the template this session teaches from (mandatory source material):\n' +
+      bank.entries.map(e => `Entry ${e.id}\nQuestion: ${e.question}\nKey point: ${e.keyPoint}`).join('\n') + '\n'
+    : ''
+  const factRequirements = bank
+    ? `- Build every question from the firm-authored question bank above: choose the 3 entries most relevant to the session content covered, and tailor each to that content — adapt wording and scenario details, keep the entry's substance and key point. Never copy an entry word-for-word and never ask anything the bank does not cover.
+- Each question must carry "bankRef": the id of the bank entry it is built from.`
+    : `- Questions 1 and 2 must test the specific facts, frameworks, or key points actually taught in the session content above — for example: name the stages, list the components, state what the framework says. The advisor must show they absorbed the material, not just give their opinion of it.
+- Only ask about facts that appear in the session content above — never test general knowledge the session did not cover.`
+  const jsonShape = bank
+    ? '{"questions":[{"id":1,"question":"...","objective":"...","bankRef":1},{"id":2,"question":"...","objective":"...","bankRef":2},{"id":3,"question":"...","objective":"...","bankRef":3}]}'
+    : '{"questions":[{"id":1,"question":"...","objective":"..."},{"id":2,"question":"...","objective":"..."},{"id":3,"question":"...","objective":"..."}]}'
 
   const sessionSummary = sessionHistory
     .filter(m => m.role === 'assistant')
@@ -373,21 +437,26 @@ async function handleQuizGenerate (body, res) {
     .join('\n\n')
     .slice(0, 3000)
 
+  // Client-supplied at arrival — fenced so it reads as data (CB-14).
+  const quizObjectives = Array.isArray(sessionContext?.objectives) ? sessionContext.objectives : []
   const prompt = `Generate exactly 3 quiz questions to test an advisor's understanding of a course session.
 
-Session title: ${sessionContext?.title || 'Unknown'}
-Session objectives: ${(sessionContext?.objectives || []).join('; ')}
-Session content covered (AI responses):
-${sessionSummary}
-
+Session details and content covered (AI responses):
+${fenceUntrusted(
+    `Session title: ${sessionContext?.title || 'Unknown'}\n` +
+    `Session objectives: ${quizObjectives.join('; ')}\n` +
+    `Session content covered:\n${sessionSummary}`
+  )}
+${bankBlock}
 Requirements:
 - Open-ended questions (not multiple choice)
-- Test conceptual understanding, not memorisation
+${factRequirements}
+- Question 3 must ask the advisor to apply what was taught to their own practice or a client situation.
 - Each question must relate to a session objective
 - Answerable in 2-4 sentences
 
 Return ONLY valid JSON with no other text:
-{"questions":[{"id":1,"question":"...","objective":"..."},{"id":2,"question":"...","objective":"..."},{"id":3,"question":"...","objective":"..."}]}`
+${jsonShape}`
 
   try {
     const completion = await openai.chat.completions.create({
@@ -412,22 +481,51 @@ Return ONLY valid JSON with no other text:
 // ── Quiz grading ───────────────────────────────────────────────────────────
 
 async function handleQuizGrade (body, res) {
-  const { question, answer, sessionContext } = body
+  const { question, answer, sessionContext, sessionHistory = [] } = body
   if (!question || !answer) {
     return sendError(res, 400, 'PARAMS_REQUIRED', 'question and answer are required')
   }
 
   const openai = getOpenAI()
 
+  // Same capped session summary quiz-generate uses — the marker must judge
+  // against what was actually taught, not GPT-4o's general knowledge (CB-04).
+  const sessionSummary = sessionHistory
+    .filter(m => m.role === 'assistant')
+    .map(m => m.content)
+    .join('\n\n')
+    .slice(0, 3000)
+
+  // CB-30: when the question was built from a firm-authored bank entry, the
+  // firm's model answer is the authoritative marking guide (extends CB-04).
+  // bankRef arrives from the client but only SELECTS a server-held entry —
+  // the marking-guide text itself is repo data and can never be injected.
+  const bank = findQuizBank(getQuizOverrides().banks, sessionContext)
+  const bankRef = question && Number.isInteger(question.bankRef) ? question.bankRef : null
+  const bankEntry = (bank && bankRef !== null && bank.entries.find(e => e.id === bankRef)) || null
+  const markingGuide = bankEntry
+    ? `Firm-authored marking guide (authoritative — this defines what counts as correct):
+Model answer: ${bankEntry.answer}
+Key point: ${bankEntry.keyPoint}
+
+`
+    : ''
+
+  // Title, question, objective and summary are client-supplied at arrival —
+  // fenced so they read as data (CB-14); the answer was already fenced.
   const prompt = `Grade an advisor's quiz answer for a professional development course.
 
-Session: ${sessionContext?.title || 'Unknown'}
-Question: ${question.question}
-Related objective: ${question.objective || 'Not specified'}
-Advisor's answer:
+Question and session details:
+${fenceUntrusted(
+    `Session: ${sessionContext?.title || 'Unknown'}\n` +
+    `Question: ${question.question}\n` +
+    `Related objective: ${question.objective || 'Not specified'}\n` +
+    `Session content covered (what was taught):\n${sessionSummary || 'Not available'}`
+  )}
+${markingGuide}Advisor's answer:
 ${fenceUntrusted(String(answer).slice(0, 1000))}
 
-Evaluate whether this answer demonstrates understanding of the objective. Return ONLY valid JSON:
+Evaluate whether this answer demonstrates understanding of the objective, judged ${bankEntry ? 'first against the firm-authored marking guide above, then ' : ''}against the session content above where provided. Return ONLY valid JSON:
 {"passed":true,"score":80,"feedback":"Specific, encouraging 2-3 sentence feedback explaining what was correct, what was missing if anything, and a key point to remember."}
 
 Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfectly should still pass. A low score must include specific guidance on what to revisit.`
@@ -454,11 +552,17 @@ Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfect
 
 // ── Progress record (platform integration hook) ────────────────────────────
 
-function handleProgress (body, res) {
-  const { advisorId, courseId, sessionId, score } = body
+function handleProgress (req, body, res) {
+  // Identity from the verified JWT (firmAuth attaches req.advisorId) — never
+  // the body: a crafted request must not log completions against another
+  // advisor (CB-16 Stage C). Course-document persistence rides the Stage D
+  // PUT /api/courses/:id; completions reporting rides /api/activity/log-course.
+  const advisorId = req.advisorId
+  if (!advisorId) {
+    return sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
+  }
+  const { courseId, sessionId, score } = body
 
-  // Phase 1: stub — platform team wires this to their account/reporting system in Phase 2
-  // Phase 2: persist progress to MySQL and update firm-level reporting
   CourseReminderService.markComplete({ advisorId, courseId, sessionId, score })
 
   jsonResponse(res, 200, { success: true })
@@ -466,11 +570,30 @@ function handleProgress (body, res) {
 
 // ── Request body parser ────────────────────────────────────────────────────
 
+// 256 KB — matches advisorEngine's BODY_LIMIT; protects this (unauthenticated-
+// at-the-body-parse-stage) route against a memory-exhaustion DoS.
+const BODY_LIMIT = 256 * 1024
+
 function parseBody (req) {
   return new Promise((resolve, reject) => {
     let data = ''
-    req.on('data', (chunk) => { data += chunk })
+    let size = 0
+    let rejected = false
+    req.on('data', (chunk) => {
+      if (rejected) { return }
+      size += chunk.length
+      if (size > BODY_LIMIT) {
+        rejected = true
+        const err = new Error('Request body too large')
+        err.code = 'BODY_TOO_LARGE'
+        req.socket && req.socket.destroy()
+        reject(err)
+        return
+      }
+      data += chunk
+    })
     req.on('end', () => {
+      if (rejected) { return }
       try { resolve(JSON.parse(data)) } catch (e) { reject(e) }
     })
     req.on('error', reject)
@@ -486,6 +609,9 @@ module.exports = async function (req, res) {
   try {
     body = await parseBody(req)
   } catch (e) {
+    if (e && e.code === 'BODY_TOO_LARGE') {
+      return sendError(res, 413, 'BODY_TOO_LARGE', 'Request body too large')
+    }
     return sendError(res, 400, 'INVALID_JSON', 'Request body must be valid JSON')
   }
 
@@ -513,7 +639,7 @@ module.exports = async function (req, res) {
         await handleQuizGrade(body, res)
         break
       case 'progress':
-        handleProgress(body, res)
+        handleProgress(req, body, res)
         break
       default:
         sendError(res, 400, 'INVALID_TYPE', 'type must be: design, session, quiz-generate, quiz-grade, or progress')
@@ -526,3 +652,7 @@ module.exports = async function (req, res) {
     if (!res.writableEnded) { res.end() }
   }
 }
+
+// Exposed for unit testing (the default export is the Restify handler).
+module.exports.parseBody = parseBody
+module.exports.BODY_LIMIT = BODY_LIMIT

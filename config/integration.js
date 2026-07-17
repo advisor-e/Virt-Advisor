@@ -93,4 +93,17 @@ const FRAMEWORK = {
   maxVersionHistory: 10 // number of saved versions retained per firm per config key
 }
 
-module.exports = { AUTH, DB, DRIVE, STORAGE, FRAMEWORK }
+// ── Master-app template pages (CB-25) ─────────────────────────────────────────
+// How a template's page-link id (the `link` field in the search_content export,
+// e.g. "id-7154906006") becomes a real Advisor-e page address. Pattern confirmed
+// against a live URL (Mike, 2026-07-16):
+//   {dashboardBase}#{link}?type={section, lowercased + URL-encoded}
+// e.g. https://www.advisor-e.com/secure/dashboard#id-7154906006?type=do%20the%20job
+// If the master app's page structure changes, adjust ONLY this block.
+
+const TEMPLATE_PAGE = {
+  dashboardBase: process.env.ADVISOR_E_DASHBOARD_URL ||
+    'https://www.advisor-e.com/secure/dashboard'
+}
+
+module.exports = { AUTH, DB, DRIVE, STORAGE, FRAMEWORK, TEMPLATE_PAGE }

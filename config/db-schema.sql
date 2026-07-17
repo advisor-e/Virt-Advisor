@@ -287,3 +287,52 @@ CREATE TABLE IF NOT EXISTS `va_case_studies` (
   CONSTRAINT `fk_cases_client`
     FOREIGN KEY (`client_id`) REFERENCES `va_clients` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- va_courses
+-- One row per course built in the Course Builder (CB-16/17, plan
+-- design/COURSE-BUILDER-PLAN.md). Stored centrally (not in browser
+-- localStorage) so a course follows the advisor across devices, feeds firm
+-- reporting, and makes firm-wide sharing possible.
+--
+-- `visibility` mirrors the va_case_studies privacy model:
+--   'private' = the owning advisor only (access-controlled by advisor_id from
+--               the verified JWT). Default and fail-safe.
+--   'firm'    = shared firm-wide as a read-only template (CB-07, Mike's
+--               personal-copy ruling 2026-07-16): teammates see the OUTLINE
+--               only (never the author's progress or design conversation) and
+--               "use" it by copying — the copy is a fresh private course owned
+--               by them, with `copied_from` recording the source (audit only).
+--
+-- `outline` is the validated + resource-grounded course outline (title, topic,
+-- intensity, sessions[]). `progress` is the per-session record array (status,
+-- quizScore, completedAt, quizResults, notes). `design_history` is the design
+-- conversation that produced the outline (kept for course revision context).
+--
+-- `id` is a client-generated id preserved as-is across the localStorage -> DB
+-- migration (Stage D). advisor_id is NOT FK-constrained — the advisors table
+-- belongs to the Advisor-e platform, not this schema.
+--
+-- Per-session COMPLETIONS for reporting live separately in
+-- advisor_course_completions (already wired via /api/activity/log-course) —
+-- this table is the course document itself.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `va_courses` (
+  `id`             VARCHAR(64)                        NOT NULL,
+  `advisor_id`     VARCHAR(64)                        NOT NULL,
+  `firm_id`        VARCHAR(64)                        NOT NULL,
+  `status`         ENUM('active','paused','complete') NOT NULL DEFAULT 'active',
+  `visibility`     ENUM('private','firm')             NOT NULL DEFAULT 'private',
+  `outline`        JSON                               NOT NULL,
+  `progress`       JSON                                        DEFAULT NULL,
+  `design_history` LONGTEXT                                    DEFAULT NULL,
+  `copied_from`    VARCHAR(64)                                 DEFAULT NULL,
+  `created_at`     DATETIME                           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`     DATETIME                           NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                                      ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_courses_advisor`         (`advisor_id`),
+  KEY `idx_courses_firm_visibility` (`firm_id`, `visibility`),
+  CONSTRAINT `fk_courses_firm`
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

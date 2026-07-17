@@ -1,7 +1,5 @@
 import { listCases, updateCaseReview, deleteCase, setCaseVisibility, migrateLegacyCases } from '~/utils/cases'
 
-const BACKEND = 'http://localhost:4000'
-
 export default {
   data () {
     return {
@@ -46,10 +44,15 @@ export default {
 
   watch: {
     // The Bearer token is resolved in the parent page's mounted() — which runs
-    // AFTER this child mounts — so the first load can race a not-yet-ready token
-    // and silently 401 (cases looked "wiped" on refresh). Re-load once it settles.
-    apiToken (next, prev) {
-      if (next && next !== prev) { this.refreshMyCases() }
+    // AFTER this child mounts — so the first load (and the first migration attempt)
+    // can race a not-yet-ready token and silently 401 (cases looked "wiped" on
+    // refresh). Re-run migration AND re-load once the real token settles; migration
+    // is idempotent + re-entrancy-safe, so this can't duplicate cases.
+    async apiToken (next, prev) {
+      if (next && next !== prev) {
+        try { await migrateLegacyCases(next) } catch (e) { /* keep going */ }
+        this.refreshMyCases()
+      }
     }
   },
 
@@ -158,7 +161,7 @@ export default {
       this.promoteErrorId = null
       const token = this.apiToken || 'dev-local-bypass'
       try {
-        const res = await fetch(`${BACKEND}/api/cases/promote`, {
+        const res = await fetch('/api/cases/promote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ caseId: c.id })

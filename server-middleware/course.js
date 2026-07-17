@@ -56,5 +56,11 @@ module.exports = function courseProxy (req, res, next) {
     }
   })
 
+  // Abort the upstream request if the client disconnects mid-stream (a refresh or
+  // navigating away). Without this, an abandoned SSE session leaves the backend
+  // connection open — these leak and eventually wedge the dev server. Standard
+  // streaming-proxy hygiene; safe to call once the response is done.
+  res.on('close', function () { backendReq.destroy() })
+
   req.pipe(backendReq)
 }

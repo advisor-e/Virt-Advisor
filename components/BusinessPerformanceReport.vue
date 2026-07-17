@@ -1,0 +1,410 @@
+<template lang="pug">
+.bpr-root
+  header.bpr-top
+    .bpr-brand
+      nuxt-link.bpr-backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
+      .bpr-eyebrow Business Performance Report
+      h1.bpr-h1 Working Capital Cycle
+      .bpr-client Prepared for #[strong [Client Company]] · by #[strong [Advisor / Firm]]
+    .bpr-badge Illustrative
+
+  .bpr-layout
+    //- INPUTS
+    aside.bpr-card
+      .bpr-group(v-for="g in groups" :key="g.title")
+        .bpr-glabel
+          span.bpr-dot
+          h2.bpr-h2 {{ g.title }}
+        .bpr-field(v-for="f in g.fields" :key="f.key")
+          .bpr-row
+            label {{ f.label }}
+            output {{ fmtField(f, inputs[f.key]) }}
+          input(
+            type="range"
+            v-model.number="inputs[f.key]"
+            :min="f.min" :max="f.max" :step="f.step"
+            :style="{ '--fill': fillPct(f) }"
+            @input="scheduleRecompute"
+          )
+
+    //- RESULTS
+    section.bpr-results(v-if="out")
+      .bpr-herostrip
+        .bpr-hs
+          .bpr-hk Working-capital cycle
+          .bpr-hv.num {{ round0(out.cycleDays) }} #[span.bpr-u days]
+          .bpr-hs2 cash tied up before you can trade again
+        .bpr-hs
+          .bpr-hk Cycle factor
+          .bpr-hv.num {{ round1(out.cycleFactorMonthly) }}×
+          .bpr-hs2 {{ round0(out.cycleFactorAnnual) }}× per year
+        .bpr-hs
+          .bpr-hk Annual revenue
+          .bpr-hv.num {{ money(out.annualRevenue) }}
+          .bpr-hs2 from {{ money(out.workingCapital) }} capital
+        .bpr-hs
+          .bpr-hk Net profit · monthly
+          .bpr-hv.num {{ money(out.netProfitMonthly) }}
+          .bpr-hs2
+            span.bpr-pill(:class="cashflowClass")
+              span.bpr-pill-dot
+              | {{ out.cashflowStatus }}
+      .bpr-tiles
+        .bpr-tile
+          .bpr-k vs your starting point
+          .bpr-v.num {{ diffText }}
+          .bpr-sub.num {{ diffPctText }} · annual revenue
+
+      //- CASH WHEEL
+      .bpr-card.bpr-wheelcard
+        .bpr-wheelhead
+          h2.bpr-h2 The cash cycle
+          .bpr-cycsum turns #[b {{ round1(out.cycleFactorMonthly) }}×] a month · #[b {{ round0(out.cycleDays) }} days] per turn · less #[b {{ inputs.daysPayable }}d] to pay suppliers
+        svg.bpr-wheel(viewBox="0 0 500 360" role="img" aria-label="Working capital cash cycle: Cash to Stock to Sale to Debtors and back; fixed costs sit outside the cycle.")
+          defs
+            marker#bprAh(viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse")
+              path(d="M0 0 L10 5 L0 10 z" fill="#0070c0")
+          line(x1="150" y1="40" x2="150" y2="320" stroke="var(--bpr-line)" stroke-width="1.5" stroke-dasharray="4 5")
+          rect(x="16" y="150" width="116" height="70" rx="11" fill="var(--bpr-panel-2)" stroke="var(--bpr-line)")
+          text(x="74" y="178" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--bpr-ink)") Fixed costs
+          text.num(x="74" y="200" text-anchor="middle" font-size="15" font-weight="600" fill="var(--bpr-ink)") {{ money(inputs.fixedCostsMonthly) }}/mo
+          text(x="74" y="246" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)") outside the cycle —
+          text(x="74" y="260" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)") paid either way
+          g(fill="none" stroke="#0070c0" stroke-width="6" stroke-linecap="round" marker-end="url(#bprAh)")
+            path(d="M388.3 86.7 A110 110 0 0 1 423.3 121.7")
+            path(d="M423.3 238.3 A110 110 0 0 1 388.3 273.3")
+            path(d="M271.7 273.3 A110 110 0 0 1 236.7 238.3")
+            path(d="M236.7 121.7 A110 110 0 0 1 271.7 86.7")
+          circle(cx="330" cy="180" r="60" fill="#3a3a3a")
+          text(x="330" y="171" text-anchor="middle" font-size="9" font-weight="600" letter-spacing="0.5" fill="#ffffff" opacity="0.92") MONEY IN MOVEMENT
+          text.num(x="330" y="192" text-anchor="middle" font-size="20" font-weight="600" fill="#ffffff") {{ money(out.workingCapital) }}
+          text(x="330" y="207" text-anchor="middle" font-size="9.5" fill="#ffffff" opacity="0.85") working capital
+          g
+            circle(cx="330" cy="70" r="38" fill="#002b64")
+            text(x="330" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") Cash
+            text.num(x="330" y="84" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.9") {{ money(out.workingCapital) }}
+          g
+            circle(cx="440" cy="180" r="38" fill="#0070c0")
+            text(x="440" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") Stock
+            text.num(x="440" y="194" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.92") {{ inputs.daysDeliverable + inputs.daysOnHand }}d
+          g
+            circle(cx="330" cy="290" r="38" fill="#4ca52d")
+            text(x="330" y="288" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") Sale
+            text.num(x="330" y="304" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.85") {{ round0(out.totalUnits) }} u
+          g
+            circle(cx="220" cy="180" r="38" fill="#ff9900")
+            text(x="220" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#002b64") Debtors
+            text.num(x="220" y="194" text-anchor="middle" font-size="10.5" fill="#002b64" opacity="0.85") {{ inputs.daysReceivable }}d
+          circle.bpr-coin(r="7" :style="{ '--spin': spinDur }")
+
+      //- COACH
+      .bpr-edu
+        .bpr-edu-h
+          span.bpr-lead Coach
+          | What this means
+        p.bpr-edu-p
+          | Watch the wheel: your #[strong {{ money(out.workingCapital) }}] of working capital flows Cash → Stock → Sale → Debtors and back. Right now that takes #[strong {{ round0(out.cycleDays) }} days], so it turns about #[strong {{ round1(out.cycleFactorMonthly) }}×] a month. Fixed costs sit #[em outside] the wheel — paid whether it turns or not.
+        p.bpr-edu-p(v-if="fasterHint")
+          | If you cut it to #[strong {{ fasterHint.days }} days], the wheel would turn #[strong {{ fasterHint.factor }}×] a month — about #[strong {{ fasterHint.extra }}] more revenue a year, at the same price.
+
+      .bpr-actions
+        button.bpr-cta(@click="downloadPdf") Download PDF
+        button.bpr-cta.bpr-ghost(@click="reset") ↺ Reset
+        button.bpr-cta.bpr-ghost(@click="setStartingPoint") Set as starting point
+        button.bpr-cta.bpr-ghost(@click="askCoach") Ask the coach ↗
+        span.bpr-foot Figures reproduce your Excel model exactly.
+
+    section.bpr-results(v-else)
+      b-loading(:is-full-page="false" :active="true")
+</template>
+
+<script>
+/**
+ * BusinessPerformanceReport — Working Capital Cycle (first model).
+ *
+ * Interactive, educational modelling screen. Inputs are edited live; the model is
+ * recomputed on the Restify backend (POST /api/report/working-capital-cycle) — calc is
+ * backend-only per the Stack Constitution. Reproduces the source Excel model exactly
+ * (see server/report/workingCapitalCycleModel.js + its golden test).
+ *
+ * i18n: user-facing strings are English placeholders for this first slice; they move into
+ * a `report.*` locale namespace in a follow-up (see design/ACTIONS.md). Coach text is
+ * templated (not AI) for the first build, per owner decision.
+ */
+const DEFAULTS = {
+  initialInvestment: 200,
+  plantEquipmentPct: 0.4,
+  unitCost: 1,
+  markupPct: 1.5,
+  discountPct: 0.15,
+  fullPricePct: 1,
+  daysDeliverable: 4,
+  daysOnHand: 6,
+  daysReceivable: 35,
+  daysPayable: 15,
+  fixedCostsMonthly: 180,
+  priorScenarioAnnualRevenue: 2543
+}
+
+export default {
+  name: 'BusinessPerformanceReport',
+
+  data () {
+    return {
+      inputs: Object.assign({}, DEFAULTS),
+      out: null,
+      recomputeTimer: null,
+      groups: [
+        {
+ title: 'Investment & set-up',
+fields: [
+          { key: 'initialInvestment', label: 'Initial investment', min: 50, max: 1000, step: 10, fmt: 'money' },
+          { key: 'plantEquipmentPct', label: 'Spent on plant & equipment', min: 0, max: 0.8, step: 0.05, fmt: 'pct' }
+        ]
+},
+        {
+ title: 'Pricing',
+fields: [
+          { key: 'unitCost', label: 'Unit cost', min: 0.5, max: 5, step: 0.25, fmt: 'money2' },
+          { key: 'markupPct', label: 'Mark-up', min: 0.2, max: 3, step: 0.1, fmt: 'pct' },
+          { key: 'discountPct', label: 'Discount (on reduced sales)', min: 0, max: 0.5, step: 0.05, fmt: 'pct' },
+          { key: 'fullPricePct', label: 'Sold at full price', min: 0, max: 1, step: 0.05, fmt: 'pct' }
+        ]
+},
+        {
+ title: 'The cash cycle (days)',
+fields: [
+          { key: 'daysDeliverable', label: 'Days to deliver', min: 0, max: 30, step: 1, fmt: 'int' },
+          { key: 'daysOnHand', label: 'Days stock on hand', min: 0, max: 60, step: 1, fmt: 'int' },
+          { key: 'daysReceivable', label: 'Days to get paid (receivable)', min: 0, max: 90, step: 1, fmt: 'int' },
+          { key: 'daysPayable', label: 'Days you take to pay (payable)', min: 0, max: 90, step: 1, fmt: 'int' }
+        ]
+},
+        {
+ title: 'Fixed costs & comparison',
+fields: [
+          { key: 'fixedCostsMonthly', label: 'Fixed costs (monthly)', min: 0, max: 500, step: 10, fmt: 'money' },
+          { key: 'priorScenarioAnnualRevenue', label: 'Your starting point (annual revenue)', min: 500, max: 6000, step: 1, fmt: 'money' }
+        ]
+}
+      ]
+    }
+  },
+
+  computed: {
+    cashflowClass () {
+      return (this.out && this.out.netProfitMonthly < 0) ? 'is-crit' : 'is-good'
+    },
+    spinDur () {
+      const f = this.out ? this.out.cycleFactorMonthly : 1
+      return Math.max(1.4, 6 / Math.max(f, 0.1)).toFixed(2) + 's'
+    },
+    fasterHint () {
+      if (!this.out || this.out.cycleDays <= 0) { return null }
+      const trimmed = Math.max(1, this.out.cycleDays - 10)
+      const factor = 30 / trimmed
+      const perTurn = this.out.cycleFactorMonthly ? (this.out.monthlyCashSales / this.out.cycleFactorMonthly) : 0
+      const extra = (perTurn * factor * 12) - this.out.annualRevenue
+      return { days: Math.round(trimmed), factor: (Math.round(factor * 10) / 10).toFixed(1), extra: this.money(extra) }
+    },
+    diffText () {
+      const v = this.out ? this.out.differenceVsScenario : 0
+      return (v >= 0 ? '+' : '−') + this.money(Math.abs(v))
+    },
+    diffPctText () {
+      const p = this.out ? this.out.differencePct : 0
+      return (p >= 0 ? '+' : '−') + Math.abs(p * 100).toFixed(1) + '%'
+    }
+  },
+
+  mounted () {
+    this.recompute()
+  },
+
+  beforeDestroy () {
+    if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
+  },
+
+  methods: {
+    money (n) {
+      if (n === null || n === undefined || isNaN(n)) { return '$0' }
+      return '$' + Math.round(n).toLocaleString('en-US')
+    },
+    round0 (n) { return Math.round(n || 0) },
+    round1 (n) { return (Math.round((n || 0) * 10) / 10).toFixed(1) },
+    fmtField (f, v) {
+      if (f.fmt === 'money') { return this.money(v) }
+      if (f.fmt === 'money2') { return '$' + Number(v).toFixed(2) }
+      if (f.fmt === 'pct') { return Math.round(v * 100) + '%' }
+      return v
+    },
+    fillPct (f) {
+      const v = this.inputs[f.key]
+      return ((v - f.min) / (f.max - f.min) * 100) + '%'
+    },
+    scheduleRecompute () {
+      if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
+      this.recomputeTimer = setTimeout(this.recompute, 130)
+    },
+    reset () {
+      this.inputs = Object.assign({}, DEFAULTS)
+      this.recompute()
+      this.$buefy.toast.open({ message: 'Reset to defaults.', type: 'is-info' })
+    },
+    setStartingPoint () {
+      if (!this.out) { return }
+      this.inputs.priorScenarioAnnualRevenue = Math.round(this.out.annualRevenue)
+      this.recompute()
+      this.$buefy.toast.open({ message: 'Starting point set to ' + this.money(this.inputs.priorScenarioAnnualRevenue) + '.', type: 'is-success' })
+    },
+    recompute () {
+      // Calc runs backend-only; the screen never computes the model itself.
+      fetch('/api/report/working-capital-cycle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.inputs)
+      })
+        .then(r => r.json())
+        .then((json) => {
+          if (json && json.success) {
+            this.out = json.data
+          } else if (!this.out) {
+            this.out = {}
+          }
+        })
+        .catch(() => {
+          this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
+        })
+    },
+    downloadPdf () {
+      // Browser print-to-PDF — nothing leaves the app; the print stylesheet drops the
+      // controls and lays out a clean, branded report.
+      if (typeof window !== 'undefined') { window.print() }
+    },
+    askCoach () {
+      this.$buefy.toast.open({ message: 'AI coach panel — coming later.', type: 'is-info' })
+    }
+  }
+}
+</script>
+
+<style scoped>
+.bpr-root {
+  --bpr-bg:#eef3f8; --bpr-panel:#ffffff; --bpr-panel-2:#f1f6fb; --bpr-ink:#002b64; --bpr-muted:#5b6f8a; --bpr-line:#d5e1ee;
+  --bpr-accent:#0070c0; --bpr-accent-bright:#00b1e0; --bpr-accent-soft:#0070c018; --bpr-accent-ink:#002b64; --bpr-accent-contrast:#ffffff;
+  --bpr-good:#4ca52d; --bpr-good-soft:#4ca52d1a; --bpr-crit:#ff0000; --bpr-crit-soft:#ff00000f; --bpr-warn:#ff9900; --bpr-warn-soft:#ff99001a;
+  --bpr-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426; --bpr-r:14px;
+  background:var(--bpr-bg); color:var(--bpr-ink);
+  font-family:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight:300; -webkit-font-smoothing:antialiased;
+  padding:28px 22px 64px; min-height:100vh;
+}
+@media (prefers-color-scheme: dark) {
+  .bpr-root {
+    --bpr-bg:#05132a; --bpr-panel:#0a1f3d; --bpr-panel-2:#07182f; --bpr-ink:#e6f0fa; --bpr-muted:#9fb4d0; --bpr-line:#1a3559;
+    --bpr-accent:#00b1e0; --bpr-accent-bright:#7fd3f1; --bpr-accent-soft:#00b1e022; --bpr-accent-ink:#7fd3f1; --bpr-accent-contrast:#002b64;
+    --bpr-good-soft:#4ca52d26; --bpr-crit-soft:#ff00001f; --bpr-warn-soft:#ff990022;
+    --bpr-shadow:0 1px 2px #0007, 0 10px 30px -14px #000a;
+  }
+}
+.bpr-root strong, .bpr-root b { font-weight:600; }
+.num { font-variant-numeric: tabular-nums; }
+
+.bpr-top { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; max-width:1120px; margin:0 auto 22px; }
+.bpr-backlink { display:inline-block; margin-bottom:10px; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--bpr-accent-bright); text-decoration:none; opacity:.85; }
+.bpr-backlink:hover { opacity:1; text-decoration:underline; }
+.bpr-eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--bpr-accent-bright); font-weight:600; }
+.bpr-h1 { margin:2px 0 0; font-size:25px; font-weight:300; letter-spacing:-.01em; }
+.bpr-client { font-size:13px; color:var(--bpr-muted); }
+.bpr-badge { font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; color:var(--bpr-warn);
+  border:1px solid #ff990070; background:var(--bpr-warn-soft); padding:5px 9px; border-radius:999px; height:fit-content; }
+
+.bpr-layout { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; max-width:1120px; margin:0 auto; }
+@media (max-width:860px) { .bpr-layout { grid-template-columns:1fr; } }
+
+.bpr-card { background:var(--bpr-panel); border:1px solid var(--bpr-line); border-radius:var(--bpr-r); box-shadow:var(--bpr-shadow); }
+.bpr-h2 { margin:0; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--bpr-muted); font-weight:600; }
+.bpr-group { padding:15px 16px; border-bottom:1px solid var(--bpr-line); }
+.bpr-group:last-child { border-bottom:0; }
+.bpr-glabel { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.bpr-dot { width:7px; height:7px; border-radius:50%; background:var(--bpr-accent-bright); }
+.bpr-field { margin:11px 0; }
+.bpr-field:first-of-type { margin-top:0; }
+.bpr-row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:5px; }
+.bpr-row label { font-size:12.5px; color:var(--bpr-ink); font-weight:300; }
+.bpr-row output { font-size:13px; font-weight:600; color:var(--bpr-accent); }
+.bpr-field input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:4px;
+  background:linear-gradient(var(--bpr-accent), var(--bpr-accent)) 0/var(--fill,50%) 100% no-repeat, var(--bpr-line); outline:none; }
+.bpr-field input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--bpr-panel); border:2px solid var(--bpr-accent); box-shadow:0 1px 3px #0003; cursor:pointer; }
+.bpr-field input[type=range]::-moz-range-thumb { width:16px; height:16px; border-radius:50%; background:var(--bpr-panel); border:2px solid var(--bpr-accent); cursor:pointer; }
+.bpr-field input[type=range]:focus-visible { box-shadow:0 0 0 3px var(--bpr-accent-soft); }
+
+.bpr-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
+.bpr-tiles { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+@media (max-width:560px) { .bpr-tiles { grid-template-columns:1fr; } }
+.bpr-tile { background:var(--bpr-panel); border:1px solid var(--bpr-line); border-radius:var(--bpr-r); padding:16px 17px; box-shadow:var(--bpr-shadow); overflow:hidden; }
+.bpr-hero { grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; gap:18px; }
+.bpr-hero-right { text-align:right; }
+.bpr-k { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--bpr-muted); font-weight:600; }
+.bpr-v { font-size:30px; font-weight:600; letter-spacing:-.01em; margin-top:6px; line-height:1; }
+.bpr-hero .bpr-v { font-size:46px; }
+.bpr-unit { font-size:.5em; font-weight:300; color:var(--bpr-muted); }
+.bpr-accent { color:var(--bpr-accent-ink); }
+.bpr-sub { font-size:12.5px; color:var(--bpr-muted); margin-top:6px; }
+.bpr-pill { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; }
+.bpr-pill.is-good { color:var(--bpr-good); background:var(--bpr-good-soft); }
+.bpr-pill.is-crit { color:var(--bpr-crit); background:var(--bpr-crit-soft); }
+.bpr-pill-dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
+
+.bpr-wheelcard { padding:18px; }
+.bpr-wheelhead { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.bpr-cycsum { font-size:13px; color:var(--bpr-muted); }
+.bpr-cycsum b { color:var(--bpr-ink); }
+.bpr-wheel { display:block; width:100%; height:auto; max-width:560px; margin:6px auto 0; }
+.bpr-coin { fill:var(--bpr-crit); stroke:#fff; stroke-width:1.5;
+  offset-path:path("M330 70 A110 110 0 1 1 329.99 70"); animation:bprOrbit var(--spin,4s) linear infinite; }
+@keyframes bprOrbit { to { offset-distance:100%; } }
+@media (prefers-reduced-motion: reduce) { .bpr-coin { animation:none; } }
+
+.bpr-edu { border-left:3px solid var(--bpr-accent-bright); background:var(--bpr-accent-soft); border-radius:0 9px 9px 0; padding:15px 17px; }
+.bpr-edu-h { display:flex; align-items:center; gap:9px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:var(--bpr-accent); margin-bottom:8px; }
+.bpr-edu-p { margin:0 0 8px; font-size:14px; line-height:1.6; }
+.bpr-edu-p:last-child { margin-bottom:0; }
+.bpr-lead { background:var(--bpr-accent); color:var(--bpr-accent-contrast); font-size:10px; font-weight:600; letter-spacing:.08em; padding:3px 7px; border-radius:5px; }
+
+.bpr-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.bpr-cta { font:inherit; font-weight:600; font-size:13.5px; color:var(--bpr-accent-contrast); background:var(--bpr-accent); border:0; padding:11px 18px; border-radius:10px; cursor:pointer; }
+.bpr-cta:hover { filter:brightness(1.06); }
+.bpr-ghost { background:transparent; color:var(--bpr-ink); border:1px solid var(--bpr-line); }
+.bpr-foot { font-size:12px; color:var(--bpr-muted); }
+
+@media print {
+  .bpr-root { padding:0; background:#fff; min-height:auto; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  aside.bpr-card, .bpr-actions, .bpr-badge { display:none !important; }
+  .bpr-layout { display:block; max-width:none; }
+  .bpr-top, .bpr-results { max-width:none; }
+  .bpr-tile, .bpr-card, .bpr-edu { break-inside:avoid; box-shadow:none; }
+  .bpr-coin { animation:none; }
+}
+/* pop */
+.bpr-v{color:var(--bpr-accent)}
+.bpr-h2{color:var(--bpr-ink)}
+.bpr-hero{background:linear-gradient(180deg,var(--bpr-accent-soft),transparent)}
+/* pop2 */
+.bpr-v{color:#0070c0}
+.bpr-tile{border-top:3px solid #00b1e0}
+.bpr-hero{background:linear-gradient(135deg,#002b64,#0070c0);border-color:#0070c0}
+.bpr-hero .bpr-v,.bpr-hero .bpr-k,.bpr-hero .bpr-sub,.bpr-hero .bpr-unit{color:#ffffff}
+.bpr-eyebrow{color:#00b1e0}
+
+.bpr-herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
+@media (max-width:700px){.bpr-herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
+.bpr-hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.bpr-hs:first-child{border-left:0;padding-left:2px}
+.bpr-hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.bpr-hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
+.bpr-hv .bpr-u{font-size:.5em;font-weight:400;opacity:.85}
+.bpr-hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+.bpr-hs .bpr-pill{background:#ffffff26}
+</style>

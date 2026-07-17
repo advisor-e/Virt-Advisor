@@ -1,5 +1,22 @@
 # Project Rules for Claude
 
+## 🔴 LIVE-APP RULE — READ FIRST (absolute, no exceptions)
+
+**This app is LIVE in production inside the master app, Advisor-e.com (as of 2026-07-13).**
+
+> **No change is to be made to this repository — on ANY branch — without asking Mike
+> first and receiving his explicit approval for that specific change.** This covers
+> every mutation: file edits, new files, deletes, commits, merges, branch operations,
+> dependency installs, config/data changes — however small, including "obvious" fixes.
+> Approval is **per change**; a yes on one change never carries over to the next.
+> Reading, searching, and analysis are fine — reporting findings and *proposing* a fix
+> is the correct behaviour; applying one unasked is not.
+>
+> Enforcement: a global PreToolUse guard hook on Mike's machine
+> (`~/.claude/hooks/guard-virt-advisor.js`) forces a permission prompt on any write or
+> modifying command touching this repo. The hook is a backstop, not the rule itself —
+> the rule binds even where the hook doesn't run. Do not weaken or bypass it.
+
 ## Stack Constitution — THE LOCKED SOURCE OF TRUTH
 
 These are the coding team's authoritative requirements. They override anything the AI

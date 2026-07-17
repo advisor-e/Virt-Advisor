@@ -41,6 +41,13 @@ function validateQuizGenerate (response) {
     if (typeof q.question !== 'string' || q.question.trim() === '') {
       return { valid: false, errors: ['Each question must have a non-empty question string'], data: null }
     }
+    // CB-30: bankRef ties a question to a firm bank entry so grading can use
+    // the model answer. Optional enrichment — anything but a positive integer
+    // is stripped (grading then falls back to the session-content marker)
+    // rather than failing the whole quiz.
+    if ('bankRef' in q && !(Number.isInteger(q.bankRef) && q.bankRef >= 1)) {
+      delete q.bankRef
+    }
   }
 
   return { valid: true, errors: [], data: { questions } }
@@ -83,16 +90,23 @@ function validateQuizGrade (response) {
 
 /**
  * Validates a course-outline AI response (the [COURSE_OUTLINE] JSON emitted by
- * the design stream). Valid = an object with a non-empty `title` string and a
- * non-empty `sessions` array whose every item is an object carrying a non-empty
- * `title`. These are the fields the Course Builder screen actually depends on
- * (`pendingOutline.title`, the `v-for` over `pendingOutline.sessions`, and later
- * `activeCourse.outline.sessions.length`/index access), so a wrong-shape outline
- * must never reach state — it would render a broken or blank course view. The
- * whole outline is rejected if any session is malformed.
+ * the design stream), then normalises the derivable fields (CB-08).
+ *
+ * REJECTED (whole outline, data null) when the content an advisor reads to
+ * judge the course is missing: the outline `title`, a non-empty `sessions`
+ * array, or any session's `title` or `focus` — those cannot be invented
+ * without fabricating (governance: don't-fabricate).
+ *
+ * NORMALISED instead of rejected (the screen renders these directly, so they
+ * must be trustworthy, but they are all derivable): session `id`s are rewritten
+ * to true positions (the AI's own numbering can drift), `totalSessions` is set
+ * to the real count (never the AI's claim), `intensity` is snapped to its two
+ * legal values (defaulting to 'consistent'), `resources`/`objectives` become
+ * clean string arrays, `estimatedMinutes` becomes a positive number (defaulting
+ * to 30 — the session screen's existing default), and `topic` a string.
  *
  * @param {*} response - The parsed AI response to validate
- * @returns {ValidationResult} `data` is the validated outline object when valid
+ * @returns {ValidationResult} `data` is the validated + normalised outline when valid
  */
 function validateCourseOutline (response) {
   if (response === null || typeof response !== 'object' || Array.isArray(response)) {
@@ -117,6 +131,10 @@ function validateCourseOutline (response) {
         errors.push('Each session must have a non-empty title string')
         break
       }
+      if (typeof s.focus !== 'string' || s.focus.trim() === '') {
+        errors.push('Each session must have a non-empty focus string')
+        break
+      }
     }
   }
 
@@ -124,7 +142,41 @@ function validateCourseOutline (response) {
     return { valid: false, errors, data: null }
   }
 
-  return { valid: true, errors: [], data: response }
+  const sessions = response.sessions.map((s, i) => {
+    const resources = Array.isArray(s.resources) ? s.resources.filter(r => typeof r === 'string') : []
+    const session = {
+      ...s,
+      id: i + 1,
+      resources,
+      objectives: Array.isArray(s.objectives) ? s.objectives.filter(o => typeof o === 'string') : [],
+      estimatedMinutes: (typeof s.estimatedMinutes === 'number' && Number.isFinite(s.estimatedMinutes) && s.estimatedMinutes > 0)
+        ? s.estimatedMinutes
+        : 30
+    }
+    // CB-25: resourceLinks round-trips through the browser (and a shared
+    // course copies it to teammates), so it is re-validated at the door:
+    // https-only, and only for names actually in this session's resources —
+    // a tampered javascript:/foreign entry is dropped, never stored.
+    const links = {}
+    if (s.resourceLinks && typeof s.resourceLinks === 'object' && !Array.isArray(s.resourceLinks)) {
+      for (const name of resources) {
+        const url = s.resourceLinks[name]
+        if (typeof url === 'string' && /^https:\/\//i.test(url)) { links[name] = url }
+      }
+    }
+    if (Object.keys(links).length) { session.resourceLinks = links } else { delete session.resourceLinks }
+    return session
+  })
+
+  const data = {
+    ...response,
+    sessions,
+    totalSessions: sessions.length,
+    intensity: String(response.intensity).toLowerCase() === 'progressive' ? 'progressive' : 'consistent',
+    topic: typeof response.topic === 'string' ? response.topic : ''
+  }
+
+  return { valid: true, errors: [], data }
 }
 
 module.exports = { validateQuizGenerate, validateQuizGrade, validateCourseOutline }

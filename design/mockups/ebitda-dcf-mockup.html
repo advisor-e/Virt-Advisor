@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EBITDA &amp; DCF Valuation — Screen Mockup</title>
+<style>
+  :root{
+    --brand-navy:#002b64; --brand-cyan:#00b1e0; --brand-sky:#7fd3f1; --brand-blue:#0070c0;
+    --bg:#eef3f8; --panel:#ffffff; --panel-2:#f1f6fb; --ink:#002b64; --muted:#5b6f8a; --line:#d5e1ee;
+    --accent:#0070c0; --accent-bright:#00b1e0; --accent-soft:#0070c018; --accent-contrast:#ffffff;
+    --good:#4CA52D; --good-soft:#4CA52D1a; --warn:#FF9900; --warn-soft:#FF99001a; --crit:#FF0000; --crit-soft:#FF00000f;
+    --shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426; --r:14px; --r-sm:9px;
+  }
+  :root[data-theme="dark"]{
+    --bg:#05132a; --panel:#0a1f3d; --panel-2:#07182f; --ink:#e6f0fa; --muted:#9fb4d0; --line:#1a3559;
+    --accent:#00b1e0; --accent-bright:#7fd3f1; --accent-soft:#00b1e022; --accent-contrast:#002b64;
+    --good-soft:#4CA52D26; --warn-soft:#FF990022; --crit-soft:#FF00001f;
+    --shadow:0 1px 2px #0007, 0 10px 30px -14px #000a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink); font:300 15px/1.5 "Open Sans","Segoe UI",sans-serif}
+  .wrap{max-width:1120px; margin:0 auto; padding:22px 20px 60px}
+  header.top{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:16px}
+  h1{font-weight:300; font-size:24px; margin:0}
+  h1 b{font-weight:600}
+  .client{font-size:13px; color:var(--muted)}
+  .badge{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; color:var(--accent);
+    border:1px solid #0070c059; background:var(--accent-soft); padding:5px 9px; border-radius:999px; white-space:nowrap}
+  .spacer{flex:1}
+  .themebtn{border:1px solid var(--line); background:var(--panel); color:var(--muted); border-radius:999px; padding:6px 14px; font:600 12px "Open Sans",sans-serif; cursor:pointer}
+  .steps{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 22px}
+  .step{display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--muted);
+    background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:7px 14px; cursor:pointer}
+  .step .n{display:grid; place-items:center; width:19px; height:19px; border-radius:50%; background:var(--line); color:var(--ink); font-size:11px}
+  .step.active{color:var(--accent-contrast); background:var(--accent); border-color:var(--accent)}
+  .step.active .n{background:#ffffff30; color:#fff}
+  .step.done{color:var(--good)} .step.done .n{background:var(--good-soft); color:var(--good)}
+  .pane{display:none} .pane.show{display:block}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); margin-bottom:20px; overflow:hidden}
+  .card>header{padding:13px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+  .card>header h2{margin:0; font-size:12px; letter-spacing:.1em; text-transform:uppercase; font-weight:600}
+  .card>header .exp{font-size:12.5px; color:var(--muted); font-weight:300}
+  .card .body{padding:16px 18px}
+  .drops{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px}
+  .drop{border:2px dashed #0070c066; border-radius:var(--r-sm); background:var(--panel); padding:16px 12px; text-align:center; cursor:pointer}
+  .drop .y{font-weight:600; font-size:15px}
+  .drop .d{font-size:11.5px; color:var(--muted); margin-top:4px}
+  .drop.loaded{border-style:solid; border-color:var(--good); background:var(--good-soft)}
+  .drop.loaded .y{color:var(--good)}
+  .hint{font-size:12.5px; color:var(--muted); margin-top:12px}
+  .btn{border:0; border-radius:var(--r-sm); padding:10px 18px; font:600 13.5px "Open Sans",sans-serif; cursor:pointer}
+  .btn.primary{background:var(--accent); color:var(--accent-contrast)}
+  .btn.ghost{background:transparent; color:var(--accent); border:1px solid var(--accent)}
+  .btnrow{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
+  table{border-collapse:collapse; width:100%; font-size:13px}
+  .tscroll{overflow-x:auto}
+  th,td{padding:6px 10px; text-align:right; white-space:nowrap}
+  th{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; border-bottom:1px solid var(--line)}
+  td:first-child, th:first-child{text-align:left; white-space:normal; min-width:220px}
+  tr.grp td{padding-top:14px; font-weight:600; font-size:11.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--accent)}
+  tr.calc td{font-weight:600; background:var(--panel-2)}
+  tr.hero-row td{background:var(--accent-soft); font-weight:700; font-size:14px; border-top:2px solid var(--accent); border-bottom:2px solid var(--accent)}
+  tr.hero-row td:first-child{color:var(--accent)}
+  .tag{font-size:9.5px; font-weight:600; letter-spacing:.06em; padding:2px 6px; border-radius:6px; margin-left:7px; vertical-align:1px}
+  .tag.file{color:var(--accent); background:var(--accent-soft)}
+  .tag.hand{color:var(--warn); background:var(--warn-soft)}
+  input.cell{width:92px; text-align:right; font:300 13px "Open Sans",sans-serif; color:var(--ink);
+    background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:4px 7px}
+  input.cell.pct{width:58px}
+  input.cell:focus{outline:2px solid var(--accent-bright); border-color:transparent}
+  .herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%); border-radius:14px; padding:20px; display:grid;
+    grid-template-columns:repeat(4,1fr); gap:0; box-shadow:0 12px 32px -12px #002b6466; margin-bottom:20px}
+  @media(max-width:700px){.herostrip{grid-template-columns:1fr 1fr; gap:14px 0}}
+  .hs{padding:2px 16px; border-left:1px solid #ffffff30}
+  .hs:first-child{border-left:0; padding-left:2px}
+  .hk{font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#7fe4ff; font-weight:700}
+  .hv{font-size:26px; font-weight:700; color:#fff; margin-top:7px; line-height:1.05}
+  .hs2{font-size:12px; color:#c7e6fb; margin-top:6px}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+  .cmp{display:flex; gap:14px; flex-wrap:wrap}
+  .cmp .t{flex:1; min-width:150px; background:var(--panel-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:12px 15px}
+  .cmp .k{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600}
+  .cmp .v{font-size:21px; font-weight:700; margin-top:4px}
+  .cmp .v.good{color:var(--good)} .cmp .v.crit{color:var(--crit)}
+  .coach{border-left:4px solid var(--accent-bright); background:var(--panel-2); border-radius:0 var(--r-sm) var(--r-sm) 0; padding:14px 16px; font-size:13.5px}
+  .coach b{font-weight:600}
+  .privacy{display:flex; gap:9px; align-items:center; font-size:12px; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:8px 16px; margin-top:6px}
+  .privacy .dot{width:8px; height:8px; border-radius:50%; background:var(--good); flex:none}
+  .bars{display:flex; align-items:flex-end; gap:10px; height:110px; padding:6px 2px 0}
+  .bars .b{flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:5px}
+  .bars .col{width:100%; max-width:54px; background:linear-gradient(180deg,var(--accent-bright),var(--accent)); border-radius:5px 5px 0 0}
+  .bars .col.proj{opacity:.45; border:1px dashed var(--accent); background:var(--accent-soft)}
+  .bars .yl{font-size:10.5px; color:var(--muted)}
+  .bars .vl{font-size:10.5px; font-weight:600}
+  footer{color:var(--muted); font-size:12px; margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1><b>EBITDA &amp; DCF Valuation</b></h1>
+      <div class="client">Client: Sample Engineering Ltd · prepared by You · 17 Jul 2026</div>
+    </div>
+    <span class="badge">Client report — real figures</span>
+    <div class="spacer"></div>
+    <button class="themebtn" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark'">Light / Dark</button>
+  </header>
+
+  <div class="steps">
+    <div class="step done" onclick="go(1)"><span class="n">1</span> Drop the P&amp;L exports</div>
+    <div class="step done" onclick="go(2)"><span class="n">2</span> Confirm &amp; normalise</div>
+    <div class="step active" id="st3" onclick="go(3)"><span class="n">3</span> Valuation report</div>
+  </div>
+
+  <!-- ================= STEP 1 ================= -->
+  <div class="pane" id="p1">
+    <div class="card">
+      <header><h2>Drop up to five years of Profit &amp; Loss exports</h2>
+        <span class="exp">XLSX or CSV from Xero. One file per year, or one comparative export covering several years. PDF is not accepted — export the spreadsheet version instead.</span></header>
+      <div class="body">
+        <div class="drops">
+          <div class="drop loaded"><div class="y">2025 ✓</div><div class="d">P&amp;L year to 31 Mar 2025</div></div>
+          <div class="drop loaded"><div class="y">2024 ✓</div><div class="d">P&amp;L year to 31 Mar 2024</div></div>
+          <div class="drop loaded"><div class="y">2023 ✓</div><div class="d">P&amp;L year to 31 Mar 2023</div></div>
+          <div class="drop loaded"><div class="y">2022 ✓</div><div class="d">P&amp;L year to 31 Mar 2022</div></div>
+          <div class="drop loaded"><div class="y">2021 ✓</div><div class="d">P&amp;L year to 31 Mar 2021</div></div>
+        </div>
+        <div class="hint">Fewer years works too — the model adapts to the periods you have (minimum two to show growth). Nothing is stored: files are read, reduced to the figures below, and discarded.</div>
+        <div class="btnrow">
+          <button class="btn primary" onclick="go(2)">Continue → confirm the figures</button>
+          <button class="btn ghost" onclick="go(2)">Skip — enter figures manually</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 2 ================= -->
+  <div class="pane" id="p2">
+    <div class="card">
+      <header><h2>Confirm the figures — P&amp;L review</h2>
+        <span class="exp">Figures found in your exports are tagged <span class="tag file">from file</span>; confirm or override any of them. Judgment lines are always <span class="tag hand">entered</span> by you.</span></header>
+      <div class="body tscroll">
+        <table>
+          <tr><th>Line</th><th>2025</th><th>2024</th><th>2023</th><th>2022</th><th>2021</th></tr>
+          <tr><td>Sales <span class="tag file">from file</span></td>
+            <td><input class="cell" value="6,809,564"></td><td><input class="cell" value="4,656,897"></td><td><input class="cell" value="3,545,789"></td><td><input class="cell" value="1,457,890"></td><td><input class="cell" value="1,014,578"></td></tr>
+          <tr><td>Cost of Sales <span class="tag file">from file</span></td>
+            <td><input class="cell" value="5,554,687"></td><td><input class="cell" value="3,856,457"></td><td><input class="cell" value="2,597,414"></td><td><input class="cell" value="856,327"></td><td><input class="cell" value="765,324"></td></tr>
+          <tr><td>Total Operating Expenses (incl' shareholder salary) <span class="tag file">from file</span></td>
+            <td><input class="cell" value="895,366"></td><td><input class="cell" value="345,786"></td><td><input class="cell" value="349,652"></td><td><input class="cell" value="365,214"></td><td><input class="cell" value="185,633"></td></tr>
+          <tr class="grp"><td colspan="6">Sundry income</td></tr>
+          <tr><td>Other income <span class="tag file">from file</span></td>
+            <td><input class="cell" value="64,600"></td><td><input class="cell" value="7,800"></td><td><input class="cell" value="12,564"></td><td><input class="cell" value="15,247"></td><td><input class="cell" value="3,500"></td></tr>
+          <tr><td>Interest received <span class="tag file">from file</span></td>
+            <td><input class="cell" value="563"></td><td><input class="cell" value="489"></td><td><input class="cell" value="789"></td><td><input class="cell" value="365"></td><td><input class="cell" value="0"></td></tr>
+          <tr><td>Bad debts recovered · Dividends received <span class="tag hand">entered</span></td>
+            <td><input class="cell" value="0"></td><td><input class="cell" value="0"></td><td><input class="cell" value="0"></td><td><input class="cell" value="0"></td><td><input class="cell" value="0"></td></tr>
+          <tr class="grp"><td colspan="6">Add-backs — costs a buyer would not inherit <span class="tag hand">entered</span></td></tr>
+          <tr><td>(Loan) Interest paid <span class="tag file">from file</span></td>
+            <td><input class="cell" value="74,121"></td><td><input class="cell" value="11,000"></td><td><input class="cell" value="13,000"></td><td><input class="cell" value="10,500"></td><td><input class="cell" value="9,800"></td></tr>
+          <tr><td>Shareholder salaries &amp; wages</td>
+            <td><input class="cell" value="187,500"></td><td><input class="cell" value="187,500"></td><td><input class="cell" value="187,500"></td><td><input class="cell" value="187,500"></td><td><input class="cell" value="187,500"></td></tr>
+          <tr><td>Insurance &amp; retirement · vehicles · leasehold · one-offs (9 more lines)</td>
+            <td><input class="cell" value="38,500"></td><td><input class="cell" value="38,500"></td><td><input class="cell" value="38,500"></td><td><input class="cell" value="38,500"></td><td><input class="cell" value="38,500"></td></tr>
+          <tr class="grp"><td colspan="6">Fair-market owner package — what a replacement manager really costs <span class="tag hand">entered</span></td></tr>
+          <tr><td>Fair market salary + benefits package</td>
+            <td><input class="cell" value="153,000"></td><td><input class="cell" value="153,000"></td><td><input class="cell" value="153,000"></td><td><input class="cell" value="153,000"></td><td><input class="cell" value="153,000"></td></tr>
+        </table>
+        <div class="hint">The full screen carries every add-back line from the source model (management fees, one-off consents, extraordinary items, establishment costs, asset upgrades, three spare lines) — condensed here for the mockup. An optional per-line <b>advisor note</b> replaces the spreadsheet's "Accountant's internal comments" column; notes stay in this session only.</div>
+        <div class="btnrow">
+          <button class="btn primary" onclick="go(3)">Looks right → build the valuation</button>
+          <button class="btn ghost" onclick="go(1)">← Back to files</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 3 ================= -->
+  <div class="pane show" id="p3">
+    <div class="herostrip">
+      <div class="hs"><div class="hk">Enterprise Value</div><div class="hv" id="hv-ev">$4,420,963</div><div class="hs2">5-yr discounted cash flow + terminal</div></div>
+      <div class="hs"><div class="hk">Normalised EBITDA 2025</div><div class="hv">$571,795</div><div class="hs2">after owner-pay normalisation</div></div>
+      <div class="hs"><div class="hk">Discounted 5-yr Cash Flow</div><div class="hv" id="hv-npv">$3,088,064</div><div class="hs2">2026–2030</div></div>
+      <div class="hs"><div class="hk">Terminal Value</div><div class="hv" id="hv-term">$1,332,899</div><div class="hs2">final year × exit multiple <input class="cell pct" id="in-mult" value="2.0" style="width:44px"></div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <header><h2>Earnings history → projection</h2><span class="exp">normalised EBITDA, actual then projected</span></header>
+        <div class="body">
+          <div class="bars" id="bars"></div>
+        </div>
+      </div>
+      <div class="card">
+        <header><h2>Your Coach says</h2></header>
+        <div class="body">
+          <div class="coach" id="coach">
+            Five years of accounts show earnings growing from <b>$149,921</b> to <b>$571,795</b> once the owner's package is normalised — average actual growth <b>53.7%</b>, though the 2024 dip (−21.6%) shows it is not a straight line. On your projected growth and discount rates, the business supports an enterprise value of <b>$4,420,963</b>. The valuation is most sensitive to the exit multiple: at 2.0 the terminal value is 30% of the total — test it at 1.5 and 2.5 before quoting a range.
+          </div>
+          <div class="hint">Templated from the calculated figures — no AI in v1, per the Quick Position precedent.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><h2>Five-year P&amp;L review</h2><span class="exp">how the raw accounts become true earnings</span></header>
+      <div class="body tscroll">
+        <table>
+          <tr><th>Line</th><th>2025</th><th>2024</th><th>2023</th><th>2022</th><th>2021</th></tr>
+          <tr><td>Sales</td><td>6,809,564</td><td>4,656,897</td><td>3,545,789</td><td>1,457,890</td><td>1,014,578</td></tr>
+          <tr class="calc"><td>Gross Profit <span style="color:var(--muted);font-weight:300">(margin)</span></td><td>1,254,877 <span style="color:var(--muted)">18.4%</span></td><td>800,440 <span style="color:var(--muted)">17.2%</span></td><td>948,375 <span style="color:var(--muted)">26.7%</span></td><td>601,563 <span style="color:var(--muted)">41.3%</span></td><td>249,254 <span style="color:var(--muted)">24.6%</span></td></tr>
+          <tr class="calc"><td>Net Profit before Tax</td><td>424,674</td><td>462,943</td><td>612,076</td><td>251,961</td><td>67,121</td></tr>
+          <tr><td>+ Add-backs</td><td>300,121</td><td>237,000</td><td>239,000</td><td>236,500</td><td>235,800</td></tr>
+          <tr class="calc"><td>Owners Discretionary Cash Flow (EBPITDA)</td><td>724,795</td><td>699,943</td><td>851,076</td><td>488,461</td><td>302,921</td></tr>
+          <tr><td>− Fair-market owner package</td><td>153,000</td><td>153,000</td><td>153,000</td><td>153,000</td><td>153,000</td></tr>
+          <tr class="hero-row"><td>EBITDA (normalised)</td><td>571,795</td><td>546,943</td><td>698,076</td><td>335,461</td><td>149,921</td></tr>
+        </table>
+        <div class="hint">Expandable to the full line-by-line view (every sundry and add-back row) — collapsed by default so the story stays readable.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><h2>Valuation workings — adjust and watch it recalculate</h2>
+        <span class="exp">every edit calls the backend engine (debounced), per the Quick Position pattern</span></header>
+      <div class="body tscroll">
+        <table id="dcf">
+          <tr><th>Projection</th><th>2026</th><th>2027</th><th>2028</th><th>2029</th><th>2030</th></tr>
+          <tr><td>Projected growth rate % <span class="tag hand">entered</span> <span style="color:var(--muted)">(actual avg 53.7%)</span></td>
+            <td><input class="cell pct g" value="4"></td><td><input class="cell pct g" value="6"></td><td><input class="cell pct g" value="5"></td><td><input class="cell pct g" value="3"></td><td><input class="cell pct g" value="4"></td></tr>
+          <tr class="calc"><td>Projected EBITDA</td><td class="pe"></td><td class="pe"></td><td class="pe"></td><td class="pe"></td><td class="pe"></td></tr>
+          <tr><td>Discount rate % <span class="tag hand">entered</span></td>
+            <td><input class="cell pct d" value="6"></td><td><input class="cell pct d" value="7"></td><td><input class="cell pct d" value="5"></td><td><input class="cell pct d" value="5"></td><td><input class="cell pct d" value="6"></td></tr>
+          <tr class="hero-row"><td>Discounted cash flow</td><td class="dc"></td><td class="dc"></td><td class="dc"></td><td class="dc"></td><td class="dc"></td></tr>
+        </table>
+        <div class="btnrow"><button class="btn ghost" onclick="resetDcf()">Reset to defaults</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><h2>Listed-company lens — is a share price cheap or dear?</h2>
+        <span class="exp">the same valuation engine pointed at a public company (owner-ruled: kept)</span></header>
+      <div class="body">
+        <div class="cmp">
+          <div class="t"><div class="k">Shares issued</div><div class="v">3.235 bn</div></div>
+          <div class="t"><div class="k">Current market price</div><div class="v">$0.59</div></div>
+          <div class="t"><div class="k">DCF-assessed price</div><div class="v good">$0.93</div></div>
+          <div class="t"><div class="k">Reading</div><div class="v good">Undervalued</div></div>
+        </div>
+        <div class="hint">Own inputs: published EBITDA history, growth &amp; discount rates, terminal multiple. Collapsed behind its own tab in the build so the client story stays about <i>their</i> business.</div>
+      </div>
+    </div>
+
+    <div class="privacy"><span class="dot"></span> Your files were read and discarded — nothing is stored, and nothing identifying this client leaves this screen. Figures live in your session only.</div>
+    <div class="btnrow">
+      <button class="btn primary" onclick="window.print()">Print / save as PDF</button>
+      <button class="btn ghost" onclick="go(2)">← Back to figures</button>
+      <button class="btn ghost">Start again</button>
+    </div>
+  </div>
+
+  <footer>Screen mockup for owner approval · 2026-07-17 · sample figures from the source model · design/BUSINESS-PERFORMANCE-REPORT-PLAN.md</footer>
+</div>
+
+<script>
+  function go(n){
+    for (var i=1;i<=3;i++){
+      document.getElementById('p'+i).classList.toggle('show', i===n)
+      var st=document.querySelectorAll('.step')[i-1]
+      st.classList.toggle('active', i===n)
+      st.classList.toggle('done', i<n)
+    }
+    window.scrollTo(0,0)
+  }
+  // mockup-local recalc (the build calls the backend engine instead)
+  var EB2025=571795
+  function num(s){return parseFloat(String(s).replace(/,/g,''))||0}
+  function fmt(x){return '$'+Math.round(x).toLocaleString('en-US')}
+  var hist=[149921,335461,698076,546943,571795], years=[2021,2022,2023,2024,2025]
+  function recalc(){
+    var gs=[].map.call(document.querySelectorAll('#dcf .g'),function(i){return num(i.value)/100})
+    var ds=[].map.call(document.querySelectorAll('#dcf .d'),function(i){return num(i.value)/100})
+    var mult=num(document.getElementById('in-mult').value)
+    var prev=EB2025, proj=[], disc=[]
+    for (var i=0;i<5;i++){ prev=prev+prev*gs[i]; proj.push(prev); disc.push(prev-prev*ds[i]) }
+    var pe=document.querySelectorAll('#dcf .pe'), dc=document.querySelectorAll('#dcf .dc')
+    for (i=0;i<5;i++){ pe[i].textContent=Math.round(proj[i]).toLocaleString('en-US'); dc[i].textContent=Math.round(disc[i]).toLocaleString('en-US') }
+    var npv=disc.reduce(function(a,b){return a+b},0), term=disc[4]*mult
+    document.getElementById('hv-npv').textContent=fmt(npv)
+    document.getElementById('hv-term').innerHTML=fmt(term)
+    document.getElementById('hv-ev').textContent=fmt(npv+term)
+    drawBars(proj)
+  }
+  function drawBars(proj){
+    var all=hist.concat(proj), max=Math.max.apply(null,all), el=document.getElementById('bars'), html=''
+    for (var i=0;i<all.length;i++){
+      var y=i<5?years[i]:(2026+i-5)
+      html+='<div class="b"><div class="vl">'+Math.round(all[i]/1000)+'k</div><div class="col'+(i>=5?' proj':'')+'" style="height:'+Math.max(4,90*all[i]/max)+'px"></div><div class="yl">'+y+'</div></div>'
+    }
+    el.innerHTML=html
+  }
+  function resetDcf(){
+    var g=[4,6,5,3,4], d=[6,7,5,5,6]
+    document.querySelectorAll('#dcf .g').forEach(function(i,k){i.value=g[k]})
+    document.querySelectorAll('#dcf .d').forEach(function(i,k){i.value=d[k]})
+    document.getElementById('in-mult').value='2.0'
+    recalc()
+  }
+  document.querySelectorAll('#dcf input, #in-mult').forEach(function(i){i.addEventListener('input', recalc)})
+  recalc()
+</script>
+</body>
+</html>
