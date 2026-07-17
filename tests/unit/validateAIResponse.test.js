@@ -82,6 +82,38 @@ describe('validateQuizGenerate', () => {
       expect(result.data.questions).toHaveLength(2)
     })
   })
+
+  // CB-30: bankRef ties a question to a firm bank entry. Optional — valid
+  // positive integers pass through; anything else is stripped (grading falls
+  // back to the session-content marker) rather than failing the quiz.
+  describe('bankRef sanitisation (CB-30)', () => {
+    test('a positive-integer bankRef passes through', () => {
+      const result = validateQuizGenerate({ questions: [{ question: 'Q?', bankRef: 3 }] })
+      expect(result.valid).toBe(true)
+      expect(result.data.questions[0].bankRef).toBe(3)
+    })
+
+    test('a missing bankRef is fine', () => {
+      const result = validateQuizGenerate({ questions: [{ question: 'Q?' }] })
+      expect(result.valid).toBe(true)
+      expect('bankRef' in result.data.questions[0]).toBe(false)
+    })
+
+    test.each([
+      ['a string', 'three'],
+      ['a numeric string', '3'],
+      ['a float', 2.5],
+      ['zero', 0],
+      ['a negative integer', -1],
+      ['NaN', NaN],
+      ['null', null],
+      ['an object', { id: 1 }]
+    ])('%s bankRef is stripped, the question still validates', (_label, bad) => {
+      const result = validateQuizGenerate({ questions: [{ question: 'Q?', bankRef: bad }] })
+      expect(result.valid).toBe(true)
+      expect('bankRef' in result.data.questions[0]).toBe(false)
+    })
+  })
 })
 
 describe('validateQuizGrade', () => {

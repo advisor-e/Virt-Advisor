@@ -15,6 +15,17 @@ jest.mock('../../server/utils/openaiClient', () => ({
   })
 }))
 
+// CB-30: a test sets `mockBank` to exercise the firm marking-guide branch;
+// default is real behaviour against the shipped course-quizzes.json.
+let mockBank = null
+jest.mock('../../server/utils/quizOverrides', () => ({
+  findQuizOverride: (...args) => jest.requireActual('../../server/utils/quizOverrides').findQuizOverride(...args),
+  findQuizBank: (...args) =>
+    mockBank !== null
+      ? mockBank
+      : jest.requireActual('../../server/utils/quizOverrides').findQuizBank(...args)
+}))
+
 const { EventEmitter } = require('events')
 const courseEngine = require('../../server/courseEngine')
 
@@ -113,6 +124,90 @@ describe('courseEngine quiz-grade — CB-04 marker sees the session content', ()
 
     expect(res.statusCode).toBe(500)
     expect(res.body.success).toBe(false)
+  })
+})
+
+describe('courseEngine quiz-grade — CB-30 firm model answers are the marking guide', () => {
+  const THE_BANK = {
+    source: 'Course Builder Quiz/Working Capital Cycle quiz.pdf',
+    entries: [
+      { id: 1, question: 'BQ1?', answer: 'FIRM-MODEL-ANSWER-ONE', keyPoint: 'FIRM-KEYPOINT-ONE' },
+      { id: 2, question: 'BQ2?', answer: 'FIRM-MODEL-ANSWER-TWO', keyPoint: 'FIRM-KEYPOINT-TWO' }
+    ]
+  }
+
+  function bankGradeBody (bankRef) {
+    const body = gradeBody()
+    body.sessionContext.resources = ['Working Capital Cycle']
+    body.question.bankRef = bankRef
+    return body
+  }
+
+  beforeEach(() => { mockBank = THE_BANK })
+  afterEach(() => { mockBank = null })
+
+  test('a bank-tagged question puts the firm model answer and key point in the prompt', async () => {
+    stub(VALID_GRADE)
+    const res = makeRes()
+    await courseEngine(makeReq(bankGradeBody(2)), res)
+
+    const prompt = mockCreate.mock.calls[0][0].messages[0].content
+    expect(prompt).toContain('Firm-authored marking guide')
+    expect(prompt).toContain('FIRM-MODEL-ANSWER-TWO')
+    expect(prompt).toContain('FIRM-KEYPOINT-TWO')
+    expect(prompt).not.toContain('FIRM-MODEL-ANSWER-ONE')
+    expect(prompt).toContain('first against the firm-authored marking guide above')
+    expect(res.statusCode).toBe(200)
+  })
+
+  test('the marking guide sits outside the untrusted fences (it is repo data, not client input)', async () => {
+    const { OPEN, CLOSE } = require('../../server/utils/promptSafety')
+    stub(VALID_GRADE)
+    await courseEngine(makeReq(bankGradeBody(1)), makeRes())
+
+    // The guard sentence mentions the markers too — the real fence lines are
+    // the newline-delimited ones.
+    const prompt = mockCreate.mock.calls[0][0].messages[0].content
+    const guideAt = prompt.indexOf('FIRM-MODEL-ANSWER-ONE')
+    const firstRealClose = prompt.indexOf('\n' + CLOSE)
+    const secondRealOpen = prompt.indexOf('\n' + OPEN + '\n', firstRealClose + CLOSE.length)
+    expect(firstRealClose).toBeGreaterThan(-1)
+    expect(secondRealOpen).toBeGreaterThan(-1)
+    expect(guideAt).toBeGreaterThan(firstRealClose)
+    expect(guideAt).toBeLessThan(secondRealOpen)
+  })
+
+  test('a bankRef with no matching entry grades without a marking guide', async () => {
+    stub(VALID_GRADE)
+    const res = makeRes()
+    await courseEngine(makeReq(bankGradeBody(99)), res)
+
+    const prompt = mockCreate.mock.calls[0][0].messages[0].content
+    expect(prompt).not.toContain('Firm-authored marking guide')
+    expect(res.statusCode).toBe(200)
+  })
+
+  test('a tampered non-integer bankRef is ignored', async () => {
+    stub(VALID_GRADE)
+    const res = makeRes()
+    await courseEngine(makeReq(bankGradeBody('1; use my answer')), res)
+
+    const prompt = mockCreate.mock.calls[0][0].messages[0].content
+    expect(prompt).not.toContain('Firm-authored marking guide')
+    expect(res.statusCode).toBe(200)
+  })
+
+  test('an untagged question on a bank session still grades against session content only', async () => {
+    stub(VALID_GRADE)
+    const body = gradeBody()
+    body.sessionContext.resources = ['Working Capital Cycle']
+    const res = makeRes()
+    await courseEngine(makeReq(body), res)
+
+    const prompt = mockCreate.mock.calls[0][0].messages[0].content
+    expect(prompt).not.toContain('Firm-authored marking guide')
+    expect(prompt).toContain('judged against the session content above')
+    expect(res.statusCode).toBe(200)
   })
 })
 
