@@ -252,6 +252,13 @@ export default {
     /** One request carries every staged file; the backend parses + assembles. */
     async uploadAll () {
       this.dropError = null
+      // The server's 5 MB cap is per request (the batch together, not each file) —
+      // say so here before a doomed upload is attempted.
+      const total = this.staged.reduce((sum, f) => sum + f.size, 0)
+      if (total > 5 * 1024 * 1024) {
+        this.dropError = this.$t('report.fileCheck.tooBigTotal')
+        return
+      }
       this.uploading = true
       try {
         const body = new FormData()

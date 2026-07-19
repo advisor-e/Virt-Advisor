@@ -17,13 +17,17 @@ const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
-const { assembleAnnualReports } = require('../report/intake/annualAssembler')
+const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
 // named-export + callback-wrap pattern as the firm-manager uploads.
 
-const INTAKE_MAX_BYTES = 5 * 1024 * 1024 // a Xero report export is well under 1 MB
+// 5 MB per REQUEST — formidable v2's maxFileSize accumulates across all parts, so on
+// the multi-file EBITDA intake this caps the batch total, not each file (R14, Mike's
+// option B 2026-07-20: the cap stays; the messages say "together"). A Xero report
+// export is well under 1 MB, so five years fit with huge headroom.
+const INTAKE_MAX_BYTES = 5 * 1024 * 1024
 
 /** Wrap formidable v2's callback parse() for await use. @param {object} form @param {object} req */
 function parseForm (form, req) {
@@ -259,7 +263,7 @@ async function ebitdaDcfIntake (req, res) {
       const tooBig = err && /maxFileSize/i.test(err.message || '')
       res.send(tooBig ? 413 : 400, {
         success: false,
-        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'A file is larger than 5 MB — a Xero report export should be well under that.' : 'The upload could not be read. Please try again.' },
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a Xero report export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
         timestamp: new Date().toISOString()
       })
       return
@@ -270,6 +274,13 @@ async function ebitdaDcfIntake (req, res) {
     if (!uploaded.length) {
       res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send each year\'s P&L export in a "file" field.' }, timestamp: new Date().toISOString() })
       return
+    }
+    // R15: refuse over-count uploads BEFORE any file is parsed (the assembler's own
+    // count check stays as the backstop; same authored message, same code).
+    if (uploaded.length > MAX_FILES) {
+      const e = new Error('This model reads up to ' + MAX_FILES + ' years — ' + uploaded.length + ' files were sent. Please drop one Profit and Loss export per year.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
     }
 
     const parsed = uploaded.map(f => parseUpload(fs.readFileSync(f.filepath)))

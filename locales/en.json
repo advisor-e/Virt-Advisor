@@ -108,7 +108,8 @@
     "calcUnreachable": "Could not reach the calculation service.",
     "fileCheck": {
       "wrongType": "That doesn't look like a Xero export — please drop an .xlsx or .csv file.",
-      "tooBig": "That file is over 5 MB — export the report again without extra tabs or images, then try again."
+      "tooBig": "That file is over 5 MB — export the report again without extra tabs or images, then try again.",
+      "tooBigTotal": "Together the files are over 5 MB — export each report again without extra tabs or images."
     },
     "eightLevers": {
       "title": "8 Levers",
