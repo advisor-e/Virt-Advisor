@@ -359,6 +359,7 @@
           "fmFringeBenefits": "All Other Fringe Benefits (fair market)"
         },
         "notesHint": "Add-backs and the fair-market package are judgment calls — they are yours to enter, and the report tags them as such.",
+        "incomplete": "Every figure needs a number before the report can be built — please complete the highlighted rows.",
         "build": "Looks right — build the valuation →",
         "adjustLater": "You can still adjust the projection on the report screen."
       },

@@ -58,13 +58,14 @@
                 td(:colspan="displayYears.length + 2") {{ $t('report.ebitdaDcf.confirm.group.' + group.key) }}
               tr(v-for="row in group.rows" :key="row")
                 td {{ $t('report.ebitdaDcf.confirm.row.' + row) }}
-                td(v-for="(y, c) in displayYears" :key="row + y")
+                td(v-for="(y, c) in displayYears" :key="row + y" :class="{ 'cell-invalid': invalidCells.includes(row + ':' + displayIndex(c)) }")
                   b-input(v-model.number="figures[row][displayIndex(c)].value" type="number" step="any" size="is-small" @input="markEntered(row, displayIndex(c))")
                 td
                   span.src(:class="rowSource(row) === 'file' ? 'src-file' : 'src-hand'")
                     | {{ rowSource(row) === 'file' ? $t('report.ebitdaDcf.confirm.fromFile') : $t('report.ebitdaDcf.confirm.entered') }}
       .warn-note(v-for="(w, i) in warnings" :key="'w' + i") ⚠ {{ w }}
       p.note {{ $t('report.ebitdaDcf.confirm.notesHint') }}
+      .confirm-error(v-if="invalidCells.length") {{ $t('report.ebitdaDcf.confirm.incomplete') }}
     .drop-actions
       b-button(type="is-primary" @click="confirmFigures") {{ $t('report.ebitdaDcf.confirm.build') }}
       span.adjust-note {{ $t('report.ebitdaDcf.confirm.adjustLater') }}
@@ -151,7 +152,9 @@ export default {
       years: [2021, 2022, 2023, 2024, 2025], // oldest-first, set by the files
       figures: this.defaultFigures(5),
       companyName: null,
-      rowGroups: ROW_GROUPS
+      rowGroups: ROW_GROUPS,
+      // Cells ("row:index") that blocked the last build attempt (empty / non-numeric) — R23
+      invalidCells: []
     }
   },
 
@@ -189,9 +192,10 @@ export default {
     rowSource (row) {
       return this.figures[row].some(cell => cell.source === 'file') ? 'file' : 'entered'
     },
-    /** An edited cell becomes the advisor's figure. @param {string} row @param {number} idx */
+    /** An edited cell becomes the advisor's figure (and clears its incomplete flag). @param {string} row @param {number} idx */
     markEntered (row, idx) {
       this.figures[row][idx].source = 'entered'
+      this.invalidCells = this.invalidCells.filter(k => k !== row + ':' + idx)
     },
     pickFiles () {
       this.$refs.fileInput.click()
@@ -298,8 +302,20 @@ export default {
       // step: which intake step is showing (1 = drop, 2 = confirm)
       this.$emit('step', 2)
     },
-    /** Hand the confirmed figures (oldest-first) to the report screen. */
+    /**
+     * Hand the confirmed figures (oldest-first) to the report screen. Every cell must be
+     * a real number first — a cleared box must never fall through to a sample default on
+     * the backend (R23, same rule as the Quick Position intake / contract §4.4).
+     */
     confirmFigures () {
+      const bad = []
+      Object.keys(this.figures).forEach((row) => {
+        this.figures[row].forEach((cell, idx) => {
+          if (!Number.isFinite(cell.value)) { bad.push(row + ':' + idx) }
+        })
+      })
+      this.invalidCells = bad
+      if (bad.length) { return }
       // confirmed: { years, figures: {row: [{value, source}] oldest-first}, companyName }
       this.$emit('confirmed', {
         years: this.years.slice(),
@@ -336,6 +352,8 @@ export default {
 .confirm-table td { padding: 6px 8px; border-bottom: 1px solid #eef3f8; vertical-align: middle; min-width: 96px; }
 .confirm-table td:first-child { min-width: 220px; }
 .confirm-table tr.grp td { padding-top: 14px; font-weight: 600; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #0070c0; border-bottom: 1px solid #d5e1ee; }
+.cell-invalid { background: #ff00000a; }
+.confirm-error { font-size: 12.5px; font-weight: 600; color: #ff0000; background: #ff00001a; border-radius: 9px; padding: 10px 14px; margin-top: 14px; }
 .src { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; padding: 2.5px 7px; border-radius: 999px; white-space: nowrap; }
 .src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
 .src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }

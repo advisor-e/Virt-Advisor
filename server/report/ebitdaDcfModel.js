@@ -32,26 +32,53 @@
  * @param {*} v @param {number} def @returns {number}
  */
 function pick (v, def) {
-  if (typeof v === 'number') { return Number.isFinite(v) ? v : def }
-  if (v === null || v === undefined || v === '') { return def }
-  const n = parseFloat(v)
-  return Number.isFinite(n) ? n : def
+  if (!usable(v)) { return def }
+  return typeof v === 'number' ? v : parseFloat(v)
+}
+
+/**
+ * Can this value be used as a figure? (The single source of truth pick() decides by —
+ * and the R8 defaulted-inputs echo audits by. Keep them in lockstep.)
+ * @param {*} v @returns {boolean}
+ */
+function usable (v) {
+  if (typeof v === 'number') { return Number.isFinite(v) }
+  if (v === null || v === undefined || v === '') { return false }
+  return Number.isFinite(parseFloat(v))
+}
+
+/**
+ * Coerce a per-year array over its default, tracking per-index whether the figure came
+ * from the input or fell back (R8: the flags travel WITH the values through any later
+ * padding/trim so the echo can never drift from the maths).
+ * @param {*} arr @param {number[]} def @returns {{values:number[], fromInput:boolean[]}}
+ */
+function coerceSeries (arr, def) {
+  const src = Array.isArray(arr) && arr.length >= 2 && arr.length <= 5 ? arr : null
+  const n = src ? src.length : def.length
+  const values = []
+  const fromInput = []
+  for (let i = 0; i < n; i++) {
+    const v = src ? src[i] : undefined
+    fromInput.push(usable(v))
+    values.push(pick(v, def[i % def.length]))
+  }
+  return { values, fromInput }
 }
 
 /**
  * Coerce a per-year array over its default: result length = default's length unless the
  * caller sends a shorter/longer VALID array (2..5 entries), letting the model adapt to
  * however many periods the advisor actually has. Junk entries fall back per-index.
- * @param {*} arr @param {number[]} def @returns {number[]}
+ * When `name`+`defaulted` are given, fallen-back indices are echoed as "name[i]" (R8).
+ * @param {*} arr @param {number[]} def @param {string} [name] @param {string[]} [defaulted] @returns {number[]}
  */
-function pickSeries (arr, def) {
-  const src = Array.isArray(arr) && arr.length >= 2 && arr.length <= 5 ? arr : null
-  const n = src ? src.length : def.length
-  const out = []
-  for (let i = 0; i < n; i++) {
-    out.push(pick(src ? src[i] : undefined, def[i % def.length]))
+function pickSeries (arr, def, name, defaulted) {
+  const s = coerceSeries(arr, def)
+  if (name && defaulted) {
+    s.fromInput.forEach((ok, idx) => { if (!ok) { defaulted.push(name + '[' + idx + ']') } })
   }
-  return out
+  return s.values
 }
 
 /**
@@ -114,15 +141,28 @@ function acrossAt (group, i) {
   return total
 }
 
-/** Coerce a keyed group of per-year series over its defaults, all to `n` periods. */
-function pickGroup (input, def, n) {
+/**
+ * Coerce a keyed group of per-year series over its defaults, all to `n` periods.
+ * When `groupName`+`defaulted` are given, fallen-back FINAL positions are echoed as
+ * "group.key[i]" ("key[i]" for a blank groupName) — the flags are padded/trimmed in
+ * lockstep with the values, so a padded oldest year is correctly reported (R8).
+ */
+function pickGroup (input, def, n, groupName, defaulted) {
   const out = {}
   const src = (input && typeof input === 'object') ? input : {}
   for (const key of Object.keys(def)) {
-    const series = pickSeries(src[key], def[key])
+    const s = coerceSeries(src[key], def[key])
+    const series = s.values
+    const flags = s.fromInput
     // hold every series in the group to the P&L's period count
-    while (series.length < n) { series.unshift(def[key][0]) }
+    while (series.length < n) { series.unshift(def[key][0]); flags.unshift(false) }
     out[key] = series.slice(series.length - n)
+    if (defaulted && groupName !== undefined) {
+      const prefix = groupName ? groupName + '.' + key : key
+      flags.slice(flags.length - n).forEach((ok, idx) => {
+        if (!ok) { defaulted.push(prefix + '[' + idx + ']') }
+      })
+    }
   }
   return out
 }
@@ -177,6 +217,7 @@ function growthRates (history) {
  * @param {object} inputs - any subset of the DEFAULTS shape above.
  * @returns {object} {
  *   years,                                   // e.g. [2021..2025]
+ *   defaultedInputs,                         // R8: input paths that computed on a sample default, e.g. "costOfSales[0]", "listed.sharePrice"
  *   periodCount,                             // sheet AB6: years with sales > 1
  *   pnl: {                                   // EBITDA Calcs rows, one entry per year
  *     grossProfit, grossProfitPct,           // rows 12, 13 (pct is 0 on zero sales — the sheet's own guard)
@@ -204,17 +245,25 @@ function growthRates (history) {
  */
 function computeEbitdaDcf (inputs) {
   const i = (inputs && typeof inputs === 'object') ? inputs : {}
+  // R8 ruling (Mike, 2026-07-19): defaults may substitute, but NEVER silently — every
+  // figure that fell back to a sample value is named in defaultedInputs.
+  const defaulted = []
+  /** Scalar pick with the R8 echo. @param {string} name @param {*} v @param {number} def */
+  const p = (name, v, def) => {
+    if (!usable(v)) { defaulted.push(name) }
+    return pick(v, def)
+  }
 
   // ---- P&L Review (EBITDA Calcs) ----
-  const sales = pickSeries(i.sales, DEFAULTS.sales)
+  const sales = pickSeries(i.sales, DEFAULTS.sales, 'sales', defaulted)
   const n = sales.length
-  const costOfSales = pickGroup({ s: i.costOfSales }, { s: DEFAULTS.costOfSales }, n).s
-  const operatingExpenses = pickGroup({ s: i.operatingExpenses }, { s: DEFAULTS.operatingExpenses }, n).s
-  const sundry = pickGroup(i.sundry, DEFAULTS.sundry, n)
-  const addBacks = pickGroup(i.addBacks, DEFAULTS.addBacks, n)
-  const fairMarket = pickGroup(i.fairMarket, DEFAULTS.fairMarket, n)
+  const costOfSales = pickGroup({ costOfSales: i.costOfSales }, { costOfSales: DEFAULTS.costOfSales }, n, '', defaulted).costOfSales
+  const operatingExpenses = pickGroup({ operatingExpenses: i.operatingExpenses }, { operatingExpenses: DEFAULTS.operatingExpenses }, n, '', defaulted).operatingExpenses
+  const sundry = pickGroup(i.sundry, DEFAULTS.sundry, n, 'sundry', defaulted)
+  const addBacks = pickGroup(i.addBacks, DEFAULTS.addBacks, n, 'addBacks', defaulted)
+  const fairMarket = pickGroup(i.fairMarket, DEFAULTS.fairMarket, n, 'fairMarket', defaulted)
 
-  const latestYear = Math.round(pick(i.latestYear, DEFAULTS.latestYear))
+  const latestYear = Math.round(p('latestYear', i.latestYear, DEFAULTS.latestYear))
   const years = []
   for (let y = 0; y < n; y++) { years.push(latestYear - (n - 1) + y) }
 
@@ -254,8 +303,8 @@ function computeEbitdaDcf (inputs) {
 
   // ---- DCF block 1: the private-business valuation ----
   const dcfIn = (i.dcf && typeof i.dcf === 'object') ? i.dcf : {}
-  const projectedGrowth = pickSeries(dcfIn.projectedGrowth, DEFAULTS.dcf.projectedGrowth)
-  const discountRates = pickSeries(dcfIn.discountRates, DEFAULTS.dcf.discountRates)
+  const projectedGrowth = pickSeries(dcfIn.projectedGrowth, DEFAULTS.dcf.projectedGrowth, 'dcf.projectedGrowth', defaulted)
+  const discountRates = pickSeries(dcfIn.discountRates, DEFAULTS.dcf.discountRates, 'dcf.discountRates', defaulted)
   // R5: project() reads rates[i] per growth year — a length mismatch would turn the
   // valuation into NaN→null, indistinguishable from an honest "won't fabricate" null.
   // Refuse loudly (the route's catch returns the standard safe 400) rather than pad
@@ -263,7 +312,7 @@ function computeEbitdaDcf (inputs) {
   if (projectedGrowth.length !== discountRates.length) {
     throw new Error('projectedGrowth and discountRates must cover the same number of years')
   }
-  const exitMultiple = pick(dcfIn.exitMultiple, DEFAULTS.dcf.exitMultiple)
+  const exitMultiple = p('dcf.exitMultiple', dcfIn.exitMultiple, DEFAULTS.dcf.exitMultiple)
 
   const growth1 = growthRates(pnl.ebitda)
   const proj1 = project(pnl.ebitda[n - 1], projectedGrowth, discountRates)
@@ -273,17 +322,17 @@ function computeEbitdaDcf (inputs) {
 
   // ---- DCF block 2: the listed-company lens ----
   const listedIn = (i.listed && typeof i.listed === 'object') ? i.listed : {}
-  const sharesIssued = pick(listedIn.sharesIssued, DEFAULTS.listed.sharesIssued)
-  const sharePrice = pick(listedIn.sharePrice, DEFAULTS.listed.sharePrice)
-  const ebitdaHistory = pickSeries(listedIn.ebitdaHistory, DEFAULTS.listed.ebitdaHistory)
-  const listedGrowth = pickSeries(listedIn.projectedGrowth, DEFAULTS.listed.projectedGrowth)
-  const listedRates = pickSeries(listedIn.discountRates, DEFAULTS.listed.discountRates)
+  const sharesIssued = p('listed.sharesIssued', listedIn.sharesIssued, DEFAULTS.listed.sharesIssued)
+  const sharePrice = p('listed.sharePrice', listedIn.sharePrice, DEFAULTS.listed.sharePrice)
+  const ebitdaHistory = pickSeries(listedIn.ebitdaHistory, DEFAULTS.listed.ebitdaHistory, 'listed.ebitdaHistory', defaulted)
+  const listedGrowth = pickSeries(listedIn.projectedGrowth, DEFAULTS.listed.projectedGrowth, 'listed.projectedGrowth', defaulted)
+  const listedRates = pickSeries(listedIn.discountRates, DEFAULTS.listed.discountRates, 'listed.discountRates', defaulted)
   // Same R5 guard as the private-business block above
   if (listedGrowth.length !== listedRates.length) {
     throw new Error('listed projectedGrowth and discountRates must cover the same number of years')
   }
-  const listedMultiple = pick(listedIn.exitMultiple, DEFAULTS.listed.exitMultiple)
-  const figuresMultiple = pick(listedIn.figuresMultiple, DEFAULTS.listed.figuresMultiple)
+  const listedMultiple = p('listed.exitMultiple', listedIn.exitMultiple, DEFAULTS.listed.exitMultiple)
+  const figuresMultiple = p('listed.figuresMultiple', listedIn.figuresMultiple, DEFAULTS.listed.figuresMultiple)
 
   const growth2 = growthRates(ebitdaHistory)
   // Sheet K28 fallback, ported exactly: a blank/zero latest year seeds from the year before
@@ -296,6 +345,8 @@ function computeEbitdaDcf (inputs) {
   return {
     years,
     periodCount,
+    // R8: every figure that computed on a sample default rather than a supplied value
+    defaultedInputs: defaulted,
     pnl,
     valuation: {
       futureYears,
