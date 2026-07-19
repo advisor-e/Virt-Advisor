@@ -107,6 +107,25 @@ describe('xlsxReader — hostile and malformed files', () => {
     try { readXlsx(buf); throw new Error('should have thrown') } catch (e) { expect(e.code).toBe('FILE_TOO_LARGE') }
   })
 
+  test('a single value cell at row 9,999,999 → FILE_TOO_LARGE (row-padding OOM guard)', () => {
+    const buf = xlsxWithSheetXml(
+      '<worksheet><sheetData><row r="9999999"><c r="A9999999"><v>1</v></c></row></sheetData></worksheet>'
+    )
+    try { readXlsx(buf); throw new Error('should have thrown') } catch (e) { expect(e.code).toBe('FILE_TOO_LARGE') }
+  })
+
+  test('an empty formatting-only cell far down (Excel re-save phantom) still parses', () => {
+    const buf = xlsxWithSheetXml(
+      '<worksheet><sheetData>' +
+      '<row r="1"><c r="A1"><v>7</v></c></row>' +
+      '<row r="50000"><c r="A50000" s="1"/></row>' +
+      '</sheetData></worksheet>'
+    )
+    const rows = readXlsx(buf)[0].rows
+    expect(rows[0][0]).toBe(7)
+    expect(rows.length).toBe(1) // the phantom cell never grew the sheet
+  })
+
   test('more parts than a spreadsheet should have → TOO_MANY_PARTS', () => {
     const entries = []
     for (let i = 0; i < 70; i++) { entries.push({ name: 'part' + i + '.xml', data: 'x' }) }
