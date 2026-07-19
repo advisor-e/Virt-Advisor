@@ -228,6 +228,7 @@
         "debtorsFactor": "Debtors realisable",
         "stockFactor": "Stock realisable",
         "fixedAssetsFactor": "Fixed assets realisable",
+        "liabilities": "Immediate liabilities (from the Balance Sheet)",
         "outgoings": "Monthly outgoings",
         "fixedCosts": "Fixed costs / month",
         "drawings": "Drawings + wages top-up",

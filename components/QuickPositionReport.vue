@@ -12,13 +12,27 @@
                 | {{ sources[f.key] === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
             output {{ money(inputs[f.key]) }} × {{ inputs[f.key + 'Factor'] }}%
           input(type="range" min="0" max="100" step="5" v-model.number="inputs[f.key + 'Factor']")
+      //- R11: creditors/wagesDue shape the result but had no on-screen presence — shown
+      //- read-only with their provenance (making them editable is a separate design call)
+      .group
+        h2 {{ $t('report.quickPosition.aside.liabilities') }}
+        .field(v-for="k in ['creditors', 'wagesDue']" :key="k")
+          .row
+            label
+              | {{ $t('report.quickPosition.confirm.' + k) }}
+              span.src(:class="sources[k] === 'file' ? 'src-file' : 'src-hand'")
+                | {{ sources[k] === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
+            output {{ money(inputs[k]) }}
       .group
         h2 {{ $t('report.quickPosition.aside.outgoings') }}
         .field
           .row
-            label {{ $t('report.quickPosition.aside.fixedCosts') }}
+            label
+              | {{ $t('report.quickPosition.aside.fixedCosts') }}
+              span.src(:class="sources.monthlyFixedCosts === 'file' ? 'src-file' : 'src-hand'")
+                | {{ sources.monthlyFixedCosts === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
             output {{ money(inputs.monthlyFixedCosts) }}
-          input(type="range" min="0" max="60000" step="500" v-model.number="inputs.monthlyFixedCosts")
+          input(type="range" min="0" max="60000" step="500" v-model.number="inputs.monthlyFixedCosts" @input="fixedCostsEntered")
         .field
           .row
             label {{ $t('report.quickPosition.aside.drawings') }}
@@ -222,7 +236,9 @@ export default {
         stock: src('stock'),
         fixedAssets: src('fixedAssets'),
         creditors: src('creditors'),
-        wagesDue: src('wagesDue')
+        wagesDue: src('wagesDue'),
+        // R11: tracks the "use this figure" button — a file-derived average must keep its tag
+        monthlyFixedCosts: 'entered'
       },
       serviceBusiness: !!seed.serviceBusiness,
       expenseLines: seed.expenseLines || null,
@@ -368,13 +384,18 @@ export default {
         })
         .catch(() => { if (seq === this._reqSeq) { this.error = true } })
     },
-    /** One click: the P&L-seeded review becomes the monthly fixed costs. */
+    /** One click: the P&L-seeded review becomes the monthly fixed costs — tagged from file (R11). */
     useExpensesMonthly () {
       const avg = this.result && this.result.expensesReview && this.result.expensesReview.averageMonthly
       if (typeof avg === 'number') {
         this.inputs.monthlyFixedCosts = Math.round(avg)
+        this.sources.monthlyFixedCosts = 'file'
         this.$buefy.toast.open({ message: this.$t('report.quickPosition.expenses.used'), type: 'is-success' })
       }
+    },
+    /** Slider touch: the fixed-costs figure becomes the advisor's (provenance rule). */
+    fixedCostsEntered () {
+      this.sources.monthlyFixedCosts = 'entered'
     },
     resetAll () {
       const fresh = this.$options.data.call(this)

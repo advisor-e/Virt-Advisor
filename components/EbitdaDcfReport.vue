@@ -47,7 +47,10 @@
               th(v-for="(y, c) in displayYears" :key="'py' + y") {{ y }}
           tbody
             tr
-              td {{ $t('report.ebitdaDcf.confirm.row.sales') }}
+              td
+                | {{ $t('report.ebitdaDcf.confirm.row.sales') }}
+                span.src(:class="rowSrc('sales') === 'file' ? 'src-file' : 'src-hand'")
+                  | {{ rowSrc('sales') === 'file' ? $t('report.ebitdaDcf.confirm.fromFile') : $t('report.ebitdaDcf.confirm.entered') }}
               td(v-for="(y, c) in displayYears" :key="'s' + y") {{ money(seedValue('sales', c)) }}
             tr.calc
               td {{ $t('report.ebitdaDcf.pnl.grossProfit') }}
@@ -56,10 +59,16 @@
                 span.pctnote  {{ pct(result.pnl.grossProfitPct[di(c)]) }}
             template(v-if="expanded")
               tr
-                td {{ $t('report.ebitdaDcf.confirm.row.costOfSales') }}
+                td
+                  | {{ $t('report.ebitdaDcf.confirm.row.costOfSales') }}
+                  span.src(:class="rowSrc('costOfSales') === 'file' ? 'src-file' : 'src-hand'")
+                    | {{ rowSrc('costOfSales') === 'file' ? $t('report.ebitdaDcf.confirm.fromFile') : $t('report.ebitdaDcf.confirm.entered') }}
                 td(v-for="(y, c) in displayYears" :key="'c' + y") {{ money(seedValue('costOfSales', c)) }}
               tr
-                td {{ $t('report.ebitdaDcf.confirm.row.operatingExpenses') }}
+                td
+                  | {{ $t('report.ebitdaDcf.confirm.row.operatingExpenses') }}
+                  span.src(:class="rowSrc('operatingExpenses') === 'file' ? 'src-file' : 'src-hand'")
+                    | {{ rowSrc('operatingExpenses') === 'file' ? $t('report.ebitdaDcf.confirm.fromFile') : $t('report.ebitdaDcf.confirm.entered') }}
                 td(v-for="(y, c) in displayYears" :key="'o' + y") {{ money(seedValue('operatingExpenses', c)) }}
               tr.calc
                 td {{ $t('report.ebitdaDcf.pnl.netOperatingProfit') }}
@@ -322,6 +331,16 @@ export default {
     di (c) {
       return this.years.length - 1 - c
     },
+    /**
+     * Row-level provenance for a seeded input row — 'file' while ANY year in the row
+     * still carries a file figure (the intake table's rule, R11); 'entered' otherwise,
+     * including demo mode (no seed = the advisor owns every figure).
+     * @param {string} row @returns {'file'|'entered'}
+     */
+    rowSrc (row) {
+      const fig = this.seed && this.seed.figures && this.seed.figures[row]
+      return fig && fig.some(cell => cell.source === 'file') ? 'file' : 'entered'
+    },
     /** A confirmed input figure for a display column. @param {string} row @param {number} c */
     seedValue (row, c) {
       const fig = this.seed && this.seed.figures && this.seed.figures[row]
@@ -420,6 +439,10 @@ export default {
 .stalehead { font-size: 13px; font-weight: 600; color: #ff0000; margin-bottom: 3px; }
 .stalebody { font-size: 12.5px; color: #5b6f8a; margin: 0 0 9px; line-height: 1.5; }
 .is-stale { opacity: .45; filter: grayscale(0.6); }
+/* Provenance badges on the printable P&L rows (R11) — same tokens as the intake table */
+.src { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; padding: 2px 6px; border-radius: 999px; white-space: nowrap; margin-left: 7px; }
+.src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
+.src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }
 .herostrip {
   background: linear-gradient(120deg, #002b64 0%, #0a56b0 55%, #00b1e0 135%);
   border-radius: 14px; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr);
