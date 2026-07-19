@@ -1,5 +1,11 @@
 # Nuxt Minimal Starter
 
+> **📌 Pulling this code into any environment (UAT, production, the Advisor-e master
+> app, a demo)? Record the exact commit you pulled in
+> [`design/DEPLOYED-VERSIONS.md`](design/DEPLOYED-VERSIONS.md) — the deployment is not
+> complete until its row is written.** That ledger is how everyone knows which version
+> is running where, and in what state.
+
 ## 📁 Where everything lives
 
 Project documentation is in the **[`design/`](design/)** folder:
