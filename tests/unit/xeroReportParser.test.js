@@ -183,6 +183,54 @@ describe('parseUpload — sniffing and dispatch', () => {
   })
 })
 
+describe('multi-column exports (R4) — comparative warns, by-month refuses', () => {
+  const COMPARATIVE_BS = [
+    ['Balance Sheet'],
+    ['Kinetic Test Ltd'],
+    ['As at 31 March 2026'],
+    [],
+    ['Assets'],
+    ['Bank'],
+    ['Cheque Account', 120000, 98000],
+    ['Total Bank', 120000, 98000],
+    ['Liabilities'],
+    ['Current Liabilities'],
+    ['Accounts Payable', 40000, 31000],
+    ['Total Current Liabilities', 40000, 31000]
+  ]
+
+  test('a comparative Balance Sheet (2 figure columns) reads the first column and WARNS', () => {
+    const r = extractBalanceSheet(COMPARATIVE_BS)
+    expect(r.recognised).toBe(true)
+    expect(r.proposals.cash.value).toBe(120000) // most recent period, never the prior year
+    expect(r.warnings.some(w => /several figure columns/.test(w))).toBe(true)
+  })
+
+  test('a by-month P&L (12 months + YTD) is REFUSED with MULTI_PERIOD_COLUMNS', () => {
+    const byMonth = [
+      ['Profit and Loss'],
+      ['Kinetic Test Ltd'],
+      ['For the year ended 31 March 2026'],
+      [],
+      ['Income'],
+      ['Sales', 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 780],
+      ['Total Income', 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 780]
+    ]
+    try {
+      extractProfitLoss(byMonth)
+      throw new Error('should have thrown')
+    } catch (e) {
+      expect(e.code).toBe('MULTI_PERIOD_COLUMNS')
+      expect(e.message).toMatch(/whole-period report/i)
+    }
+  })
+
+  test('single-figure-column exports raise NO multi-column warning', () => {
+    expect(extractBalanceSheet(BS_GRID).warnings.some(w => /figure columns/.test(w))).toBe(false)
+    expect(extractProfitLoss(PL_GRID).warnings.some(w => /figure columns/.test(w))).toBe(false)
+  })
+})
+
 describe('csvReader — quoting and safety caps', () => {
   test('RFC-4180 quoting: commas, escaped quotes, CRLF', () => {
     const rows = parseCsv('a,"b,c","say ""hi""",5\r\nnext,1\n')
