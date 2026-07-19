@@ -217,6 +217,9 @@ export default {
   },
 
   data () {
+    // R23 residual: the listed history table renders one cell per year — the array must
+    // be exactly that long, or invisible sample slots reach the calc as if typed.
+    const yearCount = (this.seed && this.seed.years && this.seed.years.length) || 5
     return {
       dcf: {
         growthPct: [4, 6, 5, 3, 4],
@@ -226,7 +229,7 @@ export default {
       listed: {
         sharesIssued: 3234978616,
         sharePrice: 0.59,
-        ebitdaHistory: [-37.3, -307.6, 861.7, 548.9, 0],
+        ebitdaHistory: [-37.3, -307.6, 861.7, 548.9, 0].slice(0, yearCount),
         exitMultiple: 0.25
       },
       listedOpen: false,

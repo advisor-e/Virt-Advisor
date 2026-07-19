@@ -17,7 +17,8 @@
       p {{ $t('report.ebitdaDcf.drop.rules') }}
       a(href="#" @click.prevent="skipManual") {{ $t('report.ebitdaDcf.drop.skip') }}
     .drop-actions
-      b-button(type="is-primary" :disabled="staged.length === 0" :loading="uploading" @click="uploadAll") {{ $t('report.ebitdaDcf.drop.read', { n: staged.length }) }}
+      //- R23 residual: the rules line below promises "minimum two years to show growth" — enforce it
+      b-button(type="is-primary" :disabled="staged.length < 2" :loading="uploading" @click="uploadAll") {{ $t('report.ebitdaDcf.drop.read', { n: staged.length }) }}
 
   //- ── Step 1b: assign years the files could not state ──
   section(v-else-if="phase === 'years'")
