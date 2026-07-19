@@ -61,7 +61,12 @@
           input(type="range" min="0" max="30" step="1" v-model.number="inputs.discountPct")
 
     section.results(v-if="result")
-      .herostrip
+      //- A failure AFTER the first load must never sit silently behind stale figures (R9)
+      .stale(v-if="error")
+        .stalehead {{ $t('report.staleTitle') }}
+        p.stalebody {{ $t('report.calcUnreachable') }}
+        b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
+      .herostrip(:class="{ 'is-stale': error }")
         .hs
           .hk {{ $t('report.quickPosition.hero.quickCash') }}
           .hv(:class="{ crit: result.quickCashAvailable < 0 }") {{ money(result.quickCashAvailable) }}
@@ -286,6 +291,9 @@ export default {
   created () {
     // Debounced so slider drags don't flood the backend (calc is backend-only)
     this._debouncedRecompute = debounce(this.recompute, 250)
+    // Monotonic request stamp (R10): debounce spaces call STARTS only — a slow older
+    // response must never overwrite a newer one. Non-reactive by design.
+    this._reqSeq = 0
   },
 
   mounted () {
@@ -342,6 +350,7 @@ export default {
       if (this.expenseLines) {
         body.expenseLines = this.expenseLines.map(l => ({ amount: l.amount, maintainedPct: 1 }))
       }
+      const seq = ++this._reqSeq
       fetch('/api/report/quick-position', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -349,6 +358,7 @@ export default {
       })
         .then(res => res.json())
         .then((json) => {
+          if (seq !== this._reqSeq) { return } // superseded — discard (R10)
           if (json.success) {
             this.result = json.data
             this.error = false
@@ -356,7 +366,7 @@ export default {
             this.error = true
           }
         })
-        .catch(() => { this.error = true })
+        .catch(() => { if (seq === this._reqSeq) { this.error = true } })
     },
     /** One click: the P&L-seeded review becomes the monthly fixed costs. */
     useExpensesMonthly () {
@@ -395,6 +405,12 @@ export default {
 .src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
 .src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }
 .results { display: flex; flex-direction: column; gap: 18px; }
+/* Stale-figures banner (R9): a failed recompute must be visibly untrustworthy —
+   stale figures presented as live are worse than no figures at all. */
+.stale { background: #ff000010; border: 1px solid #ff0000; border-radius: 14px; padding: 12px 14px; }
+.stalehead { font-size: 13px; font-weight: 600; color: #ff0000; margin-bottom: 3px; }
+.stalebody { font-size: 12.5px; color: #5b6f8a; margin: 0 0 9px; line-height: 1.5; }
+.is-stale { opacity: .45; filter: grayscale(0.6); }
 .herostrip {
   background: linear-gradient(120deg, #002b64 0%, #0a56b0 55%, #00b1e0 135%);
   border-radius: 14px; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr);
