@@ -32,17 +32,17 @@
               span.src(:class="sources.monthlyFixedCosts === 'file' ? 'src-file' : 'src-hand'")
                 | {{ sources.monthlyFixedCosts === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
             output {{ money(inputs.monthlyFixedCosts) }}
-          input(type="range" min="0" max="60000" step="500" v-model.number="inputs.monthlyFixedCosts" @input="fixedCostsEntered")
+          input(type="range" min="0" :max="moneyMax('monthlyFixedCosts', 60000, 500)" step="500" v-model.number="inputs.monthlyFixedCosts" @input="fixedCostsEntered")
         .field
           .row
             label {{ $t('report.quickPosition.aside.drawings') }}
             output {{ money(inputs.monthlyDrawings) }}
-          input(type="range" min="0" max="30000" step="500" v-model.number="inputs.monthlyDrawings")
+          input(type="range" min="0" :max="moneyMax('monthlyDrawings', 30000, 500)" step="500" v-model.number="inputs.monthlyDrawings")
         .field
           .row
             label {{ $t('report.quickPosition.aside.loanRepayments') }}
             output {{ money(inputs.monthlyLoanRepayments) }}
-          input(type="range" min="0" max="30000" step="500" v-model.number="inputs.monthlyLoanRepayments")
+          input(type="range" min="0" :max="moneyMax('monthlyLoanRepayments', 30000, 500)" step="500" v-model.number="inputs.monthlyLoanRepayments")
       .group
         h2 {{ $t('report.quickPosition.aside.lifeline') }}
           span.note  {{ $t('report.quickPosition.aside.lifelineNote') }}
@@ -50,17 +50,17 @@
           .row
             label {{ $t('report.quickPosition.aside.savings') }}
             output {{ money(inputs.personalSavings) }}
-          input(type="range" min="0" max="150000" step="1000" v-model.number="inputs.personalSavings")
+          input(type="range" min="0" :max="moneyMax('personalSavings', 150000, 1000)" step="1000" v-model.number="inputs.personalSavings")
         .field
           .row
             label {{ $t('report.quickPosition.aside.investments') }}
             output {{ money(inputs.quickInvestments) }}
-          input(type="range" min="0" max="150000" step="1000" v-model.number="inputs.quickInvestments")
+          input(type="range" min="0" :max="moneyMax('quickInvestments', 150000, 1000)" step="1000" v-model.number="inputs.quickInvestments")
         .field
           .row
             label {{ $t('report.quickPosition.aside.raised') }}
             output {{ money(inputs.raisedCapital) }}
-          input(type="range" min="0" max="300000" step="5000" v-model.number="inputs.raisedCapital")
+          input(type="range" min="0" :max="moneyMax('raisedCapital', 300000, 5000)" step="5000" v-model.number="inputs.raisedCapital")
       .group
         h2 {{ $t('report.quickPosition.aside.margin') }}
         .field
@@ -396,6 +396,15 @@ export default {
     /** Slider touch: the fixed-costs figure becomes the advisor's (provenance rule). */
     fixedCostsEntered () {
       this.sources.monthlyFixedCosts = 'entered'
+    },
+    /**
+     * R22: a money slider's ceiling stretches to fit a real (file-seeded or restored)
+     * figure — a touch must never silently snap the report's number down to the cap.
+     * @param {string} key @param {number} base - the normal ceiling @param {number} step
+     */
+    moneyMax (key, base, step) {
+      const v = this.inputs[key]
+      return (typeof v === 'number' && v > base) ? Math.ceil(v / step) * step : base
     },
     resetAll () {
       const fresh = this.$options.data.call(this)
