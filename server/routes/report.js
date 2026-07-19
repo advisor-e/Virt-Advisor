@@ -18,6 +18,7 @@ const { computeQuickPosition, computeExpensesReview } = require('../report/quick
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports } = require('../report/intake/annualAssembler')
+const { intakeErrorResponse } = require('../report/intakeError')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
 // named-export + callback-wrap pattern as the firm-manager uploads.
@@ -175,16 +176,9 @@ function ebitdaDcf (req, res, next) {
   return next()
 }
 
-/** Stable intake error codes → HTTP status. Anything else is a 400. */
-const INTAKE_STATUS = {
-  PDF_REJECTED: 415,
-  UNRECOGNISED_FILE: 415,
-  UNRECOGNISED_REPORT: 422,
-  MULTI_PERIOD_COLUMNS: 422,
-  FILE_TOO_LARGE: 413,
-  TOO_MANY_FILES: 400,
-  WRONG_REPORT_KIND: 422
-}
+// Intake error mapping lives in server/report/intakeError.js (R6): allowlisted codes
+// pass their authored message through; anything unexpected returns the generic
+// sentence — an fs error's message carries a server path and must never reach the client.
 
 /**
  * POST /api/report/quick-position/intake  (firmAuth — uploads are never anonymous)
@@ -227,14 +221,10 @@ async function quickPositionIntake (req, res) {
     const data = parseUpload(buffer)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    const code = (err && err.code) || 'INTAKE_PARSE_FAILED'
     // Log the stable code only — never the filename, labels or content (identity stays local)
-    console.error('[report] quick-position intake rejected:', code)
-    res.send(INTAKE_STATUS[code] || 400, {
-      success: false,
-      error: { code, message: (err && err.message) || 'The file could not be read as a Xero report export.' },
-      timestamp: new Date().toISOString()
-    })
+    console.error('[report] quick-position intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a Xero report export.')
+    res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove formidable's temp file
     if (uploadedFile && uploadedFile.filepath) {
@@ -286,14 +276,10 @@ async function ebitdaDcfIntake (req, res) {
     const data = assembleAnnualReports(parsed)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    const code = (err && err.code) || 'INTAKE_PARSE_FAILED'
     // Log the stable code only — never the filename, labels or content (identity stays local)
-    console.error('[report] ebitda-dcf intake rejected:', code)
-    res.send(INTAKE_STATUS[code] || 400, {
-      success: false,
-      error: { code, message: (err && err.message) || 'A file could not be read as a Xero report export.' },
-      timestamp: new Date().toISOString()
-    })
+    console.error('[report] ebitda-dcf intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'A file could not be read as a Xero report export.')
+    res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove every temp file formidable wrote
     for (const f of uploaded) {

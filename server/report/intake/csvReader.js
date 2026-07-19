@@ -39,7 +39,8 @@ function parseCsv (text) {
     pushField()
     // drop fully-empty rows but keep the grid's row numbering compact
     if (row.some(c => c !== '')) {
-      if (rows.length >= MAX_ROWS) { throw new Error('CSV holds more rows than any report export') }
+      // FILE_TOO_LARGE keeps these authored messages on the intake allowlist (R6)
+      if (rows.length >= MAX_ROWS) { const e = new Error('CSV holds more rows than any report export'); e.code = 'FILE_TOO_LARGE'; throw e }
       rows.push(row)
     }
     row = []
@@ -54,7 +55,7 @@ function parseCsv (text) {
     } else if (ch === '"') {
       inQuotes = true
     } else if (ch === ',') {
-      if (row.length >= MAX_COLS) { throw new Error('CSV holds more columns than any report export') }
+      if (row.length >= MAX_COLS) { const e = new Error('CSV holds more columns than any report export'); e.code = 'FILE_TOO_LARGE'; throw e }
       pushField()
     } else if (ch === '\n') {
       pushRow()
