@@ -99,26 +99,40 @@ function sectionName (label) {
 function lineItems (rows) {
   const items = []
   const stack = []
+  const pushItem = (r) => {
+    for (let s = 0; s < stack.length; s++) { stack[s].sum += r.value }
+    items.push({ section: stack.map(s => s.name), label: r.label, value: r.value })
+  }
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i]
     if (!r.label) { continue }
     if (TOTAL_RE.test(r.label)) {
-      // never a line item; pop the section it closes (best-effort by name)
+      // pop the section it closes (best-effort by name)
       const closes = r.label.replace(TOTAL_RE, '').trim().toLowerCase()
+      let matched = false
       for (let s = stack.length - 1; s >= 0; s--) {
         if (stack[s].name.toLowerCase() === closes) {
           stack[s].cachedTotal = (typeof r.value === 'number') ? r.value : null
           stack.length = s
+          matched = true
           break
         }
+      }
+      // R17: a "Total X" row that closes nothing, sits INSIDE an open section, and
+      // does NOT equal any open section's running sum is a real account (e.g. a fuel
+      // account "Total Oil purchases") — keep it. Anything sum-like stays a total:
+      // a silent understatement must never become a silent double-count.
+      if (!matched && stack.length && typeof r.value === 'number' &&
+          !stack.some(s => Math.abs(s.sum - r.value) <= 0.01)) {
+        pushItem(r)
       }
       continue
     }
     if (r.value === null) {
-      stack.push({ name: sectionName(r.label), cachedTotal: null })
+      stack.push({ name: sectionName(r.label), cachedTotal: null, sum: 0 })
       continue
     }
-    items.push({ section: stack.map(s => s.name), label: r.label, value: r.value })
+    pushItem(r)
   }
   return items
 }
@@ -152,6 +166,10 @@ function totalCrossChecks (rows) {
           warnings.push('The file\'s own "Total ' + name + '" does not match the sum of its line items — the line-item sum was used. Please check the export.')
         }
         stack.length = idx
+      } else if (stack.length && typeof r.value === 'number' &&
+                 !stack.some(k => Math.abs(sums[k] - r.value) <= 0.01)) {
+        // R17: same discriminator as lineItems — this row is a real account; count it
+        for (let s = 0; s < stack.length; s++) { sums[stack[s]] += r.value }
       }
       continue
     }

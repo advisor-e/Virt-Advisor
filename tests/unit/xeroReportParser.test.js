@@ -231,6 +231,60 @@ describe('multi-column exports (R4) — comparative warns, by-month refuses', ()
   })
 })
 
+describe('R17 — real accounts named "Total …" survive; true totals never double-count', () => {
+  test('a fuel account "Total Oil purchases" is kept as an opex line item', () => {
+    const r = extractProfitLoss([
+      ['Profit and Loss'],
+      ['Fuel Freight Ltd'],
+      ['For the year ended 31 March 2025'],
+      ['Trading Income'],
+      ['Sales', 500000],
+      ['Total Trading Income', 500000],
+      ['Less Operating Expenses'],
+      ['Rent', 24000],
+      ['Total Oil purchases', 8000],
+      ['Advertising', 13000],
+      ['Total Operating Expenses', 45000]
+    ])
+    expect(r.plFigures.operatingExpenses.value).toBe(45000)
+    expect(r.plFigures.operatingExpenses.candidates).toEqual(expect.arrayContaining([{ label: 'Total Oil purchases', value: 8000 }]))
+    expect(r.expenseLines).toEqual(expect.arrayContaining([{ name: 'Total Oil purchases', amount: 8000 }]))
+    // the section's own cached total (45,000) still cross-checks clean against the new sum
+    expect(r.warnings.some(w => /does not match/.test(w))).toBe(false)
+  })
+
+  test('a section closed under a DIFFERENT name ("Total COGS") is still a total — never added on top', () => {
+    const r = extractProfitLoss([
+      ['Profit and Loss'],
+      ['Fuel Freight Ltd'],
+      ['For the year ended 31 March 2025'],
+      ['Trading Income'],
+      ['Sales', 500000],
+      ['Total Trading Income', 500000],
+      ['Cost of Goods Sold'],
+      ['Purchases', 300000],
+      ['Freight Inwards', 20000],
+      ['Total COGS', 320000]
+    ])
+    expect(r.plFigures.costOfSales.value).toBe(320000)
+    expect(r.plFigures.costOfSales.candidates.length).toBe(2)
+  })
+
+  test('an orphan grand total outside any open section stays dropped', () => {
+    const r = extractBalanceSheet([
+      ['Balance Sheet'],
+      ['Fuel Freight Ltd'],
+      ['As at 31 March 2025'],
+      ['Bank'],
+      ['Cheque Account', 296155.8],
+      ['Total Bank', 296155.8],
+      ['Total Assets', 999999]
+    ])
+    expect(r.proposals.cash.value).toBe(296155.8)
+    expect(r.proposals.cash.candidates.length).toBe(1)
+  })
+})
+
 describe('csvReader — quoting and safety caps', () => {
   test('RFC-4180 quoting: commas, escaped quotes, CRLF', () => {
     const rows = parseCsv('a,"b,c","say ""hi""",5\r\nnext,1\n')
