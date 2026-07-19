@@ -163,13 +163,31 @@ export default {
     /** @param {'bs'|'pl'} kind @param {Event} event */
     onFileChosen (kind, event) {
       const file = event.target.files && event.target.files[0]
-      if (file) { this.upload(kind, file) }
+      if (file) { this.receive(kind, file) }
       event.target.value = ''
     },
     /** @param {'bs'|'pl'} kind @param {DragEvent} event */
     onDrop (kind, event) {
-      const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]
-      if (file) { this.upload(kind, file) }
+      const files = (event.dataTransfer && event.dataTransfer.files) || []
+      if (files.length > 1) {
+        this.$set(this.errors, kind, this.$t('report.quickPosition.drop.multiDrop'))
+        return
+      }
+      if (files[0]) { this.receive(kind, files[0]) }
+    },
+    /**
+     * Pre-upload sanity check — UX only; the backend's magic-byte and size checks
+     * remain the real boundary. @param {File} file @returns {string|null}
+     */
+    fileCheckError (file) {
+      if (!/\.(xlsx|csv)$/i.test(file.name)) { return this.$t('report.fileCheck.wrongType') }
+      if (file.size > 5 * 1024 * 1024) { return this.$t('report.fileCheck.tooBig') }
+      return null
+    },
+    /** Route a chosen/dropped file through the pre-upload check. @param {'bs'|'pl'} kind @param {File} file */
+    receive (kind, file) {
+      const err = this.fileCheckError(file)
+      if (err) { this.$set(this.errors, kind, err) } else { this.upload(kind, file) }
     },
     /**
      * Upload one export to the backend parser and apply what it proposes.

@@ -222,10 +222,23 @@ export default {
     onDrop (event) {
       this.stage(event.dataTransfer && event.dataTransfer.files)
     },
+    /**
+     * Pre-upload sanity check — UX only; the backend's magic-byte and size checks
+     * remain the real boundary. @param {File} file @returns {string|null}
+     */
+    fileCheckError (file) {
+      if (!/\.(xlsx|csv)$/i.test(file.name)) { return this.$t('report.fileCheck.wrongType') }
+      if (file.size > 5 * 1024 * 1024) { return this.$t('report.fileCheck.tooBig') }
+      return null
+    },
     /** @param {FileList|null} list */
     stage (list) {
       this.dropError = null
-      const incoming = Array.from(list || [])
+      const incoming = []
+      for (const f of Array.from(list || [])) {
+        const err = this.fileCheckError(f)
+        if (err) { this.dropError = err } else { incoming.push(f) }
+      }
       const room = 5 - this.staged.length
       if (incoming.length > room) {
         this.dropError = this.$t('report.ebitdaDcf.drop.tooMany')
