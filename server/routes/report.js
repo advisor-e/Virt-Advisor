@@ -50,7 +50,7 @@ function workingCapitalCycle (req, res, next) {
     const data = computeWorkingCapitalCycle(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] working-capital-cycle compute failed:', err && err.message)
+    console.error('[report] working-capital-cycle compute failed:', err)
     res.send(400, { success: false, error: { code: 'WCC_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -68,7 +68,7 @@ function debtorDrag (req, res, next) {
     const data = computeDebtorCashflow(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] debtor-drag compute failed:', err && err.message)
+    console.error('[report] debtor-drag compute failed:', err)
     res.send(400, { success: false, error: { code: 'DEBTOR_DRAG_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -107,7 +107,7 @@ function marginBreakeven (req, res, next) {
     }
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] margin-breakeven compute failed:', err && err.message)
+    console.error('[report] margin-breakeven compute failed:', err)
     res.send(400, { success: false, error: { code: 'MARGIN_BE_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -126,7 +126,7 @@ function eightLevers (req, res, next) {
     const data = computeEightLevers(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] eight-levers compute failed:', err && err.message)
+    console.error('[report] eight-levers compute failed:', err)
     res.send(400, { success: false, error: { code: 'EIGHT_LEVERS_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -150,7 +150,7 @@ function quickPosition (req, res, next) {
     }
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] quick-position compute failed:', err && err.message)
+    console.error('[report] quick-position compute failed:', err)
     res.send(400, { success: false, error: { code: 'QUICK_POSITION_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -174,7 +174,7 @@ function ebitdaDcf (req, res, next) {
     const data = computeEbitdaDcf(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] ebitda-dcf compute failed:', err && err.message)
+    console.error('[report] ebitda-dcf compute failed:', err)
     res.send(400, { success: false, error: { code: 'EBITDA_DCF_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
