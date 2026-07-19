@@ -37,7 +37,7 @@
             th {{ $t('report.quickPosition.confirm.value') }}
             th {{ $t('report.quickPosition.confirm.source') }}
         tbody
-          tr(v-for="key in visibleFigureKeys" :key="key")
+          tr(v-for="key in visibleFigureKeys" :key="key" :class="{ 'row-invalid': invalidKeys.includes(key) }")
             td
               | {{ $t('report.quickPosition.confirm.' + key) }}
               .stock-candidates(v-if="key === 'stock' && stockCandidates.length")
@@ -45,7 +45,7 @@
                 b-checkbox(v-for="(c, i) in stockCandidates" :key="i" v-model="c.selected" @input="applyStockCandidates")
                   | {{ c.label }} — {{ money(c.value) }}
             td
-              b-input(v-model.number="figures[key].value" type="number" step="any" :disabled="key === 'stock' && stockCandidates.length > 0")
+              b-input(v-model.number="figures[key].value" type="number" step="any" :disabled="key === 'stock' && stockCandidates.length > 0" @input="markEntered(key)")
             td
               span.src(:class="figures[key].source === 'file' ? 'src-file' : 'src-hand'")
                 | {{ figures[key].source === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
@@ -53,6 +53,7 @@
       .warn-note(v-for="(w, i) in warnings" :key="'w' + i") ⚠ {{ w }}
       b-checkbox.svc-toggle(v-model="serviceBusiness")
         | {{ $t('report.quickPosition.confirm.serviceToggle') }}
+      .confirm-error(v-if="invalidKeys.length") {{ $t('report.quickPosition.confirm.incomplete') }}
     .drop-actions
       b-button(type="is-primary" @click="confirmFigures") {{ $t('report.quickPosition.confirm.build') }}
       span.adjust-note {{ $t('report.quickPosition.confirm.adjustLater') }}
@@ -97,7 +98,9 @@ export default {
       figureKeys: ['cash', 'debtors', 'stock', 'creditors', 'wagesDue', 'fixedAssets'],
       stockCandidates: [],
       serviceBusiness: false,
-      warnings: []
+      warnings: [],
+      // Figure keys that blocked the last build attempt (empty / non-numeric value)
+      invalidKeys: []
     }
   },
 
@@ -224,8 +227,19 @@ export default {
       // step: which intake step is showing (1 = drop, 2 = confirm)
       this.$emit('step', 2)
     },
-    /** Hand the confirmed figures to the report screen. */
+    /** An edited cell becomes the advisor's figure (mirrors EbitdaDcfIntake). @param {string} key */
+    markEntered (key) {
+      this.figures[key].source = 'entered'
+      this.invalidKeys = this.invalidKeys.filter(k => k !== key)
+    },
+    /**
+     * Hand the confirmed figures to the report screen. Every visible figure must be a
+     * real number first — an empty box must never fall through to a sample default
+     * (intake contract §4.4: an assumption must never pass as a fact).
+     */
     confirmFigures () {
+      this.invalidKeys = this.visibleFigureKeys.filter(key => !Number.isFinite(this.figures[key].value))
+      if (this.invalidKeys.length) { return }
       // confirmed: { figures, serviceBusiness, expenseLines, incomeTotal, companyName }
       this.$emit('confirmed', {
         figures: JSON.parse(JSON.stringify(this.figures)),
@@ -271,5 +285,7 @@ export default {
 .date-ok { color: #4ca52d; background: #4ca52d1a; }
 .date-warn { color: #b36b00; background: #ff99001a; }
 .warn-note { font-size: 12.5px; color: #b36b00; background: #ff99001a; border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
+.row-invalid td { background: #ff00000a; }
+.confirm-error { font-size: 12.5px; font-weight: 600; color: #ff0000; background: #ff00001a; border-radius: 9px; padding: 10px 14px; margin-top: 14px; }
 .svc-toggle { margin-top: 14px; }
 </style>

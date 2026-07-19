@@ -218,6 +218,7 @@
         "datesAgree": "Both files report as at {date} — dates agree",
         "datesDiffer": "The files carry different reporting dates ({a} vs {b}) — figures may be out of step. Please check the exports.",
         "serviceToggle": "This is a service business (no stock). The stock line drops out of the model entirely — no empty boxes.",
+        "incomplete": "Every figure needs a number before the report can be built — please complete the highlighted rows.",
         "build": "Looks right — build the report →",
         "adjustLater": "You can still adjust everything on the report screen."
       },
