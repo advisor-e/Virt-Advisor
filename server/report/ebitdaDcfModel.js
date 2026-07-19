@@ -256,6 +256,13 @@ function computeEbitdaDcf (inputs) {
   const dcfIn = (i.dcf && typeof i.dcf === 'object') ? i.dcf : {}
   const projectedGrowth = pickSeries(dcfIn.projectedGrowth, DEFAULTS.dcf.projectedGrowth)
   const discountRates = pickSeries(dcfIn.discountRates, DEFAULTS.dcf.discountRates)
+  // R5: project() reads rates[i] per growth year — a length mismatch would turn the
+  // valuation into NaN→null, indistinguishable from an honest "won't fabricate" null.
+  // Refuse loudly (the route's catch returns the standard safe 400) rather than pad
+  // with sample rates, which is the R8 fabrication channel.
+  if (projectedGrowth.length !== discountRates.length) {
+    throw new Error('projectedGrowth and discountRates must cover the same number of years')
+  }
   const exitMultiple = pick(dcfIn.exitMultiple, DEFAULTS.dcf.exitMultiple)
 
   const growth1 = growthRates(pnl.ebitda)
@@ -271,6 +278,10 @@ function computeEbitdaDcf (inputs) {
   const ebitdaHistory = pickSeries(listedIn.ebitdaHistory, DEFAULTS.listed.ebitdaHistory)
   const listedGrowth = pickSeries(listedIn.projectedGrowth, DEFAULTS.listed.projectedGrowth)
   const listedRates = pickSeries(listedIn.discountRates, DEFAULTS.listed.discountRates)
+  // Same R5 guard as the private-business block above
+  if (listedGrowth.length !== listedRates.length) {
+    throw new Error('listed projectedGrowth and discountRates must cover the same number of years')
+  }
   const listedMultiple = pick(listedIn.exitMultiple, DEFAULTS.listed.exitMultiple)
   const figuresMultiple = pick(listedIn.figuresMultiple, DEFAULTS.listed.figuresMultiple)
 

@@ -218,4 +218,29 @@ describe('EBITDA & DCF — honesty guards (null over fabricated figures)', () =>
       expect(r.pnl.ebitda[4]).toBe(571795)
     }
   })
+
+  // R5 (2026-07-19): mismatched growth/discount lengths used to reach project()
+  // unguarded — rates[i] undefined → NaN → JSON null, indistinguishable from an
+  // honest "won't fabricate" null. The model must refuse, never half-compute.
+  test('R5: mismatched growth/discount lengths REFUSE — private-business block', () => {
+    expect(() => computeEbitdaDcf({
+      dcf: { projectedGrowth: [0.04, 0.03, 0.02, 0.03, 0.04], discountRates: [0.06, 0.07] }
+    })).toThrow(/same number of years/)
+  })
+
+  test('R5: mismatched growth/discount lengths REFUSE — listed block', () => {
+    expect(() => computeEbitdaDcf({
+      listed: { projectedGrowth: [0.04, 0.03], discountRates: [0.06, 0.07, 0.05, 0.05, 0.06] }
+    })).toThrow(/same number of years/)
+  })
+
+  test('R5: a matched SHORT pair (2+2) still computes with finite figures', () => {
+    const r = computeEbitdaDcf({
+      dcf: { projectedGrowth: [0.04, 0.03], discountRates: [0.06, 0.07] }
+    })
+    expect(r.valuation.projectedEbitda).toHaveLength(2)
+    expect(r.valuation.discountedCashFlow).toHaveLength(2)
+    expect(Number.isFinite(r.valuation.enterpriseValue)).toBe(true)
+    expect(r.valuation.futureYears).toEqual([2026, 2027])
+  })
 })
