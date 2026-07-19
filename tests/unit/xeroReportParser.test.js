@@ -285,6 +285,56 @@ describe('R17 — real accounts named "Total …" survive; true totals never dou
   })
 })
 
+describe('R18 + R19 — section classification honesty', () => {
+  const grid = [
+    ['Profit and Loss'],
+    ['Fuel Freight Ltd'],
+    ['For the year ended 31 March 2025'],
+    ['Trading Income'],
+    ['Sales', 500000],
+    ['Total Trading Income', 500000],
+    ['Non-Trading Income'],
+    ['Sundry Receipts', 2000],
+    ['Total Non-Trading Income', 2000],
+    ['Less Operating Expenses'],
+    ['Rent', 24000],
+    ['Total Operating Expenses', 24000],
+    ['Administrative Expenses'],
+    ['Office Costs', 6000],
+    ['Total Administrative Expenses', 6000]
+  ]
+  const r = extractProfitLoss(grid)
+
+  test('R18: "Non-Trading Income" never classifies as sales', () => {
+    expect(r.plFigures.sales.value).toBe(500000)
+    expect(r.plFigures.sales.candidates).toEqual([{ label: 'Sales', value: 500000 }])
+  })
+
+  test('R19: an unrecognised valued section raises the on-screen warning, once per section', () => {
+    const missed = r.warnings.filter(w => /wasn't recognised/.test(w))
+    expect(missed).toEqual([
+      "The section 'Non-Trading Income' wasn't recognised, so its lines are not included in any proposed figure — please check the figures and adjust where needed.",
+      "The section 'Administrative Expenses' wasn't recognised, so its lines are not included in any proposed figure — please check the figures and adjust where needed."
+    ])
+    expect(r.plFigures.operatingExpenses.value).toBe(24000)
+  })
+
+  test('R19: a fully-recognised report raises no such warning', () => {
+    const clean = extractProfitLoss([
+      ['Profit and Loss'],
+      ['Fuel Freight Ltd'],
+      ['For the year ended 31 March 2025'],
+      ['Trading Income'],
+      ['Sales', 500000],
+      ['Total Trading Income', 500000],
+      ['Less Operating Expenses'],
+      ['Rent', 24000],
+      ['Total Operating Expenses', 24000]
+    ])
+    expect(clean.warnings.some(w => /wasn't recognised/.test(w))).toBe(false)
+  })
+})
+
 describe('csvReader — quoting and safety caps', () => {
   test('RFC-4180 quoting: commas, escaped quotes, CRLF', () => {
     const rows = parseCsv('a,"b,c","say ""hi""",5\r\nnext,1\n')

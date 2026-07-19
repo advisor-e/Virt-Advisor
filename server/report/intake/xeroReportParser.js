@@ -298,10 +298,24 @@ function extractProfitLoss (grid) {
   const warnings = totalCrossChecks(rows)
   guardFigureColumns(grid, warnings)
 
+  // R18: "trading income" is anchored — "Non-Trading Income" must never classify as sales
   const expenseItems = items.filter(it => inSection(it, /operating expenses|^expenses$|overheads/i))
-  const incomeItems = items.filter(it => inSection(it, /^income$|^revenue$|trading income|^sales$/i))
+  const incomeItems = items.filter(it => inSection(it, /^income$|^revenue$|^trading income$|^sales$/i))
   const otherIncomeItems = items.filter(it => inSection(it, OTHER_INCOME_SECTION_RE))
   const costOfSalesItems = items.filter(it => inSection(it, COST_OF_SALES_SECTION_RE))
+
+  // R19: a valued section that fed no bucket is declared on screen, never silently skipped
+  // (guessing its classification is what the contract forbids — the advisor decides).
+  const sectionClaimed = new Set(incomeItems.concat(otherIncomeItems, costOfSalesItems, expenseItems))
+  const missedSections = []
+  for (const it of items) {
+    if (sectionClaimed.has(it) || !it.section.length) { continue }
+    const name = it.section[it.section.length - 1]
+    if (!missedSections.includes(name)) { missedSections.push(name) }
+  }
+  for (const name of missedSections) {
+    warnings.push("The section '" + name + "' wasn't recognised, so its lines are not included in any proposed figure — please check the figures and adjust where needed.")
+  }
 
   const allIncome = incomeItems.concat(otherIncomeItems)
   const interestReceived = allIncome.filter(it => INTEREST_RECEIVED_RE.test(it.label))
