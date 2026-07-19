@@ -244,6 +244,37 @@ describe('csvReader — quoting and safety caps', () => {
     expect(rows[1]).toEqual(['Debtors', 154906])
   })
 
+  test('R16: accounting-bracket negatives and $ prefixes parse as figures', () => {
+    const rows = parseCsv('Overdraft,"(1,234.56)"\nFees,"($2,500)"\nAdj,-$500\nRefund,$-750\nCash,$1,234\n')
+    expect(rows[0]).toEqual(['Overdraft', -1234.56])
+    expect(rows[1]).toEqual(['Fees', -2500])
+    expect(rows[2]).toEqual(['Adj', -500])
+    expect(rows[3]).toEqual(['Refund', -750])
+    // unquoted $1,234 splits on the comma like any unquoted field — both parts numeric-checked
+    expect(rows[4]).toEqual(['Cash', 1, 234])
+  })
+
+  test('R16: quoted $ figures with thousands grouping parse whole', () => {
+    const rows = parseCsv('Cash,"$1,234"\nSavings,"$1,234,567.89"\n')
+    expect(rows[0]).toEqual(['Cash', 1234])
+    expect(rows[1]).toEqual(['Savings', 1234567.89])
+  })
+
+  test('R16: improper comma grouping stays text — "1,2,3" never silently becomes 123', () => {
+    const rows = parseCsv('Codes,"1,2,3"\nOdd,"12,34"\nAmbig,(-500)\n')
+    expect(rows[0]).toEqual(['Codes', '1,2,3'])
+    expect(rows[1]).toEqual(['Odd', '12,34'])
+    expect(rows[2]).toEqual(['Ambig', '(-500)'])
+  })
+
+  test('R16: plain figures unchanged — minus signs, decimals, bare fractions', () => {
+    const rows = parseCsv('A,-1234\nB,0.5\nC,.5\nD,1000000\n')
+    expect(rows[0]).toEqual(['A', -1234])
+    expect(rows[1]).toEqual(['B', 0.5])
+    expect(rows[2]).toEqual(['C', 0.5])
+    expect(rows[3]).toEqual(['D', 1000000])
+  })
+
   test('the row cap trips on absurd input', () => {
     expect(() => parseCsv('x,1\n'.repeat(6000))).toThrow(/more rows/)
   })

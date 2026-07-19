@@ -15,6 +15,31 @@ const MAX_ROWS = 5000
 const MAX_COLS = 256
 
 /**
+ * Convert a Xero-style figure string to a number, or null when it isn't one (R16).
+ * Accepts exactly the formats a real export prints: plain numbers, decimals,
+ * minus-sign negatives, accounting-bracket negatives `(1,234.56)`, a `$` prefix,
+ * and PROPER thousands grouping only — `1,2,3` is text, never silently 123.
+ * @param {string} s - a trimmed cell value.
+ * @returns {number|null}
+ */
+function toFigure (s) {
+  let t = s
+  let neg = false
+  const bracket = /^\((.+)\)$/.exec(t)
+  if (bracket) { neg = true; t = bracket[1].trim() }
+  if (t.charAt(0) === '$') { t = t.slice(1).trim() }
+  if (t.charAt(0) === '-') {
+    if (neg) { return null } // "(-500)" is no printed format — stay text, never guess a sign
+    neg = true
+    t = t.slice(1).trim()
+    if (t.charAt(0) === '$') { t = t.slice(1).trim() } // "-$500"
+  }
+  if (!/^(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?$/.test(t) && !/^\.\d+$/.test(t)) { return null }
+  const n = parseFloat(t.replace(/,/g, ''))
+  return Number.isFinite(n) ? (neg ? -n : n) : null
+}
+
+/**
  * Parse CSV text into a dense row grid.
  * @param {string} text - the file's decoded content.
  * @returns {Array<Array<string|number>>}
@@ -27,12 +52,8 @@ function parseCsv (text) {
 
   const pushField = () => {
     const trimmed = field.trim()
-    if (trimmed !== '' && /^-?[\d,]*\.?\d+$/.test(trimmed)) {
-      const n = parseFloat(trimmed.replace(/,/g, ''))
-      row.push(Number.isFinite(n) ? n : trimmed)
-    } else {
-      row.push(trimmed)
-    }
+    const n = trimmed === '' ? null : toFigure(trimmed)
+    row.push(n !== null ? n : trimmed)
     field = ''
   }
   const pushRow = () => {
