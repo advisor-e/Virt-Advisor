@@ -114,6 +114,13 @@ describe('xlsxReader — hostile and malformed files', () => {
     try { readXlsx(buf); throw new Error('should have thrown') } catch (e) { expect(e.code).toBe('FILE_TOO_LARGE') }
   })
 
+  test('R24: an out-of-range character reference → typed CORRUPT_FILE, never a raw RangeError', () => {
+    const buf = xlsxWithSheetXml(
+      '<worksheet><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>&#x110000;</t></is></c></row></sheetData></worksheet>'
+    )
+    try { readXlsx(buf); throw new Error('should have thrown') } catch (e) { expect(e.code).toBe('CORRUPT_FILE') }
+  })
+
   test('an empty formatting-only cell far down (Excel re-save phantom) still parses', () => {
     const buf = xlsxWithSheetXml(
       '<worksheet><sheetData>' +

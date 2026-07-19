@@ -131,9 +131,15 @@ function readEntry (buf, entry, budget) {
 /** Decode the five XML entities plus numeric character references. @param {string} s */
 function decodeXml (s) {
   if (!s.includes('&')) { return s }
+  // R24: an out-of-range reference (&#x110000;+) is invalid XML no real export contains —
+  // refuse typed, never let String.fromCodePoint throw a raw RangeError past the intake codes
+  const cp = (n) => {
+    if (n > 0x10FFFF) { throw new XlsxReadError('CORRUPT_FILE', 'A part of this file is corrupt') }
+    return String.fromCodePoint(n)
+  }
   return s
-    .replace(/&#x([0-9a-fA-F]{1,6});/g, (m, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d{1,7});/g, (m, d) => String.fromCodePoint(parseInt(d, 10)))
+    .replace(/&#x([0-9a-fA-F]{1,6});/g, (m, h) => cp(parseInt(h, 16)))
+    .replace(/&#(\d{1,7});/g, (m, d) => cp(parseInt(d, 10)))
     .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'").replace(/&amp;/g, '&')
 }

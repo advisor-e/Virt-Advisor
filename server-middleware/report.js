@@ -35,7 +35,7 @@ module.exports = function reportProxy (req, res, next) {
   const opts = {
     hostname: target.hostname,
     port: target.port || (target.protocol === 'https:' ? 443 : 80),
-    path: target.pathname,
+    path: target.pathname + (target.search || ''), // R24: query string forwarded, not dropped
     method: 'POST',
     headers: req.headers
   }
