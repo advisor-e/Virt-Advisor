@@ -138,20 +138,26 @@ export default {
 
   props: {
     // Verified login pass (JWT); the intake route is firmAuth-guarded.
-    apiToken: { type: String, default: 'dev-local-bypass' }
+    apiToken: { type: String, default: 'dev-local-bypass' },
+    // Previously confirmed payload — when present the intake opens with every figure
+    // and badge exactly as confirmed (R12: stepping back must never wipe them).
+    restore: { type: Object, default: null },
+    // The page's current step (1 = drop, 2 = confirm) — replaces the old $refs reach-in.
+    step: { type: Number, default: 1 }
   },
 
   data () {
+    const r = this.restore
     return {
-      phase: 'drop', // 'drop' | 'years' | 'confirm'
+      phase: r && this.step !== 1 ? 'confirm' : 'drop', // 'drop' | 'years' | 'confirm'
       staged: [], // File objects awaiting upload
       uploading: false,
       dropError: null,
       parsedFiles: [], // backend per-file results (year editable in the 'years' phase)
       warnings: [],
-      years: [2021, 2022, 2023, 2024, 2025], // oldest-first, set by the files
-      figures: this.defaultFigures(5),
-      companyName: null,
+      years: r && r.years ? r.years.slice() : [2021, 2022, 2023, 2024, 2025], // oldest-first, set by the files
+      figures: r && r.figures ? JSON.parse(JSON.stringify(r.figures)) : this.defaultFigures(5),
+      companyName: r ? r.companyName : null,
       rowGroups: ROW_GROUPS,
       // Cells ("row:index") that blocked the last build attempt (empty / non-numeric) — R23
       invalidCells: []
@@ -167,6 +173,13 @@ export default {
     yearsResolved () {
       const ys = this.parsedFiles.map(f => f.year)
       return ys.every(y => Number.isInteger(y) && y > 1900) && new Set(ys).size === ys.length
+    }
+  },
+
+  watch: {
+    /** Chip navigation from the page — proper one-way flow, no $refs reach-in (R12). */
+    step (n) {
+      if (n === 1) { this.phase = 'drop' } else if (n === 2) { this.phase = 'confirm' }
     }
   },
 

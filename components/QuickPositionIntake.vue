@@ -76,28 +76,37 @@ export default {
 
   props: {
     // Verified login pass (JWT); the intake route is firmAuth-guarded.
-    apiToken: { type: String, default: 'dev-local-bypass' }
+    apiToken: { type: String, default: 'dev-local-bypass' },
+    // Previously confirmed payload — when present the intake opens with every figure
+    // and badge exactly as confirmed (R12: stepping back must never wipe them).
+    restore: { type: Object, default: null },
+    // The page's current step (1 = drop, 2 = confirm) — replaces the old $refs reach-in.
+    step: { type: Number, default: 1 }
   },
 
   data () {
+    const r = this.restore
     return {
-      phase: 'drop', // 'drop' | 'confirm'
+      phase: r && this.step !== 1 ? 'confirm' : 'drop', // 'drop' | 'confirm'
       uploading: { bs: false, pl: false },
       bsResult: null,
       plResult: null,
       errors: { bs: null, pl: null },
-      // Model defaults = the source sheet's sample figures (contract rule 3)
-      figures: {
-        cash: { value: 296155, source: 'entered' },
-        debtors: { value: 154906, source: 'entered' },
-        stock: { value: 25847, source: 'entered' },
-        creditors: { value: 63000, source: 'entered' },
-        wagesDue: { value: 32000, source: 'entered' },
-        fixedAssets: { value: 30000, source: 'entered' }
-      },
+      // Model defaults = the source sheet's sample figures (contract rule 3);
+      // a restore payload takes their place wholesale, badges included.
+      figures: r && r.figures
+        ? JSON.parse(JSON.stringify(r.figures))
+        : {
+            cash: { value: 296155, source: 'entered' },
+            debtors: { value: 154906, source: 'entered' },
+            stock: { value: 25847, source: 'entered' },
+            creditors: { value: 63000, source: 'entered' },
+            wagesDue: { value: 32000, source: 'entered' },
+            fixedAssets: { value: 30000, source: 'entered' }
+          },
       figureKeys: ['cash', 'debtors', 'stock', 'creditors', 'wagesDue', 'fixedAssets'],
       stockCandidates: [],
-      serviceBusiness: false,
+      serviceBusiness: r ? !!r.serviceBusiness : false,
       warnings: [],
       // Figure keys that blocked the last build attempt (empty / non-numeric value)
       invalidKeys: []
@@ -127,6 +136,13 @@ export default {
         return { ok: true, text: this.$t('report.quickPosition.confirm.datesAgree', { date: a }) }
       }
       return { ok: false, text: this.$t('report.quickPosition.confirm.datesDiffer', { a: this.bsResult.reportDate, b: this.plResult.reportDate }) }
+    }
+  },
+
+  watch: {
+    /** Chip navigation from the page — proper one-way flow, no $refs reach-in (R12). */
+    step (n) {
+      if (n === 1) { this.phase = 'drop' } else if (n === 2) { this.phase = 'confirm' }
     }
   },
 
@@ -241,12 +257,13 @@ export default {
       this.invalidKeys = this.visibleFigureKeys.filter(key => !Number.isFinite(this.figures[key].value))
       if (this.invalidKeys.length) { return }
       // confirmed: { figures, serviceBusiness, expenseLines, incomeTotal, companyName }
+      // Restored mode has no upload state — the prior payload's P&L data carries forward (R12)
       this.$emit('confirmed', {
         figures: JSON.parse(JSON.stringify(this.figures)),
         serviceBusiness: this.serviceBusiness,
-        expenseLines: this.plResult ? this.plResult.expenseLines : null,
-        incomeTotal: this.plResult ? this.plResult.incomeTotal : null,
-        companyName: (this.bsResult && this.bsResult.companyName) || null
+        expenseLines: this.plResult ? this.plResult.expenseLines : (this.restore ? this.restore.expenseLines : null),
+        incomeTotal: this.plResult ? this.plResult.incomeTotal : (this.restore ? this.restore.incomeTotal : null),
+        companyName: (this.bsResult && this.bsResult.companyName) || (this.restore ? this.restore.companyName : null)
       })
     }
   }
