@@ -209,6 +209,37 @@ describe('courseEngine quiz-grade — CB-30 firm model answers are the marking g
     expect(prompt).toContain('judged against the session content above')
     expect(res.statusCode).toBe(200)
   })
+
+  // Model-answer reveal (Mike's ruling 2026-07-20): after grading — and only
+  // after — the response carries the firm's authored answer so the advisor
+  // sees what correct looked like. Bankless questions must never carry one
+  // (there is no authored answer to show, and none may be fabricated).
+  test('the grading response reveals the bank entry model answer and key point', async () => {
+    stub(VALID_GRADE)
+    const res = makeRes()
+    await courseEngine(makeReq(bankGradeBody(2)), res)
+
+    expect(res.statusCode).toBe(200)
+    expect(res.body.modelAnswer).toBe('FIRM-MODEL-ANSWER-TWO')
+    expect(res.body.modelKeyPoint).toBe('FIRM-KEYPOINT-TWO')
+  })
+
+  test('no bank entry -> no model answer in the response (untagged and unmatched refs)', async () => {
+    stub(VALID_GRADE)
+    const untagged = makeRes()
+    const body = gradeBody()
+    body.sessionContext.resources = ['Working Capital Cycle']
+    await courseEngine(makeReq(body), untagged)
+    expect(untagged.statusCode).toBe(200)
+    expect(untagged.body).not.toHaveProperty('modelAnswer')
+    expect(untagged.body).not.toHaveProperty('modelKeyPoint')
+
+    stub(VALID_GRADE)
+    const unmatched = makeRes()
+    await courseEngine(makeReq(bankGradeBody(99)), unmatched)
+    expect(unmatched.statusCode).toBe(200)
+    expect(unmatched.body).not.toHaveProperty('modelAnswer')
+  })
 })
 
 function stub (content) {

@@ -543,7 +543,16 @@ Scoring: 70+ = passed. Be generous — genuine understanding expressed imperfect
       console.error('[course:quiz-grade] invalid AI response shape:', result.errors.join('; '))
       return sendError(res, 500, 'QUIZ_GRADE_FAILED', 'Failed to grade answer')
     }
-    jsonResponse(res, 200, { success: true, passed: result.data.passed, score: result.data.score, feedback: result.data.feedback })
+    const payload = { success: true, passed: result.data.passed, score: result.data.score, feedback: result.data.feedback }
+    // The firm's model answer is revealed only AFTER grading — it must never
+    // ride quiz-generate, or the browser would hold the answers before the
+    // advisor writes theirs. AI-generated (bankless) questions have no
+    // authored answer and must never fabricate one.
+    if (bankEntry) {
+      payload.modelAnswer = bankEntry.answer
+      payload.modelKeyPoint = bankEntry.keyPoint
+    }
+    jsonResponse(res, 200, payload)
   } catch (e) {
     console.error('[course:quiz-grade]', e.message)
     sendError(res, 500, 'QUIZ_GRADE_FAILED', 'Failed to grade answer')
