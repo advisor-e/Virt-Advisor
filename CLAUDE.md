@@ -2,7 +2,9 @@
 
 ## 🔴 LIVE-APP RULE — READ FIRST (absolute, no exceptions)
 
-**This app is LIVE in production inside the master app, Advisor-e.com (as of 2026-07-13).**
+**This app is deployed in UAT inside the master app, Advisor-e.com. It is not yet in
+production.** (Corrected 2026-07-21 — an earlier note claiming a 2026-07-13 production
+go-live was wrong. UAT is on `709bac5` / PR #2; see `design/DEPLOYED-VERSIONS.md`.)
 
 > **No change is to be made to this repository — on ANY branch — without asking Mike
 > first and receiving his explicit approval for that specific change.** This covers

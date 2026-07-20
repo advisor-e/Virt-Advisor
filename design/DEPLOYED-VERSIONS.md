@@ -15,5 +15,9 @@ it as soon as it can be established (see the open rows below).
 
 | Date | Environment | Commit | Pulled by | Notes |
 |---|---|---|---|---|
-| 2026-07-13 | Production (inside Advisor-e master app) | **commit unknown — awaiting master-team confirmation** | Master-app team | Go-live of Virt Advisor inside Advisor-e.com. Backfill task in `ACTIONS.md`. |
-| (date unknown) | UAT (master app) | **commit unknown — awaiting master-team confirmation** | Master-app team | Mike emailed the team 2026-07-20 to establish which version UAT runs. Backfill task in `ACTIONS.md`. |
+| 2026-07-14 | UAT (inside Advisor-e master app) | `709bac5` — PR #2, `feat/client-knowledge-base` | Master-app team | Confirmed by the master team 2026-07-21. 97 commits behind `origin/master` at the time of confirmation. |
+
+**Production: nothing has been deployed to production yet.** The app is in UAT testing
+only. The first production row will be added when a production deployment actually
+happens. Any earlier note in this repo describing a 2026-07-13 production go-live was
+incorrect and is withdrawn (master-team clarification, 2026-07-21).
