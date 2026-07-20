@@ -22,9 +22,275 @@
     }
   },
   "banks": {
-    "_comment": "CB-30 quiz banks (the firm's IP — transcribed verbatim from authored PDFs, never invented or edited here). Keyed by EXACT template-library title. Unlike overrides (verbatim replacement), a bank is SOURCE MATERIAL: the AI must build the session quiz around these questions and key points, tailored to what the session actually taught, and the model answers are passed to the grader. NOT yet read by the engine — wiring is the CB-30 build step.",
+    "_comment": "CB-30 quiz banks (the firm's IP — transcribed verbatim from authored PDFs, never invented or edited here). Keyed by EXACT template-library title. Unlike overrides (verbatim replacement), a bank is SOURCE MATERIAL: the AI builds the session quiz around these questions and key points, tailored to what the session actually taught, and the model answers feed the grader (wired 2026-07-18, CB-30). SKIP-DUPLICATES RULE (Mike's ruling 2026-07-20): when transcribing new material, any question whose substance already exists under the same bank key is SKIPPED — the existing entry wins, so a question never reaches the AI twice from two sources. Every skip is listed for Mike at sign-off, never silent.",
+    "7 Cash Drivers": {
+      "source": "Course Builder Quiz/General Quiz 1.pdf",
+      "transcribed": "2026-07-20",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What are the seven fundamental factors that affect a business's cash?",
+          "answer": "Sales Growth, Gross Margin, Expenses, Account Receivables (Debtors), Stock Days on Hand, Accounts Payable (Creditors), and Net Capital Expenditure.",
+          "keyPoint": "Understanding these seven factors is the important first step to improving common problems related to business cash flow."
+        },
+        {
+          "id": 2,
+          "question": "If your business is not generating sufficient cash, how might this affect your relationship with creditors?",
+          "answer": "You may not be able to pay creditors on time, which can affect your ability to negotiate the best pricing, delivery, or quality of products, and in extreme cases, your business may cease to operate due to stopped credit.",
+          "keyPoint": "Cash in the bank or a bank overdraft facility is essential for maintaining strong supplier relationships and operational stability."
+        },
+        {
+          "id": 3,
+          "question": "How does an increase in sales affect your business's cash position?",
+          "answer": "An increase in sales uses cash.",
+          "keyPoint": "While an increase in sales is good for long-term futures, there are almost always immediate costs that must be covered, such as increases in core stock, debtors, staff salaries, and transport costs."
+        },
+        {
+          "id": 4,
+          "question": "What is the formula used to measure Gross Margin?",
+          "answer": "(Sales - Cost of Goods Sold) / Sales.",
+          "keyPoint": "Gross Margin is a profitability ratio, and an increase in gross margin releases cash, whereas a decrease uses cash."
+        },
+        {
+          "id": 5,
+          "question": "Why is depreciation excluded when calculating the Expense % ratio?",
+          "answer": "Because depreciation is a non-cash item.",
+          "keyPoint": "The expense ratio is strictly focused on cash drivers, so it is calculated as (Expenses Excluding Depreciation) / Sales."
+        },
+        {
+          "id": 6,
+          "question": "How does a decrease in debtors (Account Receivables) affect cash?",
+          "answer": "A decrease in debtors releases cash.",
+          "keyPoint": "Debtor collection is measured using a Days on Hand calculation to standardize it against sales levels, allowing for accurate comparison with past periods despite changes in sales."
+        },
+        {
+          "id": 7,
+          "question": "What is the formula for calculating Inventory (Stock) Days on Hand?",
+          "answer": "(Stock x 365) / Cost of Goods Sold.",
+          "keyPoint": "An increase in stock uses cash, while a decrease in stock releases cash."
+        },
+        {
+          "id": 8,
+          "question": "How does an increase in Accounts Payable (Creditors) affect cash?",
+          "answer": "An increase in creditors releases cash.",
+          "keyPoint": "The measurement uses a Days on Hand calculation applied to the cost of goods sold figure to estimate creditor efficiency."
+        },
+        {
+          "id": 9,
+          "question": "How is Net Capital Expenditure (Capex) measured?",
+          "answer": "It is measured using the cost of any capital items less salvage value, assuming it is a replacement.",
+          "keyPoint": "An increase in capex uses cash, whereas a decrease in capex releases cash."
+        },
+        {
+          "id": 10,
+          "question": "Under what circumstance will improving cash flow fail to help your business in the long term?",
+          "answer": "If there are fundamental issues regarding the pricing of work, costing inputs, or other core management issues.",
+          "keyPoint": "Cash flow management is critical, but it cannot permanently fix a structurally unprofitable business model."
+        }
+      ]
+    },
+    "Dashboard Discussions": {
+      "source": "Course Builder Quiz/General Quiz 1.pdf",
+      "transcribed": "2026-07-20",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is the specific role of the participant in a planning session?",
+          "answer": "To be ready to explore issues and ideas with an open heart and an open mind.",
+          "keyPoint": "The objective of the meeting is to \"Discover What We've Been Missing,\" which requires participants to collaboratively challenge what they believe to be true."
+        },
+        {
+          "id": 2,
+          "question": "In the Category Secrets framework, which cost category relates to efforts made to secure more business, such as marketing and branding?",
+          "answer": "Activity Costs (or \"Get The Job\" costs).",
+          "keyPoint": "These are costs incurred in the hope that you win more work or make more sales in the future, distinct from Variable Costs."
+        },
+        {
+          "id": 3,
+          "question": "What is the definition of Fixed Costs within the Category Secrets framework?",
+          "answer": "The structural requirements to \"House\" staff and serve customers based on how you believe things should be done.",
+          "keyPoint": "These are the costs of \"being in business,\" determining how much of a customer's problem you solve in-house and the type of experience you provide."
+        },
+        {
+          "id": 4,
+          "question": "In the 3x3 Review Framework, what are the three elements of the operational sequence that align with Cause, Event, and Effect?",
+          "answer": "Get Organised, Get the Job, and Do the Job.",
+          "keyPoint": "This operational sequence directly overlays with your financial choices (Fixed Costs, Activity Costs, Variable Costs) to help determine the 'downstream' effects of performance."
+        },
+        {
+          "id": 5,
+          "question": "When reviewing a metric and struggling to gain clarity, what specific action should be taken?",
+          "answer": "Ask the \"5 Why's\" to find the root cause.",
+          "keyPoint": "You should seek information, not judgment, because no single ratio or report can give you the whole story."
+        },
+        {
+          "id": 6,
+          "question": "The \"Sales to Gross Profit Ratio\" highlights tactical options in which two specific cost areas?",
+          "answer": "Do the Job (Variable Costs) and Get the Job (Activity Costs).",
+          "keyPoint": "This ratio relates to tactical elements like purchasing efficiencies, process improvements, pricing, and sales effectiveness."
+        },
+        {
+          "id": 7,
+          "question": "What two operational phases are highlighted when analyzing the \"Wages to Sales Ratio\"?",
+          "answer": "Do the Job (Variable Costs) and Get the Job (Activity Costs).",
+          "keyPoint": "Wages primarily impact the efficiencies of projecting, managing and doing the work, as well as the sales effectiveness required to secure the work."
+        },
+        {
+          "id": 8,
+          "question": "What is the definition of a \"Common Cause\" of data volatility?",
+          "answer": "High Frequency - Low Impact events (e.g., a retail store experiencing a rainy day).",
+          "keyPoint": "Understanding the cause of volatility prevents tampering, which is the misinterpretation of and incorrect response to data."
+        },
+        {
+          "id": 9,
+          "question": "How is a \"Special Cause\" of volatility defined?",
+          "answer": "Low Frequency - High Impact events (e.g., an Earthquake or Pandemic).",
+          "keyPoint": "Separating special causes from seasonal patterns or common causes helps ensure data is consistent with previous business assumptions."
+        },
+        {
+          "id": 10,
+          "question": "When reviewing dashboard data, you must always define if the data represents Causation, Coincidence, or what third term?",
+          "answer": "Correlation.",
+          "keyPoint": "Always seek a balanced view by looking for both 'good & bad' data to accurately interpret performance."
+        }
+      ]
+    },
+    "3 Pillars of Financial Management": {
+      "source": "Course Builder Quiz/General Quiz 1.pdf",
+      "sourceHeading": "Fin Mgt 3 Pillars (keyed to the exact template-library title per the CB-30 ruling)",
+      "transcribed": "2026-07-20",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What are the 3 Pillars of Financial Management?",
+          "answer": "Scenario Model (Assumptions/Targets), Financial Systems & Controls, and Reporting (Performance/Actual).",
+          "keyPoint": "The foundation of robust business finance operates as a continuous cycle utilizing these three pillars rather than as a static process."
+        },
+        {
+          "id": 2,
+          "question": "What is the primary function of the Scenario Model?",
+          "answer": "It acts as your \"What-if\" calculator, essential for Strategic & Operational Planning.",
+          "keyPoint": "Scenario planning helps identify risks and opportunities by assigning a probability to observations; failing to \"do the math\" here is often at the heart of business failure."
+        },
+        {
+          "id": 3,
+          "question": "What is the main purpose of management reporting?",
+          "answer": "To avoid confirmation bias.",
+          "keyPoint": "Reporting helps identify what you don't know just as much as confirming what you do know, providing tangible proof gained after business activities."
+        },
+        {
+          "id": 4,
+          "question": "In the Client Progression model, why are clients typically \"Stuck in the Mud\"?",
+          "answer": "They are withdrawn from business development due to fatigue, fear of loss, or lack of clarity and belief.",
+          "keyPoint": "The solution is to create self-relevance using a persona (like the Heald matrix) so they can see that progress is easily within their reach."
+        },
+        {
+          "id": 5,
+          "question": "How does a business owner overcome \"The Knowledge Gap\" regarding their finances?",
+          "answer": "By understanding their business in cyclic terms (using a Working Capital Cycle template) to grasp the true effects of time and discounting.",
+          "keyPoint": "This creates an \"ah-ha\" moment, allowing the client to piece together the role of forecasting and budgeting."
+        },
+        {
+          "id": 6,
+          "question": "What is the first step of the Advisory Staircase?",
+          "answer": "Compilation & Verification (Get the data in, get it clean and timely).",
+          "keyPoint": "This step establishes the foundation before moving on to rendering the data for comprehension in the Assimilation stage."
+        },
+        {
+          "id": 7,
+          "question": "During Step 3 (Interpretation) of the Advisory Staircase, what key distinction must be recognized?",
+          "answer": "The difference between correlation and causation.",
+          "keyPoint": "This step helps clients recognize that volatility can only be reduced by refining procedures and treating problems as quantifiable \"what-if\" events."
+        },
+        {
+          "id": 8,
+          "question": "According to the Q&A, why do many business owners avoid financial management entirely?",
+          "answer": "Due to ignorance, fear, or because they come from a \"technician\" or \"artisan\" background and simply don't know what they don't know about financial systems.",
+          "keyPoint": "This lack of knowledge often causes owners to fail to \"do the math,\" which is a core reason for business failure."
+        },
+        {
+          "id": 9,
+          "question": "How can a business owner change their negative mindset toward financial forecasting being a frustrating \"static prediction\"?",
+          "answer": "By combining a 3-way forecast with \"revenue model sensitivity\".",
+          "keyPoint": "This shifts the forecast into a series of clues for what to expect, which brings joy from learning and helps the owner feel in control."
+        },
+        {
+          "id": 10,
+          "question": "Where does benchmarking or comparative analysis fit into the 3 pillars?",
+          "answer": "It comes at the end, in the reporting stage.",
+          "keyPoint": "You must first use your scenario model to \"flush out\" your current daily assumptions before blurring your perspective with outside organizational data."
+        }
+      ]
+    },
+    "8 Profit Levers": {
+      "source": "Course Builder Quiz/General Quiz 1.pdf",
+      "transcribed": "2026-07-20",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What are the five profit levers that multiply together to equal Total Revenue?",
+          "answer": "Number of Foot-traffic, Number of Prospects, Number of Customers, Average Customer Spend, and Average Customer Frequency.",
+          "keyPoint": "Managing these five variables dictates the total money coming into the business before expenses are deducted."
+        },
+        {
+          "id": 2,
+          "question": "What is the Basic Profit Formula?",
+          "answer": "Total Revenue (minus) Total Expenses = Profit.",
+          "keyPoint": "Revenue is driven by the first five levers, while Expenses are driven by the remaining three (Sales Margin, Activity Costs, Fixed Costs)."
+        },
+        {
+          "id": 3,
+          "question": "How is Lifetime Customer Value calculated?",
+          "answer": "Average purchase value (Customer Spend) x annual transaction frequency (Customer Frequency) x number of years expected to retain the customer.",
+          "keyPoint": "This calculation reveals the long-term revenue story and the true financial worth of keeping a customer wanting more."
+        },
+        {
+          "id": 4,
+          "question": "In the 8 Profit Levers, what does \"Sales Margin\" represent?",
+          "answer": "The difference between how much you sell it for minus what it cost you.",
+          "keyPoint": "This lever focuses on efforts to buy materials/stock for less and sell them for more."
+        },
+        {
+          "id": 5,
+          "question": "In the Customer Journey (Revenue) Story, what represents \"Total Available Market\"?",
+          "answer": "How many people live in your area.",
+          "keyPoint": "This is the absolute ceiling of potential buyers, from which you must extract market exposure (foot traffic) and market engagement (prospects)."
+        },
+        {
+          "id": 6,
+          "question": "What are the three primary uses for business profits?",
+          "answer": "1. To purchase new assets for growth or fund expansion activities, 2. To repay debt, 3. To distribute to business owners.",
+          "keyPoint": "The way a company uses its profits indicates the management team's preferences and acts as a critical measure of their performance."
+        },
+        {
+          "id": 7,
+          "question": "What is the definition of \"Over-Trading\"?",
+          "answer": "The term used to describe funding growth primarily via debt where the lack of previously retained profits results in the debt/equity ratio getting out of balance.",
+          "keyPoint": "The danger is using debt to fund fixed assets merely in the hope that it leads to increased future sales, leaving the business vulnerable to a market downturn."
+        },
+        {
+          "id": 8,
+          "question": "What financial phrase describes debt applied directly to increasing work capacity or stock cycles for which a demand is already evident?",
+          "answer": "Liquid Debt.",
+          "keyPoint": "This strategy treats the interest cost as a reduction in job margin; if margins are high enough to validate the risk, the debt can be safely \"sold down\" through foreseeable work cycles."
+        },
+        {
+          "id": 9,
+          "question": "When assessing Profit Plateau Levels, what is the easiest way to see if taking on new debt is justifiable?",
+          "answer": "Perform a 'Liquidation Value Estimate' on the proposed new business scale.",
+          "keyPoint": "You must ask how easy it would be to scale back down if necessary, and what existing equity is being placed at risk with the new scale."
+        },
+        {
+          "id": 10,
+          "question": "What is one of the three signs of Ineffective Management?",
+          "answer": "No current evidence of clear business objectives; either completely lacking or 'blunt' (not measurable, not time bound).",
+          "keyPoint": "Without clear objectives, tasks cannot be allocated properly, and a culture that accepts task failure or lacks feedback loops will emerge."
+        }
+      ]
+    },
     "Working Capital Cycle": {
       "source": "Course Builder Quiz/Working Capital Cycle quiz.pdf",
+      "appendedFrom": "Course Builder Quiz/General Quiz 1.pdf — its Working Capital Cycle group Q47-Q50 appended 2026-07-20 as entries 11-14; its Q41-Q46 SKIPPED as duplicates of entries 1, 1, 3, 4, 5 and 6 (skip-duplicates rule, Mike 2026-07-20)",
       "transcribed": "2026-07-17",
       "entries": [
         {
@@ -86,6 +352,34 @@
           "question": "An audit of fixed costs (\"Getting Organised\") requires reviewing management effectiveness. What are the 3 signs of ineffective management?",
           "answer": "1. No evidence of clear, measurable, and time-bound business objectives; 2. An existing culture that accepts task failure as 'normal'; 3. No clear evidence of feedback loops where mistakes or 'wins' are shared.",
           "keyPoint": "If objectives lack priority and failures are not learned from, internal operations will drag down the efficiency of the working capital cycle."
+        },
+        {
+          "id": 11,
+          "source": "Course Builder Quiz/General Quiz 1.pdf",
+          "question": "In a 60-day cycle example, a 34% reduction in cost equates to what percentage increase in markup?",
+          "answer": "A 103% increase in markup.",
+          "keyPoint": "Lowering costs significantly boosts margins, which is necessary to survive extended 60-day working capital cycles without going bust."
+        },
+        {
+          "id": 12,
+          "source": "Course Builder Quiz/General Quiz 1.pdf",
+          "question": "What are the two key points to remember about Retained Earnings?",
+          "answer": "They are cumulative (established since the first day of trading), and they are often not CASH.",
+          "keyPoint": "Retained earnings may have been used to buy assets, increase stock, reduce debt, or they might be 'hiding in the debtors ledger'."
+        },
+        {
+          "id": 13,
+          "source": "Course Builder Quiz/General Quiz 1.pdf",
+          "question": "In the Working Capital Cycle, what happens to distributed profits (R.O.I)?",
+          "answer": "They exit the business structure.",
+          "keyPoint": "Profits are extracted from the fixed capital structure, demonstrating why working capital must continuously cycle to generate excess cash for those distributions."
+        },
+        {
+          "id": 14,
+          "source": "Course Builder Quiz/General Quiz 1.pdf",
+          "question": "What term describes a business model or industry (like Earthmoving) that requires large amounts of depreciating equipment to serve the customer?",
+          "answer": "Capital Intensive.",
+          "keyPoint": "Fixed Capital Assets are positively correlated to Working Capital Cycle ability, and the high cost acts as a barrier to entry for new competitors."
         }
       ]
     },
