@@ -9445,7 +9445,7 @@
     "index": 278
   },
   {
-    "includedInClient": true,
+    "includedInClient": false,
     "menuSection": "do-the-job",
     "page": "id-8248036896",
     "section": "Do the Job",
@@ -9474,5 +9474,36 @@
     ],
     "status": "--",
     "index": 279
+  },
+  {
+    "includedInClient": true,
+    "menuSection": "do-the-job",
+    "page": "id-4007209261",
+    "section": "Do the Job",
+    "subSection": "General Tools",
+    "topic": "7 Cash Drivers",
+    "title": "7 Cash Drivers",
+    "link": "id-4007209261",
+    "purpose": "This template is primarily an education style template that provides practical insights into cash management tactics. Use this template as a 'stepping stone' into dashboard discussions and financial reporting sessions with your clients.",
+    "support": "Financial Management Reporting; Financial Literacy",
+    "position": 281,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This template is primarily an education style template that provides practical insights into cash management tactics. Use this template as a 'stepping stone' into dashboard discussions and financial r"
+    },
+    "status": "--",
+    "tags": [
+      "Financial Management Reporting",
+      "Financial Literacy"
+    ],
+    "index": 280
   }
 ]
