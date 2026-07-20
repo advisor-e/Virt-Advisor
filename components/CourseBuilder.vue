@@ -339,11 +339,33 @@
           p.quiz-q-text {{ currentQuestion.question }}
 
         .quiz-answer-area(v-if="!currentResult")
+          .voice-bar(v-if="speechSupported")
+            .voice-state.voice-idle(v-if="!isListening && !quizAnswer.trim()")
+              button.voice-btn.voice-btn-idle(@click="toggleListening" :disabled="isGrading")
+                svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
+                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
+                | Tap to Speak
+            .voice-state.voice-recording(v-else-if="isListening")
+              span.recording-dot
+              span.recording-label Recording — speak now
+              button.voice-btn.voice-btn-stop(@click="toggleListening")
+                svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
+                  rect(x="6" y="6" width="12" height="12" rx="2")
+                | Stop Recording
+            .voice-state.voice-ready(v-else-if="quizAnswer.trim()")
+              svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
+                path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
+              span.ready-label Captured — review then Submit
+              button.voice-btn.voice-btn-redo(@click="toggleListening")
+                svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
+                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
+                | Record again
           textarea.quiz-textarea(
             v-model="quizAnswer"
-            placeholder="Type your answer here..."
+            :placeholder="isListening ? '🎤 Listening...' : 'Type your answer here...'"
             rows="5"
             :disabled="isGrading"
+            :class="{ 'input-listening': isListening, 'input-ready': !isListening && quizAnswer.trim() }"
           )
           button.btn-submit-answer(
             @click="submitAnswer"
@@ -357,6 +379,13 @@
             | {{ currentResult.ungraded ? '— Not graded' : (currentResult.passed ? '✓ Good understanding' : '✗ Review this one') }}
           p.result-score(v-if="!currentResult.ungraded") Score: {{ currentResult.score }}%
           p.result-feedback {{ currentResult.feedback }}
+          //- The firm's authored answer, revealed only after grading. Only
+          //- bank-backed questions carry one — AI-generated questions have no
+          //- authored answer and never fabricate one.
+          .model-answer-block(v-if="currentResult.modelAnswer")
+            p.model-answer-label Model answer
+            p.model-answer-text {{ currentResult.modelAnswer }}
+            p.model-answer-keypoint(v-if="currentResult.modelKeyPoint") Key point: {{ currentResult.modelKeyPoint }}
           button.btn-next-q(@click="nextQuestion")
             | {{ quizCurrentIndex < quizQuestions.length - 1 ? 'Next question →' : 'See results' }}
 
@@ -392,6 +421,10 @@
           .review-answer-block
             p.review-answer-label Your answer
             p.review-answer-text {{ r.answer }}
+          .model-answer-block(v-if="r.modelAnswer")
+            p.model-answer-label Model answer
+            p.model-answer-text {{ r.modelAnswer }}
+            p.model-answer-keypoint(v-if="r.modelKeyPoint") Key point: {{ r.modelKeyPoint }}
           p.review-feedback {{ r.feedback }}
 
   //- ── PHASE: Complete ─────────────────────────────────────────────────────
@@ -637,7 +670,7 @@ export default {
       this.recognition.onresult = (e) => {
         let transcript = ''
         for (let i = 0; i < e.results.length; i++) { transcript += e.results[i][0].transcript }
-        if (this.phase === 'session') { this.sessionInput = transcript } else { this.designInput = transcript }
+        if (this.phase === 'quiz') { this.quizAnswer = transcript } else if (this.phase === 'session') { this.sessionInput = transcript } else { this.designInput = transcript }
       }
       this.recognition.onend = () => {
         this._recognitionRunning = false
@@ -675,7 +708,7 @@ export default {
         this.recognition.stop()
         this.isListening = false
       } else {
-        if (this.phase === 'session') { this.sessionInput = '' } else { this.designInput = '' }
+        if (this.phase === 'quiz') { this.quizAnswer = '' } else if (this.phase === 'session') { this.sessionInput = '' } else { this.designInput = '' }
         this.isListening = true
         if (!this._recognitionRunning) {
           this._recognitionRunning = true
@@ -1428,6 +1461,9 @@ export default {
     async submitAnswer () {
       const answer = this.quizAnswer.trim()
       if (!answer || this.isGrading || !this.currentQuestion) { return }
+      // Stop dictation on submit so it can't keep transcribing into the next
+      // question's answer (same pattern as the other phase transitions).
+      if (this.isListening) { this.recognition.stop(); this.isListening = false }
       this.isGrading = true
 
       try {
@@ -1446,7 +1482,7 @@ export default {
         })
         const data = await response.json()
         if (data.success) {
-          this.currentResult = { passed: data.passed, score: data.score, feedback: data.feedback, question: this.currentQuestion.question, answer }
+          this.currentResult = { passed: data.passed, score: data.score, feedback: data.feedback, question: this.currentQuestion.question, answer, modelAnswer: data.modelAnswer || null, modelKeyPoint: data.modelKeyPoint || null }
         } else {
           this.currentResult = ungradedResult(this.currentQuestion.question, answer)
         }
@@ -2508,6 +2544,13 @@ export default {
 .review-answer-label { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 4px; }
 .review-answer-text { font-size: 13px; color: #374151; margin: 0; line-height: 1.5; }
 .review-feedback { font-size: 13px; color: #6b7280; margin: 0; line-height: 1.5; font-style: italic; }
+.model-answer-block {
+  background: #f0f9ff; border: 1px solid #bae6fd;
+  border-radius: 8px; padding: 10px 14px; text-align: left; margin-top: 10px;
+}
+.model-answer-label { font-size: 11px; font-weight: 600; color: #0369a1; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 4px; }
+.model-answer-text { font-size: 13px; color: #374151; margin: 0; line-height: 1.5; }
+.model-answer-keypoint { font-size: 12px; color: #6b7280; margin: 6px 0 0; line-height: 1.5; font-style: italic; }
 
 /* ── Completion actions ───────────────────────────────── */
 .completion-actions { display: flex; flex-direction: column; gap: 10px; align-items: center; }
