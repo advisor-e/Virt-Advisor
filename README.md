@@ -1,10 +1,15 @@
 # Nuxt Minimal Starter
 
-> **📌 Pulling this code into any environment (UAT, production, the Advisor-e master
-> app, a demo)? Record the exact commit you pulled in
-> [`design/DEPLOYED-VERSIONS.md`](design/DEPLOYED-VERSIONS.md) — the deployment is not
-> complete until its row is written.** That ledger is how everyone knows which version
-> is running where, and in what state.
+> **📌 Taking a version of this code into UAT or production? Pull a release **tag**
+> (`v0.6.0`, `v0.6.1`, …), never the moving `master` branch — and reply to us with the
+> tag you installed.** A tag is immutable, so "UAT is on `v0.6.0`" stays true and
+> checkable forever. Please also report UAT bugs against the tag number, so a report can
+> be matched to the exact code that produced it.
+>
+> The full hand-off process is in **[`design/WORKING-AGREEMENT.md`](design/WORKING-AGREEMENT.md)**,
+> and what is running where is recorded in
+> **[`design/DEPLOYED-VERSIONS.md`](design/DEPLOYED-VERSIONS.md)** — which we maintain on
+> this side, so you do not need commit access to keep it accurate.
 
 ## 📁 Where everything lives
 

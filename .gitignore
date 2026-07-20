@@ -26,9 +26,12 @@ logs
 .env.*
 !.env.example
 
-# Claude Code — ignore local state, but DO share project skills with the team
+# Claude Code — ignore local state, but DO share project skills and commands.
+# `commands/` MUST stay shared: /startup and /shutdown are the Working Agreement
+# checklists, and they are worthless if only one machine has them.
 .claude/*
 !.claude/skills/
+!.claude/commands/
 
 # Generated search exports (not for version control)
 search_content_*.json
