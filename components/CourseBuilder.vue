@@ -445,7 +445,7 @@
           .comp-session-num {{ i + 1 }}
           .comp-session-info
             span.comp-session-title {{ s.title }}
-          .comp-session-score(v-if="activeCourse.progress && activeCourse.progress[i] && activeCourse.progress[i].quizScore")
+          .comp-session-score(v-if="activeCourse.progress && activeCourse.progress[i] && activeCourse.progress[i].quizScore !== null")
             span(:class="activeCourse.progress[i].quizScore >= 70 ? 'score-pass-text' : 'score-fail-text'")
               | {{ activeCourse.progress[i].quizScore }}%
       .completion-actions

@@ -30,7 +30,7 @@
         span.card-number {{ summaryStats.completionRate }}%
         span.card-label Completion Rate
       .summary-card(:class="summaryStats.avgQuizScore >= 70 ? 'card-good' : 'card-mid'")
-        span.card-number {{ summaryStats.avgQuizScore > 0 ? summaryStats.avgQuizScore + '%' : '—' }}
+        span.card-number {{ summaryStats.avgQuizScore !== null ? summaryStats.avgQuizScore + '%' : '—' }}
         span.card-label Avg. Quiz Score
 
     //- ── Team Insights (AI) ─────────────────────────────────────────────────
@@ -95,7 +95,7 @@
               .progress-fill-mini(:style="{ width: row.progressPct + '%' }")
             span.progress-label {{ row.sessionsComplete }}/{{ row.sessionsTotal }} sessions
           .td.td-score
-            span(:class="scoreClass(row.avgScore)") {{ row.avgScore > 0 ? row.avgScore + '%' : '—' }}
+            span(:class="scoreClass(row.avgScore)") {{ row.avgScore !== null ? row.avgScore + '%' : '—' }}
           .td.td-last {{ row.lastActiveFormatted }}
           .td.td-status
             span.status-badge(:class="'status-' + row.status") {{ statusLabel(row.status) }}
@@ -168,7 +168,7 @@ export default {
             .map(s => s.score)
           const avgScore = scores.length
             ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-            : 0
+            : null
           const sessionsComplete = (course.sessions || []).filter(s => s.status === 'complete').length
           const sessionsTotal = (course.sessions || []).length
           rows.push({
@@ -221,10 +221,10 @@ export default {
       const completionRate = rows.length
         ? Math.round((completed / rows.length) * 100)
         : 0
-      const scores = rows.filter(r => r.avgScore > 0).map(r => r.avgScore)
+      const scores = rows.filter(r => r.avgScore !== null).map(r => r.avgScore)
       const avgQuizScore = scores.length
         ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-        : 0
+        : null
       return { activeLearners, coursesRunning, completionRate, avgQuizScore }
     }
   },
@@ -264,7 +264,7 @@ export default {
       // Mock AI insight
       await new Promise(resolve => setTimeout(resolve, 1200))
       this.teamInsights = `Your team has ${this.summaryStats.activeLearners} active learners across ${this.summaryStats.coursesRunning} running courses, with an overall completion rate of ${this.summaryStats.completionRate}%. ` +
-        `Quiz performance is ${this.summaryStats.avgQuizScore >= 70 ? 'strong' : 'developing'} at an average of ${this.summaryStats.avgQuizScore}%. ` +
+        `Quiz performance ${this.summaryStats.avgQuizScore === null ? 'has no graded activity yet' : `is ${this.summaryStats.avgQuizScore >= 70 ? 'strong' : 'developing'} at an average of ${this.summaryStats.avgQuizScore}%`}. ` +
         'Consider following up with advisors who have been inactive for more than 7 days to keep momentum going.'
       this.insightsGeneratedAt = new Date().toLocaleTimeString('en-AU', {
         hour: '2-digit',
@@ -280,7 +280,7 @@ export default {
     },
 
     scoreClass (score) {
-      if (!score) { return '' }
+      if (score === null || score === undefined) { return '' }
       if (score >= 80) { return 'score-high' }
       if (score >= 70) { return 'score-mid' }
       return 'score-low'
