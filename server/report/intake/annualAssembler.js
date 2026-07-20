@@ -12,6 +12,13 @@
 
 const MAX_FILES = 5
 
+/** The period-end "day month" token from a report's own date line ("…31 March 2025" → "31 March"). @param {string|null} reportDate */
+function periodEndOf (reportDate) {
+  if (!reportDate) { return null }
+  const m = /(\d{1,2})\s+([A-Za-z]+)\s+(?:19|20)\d{2}\s*$/.exec(String(reportDate).trim())
+  return m ? (m[1] + ' ' + m[2]) : null
+}
+
 /** The plFigures keys that map straight onto the calc engine's per-year arrays. */
 const SERIES_KEYS = ['sales', 'costOfSales', 'operatingExpenses', 'loanInterestPaid']
 /** plFigures keys that live inside the engine's `sundry` group. */
@@ -73,6 +80,17 @@ function assembleAnnualReports (parsed) {
   const names = new Set(files.map(f => f.companyName).filter(Boolean))
   if (names.size > 1) {
     warnings.push('The files name different companies — check that every export belongs to the same client.')
+  }
+
+  // R20: the year-number check alone passes a 31-March-2024 + 30-June-2025 pair as
+  // "consecutive" (15 months apart) — the files must also share a fiscal period-end.
+  const ends = new Map()
+  for (const f of files) {
+    const end = periodEndOf(f.reportDate)
+    if (end && !ends.has(end.toLowerCase())) { ends.set(end.toLowerCase(), end) }
+  }
+  if (ends.size > 1) {
+    warnings.push('The files end their years on different dates (' + Array.from(ends.values()).join(', ') + ') — year-on-year comparisons may be out of step. Please check the exports.')
   }
 
   let assembled = null

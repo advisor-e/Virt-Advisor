@@ -42,6 +42,7 @@ data/dev-firm-distinction-declines.json
 data/dev-firm-distinction-overrides.json
 data/dev-firm-distinction-lastseen.json
 data/dev-firm-distinction-override-baselines.json
+data/dev-firm-currency.json
 
 # Dev-only platform (mentor) distinctions (created locally when MySQL is unavailable)
 data/dev-platform-distinctions.json

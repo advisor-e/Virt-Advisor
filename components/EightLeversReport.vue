@@ -183,6 +183,8 @@
  * editable here too. Percentages are held as whole numbers for the sliders and converted to
  * fractions in payload().
  */
+import currencyMixin from '~/mixins/currencyMixin'
+
 const DEFAULTS = {
   // The lever chain (Broad Scenarios, current column)
   marketSize: 32500,
@@ -207,6 +209,8 @@ const DEFAULTS = {
 
 export default {
   name: 'EightLeversReport',
+
+  mixins: [currencyMixin],
 
   data () {
     return {
@@ -318,8 +322,7 @@ export default {
   beforeDestroy () { if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) } },
 
   methods: {
-    money (n) { return '$' + Math.round(n || 0).toLocaleString('en-US') },
-    signedMoney (n) { return (n >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(n || 0)).toLocaleString('en-US') },
+    // money() + signedMoney() come from currencyMixin (firm currency + locale).
     pct (n) { return Math.round((n || 0) * 100) + '%' },
     round0 (n) { return Math.round(n || 0).toLocaleString('en-US') },
     round1 (n) { return (Math.round((n || 0) * 10) / 10).toFixed(1) },
@@ -327,7 +330,7 @@ export default {
     fmtField (fld) {
       const v = this.f[fld.k]
       if (fld.fmt === 'money') { return this.money(v) }
-      if (fld.fmt === 'money2') { return '$' + Number(v).toFixed(2) }
+      if (fld.fmt === 'money2') { return this.money2(v) }
       if (fld.fmt === 'pct') { return v + '%' }
       if (fld.fmt === 'x') { return this.round1(v) + '×' }
       if (fld.fmt === 'hours') { return v + ' hrs' }

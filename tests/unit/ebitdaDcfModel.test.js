@@ -218,4 +218,70 @@ describe('EBITDA & DCF — honesty guards (null over fabricated figures)', () =>
       expect(r.pnl.ebitda[4]).toBe(571795)
     }
   })
+
+  // R5 (2026-07-19): mismatched growth/discount lengths used to reach project()
+  // unguarded — rates[i] undefined → NaN → JSON null, indistinguishable from an
+  // honest "won't fabricate" null. The model must refuse, never half-compute.
+  test('R5: mismatched growth/discount lengths REFUSE — private-business block', () => {
+    expect(() => computeEbitdaDcf({
+      dcf: { projectedGrowth: [0.04, 0.03, 0.02, 0.03, 0.04], discountRates: [0.06, 0.07] }
+    })).toThrow(/same number of years/)
+  })
+
+  test('R5: mismatched growth/discount lengths REFUSE — listed block', () => {
+    expect(() => computeEbitdaDcf({
+      listed: { projectedGrowth: [0.04, 0.03], discountRates: [0.06, 0.07, 0.05, 0.05, 0.06] }
+    })).toThrow(/same number of years/)
+  })
+
+  // R8 ruling (Mike, 2026-07-19): defaults may substitute, but NEVER silently.
+  test('R8: 5-year sales with 2-year costOfSales — the 3 padded oldest years are declared', () => {
+    const r = computeEbitdaDcf({
+      sales: [1014578, 1457890, 3545789, 4656897, 6809564],
+      costOfSales: [3856457, 5554687]
+    })
+    expect(r.defaultedInputs).toEqual(expect.arrayContaining(['costOfSales[0]', 'costOfSales[1]', 'costOfSales[2]']))
+    expect(r.defaultedInputs).not.toContain('costOfSales[3]')
+    expect(r.defaultedInputs).not.toContain('costOfSales[4]')
+    expect(r.defaultedInputs).not.toContain('sales[0]')
+  })
+
+  test('R8: junk inside a group series is declared at its exact position', () => {
+    const r = computeEbitdaDcf({ sundry: { otherIncome: [3500, 'junk', 12564, 7800, 64600] } })
+    expect(r.defaultedInputs).toContain('sundry.otherIncome[1]')
+    expect(r.defaultedInputs).not.toContain('sundry.otherIncome[0]')
+  })
+
+  test('R8: a fully-supplied body (the DEFAULTS shape itself) declares nothing', () => {
+    const { DEFAULTS } = require('../../server/report/ebitdaDcfModel')
+    const full = {
+      latestYear: DEFAULTS.latestYear,
+      sales: DEFAULTS.sales,
+      costOfSales: DEFAULTS.costOfSales,
+      operatingExpenses: DEFAULTS.operatingExpenses,
+      sundry: DEFAULTS.sundry,
+      addBacks: DEFAULTS.addBacks,
+      fairMarket: DEFAULTS.fairMarket,
+      dcf: DEFAULTS.dcf,
+      listed: DEFAULTS.listed
+    }
+    const r = computeEbitdaDcf(full)
+    expect(r.defaultedInputs).toEqual([])
+    expect(r.valuation.enterpriseValue).toBeCloseTo(4420962.963, 2) // golden value untouched
+  })
+
+  test('R8: demo mode (no input) openly declares the sample figures it used', () => {
+    const r = computeEbitdaDcf(null)
+    expect(r.defaultedInputs).toEqual(expect.arrayContaining(['sales[0]', 'listed.sharePrice', 'dcf.exitMultiple']))
+  })
+
+  test('R5: a matched SHORT pair (2+2) still computes with finite figures', () => {
+    const r = computeEbitdaDcf({
+      dcf: { projectedGrowth: [0.04, 0.03], discountRates: [0.06, 0.07] }
+    })
+    expect(r.valuation.projectedEbitda).toHaveLength(2)
+    expect(r.valuation.discountedCashFlow).toHaveLength(2)
+    expect(Number.isFinite(r.valuation.enterpriseValue)).toBe(true)
+    expect(r.valuation.futureYears).toEqual([2026, 2027])
+  })
 })

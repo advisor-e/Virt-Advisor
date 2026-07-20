@@ -17,7 +17,8 @@
       p {{ $t('report.ebitdaDcf.drop.rules') }}
       a(href="#" @click.prevent="skipManual") {{ $t('report.ebitdaDcf.drop.skip') }}
     .drop-actions
-      b-button(type="is-primary" :disabled="staged.length === 0" :loading="uploading" @click="uploadAll") {{ $t('report.ebitdaDcf.drop.read', { n: staged.length }) }}
+      //- R23 residual: the rules line below promises "minimum two years to show growth" — enforce it
+      b-button(type="is-primary" :disabled="staged.length < 2" :loading="uploading" @click="uploadAll") {{ $t('report.ebitdaDcf.drop.read', { n: staged.length }) }}
 
   //- ── Step 1b: assign years the files could not state ──
   section(v-else-if="phase === 'years'")
@@ -58,13 +59,14 @@
                 td(:colspan="displayYears.length + 2") {{ $t('report.ebitdaDcf.confirm.group.' + group.key) }}
               tr(v-for="row in group.rows" :key="row")
                 td {{ $t('report.ebitdaDcf.confirm.row.' + row) }}
-                td(v-for="(y, c) in displayYears" :key="row + y")
+                td(v-for="(y, c) in displayYears" :key="row + y" :class="{ 'cell-invalid': invalidCells.includes(row + ':' + displayIndex(c)) }")
                   b-input(v-model.number="figures[row][displayIndex(c)].value" type="number" step="any" size="is-small" @input="markEntered(row, displayIndex(c))")
                 td
                   span.src(:class="rowSource(row) === 'file' ? 'src-file' : 'src-hand'")
                     | {{ rowSource(row) === 'file' ? $t('report.ebitdaDcf.confirm.fromFile') : $t('report.ebitdaDcf.confirm.entered') }}
       .warn-note(v-for="(w, i) in warnings" :key="'w' + i") ⚠ {{ w }}
       p.note {{ $t('report.ebitdaDcf.confirm.notesHint') }}
+      .confirm-error(v-if="invalidCells.length") {{ $t('report.ebitdaDcf.confirm.incomplete') }}
     .drop-actions
       b-button(type="is-primary" @click="confirmFigures") {{ $t('report.ebitdaDcf.confirm.build') }}
       span.adjust-note {{ $t('report.ebitdaDcf.confirm.adjustLater') }}
@@ -137,21 +139,29 @@ export default {
 
   props: {
     // Verified login pass (JWT); the intake route is firmAuth-guarded.
-    apiToken: { type: String, default: 'dev-local-bypass' }
+    apiToken: { type: String, default: 'dev-local-bypass' },
+    // Previously confirmed payload — when present the intake opens with every figure
+    // and badge exactly as confirmed (R12: stepping back must never wipe them).
+    restore: { type: Object, default: null },
+    // The page's current step (1 = drop, 2 = confirm) — replaces the old $refs reach-in.
+    step: { type: Number, default: 1 }
   },
 
   data () {
+    const r = this.restore
     return {
-      phase: 'drop', // 'drop' | 'years' | 'confirm'
+      phase: r && this.step !== 1 ? 'confirm' : 'drop', // 'drop' | 'years' | 'confirm'
       staged: [], // File objects awaiting upload
       uploading: false,
       dropError: null,
       parsedFiles: [], // backend per-file results (year editable in the 'years' phase)
       warnings: [],
-      years: [2021, 2022, 2023, 2024, 2025], // oldest-first, set by the files
-      figures: this.defaultFigures(5),
-      companyName: null,
-      rowGroups: ROW_GROUPS
+      years: r && r.years ? r.years.slice() : [2021, 2022, 2023, 2024, 2025], // oldest-first, set by the files
+      figures: r && r.figures ? JSON.parse(JSON.stringify(r.figures)) : this.defaultFigures(5),
+      companyName: r ? r.companyName : null,
+      rowGroups: ROW_GROUPS,
+      // Cells ("row:index") that blocked the last build attempt (empty / non-numeric) — R23
+      invalidCells: []
     }
   },
 
@@ -164,6 +174,13 @@ export default {
     yearsResolved () {
       const ys = this.parsedFiles.map(f => f.year)
       return ys.every(y => Number.isInteger(y) && y > 1900) && new Set(ys).size === ys.length
+    }
+  },
+
+  watch: {
+    /** Chip navigation from the page — proper one-way flow, no $refs reach-in (R12). */
+    step (n) {
+      if (n === 1) { this.phase = 'drop' } else if (n === 2) { this.phase = 'confirm' }
     }
   },
 
@@ -189,9 +206,10 @@ export default {
     rowSource (row) {
       return this.figures[row].some(cell => cell.source === 'file') ? 'file' : 'entered'
     },
-    /** An edited cell becomes the advisor's figure. @param {string} row @param {number} idx */
+    /** An edited cell becomes the advisor's figure (and clears its incomplete flag). @param {string} row @param {number} idx */
     markEntered (row, idx) {
       this.figures[row][idx].source = 'entered'
+      this.invalidCells = this.invalidCells.filter(k => k !== row + ':' + idx)
     },
     pickFiles () {
       this.$refs.fileInput.click()
@@ -205,10 +223,23 @@ export default {
     onDrop (event) {
       this.stage(event.dataTransfer && event.dataTransfer.files)
     },
+    /**
+     * Pre-upload sanity check — UX only; the backend's magic-byte and size checks
+     * remain the real boundary. @param {File} file @returns {string|null}
+     */
+    fileCheckError (file) {
+      if (!/\.(xlsx|csv)$/i.test(file.name)) { return this.$t('report.fileCheck.wrongType') }
+      if (file.size > 5 * 1024 * 1024) { return this.$t('report.fileCheck.tooBig') }
+      return null
+    },
     /** @param {FileList|null} list */
     stage (list) {
       this.dropError = null
-      const incoming = Array.from(list || [])
+      const incoming = []
+      for (const f of Array.from(list || [])) {
+        const err = this.fileCheckError(f)
+        if (err) { this.dropError = err } else { incoming.push(f) }
+      }
       const room = 5 - this.staged.length
       if (incoming.length > room) {
         this.dropError = this.$t('report.ebitdaDcf.drop.tooMany')
@@ -222,6 +253,13 @@ export default {
     /** One request carries every staged file; the backend parses + assembles. */
     async uploadAll () {
       this.dropError = null
+      // The server's 5 MB cap is per request (the batch together, not each file) —
+      // say so here before a doomed upload is attempted.
+      const total = this.staged.reduce((sum, f) => sum + f.size, 0)
+      if (total > 5 * 1024 * 1024) {
+        this.dropError = this.$t('report.fileCheck.tooBigTotal')
+        return
+      }
       this.uploading = true
       try {
         const body = new FormData()
@@ -298,8 +336,20 @@ export default {
       // step: which intake step is showing (1 = drop, 2 = confirm)
       this.$emit('step', 2)
     },
-    /** Hand the confirmed figures (oldest-first) to the report screen. */
+    /**
+     * Hand the confirmed figures (oldest-first) to the report screen. Every cell must be
+     * a real number first — a cleared box must never fall through to a sample default on
+     * the backend (R23, same rule as the Quick Position intake / contract §4.4).
+     */
     confirmFigures () {
+      const bad = []
+      Object.keys(this.figures).forEach((row) => {
+        this.figures[row].forEach((cell, idx) => {
+          if (!Number.isFinite(cell.value)) { bad.push(row + ':' + idx) }
+        })
+      })
+      this.invalidCells = bad
+      if (bad.length) { return }
       // confirmed: { years, figures: {row: [{value, source}] oldest-first}, companyName }
       this.$emit('confirmed', {
         years: this.years.slice(),
@@ -336,6 +386,8 @@ export default {
 .confirm-table td { padding: 6px 8px; border-bottom: 1px solid #eef3f8; vertical-align: middle; min-width: 96px; }
 .confirm-table td:first-child { min-width: 220px; }
 .confirm-table tr.grp td { padding-top: 14px; font-weight: 600; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #0070c0; border-bottom: 1px solid #d5e1ee; }
+.cell-invalid { background: #ff00000a; }
+.confirm-error { font-size: 12.5px; font-weight: 600; color: #ff0000; background: #ff00001a; border-radius: 9px; padding: 10px 14px; margin-top: 14px; }
 .src { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; padding: 2.5px 7px; border-radius: 999px; white-space: nowrap; }
 .src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
 .src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }

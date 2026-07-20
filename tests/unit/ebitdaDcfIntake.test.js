@@ -174,6 +174,20 @@ describe('assembleAnnualReports — the multi-file rules', () => {
     expect(warnings.some(w => /different companies/.test(w))).toBe(true)
   })
 
+  test('R20: files ending their years on different dates warn — year numbers alone are not alignment', () => {
+    const june = extractProfitLoss([
+      ['Profit and Loss'], ['Kinetic Test Ltd'], ['For the year ended 30 June 2025'],
+      ['Income'], ['Sales', 100000]
+    ])
+    const { warnings } = assembleAnnualReports([parse(2024), june])
+    expect(warnings.some(w => /end their years on different dates/.test(w) && /31 March/.test(w) && /30 June/.test(w))).toBe(true)
+  })
+
+  test('R20: a same-period-end set raises no date warning', () => {
+    const { warnings } = assembleAnnualReports([parse(2024), parse(2025)])
+    expect(warnings.some(w => /different dates/.test(w))).toBe(false)
+  })
+
   test('non-consecutive years still assemble but warn about the gap', () => {
     const { assembled, warnings } = assembleAnnualReports([parse(2021), parse(2025)])
     expect(assembled.years).toEqual([2021, 2025])

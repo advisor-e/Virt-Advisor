@@ -78,6 +78,7 @@ const clientsRoute = require('./routes/clients')
 const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
+const currencyRoute = require('./routes/currency')
 const { firmAuth, requireManagerRole, requireMentorRole } = require('./middleware/firmAuth')
 // Advisor + course engines — migrated from Nuxt server-middleware per the
 // coding-team Req 7 ruling (OpenAI logic + key backend-only). Connect-style
@@ -98,7 +99,15 @@ const server = restify.createServer({
 // jsonBodyParser returns an ARRAY of handlers in Restify 9 (not a single fn),
 // so run them as a sub-chain. Skip entirely for advisor/course, which read the
 // raw body themselves and stream SSE.
-const _jsonParsers = restify.plugins.jsonBodyParser({ mapParams: false })
+// R7 (2026-07-19): absent maxBodySize means UNLIMITED buffering before parse — an
+// anonymous client could stream an arbitrary-size body at the no-auth calc routes.
+// 1 MB clears the largest legitimate JSON body with ~2x headroom (biggest config
+// family: a future firm logic-tree overlay ~551 KB; templates 337 KB; calc bodies
+// are a few KB). The SSE engines self-cap at 256 KB and uploads go through
+// formidable's own 5 MB caps — neither uses this parser. Oversize → standard 413.
+// (tests/unit/jsonBodyLimit.test.js tripwires this wiring — keep them in step.)
+const JSON_BODY_LIMIT = 1024 * 1024
+const _jsonParsers = restify.plugins.jsonBodyParser({ mapParams: false, maxBodySize: JSON_BODY_LIMIT })
 server.use((req, res, next) => {
   const p = (req.url || '').split('?')[0]
   if (p === '/api/advisor/query' || p === '/api/course') { return next() }
@@ -140,6 +149,10 @@ server.post('/api/report/ebitda-dcf', reportRoute.ebitdaDcf)
 // firmAuth deliberately ON for the intake (unlike the calc-only report routes): it accepts file uploads
 server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPositionIntake)
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
+// Firm preferred currency: READ open to any firm user (reports render for advisors);
+// WRITE managers only (account-wide setting). Persistence via firmOverlay (config_key 'currency').
+server.get('/api/report/currency', firmAuth, currencyRoute.get)
+server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.set)
 server.get('/api/firm/advisors', firmAuth, firmRoute.getAdvisors)
 server.post('/api/firm/insights', firmAuth, firmRoute.postInsights)
 server.post('/api/activity/log-course', firmAuth, activityRoute.logCourse)

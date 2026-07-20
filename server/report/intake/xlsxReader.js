@@ -31,6 +31,10 @@ const MAX_INFLATED_PER_ENTRY = 20 * 1024 * 1024
 const MAX_INFLATED_TOTAL = 40 * 1024 * 1024
 const MAX_SHEETS = 16
 const MAX_CELLS_PER_SHEET = 200000
+// Rows are padded up to the highest value-bearing cell's index (parseSheet) — without a
+// cap, one crafted cell at A9999999 forces ~10M array pushes per sheet (OOM DoS).
+// No legitimate report export approaches 10k rows.
+const MAX_ROWS_PER_SHEET = 10000
 
 /** Error with a stable machine code; the route maps it to a safe client message. */
 class XlsxReadError extends Error {
@@ -127,9 +131,15 @@ function readEntry (buf, entry, budget) {
 /** Decode the five XML entities plus numeric character references. @param {string} s */
 function decodeXml (s) {
   if (!s.includes('&')) { return s }
+  // R24: an out-of-range reference (&#x110000;+) is invalid XML no real export contains —
+  // refuse typed, never let String.fromCodePoint throw a raw RangeError past the intake codes
+  const cp = (n) => {
+    if (n > 0x10FFFF) { throw new XlsxReadError('CORRUPT_FILE', 'A part of this file is corrupt') }
+    return String.fromCodePoint(n)
+  }
   return s
-    .replace(/&#x([0-9a-fA-F]{1,6});/g, (m, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d{1,7});/g, (m, d) => String.fromCodePoint(parseInt(d, 10)))
+    .replace(/&#x([0-9a-fA-F]{1,6});/g, (m, h) => cp(parseInt(h, 16)))
+    .replace(/&#(\d{1,7});/g, (m, d) => cp(parseInt(d, 10)))
     .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'").replace(/&amp;/g, '&')
 }
@@ -252,6 +262,9 @@ function parseSheet (xml, shared) {
     if (value === null || value === '') { continue }
 
     if (++cells > MAX_CELLS_PER_SHEET) { throw new XlsxReadError('FILE_TOO_LARGE', 'The sheet holds more cells than any report export') }
+    // Checked here (value-bearing cells only), not at the address guard: empty
+    // formatting-only cells stranded far down by an Excel re-save stay harmless.
+    if (row >= MAX_ROWS_PER_SHEET) { throw new XlsxReadError('FILE_TOO_LARGE', 'The sheet reaches further down than any report export') }
     while (rows.length <= row) { rows.push([]) }
     rows[row][col] = value
   }

@@ -1,7 +1,12 @@
 <template lang="pug">
 .ed-report
   template(v-if="result")
-    .herostrip
+    //- A failure AFTER the first load must never sit silently behind stale figures (R9)
+    .stale(v-if="error")
+      .stalehead {{ $t('report.staleTitle') }}
+      p.stalebody {{ $t('report.calcUnreachable') }}
+      b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
+    .herostrip(:class="{ 'is-stale': error }")
       .hs
         .hk {{ $t('report.ebitdaDcf.hero.ev') }}
         .hv(:class="{ crit: result.valuation.enterpriseValue < 0 }") {{ money(result.valuation.enterpriseValue) }}
@@ -42,7 +47,10 @@
               th(v-for="(y, c) in displayYears" :key="'py' + y") {{ y }}
           tbody
             tr
-              td {{ $t('report.ebitdaDcf.confirm.row.sales') }}
+              td
+                | {{ $t('report.ebitdaDcf.confirm.row.sales') }}
+                span.src(:class="rowSrc('sales') === 'file' ? 'src-file' : 'src-hand'")
+                  | {{ rowSrc('sales') === 'file' ? $t('report.ebitdaDcf.confirm.fromFile') : $t('report.ebitdaDcf.confirm.entered') }}
               td(v-for="(y, c) in displayYears" :key="'s' + y") {{ money(seedValue('sales', c)) }}
             tr.calc
               td {{ $t('report.ebitdaDcf.pnl.grossProfit') }}
@@ -51,10 +59,16 @@
                 span.pctnote  {{ pct(result.pnl.grossProfitPct[di(c)]) }}
             template(v-if="expanded")
               tr
-                td {{ $t('report.ebitdaDcf.confirm.row.costOfSales') }}
+                td
+                  | {{ $t('report.ebitdaDcf.confirm.row.costOfSales') }}
+                  span.src(:class="rowSrc('costOfSales') === 'file' ? 'src-file' : 'src-hand'")
+                    | {{ rowSrc('costOfSales') === 'file' ? $t('report.ebitdaDcf.confirm.fromFile') : $t('report.ebitdaDcf.confirm.entered') }}
                 td(v-for="(y, c) in displayYears" :key="'c' + y") {{ money(seedValue('costOfSales', c)) }}
               tr
-                td {{ $t('report.ebitdaDcf.confirm.row.operatingExpenses') }}
+                td
+                  | {{ $t('report.ebitdaDcf.confirm.row.operatingExpenses') }}
+                  span.src(:class="rowSrc('operatingExpenses') === 'file' ? 'src-file' : 'src-hand'")
+                    | {{ rowSrc('operatingExpenses') === 'file' ? $t('report.ebitdaDcf.confirm.fromFile') : $t('report.ebitdaDcf.confirm.entered') }}
                 td(v-for="(y, c) in displayYears" :key="'o' + y") {{ money(seedValue('operatingExpenses', c)) }}
               tr.calc
                 td {{ $t('report.ebitdaDcf.pnl.netOperatingProfit') }}
@@ -173,6 +187,7 @@
 
 <script>
 import debounce from 'lodash/debounce'
+import currencyMixin from '~/mixins/currencyMixin'
 
 /**
  * EbitdaDcfReport — step 3 of the EBITDA & DCF valuation (owner-approved mockup,
@@ -193,6 +208,8 @@ const FAIRMARKET_ROWS = { fmSalaries: 'salaries', fmInsuranceRetirement: 'insura
 export default {
   name: 'EbitdaDcfReport',
 
+  mixins: [currencyMixin],
+
   props: {
     /**
      * The confirmed intake payload from EbitdaDcfIntake:
@@ -203,6 +220,9 @@ export default {
   },
 
   data () {
+    // R23 residual: the listed history table renders one cell per year — the array must
+    // be exactly that long, or invisible sample slots reach the calc as if typed.
+    const yearCount = (this.seed && this.seed.years && this.seed.years.length) || 5
     return {
       dcf: {
         growthPct: [4, 6, 5, 3, 4],
@@ -212,7 +232,7 @@ export default {
       listed: {
         sharesIssued: 3234978616,
         sharePrice: 0.59,
-        ebitdaHistory: [-37.3, -307.6, 861.7, 548.9, 0],
+        ebitdaHistory: [-37.3, -307.6, 861.7, 548.9, 0].slice(0, yearCount),
         exitMultiple: 0.25
       },
       listedOpen: false,
@@ -299,6 +319,9 @@ export default {
   created () {
     // Debounced so rapid edits don't flood the backend (calc is backend-only)
     this._debouncedRecompute = debounce(this.recompute, 250)
+    // Monotonic request stamp (R10): debounce spaces call STARTS only — a slow older
+    // response must never overwrite a newer one. Non-reactive by design.
+    this._reqSeq = 0
   },
 
   mounted () {
@@ -314,6 +337,16 @@ export default {
     di (c) {
       return this.years.length - 1 - c
     },
+    /**
+     * Row-level provenance for a seeded input row — 'file' while ANY year in the row
+     * still carries a file figure (the intake table's rule, R11); 'entered' otherwise,
+     * including demo mode (no seed = the advisor owns every figure).
+     * @param {string} row @returns {'file'|'entered'}
+     */
+    rowSrc (row) {
+      const fig = this.seed && this.seed.figures && this.seed.figures[row]
+      return fig && fig.some(cell => cell.source === 'file') ? 'file' : 'entered'
+    },
     /** A confirmed input figure for a display column. @param {string} row @param {number} c */
     seedValue (row, c) {
       const fig = this.seed && this.seed.figures && this.seed.figures[row]
@@ -321,16 +354,9 @@ export default {
       if (fig && fig[idx] && typeof fig[idx].value === 'number') { return fig[idx].value }
       return this.result ? null : 0
     },
-    /** @param {number|null} n */
-    money (n) {
-      if (n === null || n === undefined) { return '—' }
-      const v = Math.round(n)
-      return (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString('en-US')
-    },
-    /** @param {number} n - e.g. 0.9258 @returns {string} "$0.93" */
-    price (n) {
-      return '$' + (Math.round(n * 100) / 100).toFixed(2)
-    },
+    // money() comes from currencyMixin (firm currency + locale).
+    /** @param {number} n - e.g. 0.9258 @returns {string} share price, e.g. "$0.93" */
+    price (n) { return this.money2(n) },
     /** @param {number} f - fraction @returns {string} e.g. "53.7%" */
     pct (f) {
       return (Math.round(f * 1000) / 10).toFixed(1) + '%'
@@ -373,6 +399,7 @@ export default {
         body.addBacks = this.groupBody(ADDBACK_ROWS)
         body.fairMarket = this.groupBody(FAIRMARKET_ROWS)
       }
+      const seq = ++this._reqSeq
       fetch('/api/report/ebitda-dcf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -380,6 +407,7 @@ export default {
       })
         .then(res => res.json())
         .then((json) => {
+          if (seq !== this._reqSeq) { return } // superseded — discard (R10)
           if (json.success) {
             this.result = json.data
             this.error = false
@@ -387,7 +415,7 @@ export default {
             this.error = true
           }
         })
-        .catch(() => { this.error = true })
+        .catch(() => { if (seq === this._reqSeq) { this.error = true } })
     },
     resetAll () {
       const fresh = this.$options.data.call(this)
@@ -404,6 +432,16 @@ export default {
 
 <style scoped>
 .ed-report { display: flex; flex-direction: column; gap: 18px; }
+/* Stale-figures banner (R9): a failed recompute must be visibly untrustworthy —
+   stale figures presented as live are worse than no figures at all. */
+.stale { background: #ff000010; border: 1px solid #ff0000; border-radius: 14px; padding: 12px 14px; }
+.stalehead { font-size: 13px; font-weight: 600; color: #ff0000; margin-bottom: 3px; }
+.stalebody { font-size: 12.5px; color: #5b6f8a; margin: 0 0 9px; line-height: 1.5; }
+.is-stale { opacity: .45; filter: grayscale(0.6); }
+/* Provenance badges on the printable P&L rows (R11) — same tokens as the intake table */
+.src { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; padding: 2px 6px; border-radius: 999px; white-space: nowrap; margin-left: 7px; }
+.src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
+.src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }
 .herostrip {
   background: linear-gradient(120deg, #002b64 0%, #0a56b0 55%, #00b1e0 135%);
   border-radius: 14px; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr);

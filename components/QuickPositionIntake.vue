@@ -37,7 +37,7 @@
             th {{ $t('report.quickPosition.confirm.value') }}
             th {{ $t('report.quickPosition.confirm.source') }}
         tbody
-          tr(v-for="key in visibleFigureKeys" :key="key")
+          tr(v-for="key in visibleFigureKeys" :key="key" :class="{ 'row-invalid': invalidKeys.includes(key) }")
             td
               | {{ $t('report.quickPosition.confirm.' + key) }}
               .stock-candidates(v-if="key === 'stock' && stockCandidates.length")
@@ -45,7 +45,7 @@
                 b-checkbox(v-for="(c, i) in stockCandidates" :key="i" v-model="c.selected" @input="applyStockCandidates")
                   | {{ c.label }} — {{ money(c.value) }}
             td
-              b-input(v-model.number="figures[key].value" type="number" step="any" :disabled="key === 'stock' && stockCandidates.length > 0")
+              b-input(v-model.number="figures[key].value" type="number" step="any" :disabled="key === 'stock' && stockCandidates.length > 0" @input="markEntered(key)")
             td
               span.src(:class="figures[key].source === 'file' ? 'src-file' : 'src-hand'")
                 | {{ figures[key].source === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
@@ -53,6 +53,7 @@
       .warn-note(v-for="(w, i) in warnings" :key="'w' + i") ⚠ {{ w }}
       b-checkbox.svc-toggle(v-model="serviceBusiness")
         | {{ $t('report.quickPosition.confirm.serviceToggle') }}
+      .confirm-error(v-if="invalidKeys.length") {{ $t('report.quickPosition.confirm.incomplete') }}
     .drop-actions
       b-button(type="is-primary" @click="confirmFigures") {{ $t('report.quickPosition.confirm.build') }}
       span.adjust-note {{ $t('report.quickPosition.confirm.adjustLater') }}
@@ -75,29 +76,40 @@ export default {
 
   props: {
     // Verified login pass (JWT); the intake route is firmAuth-guarded.
-    apiToken: { type: String, default: 'dev-local-bypass' }
+    apiToken: { type: String, default: 'dev-local-bypass' },
+    // Previously confirmed payload — when present the intake opens with every figure
+    // and badge exactly as confirmed (R12: stepping back must never wipe them).
+    restore: { type: Object, default: null },
+    // The page's current step (1 = drop, 2 = confirm) — replaces the old $refs reach-in.
+    step: { type: Number, default: 1 }
   },
 
   data () {
+    const r = this.restore
     return {
-      phase: 'drop', // 'drop' | 'confirm'
+      phase: r && this.step !== 1 ? 'confirm' : 'drop', // 'drop' | 'confirm'
       uploading: { bs: false, pl: false },
       bsResult: null,
       plResult: null,
       errors: { bs: null, pl: null },
-      // Model defaults = the source sheet's sample figures (contract rule 3)
-      figures: {
-        cash: { value: 296155, source: 'entered' },
-        debtors: { value: 154906, source: 'entered' },
-        stock: { value: 25847, source: 'entered' },
-        creditors: { value: 63000, source: 'entered' },
-        wagesDue: { value: 32000, source: 'entered' },
-        fixedAssets: { value: 30000, source: 'entered' }
-      },
+      // Model defaults = the source sheet's sample figures (contract rule 3);
+      // a restore payload takes their place wholesale, badges included.
+      figures: r && r.figures
+        ? JSON.parse(JSON.stringify(r.figures))
+        : {
+            cash: { value: 296155, source: 'entered' },
+            debtors: { value: 154906, source: 'entered' },
+            stock: { value: 25847, source: 'entered' },
+            creditors: { value: 63000, source: 'entered' },
+            wagesDue: { value: 32000, source: 'entered' },
+            fixedAssets: { value: 30000, source: 'entered' }
+          },
       figureKeys: ['cash', 'debtors', 'stock', 'creditors', 'wagesDue', 'fixedAssets'],
       stockCandidates: [],
-      serviceBusiness: false,
-      warnings: []
+      serviceBusiness: r ? !!r.serviceBusiness : false,
+      warnings: [],
+      // Figure keys that blocked the last build attempt (empty / non-numeric value)
+      invalidKeys: []
     }
   },
 
@@ -127,6 +139,13 @@ export default {
     }
   },
 
+  watch: {
+    /** Chip navigation from the page — proper one-way flow, no $refs reach-in (R12). */
+    step (n) {
+      if (n === 1) { this.phase = 'drop' } else if (n === 2) { this.phase = 'confirm' }
+    }
+  },
+
   methods: {
     /** @param {number} n */
     money (n) {
@@ -144,13 +163,31 @@ export default {
     /** @param {'bs'|'pl'} kind @param {Event} event */
     onFileChosen (kind, event) {
       const file = event.target.files && event.target.files[0]
-      if (file) { this.upload(kind, file) }
+      if (file) { this.receive(kind, file) }
       event.target.value = ''
     },
     /** @param {'bs'|'pl'} kind @param {DragEvent} event */
     onDrop (kind, event) {
-      const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]
-      if (file) { this.upload(kind, file) }
+      const files = (event.dataTransfer && event.dataTransfer.files) || []
+      if (files.length > 1) {
+        this.$set(this.errors, kind, this.$t('report.quickPosition.drop.multiDrop'))
+        return
+      }
+      if (files[0]) { this.receive(kind, files[0]) }
+    },
+    /**
+     * Pre-upload sanity check — UX only; the backend's magic-byte and size checks
+     * remain the real boundary. @param {File} file @returns {string|null}
+     */
+    fileCheckError (file) {
+      if (!/\.(xlsx|csv)$/i.test(file.name)) { return this.$t('report.fileCheck.wrongType') }
+      if (file.size > 5 * 1024 * 1024) { return this.$t('report.fileCheck.tooBig') }
+      return null
+    },
+    /** Route a chosen/dropped file through the pre-upload check. @param {'bs'|'pl'} kind @param {File} file */
+    receive (kind, file) {
+      const err = this.fileCheckError(file)
+      if (err) { this.$set(this.errors, kind, err) } else { this.upload(kind, file) }
     },
     /**
      * Upload one export to the backend parser and apply what it proposes.
@@ -224,15 +261,27 @@ export default {
       // step: which intake step is showing (1 = drop, 2 = confirm)
       this.$emit('step', 2)
     },
-    /** Hand the confirmed figures to the report screen. */
+    /** An edited cell becomes the advisor's figure (mirrors EbitdaDcfIntake). @param {string} key */
+    markEntered (key) {
+      this.figures[key].source = 'entered'
+      this.invalidKeys = this.invalidKeys.filter(k => k !== key)
+    },
+    /**
+     * Hand the confirmed figures to the report screen. Every visible figure must be a
+     * real number first — an empty box must never fall through to a sample default
+     * (intake contract §4.4: an assumption must never pass as a fact).
+     */
     confirmFigures () {
+      this.invalidKeys = this.visibleFigureKeys.filter(key => !Number.isFinite(this.figures[key].value))
+      if (this.invalidKeys.length) { return }
       // confirmed: { figures, serviceBusiness, expenseLines, incomeTotal, companyName }
+      // Restored mode has no upload state — the prior payload's P&L data carries forward (R12)
       this.$emit('confirmed', {
         figures: JSON.parse(JSON.stringify(this.figures)),
         serviceBusiness: this.serviceBusiness,
-        expenseLines: this.plResult ? this.plResult.expenseLines : null,
-        incomeTotal: this.plResult ? this.plResult.incomeTotal : null,
-        companyName: (this.bsResult && this.bsResult.companyName) || null
+        expenseLines: this.plResult ? this.plResult.expenseLines : (this.restore ? this.restore.expenseLines : null),
+        incomeTotal: this.plResult ? this.plResult.incomeTotal : (this.restore ? this.restore.incomeTotal : null),
+        companyName: (this.bsResult && this.bsResult.companyName) || (this.restore ? this.restore.companyName : null)
       })
     }
   }
@@ -271,5 +320,7 @@ export default {
 .date-ok { color: #4ca52d; background: #4ca52d1a; }
 .date-warn { color: #b36b00; background: #ff99001a; }
 .warn-note { font-size: 12.5px; color: #b36b00; background: #ff99001a; border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
+.row-invalid td { background: #ff00000a; }
+.confirm-error { font-size: 12.5px; font-weight: 600; color: #ff0000; background: #ff00001a; border-radius: 9px; padding: 10px 14px; margin-top: 14px; }
 .svc-toggle { margin-top: 14px; }
 </style>

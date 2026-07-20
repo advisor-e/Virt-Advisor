@@ -39,6 +39,45 @@ function shapeRows (grid) {
   return grid.map(cells => rowShape(cells || []))
 }
 
+// Multi-column exports (R4, 2026-07-19): rowShape reads the FIRST numeric cell only, so
+// extra figure columns vanish silently — and the cached-total cross-check reads the same
+// column, so it can never catch it. Two real shapes: comparative (2–4 columns, first =
+// most recent period, correct but partial → warn) and by-month/by-quarter (5+, first =
+// a fraction of the year → refuse, contract §4.7: wrong-shape files fail loudly).
+const WARN_FIGURE_COLUMNS = 2
+const REFUSE_FIGURE_COLUMNS = 5
+
+/** The widest labelled row's count of numeric cells after its label. @param {Array<Array<string|number|null>>} grid */
+function figureColumnCount (grid) {
+  let max = 0
+  for (let r = 0; r < grid.length; r++) {
+    const cells = grid[r] || []
+    let hasLabel = false
+    let count = 0
+    for (let c = 0; c < cells.length; c++) {
+      const v = cells[c]
+      if (v === null || v === undefined || v === '') { continue }
+      if (typeof v === 'string' && !hasLabel) { hasLabel = true; continue }
+      if (typeof v === 'number' && hasLabel) { count++ }
+    }
+    if (count > max) { max = count }
+  }
+  return max
+}
+
+/** Refuse (5+ figure columns) or warn (2–4) on a recognised multi-column report. @param {Array<Array<string|number|null>>} grid @param {string[]} warnings */
+function guardFigureColumns (grid, warnings) {
+  const cols = figureColumnCount(grid)
+  if (cols >= REFUSE_FIGURE_COLUMNS) {
+    const e = new Error('This export splits the year across many columns (a by-month or by-quarter report). Please export the whole-period report from Xero and drop that instead.')
+    e.code = 'MULTI_PERIOD_COLUMNS'
+    throw e
+  }
+  if (cols >= WARN_FIGURE_COLUMNS) {
+    warnings.push('The file holds several figure columns — only the first (the most recent period) was read. If you wanted a different period, export that single period and drop it instead.')
+  }
+}
+
 const TOTAL_RE = /^total\b/i
 
 /**
@@ -60,26 +99,40 @@ function sectionName (label) {
 function lineItems (rows) {
   const items = []
   const stack = []
+  const pushItem = (r) => {
+    for (let s = 0; s < stack.length; s++) { stack[s].sum += r.value }
+    items.push({ section: stack.map(s => s.name), label: r.label, value: r.value })
+  }
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i]
     if (!r.label) { continue }
     if (TOTAL_RE.test(r.label)) {
-      // never a line item; pop the section it closes (best-effort by name)
+      // pop the section it closes (best-effort by name)
       const closes = r.label.replace(TOTAL_RE, '').trim().toLowerCase()
+      let matched = false
       for (let s = stack.length - 1; s >= 0; s--) {
         if (stack[s].name.toLowerCase() === closes) {
           stack[s].cachedTotal = (typeof r.value === 'number') ? r.value : null
           stack.length = s
+          matched = true
           break
         }
+      }
+      // R17: a "Total X" row that closes nothing, sits INSIDE an open section, and
+      // does NOT equal any open section's running sum is a real account (e.g. a fuel
+      // account "Total Oil purchases") — keep it. Anything sum-like stays a total:
+      // a silent understatement must never become a silent double-count.
+      if (!matched && stack.length && typeof r.value === 'number' &&
+          !stack.some(s => Math.abs(s.sum - r.value) <= 0.01)) {
+        pushItem(r)
       }
       continue
     }
     if (r.value === null) {
-      stack.push({ name: sectionName(r.label), cachedTotal: null })
+      stack.push({ name: sectionName(r.label), cachedTotal: null, sum: 0 })
       continue
     }
-    items.push({ section: stack.map(s => s.name), label: r.label, value: r.value })
+    pushItem(r)
   }
   return items
 }
@@ -113,6 +166,10 @@ function totalCrossChecks (rows) {
           warnings.push('The file\'s own "Total ' + name + '" does not match the sum of its line items — the line-item sum was used. Please check the export.')
         }
         stack.length = idx
+      } else if (stack.length && typeof r.value === 'number' &&
+                 !stack.some(k => Math.abs(sums[k] - r.value) <= 0.01)) {
+        // R17: same discriminator as lineItems — this row is a real account; count it
+        for (let s = 0; s < stack.length; s++) { sums[stack[s]] += r.value }
       }
       continue
     }
@@ -154,6 +211,7 @@ function extractBalanceSheet (grid) {
 
   const items = lineItems(rows)
   const warnings = totalCrossChecks(rows)
+  guardFigureColumns(grid, warnings)
 
   const bankRows = items.filter(it => inSection(it, /^bank$|bank accounts/i))
   const debtorRows = items.filter(it => /accounts?\s+receivable|trade\s+(receivable|debtor)|^debtors\b/i.test(it.label))
@@ -238,11 +296,26 @@ function extractProfitLoss (grid) {
 
   const items = lineItems(rows)
   const warnings = totalCrossChecks(rows)
+  guardFigureColumns(grid, warnings)
 
+  // R18: "trading income" is anchored — "Non-Trading Income" must never classify as sales
   const expenseItems = items.filter(it => inSection(it, /operating expenses|^expenses$|overheads/i))
-  const incomeItems = items.filter(it => inSection(it, /^income$|^revenue$|trading income|^sales$/i))
+  const incomeItems = items.filter(it => inSection(it, /^income$|^revenue$|^trading income$|^sales$/i))
   const otherIncomeItems = items.filter(it => inSection(it, OTHER_INCOME_SECTION_RE))
   const costOfSalesItems = items.filter(it => inSection(it, COST_OF_SALES_SECTION_RE))
+
+  // R19: a valued section that fed no bucket is declared on screen, never silently skipped
+  // (guessing its classification is what the contract forbids — the advisor decides).
+  const sectionClaimed = new Set(incomeItems.concat(otherIncomeItems, costOfSalesItems, expenseItems))
+  const missedSections = []
+  for (const it of items) {
+    if (sectionClaimed.has(it) || !it.section.length) { continue }
+    const name = it.section[it.section.length - 1]
+    if (!missedSections.includes(name)) { missedSections.push(name) }
+  }
+  for (const name of missedSections) {
+    warnings.push("The section '" + name + "' wasn't recognised, so its lines are not included in any proposed figure — please check the figures and adjust where needed.")
+  }
 
   const allIncome = incomeItems.concat(otherIncomeItems)
   const interestReceived = allIncome.filter(it => INTEREST_RECEIVED_RE.test(it.label))
@@ -287,7 +360,7 @@ function extractProfitLoss (grid) {
  * @param {Buffer} buf - the uploaded file's bytes.
  * @returns {object} on success: the extract result above.
  * @throws {XlsxReadError|Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
- *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT
+ *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT | MULTI_PERIOD_COLUMNS
  */
 function parseUpload (buf) {
   if (!Buffer.isBuffer(buf) || buf.length === 0) {

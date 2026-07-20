@@ -162,3 +162,24 @@ describe('Quick Position — input robustness (route receives raw JSON)', () => 
     expect(r.quickCashAvailable).toBeCloseTo(355079.8, 6)
   })
 })
+
+// R8 ruling (Mike, 2026-07-19): defaults may substitute, but NEVER silently — the
+// response names every input that computed on a sample figure.
+describe('R8 — defaultedInputs echo', () => {
+  test('a junk figure is declared; supplied figures are not', () => {
+    const r = computeQuickPosition({ cash: 'not-a-number', debtors: 154906 })
+    expect(r.defaultedInputs).toContain('cash')
+    expect(r.defaultedInputs).not.toContain('debtors')
+  })
+
+  test('a fully-supplied body (the DEFAULTS shape itself) declares nothing', () => {
+    const { DEFAULTS } = require('../../server/report/quickPositionModel')
+    const r = computeQuickPosition(Object.assign({}, DEFAULTS))
+    expect(r.defaultedInputs).toEqual([])
+  })
+
+  test('demo mode (no input at all) openly declares the sample figures it used', () => {
+    const r = computeQuickPosition(null)
+    expect(r.defaultedInputs).toEqual(expect.arrayContaining(['cash', 'debtors', 'grossMarginPct', 'exampleRevenue']))
+  })
+})

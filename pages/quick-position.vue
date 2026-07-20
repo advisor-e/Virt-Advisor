@@ -17,7 +17,7 @@
       .step(:class="{ active: step === 3 }")
         span.n 3
         | {{ $t('report.quickPosition.step3') }}
-    quick-position-intake(v-if="step < 3" :api-token="apiToken" @step="step = $event" @confirmed="onConfirmed" ref="intake")
+    quick-position-intake(v-if="step < 3" :api-token="apiToken" :restore="seed" :step="step" @step="step = $event" @confirmed="onConfirmed")
     quick-position-report(v-else :seed="seed")
 </template>
 
@@ -77,16 +77,16 @@ export default {
       }
       return window.localStorage.getItem(TOKEN_KEY) || 'dev-local-bypass'
     },
-    /** Stepper navigation — backwards only; forward movement is earned by the flow. */
+    /**
+     * Stepper navigation. Backwards always; forward only when the target content
+     * exists (chip 2 needs confirmed figures to return to). The confirmed payload is
+     * KEPT on every move — stepping back from the report restores the confirm table
+     * intact instead of wiping it (R12); the intake follows via its `step` prop.
+     */
     goTo (n) {
-      if (n < this.step && this.step < 3) {
-        this.step = n
-        if (n === 1 && this.$refs.intake) { this.$refs.intake.phase = 'drop' }
-      } else if (n < 3 && this.step === 3) {
-        // Re-entering intake from the report starts the flow again (fresh confirm)
-        this.seed = null
-        this.step = n
-      }
+      if (n === 3 || n === this.step) { return }
+      if (n > this.step && !(n === 2 && this.seed)) { return }
+      this.step = n
     },
     /** The intake hands over its confirmed payload; the report takes it from here. */
     onConfirmed (payload) {

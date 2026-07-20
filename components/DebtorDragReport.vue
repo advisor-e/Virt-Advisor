@@ -97,12 +97,16 @@
  * the before/after effect of a decision. Coach text is templated (not AI) for this build.
  * i18n: English placeholders for this first build; move to a report.* namespace later.
  */
+import currencyMixin from '~/mixins/currencyMixin'
+
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const SHAPE = [100000, 137850, 207563, 215000, 232000, 347000, 356000, 432000, 318000, 323000, 365000, 324000]
 const BASE = SHAPE.reduce(function (a, b) { return a + b }, 0)
 
 export default {
   name: 'DebtorDragReport',
+
+  mixins: [currencyMixin],
 
   data () {
     return {
@@ -162,7 +166,7 @@ fields: [
     deltaText () {
       if (!this.before || !this.plan) { return '$0' }
       const d = this.plan.deepestLow.value - this.before.deepestLow.value
-      return (d >= 0 ? '+$' : '−$') + Math.abs(Math.round(d)).toLocaleString('en-US')
+      return this.signedMoney(d)
     },
     deltaSub () {
       if (!this.before || !this.plan) { return 'freeze a “Before”, then decide' }
@@ -218,8 +222,8 @@ lowY: y(plan[lowIdx])
   },
 
   methods: {
-    money (n) { return (n < 0 ? '−$' : '$') + Math.abs(Math.round(n || 0)).toLocaleString('en-US') },
-    kf (n) { return (n < 0 ? '−$' : '$') + Math.abs(Math.round((n || 0) / 1000)) + 'k' },
+    // money() comes from currencyMixin (firm currency + locale).
+    kf (n) { return this.kMoney(n) },
     monthName (m) { return MON[m] || '' },
     fmtField (fld) {
       const v = this.f[fld.k]

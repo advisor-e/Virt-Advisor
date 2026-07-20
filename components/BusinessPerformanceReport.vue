@@ -131,6 +131,8 @@
  * a `report.*` locale namespace in a follow-up (see design/ACTIONS.md). Coach text is
  * templated (not AI) for the first build, per owner decision.
  */
+import currencyMixin from '~/mixins/currencyMixin'
+
 const DEFAULTS = {
   initialInvestment: 200,
   plantEquipmentPct: 0.4,
@@ -148,6 +150,8 @@ const DEFAULTS = {
 
 export default {
   name: 'BusinessPerformanceReport',
+
+  mixins: [currencyMixin],
 
   data () {
     return {
@@ -226,15 +230,12 @@ fields: [
   },
 
   methods: {
-    money (n) {
-      if (n === null || n === undefined || isNaN(n)) { return '$0' }
-      return '$' + Math.round(n).toLocaleString('en-US')
-    },
+    // money() comes from currencyMixin (firm currency + locale).
     round0 (n) { return Math.round(n || 0) },
     round1 (n) { return (Math.round((n || 0) * 10) / 10).toFixed(1) },
     fmtField (f, v) {
       if (f.fmt === 'money') { return this.money(v) }
-      if (f.fmt === 'money2') { return '$' + Number(v).toFixed(2) }
+      if (f.fmt === 'money2') { return this.money2(v) }
       if (f.fmt === 'pct') { return Math.round(v * 100) + '%' }
       return v
     },
