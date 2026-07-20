@@ -82,8 +82,16 @@ async function saveFirmConfig (firmId, configKey, configJson, savedBy) {
       [firmId, configKey, JSON.stringify(configJson), nextVersion, savedBy]
     )
 
-    // Prune versions beyond the history limit (oldest inactive first)
-    const pruneCount = nextVersion - FRAMEWORK.maxVersionHistory - 1
+    // Prune versions beyond the history limit (oldest inactive first). Count from the
+    // actual row count — NOT the version number, which climbs forever as rows are pruned
+    // and would eventually delete every inactive row, wiping all rollback history.
+    const [[{ row_count: rowCount }]] = await conn.execute(
+      `SELECT COUNT(*) AS row_count
+       FROM firm_framework_versions
+       WHERE firm_id = ? AND config_key = ?`,
+      [firmId, configKey]
+    )
+    const pruneCount = rowCount - FRAMEWORK.maxVersionHistory
     if (pruneCount > 0) {
       await conn.execute(
         `DELETE FROM firm_framework_versions
