@@ -181,6 +181,7 @@
 
 <script>
 import debounce from 'lodash/debounce'
+import currencyMixin from '~/mixins/currencyMixin'
 
 /**
  * QuickPositionReport — step 3 of the Quick Position report: the live survival
@@ -194,6 +195,8 @@ import debounce from 'lodash/debounce'
  */
 export default {
   name: 'QuickPositionReport',
+
+  mixins: [currencyMixin],
 
   props: {
     /**
@@ -321,11 +324,7 @@ export default {
   },
 
   methods: {
-    /** @param {number} n */
-    money (n) {
-      const v = Math.round(n)
-      return (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString('en-US')
-    },
+    // money() comes from currencyMixin (firm currency + locale).
     /** @param {number} f - fraction @returns {string} e.g. "27.8%" */
     pct (f) {
       return (Math.round(f * 1000) / 10).toFixed(1) + '%'

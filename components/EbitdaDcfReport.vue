@@ -187,6 +187,7 @@
 
 <script>
 import debounce from 'lodash/debounce'
+import currencyMixin from '~/mixins/currencyMixin'
 
 /**
  * EbitdaDcfReport — step 3 of the EBITDA & DCF valuation (owner-approved mockup,
@@ -206,6 +207,8 @@ const FAIRMARKET_ROWS = { fmSalaries: 'salaries', fmInsuranceRetirement: 'insura
 
 export default {
   name: 'EbitdaDcfReport',
+
+  mixins: [currencyMixin],
 
   props: {
     /**
@@ -351,16 +354,9 @@ export default {
       if (fig && fig[idx] && typeof fig[idx].value === 'number') { return fig[idx].value }
       return this.result ? null : 0
     },
-    /** @param {number|null} n */
-    money (n) {
-      if (n === null || n === undefined) { return '—' }
-      const v = Math.round(n)
-      return (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString('en-US')
-    },
-    /** @param {number} n - e.g. 0.9258 @returns {string} "$0.93" */
-    price (n) {
-      return '$' + (Math.round(n * 100) / 100).toFixed(2)
-    },
+    // money() comes from currencyMixin (firm currency + locale).
+    /** @param {number} n - e.g. 0.9258 @returns {string} share price, e.g. "$0.93" */
+    price (n) { return this.money2(n) },
     /** @param {number} f - fraction @returns {string} e.g. "53.7%" */
     pct (f) {
       return (Math.round(f * 1000) / 10).toFixed(1) + '%'
