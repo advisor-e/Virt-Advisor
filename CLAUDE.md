@@ -2,7 +2,9 @@
 
 ## 🔴 LIVE-APP RULE — READ FIRST (absolute, no exceptions)
 
-**This app is LIVE in production inside the master app, Advisor-e.com (as of 2026-07-13).**
+**This app is deployed in UAT inside the master app, Advisor-e.com. It is not yet in
+production.** (Corrected 2026-07-21 — an earlier note claiming a 2026-07-13 production
+go-live was wrong. UAT is on `709bac5` / PR #2; see `design/DEPLOYED-VERSIONS.md`.)
 
 > **No change is to be made to this repository — on ANY branch — without asking Mike
 > first and receiving his explicit approval for that specific change.** This covers
@@ -16,6 +18,39 @@
 > (`~/.claude/hooks/guard-virt-advisor.js`) forces a permission prompt on any write or
 > modifying command touching this repo. The hook is a backstop, not the rule itself —
 > the rule binds even where the hook doesn't run. Do not weaken or bypass it.
+
+## 🔴 WORKING AGREEMENT — run the checklists (binding)
+
+**Source of truth: [`design/WORKING-AGREEMENT.md`](design/WORKING-AGREEMENT.md). Read it
+before doing anything else in a fresh session.** It exists because on 2026-07-21 UAT was
+found running code **97 commits behind `master`** — no one erred; there was simply never
+a moment that said "this version is ready, take it."
+
+Three parties share this codebase: Mike's **desktop** (Course Builder branch), Mike's
+**laptop** (Business Performance Report branch), and the **master coding team** (UAT /
+production, outside this repo).
+
+**Binding on every AI session:**
+
+1. **Start a session by running `/startup`** — branch, clean tree, drift vs `master`, open
+   P1s. If Mike begins work without it, run the read-only parts yourself and report before
+   touching anything. Drift caught at 3 commits is free; at 97 it blocks a whole team.
+2. **End a session by running `/shutdown`** — tests green, changes named, `ACTIONS.md`
+   current, commit and push approved, handover note left. Never end a session implying
+   work is safe when it is uncommitted; say so explicitly.
+3. **`master` means releasable.** Work in progress never lands on it. It is reached by
+   pull request only — `.husky/pre-push` refuses a direct push, and refuses any push from
+   a branch that is behind `origin/master`.
+4. **Branches only ever merge into `master`, never machine-to-machine**, and both machines
+   merge **from** `master` at the start of each session. Push this machine's own branch
+   only.
+5. **The master team pulls a release tag** (`v0.6.0`, …), never a moving branch, and
+   `DEPLOYED-VERSIONS.md` is maintained **on our side** — they have no commit access here,
+   so a rule depending on them writing rows would fail silently.
+
+Check drift at any time with `npm run check:branch`. Never propose weakening or bypassing
+the pre-push hook; if it blocks, the fix is to merge `master` in, not to use
+`--no-verify`.
 
 ## Version-Pull Recording Rule (binding)
 
