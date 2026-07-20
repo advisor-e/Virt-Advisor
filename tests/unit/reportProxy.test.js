@@ -26,3 +26,25 @@ describe('report proxy — R24 query-string forwarding', () => {
     expect(http.request.mock.calls[0][0].path).toBe('/api/report/quick-position')
   })
 })
+
+describe('report proxy — currency GET forwarding', () => {
+  test('a GET is forwarded to the backend, preserving method and Authorization', () => {
+    http.request.mockClear()
+    const req = { method: 'GET', url: '/currency', headers: { authorization: 'Bearer abc' }, pipe: jest.fn() }
+    reportProxy(req, {}, jest.fn())
+    expect(http.request).toHaveBeenCalled()
+    const opts = http.request.mock.calls[0][0]
+    expect(opts.method).toBe('GET')
+    expect(opts.path).toBe('/api/report/currency')
+    expect(opts.headers.authorization).toBe('Bearer abc')
+  })
+
+  test('an unsupported method falls through to next() and is not proxied', () => {
+    http.request.mockClear()
+    const next = jest.fn()
+    const req = { method: 'DELETE', url: '/currency', headers: {}, pipe: jest.fn() }
+    reportProxy(req, {}, next)
+    expect(next).toHaveBeenCalled()
+    expect(http.request).not.toHaveBeenCalled()
+  })
+})
