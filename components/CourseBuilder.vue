@@ -128,27 +128,13 @@
           button.btn-request-changes(@click="requestOutlineChanges" :disabled="isSavingCourse") Request changes
 
     .input-area
-      .voice-bar(v-if="speechSupported")
-        .voice-state.voice-idle(v-if="!isListening && !designInput.trim()")
-          button.voice-btn.voice-btn-idle(@click="toggleListening" :disabled="isDesignStreaming")
-            svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
-              path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-            | Tap to Speak
-        .voice-state.voice-recording(v-else-if="isListening")
-          span.recording-dot
-          span.recording-label Recording — speak now
-          button.voice-btn.voice-btn-stop(@click="toggleListening")
-            svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
-              rect(x="6" y="6" width="12" height="12" rx="2")
-            | Stop Recording
-        .voice-state.voice-ready(v-else-if="designInput.trim()")
-          svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
-            path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-          span.ready-label Captured — review then Save
-          button.voice-btn.voice-btn-redo(@click="toggleListening")
-            svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
-              path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-            | Record again
+      voice-input-bar(
+        v-if="speechSupported"
+        :text="designInput"
+        :listening="isListening"
+        :disabled="isDesignStreaming"
+        @toggle="toggleListening"
+      )
       .input-inner
         textarea.message-input(
           v-model="designInput"
@@ -238,27 +224,13 @@
             span.thinking-label VA is thinking...
 
     .input-area
-      .voice-bar(v-if="speechSupported")
-        .voice-state.voice-idle(v-if="!isListening && !sessionInput.trim()")
-          button.voice-btn.voice-btn-idle(@click="toggleListening" :disabled="isSessionStreaming || isGeneratingQuiz")
-            svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
-              path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-            | Tap to Speak
-        .voice-state.voice-recording(v-else-if="isListening")
-          span.recording-dot
-          span.recording-label Recording — speak now
-          button.voice-btn.voice-btn-stop(@click="toggleListening")
-            svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
-              rect(x="6" y="6" width="12" height="12" rx="2")
-            | Stop Recording
-        .voice-state.voice-ready(v-else-if="sessionInput.trim()")
-          svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
-            path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-          span.ready-label Captured — review then Save
-          button.voice-btn.voice-btn-redo(@click="toggleListening")
-            svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
-              path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-            | Record again
+      voice-input-bar(
+        v-if="speechSupported"
+        :text="sessionInput"
+        :listening="isListening"
+        :disabled="isSessionStreaming || isGeneratingQuiz"
+        @toggle="toggleListening"
+      )
       .input-inner
         textarea.message-input(
           v-model="sessionInput"
@@ -339,27 +311,14 @@
           p.quiz-q-text {{ currentQuestion.question }}
 
         .quiz-answer-area(v-if="!currentResult")
-          .voice-bar(v-if="speechSupported")
-            .voice-state.voice-idle(v-if="!isListening && !quizAnswer.trim()")
-              button.voice-btn.voice-btn-idle(@click="toggleListening" :disabled="isGrading")
-                svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
-                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                | Tap to Speak
-            .voice-state.voice-recording(v-else-if="isListening")
-              span.recording-dot
-              span.recording-label Recording — speak now
-              button.voice-btn.voice-btn-stop(@click="toggleListening")
-                svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
-                  rect(x="6" y="6" width="12" height="12" rx="2")
-                | Stop Recording
-            .voice-state.voice-ready(v-else-if="quizAnswer.trim()")
-              svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
-                path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-              span.ready-label Captured — review then Submit
-              button.voice-btn.voice-btn-redo(@click="toggleListening")
-                svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
-                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                | Record again
+          voice-input-bar(
+            v-if="speechSupported"
+            :text="quizAnswer"
+            :listening="isListening"
+            :disabled="isGrading"
+            ready-label="Captured — review then Submit"
+            @toggle="toggleListening"
+          )
           textarea.quiz-textarea(
             v-model="quizAnswer"
             :placeholder="isListening ? '🎤 Listening...' : 'Type your answer here...'"
@@ -479,6 +438,7 @@
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import courseStarters from '~/data/course-starters.json'
+import VoiceInputBar from '~/components/base/VoiceInputBar.vue'
 import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
 import { listCourses, listSharedCourses, copySharedCourse, createCourse, updateCourse, deleteCourse, migrateLegacyCourses } from '~/utils/courses'
 
@@ -499,6 +459,8 @@ _md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
 
 export default {
   name: 'CourseBuilder',
+
+  components: { VoiceInputBar },
 
   props: {
     advisorId: { type: String, default: 'local-advisor' },
@@ -1766,28 +1728,7 @@ export default {
 
 .input-hint { font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center; }
 
-/* ── Voice bar ─────────────────────────────────────────── */
-.voice-bar { margin-bottom: 10px; min-height: 36px; display: flex; align-items: center; }
-.voice-state { display: flex; align-items: center; gap: 10px; width: 100%; }
-.voice-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  border: none; border-radius: 20px; padding: 7px 14px;
-  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s;
-}
-.voice-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.voice-btn-idle { background: #eff6ff; color: #1e40af; }
-.voice-btn-idle:hover:not(:disabled) { background: #dbeafe; }
-.recording-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: #dc2626;
-  animation: pulse-dot 1s infinite;
-}
-@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-.recording-label { font-size: 13px; font-weight: 600; color: #dc2626; flex: 1; }
-.voice-btn-stop { background: #dc2626; color: white; }
-.voice-btn-stop:hover { background: #b91c1c; }
-.ready-label { font-size: 13px; color: #16a34a; font-weight: 500; flex: 1; }
-.voice-btn-redo { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
-.voice-btn-redo:hover { background: #f9fafb; }
+/* ── Voice bar ── moved to components/base/VoiceInputBar.vue (CB-23) */
 
 /* ── Course outline card ──────────────────────────────── */
 .outline-card {
