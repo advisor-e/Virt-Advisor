@@ -1,0 +1,11 @@
+{
+  "default": "NZD",
+  "currencies": [
+    { "code": "GBP", "symbol": "£", "label": "British Pound" },
+    { "code": "EUR", "symbol": "€", "label": "Euro" },
+    { "code": "USD", "symbol": "$", "label": "US Dollar" },
+    { "code": "NZD", "symbol": "$", "label": "New Zealand Dollar" },
+    { "code": "AUD", "symbol": "$", "label": "Australian Dollar" },
+    { "code": "CAD", "symbol": "$", "label": "Canadian Dollar" }
+  ]
+}
