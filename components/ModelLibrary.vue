@@ -15,6 +15,24 @@
         )
       .mlb-count(aria-live="polite") {{ countLabel }}
 
+      //- Preferred currency: managers pick it, everyone else sees it read-only.
+      //- Client-only (currencyReady) so the role-dependent markup never mismatches SSR.
+      .mlb-currency(v-if="currencyReady")
+        template(v-if="canEditCurrency")
+          span.mlb-cur-label {{ $t('modelLibrary.currency.label') }}
+          b-select(
+            :value="firmCurrency"
+            :loading="savingCurrency"
+            size="is-small"
+            :aria-label="$t('modelLibrary.currency.label')"
+            @input="changeCurrency"
+          )
+            option(v-for="c in currencies" :key="c.code" :value="c.code") {{ c.symbol }} {{ c.label }} ({{ c.code }})
+        template(v-else)
+          span.mlb-cur-label {{ $t('modelLibrary.currency.label') }}:
+          span.mlb-cur-value {{ currentCurrencyLabel }}
+          span.mlb-cur-note {{ $t('modelLibrary.currency.managedNote') }}
+
     .mlb-chips.mlb-chips-class(role="group" :aria-label="$t('modelLibrary.classFilterLabel')")
       button.mlb-chip(
         v-for="chip in classChips"
@@ -114,9 +132,20 @@ import {
   colourFor,
   isOpenable
 } from '~/utils/reportModelCatalogue'
+import currencyMixin from '~/mixins/currencyMixin'
+import currenciesData from '~/data/currencies.json'
+
+// Mirrors pages/firm-manager.vue — the write route is manager-gated on the backend;
+// this only decides whether the landing page shows an editable picker or read-only text.
+const MANAGER_ROLES = ['firm_manager', 'platform_admin']
+const TOKEN_KEY = 'advisor_e_token'
+const ROLE_KEY = 'advisor_e_role'
+const CURRENCY_CACHE_KEY = 'advisor_e_currency'
 
 export default {
   name: 'ModelLibrary',
+
+  mixins: [currencyMixin],
 
   data () {
     return {
@@ -128,7 +157,15 @@ export default {
       category: CATEGORY_ALL,
       models: MODELS,
       allChip: CATEGORY_ALL,
-      allClass: CLASS_ALL
+      allClass: CLASS_ALL,
+      /** Supported currencies for the picker (single source, shared with the backend). */
+      currencies: currenciesData.currencies,
+      /** True once mounted() has read the role — gates the client-only currency control. */
+      currencyReady: false,
+      /** Manager/admin may change the account currency; others see it read-only. */
+      canEditCurrency: false,
+      /** Guards against overlapping saves / a double toast. */
+      savingCurrency: false
     }
   },
 
@@ -168,6 +205,12 @@ export default {
         total: this.models.length,
         ready: readyCount(this.models)
       })
+    },
+
+    /** The current currency as "£ British Pound", for the read-only display. */
+    currentCurrencyLabel () {
+      const c = this.currencies.find(x => x.code === this.firmCurrency)
+      return c ? `${c.symbol} ${c.label}` : this.firmCurrency
     }
   },
 
@@ -179,6 +222,19 @@ export default {
     classFilter () {
       this.category = CATEGORY_ALL
     }
+  },
+
+  mounted () {
+    // Client-only role read (localStorage is unavailable during SSR). Localhost dev
+    // runs as platform_admin so the picker stays testable — mirrors firm-manager.vue.
+    if (!process.client) { return }
+    const host = window.location.hostname
+    if (host === 'localhost' || host === '127.0.0.1') {
+      this.canEditCurrency = true
+    } else {
+      this.canEditCurrency = MANAGER_ROLES.includes(window.localStorage.getItem(ROLE_KEY))
+    }
+    this.currencyReady = true
   },
 
   methods: {
@@ -216,6 +272,38 @@ export default {
     iconBackground (category) {
       const colour = colourFor(category)
       return `linear-gradient(135deg, ${colour}, ${colour}cc)`
+    },
+
+    /**
+     * Save the account's preferred currency (managers only — the route is
+     * manager-gated). Optimistically applies it, reverts + warns on failure, and
+     * caches it so every report picks it up on open. @param {string} code
+     */
+    async changeCurrency (code) {
+      if (this.savingCurrency || code === this.firmCurrency) { return }
+      this.savingCurrency = true
+      const previous = this.firmCurrency
+      try {
+        const token = window.localStorage.getItem(TOKEN_KEY) || 'dev-local-bypass'
+        const res = await fetch('/api/report/currency', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ currency: code })
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        this.firmCurrency = code
+        window.localStorage.setItem(CURRENCY_CACHE_KEY, code)
+        const c = this.currencies.find(x => x.code === code)
+        this.$buefy.toast.open({
+          message: this.$t('modelLibrary.currency.saved', { name: c ? c.label : code, symbol: c ? c.symbol : '' }),
+          type: 'is-success'
+        })
+      } catch (e) {
+        this.firmCurrency = previous
+        this.$buefy.toast.open({ message: this.$t('modelLibrary.currency.saveError'), type: 'is-danger' })
+      } finally {
+        this.savingCurrency = false
+      }
     }
   }
 }
@@ -252,6 +340,12 @@ export default {
 }
 .mlb-search >>> input::placeholder { color:var(--mlb-muted); }
 .mlb-count { font-size:12.5px; color:var(--mlb-muted); white-space:nowrap; }
+
+/* Preferred-currency control — pushed to the right of the controls row. */
+.mlb-currency { margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.mlb-cur-label { font-size:12.5px; font-weight:600; color:var(--mlb-muted); white-space:nowrap; }
+.mlb-cur-value { font-size:12.5px; font-weight:600; color:var(--mlb-ink); white-space:nowrap; }
+.mlb-cur-note { font-size:11px; font-style:italic; color:var(--mlb-muted); white-space:nowrap; }
 
 .mlb-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
 /* The class row sits directly above the category row — one filter block, two levels. */

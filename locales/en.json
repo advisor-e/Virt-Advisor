@@ -453,6 +453,12 @@
     "comingSoon": "Coming soon",
     "noMatches": "No models match “{query}”.",
     "backToLibrary": "← Back to Model Library",
+    "currency": {
+      "label": "Preferred currency",
+      "managedNote": "Set by your firm manager",
+      "saved": "Reports now show {name} ({symbol}). This applies to every model in your account.",
+      "saveError": "Could not save the currency. Please try again."
+    },
     "class": {
       "education": "Teaching tool",
       "decision": "Decision tool",
