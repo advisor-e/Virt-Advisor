@@ -171,7 +171,7 @@ describe('saveFirmConfig', () => {
       .mockResolvedValueOnce([]) // UPDATE is_active = 0
       .mockResolvedValueOnce([[{ next_version: 2 }]]) // SELECT next version
       .mockResolvedValueOnce([{ insertId: 10 }]) // INSERT new version
-      .mockResolvedValueOnce([]) // prune (if any)
+      .mockResolvedValueOnce([[{ row_count: 2 }]]) // SELECT count → under limit, no prune
 
     await saveFirmConfig('firm-1', 'recommendation-rules', { key: 'val' }, 'user@test.com')
 
@@ -185,7 +185,7 @@ describe('saveFirmConfig', () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([[{ next_version: 3 }]])
       .mockResolvedValueOnce([{ insertId: 11 }])
-      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([[{ row_count: 3 }]]) // count under limit, no prune
 
     const version = await saveFirmConfig('firm-1', 'key', { data: true }, 'user@test.com')
     expect(version).toBe(3)
@@ -196,7 +196,7 @@ describe('saveFirmConfig', () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([[{ next_version: 1 }]])
       .mockResolvedValueOnce([{ insertId: 1 }])
-      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([[{ row_count: 1 }]]) // count under limit, no prune
 
     await saveFirmConfig('firm-1', 'key', {}, 'user@test.com')
     expect(mockConn.commit).toHaveBeenCalled()
@@ -214,5 +214,38 @@ describe('saveFirmConfig', () => {
 
     expect(mockConn.rollback).toHaveBeenCalled()
     expect(mockConn.release).toHaveBeenCalled()
+  })
+
+  test('prunes only the excess rows — count-based, never version-number-based', async () => {
+    // Long-lived config: high version number (50) but only 12 rows exist. The old bug
+    // pruned nextVersion - 11 = 39 (deleting every inactive row); correct behaviour is
+    // rowCount - maxVersionHistory = 12 - 10 = 2.
+    mockConn.execute
+      .mockResolvedValueOnce([]) // UPDATE is_active = 0
+      .mockResolvedValueOnce([[{ next_version: 50 }]]) // SELECT next version (high)
+      .mockResolvedValueOnce([{ insertId: 99 }]) // INSERT
+      .mockResolvedValueOnce([[{ row_count: 12 }]]) // SELECT count → 12 rows
+      .mockResolvedValueOnce([]) // DELETE (prune)
+
+    await saveFirmConfig('firm-1', 'key', { data: 1 }, 'user@test.com')
+
+    const deleteCall = mockConn.execute.mock.calls[4]
+    expect(deleteCall[0]).toContain('DELETE')
+    expect(deleteCall[0]).toContain('is_active = 0')
+    expect(deleteCall[1]).toEqual(['firm-1', 'key', 2]) // exactly 2, not 39
+  })
+
+  test('never prunes when row count is within the limit, even at a huge version number', async () => {
+    mockConn.execute
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([[{ next_version: 200 }]]) // very high version number
+      .mockResolvedValueOnce([{ insertId: 5 }])
+      .mockResolvedValueOnce([[{ row_count: 10 }]]) // exactly at the limit
+
+    await saveFirmConfig('firm-1', 'key', {}, 'user@test.com')
+
+    // No DELETE issued (4 calls only). The old bug would have pruned 189 rows here,
+    // wiping the entire history.
+    expect(mockConn.execute).toHaveBeenCalledTimes(4)
   })
 })
