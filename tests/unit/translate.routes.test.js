@@ -8,7 +8,7 @@ const EventEmitter = require('events')
 
 jest.mock('https')
 const https = require('https')
-const { post } = require('../../server/routes/translate')
+const { post, buildChunks } = require('../../server/routes/translate')
 
 function makeRes () {
   return {
@@ -50,6 +50,45 @@ function mmSuccess (translatedText) {
 beforeEach(() => {
   https.get.mockReset()
   delete process.env.MYMEMORY_EMAIL
+})
+
+describe('buildChunks — caps on ACCUMULATED length, not per-value', () => {
+  const SEP = '\n\n---SPLIT---\n\n'.length // 15
+  const combinedLen = (chunk, texts) =>
+    chunk.reduce((a, k) => a + texts[k].length, 0) + (chunk.length - 1) * SEP
+
+  test('empty input yields no chunks', () => {
+    expect(buildChunks([], {})).toEqual([])
+  })
+
+  test('many small strings are split so each chunk stays within the limit (the bug)', () => {
+    const texts = {}
+    const keys = []
+    for (let i = 0; i < 40; i++) { const k = 'k' + i; keys.push(k); texts[k] = 'x'.repeat(30) }
+    // ~40*30 + 39*15 ≈ 1785 chars total — the old code put ALL of it in one chunk.
+    const chunks = buildChunks(keys, texts, 200)
+    expect(chunks.length).toBeGreaterThan(1)
+    chunks.forEach(c => expect(combinedLen(c, texts)).toBeLessThanOrEqual(200))
+    expect(chunks.flat()).toEqual(keys) // every key preserved, in order, none dropped
+  })
+
+  test('a run that fits stays in a single chunk', () => {
+    const texts = { a: 'x'.repeat(20), b: 'y'.repeat(20), c: 'z'.repeat(20) }
+    expect(buildChunks(['a', 'b', 'c'], texts, 200)).toEqual([['a', 'b', 'c']])
+  })
+
+  test('a single value larger than the limit gets its own chunk', () => {
+    const texts = { a: 'short', big: 'z'.repeat(500), b: 'tail' }
+    const chunks = buildChunks(['a', 'big', 'b'], texts, 200)
+    expect(chunks).toContainEqual(['big'])
+    expect(chunks.flat()).toEqual(['a', 'big', 'b'])
+  })
+
+  test('the separator counts toward the accumulated length', () => {
+    // 95 + 15(sep) + 95 = 205 > 200 → must split (190 without the separator would not)
+    const texts = { a: 'x'.repeat(95), b: 'y'.repeat(95) }
+    expect(buildChunks(['a', 'b'], texts, 200)).toEqual([['a'], ['b']])
+  })
 })
 
 describe('translate route POST /api/translate/locale', () => {
@@ -107,6 +146,17 @@ describe('translate route POST /api/translate/locale', () => {
       await post({ body: { texts: { a: 'short', b: long }, langCode: 'fr' } }, res)
       expect(https.get).toHaveBeenCalledTimes(2)
       expect(res.body).toEqual({ a: 'S', b: 'L' })
+    })
+
+    test('many small strings split across multiple calls, not one oversized URL', async () => {
+      const texts = {}
+      for (let i = 0; i < 80; i++) { texts['k' + i] = 'hello world ' + i } // ~1000+ chars total
+      queueHttpsResponses([mmSuccess('x')])
+      const res = makeRes()
+      await post({ body: { texts, langCode: 'fr' } }, res)
+      // The bug produced a single call (one 1 KB+ URL that MyMemory 414s → all English).
+      expect(https.get.mock.calls.length).toBeGreaterThan(1)
+      expect(Object.keys(res.body)).toHaveLength(80) // every key returned, none dropped
     })
   })
 
