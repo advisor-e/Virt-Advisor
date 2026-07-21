@@ -222,6 +222,8 @@ server.put('/api/firm-manager/distinctions/platform/:id/decline', ...fmGuard, fm
 server.post('/api/firm-manager/distinctions/platform/:id/move', ...fmGuard, fm.moveDistinction)
 server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
 server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
+server.get('/api/firm-manager/quizzes', ...fmGuard, fm.getQuizzes)
+server.post('/api/firm-manager/quizzes', ...fmGuard, fm.saveQuizzes)
 // Manager case-review feed: the firm's shared case studies (with their decision
 // traces) for review. Manager-gated + firm-scoped; private cases never surface.
 server.get('/api/firm-manager/cases', ...fmGuard, casesRoute.listFirmCases)

@@ -54,6 +54,9 @@ data/dev-firm-staircase.json
 data/dev-firm-templates.json
 data/dev-firm-coaching.json
 
+# Dev-only firm quiz overlay (created locally when MySQL is unavailable)
+data/dev-firm-quizzes.json
+
 # Dev-only case studies (created locally when MySQL is unavailable)
 data/dev-cases.json
 
