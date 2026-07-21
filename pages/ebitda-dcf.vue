@@ -1,12 +1,12 @@
 <template lang="pug">
 .ebitda-dcf-page
   .wrap
-    header.top
-      .brand
-        nuxt-link.backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
-        .eyebrow {{ $t('report.eyebrow') }} · {{ $t('report.ebitdaDcf.eyebrowClass') }}
-        h1 {{ $t('report.ebitdaDcf.title') }}
-        .client(v-if="companyName") {{ companyName }}
+    report-header(
+      :back-label="$t('modelLibrary.backToLibrary')"
+      :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.ebitdaDcf.eyebrowClass')"
+      :title="$t('report.ebitdaDcf.title')"
+      :client="companyName || ''"
+    )
     .steps
       .step(:class="{ active: step === 1, done: step > 1 }" @click="goTo(1)")
         span.n 1
@@ -34,6 +34,7 @@
  * stored pass.
  */
 import EbitdaDcfIntake from '~/components/EbitdaDcfIntake.vue'
+import ReportHeader from '~/components/base/ReportHeader.vue'
 import EbitdaDcfReport from '~/components/EbitdaDcfReport.vue'
 
 const TOKEN_KEY = 'advisor_e_token'
@@ -41,7 +42,7 @@ const TOKEN_KEY = 'advisor_e_token'
 export default {
   name: 'EbitdaDcfPage',
 
-  components: { EbitdaDcfIntake, EbitdaDcfReport },
+  components: { ReportHeader, EbitdaDcfIntake, EbitdaDcfReport },
 
   data () {
     return {
@@ -100,12 +101,6 @@ export default {
 <style scoped>
 .ebitda-dcf-page { min-height: 100vh; background: #eef3f8; }
 .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 22px 64px; }
-header.top { margin-bottom: 16px; }
-.backlink { display: inline-block; margin-bottom: 10px; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: #00b1e0; text-decoration: none; }
-.backlink:hover { text-decoration: underline; }
-.eyebrow { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #00b1e0; font-weight: 600; }
-h1 { margin: 2px 0 0; font-size: 25px; font-weight: 300; color: #002b64; }
-.client { font-size: 13px; color: #5b6f8a; }
 .steps { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 20px; }
 .step {
   display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: #5b6f8a;
@@ -119,5 +114,5 @@ h1 { margin: 2px 0 0; font-size: 25px; font-weight: 300; color: #002b64; }
 .step.active .n { background: #ffffff30; color: #fff; }
 .step.done { color: #4ca52d; }
 .step.done .n { background: #4ca52d1a; color: #4ca52d; }
-@media print { .steps, .backlink { display: none !important; } }
+@media print { .steps { display: none !important; } }
 </style>

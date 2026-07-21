@@ -6,8 +6,10 @@
 const { mountWithBuefy } = require('../helpers/mountComponent')
 const QuickPositionReport = require('~/components/QuickPositionReport.vue').default
 const EbitdaDcfReport = require('~/components/EbitdaDcfReport.vue').default
+const EightLeversReport = require('~/components/EightLeversReport.vue').default
 const { computeQuickPosition, computeExpensesReview, DEFAULTS: QP_DEFAULTS } = require('~/server/report/quickPositionModel')
 const { computeEbitdaDcf, DEFAULTS: ED_DEFAULTS } = require('~/server/report/ebitdaDcfModel')
+const { computeEightLevers, DEFAULT_INPUTS: EL_DEFAULTS } = require('~/server/report/eightLeversModel')
 
 /**
  * Rendering tests for the two report screens — the half of R9 and R11 that the
@@ -51,6 +53,11 @@ function quickPositionResult (withExpenseLines) {
 /** A genuine EBITDA & DCF result, straight from the backend model. */
 function ebitdaDcfResult () {
   return computeEbitdaDcf(Object.assign({}, ED_DEFAULTS))
+}
+
+/** A genuine Eight Levers result, straight from the backend model. */
+function eightLeversResult () {
+  return computeEightLevers(Object.assign({}, EL_DEFAULTS))
 }
 
 /**
@@ -261,5 +268,44 @@ describe('EbitdaDcfReport — the stale banner and print badges are rendered (R9
     const badges = wrapper.findAll('.src').wrappers.map(s => s.text())
     expect(badges).toHaveLength(3)
     badges.forEach(b => expect(b).toBe(ED_ENTERED))
+  })
+})
+
+describe('EightLeversReport — the failure text is a message, not the raw flag', () => {
+  /**
+   * Regression guard. Before Phase 1b (`a438276`) this screen held its own error
+   * *string*; the mixin conversion replaced it with a boolean flag and left two
+   * `{{ error }}` bindings pointing at it, so a failed calc showed the advisor the
+   * literal word "true". Fixed 2026-07-22. Nothing miscalculated — it simply looked
+   * broken and gave them nothing to act on.
+   */
+  it('shows the unreachable message in the stale banner, never "true"', async () => {
+    const wrapper = await mountReport(EightLeversReport, { result: eightLeversResult() })
+
+    global.fetch = jest.fn(() => Promise.reject(new Error('offline')))
+    await wrapper.vm.recompute()
+    await wrapper.vm.$nextTick()
+
+    // `.stalebody` (not `.lev-stalebody`) since Phase 3 — the banner is now the shared
+    // base/StaleBanner.vue; Eight Levers keeps its palette via CSS custom properties.
+    const body = wrapper.find('.stalebody')
+    expect(body.exists()).toBe(true)
+    expect(body.text()).toBe('report.calcUnreachable')
+    expect(body.text()).not.toBe('true')
+  })
+
+  it('shows the unreachable message in the first-load failure panel, never "true"', async () => {
+    // The whole-screen state: the very first calc never returned, so there are no
+    // figures to fall back on and this panel is the entire report.
+    global.fetch = jest.fn(() => Promise.reject(new Error('offline')))
+    const wrapper = mountWithBuefy(EightLeversReport, { propsData: {} })
+    await wrapper.vm.$nextTick()
+    await Promise.resolve()
+    await wrapper.vm.$nextTick()
+
+    const note = wrapper.find('.lev-pnote')
+    expect(note.exists()).toBe(true)
+    expect(note.text()).toBe('report.calcUnreachable')
+    expect(note.text()).not.toBe('true')
   })
 })

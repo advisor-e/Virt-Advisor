@@ -41,7 +41,9 @@ export default {
 
 <style scoped>
 .herostrip {
-  background: linear-gradient(120deg, #002b64 0%, #0a56b0 55%, #00b1e0 135%);
+  /* Solid, not a gradient — owner ruling 2026-07-22: one flat #002b64 right across
+     every model in this section, header banner and headline strip alike. */
+  background: #002b64;
   border-radius: 14px;
   padding: 20px;
   display: grid;

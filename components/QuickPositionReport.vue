@@ -8,8 +8,12 @@
           .row
             label
               | {{ $t('report.quickPosition.aside.' + f.key + 'Factor') }}
-              span.src(:class="sources[f.key] === 'file' ? 'src-file' : 'src-hand'")
-                | {{ sources[f.key] === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
+              provenance-badge(
+                size="sm"
+                :source="sources[f.key]"
+                :file-label="$t('report.quickPosition.confirm.fromFile')"
+                :entered-label="$t('report.quickPosition.confirm.entered')"
+              )
             output {{ money(inputs[f.key]) }} × {{ inputs[f.key + 'Factor'] }}%
           input(type="range" min="0" max="100" step="5" v-model.number="inputs[f.key + 'Factor']")
       //- R11: creditors/wagesDue shape the result but had no on-screen presence — shown
@@ -20,8 +24,12 @@
           .row
             label
               | {{ $t('report.quickPosition.confirm.' + k) }}
-              span.src(:class="sources[k] === 'file' ? 'src-file' : 'src-hand'")
-                | {{ sources[k] === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
+              provenance-badge(
+                size="sm"
+                :source="sources[k]"
+                :file-label="$t('report.quickPosition.confirm.fromFile')"
+                :entered-label="$t('report.quickPosition.confirm.entered')"
+              )
             output {{ money(inputs[k]) }}
       .group
         h2 {{ $t('report.quickPosition.aside.outgoings') }}
@@ -29,8 +37,12 @@
           .row
             label
               | {{ $t('report.quickPosition.aside.fixedCosts') }}
-              span.src(:class="sources.monthlyFixedCosts === 'file' ? 'src-file' : 'src-hand'")
-                | {{ sources.monthlyFixedCosts === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
+              provenance-badge(
+                size="sm"
+                :source="sources.monthlyFixedCosts"
+                :file-label="$t('report.quickPosition.confirm.fromFile')"
+                :entered-label="$t('report.quickPosition.confirm.entered')"
+              )
             output {{ money(inputs.monthlyFixedCosts) }}
           input(type="range" min="0" :max="moneyMax('monthlyFixedCosts', 60000, 500)" step="500" v-model.number="inputs.monthlyFixedCosts" @input="fixedCostsEntered")
         .field
@@ -76,10 +88,13 @@
 
     section.results(v-if="result")
       //- A failure AFTER the first load must never sit silently behind stale figures (R9)
-      .stale(v-if="error")
-        .stalehead {{ $t('report.staleTitle') }}
-        p.stalebody {{ $t('report.calcUnreachable') }}
-        b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
+      stale-banner(
+        v-if="error"
+        :title="$t('report.staleTitle')"
+        :message="$t('report.calcUnreachable')"
+        :retry-label="$t('report.retry')"
+        @retry="recompute"
+      )
       hero-strip(:stale="!!error")
         hero-figure(
           :label="$t('report.quickPosition.hero.quickCash')"
@@ -185,6 +200,8 @@
 <script>
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
+import ProvenanceBadge from '~/components/base/ProvenanceBadge'
+import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -201,7 +218,7 @@ import reportRecompute from '~/mixins/reportRecompute'
 export default {
   name: 'QuickPositionReport',
 
-  components: { HeroStrip, HeroFigure },
+  components: { HeroStrip, HeroFigure, ProvenanceBadge, StaleBanner },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -425,15 +442,11 @@ export default {
 .field label { font-size: 12.5px; color: #002b64; font-weight: 300; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 .field output { font-size: 13px; font-weight: 600; color: #0070c0; white-space: nowrap; }
 .field input[type=range] { width: 100%; accent-color: #0070c0; }
-.src { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; padding: 2px 6px; border-radius: 999px; white-space: nowrap; }
-.src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
-.src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }
+/* Badge styling lives in components/base/ProvenanceBadge.vue (Phase 3). */
 .results { display: flex; flex-direction: column; gap: 18px; }
 /* Stale-figures banner (R9): a failed recompute must be visibly untrustworthy —
    stale figures presented as live are worse than no figures at all. */
-.stale { background: #ff000010; border: 1px solid #ff0000; border-radius: 14px; padding: 12px 14px; }
-.stalehead { font-size: 13px; font-weight: 600; color: #ff0000; margin-bottom: 3px; }
-.stalebody { font-size: 12.5px; color: #5b6f8a; margin: 0 0 9px; line-height: 1.5; }
+/* The stale banner is components/base/StaleBanner.vue (Phase 3). */
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure
    (which also owns the greyed-out stale state). The print rule below still
    reaches it — `.herostrip` is HeroStrip's root element. */

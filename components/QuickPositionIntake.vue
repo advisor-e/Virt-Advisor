@@ -47,8 +47,11 @@
             td
               b-input(v-model.number="figures[key].value" type="number" step="any" :disabled="key === 'stock' && stockCandidates.length > 0" @input="markEntered(key)")
             td
-              span.src(:class="figures[key].source === 'file' ? 'src-file' : 'src-hand'")
-                | {{ figures[key].source === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
+              provenance-badge(
+                :source="figures[key].source"
+                :file-label="$t('report.quickPosition.confirm.fromFile')"
+                :entered-label="$t('report.quickPosition.confirm.entered')"
+              )
       .date-note(v-if="dateNote" :class="dateNote.ok ? 'date-ok' : 'date-warn'") {{ dateNote.text }}
       .warn-note(v-for="(w, i) in warnings" :key="'w' + i") ⚠ {{ w }}
       b-checkbox.svc-toggle(v-model="serviceBusiness")
@@ -71,8 +74,12 @@
  * *from file*, everything else is pre-filled with the model default and tagged
  * *entered*; a figure the file can't supply is never guessed.
  */
+import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+
 export default {
   name: 'QuickPositionIntake',
+
+  components: { ProvenanceBadge },
 
   props: {
     // Verified login pass (JWT); the intake route is firmAuth-guarded.
@@ -311,9 +318,7 @@ export default {
 .confirm-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .confirm-table th { font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: #5b6f8a; text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5e1ee; }
 .confirm-table td { padding: 8px 10px; border-bottom: 1px solid #d5e1ee; vertical-align: middle; }
-.src { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; padding: 2.5px 7px; border-radius: 999px; white-space: nowrap; }
-.src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
-.src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }
+/* Badge styling lives in components/base/ProvenanceBadge.vue (Phase 3). */
 .stock-candidates { background: #f1f6fb; border: 1px solid #d5e1ee; border-radius: 9px; padding: 10px 12px; margin-top: 8px; }
 .cand-head { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: #0070c0; margin-bottom: 6px; }
 .date-note { font-size: 12.5px; font-weight: 600; padding: 10px 14px; border-radius: 9px; margin-top: 14px; }

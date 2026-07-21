@@ -1,12 +1,12 @@
 <template lang="pug">
 .bpr-root
-  header.bpr-top
-    .bpr-brand
-      nuxt-link.bpr-backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
-      .bpr-eyebrow Business Performance Report
-      h1.bpr-h1 Working Capital Cycle
-      .bpr-client Prepared for #[strong [Client Company]] · by #[strong [Advisor / Firm]]
-    .bpr-badge Illustrative
+  report-header(
+    :back-label="$t('modelLibrary.backToLibrary')"
+    :eyebrow="$t('report.eyebrow')"
+    title="Working Capital Cycle"
+    :client="$t('report.preparedFor')"
+    :badge="$t('report.illustrative')"
+  )
 
   .bpr-layout
     //- INPUTS
@@ -29,7 +29,16 @@
 
     //- RESULTS
     section.bpr-results(v-if="out")
-      hero-strip
+      //- A failure AFTER the first load must never sit silently behind stale figures:
+      //- the numbers describe the PREVIOUS inputs while looking live (R9).
+      stale-banner(
+        v-if="error"
+        :title="$t('report.staleTitle')"
+        :message="$t('report.calcUnreachable')"
+        :retry-label="$t('report.retry')"
+        @retry="recompute"
+      )
+      hero-strip(:stale="!!error")
         hero-figure(
           label="Working-capital cycle"
           :value="round0(out.cycleDays)"
@@ -133,6 +142,8 @@
  * a `report.*` locale namespace in a follow-up (see design/ACTIONS.md). Coach text is
  * templated (not AI) for the first build, per owner decision.
  */
+import ReportHeader from '~/components/base/ReportHeader.vue'
+import StaleBanner from '~/components/base/StaleBanner.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
@@ -157,7 +168,7 @@ const DEFAULTS = {
 export default {
   name: 'BusinessPerformanceReport',
 
-  components: { HeroStrip, HeroFigure, SliderField },
+  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -270,14 +281,6 @@ fields: [
     applyResult (data) {
       this.out = data
     },
-    /**
-     * Failure feedback — the mixin calls this on a failed recompute. Keep `out` a
-     * non-null object so the template never renders against null on a first-load failure.
-     */
-    onRecomputeError () {
-      if (!this.out) { this.out = {} }
-      this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
-    },
     downloadPdf () {
       // Browser print-to-PDF — nothing leaves the app; the print stylesheet drops the
       // controls and lays out a clean, branded report.
@@ -311,15 +314,6 @@ fields: [
 }
 .bpr-root strong, .bpr-root b { font-weight:600; }
 .num { font-variant-numeric: tabular-nums; }
-
-.bpr-top { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; max-width:1120px; margin:0 auto 22px; }
-.bpr-backlink { display:inline-block; margin-bottom:10px; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--bpr-accent-bright); text-decoration:none; opacity:.85; }
-.bpr-backlink:hover { opacity:1; text-decoration:underline; }
-.bpr-eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--bpr-accent-bright); font-weight:600; }
-.bpr-h1 { margin:2px 0 0; font-size:25px; font-weight:300; letter-spacing:-.01em; }
-.bpr-client { font-size:13px; color:var(--bpr-muted); }
-.bpr-badge { font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; color:var(--bpr-warn);
-  border:1px solid #ff990070; background:var(--bpr-warn-soft); padding:5px 9px; border-radius:999px; height:fit-content; }
 
 .bpr-layout { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; max-width:1120px; margin:0 auto; }
 @media (max-width:860px) { .bpr-layout { grid-template-columns:1fr; } }
@@ -378,22 +372,20 @@ fields: [
 
 @media print {
   .bpr-root { padding:0; background:#fff; min-height:auto; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  aside.bpr-card, .bpr-actions, .bpr-badge { display:none !important; }
+  aside.bpr-card, .bpr-actions { display:none !important; }
   .bpr-layout { display:block; max-width:none; }
-  .bpr-top, .bpr-results { max-width:none; }
+  .bpr-results { max-width:none; }
   .bpr-tile, .bpr-card, .bpr-edu { break-inside:avoid; box-shadow:none; }
   .bpr-coin { animation:none; }
 }
 /* pop */
 .bpr-v{color:var(--bpr-accent)}
 .bpr-h2{color:var(--bpr-ink)}
-.bpr-hero{background:linear-gradient(180deg,var(--bpr-accent-soft),transparent)}
 /* pop2 */
 .bpr-v{color:#0070c0}
 .bpr-tile{border-top:3px solid #00b1e0}
-.bpr-hero{background:linear-gradient(135deg,#002b64,#0070c0);border-color:#0070c0}
+.bpr-hero{background:#002b64;border-color:#0070c0}
 .bpr-hero .bpr-v,.bpr-hero .bpr-k,.bpr-hero .bpr-sub,.bpr-hero .bpr-unit{color:#ffffff}
-.bpr-eyebrow{color:#00b1e0}
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure.
    The status pill is passed in through HeroFigure's `sub` slot, so it is still
    styled here — `.herostrip` is HeroStrip's root, which the slot renders inside. */

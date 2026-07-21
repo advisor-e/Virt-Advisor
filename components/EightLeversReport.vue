@@ -1,12 +1,12 @@
 <template lang="pug">
 .lev-root
-  header.lev-top
-    .lev-brand
-      nuxt-link.lev-backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
-      .lev-eyebrow {{ $t('report.eyebrow') }}
-      h1.lev-h1 {{ $t('report.eightLevers.title') }}
-      .lev-client {{ $t('report.preparedFor') }}
-    .lev-badge {{ $t('report.illustrative') }}
+  report-header(
+    :back-label="$t('modelLibrary.backToLibrary')"
+    :eyebrow="$t('report.eyebrow')"
+    :title="$t('report.eightLevers.title')"
+    :client="$t('report.preparedFor')"
+    :badge="$t('report.illustrative')"
+  )
 
   .lev-layout
     aside.lev-card
@@ -85,24 +85,32 @@
     main.lev-main(v-if="data")
       //- A failure AFTER the first load must never sit silently behind stale figures — the
       //- numbers on screen would look live while describing the previous inputs.
-      .lev-stale(v-if="error")
-        .lev-stalehead {{ $t('report.staleTitle') }}
-        p.lev-stalebody {{ error }}
-        b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
+      stale-banner(
+        v-if="error"
+        :title="$t('report.staleTitle')"
+        :message="$t('report.calcUnreachable')"
+        :retry-label="$t('report.retry')"
+        @retry="recompute"
+      )
 
-      .lev-headline(:class="{ 'is-stale': error }")
-        .lev-stat
-          .lev-slabel {{ $t('report.eightLevers.revenue') }}
-          .lev-sval {{ money(current.revenue) }}
-        .lev-stat
-          .lev-slabel {{ $t('report.eightLevers.profit') }}
-          .lev-sval(:class="current.profit >= 0 ? 'ok' : 'bad'") {{ money(current.profit) }}
-        .lev-stat
-          .lev-slabel {{ $t('report.eightLevers.profitPct') }}
-          .lev-sval {{ pct(current.profitPct) }}
-        .lev-stat
-          .lev-slabel {{ $t('report.eightLevers.customers') }}
-          .lev-sval {{ round0(current.customers) }}
+      hero-strip(:columns="4" :stale="!!error")
+        hero-figure(
+          :label="$t('report.eightLevers.revenue')"
+          :value="money(current.revenue)"
+        )
+        hero-figure(
+          :label="$t('report.eightLevers.profit')"
+          :value="money(current.profit)"
+          :tone="current.profit >= 0 ? 'good' : 'crit'"
+        )
+        hero-figure(
+          :label="$t('report.eightLevers.profitPct')"
+          :value="pct(current.profitPct)"
+        )
+        hero-figure(
+          :label="$t('report.eightLevers.customers')"
+          :value="round0(current.customers)"
+        )
 
       section.lev-panel
         h2.lev-ph {{ $t('report.eightLevers.chainTitle') }}
@@ -154,7 +162,8 @@
     main.lev-main(v-else-if="error")
       .lev-panel.lev-error
         h2.lev-ph {{ $t('report.calcFailedTitle') }}
-        p.lev-pnote {{ error }}
+        //- Same regression as the stale banner above — `error` is a boolean flag.
+        p.lev-pnote {{ $t('report.calcUnreachable') }}
         b-button(type="is-primary" @click="recompute") {{ $t('report.retry') }}
 
     main.lev-main(v-else)
@@ -183,8 +192,12 @@
  * editable here too. Percentages are held as whole numbers for the sliders and converted to
  * fractions in payload().
  */
+import ReportHeader from '~/components/base/ReportHeader.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+import StaleBanner from '~/components/base/StaleBanner.vue'
+import HeroStrip from '~/components/base/HeroStrip.vue'
+import HeroFigure from '~/components/base/HeroFigure.vue'
 
 const DEFAULTS = {
   // The lever chain (Broad Scenarios, current column)
@@ -210,6 +223,8 @@ const DEFAULTS = {
 
 export default {
   name: 'EightLeversReport',
+
+  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -406,25 +421,6 @@ export default {
   font-weight:300; -webkit-font-smoothing:antialiased; padding:28px 22px 64px; min-height:100vh;
 }
 
-.lev-top {
-  display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
-  max-width:1180px; margin:0 auto 22px; padding:22px 24px;
-  background:linear-gradient(135deg, #002b64, #0070c0); border-radius:var(--lev-r);
-  color:#fff; box-shadow:var(--lev-shadow);
-}
-.lev-backlink {
-  display:inline-block; margin-bottom:10px; font-size:12px; font-weight:600; letter-spacing:.04em;
-  color:#7fd3f1; text-decoration:none; opacity:.9;
-}
-.lev-backlink:hover { opacity:1; text-decoration:underline; }
-.lev-eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:#00b1e0; font-weight:600; }
-.lev-h1 { margin:4px 0 3px; font-size:27px; font-weight:300; letter-spacing:-.01em; }
-.lev-client { font-size:12.5px; opacity:.85; }
-.lev-badge {
-  flex:none; font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
-  padding:5px 10px; border-radius:999px; background:#ffffff22; border:1px solid #ffffff44;
-}
-
 .lev-layout { display:grid; grid-template-columns:320px 1fr; gap:18px; max-width:1180px; margin:0 auto; align-items:start; }
 @media (max-width: 900px) { .lev-layout { grid-template-columns:1fr; } }
 
@@ -474,7 +470,6 @@ export default {
 .lev-actions { margin-top:6px; }
 .lev-btn { width:100%; }
 
-.lev-headline { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:16px; }
 .lev-stat, .lev-lstat {
   background:var(--lev-panel); border:1px solid var(--lev-line); border-radius:var(--lev-r);
   box-shadow:var(--lev-shadow); padding:14px 16px;
@@ -516,12 +511,10 @@ export default {
 
 /* Stale-figures banner: the calc failed but earlier numbers are still on screen. They must be
    visibly untrustworthy — stale figures presented as live are worse than no figures at all. */
-.lev-stale {
-  background:#ff000010; border:1px solid var(--lev-crit); border-radius:var(--lev-r);
-  padding:12px 14px; margin-bottom:14px;
-}
-.lev-stalehead { font-size:13px; font-weight:600; color:var(--lev-crit); margin-bottom:3px; }
-.lev-stalebody { font-size:12.5px; color:var(--lev-muted); margin:0 0 9px; line-height:1.5; }
+/* The banner itself is components/base/StaleBanner.vue (Phase 3); this screen keeps
+   its own palette by mapping the shared properties onto its variables — including the
+   dark-mode overrides below, which apply automatically. */
+.lev-root { --sb-crit:var(--lev-crit); --sb-muted:var(--lev-muted); --sb-radius:var(--lev-r); --sb-gap:14px; }
 .is-stale { opacity:.45; filter:grayscale(0.6); }
 
 @media (prefers-color-scheme: dark) {
