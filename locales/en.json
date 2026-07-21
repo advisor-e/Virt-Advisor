@@ -654,7 +654,8 @@
         "startSet": "Starting point set to {amount}.",
         "coachSoon": "AI coach panel — coming later."
       }
-    }
+    },
+    "sampleFigures": "These are sample numbers, not your client's"
   },
   "modelLibrary": {
     "eyebrow": "Advisor-e · Business Performance",

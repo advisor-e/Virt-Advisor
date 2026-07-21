@@ -87,6 +87,8 @@
           input(type="range" min="0" max="30" step="1" v-model.number="inputs.discountPct")
 
     section.results(v-if="result")
+      //- Demo path: every figure is the source model's sample company, not the client's.
+      sample-notice(v-if="!seed" :text="$t('report.sampleFigures')")
       //- A failure AFTER the first load must never sit silently behind stale figures (R9)
       stale-banner(
         v-if="error"
@@ -201,6 +203,7 @@
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge'
+import SampleNotice from '~/components/base/SampleNotice.vue'
 import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
@@ -218,7 +221,7 @@ import reportRecompute from '~/mixins/reportRecompute'
 export default {
   name: 'QuickPositionReport',
 
-  components: { HeroStrip, HeroFigure, ProvenanceBadge, StaleBanner },
+  components: { HeroStrip, HeroFigure, ProvenanceBadge, StaleBanner, SampleNotice },
 
   mixins: [currencyMixin, reportRecompute],
 
