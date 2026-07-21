@@ -1,12 +1,12 @@
 <template lang="pug">
 .lev-root
-  header.lev-top
-    .lev-brand
-      nuxt-link.lev-backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
-      .lev-eyebrow {{ $t('report.eyebrow') }}
-      h1.lev-h1 {{ $t('report.eightLevers.title') }}
-      .lev-client {{ $t('report.preparedFor') }}
-    .lev-badge {{ $t('report.illustrative') }}
+  report-header(
+    :back-label="$t('modelLibrary.backToLibrary')"
+    :eyebrow="$t('report.eyebrow')"
+    :title="$t('report.eightLevers.title')"
+    :client="$t('report.preparedFor')"
+    :badge="$t('report.illustrative')"
+  )
 
   .lev-layout
     aside.lev-card
@@ -187,6 +187,7 @@
  * editable here too. Percentages are held as whole numbers for the sliders and converted to
  * fractions in payload().
  */
+import ReportHeader from '~/components/base/ReportHeader.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import StaleBanner from '~/components/base/StaleBanner.vue'
@@ -216,7 +217,7 @@ const DEFAULTS = {
 export default {
   name: 'EightLeversReport',
 
-  components: { StaleBanner },
+  components: { ReportHeader, StaleBanner },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -411,25 +412,6 @@ export default {
   background:var(--lev-bg); color:var(--lev-ink);
   font-family:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-weight:300; -webkit-font-smoothing:antialiased; padding:28px 22px 64px; min-height:100vh;
-}
-
-.lev-top {
-  display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
-  max-width:1180px; margin:0 auto 22px; padding:22px 24px;
-  background:linear-gradient(135deg, #002b64, #0070c0); border-radius:var(--lev-r);
-  color:#fff; box-shadow:var(--lev-shadow);
-}
-.lev-backlink {
-  display:inline-block; margin-bottom:10px; font-size:12px; font-weight:600; letter-spacing:.04em;
-  color:#7fd3f1; text-decoration:none; opacity:.9;
-}
-.lev-backlink:hover { opacity:1; text-decoration:underline; }
-.lev-eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:#00b1e0; font-weight:600; }
-.lev-h1 { margin:4px 0 3px; font-size:27px; font-weight:300; letter-spacing:-.01em; }
-.lev-client { font-size:12.5px; opacity:.85; }
-.lev-badge {
-  flex:none; font-size:10.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
-  padding:5px 10px; border-radius:999px; background:#ffffff22; border:1px solid #ffffff44;
 }
 
 .lev-layout { display:grid; grid-template-columns:320px 1fr; gap:18px; max-width:1180px; margin:0 auto; align-items:start; }

@@ -59,17 +59,38 @@ function defaultMocks () {
 }
 
 /**
+ * `<nuxt-link>` is injected by Nuxt at runtime and does not exist in a bare test mount,
+ * so any component with in-app navigation renders it as an unknown element and a test
+ * asking for the link finds nothing. This stub renders the real thing an advisor
+ * clicks — an anchor carrying the destination — so navigation stays assertable.
+ */
+const NuxtLinkStub = {
+  name: 'NuxtLink',
+  props: { to: { type: [String, Object], default: '' } },
+  render (h) {
+    return h('a', { attrs: { href: typeof this.to === 'string' ? this.to : '' } }, this.$slots.default)
+  }
+}
+
+/** Stubs every component test gets; a caller's own `stubs` merge over these. */
+function defaultStubs () {
+  return { NuxtLink: NuxtLinkStub, 'nuxt-link': NuxtLinkStub }
+}
+
+/**
  * Mount a component with Buefy and the i18n stand-in already wired.
  *
  * @param {object} component - the imported `.vue` component.
- * @param {object} [options] - @vue/test-utils options; `mocks` merges over the defaults.
+ * @param {object} [options] - @vue/test-utils options; `mocks` and `stubs` merge over
+ *   the defaults.
  * @returns {object} the test-utils Wrapper.
  */
 function mountWithBuefy (component, options) {
   const opts = options || {}
   return mount(component, Object.assign({}, opts, {
     localVue,
-    mocks: Object.assign(defaultMocks(), opts.mocks)
+    mocks: Object.assign(defaultMocks(), opts.mocks),
+    stubs: Object.assign(defaultStubs(), opts.stubs)
   }))
 }
 

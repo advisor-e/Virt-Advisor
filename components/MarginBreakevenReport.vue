@@ -1,12 +1,12 @@
 <template lang="pug">
 .mbk-root
-  header.mbk-top
-    .mbk-brand
-      nuxt-link.mbk-backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
-      .mbk-eyebrow Business Performance Report
-      h1.mbk-h1 Margin, Mark-up &amp; Break-even
-      .mbk-client Prepared for #[strong [Client Company]] · by #[strong [Advisor / Firm]]
-    .mbk-badge Illustrative
+  report-header(
+    :back-label="$t('modelLibrary.backToLibrary')"
+    :eyebrow="$t('report.eyebrow')"
+    title="Margin, Mark-up & Break-even"
+    :client="$t('report.preparedFor')"
+    :badge="$t('report.illustrative')"
+  )
 
   .mbk-layout
     aside.mbk-card
@@ -97,6 +97,7 @@
  * (POST /api/report/margin-breakeven); see server/report/marginBreakevenModel.js + golden test.
  * Coach text is templated (not AI) for this build; English placeholders pending report.* i18n.
  */
+import ReportHeader from '~/components/base/ReportHeader.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
@@ -108,7 +109,7 @@ const DEFAULTS = { price: 250, cost: 82.5, oh: 11500, draw: 8600, wif: 0 }
 export default {
   name: 'MarginBreakevenReport',
 
-  components: { HeroStrip, HeroFigure, SliderField },
+  components: { ReportHeader, HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -247,13 +248,6 @@ path,
 }
 .mbk-root strong, .mbk-root b { font-weight:600; }
 .num { font-variant-numeric: tabular-nums; }
-.mbk-top { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; max-width:1120px; margin:0 auto 22px; }
-.mbk-backlink { display:inline-block; margin-bottom:10px; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--mbk-accent-bright); text-decoration:none; opacity:.85; }
-.mbk-backlink:hover { opacity:1; text-decoration:underline; }
-.mbk-eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--mbk-accent-bright); font-weight:600; }
-.mbk-h1 { margin:2px 0 0; font-size:25px; font-weight:300; letter-spacing:-.01em; }
-.mbk-client { font-size:13px; color:var(--mbk-muted); }
-.mbk-badge { font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; color:var(--mbk-warn); border:1px solid #ff990070; background:#ff99001a; padding:5px 9px; border-radius:999px; height:fit-content; }
 .mbk-layout { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; max-width:1120px; margin:0 auto; }
 @media (max-width:860px) { .mbk-layout { grid-template-columns:1fr; } }
 .mbk-card { background:var(--mbk-panel); border:1px solid var(--mbk-line); border-radius:var(--mbk-r); box-shadow:var(--mbk-shadow); }
@@ -299,9 +293,9 @@ path,
 .mbk-foot { font-size:12px; color:var(--mbk-muted); }
 @media print {
   .mbk-root { padding:0; background:#fff; min-height:auto; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  aside.mbk-card, .mbk-actions, .mbk-badge { display:none !important; }
+  aside.mbk-card, .mbk-actions { display:none !important; }
   .mbk-layout { display:block; max-width:none; }
-  .mbk-top, .mbk-results { max-width:none; }
+  .mbk-results { max-width:none; }
   .mbk-tile, .mbk-card, .mbk-edu { break-inside:avoid; box-shadow:none; }
 }
 /* pop2 */

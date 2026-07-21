@@ -1,12 +1,12 @@
 <template lang="pug">
 .ddg-root
-  header.ddg-top
-    .ddg-brand
-      nuxt-link.ddg-backlink(to="/model-library") {{ $t('modelLibrary.backToLibrary') }}
-      .ddg-eyebrow Business Performance Report
-      h1.ddg-h1 Debtor Business Drag
-      .ddg-client Prepared for #[strong [Client Company]] · by #[strong [Advisor / Firm]]
-    .ddg-badge Illustrative
+  report-header(
+    :back-label="$t('modelLibrary.backToLibrary')"
+    :eyebrow="$t('report.eyebrow')"
+    title="Debtor Business Drag"
+    :client="$t('report.preparedFor')"
+    :badge="$t('report.illustrative')"
+  )
 
   .ddg-layout
     aside.ddg-card
@@ -102,6 +102,7 @@
  * the before/after effect of a decision. Coach text is templated (not AI) for this build.
  * i18n: English placeholders for this first build; move to a report.* namespace later.
  */
+import ReportHeader from '~/components/base/ReportHeader.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
@@ -115,7 +116,7 @@ const BASE = SHAPE.reduce(function (a, b) { return a + b }, 0)
 export default {
   name: 'DebtorDragReport',
 
-  components: { HeroStrip, HeroFigure, SliderField },
+  components: { ReportHeader, HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -333,13 +334,6 @@ lowY: y(plan[lowIdx])
 .ddg-root strong, .ddg-root b { font-weight:600; }
 .ddg-blue { color:#0070c0; }
 .num { font-variant-numeric: tabular-nums; }
-.ddg-top { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; max-width:1120px; margin:0 auto 22px; }
-.ddg-backlink { display:inline-block; margin-bottom:10px; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--ddg-accent-bright); text-decoration:none; opacity:.85; }
-.ddg-backlink:hover { opacity:1; text-decoration:underline; }
-.ddg-eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ddg-accent-bright); font-weight:600; }
-.ddg-h1 { margin:2px 0 0; font-size:25px; font-weight:300; letter-spacing:-.01em; }
-.ddg-client { font-size:13px; color:var(--ddg-muted); }
-.ddg-badge { font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; color:var(--ddg-warn); border:1px solid #ff990070; background:var(--ddg-warn-soft); padding:5px 9px; border-radius:999px; height:fit-content; }
 .ddg-layout { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; max-width:1120px; margin:0 auto; }
 @media (max-width:860px) { .ddg-layout { grid-template-columns:1fr; } }
 .ddg-card { background:var(--ddg-panel); border:1px solid var(--ddg-line); border-radius:var(--ddg-r); box-shadow:var(--ddg-shadow); }
@@ -388,9 +382,9 @@ lowY: y(plan[lowIdx])
 .ddg-foot { font-size:12px; color:var(--ddg-muted); }
 @media print {
   .ddg-root { padding:0; background:#fff; min-height:auto; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  aside.ddg-card, .ddg-actions, .ddg-badge { display:none !important; }
+  aside.ddg-card, .ddg-actions { display:none !important; }
   .ddg-layout { display:block; max-width:none; }
-  .ddg-top, .ddg-results { max-width:none; }
+  .ddg-results { max-width:none; }
   .ddg-tile, .ddg-card, .ddg-edu { break-inside:avoid; box-shadow:none; }
 }
 /* pop */
