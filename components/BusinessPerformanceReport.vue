@@ -236,9 +236,34 @@ fields: [
     cashflowClass () {
       return (this.out && this.out.netProfitMonthly < 0) ? 'is-crit' : 'is-good'
     },
+    /**
+     * How long the coin takes to go once round the wheel.
+     *
+     * The old rule — `max(1.4, 6 / cycleFactor)` — was floored at 1.4s, so every
+     * business turning faster than ~4×/month spun at exactly the same speed: measured
+     * live, 0 days receivable (30× a month) and 10 days (6×) were both pinned at 1.4s,
+     * while the figures beside them changed completely. At the other end 90 days gave a
+     * 17-second lap that reads as stationary rather than slow. The indicator stopped
+     * responding across half its range (Mike, 2026-07-21).
+     *
+     * Now mapped across the WHOLE range: the cycle factor is placed between the slowest
+     * and fastest realistic turns and read off as a lap time between 8s and 0.8s. That
+     * accepts the coin as a *feel* indicator rather than a proportional measure — it
+     * already was one, it simply failed silently instead of saying so.
+     * @returns {string} a CSS duration
+     */
     spinDur () {
-      const f = this.out ? this.out.cycleFactorMonthly : 1
-      return Math.max(1.4, 6 / Math.max(f, 0.1)).toFixed(2) + 's'
+      const SLOWEST_LAP = 8
+      const FASTEST_LAP = 0.8
+      // The realistic span of monthly turns: about a third of a turn up to thirty.
+      const MIN_TURNS = 0.33
+      const MAX_TURNS = 30
+
+      const turns = Math.min(MAX_TURNS, Math.max(MIN_TURNS, this.out ? this.out.cycleFactorMonthly : 1))
+      // Log scale: turns span two orders of magnitude, so a linear map would spend
+      // almost the whole slider in the slow end and jump at the top.
+      const pos = (Math.log(turns) - Math.log(MIN_TURNS)) / (Math.log(MAX_TURNS) - Math.log(MIN_TURNS))
+      return (SLOWEST_LAP - pos * (SLOWEST_LAP - FASTEST_LAP)).toFixed(2) + 's'
     },
     fasterHint () {
       if (!this.out || this.out.cycleDays <= 0) { return null }
