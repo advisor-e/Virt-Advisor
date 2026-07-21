@@ -101,3 +101,93 @@ describe('findQuizBank (CB-30)', () => {
     expect(findQuizBank({ 'Working Capital Cycle': BANK }, { title: null, resources: 'not an array' })).toBeNull()
   })
 })
+
+// CB-34 pt 2 — a bank authored by a firm manager is saved at runtime, with no
+// locking test to hold its key to the exact template title. A near-miss key
+// used to match nothing and hand the session back to AI-invented questions in
+// silence. These tests pin the two halves of the fix: the near miss now binds,
+// and a key that binds to nothing is reported by name.
+
+const TEMPLATES = [
+  { page: 'id-1', title: 'Working Capital Cycle' },
+  { page: 'id-2', title: 'E.O.Y Meeting' },
+  { page: 'id-3', title: '8 Profit Levers' }
+]
+
+describe('findQuizBank near-miss binding (CB-34 pt 2)', () => {
+  test('a bank key with one extra word still binds to its template', () => {
+    const banks = { 'Working Capital Cycle Quiz': BANK }
+    const session = { title: 'S', resources: ['Working Capital Cycle'] }
+    expect(findQuizBank(banks, session, TEMPLATES)).toBe(BANK)
+  })
+
+  test('punctuation and case differences in the key still bind', () => {
+    const banks = { 'e.o.y. meeting': BANK }
+    const session = { title: 'S', resources: ['E.O.Y Meeting'] }
+    expect(findQuizBank(banks, session, TEMPLATES)).toBe(BANK)
+  })
+
+  test('a genuinely different key does NOT bind — never guesses', () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const banks = { 'Debtor Drag': BANK }
+      const session = { title: 'S', resources: ['Working Capital Cycle'] }
+      expect(findQuizBank(banks, session, TEMPLATES)).toBeNull()
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
+  test('the AI-written session title alone can never trigger a tolerant bind', () => {
+    const banks = { 'Working Capital Cycle': BANK }
+    const session = { title: 'Mastering The Working Capital Cycle', resources: [] }
+    expect(findQuizBank(banks, session, TEMPLATES)).toBeNull()
+  })
+
+  test('exact matching still wins first and is unchanged', () => {
+    const OTHER = { source: 'x.pdf', entries: [{ id: 1, question: 'Q', answer: 'A', keyPoint: 'K' }] }
+    const banks = { 'E.O.Y Meeting': BANK, 'E.O.Y Meeting Quiz': OTHER }
+    const session = { title: 'S', resources: ['E.O.Y Meeting'] }
+    expect(findQuizBank(banks, session, TEMPLATES)).toBe(BANK)
+  })
+
+  test('an orphan bank is reported by name instead of vanishing', () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const banks = { 'Wurking Capitol Cyckle': BANK }
+      const session = { title: 'S', resources: ['Working Capital Cycle'] }
+      expect(findQuizBank(banks, session, TEMPLATES)).toBeNull()
+      const logged = spy.mock.calls.map(c => String(c[0])).join('\n')
+      expect(logged).toContain('ORPHAN BANK')
+      expect(logged).toContain('Wurking Capitol Cyckle')
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
+  test('an orphan is reported once per key, not on every quiz request', () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const banks = { 'Zzz Not A Template At All': BANK }
+      const session = { title: 'S', resources: ['Working Capital Cycle'] }
+      findQuizBank(banks, session, TEMPLATES)
+      const afterFirst = spy.mock.calls.length
+      findQuizBank(banks, session, TEMPLATES)
+      expect(spy.mock.calls.length).toBe(afterFirst)
+      expect(afterFirst).toBeGreaterThan(0)
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
+  test('an empty template library degrades to exact matching, never crashes', () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const banks = { 'Working Capital Cycle': BANK }
+      expect(findQuizBank(banks, { title: 'S', resources: ['Working Capital Cycle'] }, [])).toBe(BANK)
+      expect(findQuizBank(banks, { title: 'S', resources: ['Something Else'] }, [])).toBeNull()
+    } finally {
+      spy.mockRestore()
+    }
+  })
+})
