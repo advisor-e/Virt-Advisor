@@ -62,8 +62,11 @@
                 td(v-for="(y, c) in displayYears" :key="row + y" :class="{ 'cell-invalid': invalidCells.includes(row + ':' + displayIndex(c)) }")
                   b-input(v-model.number="figures[row][displayIndex(c)].value" type="number" step="any" size="is-small" @input="markEntered(row, displayIndex(c))")
                 td
-                  span.src(:class="rowSource(row) === 'file' ? 'src-file' : 'src-hand'")
-                    | {{ rowSource(row) === 'file' ? $t('report.ebitdaDcf.confirm.fromFile') : $t('report.ebitdaDcf.confirm.entered') }}
+                  provenance-badge(
+                    :source="rowSource(row)"
+                    :file-label="$t('report.ebitdaDcf.confirm.fromFile')"
+                    :entered-label="$t('report.ebitdaDcf.confirm.entered')"
+                  )
       .warn-note(v-for="(w, i) in warnings" :key="'w' + i") ⚠ {{ w }}
       p.note {{ $t('report.ebitdaDcf.confirm.notesHint') }}
       .confirm-error(v-if="invalidCells.length") {{ $t('report.ebitdaDcf.confirm.incomplete') }}
@@ -73,6 +76,8 @@
 </template>
 
 <script>
+import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+
 /**
  * EbitdaDcfIntake — steps 1 + 2 of the EBITDA & DCF valuation report
  * (owner-approved mockup, 2026-07-17): drop up to five years of Xero P&L exports,
@@ -136,6 +141,8 @@ const ROW_GROUPS = [
 
 export default {
   name: 'EbitdaDcfIntake',
+
+  components: { ProvenanceBadge },
 
   props: {
     // Verified login pass (JWT); the intake route is firmAuth-guarded.
@@ -388,8 +395,6 @@ export default {
 .confirm-table tr.grp td { padding-top: 14px; font-weight: 600; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #0070c0; border-bottom: 1px solid #d5e1ee; }
 .cell-invalid { background: #ff00000a; }
 .confirm-error { font-size: 12.5px; font-weight: 600; color: #ff0000; background: #ff00001a; border-radius: 9px; padding: 10px 14px; margin-top: 14px; }
-.src { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; padding: 2.5px 7px; border-radius: 999px; white-space: nowrap; }
-.src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
-.src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }
+/* Badge styling lives in components/base/ProvenanceBadge.vue (Phase 3). */
 .warn-note { font-size: 12.5px; color: #b36b00; background: #ff99001a; border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
 </style>
