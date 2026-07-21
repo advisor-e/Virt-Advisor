@@ -491,6 +491,7 @@
     "none": "none",
     "noQuizYet": "No quiz material yet",
     "noMatchHere": "No match here",
+    "emptyLibrary": "No quiz areas were found in your library.",
     "pickAPage": "Pick a page on the left",
     "pickAPageHint": "Its questions open here, ready to edit.",
     "duplicateNameTag": "Duplicate name",

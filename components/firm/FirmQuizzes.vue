@@ -25,6 +25,12 @@ section.firm-quizzes
     //- ── Rail: sections → sub-sections → pages ──────────────────────────
     .column.is-4
       nav.rail(:aria-label="$t('firmQuizzes.railLabel')")
+        //- A search that matches nothing empties the rail entirely, and an
+        //- empty box reads as a broken screen. Say which it is.
+        .rail-empty(v-if="!tree.length")
+          span.has-text-grey.is-size-7
+            | {{ query ? $t('firmQuizzes.noMatchHere') : $t('firmQuizzes.emptyLibrary') }}
+
         //- Tone is positional, not keyed to section names, so a section added
         //- upstream is distinguished automatically instead of rendering plain.
         //- The accent bar carries the grouping on its own — colour reinforces
@@ -39,15 +45,15 @@ section.firm-quizzes
           div(v-for="sub in section.subs" :key="sub.key")
             button.rail-sub(
               type="button"
-              :aria-expanded="isOpen(sub.key) ? 'true' : 'false'"
+              :aria-expanded="sub.isOpen ? 'true' : 'false'"
               @click="toggleSub(sub.key)"
             )
-              b-icon.rail-chev(:icon="isOpen(sub.key) ? 'menu-down' : 'menu-right'" size="is-small")
+              b-icon.rail-chev(:icon="sub.isOpen ? 'menu-down' : 'menu-right'" size="is-small")
               span.rail-subname {{ sub.name }}
               b-tag(:type="sub.quizPageCount ? 'is-info is-light' : 'is-light'" size="is-small")
                 | {{ sub.quizPageCount ? $tc('firmQuizzes.quizCount', sub.quizPageCount) : $t('firmQuizzes.none') }}
 
-            .rail-pages(v-if="isOpen(sub.key)")
+            .rail-pages(v-if="sub.isOpen")
               button.rail-page(
                 v-for="page in sub.visiblePages"
                 :key="page.title"
@@ -210,6 +216,14 @@ export default {
         for (const sub of section.subs) {
           sub.quizPageCount = sub.pages.filter(p => p.entryCount > 0).length
           sub.visiblePages = sub.pages.filter(p => p.entryCount > 0 && this.pageMatches(p, q))
+          // Expanded when the firm opened it, when a search found something
+          // inside it (a hit hidden behind a closed sub-section reads as "no
+          // results"), or when it holds the page currently on screen.
+          sub.isOpen = !!this.openSubs[sub.key] ||
+            (!!q && sub.visiblePages.length > 0) ||
+            !!(this.current &&
+               this.current.section === section.name &&
+               this.current.subSection === sub.name)
         }
         section.subs = section.subs.filter(sub => this.subVisible(sub, q))
       }
