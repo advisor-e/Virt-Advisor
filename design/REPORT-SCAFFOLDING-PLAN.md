@@ -1,7 +1,7 @@
 # Report Scaffolding Plan — reusable building blocks for faster reports
 
-> **Status:** Plan approved by Mike 2026-07-21. **Phase 1 done; Phase 2's hero half done
-> and browser-verified (2026-07-21) — `SliderGroup` is the open half.** Live progress is
+> **Status:** Plan approved by Mike 2026-07-21. **Phases 1 and 2 done and browser-verified
+> (2026-07-21); Phases 3 and 4 are the open work.** Live progress is
 > tracked in [`ACTIONS.md`](ACTIONS.md); this document is the design, not the status board.
 > A multi-session workstream, done incrementally and behaviour-preserving — never a
 > big-bang rewrite of the live report screens.

@@ -15,17 +15,17 @@
         .bpr-glabel
           span.bpr-dot
           h2.bpr-h2 {{ g.title }}
-        .bpr-field(v-for="f in g.fields" :key="f.key")
-          .bpr-row
-            label {{ f.label }}
-            output {{ fmtField(f, inputs[f.key]) }}
-          input(
-            type="range"
-            v-model.number="inputs[f.key]"
-            :min="f.min" :max="f.max" :step="f.step"
-            :style="{ '--fill': fillPct(f) }"
-            @input="queueRecompute"
-          )
+        slider-field(
+          v-for="fld in g.fields"
+          :key="fld.key"
+          :label="fld.label"
+          :display="fmtField(fld, inputs[fld.key])"
+          :value="inputs[fld.key]"
+          :min="fld.min"
+          :max="fld.max"
+          :step="fld.step"
+          @input="v => setField(fld.key, v)"
+        )
 
     //- RESULTS
     section.bpr-results(v-if="out")
@@ -135,6 +135,7 @@
  */
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
+import SliderField from '~/components/base/SliderField'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -156,7 +157,7 @@ const DEFAULTS = {
 export default {
   name: 'BusinessPerformanceReport',
 
-  components: { HeroStrip, HeroFigure },
+  components: { HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -241,9 +242,14 @@ fields: [
       if (f.fmt === 'pct') { return Math.round(v * 100) + '%' }
       return v
     },
-    fillPct (f) {
-      const v = this.inputs[f.key]
-      return ((v - f.min) / (f.max - f.min) * 100) + '%'
+    /**
+     * A slider moved: store the new value and queue a recompute. SliderField reports
+     * its value as an event, so the write and the recompute happen in one place.
+     * @param {string} key - the field key in `inputs` @param {number} v
+     */
+    setField (key, v) {
+      this.inputs[key] = v
+      this.queueRecompute()
     },
     reset () {
       this.inputs = Object.assign({}, DEFAULTS)
@@ -324,17 +330,12 @@ fields: [
 .bpr-group:last-child { border-bottom:0; }
 .bpr-glabel { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
 .bpr-dot { width:7px; height:7px; border-radius:50%; background:var(--bpr-accent-bright); }
-.bpr-field { margin:11px 0; }
-.bpr-field:first-of-type { margin-top:0; }
-.bpr-row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:5px; }
-.bpr-row label { font-size:12.5px; color:var(--bpr-ink); font-weight:300; }
-.bpr-row output { font-size:13px; font-weight:600; color:var(--bpr-accent); }
-.bpr-field input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:4px;
-  background:linear-gradient(var(--bpr-accent), var(--bpr-accent)) 0/var(--fill,50%) 100% no-repeat, var(--bpr-line); outline:none; }
-.bpr-field input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
-  background:var(--bpr-panel); border:2px solid var(--bpr-accent); box-shadow:0 1px 3px #0003; cursor:pointer; }
-.bpr-field input[type=range]::-moz-range-thumb { width:16px; height:16px; border-radius:50%; background:var(--bpr-panel); border:2px solid var(--bpr-accent); cursor:pointer; }
-.bpr-field input[type=range]:focus-visible { box-shadow:0 0 0 3px var(--bpr-accent-soft); }
+/* Sliders now live in components/base/SliderField. It reads these generic tokens, so
+   this screen keeps its own palette — including the dark-mode overrides above. */
+.bpr-root {
+  --sl-accent:var(--bpr-accent); --sl-line:var(--bpr-line); --sl-panel:var(--bpr-panel);
+  --sl-ink:var(--bpr-ink); --sl-accent-soft:var(--bpr-accent-soft);
+}
 
 .bpr-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
 .bpr-tiles { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }

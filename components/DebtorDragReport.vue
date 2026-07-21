@@ -17,17 +17,17 @@
             span.ddg-dot
             h2.ddg-h2 {{ g.title }}
           span.ddg-total(v-if="g.total" :class="totalOk(g.total) ? 'ok' : 'bad'") {{ totalOf(g.total) }}%
-        .ddg-field(v-for="fld in g.fields" :key="fld.k")
-          .ddg-frow
-            label {{ fld.label }}
-            output {{ fmtField(fld) }}
-          input(
-            type="range"
-            v-model.number="f[fld.k]"
-            :min="fld.min" :max="fld.max" :step="fld.step"
-            :style="{ '--fill': fillPct(fld) }"
-            @input="queueRecompute"
-          )
+        slider-field(
+          v-for="fld in g.fields"
+          :key="fld.k"
+          :label="fld.label"
+          :display="fmtField(fld)"
+          :value="f[fld.k]"
+          :min="fld.min"
+          :max="fld.max"
+          :step="fld.step"
+          @input="v => setField(fld.k, v)"
+        )
       .ddg-group
         button.ddg-setbtn(@click="freeze") 📌 Freeze current as “Before”
 
@@ -104,6 +104,7 @@
  */
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
+import SliderField from '~/components/base/SliderField'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -114,7 +115,7 @@ const BASE = SHAPE.reduce(function (a, b) { return a + b }, 0)
 export default {
   name: 'DebtorDragReport',
 
-  components: { HeroStrip, HeroFigure },
+  components: { HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -247,9 +248,14 @@ lowY: y(plan[lowIdx])
       if (fld.fmt === 'money') { return this.money(v) }
       return v + '%'
     },
-    fillPct (fld) {
-      const v = this.f[fld.k]
-      return ((v - fld.min) / (fld.max - fld.min) * 100) + '%'
+    /**
+     * A slider moved: store the new value and queue a recompute. SliderField reports
+     * its value as an event, so the write and the recompute happen in one place.
+     * @param {string} key - the field key in `f` @param {number} v
+     */
+    setField (key, v) {
+      this.f[key] = v
+      this.queueRecompute()
     },
     totalOf (which) {
       if (which === 'd') { return this.f.d0 + this.f.d1 + this.f.d2 + this.f.d3 + this.f.d4 + this.f.dwo }
@@ -348,14 +354,12 @@ lowY: y(plan[lowIdx])
 .ddg-total { font-size:10.5px; font-weight:600; padding:2px 7px; border-radius:999px; }
 .ddg-total.ok { color:var(--ddg-good); background:var(--ddg-good-soft); }
 .ddg-total.bad { color:var(--ddg-crit); background:var(--ddg-crit-soft); }
-.ddg-field { margin:9px 0; }
-.ddg-field:first-of-type { margin-top:0; }
-.ddg-frow { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:4px; }
-.ddg-frow label { font-size:12px; color:var(--ddg-ink); font-weight:300; }
-.ddg-frow output { font-size:12.5px; font-weight:600; color:var(--ddg-accent); }
-.ddg-field input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:4px; background:linear-gradient(var(--ddg-accent), var(--ddg-accent)) 0/var(--fill,50%) 100% no-repeat, var(--ddg-line); outline:none; }
-.ddg-field input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px; border-radius:50%; background:var(--ddg-panel); border:2px solid var(--ddg-accent); box-shadow:0 1px 3px #0003; cursor:pointer; }
-.ddg-field input[type=range]::-moz-range-thumb { width:15px; height:15px; border-radius:50%; background:var(--ddg-panel); border:2px solid var(--ddg-accent); cursor:pointer; }
+/* Sliders now live in components/base/SliderField. It reads these generic tokens, so
+   this screen keeps its own palette — including the dark-mode overrides above. */
+.ddg-root {
+  --sl-accent:var(--ddg-accent); --sl-line:var(--ddg-line); --sl-panel:var(--ddg-panel);
+  --sl-ink:var(--ddg-ink); --sl-accent-soft:var(--ddg-accent-soft);
+}
 .ddg-setbtn { width:100%; font:inherit; font-weight:600; font-size:12.5px; color:var(--ddg-ink); background:var(--ddg-panel-2); border:1px solid var(--ddg-line); border-radius:9px; padding:10px; cursor:pointer; }
 .ddg-setbtn:hover { border-color:var(--ddg-accent); }
 .ddg-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
