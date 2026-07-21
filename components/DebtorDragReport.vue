@@ -26,7 +26,7 @@
             v-model.number="f[fld.k]"
             :min="fld.min" :max="fld.max" :step="fld.step"
             :style="{ '--fill': fillPct(fld) }"
-            @input="scheduleRecompute"
+            @input="queueRecompute"
           )
       .ddg-group
         button.ddg-setbtn(@click="freeze") 📌 Freeze current as “Before”
@@ -98,6 +98,7 @@
  * i18n: English placeholders for this first build; move to a report.* namespace later.
  */
 import currencyMixin from '~/mixins/currencyMixin'
+import reportRecompute from '~/mixins/reportRecompute'
 
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const SHAPE = [100000, 137850, 207563, 215000, 232000, 347000, 356000, 432000, 318000, 323000, 365000, 324000]
@@ -106,14 +107,13 @@ const BASE = SHAPE.reduce(function (a, b) { return a + b }, 0)
 export default {
   name: 'DebtorDragReport',
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportRecompute],
 
   data () {
     return {
       f: { sales: 3357413, d0: 85, d1: 7, d2: 5, d3: 0, d4: 0, dwo: 3, c0: 90, c1: 10, c2: 0, c3: 0, c4: 0, markup: 47, np: 13, gst: 15 },
       plan: null, // { monthlyClosing, deepestLow, monthsInOverdraft, ... }
       before: null, // frozen snapshot of plan
-      recomputeTimer: null,
       groups: [
         {
  title: 'Sales',
@@ -214,11 +214,9 @@ lowY: y(plan[lowIdx])
   },
 
   mounted () {
-    this.recompute(true)
-  },
-
-  beforeDestroy () {
-    if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
+    // Seed the "Before" baseline from the first successful recompute (see applyResult).
+    this._seedBefore = true
+    this.recompute()
   },
 
   methods: {
@@ -251,27 +249,22 @@ lowY: y(plan[lowIdx])
         gstRate: this.f.gst / 100
       }
     },
-    scheduleRecompute () {
-      if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
-      this.recomputeTimer = setTimeout(this.recompute, 140)
+    /** Backend request — consumed by the reportRecompute mixin (debounce + race guard). */
+    recomputeRequest () {
+      return { url: '/api/report/debtor-drag', body: this.payload() }
     },
-    recompute (seedBefore) {
-      // Calc runs backend-only; the screen never computes the model itself.
-      fetch('/api/report/debtor-drag', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.payload())
-      })
-        .then(function (r) { return r.json() })
-        .then((json) => {
-          if (json && json.success) {
-            this.plan = json.data
-            if (seedBefore === true && !this.before) { this.before = json.data }
-          }
-        })
-        .catch(() => {
-          this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
-        })
+    /**
+     * Apply a successful recompute — consumed by the reportRecompute mixin. On the
+     * first load (`_seedBefore`), also seed the "Before" baseline from the result.
+     */
+    applyResult (data) {
+      this.plan = data
+      if (this._seedBefore && !this.before) { this.before = data }
+      this._seedBefore = false
+    },
+    /** Failure feedback — the mixin calls this on a failed recompute. */
+    onRecomputeError () {
+      this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
     },
     reset () {
       this.f = { sales: 3357413, d0: 85, d1: 7, d2: 5, d3: 0, d4: 0, dwo: 3, c0: 90, c1: 10, c2: 0, c3: 0, c4: 0, markup: 47, np: 13, gst: 15 }

@@ -24,7 +24,7 @@
             type="number"
             min="0"
             step="500"
-            @input="scheduleRecompute"
+            @input="queueRecompute"
           )
           .lev-ehint {{ $t('report.eightLevers.marketHint') }}
 
@@ -42,7 +42,7 @@
             v-model.number="f[fld.k]"
             :min="fld.min" :max="fld.max" :step="fld.step"
             :style="{ '--fill': fillPct(fld) }"
-            @input="scheduleRecompute"
+            @input="queueRecompute"
           )
 
       .lev-group
@@ -59,7 +59,7 @@
             v-model.number="f[fld.k]"
             :min="fld.min" :max="fld.max" :step="fld.step"
             :style="{ '--fill': fillPct(fld) }"
-            @input="scheduleRecompute"
+            @input="queueRecompute"
           )
 
       .lev-group.lev-labourblock
@@ -76,7 +76,7 @@
             v-model.number="f[fld.k]"
             :min="fld.min" :max="fld.max" :step="fld.step"
             :style="{ '--fill': fillPct(fld) }"
-            @input="scheduleRecompute"
+            @input="queueRecompute"
           )
 
       .lev-actions
@@ -184,6 +184,7 @@
  * fractions in payload().
  */
 import currencyMixin from '~/mixins/currencyMixin'
+import reportRecompute from '~/mixins/reportRecompute'
 
 const DEFAULTS = {
   // The lever chain (Broad Scenarios, current column)
@@ -210,15 +211,13 @@ const DEFAULTS = {
 export default {
   name: 'EightLeversReport',
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportRecompute],
 
   data () {
     return {
       f: Object.assign({}, DEFAULTS),
       data: null,
-      /** Set when the calculation fails, so the screen shows WHY instead of hanging. */
-      error: null,
-      recomputeTimer: null,
+      // `error` (stale flag) is provided by the reportRecompute mixin.
 
       // The lever chain. Market size is NOT here — it is a typed field (owner's call,
       // 2026-07-13): it is a researched fact about the client's market, not something to
@@ -319,7 +318,6 @@ export default {
   },
 
   mounted () { this.recompute() },
-  beforeDestroy () { if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) } },
 
   methods: {
     // money() + signedMoney() come from currencyMixin (firm currency + locale).
@@ -373,40 +371,20 @@ export default {
       }
     },
 
-    scheduleRecompute () {
-      if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
-      this.recomputeTimer = setTimeout(this.recompute, 140)
+    /** Backend request — consumed by the reportRecompute mixin (debounce + race guard). */
+    recomputeRequest () {
+      return { url: '/api/report/eight-levers', body: this.payload() }
     },
-
+    /** Apply a successful recompute — consumed by the reportRecompute mixin. */
+    applyResult (data) {
+      this.data = data
+    },
     /**
-     * Fetch the figures from the backend.
-     *
-     * A failure must be VISIBLE and RETRYABLE — never a panel stuck on "Calculating…" with a
-     * toast that vanishes. Per the Constitution's honesty defaults: fail loudly, and never let
-     * a broken calculation look like a working one.
+     * Failure feedback — the mixin calls this on a failed recompute; it also sets the
+     * `error` flag so the stale banner shows. Failure must be VISIBLE and RETRYABLE.
      */
-    recompute () {
-      this.error = null
-      fetch('/api/report/eight-levers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.payload())
-      })
-        .then((r) => {
-          if (!r.ok) { throw new Error('HTTP ' + r.status) }
-          return r.json()
-        })
-        .then((json) => {
-          if (!json || !json.success) {
-            throw new Error((json && json.error && json.error.message) || 'Unknown error')
-          }
-          this.data = json.data
-          this.error = null
-        })
-        .catch((e) => {
-          this.error = this.$t('report.calcUnreachable') + ' (' + (e && e.message) + ')'
-          this.$buefy.toast.open({ message: this.$t('report.calcUnreachable'), type: 'is-danger' })
-        })
+    onRecomputeError () {
+      this.$buefy.toast.open({ message: this.$t('report.calcUnreachable'), type: 'is-danger' })
     },
 
     reset () {

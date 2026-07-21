@@ -24,7 +24,7 @@
             v-model.number="inputs[f.key]"
             :min="f.min" :max="f.max" :step="f.step"
             :style="{ '--fill': fillPct(f) }"
-            @input="scheduleRecompute"
+            @input="queueRecompute"
           )
 
     //- RESULTS
@@ -132,6 +132,7 @@
  * templated (not AI) for the first build, per owner decision.
  */
 import currencyMixin from '~/mixins/currencyMixin'
+import reportRecompute from '~/mixins/reportRecompute'
 
 const DEFAULTS = {
   initialInvestment: 200,
@@ -151,13 +152,12 @@ const DEFAULTS = {
 export default {
   name: 'BusinessPerformanceReport',
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportRecompute],
 
   data () {
     return {
       inputs: Object.assign({}, DEFAULTS),
       out: null,
-      recomputeTimer: null,
       groups: [
         {
  title: 'Investment & set-up',
@@ -225,10 +225,6 @@ fields: [
     this.recompute()
   },
 
-  beforeDestroy () {
-    if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
-  },
-
   methods: {
     // money() comes from currencyMixin (firm currency + locale).
     round0 (n) { return Math.round(n || 0) },
@@ -243,10 +239,6 @@ fields: [
       const v = this.inputs[f.key]
       return ((v - f.min) / (f.max - f.min) * 100) + '%'
     },
-    scheduleRecompute () {
-      if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
-      this.recomputeTimer = setTimeout(this.recompute, 130)
-    },
     reset () {
       this.inputs = Object.assign({}, DEFAULTS)
       this.recompute()
@@ -258,24 +250,21 @@ fields: [
       this.recompute()
       this.$buefy.toast.open({ message: 'Starting point set to ' + this.money(this.inputs.priorScenarioAnnualRevenue) + '.', type: 'is-success' })
     },
-    recompute () {
-      // Calc runs backend-only; the screen never computes the model itself.
-      fetch('/api/report/working-capital-cycle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.inputs)
-      })
-        .then(r => r.json())
-        .then((json) => {
-          if (json && json.success) {
-            this.out = json.data
-          } else if (!this.out) {
-            this.out = {}
-          }
-        })
-        .catch(() => {
-          this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
-        })
+    /** Backend request — consumed by the reportRecompute mixin (debounce + race guard). */
+    recomputeRequest () {
+      return { url: '/api/report/working-capital-cycle', body: this.inputs }
+    },
+    /** Apply a successful recompute — consumed by the reportRecompute mixin. */
+    applyResult (data) {
+      this.out = data
+    },
+    /**
+     * Failure feedback — the mixin calls this on a failed recompute. Keep `out` a
+     * non-null object so the template never renders against null on a first-load failure.
+     */
+    onRecomputeError () {
+      if (!this.out) { this.out = {} }
+      this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
     },
     downloadPdf () {
       // Browser print-to-PDF — nothing leaves the app; the print stylesheet drops the

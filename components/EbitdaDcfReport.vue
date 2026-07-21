@@ -186,8 +186,8 @@
 </template>
 
 <script>
-import debounce from 'lodash/debounce'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportRecompute from '~/mixins/reportRecompute'
 
 /**
  * EbitdaDcfReport — step 3 of the EBITDA & DCF valuation (owner-approved mockup,
@@ -208,7 +208,7 @@ const FAIRMARKET_ROWS = { fmSalaries: 'salaries', fmInsuranceRetirement: 'insura
 export default {
   name: 'EbitdaDcfReport',
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportRecompute],
 
   props: {
     /**
@@ -237,8 +237,8 @@ export default {
       },
       listedOpen: false,
       expanded: false,
-      result: null,
-      error: false
+      result: null
+      // `error` (stale flag) is provided by the reportRecompute mixin.
     }
   },
 
@@ -312,24 +312,12 @@ export default {
   },
 
   watch: {
-    dcf: { deep: true, handler () { this._debouncedRecompute() } },
-    listed: { deep: true, handler () { this._debouncedRecompute() } }
-  },
-
-  created () {
-    // Debounced so rapid edits don't flood the backend (calc is backend-only)
-    this._debouncedRecompute = debounce(this.recompute, 250)
-    // Monotonic request stamp (R10): debounce spaces call STARTS only — a slow older
-    // response must never overwrite a newer one. Non-reactive by design.
-    this._reqSeq = 0
+    dcf: { deep: true, handler () { this.queueRecompute() } },
+    listed: { deep: true, handler () { this.queueRecompute() } }
   },
 
   mounted () {
     this.recompute()
-  },
-
-  beforeDestroy () {
-    this._debouncedRecompute.cancel()
   },
 
   methods: {
@@ -374,8 +362,12 @@ export default {
       })
       return out
     },
-    /** Calc runs backend-only; the screen never computes the model itself. */
-    recompute () {
+    /**
+     * The backend request for this report — consumed by the reportRecompute mixin
+     * (debounce, race guard, stale flag). Calc is backend-only.
+     * @returns {{ url: string, body: object }}
+     */
+    recomputeRequest () {
       const body = {
         latestYear: this.latestYear,
         dcf: {
@@ -399,23 +391,11 @@ export default {
         body.addBacks = this.groupBody(ADDBACK_ROWS)
         body.fairMarket = this.groupBody(FAIRMARKET_ROWS)
       }
-      const seq = ++this._reqSeq
-      fetch('/api/report/ebitda-dcf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      })
-        .then(res => res.json())
-        .then((json) => {
-          if (seq !== this._reqSeq) { return } // superseded — discard (R10)
-          if (json.success) {
-            this.result = json.data
-            this.error = false
-          } else {
-            this.error = true
-          }
-        })
-        .catch(() => { if (seq === this._reqSeq) { this.error = true } })
+      return { url: '/api/report/ebitda-dcf', body }
+    },
+    /** Apply a successful recompute — consumed by the reportRecompute mixin. */
+    applyResult (data) {
+      this.result = data
     },
     resetAll () {
       const fresh = this.$options.data.call(this)

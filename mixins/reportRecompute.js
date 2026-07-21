@@ -66,10 +66,20 @@ export default {
             this.applyResult(json.data)
             this.error = false
           } else {
-            this.error = true
+            this._flagRecomputeError()
           }
         })
-        .catch(() => { if (seq === this._reqSeq) { this.error = true } })
+        .catch(() => { if (seq === this._reqSeq) { this._flagRecomputeError() } })
+    },
+
+    /**
+     * Flag a failed recompute: set the stale `error` flag (reports with a stale banner
+     * grey their figures) and, if the report defines `onRecomputeError()`, call it —
+     * reports that surface failures with a toast instead of a banner use that hook.
+     */
+    _flagRecomputeError () {
+      this.error = true
+      if (typeof this.onRecomputeError === 'function') { this.onRecomputeError() }
     }
   }
 }

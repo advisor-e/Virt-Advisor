@@ -5,6 +5,7 @@ const recompute = reportRecompute.methods.recompute
 
 function makeCtx (over = {}) {
   return {
+    ...reportRecompute.methods, // recompute + queueRecompute + _flagRecomputeError
     _reqSeq: 0,
     error: false,
     result: null,
@@ -47,6 +48,15 @@ describe('reportRecompute.recompute', () => {
     const ctx = makeCtx({ recomputeRequest: () => null })
     await recompute.call(ctx)
     expect(global.fetch).not.toHaveBeenCalled()
+  })
+
+  test('calls onRecomputeError() (if defined) on failure — for toast-style reports', async () => {
+    global.fetch = jest.fn(() => jsonResponse({ success: false }))
+    const onRecomputeError = jest.fn()
+    const ctx = makeCtx({ onRecomputeError })
+    await recompute.call(ctx)
+    expect(ctx.error).toBe(true)
+    expect(onRecomputeError).toHaveBeenCalledTimes(1)
   })
 
   test('RACE: a slow OLDER response never overwrites a newer one', async () => {

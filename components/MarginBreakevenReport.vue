@@ -24,7 +24,7 @@
             :min="fld.min" :max="fld.max" :step="fld.step"
             :class="{ wif: fld.k === 'wif' }"
             :style="{ '--fill': fillPct(fld) }"
-            @input="scheduleRecompute"
+            @input="queueRecompute"
           )
 
     section.mbk-results(v-if="data")
@@ -97,19 +97,19 @@
  * Coach text is templated (not AI) for this build; English placeholders pending report.* i18n.
  */
 import currencyMixin from '~/mixins/currencyMixin'
+import reportRecompute from '~/mixins/reportRecompute'
 
 const DEFAULTS = { price: 250, cost: 82.5, oh: 11500, draw: 8600, wif: 0 }
 
 export default {
   name: 'MarginBreakevenReport',
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportRecompute],
 
   data () {
     return {
       f: Object.assign({}, DEFAULTS),
       data: null,
-      recomputeTimer: null,
       groups: [
         {
  title: 'The product',
@@ -173,7 +173,6 @@ path,
   },
 
   mounted () { this.recompute() },
-  beforeDestroy () { if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) } },
 
   methods: {
     // money() / money2() now come from currencyMixin (firm currency + locale).
@@ -191,19 +190,17 @@ path,
     payload () {
       return { price: this.f.price, cost: this.f.cost, overheads: this.f.oh, ownerDrawings: this.f.draw, priceChangePct: this.f.wif }
     },
-    scheduleRecompute () {
-      if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
-      this.recomputeTimer = setTimeout(this.recompute, 140)
+    /** Backend request — consumed by the reportRecompute mixin (debounce + race guard). */
+    recomputeRequest () {
+      return { url: '/api/report/margin-breakeven', body: this.payload() }
     },
-    recompute () {
-      fetch('/api/report/margin-breakeven', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.payload())
-      })
-        .then(function (r) { return r.json() })
-        .then((json) => { if (json && json.success) { this.data = json.data } })
-        .catch(() => { this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' }) })
+    /** Apply a successful recompute — consumed by the reportRecompute mixin. */
+    applyResult (data) {
+      this.data = data
+    },
+    /** Failure feedback — the mixin calls this on a failed recompute. */
+    onRecomputeError () {
+      this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
     },
     reset () {
       this.f = Object.assign({}, DEFAULTS)
