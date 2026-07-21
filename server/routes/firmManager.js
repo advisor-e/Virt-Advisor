@@ -1469,6 +1469,57 @@ async function saveStaircase (req, res) {
 const { CONFIG_KEY: QUIZ_KEY, validateQuizOverride, mergeQuizBanks } = require('../utils/firmQuizzes')
 const { listTemplatePages } = require('../utils/resolveTemplateName')
 const BASE_QUIZZES = require('../../data/course-quizzes.json')
+const QUIZZABLE = require('../../data/quizzable-sections.json')
+
+/**
+ * Keep only pages in sub-sections that can hold quiz material.
+ *
+ * Mike's ruling 2026-07-22: the editor lists genuine advisory-content areas
+ * only. Two of the excluded Do-the-Job pages carry no sub-section at all, so
+ * before this rule they appeared under a heading the app invented — showing a
+ * group that exists nowhere in the firm's library.
+ *
+ * A section absent from `restrictions` is unrestricted, so a section added
+ * upstream stays visible rather than silently disappearing.
+ *
+ * @param {Array<Object>} pages - rows from listTemplatePages()
+ * @returns {Array<Object>} the subset that may hold a quiz
+ */
+function quizzablePages (pages) {
+  const limits = (QUIZZABLE && QUIZZABLE.restrictions) || {}
+  const sectionOrder = (QUIZZABLE && QUIZZABLE.sectionOrder) || []
+  const subOrder = (QUIZZABLE && QUIZZABLE.subSectionOrder) || {}
+
+  const kept = pages.filter((p) => {
+    const allowed = limits[p.section]
+    return Array.isArray(allowed) ? allowed.includes(p.subSection) : true
+  })
+
+  // Anything unnamed ranks last rather than first, so a sub-section added
+  // upstream appears at the end of its section instead of jumping to the top.
+  const LAST = Number.MAX_SAFE_INTEGER
+  const rankOf = (list, value) => {
+    if (!Array.isArray(list)) { return LAST }
+    const i = list.indexOf(value)
+    return i === -1 ? LAST : i
+  }
+  // Where a section is restricted, the allow-list doubles as its running order,
+  // so the two can never disagree.
+  const subList = section => (Array.isArray(limits[section]) ? limits[section] : subOrder[section])
+
+  return kept
+    .map((page, i) => ({ page, i }))
+    .sort((a, b) => {
+      const sa = rankOf(sectionOrder, a.page.section)
+      const sb = rankOf(sectionOrder, b.page.section)
+      if (sa !== sb) { return sa - sb }
+      const ta = rankOf(subList(a.page.section), a.page.subSection)
+      const tb = rankOf(subList(b.page.section), b.page.subSection)
+      if (ta !== tb) { return ta - tb }
+      return a.i - b.i // keep the export's own order within a sub-section
+    })
+    .map(entry => entry.page)
+}
 
 function _devReadQuizzes (firmId) {
   try {
@@ -1507,11 +1558,12 @@ async function _saveQuizOverride (firmId, cfg, savedBy) {
 /**
  * GET /api/firm-manager/quizzes — the firm's quiz material.
  *
- * `pages` is the whole page library, not just the pages that have a quiz. The
- * editor lists every sub-section including the empty ones, so a firm can SEE
- * where it has no quiz material — hiding them would hide the gap. It comes from
- * the resolver's own list, so the pages offered are exactly the pages a save
- * will accept.
+ * `pages` is every page that can hold quiz material — not just the pages that
+ * already have one. The editor lists every such sub-section including the empty
+ * ones, so a firm can SEE where it has no quiz material; hiding those would
+ * hide the gap. It comes from the resolver's own list, so the pages offered are
+ * exactly the pages a save will accept, filtered to the advisory-content areas
+ * (see data/quizzable-sections.json).
  *
  * @returns {{base: Object, firmOverride: Object|null, merged: Object,
  *            hasOverride: boolean, pages: Array<Object>}}
@@ -1528,7 +1580,7 @@ async function getQuizzes (req, res) {
       firmOverride,
       merged: mergeQuizBanks(base, firmOverride),
       hasOverride: firmOverride !== null,
-      pages: listTemplatePages()
+      pages: quizzablePages(listTemplatePages())
     })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -1556,6 +1608,7 @@ async function saveQuizzes (req, res) {
 }
 
 module.exports = {
+  quizzablePages,
   listDocuments,
   uploadDocument,
   downloadDocument,

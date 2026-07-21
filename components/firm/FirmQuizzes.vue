@@ -25,8 +25,17 @@ section.firm-quizzes
     //- ── Rail: sections → sub-sections → pages ──────────────────────────
     .column.is-4
       nav.rail(:aria-label="$t('firmQuizzes.railLabel')")
-        div(v-for="section in tree" :key="section.name")
-          p.rail-section {{ section.name }}
+        //- Tone is positional, not keyed to section names, so a section added
+        //- upstream is distinguished automatically instead of rendering plain.
+        //- The accent bar carries the grouping on its own — colour reinforces
+        //- it rather than being the only signal, which colour-blind readers lose.
+        .rail-group(
+          v-for="section in tree"
+          :key="section.name"
+          :style="{ borderLeftColor: sectionTone(section.tone).band }"
+        )
+          p.rail-section(:style="{ backgroundColor: sectionTone(section.tone).band, color: bandText }")
+            | {{ section.name }}
           div(v-for="sub in section.subs" :key="sub.key")
             button.rail-sub(
               type="button"
@@ -121,6 +130,8 @@ section.firm-quizzes
  * because seeing the gap is the point — a firm cannot fill material it cannot
  * see is missing.
  */
+const { blockTone, BLOCK_TONES, BAND_TEXT } = require('~/utils/brandTokens')
+
 export default {
   name: 'FirmQuizzes',
 
@@ -141,6 +152,8 @@ export default {
       history: [],
       query: '',
       showEmpty: true,
+      /** Heading bands all carry white text — see utils/brandTokens.js. */
+      bandText: BAND_TEXT,
       /** Which sub-sections are expanded, keyed by `section::subSection`. */
       openSubs: {},
       /** The page whose questions are on screen, or null. */
@@ -165,7 +178,12 @@ export default {
         const key = `${sectionName}::${subName}`
 
         if (!sectionIndex[sectionName]) {
-          sectionIndex[sectionName] = { name: sectionName, subs: [], subIndex: {} }
+          sectionIndex[sectionName] = {
+            name: sectionName,
+            tone: sections.length % BLOCK_TONES.length,
+            subs: [],
+            subIndex: {}
+          }
           sections.push(sectionIndex[sectionName])
         }
         const section = sectionIndex[sectionName]
@@ -256,6 +274,17 @@ export default {
       return this.showEmpty && sub.quizPageCount === 0
     },
 
+    /**
+     * Brand tone for a section's position — the accent used as the solid
+     * heading band, plus the one text colour that stays legible on it.
+     *
+     * @param {number} tone zero-based section position
+     * @returns {{accent: string, fg: string, tint: string}}
+     */
+    sectionTone (tone) {
+      return blockTone(tone)
+    },
+
     isOpen (key) {
       return !!this.openSubs[key]
     },
@@ -311,13 +340,34 @@ export default {
   border-radius: 6px;
   padding: 0.5rem;
 }
-.rail-section {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #7a7a7a;
-  margin: 0.75rem 0 0.25rem;
+/* Section accent. Deliberately muted and away from Buefy's status hues, so an
+   is-warning or is-info tag inside the rail still reads as a status and not as
+   another section. The bar is the primary grouping cue; colour reinforces it. */
+.rail-group {
+  border-left: 3px solid #dbdbdb;
+  margin-bottom: 1rem;
 }
+.rail-group .rail-pages,
+.rail-group .rail-sub { padding-left: 0.6rem; }
+
+/* The section heading is a solid band, not tinted text — at 26 sub-sections
+   the eye needs a hard break, and a colour that has to be hunted for is not
+   doing its job. */
+.rail-section {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #fff;
+  background: #7a7a7a;
+  margin: 0 0 0.35rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 3px;
+}
+
+/* Band colours are applied inline from utils/brandTokens.js — the same pattern
+   the Advisory Staircase uses for its per-step colours. Kept out of this
+   stylesheet so the brand palette lives in exactly one place. */
 .rail-sub {
   display: flex;
   align-items: center;
