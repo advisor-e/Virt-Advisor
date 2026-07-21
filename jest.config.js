@@ -18,6 +18,15 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1'
   },
 
+  // Compile Pug the same way the app does. `pug-plain-loader` (the app's build path)
+  // hardcodes `doctype: 'html'`; @vue/vue2-jest does not, so a valueless Pug attribute
+  // — `@dragover.prevent`, `@submit.prevent`, `hidden` — expands to
+  // `@dragover.prevent="@dragover.prevent"` and template compilation fails outright.
+  // Without this, no component containing one can be tested at all.
+  globals: {
+    'vue-jest': { pug: { doctype: 'html' } }
+  },
+
   // Governance framework §11.2 — coverage requirements
   collectCoverageFrom: [
     'server/courseEngine.js',
