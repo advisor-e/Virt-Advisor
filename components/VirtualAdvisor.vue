@@ -1570,9 +1570,28 @@ export default {
       this.lastQuery = null
     },
 
+    /**
+     * Re-send the question whose reply failed.
+     *
+     * Removes BOTH the error reply and the user turn that provoked it, because
+     * `sendMessage()` pushes the user turn again. Popping only the error left the
+     * question in the thread twice — visible on screen, and worse, sent to the model as
+     * conversation history, so the AI saw the advisor asking the same thing twice in a
+     * row (three times after a second retry) and read the repetition as meaningful.
+     *
+     * Each removal is guarded by what the message actually IS rather than by counting,
+     * so an unexpected thread shape costs a retry rather than eating a real answer.
+     */
     retryLastMessage () {
       if (!this.lastQuery || this.isStreaming) { return }
-      this.messages.pop() // remove the error message
+      const last = this.messages[this.messages.length - 1]
+      if (last && last.role === 'assistant' && last.content === this.$t('error')) {
+        this.messages.pop()
+      }
+      const prev = this.messages[this.messages.length - 1]
+      if (prev && prev.role === 'user' && prev.content === this.lastQuery) {
+        this.messages.pop()
+      }
       this.showRetry = false
       this.inputText = this.lastQuery
       this.sendMessage()
