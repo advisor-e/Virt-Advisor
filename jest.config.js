@@ -4,6 +4,20 @@ module.exports = {
   testEnvironment: 'node',
   testMatch: ['**/tests/**/*.test.js'],
 
+  // Component tests opt into jsdom per-file with a `@jest-environment jsdom` docblock,
+  // so the backend suite stays on the faster 'node' environment.
+  moduleFileExtensions: ['js', 'json', 'vue'],
+  transform: {
+    '^.+\\.js$': 'babel-jest',
+    '^.+\\.vue$': '@vue/vue2-jest'
+  },
+  // Components import via the Nuxt aliases; without these every test dies on its
+  // first import.
+  moduleNameMapper: {
+    '^~/(.*)$': '<rootDir>/$1',
+    '^@/(.*)$': '<rootDir>/$1'
+  },
+
   // Governance framework §11.2 — coverage requirements
   collectCoverageFrom: [
     'server/courseEngine.js',

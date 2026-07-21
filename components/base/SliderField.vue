@@ -12,7 +12,7 @@
     :value="value"
     :aria-label="label"
     :style="{ '--sl-fill': fill }"
-    @input="$emit('input', Number($event.target.value))"
+    @input="onInput"
   )
 </template>
 
@@ -69,6 +69,20 @@ export default {
       if (this.max === this.min) { return '0%' }
       const pct = (this.value - this.min) / (this.max - this.min) * 100
       return Math.min(100, Math.max(0, pct)) + '%'
+    }
+  },
+
+  methods: {
+    /**
+     * The slider was dragged.
+     * @param {InputEvent} event - the native range input's event
+     * @fires input - payload: {number} the new value, already coerced from the
+     *   input's string. Named `input` so the parent can use `v-model`, though the
+     *   report screens bind it explicitly to write the value and queue a recompute
+     *   in one place.
+     */
+    onInput (event) {
+      this.$emit('input', Number(event.target.value))
     }
   }
 }
