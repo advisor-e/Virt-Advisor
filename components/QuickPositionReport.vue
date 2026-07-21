@@ -88,10 +88,13 @@
 
     section.results(v-if="result")
       //- A failure AFTER the first load must never sit silently behind stale figures (R9)
-      .stale(v-if="error")
-        .stalehead {{ $t('report.staleTitle') }}
-        p.stalebody {{ $t('report.calcUnreachable') }}
-        b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
+      stale-banner(
+        v-if="error"
+        :title="$t('report.staleTitle')"
+        :message="$t('report.calcUnreachable')"
+        :retry-label="$t('report.retry')"
+        @retry="recompute"
+      )
       hero-strip(:stale="!!error")
         hero-figure(
           :label="$t('report.quickPosition.hero.quickCash')"
@@ -198,6 +201,7 @@
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge'
+import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -214,7 +218,7 @@ import reportRecompute from '~/mixins/reportRecompute'
 export default {
   name: 'QuickPositionReport',
 
-  components: { HeroStrip, HeroFigure, ProvenanceBadge },
+  components: { HeroStrip, HeroFigure, ProvenanceBadge, StaleBanner },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -442,9 +446,7 @@ export default {
 .results { display: flex; flex-direction: column; gap: 18px; }
 /* Stale-figures banner (R9): a failed recompute must be visibly untrustworthy —
    stale figures presented as live are worse than no figures at all. */
-.stale { background: #ff000010; border: 1px solid #ff0000; border-radius: 14px; padding: 12px 14px; }
-.stalehead { font-size: 13px; font-weight: 600; color: #ff0000; margin-bottom: 3px; }
-.stalebody { font-size: 12.5px; color: #5b6f8a; margin: 0 0 9px; line-height: 1.5; }
+/* The stale banner is components/base/StaleBanner.vue (Phase 3). */
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure
    (which also owns the greyed-out stale state). The print rule below still
    reaches it — `.herostrip` is HeroStrip's root element. */

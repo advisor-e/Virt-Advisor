@@ -85,13 +85,13 @@
     main.lev-main(v-if="data")
       //- A failure AFTER the first load must never sit silently behind stale figures — the
       //- numbers on screen would look live while describing the previous inputs.
-      .lev-stale(v-if="error")
-        .lev-stalehead {{ $t('report.staleTitle') }}
-        //- `error` is the mixin's boolean stale FLAG, not a message — rendering it
-        //- directly printed the word "true" at the advisor (regression from the Phase 1b
-        //- mixin conversion, a438276). Same wording as the other two banner reports.
-        p.lev-stalebody {{ $t('report.calcUnreachable') }}
-        b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
+      stale-banner(
+        v-if="error"
+        :title="$t('report.staleTitle')"
+        :message="$t('report.calcUnreachable')"
+        :retry-label="$t('report.retry')"
+        @retry="recompute"
+      )
 
       .lev-headline(:class="{ 'is-stale': error }")
         .lev-stat
@@ -189,6 +189,7 @@
  */
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+import StaleBanner from '~/components/base/StaleBanner.vue'
 
 const DEFAULTS = {
   // The lever chain (Broad Scenarios, current column)
@@ -214,6 +215,8 @@ const DEFAULTS = {
 
 export default {
   name: 'EightLeversReport',
+
+  components: { StaleBanner },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -520,12 +523,10 @@ export default {
 
 /* Stale-figures banner: the calc failed but earlier numbers are still on screen. They must be
    visibly untrustworthy — stale figures presented as live are worse than no figures at all. */
-.lev-stale {
-  background:#ff000010; border:1px solid var(--lev-crit); border-radius:var(--lev-r);
-  padding:12px 14px; margin-bottom:14px;
-}
-.lev-stalehead { font-size:13px; font-weight:600; color:var(--lev-crit); margin-bottom:3px; }
-.lev-stalebody { font-size:12.5px; color:var(--lev-muted); margin:0 0 9px; line-height:1.5; }
+/* The banner itself is components/base/StaleBanner.vue (Phase 3); this screen keeps
+   its own palette by mapping the shared properties onto its variables — including the
+   dark-mode overrides below, which apply automatically. */
+.lev-root { --sb-crit:var(--lev-crit); --sb-muted:var(--lev-muted); --sb-radius:var(--lev-r); --sb-gap:14px; }
 .is-stale { opacity:.45; filter:grayscale(0.6); }
 
 @media (prefers-color-scheme: dark) {

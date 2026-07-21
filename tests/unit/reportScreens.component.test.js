@@ -286,7 +286,9 @@ describe('EightLeversReport — the failure text is a message, not the raw flag'
     await wrapper.vm.recompute()
     await wrapper.vm.$nextTick()
 
-    const body = wrapper.find('.lev-stalebody')
+    // `.stalebody` (not `.lev-stalebody`) since Phase 3 — the banner is now the shared
+    // base/StaleBanner.vue; Eight Levers keeps its palette via CSS custom properties.
+    const body = wrapper.find('.stalebody')
     expect(body.exists()).toBe(true)
     expect(body.text()).toBe('report.calcUnreachable')
     expect(body.text()).not.toBe('true')
