@@ -1,5 +1,6 @@
 {
   "name": "virt-advisor",
+  "version": "0.6.0",
   "private": true,
   "engines": {
     "node": "14.15.x"
