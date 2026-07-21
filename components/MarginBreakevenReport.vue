@@ -28,7 +28,16 @@
         )
 
     section.mbk-results(v-if="data")
-      hero-strip
+      //- A failure AFTER the first load must never sit silently behind stale figures:
+      //- the numbers describe the PREVIOUS inputs while looking live (R9).
+      stale-banner(
+        v-if="error"
+        :title="$t('report.staleTitle')"
+        :message="$t('report.calcUnreachable')"
+        :retry-label="$t('report.retry')"
+        @retry="recompute"
+      )
+      hero-strip(:stale="!!error")
         hero-figure(label="Margin" :value="pct(data.marginPct)" sub="of the sale price")
         hero-figure(
           label="Mark-up"
@@ -98,6 +107,7 @@
  * Coach text is templated (not AI) for this build; English placeholders pending report.* i18n.
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
+import StaleBanner from '~/components/base/StaleBanner.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
@@ -109,7 +119,7 @@ const DEFAULTS = { price: 250, cost: 82.5, oh: 11500, draw: 8600, wif: 0 }
 export default {
   name: 'MarginBreakevenReport',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, SliderField },
+  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -214,10 +224,6 @@ path,
     applyResult (data) {
       this.data = data
     },
-    /** Failure feedback — the mixin calls this on a failed recompute. */
-    onRecomputeError () {
-      this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
-    },
     reset () {
       this.f = Object.assign({}, DEFAULTS)
       this.recompute()
@@ -301,6 +307,5 @@ path,
 /* pop2 */
 .mbk-v{color:#0070c0}
 .mbk-tile{border-top:3px solid #00b1e0}
-.mbk-eyebrow{color:#00b1e0}
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure. */
 </style>

@@ -29,7 +29,16 @@
 
     //- RESULTS
     section.bpr-results(v-if="out")
-      hero-strip
+      //- A failure AFTER the first load must never sit silently behind stale figures:
+      //- the numbers describe the PREVIOUS inputs while looking live (R9).
+      stale-banner(
+        v-if="error"
+        :title="$t('report.staleTitle')"
+        :message="$t('report.calcUnreachable')"
+        :retry-label="$t('report.retry')"
+        @retry="recompute"
+      )
+      hero-strip(:stale="!!error")
         hero-figure(
           label="Working-capital cycle"
           :value="round0(out.cycleDays)"
@@ -134,6 +143,7 @@
  * templated (not AI) for the first build, per owner decision.
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
+import StaleBanner from '~/components/base/StaleBanner.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
@@ -158,7 +168,7 @@ const DEFAULTS = {
 export default {
   name: 'BusinessPerformanceReport',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, SliderField },
+  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -271,14 +281,6 @@ fields: [
     applyResult (data) {
       this.out = data
     },
-    /**
-     * Failure feedback — the mixin calls this on a failed recompute. Keep `out` a
-     * non-null object so the template never renders against null on a first-load failure.
-     */
-    onRecomputeError () {
-      if (!this.out) { this.out = {} }
-      this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
-    },
     downloadPdf () {
       // Browser print-to-PDF — nothing leaves the app; the print stylesheet drops the
       // controls and lays out a clean, branded report.
@@ -379,13 +381,11 @@ fields: [
 /* pop */
 .bpr-v{color:var(--bpr-accent)}
 .bpr-h2{color:var(--bpr-ink)}
-.bpr-hero{background:linear-gradient(180deg,var(--bpr-accent-soft),transparent)}
 /* pop2 */
 .bpr-v{color:#0070c0}
 .bpr-tile{border-top:3px solid #00b1e0}
-.bpr-hero{background:linear-gradient(135deg,#002b64,#0070c0);border-color:#0070c0}
+.bpr-hero{background:#002b64;border-color:#0070c0}
 .bpr-hero .bpr-v,.bpr-hero .bpr-k,.bpr-hero .bpr-sub,.bpr-hero .bpr-unit{color:#ffffff}
-.bpr-eyebrow{color:#00b1e0}
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure.
    The status pill is passed in through HeroFigure's `sub` slot, so it is still
    styled here — `.herostrip` is HeroStrip's root, which the slot renders inside. */

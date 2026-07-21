@@ -32,7 +32,16 @@
         button.ddg-setbtn(@click="freeze") 📌 Freeze current as “Before”
 
     section.ddg-results
-      hero-strip(:columns="3")
+      //- A failure AFTER the first load must never sit silently behind stale figures:
+      //- the numbers describe the PREVIOUS inputs while looking live (R9).
+      stale-banner(
+        v-if="error"
+        :title="$t('report.staleTitle')"
+        :message="$t('report.calcUnreachable')"
+        :retry-label="$t('report.retry')"
+        @retry="recompute"
+      )
+      hero-strip(:columns="3" :stale="!!error")
         hero-figure(
           label="Deepest cash low — your plan"
           :value="plan ? money(plan.deepestLow.value) : '—'"
@@ -103,6 +112,7 @@
  * i18n: English placeholders for this first build; move to a report.* namespace later.
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
+import StaleBanner from '~/components/base/StaleBanner.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
@@ -116,7 +126,7 @@ const BASE = SHAPE.reduce(function (a, b) { return a + b }, 0)
 export default {
   name: 'DebtorDragReport',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, SliderField },
+  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -288,10 +298,6 @@ lowY: y(plan[lowIdx])
       if (this._seedBefore && !this.before) { this.before = data }
       this._seedBefore = false
     },
-    /** Failure feedback — the mixin calls this on a failed recompute. */
-    onRecomputeError () {
-      this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
-    },
     reset () {
       this.f = { sales: 3357413, d0: 85, d1: 7, d2: 5, d3: 0, d4: 0, dwo: 3, c0: 90, c1: 10, c2: 0, c3: 0, c4: 0, markup: 47, np: 13, gst: 15 }
       this.recompute()
@@ -395,6 +401,5 @@ lowY: y(plan[lowIdx])
 .ddg-v{color:#0070c0}
 .ddg-v.crit{color:#ff0000} .ddg-v.good{color:#4ca52d} .ddg-v.muted{color:#5b6f8a}
 .ddg-tile{border-top:3px solid #00b1e0}
-.ddg-eyebrow{color:#00b1e0}
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure. */
 </style>

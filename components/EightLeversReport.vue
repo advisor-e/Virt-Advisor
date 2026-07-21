@@ -93,19 +93,24 @@
         @retry="recompute"
       )
 
-      .lev-headline(:class="{ 'is-stale': error }")
-        .lev-stat
-          .lev-slabel {{ $t('report.eightLevers.revenue') }}
-          .lev-sval {{ money(current.revenue) }}
-        .lev-stat
-          .lev-slabel {{ $t('report.eightLevers.profit') }}
-          .lev-sval(:class="current.profit >= 0 ? 'ok' : 'bad'") {{ money(current.profit) }}
-        .lev-stat
-          .lev-slabel {{ $t('report.eightLevers.profitPct') }}
-          .lev-sval {{ pct(current.profitPct) }}
-        .lev-stat
-          .lev-slabel {{ $t('report.eightLevers.customers') }}
-          .lev-sval {{ round0(current.customers) }}
+      hero-strip(:columns="4" :stale="!!error")
+        hero-figure(
+          :label="$t('report.eightLevers.revenue')"
+          :value="money(current.revenue)"
+        )
+        hero-figure(
+          :label="$t('report.eightLevers.profit')"
+          :value="money(current.profit)"
+          :tone="current.profit >= 0 ? 'good' : 'crit'"
+        )
+        hero-figure(
+          :label="$t('report.eightLevers.profitPct')"
+          :value="pct(current.profitPct)"
+        )
+        hero-figure(
+          :label="$t('report.eightLevers.customers')"
+          :value="round0(current.customers)"
+        )
 
       section.lev-panel
         h2.lev-ph {{ $t('report.eightLevers.chainTitle') }}
@@ -191,6 +196,8 @@ import ReportHeader from '~/components/base/ReportHeader.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import StaleBanner from '~/components/base/StaleBanner.vue'
+import HeroStrip from '~/components/base/HeroStrip.vue'
+import HeroFigure from '~/components/base/HeroFigure.vue'
 
 const DEFAULTS = {
   // The lever chain (Broad Scenarios, current column)
@@ -217,7 +224,7 @@ const DEFAULTS = {
 export default {
   name: 'EightLeversReport',
 
-  components: { ReportHeader, StaleBanner },
+  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -463,7 +470,6 @@ export default {
 .lev-actions { margin-top:6px; }
 .lev-btn { width:100%; }
 
-.lev-headline { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:16px; }
 .lev-stat, .lev-lstat {
   background:var(--lev-panel); border:1px solid var(--lev-line); border-radius:var(--lev-r);
   box-shadow:var(--lev-shadow); padding:14px 16px;
