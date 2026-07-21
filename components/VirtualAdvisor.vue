@@ -458,7 +458,10 @@
           button.save-prompt-no(@click="savePromptDismissed = true") Not now
 
   //- Input (only shown once mode is selected)
-  .input-area(v-if="mode && mode !== 'course' && mode !== 'progression'")
+  //- Hidden for every mode that renders a full-screen panel instead of a conversation.
+  //- `firm` was missing from this list, so the message box and its send button rendered
+  //- underneath the Firm Dashboard — a chat input with nothing to talk to.
+  .input-area(v-if="mode && !PANEL_MODES.includes(mode)")
 
     //- Voice status bar
     .voice-bar(v-if="speechSupported")
@@ -841,6 +844,20 @@ import finMgtTable from '~/data/fin-mgt-table.json'
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 _md.disable(['image', 'html_inline', 'html_block'])
 
+/**
+ * Modes that replace the conversation with a full-screen panel.
+ *
+ * Each of these renders its own component in the `v-if` chain at the top of the template
+ * instead of a message thread, so the chat input must not appear beneath it. Kept as one
+ * named list rather than a chain of `mode !== '...'` tests, because that chain is how
+ * `firm` came to be missing: the mode was added to the template and nobody updated the
+ * separate condition further down.
+ *
+ * Adding a panel mode? Add it here too — `tests/unit/virtualAdvisorInput.component.test.js`
+ * checks every entry, and checks the conversational modes still HAVE an input.
+ */
+const PANEL_MODES = ['course', 'progression', 'firm']
+
 // Primary issues per domain — Workshop 1 output, authored by Mike Barnes 2026-06-02
 const PRIMARY_ISSUES = {
   profit: ['Cost of sales has increased', 'Excessive discounting eroding margin', 'Sales Revenue — low volume, revenue is the constraint', 'Fixed overhead costs grown beyond what revenue can support', 'Asset utilisation below viability threshold'],
@@ -885,6 +902,8 @@ export default {
 
   data () {
     return {
+      // Exposed so the template can test membership; not reactive state.
+      PANEL_MODES,
       mode: null,
       messages: [],
       inputText: '',
