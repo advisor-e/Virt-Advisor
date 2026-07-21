@@ -17,7 +17,9 @@ const { URL } = require('url')
 const BACKEND = process.env.API_BASE_URL || 'http://localhost:4000'
 
 module.exports = function reportProxy (req, res, next) {
-  if (req.method !== 'POST') {
+  // POST: calc + intake routes. GET: the firm currency read (firmAuth). Anything
+  // else has no backend route under /api/report, so let Nuxt handle it.
+  if (req.method !== 'POST' && req.method !== 'GET') {
     return next()
   }
 
@@ -35,8 +37,8 @@ module.exports = function reportProxy (req, res, next) {
   const opts = {
     hostname: target.hostname,
     port: target.port || (target.protocol === 'https:' ? 443 : 80),
-    path: target.pathname,
-    method: 'POST',
+    path: target.pathname + (target.search || ''), // R24: query string forwarded, not dropped
+    method: req.method,
     headers: req.headers
   }
 

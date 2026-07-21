@@ -19,15 +19,24 @@
  */
 
 /**
+ * Can this value be used as a figure? (The single source of truth pick() decides by —
+ * and the R8 defaulted-inputs echo audits by. Keep them in lockstep.)
+ * @param {*} v @returns {boolean}
+ */
+function usable (v) {
+  if (typeof v === 'number') { return Number.isFinite(v) }
+  if (v === null || v === undefined || v === '') { return false }
+  return Number.isFinite(parseFloat(v))
+}
+
+/**
  * Coerce to a finite number; accepts JSON-string numbers ("2"); junk or absent
  * falls back to the supplied default (the source sheet's sample figure).
  * @param {*} v @param {number} def @returns {number}
  */
 function pick (v, def) {
-  if (typeof v === 'number') { return Number.isFinite(v) ? v : def }
-  if (v === null || v === undefined || v === '') { return def }
-  const n = parseFloat(v)
-  return Number.isFinite(n) ? n : def
+  if (!usable(v)) { return def }
+  return typeof v === 'number' ? v : parseFloat(v)
 }
 
 /**
@@ -89,12 +98,20 @@ const DEFAULTS = {
  *     revenueIncreaseNeeded, increasePct, revenueNeeded,             // E40, F40, E41
  *     newGrossMarginPct, newGrossMargin, newMonthlySurplus           // F41, G41, H41
  *   } | null,                               // null when the increase itself is undefined
- *   stockExcluded                           // true when serviceBusiness removed the stock line
+ *   stockExcluded,                          // true when serviceBusiness removed the stock line
+ *   defaultedInputs                         // R8: input keys that computed on a sample default
  * }
  */
 function computeQuickPosition (inputs) {
   const i = (inputs && typeof inputs === 'object') ? inputs : {}
-  const g = function (key) { return pick(i[key], DEFAULTS[key]) }
+  // R8 ruling (Mike, 2026-07-19): defaults may substitute, but NEVER silently — every
+  // input that fell back to a sample figure is named in the response. Structural sheet
+  // constants the screens never send (factors, exampleRevenue) appear too: honest, if noisy.
+  const defaulted = new Set()
+  const g = function (key) {
+    if (!usable(i[key])) { defaulted.add(key) }
+    return pick(i[key], DEFAULTS[key])
+  }
   const serviceBusiness = i.serviceBusiness === true || i.serviceBusiness === 'true'
 
   const adjusted = {
@@ -162,7 +179,9 @@ function computeQuickPosition (inputs) {
     newGrossMarginPct,
     salesIncreaseToMaintainGM,
     discountExample,
-    stockExcluded: serviceBusiness
+    stockExcluded: serviceBusiness,
+    // R8: which inputs computed on a sample default rather than a supplied figure
+    defaultedInputs: Array.from(defaulted)
   }
 }
 

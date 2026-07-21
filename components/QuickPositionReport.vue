@@ -12,23 +12,37 @@
                 | {{ sources[f.key] === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
             output {{ money(inputs[f.key]) }} × {{ inputs[f.key + 'Factor'] }}%
           input(type="range" min="0" max="100" step="5" v-model.number="inputs[f.key + 'Factor']")
+      //- R11: creditors/wagesDue shape the result but had no on-screen presence — shown
+      //- read-only with their provenance (making them editable is a separate design call)
+      .group
+        h2 {{ $t('report.quickPosition.aside.liabilities') }}
+        .field(v-for="k in ['creditors', 'wagesDue']" :key="k")
+          .row
+            label
+              | {{ $t('report.quickPosition.confirm.' + k) }}
+              span.src(:class="sources[k] === 'file' ? 'src-file' : 'src-hand'")
+                | {{ sources[k] === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
+            output {{ money(inputs[k]) }}
       .group
         h2 {{ $t('report.quickPosition.aside.outgoings') }}
         .field
           .row
-            label {{ $t('report.quickPosition.aside.fixedCosts') }}
+            label
+              | {{ $t('report.quickPosition.aside.fixedCosts') }}
+              span.src(:class="sources.monthlyFixedCosts === 'file' ? 'src-file' : 'src-hand'")
+                | {{ sources.monthlyFixedCosts === 'file' ? $t('report.quickPosition.confirm.fromFile') : $t('report.quickPosition.confirm.entered') }}
             output {{ money(inputs.monthlyFixedCosts) }}
-          input(type="range" min="0" max="60000" step="500" v-model.number="inputs.monthlyFixedCosts")
+          input(type="range" min="0" :max="moneyMax('monthlyFixedCosts', 60000, 500)" step="500" v-model.number="inputs.monthlyFixedCosts" @input="fixedCostsEntered")
         .field
           .row
             label {{ $t('report.quickPosition.aside.drawings') }}
             output {{ money(inputs.monthlyDrawings) }}
-          input(type="range" min="0" max="30000" step="500" v-model.number="inputs.monthlyDrawings")
+          input(type="range" min="0" :max="moneyMax('monthlyDrawings', 30000, 500)" step="500" v-model.number="inputs.monthlyDrawings")
         .field
           .row
             label {{ $t('report.quickPosition.aside.loanRepayments') }}
             output {{ money(inputs.monthlyLoanRepayments) }}
-          input(type="range" min="0" max="30000" step="500" v-model.number="inputs.monthlyLoanRepayments")
+          input(type="range" min="0" :max="moneyMax('monthlyLoanRepayments', 30000, 500)" step="500" v-model.number="inputs.monthlyLoanRepayments")
       .group
         h2 {{ $t('report.quickPosition.aside.lifeline') }}
           span.note  {{ $t('report.quickPosition.aside.lifelineNote') }}
@@ -36,17 +50,17 @@
           .row
             label {{ $t('report.quickPosition.aside.savings') }}
             output {{ money(inputs.personalSavings) }}
-          input(type="range" min="0" max="150000" step="1000" v-model.number="inputs.personalSavings")
+          input(type="range" min="0" :max="moneyMax('personalSavings', 150000, 1000)" step="1000" v-model.number="inputs.personalSavings")
         .field
           .row
             label {{ $t('report.quickPosition.aside.investments') }}
             output {{ money(inputs.quickInvestments) }}
-          input(type="range" min="0" max="150000" step="1000" v-model.number="inputs.quickInvestments")
+          input(type="range" min="0" :max="moneyMax('quickInvestments', 150000, 1000)" step="1000" v-model.number="inputs.quickInvestments")
         .field
           .row
             label {{ $t('report.quickPosition.aside.raised') }}
             output {{ money(inputs.raisedCapital) }}
-          input(type="range" min="0" max="300000" step="5000" v-model.number="inputs.raisedCapital")
+          input(type="range" min="0" :max="moneyMax('raisedCapital', 300000, 5000)" step="5000" v-model.number="inputs.raisedCapital")
       .group
         h2 {{ $t('report.quickPosition.aside.margin') }}
         .field
@@ -61,7 +75,12 @@
           input(type="range" min="0" max="30" step="1" v-model.number="inputs.discountPct")
 
     section.results(v-if="result")
-      .herostrip
+      //- A failure AFTER the first load must never sit silently behind stale figures (R9)
+      .stale(v-if="error")
+        .stalehead {{ $t('report.staleTitle') }}
+        p.stalebody {{ $t('report.calcUnreachable') }}
+        b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
+      .herostrip(:class="{ 'is-stale': error }")
         .hs
           .hk {{ $t('report.quickPosition.hero.quickCash') }}
           .hv(:class="{ crit: result.quickCashAvailable < 0 }") {{ money(result.quickCashAvailable) }}
@@ -161,7 +180,8 @@
 </template>
 
 <script>
-import debounce from 'lodash/debounce'
+import currencyMixin from '~/mixins/currencyMixin'
+import reportRecompute from '~/mixins/reportRecompute'
 
 /**
  * QuickPositionReport — step 3 of the Quick Position report: the live survival
@@ -175,6 +195,8 @@ import debounce from 'lodash/debounce'
  */
 export default {
   name: 'QuickPositionReport',
+
+  mixins: [currencyMixin, reportRecompute],
 
   props: {
     /**
@@ -217,12 +239,14 @@ export default {
         stock: src('stock'),
         fixedAssets: src('fixedAssets'),
         creditors: src('creditors'),
-        wagesDue: src('wagesDue')
+        wagesDue: src('wagesDue'),
+        // R11: tracks the "use this figure" button — a file-derived average must keep its tag
+        monthlyFixedCosts: 'entered'
       },
       serviceBusiness: !!seed.serviceBusiness,
       expenseLines: seed.expenseLines || null,
-      result: null,
-      error: false
+      result: null
+      // `error` (stale flag) is provided by the reportRecompute mixin.
     }
   },
 
@@ -279,29 +303,16 @@ export default {
   watch: {
     inputs: {
       deep: true,
-      handler () { this._debouncedRecompute() }
+      handler () { this.queueRecompute() }
     }
-  },
-
-  created () {
-    // Debounced so slider drags don't flood the backend (calc is backend-only)
-    this._debouncedRecompute = debounce(this.recompute, 250)
   },
 
   mounted () {
     this.recompute()
   },
 
-  beforeDestroy () {
-    this._debouncedRecompute.cancel()
-  },
-
   methods: {
-    /** @param {number} n */
-    money (n) {
-      const v = Math.round(n)
-      return (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString('en-US')
-    },
+    // money() comes from currencyMixin (firm currency + locale).
     /** @param {number} f - fraction @returns {string} e.g. "27.8%" */
     pct (f) {
       return (Math.round(f * 1000) / 10).toFixed(1) + '%'
@@ -314,8 +325,12 @@ export default {
     monthsText (m) {
       return m === null || m === undefined ? '∞' : this.oneDp(m)
     },
-    /** Calc runs backend-only; the screen never computes the model itself. */
-    recompute () {
+    /**
+     * The backend request for this report — consumed by the reportRecompute mixin,
+     * which owns the debounce, race guard and stale flag. Calc is backend-only.
+     * @returns {{ url: string, body: object }}
+     */
+    recomputeRequest () {
       const i = this.inputs
       const body = {
         cash: i.cash,
@@ -342,29 +357,33 @@ export default {
       if (this.expenseLines) {
         body.expenseLines = this.expenseLines.map(l => ({ amount: l.amount, maintainedPct: 1 }))
       }
-      fetch('/api/report/quick-position', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      })
-        .then(res => res.json())
-        .then((json) => {
-          if (json.success) {
-            this.result = json.data
-            this.error = false
-          } else {
-            this.error = true
-          }
-        })
-        .catch(() => { this.error = true })
+      return { url: '/api/report/quick-position', body }
     },
-    /** One click: the P&L-seeded review becomes the monthly fixed costs. */
+    /** Apply a successful recompute — consumed by the reportRecompute mixin. */
+    applyResult (data) {
+      this.result = data
+    },
+    /** One click: the P&L-seeded review becomes the monthly fixed costs — tagged from file (R11). */
     useExpensesMonthly () {
       const avg = this.result && this.result.expensesReview && this.result.expensesReview.averageMonthly
       if (typeof avg === 'number') {
         this.inputs.monthlyFixedCosts = Math.round(avg)
+        this.sources.monthlyFixedCosts = 'file'
         this.$buefy.toast.open({ message: this.$t('report.quickPosition.expenses.used'), type: 'is-success' })
       }
+    },
+    /** Slider touch: the fixed-costs figure becomes the advisor's (provenance rule). */
+    fixedCostsEntered () {
+      this.sources.monthlyFixedCosts = 'entered'
+    },
+    /**
+     * R22: a money slider's ceiling stretches to fit a real (file-seeded or restored)
+     * figure — a touch must never silently snap the report's number down to the cap.
+     * @param {string} key @param {number} base - the normal ceiling @param {number} step
+     */
+    moneyMax (key, base, step) {
+      const v = this.inputs[key]
+      return (typeof v === 'number' && v > base) ? Math.ceil(v / step) * step : base
     },
     resetAll () {
       const fresh = this.$options.data.call(this)
@@ -395,6 +414,12 @@ export default {
 .src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
 .src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }
 .results { display: flex; flex-direction: column; gap: 18px; }
+/* Stale-figures banner (R9): a failed recompute must be visibly untrustworthy —
+   stale figures presented as live are worse than no figures at all. */
+.stale { background: #ff000010; border: 1px solid #ff0000; border-radius: 14px; padding: 12px 14px; }
+.stalehead { font-size: 13px; font-weight: 600; color: #ff0000; margin-bottom: 3px; }
+.stalebody { font-size: 12.5px; color: #5b6f8a; margin: 0 0 9px; line-height: 1.5; }
+.is-stale { opacity: .45; filter: grayscale(0.6); }
 .herostrip {
   background: linear-gradient(120deg, #002b64 0%, #0a56b0 55%, #00b1e0 135%);
   border-radius: 14px; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr);

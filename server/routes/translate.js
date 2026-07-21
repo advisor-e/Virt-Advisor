@@ -31,6 +31,41 @@ const REQUEST_TIMEOUT_MS = 15000
  * @param {string} urlString - Absolute https URL
  * @returns {Promise<{ statusCode: number, body: string }>}
  */
+/**
+ * Split translation keys into chunks whose COMBINED text (values joined by
+ * SEPARATOR) stays within `maxChars`, so each MyMemory GET URL fits under its
+ * ~2 KB limit. The cap is on the accumulated length, NOT each value on its own —
+ * a run of many small strings must still split. (The former code compared only
+ * the single incoming value to the limit, so small strings piled up without
+ * bound into one oversized chunk that MyMemory 414s, silently reverting the whole
+ * locale to English.) A single value longer than `maxChars` unavoidably gets its
+ * own chunk.
+ *
+ * @param {string[]} keys - keys of `texts`, in order
+ * @param {Object<string,string>} texts - key → source string
+ * @param {number} [maxChars=CHUNK_CHARS]
+ * @returns {string[][]} array of key-arrays, one per chunk
+ */
+function buildChunks (keys, texts, maxChars = CHUNK_CHARS) {
+  const chunks = []
+  let current = []
+  let len = 0
+  for (const k of keys) {
+    const val = String(texts[k] || '')
+    const addition = current.length > 0 ? SEPARATOR.length + val.length : val.length
+    if (current.length > 0 && len + addition > maxChars) {
+      chunks.push(current)
+      current = [k]
+      len = val.length
+    } else {
+      current.push(k)
+      len += addition
+    }
+  }
+  if (current.length > 0) { chunks.push(current) }
+  return chunks
+}
+
 function httpsGet (urlString) {
   return new Promise((resolve, reject) => {
     const req = https.get(urlString, (res) => {
@@ -56,22 +91,7 @@ async function post (req, res) {
 
   // Split keys into chunks that fit inside MyMemory's GET URL limit (~2 KB),
   // avoiding 414 / silent truncation on large locale payloads.
-  const chunks = []
-  let currentChunk = []
-  let currentLen = 0
-  for (const k of keys) {
-    const val = String(texts[k] || '')
-    const addition = currentLen > 0 ? SEPARATOR.length + val.length : val.length
-    if (addition > CHUNK_CHARS && currentChunk.length > 0) {
-      chunks.push(currentChunk)
-      currentChunk = [k]
-      currentLen = val.length
-    } else {
-      currentChunk.push(k)
-      currentLen += addition
-    }
-  }
-  if (currentChunk.length > 0) { chunks.push(currentChunk) }
+  const chunks = buildChunks(keys, texts)
 
   const translated = {}
 
@@ -122,4 +142,4 @@ async function post (req, res) {
   res.send(200, translated)
 }
 
-module.exports = { post }
+module.exports = { post, buildChunks }

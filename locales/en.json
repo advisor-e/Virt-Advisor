@@ -106,6 +106,11 @@
     "staleTitle": "These figures are out of date — the last calculation failed",
     "retry": "Try again",
     "calcUnreachable": "Could not reach the calculation service.",
+    "fileCheck": {
+      "wrongType": "That doesn't look like a Xero export — please drop an .xlsx or .csv file.",
+      "tooBig": "That file is over 5 MB — export the report again without extra tabs or images, then try again.",
+      "tooBigTotal": "Together the files are over 5 MB — export each report again without extra tabs or images."
+    },
     "eightLevers": {
       "title": "8 Levers",
       "instruction": "Move a lever and watch the profit move. The point isn't the numbers — it's which lever pays best. A small lift in margin usually beats a big lift in volume.",
@@ -192,14 +197,13 @@
         "plHow": "Xero → Reports → Profit and Loss → Export as Excel",
         "plSeeds": "Seeds: the operating-expense review → monthly outgoings",
         "choose": "Choose the file…",
-        "reading": "Reading the file…",
         "bsRead": "Balance Sheet read — {n} figures proposed",
         "plRead": "Profit & Loss read — {n} expense lines found",
         "rules": "Spreadsheets only — .xlsx or .csv. A PDF is refused with a note naming the export to download instead. Anything the files can't supply, you enter in the next step — and every figure is tagged by its source so an assumption can never pass as a fact.",
         "skip": "No exports handy? Skip and enter everything manually →",
         "continue": "Continue →",
         "uploadFailed": "The file could not be read. Please try again.",
-        "wrongKind": "That file was already read — drop the other report here."
+        "multiDrop": "One file per box — drop the Balance Sheet and the P&L into their own boxes."
       },
       "confirm": {
         "title": "What the files gave us — confirm each figure",
@@ -218,6 +222,7 @@
         "datesAgree": "Both files report as at {date} — dates agree",
         "datesDiffer": "The files carry different reporting dates ({a} vs {b}) — figures may be out of step. Please check the exports.",
         "serviceToggle": "This is a service business (no stock). The stock line drops out of the model entirely — no empty boxes.",
+        "incomplete": "Every figure needs a number before the report can be built — please complete the highlighted rows.",
         "build": "Looks right — build the report →",
         "adjustLater": "You can still adjust everything on the report screen."
       },
@@ -227,6 +232,7 @@
         "debtorsFactor": "Debtors realisable",
         "stockFactor": "Stock realisable",
         "fixedAssetsFactor": "Fixed assets realisable",
+        "liabilities": "Immediate liabilities (from the Balance Sheet)",
         "outgoings": "Monthly outgoings",
         "fixedCosts": "Fixed costs / month",
         "drawings": "Drawings + wages top-up",
@@ -358,6 +364,7 @@
           "fmFringeBenefits": "All Other Fringe Benefits (fair market)"
         },
         "notesHint": "Add-backs and the fair-market package are judgment calls — they are yours to enter, and the report tags them as such.",
+        "incomplete": "Every figure needs a number before the report can be built — please complete the highlighted rows.",
         "build": "Looks right — build the valuation →",
         "adjustLater": "You can still adjust the projection on the report screen."
       },
@@ -446,6 +453,12 @@
     "comingSoon": "Coming soon",
     "noMatches": "No models match “{query}”.",
     "backToLibrary": "← Back to Model Library",
+    "currency": {
+      "label": "Preferred currency",
+      "managedNote": "Set by your firm manager",
+      "saved": "Reports now show {name} ({symbol}). This applies to every model in your account.",
+      "saveError": "Could not save the currency. Please try again."
+    },
     "class": {
       "education": "Teaching tool",
       "decision": "Decision tool",

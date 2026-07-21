@@ -17,12 +17,17 @@ const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
-const { assembleAnnualReports } = require('../report/intake/annualAssembler')
+const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
+const { intakeErrorResponse } = require('../report/intakeError')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
 // named-export + callback-wrap pattern as the firm-manager uploads.
 
-const INTAKE_MAX_BYTES = 5 * 1024 * 1024 // a Xero report export is well under 1 MB
+// 5 MB per REQUEST — formidable v2's maxFileSize accumulates across all parts, so on
+// the multi-file EBITDA intake this caps the batch total, not each file (R14, Mike's
+// option B 2026-07-20: the cap stays; the messages say "together"). A Xero report
+// export is well under 1 MB, so five years fit with huge headroom.
+const INTAKE_MAX_BYTES = 5 * 1024 * 1024
 
 /** Wrap formidable v2's callback parse() for await use. @param {object} form @param {object} req */
 function parseForm (form, req) {
@@ -45,7 +50,7 @@ function workingCapitalCycle (req, res, next) {
     const data = computeWorkingCapitalCycle(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] working-capital-cycle compute failed:', err && err.message)
+    console.error('[report] working-capital-cycle compute failed:', err)
     res.send(400, { success: false, error: { code: 'WCC_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -63,7 +68,7 @@ function debtorDrag (req, res, next) {
     const data = computeDebtorCashflow(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] debtor-drag compute failed:', err && err.message)
+    console.error('[report] debtor-drag compute failed:', err)
     res.send(400, { success: false, error: { code: 'DEBTOR_DRAG_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -102,7 +107,7 @@ function marginBreakeven (req, res, next) {
     }
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] margin-breakeven compute failed:', err && err.message)
+    console.error('[report] margin-breakeven compute failed:', err)
     res.send(400, { success: false, error: { code: 'MARGIN_BE_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -121,7 +126,7 @@ function eightLevers (req, res, next) {
     const data = computeEightLevers(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] eight-levers compute failed:', err && err.message)
+    console.error('[report] eight-levers compute failed:', err)
     res.send(400, { success: false, error: { code: 'EIGHT_LEVERS_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -145,7 +150,7 @@ function quickPosition (req, res, next) {
     }
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] quick-position compute failed:', err && err.message)
+    console.error('[report] quick-position compute failed:', err)
     res.send(400, { success: false, error: { code: 'QUICK_POSITION_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
@@ -169,21 +174,15 @@ function ebitdaDcf (req, res, next) {
     const data = computeEbitdaDcf(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    console.error('[report] ebitda-dcf compute failed:', err && err.message)
+    console.error('[report] ebitda-dcf compute failed:', err)
     res.send(400, { success: false, error: { code: 'EBITDA_DCF_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
 }
 
-/** Stable intake error codes → HTTP status. Anything else is a 400. */
-const INTAKE_STATUS = {
-  PDF_REJECTED: 415,
-  UNRECOGNISED_FILE: 415,
-  UNRECOGNISED_REPORT: 422,
-  FILE_TOO_LARGE: 413,
-  TOO_MANY_FILES: 400,
-  WRONG_REPORT_KIND: 422
-}
+// Intake error mapping lives in server/report/intakeError.js (R6): allowlisted codes
+// pass their authored message through; anything unexpected returns the generic
+// sentence — an fs error's message carries a server path and must never reach the client.
 
 /**
  * POST /api/report/quick-position/intake  (firmAuth — uploads are never anonymous)
@@ -226,14 +225,10 @@ async function quickPositionIntake (req, res) {
     const data = parseUpload(buffer)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    const code = (err && err.code) || 'INTAKE_PARSE_FAILED'
     // Log the stable code only — never the filename, labels or content (identity stays local)
-    console.error('[report] quick-position intake rejected:', code)
-    res.send(INTAKE_STATUS[code] || 400, {
-      success: false,
-      error: { code, message: (err && err.message) || 'The file could not be read as a Xero report export.' },
-      timestamp: new Date().toISOString()
-    })
+    console.error('[report] quick-position intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a Xero report export.')
+    res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove formidable's temp file
     if (uploadedFile && uploadedFile.filepath) {
@@ -268,7 +263,7 @@ async function ebitdaDcfIntake (req, res) {
       const tooBig = err && /maxFileSize/i.test(err.message || '')
       res.send(tooBig ? 413 : 400, {
         success: false,
-        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'A file is larger than 5 MB — a Xero report export should be well under that.' : 'The upload could not be read. Please try again.' },
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a Xero report export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
         timestamp: new Date().toISOString()
       })
       return
@@ -280,19 +275,22 @@ async function ebitdaDcfIntake (req, res) {
       res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send each year\'s P&L export in a "file" field.' }, timestamp: new Date().toISOString() })
       return
     }
+    // R15: refuse over-count uploads BEFORE any file is parsed (the assembler's own
+    // count check stays as the backstop; same authored message, same code).
+    if (uploaded.length > MAX_FILES) {
+      const e = new Error('This model reads up to ' + MAX_FILES + ' years — ' + uploaded.length + ' files were sent. Please drop one Profit and Loss export per year.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
 
     const parsed = uploaded.map(f => parseUpload(fs.readFileSync(f.filepath)))
     const data = assembleAnnualReports(parsed)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
-    const code = (err && err.code) || 'INTAKE_PARSE_FAILED'
     // Log the stable code only — never the filename, labels or content (identity stays local)
-    console.error('[report] ebitda-dcf intake rejected:', code)
-    res.send(INTAKE_STATUS[code] || 400, {
-      success: false,
-      error: { code, message: (err && err.message) || 'A file could not be read as a Xero report export.' },
-      timestamp: new Date().toISOString()
-    })
+    console.error('[report] ebitda-dcf intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'A file could not be read as a Xero report export.')
+    res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove every temp file formidable wrote
     for (const f of uploaded) {

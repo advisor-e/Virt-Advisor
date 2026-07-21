@@ -24,7 +24,7 @@
             :min="fld.min" :max="fld.max" :step="fld.step"
             :class="{ wif: fld.k === 'wif' }"
             :style="{ '--fill': fillPct(fld) }"
-            @input="scheduleRecompute"
+            @input="queueRecompute"
           )
 
     section.mbk-results(v-if="data")
@@ -96,16 +96,20 @@
  * (POST /api/report/margin-breakeven); see server/report/marginBreakevenModel.js + golden test.
  * Coach text is templated (not AI) for this build; English placeholders pending report.* i18n.
  */
+import currencyMixin from '~/mixins/currencyMixin'
+import reportRecompute from '~/mixins/reportRecompute'
+
 const DEFAULTS = { price: 250, cost: 82.5, oh: 11500, draw: 8600, wif: 0 }
 
 export default {
   name: 'MarginBreakevenReport',
 
+  mixins: [currencyMixin, reportRecompute],
+
   data () {
     return {
       f: Object.assign({}, DEFAULTS),
       data: null,
-      recomputeTimer: null,
       groups: [
         {
  title: 'The product',
@@ -169,17 +173,16 @@ path,
   },
 
   mounted () { this.recompute() },
-  beforeDestroy () { if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) } },
 
   methods: {
-    money (n) { return '$' + Math.round(n || 0).toLocaleString('en-US') },
+    // money() / money2() now come from currencyMixin (firm currency + locale).
     pct (n) { return Math.round((n || 0) * 100) + '%' },
     round0 (n) { return Math.round(n || 0) },
     round1 (n) { return (Math.round((n || 0) * 10) / 10).toFixed(1) },
     fmtField (fld) {
       const v = this.f[fld.k]
       if (fld.fmt === 'money') { return this.money(v) }
-      if (fld.fmt === 'money2') { return '$' + Number(v).toFixed(2) }
+      if (fld.fmt === 'money2') { return this.money2(v) }
       if (fld.fmt === 'signpct') { return (v > 0 ? '+' : '') + v + '%' }
       return v
     },
@@ -187,19 +190,17 @@ path,
     payload () {
       return { price: this.f.price, cost: this.f.cost, overheads: this.f.oh, ownerDrawings: this.f.draw, priceChangePct: this.f.wif }
     },
-    scheduleRecompute () {
-      if (this.recomputeTimer) { clearTimeout(this.recomputeTimer) }
-      this.recomputeTimer = setTimeout(this.recompute, 140)
+    /** Backend request — consumed by the reportRecompute mixin (debounce + race guard). */
+    recomputeRequest () {
+      return { url: '/api/report/margin-breakeven', body: this.payload() }
     },
-    recompute () {
-      fetch('/api/report/margin-breakeven', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.payload())
-      })
-        .then(function (r) { return r.json() })
-        .then((json) => { if (json && json.success) { this.data = json.data } })
-        .catch(() => { this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' }) })
+    /** Apply a successful recompute — consumed by the reportRecompute mixin. */
+    applyResult (data) {
+      this.data = data
+    },
+    /** Failure feedback — the mixin calls this on a failed recompute. */
+    onRecomputeError () {
+      this.$buefy.toast.open({ message: 'Could not reach the calculation service.', type: 'is-danger' })
     },
     reset () {
       this.f = Object.assign({}, DEFAULTS)
