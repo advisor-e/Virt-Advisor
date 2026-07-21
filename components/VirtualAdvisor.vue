@@ -1137,6 +1137,28 @@ export default {
   },
 
   watch: {
+    /**
+     * Keep the advisor on the SAME QUESTION when the question list changes shape.
+     *
+     * `profileQuestions` is computed from the answers themselves: answering the role
+     * question in a way that reads as "beginner" drops the experience question, and the
+     * client-demographic question appears only for some combinations. `profileStep` is a
+     * numeric index into that list — so editing an earlier answer could silently shift
+     * every later question by one, skipping one entirely and labelling the rest wrongly.
+     *
+     * Re-anchoring by FIELD rather than by position: whichever question the advisor was
+     * on stays the question they are on, wherever it has moved to. If it has gone
+     * altogether, hold position and clamp to the end rather than run off the list.
+     *
+     * @param {Array<{field: string}>} next @param {Array<{field: string}>} prev
+     */
+    profileQuestions (next, prev) {
+      if (!next || !next.length || !prev || !prev.length) { return }
+      const wasOn = prev[this.profileStep] && prev[this.profileStep].field
+      const movedTo = wasOn ? next.findIndex(q => q.field === wasOn) : -1
+      this.profileStep = movedTo >= 0 ? movedTo : Math.min(this.profileStep, next.length - 1)
+    },
+
     advisorProfile: {
       deep: true,
       handler () {
@@ -1711,7 +1733,11 @@ export default {
       // NEVER reset to 0 — restore to the number of already-answered questions
       // so completed answers stay visible and editable when reopening the panel.
       // Resetting to 0 was causing all answers to collapse on every open.
-      this.profileStep = this.profileQuestions.filter(q => this.advisorProfile[q.field]).length
+      // Clamped: with every question answered the count equals the list LENGTH, which
+      // is one past the last index — leaving `profileQuestions[profileStep]` undefined
+      // for anything that reads the current question.
+      const answered = this.profileQuestions.filter(q => this.advisorProfile[q.field]).length
+      this.profileStep = Math.min(answered, Math.max(0, this.profileQuestions.length - 1))
       this.profileOpen = true
       this.$nextTick(() => { this.$nextTick(() => this.resizeAllTextareas()) })
     },
