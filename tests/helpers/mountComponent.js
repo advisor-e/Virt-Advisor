@@ -43,12 +43,18 @@ function translateStub (key, params) {
  * Default mocks every component test gets. `$tc`/`$d` are included because a component
  * picked up mid-refactor may reach for them, and a missing mock fails as an unhelpful
  * "not a function" deep inside the render.
+ *
+ * `$i18n.locale` is not optional for the report screens: `mixins/currencyMixin.js`
+ * formats every money figure with it, so without it the whole screen fails to render
+ * with "Cannot read property 'locale' of undefined" — which reads like a broken test
+ * rather than a missing mock.
  */
 function defaultMocks () {
   return {
     $t: translateStub,
     $tc: translateStub,
-    $d: value => String(value)
+    $d: value => String(value),
+    $i18n: { locale: 'en' }
   }
 }
 
