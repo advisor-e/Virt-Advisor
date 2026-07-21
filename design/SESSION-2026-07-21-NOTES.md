@@ -121,10 +121,60 @@ The plan's inventory overstated the reach; both plan docs are now corrected.
    conversion and could not have caught a visual regression — only Mike's eyes could.
    This is the strongest argument yet for the TEST-GAP component-test tooling (desktop).
 
+### Then, same session — the day did NOT end at Phase 2
+
+Everything below happened after the Phase 2 handover was first written.
+
+**Component-test tooling installed and proven — the TEST-GAP blocker is closed.**
+`@vue/test-utils@1.3.6`, `@vue/vue2-jest@27.0.0`, `vue-template-compiler@2.7.16`, plus the
+`jest.config.js` transform + `~/` mapper. `testEnvironment` stays `'node'`; component tests
+opt into jsdom per-file. Proven by `tests/unit/heroFigure.component.test.js` — **Pug
+compiles through the transformer on Node 14.15**, which was the main unknown.
+- **It did NOT need the desktop.** Node 20 ships npm 10, which works here with
+  `--lockfile-version 2 --legacy-peer-deps` + the exported Windows root CA bundle (the
+  network runs Avast TLS interception). `--legacy-peer-deps` is **mandatory**: without it
+  npm 10 resolves a *pre-existing* unmet peer of `tsutils` and installs `typescript@7`, a
+  Stack Constitution violation. Hit it, reverted, reinstalled clean. Verified additive:
+  51 packages added, 0 removed, 0 version changes, lockfile still v2.
+- Never `strict-ssl false` — that disables verification for every package download.
+
+**Stack Constitution compliance audit — all 9 requirements PASS.** 31/31 `.vue` files Pug,
+no TypeScript in package.json *or* the lockfile, no Nuxt 3/Vue 3 patterns, no forbidden
+Node 16+ APIs, every locked version intact, OpenAI absent from all Nuxt-side files. One
+deviation found and fixed: `SliderField`'s `$emit` was undocumented (Engineering Standards
+require a payload comment on every emit).
+
+**Desktop merged — both divisions are in `master` for the first time.** PR #14 brought
+Course Builder in. Audited from the laptop before merge: `package.json`/`package-lock.json`
+byte-identical to `master`, no TypeScript, all laptop work intact, their 4 changed `.vue`
+files Constitution-compliant. Combined suite **1,456 / 99 suites green**.
+
+**🏷 `v0.6.0` TAGGED AND PUSHED — the first release tag this repo has ever carried.**
+Commit `9a29aee`. 174 commits ahead of `709bac5`, the build UAT has run since 2026-07-14,
+and **the first release containing Course Builder**. Verified at tag time: 1,456 tests,
+lint clean, `nuxt build` green on Node 14.15. `package.json` gained `"version": "0.6.0"`
+so the manifest and tag cannot disagree.
+- Notes for the master team: [`RELEASE-NOTES-v0.6.0.md`](RELEASE-NOTES-v0.6.0.md).
+- [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md) has a new **"Releases offered"** section —
+  `v0.6.0` is **awaiting pull**, NOT recorded as deployed. A tag existing is not a
+  deployment. Move it to the deployment table when the team confirms the pull.
+- ⚠ **Still to do (Mike, outside the repo): tell the master team to pull tag `v0.6.0`**
+  and reply with what they installed.
+
+**Also fixed:** the dev server bound IPv6-only (`nuxt.config.js` `server.host: 'localhost'`
+→ `'127.0.0.1'`), and the Working Agreement gained *The running application — who owns it*.
+PR #1 (`chore/i18n-jsdoc-cleanup`, 161 commits behind) closed unmerged, branch kept for
+salvage.
+
 ### Next
 
 Phase 3 (`ProvenanceBadge` + `StaleBanner` + `ReportShell`) and Phase 4 (the "add a
-report" recipe). Or either of the two logged rulings above.
+report" recipe). Or either of the two logged rulings above. **Or — now possible for the
+first time — write the actual component tests** (QP intake badge cases, stale banner,
+out-of-order response, restore round-trip, plus a shared Buefy stubbing helper).
+
+**Desktop on next open:** it is **5 commits behind `master`** — merge `master` in before
+anything else, or the pre-push hook will block and it will look like a fault.
 
 ---
 
