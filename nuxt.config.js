@@ -76,6 +76,7 @@ export default {
     { path: '/api/course', handler: '~/server-middleware/course.js' },
     { path: '/api/report', handler: '~/server-middleware/report.js' },
     { path: '/api/cases', handler: '~/server-middleware/apiProxy.js' },
+    { path: '/api/clients', handler: '~/server-middleware/apiProxy.js' },
     // NB '/api/course' (singular, the SSE engine) never prefix-matches
     // '/api/courses' — connect only mounts on a '/' boundary.
     { path: '/api/courses', handler: '~/server-middleware/apiProxy.js' },
