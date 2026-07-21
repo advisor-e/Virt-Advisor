@@ -8,6 +8,7 @@ const DEV_STAIRCASE_FILE = path.resolve(__dirname, '../../data/dev-firm-staircas
 const DEV_TEMPLATES_FILE = path.resolve(__dirname, '../../data/dev-firm-templates.json')
 const DEV_LASTSEEN_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-lastseen.json')
 const DEV_OVERRIDE_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-override-baselines.json')
+const DEV_QUIZZES_FILE = path.resolve(__dirname, '../../data/dev-firm-quizzes.json')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 function _devReadDistinctions (firmId) {
@@ -1458,6 +1459,92 @@ async function saveStaircase (req, res) {
   }
 }
 
+// ── Quizzes (CB-31 Phase 2) ───────────────────────────────────────────────────
+// Stored in firm_framework_versions under config_key='quiz-banks' — the same
+// table as the Staircase and Distinctions, so no new schema and the generic
+// history/restore routes work with configKey='quiz-banks'. Read returns the
+// platform base alongside the firm's overlay so the editor can show both the
+// starting point and what the firm changed.
+
+const { CONFIG_KEY: QUIZ_KEY, validateQuizOverride, mergeQuizBanks } = require('../utils/firmQuizzes')
+const BASE_QUIZZES = require('../../data/course-quizzes.json')
+
+function _devReadQuizzes (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_QUIZZES_FILE, 'utf8'))
+    return all[firmId] || null
+  } catch { return null }
+}
+
+function _devWriteQuizzes (firmId, cfg) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_QUIZZES_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = cfg
+  fs.writeFileSync(DEV_QUIZZES_FILE, JSON.stringify(all, null, 2))
+}
+
+async function _loadQuizOverride (firmId) {
+  try {
+    return await overlay.loadFirmConfig(firmId, QUIZ_KEY)
+  } catch (err) {
+    if (IS_DEV) { return _devReadQuizzes(firmId) }
+    throw err
+  }
+}
+
+async function _saveQuizOverride (firmId, cfg, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(firmId, QUIZ_KEY, cfg, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteQuizzes(firmId, cfg); return null }
+    throw err
+  }
+}
+
+/**
+ * GET /api/firm-manager/quizzes — the firm's quiz material.
+ * @returns {{base: Object, firmOverride: Object|null, merged: Object, hasOverride: boolean}}
+ */
+async function getQuizzes (req, res) {
+  try {
+    const firmOverride = await _loadQuizOverride(req.firmId)
+    const base = {}
+    for (const [key, bank] of Object.entries(BASE_QUIZZES.banks || {})) {
+      if (!key.startsWith('_')) { base[key] = bank }
+    }
+    res.send(200, {
+      base,
+      firmOverride,
+      merged: mergeQuizBanks(base, firmOverride),
+      hasOverride: firmOverride !== null
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/quizzes — save the firm's overlay (never the base).
+ * Body: { quizzes: { "<page title>": { entries: [{id, question, answer, keyPoint}] } } }
+ */
+async function saveQuizzes (req, res) {
+  const { quizzes } = req.body || {}
+  const check = validateQuizOverride(quizzes)
+  if (!check.ok) {
+    const payload = { success: false, error: { code: 'INVALID_QUIZZES', message: check.error }, timestamp: new Date().toISOString() }
+    if (check.candidates && check.candidates.length) { payload.error.candidates = check.candidates }
+    return res.send(400, payload)
+  }
+  try {
+    const version = await _saveQuizOverride(req.firmId, check.value, req.userEmail)
+    res.send(200, { saved: true, version })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
   listDocuments,
   uploadDocument,
@@ -1489,5 +1576,7 @@ module.exports = {
   moveDistinction,
   promoteOverridesForDeletedRow,
   getStaircase,
-  saveStaircase
+  saveStaircase,
+  getQuizzes,
+  saveQuizzes
 }

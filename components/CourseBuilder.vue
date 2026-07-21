@@ -48,15 +48,13 @@
   //- ── PHASE: Design ───────────────────────────────────────────────────────
   template(v-else-if="phase === 'design'")
     .course-messages(ref="designMessages")
-      .course-msg(
+      course-message(
         v-for="(msg, i) in designMessages"
         :key="i"
-        :class="msg.role === 'user' ? 'msg-user' : 'msg-va'"
+        :role="msg.role"
+        :content="msg.content"
+        :rendered-html="msg.role === 'assistant' ? renderMarkdown(msg.content) : ''"
       )
-        .msg-avatar(v-if="msg.role === 'assistant'") VA
-        .msg-bubble
-          div(v-if="msg.role === 'assistant'" v-html="renderMarkdown(msg.content)" class="prose")
-          p(v-else) {{ msg.content }}
 
       //- Pre-built starters — shown only at the opening screen
       .starters-section(v-if="designMessages.length === 1 && !isDesignStreaming")
@@ -75,14 +73,7 @@
               span.starter-btn Start building →
 
       //- Streaming indicator
-      .course-msg.msg-va(v-if="isDesignStreaming")
-        .msg-avatar VA
-        .msg-bubble
-          .typing-indicator
-            span
-            span
-            span
-            span.thinking-label VA is thinking...
+      course-message(v-if="isDesignStreaming" streaming)
 
       //- Course outline confirmation card
       .outline-card(v-if="pendingOutline && !isDesignStreaming")
@@ -128,27 +119,13 @@
           button.btn-request-changes(@click="requestOutlineChanges" :disabled="isSavingCourse") Request changes
 
     .input-area
-      .voice-bar(v-if="speechSupported")
-        .voice-state.voice-idle(v-if="!isListening && !designInput.trim()")
-          button.voice-btn.voice-btn-idle(@click="toggleListening" :disabled="isDesignStreaming")
-            svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
-              path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-            | Tap to Speak
-        .voice-state.voice-recording(v-else-if="isListening")
-          span.recording-dot
-          span.recording-label Recording — speak now
-          button.voice-btn.voice-btn-stop(@click="toggleListening")
-            svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
-              rect(x="6" y="6" width="12" height="12" rx="2")
-            | Stop Recording
-        .voice-state.voice-ready(v-else-if="designInput.trim()")
-          svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
-            path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-          span.ready-label Captured — review then Save
-          button.voice-btn.voice-btn-redo(@click="toggleListening")
-            svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
-              path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-            | Record again
+      voice-input-bar(
+        v-if="speechSupported"
+        :text="designInput"
+        :listening="isListening"
+        :disabled="isDesignStreaming"
+        @toggle="toggleListening"
+      )
       .input-inner
         textarea.message-input(
           v-model="designInput"
@@ -217,48 +194,28 @@
       )
 
     .course-messages(ref="sessionMessages")
-      .course-msg(
+      course-message(
         v-for="(msg, i) in sessionMessages"
         :key="i"
-        :class="msg.role === 'user' ? 'msg-user' : 'msg-va'"
+        :role="msg.role"
+        :content="msg.content"
+        :rendered-html="msg.role === 'assistant' ? renderMarkdown(msg.content) : ''"
       )
-        .msg-avatar(v-if="msg.role === 'assistant'") VA
-        .msg-bubble
-          div(v-if="msg.role === 'assistant'" v-html="renderMarkdown(msg.content)" class="prose")
-          p(v-else) {{ msg.content }}
 
-      .course-msg.msg-va(v-if="isSessionStreaming")
-        .msg-avatar VA
-        .msg-bubble
-          div(v-if="sessionStreamingText" v-html="renderMarkdown(sessionStreamingText)" class="prose")
-          .typing-indicator(v-else)
-            span
-            span
-            span
-            span.thinking-label VA is thinking...
+      course-message(
+        v-if="isSessionStreaming"
+        streaming
+        :streaming-html="sessionStreamingText ? renderMarkdown(sessionStreamingText) : ''"
+      )
 
     .input-area
-      .voice-bar(v-if="speechSupported")
-        .voice-state.voice-idle(v-if="!isListening && !sessionInput.trim()")
-          button.voice-btn.voice-btn-idle(@click="toggleListening" :disabled="isSessionStreaming || isGeneratingQuiz")
-            svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
-              path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-            | Tap to Speak
-        .voice-state.voice-recording(v-else-if="isListening")
-          span.recording-dot
-          span.recording-label Recording — speak now
-          button.voice-btn.voice-btn-stop(@click="toggleListening")
-            svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
-              rect(x="6" y="6" width="12" height="12" rx="2")
-            | Stop Recording
-        .voice-state.voice-ready(v-else-if="sessionInput.trim()")
-          svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
-            path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-          span.ready-label Captured — review then Save
-          button.voice-btn.voice-btn-redo(@click="toggleListening")
-            svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
-              path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-            | Record again
+      voice-input-bar(
+        v-if="speechSupported"
+        :text="sessionInput"
+        :listening="isListening"
+        :disabled="isSessionStreaming || isGeneratingQuiz"
+        @toggle="toggleListening"
+      )
       .input-inner
         textarea.message-input(
           v-model="sessionInput"
@@ -339,27 +296,14 @@
           p.quiz-q-text {{ currentQuestion.question }}
 
         .quiz-answer-area(v-if="!currentResult")
-          .voice-bar(v-if="speechSupported")
-            .voice-state.voice-idle(v-if="!isListening && !quizAnswer.trim()")
-              button.voice-btn.voice-btn-idle(@click="toggleListening" :disabled="isGrading")
-                svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor")
-                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                | Tap to Speak
-            .voice-state.voice-recording(v-else-if="isListening")
-              span.recording-dot
-              span.recording-label Recording — speak now
-              button.voice-btn.voice-btn-stop(@click="toggleListening")
-                svg(xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor")
-                  rect(x="6" y="6" width="12" height="12" rx="2")
-                | Stop Recording
-            .voice-state.voice-ready(v-else-if="quizAnswer.trim()")
-              svg(xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#16a34a")
-                path(d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z")
-              span.ready-label Captured — review then Submit
-              button.voice-btn.voice-btn-redo(@click="toggleListening")
-                svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
-                  path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                | Record again
+          voice-input-bar(
+            v-if="speechSupported"
+            :text="quizAnswer"
+            :listening="isListening"
+            :disabled="isGrading"
+            ready-label="Captured — review then Submit"
+            @toggle="toggleListening"
+          )
           textarea.quiz-textarea(
             v-model="quizAnswer"
             :placeholder="isListening ? '🎤 Listening...' : 'Type your answer here...'"
@@ -445,7 +389,7 @@
           .comp-session-num {{ i + 1 }}
           .comp-session-info
             span.comp-session-title {{ s.title }}
-          .comp-session-score(v-if="activeCourse.progress && activeCourse.progress[i] && activeCourse.progress[i].quizScore")
+          .comp-session-score(v-if="activeCourse.progress && activeCourse.progress[i] && activeCourse.progress[i].quizScore !== null")
             span(:class="activeCourse.progress[i].quizScore >= 70 ? 'score-pass-text' : 'score-fail-text'")
               | {{ activeCourse.progress[i].quizScore }}%
       .completion-actions
@@ -479,6 +423,8 @@
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import courseStarters from '~/data/course-starters.json'
+import VoiceInputBar from '~/components/base/VoiceInputBar.vue'
+import CourseMessage from '~/components/course/CourseMessage.vue'
 import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
 import { listCourses, listSharedCourses, copySharedCourse, createCourse, updateCourse, deleteCourse, migrateLegacyCourses } from '~/utils/courses'
 
@@ -499,6 +445,8 @@ _md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
 
 export default {
   name: 'CourseBuilder',
+
+  components: { VoiceInputBar, CourseMessage },
 
   props: {
     advisorId: { type: String, default: 'local-advisor' },
@@ -1670,30 +1618,7 @@ export default {
 .course-messages { flex: 1; overflow-y: auto; padding: 24px; }
 .course-messages > * + * { margin-top: 20px; }
 
-.course-msg { display: flex; gap: 12px; align-items: flex-start; }
-.msg-va { flex-direction: row; }
-.msg-user { flex-direction: row-reverse; }
-
-.msg-avatar {
-  background: #1e40af;
-  color: white;
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 11px;
-  flex-shrink: 0;
-}
-
-.msg-bubble { max-width: 75%; padding: 14px 18px; border-radius: 12px; font-size: 14px; line-height: 1.6; }
-.msg-va .msg-bubble { background: #f9fafb; border: 1px solid #e5e7eb; color: #111827; border-radius: 4px 12px 12px 12px; }
-.msg-user .msg-bubble { background: #1e40af; color: white; border-radius: 12px 4px 12px 12px; }
-
-/* ── Typing indicator ─────────────────────────────────── */
-.typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
-.typing-indicator span { width: 7px; height: 7px; background: #9ca3af; border-radius: 50%; animation: bounce 1.2s infinite; }
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+/* ── Chat message + typing-indicator styles → components/course/CourseMessage.vue (CB-23) */
 
 /* ── AI loading bar ──────────────────────────────────── */
 .ai-loading-bar {
@@ -1714,18 +1639,6 @@ export default {
 @keyframes ai-sweep {
   0%   { left: -45%; }
   100% { left: 110%; }
-}
-
-.thinking-label {
-  font-size: 12px;
-  color: #9ca3af;
-  font-style: italic;
-  margin-left: 4px;
-  animation: fade-pulse 1.6s ease-in-out infinite;
-}
-@keyframes fade-pulse {
-  0%, 100% { opacity: 0.5; }
-  50%       { opacity: 1; }
 }
 
 /* ── Input area ───────────────────────────────────────── */
@@ -1766,28 +1679,7 @@ export default {
 
 .input-hint { font-size: 11px; color: #9ca3af; margin-top: 8px; text-align: center; }
 
-/* ── Voice bar ─────────────────────────────────────────── */
-.voice-bar { margin-bottom: 10px; min-height: 36px; display: flex; align-items: center; }
-.voice-state { display: flex; align-items: center; gap: 10px; width: 100%; }
-.voice-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  border: none; border-radius: 20px; padding: 7px 14px;
-  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s;
-}
-.voice-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.voice-btn-idle { background: #eff6ff; color: #1e40af; }
-.voice-btn-idle:hover:not(:disabled) { background: #dbeafe; }
-.recording-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: #dc2626;
-  animation: pulse-dot 1s infinite;
-}
-@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-.recording-label { font-size: 13px; font-weight: 600; color: #dc2626; flex: 1; }
-.voice-btn-stop { background: #dc2626; color: white; }
-.voice-btn-stop:hover { background: #b91c1c; }
-.ready-label { font-size: 13px; color: #16a34a; font-weight: 500; flex: 1; }
-.voice-btn-redo { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
-.voice-btn-redo:hover { background: #f9fafb; }
+/* ── Voice bar ── moved to components/base/VoiceInputBar.vue (CB-23) */
 
 /* ── Course outline card ──────────────────────────────── */
 .outline-card {

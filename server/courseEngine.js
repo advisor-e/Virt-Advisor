@@ -415,12 +415,20 @@ async function handleQuizGenerate (body, res) {
 
   // CB-30: a firm-authored question bank (keyed by the template the session
   // teaches from) is mandatory source material — the AI tailors the bank's
-  // questions to the session, never invents its own. Bank content is trusted
-  // repo data (the firm's IP), so it sits outside the untrusted fence.
+  // questions to the session, never invents its own.
+  //
+  // CB-31: a bank tagged origin='firm' was typed into the Firm Manager screen
+  // at runtime, so its text is untrusted input however trusted the manager who
+  // wrote it — a "question" could be phrased as an instruction to the model.
+  // Firm-authored banks are therefore fenced; platform banks are repo data and
+  // stay unfenced, leaving the tuned CB-29/CB-30 prompt behaviour unchanged.
   const bank = findQuizBank(overrides.banks, sessionContext)
+  const bankEntries = bank
+    ? bank.entries.map(e => `Entry ${e.id}\nQuestion: ${e.question}\nKey point: ${e.keyPoint}`).join('\n')
+    : ''
   const bankBlock = bank
     ? '\nFirm-authored question bank for the template this session teaches from (mandatory source material):\n' +
-      bank.entries.map(e => `Entry ${e.id}\nQuestion: ${e.question}\nKey point: ${e.keyPoint}`).join('\n') + '\n'
+      (bank.origin === 'firm' ? fenceUntrusted(bankEntries) : bankEntries) + '\n'
     : ''
   const factRequirements = bank
     ? `- Build every question from the firm-authored question bank above: choose the 3 entries most relevant to the session content covered, and tailor each to that content — adapt wording and scenario details, keep the entry's substance and key point. Never copy an entry word-for-word and never ask anything the bank does not cover.
@@ -499,14 +507,18 @@ async function handleQuizGrade (body, res) {
   // CB-30: when the question was built from a firm-authored bank entry, the
   // firm's model answer is the authoritative marking guide (extends CB-04).
   // bankRef arrives from the client but only SELECTS a server-held entry —
-  // the marking-guide text itself is repo data and can never be injected.
+  // the marking-guide text itself is never client-supplied.
+  // CB-31: a bank tagged origin='firm' was typed into the Firm Manager screen,
+  // so its text is fenced here for the same reason as in quiz generation.
   const bank = findQuizBank(getQuizOverrides().banks, sessionContext)
   const bankRef = question && Number.isInteger(question.bankRef) ? question.bankRef : null
   const bankEntry = (bank && bankRef !== null && bank.entries.find(e => e.id === bankRef)) || null
+  const guideBody = bankEntry
+    ? `Model answer: ${bankEntry.answer}\nKey point: ${bankEntry.keyPoint}`
+    : ''
   const markingGuide = bankEntry
     ? `Firm-authored marking guide (authoritative — this defines what counts as correct):
-Model answer: ${bankEntry.answer}
-Key point: ${bankEntry.keyPoint}
+${bank.origin === 'firm' ? fenceUntrusted(guideBody) : guideBody}
 
 `
     : ''

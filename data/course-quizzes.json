@@ -448,6 +448,594 @@
           "keyPoint": "The \"Start, Stop, Keep\" framework requires business owners to explicitly identify and record behavioral changes necessary to support their operational goals."
         }
       ]
+    },
+    "Planning Session": {
+      "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
+      "transcribed": "2026-07-21",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What holds a business back from progressing when it is in the \"Break-even\" growth stage?",
+          "answer": "A lack of financial management or sales/marketing basics, strained resources, and fatigue.",
+          "keyPoint": "Recognizing the obstacles in the Break-even stage helps owners understand they must formalize financial and marketing efforts before advancing to the Lifestyle stage."
+        },
+        {
+          "id": 2,
+          "question": "Which business growth stage is defined by making enough profit to allow the owner to draw sufficient funds to meet their lifestyle and save money each month?",
+          "answer": "The Lifestyle stage.",
+          "keyPoint": "The Lifestyle stage is a baseline of financial success where personal income goals are met before moving into scaling or leverage."
+        },
+        {
+          "id": 3,
+          "question": "What are the three definitive criteria that must be met for a valid Operational Objective?",
+          "answer": "It must be observable/measurable in its definitive assessment, bound by a specific timeframe, and clearly in support of achieving the singular Strategic Objective.",
+          "keyPoint": "An operational objective cannot be vague (like \"Increase Sales\"); it must act as a precise milestone to gauge execution."
+        },
+        {
+          "id": 4,
+          "question": "What obstacle primarily holds a business back during the \"Leverage\" stage?",
+          "answer": "Lack of faith in Key Staff, poor delegation/visibility procedures, or a reluctance to 'let go'.",
+          "keyPoint": "To scale past personal constraints, owners must shift from a 'specialist' service provider model to trusting ingrained governance and delegated teams."
+        },
+        {
+          "id": 5,
+          "question": "How is \"Total Revenue\" calculated using the 8 Profit Levers?",
+          "answer": "Number of Foot-traffic x Number of Prospects x Number of Customers x Average Customer Spend x Average Customer Frequency.",
+          "keyPoint": "Revenue is the multiplied outcome of attention, conversion, transaction size, and transaction frequency."
+        },
+        {
+          "id": 6,
+          "question": "Which two profit levers directly target the aim of keeping customers \"WANTING MORE\"?",
+          "answer": "Average Customer Spend and Average Customer Frequency.",
+          "keyPoint": "Retaining interest and maximizing existing client relationships is measured by how much and how often they purchase."
+        },
+        {
+          "id": 7,
+          "question": "What characterizes the \"Maturity\" stage of the Growth Fundamentals framework?",
+          "answer": "The business commands a sizeable market-share and creates a 'barrier to entry' for any business looking to compete against it.",
+          "keyPoint": "A mature business relies on dominance and established presence rather than early-stage hustle."
+        },
+        {
+          "id": 8,
+          "question": "What specific action defines \"Growth through Delegation, Replication or Quantification\" (Intelligence)?",
+          "answer": "Dissecting activities so team members can complete parts or all of a task, automating processes, and magnifying value by multiplying engagement or fees.",
+          "keyPoint": "True leverage requires detaching the owner's direct time from the revenue-generating process."
+        },
+        {
+          "id": 9,
+          "question": "What happens to a business in the \"Exit/Decline\" stage if the owners miss the mark on succession or sale?",
+          "answer": "The business dwindles as the owners seek retirement without having developed inherent value beyond their own personal involvement.",
+          "keyPoint": "A successful exit requires structuring the business so its value is demonstrable and independent of the founder."
+        },
+        {
+          "id": 10,
+          "question": "According to the \"5 Layers of Complexity,\" what does \"Growth through Market Extension & Product Divergence\" require a business to do?",
+          "answer": "Find additional 'sustenance' to meet new consumption requirements by entering new physical markets or offering new products.",
+          "keyPoint": "Reaching a new scale naturally forces a business to confront new frontiers to feed its expanded infrastructure."
+        }
+      ]
+    },
+    "Data Session": {
+      "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
+      "transcribed": "2026-07-21",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is the definition of \"Causation\" when interpreting data?",
+          "answer": "Cause & Effect, where you are looking for evidence of direct influence between variables.",
+          "keyPoint": "Causation must be proven; simply observing two events happening together (correlation or coincidence) does not mean one caused the other."
+        },
+        {
+          "id": 2,
+          "question": "According to W. Edward Deming's Theory of Volatility, what defines a \"Special Cause\"?",
+          "answer": "A volatility factor that has a Low Frequency but a High Impact.",
+          "keyPoint": "Understanding data requires categorizing volatility so you know whether a change is a predictable trend or a rare anomaly."
+        },
+        {
+          "id": 3,
+          "question": "What are the components that make up the \"Money in Movement\" or Working Capital Cycle?",
+          "answer": "Cash moving into Stock, Stock moving into a Sale, the Sale moving to Debtors, and Debtors paying back to Cash.",
+          "keyPoint": "Cash flow health depends on the speed and efficiency with which this cycle is completed."
+        },
+        {
+          "id": 4,
+          "question": "If your business sells products to a supermarket that pays late, preventing you from buying new stock, do you have a lack of profitability or a lack of working capital?",
+          "answer": "You have a lack of working capital.",
+          "keyPoint": "The business is profitable on paper, but the delayed cash return means you need appropriate funding (working capital) to bridge the gap."
+        },
+        {
+          "id": 5,
+          "question": "What are the three distinct uses for business profits?",
+          "answer": "1. To purchase new assets for growth or fund expansion activities, 2. To repay debt, 3. To distribute to business owners.",
+          "keyPoint": "Retained earnings indicate management's preferences and priorities for the future stability and expansion of the company."
+        },
+        {
+          "id": 6,
+          "question": "How is the fundamental equation of the Balance Sheet (Statement of Position) expressed?",
+          "answer": "Assets = Liabilities + Owners Equity.",
+          "keyPoint": "Every dollar invested in Assets had to come from someone, matching either bank debt (liability) or the owner (equity)."
+        },
+        {
+          "id": 7,
+          "question": "What is the definition of \"Over-trading\"?",
+          "answer": "The business is growing faster than its internal ability to fund it via accumulated profits.",
+          "keyPoint": "Funding rapid growth primarily via debt without adequate retained profits creates a severe risk if there is a market downturn."
+        },
+        {
+          "id": 8,
+          "question": "How do you calculate a company's Quick (working capital) Position?",
+          "answer": "Cash + Debtors ÷ Current Liabilities.",
+          "keyPoint": "This ratio specifically measures liquidity — the business's ability to use cash on hand and incoming debtor payments to cover immediate debts."
+        },
+        {
+          "id": 9,
+          "question": "How is Return on Assets (R.O.A) calculated and what does it measure?",
+          "answer": "Net Profit (before tax) ÷ Total Assets; it measures a director's competency by showing how much profit is made for every dollar of gross listed assets.",
+          "keyPoint": "ROA is a critical gauge of whether leadership is utilizing the company's infrastructure effectively."
+        },
+        {
+          "id": 10,
+          "question": "What vital question should you ask before selecting a Key Performance Indicator (KPI) for your dashboard?",
+          "answer": "\"...if we knew the answer to X, how would that help us in our future decision making..?\"",
+          "keyPoint": "You must focus on measuring things that provide actionable insight and that you can actually adjust, rather than just tracking unchangeable metrics."
+        }
+      ]
+    },
+    "Lite Marketing": {
+      "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
+      "transcribed": "2026-07-21",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What concept is addressed by \"Market Diffusion Theory\"?",
+          "answer": "The natural stages required to bring a new product or service to market, focusing on market acceptance and saturation timing.",
+          "keyPoint": "Diffusion helps predict when a market will tip into widespread adoption and when competition will increase as the market becomes 'educated'."
+        },
+        {
+          "id": 2,
+          "question": "How does Market Diffusion Theory differ from the Product Life Cycle?",
+          "answer": "With diffusion theory, a market may reach saturation while the product still fulfills a need. With the product life cycle, the product itself eventually becomes obsolete.",
+          "keyPoint": "A saturated market requires a different competitive strategy than dealing with a product that is fundamentally outdated."
+        },
+        {
+          "id": 3,
+          "question": "What describes a consumer who is in a state of \"Motivated Awareness\"?",
+          "answer": "The consumer recognizes a need/want and is motivated to act, but lacks problem detail and broad decision criteria, so they seek guidance from an 'Industry Authority'.",
+          "keyPoint": "Marketing to motivated awareness requires positioning your brand as the trusted educator that helps them define how to make their purchase decision."
+        },
+        {
+          "id": 4,
+          "question": "In the 4 Levels of Consumer Awareness, what does \"Vaguely Aware\" mean?",
+          "answer": "The consumer is aware of the 'Big Picture' but has made no self-relevance to the problem (they feel it doesn't affect them).",
+          "keyPoint": "Messaging at this stage must bridge the gap between a broad issue and the individual's personal life or business."
+        },
+        {
+          "id": 5,
+          "question": "What is the primary purpose of the \"Free Engagement (Trial) LEVEL\" in the Digital Client On-Boarding Funnel?",
+          "answer": "To respond to the level of engagement by offering relevance (like a 'How to Guide' or brochure) in exchange for a name, email, or phone number.",
+          "keyPoint": "Top-of-funnel marketing is a value exchange meant strictly to capture contact details for future relationship building."
+        },
+        {
+          "id": 6,
+          "question": "What happens at the very bottom of the marketing funnel once you have secured the customer?",
+          "answer": "You must focus on Retention and Expansion (Upsell) with the goal of creating Advocates.",
+          "keyPoint": "The marketing process does not stop at the sale; cultivating referrals and loyal advocates is crucial for sustainable growth."
+        },
+        {
+          "id": 7,
+          "question": "What are the four core column headers required to complete the \"1 Page Marketing Plan\"?",
+          "answer": "Target Market, Message, Mediums, and Frequency/Budget/Time.",
+          "keyPoint": "A clear plan forces you to allocate specific resources (money and time) to specific messages aimed at specific audiences via specific channels."
+        },
+        {
+          "id": 8,
+          "question": "According to the Marketing Statement Examples, how does an advisor describe \"What makes me Unique\"?",
+          "answer": "Blending advanced knowledge of personality types with 17 years of practical consulting experience to tailor plans and reduce fear.",
+          "keyPoint": "Uniqueness must combine tangible experience with a specific methodology that directly benefits the client's emotional or operational state."
+        },
+        {
+          "id": 9,
+          "question": "In the Purchase Decision Process, what criteria does a consumer evaluate when you \"Provide Solution\"?",
+          "answer": "Certainty of Outcome, Cost/Benefits Comparison to 'Next-Best' Alternatives, Affordability, Likeability, Ease & Convenience, Impact on others, and Social Status.",
+          "keyPoint": "A solution isn't just about functionality; buyers weigh emotional, social, and comparative risks before committing."
+        },
+        {
+          "id": 10,
+          "question": "What is the main objective of the \"Premium Service LEVEL\" inside the digital funnel?",
+          "answer": "To provide the very best of you, focusing heavily on the quality of the EXPERIENCE rather than just solving the core problem.",
+          "keyPoint": "Premium pricing is justified by the experiential delivery of the service, not merely the transactional outcome."
+        }
+      ]
+    },
+    "Sales Session": {
+      "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
+      "transcribed": "2026-07-21",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is the primary focus of \"Point of Sale\" selling compared to other arenas?",
+          "answer": "It is more product and features/benefits oriented, with a greater emphasis being placed on the close.",
+          "keyPoint": "Point of sale assumes the customer's motive for purchase is already clear prior to them approaching, requiring less investigative work."
+        },
+        {
+          "id": 2,
+          "question": "What defines \"Consultancy selling\" in the Sales Arena?",
+          "answer": "It occurs over a greater length of time with more emphasis placed on the 'investigative' aspects of the client's needs and the business relationship itself.",
+          "keyPoint": "Consultancy selling requires patience and deep discovery, focusing on the beginning of a relationship rather than just the end transaction."
+        },
+        {
+          "id": 3,
+          "question": "In sales psychology, what is \"Congruence\"?",
+          "answer": "Being together, aligned, or consistent in how you approach an issue, creating a somatic connection where both parties feel trust has been 'well placed'.",
+          "keyPoint": "Consumers easily detect insincerity; true congruence ensures your physiology, intent, framework, and tonality all match."
+        },
+        {
+          "id": 4,
+          "question": "What physiological reaction occurs in a customer if a salesperson lacks congruence and gives off a \"poor vibe\"?",
+          "answer": "Norepinephrine and epinephrine flood their brain, they enter a higher state of alert, and instantly look for actions or words associated with danger.",
+          "keyPoint": "Breaking trust biologically triggers defensive mechanisms in the buyer, effectively ruining the chance to influence them."
+        },
+        {
+          "id": 5,
+          "question": "What are the 4 chronological steps in the Psychology of the Sale?",
+          "answer": "1. Identify the need/want, 2. Create the desire to act, 3. Provide the solution, 4. Help to buy.",
+          "keyPoint": "Attempting to provide a solution before creating the desire to act (identifying consequence and urgency) will result in a lost sale."
+        },
+        {
+          "id": 6,
+          "question": "How does a \"Pragmatist\" processing style react to new information?",
+          "answer": "They are emotive but want reassurance; they seek PROOF by way of data, testimonials, statistics, and case study examples.",
+          "keyPoint": "You must tailor your sales presentation to provide concrete evidence when dealing with a pragmatist."
+        },
+        {
+          "id": 7,
+          "question": "What must a salesperson do when engaging with a \"Reflector\" processing style?",
+          "answer": "Give them TIME; decisions disturb them emotionally, so they need to withdraw and work through the process internally.",
+          "keyPoint": "Pushing a Reflector for an immediate close will backfire; the sales process must accommodate their need for space."
+        },
+        {
+          "id": 8,
+          "question": "What does the concept \"Holes Not Drill Bits\" teach about framing a sales pitch?",
+          "answer": "That a feature (a tungsten-tipped drill bit) is merely an aspect of the product, but you must sell the BENEFIT (clean holes exactly where you want them, with less effort).",
+          "keyPoint": "Customers do not buy components; they buy the advantageous outcomes those components deliver."
+        },
+        {
+          "id": 9,
+          "question": "When drafting a tender proposal, why is it critical to use separator cards and a contents page?",
+          "answer": "Because large documents will inevitably be re-visited by reviewers, and you must make it easy for those involved to quickly find specific information.",
+          "keyPoint": "A poor layout causes frustration under a deadline, which can lead to a proposal being unfairly marginalized."
+        },
+        {
+          "id": 10,
+          "question": "What is identified as the biggest cause of tender \"blowouts\"?",
+          "answer": "Communication.",
+          "keyPoint": "Tender success requires explicitly stating how you will manage the flow of information, handle bottlenecks, and run agendas and reports to ensure project clarity."
+        }
+      ]
+    },
+    "People Session": {
+      "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
+      "transcribed": "2026-07-21",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What are the 5 Drivers of Human Output used to diagnose staff performance?",
+          "answer": "Knowledge, Skill, Resource (and Planning), Environment, and Mindset.",
+          "keyPoint": "Poor performance should not be lumped into a single generic viewpoint; it must be systematically broken down into these five root causes to coach effectively."
+        },
+        {
+          "id": 2,
+          "question": "What is the realistic, non-linear sequence of the \"Emotional Reaction Towards Learning Curve\"?",
+          "answer": "Shock, Avoidance, Testing, and Acceptance (before eventually reaching implementation/skill).",
+          "keyPoint": "Owners mistakenly expect learning to be a straight line upward; understanding the emotional dip prevents abandonment when initial mistakes happen."
+        },
+        {
+          "id": 3,
+          "question": "What are the four required steps in the proven Delegation Model?",
+          "answer": "Clarify, Agree, Direct, Review.",
+          "keyPoint": "Omitting the \"Review\" loop leaves the delegator anxious and the employee feeling 'thrown in the deep end' without a safety net."
+        },
+        {
+          "id": 4,
+          "question": "Why is the standard P.I.P (Praise, Improvement, Praise) feedback model considered flawed?",
+          "answer": "Because the receiver waits for the \"but,\" becomes defensive, and completely misses or diminishes the power of the first praise.",
+          "keyPoint": "Standard 'sandwich' feedback triggers anxiety rather than fostering genuine improvement."
+        },
+        {
+          "id": 5,
+          "question": "How should you structure feedback using the superior IPP model?",
+          "answer": "Offer one specific Improvement (dealing in observed behavior), get the words from their mouths on how to fix it, and THEN support with two specific Positives.",
+          "keyPoint": "Hitting the improvement first clears the air, and ending on double praise reinforces boundaries while leaving the employee motivated."
+        },
+        {
+          "id": 6,
+          "question": "What are the three primary drivers listed under the \"80/20 of Employee Motivation\"?",
+          "answer": "Security, Autonomy/Contribution, and Fair Rewards.",
+          "keyPoint": "Employees need to know their job is safe, feel trusted to make decisions that matter, and perceive their monetary compensation as equitable compared to peers."
+        },
+        {
+          "id": 7,
+          "question": "In Linda Hill's leadership research, what defines a culture of \"Creative Abrasion\"?",
+          "answer": "A culture where healthy debate is encouraged, teams amplify their differences, and they 'clash ideas' against each other by playing the ball and not the player.",
+          "keyPoint": "Innovation requires intellectual friction and diverse input without descending into personal attacks."
+        },
+        {
+          "id": 8,
+          "question": "What is the definition of \"Creative Resolution\" in a high-performing team?",
+          "answer": "The team refuses to 'go-along-to-get-along' if it compromises quality or innovation; they combine ideas for a better outcome rather than appeasing someone's ego.",
+          "keyPoint": "True leadership does not prioritize artificial harmony over achieving the best commercial or innovative result."
+        },
+        {
+          "id": 9,
+          "question": "How is \"Skill\" explicitly differentiated from \"Knowledge\" in the human output drivers?",
+          "answer": "Skill is the understanding of the practical application gained by way of Practiced Actions, whereas Knowledge is just new information mixed with past experience.",
+          "keyPoint": "An employee can read a manual (Knowledge) but will fail to execute without applied, repetitive practice (Skill)."
+        },
+        {
+          "id": 10,
+          "question": "What specific phrasing is recommended in the \"Review\" phase of delegating a task?",
+          "answer": "\"Are we clear on what needs to happen now?, we'll meet back on ...day/time to see how we're progressing.\"",
+          "keyPoint": "Setting an explicit feedback loop eliminates ambiguity regarding deadlines and oversight."
+        }
+      ]
+    },
+    "Process Session": {
+      "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
+      "transcribed": "2026-07-21",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is the fundamental difference between a Process and a System?",
+          "answer": "A process is a sequence of actions to produce a component (e.g., building an engine), while a system is a collection of interdependent processes acting as a whole (e.g., assembling the entire car).",
+          "keyPoint": "Business improvement requires distinguishing between a single procedural task and the overarching architecture of the company."
+        },
+        {
+          "id": 2,
+          "question": "What are the five sequential stages of the Process Improvement Cycle?",
+          "answer": "Identify, Design, Test, Implement, Review.",
+          "keyPoint": "Altering business workflows must follow a controlled loop to ensure changes are modeled, tested in a pilot group, and measured against KPIs before total rollout."
+        },
+        {
+          "id": 3,
+          "question": "When comparing systems methodologies, what is the primary focus of \"Lean thinking\"?",
+          "answer": "To remove waste (creating a flow-focused effect with reduced flow time).",
+          "keyPoint": "Lean assumes that many small improvements in waste removal are better than heavy systems analysis."
+        },
+        {
+          "id": 4,
+          "question": "When comparing systems methodologies, what is the primary theory behind \"Six Sigma\"?",
+          "answer": "To reduce variation (creating uniform process output).",
+          "keyPoint": "Six Sigma is problem-focused, operating on the assumption that system output improves if numerical variance is minimized."
+        },
+        {
+          "id": 5,
+          "question": "What are the two most critically important aspects of any System?",
+          "answer": "DESIGN (Architecture) and FEEDBACK LOOP.",
+          "keyPoint": "Design ensures the correct order of resources, while the feedback loop is vital for identifying and removing errors dynamically."
+        },
+        {
+          "id": 6,
+          "question": "What is the purpose of a \"Redundant System\" in advanced operations?",
+          "answer": "It allows whole sections to 'shut down' or be replaced by another system in the event of a major system error.",
+          "keyPoint": "Redundancy provides a fail-safe mechanism, protecting the business from catastrophic operational failure."
+        },
+        {
+          "id": 7,
+          "question": "What is the recommended limit for the number of 'Nodes' (action steps) in a flowchart illustration?",
+          "answer": "Between 5 to 13 Nodes.",
+          "keyPoint": "Visual systems design must balance adequate detail with cognitive limits to remain useful."
+        },
+        {
+          "id": 8,
+          "question": "Why should you avoid putting more than 13 nodes into a single flowchart?",
+          "answer": "Because too many nodes will create information overload.",
+          "keyPoint": "If a process is too complex, it should be broken down into sub-processes to keep visual training tools comprehensible for the team."
+        },
+        {
+          "id": 9,
+          "question": "In Systems Thinking, what is \"feedback\" defined as?",
+          "answer": "The reaction triggered by an action, which can be Reinforcing feedback (linear loop) or Counteracting/balancing feedback (dynamic loop).",
+          "keyPoint": "Systems are cyclical chains of causality; an action creates an effect, which eventually feeds back into the system, sometimes with delays."
+        },
+        {
+          "id": 10,
+          "question": "What philosophy did Ray Kroc (McDonald's) adopt regarding business challenges?",
+          "answer": "\"Got a problem?, make it a process, it won't be a problem anymore...\"",
+          "keyPoint": "Unpredictable challenges can be neutralized by engineering standard operating procedures rather than relying on spontaneous problem-solving."
+        }
+      ]
+    },
+    "Growth Framework": {
+      "source": "Course Builder Quiz/Growth Fundamentals Framework.pdf",
+      "transcribed": "2026-07-21",
+      "entries": [
+        {
+          "id": 1,
+          "question": "At which growth stage does a business command a sizable market share and create a \"barrier to entry\" for any competing business?",
+          "answer": "The Maturity stage.",
+          "keyPoint": "The Maturity stage represents a point where market share is substantial and the business acts as a barrier to new entrants."
+        },
+        {
+          "id": 2,
+          "question": "What is the business equivalent of \"resting for lunch\" before attempting the \"Devil's Toilet\" rapid?",
+          "answer": "\"Bank your profits\" and improve your systems before setting off for glory.",
+          "keyPoint": "A high degree of complacency and fatigue can occur between the \"lifestyle\" and \"leverage\" stages; therefore, securing profits and systems is critical to surviving the pulling and sucking forces of this dangerous transition."
+        },
+        {
+          "id": 3,
+          "question": "What specific growth tactic corresponds to the \"Design - Launch - Break-even\" stages?",
+          "answer": "Growth through Enthusiasm & Creativity (Foundation).",
+          "keyPoint": "This foundational tactic is all about \"pushing hard,\" keeping your head down, and achieving the momentum and subsequent learning necessary for early business survival."
+        },
+        {
+          "id": 4,
+          "question": "Which psychological error, known as a \"Psyche Error,\" is associated with the \"Intelligence\" layer of complexity?",
+          "answer": "Optimism Bias.",
+          "keyPoint": "Optimism bias is the attempt to avoid noticing what you don't know, characterized by a tendency to delete negative information to support existing beliefs and secure attachments."
+        },
+        {
+          "id": 5,
+          "question": "How is \"Replication\" defined within the context of Growth Stage Fundamentals?",
+          "answer": "Replication is the ability for a team member to do ALL of a task, or the ability to automate or reproduce an item with relative ease.",
+          "keyPoint": "Mastering delegation, replication, and quantification allows a business owner to dissect activities and magnify value, which is the core mechanism to achieve Leverage."
+        },
+        {
+          "id": 6,
+          "question": "How is \"Average Customer Spend\" calculated according to the 8 Profit Levers?",
+          "answer": "Total Sales Value divided by Total Number of Transactions.",
+          "keyPoint": "Knowing specific financial formulas is essential for understanding your revenue drivers; Average Customer Spend multiplied by Average Customer Frequency and the Number of Customers equals Total Revenue."
+        },
+        {
+          "id": 7,
+          "question": "What psychological phenomenon occurs when someone focuses on the loss of investment to-date rather than the probable future outcome?",
+          "answer": "The Sunk Cost Fallacy (sometimes known as the \"Gambler's Archipelago\").",
+          "keyPoint": "Understanding supplementary psychological phenomenons is vital, as business owners can fall into the trap of thinking \"If I can just get to spot x, I can fix things from there\" instead of making objective choices."
+        },
+        {
+          "id": 8,
+          "question": "What holds a business owner back during the \"Leverage\" stage?",
+          "answer": "Lack of faith in Key Staff (poor delegation/visibility) or a reluctance to \"let go\" of a business model built around a specialist service provider.",
+          "keyPoint": "Without properly ingrained governance and delegation protocols, an owner will remain overly reliant on themselves, failing to reach a stage where the business can sustain them hands-off."
+        },
+        {
+          "id": 9,
+          "question": "Within the 9 Growth Aspects, which aspect deals with values (cultural), marketing (outbound messaging), aesthetics, and the \"vibe/morale\"?",
+          "answer": "Authenticity.",
+          "keyPoint": "Maintaining balanced growth means managing nine distinct operational aspects; Authenticity ensures that the internal culture and external messaging remain cohesive at every stage."
+        },
+        {
+          "id": 10,
+          "question": "What psychological driver is largely responsible for Confirmation Bias?",
+          "answer": "Cognitive Dissonance.",
+          "keyPoint": "When a business owner's reality is not aligned with their desires, they search for shared views to avoid anxiety, which suppresses their growing fears but leads to repeating the same mistakes."
+        },
+        {
+          "id": 11,
+          "question": "What three questions must be answered to determine if \"Fundamentals\" are truly present before a business takes new growth steps?",
+          "answer": "Do we truly understand it?, do we do it consistently?, and are we doing it well? (Have we mastered it?).",
+          "keyPoint": "Human nature pushes toward the \"new and fresh,\" but genuine business growth relies on mastering robust foundations before expanding."
+        },
+        {
+          "id": 12,
+          "question": "What biological or scientific state must occur before organizational expansion can happen?",
+          "answer": "A period of dormancy, or homeostasis, where the organism must 're-group' expending energy in pursuit of gain.",
+          "keyPoint": "The growth curve mimics a 'Sigmoid-type/Sine Wave-type' regenerative cycle; growth only emerges AFTER proper conditions and sustenance are present."
+        },
+        {
+          "id": 13,
+          "question": "How is a \"Framework\" defined within this methodology?",
+          "answer": "The Designed Structure that guides future actions or form.",
+          "keyPoint": "Frameworks are critical because they help capture the thinking, observation, reflections, and actions of those striving for business excellence."
+        },
+        {
+          "id": 14,
+          "question": "What is the primary psychological function the Framework performs for the client?",
+          "answer": "It Creates Self Relevance.",
+          "keyPoint": "Self relevance is critical for both learning the material and developing the inner motivation to want to act on it."
+        },
+        {
+          "id": 15,
+          "question": "How does the Framework establish \"Context\" for the client?",
+          "answer": "By creating recognition of 'where you are' based on knowing 'where you've come from' and 'where you're headed'.",
+          "keyPoint": "A client cannot navigate future growth without contextualizing their current position against their past history and future goals."
+        },
+        {
+          "id": 16,
+          "question": "In the Psyche Error fables, which story is used to illustrate Confirmation Bias?",
+          "answer": "The Bear and the Salmon.",
+          "keyPoint": "The bear ignored reality and maintained his belief that the salmon would come at dusk, illustrating how individuals suppress truth that misaligns with their desires."
+        },
+        {
+          "id": 17,
+          "question": "Which fable character demonstrates the error of Complacency by failing to prepare for winter?",
+          "answer": "Barney the Badger.",
+          "keyPoint": "Past success doesn't guarantee future security; resting on perceived security leads to a depletion of reserves when conditions change."
+        },
+        {
+          "id": 18,
+          "question": "What is the moral of the fable \"The Sparrow and the Hawk\" (Role Identification)?",
+          "answer": "True role identification involves recognizing and embracing one's own strengths and limitations, rather than adopting a persona that doesn't authentically reflect one's capabilities.",
+          "keyPoint": "Mimicking an aspirational figure or \"acting like a boss\" leads to poor decision-making and an inability to find balance between authenticity and situational demands."
+        },
+        {
+          "id": 19,
+          "question": "What is the primary difference in audience and complexity between the 'Full' Growth Fundamentals Framework and the 'Lite' Fundamentals Framework?",
+          "answer": "The 'Full' version is comprehensive, requires considerable effort/time (~10 hours), and targets larger, complex businesses. The 'Lite' version limits the scope of engagement to reduce the sales process to just 1 meeting for clients who cannot afford the full suite.",
+          "keyPoint": "While both are based on the same contextual theory, the Lite version limits scope to build client confidence over time before introducing heavier holistic tools."
+        },
+        {
+          "id": 20,
+          "question": "What are the three distinct divisions or phases tracked in the Life/Design-to-Breakeven business focus areas?",
+          "answer": "Get Organised, Get the Job, Do the Job.",
+          "keyPoint": "Practicing business fundamentals at the earliest stages requires breaking management and operational systems down into these three foundational action categories."
+        }
+      ]
+    },
+    "Lite Fundamentals": {
+      "source": "Course Builder Quiz/Growth Fundamentals Framework.pdf",
+      "transcribed": "2026-07-21",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What are the three primary organizational pillars of the Lite Fundamentals Components?",
+          "answer": "Get Organised, Get the Job, Do the Job.",
+          "keyPoint": "Structuring a business requires breaking down operations into manageable phases: organizing foundations, acquiring clients, and delivering the service or product."
+        },
+        {
+          "id": 2,
+          "question": "Which two specific components fall under the \"Get Organised\" pillar?",
+          "answer": "Planning and Data.",
+          "keyPoint": "Proper organization stems from \"Lite Planning\" (aligning owner expectations) and \"Lite Data\" (knowing what matters)."
+        },
+        {
+          "id": 3,
+          "question": "Which two specific components make up the \"Get the Job\" pillar?",
+          "answer": "Marketing and Selling.",
+          "keyPoint": "Client acquisition requires identifying who you want to speak to (Marketing) and successfully winning their business (Sales)."
+        },
+        {
+          "id": 4,
+          "question": "Which two specific components define the \"Do the Job\" pillar?",
+          "answer": "People and Process.",
+          "keyPoint": "Execution relies on getting the most out of your workforce (People) and continuously making operational improvements (Process)."
+        },
+        {
+          "id": 5,
+          "question": "How is a \"System\" defined within the Lite Fundamentals Framework?",
+          "answer": "\"A set of things working together as parts of a mechanism or an interconnecting network; a complex whole.\".",
+          "keyPoint": "Business functions act as systems requiring distinct inputs to generate measurable, successful outputs."
+        },
+        {
+          "id": 6,
+          "question": "What are three key elements tracked or prioritized within the Marketing component?",
+          "answer": "Client Segmentation, Focused messaging, Brand recognition, and Market Analytics.",
+          "keyPoint": "Marketing cannot be generalized; it requires clear identification of the target audience and analytics to confirm understanding and allocate resources effectively."
+        },
+        {
+          "id": 7,
+          "question": "What metrics are generated as \"Outputs\" from the Sales system?",
+          "answer": "# of Sales, Avg' Sale Value, Repeat Purchases, Conversion ratios, and Shortened sales time.",
+          "keyPoint": "Measuring these exact ratios and figures determines the efficiency of transforming marketing leads into actual revenue."
+        },
+        {
+          "id": 8,
+          "question": "What is the primary focus of \"Lite Planning\"?",
+          "answer": "Aligning Owner Expectations with the Business Model.",
+          "keyPoint": "Strategic success requires the owner's personal desires and orientation to match the reality of the business's structure and scale."
+        },
+        {
+          "id": 9,
+          "question": "What is the core goal of the \"Lite Process\" component?",
+          "answer": "Making Improvements, Step by Step.",
+          "keyPoint": "Process management is dedicated to people effectiveness, reliability, systems interdependency, and incremental business improvements to ensure quality delivery."
+        },
+        {
+          "id": 10,
+          "question": "Name three areas of focus categorized under the \"People\" component.",
+          "answer": "Staff engagement, Staff proximity/locations, Skills development, Leadership/Morale, Internal communication, or Staffing numbers/divisions.",
+          "keyPoint": "Managing people effectively goes beyond hiring; it encompasses cultural, communicative, and developmental tracking to maximize human output."
+        }
+      ]
     }
   }
 }
