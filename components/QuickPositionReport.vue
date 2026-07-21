@@ -180,8 +180,8 @@
 </template>
 
 <script>
-import debounce from 'lodash/debounce'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportRecompute from '~/mixins/reportRecompute'
 
 /**
  * QuickPositionReport — step 3 of the Quick Position report: the live survival
@@ -196,7 +196,7 @@ import currencyMixin from '~/mixins/currencyMixin'
 export default {
   name: 'QuickPositionReport',
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportRecompute],
 
   props: {
     /**
@@ -245,8 +245,8 @@ export default {
       },
       serviceBusiness: !!seed.serviceBusiness,
       expenseLines: seed.expenseLines || null,
-      result: null,
-      error: false
+      result: null
+      // `error` (stale flag) is provided by the reportRecompute mixin.
     }
   },
 
@@ -303,24 +303,12 @@ export default {
   watch: {
     inputs: {
       deep: true,
-      handler () { this._debouncedRecompute() }
+      handler () { this.queueRecompute() }
     }
-  },
-
-  created () {
-    // Debounced so slider drags don't flood the backend (calc is backend-only)
-    this._debouncedRecompute = debounce(this.recompute, 250)
-    // Monotonic request stamp (R10): debounce spaces call STARTS only — a slow older
-    // response must never overwrite a newer one. Non-reactive by design.
-    this._reqSeq = 0
   },
 
   mounted () {
     this.recompute()
-  },
-
-  beforeDestroy () {
-    this._debouncedRecompute.cancel()
   },
 
   methods: {
@@ -337,8 +325,12 @@ export default {
     monthsText (m) {
       return m === null || m === undefined ? '∞' : this.oneDp(m)
     },
-    /** Calc runs backend-only; the screen never computes the model itself. */
-    recompute () {
+    /**
+     * The backend request for this report — consumed by the reportRecompute mixin,
+     * which owns the debounce, race guard and stale flag. Calc is backend-only.
+     * @returns {{ url: string, body: object }}
+     */
+    recomputeRequest () {
       const i = this.inputs
       const body = {
         cash: i.cash,
@@ -365,23 +357,11 @@ export default {
       if (this.expenseLines) {
         body.expenseLines = this.expenseLines.map(l => ({ amount: l.amount, maintainedPct: 1 }))
       }
-      const seq = ++this._reqSeq
-      fetch('/api/report/quick-position', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      })
-        .then(res => res.json())
-        .then((json) => {
-          if (seq !== this._reqSeq) { return } // superseded — discard (R10)
-          if (json.success) {
-            this.result = json.data
-            this.error = false
-          } else {
-            this.error = true
-          }
-        })
-        .catch(() => { if (seq === this._reqSeq) { this.error = true } })
+      return { url: '/api/report/quick-position', body }
+    },
+    /** Apply a successful recompute — consumed by the reportRecompute mixin. */
+    applyResult (data) {
+      this.result = data
     },
     /** One click: the P&L-seeded review becomes the monthly fixed costs — tagged from file (R11). */
     useExpensesMonthly () {
