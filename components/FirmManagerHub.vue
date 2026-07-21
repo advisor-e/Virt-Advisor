@@ -172,7 +172,9 @@ section.firm-manager-hub.section
                 :style="{ borderLeftColor: stepColour(step.step).accent, backgroundColor: stepColour(step.step).tint }"
               )
                 .staircase-step-head
-                  span.staircase-step-badge(:style="{ backgroundColor: stepColour(step.step).accent }") {{ step.step }}
+                  //- Text colour comes from the tone, not a fixed white: on the
+                  //- lighter brand accents white is unreadable (cyan 2.51:1).
+                  span.staircase-step-badge(:style="{ backgroundColor: stepColour(step.step).accent, color: stepColour(step.step).fg }") {{ step.step }}
                   span.staircase-step-title Step {{ step.step }}
                 b-field(grouped)
                   b-field(label="Step name" expanded)
@@ -788,6 +790,7 @@ import DOMPurify from 'isomorphic-dompurify'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
+const { BLOCK_TONES } = require('~/utils/brandTokens')
 
 // The distinctions picker offers the Do-the-Job templates a distinction can meaningfully
 // boost. Do NOT filter on includedInClient (that field only governs client self-serve
@@ -844,13 +847,14 @@ const FRAMEWORK_KEYS = [
 // Per-step accent + faint background tint so each staircase step reads as its own
 // block (avoids "map-shock" — steps blending into one). Cycles if a firm ever has
 // more steps than colours.
-const STAIRCASE_STEP_COLORS = [
-  { accent: '#3e8ed0', tint: '#eef6fc' },
-  { accent: '#48c78e', tint: '#eefbf4' },
-  { accent: '#f4793b', tint: '#fdf2eb' },
-  { accent: '#7957d5', tint: '#f3effb' },
-  { accent: '#f14668', tint: '#fdecf0' }
-]
+//
+// Brought onto the brand palette 2026-07-22 (Mike's instruction). The former
+// values were Bulma defaults — a green, orange, purple and red that appear
+// nowhere in design/BRAND-TOKENS.md, whose rule is that the palette applies to
+// every screen. They also put white badge text on accents measuring as low as
+// 2.14:1, which a low-vision reader could not read; every tone now pairs the
+// accent with a text colour that clears 4.5:1. See utils/brandTokens.js.
+const STAIRCASE_STEP_COLORS = BLOCK_TONES
 
 export default {
   name: 'FirmManagerHub',
@@ -2059,7 +2063,8 @@ export default {
   width: 1.6rem;
   height: 1.6rem;
   border-radius: 50%;
-  color: #fff;
+  /* Colour is set inline per step from the tone — see utils/brandTokens.js.
+     It is not fixed white: white fails AA on the lighter brand accents. */
   font-weight: 700;
   font-size: 0.85rem;
   flex-shrink: 0;
