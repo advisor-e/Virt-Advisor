@@ -1,8 +1,17 @@
 # Report Scaffolding Plan — reusable building blocks for faster reports
 
-> **Status:** Plan approved by Mike 2026-07-21. Nothing built yet. This is a
-> multi-session workstream, done incrementally and behaviour-preserving — never a
+> **Status:** Plan approved by Mike 2026-07-21. **Phase 1 done; Phase 2's hero half done
+> and browser-verified (2026-07-21) — `SliderGroup` is the open half.** Live progress is
+> tracked in [`ACTIONS.md`](ACTIONS.md); this document is the design, not the status board.
+> A multi-session workstream, done incrementally and behaviour-preserving — never a
 > big-bang rewrite of the live report screens.
+>
+> **Scope correction from the Phase 2 build:** the six screens are *not* uniform, so the
+> table below overstates the reach. `HeroFigure` covers **5** screens — Eight Levers'
+> headline is a different design (light stat cards) and is deliberately excluded.
+> `SliderGroup` covers **4** — Quick Position's sliders are a different design again
+> (native track, provenance badge in the label, R22 dynamic ceiling) and EBITDA/DCF has
+> no sliders at all. Extraction stops where it would become a redesign.
 >
 > **Why:** each of the six report screens re-implements the same building blocks by
 > hand. That is slow to build the next report, and it lets fixes land in some reports
