@@ -618,6 +618,12 @@ section.firm-manager-hub.section
                 ) {{ editingDistinctionId ? 'Save changes' : 'Add distinction' }}
                 b-button(@click="closeDistinctionForm") Cancel
 
+      //- ── Tab: Quizzes (CB-31 Phase 3) ───────────────────────────────
+      //- Body lives in its own component — the Hub is already over the
+      //- decompose rule (CB-23), so a new tab adds a line here, not 200.
+      b-tab-item(:label="$t('firmQuizzes.tab')" icon="help-circle-outline")
+        firm-quizzes(:api-token="apiToken")
+
       //- ── Tab 4: Firm Profile ────────────────────────────────────────
       b-tab-item(label="Firm Profile" icon="domain")
         .columns
@@ -779,6 +785,7 @@ section.firm-manager-hub.section
 
 <script>
 import DOMPurify from 'isomorphic-dompurify'
+import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 
@@ -847,6 +854,8 @@ const STAIRCASE_STEP_COLORS = [
 
 export default {
   name: 'FirmManagerHub',
+
+  components: { FirmQuizzes },
 
   props: {
     firmId: { type: String, required: true },

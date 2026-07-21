@@ -1467,6 +1467,7 @@ async function saveStaircase (req, res) {
 // starting point and what the firm changed.
 
 const { CONFIG_KEY: QUIZ_KEY, validateQuizOverride, mergeQuizBanks } = require('../utils/firmQuizzes')
+const { listTemplatePages } = require('../utils/resolveTemplateName')
 const BASE_QUIZZES = require('../../data/course-quizzes.json')
 
 function _devReadQuizzes (firmId) {
@@ -1505,7 +1506,15 @@ async function _saveQuizOverride (firmId, cfg, savedBy) {
 
 /**
  * GET /api/firm-manager/quizzes — the firm's quiz material.
- * @returns {{base: Object, firmOverride: Object|null, merged: Object, hasOverride: boolean}}
+ *
+ * `pages` is the whole page library, not just the pages that have a quiz. The
+ * editor lists every sub-section including the empty ones, so a firm can SEE
+ * where it has no quiz material — hiding them would hide the gap. It comes from
+ * the resolver's own list, so the pages offered are exactly the pages a save
+ * will accept.
+ *
+ * @returns {{base: Object, firmOverride: Object|null, merged: Object,
+ *            hasOverride: boolean, pages: Array<Object>}}
  */
 async function getQuizzes (req, res) {
   try {
@@ -1518,7 +1527,8 @@ async function getQuizzes (req, res) {
       base,
       firmOverride,
       merged: mergeQuizBanks(base, firmOverride),
-      hasOverride: firmOverride !== null
+      hasOverride: firmOverride !== null,
+      pages: listTemplatePages()
     })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)

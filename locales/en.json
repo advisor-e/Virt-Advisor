@@ -479,5 +479,32 @@
         "sub": "Built from the client's accounts."
       }
     }
+  },
+  "firmQuizzes": {
+    "tab": "Quizzes",
+    "lede": "Where your firm owns its quiz material — the questions the course builder uses when it tests an advisor on a page.",
+    "searchPlaceholder": "Search pages and questions",
+    "showEmpty": "Show sub-sections with no quizzes",
+    "railLabel": "Sections and sub-sections",
+    "ungrouped": "Ungrouped",
+    "quizCount": "1 quiz | {n} quizzes",
+    "none": "none",
+    "noQuizYet": "No quiz material yet",
+    "noMatchHere": "No match here",
+    "pickAPage": "Pick a page on the left",
+    "pickAPageHint": "Its questions open here, ready to edit.",
+    "duplicateNameTag": "Duplicate name",
+    "duplicateNameWarning": "This page name appears more than once in your library, so a quiz cannot be reliably attached to it — we will not guess which page you mean. Make the name unique in the master app and it becomes editable here.",
+    "originPlatform": "Provided with the platform",
+    "originFirm": "Edited by your firm",
+    "questionCount": "1 question | {n} questions",
+    "answer": "Answer",
+    "keyPoint": "Key point",
+    "historyHeading": "Earlier versions",
+    "historyVersion": "Version",
+    "historySavedBy": "Saved by",
+    "historyDate": "Date",
+    "historyEmpty": "No firm changes saved yet — these are the questions as provided. Once you edit and save, every earlier version is kept here and can be restored.",
+    "loadFailed": "Your quiz material could not be loaded. Please try again, and tell us if it keeps happening."
   }
 }
