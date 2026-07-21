@@ -87,7 +87,10 @@
       //- numbers on screen would look live while describing the previous inputs.
       .lev-stale(v-if="error")
         .lev-stalehead {{ $t('report.staleTitle') }}
-        p.lev-stalebody {{ error }}
+        //- `error` is the mixin's boolean stale FLAG, not a message — rendering it
+        //- directly printed the word "true" at the advisor (regression from the Phase 1b
+        //- mixin conversion, a438276). Same wording as the other two banner reports.
+        p.lev-stalebody {{ $t('report.calcUnreachable') }}
         b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
 
       .lev-headline(:class="{ 'is-stale': error }")
@@ -154,7 +157,8 @@
     main.lev-main(v-else-if="error")
       .lev-panel.lev-error
         h2.lev-ph {{ $t('report.calcFailedTitle') }}
-        p.lev-pnote {{ error }}
+        //- Same regression as the stale banner above — `error` is a boolean flag.
+        p.lev-pnote {{ $t('report.calcUnreachable') }}
         b-button(type="is-primary" @click="recompute") {{ $t('report.retry') }}
 
     main.lev-main(v-else)
