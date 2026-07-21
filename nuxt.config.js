@@ -30,7 +30,13 @@ export default {
 
   server: {
     port: 3000,
-    host: 'localhost'
+    // 127.0.0.1, NOT 'localhost'. On a dual-stack Windows machine 'localhost' resolves to
+    // ::1 first, so Node binds IPv6-only and http://127.0.0.1:3000 is refused — while
+    // http://localhost:3000 may or may not work depending on the browser's own resolution
+    // order. That cost an afternoon on 2026-07-21: every server-side check hit ::1 and
+    // reported healthy while the browser, on IPv4, saw nothing at all. Binding the IPv4
+    // loopback explicitly is what every browser tries first, and stays local-only.
+    host: '127.0.0.1'
   },
 
   head: {

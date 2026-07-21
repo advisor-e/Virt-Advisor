@@ -68,6 +68,36 @@ If anything is left uncommitted, the session ends by saying so out loud.
 
 ---
 
+## The running application — who owns it
+
+Added 2026-07-21, after an afternoon was lost to this. The rules above cover the *code*:
+branch, tests, commits, handover. They said nothing about the *running app*, and that gap
+is where the damage happened.
+
+**The dev server belongs to the human. An AI assistant never starts, stops or restarts
+it.** If it needs restarting, ask; the owner does it in their own terminal, where they can
+see the output. An AI that starts it in the background gets a server nobody can watch,
+configured however the AI guessed.
+
+**Never run `nuxt build` while a dev server is running.** They share the `.nuxt` folder.
+A build against a live dev server can leave it serving a mixture of old and new code —
+which then looks exactly like a code bug and gets debugged as one.
+
+**A server is only "reachable" at the address the user's browser actually uses.** Testing
+`localhost` and getting HTTP 200 proves nothing if the browser resolves to a different
+address. On 2026-07-21 every check returned 200 over IPv6 while the browser got nothing
+over IPv4, and that mismatch was mistaken for a healthy server four times over. Test the
+exact URL the person is typing, or say plainly that you have not.
+
+**When a symptom is "I can't see it" and the code provably compiled, get the actual error
+text before theorising.** "Nothing loads", "blank page", "connection refused" and "spinner
+forever" have different causes. Three rounds of guesswork cost more than one question
+asking what the screen says.
+
+**Verification that only a human can perform must be named as such.** The test suite
+cannot see a visual change. When a change is only provable by eye, say so, say which
+screens, and do not describe the work as verified until someone has looked.
+
 ## Integration — handing a version to the master coding team
 
 When both branches are in and `master` is green:
