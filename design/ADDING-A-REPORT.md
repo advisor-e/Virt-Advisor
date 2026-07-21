@@ -192,9 +192,18 @@ Not everything is duplication, and forcing these together would be a redesign:
 If a new report wants something outside this list, raise it as a design decision rather
 than building a second version of an existing block.
 
-## Known follow-up
+## The two guards that enforce this
 
-The badge/class rule in step 5 is currently enforced by *reading this document*. It could
-be enforced by a test that derives the expected badge from the catalogue's `modelClass`,
-the way the consistency guard derives its expectations from the real models. Worth doing
-next time someone is in this area.
+Two tests make the rules above unbreakable rather than merely written down. Both derive
+their expectations from real sources, so they cannot drift from the thing they check:
+
+- [`tests/unit/reportBadgeClass.component.test.js`](../tests/unit/reportBadgeClass.component.test.js)
+  — the badge/class rule of step 5, taken from the catalogue's own `modelClass` via its
+  own `usesRealClientData()` helper. **A shipped report with no entry in its route map is
+  a failure, not a skip**, so a new report cannot slip through unchecked.
+- [`tests/unit/reportHeadlineConsistency.component.test.js`](../tests/unit/reportHeadlineConsistency.component.test.js)
+  — mounts all six screens against real backend model output and fails if any hand-rolls
+  its headline, leaves stale figures bright, or warns with something transient.
+
+Both are mutation-verified: badging Quick Position "Illustrative" fails the first, and
+hand-rolling a headline fails the second.

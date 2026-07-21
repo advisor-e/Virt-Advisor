@@ -89,9 +89,27 @@ describe.each([
   it('passes no "Illustrative" badge — these run on the client’s real accounts', () => {
     // Asserted against the source: the badge is a claim about the figures, and these
     // two are built from the client's own Xero exports.
+    //
+    // NB: the attribute block must be extracted by matching parentheses, not by slicing
+    // to the first `)`. The block contains `$t('modelLibrary.backToLibrary')`, so a
+    // naive slice stops inside that call and never sees the badge line — this check
+    // passed against a deliberately mis-badged file until that was fixed (2026-07-22).
     const fs = require('fs')
     const src = fs.readFileSync(path.replace('~/', ''), 'utf8')
-    const header = src.slice(src.indexOf('report-header('), src.indexOf(')', src.indexOf('report-header(')))
-    expect(header).not.toContain('badge')
+    const open = src.indexOf('report-header(')
+    expect(open).toBeGreaterThan(-1)
+
+    let depth = 0
+    let header = ''
+    for (let i = open + 'report-header'.length; i < src.length; i++) {
+      if (src[i] === '(') { depth++ }
+      if (src[i] === ')') {
+        depth--
+        if (depth === 0) { header = src.slice(open, i + 1); break }
+      }
+    }
+
+    expect(header).not.toBe('')
+    expect(header).not.toMatch(/\bbadge\s*=/)
   })
 })
