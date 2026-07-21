@@ -80,7 +80,7 @@
           span.ddg-lead Coach
           | What this means
         p.ddg-edu-p(v-if="plan")
-          | Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to #[strong {{ money(plan.deepestLow.value) }}] in #[strong {{ monthName(plan.deepestLow.month) }}]{{ plan.deepestLow.value < 0 ? ', into overdraft,' : '' }} and you're in the red #[strong {{ plan.monthsInOverdraft }} months]. Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the cash cycle running backwards.
+          | Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to #[strong {{ money(plan.deepestLow.value) }}] in #[strong {{ monthName(plan.deepestLow.month) }}]{{ plan.deepestLow.value < 0 ? ', into overdraft,' : '' }} and you're in the red #[strong {{ plan.monthsInOverdraft }} months]. Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the working capital cycle running backwards.
 
       .ddg-actions
         button.ddg-cta(@click="downloadPdf") Download PDF

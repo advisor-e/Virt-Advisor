@@ -29,23 +29,25 @@
 
     //- RESULTS
     section.bpr-results(v-if="out")
-      .bpr-herostrip
-        .bpr-hs
-          .bpr-hk Working-capital cycle
-          .bpr-hv.num {{ round0(out.cycleDays) }} #[span.bpr-u days]
-          .bpr-hs2 cash tied up before you can trade again
-        .bpr-hs
-          .bpr-hk Cycle factor
-          .bpr-hv.num {{ round1(out.cycleFactorMonthly) }}×
-          .bpr-hs2 {{ round0(out.cycleFactorAnnual) }}× per year
-        .bpr-hs
-          .bpr-hk Annual revenue
-          .bpr-hv.num {{ money(out.annualRevenue) }}
-          .bpr-hs2 from {{ money(out.workingCapital) }} capital
-        .bpr-hs
-          .bpr-hk Net profit · monthly
-          .bpr-hv.num {{ money(out.netProfitMonthly) }}
-          .bpr-hs2
+      hero-strip
+        hero-figure(
+          label="Working-capital cycle"
+          :value="round0(out.cycleDays)"
+          unit="days"
+          sub="cash tied up before you can trade again"
+        )
+        hero-figure(
+          label="Cycle factor"
+          :value="round1(out.cycleFactorMonthly) + '×'"
+          :sub="round0(out.cycleFactorAnnual) + '× per year'"
+        )
+        hero-figure(
+          label="Annual revenue"
+          :value="money(out.annualRevenue)"
+          :sub="'from ' + money(out.workingCapital) + ' capital'"
+        )
+        hero-figure(label="Net profit · monthly" :value="money(out.netProfitMonthly)")
+          template(#sub)
             span.bpr-pill(:class="cashflowClass")
               span.bpr-pill-dot
               | {{ out.cashflowStatus }}
@@ -58,9 +60,9 @@
       //- CASH WHEEL
       .bpr-card.bpr-wheelcard
         .bpr-wheelhead
-          h2.bpr-h2 The cash cycle
+          h2.bpr-h2 The working capital cycle
           .bpr-cycsum turns #[b {{ round1(out.cycleFactorMonthly) }}×] a month · #[b {{ round0(out.cycleDays) }} days] per turn · less #[b {{ inputs.daysPayable }}d] to pay suppliers
-        svg.bpr-wheel(viewBox="0 0 500 360" role="img" aria-label="Working capital cash cycle: Cash to Stock to Sale to Debtors and back; fixed costs sit outside the cycle.")
+        svg.bpr-wheel(viewBox="0 0 500 360" role="img" aria-label="Working capital cycle: Cash to Stock to Sale to Debtors and back; fixed costs sit outside the cycle.")
           defs
             marker#bprAh(viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse")
               path(d="M0 0 L10 5 L0 10 z" fill="#0070c0")
@@ -131,6 +133,8 @@
  * a `report.*` locale namespace in a follow-up (see design/ACTIONS.md). Coach text is
  * templated (not AI) for the first build, per owner decision.
  */
+import HeroStrip from '~/components/base/HeroStrip'
+import HeroFigure from '~/components/base/HeroFigure'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -151,6 +155,8 @@ const DEFAULTS = {
 
 export default {
   name: 'BusinessPerformanceReport',
+
+  components: { HeroStrip, HeroFigure },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -176,7 +182,7 @@ fields: [
         ]
 },
         {
- title: 'The cash cycle (days)',
+ title: 'The working capital cycle (days)',
 fields: [
           { key: 'daysDeliverable', label: 'Days to deliver', min: 0, max: 30, step: 1, fmt: 'int' },
           { key: 'daysOnHand', label: 'Days stock on hand', min: 0, max: 60, step: 1, fmt: 'int' },
@@ -387,14 +393,8 @@ fields: [
 .bpr-hero{background:linear-gradient(135deg,#002b64,#0070c0);border-color:#0070c0}
 .bpr-hero .bpr-v,.bpr-hero .bpr-k,.bpr-hero .bpr-sub,.bpr-hero .bpr-unit{color:#ffffff}
 .bpr-eyebrow{color:#00b1e0}
-
-.bpr-herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
-@media (max-width:700px){.bpr-herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
-.bpr-hs{padding:2px 16px;border-left:1px solid #ffffff30}
-.bpr-hs:first-child{border-left:0;padding-left:2px}
-.bpr-hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
-.bpr-hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
-.bpr-hv .bpr-u{font-size:.5em;font-weight:400;opacity:.85}
-.bpr-hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
-.bpr-hs .bpr-pill{background:#ffffff26}
+/* The headline banner now lives in components/base/HeroStrip + HeroFigure.
+   The status pill is passed in through HeroFigure's `sub` slot, so it is still
+   styled here — `.herostrip` is HeroStrip's root, which the slot renders inside. */
+.herostrip .bpr-pill{background:#ffffff26}
 </style>

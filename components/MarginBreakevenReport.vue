@@ -28,23 +28,19 @@
           )
 
     section.mbk-results(v-if="data")
-      .mbk-herostrip
-        .mbk-hs
-          .mbk-hk Margin
-          .mbk-hv.num {{ pct(data.marginPct) }}
-          .mbk-hs2 of the sale price
-        .mbk-hs
-          .mbk-hk Mark-up
-          .mbk-hv.num {{ round1(data.markup) }}× · {{ pct(data.markup) }}
-          .mbk-hs2 of the cost price
-        .mbk-hs
-          .mbk-hk Cost of sales
-          .mbk-hv.num {{ pct(data.costOfSalesPct) }}
-          .mbk-hs2 of each sale dollar
-        .mbk-hs
-          .mbk-hk Break-even · monthly
-          .mbk-hv.num {{ money(data.requiredSales) }}
-          .mbk-hs2 {{ round0(data.requiredUnits) }} units to cover it
+      hero-strip
+        hero-figure(label="Margin" :value="pct(data.marginPct)" sub="of the sale price")
+        hero-figure(
+          label="Mark-up"
+          :value="round1(data.markup) + '× · ' + pct(data.markup)"
+          sub="of the cost price"
+        )
+        hero-figure(label="Cost of sales" :value="pct(data.costOfSalesPct)" sub="of each sale dollar")
+        hero-figure(
+          label="Break-even · monthly"
+          :value="money(data.requiredSales)"
+          :sub="round0(data.requiredUnits) + ' units to cover it'"
+        )
 
       .mbk-card.mbk-chartcard
         .mbk-chead
@@ -96,6 +92,8 @@
  * (POST /api/report/margin-breakeven); see server/report/marginBreakevenModel.js + golden test.
  * Coach text is templated (not AI) for this build; English placeholders pending report.* i18n.
  */
+import HeroStrip from '~/components/base/HeroStrip'
+import HeroFigure from '~/components/base/HeroFigure'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -103,6 +101,8 @@ const DEFAULTS = { price: 250, cost: 82.5, oh: 11500, draw: 8600, wif: 0 }
 
 export default {
   name: 'MarginBreakevenReport',
+
+  components: { HeroStrip, HeroFigure },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -291,12 +291,5 @@ path,
 .mbk-v{color:#0070c0}
 .mbk-tile{border-top:3px solid #00b1e0}
 .mbk-eyebrow{color:#00b1e0}
-
-.mbk-herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
-@media (max-width:700px){.mbk-herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
-.mbk-hs{padding:2px 16px;border-left:1px solid #ffffff30}
-.mbk-hs:first-child{border-left:0;padding-left:2px}
-.mbk-hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
-.mbk-hv{font-size:24px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
-.mbk-hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+/* The headline banner now lives in components/base/HeroStrip + HeroFigure. */
 </style>
