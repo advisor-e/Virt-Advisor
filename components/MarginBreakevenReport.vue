@@ -14,37 +14,33 @@
         .mbk-glabel
           span.mbk-dot
           h2.mbk-h2 {{ g.title }}
-        .mbk-field(v-for="fld in g.fields" :key="fld.k")
-          .mbk-frow
-            label {{ fld.label }}
-            output {{ fmtField(fld) }}
-          input(
-            type="range"
-            v-model.number="f[fld.k]"
-            :min="fld.min" :max="fld.max" :step="fld.step"
-            :class="{ wif: fld.k === 'wif' }"
-            :style="{ '--fill': fillPct(fld) }"
-            @input="queueRecompute"
-          )
+        slider-field(
+          v-for="fld in g.fields"
+          :key="fld.k"
+          :label="fld.label"
+          :display="fmtField(fld)"
+          :value="f[fld.k]"
+          :min="fld.min"
+          :max="fld.max"
+          :step="fld.step"
+          :tone="fld.k === 'wif' ? 'warn' : 'default'"
+          @input="v => setField(fld.k, v)"
+        )
 
     section.mbk-results(v-if="data")
-      .mbk-herostrip
-        .mbk-hs
-          .mbk-hk Margin
-          .mbk-hv.num {{ pct(data.marginPct) }}
-          .mbk-hs2 of the sale price
-        .mbk-hs
-          .mbk-hk Mark-up
-          .mbk-hv.num {{ round1(data.markup) }}× · {{ pct(data.markup) }}
-          .mbk-hs2 of the cost price
-        .mbk-hs
-          .mbk-hk Cost of sales
-          .mbk-hv.num {{ pct(data.costOfSalesPct) }}
-          .mbk-hs2 of each sale dollar
-        .mbk-hs
-          .mbk-hk Break-even · monthly
-          .mbk-hv.num {{ money(data.requiredSales) }}
-          .mbk-hs2 {{ round0(data.requiredUnits) }} units to cover it
+      hero-strip
+        hero-figure(label="Margin" :value="pct(data.marginPct)" sub="of the sale price")
+        hero-figure(
+          label="Mark-up"
+          :value="round1(data.markup) + '× · ' + pct(data.markup)"
+          sub="of the cost price"
+        )
+        hero-figure(label="Cost of sales" :value="pct(data.costOfSalesPct)" sub="of each sale dollar")
+        hero-figure(
+          label="Break-even · monthly"
+          :value="money(data.requiredSales)"
+          :sub="round0(data.requiredUnits) + ' units to cover it'"
+        )
 
       .mbk-card.mbk-chartcard
         .mbk-chead
@@ -59,15 +55,20 @@
           path(:d="chart.path" fill="none" stroke="#0070c0" stroke-width="2.6")
           circle(v-if="chart.now" :cx="chart.now.x" :cy="chart.now.y" r="4" fill="#8a97a8")
           circle(v-if="chart.chosen" :cx="chart.chosen.x" :cy="chart.chosen.y" r="5.5" fill="#ff9900")
-        .mbk-call
-          div At this price
-            b.num {{ money(data.chosen.newPrice) }}
-          div Margin becomes
-            b.num {{ pct(data.chosen.newMarginPct) }}
-          div You must sell
-            b.num {{ round0(data.chosen.unitsRequired) }} units
-          div vs now
-            b.num {{ diffText }}
+        //- The what-if answer. It lights up amber — matching the slider that drives it —
+        //- whenever the price change is off zero, because the blue hero figures
+        //- deliberately never move (they are today's position, not a hypothetical).
+        .mbk-call(:class="{ 'is-active': f.wif !== 0 }")
+          .mbk-callhead If you change your price
+          .mbk-callrow
+            div At this price
+              b.num {{ money(data.chosen.newPrice) }}
+            div Margin becomes
+              b.num {{ pct(data.chosen.newMarginPct) }}
+            div You must sell
+              b.num {{ round0(data.chosen.unitsRequired) }} units
+            div vs now
+              b.num {{ diffText }}
 
       .mbk-edu
         .mbk-edu-h
@@ -96,6 +97,9 @@
  * (POST /api/report/margin-breakeven); see server/report/marginBreakevenModel.js + golden test.
  * Coach text is templated (not AI) for this build; English placeholders pending report.* i18n.
  */
+import HeroStrip from '~/components/base/HeroStrip'
+import HeroFigure from '~/components/base/HeroFigure'
+import SliderField from '~/components/base/SliderField'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -103,6 +107,8 @@ const DEFAULTS = { price: 250, cost: 82.5, oh: 11500, draw: 8600, wif: 0 }
 
 export default {
   name: 'MarginBreakevenReport',
+
+  components: { HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -186,7 +192,16 @@ path,
       if (fld.fmt === 'signpct') { return (v > 0 ? '+' : '') + v + '%' }
       return v
     },
-    fillPct (fld) { return ((this.f[fld.k] - fld.min) / (fld.max - fld.min) * 100) + '%' },
+    /**
+     * A slider moved: store the new value and queue a recompute. Replaces the old
+     * `v-model.number` + `@input` pair — SliderField reports its value as an event,
+     * so the write and the recompute happen in one explicit place.
+     * @param {string} key - the field key in `f` @param {number} v
+     */
+    setField (key, v) {
+      this.f[key] = v
+      this.queueRecompute()
+    },
     payload () {
       return { price: this.f.price, cost: this.f.cost, overheads: this.f.oh, ownerDrawings: this.f.draw, priceChangePct: this.f.wif }
     },
@@ -247,14 +262,12 @@ path,
 .mbk-group:last-child { border-bottom:0; }
 .mbk-glabel { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
 .mbk-dot { width:7px; height:7px; border-radius:50%; background:var(--mbk-accent-bright); }
-.mbk-field { margin:11px 0; } .mbk-field:first-of-type { margin-top:0; }
-.mbk-frow { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:5px; }
-.mbk-frow label { font-size:12.5px; color:var(--mbk-ink); font-weight:300; }
-.mbk-frow output { font-size:13px; font-weight:600; color:var(--mbk-accent); }
-.mbk-field input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:4px; background:linear-gradient(var(--mbk-accent), var(--mbk-accent)) 0/var(--fill,50%) 100% no-repeat, var(--mbk-line); outline:none; }
-.mbk-field input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--mbk-panel); border:2px solid var(--mbk-accent); box-shadow:0 1px 3px #0003; cursor:pointer; }
-.mbk-field input.wif { background:linear-gradient(var(--mbk-warn), var(--mbk-warn)) 0/var(--fill,50%) 100% no-repeat, var(--mbk-line); }
-.mbk-field input.wif::-webkit-slider-thumb { border-color:var(--mbk-warn); }
+/* Sliders now live in components/base/SliderField. It reads these generic tokens, so
+   this screen keeps its own palette — including the dark-mode overrides above. */
+.mbk-root {
+  --sl-accent:var(--mbk-accent); --sl-line:var(--mbk-line); --sl-panel:var(--mbk-panel);
+  --sl-ink:var(--mbk-ink); --sl-warn:var(--mbk-warn); --sl-accent-soft:var(--mbk-accent-soft);
+}
 .mbk-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
 .mbk-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
 @media (max-width:640px) { .mbk-tiles { grid-template-columns:1fr; } }
@@ -268,7 +281,11 @@ path,
 .mbk-chead { display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; }
 .mbk-csub { font-size:12.5px; color:var(--mbk-muted); }
 .mbk-chart { display:block; width:100%; height:auto; max-width:780px; margin:8px auto 0; }
-.mbk-call { margin-top:12px; display:flex; gap:14px; flex-wrap:wrap; background:var(--mbk-panel-2); border:1px solid var(--mbk-line); border-radius:10px; padding:12px 14px; }
+.mbk-call { margin-top:12px; background:var(--mbk-panel-2); border:1px solid var(--mbk-line); border-radius:10px; padding:12px 14px; transition:background .2s, border-color .2s; }
+.mbk-callhead { font-size:11px; letter-spacing:.09em; text-transform:uppercase; font-weight:600; color:var(--mbk-muted); margin-bottom:9px; }
+.mbk-callrow { display:flex; gap:14px; flex-wrap:wrap; }
+.mbk-call.is-active { border-color:var(--mbk-warn); background:#ff99001a; }
+.mbk-call.is-active .mbk-callhead { color:var(--mbk-warn); }
 .mbk-call div { font-size:12px; color:var(--mbk-muted); }
 .mbk-call b { display:block; font-size:16px; color:var(--mbk-ink); font-weight:600; margin-top:2px; }
 .mbk-edu { border-left:3px solid var(--mbk-accent-bright); background:var(--mbk-accent-soft); border-radius:0 9px 9px 0; padding:15px 17px; }
@@ -291,12 +308,5 @@ path,
 .mbk-v{color:#0070c0}
 .mbk-tile{border-top:3px solid #00b1e0}
 .mbk-eyebrow{color:#00b1e0}
-
-.mbk-herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
-@media (max-width:700px){.mbk-herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
-.mbk-hs{padding:2px 16px;border-left:1px solid #ffffff30}
-.mbk-hs:first-child{border-left:0;padding-left:2px}
-.mbk-hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
-.mbk-hv{font-size:24px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
-.mbk-hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+/* The headline banner now lives in components/base/HeroStrip + HeroFigure. */
 </style>

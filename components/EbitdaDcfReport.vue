@@ -6,23 +6,29 @@
       .stalehead {{ $t('report.staleTitle') }}
       p.stalebody {{ $t('report.calcUnreachable') }}
       b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
-    .herostrip(:class="{ 'is-stale': error }")
-      .hs
-        .hk {{ $t('report.ebitdaDcf.hero.ev') }}
-        .hv(:class="{ crit: result.valuation.enterpriseValue < 0 }") {{ money(result.valuation.enterpriseValue) }}
-        .hs2 {{ $t('report.ebitdaDcf.hero.evSub') }}
-      .hs
-        .hk {{ $t('report.ebitdaDcf.hero.ebitda', { year: latestYear }) }}
-        .hv(:class="{ crit: latestEbitda < 0 }") {{ money(latestEbitda) }}
-        .hs2 {{ $t('report.ebitdaDcf.hero.ebitdaSub') }}
-      .hs
-        .hk {{ $t('report.ebitdaDcf.hero.npv') }}
-        .hv {{ money(result.valuation.sumDiscounted) }}
-        .hs2 {{ $t('report.ebitdaDcf.hero.npvSub', { from: futureYears[0], to: futureYears[futureYears.length - 1] }) }}
-      .hs
-        .hk {{ $t('report.ebitdaDcf.hero.terminal') }}
-        .hv {{ money(result.valuation.terminalValue) }}
-        .hs2
+    hero-strip(:stale="!!error")
+      hero-figure(
+        :label="$t('report.ebitdaDcf.hero.ev')"
+        :value="money(result.valuation.enterpriseValue)"
+        :sub="$t('report.ebitdaDcf.hero.evSub')"
+        :tone="result.valuation.enterpriseValue < 0 ? 'crit' : 'default'"
+      )
+      hero-figure(
+        :label="$t('report.ebitdaDcf.hero.ebitda', { year: latestYear })"
+        :value="money(latestEbitda)"
+        :sub="$t('report.ebitdaDcf.hero.ebitdaSub')"
+        :tone="latestEbitda < 0 ? 'crit' : 'default'"
+      )
+      hero-figure(
+        :label="$t('report.ebitdaDcf.hero.npv')"
+        :value="money(result.valuation.sumDiscounted)"
+        :sub="$t('report.ebitdaDcf.hero.npvSub', { from: futureYears[0], to: futureYears[futureYears.length - 1] })"
+      )
+      hero-figure(
+        :label="$t('report.ebitdaDcf.hero.terminal')"
+        :value="money(result.valuation.terminalValue)"
+      )
+        template(#sub)
           | {{ $t('report.ebitdaDcf.hero.terminalSub') }}
           input.mult(type="number" step="0.1" min="0" v-model.number="dcf.exitMultiple")
 
@@ -186,6 +192,8 @@
 </template>
 
 <script>
+import HeroStrip from '~/components/base/HeroStrip'
+import HeroFigure from '~/components/base/HeroFigure'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -207,6 +215,8 @@ const FAIRMARKET_ROWS = { fmSalaries: 'salaries', fmInsuranceRetirement: 'insura
 
 export default {
   name: 'EbitdaDcfReport',
+
+  components: { HeroStrip, HeroFigure },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -417,23 +427,14 @@ export default {
 .stale { background: #ff000010; border: 1px solid #ff0000; border-radius: 14px; padding: 12px 14px; }
 .stalehead { font-size: 13px; font-weight: 600; color: #ff0000; margin-bottom: 3px; }
 .stalebody { font-size: 12.5px; color: #5b6f8a; margin: 0 0 9px; line-height: 1.5; }
-.is-stale { opacity: .45; filter: grayscale(0.6); }
 /* Provenance badges on the printable P&L rows (R11) — same tokens as the intake table */
 .src { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; padding: 2px 6px; border-radius: 999px; white-space: nowrap; margin-left: 7px; }
 .src-file { color: #0070c0; background: #0070c018; border: 1px solid #0070c04d; }
 .src-hand { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }
-.herostrip {
-  background: linear-gradient(120deg, #002b64 0%, #0a56b0 55%, #00b1e0 135%);
-  border-radius: 14px; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr);
-  box-shadow: 0 12px 32px -12px #002b6466;
-}
-@media (max-width: 700px) { .herostrip { grid-template-columns: 1fr 1fr; gap: 14px 0; } }
-.herostrip .hs { padding: 2px 16px; border-left: 1px solid #ffffff30; }
-.herostrip .hs:first-child { border-left: 0; padding-left: 2px; }
-.herostrip .hk { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: #7fe4ff; font-weight: 700; }
-.herostrip .hv { font-size: 25px; font-weight: 700; color: #fff; margin-top: 7px; line-height: 1.05; }
-.herostrip .hv.crit { color: #ff8f8f; }
-.herostrip .hs2 { font-size: 12px; color: #c7e6fb; margin-top: 6px; }
+/* The headline banner now lives in components/base/HeroStrip + HeroFigure (which
+   also owns the greyed-out stale state). The editable exit multiple is passed in
+   through HeroFigure's `sub` slot, so it is still styled here — `.herostrip` is
+   HeroStrip's root, which the slot renders inside. */
 .herostrip .mult { width: 52px; margin-left: 6px; border: 0; border-radius: 5px; padding: 2px 6px; font: 600 12px "Open Sans", sans-serif; color: #002b64; }
 .card { background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0; border-radius: 14px; padding: 16px; }
 .card h2 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #002b64; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
