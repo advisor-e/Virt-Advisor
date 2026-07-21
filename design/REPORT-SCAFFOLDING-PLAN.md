@@ -1,7 +1,7 @@
 # Report Scaffolding Plan — reusable building blocks for faster reports
 
-> **Status:** Plan approved by Mike 2026-07-21. **Phases 1, 2 and 3 done and
-> browser-verified (Phase 3: 2026-07-22); Phase 4 is the open work.** Live progress is
+> **Status:** Plan approved by Mike 2026-07-21. **COMPLETE — all four phases done.** Phases 1–3 browser-verified
+> (Phase 3: 2026-07-22); Phase 4 is [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md). Live progress is
 > tracked in [`ACTIONS.md`](ACTIONS.md); this document is the design, not the status board.
 > A multi-session workstream, done incrementally and behaviour-preserving — never a
 > big-bang rewrite of the live report screens.
@@ -68,7 +68,7 @@
    R9 on the three older reports, which never greyed stale figures and warned only with a
    vanishing toast — a real defect, not chrome. `tests/unit/reportHeadlineConsistency.component.test.js`
    now fails the build if any screen hand-rolls its headline or warns transiently.
-4. **The recipe** — a short "how to add a report" doc and/or an `/add-report` skill.
+4. ✅ **DONE 2026-07-22 — the recipe: [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md).** 8 steps, a checklist, and what is deliberately NOT shared (so the next person does not "finish the job" on an exclusion that is structural). Verified at writing: the badge/class rule it states matches all six shipped models in code. One manual step it cannot remove — a new report must be added to the consistency guard's `SCREENS` list, which is explicit rather than discovered; the doc says so plainly.
 
 ## Migration approach (risk control)
 - One component / mixin at a time; convert each report to it, run the full suite, commit.
