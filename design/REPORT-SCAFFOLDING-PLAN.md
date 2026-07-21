@@ -1,14 +1,23 @@
 # Report Scaffolding Plan — reusable building blocks for faster reports
 
-> **Status:** Plan approved by Mike 2026-07-21. **Phases 1 and 2 done and browser-verified
-> (2026-07-21); Phases 3 and 4 are the open work.** Live progress is
+> **Status:** Plan approved by Mike 2026-07-21. **Phases 1, 2 and 3 done and
+> browser-verified (Phase 3: 2026-07-22); Phase 4 is the open work.** Live progress is
 > tracked in [`ACTIONS.md`](ACTIONS.md); this document is the design, not the status board.
 > A multi-session workstream, done incrementally and behaviour-preserving — never a
 > big-bang rewrite of the live report screens.
 >
-> **Scope correction from the Phase 2 build:** the six screens are *not* uniform, so the
-> table below overstates the reach. `HeroFigure` covers **5** screens — Eight Levers'
-> headline is a different design (light stat cards) and is deliberately excluded.
+> **⚠ SUPERSEDED — owner ruling, 2026-07-22.** Phase 2 excluded Eight Levers from
+> `HeroFigure`/`SliderGroup` as "a different visual language", and Phase 3 was about to
+> exclude it again from the header. Mike ruled the opposite: **every model in this
+> section looks the same** — one solid `#002b64` banner (no gradient) and one shared
+> headline strip. Eight Levers' light stat cards and gradient banner are gone. The
+> lesson is recorded here because the exclusion was reasonable in isolation and wrong in
+> aggregate: consistency across the section outranks each screen's local design, and an
+> "extraction stops where it would become a redesign" rule silently preserves drift the
+> owner never chose. `HeroFigure` and the header now cover **all 6**; `SliderGroup` still
+> covers 4 (Quick Position's sliders carry provenance badges and the R22 dynamic ceiling;
+> EBITDA/DCF has none) — that exclusion is structural, not stylistic, and stands until
+> ruled otherwise.
 > `SliderGroup` covers **4** — Quick Position's sliders are a different design again
 > (native track, provenance badge in the label, R22 dynamic ceiling) and EBITDA/DCF has
 > no sliders at all. Extraction stops where it would become a redesign.
@@ -51,8 +60,14 @@
 1. **`reportRecompute` mixin** — highest value: removes the most error-prone copy-paste
    **and closes the open slider-race bug in the 3 older reports** in the same move.
 2. **`HeroFigure` + `SliderGroup`** — the bulk of the visual duplication.
-3. **`ProvenanceBadge` + `StaleBanner` + `ReportShell`** — the remaining shared chrome;
-   brings the badge/banner patterns to all reports, not just two.
+3. ✅ **DONE 2026-07-22 — `ProvenanceBadge` + `StaleBanner` + `ReportHeader`.** Named
+   `ReportHeader`, not `ReportShell`: it owns the header band only, since page layout and
+   print framing stayed with each screen — a smaller, safer change to six live reports.
+   Reach was larger than this plan estimated: the badge was hand-copied across **8 sites
+   in 4 files** (not 2 reports) and the banner across **3** screens (not 2). Also closed
+   R9 on the three older reports, which never greyed stale figures and warned only with a
+   vanishing toast — a real defect, not chrome. `tests/unit/reportHeadlineConsistency.component.test.js`
+   now fails the build if any screen hand-rolls its headline or warns transiently.
 4. **The recipe** — a short "how to add a report" doc and/or an `/add-report` skill.
 
 ## Migration approach (risk control)
