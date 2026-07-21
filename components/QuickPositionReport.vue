@@ -80,27 +80,30 @@
         .stalehead {{ $t('report.staleTitle') }}
         p.stalebody {{ $t('report.calcUnreachable') }}
         b-button(type="is-danger" size="is-small" @click="recompute") {{ $t('report.retry') }}
-      .herostrip(:class="{ 'is-stale': error }")
-        .hs
-          .hk {{ $t('report.quickPosition.hero.quickCash') }}
-          .hv(:class="{ crit: result.quickCashAvailable < 0 }") {{ money(result.quickCashAvailable) }}
-          .hs2 {{ $t('report.quickPosition.hero.quickCashSub') }}
-        .hs
-          .hk {{ $t('report.quickPosition.hero.coverZero') }}
-          .hv
-            | {{ monthsText(result.expenseCyclesZeroSales) }}
-            span.u(v-if="result.expenseCyclesZeroSales !== null")  {{ $t('report.quickPosition.hero.months') }}
-          .hs2 {{ $t('report.quickPosition.hero.coverZeroSub') }}
-        .hs
-          .hk {{ $t('report.quickPosition.hero.withLifeline') }}
-          .hv
-            | {{ monthsText(result.tradingCyclesWithLifeline) }}
-            span.u(v-if="result.tradingCyclesWithLifeline !== null")  {{ $t('report.quickPosition.hero.months') }}
-          .hs2 {{ $t('report.quickPosition.hero.withLifelineSub', { amount: money(result.lifelineCapital) }) }}
-        .hs
-          .hk {{ $t('report.quickPosition.hero.breakEven') }}
-          .hv {{ result.breakEvenSalesRequired === null ? '—' : money(result.breakEvenSalesRequired) }}
-          .hs2 {{ $t('report.quickPosition.hero.breakEvenSub') }}
+      hero-strip(:stale="!!error")
+        hero-figure(
+          :label="$t('report.quickPosition.hero.quickCash')"
+          :value="money(result.quickCashAvailable)"
+          :sub="$t('report.quickPosition.hero.quickCashSub')"
+          :tone="result.quickCashAvailable < 0 ? 'crit' : 'default'"
+        )
+        hero-figure(
+          :label="$t('report.quickPosition.hero.coverZero')"
+          :value="monthsText(result.expenseCyclesZeroSales)"
+          :unit="monthsUnit(result.expenseCyclesZeroSales)"
+          :sub="$t('report.quickPosition.hero.coverZeroSub')"
+        )
+        hero-figure(
+          :label="$t('report.quickPosition.hero.withLifeline')"
+          :value="monthsText(result.tradingCyclesWithLifeline)"
+          :unit="monthsUnit(result.tradingCyclesWithLifeline)"
+          :sub="$t('report.quickPosition.hero.withLifelineSub', { amount: money(result.lifelineCapital) })"
+        )
+        hero-figure(
+          :label="$t('report.quickPosition.hero.breakEven')"
+          :value="result.breakEvenSalesRequired === null ? '—' : money(result.breakEvenSalesRequired)"
+          :sub="$t('report.quickPosition.hero.breakEvenSub')"
+        )
 
       .card
         .card-head
@@ -180,6 +183,8 @@
 </template>
 
 <script>
+import HeroStrip from '~/components/base/HeroStrip'
+import HeroFigure from '~/components/base/HeroFigure'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -195,6 +200,8 @@ import reportRecompute from '~/mixins/reportRecompute'
  */
 export default {
   name: 'QuickPositionReport',
+
+  components: { HeroStrip, HeroFigure },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -326,6 +333,14 @@ export default {
       return m === null || m === undefined ? '∞' : this.oneDp(m)
     },
     /**
+     * The "months" word after a runway figure — suppressed for the ∞ case, where
+     * "∞ months" would read as a measurement rather than "never runs out".
+     * @param {number|null} m @returns {string}
+     */
+    monthsUnit (m) {
+      return m === null || m === undefined ? '' : this.$t('report.quickPosition.hero.months')
+    },
+    /**
      * The backend request for this report — consumed by the reportRecompute mixin,
      * which owns the debounce, race guard and stale flag. Calc is backend-only.
      * @returns {{ url: string, body: object }}
@@ -419,20 +434,9 @@ export default {
 .stale { background: #ff000010; border: 1px solid #ff0000; border-radius: 14px; padding: 12px 14px; }
 .stalehead { font-size: 13px; font-weight: 600; color: #ff0000; margin-bottom: 3px; }
 .stalebody { font-size: 12.5px; color: #5b6f8a; margin: 0 0 9px; line-height: 1.5; }
-.is-stale { opacity: .45; filter: grayscale(0.6); }
-.herostrip {
-  background: linear-gradient(120deg, #002b64 0%, #0a56b0 55%, #00b1e0 135%);
-  border-radius: 14px; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr);
-  box-shadow: 0 12px 32px -12px #002b6466;
-}
-@media (max-width: 700px) { .herostrip { grid-template-columns: 1fr 1fr; gap: 14px 0; } }
-.herostrip .hs { padding: 2px 16px; border-left: 1px solid #ffffff30; }
-.herostrip .hs:first-child { border-left: 0; padding-left: 2px; }
-.herostrip .hk { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: #7fe4ff; font-weight: 700; }
-.herostrip .hv { font-size: 25px; font-weight: 700; color: #fff; margin-top: 7px; line-height: 1.05; }
-.herostrip .hv .u { font-size: .5em; font-weight: 400; opacity: .85; }
-.herostrip .hv.crit { color: #ff8f8f; }
-.herostrip .hs2 { font-size: 12px; color: #c7e6fb; margin-top: 6px; }
+/* The headline banner now lives in components/base/HeroStrip + HeroFigure
+   (which also owns the greyed-out stale state). The print rule below still
+   reaches it — `.herostrip` is HeroStrip's root element. */
 .card { background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0; border-radius: 14px; padding: 16px; }
 .card h2 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #002b64; font-weight: 600; margin-bottom: 10px; }
 .card h2 .note, .card .note { font-weight: 300; text-transform: none; letter-spacing: 0; color: #5b6f8a; font-size: 12px; }

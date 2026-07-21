@@ -15,37 +15,39 @@
         .bpr-glabel
           span.bpr-dot
           h2.bpr-h2 {{ g.title }}
-        .bpr-field(v-for="f in g.fields" :key="f.key")
-          .bpr-row
-            label {{ f.label }}
-            output {{ fmtField(f, inputs[f.key]) }}
-          input(
-            type="range"
-            v-model.number="inputs[f.key]"
-            :min="f.min" :max="f.max" :step="f.step"
-            :style="{ '--fill': fillPct(f) }"
-            @input="queueRecompute"
-          )
+        slider-field(
+          v-for="fld in g.fields"
+          :key="fld.key"
+          :label="fld.label"
+          :display="fmtField(fld, inputs[fld.key])"
+          :value="inputs[fld.key]"
+          :min="fld.min"
+          :max="fld.max"
+          :step="fld.step"
+          @input="v => setField(fld.key, v)"
+        )
 
     //- RESULTS
     section.bpr-results(v-if="out")
-      .bpr-herostrip
-        .bpr-hs
-          .bpr-hk Working-capital cycle
-          .bpr-hv.num {{ round0(out.cycleDays) }} #[span.bpr-u days]
-          .bpr-hs2 cash tied up before you can trade again
-        .bpr-hs
-          .bpr-hk Cycle factor
-          .bpr-hv.num {{ round1(out.cycleFactorMonthly) }}×
-          .bpr-hs2 {{ round0(out.cycleFactorAnnual) }}× per year
-        .bpr-hs
-          .bpr-hk Annual revenue
-          .bpr-hv.num {{ money(out.annualRevenue) }}
-          .bpr-hs2 from {{ money(out.workingCapital) }} capital
-        .bpr-hs
-          .bpr-hk Net profit · monthly
-          .bpr-hv.num {{ money(out.netProfitMonthly) }}
-          .bpr-hs2
+      hero-strip
+        hero-figure(
+          label="Working-capital cycle"
+          :value="round0(out.cycleDays)"
+          unit="days"
+          sub="cash tied up before you can trade again"
+        )
+        hero-figure(
+          label="Cycle factor"
+          :value="round1(out.cycleFactorMonthly) + '×'"
+          :sub="round0(out.cycleFactorAnnual) + '× per year'"
+        )
+        hero-figure(
+          label="Annual revenue"
+          :value="money(out.annualRevenue)"
+          :sub="'from ' + money(out.workingCapital) + ' capital'"
+        )
+        hero-figure(label="Net profit · monthly" :value="money(out.netProfitMonthly)")
+          template(#sub)
             span.bpr-pill(:class="cashflowClass")
               span.bpr-pill-dot
               | {{ out.cashflowStatus }}
@@ -58,9 +60,9 @@
       //- CASH WHEEL
       .bpr-card.bpr-wheelcard
         .bpr-wheelhead
-          h2.bpr-h2 The cash cycle
+          h2.bpr-h2 The working capital cycle
           .bpr-cycsum turns #[b {{ round1(out.cycleFactorMonthly) }}×] a month · #[b {{ round0(out.cycleDays) }} days] per turn · less #[b {{ inputs.daysPayable }}d] to pay suppliers
-        svg.bpr-wheel(viewBox="0 0 500 360" role="img" aria-label="Working capital cash cycle: Cash to Stock to Sale to Debtors and back; fixed costs sit outside the cycle.")
+        svg.bpr-wheel(viewBox="0 0 500 360" role="img" aria-label="Working capital cycle: Cash to Stock to Sale to Debtors and back; fixed costs sit outside the cycle.")
           defs
             marker#bprAh(viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse")
               path(d="M0 0 L10 5 L0 10 z" fill="#0070c0")
@@ -131,6 +133,9 @@
  * a `report.*` locale namespace in a follow-up (see design/ACTIONS.md). Coach text is
  * templated (not AI) for the first build, per owner decision.
  */
+import HeroStrip from '~/components/base/HeroStrip'
+import HeroFigure from '~/components/base/HeroFigure'
+import SliderField from '~/components/base/SliderField'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -151,6 +156,8 @@ const DEFAULTS = {
 
 export default {
   name: 'BusinessPerformanceReport',
+
+  components: { HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -176,7 +183,7 @@ fields: [
         ]
 },
         {
- title: 'The cash cycle (days)',
+ title: 'The working capital cycle (days)',
 fields: [
           { key: 'daysDeliverable', label: 'Days to deliver', min: 0, max: 30, step: 1, fmt: 'int' },
           { key: 'daysOnHand', label: 'Days stock on hand', min: 0, max: 60, step: 1, fmt: 'int' },
@@ -235,9 +242,14 @@ fields: [
       if (f.fmt === 'pct') { return Math.round(v * 100) + '%' }
       return v
     },
-    fillPct (f) {
-      const v = this.inputs[f.key]
-      return ((v - f.min) / (f.max - f.min) * 100) + '%'
+    /**
+     * A slider moved: store the new value and queue a recompute. SliderField reports
+     * its value as an event, so the write and the recompute happen in one place.
+     * @param {string} key - the field key in `inputs` @param {number} v
+     */
+    setField (key, v) {
+      this.inputs[key] = v
+      this.queueRecompute()
     },
     reset () {
       this.inputs = Object.assign({}, DEFAULTS)
@@ -318,17 +330,12 @@ fields: [
 .bpr-group:last-child { border-bottom:0; }
 .bpr-glabel { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
 .bpr-dot { width:7px; height:7px; border-radius:50%; background:var(--bpr-accent-bright); }
-.bpr-field { margin:11px 0; }
-.bpr-field:first-of-type { margin-top:0; }
-.bpr-row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:5px; }
-.bpr-row label { font-size:12.5px; color:var(--bpr-ink); font-weight:300; }
-.bpr-row output { font-size:13px; font-weight:600; color:var(--bpr-accent); }
-.bpr-field input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:4px;
-  background:linear-gradient(var(--bpr-accent), var(--bpr-accent)) 0/var(--fill,50%) 100% no-repeat, var(--bpr-line); outline:none; }
-.bpr-field input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
-  background:var(--bpr-panel); border:2px solid var(--bpr-accent); box-shadow:0 1px 3px #0003; cursor:pointer; }
-.bpr-field input[type=range]::-moz-range-thumb { width:16px; height:16px; border-radius:50%; background:var(--bpr-panel); border:2px solid var(--bpr-accent); cursor:pointer; }
-.bpr-field input[type=range]:focus-visible { box-shadow:0 0 0 3px var(--bpr-accent-soft); }
+/* Sliders now live in components/base/SliderField. It reads these generic tokens, so
+   this screen keeps its own palette — including the dark-mode overrides above. */
+.bpr-root {
+  --sl-accent:var(--bpr-accent); --sl-line:var(--bpr-line); --sl-panel:var(--bpr-panel);
+  --sl-ink:var(--bpr-ink); --sl-accent-soft:var(--bpr-accent-soft);
+}
 
 .bpr-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
 .bpr-tiles { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
@@ -387,14 +394,8 @@ fields: [
 .bpr-hero{background:linear-gradient(135deg,#002b64,#0070c0);border-color:#0070c0}
 .bpr-hero .bpr-v,.bpr-hero .bpr-k,.bpr-hero .bpr-sub,.bpr-hero .bpr-unit{color:#ffffff}
 .bpr-eyebrow{color:#00b1e0}
-
-.bpr-herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
-@media (max-width:700px){.bpr-herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
-.bpr-hs{padding:2px 16px;border-left:1px solid #ffffff30}
-.bpr-hs:first-child{border-left:0;padding-left:2px}
-.bpr-hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
-.bpr-hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
-.bpr-hv .bpr-u{font-size:.5em;font-weight:400;opacity:.85}
-.bpr-hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
-.bpr-hs .bpr-pill{background:#ffffff26}
+/* The headline banner now lives in components/base/HeroStrip + HeroFigure.
+   The status pill is passed in through HeroFigure's `sub` slot, so it is still
+   styled here — `.herostrip` is HeroStrip's root, which the slot renders inside. */
+.herostrip .bpr-pill{background:#ffffff26}
 </style>

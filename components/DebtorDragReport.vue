@@ -17,34 +17,39 @@
             span.ddg-dot
             h2.ddg-h2 {{ g.title }}
           span.ddg-total(v-if="g.total" :class="totalOk(g.total) ? 'ok' : 'bad'") {{ totalOf(g.total) }}%
-        .ddg-field(v-for="fld in g.fields" :key="fld.k")
-          .ddg-frow
-            label {{ fld.label }}
-            output {{ fmtField(fld) }}
-          input(
-            type="range"
-            v-model.number="f[fld.k]"
-            :min="fld.min" :max="fld.max" :step="fld.step"
-            :style="{ '--fill': fillPct(fld) }"
-            @input="queueRecompute"
-          )
+        slider-field(
+          v-for="fld in g.fields"
+          :key="fld.k"
+          :label="fld.label"
+          :display="fmtField(fld)"
+          :value="f[fld.k]"
+          :min="fld.min"
+          :max="fld.max"
+          :step="fld.step"
+          @input="v => setField(fld.k, v)"
+        )
       .ddg-group
         button.ddg-setbtn(@click="freeze") 📌 Freeze current as “Before”
 
     section.ddg-results
-      .ddg-herostrip.three
-        .ddg-hs
-          .ddg-hk Deepest cash low — your plan
-          .ddg-hv.num(:class="plan && plan.deepestLow.value < 0 ? 'crit' : 'good'") {{ plan ? money(plan.deepestLow.value) : '—' }}
-          .ddg-hs2 {{ plan ? monthName(plan.deepestLow.month) + (plan.deepestLow.value < 0 ? ' — overdraft' : '') : '' }}
-        .ddg-hs
-          .ddg-hk Deepest cash low — Before
-          .ddg-hv.num {{ before ? money(before.deepestLow.value) : '—' }}
-          .ddg-hs2 {{ before ? monthName(before.deepestLow.month) + (before.deepestLow.value < 0 ? ' — overdraft' : '') : 'freeze a Before' }}
-        .ddg-hs
-          .ddg-hk Effect of your decisions
-          .ddg-hv.num(:class="deltaClass") {{ deltaText }}
-          .ddg-hs2 {{ deltaSub }}
+      hero-strip(:columns="3")
+        hero-figure(
+          label="Deepest cash low — your plan"
+          :value="plan ? money(plan.deepestLow.value) : '—'"
+          :sub="planLowSub"
+          :tone="plan && plan.deepestLow.value < 0 ? 'crit' : 'good'"
+        )
+        hero-figure(
+          label="Deepest cash low — Before"
+          :value="before ? money(before.deepestLow.value) : '—'"
+          :sub="beforeLowSub"
+        )
+        hero-figure(
+          label="Effect of your decisions"
+          :value="deltaText"
+          :sub="deltaSub"
+          :tone="deltaClass"
+        )
       .ddg-card.ddg-chartcard
         .ddg-chead
           h2.ddg-h2 Your bank balance, month by month
@@ -75,7 +80,7 @@
           span.ddg-lead Coach
           | What this means
         p.ddg-edu-p(v-if="plan")
-          | Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to #[strong {{ money(plan.deepestLow.value) }}] in #[strong {{ monthName(plan.deepestLow.month) }}]{{ plan.deepestLow.value < 0 ? ', into overdraft,' : '' }} and you're in the red #[strong {{ plan.monthsInOverdraft }} months]. Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the cash cycle running backwards.
+          | Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to #[strong {{ money(plan.deepestLow.value) }}] in #[strong {{ monthName(plan.deepestLow.month) }}]{{ plan.deepestLow.value < 0 ? ', into overdraft,' : '' }} and you're in the red #[strong {{ plan.monthsInOverdraft }} months]. Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the working capital cycle running backwards.
 
       .ddg-actions
         button.ddg-cta(@click="downloadPdf") Download PDF
@@ -97,6 +102,9 @@
  * the before/after effect of a decision. Coach text is templated (not AI) for this build.
  * i18n: English placeholders for this first build; move to a report.* namespace later.
  */
+import HeroStrip from '~/components/base/HeroStrip'
+import HeroFigure from '~/components/base/HeroFigure'
+import SliderField from '~/components/base/SliderField'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -106,6 +114,8 @@ const BASE = SHAPE.reduce(function (a, b) { return a + b }, 0)
 
 export default {
   name: 'DebtorDragReport',
+
+  components: { HeroStrip, HeroFigure, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -159,6 +169,16 @@ fields: [
   },
 
   computed: {
+    /** Sub-line under the plan's deepest low: which month, and whether it goes overdrawn. */
+    planLowSub () {
+      if (!this.plan) { return '' }
+      return this.monthName(this.plan.deepestLow.month) + (this.plan.deepestLow.value < 0 ? ' — overdraft' : '')
+    },
+    /** Same for the frozen "Before" baseline, or the prompt to freeze one. */
+    beforeLowSub () {
+      if (!this.before) { return 'freeze a Before' }
+      return this.monthName(this.before.deepestLow.month) + (this.before.deepestLow.value < 0 ? ' — overdraft' : '')
+    },
     deltaClass () {
       if (!this.before || !this.plan) { return 'muted' }
       return (this.plan.deepestLow.value - this.before.deepestLow.value) >= 0 ? 'good' : 'crit'
@@ -228,9 +248,14 @@ lowY: y(plan[lowIdx])
       if (fld.fmt === 'money') { return this.money(v) }
       return v + '%'
     },
-    fillPct (fld) {
-      const v = this.f[fld.k]
-      return ((v - fld.min) / (fld.max - fld.min) * 100) + '%'
+    /**
+     * A slider moved: store the new value and queue a recompute. SliderField reports
+     * its value as an event, so the write and the recompute happen in one place.
+     * @param {string} key - the field key in `f` @param {number} v
+     */
+    setField (key, v) {
+      this.f[key] = v
+      this.queueRecompute()
     },
     totalOf (which) {
       if (which === 'd') { return this.f.d0 + this.f.d1 + this.f.d2 + this.f.d3 + this.f.d4 + this.f.dwo }
@@ -329,14 +354,12 @@ lowY: y(plan[lowIdx])
 .ddg-total { font-size:10.5px; font-weight:600; padding:2px 7px; border-radius:999px; }
 .ddg-total.ok { color:var(--ddg-good); background:var(--ddg-good-soft); }
 .ddg-total.bad { color:var(--ddg-crit); background:var(--ddg-crit-soft); }
-.ddg-field { margin:9px 0; }
-.ddg-field:first-of-type { margin-top:0; }
-.ddg-frow { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:4px; }
-.ddg-frow label { font-size:12px; color:var(--ddg-ink); font-weight:300; }
-.ddg-frow output { font-size:12.5px; font-weight:600; color:var(--ddg-accent); }
-.ddg-field input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:4px; background:linear-gradient(var(--ddg-accent), var(--ddg-accent)) 0/var(--fill,50%) 100% no-repeat, var(--ddg-line); outline:none; }
-.ddg-field input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px; border-radius:50%; background:var(--ddg-panel); border:2px solid var(--ddg-accent); box-shadow:0 1px 3px #0003; cursor:pointer; }
-.ddg-field input[type=range]::-moz-range-thumb { width:15px; height:15px; border-radius:50%; background:var(--ddg-panel); border:2px solid var(--ddg-accent); cursor:pointer; }
+/* Sliders now live in components/base/SliderField. It reads these generic tokens, so
+   this screen keeps its own palette — including the dark-mode overrides above. */
+.ddg-root {
+  --sl-accent:var(--ddg-accent); --sl-line:var(--ddg-line); --sl-panel:var(--ddg-panel);
+  --sl-ink:var(--ddg-ink); --sl-accent-soft:var(--ddg-accent-soft);
+}
 .ddg-setbtn { width:100%; font:inherit; font-weight:600; font-size:12.5px; color:var(--ddg-ink); background:var(--ddg-panel-2); border:1px solid var(--ddg-line); border-radius:9px; padding:10px; cursor:pointer; }
 .ddg-setbtn:hover { border-color:var(--ddg-accent); }
 .ddg-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
@@ -379,14 +402,5 @@ lowY: y(plan[lowIdx])
 .ddg-v.crit{color:#ff0000} .ddg-v.good{color:#4ca52d} .ddg-v.muted{color:#5b6f8a}
 .ddg-tile{border-top:3px solid #00b1e0}
 .ddg-eyebrow{color:#00b1e0}
-
-.ddg-herostrip{background:linear-gradient(120deg,#002b64 0%,#0a56b0 55%,#00b1e0 135%);border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;box-shadow:0 12px 32px -12px #002b6466}
-.ddg-herostrip.three{grid-template-columns:repeat(3,1fr)}
-@media (max-width:700px){.ddg-herostrip,.ddg-herostrip.three{grid-template-columns:1fr 1fr;gap:14px 0}}
-.ddg-hs{padding:2px 16px;border-left:1px solid #ffffff30}
-.ddg-hs:first-child{border-left:0;padding-left:2px}
-.ddg-hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
-.ddg-hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
-.ddg-hv.crit{color:#ff8f8f} .ddg-hv.good{color:#7dffa6} .ddg-hv.muted{color:#c7e6fb}
-.ddg-hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+/* The headline banner now lives in components/base/HeroStrip + HeroFigure. */
 </style>
