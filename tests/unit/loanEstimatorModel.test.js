@@ -2,7 +2,9 @@
 
 const {
   DEFAULT_INPUTS,
+  DEFAULT_LOAN_INPUTS,
   computeLoanEstimator,
+  computeRepaymentSchedule,
   computeSecurityItem,
   capBasedPropertyValue,
   fonterraShareValue,
@@ -205,6 +207,88 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
 
     it('unsecured overdraft uses the 22% rate (Loan Criteria F46)', () => {
       expect(overdraftMonthlyInterest(25000, false)).toBeCloseTo(-458.3333333, 5) // = −25000×22%/12
+    })
+  })
+
+  describe('repayment schedules (Interest sheet — Part D, Phase 2)', () => {
+    // Sample loan (`Capital Input` D6–D16): $1,350,000 less $270,000 deposit at
+    // 5.5% over 36 years, Table basis.
+    const t = computeRepaymentSchedule(DEFAULT_LOAN_INPUTS)
+    const red = computeRepaymentSchedule(Object.assign({}, DEFAULT_LOAN_INPUTS, { basis: 'Reducing' }))
+
+    it('derives the loan variables the sheet derives', () => {
+      expect(t.loanAmount).toBeCloseTo(1080000, 6) // G22 (= C22 − C16)
+      expect(t.termMonths).toBe(432) //               C20 (36 Years → months)
+    })
+
+    it('the three quick figures — incl. the hand-verified Table anchor', () => {
+      expect(t.payments.table).toBeCloseTo(5747.094633, 5) //       C29/C31 (= Capital Input D18) — hand-verified anchor
+      expect(t.payments.reducingFirstMonth).toBeCloseTo(7450, 6) // K29 (= 2500 principal + 4950 interest)
+      // G24 — CORRECTED (owner ruling 2026-07-23): interest accrues on the
+      // BORROWED amount. The source read C22×rate/12 (purchase price → 6187.5);
+      // corrected in code and in the source workbook to G22×rate/12.
+      expect(t.payments.interestOnly).toBeCloseTo(4950, 6) // = 1,080,000 × 5.5% ÷ 12
+      expect(t.monthlyRepayment).toBeCloseTo(5747.094633, 5) // D18 picks by basis
+      expect(red.monthlyRepayment).toBeCloseTo(7450, 6)
+    })
+
+    it('Table basis — all ten years of interest', () => {
+      const got = t.years.map(y => y.interest)
+      const cached = [59155.15681, 58601.7969, 58017.22313, 57399.67482, 56747.29192,
+        56058.1095, 55330.05177, 54560.92587, 53748.41522, 52890.07258] // W6..AF6 (shown C6..M6)
+      cached.forEach((v, i) => expect(got[i]).toBeCloseTo(v, 4))
+      expect(t.totals.interest).toBeCloseTo(562508.7185, 3) // N6
+    })
+
+    it('Table basis — all ten years of principal', () => {
+      const got = t.years.map(y => y.principal)
+      const cached = [9809.978781, 10363.33869, 10947.91246, 11565.46077, 12217.84367,
+        12907.02609, 13635.08382, 14404.20972, 15216.72037, 16075.06301] // W12..AF12 (shown C8..M8)
+      cached.forEach((v, i) => expect(got[i]).toBeCloseTo(v, 4))
+      expect(t.totals.principal).toBeCloseTo(127142.6374, 3) // N8
+    })
+
+    it('Table basis — all ten year-end balances, and the sheet\'s own total row', () => {
+      const got = t.years.map(y => y.closingBalance)
+      const cached = [1070190.021, 1059826.683, 1048878.77, 1037313.309, 1025095.466,
+        1012188.44, 998553.3557, 984149.146, 968932.4256, 952857.3626] // W9..AF9 (shown C10..M10)
+      cached.forEach((v, i) => expect(got[i]).toBeCloseTo(v, 2))
+      expect(t.totals.closingBalances).toBeCloseTo(10157984.98, 1) // N10 (sums year-END balances — the sheet's own metric, reproduced)
+    })
+
+    it('Reducing basis — constant principal, falling interest', () => {
+      red.years.forEach(y => expect(y.principal).toBeCloseTo(30000, 6)) // W11..AF11 (2500 × 12)
+      const gotInterest = red.years.map(y => y.interest)
+      const cached = [58643.75, 56993.75, 55343.75, 53693.75, 52043.75,
+        50393.75, 48743.75, 47093.75, 45443.75, 43793.75] // W5..AF5
+      cached.forEach((v, i) => expect(gotInterest[i]).toBeCloseTo(v, 5))
+      expect(red.totals.interest).toBeCloseTo(512187.5, 5) // formula-derived (sheet caches the Table basis)
+    })
+
+    it('Reducing basis — the corrected balance row (owner ruling 2026-07-23)', () => {
+      // Years 1–4 match the sheet's W8..Z8 as-is. Years 5–10 assert the values
+      // the sheet SHOULD show — its own column-N balances (N90..N150) — not the
+      // impossible cached 276718.75/180000/…/300000 that AA8..AF8 displayed by
+      // reading O90/P102..P150. Source workbook corrected in the same commit.
+      const got = red.years.map(y => y.closingBalance)
+      const cached = [1050000, 1020000, 990000, 960000, //   W8..Z8 (and N42..N78)
+        930000, 900000, 870000, 840000, 810000, 780000] //   N90..N150 (corrected AA8..AF8)
+      cached.forEach((v, i) => expect(got[i]).toBeCloseTo(v, 6))
+    })
+
+    it('Interest Only — a payment figure, no schedule (the sheet has none)', () => {
+      const io = computeRepaymentSchedule(Object.assign({}, DEFAULT_LOAN_INPUTS, { basis: 'Interest Only' }))
+      expect(io.monthlyRepayment).toBeCloseTo(4950, 6) // corrected G24
+      expect(io.years).toBeNull()
+      expect(io.totals).toBeNull()
+    })
+
+    it('input discipline — defaults declared, unknown basis throws', () => {
+      expect(t.defaultedInputs).toEqual([])
+      const demo = computeRepaymentSchedule({})
+      expect(demo.defaultedInputs).toEqual(['purchasePrice', 'deposit', 'annualRate', 'term', 'termUnit', 'basis'])
+      expect(demo.monthlyRepayment).toBeCloseTo(5747.094633, 5) // and still computes the sample
+      expect(() => computeRepaymentSchedule({ basis: 'Balloon' })).toThrow(/Unknown repayment basis/)
     })
   })
 

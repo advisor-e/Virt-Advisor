@@ -35,6 +35,11 @@
  * asset-value total (rows 17 and 42 — the sheet has no combined ratio row,
  * so neither do we).
  *
+ * Phase 2 adds the repayment engine (Part D, the `Interest` sheet): the Table
+ * and Reducing monthly worksheets (rows 31–150), their 10-year roll-ups
+ * (rows 5–12), and the three quick figures the `Capital Input` Quick
+ * Calculator shows (D18/G24 · C29 · K29).
+ *
  * FIDELITY NOTES — reproduced exactly as the source has them:
  *   - The Growth-Prospects formula's else-branch is Decline: any value that is
  *     not exactly "Static" or "Growth" adjusts DOWN (`Capital Input` M6). A
@@ -42,9 +47,22 @@
  *     dropdown always holds a value, so "missing" has no workbook equivalent.
  *   - The overdraft monthly interest is NEGATIVE, as the sheet displays it
  *     (`Capital Input` C38 → `Loan Criteria` J47, IPMT period 1). Sign kept.
- *   - Not ported in Phase 1: the Quick Calculator repayment (needs the
- *     `Interest` sheet — Phase 2) and the rule table's "y1 Interest" column
- *     (feeds off the business block — Phase 6).
+ *   - The 10-year totals row sums the year-END balances (`Interest` N10) — an
+ *     odd metric, but it is the sheet's own total row, so it is reproduced.
+ *   - An Interest-Only loan has no annual schedule on the sheet (its picker
+ *     formula renders FALSE); we return `years: null` rather than nonsense.
+ *   - Not ported yet: the rule table's "y1 Interest" column (feeds off the
+ *     business block — Phase 6).
+ *
+ * CORRECTED FROM THE SOURCE — two owner rulings (Mike, 2026-07-23), both also
+ * fixed in the source .xlsx so the two cannot diverge:
+ *   - `Interest` AA8:AF8 (Reducing year-5..10 balances) read O90/P102..P150
+ *     (cumulative interest/principal) where years 1–4 correctly read column N.
+ *     A balance that collapses then climbs is impossible. Corrected: all ten
+ *     year-end balances read the balance column (960,000 → 930,000 → … → 780,000).
+ *   - `Interest` G24 (Interest-Only monthly payment) read the PURCHASE PRICE
+ *     (C22×rate/12 = 6,187.50 on the sample). Ruled wrong: interest accrues on
+ *     the borrowed balance. Corrected to loanAmount×rate/12 (= 4,950).
  *
  * Defaults NEVER substitute silently (the R8 ruling, 2026-07-19): any input
  * block that fell back to the workbook's sample scenario is named in the
@@ -315,9 +333,145 @@ function computeLoanEstimator (inputs) {
   }
 }
 
+/**
+ * The Quick Calculator's own sample loan (`Capital Input` D6–D16) — the demo
+ * default for the repayment engine. Cells noted per field.
+ */
+const DEFAULT_LOAN_INPUTS = {
+  purchasePrice: 1350000, // D16
+  deposit: 270000, //        D8
+  annualRate: 0.055, //      D10
+  term: 36, //               D12
+  termUnit: 'Years', //      D13
+  basis: 'Table' //          D6
+}
+
+/** The `Interest` sheet's yearly roll-up reads rows 42..150 — a fixed 10-year window. */
+const SCHEDULE_YEARS = 10
+
+/**
+ * Part D — the repayment engine (`Interest` sheet). Simulates both monthly
+ * worksheets exactly as the sheet's recurrences do, then rolls them up to the
+ * 10-year interest / principal / closing-balance table with the sheet's own
+ * clamping rules (a paid-off loan shows 0, never a negative).
+ *
+ * The business rule per basis:
+ *   Table          constant payment -PMT(rate/12, termMonths, loan) (C31);
+ *                  interest accrues on the falling balance, principal is the
+ *                  remainder of the payment.
+ *   Reducing       constant principal loan/termMonths (L31); interest accrues
+ *                  on the falling balance, so the payment itself falls.
+ *   Interest Only  no schedule (the sheet has none); monthly payment only.
+ *
+ * @param {Object} inputs { purchasePrice, deposit, annualRate, term,
+ *   termUnit ("Years"|"Months"), basis ("Table"|"Reducing"|"Interest Only") } —
+ *   any omitted field falls back to the sample AND is named in `defaultedInputs`.
+ * @returns {Object} { loanAmount, termMonths, basis, monthlyRepayment,
+ *   payments: { table, reducingFirstMonth, interestOnly },
+ *   years: [{year, interest, principal, closingBalance}] | null,
+ *   totals: { interest, principal, closingBalances } | null, defaultedInputs }
+ */
+function computeRepaymentSchedule (inputs) {
+  const src = (inputs && typeof inputs === 'object') ? inputs : {}
+  const defaultedInputs = []
+  const take = (name) => {
+    if (src[name] === undefined || src[name] === null) { defaultedInputs.push(name); return DEFAULT_LOAN_INPUTS[name] }
+    return src[name]
+  }
+  const purchasePrice = num(take('purchasePrice'))
+  const deposit = num(take('deposit'))
+  const annualRate = num(take('annualRate'))
+  const term = num(take('term'))
+  const termUnit = take('termUnit')
+  const basis = take('basis')
+  if (basis !== 'Table' && basis !== 'Reducing' && basis !== 'Interest Only') {
+    // The sheet's dropdown (AI2:AI4) only offers these three; anything else is a caller bug.
+    throw new Error('Unknown repayment basis: ' + String(basis))
+  }
+
+  const termMonths = termUnit === 'Years' ? term * 12 : term // C20
+  const loanAmount = purchasePrice - deposit //                 G22
+  const monthlyRate = annualRate / 12
+
+  const tablePayment = annuityPayment(monthlyRate, termMonths, loanAmount) // C31
+  const reducingPrincipal = div(loanAmount, termMonths) //                    L31
+
+  // Both monthly worksheets, exactly as rows 31..150 recur. The roll-up window
+  // is 10 years regardless of term; the sheet's own IF-guards handle overrun.
+  const months = SCHEDULE_YEARS * 12
+  const table = { balance: loanAmount, rollingInterest: 0, rollingPrincipal: 0 }
+  const reducing = { balance: loanAmount, rollingInterest: 0, rollingPrincipal: 0 }
+  // Year-end snapshots (rows 42, 54, … 150)
+  const tableSnaps = []
+  const reducingSnaps = []
+  for (let m = 1; m <= months; m++) {
+    const tInterest = table.balance * monthlyRate //                 E col
+    const tPrincipal = tablePayment - tInterest //                   D col
+    table.balance -= tPrincipal //                                   F col
+    table.rollingInterest = tInterest <= 0 ? 0 : table.rollingInterest + tInterest //       G col
+    table.rollingPrincipal = table.rollingInterest === 0 ? 0 : tPrincipal + table.rollingPrincipal // H col
+
+    const rInterest = reducing.balance * monthlyRate //              M col
+    reducing.balance -= reducingPrincipal //                         N col
+    reducing.rollingInterest = rInterest <= 0 ? 0 : reducing.rollingInterest + rInterest // O col
+    reducing.rollingPrincipal = reducing.rollingInterest === 0 ? 0 : reducingPrincipal + reducing.rollingPrincipal // P col
+
+    if (m % 12 === 0) {
+      tableSnaps.push({ balance: table.balance, rollingInterest: table.rollingInterest, rollingPrincipal: table.rollingPrincipal })
+      reducingSnaps.push({ balance: reducing.balance, rollingInterest: reducing.rollingInterest, rollingPrincipal: reducing.rollingPrincipal })
+    }
+  }
+
+  // Rows 5–12: each year is the rolling total's step-up over the years already
+  // shown (themselves clamped), guarded exactly as the sheet guards them.
+  const yearRows = (snaps) => {
+    let interestShown = 0
+    let principalShown = 0
+    return snaps.map((snap, i) => {
+      const interest = snap.rollingInterest < 1 ? 0 : snap.rollingInterest - interestShown //   W5/W6 pattern
+      const principal = snap.rollingPrincipal < 1 ? 0 : snap.rollingPrincipal - principalShown // W11/W12 pattern
+      interestShown += interest
+      principalShown += principal
+      return {
+        year: i + 1,
+        interest,
+        principal,
+        closingBalance: snap.balance < 0 ? 0 : snap.balance // W8/W9 pattern (corrected col-N read for years 5–10)
+      }
+    })
+  }
+
+  let years = null
+  if (basis === 'Table') { years = yearRows(tableSnaps) }
+  if (basis === 'Reducing') { years = yearRows(reducingSnaps) }
+
+  // Quick figures (`Capital Input` D18 picks by basis; K29 is Reducing month 1)
+  const payments = {
+    table: tablePayment, //                                                C29
+    reducingFirstMonth: reducingPrincipal + loanAmount * monthlyRate, //   K29 (= L31 + M31)
+    interestOnly: loanAmount * monthlyRate //                              G24 — CORRECTED (was purchasePrice×rate/12)
+  }
+  let monthlyRepayment = payments.reducingFirstMonth
+  if (basis === 'Interest Only') { monthlyRepayment = payments.interestOnly }
+  if (basis === 'Table') { monthlyRepayment = payments.table }
+
+  let totals = null
+  if (years) {
+    totals = {
+      interest: years.reduce((s, y) => s + y.interest, 0), //          N6
+      principal: years.reduce((s, y) => s + y.principal, 0), //        N8
+      closingBalances: years.reduce((s, y) => s + y.closingBalance, 0) // N10 (the sheet's own odd total row)
+    }
+  }
+
+  return { loanAmount, termMonths, basis, monthlyRepayment, payments, years, totals, defaultedInputs }
+}
+
 module.exports = {
   DEFAULT_INPUTS,
+  DEFAULT_LOAN_INPUTS,
   computeLoanEstimator,
+  computeRepaymentSchedule,
   computeSecurityItem,
   capBasedPropertyValue,
   fonterraShareValue,
