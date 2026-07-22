@@ -1,0 +1,31 @@
+{
+  "_source": {
+    "workbook": "design/report-source-models/The Loan Estimator.xlsx",
+    "sheet": "Loan Criteria",
+    "extracted": "2026-07-23",
+    "note": "Every figure and label is the workbook's own, verbatim, with its source cell recorded. Labels are the workbook's wording — screen wording is decided at Phase 4, not here. Serviceability allowances (dependants, vehicles, living costs, tax bands) deliberately live elsewhere and land with Phase 3."
+  },
+  "securityClasses": [
+    { "key": "residentialHome", "label": "Residential Home", "group": "personal", "lendPct": 0.8, "maxTermYears": 25, "assessmentRate": 0.0895, "cells": { "label": "B4", "lendPct": "D4", "maxTermYears": "F4", "assessmentRate": "H4" } },
+    { "key": "rentalProperty", "label": "Rental Property", "group": "personal", "lendPct": 0.7, "maxTermYears": 30, "assessmentRate": 0.0665, "cells": { "label": "B6", "lendPct": "D6", "maxTermYears": "F6", "assessmentRate": "H6" } },
+    { "key": "boat", "label": "Boat", "group": "personal", "lendPct": 0.8, "maxTermYears": 25, "assessmentRate": 0.0895, "cells": { "label": "B8", "lendPct": "D8", "maxTermYears": "F8", "assessmentRate": "H8" } },
+    { "key": "classicCars", "label": "Classic Cars", "group": "personal", "lendPct": 0.7, "maxTermYears": 30, "assessmentRate": 0.0665, "cells": { "label": "B10", "lendPct": "D10", "maxTermYears": "F10", "assessmentRate": "H10" } },
+    { "key": "artworks", "label": "Artworks", "group": "personal", "lendPct": 0.7, "maxTermYears": 30, "assessmentRate": 0.0665, "cells": { "label": "B12", "lendPct": "D12", "maxTermYears": "F12", "assessmentRate": "H12" } },
+    { "key": "commercialProperty", "label": "Commercial Property", "group": "commercial", "lendPct": 0.6, "maxTermYears": 15, "assessmentRate": 0.075, "cells": { "label": "B14", "lendPct": "D14", "maxTermYears": "F14", "assessmentRate": "H14" } },
+    { "key": "plantEquipment", "label": "Plant & Equipment", "group": "commercial", "lendPct": 0.3, "maxTermYears": 5, "assessmentRate": 0.0975, "cells": { "label": "B16", "lendPct": "D16", "maxTermYears": "F16", "assessmentRate": "H16" } },
+    { "key": "vehicles", "label": "Vehicles", "group": "commercial", "lendPct": 0.6, "maxTermYears": 6, "assessmentRate": 0.11, "cells": { "label": "B18", "lendPct": "D18", "maxTermYears": "F18", "assessmentRate": "H18" } },
+    { "key": "inventoryStock", "label": "Inventory/ Stock", "group": "commercial", "lendPct": 0.45, "maxTermYears": 5, "assessmentRate": 0.11, "cells": { "label": "B20", "lendPct": "D20", "maxTermYears": "F20", "assessmentRate": "H20" } },
+    { "key": "debtors90", "label": "Debtors (90 days less)", "group": "commercial", "lendPct": 0.5, "maxTermYears": 3, "assessmentRate": 0.11, "cells": { "label": "B22", "lendPct": "D22", "maxTermYears": "F22", "assessmentRate": "H22" } },
+    { "key": "farmDairy", "label": "Farm (Dairy)", "group": "commercial", "lendPct": 0.6, "maxTermYears": 20, "assessmentRate": 0.085, "cells": { "label": "B24", "lendPct": "D24", "maxTermYears": "F24", "assessmentRate": "H24" } },
+    { "key": "farmSheepBeef", "label": "Farm (Sheep/Beef)", "group": "commercial", "lendPct": 0.5, "maxTermYears": 20, "assessmentRate": 0.085, "cells": { "label": "B26", "lendPct": "D26", "maxTermYears": "F26", "assessmentRate": "H26" } },
+    { "key": "horticulture", "label": "Horticulture", "group": "commercial", "lendPct": 0.6, "maxTermYears": 20, "assessmentRate": 0.085, "cells": { "label": "B28", "lendPct": "D28", "maxTermYears": "F28", "assessmentRate": "H28" } },
+    { "key": "glasshouseHorticulture", "label": "Glass House Hort'", "group": "commercial", "lendPct": 0.5, "maxTermYears": 15, "assessmentRate": 0.085, "cells": { "label": "B30", "lendPct": "D30", "maxTermYears": "F30", "assessmentRate": "H30" } },
+    { "key": "fonterraShares", "label": "Fonterra Shares", "group": "commercial", "lendPct": 0.55, "maxTermYears": 5, "assessmentRate": 0.0925, "cells": { "label": "B32", "lendPct": "D32", "maxTermYears": "F32", "assessmentRate": "H32" } }
+  ],
+  "overdraft": {
+    "securedRate": 0.1539,
+    "unsecuredRate": 0.22,
+    "assessmentTermYears": 3,
+    "cells": { "securedRate": "F45", "unsecuredRate": "F46", "assessmentTermYears": "F43" }
+  }
+}
