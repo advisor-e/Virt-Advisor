@@ -131,9 +131,11 @@ describe('selection harness — TARGET outcomes (flip .skip → test as fixes la
 
   // Upselling mentioned → sales_volume now fires (dictionary opportunity patterns),
   // so a sales tool is reachable in the café case. LIVE now.
-  test('profit/sales case surfaces Sales Session', () => {
+  // The template was retitled "Sales Session" -> "Lite Sales" in the master
+  // export of 2026-07-22; same template, same rank, new name.
+  test('profit/sales case surfaces the Lite Sales template', () => {
     const { top10 } = run(SCENARIOS['profit · café pricing+feasibility'])
-    expect(top10.join('\n')).toMatch(/Sales Session/)
+    expect(top10.join('\n')).toMatch(/Lite Sales/)
   })
 })
 

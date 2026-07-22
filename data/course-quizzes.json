@@ -23,8 +23,75 @@
   },
   "banks": {
     "_comment": "CB-30 quiz banks (the firm's IP — transcribed verbatim from authored PDFs, never invented or edited here). Keyed by EXACT template-library title. Unlike overrides (verbatim replacement), a bank is SOURCE MATERIAL: the AI builds the session quiz around these questions and key points, tailored to what the session actually taught, and the model answers feed the grader (wired 2026-07-18, CB-30). SKIP-DUPLICATES RULE (Mike's ruling 2026-07-20): when transcribing new material, any question whose substance already exists under the same bank key is SKIPPED — the existing entry wins, so a question never reaches the AI twice from two sources. Every skip is listed for Mike at sign-off, never silent.",
+    "E.O.Y Meeting": {
+      "source": "Course Builder Quiz/E.O.Y Meeting Quiz.pdf",
+      "transcribed": "2026-07-18",
+      "entries": [
+        {
+          "id": 1,
+          "question": "According to the Volatility Options framework, what specific question must be asked when reviewing a business's Working Capital?",
+          "answer": "How should we finance and manage the money to cope with the 'swings'?",
+          "keyPoint": "Reviewing Working Capital is a critical local 'WHAT-HOW' step used to solve volatility-related issues and ensure the business can handle fluctuations in cash flow."
+        },
+        {
+          "id": 2,
+          "question": "What analogy is used to explain to clients the danger of struggling with high cash volatility?",
+          "answer": "It is like driving a vehicle with a trailer or caravan that gets the 'speed wobbles' or 'fishtail' effect, dragging the leading vehicle from side to side.",
+          "keyPoint": "A business cannot progress safely until its balance issues are dealt with; systems that reduce cash volatility must be addressed before attempting to grow."
+        },
+        {
+          "id": 3,
+          "question": "What are three specific business scenarios where a cash volatility graph should NOT be used with a client?",
+          "answer": "1) Businesses that receive semi-regular government subsidies (like childcare centers), 2) Businesses supplying a co-operative or vertical distributor that sets price/yield limits, and 3) Businesses that have a known singular seasonal high-impact event (like an annual product release).",
+          "keyPoint": "Cash volatility graphs are ineffective for businesses with externally predetermined constraints or highly predictable singular cash flow events."
+        },
+        {
+          "id": 4,
+          "question": "In Volatility Analysis, what distinguishes a \"Special Cause\" from a \"Common Cause\"?",
+          "answer": "A \"Special Cause\" is Low Frequency and High Impact (e.g., an earthquake or pandemic), whereas a \"Common Cause\" is High Frequency and Low Impact (e.g., a rainy day for a retail store).",
+          "keyPoint": "Accurately categorizing the cause of data volatility is essential to ensure the information is consistent with business assumptions and to avoid tampering or data misinterpretation."
+        },
+        {
+          "id": 5,
+          "question": "When advising a business on solving volatility-related issues, what is the core objective of reviewing their administrative procedures?",
+          "answer": "To determine how the business could get the money in quicker.",
+          "keyPoint": "Improving the speed of administrative cash collection is a primary tactic for stabilizing cash flow alongside adjusting products, marketing, and working capital."
+        },
+        {
+          "id": 6,
+          "question": "What are the three required steps for effectively revealing the Growth Curve framework to a client?",
+          "answer": "1) Global Positioning of the Growth Curve, 2) Revealing the Growth Curve via a Persona (to ensure talking in the 3rd person and create dissociation), and 3) Creating Client Relevance to the Curve.",
+          "keyPoint": "By introducing the 9 stages of business growth through a persona (like \"Bob the Chocolate maker\"), the advisor can help the client anticipate issues objectively BEFORE they have to cope with them."
+        },
+        {
+          "id": 7,
+          "question": "What are the two 'Attention Hooks' utilized in the EOY Meeting structure to capture the client's focus?",
+          "answer": "The GLOBAL REFERENCE (Option 1: Growth Curve) and the LOCAL REFERENCE (Option 2: Volatility Analysis).",
+          "keyPoint": "The Growth Curve provides a Macro Vision (\"Where am I going?\"), while Volatility Analysis provides a Micro Vision (\"What's happening to me right now?\")."
+        },
+        {
+          "id": 8,
+          "question": "What are the five core components of the EOY Meeting Agenda timeline?",
+          "answer": "Review Accts, Review Growth Curve Position, Review Volatility, Start/Stop/Keep, and Q&A.",
+          "keyPoint": "Following a structured timeline ensures a comprehensive advisory meeting that transitions systematically from immediate account reviews to strategic growth and behavioral changes."
+        },
+        {
+          "id": 9,
+          "question": "What opening phrase is recommended as the psychological bridge to transition a client from the 'Personal Zone' to the 'Business Zone'?",
+          "answer": "\"How're you going for time today?...\".",
+          "keyPoint": "Establishing the timeframe immediately sets up a framing structure that allows the advisor to subsequently assume permission, take control of the accounts review, and share power via feedback."
+        },
+        {
+          "id": 10,
+          "question": "Within the \"Start, Stop, Keep\" automated action plan, what is provided as an example of an action a manager must \"Stop Doing\"?",
+          "answer": "\"I must stop interfering with the middle manager's instructions – if they delegate a job – I have to 'get out of the way'.\".",
+          "keyPoint": "The \"Start, Stop, Keep\" framework requires business owners to explicitly identify and record behavioral changes necessary to support their operational goals."
+        }
+      ],
+      "previousSource": "Course Builder Quiz/E.O.Y Meeting.pdf"
+    },
     "7 Cash Drivers": {
-      "source": "Course Builder Quiz/General Quiz 1.pdf",
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
       "transcribed": "2026-07-20",
       "entries": [
         {
@@ -87,10 +154,11 @@
           "answer": "If there are fundamental issues regarding the pricing of work, costing inputs, or other core management issues.",
           "keyPoint": "Cash flow management is critical, but it cannot permanently fix a structurally unprofitable business model."
         }
-      ]
+      ],
+      "previousSource": "Course Builder Quiz/General Quiz 1.pdf"
     },
     "Dashboard Discussions": {
-      "source": "Course Builder Quiz/General Quiz 1.pdf",
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
       "transcribed": "2026-07-20",
       "entries": [
         {
@@ -153,11 +221,11 @@
           "answer": "Correlation.",
           "keyPoint": "Always seek a balanced view by looking for both 'good & bad' data to accurately interpret performance."
         }
-      ]
+      ],
+      "previousSource": "Course Builder Quiz/General Quiz 1.pdf"
     },
     "3 Pillars of Financial Management": {
-      "source": "Course Builder Quiz/General Quiz 1.pdf",
-      "sourceHeading": "Fin Mgt 3 Pillars (keyed to the exact template-library title per the CB-30 ruling)",
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
       "transcribed": "2026-07-20",
       "entries": [
         {
@@ -220,10 +288,11 @@
           "answer": "It comes at the end, in the reporting stage.",
           "keyPoint": "You must first use your scenario model to \"flush out\" your current daily assumptions before blurring your perspective with outside organizational data."
         }
-      ]
+      ],
+      "previousSource": "Course Builder Quiz/General Quiz 1.pdf"
     },
     "8 Profit Levers": {
-      "source": "Course Builder Quiz/General Quiz 1.pdf",
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
       "transcribed": "2026-07-20",
       "entries": [
         {
@@ -286,11 +355,11 @@
           "answer": "No current evidence of clear business objectives; either completely lacking or 'blunt' (not measurable, not time bound).",
           "keyPoint": "Without clear objectives, tasks cannot be allocated properly, and a culture that accepts task failure or lacks feedback loops will emerge."
         }
-      ]
+      ],
+      "previousSource": "Course Builder Quiz/General Quiz 1.pdf"
     },
     "Working Capital Cycle": {
-      "source": "Course Builder Quiz/Working Capital Cycle quiz.pdf",
-      "appendedFrom": "Course Builder Quiz/General Quiz 1.pdf — its Working Capital Cycle group Q47-Q50 appended 2026-07-20 as entries 11-14; its Q41-Q46 SKIPPED as duplicates of entries 1, 1, 3, 4, 5 and 6 (skip-duplicates rule, Mike 2026-07-20)",
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
       "transcribed": "2026-07-17",
       "entries": [
         {
@@ -355,101 +424,1192 @@
         },
         {
           "id": 11,
-          "source": "Course Builder Quiz/General Quiz 1.pdf",
           "question": "In a 60-day cycle example, a 34% reduction in cost equates to what percentage increase in markup?",
           "answer": "A 103% increase in markup.",
           "keyPoint": "Lowering costs significantly boosts margins, which is necessary to survive extended 60-day working capital cycles without going bust."
         },
         {
           "id": 12,
-          "source": "Course Builder Quiz/General Quiz 1.pdf",
           "question": "What are the two key points to remember about Retained Earnings?",
           "answer": "They are cumulative (established since the first day of trading), and they are often not CASH.",
           "keyPoint": "Retained earnings may have been used to buy assets, increase stock, reduce debt, or they might be 'hiding in the debtors ledger'."
         },
         {
           "id": 13,
-          "source": "Course Builder Quiz/General Quiz 1.pdf",
           "question": "In the Working Capital Cycle, what happens to distributed profits (R.O.I)?",
           "answer": "They exit the business structure.",
           "keyPoint": "Profits are extracted from the fixed capital structure, demonstrating why working capital must continuously cycle to generate excess cash for those distributions."
         },
         {
           "id": 14,
-          "source": "Course Builder Quiz/General Quiz 1.pdf",
           "question": "What term describes a business model or industry (like Earthmoving) that requires large amounts of depreciating equipment to serve the customer?",
           "answer": "Capital Intensive.",
           "keyPoint": "Fixed Capital Assets are positively correlated to Working Capital Cycle ability, and the high cost acts as a barrier to entry for new competitors."
+        },
+        {
+          "id": 15,
+          "question": "What are the four stages of the \"Money in Movement\" (Working Capital) cycle?",
+          "answer": "Cash, Stock, Sale, and Debtors.",
+          "keyPoint": "This continuous cycle is 'The Money that Makes Money', operating separately from the Fixed Capital structural requirements."
+        },
+        {
+          "id": 16,
+          "question": "Leases, plant/equipment, and structural overheads are classified as what type of capital?",
+          "answer": "Fixed Capital (Structural Requirements).",
+          "keyPoint": "Fixed capital represents the \"Cost of Being in Business\" and is funded by owners' investment or distributed profits, not directly from the daily movement of stock and debtors."
+        },
+        {
+          "id": 17,
+          "question": "If you pay cash for stock, sell it all in the same month, get paid by the supermarket promptly, but still lack money to buy new stock and pay wages, do you have a cash flow problem?",
+          "answer": "No.",
+          "keyPoint": "In this scenario, you have a profitability problem. If the trading cycle completes in the same period, your margins are either too low, your fixed costs are too high, or you were underfunded from the outset."
+        },
+        {
+          "id": 18,
+          "question": "If you lack the cash to afford an unexpected 'in-fill order' from a supermarket because your supplier requires cash up front, what kind of problem do you have?",
+          "answer": "A lack of working capital.",
+          "keyPoint": "This is where appropriate funding is useful, provided your gross margin can support the cost of finance (treating finance as an opportunity cost to secure the client relationship)."
+        },
+        {
+          "id": 19,
+          "question": "If you miss a monthly billing period due to delayed purchasing confirmation, resulting in you not getting paid until the following month, do you have a cash flow problem?",
+          "answer": "Yes.",
+          "keyPoint": "Your operational procedures failed to complete the trading cycle in the same period, delaying the arrival of your cash."
+        },
+        {
+          "id": 20,
+          "question": "What happens to a business if it regularly experiences cash flow problems due to delayed trading cycles?",
+          "answer": "It may reduce the total annual sales/stock turns, resulting in making less profit for the year.",
+          "keyPoint": "Time delays directly impact the number of trading cycles you can complete annually, highlighting the effects of time and discounting on working capital."
         }
-      ]
+      ],
+      "appendedFrom": "Course Builder Quiz/General Quiz 1.pdf — its Working Capital Cycle group Q47-Q50 appended 2026-07-20 as entries 11-14; its Q41-Q46 SKIPPED as duplicates of entries 1, 1, 3, 4, 5 and 6 (skip-duplicates rule, Mike 2026-07-20)",
+      "previousSource": "Course Builder Quiz/Working Capital Cycle quiz.pdf"
     },
-    "E.O.Y Meeting": {
-      "source": "Course Builder Quiz/E.O.Y Meeting.pdf",
-      "transcribed": "2026-07-18",
+    "6 Hats": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
       "entries": [
         {
           "id": 1,
-          "question": "According to the Volatility Options framework, what specific question must be asked when reviewing a business's Working Capital?",
-          "answer": "How should we finance and manage the money to cope with the 'swings'?",
-          "keyPoint": "Reviewing Working Capital is a critical local 'WHAT-HOW' step used to solve volatility-related issues and ensure the business can handle fluctuations in cash flow."
+          "question": "What problem can occur even when individuals in a business discussion want the same outcome?",
+          "answer": "People can trip over each other and begin thinking at cross purposes due to differences in how they internally process and solve problems.",
+          "keyPoint": "Well-meaning individuals may inadvertently cause confusion if their problem-solving approaches differ."
         },
         {
           "id": 2,
-          "question": "What analogy is used to explain to clients the danger of struggling with high cash volatility?",
-          "answer": "It is like driving a vehicle with a trailer or caravan that gets the 'speed wobbles' or 'fishtail' effect, dragging the leading vehicle from side to side.",
-          "keyPoint": "A business cannot progress safely until its balance issues are dealt with; systems that reduce cash volatility must be addressed before attempting to grow."
+          "question": "According to Evolutionary Psychologist Dan Sperber, what is the purpose of our inner dialogue?",
+          "answer": "Our inner dialogue is a defense mechanism that helps us build a position to influence others.",
+          "keyPoint": "We naturally build arguments and seek information to support our views, which leads to confirmation bias."
         },
         {
           "id": 3,
-          "question": "What are three specific business scenarios where a cash volatility graph should NOT be used with a client?",
-          "answer": "1) Businesses that receive semi-regular government subsidies (like childcare centers), 2) Businesses supplying a co-operative or vertical distributor that sets price/yield limits, and 3) Businesses that have a known singular seasonal high-impact event (like an annual product release).",
-          "keyPoint": "Cash volatility graphs are ineffective for businesses with externally predetermined constraints or highly predictable singular cash flow events."
+          "question": "What is the result of getting everybody focused on the same topic with the same terminology?",
+          "answer": "It will increase the effectiveness of your business planning sessions ten-fold.",
+          "keyPoint": "Collaborative thinking directed via structure and language enables true innovation where the sum is greater than its parts."
         },
         {
           "id": 4,
-          "question": "In Volatility Analysis, what distinguishes a \"Special Cause\" from a \"Common Cause\"?",
-          "answer": "A \"Special Cause\" is Low Frequency and High Impact (e.g., an earthquake or pandemic), whereas a \"Common Cause\" is High Frequency and Low Impact (e.g., a rainy day for a retail store).",
-          "keyPoint": "Accurately categorizing the cause of data volatility is essential to ensure the information is consistent with business assumptions and to avoid tampering or data misinterpretation."
+          "question": "What is the difference between Purpose Focus and Area Focus?",
+          "answer": "Purpose Focus is pre-determined to \"achieve that,\" while Area Focus involves thinking in an area without knowing what to expect.",
+          "keyPoint": "Focus thinking can be applied strictly toward a specific goal or broadly within a conceptual area."
         },
         {
           "id": 5,
-          "question": "When advising a business on solving volatility-related issues, what is the core objective of reviewing their administrative procedures?",
-          "answer": "To determine how the business could get the money in quicker.",
-          "keyPoint": "Improving the speed of administrative cash collection is a primary tactic for stabilizing cash flow alongside adjusting products, marketing, and working capital."
+          "question": "What scientific method is the strategic equivalent to 6 Hats Thinking for business owners?",
+          "answer": "A Double Blind (Placebo) Study.",
+          "keyPoint": "Just as a double-blind study avoids confirmation bias for a researcher, 6 Hats Thinking avoids confirmation bias in business strategy."
         },
         {
           "id": 6,
-          "question": "What are the three required steps for effectively revealing the Growth Curve framework to a client?",
-          "answer": "1) Global Positioning of the Growth Curve, 2) Revealing the Growth Curve via a Persona (to ensure talking in the 3rd person and create dissociation), and 3) Creating Client Relevance to the Curve.",
-          "keyPoint": "By introducing the 9 stages of business growth through a persona (like \"Bob the Chocolate maker\"), the advisor can help the client anticipate issues objectively BEFORE they have to cope with them."
+          "question": "Which hat focuses on optimism, benefits, and the ability to see value objectively?",
+          "answer": "The Yellow Hat.",
+          "keyPoint": "The Yellow Hat acts as \"Sunshine,\" prompting individuals to ask how to do something and to find the value in ideas."
         },
         {
           "id": 7,
-          "question": "What are the two 'Attention Hooks' utilized in the EOY Meeting structure to capture the client's focus?",
-          "answer": "The GLOBAL REFERENCE (Option 1: Growth Curve) and the LOCAL REFERENCE (Option 2: Volatility Analysis).",
-          "keyPoint": "The Growth Curve provides a Macro Vision (\"Where am I going?\"), while Volatility Analysis provides a Micro Vision (\"What's happening to me right now?\")."
+          "question": "What types of thoughts are put forward when wearing the Red Hat?",
+          "answer": "Feelings, intuition, and emotions are put forward without discrimination.",
+          "keyPoint": "The Red Hat serves as a trigger for \"Fire / Warmth,\" allowing raw emotional responses to be shared."
         },
         {
           "id": 8,
-          "question": "What are the five core components of the EOY Meeting Agenda timeline?",
-          "answer": "Review Accts, Review Growth Curve Position, Review Volatility, Start/Stop/Keep, and Q&A.",
-          "keyPoint": "Following a structured timeline ensures a comprehensive advisory meeting that transitions systematically from immediate account reviews to strategic growth and behavioral changes."
+          "question": "What is the primary rule regarding the order of using the 6 Hats?",
+          "answer": "You can use any hat, in any order, and repeat any hat, as long as everyone is wearing the same hat at the same time.",
+          "keyPoint": "The framework is highly flexible, but strict group alignment on the current hat is required to prevent inconsistent discussions."
         },
         {
           "id": 9,
-          "question": "What opening phrase is recommended as the psychological bridge to transition a client from the 'Personal Zone' to the 'Business Zone'?",
-          "answer": "\"How're you going for time today?...\".",
-          "keyPoint": "Establishing the timeframe immediately sets up a framing structure that allows the advisor to subsequently assume permission, take control of the accounts review, and share power via feedback."
+          "question": "What structure should be used to define a problem in writing before discussing it?",
+          "answer": "The (Problem, Because, Results) statement structure.",
+          "keyPoint": "Clearly defining what the problem is, why it exists, and the resulting frustrations ensures the discussion stays targeted on key issues."
         },
         {
           "id": 10,
-          "question": "Within the \"Start, Stop, Keep\" automated action plan, what is provided as an example of an action a manager must \"Stop Doing\"?",
-          "answer": "\"I must stop interfering with the middle manager's instructions – if they delegate a job – I have to 'get out of the way'.\".",
-          "keyPoint": "The \"Start, Stop, Keep\" framework requires business owners to explicitly identify and record behavioral changes necessary to support their operational goals."
+          "question": "What are the two key aims that any guided thinking process must achieve?",
+          "answer": "It must enable a deeper understanding and exploration of issues, and it must align or focus thinking on singular aspects at a time.",
+          "keyPoint": "Edward De Bono refers to this focused, singular alignment as \"parallel thinking\"."
         }
       ]
     },
-    "Planning Session": {
+    "4 Part Bizz Plan": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is the stated objective regarding assumptions for the planning session?",
+          "answer": "The objective is to challenge what you believe to be true and discover what you've been missing.",
+          "keyPoint": "Participants must explore issues and ideas with an open heart and an open mind."
+        },
+        {
+          "id": 2,
+          "question": "What Japanese concept defines \"a reason for being\"?",
+          "answer": "IKIGAI.",
+          "keyPoint": "IKIGAI represents the intersection of what you love, what you are good at, what you can be paid for, and what the world needs."
+        },
+        {
+          "id": 3,
+          "question": "What are the four parts of the 4 Part Business Plan?",
+          "answer": "Market Assumptions, Business Owner Expectations, 8 Lever Action Plan, and Model Best Probable World.",
+          "keyPoint": "This comprehensive structure ensures alignment between market reality, personal goals, execution steps, and revenue capacity."
+        },
+        {
+          "id": 4,
+          "question": "How is Total Revenue calculated using the 8 Profit Levers?",
+          "answer": "Number of Foot-traffic multiplied by Number of Prospects multiplied by Number of Customers, which is then multiplied by Average Customer Spend and Average Customer Frequency.",
+          "keyPoint": "Revenue is not a single action but the result of optimizing traffic, conversion rates, transaction sizes, and buying frequency."
+        },
+        {
+          "id": 5,
+          "question": "What is the formula to calculate Average Customer Spend?",
+          "answer": "Total Sales Value divided by Total Number of Transactions.",
+          "keyPoint": "Understanding the average spend per transaction helps business owners pull specific levers to increase overall revenue."
+        },
+        {
+          "id": 6,
+          "question": "What makes up Total Expenses in the 8 Profit Levers model?",
+          "answer": "Sales Margin, (Sales) Activity Costs, and Fixed Costs (Overheads).",
+          "keyPoint": "Profit is simply Total Revenue minus Total Expenses, so isolating the specific types of expenses allows for better cost control."
+        },
+        {
+          "id": 7,
+          "question": "What business aim corresponds to the profit levers of Average Customer Spend and Average Customer Frequency?",
+          "answer": "Keep them WANTING MORE.",
+          "keyPoint": "Retention and upselling are primary drivers for extracting more value from existing customers."
+        },
+        {
+          "id": 8,
+          "question": "In Market Assumptions, what does \"The Acid Test\" require the owner to identify?",
+          "answer": "The key obstacle you must overcome in order to make the venture a success.",
+          "keyPoint": "Identifying the most critical obstacle ensures that foundational threats are addressed before other operational factors."
+        },
+        {
+          "id": 9,
+          "question": "What does the \"Ripcord\" section of the business model ask you to identify?",
+          "answer": "How you will identify early failure and how you can collapse the business to get out quickly.",
+          "keyPoint": "A complete business plan requires a pre-determined exit strategy to minimize losses if market assumptions prove false."
+        },
+        {
+          "id": 10,
+          "question": "How does the framework define \"Value Proposition\"?",
+          "answer": "It is what you will DO for your customers, what they will enjoy as a result of your product/service, and what makes it special.",
+          "keyPoint": "A clear value proposition must focus on the resulting benefits and differentiation delivered to the customer."
+        }
+      ]
+    },
+    "Debtor Protocols": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "Why does being reliant on too few regular customers create debtor issues?",
+          "answer": "It shifts the balance of power too heavily in favor of the customer, making management fear having a confrontational discussion about payment.",
+          "keyPoint": "Fear of losing a \"valuable customer\" often prevents business owners from enforcing payment terms."
+        },
+        {
+          "id": 2,
+          "question": "What happens when the due diligence of an \"Expectations of You - Sit Down\" meeting is overlooked?",
+          "answer": "Terms of trade are not supported, often because management feels formal structure will cause poor feeling and the loss of a new \"A class\" client.",
+          "keyPoint": "Establishing formal terms early prevents misunderstandings and sets the ground rules for getting paid."
+        },
+        {
+          "id": 3,
+          "question": "Why is managing the money considered more important than managing the work itself?",
+          "answer": "History is littered with hard-working business owners with brilliant ideas who went broke because they didn't manage their cash flow.",
+          "keyPoint": "Financial requirements of your Work In Progress (W.I.P) volume dictate business survival, regardless of craftsmanship."
+        },
+        {
+          "id": 4,
+          "question": "What is the recommended action for clients who are over 30 days late on payment?",
+          "answer": "They are sent a reminder letter with a Lolly included.",
+          "keyPoint": "Using a small, disarming gesture like a Lolly helps broach the uncomfortable topic of overdue payments."
+        },
+        {
+          "id": 5,
+          "question": "According to the timeline, what penalty applies to any invoice outstanding longer than 90 days that exceeds $10,000?",
+          "answer": "It attracts interest backdated from the due date.",
+          "keyPoint": "Enforcing a strict financial penalty on major, highly delinquent debts is necessary to recover costs and prompt payment."
+        },
+        {
+          "id": 6,
+          "question": "How does \"Coded behaviour\" explain why business owners fail to discuss payments?",
+          "answer": "We allow unwritten rules to influence our behavior, which, combined with the \"Dominance Hierarchy,\" causes hesitation in confronting customers.",
+          "keyPoint": "Overcoming ingrained social hierarchies requires framing the discussion as \"Clarifying Expectations to Improve Working Efficiency.\""
+        },
+        {
+          "id": 7,
+          "question": "In the 60 Day Debtor Follow-up Phone Script, how do you create \"Self Relevance\"?",
+          "answer": "By explaining that, like them, you are struggling to get what you are owed and need their help to get through the month.",
+          "keyPoint": "Sharing mutual hardship builds empathy and transforms a hostile collection call into a request for mutual assistance."
+        },
+        {
+          "id": 8,
+          "question": "What is the psychological phenomenon of \"over-identification\"?",
+          "answer": "It describes how we see ourselves in others; when calling debtors facing hardship, we self-identify with their pain and make it \"OUR PAIN\".",
+          "keyPoint": "Feeling like a hypocrite or over-identifying with a debtor's financial stress prevents business owners from demanding rightful payment."
+        },
+        {
+          "id": 9,
+          "question": "How does the \"Role-Identification\" psyche error manifest in poor decision making?",
+          "answer": "People manufacture behaviors to appear consistent with what they think a \"Boss\" should act like, causing them to be inauthentic and unable to get out of their own way.",
+          "keyPoint": "Mimicking an aspirational figure instead of being genuine replaces the \"person\" with the \"business person,\" leading to confrontational transitions."
+        },
+        {
+          "id": 10,
+          "question": "What does the \"Mere-Exposure Effect\" cause businesses to do?",
+          "answer": "It causes them to allocate energy toward new threats rather than challenging what is known, manifesting as actions to \"Keep What We Have\" rather than \"Achieving What We Need\".",
+          "keyPoint": "Familiarity creates a false sense of security (the \"better the devil you know\" mentality), blinding businesses to necessary changes."
+        }
+      ]
+    },
+    "Rubbish In - Rubbish Out": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is essential to do after making a good decision?",
+          "answer": "Being able to measure the effects afterwards is essential.",
+          "keyPoint": "Decisions don't have to be perfect the first time if you have the data to know when you got it wrong early enough to fix it."
+        },
+        {
+          "id": 2,
+          "question": "What are the three metaphorical drawers in the Chart of Accounts filing cabinet?",
+          "answer": "1. Variable Costs, 2. Activity Costs, and 3. Fixed Costs.",
+          "keyPoint": "Organizing financial data into these three logical categories ensures accurate filing and easy retrieval of critical information."
+        },
+        {
+          "id": 3,
+          "question": "How are Variable Costs defined in relation to the customer?",
+          "answer": "They are what it costs to solve your customer's problem and meet their ability to pay you for it.",
+          "keyPoint": "These are costs directly incurred on the \"promise\" that you'll get paid when the specific work is delivered (e.g., materials, contract labor)."
+        },
+        {
+          "id": 4,
+          "question": "What do Activity Costs relate to?",
+          "answer": "They relate to the efforts you make to secure more business, such as securing work and/or sales to customers.",
+          "keyPoint": "These are costs incurred in the hope of winning more work in the future, like marketing, branding, and sales travel."
+        },
+        {
+          "id": 5,
+          "question": "How are Fixed Costs conceptually defined?",
+          "answer": "They are the structural requirements to \"house\" staff and serve customers.",
+          "keyPoint": "Fixed costs are the expenses of simply \"being in business,\" representing how you choose to provide your customer experience regardless of sales volume."
+        },
+        {
+          "id": 6,
+          "question": "If you listen to what Variable Costs tell you, what \"secret\" category of actions do they reveal?",
+          "answer": "They reveal how to \"Do The Job.\"",
+          "keyPoint": "Analyzing variable costs leads to insights on purchasing efficiencies, project management, wastage reduction, and process improvements."
+        },
+        {
+          "id": 7,
+          "question": "What category of actions do Activity Costs reveal when analyzed?",
+          "answer": "They reveal how to \"Get The Job.\"",
+          "keyPoint": "Activity costs shed light on product positioning, message clarity, sales effectiveness, and brand awareness."
+        },
+        {
+          "id": 8,
+          "question": "What category of actions do Fixed Costs reveal?",
+          "answer": "They reveal how to \"Get Organised.\"",
+          "keyPoint": "Fixed costs inform decisions on the use of assets, model design, leadership, culture, and strategic vision."
+        },
+        {
+          "id": 9,
+          "question": "What is the purpose of completing a Key Performance Indicator (KPI) table?",
+          "answer": "To record financial and non-financial measures that you choose to \"Pay Attention To.\"",
+          "keyPoint": "KPIs dictate your focus; simply getting started by paying attention to specific metrics is the first step to management."
+        },
+        {
+          "id": 10,
+          "question": "According to the Filing Cabinet example, in which \"Drawer\" and \"Divider\" would you place Rent and Power?",
+          "answer": "Drawer: Fixed Costs (Get Organised). Divider: Premises.",
+          "keyPoint": "Structuring overheads accurately ensures that structural facility costs are tracked separately from operational execution costs."
+        }
+      ]
+    },
+    "What's Applicable": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is the layman's explanation of Efficiency?",
+          "answer": "\"Getting more done, with less effort.\"",
+          "keyPoint": "Efficiency focuses purely on the ratio of work performed to energy expended."
+        },
+        {
+          "id": 2,
+          "question": "What is the layman's explanation of Effectiveness?",
+          "answer": "\"The greater the outcome, with the same or less effort.\"",
+          "keyPoint": "Effectiveness is concerned with how successful something is in producing a desired result or achieving a goal."
+        },
+        {
+          "id": 3,
+          "question": "What is the key takeaway regarding the relationship between efficiency and effectiveness?",
+          "answer": "It doesn't matter how efficient we become at completing a task if it isn't effective in helping us achieve our goals.",
+          "keyPoint": "Doing the wrong thing quickly (efficiency) is useless if it doesn't yield the right business outcomes (effectiveness)."
+        },
+        {
+          "id": 4,
+          "question": "When analyzing where to implement effective technologies, where should you start?",
+          "answer": "Start with the everyday tasks that are repetitive and see if they can be automated WITHOUT reducing their effectiveness.",
+          "keyPoint": "Automation must only be applied to repetitive tasks if the final outcome remains uncompromised."
+        },
+        {
+          "id": 5,
+          "question": "What is a software solution area listed under Outbound Messaging?",
+          "answer": "Infographics & Marketing Templates, Email to SMS (Text) Messaging, Video Editing & Podcasting, Webinar Hosting, Sequential Email to Database, or Video Hosting.",
+          "keyPoint": "Technology provides multiple avenues to streamline outbound communication to prospects and clients."
+        },
+        {
+          "id": 6,
+          "question": "What is an example of an Administration & Compliance software solution area?",
+          "answer": "Accounts Compilation & Verification, Tax Compliance, Financial Reporting & Forecasting, Payroll / Annual Leave Calcs, or OCR Receipt / Direct Data Feeds.",
+          "keyPoint": "Back-office administrative burdens can be heavily automated using specialized compliance and financial software."
+        },
+        {
+          "id": 7,
+          "question": "What specific software options are suggested for Job Scheduling & Logistics (Workflow Management)?",
+          "answer": "Fergus or Simpro.",
+          "keyPoint": "Specialized logistics software helps manage operational workflows and dispatching efficiently."
+        },
+        {
+          "id": 8,
+          "question": "What software options are provided for Electronic Sales Transactions (EFT POS)?",
+          "answer": "Vend is listed for Point of Sale.",
+          "keyPoint": "Modern sales engagement relies on digital point-of-sale systems to streamline the purchasing process."
+        },
+        {
+          "id": 9,
+          "question": "What does the technical definition of efficiency describe?",
+          "answer": "The ratio of useful work performed in relation to energy expended.",
+          "keyPoint": "From its Latin origins meaning \"accomplish,\" efficiency is strictly a measurement of energy input vs work output."
+        },
+        {
+          "id": 10,
+          "question": "What software options are listed for Cloud Based Document Storage & Sharing?",
+          "answer": "Google Drive or Dropbox.",
+          "keyPoint": "Training and governance rely heavily on accessible, cloud-based data repositories."
+        }
+      ]
+    },
+    "Customer Journey": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "How do you calculate Lifetime Customer Value?",
+          "answer": "Expected annual transaction frequency multiplied by average purchase value, multiplied by the number of years expected to retain the Customer.",
+          "keyPoint": "Lifetime value dictates how much you can afford to spend to acquire a single customer."
+        },
+        {
+          "id": 2,
+          "question": "What does the Prospect Conversion Ratio measure?",
+          "answer": "What percentage of Prospects Choose to Purchase From Me.",
+          "keyPoint": "This metric highlights the effectiveness of your sales engagement and closing abilities."
+        },
+        {
+          "id": 3,
+          "question": "What is the difference between a Suspect and a Prospect?",
+          "answer": "A Suspect broadly fits the customer profile, whereas a Prospect has the correct profile and is in a 'Goldilocks State'—willing to engage with you.",
+          "keyPoint": "Marketing must filter out suspects to focus resources on prospects who are actually ready to interact."
+        },
+        {
+          "id": 4,
+          "question": "How is an \"Advocate\" defined in the customer journey?",
+          "answer": "A customer who actively seeks to promote you to others on a non-structured basis.",
+          "keyPoint": "Advocates provide organic, free marketing by sharing their positive experiences with their own networks."
+        },
+        {
+          "id": 5,
+          "question": "What differentiates a Centre of Influence from an Advocate?",
+          "answer": "A Centre of Influence is formally aligned with you in the promotion of your service to their customer base.",
+          "keyPoint": "Centers of influence require formal protocols and partnerships, unlike advocates who promote you casually."
+        },
+        {
+          "id": 6,
+          "question": "What is the first question to ask when assessing \"My Customer 'Revenue' Actions\"?",
+          "answer": "Where is your Marketing / Sales Journey 'breaking down'?",
+          "keyPoint": "Identifying the exact point of failure in the funnel is required before any rectifications can be applied."
+        },
+        {
+          "id": 7,
+          "question": "What time frame is suggested for implementing rectifications to the sales journey?",
+          "answer": "Within 30 days.",
+          "keyPoint": "Business owners must differentiate between immediate fixes (within 30 days) and longer-term strategic changes."
+        },
+        {
+          "id": 8,
+          "question": "What must be done before addressing customer motivations and frustrations?",
+          "answer": "You must ask, \"What are your 3 main customer profiles?\"",
+          "keyPoint": "You cannot solve purchase friction without first clearly identifying the specific personas you are selling to."
+        },
+        {
+          "id": 9,
+          "question": "Why must you list the different motivational drivers for each profile?",
+          "answer": "Because different profiles seek your product or service for different reasons.",
+          "keyPoint": "Understanding why someone buys allows you to tailor the marketing message to their specific needs."
+        },
+        {
+          "id": 10,
+          "question": "What is the ultimate goal of understanding key frustrations and legitimate constraints?",
+          "answer": "To modify your product or service to reduce 'purchase friction'.",
+          "keyPoint": "Removing barriers to entry makes it easier for prospects to transition into paying customers."
+        }
+      ]
+    },
+    "Demings Volatility": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "Why is averaging data NOT always useful for measuring performance?",
+          "answer": "Because it is more probable that results will be ABOVE or BELOW the average, meaning you automatically pass or fail based on a single summarizing number.",
+          "keyPoint": "An average summarizes a large amount of data but strips away the context of normal variations."
+        },
+        {
+          "id": 2,
+          "question": "What mathematical metric is more relevant for business prediction than an average?",
+          "answer": "Standard Deviation.",
+          "keyPoint": "Standard deviation calculates a \"likely range,\" allowing business owners to predict performance within normal fluctuations."
+        },
+        {
+          "id": 3,
+          "question": "In the Volatility/Std Deviation Graph, what percentage of data falls within one standard deviation up and down?",
+          "answer": "68% Sales Range.",
+          "keyPoint": "Understanding that 68% of sales will naturally fall within this range prevents panic over normal monthly swings."
+        },
+        {
+          "id": 4,
+          "question": "When conducting Volatility Analysis, what must you check regarding the information in the graph?",
+          "answer": "Is the information consistent with your previous business assumptions/beliefs?",
+          "keyPoint": "Data should be used to validate or challenge the fundamental assumptions the owner has about the business model."
+        },
+        {
+          "id": 5,
+          "question": "If a data point falls wildly outside the standard deviation range, what must you determine?",
+          "answer": "Which of the data points relate to a Special or Seasonal cause.",
+          "keyPoint": "Outliers must be investigated to see if they are random anomalies or driven by specific, identifiable external events."
+        },
+        {
+          "id": 6,
+          "question": "To cope with \"swings\" in volatility, what should you review regarding key products and services?",
+          "answer": "You should review what could help \"fill in the holes\".",
+          "keyPoint": "Diversifying or adding complementary products can smooth out revenue valleys during slow periods."
+        },
+        {
+          "id": 7,
+          "question": "How can reviewing admin procedures help manage business volatility?",
+          "answer": "By determining how we could get the money in quicker.",
+          "keyPoint": "Faster cash realization cycles build financial buffers that help businesses survive sudden drops in revenue."
+        },
+        {
+          "id": 8,
+          "question": "How can reviewing marketing & sales tactics address volatility?",
+          "answer": "By figuring out how we could attract more customers, more often.",
+          "keyPoint": "Increasing customer volume and frequency raises the baseline revenue, making downward swings less dangerous."
+        },
+        {
+          "id": 9,
+          "question": "What aspect of finance should be reviewed to cope with the \"swings\"?",
+          "answer": "Review Working Capital—how should we finance and manage the money.",
+          "keyPoint": "Proper working capital management ensures the business remains solvent even during severe market contractions."
+        },
+        {
+          "id": 10,
+          "question": "What is the primary agenda objective for the Volatility session?",
+          "answer": "That we learn about the Theory of Volatility and identify where volatility analysis can help with decisions/management going forward.",
+          "keyPoint": "The session shifts management perspective from reacting to single data points to managing within statistical ranges."
+        }
+      ]
+    },
+    "Quick Fire Diagnosis": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "In the Triage Assessment, what are the two main branches under \"Business Focus\"?",
+          "answer": "Distress Focused and Growth Focused.",
+          "keyPoint": "You must first diagnose whether the business requires emergency stabilization or if it is ready to scale."
+        },
+        {
+          "id": 2,
+          "question": "How do you calculate the \"Quick Position\" to assess Extreme Risk?",
+          "answer": "(Cash + Debtors - period expenses).",
+          "keyPoint": "This simple calculation immediately shows whether the business has enough liquid capital to survive the current trading period."
+        },
+        {
+          "id": 3,
+          "question": "How is \"Distress\" defined compared to \"Extreme Risk\"?",
+          "answer": "\"Distress\" is a state of decline or stalling, whereas \"Extreme Risk\" is Possible Short Term Failure.",
+          "keyPoint": "Extreme Risk requires immediate triage (like selling assets or redundancies within 90 days), while Distress requires a model review."
+        },
+        {
+          "id": 4,
+          "question": "What does the Distress Triage ask you to determine regarding the \"rip-cord\" moment?",
+          "answer": "Determine the viability timeline and agree now on the 'rip-cord' moment so emotions don't get in the way of necessary decisions.",
+          "keyPoint": "Pre-committing to an exit strategy prevents owners from draining personal wealth into a failing enterprise."
+        },
+        {
+          "id": 5,
+          "question": "Why should you run a distressed business through a \"Worst Case Scenario model\"?",
+          "answer": "To identify if the business can be split into salvageable/saleable components and to quantify owner exposure.",
+          "keyPoint": "Isolating the toxic parts of a business might save the profitable core and limit the owner's financial liability."
+        },
+        {
+          "id": 6,
+          "question": "Before entering Growth Mode, what must be checked via a Capacity Model?",
+          "answer": "The model/operator assumptions must be checked to determine the 'Probability' of growth expectations.",
+          "keyPoint": "Growth cannot occur if the underlying business model lacks the mathematical capacity to scale."
+        },
+        {
+          "id": 7,
+          "question": "What are the 3 Critical Domains for a Growth Focused business?",
+          "answer": "1. Get Organised, 2. Get the Job, 3. Do the Job.",
+          "keyPoint": "These domains separate structural planning, sales/marketing, and operational execution for targeted improvements."
+        },
+        {
+          "id": 8,
+          "question": "In the \"Get the Job\" domain, what is the focus of \"Lite Marketing\"?",
+          "answer": "Who You Want to Speak to, What You Want to Say.",
+          "keyPoint": "Marketing must clearly define the target audience and the core messaging before any sales activities begin."
+        },
+        {
+          "id": 9,
+          "question": "In the \"Do the Job\" domain, what is the focus of \"Lite People\"?",
+          "answer": "Getting the Most Out of the People You've Got.",
+          "keyPoint": "Operational execution relies heavily on maximizing the efficiency and capabilities of the existing team."
+        },
+        {
+          "id": 10,
+          "question": "In the \"Do the Job\" domain, what is the focus of \"Lite Process\"?",
+          "answer": "Making improvements, step by step.",
+          "keyPoint": "Process improvement is iterative, focusing on incremental gains to overcome hurdles in getting work completed."
+        }
+      ]
+    },
+    "HOPE Recession Model": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "According to Mike Barnes, while few have a Strategic GROWTH Plan, what does almost NO ONE have?",
+          "answer": "A Strategic Withdrawal Plan.",
+          "keyPoint": "Businesses rarely plan for economic downturns, leaving them highly vulnerable when the cycle shifts to a recession."
+        },
+        {
+          "id": 2,
+          "question": "What are the three phases shown on the Basic Economic Cycle graph?",
+          "answer": "Expansion, Peak, Recession, (followed by Trough and Expansion again).",
+          "keyPoint": "GDP Output naturally moves through these phases over time; business owners must recognize which phase they are currently navigating."
+        },
+        {
+          "id": 3,
+          "question": "What causes the economy to respond and trigger the sequence of the HOPE model?",
+          "answer": "Changes in rates (specifically, a Fed tightening cycle).",
+          "keyPoint": "Interest rate hikes act as the primary catalyst that slows down the economy in a predictable, sequential order."
+        },
+        {
+          "id": 4,
+          "question": "What does the \"H\" in HOPE stand for, and when does it react?",
+          "answer": "Housing. It is the 1st to slow (Reacts First).",
+          "keyPoint": "The housing sector is highly sensitive to interest rates, making it a great leading indicator for the rest of the economy."
+        },
+        {
+          "id": 5,
+          "question": "What does the \"O\" in HOPE stand for?",
+          "answer": "New Orders (ISM NO / Consumer NO). It is the 2nd to slow.",
+          "keyPoint": "Following housing, manufacturing and consumer demand for new orders begin to contract."
+        },
+        {
+          "id": 6,
+          "question": "What does the \"P\" in HOPE stand for?",
+          "answer": "Profits. It is the 3rd to slow.",
+          "keyPoint": "As orders drop, corporate profits inevitably shrink as revenues decline against fixed overheads."
+        },
+        {
+          "id": 7,
+          "question": "What does the \"E\" in HOPE stand for, and when does it react?",
+          "answer": "Employment. It is the most lagging part of the economy (Reacts Last).",
+          "keyPoint": "Job losses only occur after housing, orders, and profits have fallen; therefore, employment data looks backwards, not forwards."
+        },
+        {
+          "id": 8,
+          "question": "On a scale of 1-10, what must a business owner evaluate regarding their industry?",
+          "answer": "How much their industry is affected by the general economy.",
+          "keyPoint": "Certain industries are highly insulated from economic cycles, while others are heavily dependent on macro trends."
+        },
+        {
+          "id": 9,
+          "question": "Why must a business ask about options to raise working capital during this planning phase?",
+          "answer": "To prepare financially if required by the economic shift.",
+          "keyPoint": "Securing credit or cash reserves before a recession hits is a vital part of a Strategic Withdrawal Plan."
+        },
+        {
+          "id": 10,
+          "question": "What must a business identify to affirm their decision to act on a withdrawal plan?",
+          "answer": "The performance 'indicators/milestones' that would trigger the action.",
+          "keyPoint": "Clear, predefined metrics remove emotion from the decision-making process when economic conditions deteriorate."
+        }
+      ]
+    },
+    "Lite Feasibility": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "In the \"Situation\" column, what does \"Product Fit\" require you to analyze?",
+          "answer": "Whether you are meeting existing demand or if you will be required to 'educate' your customers on why they need your product or service.",
+          "keyPoint": "Educating a market requires significantly more marketing funds and time compared to fulfilling an existing demand."
+        },
+        {
+          "id": 2,
+          "question": "What does \"The Big Idea\" define?",
+          "answer": "What problem/key frustrations you are going to solve for your potential customers or for your business as a result of the loan/asset purchase.",
+          "keyPoint": "Any investment must directly resolve a specific pain point to justify the financial outlay."
+        },
+        {
+          "id": 3,
+          "question": "What must be determined under \"Market Size\"?",
+          "answer": "How big is the scale of opportunity? / Financial upside?",
+          "keyPoint": "The potential financial return must be large enough to offset the risks of the new venture or asset purchase."
+        },
+        {
+          "id": 4,
+          "question": "How does the \"Revenue Model\" evaluate a new asset or funding?",
+          "answer": "It asks how the pending funding / asset purchase will contribute towards revenue or profit.",
+          "keyPoint": "You must draw a direct line between the capital spent and the exact mechanism by which it will generate income."
+        },
+        {
+          "id": 5,
+          "question": "What does \"Break Even\" measure in the context of an asset purchase?",
+          "answer": "What is the utilisation rate of the asset required to break even.",
+          "keyPoint": "Understanding how frequently an asset must be used to pay for itself determines the minimum operational volume required for success."
+        },
+        {
+          "id": 6,
+          "question": "What question does \"The Ask\" pose at the top of the feasibility assessment?",
+          "answer": "What is necessary to take this idea further?",
+          "keyPoint": "Every feasibility study must conclude with clear, actionable next steps required for progression."
+        },
+        {
+          "id": 7,
+          "question": "Under the Acid Test, what does \"Risk / Return\" ask you to consider?",
+          "answer": "What is at risk for you/your business if the asset purchase proves a failure.",
+          "keyPoint": "Assessing the worst-case financial liability ensures the business won't be destroyed by a single bad investment."
+        },
+        {
+          "id": 8,
+          "question": "In Lite Feasibility, what does the \"Ripcord\" section ask regarding early payment?",
+          "answer": "How can you get out quickly? Can the asset be sold directly or via 3rd parties, and what are the early payment penalties?",
+          "keyPoint": "Liquidation pathways and financing penalties must be known before committing to capital debt."
+        },
+        {
+          "id": 9,
+          "question": "What is the overarching purpose of the 'Lite' Feasibility document?",
+          "answer": "Assessing the pay-back of an idea, asset purchase, or loan.",
+          "keyPoint": "It provides a quick but comprehensive framework to ensure financial decisions are based on logic, not emotion."
+        },
+        {
+          "id": 10,
+          "question": "What are the two main categories that the Situation and Business Model must pass through?",
+          "answer": "They must pass through \"The Ask\" and \"The Acid Test\".",
+          "keyPoint": "Evaluating the situation and revenue mechanics is useless if the project fails the fundamental risk and ripcord assessments."
+        }
+      ]
+    },
+    "People vs. Process": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What are the three core questions to ask about your people when \"Doing the Job\"?",
+          "answer": "Do they Know? Do they Do? Do they Care?",
+          "keyPoint": "Human performance relies on clarity of expectations, capability/tools, and emotional engagement."
+        },
+        {
+          "id": 2,
+          "question": "Under Team Drivers, what does \"Know\" mean?",
+          "answer": "Does your team know what is expected of them, and are they aware of vital information to help guide their actions.",
+          "keyPoint": "Ignorance of expectations or a lack of guiding information is a management failure, not a staff failure."
+        },
+        {
+          "id": 3,
+          "question": "Under Team Drivers, what does \"Do\" mean?",
+          "answer": "Does your team have the Skills and Tools necessary to be able to ACT on what they know.",
+          "keyPoint": "Even if a worker knows what to do, they will fail if the business does not provide the proper equipment (like a lathe) or training."
+        },
+        {
+          "id": 4,
+          "question": "Under Team Drivers, what does \"Care\" represent?",
+          "answer": "Does your team feel valued, do they understand how their role serves the customer, and do they see a future for themselves.",
+          "keyPoint": "Retention and quality output are directly tied to an employee's emotional connection and perceived future within the business."
+        },
+        {
+          "id": 5,
+          "question": "How is a \"Process\" defined?",
+          "answer": "A sequence of actions to produce a component in a consistent manner.",
+          "keyPoint": "A process focuses on a single, isolated output, like building the engine for a car."
+        },
+        {
+          "id": 6,
+          "question": "How is a \"System\" defined?",
+          "answer": "A collection of interdependent processes acting as a whole.",
+          "keyPoint": "Systems manage the orchestration of multiple processes to produce a final, holistic result, like assembling the whole car."
+        },
+        {
+          "id": 7,
+          "question": "What is the system focus and customer promise of \"Six Sigma\" (e.g., McDonald's)?",
+          "answer": "The focus is to Remove Variation, and the promise is \"No Surprises.\"",
+          "keyPoint": "Six Sigma targets mass markets by ensuring the exact same standardized experience every time."
+        },
+        {
+          "id": 8,
+          "question": "What is the system focus and customer promise of \"Lean\" (e.g., Pak n Save)?",
+          "answer": "The focus is to Remove the Frills, and the promise is \"You Save the Difference.\"",
+          "keyPoint": "Lean systems strip out waste so that cost savings can be passed directly to a mass market customer."
+        },
+        {
+          "id": 9,
+          "question": "What is the system focus and customer promise of \"Constraint\" theory (e.g., Air BnB)?",
+          "answer": "The focus is to Exploit the Weakness, and the promise is \"Create Your Own Experience.\"",
+          "keyPoint": "Constraint theory caters to combined niches by turning potential weaknesses into unique, customizable assets."
+        },
+        {
+          "id": 10,
+          "question": "What is the underlying slogan of Constraint Theory?",
+          "answer": "\"A chain is only as strong as its weakest link.\"",
+          "keyPoint": "Instead of fixing everything, this theory dictates you must identify and exploit the specific bottlenecks or 'Legitimate Constraints' in your system."
+        }
+      ]
+    },
+    "Price Rise": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is the fundamental objective of price communication?",
+          "answer": "To mitigate churn by transforming a potential \"relationship-killer\" into a constructive, professional update between partners.",
+          "keyPoint": "It requires a radical shift in perspective from extraction (squeezing) to reinvestment (valuing)."
+        },
+        {
+          "id": 2,
+          "question": "What does shifting from \"Business Problem\" to \"Service Standard\" mean?",
+          "answer": "Your overhead is your burden; the customer's concern is the utility, reliability, and quality they receive in exchange for their investment.",
+          "keyPoint": "Customers don't care about your internal bills; they care about what the price increase guarantees for them."
+        },
+        {
+          "id": 3,
+          "question": "What are the three layers of the \"Sandwich\" approach?",
+          "answer": "The Top Layer (Bread) acknowledges the partnership; the Middle (Meat) states the price adjustment; the Bottom Layer (Bread) reiterates commitment to their goals.",
+          "keyPoint": "This method attempts to soften the blow of financial news by hiding it between positive reinforcements."
+        },
+        {
+          "id": 4,
+          "question": "What is a major con of the Feedback Sandwich approach?",
+          "answer": "It has developed a bad reputation because it feels like a setup, creating an \"insincerity gap\" that erodes trust.",
+          "keyPoint": "Clients may view the initial praise as manipulative and overly \"corporate,\" leaving them waiting for the \"shoe to drop.\""
+        },
+        {
+          "id": 5,
+          "question": "What are the three components of the \"Direct-First\" (IPP) Approach?",
+          "answer": "The Update (Direct News), The Context (Why value justifies it), and The Partnership (Future focus).",
+          "keyPoint": "Delivering the news upfront changes the conversation from a negotiation to a firm, transparent notification."
+        },
+        {
+          "id": 6,
+          "question": "How do clients react to the Direct-First approach compared to the Sandwich approach?",
+          "answer": "In Direct-First, there is immediate clarity and focus shifts to \"how\" and \"why,\" whereas in the Sandwich approach, they are waiting for the \"shoe to drop.\"",
+          "keyPoint": "Professional services and B2B contracts benefit from the authoritative transparency of the Direct-First method."
+        },
+        {
+          "id": 7,
+          "question": "What is the difference between the 'Victim' and 'Steward' message when raising prices?",
+          "answer": "The Victim message says \"I have to charge you more just to survive,\" making your problem their problem. The Steward message says \"we are adjusting rates to ensure we never have to compromise on quality.\"",
+          "keyPoint": "You must frame honesty around maintaining service standards rather than defensively complaining about covering expenses."
+        },
+        {
+          "id": 8,
+          "question": "What is Retention-First Communication?",
+          "answer": "Leading with value by shifting the narrative away from internal costs and toward the service/features the customer values.",
+          "keyPoint": "This supports the adjustment as a necessary means to sustain the high standards the client expects."
+        },
+        {
+          "id": 9,
+          "question": "How do you provide \"Ample Runway\" to mitigate churn?",
+          "answer": "Provide a 30-to-60-day notice before any price adjustment takes effect.",
+          "keyPoint": "Giving clients a clearly defined transition date allows them to adjust their internal budgets without panic, showing professional respect."
+        },
+        {
+          "id": 10,
+          "question": "Why must you personalize the delivery for high-value accounts?",
+          "answer": "An automated email is a strategic error for significant partners; personalized check-ins frame the news as a professional update between peers.",
+          "keyPoint": "Protecting the relationship requires acknowledging their loyalty directly rather than issuing a cold mandate."
+        }
+      ]
+    },
+    "Structure Options": {
+      "source": "Course Builder Quiz/General Section Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "Under \"The Corporate Veil,\" who stands between the business owner and the customer in a Company structure?",
+          "answer": "The Business Shareholder structure (the Company entity).",
+          "keyPoint": "Unlike a Sole Trader where the owner is directly exposed, a Company provides a legal barrier separating the individual from the business liabilities."
+        },
+        {
+          "id": 2,
+          "question": "What is the key upside of being a Sole Trader?",
+          "answer": "All money flows to you, making it easy to manage and pay your taxes.",
+          "keyPoint": "It is the simplest model for a \"1 man-band,\" though all debts also pass directly to the individual."
+        },
+        {
+          "id": 3,
+          "question": "What is a major point worth noting about a Partnership structure?",
+          "answer": "All obligations are 'Joint & Several' Liable.",
+          "keyPoint": "If a business partner spends a lot of money and leaves town, you are left with the bills going forward."
+        },
+        {
+          "id": 4,
+          "question": "What is a key point worth noting about a Company?",
+          "answer": "It is a legal separate entity, meaning you work for the company.",
+          "keyPoint": "It provides limited liability protection and makes it easier to sell and scale the business, but requires two lots of tax returns."
+        },
+        {
+          "id": 5,
+          "question": "What is the key downside of using a Trust structure?",
+          "answer": "It has more administration costs and even greater rules to follow.",
+          "keyPoint": "You can't just \"park\" assets in a trust to hide them; they must be actively seen to care for beneficiaries to provide estate protection."
+        },
+        {
+          "id": 6,
+          "question": "What does the 'Interested Party' Rule stipulate regarding the Separate Legal Entity concept?",
+          "answer": "You can't insure your neighbor's house and receive money if it burns down (unless you have a financial interest in the building & title).",
+          "keyPoint": "Therefore, if your Company invoices a client, the company receives the money and pays the taxes; you only get paid wages, even if you own shares in the company."
+        },
+        {
+          "id": 7,
+          "question": "What is the key downside of Boot-Strapped finance (personal savings)?",
+          "answer": "You don't have any financial reserves, which is risky and stressful, potentially distracting you from business decisions.",
+          "keyPoint": "While you don't have to share profits, tying up all personal savings puts the owner under immense psychological pressure."
+        },
+        {
+          "id": 8,
+          "question": "What is the key upside of \"Good-will\" Loans (from family or friends)?",
+          "answer": "They are easier to secure initially than Venture Capital investors or banks.",
+          "keyPoint": "However, they can become extremely uncomfortable if the business fails, as they are often prone to \"hand-shake\" agreements."
+        },
+        {
+          "id": 9,
+          "question": "What is the key downside of using Raised Capital (Investor support)?",
+          "answer": "You will be required to surrender shares in the business, meaning you will be influenced by others in your business operations.",
+          "keyPoint": "It provides funding without needing cash repayment, but sacrifices total autonomous control over the business."
+        },
+        {
+          "id": 10,
+          "question": "What is the key upside of using Debt (Bank or Finance company) to fund a business?",
+          "answer": "A time-specific loan means the arrangement will not affect you in the distant future once paid.",
+          "keyPoint": "The risk is mathematically calculable, but you must use some of the money you borrowed to pay back the money with interest."
+        }
+      ]
+    },
+    "The 9 Growth Stages": {
+      "source": "Course Builder Quiz/Growth Framework Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "At which growth stage does a business command a sizable market share and create a \"barrier to entry\" for any competing business?",
+          "answer": "The Maturity stage.",
+          "keyPoint": "The Maturity stage represents a point where market share is substantial and the business acts as a barrier to new entrants."
+        },
+        {
+          "id": 2,
+          "question": "What is the business equivalent of \"resting for lunch\" before attempting the \"Devil's Toilet\" rapid?",
+          "answer": "\"Bank your profits\" and improve your systems before setting off for glory.",
+          "keyPoint": "A high degree of complacency and fatigue can occur between the \"lifestyle\" and \"leverage\" stages; therefore, securing profits and systems is critical to surviving the pulling and sucking forces of this dangerous transition."
+        },
+        {
+          "id": 3,
+          "question": "What specific growth tactic corresponds to the \"Design - Launch - Break-even\" stages?",
+          "answer": "Growth through Enthusiasm & Creativity (Foundation).",
+          "keyPoint": "This foundational tactic is all about \"pushing hard,\" keeping your head down, and achieving the momentum and subsequent learning necessary for early business survival."
+        },
+        {
+          "id": 4,
+          "question": "Which psychological error, known as a \"Psyche Error,\" is associated with the \"Intelligence\" layer of complexity?",
+          "answer": "Optimism Bias.",
+          "keyPoint": "Optimism bias is the attempt to avoid noticing what you don't know, characterized by a tendency to delete negative information to support existing beliefs and secure attachments."
+        },
+        {
+          "id": 5,
+          "question": "How is \"Replication\" defined within the context of Growth Stage Fundamentals?",
+          "answer": "Replication is the ability for a team member to do ALL of a task, or the ability to automate or reproduce an item with relative ease.",
+          "keyPoint": "Mastering delegation, replication, and quantification allows a business owner to dissect activities and magnify value, which is the core mechanism to achieve Leverage."
+        },
+        {
+          "id": 6,
+          "question": "How is \"Average Customer Spend\" calculated according to the 8 Profit Levers?",
+          "answer": "Total Sales Value divided by Total Number of Transactions.",
+          "keyPoint": "Knowing specific financial formulas is essential for understanding your revenue drivers; Average Customer Spend multiplied by Average Customer Frequency and the Number of Customers equals Total Revenue."
+        },
+        {
+          "id": 7,
+          "question": "What psychological phenomenon occurs when someone focuses on the loss of investment to-date rather than the probable future outcome?",
+          "answer": "The Sunk Cost Fallacy (sometimes known as the \"Gambler's Archipelago\").",
+          "keyPoint": "Understanding supplementary psychological phenomenons is vital, as business owners can fall into the trap of thinking \"If I can just get to spot x, I can fix things from there\" instead of making objective choices."
+        },
+        {
+          "id": 8,
+          "question": "What holds a business owner back during the \"Leverage\" stage?",
+          "answer": "Lack of faith in Key Staff (poor delegation/visibility) or a reluctance to \"let go\" of a business model built around a specialist service provider.",
+          "keyPoint": "Without properly ingrained governance and delegation protocols, an owner will remain overly reliant on themselves, failing to reach a stage where the business can sustain them hands-off."
+        },
+        {
+          "id": 9,
+          "question": "Within the 9 Growth Aspects, which aspect deals with values (cultural), marketing (outbound messaging), aesthetics, and the \"vibe/morale\"?",
+          "answer": "Authenticity.",
+          "keyPoint": "Maintaining balanced growth means managing nine distinct operational aspects; Authenticity ensures that the internal culture and external messaging remain cohesive at every stage."
+        },
+        {
+          "id": 10,
+          "question": "What psychological driver is largely responsible for Confirmation Bias?",
+          "answer": "Cognitive Dissonance.",
+          "keyPoint": "When a business owner's reality is not aligned with their desires, they search for shared views to avoid anxiety, which suppresses their growing fears but leads to repeating the same mistakes."
+        }
+      ]
+    },
+    "Lite Fundamentals Components": {
+      "source": "Course Builder Quiz/Growth Framework Quiz.pdf",
+      "transcribed": "2026-07-21",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What are the three primary organizational pillars of the Lite Fundamentals Components?",
+          "answer": "Get Organised, Get the Job, Do the Job.",
+          "keyPoint": "Structuring a business requires breaking down operations into manageable phases: organizing foundations, acquiring clients, and delivering the service or product."
+        },
+        {
+          "id": 2,
+          "question": "Which two specific components fall under the \"Get Organised\" pillar?",
+          "answer": "Planning and Data.",
+          "keyPoint": "Proper organization stems from \"Lite Planning\" (aligning owner expectations) and \"Lite Data\" (knowing what matters)."
+        },
+        {
+          "id": 3,
+          "question": "Which two specific components make up the \"Get the Job\" pillar?",
+          "answer": "Marketing and Selling.",
+          "keyPoint": "Client acquisition requires identifying who you want to speak to (Marketing) and successfully winning their business (Sales)."
+        },
+        {
+          "id": 4,
+          "question": "Which two specific components define the \"Do the Job\" pillar?",
+          "answer": "People and Process.",
+          "keyPoint": "Execution relies on getting the most out of your workforce (People) and continuously making operational improvements (Process)."
+        },
+        {
+          "id": 5,
+          "question": "How is a \"System\" defined within the Lite Fundamentals Framework?",
+          "answer": "\"A set of things working together as parts of a mechanism or an interconnecting network; a complex whole.\".",
+          "keyPoint": "Business functions act as systems requiring distinct inputs to generate measurable, successful outputs."
+        },
+        {
+          "id": 6,
+          "question": "What are three key elements tracked or prioritized within the Marketing component?",
+          "answer": "Client Segmentation, Focused messaging, Brand recognition, and Market Analytics.",
+          "keyPoint": "Marketing cannot be generalized; it requires clear identification of the target audience and analytics to confirm understanding and allocate resources effectively."
+        },
+        {
+          "id": 7,
+          "question": "What metrics are generated as \"Outputs\" from the Sales system?",
+          "answer": "# of Sales, Avg' Sale Value, Repeat Purchases, Conversion ratios, and Shortened sales time.",
+          "keyPoint": "Measuring these exact ratios and figures determines the efficiency of transforming marketing leads into actual revenue."
+        },
+        {
+          "id": 8,
+          "question": "What is the primary focus of \"Lite Planning\"?",
+          "answer": "Aligning Owner Expectations with the Business Model.",
+          "keyPoint": "Strategic success requires the owner's personal desires and orientation to match the reality of the business's structure and scale."
+        },
+        {
+          "id": 9,
+          "question": "What is the core goal of the \"Lite Process\" component?",
+          "answer": "Making Improvements, Step by Step.",
+          "keyPoint": "Process management is dedicated to people effectiveness, reliability, systems interdependency, and incremental business improvements to ensure quality delivery."
+        },
+        {
+          "id": 10,
+          "question": "Name three areas of focus categorized under the \"People\" component.",
+          "answer": "Staff engagement, Staff proximity/locations, Skills development, Leadership/Morale, Internal communication, or Staffing numbers/divisions.",
+          "keyPoint": "Managing people effectively goes beyond hiring; it encompasses cultural, communicative, and developmental tracking to maximize human output."
+        }
+      ],
+      "previousSource": "Course Builder Quiz/Growth Fundamentals Framework.pdf"
+    },
+    "Revealing the Growth Curve Freehand": {
+      "source": "Course Builder Quiz/Growth Framework Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What three stages comprise the first \"3 x 3 Chunk\"?",
+          "answer": "Design – Launch – Breakeven.",
+          "keyPoint": "Grouping the stages into three distinct chunks makes the overall growth curve easier to communicate and helps the client visualize the journey in manageable segments."
+        },
+        {
+          "id": 2,
+          "question": "What three stages comprise the final \"3 x 3 Chunk\"?",
+          "answer": "Leapfrog – Maturity – Exit/Decline.",
+          "keyPoint": "The final chunk of the curve focuses on highly advanced business stages, addressing alliances, scaling, and ultimate succession or realization."
+        },
+        {
+          "id": 3,
+          "question": "When following the \"Reveal Format,\" what question should you ask the client immediately after explaining the Devil's Toilet and the Split Point?",
+          "answer": "Ask them where they think they 'sit' on the curve.",
+          "keyPoint": "Asking for self-placement forces the client to internalize the framework and actively reflect on their current business standing."
+        },
+        {
+          "id": 4,
+          "question": "Once a client states where they believe they sit on the curve, how should you test their understanding?",
+          "answer": "By asking \"WHAT makes you say that?\".",
+          "keyPoint": "Challenging their self-assessment ensures they actually understand the definitions of the stages rather than just guessing."
+        },
+        {
+          "id": 5,
+          "question": "Towards the end of the \"Reveal Format,\" what forward-looking question must the advisor ask the client?",
+          "answer": "\"Where do you WANT to be on the curve and by WHEN?\".",
+          "keyPoint": "This establishes the operational objective and timeframe, creating a foundation for future planning and advisory services."
+        },
+        {
+          "id": 6,
+          "question": "What are the three steps required for Growth Curve Facilitation?",
+          "answer": "1. Global Positioning of the Growth Curve, 2. Reveal the Growth Curve via a Persona, 3. Create (Client) Relevance to the Curve.",
+          "keyPoint": "A structured facilitation process guarantees that the concept is introduced safely, understood objectively, and finally applied personally by the client."
+        },
+        {
+          "id": 7,
+          "question": "Why is it necessary to use a \"Persona\" when revealing the Growth Curve?",
+          "answer": "It creates dissociation to avoid judgment/assessment before the concept is understood, allowing the facilitator to stay in the 3rd person and use humor.",
+          "keyPoint": "Personas reduce complex jargon and increase memory retention while overcoming the stereotype of accountants being strictly logical and boring."
+        },
+        {
+          "id": 8,
+          "question": "Who is the specific persona character used as an example in the Global Positioning script?",
+          "answer": "Bob the Chocolate maker.",
+          "keyPoint": "Using a fictional, easy-to-understand character like Bob allows the client to observe the business journey objectively without feeling defensive."
+        },
+        {
+          "id": 9,
+          "question": "According to the script example, why do advisors use the Growth Curve framework with clients?",
+          "answer": "Because it highlights the types of issues business owners can expect to encounter BEFORE they have to cope, making them better prepared and more successful.",
+          "keyPoint": "The value of the framework lies in predictive preparation—solving problems before they cause business failure."
+        },
+        {
+          "id": 10,
+          "question": "What added benefit does storytelling provide during client meetings?",
+          "answer": "It creates a different 'feel' in the meetings, making clients WANT to spend more time with you.",
+          "keyPoint": "Soft skills and narrative delivery are essential in overcoming industry stereotypes and building stronger, more engaging client relationships."
+        }
+      ]
+    },
+    "Growth Fundamentals Framework Philosophy": {
+      "source": "Course Builder Quiz/Growth Framework Quiz.pdf",
+      "transcribed": "2026-07-22",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What three questions must be answered to determine if \"Fundamentals\" are truly present before a business takes new growth steps?",
+          "answer": "Do we truly understand it?, do we do it consistently?, and are we doing it well? (Have we mastered it?).",
+          "keyPoint": "Human nature pushes toward the \"new and fresh,\" but genuine business growth relies on mastering robust foundations before expanding."
+        },
+        {
+          "id": 2,
+          "question": "What biological or scientific state must occur before organizational expansion can happen?",
+          "answer": "A period of dormancy, or homeostasis, where the organism must 're-group' expending energy in pursuit of gain.",
+          "keyPoint": "The growth curve mimics a 'Sigmoid-type/Sine Wave-type' regenerative cycle; growth only emerges AFTER proper conditions and sustenance are present."
+        },
+        {
+          "id": 3,
+          "question": "How is a \"Framework\" defined within this methodology?",
+          "answer": "The Designed Structure that guides future actions or form.",
+          "keyPoint": "Frameworks are critical because they help capture the thinking, observation, reflections, and actions of those striving for business excellence."
+        },
+        {
+          "id": 4,
+          "question": "What is the primary psychological function the Framework performs for the client?",
+          "answer": "It Creates Self Relevance.",
+          "keyPoint": "Self relevance is critical for both learning the material and developing the inner motivation to want to act on it."
+        },
+        {
+          "id": 5,
+          "question": "How does the Framework establish \"Context\" for the client?",
+          "answer": "By creating recognition of 'where you are' based on knowing 'where you've come from' and 'where you're headed'.",
+          "keyPoint": "A client cannot navigate future growth without contextualizing their current position against their past history and future goals."
+        },
+        {
+          "id": 6,
+          "question": "In the Psyche Error fables, which story is used to illustrate Confirmation Bias?",
+          "answer": "The Bear and the Salmon.",
+          "keyPoint": "The bear ignored reality and maintained his belief that the salmon would come at dusk, illustrating how individuals suppress truth that misaligns with their desires."
+        },
+        {
+          "id": 7,
+          "question": "Which fable character demonstrates the error of Complacency by failing to prepare for winter?",
+          "answer": "Barney the Badger.",
+          "keyPoint": "Past success doesn't guarantee future security; resting on perceived security leads to a depletion of reserves when conditions change."
+        },
+        {
+          "id": 8,
+          "question": "What is the moral of the fable \"The Sparrow and the Hawk\" (Role Identification)?",
+          "answer": "True role identification involves recognizing and embracing one's own strengths and limitations, rather than adopting a persona that doesn't authentically reflect one's capabilities.",
+          "keyPoint": "Mimicking an aspirational figure or \"acting like a boss\" leads to poor decision-making and an inability to find balance between authenticity and situational demands."
+        },
+        {
+          "id": 9,
+          "question": "What is the primary difference in audience and complexity between the 'Full' Growth Fundamentals Framework and the 'Lite' Fundamentals Framework?",
+          "answer": "The 'Full' version is comprehensive, requires considerable effort/time (~10 hours), and targets larger, complex businesses. The 'Lite' version limits the scope of engagement to reduce the sales process to just 1 meeting for clients who cannot afford the full suite.",
+          "keyPoint": "While both are based on the same contextual theory, the Lite version limits scope to build client confidence over time before introducing heavier holistic tools."
+        },
+        {
+          "id": 10,
+          "question": "What are the three distinct divisions or phases tracked in the Life/Design-to-Breakeven business focus areas?",
+          "answer": "Get Organised, Get the Job, Do the Job.",
+          "keyPoint": "Practicing business fundamentals at the earliest stages requires breaking management and operational systems down into these three foundational action categories."
+        }
+      ]
+    },
+    "Lite Planning": {
       "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
       "transcribed": "2026-07-21",
       "entries": [
@@ -515,7 +1675,7 @@
         }
       ]
     },
-    "Data Session": {
+    "Lite Data": {
       "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
       "transcribed": "2026-07-21",
       "entries": [
@@ -647,7 +1807,7 @@
         }
       ]
     },
-    "Sales Session": {
+    "Lite Sales": {
       "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
       "transcribed": "2026-07-21",
       "entries": [
@@ -713,7 +1873,7 @@
         }
       ]
     },
-    "People Session": {
+    "Lite People": {
       "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
       "transcribed": "2026-07-21",
       "entries": [
@@ -779,7 +1939,7 @@
         }
       ]
     },
-    "Process Session": {
+    "Lite Process": {
       "source": "Course Builder Quiz/Lite Fundamentals Quiz.pdf",
       "transcribed": "2026-07-21",
       "entries": [
@@ -845,195 +2005,135 @@
         }
       ]
     },
-    "Growth Framework": {
-      "source": "Course Builder Quiz/Growth Fundamentals Framework.pdf",
-      "transcribed": "2026-07-21",
+    "Revenue Model Support": {
+      "source": "Course Builder Quiz/Revenue Model Quiz.pdf",
+      "transcribed": "2026-07-22",
       "entries": [
         {
           "id": 1,
-          "question": "At which growth stage does a business command a sizable market share and create a \"barrier to entry\" for any competing business?",
-          "answer": "The Maturity stage.",
-          "keyPoint": "The Maturity stage represents a point where market share is substantial and the business acts as a barrier to new entrants."
+          "question": "What is the definition of \"Over-Trading\" provided in the presentation?",
+          "answer": "Over-trading is the term used to describe funding growth primarily via debt.",
+          "keyPoint": "The primary problem is not necessarily the use of the debt itself, but a lack of previously retained profits resulting in an imbalanced debt/equity ratio, or using debt to fund fixed assets purely in the hope it leads to increased future sales."
         },
         {
           "id": 2,
-          "question": "What is the business equivalent of \"resting for lunch\" before attempting the \"Devil's Toilet\" rapid?",
-          "answer": "\"Bank your profits\" and improve your systems before setting off for glory.",
-          "keyPoint": "A high degree of complacency and fatigue can occur between the \"lifestyle\" and \"leverage\" stages; therefore, securing profits and systems is critical to surviving the pulling and sucking forces of this dangerous transition."
+          "question": "According to the \"Sweet Spot\" concept, what three financial and operational ratios need to be balanced?",
+          "answer": "The sweet spot is the balance of Debt to Assets, Non-Chargeable to Chargeable Staff, and Fixed Capital to Working Capital.",
+          "keyPoint": "To understand financial management is to understand business scale. Finding this balance helps assess if the business is meeting demand by better utilizing existing assets rather than unnecessarily increasing debt."
         },
         {
           "id": 3,
-          "question": "What specific growth tactic corresponds to the \"Design - Launch - Break-even\" stages?",
-          "answer": "Growth through Enthusiasm & Creativity (Foundation).",
-          "keyPoint": "This foundational tactic is all about \"pushing hard,\" keeping your head down, and achieving the momentum and subsequent learning necessary for early business survival."
+          "question": "What are the \"3 Pillars of Financial Management\"?",
+          "answer": "The three pillars are Assumptions/Targets (Scenario Model), Financial Systems & Controls, and Performance/Actual (Reporting).",
+          "keyPoint": "Quality management reporting relies on quality systems, and quality systems rely on quality models. If a business does not plan to make changes or find better ways of doing things, they rely on luck rather than management reporting."
         },
         {
           "id": 4,
-          "question": "Which psychological error, known as a \"Psyche Error,\" is associated with the \"Intelligence\" layer of complexity?",
-          "answer": "Optimism Bias.",
-          "keyPoint": "Optimism bias is the attempt to avoid noticing what you don't know, characterized by a tendency to delete negative information to support existing beliefs and secure attachments."
+          "question": "What is the specific role of the advisor or facilitator during the collaborative planning session?",
+          "answer": "Their role is to challenge what the business owner believes to be true.",
+          "keyPoint": "The objective of the meeting is to \"Discover What We've Been Missing,\" which requires the client to explore issues and ideas with an open heart and an open mind."
         },
         {
           "id": 5,
-          "question": "How is \"Replication\" defined within the context of Growth Stage Fundamentals?",
-          "answer": "Replication is the ability for a team member to do ALL of a task, or the ability to automate or reproduce an item with relative ease.",
-          "keyPoint": "Mastering delegation, replication, and quantification allows a business owner to dissect activities and magnify value, which is the core mechanism to achieve Leverage."
+          "question": "What common psychological trap is described as a \"killer\" when dealing with business model principles?",
+          "answer": "Confirmation bias is a killer.",
+          "keyPoint": "Assumptions MUST be challenged constantly because everything changes over time, and foundational assumptions in a business are often invisible."
         },
         {
           "id": 6,
-          "question": "How is \"Average Customer Spend\" calculated according to the 8 Profit Levers?",
-          "answer": "Total Sales Value divided by Total Number of Transactions.",
-          "keyPoint": "Knowing specific financial formulas is essential for understanding your revenue drivers; Average Customer Spend multiplied by Average Customer Frequency and the Number of Customers equals Total Revenue."
+          "question": "What business tool is described as the strategic equivalent of a double-blind (placebo) scientific study?",
+          "answer": "A Revenue Model (Combined With The 6 Hats Framework).",
+          "keyPoint": "Just as a double-blind study avoids confirmation bias for a scientific researcher, utilizing a structured revenue model framework strategically helps business owners avoid confirmation bias in their planning."
         },
         {
           "id": 7,
-          "question": "What psychological phenomenon occurs when someone focuses on the loss of investment to-date rather than the probable future outcome?",
-          "answer": "The Sunk Cost Fallacy (sometimes known as the \"Gambler's Archipelago\").",
-          "keyPoint": "Understanding supplementary psychological phenomenons is vital, as business owners can fall into the trap of thinking \"If I can just get to spot x, I can fix things from there\" instead of making objective choices."
+          "question": "What is the easiest way to see if increased debt for a proposed new business scale is justifiable?",
+          "answer": "Perform a 'Liquidation Value Estimate' on the proposed new business scale.",
+          "keyPoint": "Owners should ask themselves what increase in sales is required to pay back the debt, how easily they can scale back down if necessary, and what existing equity they are placing at risk with the new scale."
         },
         {
           "id": 8,
-          "question": "What holds a business owner back during the \"Leverage\" stage?",
-          "answer": "Lack of faith in Key Staff (poor delegation/visibility) or a reluctance to \"let go\" of a business model built around a specialist service provider.",
-          "keyPoint": "Without properly ingrained governance and delegation protocols, an owner will remain overly reliant on themselves, failing to reach a stage where the business can sustain them hands-off."
+          "question": "What are the six components of the \"Lite Fundamentals\"?",
+          "answer": "The six components are Planning, Data, Marketing, Selling, People, and Process.",
+          "keyPoint": "These components are systematically grouped into three sequential stages of execution: Get Organised, Get the Job, and Do the Job."
         },
         {
           "id": 9,
-          "question": "Within the 9 Growth Aspects, which aspect deals with values (cultural), marketing (outbound messaging), aesthetics, and the \"vibe/morale\"?",
-          "answer": "Authenticity.",
-          "keyPoint": "Maintaining balanced growth means managing nine distinct operational aspects; Authenticity ensures that the internal culture and external messaging remain cohesive at every stage."
+          "question": "Why does funding \"low-recoverable\" assets like a shop fit-out mislead a business owner in assessing their true financial position?",
+          "answer": "While leasehold improvements appear positively on the balance sheet, they mask the true financial vulnerability if sales end up being negative.",
+          "keyPoint": "Increased debt applied to non-liquid assets in the hope that demand prevails can be highly dangerous; a scale-up should ideally utilize existing assets better to meet proven demand."
         },
         {
           "id": 10,
-          "question": "What psychological driver is largely responsible for Confirmation Bias?",
-          "answer": "Cognitive Dissonance.",
-          "keyPoint": "When a business owner's reality is not aligned with their desires, they search for shared views to avoid anxiety, which suppresses their growing fears but leads to repeating the same mistakes."
-        },
-        {
-          "id": 11,
-          "question": "What three questions must be answered to determine if \"Fundamentals\" are truly present before a business takes new growth steps?",
-          "answer": "Do we truly understand it?, do we do it consistently?, and are we doing it well? (Have we mastered it?).",
-          "keyPoint": "Human nature pushes toward the \"new and fresh,\" but genuine business growth relies on mastering robust foundations before expanding."
-        },
-        {
-          "id": 12,
-          "question": "What biological or scientific state must occur before organizational expansion can happen?",
-          "answer": "A period of dormancy, or homeostasis, where the organism must 're-group' expending energy in pursuit of gain.",
-          "keyPoint": "The growth curve mimics a 'Sigmoid-type/Sine Wave-type' regenerative cycle; growth only emerges AFTER proper conditions and sustenance are present."
-        },
-        {
-          "id": 13,
-          "question": "How is a \"Framework\" defined within this methodology?",
-          "answer": "The Designed Structure that guides future actions or form.",
-          "keyPoint": "Frameworks are critical because they help capture the thinking, observation, reflections, and actions of those striving for business excellence."
-        },
-        {
-          "id": 14,
-          "question": "What is the primary psychological function the Framework performs for the client?",
-          "answer": "It Creates Self Relevance.",
-          "keyPoint": "Self relevance is critical for both learning the material and developing the inner motivation to want to act on it."
-        },
-        {
-          "id": 15,
-          "question": "How does the Framework establish \"Context\" for the client?",
-          "answer": "By creating recognition of 'where you are' based on knowing 'where you've come from' and 'where you're headed'.",
-          "keyPoint": "A client cannot navigate future growth without contextualizing their current position against their past history and future goals."
-        },
-        {
-          "id": 16,
-          "question": "In the Psyche Error fables, which story is used to illustrate Confirmation Bias?",
-          "answer": "The Bear and the Salmon.",
-          "keyPoint": "The bear ignored reality and maintained his belief that the salmon would come at dusk, illustrating how individuals suppress truth that misaligns with their desires."
-        },
-        {
-          "id": 17,
-          "question": "Which fable character demonstrates the error of Complacency by failing to prepare for winter?",
-          "answer": "Barney the Badger.",
-          "keyPoint": "Past success doesn't guarantee future security; resting on perceived security leads to a depletion of reserves when conditions change."
-        },
-        {
-          "id": 18,
-          "question": "What is the moral of the fable \"The Sparrow and the Hawk\" (Role Identification)?",
-          "answer": "True role identification involves recognizing and embracing one's own strengths and limitations, rather than adopting a persona that doesn't authentically reflect one's capabilities.",
-          "keyPoint": "Mimicking an aspirational figure or \"acting like a boss\" leads to poor decision-making and an inability to find balance between authenticity and situational demands."
-        },
-        {
-          "id": 19,
-          "question": "What is the primary difference in audience and complexity between the 'Full' Growth Fundamentals Framework and the 'Lite' Fundamentals Framework?",
-          "answer": "The 'Full' version is comprehensive, requires considerable effort/time (~10 hours), and targets larger, complex businesses. The 'Lite' version limits the scope of engagement to reduce the sales process to just 1 meeting for clients who cannot afford the full suite.",
-          "keyPoint": "While both are based on the same contextual theory, the Lite version limits scope to build client confidence over time before introducing heavier holistic tools."
-        },
-        {
-          "id": 20,
-          "question": "What are the three distinct divisions or phases tracked in the Life/Design-to-Breakeven business focus areas?",
-          "answer": "Get Organised, Get the Job, Do the Job.",
-          "keyPoint": "Practicing business fundamentals at the earliest stages requires breaking management and operational systems down into these three foundational action categories."
+          "question": "Within the Lite Fundamentals framework, what four specific areas are analyzed under the \"Process\" component?",
+          "answer": "People Effectiveness, Reliability / Consistency, Systems interdependency, and Business Improvements.",
+          "keyPoint": "A system is defined as a complex whole of interconnecting parts; aligning these process areas ensures better outputs like job timeliness, job accuracy, and reduced wastage."
         }
       ]
     },
-    "Lite Fundamentals": {
-      "source": "Course Builder Quiz/Growth Fundamentals Framework.pdf",
-      "transcribed": "2026-07-21",
+    "Working With Revenue Models": {
+      "source": "Course Builder Quiz/Revenue Model Quiz.pdf",
+      "transcribed": "2026-07-22",
       "entries": [
         {
           "id": 1,
-          "question": "What are the three primary organizational pillars of the Lite Fundamentals Components?",
-          "answer": "Get Organised, Get the Job, Do the Job.",
-          "keyPoint": "Structuring a business requires breaking down operations into manageable phases: organizing foundations, acquiring clients, and delivering the service or product."
+          "question": "What are the three concepts provided to support your framing when presenting revenue models to a client?",
+          "answer": "1. Manage their Emotional Flow, 2. Establish CONTEXT, and 3. Appeal to all 4 Processing styles (Activist, Pragmatist, Reflector, Theorist).",
+          "keyPoint": "Proper framing flips the client's mindset from emotional judgment to recognition and soft education, making them receptive to the model's insights."
         },
         {
           "id": 2,
-          "question": "Which two specific components fall under the \"Get Organised\" pillar?",
-          "answer": "Planning and Data.",
-          "keyPoint": "Proper organization stems from \"Lite Planning\" (aligning owner expectations) and \"Lite Data\" (knowing what matters)."
+          "question": "When creating a \"Disturbance\" to let clients 'see' a reason to act, which models or reports should be used?",
+          "answer": "Use the Volatility Model if the issues are sales-related, otherwise use a Profit or Debt based Dashboard Report.",
+          "keyPoint": "Visual disturbance helps overcome a lack of motivation by providing tangible, alarming metrics that justify immediate strategic changes."
         },
         {
           "id": 3,
-          "question": "Which two specific components make up the \"Get the Job\" pillar?",
-          "answer": "Marketing and Selling.",
-          "keyPoint": "Client acquisition requires identifying who you want to speak to (Marketing) and successfully winning their business (Sales)."
+          "question": "What is the \"1st User Tip\" given for presenting the tool to a client?",
+          "answer": "It's a Scenario Model, NOT a report!.",
+          "keyPoint": "A model is used to explore \"what if\" variables and drive strategic discovery, distinguishing it from static, past-facing performance reporting."
         },
         {
           "id": 4,
-          "question": "Which two specific components define the \"Do the Job\" pillar?",
-          "answer": "People and Process.",
-          "keyPoint": "Execution relies on getting the most out of your workforce (People) and continuously making operational improvements (Process)."
+          "question": "If a client's awareness and motivation are both \"Low\" (making them Bearish), which reveal tactic must be applied?",
+          "answer": "Apply the 'Cautious' Reveal Order.",
+          "keyPoint": "The client has to WANT what the model can do for them BEFORE they will invest the 'mental energy' to comprehend its complexity; showing the model too early will cause them to 'switch off'."
         },
         {
           "id": 5,
-          "question": "How is a \"System\" defined within the Lite Fundamentals Framework?",
-          "answer": "\"A set of things working together as parts of a mechanism or an interconnecting network; a complex whole.\".",
-          "keyPoint": "Business functions act as systems requiring distinct inputs to generate measurable, successful outputs."
+          "question": "In the Cautious Reveal Order, what concepts are referred to as 'The Carrot' and 'The Stick'?",
+          "answer": "'The Carrot' refers to the Profit 'Sweet-Spot' (Profit Plateau Levels), and 'The Stick' refers to throwing in the Effects of Discounting or creating Disturbance using the Volatility report.",
+          "keyPoint": "This sequence warms the client up by first showing them the goal (the carrot) and then highlighting the dangers of their current path (the stick) before revealing the base model."
         },
         {
           "id": 6,
-          "question": "What are three key elements tracked or prioritized within the Marketing component?",
-          "answer": "Client Segmentation, Focused messaging, Brand recognition, and Market Analytics.",
-          "keyPoint": "Marketing cannot be generalized; it requires clear identification of the target audience and analytics to confirm understanding and allocate resources effectively."
+          "question": "What specific question is recommended to initiate the \"WHY Frame\" in the 'Trial Fit' Reveal Order?",
+          "answer": "\"Have you ever purchased a tailored suit/ dress?\".",
+          "keyPoint": "This relatable question helps explain the custom nature of the revenue model process, shifting the client from emotional resistance to recognizing the value of a personalized approach."
         },
         {
           "id": 7,
-          "question": "What metrics are generated as \"Outputs\" from the Sales system?",
-          "answer": "# of Sales, Avg' Sale Value, Repeat Purchases, Conversion ratios, and Shortened sales time.",
-          "keyPoint": "Measuring these exact ratios and figures determines the efficiency of transforming marketing leads into actual revenue."
+          "question": "Why does high volatility support the need for a revenue model?",
+          "answer": "Because it highlights the effects of the business procedures that influence cash volatility, such as Admin, Product Review, Marketing, or Financial Management.",
+          "keyPoint": "If a business is highly volatile, it serves as an outcome to try to reduce or avoid, proving to the client that their current systems are unstable and require modeling to fix."
         },
         {
           "id": 8,
-          "question": "What is the primary focus of \"Lite Planning\"?",
-          "answer": "Aligning Owner Expectations with the Business Model.",
-          "keyPoint": "Strategic success requires the owner's personal desires and orientation to match the reality of the business's structure and scale."
+          "question": "What does the presentation technique of \"Drop Layering\" entail?",
+          "answer": "Drop Layering is knowing the logical 'layers' of your concept and being prepared to 'skip' a layer (or more) if it's clear your client already comprehends what you're explaining.",
+          "keyPoint": "To execute this effectively, the advisor must identify key principles and actively seek acknowledgment of them from the client to ensure full comprehension before moving deeper."
         },
         {
           "id": 9,
-          "question": "What is the core goal of the \"Lite Process\" component?",
-          "answer": "Making Improvements, Step by Step.",
-          "keyPoint": "Process management is dedicated to people effectiveness, reliability, systems interdependency, and incremental business improvements to ensure quality delivery."
+          "question": "How can you \"Bounce\" a Drop Layer to control how a revenue model is revealed?",
+          "answer": "You can 'bounce' by dropping down to a specific data point momentarily to draw attention to a specific variable, before zooming back up to a global level.",
+          "keyPoint": "This is a highly effective way to 'control the reveal' by focusing on micro-actions without overwhelming the client or losing the macro global vision."
         },
         {
           "id": 10,
-          "question": "Name three areas of focus categorized under the \"People\" component.",
-          "answer": "Staff engagement, Staff proximity/locations, Skills development, Leadership/Morale, Internal communication, or Staffing numbers/divisions.",
-          "keyPoint": "Managing people effectively goes beyond hiring; it encompasses cultural, communicative, and developmental tracking to maximize human output."
+          "question": "How is \"Home-work\" used to secure ongoing management reporting work after a meeting?",
+          "answer": "The advisor asks the client to go away and think about what KPIs they want to see, how often they'd like to see them, and what variables need to be crunched based on estimates (like top/bottom 5 jobs or good/bad/ugly variables).",
+          "keyPoint": "Framing the 'Go Forward' this way invites the client to actively collaborate on the service solution, ensuring the eventual proposal is built exactly around what they want and proving their motivation to act."
         }
       ]
     }

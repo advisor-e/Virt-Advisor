@@ -4,11 +4,11 @@ exports[`selection harness — snapshot net (records current ranking per scenari
 Object {
   "selected": Array [
     "90 Day Best Practice Accounting",
-    "Data Session",
+    "Lite Data",
   ],
   "top10": Array [
     "26 · 90 Day Best Practice Accounting [General Tools]",
-    "24 · Data Session [Lite Fundamentals]",
+    "24 · Lite Data [Lite Fundamentals]",
     "23 · Dashboard Discussions [General Tools]",
     "23 · 7 Cash Drivers [General Tools]",
     "23 · Ratio Analysis [Specialist Tools]",
@@ -58,7 +58,7 @@ Object {
     "24 · Board Member Conduct [Governance Tools]",
     "23 · Firm Board Pack [Firm Manager Access]",
     "22 · BNZ Templates [Strategic Tools]",
-    "20 · Growth Framework [Growth Framework]",
+    "20 · Growth Curve [Growth Framework]",
   ],
 }
 `;
@@ -78,7 +78,7 @@ Object {
     "25 · Price Rise [General Tools]",
     "22 · Assumptions [Revenue & Feasibility Models]",
     "22 · Sales Dashboard [Revenue & Feasibility Models]",
-    "21 · Sales Session [Lite Fundamentals]",
+    "21 · Lite Sales [Lite Fundamentals]",
     "16 · 4 Part Bizz Plan [General Tools]",
     "15 · 1 pg Bizz Case [General Tools]",
   ],
@@ -109,11 +109,11 @@ Object {
 exports[`selection harness — snapshot net (records current ranking per scenario) sales-marketing · low volume 1`] = `
 Object {
   "selected": Array [
-    "Sales Session",
+    "Lite Sales",
     "Customer Journey",
   ],
   "top10": Array [
-    "26 · Sales Session [Lite Fundamentals]",
+    "26 · Lite Sales [Lite Fundamentals]",
     "25 · Customer Journey [General Tools]",
     "25 · Sales Dashboard [Revenue & Feasibility Models]",
     "22 · Labour, Margin, Sales [Revenue & Feasibility Models]",
@@ -142,7 +142,7 @@ Object {
     "22 · Capacity, Capability, Opportunity [General Tools]",
     "22 · HOPE Recession Model [General Tools]",
     "22 · 6 Hats [General Tools]",
-    "22 · People Session [Lite Fundamentals]",
+    "22 · Lite People [Lite Fundamentals]",
     "22 · Labour Only [Revenue & Feasibility Models]",
   ],
 }
