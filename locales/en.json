@@ -655,6 +655,14 @@
         "coachSoon": "AI coach panel — coming later."
       }
     },
+    "loanEstimator": {
+      "title": "The Loan Estimator",
+      "eyebrowClass": "Decision tool",
+      "step1": "Security position",
+      "step2": "Serviceability",
+      "step3": "Loan Estimator report",
+      "placeholder": "This step is still being built."
+    },
     "sampleFigures": "These are sample numbers, not your client's"
   },
   "modelLibrary": {
