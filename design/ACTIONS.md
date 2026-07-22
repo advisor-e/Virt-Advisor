@@ -25,7 +25,7 @@
 
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
-  firm-editable.** *To be planned 2026-07-23 — noted now, not designed.*
+  firm-editable.** ✅ **PLANNED 2026-07-23 — [`FIRM-EDITABLE-TABLES-PLAN.md`](FIRM-EDITABLE-TABLES-PLAN.md)** (cascade + override model agreed with Mike; Phase 0 is the next task).
   - **The point (Mike's words):** so educators can have a real impact on the AI's
     recommendations and include their own material easily. This is the firm-authoring
     story reaching the engine's decision inputs, not another CRUD screen.
