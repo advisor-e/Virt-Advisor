@@ -42,18 +42,32 @@ section.firm-quizzes
         )
           p.rail-section(:style="{ backgroundColor: sectionTone(section.tone).band, color: bandText }")
             | {{ section.name }}
-          div(v-for="sub in section.subs" :key="sub.key")
+          //- An expand/collapse control, drawn as one: a bordered header that
+          //- joins the panel it opens. It behaved like an accordion before but
+          //- looked like a list row, which left the firm to guess it was
+          //- clickable at all.
+          .rail-acc(
+            v-for="sub in section.subs"
+            :key="sub.key"
+            :class="{ 'is-open': sub.isOpen }"
+          )
             button.rail-sub(
               type="button"
               :aria-expanded="sub.isOpen ? 'true' : 'false'"
+              :style="sub.isOpen ? { backgroundColor: sectionTone(section.tone).tint, borderColor: sectionTone(section.tone).band } : null"
               @click="toggleSub(sub.key)"
             )
-              b-icon.rail-chev(:icon="sub.isOpen ? 'menu-down' : 'menu-right'" size="is-small")
+              //- Drawn in CSS, not b-icon: this app loads no icon font, so
+              //- every <b-icon> renders as nothing. The arrow is the whole
+              //- signal that this opens — it cannot depend on a missing font.
+              span.rail-chev(aria-hidden="true")
               span.rail-subname {{ sub.name }}
               b-tag(:type="sub.quizPageCount ? 'is-info is-light' : 'is-light'" size="is-small")
                 | {{ sub.quizPageCount ? $tc('firmQuizzes.quizCount', sub.quizPageCount) : $t('firmQuizzes.none') }}
 
-            .rail-pages(v-if="sub.isOpen")
+            //- The open panel carries the section's colour on its border, so
+            //- the quizzes on show are visibly the ones just clicked.
+            .rail-pages(v-if="sub.isOpen" :style="{ borderColor: sectionTone(section.tone).band }")
               button.rail-page(
                 v-for="page in sub.visiblePages"
                 :key="page.title"
@@ -361,8 +375,7 @@ export default {
   border-left: 3px solid #dbdbdb;
   margin-bottom: 1rem;
 }
-.rail-group .rail-pages,
-.rail-group .rail-sub { padding-left: 0.6rem; }
+.rail-acc { margin-bottom: 0.4rem; }
 
 /* The section heading is a solid band, not tinted text — at 26 sub-sections
    the eye needs a hard break, and a colour that has to be hunted for is not
@@ -382,21 +395,65 @@ export default {
 /* Band colours are applied inline from utils/brandTokens.js — the same pattern
    the Advisory Staircase uses for its per-step colours. Kept out of this
    stylesheet so the brand palette lives in exactly one place. */
+/* The header of an expand/collapse pair. Bordered and filled so it reads as a
+   control, not a line of text — a chevron alone is not an affordance. */
 .rail-sub {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   width: 100%;
-  background: none;
-  border: 0;
+  background: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 5px;
   cursor: pointer;
   text-align: left;
-  padding: 0.35rem 0.25rem;
+  padding: 0.5rem 0.6rem;
   font: inherit;
+  transition: background 0.12s;
 }
 .rail-sub:hover { background: #f5f5f5; }
+/* Open: square off the join and drop the shared edge, so header and panel read
+   as one object rather than two stacked boxes. */
+.rail-acc.is-open .rail-sub {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+  font-weight: 600;
+}
+/* The disclosure arrow, drawn with borders so it renders under any font.
+   Points right when closed, down when open. */
+.rail-chev {
+  flex-shrink: 0;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid #4a4a4a;
+  transition: transform 0.15s ease;
+  transform-origin: 3px 50%;
+}
+.rail-acc.is-open .rail-chev { transform: rotate(90deg); }
 .rail-subname { flex: 1; }
-.rail-pages { padding-left: 1.5rem; }
+/* Pages are children of their sub-section and must READ as children.
+   The sub-section button carries a chevron the page rows do not, so its label
+   already starts ~2.75rem in; anything less than that here puts the child
+   further LEFT than its parent and inverts the hierarchy.
+
+   The guide line is deliberately heavy and takes the section's own colour
+   (bound inline): with several sub-sections open at once, a hairline leaves
+   the firm counting indents to work out which quizzes belong to what they just
+   clicked. Weight and colour answer that at a glance. */
+/* The panel the header opens. Continues the header's border on three sides and
+   finishes it, so the quizzes on show are unmistakably the ones just clicked.
+   Pages indent inside the panel: parent above, children stepped in below. */
+.rail-pages {
+  border: 1px solid #b5b5b5;
+  border-top: 0;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  padding: 0.3rem 0.5rem 0.45rem 1.6rem;
+  background: #fff;
+}
 .rail-page {
   display: flex;
   align-items: center;
