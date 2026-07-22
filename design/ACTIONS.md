@@ -51,6 +51,16 @@
     baseline). Re-baseline with the AI layer ON when Mike wants the spend; my
     regenerated copy was restored, not committed, to avoid replacing a stronger
     baseline with a misleading weaker one.
+  - ✅ **Phase 1 BUILT 2026-07-23 (approved by Mike, this branch):** Document Library
+    rebuilt onto the rail → panel pattern. The rail (tone bands, drop-tab accordion,
+    open/closed state) is now the SHARED `components/firm/FirmRail.vue` — FirmQuizzes
+    ported onto it with all 26 of its tests passing unchanged, and the new
+    `components/firm/FirmDocuments.vue` consumes it (Hub tab is now one line; the old
+    b-menu + two-table markup and its six Hub methods are gone). All copy through
+    `$t('firmDocuments.*')` (en.json, same en-only pattern as firmQuizzes). Rulings
+    (Mike, 2026-07-23): text-only buttons — no icon font; three new lines of page copy
+    approved verbatim. Fixes *quiz-rail-stuck-open* once in the shared rail (see that
+    row) and takes this screen out of the *no-icon-font* blast radius.
   - **The point (Mike's words):** so educators can have a real impact on the AI's
     recommendations and include their own material easily. This is the firm-authoring
     story reaching the engine's decision inputs, not another CRUD screen.
@@ -75,7 +85,15 @@
     provisioned, so this runs on the dev-file fallback like every other Firm Manager
     feature until it is.
 
-- <a id="quiz-rail-stuck-open"></a>☐ **BUG — a Quizzes-rail drop-tab cannot be closed once a quiz inside it has been
+- <a id="quiz-rail-stuck-open"></a>☑ **FIXED 2026-07-23 (Phase 1 of the firm-editable tables build, approved by Mike).**
+  Exactly the fix direction below: open-state is now THREE-STATE (unset / opened /
+  closed) inside the shared `components/firm/FirmRail.vue` — an explicit close always
+  wins over auto-expand, auto-expand applies only while the firm has expressed no
+  choice, and a changed search text resets the flags so a stale close can never hide a
+  new search's hits. The missing "a sub-section can be CLOSED again" test now exists
+  (4 cases in `tests/unit/firmQuizzes.component.test.js`, incl. the exact reported
+  scenario). Original report, kept for the record:
+  **BUG — a Quizzes-rail drop-tab cannot be closed once a quiz inside it has been
   opened.** Reported by Mike 2026-07-22 on Growth Framework; it is not specific to that
   section — it happens in ANY sub-section as soon as a page inside it is selected.
   **Cause is known**, in [`FirmQuizzes.vue`](../components/firm/FirmQuizzes.vue) (the
@@ -94,6 +112,10 @@
   with the fix.
 
 - <a id="no-icon-font"></a>☐ **BUG — every `<b-icon>` in the app renders as NOTHING; no icon font is loaded.**
+  **Partial ruling 2026-07-23 (Mike, Phase 1):** the rebuilt Document Library is
+  text-only — no `b-icon` props, CSS-drawn shapes where an affordance is needed — so
+  this screen no longer depends on the missing font. The APP-WIDE decision (install
+  `@mdi/font` locally vs remove the remaining icon props) stays open below.
   Found 2026-07-22 when a disclosure arrow would not appear however it was styled.
   Buefy's default icon pack is Material Design Icons and `b-icon` emits
   `<i class="mdi mdi-…">`, but [`nuxt.config.js`](../nuxt.config.js) loads only

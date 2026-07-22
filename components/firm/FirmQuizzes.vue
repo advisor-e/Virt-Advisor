@@ -22,67 +22,34 @@ section.firm-quizzes
   b-loading(:is-full-page="false" :active="loading")
 
   .columns(v-if="!loading")
-    //- ── Rail: sections → sub-sections → pages ──────────────────────────
+    //- ── Rail: sections → sub-sections → pages (shared FirmRail) ────────
     .column.is-4
-      nav.rail(:aria-label="$t('firmQuizzes.railLabel')")
-        //- A search that matches nothing empties the rail entirely, and an
-        //- empty box reads as a broken screen. Say which it is.
-        .rail-empty(v-if="!tree.length")
-          span.has-text-grey.is-size-7
-            | {{ query ? $t('firmQuizzes.noMatchHere') : $t('firmQuizzes.emptyLibrary') }}
+      firm-rail(
+        :sections="tree"
+        :query="query.trim()"
+        :aria-label="$t('firmQuizzes.railLabel')"
+        :empty-text="query ? $t('firmQuizzes.noMatchHere') : $t('firmQuizzes.emptyLibrary')"
+      )
+        template(v-slot:sub-badge="{ sub }")
+          b-tag(:type="sub.quizPageCount ? 'is-info is-light' : 'is-light'" size="is-small")
+            | {{ sub.quizPageCount ? $tc('firmQuizzes.quizCount', sub.quizPageCount) : $t('firmQuizzes.none') }}
 
-        //- Tone is positional, not keyed to section names, so a section added
-        //- upstream is distinguished automatically instead of rendering plain.
-        //- The accent bar carries the grouping on its own — colour reinforces
-        //- it rather than being the only signal, which colour-blind readers lose.
-        .rail-group(
-          v-for="section in tree"
-          :key="section.name"
-          :style="{ borderLeftColor: sectionTone(section.tone).band }"
-        )
-          p.rail-section(:style="{ backgroundColor: sectionTone(section.tone).band, color: bandText }")
-            | {{ section.name }}
-          //- An expand/collapse control, drawn as one: a bordered header that
-          //- joins the panel it opens. It behaved like an accordion before but
-          //- looked like a list row, which left the firm to guess it was
-          //- clickable at all.
-          .rail-acc(
-            v-for="sub in section.subs"
-            :key="sub.key"
-            :class="{ 'is-open': sub.isOpen }"
+        template(v-slot:default="{ sub }")
+          button.rail-page(
+            v-for="page in sub.visiblePages"
+            :key="page.title"
+            type="button"
+            :class="{ 'is-current': current && current.title === page.title, 'is-blocked': !page.bindable }"
+            @click="select(page)"
           )
-            button.rail-sub(
-              type="button"
-              :aria-expanded="sub.isOpen ? 'true' : 'false'"
-              :style="sub.isOpen ? { backgroundColor: sectionTone(section.tone).tint, borderColor: sectionTone(section.tone).band } : null"
-              @click="toggleSub(sub.key)"
-            )
-              //- Drawn in CSS, not b-icon: this app loads no icon font, so
-              //- every <b-icon> renders as nothing. The arrow is the whole
-              //- signal that this opens — it cannot depend on a missing font.
-              span.rail-chev(aria-hidden="true")
-              span.rail-subname {{ sub.name }}
-              b-tag(:type="sub.quizPageCount ? 'is-info is-light' : 'is-light'" size="is-small")
-                | {{ sub.quizPageCount ? $tc('firmQuizzes.quizCount', sub.quizPageCount) : $t('firmQuizzes.none') }}
+            span.rail-pagename {{ page.title }}
+            b-tag(v-if="!page.bindable" type="is-warning is-light" size="is-small")
+              | {{ $t('firmQuizzes.duplicateNameTag') }}
+            b-tag(size="is-small" rounded) {{ page.entryCount }}
 
-            //- The open panel carries the section's colour on its border, so
-            //- the quizzes on show are visibly the ones just clicked.
-            .rail-pages(v-if="sub.isOpen" :style="{ borderColor: sectionTone(section.tone).band }")
-              button.rail-page(
-                v-for="page in sub.visiblePages"
-                :key="page.title"
-                type="button"
-                :class="{ 'is-current': current && current.title === page.title, 'is-blocked': !page.bindable }"
-                @click="select(page)"
-              )
-                span.rail-pagename {{ page.title }}
-                b-tag(v-if="!page.bindable" type="is-warning is-light" size="is-small")
-                  | {{ $t('firmQuizzes.duplicateNameTag') }}
-                b-tag(size="is-small" rounded) {{ page.entryCount }}
-
-              .rail-empty(v-if="!sub.visiblePages.length")
-                span.has-text-grey.is-size-7
-                  | {{ query ? $t('firmQuizzes.noMatchHere') : $t('firmQuizzes.noQuizYet') }}
+          .rail-empty(v-if="!sub.visiblePages.length")
+            span.has-text-grey.is-size-7
+              | {{ query ? $t('firmQuizzes.noMatchHere') : $t('firmQuizzes.noQuizYet') }}
 
     //- ── Panel: the selected page's questions ───────────────────────────
     .column.is-8
@@ -149,11 +116,17 @@ section.firm-quizzes
  * The rail deliberately lists EVERY sub-section, including those with no quiz,
  * because seeing the gap is the point — a firm cannot fill material it cannot
  * see is missing.
+ *
+ * The rail itself (tone bands, drop-tab accordion, open/closed state and the
+ * three-state stuck-open fix) is the shared FirmRail component — this screen
+ * builds the data and renders the page rows through its slots.
  */
-const { blockTone, BLOCK_TONES, BAND_TEXT } = require('~/utils/brandTokens')
+import FirmRail from '~/components/firm/FirmRail.vue'
 
 export default {
   name: 'FirmQuizzes',
+
+  components: { FirmRail },
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
@@ -172,10 +145,6 @@ export default {
       history: [],
       query: '',
       showEmpty: true,
-      /** Heading bands all carry white text — see utils/brandTokens.js. */
-      bandText: BAND_TEXT,
-      /** Which sub-sections are expanded, keyed by `section::subSection`. */
-      openSubs: {},
       /** The page whose questions are on screen, or null. */
       current: null
     }
@@ -200,7 +169,8 @@ export default {
         if (!sectionIndex[sectionName]) {
           sectionIndex[sectionName] = {
             name: sectionName,
-            tone: sections.length % BLOCK_TONES.length,
+            // Raw position — FirmRail cycles it through the brand tones.
+            tone: sections.length,
             subs: [],
             subIndex: {}
           }
@@ -230,14 +200,14 @@ export default {
         for (const sub of section.subs) {
           sub.quizPageCount = sub.pages.filter(p => p.entryCount > 0).length
           sub.visiblePages = sub.pages.filter(p => p.entryCount > 0 && this.pageMatches(p, q))
-          // Expanded when the firm opened it, when a search found something
-          // inside it (a hit hidden behind a closed sub-section reads as "no
-          // results"), or when it holds the page currently on screen.
-          sub.isOpen = !!this.openSubs[sub.key] ||
-            (!!q && sub.visiblePages.length > 0) ||
-            !!(this.current &&
-               this.current.section === section.name &&
-               this.current.subSection === sub.name)
+          // Open/closed state lives in FirmRail (three-state, explicit close
+          // wins). These two flags feed its auto-expand: a search hit hidden
+          // behind a closed sub-section reads as "no results", and the sub
+          // holding the page on screen should present itself.
+          sub.hasHits = sub.visiblePages.length > 0
+          sub.holdsCurrent = !!(this.current &&
+            this.current.section === section.name &&
+            this.current.subSection === sub.name)
         }
         section.subs = section.subs.filter(sub => this.subVisible(sub, q))
       }
@@ -302,26 +272,6 @@ export default {
       return this.showEmpty && sub.quizPageCount === 0
     },
 
-    /**
-     * Brand tone for a section's position — the accent used as the solid
-     * heading band, plus the one text colour that stays legible on it.
-     *
-     * @param {number} tone zero-based section position
-     * @returns {{accent: string, fg: string, tint: string}}
-     */
-    sectionTone (tone) {
-      return blockTone(tone)
-    },
-
-    isOpen (key) {
-      return !!this.openSubs[key]
-    },
-
-    /** Expand or collapse a sub-section. @param {string} key section::subSection */
-    toggleSub (key) {
-      this.$set(this.openSubs, key, !this.openSubs[key])
-    },
-
     /** Open a page's questions in the panel. @param {Object} page rail page row */
     select (page) {
       this.current = page
@@ -361,99 +311,10 @@ export default {
 </script>
 
 <style scoped>
-.rail {
-  max-height: 70vh;
-  overflow-y: auto;
-  border: 1px solid #dbdbdb;
-  border-radius: 6px;
-  padding: 0.5rem;
-}
-/* Section accent. Deliberately muted and away from Buefy's status hues, so an
-   is-warning or is-info tag inside the rail still reads as a status and not as
-   another section. The bar is the primary grouping cue; colour reinforces it. */
-.rail-group {
-  border-left: 3px solid #dbdbdb;
-  margin-bottom: 1rem;
-}
-.rail-acc { margin-bottom: 0.4rem; }
-
-/* The section heading is a solid band, not tinted text — at 26 sub-sections
-   the eye needs a hard break, and a colour that has to be hunted for is not
-   doing its job. */
-.rail-section {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 700;
-  color: #fff;
-  background: #7a7a7a;
-  margin: 0 0 0.35rem;
-  padding: 0.4rem 0.6rem;
-  border-radius: 3px;
-}
-
-/* Band colours are applied inline from utils/brandTokens.js — the same pattern
-   the Advisory Staircase uses for its per-step colours. Kept out of this
-   stylesheet so the brand palette lives in exactly one place. */
-/* The header of an expand/collapse pair. Bordered and filled so it reads as a
-   control, not a line of text — a chevron alone is not an affordance. */
-.rail-sub {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  width: 100%;
-  background: #fff;
-  border: 1px solid #dbdbdb;
-  border-radius: 5px;
-  cursor: pointer;
-  text-align: left;
-  padding: 0.5rem 0.6rem;
-  font: inherit;
-  transition: background 0.12s;
-}
-.rail-sub:hover { background: #f5f5f5; }
-/* Open: square off the join and drop the shared edge, so header and panel read
-   as one object rather than two stacked boxes. */
-.rail-acc.is-open .rail-sub {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-bottom-color: transparent;
-  font-weight: 600;
-}
-/* The disclosure arrow, drawn with borders so it renders under any font.
-   Points right when closed, down when open. */
-.rail-chev {
-  flex-shrink: 0;
-  width: 0;
-  height: 0;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 7px solid #4a4a4a;
-  transition: transform 0.15s ease;
-  transform-origin: 3px 50%;
-}
-.rail-acc.is-open .rail-chev { transform: rotate(90deg); }
-.rail-subname { flex: 1; }
-/* Pages are children of their sub-section and must READ as children.
-   The sub-section button carries a chevron the page rows do not, so its label
-   already starts ~2.75rem in; anything less than that here puts the child
-   further LEFT than its parent and inverts the hierarchy.
-
-   The guide line is deliberately heavy and takes the section's own colour
-   (bound inline): with several sub-sections open at once, a hairline leaves
-   the firm counting indents to work out which quizzes belong to what they just
-   clicked. Weight and colour answer that at a glance. */
-/* The panel the header opens. Continues the header's border on three sides and
-   finishes it, so the quizzes on show are unmistakably the ones just clicked.
-   Pages indent inside the panel: parent above, children stepped in below. */
-.rail-pages {
-  border: 1px solid #b5b5b5;
-  border-top: 0;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  padding: 0.3rem 0.5rem 0.45rem 1.6rem;
-  background: #fff;
-}
+/* The rail's structure (groups, bands, accordion, chevron) is styled inside
+   the shared FirmRail component. Only the rows this screen renders through
+   FirmRail's slots are styled here — slot content compiles in this
+   component's scope, so these rules cannot live in FirmRail. */
 .rail-page {
   display: flex;
   align-items: center;

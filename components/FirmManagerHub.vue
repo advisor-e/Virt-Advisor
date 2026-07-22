@@ -15,68 +15,10 @@ section.firm-manager-hub.section
     b-tabs(v-model="activeTab" type="is-boxed" animated)
       //- ── Tab 1: Document Library ─────────────────────────────────────
       b-tab-item(label="Document Library" icon="file-pdf-box")
-        .columns
-          .column.is-3
-            b-menu
-              b-menu-list(label="Category")
-                b-menu-item(
-                  v-for="cat in documentCategories"
-                  :key="cat.key"
-                  :label="cat.label"
-                  :active="selectedCategory === cat.key"
-                  @click="selectCategory(cat.key)"
-                )
-          .column
-            //- Upload
-            .box.mb-4
-              p.has-text-weight-semibold.mb-3 Upload a document
-              b-field(grouped)
-                b-field(expanded label="File (PDF only)")
-                  b-upload(v-model="uploadFile" accept=".pdf" expanded)
-                    a.button.is-light.is-fullwidth
-                      b-icon(icon="upload")
-                      span {{ uploadFile ? uploadFile.name : 'Choose PDF…' }}
-                b-field(:label="'\u00a0'")
-                  b-button(
-                    type="is-primary"
-                    :loading="uploading"
-                    :disabled="!uploadFile"
-                    @click="submitUpload"
-                  ) Upload
-
-            //- Document list
-            .has-text-centered.py-5(v-if="loadingDocs")
-              b-loading(:is-full-page="false" :active="true")
-            div(v-else)
-              p.has-text-weight-semibold.mb-2 Platform documents
-              b-table.mb-5(
-                :data="baseDocs"
-                :hoverable="true"
-                empty-string="No platform documents in this category"
-              )
-                b-table-column(v-slot="{ row }" field="name" label="File name") {{ row.name }}
-                b-table-column(v-slot="{ row }" label="Actions" width="120")
-                  b-button(size="is-small" icon-left="download" @click="downloadDoc(row)") Download
-
-              p.has-text-weight-semibold.mb-2 Your firm's documents
-              b-table(
-                :data="firmDocs"
-                :hoverable="true"
-                empty-string="No documents uploaded yet"
-              )
-                b-table-column(v-slot="{ row }" field="name" label="File name") {{ row.name }}
-                b-table-column(v-slot="{ row }" label="Actions" width="200")
-                  b-button.mr-1(
-                    size="is-small"
-                    icon-left="download"
-                    @click="downloadDoc(row)"
-                  ) Download
-                  b-button(
-                    size="is-small"
-                    type="is-danger is-light"
-                    icon-left="delete"
-                    @click="confirmDeleteDoc(row)"
-                  ) Remove
+        //- Rebuilt onto the shared FirmRail pattern (FIRM-EDITABLE-TABLES-PLAN.md
+        //- Phase 1) and moved into its own component like FirmQuizzes. Storage
+        //- totals render in this header, so the tab reports changes upward.
+        firm-documents(:api-token="apiToken" @storage-changed="loadStorage")
 
       //- ── Tab 2: Decision Framework — PLATFORM ADMIN ONLY (2026-07-16) ──
       //- Raw-JSON power tool kept for support/debugging; hidden from firm
@@ -788,6 +730,7 @@ section.firm-manager-hub.section
 <script>
 import DOMPurify from 'isomorphic-dompurify'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
+import FirmDocuments from '~/components/firm/FirmDocuments.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 const { BLOCK_TONES } = require('~/utils/brandTokens')
@@ -831,12 +774,6 @@ const DISTINCTION_DOMAINS = [
   { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
 ]
 
-const DOCUMENT_CATEGORIES = [
-  { key: 'logic-tables', label: 'Logic Tables' },
-  { key: 'domain-support', label: 'Domain Support' },
-  { key: 'templates', label: 'Templates' }
-]
-
 const FRAMEWORK_KEYS = [
   { key: 'recommendation-rules', label: 'Recommendation rules' },
   { key: 'domain-weights', label: 'Domain weights' },
@@ -859,7 +796,7 @@ const STAIRCASE_STEP_COLORS = BLOCK_TONES
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes },
+  components: { FirmQuizzes, FirmDocuments },
 
   props: {
     firmId: { type: String, required: true },
@@ -875,15 +812,6 @@ export default {
   data () {
     return {
       activeTab: 0,
-
-      // Document Library
-      documentCategories: DOCUMENT_CATEGORIES,
-      selectedCategory: DOCUMENT_CATEGORIES[0].key,
-      baseDocs: [],
-      firmDocs: [],
-      loadingDocs: false,
-      uploadFile: null,
-      uploading: false,
 
       // Decision Framework
       frameworkKeys: FRAMEWORK_KEYS,
@@ -1084,7 +1012,6 @@ export default {
   },
 
   mounted () {
-    this.loadDocuments()
     // Raw Decision Framework data only exists for the admin-gated tab.
     if (this.isPlatformAdmin) { this.loadFramework() }
     this.loadTemplateImport()
@@ -1120,95 +1047,9 @@ export default {
     },
 
     // ── Document Library ────────────────────────────────────────────────────
-    async loadDocuments () {
-      this.loadingDocs = true
-      try {
-        const data = await this.api('GET',
-          `/api/firm-manager/documents?category=${this.selectedCategory}`)
-        this.baseDocs = data.base || []
-        this.firmDocs = data.firm || []
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.loadingDocs = false
-      }
-    },
-
-    selectCategory (key) {
-      this.selectedCategory = key
-      this.loadDocuments()
-    },
-
-    async submitUpload () {
-      if (!this.uploadFile) { return }
-      this.uploading = true
-      try {
-        const form = new FormData()
-        form.append('file', this.uploadFile)
-        form.append('category', this.selectedCategory)
-        await this.api('POST', '/api/firm-manager/documents', form, true)
-        this.$buefy.toast.open({ message: 'Document uploaded.', type: 'is-success' })
-        this.uploadFile = null
-        this.loadDocuments()
-        this.loadStorage()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.uploading = false
-      }
-    },
-
-    async downloadDoc (row) {
-      // Fetch with the Bearer token (an <a>-tab navigation can't send it), then
-      // save the returned blob client-side. `source` + `category` let the backend
-      // authorise the file (firm-owned vs platform) before streaming it.
-      try {
-        const params = new URLSearchParams({
-          fileId: row.id,
-          fileName: row.name,
-          source: row.source || 'firm',
-          category: this.selectedCategory
-        })
-        const res = await fetch(`/api/firm-manager/documents/download?${params.toString()}`, {
-          headers: { Authorization: `Bearer ${this.apiToken}` }
-        })
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ message: res.statusText }))
-          throw new Error(err.message || res.statusText)
-        }
-        const blob = await res.blob()
-        const objectUrl = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = objectUrl
-        a.setAttribute('download', row.name)
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(objectUrl)
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      }
-    },
-
-    confirmDeleteDoc (row) {
-      this.$buefy.dialog.confirm({
-        message: DOMPurify.sanitize(`Remove <strong>${row.name}</strong> from your firm's library?`, { USE_PROFILES: { html: true } }),
-        type: 'is-danger',
-        confirmText: 'Remove',
-        onConfirm: () => this.deleteDoc(row)
-      })
-    },
-
-    async deleteDoc (row) {
-      try {
-        await this.api('DELETE', `/api/firm-manager/documents/${row.id}`)
-        this.$buefy.toast.open({ message: 'Document removed.', type: 'is-success' })
-        this.loadDocuments()
-        this.loadStorage()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      }
-    },
+    // Moved to components/firm/FirmDocuments.vue (FIRM-EDITABLE-TABLES-PLAN.md
+    // Phase 1). The tab reports storage changes via @storage-changed so the
+    // header total stays live.
 
     // ── Decision Framework ──────────────────────────────────────────────────
     async loadFramework () {

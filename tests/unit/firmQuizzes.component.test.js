@@ -287,6 +287,67 @@ describe('a page whose name is not unique', () => {
   })
 })
 
+// The quiz-rail-stuck-open fix (design/ACTIONS.md): open-state is three-state
+// (unset / opened / closed) inside the shared FirmRail, so an explicit close
+// always wins over auto-expand. The old two-state flag let "holds the current
+// page" force the panel open on the same tick the firm closed it.
+describe('closing a sub-section (the three-state rail fix)', () => {
+  test('a sub-section opened by click can be closed by a second click', async () => {
+    const wrapper = await mountRail()
+    const sub = () => wrapper.findAll('.rail-sub').at(0)
+    sub().trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(sub().attributes('aria-expanded')).toBe('true')
+    sub().trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(sub().attributes('aria-expanded')).toBe('false')
+    expect(wrapper.findAll('.rail-page').length).toBe(0)
+  })
+
+  // The reported bug (Mike, 2026-07-22, Growth Framework): once a page inside
+  // a drop-tab was OPEN, the drop-tab could never be closed again.
+  test('a sub-section holding the open page can still be closed', async () => {
+    const wrapper = await mountRail()
+    const sub = () => wrapper.findAll('.rail-sub').at(0)
+    sub().trigger('click')
+    await wrapper.vm.$nextTick()
+    wrapper.findAll('.rail-page').at(0).trigger('click')
+    await wrapper.vm.$nextTick()
+    // The page is on screen, which auto-expands its sub-section…
+    expect(sub().attributes('aria-expanded')).toBe('true')
+    // …and an explicit close must still win over that auto-expand.
+    sub().trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(sub().attributes('aria-expanded')).toBe('false')
+  })
+
+  test('an explicit close wins over search auto-expand', async () => {
+    const wrapper = await mountRail()
+    wrapper.setData({ query: 'working capital' })
+    await wrapper.vm.$nextTick()
+    const sub = () => wrapper.findAll('.rail-sub').at(0)
+    expect(sub().attributes('aria-expanded')).toBe('true')
+    sub().trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(sub().attributes('aria-expanded')).toBe('false')
+  })
+
+  // A close made under one search must not hide the NEXT search's hits —
+  // that would be the original "search finds matches but shows nothing"
+  // defect returning by another door.
+  test('a changed search resets explicit closes and re-expands its hits', async () => {
+    const wrapper = await mountRail()
+    wrapper.setData({ query: 'working capital' })
+    await wrapper.vm.$nextTick()
+    wrapper.findAll('.rail-sub').at(0).trigger('click') // explicit close
+    await wrapper.vm.$nextTick()
+    wrapper.setData({ query: 'raise price' })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Price Rise')
+    expect(wrapper.findAll('.rail-page').length).toBeGreaterThan(0)
+  })
+})
+
 /** jsdom reports inline colours as rgb(); convert for comparison. */
 function hexToRgb (hex) {
   const r = parseInt(hex.slice(1, 3), 16)
