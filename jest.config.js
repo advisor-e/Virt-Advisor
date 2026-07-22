@@ -18,6 +18,9 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1'
   },
 
+  // Globals jsdom omits that the app's dependencies expect — see the file for why.
+  setupFiles: ['<rootDir>/tests/setupJsdom.js'],
+
   // Compile Pug the same way the app does. `pug-plain-loader` (the app's build path)
   // hardcodes `doctype: 'html'`; @vue/vue2-jest does not, so a valueless Pug attribute
   // — `@dragover.prevent`, `@submit.prevent`, `hidden` — expands to

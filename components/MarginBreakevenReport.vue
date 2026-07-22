@@ -3,21 +3,21 @@
   report-header(
     :back-label="$t('modelLibrary.backToLibrary')"
     :eyebrow="$t('report.eyebrow')"
-    title="Margin, Mark-up & Break-even"
+    :title="$t('report.marginBreakeven.title')"
     :client="$t('report.preparedFor')"
     :badge="$t('report.illustrative')"
   )
 
   .mbk-layout
     aside.mbk-card
-      .mbk-group(v-for="g in groups" :key="g.title")
+      .mbk-group(v-for="g in groups" :key="g.k")
         .mbk-glabel
           span.mbk-dot
-          h2.mbk-h2 {{ g.title }}
+          h2.mbk-h2 {{ $t('report.marginBreakeven.group.' + g.k + '') }}
         slider-field(
           v-for="fld in g.fields"
           :key="fld.k"
-          :label="fld.label"
+          :label="$t('report.marginBreakeven.field.' + fld.k + '')"
           :display="fmtField(fld)"
           :value="f[fld.k]"
           :min="fld.min"
@@ -38,24 +38,24 @@
         @retry="recompute"
       )
       hero-strip(:stale="!!error")
-        hero-figure(label="Margin" :value="pct(data.marginPct)" sub="of the sale price")
+        hero-figure(:label="$t('report.marginBreakeven.hero.margin')" :value="pct(data.marginPct)" :sub="$t('report.marginBreakeven.hero.marginSub')")
         hero-figure(
-          label="Mark-up"
+          :label="$t('report.marginBreakeven.hero.markup')"
           :value="round1(data.markup) + '× · ' + pct(data.markup)"
-          sub="of the cost price"
+          :sub="$t('report.marginBreakeven.hero.markupSub')"
         )
-        hero-figure(label="Cost of sales" :value="pct(data.costOfSalesPct)" sub="of each sale dollar")
+        hero-figure(:label="$t('report.marginBreakeven.hero.cos')" :value="pct(data.costOfSalesPct)" :sub="$t('report.marginBreakeven.hero.cosSub')")
         hero-figure(
-          label="Break-even · monthly"
+          :label="$t('report.marginBreakeven.hero.breakEven')"
           :value="money(data.requiredSales)"
-          :sub="round0(data.requiredUnits) + ' units to cover it'"
+          :sub="round0(data.requiredUnits) + ' ' + $t('report.marginBreakeven.hero.breakEvenSub')"
         )
 
       .mbk-card.mbk-chartcard
         .mbk-chead
-          h2.mbk-h2 Sales you must make vs your price
-          .mbk-csub cut the price and the work explodes; raise it and it shrinks
-        svg.mbk-chart(v-if="chart" viewBox="0 0 780 300" role="img" aria-label="Units required to break even across a range of price changes")
+          h2.mbk-h2 {{ $t('report.marginBreakeven.chart.title') }}
+          .mbk-csub {{ $t('report.marginBreakeven.chart.sub') }}
+        svg.mbk-chart(v-if="chart" viewBox="0 0 780 300" role="img" :aria-label="$t('report.marginBreakeven.chart.aria')")
           template(v-for="(gl, gi) in chart.grid")
             line(:key="'gl'+gi" :x1="chart.pl" :y1="gl.y" :x2="chart.xEnd" :y2="gl.y" stroke="var(--mbk-line)" stroke-width="1")
             text(:key="'gt'+gi" :x="chart.pl - 8" :y="gl.y + 3" text-anchor="end" fill="var(--mbk-muted)" font-size="10") {{ gl.label }}
@@ -68,29 +68,29 @@
         //- whenever the price change is off zero, because the blue hero figures
         //- deliberately never move (they are today's position, not a hypothetical).
         .mbk-call(:class="{ 'is-active': f.wif !== 0 }")
-          .mbk-callhead If you change your price
+          .mbk-callhead {{ $t('report.marginBreakeven.whatIf.head') }}
           .mbk-callrow
-            div At this price
+            div {{ $t('report.marginBreakeven.whatIf.atPrice') }}
               b.num {{ money(data.chosen.newPrice) }}
-            div Margin becomes
+            div {{ $t('report.marginBreakeven.whatIf.marginBecomes') }}
               b.num {{ pct(data.chosen.newMarginPct) }}
-            div You must sell
-              b.num {{ round0(data.chosen.unitsRequired) }} units
-            div vs now
+            div {{ $t('report.marginBreakeven.whatIf.mustSell') }}
+              b.num {{ round0(data.chosen.unitsRequired) }} {{ $t('report.marginBreakeven.whatIf.units') }}
+            div {{ $t('report.marginBreakeven.whatIf.vsNow') }}
               b.num {{ diffText }}
 
       .mbk-edu
         .mbk-edu-h
-          span.mbk-lead Coach
-          | What this means
+          span.mbk-lead {{ $t('report.marginBreakeven.coach.lead') }}
+          | {{ $t('report.marginBreakeven.coach.title') }}
         p.mbk-edu-p(v-if="data")
-          | Same deal, two numbers: your #[strong margin is {{ pct(data.marginPct) }}] (of the sale) but your #[strong mark-up is {{ round1(data.markup) }}×] (of the cost) — don't confuse them when you quote. To cover #[strong {{ money(f.oh) }}] overheads and take #[strong {{ money(f.draw) }}] in drawings, you must sell #[strong {{ money(data.requiredSales) }}] ({{ round0(data.requiredUnits) }} units) a month. Cut the price and that work climbs fast; raise it and it drops away. Price and drawings decide how hard the business has to run.
+          | {{ $t('report.marginBreakeven.coach.body1') }} #[strong {{ $t('report.marginBreakeven.coach.marginIs') }} {{ pct(data.marginPct) }}] {{ $t('report.marginBreakeven.coach.ofSale') }} #[strong {{ $t('report.marginBreakeven.coach.markupIs') }} {{ round1(data.markup) }}×] {{ $t('report.marginBreakeven.coach.ofCost') }} #[strong {{ money(f.oh) }}] {{ $t('report.marginBreakeven.coach.overheads') }} #[strong {{ money(f.draw) }}] {{ $t('report.marginBreakeven.coach.drawings') }} #[strong {{ money(data.requiredSales) }}] ({{ round0(data.requiredUnits) }} {{ $t('report.marginBreakeven.whatIf.units') }}) {{ $t('report.marginBreakeven.coach.body4') }}
 
       .mbk-actions
-        button.mbk-cta(@click="downloadPdf") Download PDF
-        button.mbk-cta.mbk-ghost(@click="reset") ↺ Reset
-        button.mbk-cta.mbk-ghost(@click="askCoach") Ask the coach ↗
-        span.mbk-foot Figures reproduce your Excel model exactly.
+        button.mbk-cta(@click="downloadPdf") {{ $t('report.marginBreakeven.actions.pdf') }}
+        button.mbk-cta.mbk-ghost(@click="reset") {{ $t('report.marginBreakeven.actions.reset') }}
+        button.mbk-cta.mbk-ghost(@click="askCoach") {{ $t('report.marginBreakeven.actions.coach') }}
+        span.mbk-foot {{ $t('report.marginBreakeven.actions.foot') }}
 
     section.mbk-results(v-else)
       b-loading(:is-full-page="false" :active="true")
@@ -129,23 +129,23 @@ export default {
       data: null,
       groups: [
         {
- title: 'The product',
+ k: 'product',
 fields: [
-          { k: 'price', label: 'Sale price', min: 20, max: 1000, step: 5, fmt: 'money' },
-          { k: 'cost', label: 'Unit cost', min: 5, max: 800, step: 2.5, fmt: 'money2' }
+          { k: 'price', min: 20, max: 1000, step: 5, fmt: 'money' },
+          { k: 'cost', min: 5, max: 800, step: 2.5, fmt: 'money2' }
         ]
 },
         {
- title: 'To keep the doors open (monthly)',
+ k: 'doors',
 fields: [
-          { k: 'oh', label: 'Overheads', min: 0, max: 60000, step: 500, fmt: 'money' },
-          { k: 'draw', label: "Owner's drawings (target)", min: 0, max: 60000, step: 500, fmt: 'money' }
+          { k: 'oh', min: 0, max: 60000, step: 500, fmt: 'money' },
+          { k: 'draw', min: 0, max: 60000, step: 500, fmt: 'money' }
         ]
 },
         {
- title: 'What if you change the price?',
+ k: 'whatIf',
 fields: [
-          { k: 'wif', label: 'Price change', min: -40, max: 80, step: 1, fmt: 'signpct' }
+          { k: 'wif', min: -40, max: 80, step: 1, fmt: 'signpct' }
         ]
 }
       ]
@@ -156,7 +156,7 @@ fields: [
     diffText () {
       if (!this.data) { return '—' }
       const d = this.data.chosen.unitsRequired - this.data.requiredUnits
-      return (d >= 0 ? '+' : '−') + Math.abs(Math.round(d)) + ' units'
+      return (d >= 0 ? '+' : '−') + Math.abs(Math.round(d)) + ' ' + this.$t('report.marginBreakeven.whatIf.units')
     },
     chart () {
       if (!this.data) { return null }
@@ -227,10 +227,10 @@ path,
     reset () {
       this.f = Object.assign({}, DEFAULTS)
       this.recompute()
-      this.$buefy.toast.open({ message: 'Reset to defaults.', type: 'is-info' })
+      this.$buefy.toast.open({ message: this.$t('report.marginBreakeven.toast.reset'), type: 'is-info' })
     },
     downloadPdf () { if (typeof window !== 'undefined') { window.print() } },
-    askCoach () { this.$buefy.toast.open({ message: 'AI coach panel — coming later.', type: 'is-info' }) }
+    askCoach () { this.$buefy.toast.open({ message: this.$t('report.marginBreakeven.toast.coachSoon'), type: 'is-info' }) }
   }
 }
 </script>

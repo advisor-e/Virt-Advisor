@@ -1,6 +1,10 @@
 <template lang="pug">
 .ed-report
   template(v-if="result")
+    //- Demo/manual path: NOTHING here came from the client until they seed it (Mike's
+    //- 2026-07-20 smoke pass — a changed sales figure against untouched sample costs
+    //- produced a plausible-looking but meaningless result).
+    sample-notice(v-if="onSampleFigures" :text="$t('report.sampleFigures')")
     //- A failure AFTER the first load must never sit silently behind stale figures (R9)
     stale-banner(
       v-if="error"
@@ -33,7 +37,7 @@
       )
         template(#sub)
           | {{ $t('report.ebitdaDcf.hero.terminalSub') }}
-          input.mult(type="number" step="0.1" min="0" v-model.number="dcf.exitMultiple")
+          input.mult(type="number" step="0.1" min="0" v-model.number="dcf.exitMultiple" @input="dialsTouched = true")
 
     .card
       h2 {{ $t('report.ebitdaDcf.bars.title') }}
@@ -120,6 +124,9 @@
       h2
         | {{ $t('report.ebitdaDcf.workings.title') }}
         span.note  {{ $t('report.ebitdaDcf.workings.note') }}
+      //- The growth/discount dials start on the sample's settings even when the P&L
+      //- above came from the client's own files — so they need saying, until touched.
+      sample-notice(v-if="!dialsTouched" :text="$t('report.sampleFigures')")
       .tscroll
         table.mini
           thead
@@ -132,14 +139,14 @@
                 | {{ $t('report.ebitdaDcf.workings.growth') }}
                 span.pctnote  {{ $t('report.ebitdaDcf.workings.actualAvg', { avg: avgGrowthText }) }}
               td(v-for="(y, i) in futureYears" :key="'gr' + y")
-                input.cell(type="number" step="0.5" v-model.number="dcf.growthPct[i]")
+                input.cell(type="number" step="0.5" v-model.number="dcf.growthPct[i]" @input="dialsTouched = true")
             tr.calc
               td {{ $t('report.ebitdaDcf.workings.projected') }}
               td(v-for="(y, i) in futureYears" :key="'pj' + y") {{ money(result.valuation.projectedEbitda[i]) }}
             tr
               td {{ $t('report.ebitdaDcf.workings.discount') }}
               td(v-for="(y, i) in futureYears" :key="'dr' + y")
-                input.cell(type="number" step="0.5" v-model.number="dcf.discountPct[i]")
+                input.cell(type="number" step="0.5" v-model.number="dcf.discountPct[i]" @input="dialsTouched = true")
             tr.total
               td {{ $t('report.ebitdaDcf.workings.discounted') }}
               td(v-for="(y, i) in futureYears" :key="'dc' + y") {{ money(result.valuation.discountedCashFlow[i]) }}
@@ -212,6 +219,7 @@
 <script>
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
+import SampleNotice from '~/components/base/SampleNotice.vue'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge'
 import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
@@ -236,7 +244,7 @@ const FAIRMARKET_ROWS = { fmSalaries: 'salaries', fmInsuranceRetirement: 'insura
 export default {
   name: 'EbitdaDcfReport',
 
-  components: { HeroStrip, HeroFigure, ProvenanceBadge, StaleBanner },
+  components: { HeroStrip, HeroFigure, ProvenanceBadge, StaleBanner, SampleNotice },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -254,6 +262,9 @@ export default {
     // be exactly that long, or invisible sample slots reach the calc as if typed.
     const yearCount = (this.seed && this.seed.years && this.seed.years.length) || 5
     return {
+      // Cleared the moment the advisor touches a projection dial — the notice is about
+      // the DEFAULTS being the sample's, not about the dials being editable.
+      dialsTouched: false,
       dcf: {
         growthPct: [4, 6, 5, 3, 4],
         discountPct: [6, 7, 5, 5, 6],
@@ -273,6 +284,25 @@ export default {
   },
 
   computed: {
+    /**
+     * Whether the valuation is still running on the source model's sample company.
+     *
+     * True when NO input row came from a file — the demo and manual paths, where every
+     * P&L figure is the sample company's. False as soon as the advisor's own exports
+     * seed it.
+     *
+     * NB an earlier version keyed this off `!seed`, a state the page cannot produce:
+     * the report is only reachable by confirming figures, which always sets a seed. It
+     * therefore never showed.
+     * @returns {boolean}
+     */
+    onSampleFigures () {
+      const fig = (this.seed && this.seed.figures) || null
+      if (!fig) { return true }
+      return !Object.keys(fig).some(row =>
+        Array.isArray(fig[row]) && fig[row].some(cell => cell && cell.source === 'file'))
+    },
+
     /** Oldest-first, from the confirmed intake (or the model's five sample years). */
     years () {
       return (this.seed && this.seed.years) || [2021, 2022, 2023, 2024, 2025]

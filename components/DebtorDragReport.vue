@@ -3,24 +3,25 @@
   report-header(
     :back-label="$t('modelLibrary.backToLibrary')"
     :eyebrow="$t('report.eyebrow')"
-    title="Debtor Business Drag"
+    :title="$t('report.debtorDrag.title')"
     :client="$t('report.preparedFor')"
     :badge="$t('report.illustrative')"
   )
 
   .ddg-layout
     aside.ddg-card
-      .ddg-instruct Set these to the client's situation and click #[b “Freeze as Before”]. Then change a decision — the #[b.ddg-blue blue line] moves against your grey #[b Before].
+      .ddg-instruct
+        | {{ $t('report.debtorDrag.instruct') }} #[b {{ $t('report.debtorDrag.instructBtn') }}]{{ $t('report.debtorDrag.instructAfter') }} #[b.ddg-blue {{ $t('report.debtorDrag.blueLine') }}] {{ $t('report.debtorDrag.instructEnd') }} #[b {{ $t('report.debtorDrag.before') }}].
       .ddg-group(v-for="g in groups" :key="g.title")
         .ddg-glabel
           span.ddg-lft
             span.ddg-dot
-            h2.ddg-h2 {{ g.title }}
+            h2.ddg-h2 {{ $t('report.debtorDrag.group.' + g.k) }}
           span.ddg-total(v-if="g.total" :class="totalOk(g.total) ? 'ok' : 'bad'") {{ totalOf(g.total) }}%
         slider-field(
           v-for="fld in g.fields"
           :key="fld.k"
-          :label="fld.label"
+          :label="$t('report.debtorDrag.field.' + fld.k)"
           :display="fmtField(fld)"
           :value="f[fld.k]"
           :min="fld.min"
@@ -29,7 +30,7 @@
           @input="v => setField(fld.k, v)"
         )
       .ddg-group
-        button.ddg-setbtn(@click="freeze") 📌 Freeze current as “Before”
+        button.ddg-setbtn(@click="freeze") {{ $t('report.debtorDrag.freezeBtn') }}
 
     section.ddg-results
       //- A failure AFTER the first load must never sit silently behind stale figures:
@@ -43,27 +44,27 @@
       )
       hero-strip(:columns="3" :stale="!!error")
         hero-figure(
-          label="Deepest cash low — your plan"
+          :label="$t('report.debtorDrag.hero.planLow')"
           :value="plan ? money(plan.deepestLow.value) : '—'"
           :sub="planLowSub"
           :tone="plan && plan.deepestLow.value < 0 ? 'crit' : 'good'"
         )
         hero-figure(
-          label="Deepest cash low — Before"
+          :label="$t('report.debtorDrag.hero.beforeLow')"
           :value="before ? money(before.deepestLow.value) : '—'"
           :sub="beforeLowSub"
         )
         hero-figure(
-          label="Effect of your decisions"
+          :label="$t('report.debtorDrag.hero.effect')"
           :value="deltaText"
           :sub="deltaSub"
           :tone="deltaClass"
         )
       .ddg-card.ddg-chartcard
         .ddg-chead
-          h2.ddg-h2 Your bank balance, month by month
-          .ddg-csub slow debtors → you fall behind suppliers → overdraft
-        svg.ddg-chart(v-if="chart" viewBox="0 0 780 320" role="img" aria-label="Monthly closing bank balance: Before vs your plan")
+          h2.ddg-h2 {{ $t('report.debtorDrag.chart.title') }}
+          .ddg-csub {{ $t('report.debtorDrag.chart.sub') }}
+        svg.ddg-chart(v-if="chart" viewBox="0 0 780 320" role="img" :aria-label="$t('report.debtorDrag.chart.aria')")
           rect(:x="chart.pl" :y="chart.z" :width="chart.pw" :height="chart.odH" fill="#ff000010")
           template(v-for="(gl, gi) in chart.grid")
             line(:key="'gl'+gi" :x1="chart.pl" :y1="gl.y" :x2="chart.xEnd" :y2="gl.y" stroke="var(--ddg-line)" stroke-width="1")
@@ -76,26 +77,26 @@
         .ddg-legend
           span
             i(style="border-color:#8a97a8;border-top-style:dashed")
-            | Before
+            | {{ $t('report.debtorDrag.chart.legendBefore') }}
           span
             i(style="border-color:#0070c0")
-            | Your plan
+            | {{ $t('report.debtorDrag.chart.legendPlan') }}
           span
             i(style="border-top:none;height:10px;width:10px;border-radius:2px;background:#ff000022")
-            | Overdraft
+            | {{ $t('report.debtorDrag.chart.legendOverdraft') }}
 
       .ddg-edu
         .ddg-edu-h
-          span.ddg-lead Coach
-          | What this means
+          span.ddg-lead {{ $t('report.debtorDrag.coach.lead') }}
+          | {{ $t('report.debtorDrag.coach.title') }}
         p.ddg-edu-p(v-if="plan")
-          | Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to #[strong {{ money(plan.deepestLow.value) }}] in #[strong {{ monthName(plan.deepestLow.month) }}]{{ plan.deepestLow.value < 0 ? ', into overdraft,' : '' }} and you're in the red #[strong {{ plan.monthsInOverdraft }} months]. Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the working capital cycle running backwards.
+          | {{ $t('report.debtorDrag.coach.body1') }} #[strong {{ money(plan.deepestLow.value) }}] {{ $t('report.debtorDrag.coach.body2') }} #[strong {{ monthName(plan.deepestLow.month) }}]{{ plan.deepestLow.value < 0 ? $t('report.debtorDrag.coach.overdraft') : '' }} {{ $t('report.debtorDrag.coach.body3') }} #[strong {{ plan.monthsInOverdraft }} {{ $t('report.debtorDrag.coach.months') }}]. {{ $t('report.debtorDrag.coach.body4') }}
 
       .ddg-actions
-        button.ddg-cta(@click="downloadPdf") Download PDF
-        button.ddg-cta.ddg-ghost(@click="reset") ↺ Reset
-        button.ddg-cta.ddg-ghost(@click="askCoach") Ask the coach ↗
-        span.ddg-foot Figures reproduce your Excel model exactly.
+        button.ddg-cta(@click="downloadPdf") {{ $t('report.debtorDrag.actions.pdf') }}
+        button.ddg-cta.ddg-ghost(@click="reset") {{ $t('report.debtorDrag.actions.reset') }}
+        button.ddg-cta.ddg-ghost(@click="askCoach") {{ $t('report.debtorDrag.actions.coach') }}
+        span.ddg-foot {{ $t('report.debtorDrag.actions.foot') }}
 </template>
 
 <script>
@@ -137,42 +138,42 @@ export default {
       before: null, // frozen snapshot of plan
       groups: [
         {
- title: 'Sales',
+ k: 'sales',
 total: null,
 fields: [
-          { k: 'sales', label: 'Annual sales', min: 500000, max: 6000000, step: 50000, fmt: 'money' }
+          { k: 'sales', min: 500000, max: 6000000, step: 50000, fmt: 'money' }
         ]
 },
         {
- title: 'Debtors — when they pay',
+ k: 'debtors',
 total: 'd',
 fields: [
-          { k: 'd0', label: 'Same month', min: 0, max: 100, step: 1, fmt: 'pct' },
-          { k: 'd1', label: '1 month later', min: 0, max: 100, step: 1, fmt: 'pct' },
-          { k: 'd2', label: '2 months later', min: 0, max: 100, step: 1, fmt: 'pct' },
-          { k: 'd3', label: '3 months later', min: 0, max: 100, step: 1, fmt: 'pct' },
-          { k: 'd4', label: '4 months later', min: 0, max: 100, step: 1, fmt: 'pct' },
-          { k: 'dwo', label: 'Written off (never paid)', min: 0, max: 100, step: 1, fmt: 'pct' }
+          { k: 'd0', min: 0, max: 100, step: 1, fmt: 'pct' },
+          { k: 'd1', min: 0, max: 100, step: 1, fmt: 'pct' },
+          { k: 'd2', min: 0, max: 100, step: 1, fmt: 'pct' },
+          { k: 'd3', min: 0, max: 100, step: 1, fmt: 'pct' },
+          { k: 'd4', min: 0, max: 100, step: 1, fmt: 'pct' },
+          { k: 'dwo', min: 0, max: 100, step: 1, fmt: 'pct' }
         ]
 },
         {
- title: 'Suppliers — when you pay',
+ k: 'suppliers',
 total: 'c',
 fields: [
-          { k: 'c0', label: 'Same month', min: 0, max: 100, step: 1, fmt: 'pct' },
-          { k: 'c1', label: '1 month later', min: 0, max: 100, step: 1, fmt: 'pct' },
-          { k: 'c2', label: '2 months later', min: 0, max: 100, step: 1, fmt: 'pct' },
-          { k: 'c3', label: '3 months later', min: 0, max: 100, step: 1, fmt: 'pct' },
-          { k: 'c4', label: '4 months later', min: 0, max: 100, step: 1, fmt: 'pct' }
+          { k: 'c0', min: 0, max: 100, step: 1, fmt: 'pct' },
+          { k: 'c1', min: 0, max: 100, step: 1, fmt: 'pct' },
+          { k: 'c2', min: 0, max: 100, step: 1, fmt: 'pct' },
+          { k: 'c3', min: 0, max: 100, step: 1, fmt: 'pct' },
+          { k: 'c4', min: 0, max: 100, step: 1, fmt: 'pct' }
         ]
 },
         {
- title: 'The business',
+ k: 'business',
 total: null,
 fields: [
-          { k: 'markup', label: 'Mark-up', min: 10, max: 150, step: 1, fmt: 'pct' },
-          { k: 'np', label: 'Net profit', min: 0, max: 40, step: 1, fmt: 'pct' },
-          { k: 'gst', label: 'GST / VAT', min: 0, max: 30, step: 0.5, fmt: 'pct' }
+          { k: 'markup', min: 10, max: 150, step: 1, fmt: 'pct' },
+          { k: 'np', min: 0, max: 40, step: 1, fmt: 'pct' },
+          { k: 'gst', min: 0, max: 30, step: 0.5, fmt: 'pct' }
         ]
 }
       ]
@@ -183,12 +184,12 @@ fields: [
     /** Sub-line under the plan's deepest low: which month, and whether it goes overdrawn. */
     planLowSub () {
       if (!this.plan) { return '' }
-      return this.monthName(this.plan.deepestLow.month) + (this.plan.deepestLow.value < 0 ? ' — overdraft' : '')
+      return this.monthName(this.plan.deepestLow.month) + (this.plan.deepestLow.value < 0 ? ' ' + this.$t('report.debtorDrag.hero.overdraft') : '')
     },
     /** Same for the frozen "Before" baseline, or the prompt to freeze one. */
     beforeLowSub () {
-      if (!this.before) { return 'freeze a Before' }
-      return this.monthName(this.before.deepestLow.month) + (this.before.deepestLow.value < 0 ? ' — overdraft' : '')
+      if (!this.before) { return this.$t('report.debtorDrag.hero.freezeBefore') }
+      return this.monthName(this.before.deepestLow.month) + (this.before.deepestLow.value < 0 ? ' ' + this.$t('report.debtorDrag.hero.overdraft') : '')
     },
     deltaClass () {
       if (!this.before || !this.plan) { return 'muted' }
@@ -200,8 +201,8 @@ fields: [
       return this.signedMoney(d)
     },
     deltaSub () {
-      if (!this.before || !this.plan) { return 'freeze a “Before”, then decide' }
-      return (this.plan.deepestLow.value - this.before.deepestLow.value) >= 0 ? 'better at the worst month' : 'worse at the worst month'
+      if (!this.before || !this.plan) { return this.$t('report.debtorDrag.hero.freezeThenDecide') }
+      return (this.plan.deepestLow.value - this.before.deepestLow.value) >= 0 ? this.$t('report.debtorDrag.hero.better') : this.$t('report.debtorDrag.hero.worse')
     },
     chart () {
       if (!this.plan) { return null }
@@ -301,19 +302,19 @@ lowY: y(plan[lowIdx])
     reset () {
       this.f = { sales: 3357413, d0: 85, d1: 7, d2: 5, d3: 0, d4: 0, dwo: 3, c0: 90, c1: 10, c2: 0, c3: 0, c4: 0, markup: 47, np: 13, gst: 15 }
       this.recompute()
-      this.$buefy.toast.open({ message: 'Reset to defaults.', type: 'is-info' })
+      this.$buefy.toast.open({ message: this.$t('report.debtorDrag.toast.reset'), type: 'is-info' })
     },
     freeze () {
       if (this.plan) {
         this.before = this.plan
-        this.$buefy.toast.open({ message: 'Frozen as “Before” — now model a decision.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('report.debtorDrag.toast.frozen'), type: 'is-success' })
       }
     },
     downloadPdf () {
       if (typeof window !== 'undefined') { window.print() }
     },
     askCoach () {
-      this.$buefy.toast.open({ message: 'AI coach panel — coming later.', type: 'is-info' })
+      this.$buefy.toast.open({ message: this.$t('report.debtorDrag.toast.coachSoon'), type: 'is-info' })
     }
   }
 }
