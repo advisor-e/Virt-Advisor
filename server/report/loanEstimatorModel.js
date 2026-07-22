@@ -732,11 +732,33 @@ function take2Bool (v) {
   return typeof v === 'string' && v.toLowerCase() === 'yes'
 }
 
+/**
+ * The whole assessment in one call — the payload the /api/report/loan-estimator
+ * route returns. Assembled here, not in the route, so the golden test exercises
+ * exactly what the screen receives (the marginBreakeven lesson).
+ *
+ * Each part keeps its own `defaultedInputs` (R8): a missing block computes on
+ * the workbook sample and says so, never silently.
+ *
+ * @param {Object} inputs { securityPosition, repayment, serviceability } — each
+ *   block passed through to its Part's compute; any block may be omitted.
+ * @returns {Object} { securityPosition, repayment, serviceability }
+ */
+function computeLoanEstimatorReport (inputs) {
+  const src = (inputs && typeof inputs === 'object') ? inputs : {}
+  return {
+    securityPosition: computeLoanEstimator(src.securityPosition),
+    repayment: computeRepaymentSchedule(src.repayment),
+    serviceability: computeServiceability(src.serviceability)
+  }
+}
+
 module.exports = {
   DEFAULT_INPUTS,
   DEFAULT_LOAN_INPUTS,
   DEFAULT_SERVICEABILITY_INPUTS,
   computeLoanEstimator,
+  computeLoanEstimatorReport,
   computeRepaymentSchedule,
   computeServiceability,
   computeSecurityItem,

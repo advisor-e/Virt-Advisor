@@ -16,6 +16,7 @@ const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/m
 const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
+const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
@@ -180,6 +181,27 @@ function ebitdaDcf (req, res, next) {
   return next()
 }
 
+/**
+ * POST /api/report/loan-estimator
+ * @param {object} req.body - { securityPosition, repayment, serviceability } — each block
+ *   partial Loan Estimator inputs for its Part (A+B security position, D repayment
+ *   schedule, C serviceability); an omitted block computes on the workbook sample and is
+ *   named in that part's `defaultedInputs` (R8 — defaults never substitute silently).
+ * @returns {object} { success, data: { securityPosition, repayment, serviceability },
+ *   timestamp } — serviceability carries `verdictPass` + `surplus`; wording is the screen's.
+ */
+function loanEstimator (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeLoanEstimatorReport(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] loan-estimator compute failed:', err)
+    res.send(400, { success: false, error: { code: 'LOAN_ESTIMATOR_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
 // Intake error mapping lives in server/report/intakeError.js (R6): allowlisted codes
 // pass their authored message through; anything unexpected returns the generic
 // sentence — an fs error's message carries a server path and must never reach the client.
@@ -299,4 +321,4 @@ async function ebitdaDcfIntake (req, res) {
   }
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator }

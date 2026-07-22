@@ -5,6 +5,7 @@ const {
   DEFAULT_LOAN_INPUTS,
   DEFAULT_SERVICEABILITY_INPUTS,
   computeLoanEstimator,
+  computeLoanEstimatorReport,
   computeRepaymentSchedule,
   computeServiceability,
   computeSecurityItem,
@@ -406,6 +407,33 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       const it_ = computeSecurityItem({ key: 'residentialHome', value: '1350000', currentDebt: '1080000' })
       expect(it_.currentEquity).toBeCloseTo(270000, 6) // R6
       expect(it_.loanLimit).toBeCloseTo(1080000, 6) //   Z6
+    })
+  })
+
+  describe('the assembled report (what /api/report/loan-estimator returns)', () => {
+    it('all three hand-verified anchors land through the assembler', () => {
+      const rep = computeLoanEstimatorReport({
+        securityPosition: DEFAULT_INPUTS,
+        repayment: DEFAULT_LOAN_INPUTS,
+        serviceability: DEFAULT_SERVICEABILITY_INPUTS
+      })
+      const home = rep.securityPosition.items.find(it => it.key === 'residentialHome')
+      expect(home.stressTestedPayment).toBeCloseTo(9026.370957, 5) //  AB6
+      expect(rep.repayment.monthlyRepayment).toBeCloseTo(5747.094633, 5) // C29/C31
+      expect(rep.serviceability.surplus).toBeCloseTo(-154.833776247, 5) // N64 corrected
+      expect(rep.serviceability.verdictPass).toBe(false)
+    })
+
+    it('a missing block computes on the sample and SAYS so, per part (R8)', () => {
+      const rep = computeLoanEstimatorReport({ repayment: DEFAULT_LOAN_INPUTS })
+      expect(rep.repayment.defaultedInputs).toEqual([])
+      expect(rep.securityPosition.defaultedInputs).toEqual(['securities', 'subCalculations', 'overdraft'])
+      expect(rep.serviceability.defaultedInputs).toContain('customer1GrossIncome')
+    })
+
+    it('a bad block fails the whole call loudly — no partial payload', () => {
+      expect(() => computeLoanEstimatorReport({ serviceability: { country: 'AU' } })).toThrow(/No verified tax-band table/)
+      expect(() => computeLoanEstimatorReport({ securityPosition: { securities: [{ key: 'cryptoWallet' }] } })).toThrow(/Unknown security class/)
     })
   })
 })
