@@ -29,9 +29,10 @@ const EightLeversReport = require('~/components/EightLeversReport.vue').default
  */
 
 const SCREENS = [
-  { name: 'Debtor Business Drag', component: DebtorDragReport, title: 'Debtor Business Drag' },
-  { name: 'Margin, Mark-up & Break-even', component: MarginBreakevenReport, title: 'Margin, Mark-up & Break-even' },
-  { name: 'Working Capital Cycle', component: BusinessPerformanceReport, title: 'Working Capital Cycle' },
+  // Every title now resolves through i18n, so the stub returns the key.
+  { name: 'Debtor Business Drag', component: DebtorDragReport, title: 'report.debtorDrag.title' },
+  { name: 'Margin, Mark-up & Break-even', component: MarginBreakevenReport, title: 'report.marginBreakeven.title' },
+  { name: 'Working Capital Cycle', component: BusinessPerformanceReport, title: 'report.workingCapital.title' },
   // Eight Levers resolves its title through i18n; the stub returns the key.
   { name: 'Eight Levers', component: EightLeversReport, title: 'report.eightLevers.title' }
 ]

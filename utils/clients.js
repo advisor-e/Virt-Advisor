@@ -3,12 +3,14 @@
  * (client knowledge base, design 2026-07-14).
  *
  * Identity (advisorId/firmId) is derived server-side from the Bearer token and
- * is never sent in the body — the same rule as utils/cases.js. Routes live on
- * the Restify backend with no Nuxt proxy, so they are called at the absolute
- * backend URL.
+ * is never sent in the body — the same rule as utils/cases.js.
+ *
+ * Called through the Nuxt thin proxy (`/api/clients`), like every other feature.
+ * This file previously hardcoded an absolute backend address, so the client register
+ * only worked where the browser and the backend shared a host — fine on a developer
+ * laptop, broken in UAT or production. The frontend is not supposed to know where the
+ * backend lives: that is the proxy's job (CLAUDE.md → Architecture boundary).
  */
-
-const BACKEND = 'http://localhost:4000'
 
 function authHeaders (token) {
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
@@ -21,7 +23,7 @@ function authHeaders (token) {
  * @returns {Promise<object[]>}
  */
 export async function listClients (token) {
-  const res = await fetch(`${BACKEND}/api/clients`, { headers: authHeaders(token) })
+  const res = await fetch('/api/clients', { headers: authHeaders(token) })
   if (!res.ok) { throw new Error(`Failed to load clients (${res.status})`) }
   return (await res.json()).clients || []
 }
@@ -37,7 +39,7 @@ export async function listClients (token) {
  * @returns {Promise<{created: boolean, client?: object, possibleDuplicates?: object[]}>}
  */
 export async function createClient (name, confirmed, token) {
-  const res = await fetch(`${BACKEND}/api/clients`, {
+  const res = await fetch('/api/clients', {
     method: 'POST', headers: authHeaders(token), body: JSON.stringify({ name, confirmed: confirmed === true })
   })
   if (!res.ok) { throw new Error(`Failed to save client (${res.status})`) }

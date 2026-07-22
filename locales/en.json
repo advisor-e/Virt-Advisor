@@ -436,7 +436,226 @@
         "resetDone": "Back to the default projection",
         "provenance": "Maths reproduces the source model exactly (96 golden checks)."
       }
-    }
+    },
+    "debtorDrag": {
+      "title": "Debtor Business Drag",
+      "instruct": "Set these to the client's situation and click",
+      "instructBtn": "“Freeze as Before”",
+      "instructAfter": ". Then change a decision — the",
+      "blueLine": "blue line",
+      "instructEnd": "moves against your grey",
+      "before": "Before",
+      "freezeBtn": "📌 Freeze current as “Before”",
+      "hero": {
+        "planLow": "Deepest cash low — your plan",
+        "beforeLow": "Deepest cash low — Before",
+        "effect": "Effect of your decisions",
+        "overdraft": "— overdraft",
+        "freezeBefore": "freeze a Before",
+        "freezeThenDecide": "freeze a “Before”, then decide",
+        "better": "better at the worst month",
+        "worse": "worse at the worst month"
+      },
+      "chart": {
+        "title": "Your bank balance, month by month",
+        "sub": "slow debtors → you fall behind suppliers → overdraft",
+        "aria": "Monthly closing bank balance: Before vs your plan",
+        "legendBefore": "Before",
+        "legendPlan": "Your plan",
+        "legendOverdraft": "Overdraft"
+      },
+      "group": {
+        "sales": "Sales",
+        "debtors": "Debtors — when they pay",
+        "suppliers": "Suppliers — when you pay",
+        "business": "The business"
+      },
+      "field": {
+        "sales": "Annual sales",
+        "d0": "Same month",
+        "d1": "1 month later",
+        "d2": "2 months later",
+        "d3": "3 months later",
+        "d4": "4 months later",
+        "dwo": "Written off (never paid)",
+        "c0": "Same month",
+        "c1": "1 month later",
+        "c2": "2 months later",
+        "c3": "3 months later",
+        "c4": "4 months later",
+        "markup": "Mark-up",
+        "np": "Net profit",
+        "gst": "GST / VAT"
+      },
+      "coach": {
+        "lead": "Coach",
+        "title": "What this means",
+        "body1": "Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to",
+        "body2": "in",
+        "overdraft": ", into overdraft,",
+        "body3": "and you're in the red",
+        "months": "months",
+        "body4": "Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the working capital cycle running backwards."
+      },
+      "actions": {
+        "pdf": "Download PDF",
+        "reset": "↺ Reset",
+        "coach": "Ask the coach ↗",
+        "foot": "Figures reproduce your Excel model exactly."
+      },
+      "toast": {
+        "reset": "Reset to defaults.",
+        "frozen": "Frozen as “Before” — now model a decision.",
+        "coachSoon": "AI coach panel — coming later."
+      }
+    },
+    "marginBreakeven": {
+      "title": "Margin, Mark-up & Break-even",
+      "group": {
+        "product": "The product",
+        "doors": "To keep the doors open (monthly)",
+        "whatIf": "What if you change the price?"
+      },
+      "field": {
+        "price": "Sale price",
+        "cost": "Unit cost",
+        "oh": "Overheads",
+        "draw": "Owner's drawings (target)",
+        "wif": "Price change"
+      },
+      "hero": {
+        "margin": "Margin",
+        "marginSub": "of the sale price",
+        "markup": "Mark-up",
+        "markupSub": "of the cost price",
+        "cos": "Cost of sales",
+        "cosSub": "of each sale dollar",
+        "breakEven": "Break-even · monthly",
+        "breakEvenSub": "units to cover it"
+      },
+      "chart": {
+        "title": "Sales you must make vs your price",
+        "sub": "cut the price and the work explodes; raise it and it shrinks",
+        "aria": "Units required to break even across a range of price changes"
+      },
+      "whatIf": {
+        "head": "If you change your price",
+        "atPrice": "At this price",
+        "marginBecomes": "Margin becomes",
+        "mustSell": "You must sell",
+        "units": "units",
+        "vsNow": "vs now"
+      },
+      "coach": {
+        "lead": "Coach",
+        "title": "What this means",
+        "body1": "Same deal, two numbers: your",
+        "marginIs": "margin is",
+        "ofSale": "(of the sale) but your",
+        "markupIs": "mark-up is",
+        "ofCost": "(of the cost) — don't confuse them when you quote. To cover",
+        "overheads": "overheads and take",
+        "drawings": "in drawings, you must sell",
+        "body4": "a month. Cut the price and that work climbs fast; raise it and it drops away. Price and drawings decide how hard the business has to run."
+      },
+      "actions": {
+        "pdf": "Download PDF",
+        "reset": "↺ Reset",
+        "coach": "Ask the coach ↗",
+        "foot": "Figures reproduce your Excel model exactly."
+      },
+      "toast": {
+        "reset": "Reset to defaults.",
+        "coachSoon": "AI coach panel — coming later."
+      }
+    },
+    "workingCapital": {
+      "title": "Working Capital Cycle",
+      "group": {
+        "setup": "Investment & set-up",
+        "pricing": "Pricing",
+        "cycle": "The working capital cycle (days)",
+        "fixed": "Fixed costs & comparison"
+      },
+      "field": {
+        "initialInvestment": "Initial investment",
+        "plantEquipmentPct": "Spent on plant & equipment",
+        "unitCost": "Unit cost",
+        "markupPct": "Mark-up",
+        "discountPct": "Discount (on reduced sales)",
+        "fullPricePct": "Sold at full price",
+        "daysDeliverable": "Days to deliver",
+        "daysOnHand": "Days stock on hand",
+        "daysReceivable": "Days to get paid (receivable)",
+        "daysPayable": "Days you take to pay (payable)",
+        "fixedCostsMonthly": "Fixed costs (monthly)",
+        "priorScenarioAnnualRevenue": "Your starting point (annual revenue)"
+      },
+      "hero": {
+        "cycle": "Working-capital cycle",
+        "cycleUnit": "days",
+        "cycleSub": "cash tied up before you can trade again",
+        "factor": "Cycle factor",
+        "factorSub": "× per year",
+        "revenue": "Annual revenue",
+        "revenueSubFrom": "from",
+        "revenueSubCapital": "capital",
+        "netProfit": "Net profit · monthly"
+      },
+      "status": {
+        "positive": "Cashflow Positive",
+        "negative": "Cashflow Negative"
+      },
+      "tile": {
+        "vsStart": "vs your starting point",
+        "annualRevenue": "annual revenue"
+      },
+      "wheel": {
+        "title": "The working capital cycle",
+        "sumTurns": "turns",
+        "sumAMonth": "a month ·",
+        "sumPerTurn": "days per turn · less",
+        "sumToPay": "to pay suppliers",
+        "aria": "Working capital cycle: Cash to Stock to Sale to Debtors and back; fixed costs sit outside the cycle.",
+        "fixedCosts": "Fixed costs",
+        "outside1": "outside the cycle —",
+        "outside2": "paid either way",
+        "moneyInMovement": "MONEY IN MOVEMENT",
+        "workingCapital": "working capital",
+        "cash": "Cash",
+        "stock": "Stock",
+        "sale": "Sale",
+        "debtors": "Debtors"
+      },
+      "coach": {
+        "lead": "Coach",
+        "title": "What this means",
+        "body1": "Watch the wheel: your",
+        "body2": "of working capital flows Cash → Stock → Sale → Debtors and back. Right now that takes",
+        "days": "days",
+        "body3": "so it turns about",
+        "body4": "a month. Fixed costs sit",
+        "outside": "outside",
+        "body5": "the wheel — paid whether it turns or not.",
+        "faster1": "If you cut it to",
+        "faster2": "the wheel would turn",
+        "faster3": "a month — about",
+        "faster4": "more revenue a year, at the same price."
+      },
+      "actions": {
+        "pdf": "Download PDF",
+        "reset": "↺ Reset",
+        "setStart": "Set as starting point",
+        "coach": "Ask the coach ↗",
+        "foot": "Figures reproduce your Excel model exactly."
+      },
+      "toast": {
+        "reset": "Reset to defaults.",
+        "startSet": "Starting point set to {amount}.",
+        "coachSoon": "AI coach panel — coming later."
+      }
+    },
+    "sampleFigures": "These are sample numbers, not your client's"
   },
   "modelLibrary": {
     "eyebrow": "Advisor-e · Business Performance",

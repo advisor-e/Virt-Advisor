@@ -3,7 +3,7 @@
   report-header(
     :back-label="$t('modelLibrary.backToLibrary')"
     :eyebrow="$t('report.eyebrow')"
-    title="Working Capital Cycle"
+    :title="$t('report.workingCapital.title')"
     :client="$t('report.preparedFor')"
     :badge="$t('report.illustrative')"
   )
@@ -11,14 +11,14 @@
   .bpr-layout
     //- INPUTS
     aside.bpr-card
-      .bpr-group(v-for="g in groups" :key="g.title")
+      .bpr-group(v-for="g in groups" :key="g.k")
         .bpr-glabel
           span.bpr-dot
-          h2.bpr-h2 {{ g.title }}
+          h2.bpr-h2 {{ $t('report.workingCapital.group.' + g.k + '') }}
         slider-field(
           v-for="fld in g.fields"
           :key="fld.key"
-          :label="fld.label"
+          :label="$t('report.workingCapital.field.' + fld.key + '')"
           :display="fmtField(fld, inputs[fld.key])"
           :value="inputs[fld.key]"
           :min="fld.min"
@@ -40,90 +40,90 @@
       )
       hero-strip(:stale="!!error")
         hero-figure(
-          label="Working-capital cycle"
+          :label="$t('report.workingCapital.hero.cycle')"
           :value="round0(out.cycleDays)"
-          unit="days"
-          sub="cash tied up before you can trade again"
+          :unit="$t('report.workingCapital.hero.cycleUnit')"
+          :sub="$t('report.workingCapital.hero.cycleSub')"
         )
         hero-figure(
-          label="Cycle factor"
+          :label="$t('report.workingCapital.hero.factor')"
           :value="round1(out.cycleFactorMonthly) + '×'"
-          :sub="round0(out.cycleFactorAnnual) + '× per year'"
+          :sub="round0(out.cycleFactorAnnual) + '× ' + $t('report.workingCapital.hero.factorSub')"
         )
         hero-figure(
-          label="Annual revenue"
+          :label="$t('report.workingCapital.hero.revenue')"
           :value="money(out.annualRevenue)"
-          :sub="'from ' + money(out.workingCapital) + ' capital'"
+          :sub="$t('report.workingCapital.hero.revenueSubFrom') + ' ' + money(out.workingCapital) + ' ' + $t('report.workingCapital.hero.revenueSubCapital')"
         )
-        hero-figure(label="Net profit · monthly" :value="money(out.netProfitMonthly)")
+        hero-figure(:label="$t('report.workingCapital.hero.netProfit')" :value="money(out.netProfitMonthly)")
           template(#sub)
             span.bpr-pill(:class="cashflowClass")
               span.bpr-pill-dot
-              | {{ out.cashflowStatus }}
+              | {{ cashflowText }}
       .bpr-tiles
         .bpr-tile
-          .bpr-k vs your starting point
+          .bpr-k {{ $t('report.workingCapital.tile.vsStart') }}
           .bpr-v.num {{ diffText }}
-          .bpr-sub.num {{ diffPctText }} · annual revenue
+          .bpr-sub.num {{ diffPctText }} · {{ $t('report.workingCapital.tile.annualRevenue') }}
 
       //- CASH WHEEL
       .bpr-card.bpr-wheelcard
         .bpr-wheelhead
-          h2.bpr-h2 The working capital cycle
-          .bpr-cycsum turns #[b {{ round1(out.cycleFactorMonthly) }}×] a month · #[b {{ round0(out.cycleDays) }} days] per turn · less #[b {{ inputs.daysPayable }}d] to pay suppliers
-        svg.bpr-wheel(viewBox="0 0 500 360" role="img" aria-label="Working capital cycle: Cash to Stock to Sale to Debtors and back; fixed costs sit outside the cycle.")
+          h2.bpr-h2 {{ $t('report.workingCapital.wheel.title') }}
+          .bpr-cycsum {{ $t('report.workingCapital.wheel.sumTurns') }} #[b {{ round1(out.cycleFactorMonthly) }}×] {{ $t('report.workingCapital.wheel.sumAMonth') }} #[b {{ round0(out.cycleDays) }} {{ $t('report.workingCapital.coach.days') }}] {{ $t('report.workingCapital.wheel.sumPerTurn') }} #[b {{ inputs.daysPayable }}d] {{ $t('report.workingCapital.wheel.sumToPay') }}
+        svg.bpr-wheel(viewBox="0 0 500 360" role="img" :aria-label="$t('report.workingCapital.wheel.aria')")
           defs
             marker#bprAh(viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse")
               path(d="M0 0 L10 5 L0 10 z" fill="#0070c0")
           line(x1="150" y1="40" x2="150" y2="320" stroke="var(--bpr-line)" stroke-width="1.5" stroke-dasharray="4 5")
           rect(x="16" y="150" width="116" height="70" rx="11" fill="var(--bpr-panel-2)" stroke="var(--bpr-line)")
-          text(x="74" y="178" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--bpr-ink)") Fixed costs
+          text(x="74" y="178" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--bpr-ink)") {{ $t('report.workingCapital.wheel.fixedCosts') }}
           text.num(x="74" y="200" text-anchor="middle" font-size="15" font-weight="600" fill="var(--bpr-ink)") {{ money(inputs.fixedCostsMonthly) }}/mo
-          text(x="74" y="246" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)") outside the cycle —
-          text(x="74" y="260" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)") paid either way
+          text(x="74" y="246" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)") {{ $t('report.workingCapital.wheel.outside1') }}
+          text(x="74" y="260" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)") {{ $t('report.workingCapital.wheel.outside2') }}
           g(fill="none" stroke="#0070c0" stroke-width="6" stroke-linecap="round" marker-end="url(#bprAh)")
             path(d="M388.3 86.7 A110 110 0 0 1 423.3 121.7")
             path(d="M423.3 238.3 A110 110 0 0 1 388.3 273.3")
             path(d="M271.7 273.3 A110 110 0 0 1 236.7 238.3")
             path(d="M236.7 121.7 A110 110 0 0 1 271.7 86.7")
           circle(cx="330" cy="180" r="60" fill="#3a3a3a")
-          text(x="330" y="171" text-anchor="middle" font-size="9" font-weight="600" letter-spacing="0.5" fill="#ffffff" opacity="0.92") MONEY IN MOVEMENT
+          text(x="330" y="171" text-anchor="middle" font-size="9" font-weight="600" letter-spacing="0.5" fill="#ffffff" opacity="0.92") {{ $t('report.workingCapital.wheel.moneyInMovement') }}
           text.num(x="330" y="192" text-anchor="middle" font-size="20" font-weight="600" fill="#ffffff") {{ money(out.workingCapital) }}
-          text(x="330" y="207" text-anchor="middle" font-size="9.5" fill="#ffffff" opacity="0.85") working capital
+          text(x="330" y="207" text-anchor="middle" font-size="9.5" fill="#ffffff" opacity="0.85") {{ $t('report.workingCapital.wheel.workingCapital') }}
           g
             circle(cx="330" cy="70" r="38" fill="#002b64")
-            text(x="330" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") Cash
+            text(x="330" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") {{ $t('report.workingCapital.wheel.cash') }}
             text.num(x="330" y="84" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.9") {{ money(out.workingCapital) }}
           g
             circle(cx="440" cy="180" r="38" fill="#0070c0")
-            text(x="440" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") Stock
+            text(x="440" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") {{ $t('report.workingCapital.wheel.stock') }}
             text.num(x="440" y="194" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.92") {{ inputs.daysDeliverable + inputs.daysOnHand }}d
           g
             circle(cx="330" cy="290" r="38" fill="#4ca52d")
-            text(x="330" y="288" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") Sale
+            text(x="330" y="288" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") {{ $t('report.workingCapital.wheel.sale') }}
             text.num(x="330" y="304" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.85") {{ round0(out.totalUnits) }} u
           g
             circle(cx="220" cy="180" r="38" fill="#ff9900")
-            text(x="220" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#002b64") Debtors
+            text(x="220" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#002b64") {{ $t('report.workingCapital.wheel.debtors') }}
             text.num(x="220" y="194" text-anchor="middle" font-size="10.5" fill="#002b64" opacity="0.85") {{ inputs.daysReceivable }}d
           circle.bpr-coin(r="7" :style="{ '--spin': spinDur }")
 
       //- COACH
       .bpr-edu
         .bpr-edu-h
-          span.bpr-lead Coach
-          | What this means
+          span.bpr-lead {{ $t('report.workingCapital.coach.lead') }}
+          | {{ $t('report.workingCapital.coach.title') }}
         p.bpr-edu-p
-          | Watch the wheel: your #[strong {{ money(out.workingCapital) }}] of working capital flows Cash → Stock → Sale → Debtors and back. Right now that takes #[strong {{ round0(out.cycleDays) }} days], so it turns about #[strong {{ round1(out.cycleFactorMonthly) }}×] a month. Fixed costs sit #[em outside] the wheel — paid whether it turns or not.
+          | {{ $t('report.workingCapital.coach.body1') }} #[strong {{ money(out.workingCapital) }}] {{ $t('report.workingCapital.coach.body2') }} #[strong {{ round0(out.cycleDays) }} {{ $t('report.workingCapital.coach.days') }}], {{ $t('report.workingCapital.coach.body3') }} #[strong {{ round1(out.cycleFactorMonthly) }}×] {{ $t('report.workingCapital.coach.body4') }} #[em {{ $t('report.workingCapital.coach.outside') }}] {{ $t('report.workingCapital.coach.body5') }}
         p.bpr-edu-p(v-if="fasterHint")
-          | If you cut it to #[strong {{ fasterHint.days }} days], the wheel would turn #[strong {{ fasterHint.factor }}×] a month — about #[strong {{ fasterHint.extra }}] more revenue a year, at the same price.
+          | {{ $t('report.workingCapital.coach.faster1') }} #[strong {{ fasterHint.days }} {{ $t('report.workingCapital.coach.days') }}], {{ $t('report.workingCapital.coach.faster2') }} #[strong {{ fasterHint.factor }}×] {{ $t('report.workingCapital.coach.faster3') }} #[strong {{ fasterHint.extra }}] {{ $t('report.workingCapital.coach.faster4') }}
 
       .bpr-actions
-        button.bpr-cta(@click="downloadPdf") Download PDF
-        button.bpr-cta.bpr-ghost(@click="reset") ↺ Reset
-        button.bpr-cta.bpr-ghost(@click="setStartingPoint") Set as starting point
-        button.bpr-cta.bpr-ghost(@click="askCoach") Ask the coach ↗
-        span.bpr-foot Figures reproduce your Excel model exactly.
+        button.bpr-cta(@click="downloadPdf") {{ $t('report.workingCapital.actions.pdf') }}
+        button.bpr-cta.bpr-ghost(@click="reset") {{ $t('report.workingCapital.actions.reset') }}
+        button.bpr-cta.bpr-ghost(@click="setStartingPoint") {{ $t('report.workingCapital.actions.setStart') }}
+        button.bpr-cta.bpr-ghost(@click="askCoach") {{ $t('report.workingCapital.actions.coach') }}
+        span.bpr-foot {{ $t('report.workingCapital.actions.foot') }}
 
     section.bpr-results(v-else)
       b-loading(:is-full-page="false" :active="true")
@@ -178,35 +178,35 @@ export default {
       out: null,
       groups: [
         {
- title: 'Investment & set-up',
+ k: 'setup',
 fields: [
-          { key: 'initialInvestment', label: 'Initial investment', min: 50, max: 1000, step: 10, fmt: 'money' },
-          { key: 'plantEquipmentPct', label: 'Spent on plant & equipment', min: 0, max: 0.8, step: 0.05, fmt: 'pct' }
+          { key: 'initialInvestment', min: 50, max: 1000, step: 10, fmt: 'money' },
+          { key: 'plantEquipmentPct', min: 0, max: 0.8, step: 0.05, fmt: 'pct' }
         ]
 },
         {
- title: 'Pricing',
+ k: 'pricing',
 fields: [
-          { key: 'unitCost', label: 'Unit cost', min: 0.5, max: 5, step: 0.25, fmt: 'money2' },
-          { key: 'markupPct', label: 'Mark-up', min: 0.2, max: 3, step: 0.1, fmt: 'pct' },
-          { key: 'discountPct', label: 'Discount (on reduced sales)', min: 0, max: 0.5, step: 0.05, fmt: 'pct' },
-          { key: 'fullPricePct', label: 'Sold at full price', min: 0, max: 1, step: 0.05, fmt: 'pct' }
+          { key: 'unitCost', min: 0.5, max: 5, step: 0.25, fmt: 'money2' },
+          { key: 'markupPct', min: 0.2, max: 3, step: 0.1, fmt: 'pct' },
+          { key: 'discountPct', min: 0, max: 0.5, step: 0.05, fmt: 'pct' },
+          { key: 'fullPricePct', min: 0, max: 1, step: 0.05, fmt: 'pct' }
         ]
 },
         {
- title: 'The working capital cycle (days)',
+ k: 'cycle',
 fields: [
-          { key: 'daysDeliverable', label: 'Days to deliver', min: 0, max: 30, step: 1, fmt: 'int' },
-          { key: 'daysOnHand', label: 'Days stock on hand', min: 0, max: 60, step: 1, fmt: 'int' },
-          { key: 'daysReceivable', label: 'Days to get paid (receivable)', min: 0, max: 90, step: 1, fmt: 'int' },
-          { key: 'daysPayable', label: 'Days you take to pay (payable)', min: 0, max: 90, step: 1, fmt: 'int' }
+          { key: 'daysDeliverable', min: 0, max: 30, step: 1, fmt: 'int' },
+          { key: 'daysOnHand', min: 0, max: 60, step: 1, fmt: 'int' },
+          { key: 'daysReceivable', min: 0, max: 90, step: 1, fmt: 'int' },
+          { key: 'daysPayable', min: 0, max: 90, step: 1, fmt: 'int' }
         ]
 },
         {
- title: 'Fixed costs & comparison',
+ k: 'fixed',
 fields: [
-          { key: 'fixedCostsMonthly', label: 'Fixed costs (monthly)', min: 0, max: 500, step: 10, fmt: 'money' },
-          { key: 'priorScenarioAnnualRevenue', label: 'Your starting point (annual revenue)', min: 500, max: 6000, step: 1, fmt: 'money' }
+          { key: 'fixedCostsMonthly', min: 0, max: 500, step: 10, fmt: 'money' },
+          { key: 'priorScenarioAnnualRevenue', min: 500, max: 6000, step: 1, fmt: 'money' }
         ]
 }
       ]
@@ -214,12 +214,56 @@ fields: [
   },
 
   computed: {
+    /**
+     * The cash-flow pill's text.
+     *
+     * The backend returns this as English display text ('Cashflow Positive' /
+     * 'Cashflow Negative' — `workingCapitalCycleModel.js`, cell J3), so it is the one
+     * user-facing string on this screen that cannot be fixed by moving it into
+     * `locales/`. Mapped here so the pill translates like everything else; an
+     * unrecognised value falls through unchanged rather than blanking the pill.
+     *
+     * Proper fix is for the model to return a CODE and the screen to name it — logged
+     * in design/ACTIONS.md rather than changed here, because it is a backend contract.
+     * @returns {string}
+     */
+    cashflowText () {
+      const raw = this.out && this.out.cashflowStatus
+      if (raw === 'Cashflow Positive') { return this.$t('report.workingCapital.status.positive') }
+      if (raw === 'Cashflow Negative') { return this.$t('report.workingCapital.status.negative') }
+      return raw || ''
+    },
     cashflowClass () {
       return (this.out && this.out.netProfitMonthly < 0) ? 'is-crit' : 'is-good'
     },
+    /**
+     * How long the coin takes to go once round the wheel.
+     *
+     * The old rule — `max(1.4, 6 / cycleFactor)` — was floored at 1.4s, so every
+     * business turning faster than ~4×/month spun at exactly the same speed: measured
+     * live, 0 days receivable (30× a month) and 10 days (6×) were both pinned at 1.4s,
+     * while the figures beside them changed completely. At the other end 90 days gave a
+     * 17-second lap that reads as stationary rather than slow. The indicator stopped
+     * responding across half its range (Mike, 2026-07-21).
+     *
+     * Now mapped across the WHOLE range: the cycle factor is placed between the slowest
+     * and fastest realistic turns and read off as a lap time between 8s and 0.8s. That
+     * accepts the coin as a *feel* indicator rather than a proportional measure — it
+     * already was one, it simply failed silently instead of saying so.
+     * @returns {string} a CSS duration
+     */
     spinDur () {
-      const f = this.out ? this.out.cycleFactorMonthly : 1
-      return Math.max(1.4, 6 / Math.max(f, 0.1)).toFixed(2) + 's'
+      const SLOWEST_LAP = 8
+      const FASTEST_LAP = 0.8
+      // The realistic span of monthly turns: about a third of a turn up to thirty.
+      const MIN_TURNS = 0.33
+      const MAX_TURNS = 30
+
+      const turns = Math.min(MAX_TURNS, Math.max(MIN_TURNS, this.out ? this.out.cycleFactorMonthly : 1))
+      // Log scale: turns span two orders of magnitude, so a linear map would spend
+      // almost the whole slider in the slow end and jump at the top.
+      const pos = (Math.log(turns) - Math.log(MIN_TURNS)) / (Math.log(MAX_TURNS) - Math.log(MIN_TURNS))
+      return (SLOWEST_LAP - pos * (SLOWEST_LAP - FASTEST_LAP)).toFixed(2) + 's'
     },
     fasterHint () {
       if (!this.out || this.out.cycleDays <= 0) { return null }
@@ -265,13 +309,13 @@ fields: [
     reset () {
       this.inputs = Object.assign({}, DEFAULTS)
       this.recompute()
-      this.$buefy.toast.open({ message: 'Reset to defaults.', type: 'is-info' })
+      this.$buefy.toast.open({ message: this.$t('report.workingCapital.toast.reset'), type: 'is-info' })
     },
     setStartingPoint () {
       if (!this.out) { return }
       this.inputs.priorScenarioAnnualRevenue = Math.round(this.out.annualRevenue)
       this.recompute()
-      this.$buefy.toast.open({ message: 'Starting point set to ' + this.money(this.inputs.priorScenarioAnnualRevenue) + '.', type: 'is-success' })
+      this.$buefy.toast.open({ message: this.$t('report.workingCapital.toast.startSet', { amount: this.money(this.inputs.priorScenarioAnnualRevenue) }), type: 'is-success' })
     },
     /** Backend request — consumed by the reportRecompute mixin (debounce + race guard). */
     recomputeRequest () {
@@ -287,7 +331,7 @@ fields: [
       if (typeof window !== 'undefined') { window.print() }
     },
     askCoach () {
-      this.$buefy.toast.open({ message: 'AI coach panel — coming later.', type: 'is-info' })
+      this.$buefy.toast.open({ message: this.$t('report.workingCapital.toast.coachSoon'), type: 'is-info' })
     }
   }
 }

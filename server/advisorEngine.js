@@ -22,7 +22,7 @@ const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { logUnverifiedQuotes, appendCorrectionNote } = require('../server/utils/fabricationWatch')
-const { extractTemplatesFromText } = require('../server/utils/tierLookup')
+const { resolveRecommendedTemplates, stripTemplateMarker, TEMPLATE_MARK_OPEN } = require('../server/utils/tierLookup')
 const { logVASession } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
@@ -2577,6 +2577,10 @@ async function handleQuery (rawBody, res, identity) {
     let _p3Usage = null
     let _p3Ok = false
     let _p3Buffer = ''
+    // How much of _p3Buffer has been streamed. The response ends with a machine-readable
+    // marker declaring what was recommended; it must NEVER reach the advisor, not even for
+    // the instant between arriving and the final rewrite.
+    let _p3Sent = 0
     const _p3Messages = [{ role: 'system', content: systemPrompt2 }, ...messages2]
     try {
       const stream2 = await getOpenAI().chat.completions.create({
@@ -2591,8 +2595,19 @@ async function handleQuery (rawBody, res, identity) {
         const text = chunk.choices[0]?.delta?.content || ''
         if (text) {
           _p3Buffer += text
-          // Stream each chunk immediately so the advisor sees text appearing in real time
-          res.write('data: ' + JSON.stringify({ type: 'delta', text }) + '\n\n')
+          // Stream immediately so the advisor sees text appearing in real time — but hold
+          // back a tail as long as the marker's opening sentinel, so a half-arrived marker
+          // can never flash on screen mid-sentence.
+          const markAt = _p3Buffer.indexOf(TEMPLATE_MARK_OPEN)
+          const safeEnd = markAt === -1
+            ? Math.max(0, _p3Buffer.length - (TEMPLATE_MARK_OPEN.length - 1))
+            // Stop before the blank line that precedes the marker too, or the answer
+            // ends with a stray gap where the marker was.
+            : _p3Buffer.slice(0, markAt).replace(/\s+$/, '').length
+          if (safeEnd > _p3Sent) {
+            res.write('data: ' + JSON.stringify({ type: 'delta', text: _p3Buffer.slice(_p3Sent, safeEnd) }) + '\n\n')
+            _p3Sent = safeEnd
+          }
         }
         if (chunk.choices[0]?.finish_reason) {
           // Tier 2: watch for invented quoted wording — a hit appends the
@@ -2600,13 +2615,21 @@ async function handleQuery (rawBody, res, identity) {
           // stream has already printed, so the note rides the final rewrite).
           const _p3Flagged = logUnverifiedQuotes('phase3-recommendation', _p3Buffer, _p3Messages)
           // Post-process: heading normaliser → R02 scrub → video injection
-          const normalised = normaliseHeadings(_p3Buffer)
+          // Everything the advisor sees is the answer WITHOUT its trailing marker.
+          const visible = stripTemplateMarker(_p3Buffer)
+          // Flush whatever is still held back — the safety tail, and any text before a marker.
+          if (visible.length > _p3Sent) {
+            res.write('data: ' + JSON.stringify({ type: 'delta', text: visible.slice(_p3Sent) }) + '\n\n')
+            _p3Sent = visible.length
+          }
+          const normalised = normaliseHeadings(visible)
           const scrubbed = scrubAdvisorHallucinations(normalised)
           const processed = appendCorrectionNote(injectVideoInfo(scrubbed, orgTemplateIds), _p3Flagged, _p3Buffer, _p3Messages)
-          if (processed !== _p3Buffer) {
+          if (processed !== visible) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
-          state.recommendedTemplates = extractTemplatesFromText(_p3Buffer)
+          // The AI's own declaration when it made one; the prose scan only as a fallback.
+          state.recommendedTemplates = resolveRecommendedTemplates(_p3Buffer)
           _decisionTrace.recommendation.selected = state.recommendedTemplates
           res.write('data: ' + JSON.stringify({ type: 'budget_notice', notice: _budgetNotice }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'trace', trace: _decisionTrace }) + '\n\n')

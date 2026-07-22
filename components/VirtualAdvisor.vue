@@ -458,7 +458,10 @@
           button.save-prompt-no(@click="savePromptDismissed = true") Not now
 
   //- Input (only shown once mode is selected)
-  .input-area(v-if="mode && mode !== 'course' && mode !== 'progression'")
+  //- Hidden for every mode that renders a full-screen panel instead of a conversation.
+  //- `firm` was missing from this list, so the message box and its send button rendered
+  //- underneath the Firm Dashboard — a chat input with nothing to talk to.
+  .input-area(v-if="mode && !PANEL_MODES.includes(mode)")
 
     //- Voice status bar
     .voice-bar(v-if="speechSupported")
@@ -841,6 +844,20 @@ import finMgtTable from '~/data/fin-mgt-table.json'
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 _md.disable(['image', 'html_inline', 'html_block'])
 
+/**
+ * Modes that replace the conversation with a full-screen panel.
+ *
+ * Each of these renders its own component in the `v-if` chain at the top of the template
+ * instead of a message thread, so the chat input must not appear beneath it. Kept as one
+ * named list rather than a chain of `mode !== '...'` tests, because that chain is how
+ * `firm` came to be missing: the mode was added to the template and nobody updated the
+ * separate condition further down.
+ *
+ * Adding a panel mode? Add it here too — `tests/unit/virtualAdvisorInput.component.test.js`
+ * checks every entry, and checks the conversational modes still HAVE an input.
+ */
+const PANEL_MODES = ['course', 'progression', 'firm']
+
 // Primary issues per domain — Workshop 1 output, authored by Mike Barnes 2026-06-02
 const PRIMARY_ISSUES = {
   profit: ['Cost of sales has increased', 'Excessive discounting eroding margin', 'Sales Revenue — low volume, revenue is the constraint', 'Fixed overhead costs grown beyond what revenue can support', 'Asset utilisation below viability threshold'],
@@ -885,6 +902,8 @@ export default {
 
   data () {
     return {
+      // Exposed so the template can test membership; not reactive state.
+      PANEL_MODES,
       mode: null,
       messages: [],
       inputText: '',
@@ -1118,6 +1137,28 @@ export default {
   },
 
   watch: {
+    /**
+     * Keep the advisor on the SAME QUESTION when the question list changes shape.
+     *
+     * `profileQuestions` is computed from the answers themselves: answering the role
+     * question in a way that reads as "beginner" drops the experience question, and the
+     * client-demographic question appears only for some combinations. `profileStep` is a
+     * numeric index into that list — so editing an earlier answer could silently shift
+     * every later question by one, skipping one entirely and labelling the rest wrongly.
+     *
+     * Re-anchoring by FIELD rather than by position: whichever question the advisor was
+     * on stays the question they are on, wherever it has moved to. If it has gone
+     * altogether, hold position and clamp to the end rather than run off the list.
+     *
+     * @param {Array<{field: string}>} next @param {Array<{field: string}>} prev
+     */
+    profileQuestions (next, prev) {
+      if (!next || !next.length || !prev || !prev.length) { return }
+      const wasOn = prev[this.profileStep] && prev[this.profileStep].field
+      const movedTo = wasOn ? next.findIndex(q => q.field === wasOn) : -1
+      this.profileStep = movedTo >= 0 ? movedTo : Math.min(this.profileStep, next.length - 1)
+    },
+
     advisorProfile: {
       deep: true,
       handler () {
@@ -1551,9 +1592,28 @@ export default {
       this.lastQuery = null
     },
 
+    /**
+     * Re-send the question whose reply failed.
+     *
+     * Removes BOTH the error reply and the user turn that provoked it, because
+     * `sendMessage()` pushes the user turn again. Popping only the error left the
+     * question in the thread twice — visible on screen, and worse, sent to the model as
+     * conversation history, so the AI saw the advisor asking the same thing twice in a
+     * row (three times after a second retry) and read the repetition as meaningful.
+     *
+     * Each removal is guarded by what the message actually IS rather than by counting,
+     * so an unexpected thread shape costs a retry rather than eating a real answer.
+     */
     retryLastMessage () {
       if (!this.lastQuery || this.isStreaming) { return }
-      this.messages.pop() // remove the error message
+      const last = this.messages[this.messages.length - 1]
+      if (last && last.role === 'assistant' && last.content === this.$t('error')) {
+        this.messages.pop()
+      }
+      const prev = this.messages[this.messages.length - 1]
+      if (prev && prev.role === 'user' && prev.content === this.lastQuery) {
+        this.messages.pop()
+      }
       this.showRetry = false
       this.inputText = this.lastQuery
       this.sendMessage()
@@ -1673,7 +1733,11 @@ export default {
       // NEVER reset to 0 — restore to the number of already-answered questions
       // so completed answers stay visible and editable when reopening the panel.
       // Resetting to 0 was causing all answers to collapse on every open.
-      this.profileStep = this.profileQuestions.filter(q => this.advisorProfile[q.field]).length
+      // Clamped: with every question answered the count equals the list LENGTH, which
+      // is one past the last index — leaving `profileQuestions[profileStep]` undefined
+      // for anything that reads the current question.
+      const answered = this.profileQuestions.filter(q => this.advisorProfile[q.field]).length
+      this.profileStep = Math.min(answered, Math.max(0, this.profileQuestions.length - 1))
       this.profileOpen = true
       this.$nextTick(() => { this.$nextTick(() => this.resizeAllTextareas()) })
     },
