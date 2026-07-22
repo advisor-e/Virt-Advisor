@@ -27,5 +27,28 @@
     "unsecuredRate": 0.22,
     "assessmentTermYears": 3,
     "cells": { "securedRate": "F45", "unsecuredRate": "F46", "assessmentTermYears": "F43" }
+  },
+  "serviceability": {
+    "_note": "Part C constants from the same sheet. Dependant tiers follow the sheet's allowance formulas (Serviceability AH40:AJ40): dependant #1 at 175/wk, #2-#4 at 125/wk each, #5+ at 105/wk each.",
+    "overdraftMinMonthlyPct": 0.0175,
+    "creditCardMinMonthlyPct": 0.03,
+    "minVehicleMonthlyCost": 300,
+    "dependantsUnder18WeeklyTiers": [
+      { "upToCount": 1, "weeklyEach": 175 },
+      { "upToCount": 4, "weeklyEach": 125 },
+      { "upToCount": null, "weeklyEach": 105 }
+    ],
+    "dependantOver18Weekly": 95,
+    "adultWeeklyLivingMin": 205,
+    "verdictSurplusThreshold": 250,
+    "cells": {
+      "overdraftMinMonthlyPct": "W15",
+      "creditCardMinMonthlyPct": "W16",
+      "minVehicleMonthlyCost": "W19",
+      "dependantsUnder18WeeklyTiers": "W22:Z24",
+      "dependantOver18Weekly": "Z26",
+      "adultWeeklyLivingMin": "Z29",
+      "verdictSurplusThreshold": "Serviceability Input J64 (the >250 constant)"
+    }
   }
 }

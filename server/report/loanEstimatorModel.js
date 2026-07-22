@@ -467,13 +467,283 @@ function computeRepaymentSchedule (inputs) {
   return { loanAmount, termMonths, basis, monthlyRepayment, payments, years, totals, defaultedInputs }
 }
 
+const TAX_BANDS = require('../../data/tax-bands.json')
+
+/**
+ * Resolve a country's tax-band table from the central feeder
+ * (`data/tax-bands.json` — the single tax source for ALL models, owner ruling
+ * 2026-07-23). A country with no verified table is ABSENT and throws loudly —
+ * visibly missing beats silently zero (the workbook's zeroed Australian
+ * federal table is exactly the failure this prevents).
+ * @param {string} country ISO-ish key, e.g. "NZ"
+ * @returns {Object} { label, taxYearLabel, effectiveFrom, bands }
+ */
+function getTaxBands (country) {
+  const entry = TAX_BANDS.countries[country]
+  if (!entry) { throw new Error('No verified tax-band table for country: ' + String(country)) }
+  return entry
+}
+
+/**
+ * Marginal income tax over a band table: each band taxes only the income
+ * inside it. Reproduces the workbook's band-slice grid (`Serviceability`
+ * AI4:AN6) exactly for whole-dollar incomes.
+ * @param {number} gross annual gross income
+ * @param {Array} bands [{ upTo, rate }] bottom-up, last upTo null
+ * @returns {number} annual tax
+ */
+function incomeTax (gross, bands) {
+  const g = num(gross)
+  let tax = 0
+  let lower = 0
+  for (let i = 0; i < bands.length; i++) {
+    const upper = bands[i].upTo === null ? g : bands[i].upTo
+    if (g > lower) { tax += (Math.min(g, upper) - lower) * bands[i].rate }
+    lower = upper
+  }
+  return tax
+}
+
+/**
+ * The marginal rate of the band a total income lands in (used to tax rental
+ * income stacked on top of the household's other income — `Serviceability`
+ * AL13/AL16, as CORRECTED: see the ruling note below).
+ * @param {number} total
+ * @param {Array} bands
+ * @returns {number}
+ */
+function marginalRate (total, bands) {
+  const t = num(total)
+  for (let i = 0; i < bands.length; i++) {
+    if (bands[i].upTo === null || t <= bands[i].upTo) { return bands[i].rate }
+  }
+  return bands[bands.length - 1].rate
+}
+
+/**
+ * Dependants-under-18 weekly allowance, tiered per the sheet's own formulas
+ * (`Serviceability` AH40:AJ40): #1 at 175/wk, #2–#4 at 125/wk, #5+ at 105/wk.
+ * @param {number} count
+ * @returns {number} weekly total
+ */
+function dependantsUnder18Weekly (count) {
+  const tiers = LOAN_CRITERIA.serviceability.dependantsUnder18WeeklyTiers
+  const n = num(count)
+  let weekly = 0
+  let lower = 0
+  tiers.forEach((tier) => {
+    const upper = tier.upToCount === null ? n : tier.upToCount
+    if (n > lower) { weekly += (Math.min(n, upper) - lower) * tier.weeklyEach }
+    lower = upper
+  })
+  return weekly
+}
+
+/**
+ * The Ripper household — the workbook's sample scenario (`Serviceability
+ * Input`), cells per field. Student-loan monthly figures are the CUSTOMERS'
+ * OWN payments (the sheet parks them in `Loan Criteria` W11/W12); they are
+ * inputs here, not rules.
+ */
+const DEFAULT_SERVICEABILITY_INPUTS = {
+  country: 'NZ',
+  jointApplication: true, //           E5 ("Yes")
+  dependantsUnder18: 3, //             E7
+  dependantsOver18: 1, //              L7
+  numberOfVehicles: 2, //              L5
+  customer1GrossIncome: 86500, //      E25
+  customer2GrossIncome: 40000, //      E27
+  otherMonthlyTaxPaidIncome: 0, //     J29
+  currentRentalWeekly: 650, //         H31
+  newRentalWeekly: 550, //             H33
+  boarders: { number: 0, weeklyCharge: 260, termWeeks: 40 }, // E35 / G35 / H35
+  loans: {
+    revolvingCredit: { balance: 0, actualRate: 0, assessmentTermYears: 30, actualTermYears: 10 }, //      E12 / H12 / J12 / L12
+    currentPropertyLoans: { balance: 0, actualRate: 0, assessmentTermYears: 30, actualTermYears: 25 }, // E14 / H14 / J14 / L14
+    newPropertyLoans: { balance: 500000, actualRate: 0, assessmentTermYears: 30, actualTermYears: 25 }, // E16 / H16 / J16 / L16
+    personalTermLoans: { balance: 0, actualRate: 0.1395, assessmentTermYears: 7, actualTermYears: 5 } //  E20 / H20 / J20 / L20
+  },
+  studentLoan1Monthly: 1002, //        E40 "Yes" → the customer's own figure (Loan Criteria W11)
+  studentLoan2Monthly: 652, //         E41 "Yes" → W12
+  overdraftLimits: 500, //             E43
+  creditCardLimits: 7000, //           E44
+  rentPaidWeekly: 500, //              E52
+  generalLivingWeekly: 750, //         E54
+  additionalLivingWeekly: 125 //       E57
+}
+
+/**
+ * Part C — serviceability (`Serviceability Input`): can the household afford
+ * the repayments after tax, living costs and the bank's minimums?
+ *
+ * The business rule, as the sheet computes it:
+ *   income      both customers taxed to net through the CENTRAL tax-band
+ *               feeder (`data/tax-bands.json`), plus other tax-paid income,
+ *               both rentals taxed at the marginal band of the running total
+ *               (other income + rentals so far), plus boarder income (N25)
+ *   loan mins   each loan row repriced at max(assessment rate, actual rate)
+ *               over min(assessment term, actual term) — the bank's
+ *               worst-case, not the client's actual terms (N9, AO20:AO29)
+ *   expenses    student loans, overdraft & credit-card minimums, rent and
+ *               living costs (N40) — but never less than the bank's FLOOR of
+ *               minimum allowances (dependants, vehicles, adult living, AE55)
+ *   surplus     income − loan minimums − max(actual expenses, floor)  (N64)
+ *
+ * CORRECTED FROM THE SOURCE — owner ruling (Mike, 2026-07-23), fixed in the
+ * source .xlsx in the same commit: the sheet's rental-tax formulas (AL13/AL16)
+ * were missing parentheses in their band-2/3/4 branches, computing
+ * `rental − threshold×rate` (dimensional nonsense) instead of `rental×rate`;
+ * bands 1 and 5 show the intended clean multiply. On the sample this
+ * under-taxed the 650/wk rental ($8,027 vs $11,154) and flipped the surplus
+ * from the sheet's cached 105.7495571 to the correct −154.83… — the household
+ * actually FAILS the affordability test once rental income is taxed properly.
+ *
+ * FIDELITY NOTES:
+ *   - Hire-purchase limits/balances (E46/G46) are captured by the sheet but
+ *     never costed into any total. Reproduced: they are not inputs here.
+ *   - The verdict WORDING ("Looking Good!" / "Doesn't Look Good") is an open
+ *     Phase 4 decision; this model returns `verdictPass` (surplus > the
+ *     configured threshold) and no words.
+ *
+ * @param {Object} inputs see DEFAULT_SERVICEABILITY_INPUTS — any omitted field
+ *   falls back to the sample AND is named in `defaultedInputs`.
+ * @returns {Object} { income, loanMinimums, expenses, allowances, surplus,
+ *   verdictPass, taxTable: {country, taxYearLabel}, defaultedInputs }
+ */
+function computeServiceability (inputs) {
+  const src = (inputs && typeof inputs === 'object') ? inputs : {}
+  const defaultedInputs = []
+  const take = (name) => {
+    if (src[name] === undefined || src[name] === null) { defaultedInputs.push(name); return DEFAULT_SERVICEABILITY_INPUTS[name] }
+    return src[name]
+  }
+
+  const country = take('country')
+  const taxTable = getTaxBands(country)
+  const bands = taxTable.bands
+  const svc = LOAN_CRITERIA.serviceability
+
+  const jointApplication = take('jointApplication') === true || take2Bool(src.jointApplication)
+  const dependantsUnder18 = num(take('dependantsUnder18'))
+  const dependantsOver18 = num(take('dependantsOver18'))
+  const numberOfVehicles = num(take('numberOfVehicles'))
+  const customer1Gross = num(take('customer1GrossIncome'))
+  const customer2Gross = num(take('customer2GrossIncome'))
+  const otherMonthly = num(take('otherMonthlyTaxPaidIncome'))
+  const rental1Weekly = num(take('currentRentalWeekly'))
+  const rental2Weekly = num(take('newRentalWeekly'))
+  const boarders = take('boarders')
+  const loans = take('loans')
+  const studentLoan1 = num(take('studentLoan1Monthly'))
+  const studentLoan2 = num(take('studentLoan2Monthly'))
+  const overdraftLimits = num(take('overdraftLimits'))
+  const creditCardLimits = num(take('creditCardLimits'))
+  const rentWeekly = num(take('rentPaidWeekly'))
+  const generalWeekly = num(take('generalLivingWeekly'))
+  const additionalWeekly = num(take('additionalLivingWeekly'))
+
+  // Income (N23 block). Rentals stack on the combined gross in sheet order:
+  // current rental first (AJ13), then the new rental on top (AJ16).
+  const c1Tax = incomeTax(customer1Gross, bands) //        AN4 (18,422.50 on the sample)
+  const c2Tax = incomeTax(customer2Gross, bands) //        AN8
+  const combinedGross = customer1Gross + customer2Gross // AE12
+  const rental1Annual = rental1Weekly * 52 //              AI13
+  const rental1Stack = combinedGross + rental1Annual //    AJ13
+  const rental1Tax = rental1Annual * marginalRate(rental1Stack, bands) // AL13 (corrected)
+  const rental2Annual = rental2Weekly * 52 //              AI16
+  const rental2Stack = rental1Stack + rental2Annual //     AJ16
+  const rental2Tax = rental2Annual * marginalRate(rental2Stack, bands) // AL16 (corrected)
+  const boarderMonthly = (num(boarders && boarders.weeklyCharge) * num(boarders && boarders.termWeeks) / 12) * num(boarders && boarders.number) // J35
+
+  const income = {
+    customer1: { gross: customer1Gross, tax: c1Tax, net: customer1Gross - c1Tax, netMonthly: (customer1Gross - c1Tax) / 12 }, // E25/AN4/H25/J25
+    customer2: { gross: customer2Gross, tax: c2Tax, net: customer2Gross - c2Tax, netMonthly: (customer2Gross - c2Tax) / 12 },
+    rental1: { annual: rental1Annual, tax: rental1Tax, net: rental1Annual - rental1Tax, netMonthly: (rental1Annual - rental1Tax) / 12 }, // AI13/AL13/AM13/J31
+    rental2: { annual: rental2Annual, tax: rental2Tax, net: rental2Annual - rental2Tax, netMonthly: (rental2Annual - rental2Tax) / 12 },
+    boarderMonthly,
+    otherMonthly,
+    totalNetMonthly: 0 // set below
+  }
+  income.totalNetMonthly = income.customer1.netMonthly + income.customer2.netMonthly +
+    income.rental1.netMonthly + income.rental2.netMonthly + boarderMonthly + otherMonthly // N25
+
+  // Loan minimums (N9): rate = max(assessment, actual), term = min(assessment, actual).
+  // The personal-term row has no bank assessment rate — the sheet uses the actual alone (AI29).
+  const residentialAssessmentRate = CRITERIA_BY_KEY.residentialHome.assessmentRate // G12/G14/G16 = 'Loan Criteria'!H4
+  const minPayment = (row, assessmentRate) => {
+    const r = row || {}
+    const rate = Math.max(assessmentRate, num(r.actualRate)) //                       AI col
+    const termYears = Math.min(num(r.assessmentTermYears), num(r.actualTermYears)) // AM col
+    return annuityPayment(rate / 12, termYears * 12, num(r.balance)) //               |AO PMT|
+  }
+  const loanMinimums = {
+    revolvingCredit: minPayment(loans.revolvingCredit, residentialAssessmentRate), //           N12
+    currentPropertyLoans: minPayment(loans.currentPropertyLoans, residentialAssessmentRate), // N14
+    newPropertyLoans: minPayment(loans.newPropertyLoans, residentialAssessmentRate), //         N16
+    personalTermLoans: minPayment(loans.personalTermLoans, 0), //                               N20
+    total: 0
+  }
+  loanMinimums.total = loanMinimums.revolvingCredit + loanMinimums.currentPropertyLoans +
+    loanMinimums.newPropertyLoans + loanMinimums.personalTermLoans // N9
+
+  // Actual expenses (N40)
+  const expenses = {
+    studentLoans: studentLoan1 + studentLoan2, //                       J40 + J41
+    overdraftMin: overdraftLimits * svc.overdraftMinMonthlyPct, //      J43
+    creditCardMin: creditCardLimits * svc.creditCardMinMonthlyPct, //   J44
+    rentMonthly: rentWeekly * 52 / 12, //                               J52
+    generalMonthly: generalWeekly * 52 / 12, //                         J54
+    additionalMonthly: additionalWeekly * 52 / 12, //                   J57
+    total: 0
+  }
+  expenses.total = expenses.studentLoans + expenses.overdraftMin + expenses.creditCardMin +
+    expenses.rentMonthly + expenses.generalMonthly + expenses.additionalMonthly // N40
+
+  // The bank's minimum-allowances floor (AE55)
+  const adults = jointApplication ? 2 : 1 // AE53
+  const allowances = {
+    dependantsUnder18Monthly: dependantsUnder18Weekly(dependantsUnder18) * 52 / 12, //      AM38
+    dependantsOver18Monthly: dependantsOver18 * svc.dependantOver18Weekly * 52 / 12, //     AM44
+    vehiclesMonthly: numberOfVehicles * svc.minVehicleMonthlyCost, //                       J50
+    adultLivingMonthly: adults * svc.adultWeeklyLivingMin * 52 / 12, //                     AE53
+    floor: 0
+  }
+  allowances.floor = allowances.dependantsUnder18Monthly + allowances.dependantsOver18Monthly +
+    allowances.vehiclesMonthly + allowances.adultLivingMonthly // AE55 (= AE52 + AE53)
+
+  // N64: actual expenses count only when they exceed the floor
+  const expensesUsed = Math.max(expenses.total, allowances.floor)
+  const surplus = income.totalNetMonthly - loanMinimums.total - expensesUsed
+
+  return {
+    income,
+    loanMinimums,
+    expenses,
+    allowances,
+    surplus, //                                              N64
+    verdictPass: surplus > svc.verdictSurplusThreshold, //   J64's test; wording is a Phase 4 decision
+    taxTable: { country, taxYearLabel: taxTable.taxYearLabel, effectiveFrom: taxTable.effectiveFrom },
+    defaultedInputs
+  }
+}
+
+/** Coerce the sheet's "Yes"/"No" strings to a boolean (E5-style cells). */
+function take2Bool (v) {
+  return typeof v === 'string' && v.toLowerCase() === 'yes'
+}
+
 module.exports = {
   DEFAULT_INPUTS,
   DEFAULT_LOAN_INPUTS,
+  DEFAULT_SERVICEABILITY_INPUTS,
   computeLoanEstimator,
   computeRepaymentSchedule,
+  computeServiceability,
   computeSecurityItem,
   capBasedPropertyValue,
   fonterraShareValue,
-  overdraftMonthlyInterest
+  overdraftMonthlyInterest,
+  getTaxBands,
+  incomeTax,
+  marginalRate
 }

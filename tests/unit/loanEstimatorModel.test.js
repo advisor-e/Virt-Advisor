@@ -3,12 +3,16 @@
 const {
   DEFAULT_INPUTS,
   DEFAULT_LOAN_INPUTS,
+  DEFAULT_SERVICEABILITY_INPUTS,
   computeLoanEstimator,
   computeRepaymentSchedule,
+  computeServiceability,
   computeSecurityItem,
   capBasedPropertyValue,
   fonterraShareValue,
-  overdraftMonthlyInterest
+  overdraftMonthlyInterest,
+  getTaxBands,
+  incomeTax
 } = require('../../server/report/loanEstimatorModel')
 
 /**
@@ -289,6 +293,100 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       expect(demo.defaultedInputs).toEqual(['purchasePrice', 'deposit', 'annualRate', 'term', 'termUnit', 'basis'])
       expect(demo.monthlyRepayment).toBeCloseTo(5747.094633, 5) // and still computes the sample
       expect(() => computeRepaymentSchedule({ basis: 'Balloon' })).toThrow(/Unknown repayment basis/)
+    })
+  })
+
+  describe('serviceability (Serviceability Input — Part C, Phase 3)', () => {
+    // The Ripper household: two incomes, two rentals, 3+1 dependants, a
+    // $500,000 new property loan, real living costs.
+    const s = computeServiceability(DEFAULT_SERVICEABILITY_INPUTS)
+
+    it('taxes both customers to net through the central tax-band feeder', () => {
+      expect(s.income.customer1.tax).toBeCloseTo(18422.5, 6) //       AN4 (86,500 gross)
+      expect(s.income.customer1.net).toBeCloseTo(68077.5, 6) //       BC6 / H25
+      expect(s.income.customer1.netMonthly).toBeCloseTo(5673.125, 6) // J25
+      expect(s.income.customer2.tax).toBeCloseTo(5908, 6) //          BB9 (40,000 gross)
+      expect(s.income.customer2.net).toBeCloseTo(34092, 6) //         BC8 / H27
+      expect(s.taxTable.country).toBe('NZ')
+    })
+
+    it('taxes rentals at the marginal band of the stacked total — the CORRECTED rule', () => {
+      // AL13 as ruled (Mike 2026-07-23): 33,800 stacked to 160,300 → 33% band.
+      // The sheet's missing-parens branch cached 8,027 (= 33,800 − 78,100×33%);
+      // corrected in the source .xlsx in the same commit.
+      expect(s.income.rental1.annual).toBeCloseTo(33800, 6) //        AI13 (650/wk × 52)
+      expect(s.income.rental1.tax).toBeCloseTo(11154, 6) //           AL13 corrected (was 8,027)
+      expect(s.income.rental1.net).toBeCloseTo(22646, 6) //           AM13 corrected (was 25,773)
+      // AL16 fell in its clean band-5 branch, so its cached value was already right:
+      expect(s.income.rental2.tax).toBeCloseTo(11154, 6) //           AL16 (28,600 × 39%)
+      expect(s.income.rental2.netMonthly).toBeCloseTo(1453.833333, 5) // J33 (unchanged)
+      expect(s.income.totalNetMonthly).toBeCloseTo(11855.125, 6) //   N25 corrected (was 12,115.70833)
+    })
+
+    it('reprices every loan row at the bank\'s worst case (max rate, min term)', () => {
+      expect(s.loanMinimums.newPropertyLoans).toBeCloseTo(4178.875443, 5) // N16/AO25: PMT(8.95%/12, 25y, 500,000)
+      expect(s.loanMinimums.total).toBeCloseTo(4178.875443, 5) //           N9 (the other three rows are 0 on the sample)
+      // The personal-term row uses the ACTUAL rate alone (AI29) — prove it prices at 13.95%:
+      const withPersonal = computeServiceability(Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, {
+        loans: Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS.loans, {
+          personalTermLoans: { balance: 10000, actualRate: 0.1395, assessmentTermYears: 7, actualTermYears: 5 }
+        })
+      }))
+      expect(withPersonal.loanMinimums.personalTermLoans).toBeCloseTo(232.423371153, 5) // hand-derived: PMT(13.95%/12, 60, 10,000)
+    })
+
+    it('sums the actual expenses as the sheet does', () => {
+      expect(s.expenses.studentLoans).toBeCloseTo(1654, 6) //         J40+J41 (1002 + 652)
+      expect(s.expenses.overdraftMin).toBeCloseTo(8.75, 6) //         J43 (500 × 1.75%)
+      expect(s.expenses.creditCardMin).toBeCloseTo(210, 6) //         J44 (7,000 × 3%)
+      expect(s.expenses.rentMonthly).toBeCloseTo(2166.666667, 5) //   J52
+      expect(s.expenses.total).toBeCloseTo(7831.083333, 5) //         N40
+    })
+
+    it('builds the bank\'s minimum-allowances floor', () => {
+      expect(s.allowances.dependantsUnder18Monthly).toBeCloseTo(1841.666667, 5) // AM38 (175 + 2×125 = 425/wk)
+      expect(s.allowances.dependantsOver18Monthly).toBeCloseTo(411.6666667, 5) //  AM44 (95/wk)
+      expect(s.allowances.vehiclesMonthly).toBeCloseTo(600, 6) //                  J50 (2 × 300)
+      expect(s.allowances.adultLivingMonthly).toBeCloseTo(1776.666667, 5) //       AE53 (joint → 2 × 205/wk)
+      expect(s.allowances.floor).toBeCloseTo(4630, 6) //                           AE55
+    })
+
+    it('the corrected surplus — the household actually fails the test', () => {
+      // N64 corrected: 11,855.125 − 4,178.875443 − 7,831.083333. The sheet's
+      // cached 105.7495571 included the rental-tax defect; the delta is exactly
+      // (25,773 − 22,646)/12 = 260.5833. Source .xlsx corrected in this commit.
+      expect(s.surplus).toBeCloseTo(-154.833776247, 5)
+      expect(s.verdictPass).toBe(false) // J64's test (> 250): fails either way on the sample
+    })
+
+    it('the floor binds when actual expenses are lower (N64\'s other branch)', () => {
+      const lean = computeServiceability(Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, {
+        studentLoan1Monthly: 0, studentLoan2Monthly: 0, overdraftLimits: 0, creditCardLimits: 0, rentPaidWeekly: 0, generalLivingWeekly: 0, additionalLivingWeekly: 0
+      }))
+      // expenses 0 < floor 4,630 → the floor is charged instead
+      expect(lean.surplus).toBeCloseTo(11855.125 - 4178.875442914 - 4630, 5)
+    })
+
+    it('the verdict flips above the configured 250 threshold', () => {
+      const noRent = computeServiceability(Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, { rentPaidWeekly: 0 }))
+      expect(noRent.surplus).toBeCloseTo(-154.833776247 + 2166.666666667, 5) // ≈ 2,011.83
+      expect(noRent.verdictPass).toBe(true)
+    })
+
+    it('the tax feeder: marginal maths verified, absent countries fail loudly', () => {
+      expect(incomeTax(15600, getTaxBands('NZ').bands)).toBeCloseTo(1638, 6) //   first band exactly
+      expect(incomeTax(200000, getTaxBands('NZ').bands)).toBeCloseTo(57077.5, 6) // hand-derived, all five bands
+      // Australia is deliberately ABSENT until a verified table exists (ruling
+      // 2026-07-23) — visibly missing beats the workbook's present-and-zero:
+      expect(() => getTaxBands('AU')).toThrow(/No verified tax-band table/)
+    })
+
+    it('input discipline — defaults declared per field (R8)', () => {
+      expect(s.defaultedInputs).toEqual([])
+      const demo = computeServiceability({})
+      expect(demo.defaultedInputs).toContain('customer1GrossIncome')
+      expect(demo.defaultedInputs).toContain('loans')
+      expect(demo.surplus).toBeCloseTo(-154.833776247, 5) // and still computes the sample
     })
   })
 
