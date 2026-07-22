@@ -23,6 +23,66 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
+  Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
+  firm-editable.** *To be planned 2026-07-23 — noted now, not designed.*
+  - **The point (Mike's words):** so educators can have a real impact on the AI's
+    recommendations and include their own material easily. This is the firm-authoring
+    story reaching the engine's decision inputs, not another CRUD screen.
+  - **Scope named so far:** (1) Document Library page brought to the same layout and
+    code pattern as the Quizzes and Distinctions pages; (2) the logic tables and
+    domain-support data become **dynamic, editable tables at Firm Manager level**.
+  - **Plan from what already exists, not from scratch** — Mike's instruction is to base
+    it on the layout and code already used in those two pages:
+    [`components/firm/FirmQuizzes.vue`](../components/firm/FirmQuizzes.vue) (rail →
+    panel, brand block tones, data-driven ordering/filtering via
+    [`data/quizzable-sections.json`](../data/quizzable-sections.json)) and the Advisory
+    Distinctions tab in [`FirmManagerHub.vue`](../components/FirmManagerHub.vue)
+    (firm-overlay CRUD, version history, restore).
+  - **Reuse, don't reinvent:** the layered firm-overlay machinery
+    ([`server/utils/firmOverlay.js`](../server/utils/firmOverlay.js), config_key rows in
+    `firm_framework_versions`) already gives version history, restore and the IDOR-safe
+    guard for free — the same pattern behind Distinctions, the Staircase and the new
+    quiz banks. Skill: `firm-manager-edit-target`.
+  - **Known gates to settle when planning:** firm-authored table content becomes
+    untrusted input reaching the engine, so it needs the same `origin`-tagged fencing the
+    quiz banks got (CB-31 Phase 2); and Firm-Manager MySQL persistence is still not
+    provisioned, so this runs on the dev-file fallback like every other Firm Manager
+    feature until it is.
+
+- <a id="quiz-rail-stuck-open"></a>☐ **BUG — a Quizzes-rail drop-tab cannot be closed once a quiz inside it has been
+  opened.** Reported by Mike 2026-07-22 on Growth Framework; it is not specific to that
+  section — it happens in ANY sub-section as soon as a page inside it is selected.
+  **Cause is known**, in [`FirmQuizzes.vue`](../components/firm/FirmQuizzes.vue) (the
+  `sub.isOpen` computation in `tree`): open-state is
+  `openSubs[key] || (searching && has hits) || (holds the current page)`. That last
+  clause FORCES the panel open, so `toggleSub` flipping the manual flag to false has no
+  effect — the condition still returns true and the panel re-opens on the same tick.
+  **Introduced today** with the auto-expand that fixed the "search finds matches but
+  shows nothing" defect: making "contains the current page" force-open was right for
+  first render and wrong as a permanent override of an explicit collapse.
+  **Fix direction:** the manual flag must be able to say *closed*, not just *open* —
+  e.g. store three states (unset / opened / closed) and let an explicit close win over
+  the auto-expand, keeping auto-expand only where the firm has not expressed a choice.
+  **No test caught it:** the component tests assert the rail renders and that search
+  expands a match, but nothing asserts a sub-section can be CLOSED again. Add that case
+  with the fix.
+
+- <a id="no-icon-font"></a>☐ **BUG — every `<b-icon>` in the app renders as NOTHING; no icon font is loaded.**
+  Found 2026-07-22 when a disclosure arrow would not appear however it was styled.
+  Buefy's default icon pack is Material Design Icons and `b-icon` emits
+  `<i class="mdi mdi-…">`, but [`nuxt.config.js`](../nuxt.config.js) loads only
+  `buefy/dist/buefy.css` and the Open Sans webfont — no MDI stylesheet, and
+  [`plugins/buefy.js`](../plugins/buefy.js) sets no `defaultIconPack`. So every icon
+  across the app is blank: the seven Firm Manager tab icons, the document-library and
+  video buttons, everything. **Not cosmetic where an icon is the only affordance** — the
+  Quizzes rail's expand arrow was invisible, leaving a control that gave the firm no sign
+  it could be opened. Worked around there with a CSS-drawn triangle
+  ([`FirmQuizzes.vue`](../components/firm/FirmQuizzes.vue) `.rail-chev`) so it cannot
+  depend on a missing font. **The app-wide fix is still open** and needs a decision:
+  install `@mdi/font` as a local asset (no CDN, offline-safe) versus removing the icon
+  props. Predates today — nobody had noticed because no screen depended on an icon alone.
+
 Two honest answers on different axes — the file used to conflate them:
 
 - **Highest-SEVERITY open item:** the **dev-toolchain reconcile** → add 2 `overrides` + flip `engine-strict` back to `true` (P1, stack governance — the last unclosed Stack-Constitution drift). **But it is overnight-reinstall-gated** — not a now-task. → [§Dev-toolchain](#dev-toolchain)
