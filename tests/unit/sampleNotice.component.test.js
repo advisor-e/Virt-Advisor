@@ -17,12 +17,20 @@ const { computeEbitdaDcf, DEFAULTS: ED_DEFAULTS } = require('~/server/report/ebi
  * still silently held the sample company's costs. The screen said nothing.
  *
  * Two exposure points, both covered here:
- *   1. demo/manual mode — no file seeded, so every figure is the sample company's;
+ *   1. demo/manual mode — no figure came from a file, so the sample company's numbers
+ *      are still on screen;
  *   2. the projection dials — growth %, discount % and exit multiple start on the
  *      sample's settings even when the P&L above came from the client's own files.
  *
  * The negative cases matter as much as the positive ones: a warning that never goes
  * away is one advisors learn to ignore, which is how the original problem survived.
+ *
+ * ⚠ These tests were WRONG on the first attempt and the defect reached Mike's review.
+ * They keyed the notice off "no confirmed payload" — a state the pages cannot produce,
+ * because the report is only reachable by confirming figures, which always supplies one.
+ * The tests passed against a situation the real app never creates. Every case below now
+ * mounts the report the way a PAGE would: with a confirmed payload, differing only in
+ * whether the figures came from a file.
  */
 
 const NOTICE = 'report.sampleFigures'
@@ -64,6 +72,25 @@ function qpSeed () {
   }
 }
 
+/** What the page supplies on the demo/manual path: confirmed, but nothing from a file. */
+function qpDemoSeed () {
+  const seed = qpSeed()
+  const SAMPLES = { cash: 296155, debtors: 154906, stock: 25847, creditors: 63000, wagesDue: 32000, fixedAssets: 30000 }
+  Object.keys(seed.figures).forEach((k) => {
+    seed.figures[k] = { value: SAMPLES[k], source: 'entered' }
+  })
+  return seed
+}
+
+/** The same for EBITDA: a confirmed payload with no file-sourced cell. */
+function edDemoSeed () {
+  const seed = edSeed()
+  Object.keys(seed.figures).forEach((row) => {
+    seed.figures[row] = seed.figures[row].map(c => ({ value: c.value, source: 'entered' }))
+  })
+  return seed
+}
+
 function edSeed () {
   const cell = () => Array.from({ length: 3 }, (_, i) => ({ value: (i + 1) * 100000, source: 'file' }))
   return { years: [2023, 2024, 2025], figures: { sales: cell(), costOfSales: cell(), operatingExpenses: cell() }, companyName: 'X' }
@@ -72,9 +99,25 @@ function edSeed () {
 afterEach(() => { delete global.fetch })
 
 describe('Quick Position — sample-figure notice', () => {
-  it('warns in demo mode, where no client file was ever supplied', async () => {
+  it('warns on the demo path — confirmed, but nothing came from a file', async () => {
+    // Exactly what the page supplies after "skip / enter by hand": a real payload whose
+    // figures are all `entered` and still the model's sample company.
+    const wrapper = await mountReport(QuickPositionReport, { result: qpResult(), propsData: { seed: qpDemoSeed() } })
+    expect(notices(wrapper)).toEqual([NOTICE])
+  })
+
+  it('warns with no payload at all, for any caller that renders it bare', async () => {
     const wrapper = await mountReport(QuickPositionReport, { result: qpResult() })
     expect(notices(wrapper)).toEqual([NOTICE])
+  })
+
+  it('stays silent once the advisor has typed their client’s own figures', async () => {
+    // Nothing from a file, but the samples are gone — "these are sample numbers" would
+    // be untrue, and a warning that is untrue is worse than none.
+    const seed = qpDemoSeed()
+    Object.keys(seed.figures).forEach((k) => { seed.figures[k].value += 1 })
+    const wrapper = await mountReport(QuickPositionReport, { result: qpResult(), propsData: { seed } })
+    expect(notices(wrapper)).toEqual([])
   })
 
   it('does NOT warn once the report runs on the client’s own figures', async () => {
@@ -84,8 +127,8 @@ describe('Quick Position — sample-figure notice', () => {
 })
 
 describe('EBITDA & DCF — sample-figure notice', () => {
-  it('warns twice in demo mode: the figures AND the untouched projection dials', async () => {
-    const wrapper = await mountReport(EbitdaDcfReport, { result: edResult() })
+  it('warns twice on the demo path: the figures AND the untouched projection dials', async () => {
+    const wrapper = await mountReport(EbitdaDcfReport, { result: edResult(), propsData: { seed: edDemoSeed() } })
     expect(notices(wrapper)).toEqual([NOTICE, NOTICE])
   })
 

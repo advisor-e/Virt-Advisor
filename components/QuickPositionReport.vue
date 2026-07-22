@@ -88,7 +88,7 @@
 
     section.results(v-if="result")
       //- Demo path: every figure is the source model's sample company, not the client's.
-      sample-notice(v-if="!seed" :text="$t('report.sampleFigures')")
+      sample-notice(v-if="onSampleFigures" :text="$t('report.sampleFigures')")
       //- A failure AFTER the first load must never sit silently behind stale figures (R9)
       stale-banner(
         v-if="error"
@@ -218,6 +218,21 @@ import reportRecompute from '~/mixins/reportRecompute'
  * The red-under-3-months / amber-under-6 runway thresholds were accepted by the
  * owner with the mockup (plan decision log 2026-07-16).
  */
+/**
+ * The source model's sample company — the figures the report opens on before any of the
+ * client's own numbers arrive. Named rather than inline so the screen can tell a figure
+ * that is STILL a sample from one the advisor has typed; both are tagged `entered`, so
+ * provenance alone cannot distinguish them.
+ */
+const SAMPLE_FIGURES = {
+  cash: 296155,
+  debtors: 154906,
+  stock: 25847,
+  fixedAssets: 30000,
+  creditors: 63000,
+  wagesDue: 32000
+}
+
 export default {
   name: 'QuickPositionReport',
 
@@ -241,16 +256,16 @@ export default {
     const src = key => (fig[key] ? fig[key].source : 'entered')
     return {
       inputs: {
-        cash: val('cash', 296155),
+        cash: val('cash', SAMPLE_FIGURES.cash),
         cashFactor: 100,
-        debtors: val('debtors', 154906),
+        debtors: val('debtors', SAMPLE_FIGURES.debtors),
         debtorsFactor: 80,
-        stock: val('stock', 25847),
+        stock: val('stock', SAMPLE_FIGURES.stock),
         stockFactor: 0,
-        fixedAssets: val('fixedAssets', 30000),
+        fixedAssets: val('fixedAssets', SAMPLE_FIGURES.fixedAssets),
         fixedAssetsFactor: 100,
-        creditors: val('creditors', 63000),
-        wagesDue: val('wagesDue', 32000),
+        creditors: val('creditors', SAMPLE_FIGURES.creditors),
+        wagesDue: val('wagesDue', SAMPLE_FIGURES.wagesDue),
         monthlyFixedCosts: 20000,
         monthlyDrawings: 0,
         monthlyLoanRepayments: 0,
@@ -278,6 +293,25 @@ export default {
   },
 
   computed: {
+    /**
+     * Whether the report is still running on the source model's sample company.
+     *
+     * True when NOTHING came from a Xero file AND at least one figure is still its
+     * sample value — i.e. there is a made-up number on screen that an advisor could
+     * mistake for their client's. False the moment a file seeds the report, and false
+     * once the advisor has replaced the samples with real figures by hand, where
+     * "these are sample numbers" would be untrue.
+     *
+     * NB an earlier version keyed this off `!seed` — a state the page cannot produce,
+     * since the report is only reachable by confirming figures, which always sets one.
+     * @returns {boolean}
+     */
+    onSampleFigures () {
+      const anyFromFile = Object.keys(this.sources).some(k => this.sources[k] === 'file')
+      if (anyFromFile) { return false }
+      return Object.keys(SAMPLE_FIGURES).some(k => this.inputs[k] === SAMPLE_FIGURES[k])
+    },
+
     /** Factor sliders to show — stock drops out entirely for a service business. */
     visibleFactorFields () {
       const fields = [{ key: 'cash' }, { key: 'debtors' }, { key: 'stock' }, { key: 'fixedAssets' }]
