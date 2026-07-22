@@ -12,6 +12,7 @@
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
 const masterExport = require('./masterExport')
+const { mergeEntry } = require('./firmContent')
 
 let _trees = null
 const _refCache = new Map()
@@ -108,12 +109,38 @@ function loadLogicTrees () {
 }
 
 /**
+ * The tree list the CURRENT REQUEST should see: the cached platform base with
+ * the firm's per-tree overrides (if any) merged in — Phase 0 of
+ * design/FIRM-EDITABLE-TABLES-PLAN.md §3. Overrides apply to EXISTING tree ids
+ * only; adding whole new trees is the Phase 3 scope decision. With no override
+ * the base array is returned as-is (zero cost, zero behaviour change). Merged
+ * copies are built fresh per call and never written back into _trees — that is
+ * the cross-firm isolation guarantee.
+ * @param {Object|null} firmTrees - the firm's override map, keyed by tree id
+ *   (loadFirmLogicTrees), or null
+ * @returns {Array<Object>}
+ */
+function effectiveTrees (firmTrees) {
+  const base = loadLogicTrees()
+  if (!firmTrees || typeof firmTrees !== 'object' || Array.isArray(firmTrees)) { return base }
+  return base.map((tree) => {
+    const override = firmTrees[tree.id]
+    return (override && typeof override === 'object' && !Array.isArray(override))
+      ? mergeEntry(tree, override)
+      : tree
+  })
+}
+
+/**
  * Detects which logic tree (if any) best matches the advisor's opening message.
  * Scores each tree by counting how many of its entry_triggers appear in the message.
- * Returns the highest-scoring tree, or null if nothing matches.
+ * Returns the highest-scoring tree, or null if nothing matches. A firm override
+ * that edits entry_triggers changes which tree fires FOR THAT FIRM.
+ * @param {string} message
+ * @param {Object|null} [firmTrees] - the firm's override map (loadFirmLogicTrees)
  */
-function detectLogicTree (message) {
-  const trees = loadLogicTrees()
+function detectLogicTree (message, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
   const lower = message.toLowerCase()
 
   let bestMatch = null
@@ -136,9 +163,11 @@ function detectLogicTree (message) {
 /**
  * Returns all logic trees that match the message, sorted by score descending.
  * Every tree scoring at least one trigger is returned — no arbitrary cap.
+ * @param {string} message
+ * @param {Object|null} [firmTrees] - the firm's override map (loadFirmLogicTrees)
  */
-function detectLogicTrees (message) {
-  const trees = loadLogicTrees()
+function detectLogicTrees (message, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
   const lower = message.toLowerCase()
 
   return trees
@@ -1160,8 +1189,8 @@ function scorePattern (signalText, pattern) {
   return words.filter(w => signalText.includes(w)).length
 }
 
-function walkLogicTree (state, treeId) {
-  const trees = loadLogicTrees()
+function walkLogicTree (state, treeId, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
   const tree = trees.find(t => t.id === treeId)
   if (!tree || !tree.nodes || !tree.nodes.length) { return [] }
   const signalText = buildSignalText(state)
@@ -1199,4 +1228,4 @@ function walkLogicTree (state, treeId) {
   return [...templates]
 }
 
-module.exports = { loadLogicTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }

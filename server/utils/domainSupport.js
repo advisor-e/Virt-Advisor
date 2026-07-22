@@ -2,10 +2,17 @@
  * Domain support reference loader — CommonJS version for the Restify backend.
  * Loads per-domain support JSON files and formats them for AI prompt injection.
  * One file per domain, loaded on demand and cached per process.
+ *
+ * Firm-aware since Phase 0 (design/FIRM-EDITABLE-TABLES-PLAN.md §3): every
+ * reader takes an optional `firmSupport` map (loadFirmDomainSupport) and
+ * blends the firm's sparse override over the platform base at the point of
+ * use. `_cache` holds the PLATFORM BASE ONLY — merged copies are built fresh
+ * per call and never cached, so one firm's edits cannot reach another firm.
  */
 
 const { readFileSync, readdirSync } = require('fs')
 const { resolve } = require('path')
+const { mergeEntry } = require('./firmContent')
 
 const _cache = {}
 let _domainFiles = null
@@ -32,8 +39,29 @@ function loadDomainSupport (domainId) {
   return _cache[domainId]
 }
 
-function formatDomainSupportForPrompt (domainId) {
-  const ref = loadDomainSupport(domainId)
+/**
+ * The domain-support entry the CURRENT REQUEST should see: the cached platform
+ * base with the firm's sparse override (if any) merged over it. The merged
+ * copy is built fresh on every call and NEVER written into _cache — that is
+ * the cross-firm isolation guarantee. Overrides apply to existing domains
+ * only; ids with no base file are ignored (adding whole new domains is a
+ * later-phase decision).
+ * @param {string} domainId
+ * @param {Object|null} firmSupport - the firm's override map, keyed by domain id
+ * @returns {Object|null}
+ */
+function resolveDomainSupport (domainId, firmSupport) {
+  const base = loadDomainSupport(domainId)
+  if (!base) { return base }
+  const override = (firmSupport && typeof firmSupport === 'object' && !Array.isArray(firmSupport))
+    ? firmSupport[domainId]
+    : null
+  if (!override || typeof override !== 'object' || Array.isArray(override)) { return base }
+  return mergeEntry(base, override)
+}
+
+function formatDomainSupportForPrompt (domainId, firmSupport) {
+  const ref = resolveDomainSupport(domainId, firmSupport)
   if (!ref) { return null }
 
   const lines = []
@@ -124,9 +152,13 @@ function supportIdForLearnTree (tree) {
 
 /**
  * Scans data/ for all *-domain-support.json files and returns the domain ID
- * whose trigger_keywords best match the given query string.
+ * whose trigger_keywords best match the given query string. A firm override
+ * that edits trigger_keywords changes which domain fires FOR THAT FIRM — the
+ * feature working as intended (plan §3, "a side effect to be deliberate about").
+ * @param {string} query
+ * @param {Object|null} [firmSupport] - the firm's override map (loadFirmDomainSupport)
  */
-function detectDomainForSession (query) {
+function detectDomainForSession (query, firmSupport) {
   const files = getDomainFiles()
 
   const lower = query.toLowerCase()
@@ -135,7 +167,7 @@ function detectDomainForSession (query) {
 
   for (const file of files) {
     const domainId = file.replace('-domain-support.json', '')
-    const support = loadDomainSupport(domainId)
+    const support = resolveDomainSupport(domainId, firmSupport)
     if (!support) { continue }
     const score = (support.trigger_keywords || []).filter(kw => lower.includes(kw.toLowerCase())).length
     if (score > bestScore) { bestScore = score; bestId = domainId }
@@ -149,8 +181,8 @@ function detectDomainForSession (query) {
  * Includes: domain overview, advisor guidance, and any tools matching the session resource names.
  * Falls back to the first tool if no resource name matches.
  */
-function formatDomainContextForSession (domainId, resourceNames) {
-  const ref = loadDomainSupport(domainId)
+function formatDomainContextForSession (domainId, resourceNames, firmSupport) {
+  const ref = resolveDomainSupport(domainId, firmSupport)
   if (!ref) { return null }
 
   const lines = []
@@ -206,8 +238,8 @@ function formatDomainContextForSession (domainId, resourceNames) {
  * Compact domain summary for the course DESIGN phase.
  * Gives the design AI the tool progression and purpose without full step-by-step detail.
  */
-function formatDomainSummaryForDesign (domainId) {
-  const ref = loadDomainSupport(domainId)
+function formatDomainSummaryForDesign (domainId, firmSupport) {
+  const ref = resolveDomainSupport(domainId, firmSupport)
   if (!ref) { return null }
 
   const lines = []
@@ -238,7 +270,7 @@ function formatDomainSummaryForDesign (domainId) {
  * Detects up to 2 most relevant domains from a query string.
  * Used in the design phase where conversations may span multiple domains.
  */
-function detectDomainsForDesign (query) {
+function detectDomainsForDesign (query, firmSupport) {
   const files = getDomainFiles()
 
   const lower = query.toLowerCase()
@@ -246,7 +278,7 @@ function detectDomainsForDesign (query) {
 
   for (const file of files) {
     const domainId = file.replace('-domain-support.json', '')
-    const support = loadDomainSupport(domainId)
+    const support = resolveDomainSupport(domainId, firmSupport)
     if (!support) { continue }
     const score = (support.trigger_keywords || []).filter(kw => lower.includes(kw.toLowerCase())).length
     if (score > 0) { scores.push({ domainId, score }) }

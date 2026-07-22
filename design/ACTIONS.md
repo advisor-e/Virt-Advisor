@@ -26,6 +26,31 @@
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
   firm-editable.** ✅ **PLANNED 2026-07-23 — [`FIRM-EDITABLE-TABLES-PLAN.md`](FIRM-EDITABLE-TABLES-PLAN.md)** (cascade + override model agreed with Mike; Phase 0 is the next task).
+  - ✅ **Phase 0 BUILT 2026-07-23 (approved by Mike, this branch):** firm-aware content
+    loading is live behind the engines. New `server/utils/firmContent.js` (config keys
+    `domain-support` / `logic-trees`, dev-file fallback like Distinctions);
+    `domainSupport.js` + `logicTrees.js` merge a firm's sparse override at the point of
+    use (platform caches stay pristine — no merged copy is ever cached); both engines
+    load the overlays once per request from the firmAuth-verified `firmId` and thread
+    them through every detection/format/walk call site. `deepMerge` moved verbatim to
+    dependency-free `server/utils/deepMerge.js` (firmOverlay re-exports it unchanged)
+    so content utils don't pull the MySQL pool into their require chain. 21 new tests in
+    `tests/unit/firmContent.test.js` incl. the CROSS-FIRM LEAK TESTS (acceptance 1);
+    suite 1,747 green.
+  - **Scenario Lab delta (Phase 0 acceptance, recorded honestly):** the deterministic
+    lab drives the template RESOLVER directly (`scripts/scenario-lab.js` →
+    `resolveTemplatesWithOutlier`) and its require chain never reaches
+    domainSupport/logicTrees, so it is structurally blind to this change — before/after
+    delta is provably **zero**. The override's real effect (firm keyword/trigger edits
+    changing detection for that firm only, and only for that firm) is demonstrated by
+    the dedicated detection tests in `firmContent.test.js` instead.
+  - ☐ **Stale lab baseline found (log, not Phase 0):** committed
+    `design/SCENARIO-LAB-REPORT.md` was last re-baselined 2026-07-14 **AI-ON**, before
+    the 2026-07-22 master export replaced `data/templates.json` — a fresh deterministic
+    run differs substantially (and AI-OFF metrics are not comparable to the AI-ON
+    baseline). Re-baseline with the AI layer ON when Mike wants the spend; my
+    regenerated copy was restored, not committed, to avoid replacing a stronger
+    baseline with a misleading weaker one.
   - **The point (Mike's words):** so educators can have a real impact on the AI's
     recommendations and include their own material easily. This is the firm-authoring
     story reaching the engine's decision inputs, not another CRUD screen.

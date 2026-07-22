@@ -14,8 +14,9 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { formatCoachingForPrompt, loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
-const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
+const { loadFirmDomainSupport, loadFirmLogicTrees } = require('../server/utils/firmContent')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -501,9 +502,9 @@ function getOpenAI () {
  *   newestFirstUserText) so a mid-conversation pivot is always inside the cap
  * @returns {Promise<object|null>}
  */
-async function pickLearnTreeAI (advisorText) {
+async function pickLearnTreeAI (advisorText, firmTrees) {
   if (!advisorText || !advisorText.trim()) { return null }
-  const learnTrees = loadLogicTrees().filter(t => t && t.mode === 'learn')
+  const learnTrees = effectiveTrees(firmTrees).filter(t => t && t.mode === 'learn')
   if (learnTrees.length === 0) { return null }
 
   const menu = learnTrees
@@ -1181,6 +1182,14 @@ async function handleQuery (rawBody, res, identity) {
   const staircaseConfig = firmStaircaseOverride
     ? deepMerge(BASE_STAIRCASE, firmStaircaseOverride)
     : BASE_STAIRCASE
+
+  // Firm content overlays (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
+  // the firm's domain-support and logic-tree edits, loaded once per request
+  // like the template/staircase overrides above and merged only at the point
+  // of use. Load failure degrades to "no override" inside the loaders, so a
+  // storage problem can never block a session.
+  const firmDomainSupport = await loadFirmDomainSupport(firmId, loadFirmConfig)
+  const firmLogicTrees = await loadFirmLogicTrees(firmId, loadFirmConfig)
 
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
@@ -1862,7 +1871,7 @@ async function handleQuery (rawBody, res, identity) {
       }
 
       // AI handles: either alternatives exploration or client approach guidance
-      const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
+      const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
       const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching }) +
@@ -2192,9 +2201,9 @@ async function handleQuery (rawBody, res, identity) {
     // drive the Learn path, not client recommendation. Uses the same detect+walk the
     // zero-candidate fallback below relies on, so it adds no new tree machinery.
     const _treeHintNames = []
-    for (const _tree of detectLogicTrees(collectedAnswers)) {
+    for (const _tree of detectLogicTrees(collectedAnswers, firmLogicTrees)) {
       if (_tree.mode === 'learn') { continue }
-      for (const _name of walkLogicTree(state, _tree.id)) { _treeHintNames.push(_name) }
+      for (const _name of walkLogicTree(state, _tree.id, firmLogicTrees)) { _treeHintNames.push(_name) }
     }
 
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
@@ -2320,10 +2329,10 @@ async function handleQuery (rawBody, res, identity) {
     if (_displayTemplates.length > 0) {
       preFilteredNames = _displayTemplates.map(t => t.title)
     } else {
-      const matchedTrees = detectLogicTrees(collectedAnswers)
+      const matchedTrees = detectLogicTrees(collectedAnswers, firmLogicTrees)
       const walkedNames = new Set()
       for (const tree of matchedTrees) {
-        for (const name of walkLogicTree(state, tree.id)) { walkedNames.add(name) }
+        for (const name of walkLogicTree(state, tree.id, firmLogicTrees)) { walkedNames.add(name) }
       }
       if (walkedNames.size > 0) { preFilteredNames = [...walkedNames] }
     }
@@ -2398,7 +2407,7 @@ async function handleQuery (rawBody, res, identity) {
       ? `\n\nIMPORTANT: Always respond entirely in ${languageName}.`
       : ''
 
-    const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
+    const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
 
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: false,
@@ -2722,11 +2731,11 @@ async function handleQuery (rawBody, res, identity) {
     // survives dictation garbles + red-herring keyword ties); fall back to the
     // deterministic keyword matcher if the AI is unavailable. Newest-first +
     // recent-window-first so a mid-conversation pivot re-routes (P1 2026-07-16).
-    let learnTree = await pickLearnTreeAI(newestFirstUserText(trimmedHistory, query))
+    let learnTree = await pickLearnTreeAI(newestFirstUserText(trimmedHistory, query), firmLogicTrees)
     if (!learnTree) {
       const userMsgs = trimmedHistory.filter(m => m.role === 'user').map(m => m.content)
-      learnTree = detectLogicTree([...userMsgs.slice(-2), query].join(' ')) ||
-        detectLogicTree([...userMsgs, query].join(' '))
+      learnTree = detectLogicTree([...userMsgs.slice(-2), query].join(' '), firmLogicTrees) ||
+        detectLogicTree([...userMsgs, query].join(' '), firmLogicTrees)
     }
     if (learnTree && learnTree.mode === 'learn') {
       learnSalesTreeText = buildLearnReferenceText(learnTree)
@@ -2734,7 +2743,7 @@ async function handleQuery (rawBody, res, identity) {
       // tree has a VERIFIED domain-support file (explicit data mapping or
       // exact name match — never guessed), inject that richer coaching too.
       const supportId = supportIdForLearnTree(learnTree)
-      if (supportId) { learnDomainSupportText = formatDomainSupportForPrompt(supportId) }
+      if (supportId) { learnDomainSupportText = formatDomainSupportForPrompt(supportId, firmDomainSupport) }
     }
   }
 
@@ -2744,7 +2753,7 @@ async function handleQuery (rawBody, res, identity) {
   let deepDiveText = null
   if ((mode === 'client' || mode === 'discover') && trimmedHistory.length >= 2) {
     const allConversationText = [...trimmedHistory.map(m => m.content), query].join(' ')
-    const deepDiveTree = detectLogicTree(allConversationText)
+    const deepDiveTree = detectLogicTree(allConversationText, firmLogicTrees)
     // Only CLIENT-DELIVERY learn trees may deep-dive inside a client session. Advisor
     // business-development ('get-the-job') and firm ('get-organised') trees are excluded —
     // their "sales/marketing/pricing" means the advisor selling THEIR services, the opposite
