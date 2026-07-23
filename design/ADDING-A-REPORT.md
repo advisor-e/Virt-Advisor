@@ -10,6 +10,18 @@
 > this section looks the same.** If a screen "needs" its own headline, banner or failure
 > style, that is a design decision for the owner — not something a new report decides for
 > itself. That exact drift is what Phase 3 had to undo across six screens.
+>
+> **Extended by owner ruling 2026-07-23 (final — this is never discussed again):**
+> the rule covers **every step of a model, entry and intake screens included**, not just
+> the result screen. A new model's look is *read off the existing live screens* — the
+> dark `HeroStrip` band on every step (entry steps carry it with live **display-only**
+> running totals), the same card language (white card, `#d5e1ee` border, 3px `#00b1e0`
+> top edge, navy uppercase titles), the same sizes, the same colours, the same failure
+> and stale behaviour. **Do not ask the owner how a model should look, and do not
+> propose a new or bolder look — open the finished models, copy their structure and
+> format exactly.** A screen that would look out of place beside Quick Position or
+> Eight Levers is wrong by definition. (Origin: the Loan Estimator's entry steps
+> shipped as bare forms without the strip and had to be redone the same day.)
 
 ---
 
