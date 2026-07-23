@@ -61,6 +61,25 @@
     (Mike, 2026-07-23): text-only buttons — no icon font; three new lines of page copy
     approved verbatim. Fixes *quiz-rail-stuck-open* once in the shared rail (see that
     row) and takes this screen out of the *no-icon-font* blast radius.
+  - ✅ **Phase 2 STARTED 2026-07-24 (approved by Mike, this branch) — EOY is the first domain
+    migrated to the four-column standard (§0.5); engine wired.** `data/eoy-domain-support.json`
+    re-authored from the source PDF into `materials[]` (name / summary / who_when / steps),
+    keeping label + trigger_keywords + a refreshed overview; the three `domainSupport.js`
+    formatters render the `materials` shape at every call site, with the legacy `support_tools`
+    path kept as a fallback so the other 42 domains are unchanged. Deep EOY coaching still feeds
+    Learn mode via the untouched `eoy-reference.json`. 6 new tests in
+    `tests/unit/domainSupportMaterials.test.js`; suite 1,792 green. Commit `dfa8572`. In-app
+    mockups (Domain Support + Logic Tables) reviewed and approved by Mike.
+  - ✅ **TAB STRUCTURE RULED 2026-07-24 (Mike) — plan §0.6:** two dedicated Firm Manager tabs,
+    **Domain Support** (four-column tables) and **Logic Tables** (IF→THEN grids); the umbrella
+    "Decision Frameworks" is retired (that tab → "Domain Support"). Supersedes plan §0
+    decision 1. The backend `/framework` "Decision Framework" feature is a different thing and
+    is NOT renamed. Commit `2172e34`.
+  - ☐ **NEXT: build the Domain Support editable tab** — turn the mockup into the working screen,
+    wired to the existing `getDomainSupport*` / `saveDomainSupport*` routes (backend already
+    live from the b1bd546 skeleton). Needs from Mike first: button/label wording, and a nod on
+    inline-cell editing. Then the Logic Tables tab, then Job 2 (cross-ref each material's Q&A
+    against the 10-question quiz banks — likely already covered there).
   - **The point (Mike's words):** so educators can have a real impact on the AI's
     recommendations and include their own material easily. This is the firm-authoring
     story reaching the engine's decision inputs, not another CRUD screen.
