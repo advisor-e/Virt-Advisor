@@ -1105,6 +1105,252 @@ function formatCaseSummaries (cases) {
   return lines.join('\n')
 }
 
+// ── Saved-client intake context (Phase A) ───────────────────────────────────
+// Backend-only resolver for trusted client context. Phase A is metadata only:
+// it does NOT change the intake question sequence yet. This avoids coupling UX
+// behavior to an unverified context source while we establish a reliable,
+// firm-scoped resolution contract first.
+
+function isMeaningfulContextValue (value) {
+  if (typeof value !== 'string') { return false }
+  const t = value.trim()
+  if (!t) { return false }
+  return !/^(pending|skipped|unknown|n\/?a|na|null)$/i.test(t)
+}
+
+function extractLabeledLine (text, label) {
+  if (typeof text !== 'string' || !text) { return null }
+  const escaped = String(label).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const m = text.match(new RegExp('(?:^|\\n)' + escaped + ':\\s*(.+?)(?:\\n|$)', 'i'))
+  if (!m || !m[1]) { return null }
+  const value = m[1].trim()
+  return isMeaningfulContextValue(value) ? value : null
+}
+
+function extractSavedClientFactsFromCases (cases) {
+  const none = {
+    industry: null,
+    ownership: null,
+    industrySource: null,
+    ownershipSource: null
+  }
+  if (!Array.isArray(cases) || cases.length === 0) { return none }
+
+  // listForClient is newest-first. Use the first case that yields each fact so
+  // we favour recency while still filling gaps from slightly older sessions.
+  let industry = null
+  let ownership = null
+  let industrySource = null
+  let ownershipSource = null
+
+  for (const c of cases) {
+    const situation = c && c.decisionTrace ? c.decisionTrace.situation : null
+    if (!industry) {
+      industry = extractLabeledLine(situation, 'Industry')
+      if (industry) { industrySource = 'decisionTrace.situation:Industry' }
+    }
+    if (!ownership) {
+      ownership = extractLabeledLine(situation, 'Business ownership') || extractLabeledLine(situation, 'Ownership')
+      if (ownership) { ownershipSource = 'decisionTrace.situation:Business ownership' }
+    }
+    if (industry && ownership) { break }
+  }
+
+  return { industry, ownership, industrySource, ownershipSource }
+}
+
+function normaliseOwnershipValue (value) {
+  if (!isMeaningfulContextValue(value)) { return null }
+  const t = String(value).trim()
+  const l = t.toLowerCase()
+  if (/private|privately owned|owner[-\s]?operated/i.test(l)) { return 'privately owned' }
+  if (/not[-\s]?for[-\s]?profit|non[-\s]?profit|\bnfp\b|charity/i.test(l)) { return 'not-for-profit' }
+  if (/public|publicly listed|listed|asx|nzx|stock exchange/i.test(l)) { return 'publicly listed' }
+  return t.slice(0, 120)
+}
+
+function cleanIndustryValue (value) {
+  if (!isMeaningfulContextValue(value)) { return null }
+  let t = String(value).trim()
+  t = t.replace(/^((it|this)\s+is\s+|it'?s\s+|they\s+are\s+in\s+|they'?re\s+in\s+|industry\s+is\s+)/i, '')
+  t = t.replace(/[.]+$/, '').trim()
+  return isMeaningfulContextValue(t) ? t.slice(0, 120) : null
+}
+
+function parseSavedFactAnswer (field, savedValue, answer) {
+  const a = typeof answer === 'string' ? answer.trim() : ''
+  const al = a.toLowerCase().replace(/’/g, "'")
+  const keepPattern = /\b(yes|yeah|yep|correct|right|keep|use that|that'?s right|that is right|exactly|spot on|sounds right|works)\b/i
+  const changePattern = /\b(no|change|update|different|not right|not correct|wrong|edit)\b/i
+  const challengePattern = /\b(you should know|saved client|already know|you know this|we already have this|this is a saved client)\b/i
+
+  if (!isMeaningfulContextValue(savedValue)) {
+    // No trusted saved value for this field — take the advisor's answer.
+    if (field === 'ownership') {
+      return { action: 'use-answer', value: normaliseOwnershipValue(a) || a.slice(0, 120) }
+    }
+    return { action: 'use-answer', value: cleanIndustryValue(a) || a.slice(0, 120) }
+  }
+
+  const saved = String(savedValue).trim()
+  if (!a) { return { action: 'keep', value: saved, source: 'empty-keeps-saved' } }
+  if (challengePattern.test(al)) { return { action: 'keep', value: saved, source: 'challenge-keeps-saved' } }
+  if (keepPattern.test(al) || al === saved.toLowerCase()) {
+    return { action: 'keep', value: saved, source: 'explicit-keep' }
+  }
+
+  const _tokens = al.split(/[^a-z0-9']+/).filter(Boolean)
+  const _controlOrFiller = new Set([
+    'no', 'change', 'update', 'different', 'not', 'right', 'correct', 'wrong', 'edit',
+    'it', 'this', 'that', 'one', 'please', 'now', 'thanks', 'thank'
+  ])
+  const _substantive = _tokens.filter(t => !_controlOrFiller.has(t))
+  if (changePattern.test(al) && _substantive.length === 0) {
+    // Explicit change request but no replacement value yet.
+    return { action: 'ask-manual' }
+  }
+
+  if (field === 'ownership') {
+    const ownership = normaliseOwnershipValue(a)
+    return ownership ? { action: 'update', value: ownership, source: 'updated-answer' } : { action: 'ask-manual' }
+  }
+
+  const industry = cleanIndustryValue(a)
+  return industry ? { action: 'update', value: industry, source: 'updated-answer' } : { action: 'ask-manual' }
+}
+
+async function resolveSavedClientContext (params, deps) {
+  const empty = {
+    hasTrustedContext: false,
+    resolutionState: 'unresolved',
+    reason: 'missing_identity_or_client',
+    clientName: null,
+    hasCaseHistory: false,
+    caseCount: 0,
+    resolvedFacts: {
+      industry: null,
+      ownership: null
+    },
+    sources: {
+      industry: null,
+      ownership: null
+    }
+  }
+
+  const clientId = params && params.clientId ? String(params.clientId) : ''
+  const advisorId = params && params.advisorId ? String(params.advisorId) : ''
+  const firmId = params && params.firmId ? String(params.firmId) : ''
+  if (!clientId || !advisorId || !firmId) { return empty }
+
+  const _deps = Object.assign({
+    getClientById: clientStore.getById,
+    listCasesForClient: listForClient
+  }, deps || {})
+
+  let client
+  try {
+    client = await _deps.getClientById(clientId, firmId)
+  } catch (_e) {
+    return Object.assign({}, empty, { reason: 'lookup_error' })
+  }
+  if (!client) {
+    // Firm boundary guard: unknown/foreign client ids are treated as absent.
+    return Object.assign({}, empty, { reason: 'client_not_found_or_out_of_scope' })
+  }
+
+  let cases
+  try {
+    cases = await _deps.listCasesForClient(advisorId, firmId, clientId)
+  } catch (_e) {
+    return {
+      hasTrustedContext: true,
+      resolutionState: 'unresolved',
+      reason: 'history_lookup_error',
+      clientName: client.name || null,
+      hasCaseHistory: false,
+      caseCount: 0,
+      resolvedFacts: { industry: null, ownership: null },
+      sources: { industry: null, ownership: null }
+    }
+  }
+
+  const facts = extractSavedClientFactsFromCases(cases)
+  const hasIndustry = !!facts.industry
+  const hasOwnership = !!facts.ownership
+  const resolutionState = hasIndustry && hasOwnership
+    ? 'resolved'
+    : (hasIndustry || hasOwnership ? 'partial' : 'unresolved')
+
+  return {
+    hasTrustedContext: true,
+    resolutionState,
+    reason: resolutionState === 'unresolved' ? 'no_reusable_facts_found' : 'ok',
+    clientName: client.name || null,
+    hasCaseHistory: Array.isArray(cases) && cases.length > 0,
+    caseCount: Array.isArray(cases) ? cases.length : 0,
+    resolvedFacts: {
+      industry: facts.industry || null,
+      ownership: facts.ownership || null
+    },
+    sources: {
+      industry: facts.industrySource || null,
+      ownership: facts.ownershipSource || null
+    }
+  }
+}
+
+function buildSavedFactConfirmPrompt (field, savedValue, clientName) {
+  if (!isMeaningfulContextValue(savedValue)) {
+    return field === 'industry'
+      ? 'What industry is the client in?'
+      : 'Is the business privately owned, a not-for-profit, or publicly listed?'
+  }
+  const who = clientName ? ` for ${clientName}` : ''
+  if (field === 'industry') {
+    return `I have the saved industry${who} as "${savedValue}". Keep this, or tell me the correct industry now.`
+  }
+  return `I have the saved ownership${who} as "${savedValue}". Keep this, or tell me the correct ownership now (privately owned, not-for-profit, or publicly listed).`
+}
+
+function continuityClaimAllowed (priorSummary) {
+  if (!priorSummary || typeof priorSummary !== 'object') { return false }
+  const sessions = Number(priorSummary.sessions || 0)
+  const engagements = Array.isArray(priorSummary.engagements) ? priorSummary.engagements.length : 0
+  return sessions > 0 && engagements > 0
+}
+
+function buildContinuityDirective (isAllowed) {
+  if (isAllowed) {
+    return 'Continuity evidence is present for this client. You may reference prior sessions and build on them where relevant.'
+  }
+  return 'No prior-session evidence is available for this client. Do not claim or imply prior discussions, prior delivery, or historical continuity.'
+}
+
+function buildSavedClientTraceAudit (savedClientContext, savedClientContextUsage) {
+  const facts = savedClientContext && savedClientContext.resolvedFacts
+    ? savedClientContext.resolvedFacts
+    : { industry: null, ownership: null }
+  const usage = savedClientContextUsage || { industry: null, ownership: null }
+
+  const prefilledFields = ['industry', 'ownership'].filter(field => isMeaningfulContextValue(facts[field]))
+  const confirmedFields = ['industry', 'ownership'].filter(field => usage[field] === 'kept')
+  const editedFields = ['industry', 'ownership'].filter(field => usage[field] === 'edited')
+  const savedClientContextUsed = prefilledFields.length > 0 || confirmedFields.length > 0 || editedFields.length > 0
+
+  return {
+    savedClientContextUsed,
+    prefilledFields,
+    confirmedFields,
+    editedFields
+  }
+}
+
+function buildContinuityTraceAudit (isAllowed, priorSummary) {
+  const continuityClaimed = !!isAllowed
+  const continuitySource = continuityClaimed && priorSummary ? 'priorEngagementSummary' : 'none'
+  return { continuityClaimed, continuitySource }
+}
+
 async function handleQuery (rawBody, res, identity) {
   let parsed
   try {
@@ -1274,8 +1520,24 @@ async function handleQuery (rawBody, res, identity) {
       // Win-work switch (offer to move to Learn / how-to-sell) — offered once.
       salesSwitchOffered: false,
       awaitingSalesSwitchChoice: false,
-      domainConfirmed: null
+      domainConfirmed: null,
+      savedClientContextUsage: {
+        industry: null,
+        ownership: null
+      }
     }, storedState || {})
+
+    // Phase A: resolve saved-client context once per (session, clientId). This
+    // is observability-only for now — no question skip/prefill behavior change.
+    const _requestedClientId = clientId || null
+    if (state._savedClientContextClientId !== _requestedClientId) {
+      state._savedClientContextClientId = _requestedClientId
+      state.savedClientContext = await resolveSavedClientContext({
+        clientId: _requestedClientId,
+        advisorId,
+        firmId
+      })
+    }
 
     // Always re-detect domain from the first user message.
     // Score all 14 domains by keyword match count. Most matches wins.
@@ -1508,7 +1770,34 @@ async function handleQuery (rawBody, res, identity) {
       // ── Universal: Industry ──
       {
         field: 'industry',
-        text: 'What industry is the client in?'
+        textFn: s => buildSavedFactConfirmPrompt(
+          'industry',
+          s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.industry
+            : null,
+          s.savedClientContext ? s.savedClientContext.clientName : null
+        ),
+        onAnswer: (answer, s) => {
+          const saved = s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.industry
+            : null
+          const parsed = parseSavedFactAnswer('industry', saved, answer)
+          if (parsed.action === 'keep') {
+            s.industry = parsed.value
+            s.savedClientContextUsage.industry = 'kept'
+            return
+          }
+          if (parsed.action === 'update' || parsed.action === 'use-answer') {
+            s.industry = parsed.value
+            s.savedClientContextUsage.industry = saved ? 'edited' : 'provided'
+            return
+          }
+          // Explicit change with no replacement: ask immediately for the value.
+          s.industry = null
+          s._forceAskField = 'industry'
+          s._forceAskPrompt = 'No problem — what industry is the client in?'
+          s.savedClientContextUsage.industry = 'manual-followup'
+        }
       },
       // ── Domain 1: Profitability / Feasibility ──
       {
@@ -1591,7 +1880,33 @@ async function handleQuery (rawBody, res, identity) {
       ),
       {
         field: 'ownership',
-        text: 'Is the business privately owned, a not-for-profit, or publicly listed?'
+        textFn: s => buildSavedFactConfirmPrompt(
+          'ownership',
+          s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.ownership
+            : null,
+          s.savedClientContext ? s.savedClientContext.clientName : null
+        ),
+        onAnswer: (answer, s) => {
+          const saved = s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.ownership
+            : null
+          const parsed = parseSavedFactAnswer('ownership', saved, answer)
+          if (parsed.action === 'keep') {
+            s.ownership = parsed.value
+            s.savedClientContextUsage.ownership = 'kept'
+            return
+          }
+          if (parsed.action === 'update' || parsed.action === 'use-answer') {
+            s.ownership = parsed.value
+            s.savedClientContextUsage.ownership = saved ? 'edited' : 'provided'
+            return
+          }
+          s.ownership = null
+          s._forceAskField = 'ownership'
+          s._forceAskPrompt = 'No problem — is the business privately owned, not-for-profit, or publicly listed?'
+          s.savedClientContextUsage.ownership = 'manual-followup'
+        }
       },
       {
         field: 'growthStage',
@@ -1759,6 +2074,15 @@ async function handleQuery (rawBody, res, identity) {
           }
           // Allow the question to react to its answer (e.g. disambiguation resolving a scenario)
           if (q.onAnswer) { q.onAnswer(query, state) }
+          // Phase B follow-up: if a saved-field confirmation asked to capture the
+          // value explicitly ("change" with no replacement), ask it immediately.
+          if (state._forceAskField === q.field && state._forceAskPrompt) {
+            const prompt = state._forceAskPrompt
+            state._forceAskField = null
+            state._forceAskPrompt = null
+            state[q.field] = 'pending'
+            return sendQuestion(prompt, state)
+          }
           // Contradiction check: if the answer signals the conversation has gone wrong, pause and verify
           if (
             state.detectedDomain &&
@@ -2355,7 +2679,9 @@ async function handleQuery (rawBody, res, identity) {
     // words about a real client — treated as hostile prompt input like all
     // user content, never concatenated raw. (_priorSummary/_priorClient are
     // loaded further up, BEFORE the resolver, so history informs scoring too.)
-    const _priorContext = _priorSummary
+    const _continuityAllowed = continuityClaimAllowed(_priorSummary)
+    const _continuityDirective = buildContinuityDirective(_continuityAllowed)
+    const _priorContext = _continuityAllowed
       ? [
         '',
         'PRIOR ENGAGEMENT WITH THIS CLIENT',
@@ -2370,6 +2696,7 @@ async function handleQuery (rawBody, res, identity) {
       'SITUATION BRIEF',
       state.prepMode ? 'PRE-MEETING PREP: The advisor has NOT yet met this client, so client-specific questions were intentionally skipped. Frame this as preparation for an upcoming first meeting — what the advisor should focus on and confirm with the client when they meet — not as firm conclusions about a client you have full detail on.' : null,
       _urgencyDirective || null,
+      _continuityDirective,
       `Domain: ${_domainLabel}`,
       `Engagement type: ${_strategyDecision.engagementType} — ${_engagementContext}`,
       `Template budget: ${_budgetLabel}`,
@@ -2486,6 +2813,9 @@ async function handleQuery (rawBody, res, identity) {
     // and act on it (e.g. move a distinction to a better domain). Assembled from the
     // SAME data the engine just used — no new inference. Emitted with the
     // recommendation below and intended to be stored on a saved case study.
+    const _savedClientAudit = buildSavedClientTraceAudit(state.savedClientContext, state.savedClientContextUsage)
+    const _continuityAudit = buildContinuityTraceAudit(_continuityAllowed, _priorSummary)
+
     const _decisionTrace = {
       session: sessionId || null,
       generatedAt: _sessionSummary.t,
@@ -2548,6 +2878,25 @@ async function handleQuery (rawBody, res, identity) {
               .some(t => (t.matchReasons || []).some(r => r.indexOf('history:') === 0))
           }
         : null,
+      // Phase A context contract (saved-client intake): trusted context
+      // resolution metadata only — consumed for UX behavior in Phase B.
+      savedClientContext: {
+        hasTrustedContext: !!(state.savedClientContext && state.savedClientContext.hasTrustedContext),
+        resolutionState: state.savedClientContext ? state.savedClientContext.resolutionState : 'unresolved',
+        reason: state.savedClientContext ? state.savedClientContext.reason : 'missing_identity_or_client',
+        clientName: state.savedClientContext ? state.savedClientContext.clientName : null,
+        hasCaseHistory: !!(state.savedClientContext && state.savedClientContext.hasCaseHistory),
+        caseCount: state.savedClientContext ? state.savedClientContext.caseCount : 0,
+        resolvedFacts: state.savedClientContext ? state.savedClientContext.resolvedFacts : { industry: null, ownership: null },
+        sources: state.savedClientContext ? state.savedClientContext.sources : { industry: null, ownership: null },
+        usage: state.savedClientContextUsage || { industry: null, ownership: null }
+      },
+      savedClientContextUsed: _savedClientAudit.savedClientContextUsed,
+      prefilledFields: _savedClientAudit.prefilledFields,
+      confirmedFields: _savedClientAudit.confirmedFields,
+      editedFields: _savedClientAudit.editedFields,
+      continuityClaimed: _continuityAudit.continuityClaimed,
+      continuitySource: _continuityAudit.continuitySource,
       templateScores: (_obsPayload.templateScores || []).map(t => ({
         rank: t.rank,
         title: t.title,
@@ -2931,3 +3280,11 @@ module.exports.MEETING_MAX = MEETING_MAX
 module.exports.buildIntakeMessages = buildIntakeMessages
 module.exports.classifyDistinctions = classifyDistinctions
 module.exports.findNearMissDistinctions = findNearMissDistinctions
+module.exports.extractSavedClientFactsFromCases = extractSavedClientFactsFromCases
+module.exports.resolveSavedClientContext = resolveSavedClientContext
+module.exports.parseSavedFactAnswer = parseSavedFactAnswer
+module.exports.buildSavedFactConfirmPrompt = buildSavedFactConfirmPrompt
+module.exports.continuityClaimAllowed = continuityClaimAllowed
+module.exports.buildContinuityDirective = buildContinuityDirective
+module.exports.buildSavedClientTraceAudit = buildSavedClientTraceAudit
+module.exports.buildContinuityTraceAudit = buildContinuityTraceAudit
