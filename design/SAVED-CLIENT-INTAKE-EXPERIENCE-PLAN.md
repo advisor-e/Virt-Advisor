@@ -76,16 +76,23 @@ Build tasks:
 - hasSavedClientContext (boolean)
 - resolvedIndustry (string|null)
 - resolvedOwnership (string|null)
+- resolvedAdvisoryStage (string|null) — e.g. "Step 2: Assimilation"
 - resolutionState (resolved|partial|unresolved)
 - provenance flags per field
 
-2. Resolve using backend-owned identity (firm-scoped), never trusting arbitrary client ids from the UI.
+2. Extract from decisionTrace.situation using labeled-line parsing:
+- Industry: <value>
+- Business ownership: <value>
+- Advisory Staircase position: Step X: <Name>
 
-3. Return machine-readable context metadata for intake prompt selection.
+3. Resolve using backend-owned identity (firm-scoped), never trusting arbitrary client ids from the UI.
+
+4. Return machine-readable context metadata for intake prompt selection.
 
 Acceptance:
 - Resolver returns deterministic structured output.
 - Cross-firm lookup attempts fail closed.
+- Advisory stage (all 5 steps) extracts correctly; partial results (1-2 of 3 fields) marked as such.
 
 
 ## Phase B — Intake prompt selection logic
@@ -97,6 +104,7 @@ Build tasks:
 1. Replace first-question behavior for known fields:
 - known -> confirm-or-edit prompt
 - unknown -> normal concise question
+- Applies to: industry, ownership, advisory staircase position
 
 2. Add challenge branch:
 - Detect challenge phrases (for example: "you should know this").
@@ -106,8 +114,9 @@ Build tasks:
 3. Keep domain/cause-first logic unchanged except wording improvements needed for coherence.
 
 Acceptance:
-- Saved-client session no longer re-asks known industry/ownership as first resort.
+- Saved-client session no longer re-asks known industry/ownership/staircase as first resort.
 - Challenge branch recovers without loop or dead-end.
+- Advisor stage confirm prompt matches the 5-step table UI (preserves step name + description).
 
 
 ## Phase C — Continuity wording guard
@@ -147,17 +156,18 @@ Primary file:
 
 Build tasks:
 1. Extend decision trace with:
-- savedClientContextUsed
-- prefilledFields
-- confirmedFields
-- editedFields
-- continuityClaimed
-- continuitySource
+- savedClientContextUsed (boolean)
+- prefilledFields (array: industry|ownership|advisoryStage)
+- confirmedFields (array: fields advisor confirmed without change)
+- editedFields (array: fields advisor corrected)
+- continuityClaimed (boolean)
+- continuitySource (string: priorEngagementSummary|none)
 
 2. Ensure no sensitive expansion beyond current trace discipline.
 
 Acceptance:
-- Reviewer can audit why values were used, asked, or re-confirmed.
+- Reviewer can audit why each value (industry, ownership, stage) was used, asked, or re-confirmed.
+- Trace clearly separates prefilled/confirmed/edited for support diagnostics.
 
 ---
 
@@ -170,17 +180,19 @@ Existing test anchors:
 
 Required new tests:
 1. Context resolution
-- Saved client with valid industry/ownership -> resolved.
+- Saved client with all three fields (industry/ownership/stage) -> resolved.
 - Missing fields -> partial/unresolved.
+- Advisory stage extracts all 5 step levels correctly.
 
 2. Isolation/security
 - Same client id under foreign firm scope is rejected.
 - Session cannot hydrate with another firm's values.
 
 3. Intake behavior
-- Resolved fields trigger confirm-or-edit prompt.
+- Resolved industry/ownership/stage trigger confirm-or-edit prompts.
 - Unresolved fields trigger fallback question.
 - Challenge phrase path returns acknowledge + confirm/edit (or transparent fallback).
+- Confirm prompts preserve step names and descriptions for clarity.
 
 4. Continuity claim gate
 - No prior evidence -> continuity language absent.
@@ -189,6 +201,7 @@ Required new tests:
 5. Regression safety
 - Domain detection for conflict case remains correct.
 - Recommendation count behavior for "2 maybe 3" remains intact.
+- Staircase-based complexity ceiling still used in template filtering.
 
 Definition of test completion:
 - New tests green.
@@ -199,15 +212,21 @@ Definition of test completion:
 
 ## 6) Live verification checklist (manual)
 
-1. Saved-client conflict case
-- Industry/ownership are confirmed, not re-asked from zero.
-- Challenge phrase handled gracefully.
-- Decision trace reflects context usage.
+1. Saved-client conflict case (e.g. Jones Scaffolding)
+- Industry confirmed as previously stated (not re-asked from zero).
+- Ownership confirmed as previously stated.
+- Advisory stage shown with step name + description; advisor confirms or updates.
+- Challenge phrase ("you should know this") handled gracefully.
+- Decision trace reflects which fields were prefilled/confirmed/edited.
 
 2. Non-saved-client case
 - Baseline intake still works normally.
+- Fresh client gets all three questions asked normally.
 
-3. Security sanity
+3. Partial context case
+- Client with only 1-2 prior fields gets remainder asked normally.
+
+4. Security sanity
 - Attempt with mismatched client/firm context does not expose foreign data.
 
 ---
@@ -244,12 +263,14 @@ Mitigation: only two fields (industry, ownership) in first pass; keep prompts co
 ## 9) Definition of done
 
 Done means all of the following:
-1. Saved-client industry/ownership are confirmed rather than redundantly re-asked.
-2. Advisor challenge path is acknowledged and resolved without friction.
-3. Continuity language is evidence-gated.
-4. Decision trace clearly records context behavior.
-5. Unit tests and lint pass.
-6. One manual saved-client run verifies behavior end-to-end.
+1. Saved-client industry/ownership/advisory-stage are confirmed rather than redundantly re-asked.
+2. Advisory stage confirm prompt displays step name + description for clarity.
+3. Advisor challenge path is acknowledged and resolved without friction.
+4. Continuity language is evidence-gated.
+5. Decision trace clearly records which fields were prefilled/confirmed/edited.
+6. Unit tests cover all three fields + partial extraction + all 5 advisory steps.
+7. Lint and full suite pass.
+8. One manual saved-client run (e.g. Jones Scaffolding) verifies behavior end-to-end.
 
 ---
 

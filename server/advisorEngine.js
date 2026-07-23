@@ -1131,8 +1131,10 @@ function extractSavedClientFactsFromCases (cases) {
   const none = {
     industry: null,
     ownership: null,
+    advisoryStage: null,
     industrySource: null,
-    ownershipSource: null
+    ownershipSource: null,
+    advisoryStageSource: null
   }
   if (!Array.isArray(cases) || cases.length === 0) { return none }
 
@@ -1140,8 +1142,10 @@ function extractSavedClientFactsFromCases (cases) {
   // we favour recency while still filling gaps from slightly older sessions.
   let industry = null
   let ownership = null
+  let advisoryStage = null
   let industrySource = null
   let ownershipSource = null
+  let advisoryStageSource = null
 
   for (const c of cases) {
     const situation = c && c.decisionTrace ? c.decisionTrace.situation : null
@@ -1153,10 +1157,14 @@ function extractSavedClientFactsFromCases (cases) {
       ownership = extractLabeledLine(situation, 'Business ownership') || extractLabeledLine(situation, 'Ownership')
       if (ownership) { ownershipSource = 'decisionTrace.situation:Business ownership' }
     }
-    if (industry && ownership) { break }
+    if (!advisoryStage) {
+      advisoryStage = extractLabeledLine(situation, 'Advisory Staircase position')
+      if (advisoryStage) { advisoryStageSource = 'decisionTrace.situation:Advisory Staircase position' }
+    }
+    if (industry && ownership && advisoryStage) { break }
   }
 
-  return { industry, ownership, industrySource, ownershipSource }
+  return { industry, ownership, advisoryStage, industrySource, ownershipSource, advisoryStageSource }
 }
 
 function normaliseOwnershipValue (value) {
@@ -1229,11 +1237,13 @@ async function resolveSavedClientContext (params, deps) {
     caseCount: 0,
     resolvedFacts: {
       industry: null,
-      ownership: null
+      ownership: null,
+      advisoryStage: null
     },
     sources: {
       industry: null,
-      ownership: null
+      ownership: null,
+      advisoryStage: null
     }
   }
 
@@ -1269,17 +1279,19 @@ async function resolveSavedClientContext (params, deps) {
       clientName: client.name || null,
       hasCaseHistory: false,
       caseCount: 0,
-      resolvedFacts: { industry: null, ownership: null },
-      sources: { industry: null, ownership: null }
+      resolvedFacts: { industry: null, ownership: null, advisoryStage: null },
+      sources: { industry: null, ownership: null, advisoryStage: null }
     }
   }
 
   const facts = extractSavedClientFactsFromCases(cases)
   const hasIndustry = !!facts.industry
   const hasOwnership = !!facts.ownership
-  const resolutionState = hasIndustry && hasOwnership
+  const hasAdvisoryStage = !!facts.advisoryStage
+  const factCount = [hasIndustry, hasOwnership, hasAdvisoryStage].filter(Boolean).length
+  const resolutionState = factCount === 3
     ? 'resolved'
-    : (hasIndustry || hasOwnership ? 'partial' : 'unresolved')
+    : (factCount > 0 ? 'partial' : 'unresolved')
 
   return {
     hasTrustedContext: true,
@@ -1290,11 +1302,13 @@ async function resolveSavedClientContext (params, deps) {
     caseCount: Array.isArray(cases) ? cases.length : 0,
     resolvedFacts: {
       industry: facts.industry || null,
-      ownership: facts.ownership || null
+      ownership: facts.ownership || null,
+      advisoryStage: facts.advisoryStage || null
     },
     sources: {
       industry: facts.industrySource || null,
-      ownership: facts.ownershipSource || null
+      ownership: facts.ownershipSource || null,
+      advisoryStage: facts.advisoryStageSource || null
     }
   }
 }
@@ -1329,12 +1343,12 @@ function buildContinuityDirective (isAllowed) {
 function buildSavedClientTraceAudit (savedClientContext, savedClientContextUsage) {
   const facts = savedClientContext && savedClientContext.resolvedFacts
     ? savedClientContext.resolvedFacts
-    : { industry: null, ownership: null }
-  const usage = savedClientContextUsage || { industry: null, ownership: null }
+    : { industry: null, ownership: null, advisoryStage: null }
+  const usage = savedClientContextUsage || { industry: null, ownership: null, advisoryStage: null }
 
-  const prefilledFields = ['industry', 'ownership'].filter(field => isMeaningfulContextValue(facts[field]))
-  const confirmedFields = ['industry', 'ownership'].filter(field => usage[field] === 'kept')
-  const editedFields = ['industry', 'ownership'].filter(field => usage[field] === 'edited')
+  const prefilledFields = ['industry', 'ownership', 'advisoryStage'].filter(field => isMeaningfulContextValue(facts[field]))
+  const confirmedFields = ['industry', 'ownership', 'advisoryStage'].filter(field => usage[field] === 'kept')
+  const editedFields = ['industry', 'ownership', 'advisoryStage'].filter(field => usage[field] === 'edited')
   const savedClientContextUsed = prefilledFields.length > 0 || confirmedFields.length > 0 || editedFields.length > 0
 
   return {

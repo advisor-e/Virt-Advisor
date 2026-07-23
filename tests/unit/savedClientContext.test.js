@@ -12,13 +12,14 @@ const {
 } = require('../../server/advisorEngine')
 
 describe('extractSavedClientFactsFromCases', () => {
-  test('extracts industry and ownership from the newest case decisionTrace.situation', () => {
+  test('extracts industry, ownership, and advisory stage from the newest case decisionTrace.situation', () => {
     const cases = [
       {
         decisionTrace: {
           situation: [
             'Industry: scaffolding',
-            'Business ownership: privately owned'
+            'Business ownership: privately owned',
+            'Advisory Staircase position: Step 2: Assimilation'
           ].join('\n')
         }
       }
@@ -27,20 +28,22 @@ describe('extractSavedClientFactsFromCases', () => {
     const out = extractSavedClientFactsFromCases(cases)
     expect(out.industry).toBe('scaffolding')
     expect(out.ownership).toBe('privately owned')
+    expect(out.advisoryStage).toBe('Step 2: Assimilation')
     expect(out.industrySource).toBe('decisionTrace.situation:Industry')
     expect(out.ownershipSource).toBe('decisionTrace.situation:Business ownership')
+    expect(out.advisoryStageSource).toBe('decisionTrace.situation:Advisory Staircase position')
   })
 
   test('fills gaps from older cases when newest case is incomplete', () => {
     const cases = [
       {
         decisionTrace: {
-          situation: 'Industry: scaffolding\nBusiness ownership: pending'
+          situation: 'Industry: scaffolding\nBusiness ownership: pending\nAdvisory Staircase position: Step 3: Interpretation'
         }
       },
       {
         decisionTrace: {
-          situation: 'Industry: farming\nBusiness ownership: privately owned'
+          situation: 'Industry: farming\nBusiness ownership: privately owned\nAdvisory Staircase position: Step 1: Compilation & Verification'
         }
       }
     ]
@@ -48,6 +51,7 @@ describe('extractSavedClientFactsFromCases', () => {
     const out = extractSavedClientFactsFromCases(cases)
     expect(out.industry).toBe('scaffolding')
     expect(out.ownership).toBe('privately owned')
+    expect(out.advisoryStage).toBe('Step 3: Interpretation')
   })
 
   test('returns null facts when no reusable fields exist', () => {
@@ -55,8 +59,27 @@ describe('extractSavedClientFactsFromCases', () => {
     expect(out).toEqual({
       industry: null,
       ownership: null,
+      advisoryStage: null,
       industrySource: null,
-      ownershipSource: null
+      ownershipSource: null,
+      advisoryStageSource: null
+    })
+  })
+
+  test('extracts all 5 advisory staircase levels correctly', () => {
+    const stages = [
+      'Step 1: Compilation & Verification',
+      'Step 2: Assimilation',
+      'Step 3: Interpretation',
+      'Step 4: Application',
+      'Step 5: Observation'
+    ]
+
+    stages.forEach((stage) => {
+      const out = extractSavedClientFactsFromCases([{
+        decisionTrace: { situation: `Advisory Staircase position: ${stage}` }
+      }])
+      expect(out.advisoryStage).toBe(stage)
     })
   })
 })
@@ -84,7 +107,7 @@ describe('resolveSavedClientContext', () => {
     expect(listCasesForClient).not.toHaveBeenCalled()
   })
 
-  test('returns resolved when trusted client and facts are present', async () => {
+  test('returns resolved when trusted client and all three facts are present', async () => {
     const out = await resolveSavedClientContext(
       { clientId: 'c1', advisorId: 'a1', firmId: 'f1' },
       {
@@ -92,7 +115,7 @@ describe('resolveSavedClientContext', () => {
         listCasesForClient: jest.fn().mockResolvedValue([
           {
             decisionTrace: {
-              situation: 'Industry: scaffolding\nBusiness ownership: privately owned'
+              situation: 'Industry: scaffolding\nBusiness ownership: privately owned\nAdvisory Staircase position: Step 2: Assimilation'
             }
           }
         ])
@@ -106,11 +129,12 @@ describe('resolveSavedClientContext', () => {
     expect(out.caseCount).toBe(1)
     expect(out.resolvedFacts).toEqual({
       industry: 'scaffolding',
-      ownership: 'privately owned'
+      ownership: 'privately owned',
+      advisoryStage: 'Step 2: Assimilation'
     })
   })
 
-  test('returns partial when only one fact is available', async () => {
+  test('returns partial when 1-2 facts are available', async () => {
     const out = await resolveSavedClientContext(
       { clientId: 'c1', advisorId: 'a1', firmId: 'f1' },
       {
@@ -118,7 +142,7 @@ describe('resolveSavedClientContext', () => {
         listCasesForClient: jest.fn().mockResolvedValue([
           {
             decisionTrace: {
-              situation: 'Industry: scaffolding'
+              situation: 'Industry: scaffolding\nAdvisory Staircase position: Step 3: Interpretation'
             }
           }
         ])
@@ -127,7 +151,11 @@ describe('resolveSavedClientContext', () => {
 
     expect(out.hasTrustedContext).toBe(true)
     expect(out.resolutionState).toBe('partial')
-    expect(out.resolvedFacts).toEqual({ industry: 'scaffolding', ownership: null })
+    expect(out.resolvedFacts).toEqual({
+      industry: 'scaffolding',
+      ownership: null,
+      advisoryStage: 'Step 3: Interpretation'
+    })
   })
 })
 
@@ -208,25 +236,27 @@ describe('buildSavedClientTraceAudit', () => {
       {
         resolvedFacts: {
           industry: 'scaffolding',
-          ownership: 'privately owned'
+          ownership: 'privately owned',
+          advisoryStage: 'Step 2: Assimilation'
         }
       },
       {
         industry: 'kept',
-        ownership: 'edited'
+        ownership: 'edited',
+        advisoryStage: 'kept'
       }
     )
 
     expect(out.savedClientContextUsed).toBe(true)
-    expect(out.prefilledFields).toEqual(['industry', 'ownership'])
-    expect(out.confirmedFields).toEqual(['industry'])
+    expect(out.prefilledFields).toEqual(['industry', 'ownership', 'advisoryStage'])
+    expect(out.confirmedFields).toEqual(['industry', 'advisoryStage'])
     expect(out.editedFields).toEqual(['ownership'])
   })
 
   test('stays empty when no saved facts were resolved', () => {
     const out = buildSavedClientTraceAudit(
-      { resolvedFacts: { industry: null, ownership: null } },
-      { industry: 'provided', ownership: null }
+      { resolvedFacts: { industry: null, ownership: null, advisoryStage: null } },
+      { industry: 'provided', ownership: null, advisoryStage: null }
     )
 
     expect(out.savedClientContextUsed).toBe(false)
