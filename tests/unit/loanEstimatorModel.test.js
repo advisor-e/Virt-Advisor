@@ -4,10 +4,12 @@ const {
   DEFAULT_INPUTS,
   DEFAULT_LOAN_INPUTS,
   DEFAULT_SERVICEABILITY_INPUTS,
+  DEFAULT_BUSINESS_INPUTS,
   computeLoanEstimator,
   computeLoanEstimatorReport,
   computeRepaymentSchedule,
   computeServiceability,
+  computeBusinessBlock,
   computeSecurityItem,
   capBasedPropertyValue,
   fonterraShareValue,
@@ -419,6 +421,89 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
         }))
         expect(broke.maxAffordableNewLoan).toBe(0)
       })
+    })
+  })
+
+  describe('business block (Serviceability Input — Part E, Phase 6)', () => {
+    // The Ripper business: EBIT 342,000, 14 full-time + 3 part-time staff,
+    // 25,000 tax due, and the nine commercial securities (Capital Input rows
+    // 23–39). Every anchor below is the workbook's own cached value EXCEPT the
+    // two the double-count correction moved — flagged inline.
+    const b = computeBusinessBlock(DEFAULT_BUSINESS_INPUTS)
+
+    it('carries each commercial class through at its adjusted value, debt, security and Year-1 interest', () => {
+      const plant = b.items.find(it => it.key === 'plantEquipment')
+      expect(plant.adjustedValue).toBeCloseTo(44640, 6) //       E78 (= Capital Input M23)
+      expect(plant.currentDebt).toBeCloseTo(12000, 6) //         G78
+      expect(plant.availableSecurity).toBeCloseTo(1392, 6) //    H78
+      expect(plant.year1Interest).toBeCloseTo(-135.72, 4) //     J78 (= 1392 × 9.75%, sign kept)
+
+      const farm = b.items.find(it => it.key === 'farmDairy')
+      expect(farm.availableSecurity).toBeCloseTo(592500, 6) //   H86
+      expect(farm.year1Interest).toBeCloseTo(-50362.5, 3) //     J86 (= 592500 × 8.5%)
+
+      const fonterra = b.items.find(it => it.key === 'fonterraShares')
+      expect(fonterra.year1Interest).toBeCloseTo(-7704.09375, 4) // J94 (= 83287.5 × 9.25%)
+    })
+
+    it('gates Year-1 interest to zero when a class has no lending headroom (Horticulture)', () => {
+      // H90 = −265,478 (debt exceeds the lending limit). The sheet's
+      // IF(remainingSecurity > 1, …, 0) contributes nothing — but H96 STILL
+      // sums the negative headroom into the security total, so both are asserted.
+      const hort = b.items.find(it => it.key === 'horticulture')
+      expect(hort.availableSecurity).toBeCloseTo(-265478, 6) //  H90 (negative, reported not clamped)
+      expect(hort.year1Interest).toBe(0) //                      J90 (gated out)
+    })
+
+    it('rolls the nine classes up to the source totals', () => {
+      expect(b.totals.adjustedValue).toBeCloseTo(11551190, 4) //   E96
+      expect(b.totals.currentDebt).toBeCloseTo(4409478, 4) //      G96
+      expect(b.totals.availableSecurity).toBeCloseTo(2065001.5, 4) // H96 (includes Horticulture's −265,478)
+      expect(b.totals.year1Interest).toBeCloseTo(-200942.81375, 3) // J96
+    })
+
+    it('covers EBIT against first-year interest (N96)', () => {
+      expect(b.ebitToInterestRatio).toBeCloseTo(1.701976765, 7) // N96 (= |342,000 ÷ −200,942.81|)
+    })
+
+    it('adjusts the security for staff and tax — CORRECTED: staff counted once', () => {
+      // The source double-counted the staff cost (Loan Criteria Z43 added
+      // Z39+Z40 AND their sum Z41): 211,000 → bank-adjusted security 1,854,001.5.
+      // Corrected in code and the source .xlsx in this commit: staff once.
+      expect(b.securityAdjustment).toBeCloseTo(118000, 6) //             Z43 corrected (was 211,000): 84,000 + 9,000 + 25,000
+      expect(b.bankAdjustedMaxSecurity).toBeCloseTo(1947001.5, 4) //     H98 corrected (was 1,854,001.5)
+    })
+
+    it('prices the EBIT-serviced maximum loan and its monthly payment', () => {
+      expect(b.coverageDivisor).toBe(3) //                          Z45 (Commercial Business → else branch)
+      expect(b.ebitServiceableAnnual).toBeCloseTo(114000, 6) //     AB40 (= 342,000 ÷ 3)
+      expect(b.maxBankAdjustedLoan).toBeCloseTo(-977191.0856, 3) // D40/G102 (PV(9.5%, 15y, 114,000), annuity due, negative)
+      expect(b.monthlyPaymentRequired).toBeCloseTo(10204.07051, 4) // L101 (PMT(9.5%/12, 180, |loan|))
+    })
+
+    it('a Farm business services more per dollar of EBIT — divisor 1.5 (Loan Criteria Z45)', () => {
+      // No cached anchor (the sample is a Commercial Business); hand-derived
+      // from the Z45 formula's Farm branch (Z47 = 1.5).
+      const farm = computeBusinessBlock(Object.assign({}, DEFAULT_BUSINESS_INPUTS, { businessType: 'Farm' }))
+      expect(farm.coverageDivisor).toBe(1.5)
+      expect(farm.ebitServiceableAnnual).toBeCloseTo(228000, 6) // = 342,000 ÷ 1.5
+      expect(farm.maxBankAdjustedLoan).toBeCloseTo(-977191.0856 * 2, 3) // PV is linear in the payment
+    })
+
+    it('reports the pass-through figures the screen shows', () => {
+      expect(b.ebit).toBe(342000) //          N72
+      expect(b.fullTimeStaff).toBe(14) //      E100
+      expect(b.partTimeStaff).toBe(3) //       E101
+      expect(b.currentTaxDue).toBe(25000) //   E103
+      expect(b.businessType).toBe('Commercial Business') // E74
+    })
+
+    it('input discipline — defaults declared per field (R8)', () => {
+      expect(b.defaultedInputs).toEqual([])
+      const demo = computeBusinessBlock({})
+      expect(demo.defaultedInputs).toContain('ebit')
+      expect(demo.defaultedInputs).toContain('securities')
+      expect(demo.bankAdjustedMaxSecurity).toBeCloseTo(1947001.5, 4) // still computes the (corrected) sample
     })
   })
 

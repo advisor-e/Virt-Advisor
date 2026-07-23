@@ -51,8 +51,8 @@
  *     odd metric, but it is the sheet's own total row, so it is reproduced.
  *   - An Interest-Only loan has no annual schedule on the sheet (its picker
  *     formula renders FALSE); we return `years: null` rather than nonsense.
- *   - Not ported yet: the rule table's "y1 Interest" column (feeds off the
- *     business block — Phase 6).
+ *   - The rule table's "y1 Interest" column (`Loan Criteria` J16–J32) is used by
+ *     the Part E business block (Phase 6, `computeBusinessBlock`).
  *
  * CORRECTED FROM THE SOURCE — two owner rulings (Mike, 2026-07-23), both also
  * fixed in the source .xlsx so the two cannot diverge:
@@ -111,6 +111,22 @@ function annuityPayment (ratePerPeriod, periods, principal) {
   if (!periods) { return 0 }
   if (!ratePerPeriod) { return principal / periods }
   return principal * ratePerPeriod / (1 - Math.pow(1 + ratePerPeriod, -periods))
+}
+
+/**
+ * Excel `PV(rate, nper, pmt, 0, 1)` — the present value of an annuity DUE (payments
+ * at the start of each period), future value 0. Returns NEGATIVE for a positive
+ * payment, exactly as the workbook's `Loan Criteria` D40 stores the business's
+ * maximum loan (`Capital Input`/`Serviceability Input` G102).
+ * @param {number} ratePerPeriod
+ * @param {number} periods
+ * @param {number} payment per period
+ * @returns {number}
+ */
+function presentValueAnnuityDue (ratePerPeriod, periods, payment) {
+  if (!periods) { return 0 }
+  if (!ratePerPeriod) { return -payment * periods }
+  return -payment * (1 + ratePerPeriod) * (1 - Math.pow(1 + ratePerPeriod, -periods)) / ratePerPeriod
 }
 
 /**
@@ -750,6 +766,147 @@ function take2Bool (v) {
 }
 
 /**
+ * The Ripper business — the workbook's sample business block (`Serviceability
+ * Input` rows 71–103), cells per field. The nine commercial securities are the
+ * SAME `Capital Input` commercial grid the security position uses (the sheet's
+ * business block references rows 23–39), so it defaults to that one list and
+ * selects the nine internally — a change to a commercial asset flows to both.
+ */
+const DEFAULT_BUSINESS_INPUTS = {
+  ebit: 342000, //                       N72
+  businessType: 'Commercial Business', // E74 (Loan Criteria Z45 picks the divisor: "Farm" → ÷1.5, else ÷3)
+  fullTimeStaff: 14, //                  E100
+  partTimeStaff: 3, //                   E101
+  currentTaxDue: 25000, //               E103
+  securities: DEFAULT_INPUTS.securities // Capital Input commercial grid (rows 23–39 used; commercial property excluded)
+}
+
+/**
+ * Part E — the business block (`Serviceability Input` rows 71–103): the trading
+ * entity's own securities and whether its EBIT services a business loan.
+ *
+ * The business rule, as the sheet computes it:
+ *   securities   the nine COMMERCIAL classes the client's business owns
+ *                (`Capital Input` rows 23–39 = the commercial grid MINUS
+ *                commercial property), each carried through at its bank-adjusted
+ *                value, current debt and remaining lending security
+ *   year1Interest  per class, IF(remainingSecurity > 1, IPMT(rate,1,term,
+ *                security), 0) — which for period 1 is remainingSecurity × the
+ *                class's assessment rate, negative as the sheet's IPMT shows it;
+ *                a class with no headroom (or negative, e.g. Horticulture on the
+ *                sample) contributes nothing (`Loan Criteria` J16–J32)
+ *   ebitToInterestRatio  |EBIT ÷ total Year-1 interest| — how many times profit
+ *                covers first-year interest (N96)
+ *   bankAdjustedMaxSecurity  total remaining security − a staff-and-tax
+ *                adjustment (`Loan Criteria` Z43 → `Serviceability` H98)
+ *   maxBankAdjustedLoan  the bank takes a share of EBIT as the affordable ANNUAL
+ *                repayment — Farm ÷1.5, else ÷3 (Z45) — and prices the largest
+ *                loan it supports at the business rate over the business term
+ *                (annuity-due present value; negative as the sheet shows it,
+ *                `Loan Criteria` D40 / `Serviceability` G102)
+ *   monthlyPaymentRequired  the monthly repayment on that loan (L101)
+ *
+ * CORRECTED FROM THE SOURCE — owner ruling (Mike, 2026-07-24: "fix as we go, do
+ * it right first time"), fixed in the source .xlsx in the same commit: the
+ * security adjustment (`Loan Criteria` Z43 = Z39+Z40+Z41+X42) DOUBLE-COUNTED the
+ * staff cost, because Z41 is itself SUM(Z39:Z40). On the sample it charged
+ * 211,000 (staff 93,000 counted twice + tax 25,000) instead of 118,000, so the
+ * bank-adjusted maximum security read 1,854,001.5 where it should read
+ * 1,947,001.5. Corrected here to count each staff member ONCE.
+ *
+ * FIDELITY NOTES:
+ *   - The business entity NAME (E72) is personal data; it is not an input here
+ *     and never logged (`design/LOAN-ESTIMATOR-PLAN.md` §5).
+ *   - The remaining-security total SUMS a class's negative headroom (Horticulture
+ *     −265,478 on the sample) even though that class's Year-1 interest is gated
+ *     to 0 — the sheet's H96 does exactly this, so it is reproduced.
+ *
+ * @param {Object} inputs see DEFAULT_BUSINESS_INPUTS — any omitted field falls
+ *   back to the sample AND is named in `defaultedInputs` (R8).
+ * @returns {Object} { items, totals, ebit, businessType, fullTimeStaff,
+ *   partTimeStaff, currentTaxDue, ebitToInterestRatio, securityAdjustment,
+ *   bankAdjustedMaxSecurity, coverageDivisor, ebitServiceableAnnual,
+ *   maxBankAdjustedLoan, monthlyPaymentRequired, defaultedInputs }
+ */
+function computeBusinessBlock (inputs) {
+  const src = (inputs && typeof inputs === 'object') ? inputs : {}
+  const defaultedInputs = []
+  const take = (name) => {
+    if (src[name] === undefined || src[name] === null) { defaultedInputs.push(name); return DEFAULT_BUSINESS_INPUTS[name] }
+    return src[name]
+  }
+  const ebit = num(take('ebit'))
+  const businessType = take('businessType')
+  const fullTimeStaff = num(take('fullTimeStaff'))
+  const partTimeStaff = num(take('partTimeStaff'))
+  const currentTaxDue = num(take('currentTaxDue'))
+  let securities = take('securities')
+  if (!Array.isArray(securities)) { securities = DEFAULT_BUSINESS_INPUTS.securities }
+  const cfg = LOAN_CRITERIA.business
+
+  // The nine commercial securities the block assesses (`Serviceability` rows
+  // 78–94 = `Capital Input` rows 23–39): the commercial grid minus commercial
+  // property, each already computed by computeSecurityItem. Columns mapped:
+  // adjustedValue = E ("Market Value"), currentDebt = G, availableSecurity = H
+  // ("Remaining Security"), year1Interest = J.
+  const items = securities.map(computeSecurityItem)
+    .filter(it => it.group === 'commercial' && it.key !== 'commercialProperty')
+    .map((it) => {
+      const rate = CRITERIA_BY_KEY[it.key].assessmentRate
+      const year1Interest = it.availableSecurity > 1 ? -(it.availableSecurity * rate) : 0 // J78–J94 (gated, sign kept)
+      return {
+        key: it.key,
+        label: it.label,
+        adjustedValue: it.adjustedValue, //         E78–E94
+        currentDebt: it.currentDebt, //             G78–G94
+        availableSecurity: it.availableSecurity, // H78–H94
+        year1Interest //                            J78–J94
+      }
+    })
+
+  const totals = items.reduce((t, it) => {
+    t.adjustedValue += it.adjustedValue
+    t.currentDebt += it.currentDebt
+    t.availableSecurity += it.availableSecurity // H96 (sums negative headroom too, as the sheet does)
+    t.year1Interest += it.year1Interest //         J96
+    return t
+  }, { adjustedValue: 0, currentDebt: 0, availableSecurity: 0, year1Interest: 0 })
+
+  const ebitToInterestRatio = totals.year1Interest ? Math.abs(div(ebit, totals.year1Interest)) : 0 // N96
+
+  // The staff-and-tax security adjustment (Z43) — CORRECTED to count each staff
+  // member ONCE (the source double-counted; see the header note and config _note).
+  const securityAdjustment = fullTimeStaff * cfg.perFullTimeStaffSecurity +
+    partTimeStaff * cfg.perPartTimeStaffSecurity + currentTaxDue
+  const bankAdjustedMaxSecurity = totals.availableSecurity - securityAdjustment // H98 (corrected)
+
+  // EBIT-serviced maximum loan (D40 / G102): Farm ÷1.5, else ÷3 (Z45).
+  const coverageDivisor = businessType === 'Farm' ? cfg.ebitCoverageDivisorFarm : cfg.ebitCoverageDivisorDefault
+  const ebitServiceableAnnual = div(ebit, coverageDivisor) //                                      AB40
+  const maxBankAdjustedLoan = presentValueAnnuityDue(cfg.loanRate, cfg.loanTermYears, ebitServiceableAnnual) // D40/G102
+  // The loan is stored negative (as the sheet shows), so the payment is on its size.
+  const monthlyPaymentRequired = annuityPayment(cfg.loanRate / 12, cfg.loanTermYears * 12, Math.abs(maxBankAdjustedLoan)) // L101
+
+  return {
+    items,
+    totals,
+    ebit,
+    businessType,
+    fullTimeStaff,
+    partTimeStaff,
+    currentTaxDue,
+    ebitToInterestRatio, //        N96
+    securityAdjustment, //         Z43 (corrected — staff counted once)
+    bankAdjustedMaxSecurity, //    H98 (corrected)
+    coverageDivisor, //            Z45 (1.5 Farm / 3 other)
+    ebitServiceableAnnual, //      AB40
+    maxBankAdjustedLoan, //        D40 / G102 (negative, as the sheet shows)
+    monthlyPaymentRequired, //     L101
+    defaultedInputs
+  }
+}
+
+/**
  * The whole assessment in one call — the payload the /api/report/loan-estimator
  * route returns. Assembled here, not in the route, so the golden test exercises
  * exactly what the screen receives (the marginBreakeven lesson).
@@ -774,14 +931,17 @@ module.exports = {
   DEFAULT_INPUTS,
   DEFAULT_LOAN_INPUTS,
   DEFAULT_SERVICEABILITY_INPUTS,
+  DEFAULT_BUSINESS_INPUTS,
   computeLoanEstimator,
   computeLoanEstimatorReport,
   computeRepaymentSchedule,
   computeServiceability,
+  computeBusinessBlock,
   computeSecurityItem,
   capBasedPropertyValue,
   fonterraShareValue,
   overdraftMonthlyInterest,
+  presentValueAnnuityDue,
   getTaxBands,
   incomeTax,
   marginalRate

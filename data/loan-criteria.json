@@ -50,5 +50,22 @@
       "adultWeeklyLivingMin": "Z29",
       "verdictSurplusThreshold": "Serviceability Input J64 (the >250 constant)"
     }
+  },
+  "business": {
+    "_note": "Part E (business block) constants — the trading entity's EBIT serviceability and its own commercial securities (Serviceability Input rows 71–103, driven by Loan Criteria rows 36–48). The security adjustment counts each staff member ONCE. The source workbook DOUBLE-COUNTED it: Loan Criteria Z43 = Z39+Z40+Z41+X42 where Z41 is itself SUM(Z39:Z40), so the staff cost was added twice (211,000 instead of 118,000 on the sample). Corrected in BOTH this model and the source .xlsx per owner ruling (Mike, 2026-07-24 — 'fix as we go, do it right first time'). The EBIT-serviced maximum loan takes a share of EBIT as the affordable annual repayment (Loan Criteria Z45 divides EBIT: a Farm can commit more, ÷1.5, than other businesses, ÷3) and prices it at loanRate over loanTermYears.",
+    "perFullTimeStaffSecurity": 6000,
+    "perPartTimeStaffSecurity": 3000,
+    "ebitCoverageDivisorFarm": 1.5,
+    "ebitCoverageDivisorDefault": 3,
+    "loanRate": 0.095,
+    "loanTermYears": 15,
+    "cells": {
+      "perFullTimeStaffSecurity": "Loan Criteria X39",
+      "perPartTimeStaffSecurity": "Loan Criteria X40",
+      "ebitCoverageDivisorFarm": "Loan Criteria Z47 (Z45 picks it when Business Type = 'Farm')",
+      "ebitCoverageDivisorDefault": "Loan Criteria Z48 (Z45's else branch)",
+      "loanRate": "Loan Criteria H36 (= Serviceability Input J101)",
+      "loanTermYears": "Loan Criteria F36 (= Serviceability Input J103)"
+    }
   }
 }
