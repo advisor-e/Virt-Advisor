@@ -527,17 +527,20 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
   })
 
   describe('the assembled report (what /api/report/loan-estimator returns)', () => {
-    it('all three hand-verified anchors land through the assembler', () => {
+    it('all four parts\' hand-verified anchors land through the assembler', () => {
       const rep = computeLoanEstimatorReport({
         securityPosition: DEFAULT_INPUTS,
         repayment: DEFAULT_LOAN_INPUTS,
-        serviceability: DEFAULT_SERVICEABILITY_INPUTS
+        serviceability: DEFAULT_SERVICEABILITY_INPUTS,
+        business: DEFAULT_BUSINESS_INPUTS
       })
       const home = rep.securityPosition.items.find(it => it.key === 'residentialHome')
-      expect(home.stressTestedPayment).toBeCloseTo(9026.370957, 5) //  AB6
+      expect(home.stressTestedPayment).toBeCloseTo(9026.370957, 5) //     AB6
       expect(rep.repayment.monthlyRepayment).toBeCloseTo(5747.094633, 5) // C29/C31
       expect(rep.serviceability.surplus).toBeCloseTo(-154.833776247, 5) // N64 corrected
       expect(rep.serviceability.verdictPass).toBe(false)
+      expect(rep.business.bankAdjustedMaxSecurity).toBeCloseTo(1947001.5, 4) // H98 corrected
+      expect(rep.business.maxBankAdjustedLoan).toBeCloseTo(-977191.0856, 3) // D40/G102
     })
 
     it('a missing block computes on the sample and SAYS so, per part (R8)', () => {
@@ -545,11 +548,13 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       expect(rep.repayment.defaultedInputs).toEqual([])
       expect(rep.securityPosition.defaultedInputs).toEqual(['securities', 'subCalculations', 'overdraft'])
       expect(rep.serviceability.defaultedInputs).toContain('customer1GrossIncome')
+      expect(rep.business.defaultedInputs).toContain('ebit') // the business block defaults too, and says so
     })
 
     it('a bad block fails the whole call loudly — no partial payload', () => {
       expect(() => computeLoanEstimatorReport({ serviceability: { country: 'AU' } })).toThrow(/No verified tax-band table/)
       expect(() => computeLoanEstimatorReport({ securityPosition: { securities: [{ key: 'cryptoWallet' }] } })).toThrow(/Unknown security class/)
+      expect(() => computeLoanEstimatorReport({ business: { securities: [{ key: 'cryptoWallet' }] } })).toThrow(/Unknown security class/)
     })
   })
 })

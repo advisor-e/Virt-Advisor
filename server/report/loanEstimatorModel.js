@@ -914,16 +914,17 @@ function computeBusinessBlock (inputs) {
  * Each part keeps its own `defaultedInputs` (R8): a missing block computes on
  * the workbook sample and says so, never silently.
  *
- * @param {Object} inputs { securityPosition, repayment, serviceability } — each
- *   block passed through to its Part's compute; any block may be omitted.
- * @returns {Object} { securityPosition, repayment, serviceability }
+ * @param {Object} inputs { securityPosition, repayment, serviceability, business }
+ *   — each block passed through to its Part's compute; any block may be omitted.
+ * @returns {Object} { securityPosition, repayment, serviceability, business }
  */
 function computeLoanEstimatorReport (inputs) {
   const src = (inputs && typeof inputs === 'object') ? inputs : {}
   return {
     securityPosition: computeLoanEstimator(src.securityPosition),
     repayment: computeRepaymentSchedule(src.repayment),
-    serviceability: computeServiceability(src.serviceability)
+    serviceability: computeServiceability(src.serviceability),
+    business: computeBusinessBlock(src.business)
   }
 }
 
