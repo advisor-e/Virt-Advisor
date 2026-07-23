@@ -48,17 +48,29 @@ from `design/report-source-models/The Loan Estimator.xlsx`, sheet `Serviceabilit
   session I conceded "you're right, it's a defect / it was locked" before opening the actual
   cell — DON'T. Prove against the source first; see the debugging protocol.)
 
-**Three answers needed from Mike BEFORE building:**
-1. **Default stress margin** — what value (e.g. 2%)?
-2. **Scope** — all four serviceability loan rows (revolving credit, current property, new
-   property, personal term) or just the property loans? (Note: personal term loans currently
-   use their own actual rate 13.95% directly, with no assessment floor.)
-3. **Field label** — exact wording for the advisor's stress-margin field (don't invent).
+**THREE ANSWERS — ALL CONFIRMED by Mike 2026-07-24 (ready to build):**
+1. **Default stress margin = 1.5%**, fully editable per client.
+2. **Scope = the three property/revolving loans only** (revolving credit, current property,
+   new property). **Personal Term Loans is LEFT ALONE** — it keeps using its own entered
+   rate with no stress margin, exactly as the workbook does (row 20 had no assessment
+   column; actual rate 13.95% used directly).
+3. **Field = a SINGLE advisor-level field** (not per-loan) labelled **"Stress test margin
+   (%)"**, with grey helper line: *"Added to each loan's rate for the bank's serviceability
+   assessment — the client only ever sees their own rate."*
 
-**Also clarify:** does the margin touch only the serviceability loans, or also the
-**security-position stress test** (the security screen's per-asset `assessmentRate` values —
-residential 8.95%, plant 9.75%, vehicles 11%, etc. — drive a separate "stress-tested
-payment"; likely OUT of scope, but confirm).
+**Exact mechanic:** for the three loans, the rate used in the min-payment / affordability
+calc becomes `actualRate + stressMargin` (default 0.015). This REPLACES the current
+`max(residentialAssessmentRate 0.0895, actualRate)` for those three rows. Personal Term
+Loans unchanged. The security-position stress test (security screen's per-asset
+`assessmentRate` values) is a SEPARATE mechanic and OUT of scope — do not touch it.
+
+**⚠ SAMPLE-DATA CONSEQUENCE — resolve with Mike before locking the golden number.** The
+workbook sample enters the property-loan actual rates as **0** (H12/H14/H16 = 0), relying
+on the old flat 8.95% floor. Under the new additive model, 0 + 1.5% = 1.5% is nonsensical —
+the sample MUST carry a realistic client rate (e.g. ~5.95%) for the New Property Loan.
+So next session: pick a realistic sample rate WITH Mike, recompute the surplus/verdict, and
+have him APPROVE the new number before rebuilding the corrected-verdict golden anchor
+(current −154.83 / FAIL will change).
 
 **Impact / where it lands:**
 - `server/report/loanEstimatorModel.js` — `minPayment` becomes `actualRate + stressMargin`
