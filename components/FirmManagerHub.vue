@@ -568,6 +568,10 @@ section.firm-manager-hub.section
       b-tab-item(:label="$t('firmQuizzes.tab')" icon="help-circle-outline")
         firm-quizzes(:api-token="apiToken")
 
+      //- ── Tab: Domain Support (Phase 2 of firm-editable tables) ──────
+      b-tab-item(:label="$t('firmDomainSupport.tab')" icon="format-list-text")
+        firm-domain-support(:api-token="apiToken")
+
       //- ── Tab 4: Firm Profile ────────────────────────────────────────
       b-tab-item(label="Firm Profile" icon="domain")
         .columns
@@ -731,6 +735,7 @@ section.firm-manager-hub.section
 import DOMPurify from 'isomorphic-dompurify'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 import FirmDocuments from '~/components/firm/FirmDocuments.vue'
+import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 const { BLOCK_TONES } = require('~/utils/brandTokens')
@@ -796,7 +801,7 @@ const STAIRCASE_STEP_COLORS = BLOCK_TONES
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDocuments },
+  components: { FirmQuizzes, FirmDocuments, FirmDomainSupport },
 
   props: {
     firmId: { type: String, required: true },

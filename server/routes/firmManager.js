@@ -1607,6 +1607,224 @@ async function saveQuizzes (req, res) {
   }
 }
 
+// ── Domain Support ──────────────────────────────────────────────────────────
+
+const DEV_DOMAIN_SUPPORT_FILE = path.resolve(__dirname, '../../data/dev-firm-domain-support.json')
+const DOMAIN_SUPPORT_KEY_PREFIX = 'domain-support-'
+
+function _devReadDomainSupport (firmId, domainId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
+    const firm = all[firmId] || {}
+    return firm[domainId] || null
+  } catch { return null }
+}
+
+function _devWriteDomainSupport (firmId, domainId, cfg) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
+  } catch {}
+  if (!all[firmId]) { all[firmId] = {} }
+  all[firmId][domainId] = cfg
+  fs.writeFileSync(DEV_DOMAIN_SUPPORT_FILE, JSON.stringify(all, null, 2))
+}
+
+async function _loadDomainSupportOverride (firmId, domainId) {
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+  try {
+    return await overlay.loadFirmConfig(firmId, configKey)
+  } catch (err) {
+    if (IS_DEV) { return _devReadDomainSupport(firmId, domainId) }
+    throw err
+  }
+}
+
+async function _saveDomainSupportOverride (firmId, domainId, cfg, savedBy) {
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+  try {
+    return await overlay.saveFirmConfig(firmId, configKey, cfg, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteDomainSupport(firmId, domainId, cfg); return null }
+    throw err
+  }
+}
+
+async function _getDomainSupportHistory (firmId, domainId) {
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+  try {
+    const [rows] = await db.execute(
+      `SELECT version, saved_by, created_at
+       FROM firm_framework_versions
+       WHERE firm_id = ? AND config_key = ?
+       ORDER BY version DESC`,
+      [firmId, configKey]
+    )
+    return rows
+  } catch (err) {
+    if (IS_DEV) { return [] }
+    throw err
+  }
+}
+
+async function _restoreDomainSupportVersion (firmId, domainId, version, restoredBy) {
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+  try {
+    const [rows] = await db.execute(
+      `SELECT config_json FROM firm_framework_versions
+       WHERE firm_id = ? AND config_key = ? AND version = ?`,
+      [firmId, configKey, version]
+    )
+    if (rows.length === 0) { throw new Error('Version not found') }
+    const cfg = JSON.parse(rows[0].config_json)
+    await _saveDomainSupportOverride(firmId, domainId, cfg, restoredBy)
+    return true
+  } catch (err) {
+    if (IS_DEV) { return false }
+    throw err
+  }
+}
+
+/**
+ * GET /api/firm-manager/domain-support — list all domain support + firm overrides
+ */
+async function getDomainSupport (req, res) {
+  try {
+    const { domainSupport } = require('../utils/domainSupport')
+    const domains = require('../../data/domains.json') || []
+    const fs = require('fs')
+    const path = require('path')
+
+    // Load GET files list
+    const getFiles = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
+
+    const result = {
+      advisoryDomains: [],
+      getSellers: []
+    }
+
+    // Load advisory domains with firm overrides
+    for (const domain of domains) {
+      const override = await _loadDomainSupportOverride(req.firmId, domain.id)
+      const support = require('../utils/domainSupport').resolveDomainSupport(domain.id, override ? { [domain.id]: override } : null)
+      result.advisoryDomains.push({
+        id: domain.id,
+        label: domain.label,
+        hasOverride: override !== null,
+        supportTools: support ? (support.support_tools || []).length : 0,
+        origin: override ? 'firm' : 'platform'
+      })
+    }
+
+    // Load GET files with firm overrides
+    for (const fileId of getFiles) {
+      const override = await _loadDomainSupportOverride(req.firmId, fileId)
+      const support = require('../utils/domainSupport').resolveDomainSupport(fileId, override ? { [fileId]: override } : null)
+      result.getSellers.push({
+        id: fileId,
+        label: fileId.replace('get-', '').replace(/-/g, ' '),
+        hasOverride: override !== null,
+        supportTools: support ? (support.support_tools || []).length : 0,
+        origin: override ? 'firm' : 'platform'
+      })
+    }
+
+    res.send(200, result)
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/domain-support/:domainId — get domain support detail with firm override
+ */
+async function getDomainSupportDetail (req, res) {
+  const { domainId } = req.params
+  try {
+    const domainSupport = require('../utils/domainSupport')
+    const override = await _loadDomainSupportOverride(req.firmId, domainId)
+    const merged = domainSupport.resolveDomainSupport(domainId, override ? { [domainId]: override } : null)
+    res.send(200, merged || {})
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/domain-support/:domainId — save domain support override
+ */
+async function saveDomainSupport (req, res) {
+  const { domainId } = req.params
+  const override = req.body || {}
+
+  try {
+    const version = await _saveDomainSupportOverride(req.firmId, domainId, override, req.userEmail)
+    res.send(200, { saved: true, version, domainId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * DELETE /api/firm-manager/domain-support/:domainId — reset to platform default
+ */
+async function resetDomainSupport (req, res) {
+  const { domainId } = req.params
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+
+  try {
+    if (!IS_DEV) {
+      await db.execute(
+        `UPDATE firm_framework_versions SET is_active = 0
+         WHERE firm_id = ? AND config_key = ?`,
+        [req.firmId, configKey]
+      )
+    } else {
+      let all = {}
+      try {
+        all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
+      } catch {}
+      if (all[req.firmId]) { delete all[req.firmId][domainId] }
+      fs.writeFileSync(DEV_DOMAIN_SUPPORT_FILE, JSON.stringify(all, null, 2))
+    }
+    res.send(200, { reset: true, domainId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/domain-support/:domainId/history — version history
+ */
+async function getDomainSupportHistory (req, res) {
+  const { domainId } = req.params
+  try {
+    const history = await _getDomainSupportHistory(req.firmId, domainId)
+    res.send(200, { history, domainId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/domain-support/:domainId/restore — restore a version
+ */
+async function restoreDomainSupport (req, res) {
+  const { domainId } = req.params
+  const { version } = req.body || {}
+
+  if (typeof version !== 'number') {
+    return res.send(400, { success: false, error: { code: 'INVALID_VERSION', message: 'version must be a number' } })
+  }
+
+  try {
+    await _restoreDomainSupportVersion(req.firmId, domainId, version, req.userEmail)
+    res.send(200, { restored: true, domainId, version })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
   quizzablePages,
   listDocuments,
@@ -1641,5 +1859,11 @@ module.exports = {
   getStaircase,
   saveStaircase,
   getQuizzes,
-  saveQuizzes
+  saveQuizzes,
+  getDomainSupport,
+  getDomainSupportDetail,
+  saveDomainSupport,
+  resetDomainSupport,
+  getDomainSupportHistory,
+  restoreDomainSupport
 }
