@@ -87,6 +87,12 @@ const advisorEngine = require('./advisorEngine')
 const courseEngine = require('./courseEngine')
 
 const PORT = process.env.BACKEND_PORT || 4000
+// Bind IPv4 loopback explicitly. With no host, Node binds `::` (IPv6-only on
+// Windows), so the Nuxt proxies — which target `http://127.0.0.1:4000` — get
+// ECONNREFUSED whenever `localhost` resolves to IPv4. This is the backend twin
+// of the nuxt.config `server.host: '127.0.0.1'` fix. Deployments that need a
+// different interface (e.g. cross-host) set BACKEND_HOST (0.0.0.0 for all IPv4).
+const HOST = process.env.BACKEND_HOST || '127.0.0.1'
 
 const server = restify.createServer({
   name: 'virt-advisor-api',
@@ -249,6 +255,6 @@ server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMen
 server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)
 
 // ── Start ──
-server.listen(PORT, () => {
-  console.error(`[restify] virt-advisor-api listening on port ${PORT}`)
+server.listen(PORT, HOST, () => {
+  console.error(`[restify] virt-advisor-api listening on ${HOST}:${PORT}`)
 })
