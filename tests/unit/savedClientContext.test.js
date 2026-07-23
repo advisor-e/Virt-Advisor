@@ -274,3 +274,81 @@ describe('buildContinuityTraceAudit', () => {
     expect(blocked).toEqual({ continuityClaimed: false, continuitySource: 'none' })
   })
 })
+
+describe('Phase B Integration — Saved-Client Intake Flow', () => {
+  test('end-to-end: extract context → generate yes/no prompts → handle responses', async () => {
+    // Setup: prior case with all three fields saved
+    const priorCase = {
+      decisionTrace: {
+        situation: [
+          'Industry: scaffolding',
+          'Business ownership: privately owned',
+          'Advisory Staircase position: Step 2: Assimilation'
+        ].join('\n')
+      }
+    }
+
+    // Phase A: Extract facts from prior case
+    const extracted = extractSavedClientFactsFromCases([priorCase])
+    expect(extracted.industry).toBe('scaffolding')
+    expect(extracted.ownership).toBe('privately owned')
+    expect(extracted.advisoryStaircase).toBe('Step 2: Assimilation')
+
+    // Resolve full context
+    const context = await resolveSavedClientContext(
+      { clientId: 'c1', advisorId: 'a1', firmId: 'f1' },
+      {
+        getClientById: jest.fn().mockResolvedValue({ id: 'c1', firmId: 'f1', name: 'Jones Scaffolding' }),
+        listCasesForClient: jest.fn().mockResolvedValue([priorCase])
+      }
+    )
+    expect(context.resolutionState).toBe('resolved')
+    expect(context.resolvedFacts.industry).toBe('scaffolding')
+    expect(context.resolvedFacts.ownership).toBe('privately owned')
+    expect(context.resolvedFacts.advisoryStaircase).toBe('Step 2: Assimilation')
+
+    // Phase B: Generate yes/no confirm prompts
+    const industryPrompt = buildSavedFactConfirmPrompt('industry', 'scaffolding')
+    expect(industryPrompt).toMatch(/is the industry still/i)
+    expect(industryPrompt).toContain('scaffolding')
+
+    const ownershipPrompt = buildSavedFactConfirmPrompt('ownership', 'privately owned')
+    expect(ownershipPrompt).toMatch(/are they still/i)
+    expect(ownershipPrompt).toContain('privately owned')
+
+    const stagePrompt = buildSavedFactConfirmPrompt('advisoryStaircase', 'Step 2: Assimilation')
+    expect(stagePrompt).toMatch(/is the advisory stage still/i)
+    expect(stagePrompt).toContain('Step 2: Assimilation')
+
+    // Scenario 1: Advisor confirms all three (answers "yes")
+    const usage1 = {}
+    usage1.industry = parseSavedFactAnswer('industry', 'scaffolding', 'yes').action === 'keep' ? 'kept' : 'edited'
+    usage1.ownership = parseSavedFactAnswer('ownership', 'privately owned', 'yes').action === 'keep' ? 'kept' : 'edited'
+    usage1.advisoryStaircase = parseSavedFactAnswer('advisoryStaircase', 'Step 2: Assimilation', 'yes').action === 'keep' ? 'kept' : 'edited'
+
+    const audit1 = buildSavedClientTraceAudit(context, usage1)
+    expect(audit1.savedClientContextUsed).toBe(true)
+    expect(audit1.prefilledFields).toEqual(['industry', 'ownership', 'advisoryStaircase'])
+    expect(audit1.confirmedFields).toEqual(['industry', 'ownership', 'advisoryStaircase'])
+    expect(audit1.editedFields).toEqual([])
+
+    // Scenario 2: Advisor changes ownership, keeps others (answers "no" then provides new value)
+    const usage2 = {}
+    usage2.industry = 'kept'
+    usage2.ownership = 'edited'
+    usage2.advisoryStaircase = 'kept'
+
+    const audit2 = buildSavedClientTraceAudit(context, usage2)
+    expect(audit2.savedClientContextUsed).toBe(true)
+    expect(audit2.prefilledFields).toEqual(['industry', 'ownership', 'advisoryStaircase'])
+    expect(audit2.confirmedFields).toEqual(['industry', 'advisoryStaircase'])
+    expect(audit2.editedFields).toEqual(['ownership'])
+
+    // Scenario 3: No saved context — falls back to open questions
+    const noContextPrompt = buildSavedFactConfirmPrompt('industry', null)
+    expect(noContextPrompt).toBe('What industry is the client in?')
+
+    const noStagePrompt = buildSavedFactConfirmPrompt('advisoryStaircase', null)
+    expect(noStagePrompt).toContain('Where would you say your current engagement')
+  })
+})

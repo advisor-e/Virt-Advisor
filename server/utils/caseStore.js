@@ -165,20 +165,16 @@ async function listForAdvisor (advisorId, firmId) {
  * @returns {Promise<object[]>} newest first, capped at 50
  */
 async function listForClient (advisorId, firmId, clientId) {
-  try {
-    const [rows] = await db.execute(
-      `SELECT * FROM va_case_studies
-        WHERE client_id = ?
-          AND (advisor_id = ? OR (firm_id = ? AND visibility = 'shared'))
-        ORDER BY created_at DESC
-        LIMIT 50`,
-      [clientId, advisorId, firmId]
-    )
-    return rows.map(rowToCase)
-  } catch (err) {
-    if (devFallbackEnabled()) { return _devListForClient(advisorId, firmId, clientId) }
-    throw err
-  }
+  if (devFallbackEnabled()) { return _devListForClient(advisorId, firmId, clientId) }
+  const [rows] = await db.execute(
+    `SELECT * FROM va_case_studies
+      WHERE client_id = ?
+        AND (advisor_id = ? OR (firm_id = ? AND visibility = 'shared'))
+      ORDER BY created_at DESC
+      LIMIT 50`,
+    [clientId, advisorId, firmId]
+  )
+  return rows.map(rowToCase)
 }
 
 /**
