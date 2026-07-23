@@ -689,6 +689,52 @@
         "secured": "Secured",
         "unsecured": "Unsecured",
         "continue": "Continue →"
+      },
+      "serviceability": {
+        "householdTitle": "Household",
+        "loansTitle": "Loans",
+        "incomeTitle": "Household Income",
+        "expensesTitle": "Household Expenses",
+        "yes": "Yes",
+        "no": "No",
+        "jointApplication": "Is this a Joint Application?",
+        "dependantsUnder18": "Number of Dependants under 18 yrs",
+        "dependantsOver18": "Dependants over 18yrs",
+        "numberOfVehicles": "Number of Vehicles",
+        "loanCol": {
+          "balance": "Balance",
+          "actualRate": "Actual Rate if higher than 6.65%",
+          "assessmentTerm": "Assessment Term (Yrs)",
+          "actualTerm": "Actual Term if less than 30 yrs"
+        },
+        "loanRow": {
+          "revolvingCredit": "Current Revolving Credit Limits",
+          "currentPropertyLoans": "Current Property Loans",
+          "newPropertyLoans": "New Property Loans",
+          "personalTermLoans": "Personal Term Loans"
+        },
+        "customer1Gross": "Customer 1 — Annual Gross Income",
+        "customer2Gross": "Customer 2 — Annual Gross Income",
+        "otherMonthly": "Combined 'Other' Mthly (Tax Paid) Income",
+        "otherMonthlyHelp": "eg. Benefits, Dividends.",
+        "currentRental": "Current Residential Investment Property Income — Weekly Gross Rental",
+        "newRental": "New Residential Investment Property Income — Weekly Gross Rental",
+        "boardersTitle": "Boarder/Homestay Income",
+        "boardersNumber": "Number of Boarders",
+        "boardersCharge": "Weekly Charge",
+        "boardersTerm": "Boarder Term (Weeks)",
+        "studentLoan1": "Customer 1 Student Loan",
+        "studentLoan2": "Customer 2 Student Loan",
+        "monthly": "Mthly",
+        "overdraftLimits": "Overdraft/s Limits",
+        "creditCardLimits": "Credit Card/s Limits",
+        "rentPaid": "Rent Paid (Weekly)",
+        "rentPaidHelp": "Leave the rent figure as \"0\" if you've entered a mortgage figure in property loans section",
+        "generalLiving": "General Living Expenses (weekly)",
+        "generalLivingHelp": "Includes Food, Power, Gas, Phone, Education, Vehicle running costs, Rates, Home/Contents Insurance",
+        "additionalLiving": "Additional Living Expenses (weekly)",
+        "additionalLivingHelp": "Includes Child Support, Medical Costs, Superannuation, Gym/Club membership fees, Private school fees, other",
+        "continue": "Continue →"
       }
     },
     "sampleFigures": "These are sample numbers, not your client's"

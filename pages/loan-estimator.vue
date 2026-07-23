@@ -17,6 +17,7 @@
         span.n 3
         | {{ $t('report.loanEstimator.step3') }}
     loan-estimator-security(v-if="step === 1" :restore="security" @confirmed="onSecurityConfirmed")
+    loan-estimator-serviceability(v-else-if="step === 2" :restore="serviceability" @confirmed="onServiceabilityConfirmed")
     .placeholder(v-else) {{ $t('report.loanEstimator.placeholder') }}
 </template>
 
@@ -37,19 +38,21 @@
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import LoanEstimatorSecurity from '~/components/LoanEstimatorSecurity.vue'
+import LoanEstimatorServiceability from '~/components/LoanEstimatorServiceability.vue'
 
 export default {
   name: 'LoanEstimatorPage',
 
-  components: { ReportHeader, LoanEstimatorSecurity },
+  components: { ReportHeader, LoanEstimatorSecurity, LoanEstimatorServiceability },
 
   data () {
     return {
       step: 1,
-      // Step 1's confirmed figures; step 2 forward-navigation is gated on it
-      // existing, same rule as Quick Position (a chip is only clickable when
-      // there is content to return to).
-      security: null
+      // Each step's confirmed figures; forward-navigation is gated on the
+      // previous step existing, same rule as Quick Position (a chip is only
+      // clickable when there is content to return to).
+      security: null,
+      serviceability: null
     }
   },
 
@@ -69,6 +72,11 @@ export default {
     onSecurityConfirmed (payload) {
       this.security = payload
       this.step = 2
+    },
+    /** The serviceability screen hands over its confirmed figures; the report is next. */
+    onServiceabilityConfirmed (payload) {
+      this.serviceability = payload
+      this.step = 3
     }
   }
 }
