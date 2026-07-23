@@ -608,7 +608,8 @@ const DEFAULT_SERVICEABILITY_INPUTS = {
  * @param {Object} inputs see DEFAULT_SERVICEABILITY_INPUTS — any omitted field
  *   falls back to the sample AND is named in `defaultedInputs`.
  * @returns {Object} { income, loanMinimums, expenses, allowances, surplus,
- *   verdictPass, taxTable: {country, taxYearLabel}, defaultedInputs }
+ *   verdictPass, maxAffordableNewLoan, taxTable: {country, taxYearLabel},
+ *   defaultedInputs }
  */
 function computeServiceability (inputs) {
   const src = (inputs && typeof inputs === 'object') ? inputs : {}
@@ -715,6 +716,21 @@ function computeServiceability (inputs) {
   const expensesUsed = Math.max(expenses.total, allowances.floor)
   const surplus = income.totalNetMonthly - loanMinimums.total - expensesUsed
 
+  // APP-ORIGINAL FORMULA (Mike, 2026-07-23) — NOT a workbook cell, so it has no
+  // golden anchor; it is proven by round-trip test instead (plug the answer back
+  // in as the balance → surplus lands exactly on the threshold). The largest
+  // "New Property Loans" balance whose bank-assessed minimum payment still
+  // leaves the household at the affordability threshold, everything else as
+  // entered. The minimum payment is linear in the balance, so solve directly:
+  // per-dollar payment at the same worst-case repricing as the N16 row itself.
+  const perDollar = minPayment(
+    Object.assign({}, loans.newPropertyLoans, { balance: 1 }), residentialAssessmentRate
+  )
+  const paymentHeadroom = income.totalNetMonthly -
+    (loanMinimums.total - loanMinimums.newPropertyLoans) -
+    expensesUsed - svc.verdictSurplusThreshold
+  const maxAffordableNewLoan = perDollar > 0 ? Math.max(0, paymentHeadroom / perDollar) : null
+
   return {
     income,
     loanMinimums,
@@ -722,6 +738,7 @@ function computeServiceability (inputs) {
     allowances,
     surplus, //                                              N64
     verdictPass: surplus > svc.verdictSurplusThreshold, //   J64's test; wording is a Phase 4 decision
+    maxAffordableNewLoan, //                                 app-original — indication only
     taxTable: { country, taxYearLabel: taxTable.taxYearLabel, effectiveFrom: taxTable.effectiveFrom },
     defaultedInputs
   }

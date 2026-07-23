@@ -14,7 +14,7 @@
       h2 {{ verdictPass ? $t('report.loanEstimator.result.verdictPass') : $t('report.loanEstimator.result.verdictFail') }}
       p {{ $t('report.loanEstimator.result.verdictQualifier') }}
 
-    hero-strip(:columns="3" :stale="!!error")
+    hero-strip(:columns="4" :stale="!!error")
       hero-figure(
         :label="$t('report.loanEstimator.result.hero.surplus')"
         :value="money(data.serviceability.surplus)"
@@ -30,6 +30,13 @@
         :label="$t('report.loanEstimator.result.hero.repayment')"
         :value="money(data.repayment.monthlyRepayment)"
         :sub="$t('report.loanEstimator.result.hero.repaymentSub')"
+      )
+      //- App-original formula (ruled 2026-07-23): the largest new property loan
+      //- these figures support — indication only, like the verdict itself.
+      hero-figure(
+        :label="$t('report.loanEstimator.result.hero.maxBorrowing')"
+        :value="data.serviceability.maxAffordableNewLoan === null ? '—' : money(data.serviceability.maxAffordableNewLoan)"
+        :sub="$t('report.loanEstimator.result.hero.maxBorrowingSub')"
       )
 
     .ler-card

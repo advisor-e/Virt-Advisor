@@ -389,6 +389,37 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       expect(demo.defaultedInputs).toContain('loans')
       expect(demo.surplus).toBeCloseTo(-154.833776247, 5) // and still computes the sample
     })
+
+    // APP-ORIGINAL formula (Mike, 2026-07-23) — no workbook cell to anchor to,
+    // so it is proven by ROUND TRIP: the reported maximum, fed back in as the
+    // New Property Loans balance, must land the surplus exactly on the
+    // 250 threshold (the edge of passing).
+    describe('maxAffordableNewLoan (app-original — indication only)', () => {
+      /** @param {number} balance @returns {Object} the sample with the new loan set to `balance`. */
+      function withNewLoan (balance) {
+        const loans = JSON.parse(JSON.stringify(DEFAULT_SERVICEABILITY_INPUTS.loans))
+        loans.newPropertyLoans.balance = balance
+        return Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, { loans })
+      }
+
+      it('round-trips: borrowing the reported maximum lands surplus exactly on the threshold', () => {
+        const max = s.maxAffordableNewLoan
+        // The sample fails on 500,000, so the affordable figure must be below it.
+        expect(max).toBeGreaterThan(0)
+        expect(max).toBeLessThan(500000)
+        const atMax = computeServiceability(withNewLoan(max))
+        expect(atMax.surplus).toBeCloseTo(250, 6) // the configured verdict threshold
+        // A dollar less than the edge passes; the edge itself is the boundary (> 250).
+        expect(computeServiceability(withNewLoan(max - 1)).verdictPass).toBe(true)
+      })
+
+      it('floors at zero when the household cannot afford any new borrowing', () => {
+        const broke = computeServiceability(Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, {
+          customer1GrossIncome: 0, customer2GrossIncome: 0, currentRentalWeekly: 0, newRentalWeekly: 0
+        }))
+        expect(broke.maxAffordableNewLoan).toBe(0)
+      })
+    })
   })
 
   describe('input discipline', () => {

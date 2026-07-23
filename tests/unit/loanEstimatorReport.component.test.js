@@ -71,11 +71,13 @@ describe('LoanEstimatorReport', () => {
   it('renders the three hero figures and both summary cards from real model output', async () => {
     const wrapper = await mountScreen()
     const text = wrapper.text()
-    ;['hero.surplus', 'hero.availableSecurity', 'hero.repayment',
+    ;['hero.surplus', 'hero.availableSecurity', 'hero.repayment', 'hero.maxBorrowing',
       'security.title', 'security.rows.combined', 'svc.title', 'svc.income',
       'calc.title'].forEach((key) => {
       expect(text).toContain('report.loanEstimator.result.' + key)
     })
+    // The estimated-maximum figure renders as money, not a blank (sample: ~451k).
+    expect(wrapper.findAllComponents({ name: 'HeroFigure' }).length).toBe(4)
     // Table basis: 10 schedule years + the totals row.
     expect(wrapper.findAll('.ler-result tbody tr').length).toBe(11)
   })
