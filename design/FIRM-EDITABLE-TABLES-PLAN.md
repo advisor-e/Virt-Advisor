@@ -15,7 +15,9 @@ conflicts with these, **these win** and the earlier wording is the defect.
 1. **No separate "Domain Support" tab.** The standalone tab added on 2026-07-23 was a
    mistake (introduced while the machine was firefighting other breakage) and is to be
    **removed**, not fixed or reused. Everything happens on the page currently called
-   **Document Library**.
+   **Document Library**. *(SUPERSEDED 2026-07-24 by §0.6 — after seeing the in-app mockups
+   Mike ruled for TWO dedicated tabs, "Domain Support" and "Logic Tables". The half-built
+   2026-07-23 skeleton was still rightly removed; the new tabs are a proper rebuild. See §0.6.)*
 2. **No PDF viewing.** The firm manager sees **only the editable table** — never the source
    PDF. The "keep the Drive-backed PDF function" line in §4 (line ~149) is withdrawn.
 3. **The table's content is the existing structured AI data.** What the firm manager sees
@@ -82,6 +84,31 @@ engine as the firm-editable table. Worked examples (EOY clean + Cash Tactics mes
 at the very end (safe to exclude), BUT: `Valuation` has an **unlabelled** logic table at the end
 (only its column headers identify it), and `3 pill Fin Mgt` has an **unlabelled, mid-document**
 logic-style grid ("Client Progression…"). Those two need manual eyes, not auto-trimming.
+
+---
+
+## 0.6 TAB STRUCTURE — REVISED (2026-07-24, later session; Mike, binding)
+
+**Two dedicated tabs, not one combined page.** After seeing the in-app mockups, Mike ruled that
+the two content types get their **own top-level Firm Manager tabs**:
+
+- **Domain Support** — the four-column material tables (Template · Summary · Who & when · Step-by-step).
+- **Logic Tables** — the IF → THEN branch grids.
+
+**The umbrella term "Decision Frameworks" is retired.** The tab that was renamed Document Library
+→ "Decision Frameworks" on 2026-07-24 (`ce98e53`, [`FirmManagerHub.vue`](../components/FirmManagerHub.vue))
+becomes **"Domain Support"**, and a separate **"Logic Tables"** tab is added alongside it.
+
+**Why (Mike):** a firm manager can immediately tell what they are editing, and the layout is
+cleaner than one page carrying two different table shapes.
+
+**This supersedes §0 decision 1** ("no separate Domain Support tab; everything on one page") —
+that ruling is withdrawn. §0 decisions 2 (no PDF viewing) and 3 (edit the structured AI data)
+still stand. This also resolves §0's open follow-up (a) — the "Document Library" name question.
+
+**Do NOT rename the backend "Decision Framework" feature** (singular; the platform-admin
+`/framework` config routes in `firmManager.js`). That is a different, unrelated feature — this
+rename is the user-facing tab label only.
 
 ---
 
