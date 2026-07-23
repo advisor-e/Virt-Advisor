@@ -16,7 +16,8 @@
       .step(:class="{ active: step === 3 }")
         span.n 3
         | {{ $t('report.loanEstimator.step3') }}
-    .placeholder {{ $t('report.loanEstimator.placeholder') }}
+    loan-estimator-security(v-if="step === 1" :restore="security" @confirmed="onSecurityConfirmed")
+    .placeholder(v-else) {{ $t('report.loanEstimator.placeholder') }}
 </template>
 
 <script>
@@ -35,11 +36,12 @@
  * entries — see SESSION-2026-07-23-C-NOTES.md).
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
+import LoanEstimatorSecurity from '~/components/LoanEstimatorSecurity.vue'
 
 export default {
   name: 'LoanEstimatorPage',
 
-  components: { ReportHeader },
+  components: { ReportHeader, LoanEstimatorSecurity },
 
   data () {
     return {
@@ -62,6 +64,11 @@ export default {
       if (n === 3 || n === this.step) { return }
       if (n > this.step && !(n === 2 && this.security)) { return }
       this.step = n
+    },
+    /** The security screen hands over its confirmed figures; serviceability is next. */
+    onSecurityConfirmed (payload) {
+      this.security = payload
+      this.step = 2
     }
   }
 }

@@ -661,7 +661,35 @@
       "step1": "Security position",
       "step2": "Serviceability",
       "step3": "Loan Estimator report",
-      "placeholder": "This step is still being built."
+      "placeholder": "This step is still being built.",
+      "security": {
+        "personalTitle": "Personal",
+        "commercialTitle": "Commercial",
+        "col": {
+          "value": "Market value",
+          "adjustment": "% value adjustment",
+          "prospects": "Prospects",
+          "debt": "Current debt",
+          "payments": "Current monthly payments"
+        },
+        "prospects": {
+          "static": "Static",
+          "growth": "Growth",
+          "decline": "Decline"
+        },
+        "subTitle": "Side calculations",
+        "rentalIncome": "Net rental income (annual)",
+        "capRate": "Cap rate (%)",
+        "fonterraShares": "Fonterra shares",
+        "fonterraTradingValue": "Trading value",
+        "computedFromSide": "Calculated from the side calculations",
+        "overdraftTitle": "Overdraft",
+        "fundsDrawn": "Funds drawn",
+        "securedLabel": "Security",
+        "secured": "Secured",
+        "unsecured": "Unsecured",
+        "continue": "Continue →"
+      }
     },
     "sampleFigures": "These are sample numbers, not your client's"
   },
