@@ -661,7 +661,6 @@
       "step1": "Security position",
       "step2": "Serviceability",
       "step3": "Loan Estimator report",
-      "placeholder": "This step is still being built.",
       "security": {
         "personalTitle": "Personal",
         "commercialTitle": "Commercial",
@@ -735,6 +734,66 @@
         "additionalLiving": "Additional Living Expenses (weekly)",
         "additionalLivingHelp": "Includes Child Support, Medical Costs, Superannuation, Gym/Club membership fees, Private school fees, other",
         "continue": "Continue →"
+      },
+      "result": {
+        "verdictPass": "Meets the affordability test",
+        "verdictFail": "Falls short of the affordability test",
+        "verdictQualifier": "An indication of affordability only — not a lending decision.",
+        "hero": {
+          "surplus": "Monthly surplus",
+          "surplusSub": "The number the affordability test is judged on",
+          "availableSecurity": "Available security",
+          "availableSecuritySub": "Across all assets, after existing debt",
+          "repayment": "Monthly repayment",
+          "repaymentSub": "On the proposed loan from the quick calculator"
+        },
+        "security": {
+          "title": "Security position",
+          "rows": {
+            "personal": "Personal",
+            "commercial": "Commercial",
+            "combined": "Combined"
+          },
+          "cols": {
+            "value": "Asset value",
+            "adjustedValue": "Adjusted value",
+            "currentDebt": "Current debt",
+            "equity": "Equity",
+            "loanLimit": "Loan limit",
+            "availableSecurity": "Available security"
+          }
+        },
+        "svc": {
+          "title": "Household serviceability",
+          "income": "Total net monthly income",
+          "loanMinimums": "Minimum monthly loan payments",
+          "expensesUsed": "Monthly expenses used",
+          "expensesUsedNote": "The greater of actual expenses and the bank's minimum allowances",
+          "surplus": "Monthly surplus",
+          "taxNote": "Calculated using New Zealand tax bands — {label}"
+        },
+        "calc": {
+          "title": "Repayment quick calculator",
+          "purchasePrice": "Purchase price",
+          "deposit": "Deposit",
+          "rate": "Interest rate (%)",
+          "term": "Term",
+          "termUnitLabel": "Term unit",
+          "years": "Years",
+          "months": "Months",
+          "basisLabel": "Basis",
+          "basisTable": "Table",
+          "basisReducing": "Reducing",
+          "basisInterestOnly": "Interest Only",
+          "monthlyRepayment": "Monthly repayment",
+          "schedule": {
+            "year": "Year",
+            "interest": "Interest",
+            "principal": "Principal",
+            "closingBalance": "Closing balance",
+            "total": "Total"
+          }
+        }
       }
     },
     "sampleFigures": "These are sample numbers, not your client's"

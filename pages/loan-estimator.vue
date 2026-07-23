@@ -18,7 +18,7 @@
         | {{ $t('report.loanEstimator.step3') }}
     loan-estimator-security(v-if="step === 1" :restore="security" @confirmed="onSecurityConfirmed")
     loan-estimator-serviceability(v-else-if="step === 2" :restore="serviceability" @confirmed="onServiceabilityConfirmed")
-    .placeholder(v-else) {{ $t('report.loanEstimator.placeholder') }}
+    loan-estimator-report(v-else :security="security" :serviceability="serviceability")
 </template>
 
 <script>
@@ -31,19 +31,19 @@
  * intake and the compute route is anonymous (numbers in, numbers out), so no
  * Bearer-token plumbing is needed.
  *
- * The three step screens arrive as separate approved changes; until then each
- * step shows a placeholder. The Model Library row stays "Coming soon" until
- * the final commit of Phase 4b (catalogue flip lands last, with the guard
- * entries — see SESSION-2026-07-23-C-NOTES.md).
+ * The Model Library row stays "Coming soon" until the final commit of
+ * Phase 4b (catalogue flip lands last, with the guard entries — see
+ * SESSION-2026-07-23-C-NOTES.md).
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import LoanEstimatorSecurity from '~/components/LoanEstimatorSecurity.vue'
 import LoanEstimatorServiceability from '~/components/LoanEstimatorServiceability.vue'
+import LoanEstimatorReport from '~/components/LoanEstimatorReport.vue'
 
 export default {
   name: 'LoanEstimatorPage',
 
-  components: { ReportHeader, LoanEstimatorSecurity, LoanEstimatorServiceability },
+  components: { ReportHeader, LoanEstimatorSecurity, LoanEstimatorServiceability, LoanEstimatorReport },
 
   data () {
     return {
@@ -98,9 +98,5 @@ export default {
 .step.active .n { background: #ffffff30; color: #fff; }
 .step.done { color: #4ca52d; }
 .step.done .n { background: #4ca52d1a; color: #4ca52d; }
-.placeholder {
-  background: #fff; border: 1px dashed #d5e1ee; border-radius: 10px;
-  padding: 40px 22px; text-align: center; color: #5b6f8a; font-size: 14px;
-}
 @media print { .steps { display: none !important; } }
 </style>
