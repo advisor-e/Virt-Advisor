@@ -13,87 +13,12 @@ section.firm-manager-hub.section
 
     //- Main tabs
     b-tabs(v-model="activeTab" type="is-boxed" animated)
-      //- ── Tab 1: Document Library ─────────────────────────────────────
-      b-tab-item(label="Document Library" icon="file-pdf-box")
+      //- ── Tab 1: Decision Frameworks (formerly Document Library) ──────
+      b-tab-item(label="Decision Frameworks" icon="file-pdf-box")
         //- Rebuilt onto the shared FirmRail pattern (FIRM-EDITABLE-TABLES-PLAN.md
         //- Phase 1) and moved into its own component like FirmQuizzes. Storage
         //- totals render in this header, so the tab reports changes upward.
         firm-documents(:api-token="apiToken" @storage-changed="loadStorage")
-
-      //- ── Tab 2: Decision Framework — PLATFORM ADMIN ONLY (2026-07-16) ──
-      //- Raw-JSON power tool kept for support/debugging; hidden from firm
-      //- managers (the friendly Staircase + Distinctions tabs are their
-      //- editors). UI gate only — the /framework routes stay manager-level
-      //- because the Staircase tab's version history rides them.
-      b-tab-item(v-if="isPlatformAdmin" label="Decision Framework" icon="code-json")
-        .columns
-          .column.is-3
-            b-menu
-              b-menu-list(label="Framework section")
-                b-menu-item(
-                  v-for="fk in frameworkKeys"
-                  :key="fk.key"
-                  :label="fk.label"
-                  :active="selectedFrameworkKey === fk.key"
-                  @click="selectFrameworkKey(fk.key)"
-                )
-          .column
-            .has-text-centered.py-5(v-if="loadingFramework")
-              b-loading(:is-full-page="false" :active="true")
-            template(v-else)
-              b-notification.mb-4(
-                v-if="!frameworkOverride"
-                type="is-info is-light"
-                :closable="false"
-              )
-                | No firm override saved for this section. The AI uses the platform default.
-                | Add your overrides below and save to activate them.
-
-              b-field(label="Your firm's override JSON")
-                b-input(
-                  v-model="frameworkJson"
-                  type="textarea"
-                  rows="16"
-                  custom-class="is-family-monospace"
-                  placeholder='{ "key": "value" }'
-                )
-
-              b-field(grouped)
-                b-button(
-                  type="is-primary"
-                  :loading="savingFramework"
-                  @click="saveFramework"
-                ) Save override
-                b-button(
-                  type="is-light"
-                  :disabled="!frameworkOverride"
-                  @click="clearFrameworkEditor"
-                ) Reset editor
-                b-button(
-                  type="is-light"
-                  :disabled="!frameworkHistory.length"
-                  @click="showHistoryModal = true"
-                ) Version history ({{ frameworkHistory.length }})
-
-              //- Version history modal
-              b-modal(v-model="showHistoryModal" has-modal-card)
-                .modal-card
-                  header.modal-card-head
-                    p.modal-card-title Version history
-                  section.modal-card-body
-                    b-table(:data="frameworkHistory" :hoverable="true")
-                      b-table-column(v-slot="{ row }" field="version" label="Version" width="80") v{{ row.version }}
-                      b-table-column(v-slot="{ row }" field="saved_by" label="Saved by") {{ row.saved_by }}
-                      b-table-column(v-slot="{ row }" field="created_at" label="Date") {{ formatDate(row.created_at) }}
-                      b-table-column(v-slot="{ row }" label="" width="100")
-                        b-button(
-                          v-if="!row.is_active"
-                          size="is-small"
-                          @click="restoreVersion(row)"
-                        ) Restore
-                        b-tag(v-else type="is-success is-light") Active
-                  footer.modal-card-foot
-                    b-button(@click="showHistoryModal = false") Close
 
       //- ── Tab: Advisory Staircase ────────────────────────────────────
       b-tab-item(label="Advisory Staircase" icon="stairs")
@@ -568,10 +493,6 @@ section.firm-manager-hub.section
       b-tab-item(:label="$t('firmQuizzes.tab')" icon="help-circle-outline")
         firm-quizzes(:api-token="apiToken")
 
-      //- ── Tab: Domain Support (Phase 2 of firm-editable tables) ──────
-      b-tab-item(:label="$t('firmDomainSupport.tab')" icon="format-list-text")
-        firm-domain-support(:api-token="apiToken")
-
       //- ── Tab 4: Firm Profile ────────────────────────────────────────
       b-tab-item(label="Firm Profile" icon="domain")
         .columns
@@ -735,7 +656,6 @@ section.firm-manager-hub.section
 import DOMPurify from 'isomorphic-dompurify'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 import FirmDocuments from '~/components/firm/FirmDocuments.vue'
-import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 const { BLOCK_TONES } = require('~/utils/brandTokens')
@@ -779,13 +699,6 @@ const DISTINCTION_DOMAINS = [
   { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
 ]
 
-const FRAMEWORK_KEYS = [
-  { key: 'recommendation-rules', label: 'Recommendation rules' },
-  { key: 'domain-weights', label: 'Domain weights' },
-  { key: 'capability-tiers', label: 'Capability tiers' },
-  { key: 'custom-prompts', label: 'Custom prompts' }
-]
-
 // Per-step accent + faint background tint so each staircase step reads as its own
 // block (avoids "map-shock" — steps blending into one). Cycles if a firm ever has
 // more steps than colours.
@@ -801,7 +714,7 @@ const STAIRCASE_STEP_COLORS = BLOCK_TONES
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDocuments, FirmDomainSupport },
+  components: { FirmQuizzes, FirmDocuments },
 
   props: {
     firmId: { type: String, required: true },
@@ -817,16 +730,6 @@ export default {
   data () {
     return {
       activeTab: 0,
-
-      // Decision Framework
-      frameworkKeys: FRAMEWORK_KEYS,
-      selectedFrameworkKey: FRAMEWORK_KEYS[0].key,
-      frameworkOverride: null,
-      frameworkJson: '',
-      frameworkHistory: [],
-      loadingFramework: false,
-      savingFramework: false,
-      showHistoryModal: false,
 
       // Advisory Staircase
       staircaseBase: null,
@@ -932,11 +835,6 @@ export default {
   },
 
   computed: {
-    // Gates the raw Decision Framework tab (platform admin = also the interim
-    // mentor role, so the mentor keeps the support tool).
-    isPlatformAdmin () {
-      return this.userRole === 'platform_admin'
-    },
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
@@ -1017,8 +915,6 @@ export default {
   },
 
   mounted () {
-    // Raw Decision Framework data only exists for the admin-gated tab.
-    if (this.isPlatformAdmin) { this.loadFramework() }
     this.loadTemplateImport()
     this.loadVideos()
     this.loadProfile()
@@ -1055,74 +951,6 @@ export default {
     // Moved to components/firm/FirmDocuments.vue (FIRM-EDITABLE-TABLES-PLAN.md
     // Phase 1). The tab reports storage changes via @storage-changed so the
     // header total stays live.
-
-    // ── Decision Framework ──────────────────────────────────────────────────
-    async loadFramework () {
-      this.loadingFramework = true
-      try {
-        const data = await this.api('GET',
-          `/api/firm-manager/framework?configKey=${this.selectedFrameworkKey}`)
-        this.frameworkOverride = data.firmOverride
-        this.frameworkJson = data.firmOverride
-          ? JSON.stringify(data.firmOverride, null, 2)
-          : ''
-        const hist = await this.api('GET',
-          `/api/firm-manager/framework/history?configKey=${this.selectedFrameworkKey}`)
-        this.frameworkHistory = hist.history || []
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.loadingFramework = false
-      }
-    },
-
-    selectFrameworkKey (key) {
-      this.selectedFrameworkKey = key
-      this.loadFramework()
-    },
-
-    clearFrameworkEditor () {
-      this.frameworkJson = this.frameworkOverride
-        ? JSON.stringify(this.frameworkOverride, null, 2)
-        : ''
-    },
-
-    async saveFramework () {
-      let parsed
-      try {
-        parsed = JSON.parse(this.frameworkJson)
-      } catch {
-        this.$buefy.toast.open({ message: 'Invalid JSON — please check the syntax.', type: 'is-warning' })
-        return
-      }
-      this.savingFramework = true
-      try {
-        const res = await this.api('POST', '/api/firm-manager/framework', {
-          configKey: this.selectedFrameworkKey,
-          configJson: parsed
-        })
-        this.$buefy.toast.open({ message: `Saved as version ${res.version}.`, type: 'is-success' })
-        this.loadFramework()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.savingFramework = false
-      }
-    },
-
-    async restoreVersion (row) {
-      try {
-        const res = await this.api('POST', '/api/firm-manager/framework/restore', {
-          configKey: this.selectedFrameworkKey,
-          versionId: row.id
-        })
-        this.$buefy.toast.open({ message: `Restored as version ${res.version}.`, type: 'is-success' })
-        this.showHistoryModal = false
-        this.loadFramework()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      }
-    },
 
     // ── Template Library Import ─────────────────────────────────────────────
     async loadTemplateImport () {

@@ -1,8 +1,36 @@
 # Firm-editable Logic Tables & Domain Support — Build Plan
 
-**Status:** Plan agreed 2026-07-23 (Mike). Nothing built yet — Phase 0 is the next task.
+**Status:** Plan agreed 2026-07-23 (Mike). Phase 0 built; Phase 1 built; Phase 2 direction
+**corrected 2026-07-24 (Mike) — see the correction block below.**
 **Branch at time of writing:** `feat/firm-quiz-builder-ui` (11 ahead of `master`, 0 behind).
 **Backlog entry:** `ACTIONS.md` → ★ *firm-editable logic tables*.
+
+---
+
+## 0. DIRECTION CORRECTION — 2026-07-24 (Mike, binding; supersedes conflicting text below)
+
+Three decisions ruled by Mike on 2026-07-24. Where any earlier wording in this plan
+conflicts with these, **these win** and the earlier wording is the defect.
+
+1. **No separate "Domain Support" tab.** The standalone tab added on 2026-07-23 was a
+   mistake (introduced while the machine was firefighting other breakage) and is to be
+   **removed**, not fixed or reused. Everything happens on the page currently called
+   **Document Library**.
+2. **No PDF viewing.** The firm manager sees **only the editable table** — never the source
+   PDF. The "keep the Drive-backed PDF function" line in §4 (line ~149) is withdrawn.
+3. **The table's content is the existing structured AI data.** What the firm manager sees
+   and edits is the content that already feeds the engine — the `data/*-domain-support.json`
+   files and, later, the logic-tree data — surfaced as an editable table **in place** on the
+   Document Library page. Editing it changes the AI's behaviour (via the Phase 0 firm
+   overlay). The PDFs were only the human-authored *source* of that data; they are not shown.
+
+   *Chosen 2026-07-24 over the alternative of re-converting each PDF into a fresh PDF-mirroring
+   grid — the structured data already exists and already drives recommendations, so surfacing
+   it directly is both faster and the thing that actually reaches the AI.*
+
+**Open follow-ups from this correction:** (a) the page name "Document Library" may no longer
+fit once it shows tables not documents — revisit with Mike, rename nothing unasked; (b) map
+the 37 source PDFs to the ~29 existing data files to find any domain with no data yet.
 
 ---
 
@@ -146,25 +174,32 @@ Pure frontend, no engine risk, and it produces the shared rail Phases 2 and 3 bo
   missing "a sub-section can be closed again" test. (ACTIONS: *quiz-rail-stuck-open*.)
 - **Forces the icon-font decision** — `b-icon` renders nothing app-wide, and this screen's
   Upload / Download / Remove buttons are affected today. (ACTIONS: *no-icon-font*.)
-- The library keeps its Drive-backed PDF function and gains a clearer role: **the source
-  documents behind the tables**.
+- ~~The library keeps its Drive-backed PDF function and gains a clearer role: **the source
+  documents behind the tables**.~~ **WITHDRAWN 2026-07-24 (see §0.2):** no PDF viewing. The
+  Drive-backed PDF upload/download function is removed; this page becomes the editable-table
+  surface, not a document viewer.
 
 ---
 
-## 5. Phase 2 — Domain Support editable
+## 5. Phase 2 — Domain Support editable (on the Document Library page — see §0)
 
 The bigger win for the lower risk: flat-ish data, and the place an educator's material most
-directly reaches the AI.
+directly reaches the AI. **Per §0 this lives on the Document Library page, not a separate
+tab, and shows the editable table only — no PDF.**
 
-**Rail — two groups, never merged.** 29 support files break down as **22 registered
-advisory domains** (matching [`data/domains.json`](../data/domains.json)) and **7 `get-*`
-files** (marketing, positioning, pricing-proposals, sales, sales-tracker, seminar,
+**Rail — two groups, never merged.** The ~29 domain-support data files break down as
+**registered advisory domains** (matching [`data/domains.json`](../data/domains.json)) and
+**`get-*` files** (marketing, positioning, pricing-proposals, sales, sales-tracker, seminar,
 team-problem). The GET material is advisor-facing *selling* content, not client-work
 content; mixing them in one list would confuse two different audiences. See memory
-`feedback_get_vs_client_logic`.
+`feedback_get_vs_client_logic`. *(Exact counts to be reconciled during the §0 PDF-to-data
+mapping.)*
 
-**Panel.** Overview, each support tool, advisor guidance — each editable, each showing a
-**Platform / Your firm** origin tag exactly as the Quizzes panel does.
+**Panel — the editable table.** Opening a domain shows its structured data
+(`data/*-domain-support.json`) as an editable table: overview, trigger keywords, and each
+support tool (name, purpose, key benefits) — each field editable, each showing a
+**Platform / Your firm** origin tag exactly as the Quizzes panel does. This is the content
+the engine already reads; there is no PDF view.
 
 **Storage.** A new `config_key` via `firmOverlay`, holding a **sparse override** — only the
 fields the firm changed. This is what makes §2.4's compare screen possible: drift is

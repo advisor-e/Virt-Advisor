@@ -1690,10 +1690,7 @@ async function _restoreDomainSupportVersion (firmId, domainId, version, restored
  */
 async function getDomainSupport (req, res) {
   try {
-    const { domainSupport } = require('../utils/domainSupport')
     const domains = require('../../data/domains.json') || []
-    const fs = require('fs')
-    const path = require('path')
 
     // Load GET files list
     const getFiles = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']

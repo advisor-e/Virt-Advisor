@@ -66,8 +66,7 @@ describe('loading', () => {
     const urls = global.fetch.mock.calls.map(c => c[0])
     expect(urls).toEqual(expect.arrayContaining([
       '/api/firm-manager/documents?category=logic-tables',
-      '/api/firm-manager/documents?category=domain-support',
-      '/api/firm-manager/documents?category=templates'
+      '/api/firm-manager/documents?category=domain-support'
     ]))
     expect(global.fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer test-token')
   })
@@ -81,13 +80,12 @@ describe('loading', () => {
 })
 
 describe('the rail', () => {
-  test('lists the three categories in order, tone-banded from the brand tokens', async () => {
+  test('lists the two categories in order, tone-banded from the brand tokens', async () => {
     const wrapper = await mountLibrary()
     const bands = wrapper.findAll('.rail-section').wrappers
     expect(bands.map(w => w.text())).toEqual([
       'firmDocuments.catLogicTables',
-      'firmDocuments.catDomainSupport',
-      'firmDocuments.catTemplates'
+      'firmDocuments.catDomainSupport'
     ])
     expect(bands[0].element.style.backgroundColor).toBe(hexToRgb(blockTone(0).band))
     expect(bands[0].element.style.color).toBe(hexToRgb(BAND_TEXT))
