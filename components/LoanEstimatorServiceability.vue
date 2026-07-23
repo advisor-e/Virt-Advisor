@@ -2,6 +2,13 @@
 .lesv-root
   sample-notice(v-if="showSample" :text="$t('report.sampleFigures')")
 
+  //- The section's signature dark headline strip — live display-only running
+  //- totals so step 2 opens looking like every other model in the library.
+  hero-strip(:columns="3")
+    hero-figure(:label="$t('report.loanEstimator.serviceability.totalGross')" :value="money(grossIncomeTotal)")
+    hero-figure(:label="$t('report.loanEstimator.serviceability.totalBalances')" :value="money(loanBalanceTotal)")
+    hero-figure(:label="$t('report.loanEstimator.serviceability.totalWeeklyLiving')" :value="money(weeklyLivingTotal)")
+
   .lesv-card
     h3.lesv-title {{ $t('report.loanEstimator.serviceability.householdTitle') }}
     .lesv-field
@@ -34,9 +41,6 @@
         b-input(v-model.number="loans[key].ratePct" type="number" step="any" size="is-small")
         b-input(v-model.number="loans[key].assessmentTermYears" type="number" step="any" size="is-small")
         b-input(v-model.number="loans[key].actualTermYears" type="number" step="any" size="is-small")
-    .lesv-foot
-      span.lesv-foot-label {{ $t('report.loanEstimator.serviceability.totalBalances') }}
-      span.lesv-foot-value {{ money(loanBalanceTotal) }}
 
   .lesv-card
     h3.lesv-title {{ $t('report.loanEstimator.serviceability.incomeTitle') }}
@@ -67,9 +71,6 @@
     .lesv-field
       label {{ $t('report.loanEstimator.serviceability.boardersTerm') }}
       b-input(v-model.number="boarders.termWeeks" type="number" step="any" size="is-small")
-    .lesv-foot
-      span.lesv-foot-label {{ $t('report.loanEstimator.serviceability.totalGross') }}
-      span.lesv-foot-value {{ money(grossIncomeTotal) }}
 
   .lesv-card
     h3.lesv-title {{ $t('report.loanEstimator.serviceability.expensesTitle') }}
@@ -118,9 +119,6 @@
         label {{ $t('report.loanEstimator.serviceability.additionalLiving') }}
         p.lesv-help {{ $t('report.loanEstimator.serviceability.additionalLivingHelp') }}
       b-input(v-model.number="expenses.additionalWeekly" type="number" step="any" size="is-small")
-    .lesv-foot
-      span.lesv-foot-label {{ $t('report.loanEstimator.serviceability.totalWeeklyLiving') }}
-      span.lesv-foot-value {{ money(weeklyLivingTotal) }}
 
   .lesv-actions
     b-button(type="is-primary" @click="confirm") {{ $t('report.loanEstimator.serviceability.continue') }}
@@ -151,6 +149,8 @@
  * expects.
  */
 import SampleNotice from '~/components/base/SampleNotice.vue'
+import HeroStrip from '~/components/base/HeroStrip'
+import HeroFigure from '~/components/base/HeroFigure'
 import currencyMixin from '~/mixins/currencyMixin'
 
 /** Loan rows in the sheet's own order (rows 12/14/16/20). */
@@ -195,7 +195,7 @@ function sampleFigures () {
 export default {
   name: 'LoanEstimatorServiceability',
 
-  components: { SampleNotice },
+  components: { SampleNotice, HeroStrip, HeroFigure },
 
   mixins: [currencyMixin],
 
@@ -361,15 +361,6 @@ export default {
 .lesv-field .control { width: 150px; flex: 0 0 auto; }
 .lesv-pair { display: flex; gap: 8px; }
 .lesv-row .control { width: auto; }
-.lesv-foot {
-  display: flex; justify-content: space-between; align-items: baseline;
-  margin-top: 10px; padding: 8px 12px; background: #f1f6fb;
-  border: 1px solid #d5e1ee; border-radius: 9px;
-}
-.lesv-foot-label {
-  font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
-  font-weight: 600; color: #5b6f8a;
-}
-.lesv-foot-value { font-size: 16px; font-weight: 700; color: #0070c0; }
+.lesv-root .herostrip { margin-bottom: 14px; }
 .lesv-actions { margin-top: 6px; text-align: right; }
 </style>

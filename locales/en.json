@@ -683,6 +683,9 @@
         "fonterraTradingValue": "Trading value",
         "computedFromSide": "Calculated from the side calculations",
         "totalValue": "Total market value",
+        "heroValue": "Total market value",
+        "heroDebt": "Total current debt",
+        "heroEquity": "Net equity",
         "overdraftTitle": "Overdraft",
         "fundsDrawn": "Funds drawn",
         "securedLabel": "Security",
@@ -749,7 +752,9 @@
           "availableSecurity": "Available security",
           "availableSecuritySub": "Across all assets, after existing debt",
           "repayment": "Monthly repayment",
-          "repaymentSub": "On the proposed loan from the quick calculator"
+          "repaymentSub": "On the proposed loan from the quick calculator",
+          "maxBorrowing": "Estimated maximum borrowing",
+          "maxBorrowingSub": "With everything else as entered — an indication only"
         },
         "security": {
           "title": "Security position",

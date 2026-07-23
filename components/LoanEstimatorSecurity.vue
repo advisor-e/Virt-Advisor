@@ -2,6 +2,17 @@
 .les-root
   sample-notice(v-if="showSample" :text="$t('report.sampleFigures')")
 
+  //- The section's signature dark headline strip — live display-only running
+  //- totals so step 1 opens looking like every other model in the library.
+  hero-strip(:columns="3")
+    hero-figure(:label="$t('report.loanEstimator.security.heroValue')" :value="money(totalValue)")
+    hero-figure(:label="$t('report.loanEstimator.security.heroDebt')" :value="money(totalDebt)")
+    hero-figure(
+      :label="$t('report.loanEstimator.security.heroEquity')"
+      :value="money(totalValue - totalDebt)"
+      :tone="totalValue - totalDebt < 0 ? 'crit' : 'default'"
+    )
+
   .les-card(v-for="grp in groups" :key="grp.key")
     h3.les-title {{ $t('report.loanEstimator.security.' + grp.key + 'Title') }}
     .les-grid
@@ -84,6 +95,8 @@
  */
 import loanCriteria from '~/data/loan-criteria.json'
 import SampleNotice from '~/components/base/SampleNotice.vue'
+import HeroStrip from '~/components/base/HeroStrip'
+import HeroFigure from '~/components/base/HeroFigure'
 import currencyMixin from '~/mixins/currencyMixin'
 
 /** The two grid rows whose value is computed from the side calculations. */
@@ -116,7 +129,7 @@ function sampleRows () {
 export default {
   name: 'LoanEstimatorSecurity',
 
-  components: { SampleNotice },
+  components: { SampleNotice, HeroStrip, HeroFigure },
 
   mixins: [currencyMixin],
 
@@ -151,6 +164,23 @@ export default {
         { key: 'personal', classes: classes.filter(c => c.group === 'personal') },
         { key: 'commercial', classes: classes.filter(c => c.group === 'commercial') }
       ]
+    },
+    // Headline-strip figures are display-only sums of what's typed — the real
+    // security-position maths (lend rules, stress tests) runs on the backend.
+    /** @returns {number} every class's market value, derived rows at their computed value. */
+    totalValue () {
+      return loanCriteria.securityClasses.reduce((sum, cls) => {
+        const value = DERIVED_KEYS.includes(cls.key)
+          ? this.derivedValue(cls.key)
+          : Number(this.rows[cls.key].value) || 0
+        return sum + value
+      }, 0)
+    },
+    /** @returns {number} every class's current debt combined. */
+    totalDebt () {
+      return loanCriteria.securityClasses.reduce(
+        (sum, cls) => sum + (Number(this.rows[cls.key].debt) || 0), 0
+      )
     }
   },
 
@@ -260,6 +290,7 @@ export default {
 </script>
 
 <style scoped>
+.les-root .herostrip { margin-bottom: 14px; }
 .les-card {
   background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0;
   border-radius: 10px; padding: 16px 18px; margin-bottom: 14px;
