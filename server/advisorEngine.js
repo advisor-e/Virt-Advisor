@@ -1131,10 +1131,10 @@ function extractSavedClientFactsFromCases (cases) {
   const none = {
     industry: null,
     ownership: null,
-    advisoryStage: null,
+    advisoryStaircase: null,
     industrySource: null,
     ownershipSource: null,
-    advisoryStageSource: null
+    advisoryStaircaseSource: null
   }
   if (!Array.isArray(cases) || cases.length === 0) { return none }
 
@@ -1142,10 +1142,10 @@ function extractSavedClientFactsFromCases (cases) {
   // we favour recency while still filling gaps from slightly older sessions.
   let industry = null
   let ownership = null
-  let advisoryStage = null
+  let advisoryStaircase = null
   let industrySource = null
   let ownershipSource = null
-  let advisoryStageSource = null
+  let advisoryStaircaseSource = null
 
   for (const c of cases) {
     const situation = c && c.decisionTrace ? c.decisionTrace.situation : null
@@ -1157,14 +1157,14 @@ function extractSavedClientFactsFromCases (cases) {
       ownership = extractLabeledLine(situation, 'Business ownership') || extractLabeledLine(situation, 'Ownership')
       if (ownership) { ownershipSource = 'decisionTrace.situation:Business ownership' }
     }
-    if (!advisoryStage) {
-      advisoryStage = extractLabeledLine(situation, 'Advisory Staircase position')
-      if (advisoryStage) { advisoryStageSource = 'decisionTrace.situation:Advisory Staircase position' }
+    if (!advisoryStaircase) {
+      advisoryStaircase = extractLabeledLine(situation, 'Advisory Staircase position')
+      if (advisoryStaircase) { advisoryStaircaseSource = 'decisionTrace.situation:Advisory Staircase position' }
     }
-    if (industry && ownership && advisoryStage) { break }
+    if (industry && ownership && advisoryStaircase) { break }
   }
 
-  return { industry, ownership, advisoryStage, industrySource, ownershipSource, advisoryStageSource }
+  return { industry, ownership, advisoryStaircase, industrySource, ownershipSource, advisoryStaircaseSource }
 }
 
 function normaliseOwnershipValue (value) {
@@ -1238,12 +1238,12 @@ async function resolveSavedClientContext (params, deps) {
     resolvedFacts: {
       industry: null,
       ownership: null,
-      advisoryStage: null
+      advisoryStaircase: null
     },
     sources: {
       industry: null,
       ownership: null,
-      advisoryStage: null
+      advisoryStaircase: null
     }
   }
 
@@ -1279,15 +1279,15 @@ async function resolveSavedClientContext (params, deps) {
       clientName: client.name || null,
       hasCaseHistory: false,
       caseCount: 0,
-      resolvedFacts: { industry: null, ownership: null, advisoryStage: null },
-      sources: { industry: null, ownership: null, advisoryStage: null }
+      resolvedFacts: { industry: null, ownership: null, advisoryStaircase: null },
+      sources: { industry: null, ownership: null, advisoryStaircase: null }
     }
   }
 
   const facts = extractSavedClientFactsFromCases(cases)
   const hasIndustry = !!facts.industry
   const hasOwnership = !!facts.ownership
-  const hasAdvisoryStage = !!facts.advisoryStage
+  const hasAdvisoryStage = !!facts.advisoryStaircase
   const factCount = [hasIndustry, hasOwnership, hasAdvisoryStage].filter(Boolean).length
   const resolutionState = factCount === 3
     ? 'resolved'
@@ -1303,27 +1303,37 @@ async function resolveSavedClientContext (params, deps) {
     resolvedFacts: {
       industry: facts.industry || null,
       ownership: facts.ownership || null,
-      advisoryStage: facts.advisoryStage || null
+      advisoryStaircase: facts.advisoryStaircase || null
     },
     sources: {
       industry: facts.industrySource || null,
       ownership: facts.ownershipSource || null,
-      advisoryStage: facts.advisoryStageSource || null
+      advisoryStaircase: facts.advisoryStaircaseSource || null
     }
   }
 }
 
 function buildSavedFactConfirmPrompt (field, savedValue, clientName) {
   if (!isMeaningfulContextValue(savedValue)) {
-    return field === 'industry'
-      ? 'What industry is the client in?'
-      : 'Is the business privately owned, a not-for-profit, or publicly listed?'
+    if (field === 'industry') {
+      return 'What industry is the client in?'
+    }
+    if (field === 'ownership') {
+      return 'Is the business privately owned, a not-for-profit, or publicly listed?'
+    }
+    if (field === 'advisoryStaircase') {
+      return 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+    }
   }
-  const who = clientName ? ` for ${clientName}` : ''
   if (field === 'industry') {
-    return `I have the saved industry${who} as "${savedValue}". Keep this, or tell me the correct industry now.`
+    return `Is the industry still ${savedValue}?`
   }
-  return `I have the saved ownership${who} as "${savedValue}". Keep this, or tell me the correct ownership now (privately owned, not-for-profit, or publicly listed).`
+  if (field === 'ownership') {
+    return `Are they still ${savedValue}?`
+  }
+  if (field === 'advisoryStaircase') {
+    return `Is the advisory stage still ${savedValue}?`
+  }
 }
 
 function continuityClaimAllowed (priorSummary) {
@@ -1343,12 +1353,12 @@ function buildContinuityDirective (isAllowed) {
 function buildSavedClientTraceAudit (savedClientContext, savedClientContextUsage) {
   const facts = savedClientContext && savedClientContext.resolvedFacts
     ? savedClientContext.resolvedFacts
-    : { industry: null, ownership: null, advisoryStage: null }
-  const usage = savedClientContextUsage || { industry: null, ownership: null, advisoryStage: null }
+    : { industry: null, ownership: null, advisoryStaircase: null }
+  const usage = savedClientContextUsage || { industry: null, ownership: null, advisoryStaircase: null }
 
-  const prefilledFields = ['industry', 'ownership', 'advisoryStage'].filter(field => isMeaningfulContextValue(facts[field]))
-  const confirmedFields = ['industry', 'ownership', 'advisoryStage'].filter(field => usage[field] === 'kept')
-  const editedFields = ['industry', 'ownership', 'advisoryStage'].filter(field => usage[field] === 'edited')
+  const prefilledFields = ['industry', 'ownership', 'advisoryStaircase'].filter(field => isMeaningfulContextValue(facts[field]))
+  const confirmedFields = ['industry', 'ownership', 'advisoryStaircase'].filter(field => usage[field] === 'kept')
+  const editedFields = ['industry', 'ownership', 'advisoryStaircase'].filter(field => usage[field] === 'edited')
   const savedClientContextUsed = prefilledFields.length > 0 || confirmedFields.length > 0 || editedFields.length > 0
 
   return {
@@ -1929,7 +1939,33 @@ async function handleQuery (rawBody, res, identity) {
       },
       {
         field: 'advisoryStaircase',
-        text: 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+        textFn: s => buildSavedFactConfirmPrompt(
+          'advisoryStaircase',
+          s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.advisoryStaircase
+            : null,
+          s.savedClientContext ? s.savedClientContext.clientName : null
+        ),
+        onAnswer: (answer, s) => {
+          const saved = s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.advisoryStaircase
+            : null
+          const parsed = parseSavedFactAnswer('advisoryStaircase', saved, answer)
+          if (parsed.action === 'keep') {
+            s.advisoryStaircase = parsed.value
+            s.savedClientContextUsage.advisoryStaircase = 'kept'
+            return
+          }
+          if (parsed.action === 'update' || parsed.action === 'use-answer') {
+            s.advisoryStaircase = parsed.value
+            s.savedClientContextUsage.advisoryStaircase = saved ? 'edited' : 'provided'
+            return
+          }
+          s.advisoryStaircase = null
+          s._forceAskField = 'advisoryStaircase'
+          s._forceAskPrompt = 'No problem — where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+          s.savedClientContextUsage.advisoryStaircase = 'manual-followup'
+        }
       },
       {
         field: 'clientPersonality',

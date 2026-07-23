@@ -28,10 +28,10 @@ describe('extractSavedClientFactsFromCases', () => {
     const out = extractSavedClientFactsFromCases(cases)
     expect(out.industry).toBe('scaffolding')
     expect(out.ownership).toBe('privately owned')
-    expect(out.advisoryStage).toBe('Step 2: Assimilation')
+    expect(out.advisoryStaircase).toBe('Step 2: Assimilation')
     expect(out.industrySource).toBe('decisionTrace.situation:Industry')
     expect(out.ownershipSource).toBe('decisionTrace.situation:Business ownership')
-    expect(out.advisoryStageSource).toBe('decisionTrace.situation:Advisory Staircase position')
+    expect(out.advisoryStaircaseSource).toBe('decisionTrace.situation:Advisory Staircase position')
   })
 
   test('fills gaps from older cases when newest case is incomplete', () => {
@@ -51,7 +51,7 @@ describe('extractSavedClientFactsFromCases', () => {
     const out = extractSavedClientFactsFromCases(cases)
     expect(out.industry).toBe('scaffolding')
     expect(out.ownership).toBe('privately owned')
-    expect(out.advisoryStage).toBe('Step 3: Interpretation')
+    expect(out.advisoryStaircase).toBe('Step 3: Interpretation')
   })
 
   test('returns null facts when no reusable fields exist', () => {
@@ -59,10 +59,10 @@ describe('extractSavedClientFactsFromCases', () => {
     expect(out).toEqual({
       industry: null,
       ownership: null,
-      advisoryStage: null,
+      advisoryStaircase: null,
       industrySource: null,
       ownershipSource: null,
-      advisoryStageSource: null
+      advisoryStaircaseSource: null
     })
   })
 
@@ -79,7 +79,7 @@ describe('extractSavedClientFactsFromCases', () => {
       const out = extractSavedClientFactsFromCases([{
         decisionTrace: { situation: `Advisory Staircase position: ${stage}` }
       }])
-      expect(out.advisoryStage).toBe(stage)
+      expect(out.advisoryStaircase).toBe(stage)
     })
   })
 })
@@ -130,7 +130,7 @@ describe('resolveSavedClientContext', () => {
     expect(out.resolvedFacts).toEqual({
       industry: 'scaffolding',
       ownership: 'privately owned',
-      advisoryStage: 'Step 2: Assimilation'
+      advisoryStaircase: 'Step 2: Assimilation'
     })
   })
 
@@ -154,7 +154,7 @@ describe('resolveSavedClientContext', () => {
     expect(out.resolvedFacts).toEqual({
       industry: 'scaffolding',
       ownership: null,
-      advisoryStage: 'Step 3: Interpretation'
+      advisoryStaircase: 'Step 3: Interpretation'
     })
   })
 })
@@ -191,11 +191,10 @@ describe('parseSavedFactAnswer', () => {
 })
 
 describe('buildSavedFactConfirmPrompt', () => {
-  test('uses confirm-or-edit wording when saved value exists', () => {
+  test('uses yes/no wording when saved value exists', () => {
     const text = buildSavedFactConfirmPrompt('industry', 'scaffolding', 'Jones Scaffolding Ltd')
-    expect(text).toMatch(/saved industry/i)
-    expect(text).toMatch(/keep this, or tell me/i)
-    expect(text).toMatch(/Jones Scaffolding Ltd/)
+    expect(text).toMatch(/is the industry still/i)
+    expect(text).toMatch(/scaffolding/i)
   })
 
   test('falls back to standard ask when saved value is unavailable', () => {
@@ -237,26 +236,26 @@ describe('buildSavedClientTraceAudit', () => {
         resolvedFacts: {
           industry: 'scaffolding',
           ownership: 'privately owned',
-          advisoryStage: 'Step 2: Assimilation'
+          advisoryStaircase: 'Step 2: Assimilation'
         }
       },
       {
         industry: 'kept',
         ownership: 'edited',
-        advisoryStage: 'kept'
+        advisoryStaircase: 'kept'
       }
     )
 
     expect(out.savedClientContextUsed).toBe(true)
-    expect(out.prefilledFields).toEqual(['industry', 'ownership', 'advisoryStage'])
-    expect(out.confirmedFields).toEqual(['industry', 'advisoryStage'])
+    expect(out.prefilledFields).toEqual(['industry', 'ownership', 'advisoryStaircase'])
+    expect(out.confirmedFields).toEqual(['industry', 'advisoryStaircase'])
     expect(out.editedFields).toEqual(['ownership'])
   })
 
   test('stays empty when no saved facts were resolved', () => {
     const out = buildSavedClientTraceAudit(
-      { resolvedFacts: { industry: null, ownership: null, advisoryStage: null } },
-      { industry: 'provided', ownership: null, advisoryStage: null }
+      { resolvedFacts: { industry: null, ownership: null, advisoryStaircase: null } },
+      { industry: 'provided', ownership: null, advisoryStaircase: null }
     )
 
     expect(out.savedClientContextUsed).toBe(false)
