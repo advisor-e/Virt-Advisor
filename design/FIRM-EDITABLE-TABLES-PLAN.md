@@ -30,7 +30,58 @@ conflicts with these, **these win** and the earlier wording is the defect.
 
 **Open follow-ups from this correction:** (a) the page name "Document Library" may no longer
 fit once it shows tables not documents — revisit with Mike, rename nothing unasked; (b) map
-the 37 source PDFs to the ~29 existing data files to find any domain with no data yet.
+the source PDFs to the existing data files to find any domain with no data yet — largely
+overtaken by §0.5, which read all 43 PDFs directly.
+
+---
+
+## 0.5 DOMAIN SUPPORT TABLE — STRUCTURE LOCKED (2026-07-24 PM, Mike)
+
+Later on 2026-07-24, after **all 43** domain-support source PDFs were read in full, Mike locked
+the table's structure. **This refines §0.3:** the existing `data/*-domain-support.json` is now
+known to be a *lossy, reorganised summary* of the source PDFs (tool names and fields diverge; it
+drops the PDFs' own tables — verified by reading `EOY Support.pdf` against
+`eoy-domain-support.json`). So it is **not** adopted as-is; the content is re-authored to the
+standard below, and that becomes the engine input.
+
+**The one standard structure — four columns, one entry per material:**
+
+| Template name | Summary | Who &amp; when it suits | Step-by-step |
+
+**Specialisation (why the table is this small).** Since these PDFs were written, quizzes and
+logic tables have each gained their own home, so the domain-support material now carries only
+*what a template is and how to use it*:
+- **Quizzes** → the Quiz section (already built and live).
+- **Logic tables** (the "Branch Chain / If-Then" grids at the end of most PDFs) → the Logic
+  Tables section.
+- **Domain Support** → summary + how-to only.
+
+**Row mapping (from reading all 43):**
+- A doc **with named materials** → one row **per material** (e.g. `EOY Support` → 4 rows).
+- A doc **with no named materials** — a single continuous framework, ~16 of the 43 → **one row**
+  for the whole framework (e.g. `Cash Tactics` → 1 row).
+- ~7 docs are not really support docs at all (slide decks / FAQs / a bare index table:
+  Coaching Content, Dashboard, Powerful Seminars, Sales &amp; Marketing Slides table, Cautious
+  Reveal, Trial Fit, Why Use Rev Models). Their handling is TBD.
+
+**The one content gap to fill on editing.** The "no named materials" family never carried a
+*"who it's suitable for"* line, so that column is the single thing Mike must **add** when
+reshaping those docs; name, summary and steps lift straight across.
+
+**Two-job split (Mike):**
+- **Job 1 (now):** lay up the four-column table from each material's *existing* step-by-step.
+  Q&amp;A untouched.
+- **Job 2 (later):** rationalise the old Q&amp;A — fold genuine "how-to" answers **into** the
+  steps; check test-style questions against the Quiz section before moving anything.
+
+**Workflow:** structure locked → **Mike edits the source docs to conform** → content feeds the
+engine as the firm-editable table. Worked examples (EOY clean + Cash Tactics messy) built
+2026-07-24 as the reference Mike edits against.
+
+**Logic-table exclusion — two exceptions found.** The logic table is normally clearly headed and
+at the very end (safe to exclude), BUT: `Valuation` has an **unlabelled** logic table at the end
+(only its column headers identify it), and `3 pill Fin Mgt` has an **unlabelled, mid-document**
+logic-style grid ("Client Progression…"). Those two need manual eyes, not auto-trimming.
 
 ---
 
