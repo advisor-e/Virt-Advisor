@@ -118,8 +118,7 @@ import FirmRail from '~/components/firm/FirmRail.vue'
  */
 const DOCUMENT_CATEGORIES = [
   { key: 'logic-tables', labelKey: 'firmDocuments.catLogicTables' },
-  { key: 'domain-support', labelKey: 'firmDocuments.catDomainSupport' },
-  { key: 'templates', labelKey: 'firmDocuments.catTemplates' }
+  { key: 'domain-support', labelKey: 'firmDocuments.catDomainSupport' }
 ]
 
 export default {

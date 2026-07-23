@@ -141,8 +141,10 @@ export default {
     }
   },
 
-  async mounted () {
-    await this.loadDomainSupport()
+  mounted () {
+    if (process.client) {
+      this.loadDomainSupport()
+    }
   },
 
   methods: {
@@ -297,40 +299,38 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
-.firm-domain-support {
-  .rail-page {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 0.5rem;
-    border: none;
-    background: transparent;
-    cursor: pointer;
+<style scoped>
+.rail-page {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
 
-    &:hover {
-      background-color: #f5f5f5;
-    }
+.rail-page:hover {
+  background-color: #f5f5f5;
+}
 
-    &.is-current {
-      background-color: #e8f4f8;
-      font-weight: 600;
-    }
-  }
+.rail-page.is-current {
+  background-color: #e8f4f8;
+  font-weight: 600;
+}
 
-  .rail-pagename {
-    display: block;
-    margin-bottom: 0.25rem;
-  }
+.rail-pagename {
+  display: block;
+  margin-bottom: 0.25rem;
+}
 
-  .rail-empty {
-    padding: 1rem;
-    text-align: center;
-  }
+.rail-empty {
+  padding: 1rem;
+  text-align: center;
+}
 
-  .panel-empty {
-    text-align: center;
-    background-color: #fafafa;
-  }
+.panel-empty {
+  text-align: center;
+  background-color: #fafafa;
 }
 </style>
