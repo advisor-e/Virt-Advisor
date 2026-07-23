@@ -44,9 +44,31 @@ describe('LoanEstimatorServiceability', () => {
       expect(strings[key]).toBe(expected[key])
     })
     expect(strings.loanRow.revolvingCredit).toBe('Current Revolving Credit Limits')
-    expect(strings.loanCol.actualRate).toBe('Actual Rate if higher than 6.65%')
+    expect(strings.loanCol.actualRate).toBe('Interest Rate (%)')
     // 4 loan rows under the grid head.
     expect(wrapper.findAll('.lesv-row:not(.lesv-head)').length).toBe(4)
+  })
+
+  it('renders the advisor stress-test margin field with its approved wording', () => {
+    const wrapper = mountScreen()
+    const strings = en.report.loanEstimator.serviceability
+    expect(wrapper.text()).toContain('report.loanEstimator.serviceability.stressMargin')
+    expect(strings.stressMargin).toBe('Stress test margin (%)')
+    expect(strings.stressMarginHelp).toBe(
+      "Added to each loan's rate for the bank's serviceability assessment — the client only ever sees their own rate."
+    )
+  })
+
+  it('the margin field flows into the payload as a decimal and drives the three loans', () => {
+    const wrapper = mountScreen()
+    wrapper.vm.stressMarginPct = 2 // advisor raises the buffer to 2%
+    wrapper.vm.confirm()
+    const payload = wrapper.emitted().confirmed[0][0]
+    expect(payload.stressMargin).toBeCloseTo(0.02, 12) // display percent → decimal
+    // A bigger margin means a bigger assessed minimum on the new-property loan
+    // (5.95% + 2% = 7.95%), so the surplus falls versus the 1.5% default.
+    const atDefault = computeServiceability(Object.assign({}, payload, { stressMargin: 0.015 }))
+    expect(computeServiceability(payload).surplus).toBeLessThan(atDefault.surplus)
   })
 
   it('shows the sample notice on first entry, not when restoring confirmed figures', () => {
@@ -82,12 +104,12 @@ describe('LoanEstimatorServiceability', () => {
     expect(out.defaultedInputs).toEqual([])
   })
 
-  it('reproduces the corrected sample verdict: surplus −154.83…, FAILS the test', () => {
+  it('reproduces the sample verdict under the stress-margin model: surplus +345.33…, PASSES', () => {
     const wrapper = mountScreen()
     wrapper.vm.confirm()
     const out = computeServiceability(wrapper.emitted().confirmed[0][0])
-    expect(out.surplus).toBeCloseTo(-154.833776247, 6)
-    expect(out.verdictPass).toBe(false)
+    expect(out.surplus).toBeCloseTo(345.331941653, 6)
+    expect(out.verdictPass).toBe(true)
   })
 
   it('a "No" student loan submits 0 regardless of the remembered monthly figure', () => {

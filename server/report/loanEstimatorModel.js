@@ -560,9 +560,20 @@ function dependantsUnder18Weekly (count) {
  * Input`), cells per field. Student-loan monthly figures are the CUSTOMERS'
  * OWN payments (the sheet parks them in `Loan Criteria` W11/W12); they are
  * inputs here, not rules.
+ *
+ * TWO DELIBERATE DEPARTURES from the workbook sample (owner ruling, Mike
+ * 2026-07-24), so the demo is coherent under the new stress-margin model:
+ *   - `stressMargin` — the advisor's buffer added on top of the client rate
+ *     (firm default from `data/loan-criteria.json`). No workbook cell.
+ *   - `newPropertyLoans.actualRate` carries a realistic 5.95% instead of the
+ *     workbook's 0 (H16). The workbook could leave it 0 because it stress-tested
+ *     against a flat 8.95% floor; the new model ADDS the margin to the entered
+ *     rate, so 0 would be nonsensical. Under 5.95% + 1.5% the sample household
+ *     now comfortably PASSES (surplus ≈ +345/mo) where the workbook sample failed.
  */
 const DEFAULT_SERVICEABILITY_INPUTS = {
   country: 'NZ',
+  stressMargin: LOAN_CRITERIA.serviceability.stressTestMargin, // firm default 1.5% — app-original, no workbook cell
   jointApplication: true, //           E5 ("Yes")
   dependantsUnder18: 3, //             E7
   dependantsOver18: 1, //              L7
@@ -576,7 +587,7 @@ const DEFAULT_SERVICEABILITY_INPUTS = {
   loans: {
     revolvingCredit: { balance: 0, actualRate: 0, assessmentTermYears: 30, actualTermYears: 10 }, //      E12 / H12 / J12 / L12
     currentPropertyLoans: { balance: 0, actualRate: 0, assessmentTermYears: 30, actualTermYears: 25 }, // E14 / H14 / J14 / L14
-    newPropertyLoans: { balance: 500000, actualRate: 0, assessmentTermYears: 30, actualTermYears: 25 }, // E16 / H16 / J16 / L16
+    newPropertyLoans: { balance: 500000, actualRate: 0.0595, assessmentTermYears: 30, actualTermYears: 25 }, // E16 / H16(→5.95%, see note) / J16 / L16
     personalTermLoans: { balance: 0, actualRate: 0.1395, assessmentTermYears: 7, actualTermYears: 5 } //  E20 / H20 / J20 / L20
   },
   studentLoan1Monthly: 1002, //        E40 "Yes" → the customer's own figure (Loan Criteria W11)
@@ -597,9 +608,13 @@ const DEFAULT_SERVICEABILITY_INPUTS = {
  *               feeder (`data/tax-bands.json`), plus other tax-paid income,
  *               both rentals taxed at the marginal band of the running total
  *               (other income + rentals so far), plus boarder income (N25)
- *   loan mins   each loan row repriced at max(assessment rate, actual rate)
- *               over min(assessment term, actual term) — the bank's
- *               worst-case, not the client's actual terms (N9, AO20:AO29)
+ *   loan mins   the three property/revolving loans repriced at the client's
+ *               entered rate PLUS the advisor stress margin (default 1.5%) over
+ *               min(assessment term, actual term) — a DELIBERATE departure from
+ *               the workbook's flat max(8.95% floor, actual), owner ruling
+ *               2026-07-24 (real banks add a buffer on top of the client rate).
+ *               Personal Term Loans keep the workbook rule: entered rate alone,
+ *               no margin (N9, AO20:AO29)
  *   expenses    student loans, overdraft & credit-card minimums, rent and
  *               living costs (N40) — but never less than the bank's FLOOR of
  *               minimum allowances (dependants, vehicles, adult living, AE55)
@@ -624,8 +639,8 @@ const DEFAULT_SERVICEABILITY_INPUTS = {
  * @param {Object} inputs see DEFAULT_SERVICEABILITY_INPUTS — any omitted field
  *   falls back to the sample AND is named in `defaultedInputs`.
  * @returns {Object} { income, loanMinimums, expenses, allowances, surplus,
- *   verdictPass, maxAffordableNewLoan, taxTable: {country, taxYearLabel},
- *   defaultedInputs }
+ *   verdictPass, stressMargin, maxAffordableNewLoan,
+ *   taxTable: {country, taxYearLabel}, defaultedInputs }
  */
 function computeServiceability (inputs) {
   const src = (inputs && typeof inputs === 'object') ? inputs : {}
@@ -684,20 +699,26 @@ function computeServiceability (inputs) {
   income.totalNetMonthly = income.customer1.netMonthly + income.customer2.netMonthly +
     income.rental1.netMonthly + income.rental2.netMonthly + boarderMonthly + otherMonthly // N25
 
-  // Loan minimums (N9): rate = max(assessment, actual), term = min(assessment, actual).
-  // The personal-term row has no bank assessment rate — the sheet uses the actual alone (AI29).
-  const residentialAssessmentRate = CRITERIA_BY_KEY.residentialHome.assessmentRate // G12/G14/G16 = 'Loan Criteria'!H4
-  const minPayment = (row, assessmentRate) => {
+  // Loan minimums (N9). DELIBERATE DEPARTURE from the workbook (owner ruling,
+  // Mike 2026-07-24): the three property/revolving loans are assessed at the
+  // client's OWN entered rate PLUS an advisor stress margin (firm default 1.5%,
+  // editable per client), replacing the workbook's flat max(8.95% floor, actual).
+  // Real banks stress by adding a buffer on top of the client's rate; the
+  // workbook took a shortcut. Term is unchanged: min(assessment, actual).
+  // Personal Term Loans keep the workbook behaviour EXACTLY — their entered rate
+  // alone, no margin (the sheet's row 20 has no assessment column, AI29).
+  const stressMargin = num(take('stressMargin'))
+  const minPayment = (row, marginAdded) => {
     const r = row || {}
-    const rate = Math.max(assessmentRate, num(r.actualRate)) //                       AI col
+    const rate = num(r.actualRate) + marginAdded //                                  client rate + stress margin
     const termYears = Math.min(num(r.assessmentTermYears), num(r.actualTermYears)) // AM col
     return annuityPayment(rate / 12, termYears * 12, num(r.balance)) //               |AO PMT|
   }
   const loanMinimums = {
-    revolvingCredit: minPayment(loans.revolvingCredit, residentialAssessmentRate), //           N12
-    currentPropertyLoans: minPayment(loans.currentPropertyLoans, residentialAssessmentRate), // N14
-    newPropertyLoans: minPayment(loans.newPropertyLoans, residentialAssessmentRate), //         N16
-    personalTermLoans: minPayment(loans.personalTermLoans, 0), //                               N20
+    revolvingCredit: minPayment(loans.revolvingCredit, stressMargin), //           N12
+    currentPropertyLoans: minPayment(loans.currentPropertyLoans, stressMargin), // N14
+    newPropertyLoans: minPayment(loans.newPropertyLoans, stressMargin), //         N16
+    personalTermLoans: minPayment(loans.personalTermLoans, 0), //                  N20 — no margin (workbook-faithful)
     total: 0
   }
   loanMinimums.total = loanMinimums.revolvingCredit + loanMinimums.currentPropertyLoans +
@@ -740,7 +761,7 @@ function computeServiceability (inputs) {
   // entered. The minimum payment is linear in the balance, so solve directly:
   // per-dollar payment at the same worst-case repricing as the N16 row itself.
   const perDollar = minPayment(
-    Object.assign({}, loans.newPropertyLoans, { balance: 1 }), residentialAssessmentRate
+    Object.assign({}, loans.newPropertyLoans, { balance: 1 }), stressMargin
   )
   const paymentHeadroom = income.totalNetMonthly -
     (loanMinimums.total - loanMinimums.newPropertyLoans) -
@@ -754,6 +775,7 @@ function computeServiceability (inputs) {
     allowances,
     surplus, //                                              N64
     verdictPass: surplus > svc.verdictSurplusThreshold, //   J64's test; wording is a Phase 4 decision
+    stressMargin, //                                         advisor buffer added to the 3 property/revolving loan rates
     maxAffordableNewLoan, //                                 app-original — indication only
     taxTable: { country, taxYearLabel: taxTable.taxYearLabel, effectiveFrom: taxTable.effectiveFrom },
     defaultedInputs

@@ -35,7 +35,7 @@ describe('POST /api/report/loan-estimator', () => {
     const data = res.body.data
     expect(data.securityPosition.totals.combined.adjustedValue).toBeCloseTo(17181122.67, 1) // M43
     expect(data.repayment.monthlyRepayment).toBeCloseTo(5747.094633, 5) //                     C29/C31
-    expect(data.serviceability.surplus).toBeCloseTo(-154.833776247, 5) //                      N64 corrected
+    expect(data.serviceability.surplus).toBeCloseTo(345.331941653, 5) //                       N64 under stress-margin model
     // R8: an empty body computes the sample and DECLARES it, per part
     expect(data.securityPosition.defaultedInputs).toContain('securities')
     expect(data.repayment.defaultedInputs).toContain('purchasePrice')

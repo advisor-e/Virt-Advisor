@@ -326,10 +326,11 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       expect(s.income.totalNetMonthly).toBeCloseTo(11855.125, 6) //   N25 corrected (was 12,115.70833)
     })
 
-    it('reprices every loan row at the bank\'s worst case (max rate, min term)', () => {
-      expect(s.loanMinimums.newPropertyLoans).toBeCloseTo(4178.875443, 5) // N16/AO25: PMT(8.95%/12, 25y, 500,000)
-      expect(s.loanMinimums.total).toBeCloseTo(4178.875443, 5) //           N9 (the other three rows are 0 on the sample)
-      // The personal-term row uses the ACTUAL rate alone (AI29) — prove it prices at 13.95%:
+    it('reprices the 3 property/revolving loans at client rate + stress margin, min term', () => {
+      // DELIBERATE departure (Mike 2026-07-24): 5.95% entered + 1.5% margin = 7.45%.
+      expect(s.loanMinimums.newPropertyLoans).toBeCloseTo(3678.709725, 5) // N16/AO25: PMT(7.45%/12, 25y, 500,000)
+      expect(s.loanMinimums.total).toBeCloseTo(3678.709725, 5) //           N9 (the other three rows are 0 on the sample)
+      // The personal-term row uses the ACTUAL rate alone, NO margin (AI29) — prove it prices at 13.95%:
       const withPersonal = computeServiceability(Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, {
         loans: Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS.loans, {
           personalTermLoans: { balance: 10000, actualRate: 0.1395, assessmentTermYears: 7, actualTermYears: 5 }
@@ -354,12 +355,14 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       expect(s.allowances.floor).toBeCloseTo(4630, 6) //                           AE55
     })
 
-    it('the corrected surplus — the household actually fails the test', () => {
-      // N64 corrected: 11,855.125 − 4,178.875443 − 7,831.083333. The sheet's
-      // cached 105.7495571 included the rental-tax defect; the delta is exactly
-      // (25,773 − 22,646)/12 = 260.5833. Source .xlsx corrected in this commit.
-      expect(s.surplus).toBeCloseTo(-154.833776247, 5)
-      expect(s.verdictPass).toBe(false) // J64's test (> 250): fails either way on the sample
+    it('the surplus under the stress-margin model — the household now passes', () => {
+      // N64 under the new model: 11,855.125 − 3,678.709725 − 7,831.083333.
+      // The new-property loan is assessed at 5.95% + 1.5% = 7.45% (vs the old flat
+      // 8.95% floor), so its minimum falls from 4,178.88 to 3,678.71 and the
+      // household clears the 250 threshold it used to fail. See the 3%-margin
+      // equivalence test below, which reproduces the old −154.83 exactly.
+      expect(s.surplus).toBeCloseTo(345.331941653, 5)
+      expect(s.verdictPass).toBe(true) // J64's test (> 250): passes on the new sample
     })
 
     it('the floor binds when actual expenses are lower (N64\'s other branch)', () => {
@@ -367,13 +370,34 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
         studentLoan1Monthly: 0, studentLoan2Monthly: 0, overdraftLimits: 0, creditCardLimits: 0, rentPaidWeekly: 0, generalLivingWeekly: 0, additionalLivingWeekly: 0
       }))
       // expenses 0 < floor 4,630 → the floor is charged instead
-      expect(lean.surplus).toBeCloseTo(11855.125 - 4178.875442914 - 4630, 5)
+      expect(lean.surplus).toBeCloseTo(11855.125 - 3678.709725014 - 4630, 5)
     })
 
-    it('the verdict flips above the configured 250 threshold', () => {
-      const noRent = computeServiceability(Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, { rentPaidWeekly: 0 }))
-      expect(noRent.surplus).toBeCloseTo(-154.833776247 + 2166.666666667, 5) // ≈ 2,011.83
-      expect(noRent.verdictPass).toBe(true)
+    it('the advisor stress margin is the lever — a bigger margin flips pass to fail', () => {
+      // Raise the margin and the assessed rate rises, the loan minimum rises, the
+      // surplus falls. At exactly 3% the assessed rate is 5.95% + 3% = 8.95% —
+      // the workbook's OLD flat floor — so the surplus lands back on the
+      // workbook-era −154.83, proving the departure is a clean generalisation of
+      // the old behaviour rather than an unrelated formula.
+      const punitive = computeServiceability(Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, { stressMargin: 0.03 }))
+      expect(punitive.surplus).toBeCloseTo(-154.833776247, 5)
+      expect(punitive.verdictPass).toBe(false) // J64's test (> 250)
+    })
+
+    it('adds the margin to the 3 property/revolving loans, never to Personal Term Loans', () => {
+      const loans = {
+        revolvingCredit: { balance: 100000, actualRate: 0.05, assessmentTermYears: 30, actualTermYears: 10 },
+        currentPropertyLoans: { balance: 200000, actualRate: 0.05, assessmentTermYears: 30, actualTermYears: 25 },
+        newPropertyLoans: { balance: 300000, actualRate: 0.05, assessmentTermYears: 30, actualTermYears: 25 },
+        personalTermLoans: { balance: 10000, actualRate: 0.1395, assessmentTermYears: 7, actualTermYears: 5 }
+      }
+      const st = computeServiceability(Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, { stressMargin: 0.02, loans }))
+      // The three are priced at 5% + 2% = 7% (hand-derived PMTs at their own terms):
+      expect(st.loanMinimums.revolvingCredit).toBeCloseTo(1161.084792186, 5) //      PMT(7%/12, 10y, 100,000)
+      expect(st.loanMinimums.currentPropertyLoans).toBeCloseTo(1413.55839455, 5) //  PMT(7%/12, 25y, 200,000)
+      expect(st.loanMinimums.newPropertyLoans).toBeCloseTo(2120.337591825, 5) //     PMT(7%/12, 25y, 300,000)
+      // Personal Term Loans ignores the margin entirely — priced at 13.95% alone:
+      expect(st.loanMinimums.personalTermLoans).toBeCloseTo(232.423371153, 5) //     PMT(13.95%/12, 5y, 10,000)
     })
 
     it('the tax feeder: marginal maths verified, absent countries fail loudly', () => {
@@ -389,7 +413,8 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       const demo = computeServiceability({})
       expect(demo.defaultedInputs).toContain('customer1GrossIncome')
       expect(demo.defaultedInputs).toContain('loans')
-      expect(demo.surplus).toBeCloseTo(-154.833776247, 5) // and still computes the sample
+      expect(demo.defaultedInputs).toContain('stressMargin') // the advisor margin is declared when omitted (R8)
+      expect(demo.surplus).toBeCloseTo(345.331941653, 5) //     and still computes the sample
     })
 
     // APP-ORIGINAL formula (Mike, 2026-07-23) — no workbook cell to anchor to,
@@ -406,9 +431,9 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
 
       it('round-trips: borrowing the reported maximum lands surplus exactly on the threshold', () => {
         const max = s.maxAffordableNewLoan
-        // The sample fails on 500,000, so the affordable figure must be below it.
-        expect(max).toBeGreaterThan(0)
-        expect(max).toBeLessThan(500000)
+        // The sample now PASSES on 500,000 (stress margin model), so the
+        // affordable ceiling sits ABOVE it — there is headroom to borrow more.
+        expect(max).toBeGreaterThan(500000)
         const atMax = computeServiceability(withNewLoan(max))
         expect(atMax.surplus).toBeCloseTo(250, 6) // the configured verdict threshold
         // A dollar less than the edge passes; the edge itself is the boundary (> 250).
@@ -539,8 +564,8 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       const home = rep.securityPosition.items.find(it => it.key === 'residentialHome')
       expect(home.stressTestedPayment).toBeCloseTo(9026.370957, 5) //     AB6
       expect(rep.repayment.monthlyRepayment).toBeCloseTo(5747.094633, 5) // C29/C31
-      expect(rep.serviceability.surplus).toBeCloseTo(-154.833776247, 5) // N64 corrected
-      expect(rep.serviceability.verdictPass).toBe(false)
+      expect(rep.serviceability.surplus).toBeCloseTo(345.331941653, 5) // N64 under stress-margin model
+      expect(rep.serviceability.verdictPass).toBe(true)
       expect(rep.business.bankAdjustedMaxSecurity).toBeCloseTo(1947001.5, 4) // H98 corrected
       expect(rep.business.maxBankAdjustedLoan).toBeCloseTo(-977191.0856, 3) // D40/G102
     })

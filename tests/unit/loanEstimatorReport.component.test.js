@@ -54,13 +54,13 @@ describe('LoanEstimatorReport', () => {
     return wrapper
   }
 
-  it('shows the RULED fail verdict + qualifier on the sample (surplus −154.83…)', async () => {
+  it('shows the RULED pass verdict + qualifier on the sample (surplus +345.33…)', async () => {
     const wrapper = await mountScreen()
     const text = wrapper.text()
-    expect(text).toContain('report.loanEstimator.result.verdictFail')
+    expect(text).toContain('report.loanEstimator.result.verdictPass')
     expect(text).toContain('report.loanEstimator.result.verdictQualifier')
-    expect(text).not.toContain('report.loanEstimator.result.verdictPass')
-    expect(wrapper.find('.ler-verdict.is-fail').exists()).toBe(true)
+    expect(text).not.toContain('report.loanEstimator.result.verdictFail')
+    expect(wrapper.find('.ler-verdict.is-pass').exists()).toBe(true)
 
     // The §3.3 ruling, pinned word-for-word — the workbook's own wording is retired.
     const strings = en.report.loanEstimator.result
@@ -77,7 +77,7 @@ describe('LoanEstimatorReport', () => {
       'calc.title'].forEach((key) => {
       expect(text).toContain('report.loanEstimator.result.' + key)
     })
-    // The estimated-maximum figure renders as money, not a blank (sample: ~451k).
+    // The estimated-maximum figure renders as money, not a blank (sample: ~513k).
     expect(wrapper.findAllComponents({ name: 'HeroFigure' }).length).toBe(4)
     // Table basis: 10 schedule years + the totals row.
     expect(wrapper.findAll('.ler-result tbody tr').length).toBe(11)

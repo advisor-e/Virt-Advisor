@@ -41,6 +41,8 @@
     "dependantOver18Weekly": 95,
     "adultWeeklyLivingMin": 205,
     "verdictSurplusThreshold": 250,
+    "stressTestMargin": 0.015,
+    "_stressTestMargin_note": "APP-ORIGINAL — a DELIBERATE departure from the workbook (owner ruling, Mike 2026-07-24), NOT a workbook cell. The workbook stress-tests the three property/revolving loans at a flat floor (max(8.95%, client rate)); real banks instead ADD a buffer on top of the client's own advertised rate. The advisor sets this margin per client (this is the firm default, fully editable per client); it is ADDED to the client's entered rate for the serviceability assessment on the revolvingCredit, currentPropertyLoans and newPropertyLoans rows ONLY. Personal Term Loans are unaffected — they use their entered rate directly, exactly as the workbook does. The client only ever sees their own rate. Future Firm-Manager edit target.",
     "cells": {
       "overdraftMinMonthlyPct": "W15",
       "creditCardMinMonthlyPct": "W16",

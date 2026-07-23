@@ -722,7 +722,7 @@
         "numberOfVehicles": "Number of Vehicles",
         "loanCol": {
           "balance": "Balance",
-          "actualRate": "Actual Rate if higher than 6.65%",
+          "actualRate": "Interest Rate (%)",
           "assessmentTerm": "Assessment Term (Yrs)",
           "actualTerm": "Actual Term if less than 30 yrs"
         },
@@ -732,6 +732,8 @@
           "newPropertyLoans": "New Property Loans",
           "personalTermLoans": "Personal Term Loans"
         },
+        "stressMargin": "Stress test margin (%)",
+        "stressMarginHelp": "Added to each loan's rate for the bank's serviceability assessment — the client only ever sees their own rate.",
         "customer1Gross": "Customer 1 — Annual Gross Income",
         "customer2Gross": "Customer 2 — Annual Gross Income",
         "otherMonthly": "Combined 'Other' Mthly (Tax Paid) Income",

@@ -41,6 +41,13 @@
         b-input(v-model.number="loans[key].ratePct" type="number" step="any" size="is-small")
         b-input(v-model.number="loans[key].assessmentTermYears" type="number" step="any" size="is-small")
         b-input(v-model.number="loans[key].actualTermYears" type="number" step="any" size="is-small")
+    //- Advisor-only lever: added to the property/revolving loan rates for the
+    //- serviceability assessment. The client only ever sees their own rate.
+    .lesv-field.lesv-stress
+      .lesv-labels
+        label {{ $t('report.loanEstimator.serviceability.stressMargin') }}
+        p.lesv-help {{ $t('report.loanEstimator.serviceability.stressMarginHelp') }}
+      b-input(v-model.number="stressMarginPct" type="number" step="any" size="is-small")
 
   .lesv-card
     h3.lesv-title {{ $t('report.loanEstimator.serviceability.incomeTitle') }}
@@ -130,12 +137,16 @@
  * `Serviceability Input` sheet (can the household afford the repayments?).
  * Field wording is the workbook's own, approved by Mike 2026-07-23.
  *
- * Deliberate differences from the sheet, all ruled 2026-07-23:
+ * Deliberate differences from the sheet:
  *   - the customer's legal name and date are NOT captured (PII rule — the
  *     calculation never needs them);
  *   - Hire Purchase is omitted (the sheet captures it but never costs it);
  *   - `country` is fixed to 'NZ' silently — the tax-band feeder supports
- *     other tables, but the workbook has no selector so neither does this.
+ *     other tables, but the workbook has no selector so neither does this;
+ *   - the advisor's "Stress test margin" (ruled 2026-07-24) is a single field
+ *     ADDED to the three property/revolving loan rates for the serviceability
+ *     assessment. The client only ever sees their own rate; Personal Term Loans
+ *     are assessed at their own rate with no margin. See the backend model note.
  *
  * Student loans mirror the sheet's E40/E41 Yes/No cells: "Yes" reveals the
  * customer's own monthly figure; "No" submits 0.
@@ -163,11 +174,12 @@ const LOAN_KEYS = ['revolvingCredit', 'currentPropertyLoans', 'newPropertyLoans'
 function sampleFigures () {
   return {
     joint: 'Yes', //                                                                        E5
+    stressMarginPct: 1.5, //  advisor stress-test margin, display percent (firm default 1.5%)
     household: { dependantsUnder18: 3, dependantsOver18: 1, numberOfVehicles: 2 }, //       E7 / L7 / L5
     loans: {
       revolvingCredit: { balance: 0, ratePct: 0, assessmentTermYears: 30, actualTermYears: 10 }, //      r12
       currentPropertyLoans: { balance: 0, ratePct: 0, assessmentTermYears: 30, actualTermYears: 25 }, // r14
-      newPropertyLoans: { balance: 500000, ratePct: 0, assessmentTermYears: 30, actualTermYears: 25 }, // r16
+      newPropertyLoans: { balance: 500000, ratePct: 5.95, assessmentTermYears: 30, actualTermYears: 25 }, // r16 (realistic client rate; see backend note)
       personalTermLoans: { balance: 0, ratePct: 13.95, assessmentTermYears: 7, actualTermYears: 5 } //   r20
     },
     income: {
@@ -249,6 +261,7 @@ export default {
      */
     applyRestore (p) {
       this.joint = p.jointApplication ? 'Yes' : 'No'
+      this.stressMarginPct = Math.round((p.stressMargin || 0) * 10000) / 100 // decimal back to display percent
       this.household.dependantsUnder18 = p.dependantsUnder18
       this.household.dependantsOver18 = p.dependantsOver18
       this.household.numberOfVehicles = p.numberOfVehicles
@@ -296,6 +309,7 @@ export default {
       })
       return {
         country: 'NZ',
+        stressMargin: (Number(this.stressMarginPct) || 0) / 100, // advisor margin, display percent → decimal
         jointApplication: this.joint === 'Yes',
         dependantsUnder18: Number(this.household.dependantsUnder18) || 0,
         dependantsOver18: Number(this.household.dependantsOver18) || 0,
@@ -359,6 +373,7 @@ export default {
 .lesv-labels { flex: 1 1 auto; }
 .lesv-help { font-size: 11px; color: #5b6f8a; margin: 1px 0 0; }
 .lesv-field .control { width: 150px; flex: 0 0 auto; }
+.lesv-stress { border-top: 1px dashed #d5e1ee; margin-top: 8px; padding-top: 10px; }
 .lesv-pair { display: flex; gap: 8px; }
 .lesv-row .control { width: auto; }
 .lesv-root .herostrip { margin-bottom: 14px; }
