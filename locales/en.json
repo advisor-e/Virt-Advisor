@@ -682,6 +682,7 @@
         "fonterraShares": "Fonterra shares",
         "fonterraTradingValue": "Trading value",
         "computedFromSide": "Calculated from the side calculations",
+        "totalValue": "Total market value",
         "overdraftTitle": "Overdraft",
         "fundsDrawn": "Funds drawn",
         "securedLabel": "Security",
@@ -733,6 +734,9 @@
         "generalLivingHelp": "Includes Food, Power, Gas, Phone, Education, Vehicle running costs, Rates, Home/Contents Insurance",
         "additionalLiving": "Additional Living Expenses (weekly)",
         "additionalLivingHelp": "Includes Child Support, Medical Costs, Superannuation, Gym/Club membership fees, Private school fees, other",
+        "totalBalances": "Total loan balances",
+        "totalGross": "Combined annual gross income",
+        "totalWeeklyLiving": "Weekly living costs total",
         "continue": "Continue →"
       },
       "result": {

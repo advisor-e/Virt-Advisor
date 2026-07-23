@@ -26,6 +26,9 @@
           option(value="Decline") {{ $t('report.loanEstimator.security.prospects.decline') }}
         b-input(v-model.number="rows[cls.key].debt" type="number" step="any" size="is-small")
         b-input(v-model.number="rows[cls.key].payments" type="number" step="any" size="is-small")
+    .les-foot
+      span.les-foot-label {{ $t('report.loanEstimator.security.totalValue') }}
+      span.les-foot-value {{ money(groupTotal(grp)) }}
 
   .les-side
     .les-card
@@ -174,6 +177,22 @@ export default {
     },
 
     /**
+     * Display-only card footer: the group's market values summed as entered
+     * (derived rows at their computed value). No business rule — the real
+     * totals come from the backend on the report screen.
+     * @param {Object} grp one of the `groups` entries
+     * @returns {number}
+     */
+    groupTotal (grp) {
+      return grp.classes.reduce((sum, cls) => {
+        const value = DERIVED_KEYS.includes(cls.key)
+          ? this.derivedValue(cls.key)
+          : Number(this.rows[cls.key].value) || 0
+        return sum + value
+      }, 0)
+    },
+
+    /**
      * Rebuild every field from a confirmed payload, decimals back to display
      * percents (rounded to 2 dp so 0.07 restores as 7, not 7.000000000000001).
      * @param {Object} p a payload previously emitted by confirm()
@@ -242,8 +261,8 @@ export default {
 
 <style scoped>
 .les-card {
-  background: #fff; border: 1px solid #d5e1ee; border-radius: 10px;
-  padding: 16px 18px; margin-bottom: 14px;
+  background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0;
+  border-radius: 10px; padding: 16px 18px; margin-bottom: 14px;
 }
 .les-title {
   font-size: 13px; font-weight: 700; color: #002b64;
@@ -254,12 +273,24 @@ export default {
   display: grid; grid-template-columns: 168px repeat(5, minmax(96px, 1fr));
   gap: 8px; align-items: center; padding: 3px 0; min-width: 720px;
 }
+.les-row.les-head { background: #f1f6fb; border-radius: 8px; padding: 6px 0; }
+.les-grid .les-row:not(.les-head):nth-child(odd) { background: #f8fbfd; }
 .les-head span { font-size: 11px; font-weight: 600; color: #5b6f8a; }
 .les-label { font-size: 12.5px; font-weight: 600; color: #223a57; }
 .les-derived {
-  font-size: 12.5px; color: #223a57; background: #eef3f8;
-  border: 1px dashed #d5e1ee; border-radius: 6px; padding: 5px 8px;
+  font-size: 12.5px; color: #223a57; background: #eaf7fc;
+  border: 1px dashed #7fd3f1; border-radius: 6px; padding: 5px 8px;
 }
+.les-foot {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 10px; padding: 8px 12px; background: #f1f6fb;
+  border: 1px solid #d5e1ee; border-radius: 9px;
+}
+.les-foot-label {
+  font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  font-weight: 600; color: #5b6f8a;
+}
+.les-foot-value { font-size: 16px; font-weight: 700; color: #0070c0; }
 .les-side { display: flex; gap: 14px; flex-wrap: wrap; }
 .les-side .les-card { flex: 1 1 280px; }
 .les-field { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 0; }

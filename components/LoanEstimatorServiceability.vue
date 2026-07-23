@@ -34,6 +34,9 @@
         b-input(v-model.number="loans[key].ratePct" type="number" step="any" size="is-small")
         b-input(v-model.number="loans[key].assessmentTermYears" type="number" step="any" size="is-small")
         b-input(v-model.number="loans[key].actualTermYears" type="number" step="any" size="is-small")
+    .lesv-foot
+      span.lesv-foot-label {{ $t('report.loanEstimator.serviceability.totalBalances') }}
+      span.lesv-foot-value {{ money(loanBalanceTotal) }}
 
   .lesv-card
     h3.lesv-title {{ $t('report.loanEstimator.serviceability.incomeTitle') }}
@@ -64,6 +67,9 @@
     .lesv-field
       label {{ $t('report.loanEstimator.serviceability.boardersTerm') }}
       b-input(v-model.number="boarders.termWeeks" type="number" step="any" size="is-small")
+    .lesv-foot
+      span.lesv-foot-label {{ $t('report.loanEstimator.serviceability.totalGross') }}
+      span.lesv-foot-value {{ money(grossIncomeTotal) }}
 
   .lesv-card
     h3.lesv-title {{ $t('report.loanEstimator.serviceability.expensesTitle') }}
@@ -112,6 +118,9 @@
         label {{ $t('report.loanEstimator.serviceability.additionalLiving') }}
         p.lesv-help {{ $t('report.loanEstimator.serviceability.additionalLivingHelp') }}
       b-input(v-model.number="expenses.additionalWeekly" type="number" step="any" size="is-small")
+    .lesv-foot
+      span.lesv-foot-label {{ $t('report.loanEstimator.serviceability.totalWeeklyLiving') }}
+      span.lesv-foot-value {{ money(weeklyLivingTotal) }}
 
   .lesv-actions
     b-button(type="is-primary" @click="confirm") {{ $t('report.loanEstimator.serviceability.continue') }}
@@ -142,6 +151,7 @@
  * expects.
  */
 import SampleNotice from '~/components/base/SampleNotice.vue'
+import currencyMixin from '~/mixins/currencyMixin'
 
 /** Loan rows in the sheet's own order (rows 12/14/16/20). */
 const LOAN_KEYS = ['revolvingCredit', 'currentPropertyLoans', 'newPropertyLoans', 'personalTermLoans']
@@ -187,6 +197,8 @@ export default {
 
   components: { SampleNotice },
 
+  mixins: [currencyMixin],
+
   props: {
     /** A previously confirmed payload (stepping back from chip 3); null on first entry. */
     restore: { type: Object, default: null }
@@ -198,6 +210,25 @@ export default {
       loanKeys: LOAN_KEYS,
       // Frozen at created(): whether this entry started from the sample scenario.
       showSample: true
+    }
+  },
+
+  computed: {
+    // The three card footers are display-only sums of like units — no business
+    // rule; the real serviceability maths runs on the backend.
+    /** @returns {number} all four loan balances. */
+    loanBalanceTotal () {
+      return LOAN_KEYS.reduce((sum, key) => sum + (Number(this.loans[key].balance) || 0), 0)
+    },
+    /** @returns {number} both customers' annual gross incomes combined. */
+    grossIncomeTotal () {
+      return (Number(this.income.customer1Gross) || 0) + (Number(this.income.customer2Gross) || 0)
+    },
+    /** @returns {number} the three weekly living-cost figures combined. */
+    weeklyLivingTotal () {
+      return (Number(this.expenses.rentWeekly) || 0) +
+        (Number(this.expenses.generalWeekly) || 0) +
+        (Number(this.expenses.additionalWeekly) || 0)
     }
   },
 
@@ -300,8 +331,8 @@ export default {
 
 <style scoped>
 .lesv-card {
-  background: #fff; border: 1px solid #d5e1ee; border-radius: 10px;
-  padding: 16px 18px; margin-bottom: 14px;
+  background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0;
+  border-radius: 10px; padding: 16px 18px; margin-bottom: 14px;
 }
 .lesv-title {
   font-size: 13px; font-weight: 700; color: #002b64;
@@ -316,6 +347,8 @@ export default {
   display: grid; grid-template-columns: 220px repeat(4, minmax(110px, 1fr));
   gap: 8px; align-items: center; padding: 3px 0; min-width: 700px;
 }
+.lesv-row.lesv-head { background: #f1f6fb; border-radius: 8px; padding: 6px 0; }
+.lesv-grid .lesv-row:not(.lesv-head):nth-child(odd) { background: #f8fbfd; }
 .lesv-head span { font-size: 11px; font-weight: 600; color: #5b6f8a; }
 .lesv-label { font-size: 12.5px; font-weight: 600; color: #223a57; }
 .lesv-field {
@@ -328,5 +361,15 @@ export default {
 .lesv-field .control { width: 150px; flex: 0 0 auto; }
 .lesv-pair { display: flex; gap: 8px; }
 .lesv-row .control { width: auto; }
+.lesv-foot {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 10px; padding: 8px 12px; background: #f1f6fb;
+  border: 1px solid #d5e1ee; border-radius: 9px;
+}
+.lesv-foot-label {
+  font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  font-weight: 600; color: #5b6f8a;
+}
+.lesv-foot-value { font-size: 16px; font-weight: 700; color: #0070c0; }
 .lesv-actions { margin-top: 6px; text-align: right; }
 </style>
