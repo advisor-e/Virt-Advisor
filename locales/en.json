@@ -659,8 +659,24 @@
       "title": "The Loan Estimator",
       "eyebrowClass": "Decision tool",
       "step1": "Security position",
-      "step2": "Serviceability",
-      "step3": "Loan Estimator report",
+      "step2": "Business loan",
+      "step3": "Serviceability",
+      "step4": "Loan Estimator report",
+      "business": {
+        "cardTitle": "Business loan details",
+        "ebit": "EBIT",
+        "ebitHelp": "Earnings before interest & tax",
+        "businessType": "Business Type",
+        "commercialBusiness": "Commercial Business",
+        "farm": "Farm",
+        "fullTimeStaff": "Number of Full Time Staff",
+        "partTimeStaff": "Number of Part Time Staff",
+        "currentTaxDue": "Current Tax Due (incl Penalties)",
+        "heroEbit": "EBIT",
+        "heroStaff": "Total staff",
+        "heroTax": "Current tax due",
+        "continue": "Continue →"
+      },
       "security": {
         "personalTitle": "Personal",
         "commercialTitle": "Commercial",
@@ -754,7 +770,9 @@
           "repayment": "Monthly repayment",
           "repaymentSub": "On the proposed loan from the quick calculator",
           "maxBorrowing": "Estimated maximum borrowing",
-          "maxBorrowingSub": "With everything else as entered — an indication only"
+          "maxBorrowingSub": "With everything else as entered — an indication only",
+          "businessLoan": "Maximum business loan",
+          "businessLoanSub": "Against the business, on its EBIT — an indication only"
         },
         "security": {
           "title": "Security position",
@@ -780,6 +798,14 @@
           "expensesUsedNote": "The greater of actual expenses and the bank's minimum allowances",
           "surplus": "Monthly surplus",
           "taxNote": "Calculated using New Zealand tax bands — {label}"
+        },
+        "business": {
+          "title": "Business loan",
+          "ratio": "EBIT to Interest Ratio",
+          "security": "Bank Adjusted Maximum Security",
+          "maxLoan": "Maximum Bank Adjusted Loan (against Business)",
+          "monthly": "Mthly Pmt Required",
+          "note": "The largest loan the business's EBIT services, at the business rate over its term — an indication only."
         },
         "calc": {
           "title": "Repayment quick calculator",

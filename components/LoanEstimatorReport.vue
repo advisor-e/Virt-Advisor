@@ -15,6 +15,15 @@
       p {{ $t('report.loanEstimator.result.verdictQualifier') }}
 
     hero-strip(:columns="4" :stale="!!error")
+      //- Business loan front and centre (Mike's ruling 2026-07-24): when the
+      //- business step is filled, its maximum loan leads the headline band and
+      //- the personal maximum-borrowing figure drops into the household card.
+      hero-figure(
+        v-if="business"
+        :label="$t('report.loanEstimator.result.hero.businessLoan')"
+        :value="businessMaxLoan === null ? '—' : money(businessMaxLoan)"
+        :sub="$t('report.loanEstimator.result.hero.businessLoanSub')"
+      )
       hero-figure(
         :label="$t('report.loanEstimator.result.hero.surplus')"
         :value="money(data.serviceability.surplus)"
@@ -32,8 +41,10 @@
         :sub="$t('report.loanEstimator.result.hero.repaymentSub')"
       )
       //- App-original formula (ruled 2026-07-23): the largest new property loan
-      //- these figures support — indication only, like the verdict itself.
+      //- these figures support — indication only, like the verdict itself. Held
+      //- back from the strip when the business loan takes the fourth cell.
       hero-figure(
+        v-if="!business"
         :label="$t('report.loanEstimator.result.hero.maxBorrowing')"
         :value="data.serviceability.maxAffordableNewLoan === null ? '—' : money(data.serviceability.maxAffordableNewLoan)"
         :sub="$t('report.loanEstimator.result.hero.maxBorrowingSub')"
@@ -79,7 +90,33 @@
         tr.is-total
           td {{ $t('report.loanEstimator.result.svc.surplus') }}
           td(:class="{ 'is-crit': !verdictPass }") {{ money(data.serviceability.surplus) }}
+        //- Personal maximum borrowing lives here when the business loan has taken
+        //- the fourth headline cell, so the figure is never lost.
+        tr(v-if="business")
+          td
+            | {{ $t('report.loanEstimator.result.hero.maxBorrowing') }}
+            p.ler-note {{ $t('report.loanEstimator.result.hero.maxBorrowingSub') }}
+          td {{ data.serviceability.maxAffordableNewLoan === null ? '—' : money(data.serviceability.maxAffordableNewLoan) }}
       p.ler-note {{ $t('report.loanEstimator.result.svc.taxNote', { label: data.serviceability.taxTable.taxYearLabel }) }}
+
+    //- Business loan block (Part E) — shown only when the advisor completed the
+    //- business step; the report stays useful for a purely personal enquiry.
+    .ler-card(v-if="business && data.business")
+      h2 {{ $t('report.loanEstimator.result.business.title') }}
+      table.ler-mini
+        tr
+          td {{ $t('report.loanEstimator.result.business.ratio') }}
+          td {{ num(data.business.ebitToInterestRatio, 2) }}
+        tr
+          td {{ $t('report.loanEstimator.result.business.security') }}
+          td {{ money(data.business.bankAdjustedMaxSecurity) }}
+        tr.is-total
+          td {{ $t('report.loanEstimator.result.business.maxLoan') }}
+          td {{ businessMaxLoan === null ? '—' : money(businessMaxLoan) }}
+        tr
+          td {{ $t('report.loanEstimator.result.business.monthly') }}
+          td {{ money(data.business.monthlyPaymentRequired) }}
+      p.ler-note {{ $t('report.loanEstimator.result.business.note') }}
 
     .ler-card
       h2 {{ $t('report.loanEstimator.result.calc.title') }}
@@ -166,8 +203,9 @@ import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
 /**
- * LoanEstimatorReport — step 3 of the Loan Estimator: the ruled verdict, the
- * three headline figures, the security-position and serviceability summaries,
+ * LoanEstimatorReport — step 4 of the Loan Estimator: the ruled verdict, the
+ * headline figures (led by the business loan when the business step is filled),
+ * the security-position, business and serviceability summaries,
  * and the workbook's own Quick Calculator as the interactive repayment card
  * (layout + wording approved by Mike 2026-07-23, session D).
  *
@@ -190,7 +228,9 @@ export default {
   props: {
     /** Step 1's confirmed security-position payload (model-shaped). */
     security: { type: Object, default: null },
-    /** Step 2's confirmed serviceability payload (model-shaped). */
+    /** Step 2's confirmed business-loan payload (model-shaped); null for a personal-only enquiry. */
+    business: { type: Object, default: null },
+    /** Step 3's confirmed serviceability payload (model-shaped). */
     serviceability: { type: Object, default: null }
   },
 
@@ -225,6 +265,16 @@ export default {
       if (!this.data) { return 0 }
       const s = this.data.serviceability
       return Math.max(s.expenses.total, s.allowances.floor)
+    },
+    /**
+     * The maximum bank-adjusted business loan as a positive size. The model
+     * stores it negative (the workbook's present-value sign convention, D40 /
+     * G102); the report shows loan sizes positive, like every other figure here.
+     * @returns {number|null} the loan size, or null before the first result.
+     */
+    businessMaxLoan () {
+      if (!this.data || !this.data.business) { return null }
+      return Math.abs(this.data.business.maxBankAdjustedLoan)
     },
     /** R22-style stretch: the ceiling grows to fit a larger typed figure. */
     priceMax () {
@@ -263,6 +313,7 @@ export default {
         url: '/api/report/loan-estimator',
         body: {
           securityPosition: this.security || undefined,
+          business: this.business || undefined,
           serviceability: this.serviceability || undefined,
           repayment: {
             purchasePrice: this.calc.purchasePrice,

@@ -13,12 +13,16 @@
       .step(:class="{ active: step === 2, done: step > 2 }" @click="goTo(2)")
         span.n 2
         | {{ $t('report.loanEstimator.step2') }}
-      .step(:class="{ active: step === 3 }")
+      .step(:class="{ active: step === 3, done: step > 3 }" @click="goTo(3)")
         span.n 3
         | {{ $t('report.loanEstimator.step3') }}
+      .step(:class="{ active: step === 4 }")
+        span.n 4
+        | {{ $t('report.loanEstimator.step4') }}
     loan-estimator-security(v-if="step === 1" :restore="security" @confirmed="onSecurityConfirmed")
-    loan-estimator-serviceability(v-else-if="step === 2" :restore="serviceability" @confirmed="onServiceabilityConfirmed")
-    loan-estimator-report(v-else :security="security" :serviceability="serviceability")
+    loan-estimator-business(v-else-if="step === 2" :security="security" :restore="business" @confirmed="onBusinessConfirmed")
+    loan-estimator-serviceability(v-else-if="step === 3" :restore="serviceability" @confirmed="onServiceabilityConfirmed")
+    loan-estimator-report(v-else :security="security" :business="business" :serviceability="serviceability")
 </template>
 
 <script>
@@ -37,21 +41,25 @@
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import LoanEstimatorSecurity from '~/components/LoanEstimatorSecurity.vue'
+import LoanEstimatorBusiness from '~/components/LoanEstimatorBusiness.vue'
 import LoanEstimatorServiceability from '~/components/LoanEstimatorServiceability.vue'
 import LoanEstimatorReport from '~/components/LoanEstimatorReport.vue'
 
 export default {
   name: 'LoanEstimatorPage',
 
-  components: { ReportHeader, LoanEstimatorSecurity, LoanEstimatorServiceability, LoanEstimatorReport },
+  components: { ReportHeader, LoanEstimatorSecurity, LoanEstimatorBusiness, LoanEstimatorServiceability, LoanEstimatorReport },
 
   data () {
     return {
       step: 1,
       // Each step's confirmed figures; forward-navigation is gated on the
       // previous step existing, same rule as Quick Position (a chip is only
-      // clickable when there is content to return to).
+      // clickable when there is content to return to). The business loan is
+      // step 2 (front and centre, per Mike's ruling 2026-07-24) — it needs only
+      // the securities from step 1, not the household serviceability step.
       security: null,
+      business: null,
       serviceability: null
     }
   },
@@ -59,24 +67,32 @@ export default {
   methods: {
     /**
      * Stepper navigation. Backwards always; forward only when the target step
-     * has content to show (chip 2 needs the security position confirmed). The
-     * report chip is never clickable directly — step 3 is reached only when
-     * the serviceability screen hands over its payload.
+     * has the content it depends on (chip 2 needs security; chip 3 needs
+     * security + business). The report chip (4) is never clickable directly —
+     * it is reached only when the serviceability screen hands over its payload.
      */
     goTo (n) {
-      if (n === 3 || n === this.step) { return }
-      if (n > this.step && !(n === 2 && this.security)) { return }
+      if (n === 4 || n === this.step) { return }
+      if (n > this.step) {
+        if (n === 2 && !this.security) { return }
+        if (n === 3 && !(this.security && this.business)) { return }
+      }
       this.step = n
     },
-    /** The security screen hands over its confirmed figures; serviceability is next. */
+    /** The security screen hands over its confirmed figures; the business loan is next. */
     onSecurityConfirmed (payload) {
       this.security = payload
       this.step = 2
     },
+    /** The business screen hands over its confirmed figures; serviceability is next. */
+    onBusinessConfirmed (payload) {
+      this.business = payload
+      this.step = 3
+    },
     /** The serviceability screen hands over its confirmed figures; the report is next. */
     onServiceabilityConfirmed (payload) {
       this.serviceability = payload
-      this.step = 3
+      this.step = 4
     }
   }
 }

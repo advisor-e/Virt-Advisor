@@ -9,12 +9,13 @@ const StaleBanner = require('~/components/base/StaleBanner.vue').default
 const {
   DEFAULT_INPUTS,
   DEFAULT_SERVICEABILITY_INPUTS,
+  DEFAULT_BUSINESS_INPUTS,
   computeLoanEstimatorReport
 } = require('~/server/report/loanEstimatorModel')
 const en = require('~/locales/en.json')
 
 /**
- * Step 3 of the Loan Estimator — the result screen.
+ * Step 4 of the Loan Estimator — the result screen.
  *
  * The fetch mock runs the REAL backend assembler on the screen's actual
  * request body, so every rendered figure comes from genuine model output —
@@ -80,6 +81,40 @@ describe('LoanEstimatorReport', () => {
     expect(wrapper.findAllComponents({ name: 'HeroFigure' }).length).toBe(4)
     // Table basis: 10 schedule years + the totals row.
     expect(wrapper.findAll('.ler-result tbody tr').length).toBe(11)
+  })
+
+  it('with the business step filled, its loan leads the headline and the business card renders', async () => {
+    const props = stepPayloads()
+    props.business = JSON.parse(JSON.stringify(DEFAULT_BUSINESS_INPUTS))
+    const wrapper = await mountScreen(props)
+    const text = wrapper.text()
+
+    // The business loan leads the headline band, and the business card is present.
+    ;['hero.businessLoan', 'business.title', 'business.maxLoan', 'business.ratio']
+      .forEach((key) => { expect(text).toContain('report.loanEstimator.result.' + key) })
+
+    // Still four headline cells: businessLoan takes the fourth slot, so the
+    // personal maximum-borrowing figure is held back from the strip.
+    expect(wrapper.findAllComponents({ name: 'HeroFigure' }).length).toBe(4)
+
+    // The maximum bank-adjusted loan is shown as a positive size (sheet stores it
+    // negative): |−977,191.0856| ≈ 977,191.09.
+    expect(wrapper.vm.businessMaxLoan).toBeCloseTo(977191.0856, 3)
+
+    // The request carried the business block, and the backend accepted it whole.
+    expect(lastBody.business).toEqual(props.business)
+    expect(computeLoanEstimatorReport(lastBody).business.defaultedInputs).toEqual([])
+  })
+
+  it('without the business step, the headline keeps the personal maximum-borrowing figure', async () => {
+    const wrapper = await mountScreen() // stepPayloads() carries no business
+    const text = wrapper.text()
+    expect(text).toContain('report.loanEstimator.result.hero.maxBorrowing')
+    // The business hero and card are gated on the business prop, not on the data
+    // (the backend always returns a business block), so neither renders here.
+    expect(text).not.toContain('report.loanEstimator.result.hero.businessLoan')
+    expect(text).not.toContain('report.loanEstimator.result.business.title')
+    expect(wrapper.findAllComponents({ name: 'HeroFigure' }).length).toBe(4)
   })
 
   it('passes both confirmed step payloads through untouched — nothing falls back to defaults', async () => {
