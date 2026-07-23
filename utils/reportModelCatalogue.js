@@ -90,7 +90,7 @@ export const MODELS = [
   { name: 'Sales Dashboard', category: 'Growth', summary: 'Sales mix, trends and the products carrying the margin.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_SOON, modelClass: CLASS_DECISION },
   { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_SOON, modelClass: CLASS_DECISION },
-  { name: 'The Loan Estimator', category: 'Valuation', summary: 'Repayments, interest and total cost across loan options.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  { name: 'The Loan Estimator', category: 'Valuation', summary: 'What lenders would lend against, whether the household can service it, and the repayments.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/loan-estimator' },
   { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Compare several property investments side by side.', status: STATUS_SOON, modelClass: CLASS_DECISION },
   { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON, modelClass: CLASS_DECISION },
   { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/quick-position' },

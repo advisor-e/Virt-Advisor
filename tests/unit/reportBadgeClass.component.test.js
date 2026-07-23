@@ -40,7 +40,8 @@ const RENDERED_BY = {
   '/eight-levers': { component: 'components/EightLeversReport.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.
   '/quick-position': { source: 'pages/quick-position.vue' },
-  '/ebitda-dcf': { source: 'pages/ebitda-dcf.vue' }
+  '/ebitda-dcf': { source: 'pages/ebitda-dcf.vue' },
+  '/loan-estimator': { source: 'pages/loan-estimator.vue' }
 }
 
 const READY = MODELS.filter(m => m.status === STATUS_READY)

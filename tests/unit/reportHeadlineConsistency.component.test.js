@@ -11,6 +11,7 @@ const BusinessPerformanceReport = require('~/components/BusinessPerformanceRepor
 const EightLeversReport = require('~/components/EightLeversReport.vue').default
 const QuickPositionReport = require('~/components/QuickPositionReport.vue').default
 const EbitdaDcfReport = require('~/components/EbitdaDcfReport.vue').default
+const LoanEstimatorReport = require('~/components/LoanEstimatorReport.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -18,6 +19,7 @@ const { computeMarginMarkup, requiredSales, whatIfPrice } = require('~/server/re
 const { computeEightLevers, DEFAULT_INPUTS: EL_DEFAULTS } = require('~/server/report/eightLeversModel')
 const { computeQuickPosition, DEFAULTS: QP_DEFAULTS } = require('~/server/report/quickPositionModel')
 const { computeEbitdaDcf, DEFAULTS: ED_DEFAULTS } = require('~/server/report/ebitdaDcfModel')
+const { computeLoanEstimatorReport } = require('~/server/report/loanEstimatorModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -64,7 +66,9 @@ const SCREENS = [
   { name: 'Working Capital Cycle', component: BusinessPerformanceReport, result: () => computeWorkingCapitalCycle(Object.assign({}, WCC_DEFAULTS)) },
   { name: 'Eight Levers', component: EightLeversReport, result: () => computeEightLevers(Object.assign({}, EL_DEFAULTS)) },
   { name: 'Quick Position', component: QuickPositionReport, result: () => computeQuickPosition(Object.assign({}, QP_DEFAULTS)) },
-  { name: 'EBITDA & DCF', component: EbitdaDcfReport, result: () => computeEbitdaDcf(Object.assign({}, ED_DEFAULTS)) }
+  { name: 'EBITDA & DCF', component: EbitdaDcfReport, result: () => computeEbitdaDcf(Object.assign({}, ED_DEFAULTS)) },
+  // An empty body computes every part on the workbook sample — the assembler's own default path.
+  { name: 'Loan Estimator', component: LoanEstimatorReport, result: () => computeLoanEstimatorReport({}) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */
