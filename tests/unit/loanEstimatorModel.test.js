@@ -479,6 +479,8 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       expect(b.ebitServiceableAnnual).toBeCloseTo(114000, 6) //     AB40 (= 342,000 ÷ 3)
       expect(b.maxBankAdjustedLoan).toBeCloseTo(-977191.0856, 3) // D40/G102 (PV(9.5%, 15y, 114,000), annuity due, negative)
       expect(b.monthlyPaymentRequired).toBeCloseTo(10204.07051, 4) // L101 (PMT(9.5%/12, 180, |loan|))
+      expect(b.loanRate).toBe(0.095) //      J101 (the rate the loan is priced at)
+      expect(b.loanTermYears).toBe(15) //    J103 (the term the loan is priced over)
     })
 
     it('a Farm business services more per dollar of EBIT — divisor 1.5 (Loan Criteria Z45)', () => {

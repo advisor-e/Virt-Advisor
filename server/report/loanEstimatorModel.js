@@ -826,7 +826,8 @@ const DEFAULT_BUSINESS_INPUTS = {
  * @returns {Object} { items, totals, ebit, businessType, fullTimeStaff,
  *   partTimeStaff, currentTaxDue, ebitToInterestRatio, securityAdjustment,
  *   bankAdjustedMaxSecurity, coverageDivisor, ebitServiceableAnnual,
- *   maxBankAdjustedLoan, monthlyPaymentRequired, defaultedInputs }
+ *   maxBankAdjustedLoan, monthlyPaymentRequired, loanRate, loanTermYears,
+ *   defaultedInputs }
  */
 function computeBusinessBlock (inputs) {
   const src = (inputs && typeof inputs === 'object') ? inputs : {}
@@ -902,6 +903,8 @@ function computeBusinessBlock (inputs) {
     ebitServiceableAnnual, //      AB40
     maxBankAdjustedLoan, //        D40 / G102 (negative, as the sheet shows)
     monthlyPaymentRequired, //     L101
+    loanRate: cfg.loanRate, //          J101 (business rate the loan is priced at)
+    loanTermYears: cfg.loanTermYears, // J103 (business term the loan is priced over)
     defaultedInputs
   }
 }

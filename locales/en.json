@@ -804,6 +804,8 @@
           "ratio": "EBIT to Interest Ratio",
           "security": "Bank Adjusted Maximum Security",
           "maxLoan": "Maximum Bank Adjusted Loan (against Business)",
+          "rate": "Interest Rate",
+          "term": "Term (Yrs)",
           "monthly": "Mthly Pmt Required",
           "note": "The largest loan the business's EBIT services, at the business rate over its term — an indication only."
         },

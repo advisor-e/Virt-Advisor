@@ -89,9 +89,14 @@ describe('LoanEstimatorReport', () => {
     const wrapper = await mountScreen(props)
     const text = wrapper.text()
 
-    // The business loan leads the headline band, and the business card is present.
-    ;['hero.businessLoan', 'business.title', 'business.maxLoan', 'business.ratio']
+    // The business loan leads the headline band, and the business card is present
+    // with all its rows — including the rate and term drawn from the model.
+    ;['hero.businessLoan', 'business.title', 'business.maxLoan', 'business.ratio',
+      'business.rate', 'business.term', 'business.monthly']
       .forEach((key) => { expect(text).toContain('report.loanEstimator.result.' + key) })
+    // Rate and term come straight from the model's config, not re-typed on screen.
+    expect(wrapper.vm.data.business.loanRate).toBe(0.095)
+    expect(wrapper.vm.data.business.loanTermYears).toBe(15)
 
     // Still four headline cells: businessLoan takes the fourth slot, so the
     // personal maximum-borrowing figure is held back from the strip.

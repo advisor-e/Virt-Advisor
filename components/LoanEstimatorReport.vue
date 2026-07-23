@@ -114,6 +114,12 @@
           td {{ $t('report.loanEstimator.result.business.maxLoan') }}
           td {{ businessMaxLoan === null ? '—' : money(businessMaxLoan) }}
         tr
+          td {{ $t('report.loanEstimator.result.business.rate') }}
+          td {{ num(data.business.loanRate * 100, 2) }}%
+        tr
+          td {{ $t('report.loanEstimator.result.business.term') }}
+          td {{ data.business.loanTermYears }}
+        tr
           td {{ $t('report.loanEstimator.result.business.monthly') }}
           td {{ money(data.business.monthlyPaymentRequired) }}
       p.ler-note {{ $t('report.loanEstimator.result.business.note') }}
