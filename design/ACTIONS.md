@@ -75,11 +75,24 @@
     "Decision Frameworks" is retired (that tab → "Domain Support"). Supersedes plan §0
     decision 1. The backend `/framework` "Decision Framework" feature is a different thing and
     is NOT renamed. Commit `2172e34`.
-  - ☐ **NEXT: build the Domain Support editable tab** — turn the mockup into the working screen,
-    wired to the existing `getDomainSupport*` / `saveDomainSupport*` routes (backend already
-    live from the b1bd546 skeleton). Needs from Mike first: button/label wording, and a nod on
-    inline-cell editing. Then the Logic Tables tab, then Job 2 (cross-ref each material's Q&A
-    against the 10-question quiz banks — likely already covered there).
+  - ✅ **Domain Support editable tab BUILT 2026-07-24 (approved by Mike, this branch). Commit
+    `ccf1d04`; full suite 1,815 green.** [`components/firm/FirmDomainSupport.vue`](../components/firm/FirmDomainSupport.vue):
+    two-group rail (advisory domains / get-the-job) + four-column inline-editable table (Template ·
+    Summary · Who & when · Step-by-step), origin tags, version history — wired to the existing
+    `getDomainSupport*` / `saveDomainSupport*` routes. Save/Reset live (sparse `{materials}`
+    override; deepMerge replaces the array). Labels per Mike's mockup sign-off. EOY renders fully;
+    a domain still on the legacy `support_tools` shape shows a "not migrated" notice.
+    - **Security (done):** firm-authored `overview`+`materials` fenced with `fenceUntrusted` in ALL
+      THREE prompt formatters (`formatDomainSupportForPrompt`, `formatDomainContextForSession`,
+      `formatDomainSummaryForDesign`) — untrusted text read as data, never instructions (CLAUDE.md;
+      mirrors CB-30). Platform output byte-unchanged (`tests/unit/domainSupportFencing.test.js`).
+    - **Fix (done):** list route counts `materials` (EOY shows 4, not 0).
+    - Added as its OWN tab, **non-destructive** — the PDF "Decision Frameworks" tab is untouched.
+  - ☐ **NEXT (open):** (1) **DECISION for Mike** — keep or rename/retire the PDF "Decision
+    Frameworks" tab now Domain Support has its own tab (§0.6 wants it retired); (2) build the
+    **Logic Tables** tab; (3) **Job 2** — fold each material's genuine how-to Q&A into the steps,
+    cross-checked against the 10-question quiz banks; (4) per-material origin tags are domain-level
+    until the §2.4 compare-screen work.
   - **The point (Mike's words):** so educators can have a real impact on the AI's
     recommendations and include their own material easily. This is the firm-authoring
     story reaching the engine's decision inputs, not another CRUD screen.
