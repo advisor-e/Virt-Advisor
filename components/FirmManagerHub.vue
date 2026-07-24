@@ -20,6 +20,13 @@ section.firm-manager-hub.section
         //- totals render in this header, so the tab reports changes upward.
         firm-documents(:api-token="apiToken" @storage-changed="loadStorage")
 
+      //- ── Tab: Domain Support (FIRM-EDITABLE-TABLES-PLAN.md Phase 2, §0.6) ──
+      //- The four-column material tables the advisors' AI reads. Added as its
+      //- own tab per §0.6; whether the PDF "Decision Frameworks" tab above is
+      //- renamed/retired is a separate decision, raised once this is real.
+      b-tab-item(label="Domain Support")
+        firm-domain-support(:api-token="apiToken")
+
       //- ── Tab: Advisory Staircase ────────────────────────────────────
       b-tab-item(label="Advisory Staircase" icon="stairs")
         .columns
@@ -656,6 +663,7 @@ section.firm-manager-hub.section
 import DOMPurify from 'isomorphic-dompurify'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 import FirmDocuments from '~/components/firm/FirmDocuments.vue'
+import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 const { BLOCK_TONES } = require('~/utils/brandTokens')
@@ -714,7 +722,7 @@ const STAIRCASE_STEP_COLORS = BLOCK_TONES
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDocuments },
+  components: { FirmQuizzes, FirmDocuments, FirmDomainSupport },
 
   props: {
     firmId: { type: String, required: true },

@@ -1686,6 +1686,20 @@ async function _restoreDomainSupportVersion (firmId, domainId, version, restored
 }
 
 /**
+ * How many editable items a domain's support holds, for the rail count. The
+ * four-column `materials` shape (§0.5) is counted first; a domain still on the
+ * legacy `support_tools` shape falls back to that. Without this, a migrated
+ * domain (e.g. EOY) reported 0 because only support_tools was counted.
+ * @param {Object|null} support - the merged domain-support entry
+ * @returns {number}
+ */
+function _countSupportItems (support) {
+  if (!support) { return 0 }
+  if (Array.isArray(support.materials) && support.materials.length) { return support.materials.length }
+  return (support.support_tools || []).length
+}
+
+/**
  * GET /api/firm-manager/domain-support — list all domain support + firm overrides
  */
 async function getDomainSupport (req, res) {
@@ -1708,7 +1722,7 @@ async function getDomainSupport (req, res) {
         id: domain.id,
         label: domain.label,
         hasOverride: override !== null,
-        supportTools: support ? (support.support_tools || []).length : 0,
+        supportTools: _countSupportItems(support),
         origin: override ? 'firm' : 'platform'
       })
     }
@@ -1721,7 +1735,7 @@ async function getDomainSupport (req, res) {
         id: fileId,
         label: fileId.replace('get-', '').replace(/-/g, ' '),
         hasOverride: override !== null,
-        supportTools: support ? (support.support_tools || []).length : 0,
+        supportTools: _countSupportItems(support),
         origin: override ? 'firm' : 'platform'
       })
     }

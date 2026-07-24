@@ -13,9 +13,40 @@
 const { readFileSync, readdirSync } = require('fs')
 const { resolve } = require('path')
 const { mergeEntry } = require('./firmContent')
+const { fenceUntrusted } = require('./promptSafety')
 
 const _cache = {}
 let _domainFiles = null
+
+/**
+ * The firm's raw override object for a domain, or null. Used to tell whether a
+ * field the model is about to read was authored by the firm (untrusted) rather
+ * than the platform (trusted repo data).
+ * @param {Object|null} firmSupport - override map keyed by domain id
+ * @param {string} domainId
+ * @returns {Object|null}
+ */
+function _overrideFor (firmSupport, domainId) {
+  return (firmSupport && typeof firmSupport === 'object' && !Array.isArray(firmSupport))
+    ? (firmSupport[domainId] || null)
+    : null
+}
+
+/**
+ * True when a given field of a domain's merged support came from the firm's
+ * override (so it is untrusted and must be fenced before reaching a prompt).
+ * Arrays merge wholesale (server/utils/deepMerge.js), so an overridden
+ * `materials` means every material is firm-authored — all-or-nothing per field.
+ * @param {Object|null} firmSupport
+ * @param {string} domainId
+ * @param {string} field - e.g. 'overview' or 'materials'
+ * @returns {boolean}
+ */
+function _firmAuthored (firmSupport, domainId, field) {
+  const override = _overrideFor(firmSupport, domainId)
+  return !!(override && typeof override === 'object' && !Array.isArray(override) &&
+    Object.prototype.hasOwnProperty.call(override, field))
+}
 
 function getDomainFiles () {
   if (_domainFiles) { return _domainFiles }
@@ -85,17 +116,25 @@ function formatDomainSupportForPrompt (domainId, firmSupport) {
   const ref = resolveDomainSupport(domainId, firmSupport)
   if (!ref) { return null }
 
+  // Firm-authored fields are untrusted user input reaching the prompt — fenced
+  // so the model reads them as data, never instructions (CLAUDE.md → Security;
+  // same guard the quiz banks use, courseEngine.js CB-30). Platform fields are
+  // repo data and stay unfenced, leaving existing prompt behaviour unchanged.
+  const overviewFirm = _firmAuthored(firmSupport, domainId, 'overview')
+  const materialsFirm = _firmAuthored(firmSupport, domainId, 'materials')
+
   const lines = []
   lines.push(`## Domain Support Reference — ${ref.label}`)
   lines.push('')
-  lines.push(ref.overview)
+  lines.push(overviewFirm ? fenceUntrusted(ref.overview) : ref.overview)
   lines.push('')
 
   // Four-column re-authored shape (§0.5) takes precedence; legacy support_tools
   // files fall through to the original rich renderer below.
   if (Array.isArray(ref.materials) && ref.materials.length > 0) {
     for (const material of ref.materials) {
-      formatMaterialLines(material).forEach(l => lines.push(l))
+      const body = formatMaterialLines(material).join('\n')
+      lines.push(materialsFirm ? fenceUntrusted(body) : body)
       lines.push('')
     }
   } else {
@@ -215,10 +254,15 @@ function formatDomainContextForSession (domainId, resourceNames, firmSupport) {
   const ref = resolveDomainSupport(domainId, firmSupport)
   if (!ref) { return null }
 
+  // Firm-authored fields are fenced before reaching the prompt (see
+  // formatDomainSupportForPrompt); platform fields stay unchanged.
+  const overviewFirm = _firmAuthored(firmSupport, domainId, 'overview')
+  const materialsFirm = _firmAuthored(firmSupport, domainId, 'materials')
+
   const lines = []
   lines.push(`## Domain Context — ${ref.label}`)
   lines.push('')
-  if (ref.overview) { lines.push(ref.overview); lines.push('') }
+  if (ref.overview) { lines.push(overviewFirm ? fenceUntrusted(ref.overview) : ref.overview); lines.push('') }
 
   if (ref.diagnostic_entry) {
     const de = ref.diagnostic_entry
@@ -236,7 +280,8 @@ function formatDomainContextForSession (domainId, resourceNames, firmSupport) {
     )
     const materialsToShow = matchedMaterials.length > 0 ? matchedMaterials : ref.materials.slice(0, 1)
     for (const material of materialsToShow) {
-      formatMaterialLines(material).forEach(l => lines.push(l))
+      const body = formatMaterialLines(material).join('\n')
+      lines.push(materialsFirm ? fenceUntrusted(body) : body)
       lines.push('')
     }
   } else {
@@ -286,10 +331,15 @@ function formatDomainSummaryForDesign (domainId, firmSupport) {
   const ref = resolveDomainSupport(domainId, firmSupport)
   if (!ref) { return null }
 
+  // Firm-authored fields are fenced before reaching the prompt (see
+  // formatDomainSupportForPrompt); platform fields stay unchanged.
+  const overviewFirm = _firmAuthored(firmSupport, domainId, 'overview')
+  const materialsFirm = _firmAuthored(firmSupport, domainId, 'materials')
+
   const lines = []
   lines.push(`## Domain Knowledge — ${ref.label}`)
   lines.push('')
-  if (ref.overview) { lines.push(ref.overview); lines.push('') }
+  if (ref.overview) { lines.push(overviewFirm ? fenceUntrusted(ref.overview) : ref.overview); lines.push('') }
 
   if (ref.diagnostic_entry && ref.diagnostic_entry.primary_question) {
     lines.push(`**Diagnostic entry point:** ${ref.diagnostic_entry.primary_question}`)
@@ -299,12 +349,15 @@ function formatDomainSummaryForDesign (domainId, firmSupport) {
   // CB-33: these tool names are teaching concepts from the support file, NOT
   // template names — presenting them as resource candidates made the AI write
   // them into `resources`, where grounding (CB-02) rightly stripped them.
+  // The header and closing note are platform instructions and stay outside the
+  // fence; only the firm-authored bullets are fenced when overridden.
   lines.push('**Teaching frameworks in this domain (background knowledge for designing session content and order — these are NOT resource names):**')
   if (Array.isArray(ref.materials) && ref.materials.length > 0) {
-    for (const material of ref.materials) {
+    const bullets = ref.materials.map((material) => {
       const whoNote = material.who_when ? ` — ${material.who_when}` : ''
-      lines.push(`- **${material.name}**: ${material.summary}${whoNote}`)
-    }
+      return `- **${material.name}**: ${material.summary}${whoNote}`
+    }).join('\n')
+    lines.push(materialsFirm ? fenceUntrusted(bullets) : bullets)
   } else {
     for (const tool of (ref.support_tools || [])) {
       const useNote = tool.when_to_use ? ` — ${tool.when_to_use}` : ''
