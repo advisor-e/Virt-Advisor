@@ -1836,6 +1836,116 @@ async function restoreDomainSupport (req, res) {
   }
 }
 
+// ── Logic Tables ─────────────────────────────────────────────────────────────
+// The firm-editable IF→THEN branch tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3,
+// §0.6). Deliberately built on the SINGLE `logic-trees` overlay bundle the
+// advisor engine actually reads (firmContent.loadFirmLogicTrees, keyed by tree
+// id) — so a firm's save reaches the AI in production, not only the dev-file
+// fallback. The domain-support routes' split per-key storage is a separate,
+// pre-existing gap logged as a P1 to reconcile (see ACTIONS.md); this feature
+// does not repeat it. Slice A is READ-ONLY (list + detail); save/reset/history
+// land in Slice B alongside the prompt-fencing safeguard.
+
+const { loadFirmLogicTrees } = require('../utils/firmContent')
+
+/**
+ * The firm's logic-tree override map ({ treeId: sparse override }) or null —
+ * the exact bundle the advisor engine loads, so Firm Manager shows what the AI
+ * sees. Threads overlay.loadFirmConfig, with the dev-file fallback inside
+ * firmContent (mirrors how the engines load it).
+ * @param {string} firmId
+ * @returns {Promise<Object|null>}
+ */
+function _loadFirmLogicTreeMap (firmId) {
+  return loadFirmLogicTrees(firmId, overlay.loadFirmConfig)
+}
+
+/**
+ * True for a "get-the-job" advisor-development tree — kept in its own rail
+ * group because GET content is advisor-facing selling material, not client-work
+ * logic (memory feedback_get_vs_client_logic).
+ * @param {Object} tree
+ * @returns {boolean}
+ */
+function _isGetTree (tree) {
+  return String(tree.id || '').startsWith('get') ||
+    String(tree.domainSupport || '').startsWith('get') ||
+    tree.type === 'flat_if_then'
+}
+
+/**
+ * Normalise a tree's branches to the four display columns, whichever shape the
+ * tree uses: a branching `nodes` graph or a `flat_if_then` `branches` list. Each
+ * node's `id` rides along so a later save can merge edits back by id and
+ * preserve the node's hidden flow wiring (Slice B).
+ * @param {Object} tree
+ * @returns {Array<{id:string,branch_name:string,condition:string,action:string,notes:string}>}
+ */
+function _treeBranchRows (tree) {
+  const src = Array.isArray(tree.nodes)
+    ? tree.nodes
+    : (Array.isArray(tree.branches) ? tree.branches : [])
+  return src.map((n, i) => ({
+    id: n.id || `row-${i}`,
+    branch_name: n.branch_name || '',
+    condition: n.condition || '',
+    // A pure-question node has no `action`; show its question so the row isn't
+    // blank. Slice B decides how such a node round-trips on save.
+    action: n.action || n.question || '',
+    notes: n.notes || ''
+  }))
+}
+
+/**
+ * GET /api/firm-manager/logic-trees — list every logic table, grouped
+ * advisory / get-the-job, with branch counts and Platform/Your-firm origin.
+ */
+async function getLogicTrees (req, res) {
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const base = logicTrees.loadLogicTrees()
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    const advisory = []
+    const getSellers = []
+    for (const tree of base) {
+      const entry = {
+        id: tree.id,
+        label: tree.name || tree.id,
+        count: _treeBranchRows(tree).length,
+        origin: (firmMap && firmMap[tree.id]) ? 'firm' : 'platform'
+      }
+      if (_isGetTree(tree)) { getSellers.push(entry) } else { advisory.push(entry) }
+    }
+    res.send(200, { advisory, getSellers })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/logic-trees/:treeId — one logic table's branches as the
+ * four display columns, with the firm's override merged in for display.
+ */
+async function getLogicTreeDetail (req, res) {
+  const { treeId } = req.params
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    const merged = logicTrees.effectiveTrees(firmMap).find(t => t.id === treeId)
+    if (!merged) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    res.send(200, {
+      id: merged.id,
+      label: merged.name || merged.id,
+      origin: (firmMap && firmMap[treeId]) ? 'firm' : 'platform',
+      branches: _treeBranchRows(merged)
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
   quizzablePages,
   listDocuments,
@@ -1876,5 +1986,7 @@ module.exports = {
   saveDomainSupport,
   resetDomainSupport,
   getDomainSupportHistory,
-  restoreDomainSupport
+  restoreDomainSupport,
+  getLogicTrees,
+  getLogicTreeDetail
 }

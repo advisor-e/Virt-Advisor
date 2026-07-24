@@ -794,5 +794,33 @@
     "historyEmpty": "No firm changes saved yet — this is the material as provided. Once you edit and save, every earlier version is kept here and can be restored.",
     "loadFailed": "Your domain support material could not be loaded. Please try again, and tell us if it keeps happening.",
     "detailFailed": "That domain's material could not be opened. Please try again, and tell us if it keeps happening."
+  },
+  "firmLogicTables": {
+    "lede": "The IF-THEN rules that steer how a meeting is run. Each row is a branch: a condition your advisor meets, the action to take, and why. Editing these changes the guidance the AI gives — for your firm only.",
+    "searchPlaceholder": "Search logic tables",
+    "railLabel": "Logic tables",
+    "groupAdvisory": "Advisory domains",
+    "groupSellers": "Get-the-job material",
+    "emptyLibrary": "No logic tables were found.",
+    "noMatchHere": "No match here",
+    "pickPrompt": "Pick a logic table on the left",
+    "pickHint": "Its branches open here, ready to edit.",
+    "originPlatform": "Provided with the platform",
+    "originFirm": "Edited by your firm",
+    "legendPlatform": "Platform default",
+    "legendFirm": "Edited by your firm",
+    "tagPlatform": "Platform",
+    "tagFirm": "Your firm",
+    "previewNotice": "Preview — your edits here appear on screen but are not saved yet. Saving, adding branches and restoring earlier versions arrive in the next update.",
+    "noBranches": "This logic table has no branches to show.",
+    "colBranch": "Logic branch",
+    "colIf": "If (condition / trigger)",
+    "colThen": "Then (action / next step)",
+    "colNotes": "Notes",
+    "addBranch": "+ Add branch",
+    "reset": "Reset to platform default",
+    "save": "Save changes",
+    "loadFailed": "Your logic tables could not be loaded. Please try again, and tell us if it keeps happening.",
+    "detailFailed": "That logic table could not be opened. Please try again, and tell us if it keeps happening."
   }
 }

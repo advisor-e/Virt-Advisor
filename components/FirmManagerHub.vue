@@ -27,6 +27,12 @@ section.firm-manager-hub.section
       b-tab-item(label="Domain Support")
         firm-domain-support(:api-token="apiToken")
 
+      //- ── Tab: Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3, §0.6) ──
+      //- The IF→THEN branch tables. Read-only preview (Slice A); Save + the
+      //- prompt-fencing safeguard land in Slice B.
+      b-tab-item(label="Logic Tables")
+        firm-logic-tables(:api-token="apiToken")
+
       //- ── Tab: Advisory Staircase ────────────────────────────────────
       b-tab-item(label="Advisory Staircase" icon="stairs")
         .columns
@@ -664,6 +670,7 @@ import DOMPurify from 'isomorphic-dompurify'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 import FirmDocuments from '~/components/firm/FirmDocuments.vue'
 import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
+import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 const { BLOCK_TONES } = require('~/utils/brandTokens')
@@ -722,7 +729,7 @@ const STAIRCASE_STEP_COLORS = BLOCK_TONES
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDocuments, FirmDomainSupport },
+  components: { FirmQuizzes, FirmDocuments, FirmDomainSupport, FirmLogicTables },
 
   props: {
     firmId: { type: String, required: true },

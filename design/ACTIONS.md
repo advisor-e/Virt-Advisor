@@ -88,11 +88,29 @@
       mirrors CB-30). Platform output byte-unchanged (`tests/unit/domainSupportFencing.test.js`).
     - **Fix (done):** list route counts `materials` (EOY shows 4, not 0).
     - Added as its OWN tab, **non-destructive** — the PDF "Decision Frameworks" tab is untouched.
-  - ☐ **NEXT (open):** (1) **DECISION for Mike** — keep or rename/retire the PDF "Decision
-    Frameworks" tab now Domain Support has its own tab (§0.6 wants it retired); (2) build the
-    **Logic Tables** tab; (3) **Job 2** — fold each material's genuine how-to Q&A into the steps,
-    cross-checked against the 10-question quiz banks; (4) per-material origin tags are domain-level
-    until the §2.4 compare-screen work.
+  - 🟠 **P1 · WIRE — domain-support firm overrides use a config key the engine doesn't read.**
+    The save routes store per-domain keys (`domain-support-<id>`) via `overlay.saveFirmConfig`,
+    but the advisor engine loads a SINGLE `domain-support` bundle
+    ([`advisorEngine.js`](../server/advisorEngine.js) L1461 → [`firmContent.js`](../server/utils/firmContent.js) L96,
+    `CONFIG_KEYS.domainSupport = 'domain-support'`). **Today it works** — with no Firm-Manager
+    MySQL, both sides fall back to the SAME dev file (`data/dev-firm-domain-support.json`,
+    shape `{firmId:{domainId:override}}`), so a saved EOY edit does reach the AI (traced end to
+    end). **But once MySQL is provisioned the two keys stop reconciling** and firm domain-support
+    edits would show in Firm Manager yet never reach the AI. Pre-existing (b1bd546 skeleton +
+    Phase 0), not introduced by the Domain Support tab. **Fix:** move the domain-support save/load
+    routes onto the single `domain-support` bundle (as the Logic Tables routes already do via
+    `loadFirmLogicTrees`). Gated with the broader **Firm-Manager MySQL provisioning** item.
+  - ◐ **Logic Tables tab — Slice A BUILT (this branch, read-only preview).**
+    `components/firm/FirmLogicTables.vue` (rail + four-column IF→THEN table), two backend READ
+    routes (`getLogicTrees` / `getLogicTreeDetail`) built on the CORRECT single `logic-trees`
+    bundle the engine reads. Hub "Logic Tables" tab added. Save is inert (preview banner). **Slice
+    B (next):** Save/Reset/Add-branch live + the prompt-fencing safeguard for firm-authored branch
+    text + version history. Scope ruled by Mike 2026-07-24: **reword + add/remove branches**, flow
+    kept intact (no re-wiring).
+  - ☐ **Still open:** (1) **DECISION for Mike** — keep or rename/retire the PDF "Decision
+    Frameworks" tab now Domain Support has its own tab (§0.6 wants it retired); (2) **Job 2** —
+    fold each material's genuine how-to Q&A into the steps, cross-checked against the 10-question
+    quiz banks; (3) per-material origin tags are domain-level until the §2.4 compare-screen work.
   - **The point (Mike's words):** so educators can have a real impact on the AI's
     recommendations and include their own material easily. This is the firm-authoring
     story reaching the engine's decision inputs, not another CRUD screen.
