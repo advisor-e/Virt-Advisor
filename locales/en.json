@@ -835,7 +835,82 @@
         }
       }
     },
-    "sampleFigures": "These are sample numbers, not your client's"
+    "sampleFigures": "These are sample numbers, not your client's",
+    "leaseVsBuy": {
+      "title": "Lease vs Buy",
+      "verdict": {
+        "lease": "Lease!",
+        "buy": "Buy!",
+        "savingSub": "That's the cheaper option — {amount} less over the term."
+      },
+      "hero": {
+        "costToBuy": "Total cost to buy",
+        "costToBuySub": "over the whole term, after resale",
+        "costToLease": "Total cost to lease",
+        "costToLeaseSub": "over the whole term, after residual",
+        "youSave": "You save",
+        "youSaveSub": "by choosing the cheaper option"
+      },
+      "compare": {
+        "title": "How the two compare",
+        "buyGross": "Cost of buying",
+        "resale": "Less resale value",
+        "buyTotal": "Total cost to buy",
+        "leaseGross": "Cost of leasing",
+        "residual": "Less lease residual",
+        "leaseTotal": "Total cost to lease",
+        "leaseEndNote": "Cost of leasing includes {amount} of lease-end costs (panel refurbishment and excess-kilometre charges), counted once."
+      },
+      "loan": {
+        "title": "Buying — the loan",
+        "loanType": "Loan type",
+        "typeTable": "Table",
+        "typeReducing": "Reducing",
+        "purchasePrice": "Purchase price (GST exclusive)",
+        "deposit": "Deposit",
+        "interestRate": "Interest rate (%)",
+        "term": "Term (months)"
+      },
+      "dep": {
+        "title": "Depreciation",
+        "method": "Method",
+        "straightLine": "Straight Line",
+        "diminishing": "Diminishing Value",
+        "rate": "Depreciation rate (%)"
+      },
+      "costs": {
+        "title": "Running costs & tax",
+        "companyTax": "Company tax rate (%)",
+        "gst": "GST (%)",
+        "kmPerMonth": "Average km per month",
+        "inflation": "Inflation rate (%)",
+        "servicePeriodKm": "Servicing interval (km)",
+        "serviceCost": "Cost per service",
+        "insurance": "Insurance (per year)",
+        "tyres": "Cost of a set of tyres",
+        "tyreLifeKm": "Tyre life (km)"
+      },
+      "lease": {
+        "title": "Leasing",
+        "term": "Lease term (months)",
+        "monthly": "Monthly lease payment",
+        "annualKm": "Annual km allowance",
+        "costPerKmOver": "Cost per km over allowance",
+        "costPerPanel": "Cost per panel re-spray",
+        "numPanels": "Number of panels",
+        "includesServicing": "Includes servicing?",
+        "includesInsurance": "Includes insurance?",
+        "includesTyres": "Includes tyres?"
+      },
+      "end": {
+        "title": "At the end of the term",
+        "resale": "Estimated resale value",
+        "resaleHelp": "What you expect the bought asset to be worth when the lease term ends.",
+        "residual": "Lease residual (if any)"
+      },
+      "yes": "Yes",
+      "no": "No"
+    }
   },
   "modelLibrary": {
     "eyebrow": "Advisor-e · Business Performance",

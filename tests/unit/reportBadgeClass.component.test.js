@@ -38,6 +38,7 @@ const RENDERED_BY = {
   '/debtor-drag': { component: 'components/DebtorDragReport.vue' },
   '/margin-breakeven': { component: 'components/MarginBreakevenReport.vue' },
   '/eight-levers': { component: 'components/EightLeversReport.vue' },
+  '/lease-vs-buy': { component: 'components/LeaseVsBuy.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.
   '/quick-position': { source: 'pages/quick-position.vue' },
   '/ebitda-dcf': { source: 'pages/ebitda-dcf.vue' },
