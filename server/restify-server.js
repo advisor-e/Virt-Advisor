@@ -153,6 +153,7 @@ server.post('/api/report/eight-levers', reportRoute.eightLevers)
 server.post('/api/report/quick-position', reportRoute.quickPosition)
 server.post('/api/report/ebitda-dcf', reportRoute.ebitdaDcf)
 server.post('/api/report/loan-estimator', reportRoute.loanEstimator)
+server.post('/api/report/lease-vs-buy', reportRoute.leaseVsBuy)
 // firmAuth deliberately ON for the intake (unlike the calc-only report routes): it accepts file uploads
 server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPositionIntake)
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)

@@ -17,6 +17,7 @@ const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
+const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
@@ -321,4 +322,30 @@ async function ebitdaDcfIntake (req, res) {
   }
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator }
+/**
+ * POST /api/report/lease-vs-buy
+ * @param {object} req.body - partial Lease vs Buy inputs (merged over the workbook
+ *   sample): the loan block (loanType 'T'/'R', deposit, interestRate, termMonths,
+ *   purchasePrice), depreciation (depreciationMethod 'sl'/'dv', depreciationRate),
+ *   running-cost/tax "other" fields, the lease block (leaseTermMonths, annualLeaseKm,
+ *   monthlyLeasePayment, includes* 'yes'/'no', …), the resale/residual values, and
+ *   optionally buyRepairs[] (per-year); an omitted field computes on the sample and is
+ *   named in `defaultedInputs` (R8 — defaults never substitute silently).
+ * @returns {object} { success, data, timestamp } — data = { verdict {recommended,
+ *   cheaperCost, dearerCost, saving}, buy {grossTotal, totalNet, years[]}, lease
+ *   {grossTotal, totalNet, endCosts, years[]}, defaultedInputs }. The lease-end costs
+ *   are counted once (the corrected workbook double-count — see the model header).
+ */
+function leaseVsBuy (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeLeaseVsBuy(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] lease-vs-buy compute failed:', err)
+    res.send(400, { success: false, error: { code: 'LEASE_VS_BUY_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy }
