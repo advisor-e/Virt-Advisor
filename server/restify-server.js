@@ -230,9 +230,14 @@ server.post('/api/firm-manager/domain-support/:domainId', ...fmGuard, fm.saveDom
 server.del('/api/firm-manager/domain-support/:domainId', ...fmGuard, fm.resetDomainSupport)
 server.get('/api/firm-manager/domain-support/:domainId/history', ...fmGuard, fm.getDomainSupportHistory)
 server.post('/api/firm-manager/domain-support/:domainId/restore', ...fmGuard, fm.restoreDomainSupport)
-// Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3) — read-only Slice A.
+// Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3). Slice A: read; Slice B:
+// save/reset/history on the single `logic-trees` bundle the advisor engine reads
+// (firm-authored branch text is fenced in logicTrees.formatLogicTreeForPrompt).
 server.get('/api/firm-manager/logic-trees', ...fmGuard, fm.getLogicTrees)
 server.get('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.getLogicTreeDetail)
+server.post('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.saveLogicTree)
+server.del('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.resetLogicTree)
+server.get('/api/firm-manager/logic-trees/:treeId/history', ...fmGuard, fm.getLogicTreeHistory)
 // Manager case-review feed: the firm's shared case studies (with their decision
 // traces) for review. Manager-gated + firm-scoped; private cases never surface.
 server.get('/api/firm-manager/cases', ...fmGuard, casesRoute.listFirmCases)

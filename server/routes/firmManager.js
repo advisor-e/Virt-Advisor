@@ -1846,7 +1846,14 @@ async function restoreDomainSupport (req, res) {
 // does not repeat it. Slice A is READ-ONLY (list + detail); save/reset/history
 // land in Slice B alongside the prompt-fencing safeguard.
 
-const { loadFirmLogicTrees } = require('../utils/firmContent')
+const { loadFirmLogicTrees, CONFIG_KEYS: CONTENT_CONFIG_KEYS } = require('../utils/firmContent')
+
+// The firm's whole logic-tree override bundle is stored under ONE config key
+// ('logic-trees') as a map { treeId: override } — not per-key like domain
+// support. Saving one table therefore loads the whole map, sets one key, and
+// writes the whole map back. Dev falls back to the same gitignored JSON the
+// reader uses (firmContent.DEV_FILES.logicTrees), keyed by firmId.
+const DEV_LOGIC_TREES_FILE = path.resolve(__dirname, '../../data/dev-firm-logic-trees.json')
 
 /**
  * The firm's logic-tree override map ({ treeId: sparse override }) or null —
@@ -1946,6 +1953,173 @@ async function getLogicTreeDetail (req, res) {
   }
 }
 
+/**
+ * Load the firm's raw logic-tree override map ({ treeId: override }) for
+ * WRITING — the same store + dev-file the reader uses, but returned raw so one
+ * key can be mutated. Missing / malformed → {} (a firm with no edits yet).
+ * @param {string} firmId - authenticated firm id (never client-supplied)
+ * @returns {Promise<Object>}
+ */
+async function _loadFirmLogicTreesMapRaw (firmId) {
+  try {
+    const v = await overlay.loadFirmConfig(firmId, CONTENT_CONFIG_KEYS.logicTrees)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch (err) {
+    if (IS_DEV) {
+      try {
+        const all = JSON.parse(fs.readFileSync(DEV_LOGIC_TREES_FILE, 'utf8'))
+        return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
+      } catch { return {} }
+    }
+    throw err
+  }
+}
+
+/**
+ * Persist the firm's whole logic-tree override map. Prod goes through the
+ * overlay store (version history + restore for free); dev writes the gitignored
+ * JSON the reader falls back to.
+ * @param {string} firmId
+ * @param {Object} map - { treeId: override }
+ * @param {string} savedBy - userEmail
+ * @returns {Promise<number|null>} the new version, or null in dev
+ */
+async function _saveFirmLogicTreesMap (firmId, map, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(firmId, CONTENT_CONFIG_KEYS.logicTrees, map, savedBy)
+  } catch (err) {
+    if (IS_DEV) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(DEV_LOGIC_TREES_FILE, 'utf8')) } catch {}
+      all[firmId] = map
+      fs.writeFileSync(DEV_LOGIC_TREES_FILE, JSON.stringify(all, null, 2))
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * Build a tree's full override branch-list from the edited display rows,
+ * PRESERVING each existing node's hidden flow wiring (branches / next_node /
+ * templates / type / stage …) and appending firm-added rows as new guidance
+ * branches with no wiring. Scope: reword + add/remove, flow intact
+ * (Mike 2026-07-24). deepMerge replaces arrays wholesale, so the override must
+ * carry the COMPLETE list — a sparse list would drop the untouched branches.
+ *
+ * @param {Object} baseTree - the platform tree (nodes- or flat_if_then-shaped)
+ * @param {Array<{id?:string,branch_name?:string,condition?:string,action?:string,notes?:string}>} rows
+ * @returns {{ key: 'nodes'|'branches', list: Array<Object> }}
+ */
+function _mergeBranchRows (baseTree, rows) {
+  const usesNodes = Array.isArray(baseTree.nodes)
+  const key = usesNodes ? 'nodes' : 'branches'
+  const baseList = usesNodes ? baseTree.nodes : (baseTree.branches || [])
+  const byId = new Map(baseList.map(n => [n.id, n]))
+  const str = v => (typeof v === 'string' ? v : '')
+
+  const list = (rows || []).map((row, i) => {
+    const existing = row && row.id ? byId.get(row.id) : null
+    if (existing) {
+      // Reword in place: overwrite only the four editable fields, keep the rest
+      // (flow wiring, templates, type) exactly as the platform authored them.
+      const next = { ...existing, branch_name: str(row.branch_name), condition: str(row.condition), notes: str(row.notes) }
+      // A pure-question node has no `action` — its display `action` was really
+      // its `question` (_treeBranchRows), so the edit round-trips back there.
+      if (existing.question !== undefined && (existing.action === undefined || existing.action === '')) {
+        next.question = str(row.action)
+      } else {
+        next.action = str(row.action)
+      }
+      return next
+    }
+    // Firm-added branch: a new guidance row, appended, with no flow wiring.
+    return {
+      id: (row && typeof row.id === 'string' && row.id) ? row.id : `firm-branch-${i}`,
+      branch_name: str(row && row.branch_name),
+      condition: str(row && row.condition),
+      action: str(row && row.action),
+      notes: str(row && row.notes)
+    }
+  })
+  return { key, list }
+}
+
+/**
+ * POST /api/firm-manager/logic-trees/:treeId — save the firm's edits to one
+ * logic table. Body: { branches: [{id,branch_name,condition,action,notes}] }.
+ * The edits merge onto the SINGLE `logic-trees` bundle the advisor engine reads,
+ * so a save reaches the AI (fenced — see logicTrees.formatLogicTreeForPrompt).
+ */
+async function saveLogicTree (req, res) {
+  const { treeId } = req.params
+  const rows = req.body && Array.isArray(req.body.branches) ? req.body.branches : null
+  if (!rows) {
+    return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'branches array required' } })
+  }
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === treeId)
+    if (!base) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    const { key, list } = _mergeBranchRows(base, rows)
+    const map = await _loadFirmLogicTreesMapRaw(req.firmId)
+    map[treeId] = { [key]: list }
+    const version = await _saveFirmLogicTreesMap(req.firmId, map, req.userEmail)
+    res.send(200, { saved: true, version, treeId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * DELETE /api/firm-manager/logic-trees/:treeId — reset one table to the platform
+ * default by dropping its key from the firm's override bundle.
+ */
+async function resetLogicTree (req, res) {
+  const { treeId } = req.params
+  try {
+    const map = await _loadFirmLogicTreesMapRaw(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(map, treeId)) {
+      delete map[treeId]
+      await _saveFirmLogicTreesMap(req.firmId, map, req.userEmail)
+    }
+    res.send(200, { reset: true, treeId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/logic-trees/:treeId/history — the saved versions of the
+ * firm's logic-tree bundle. NOTE: logic tables share ONE stored bundle, so this
+ * history is bundle-level (every table's saves interleaved), not per-table. It
+ * is read-only in Slice B; a per-table restore is deferred because restoring the
+ * shared bundle would roll back every table at once (needs its own design).
+ * `treeId` is accepted for URL symmetry with domain-support but not used.
+ */
+async function getLogicTreeHistory (req, res) {
+  try {
+    let history = []
+    try {
+      const [rows] = await db.execute(
+        `SELECT version, saved_by, created_at
+         FROM firm_framework_versions
+         WHERE firm_id = ? AND config_key = ?
+         ORDER BY version DESC`,
+        [req.firmId, CONTENT_CONFIG_KEYS.logicTrees]
+      )
+      history = rows
+    } catch (err) {
+      if (!IS_DEV) { throw err }
+    }
+    res.send(200, { history })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
   quizzablePages,
   listDocuments,
@@ -1988,5 +2162,8 @@ module.exports = {
   getDomainSupportHistory,
   restoreDomainSupport,
   getLogicTrees,
-  getLogicTreeDetail
+  getLogicTreeDetail,
+  saveLogicTree,
+  resetLogicTree,
+  getLogicTreeHistory
 }

@@ -33,7 +33,14 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 }))
 
 const overlay = require('../../server/utils/firmOverlay')
-const { getLogicTrees, getLogicTreeDetail } = require('../../server/routes/firmManager')
+const db = require('../../server/utils/db')
+const {
+  getLogicTrees,
+  getLogicTreeDetail,
+  saveLogicTree,
+  resetLogicTree,
+  getLogicTreeHistory
+} = require('../../server/routes/firmManager')
 
 function makeMockRes () {
   return {
@@ -104,5 +111,119 @@ describe('GET /logic-trees/:treeId (detail)', () => {
     await getLogicTreeDetail(makeReq({ params: { treeId: 'no_such_tree' } }), res)
     expect(res._status).toBe(404)
     expect(res._body.success).toBe(false)
+  })
+})
+
+describe('POST /logic-trees/:treeId (save)', () => {
+  test('a missing branches array is a clean 400', async () => {
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({ params: { treeId: 'eoy_meeting' }, body: {} }), res)
+    expect(res._status).toBe(400)
+    expect(res._body.success).toBe(false)
+  })
+
+  test('an unknown table id is a clean 404', async () => {
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({ params: { treeId: 'no_such_tree' }, body: { branches: [] } }), res)
+    expect(res._status).toBe(404)
+  })
+
+  test('saves the whole logic-trees bundle under the single config key', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(3)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'eoy_meeting' },
+      body: { branches: [{ id: 'x', branch_name: 'B', condition: 'c', action: 'a', notes: 'n' }] }
+    }), res)
+    expect(res._status).toBe(200)
+    expect(res._body).toMatchObject({ saved: true, version: 3, treeId: 'eoy_meeting' })
+    // One bundle, one key: firmId, 'logic-trees', the map, savedBy.
+    const [firmId, key, map] = overlay.saveFirmConfig.mock.calls[0]
+    expect(firmId).toBe('firm-test-123')
+    expect(key).toBe('logic-trees')
+    expect(map).toHaveProperty('eoy_meeting')
+  })
+
+  test('a reworded branch keeps the platform node\'s hidden flow wiring', async () => {
+    // Take a REAL branching node (has `branches`/`next_node` wiring) and reword it.
+    const logicTrees = require('../../server/utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === 'quickfire')
+    const wired = (base.nodes || []).find(n => Array.isArray(n.branches) && n.branches.length)
+    expect(wired).toBeTruthy() // guard: the fixture still has a wired node
+
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'quickfire' },
+      body: { branches: [{ id: wired.id, branch_name: wired.branch_name, condition: 'REWORDED', action: '', notes: '' }] }
+    }), res)
+
+    const map = overlay.saveFirmConfig.mock.calls[0][2]
+    const savedNode = map.quickfire.nodes.find(n => n.id === wired.id)
+    expect(savedNode.condition).toBe('REWORDED') // the edit applied
+    expect(savedNode.branches).toEqual(wired.branches) // the flow wiring survived
+  })
+
+  test('an added row becomes a new branch with no flow wiring', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'quickfire' },
+      body: { branches: [{ branch_name: 'Firm Extra', condition: 'if x', action: 'do y', notes: '' }] }
+    }), res)
+    const map = overlay.saveFirmConfig.mock.calls[0][2]
+    const added = map.quickfire.nodes.find(n => n.branch_name === 'Firm Extra')
+    expect(added).toBeTruthy()
+    expect(added.branches).toBeUndefined() // appended guidance row, no wiring
+  })
+
+  test('a removed row drops out of the saved bundle', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === 'quickfire')
+    const keep = base.nodes[0]
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    // Submit only the first node → every other base node is removed.
+    await saveLogicTree(makeReq({
+      params: { treeId: 'quickfire' },
+      body: { branches: [{ id: keep.id, branch_name: keep.branch_name, condition: 'c', action: 'a', notes: 'n' }] }
+    }), res)
+    const map = overlay.saveFirmConfig.mock.calls[0][2]
+    expect(map.quickfire.nodes).toHaveLength(1)
+    expect(map.quickfire.nodes[0].id).toBe(keep.id)
+  })
+})
+
+describe('DELETE /logic-trees/:treeId (reset)', () => {
+  test('drops just that table from the firm bundle and saves the rest', async () => {
+    overlay.loadFirmConfig.mockResolvedValue({ eoy_meeting: { nodes: [] }, quickfire: { nodes: [] } })
+    overlay.saveFirmConfig.mockResolvedValue(4)
+    const res = makeMockRes()
+    await resetLogicTree(makeReq({ params: { treeId: 'eoy_meeting' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body).toMatchObject({ reset: true, treeId: 'eoy_meeting' })
+    const map = overlay.saveFirmConfig.mock.calls[0][2]
+    expect(map).not.toHaveProperty('eoy_meeting')
+    expect(map).toHaveProperty('quickfire') // other tables untouched
+  })
+
+  test('resetting a table the firm never edited is a clean no-op', async () => {
+    overlay.loadFirmConfig.mockResolvedValue(null)
+    const res = makeMockRes()
+    await resetLogicTree(makeReq({ params: { treeId: 'eoy_meeting' } }), res)
+    expect(res._status).toBe(200)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled() // nothing to write
+  })
+})
+
+describe('GET /logic-trees/:treeId/history', () => {
+  test('returns the bundle version history rows', async () => {
+    db.execute.mockResolvedValue([[{ version: 2, saved_by: 'a@b.com', created_at: '2026-07-27' }]])
+    const res = makeMockRes()
+    await getLogicTreeHistory(makeReq({ params: { treeId: 'eoy_meeting' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body.history).toHaveLength(1)
+    // Read from the single shared bundle key, not a per-tree key.
+    expect(db.execute.mock.calls[0][1]).toEqual(['firm-test-123', 'logic-trees'])
   })
 })
