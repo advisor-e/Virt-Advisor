@@ -62,10 +62,6 @@ section.firm-logic-tables
                   span.lt-dot.is-firm
                   | {{ $t('firmLogicTables.legendFirm') }}
 
-          //- Preview banner — this pass edits on screen only; saving follows.
-          b-message.mb-4(type="is-info" has-icon :closable="false")
-            | {{ $t('firmLogicTables.previewNotice') }}
-
           b-message.mb-0(
             v-if="!hasBranches"
             type="is-warning"
@@ -90,10 +86,16 @@ section.firm-logic-tables
               tbody
                 tr(v-for="(branch, bIndex) in form.branches" :key="bIndex")
                   td
-                    b-input.branch-input(
-                      v-model="branch.branch_name"
-                      :aria-label="$t('firmLogicTables.colBranch')"
-                    )
+                    .lt-branch-head
+                      b-input.branch-input(
+                        v-model="branch.branch_name"
+                        :aria-label="$t('firmLogicTables.colBranch')"
+                      )
+                      button.lt-branch-remove(
+                        type="button"
+                        :aria-label="$t('firmLogicTables.removeBranch')"
+                        @click="removeBranch(bIndex)"
+                      ) ×
                     b-tag.mt-2(:type="branch.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small")
                       | {{ branch.origin === 'firm' ? $t('firmLogicTables.tagFirm') : $t('firmLogicTables.tagPlatform') }}
                   td.td-if
@@ -118,13 +120,37 @@ section.firm-logic-tables
                       :aria-label="$t('firmLogicTables.colNotes')"
                     )
 
-          //- Action bar. Inert this pass (see previewNotice); Save/Reset/Add
-          //- branch go live with the fencing safeguard in Slice B.
+          //- Action bar. Save lights up once a branch is edited; Reset removes
+          //- the firm's override and returns to the platform default. Firm-
+          //- authored branch text is fenced before it reaches the AI
+          //- (server/utils/logicTrees.formatLogicTreeForPrompt).
           .lt-actionbar(v-if="hasBranches")
-            b-button(type="is-light" disabled) {{ $t('firmLogicTables.addBranch') }}
-            b-button(type="is-text" disabled) {{ $t('firmLogicTables.reset') }}
+            b-button(type="is-light" @click="addBranch") {{ $t('firmLogicTables.addBranch') }}
+            b-button(
+              type="is-text"
+              :disabled="!canReset || saving"
+              @click="confirmReset"
+            ) {{ $t('firmLogicTables.reset') }}
             span.lt-spacer
-            b-button(type="is-primary" disabled) {{ $t('firmLogicTables.save') }}
+            b-button(
+              type="is-primary"
+              :loading="saving"
+              :disabled="!dirty || saving"
+              @click="save"
+            ) {{ $t('firmLogicTables.save') }}
+
+        //- ── Version history (read-only; bundle-level, mirrors FirmDomainSupport) ──
+        .box(v-if="hasBranches")
+          p.title.is-6 {{ $t('firmLogicTables.historyHeading') }}
+          p.has-text-grey.is-size-7.mb-3 {{ $t('firmLogicTables.historyNote') }}
+          b-table(v-if="history.length" :data="history" :mobile-cards="false")
+            b-table-column(v-slot="{ row }" field="version" :label="$t('firmLogicTables.historyVersion')" width="80")
+              | v{{ row.version }}
+            b-table-column(v-slot="{ row }" field="saved_by" :label="$t('firmLogicTables.historySavedBy')")
+              | {{ row.saved_by }}
+            b-table-column(v-slot="{ row }" field="created_at" :label="$t('firmLogicTables.historyDate')")
+              | {{ formatDate(row.created_at) }}
+          p.has-text-grey.is-size-7(v-else) {{ $t('firmLogicTables.historyEmpty') }}
 </template>
 
 <script>
@@ -137,12 +163,13 @@ section.firm-logic-tables
  * decompose rule, CB-23) — the Hub renders it as one tab, like FirmQuizzes,
  * FirmDocuments and FirmDomainSupport, whose read-preview pattern this mirrors.
  *
- * Slice A is a LIVE PREVIEW read pass: browse the tables, open one, and edit its
- * branches ON SCREEN — nothing is persisted. Save, Reset and "+ Add branch" are
- * inert (see the previewNotice banner). Persisting a firm's edits, the "+ Add
- * branch" flow behaviour, and the prompt-fencing that firm-authored branch text
- * needs before it reaches the AI (plan §5) all land in Slice B so that surface
- * is never live before its safeguard.
+ * Slice B (live): browse the tables, open one, reword branches, add/remove
+ * branches, Save (firm-only override), and Reset to the platform default —
+ * mirroring FirmDomainSupport. Firm-authored branch text is fenced before it
+ * reaches the AI (server/utils/logicTrees.formatLogicTreeForPrompt), so this
+ * surface never went live before its safeguard. Scope: reword + add/remove,
+ * flow kept intact (Mike 2026-07-24); reordering and per-version restore are
+ * out of scope (version history is a read-only, bundle-level list).
  *
  * Reads the SINGLE `logic-trees` overlay bundle the advisor engine itself loads
  * (firmContent), so what a firm sees here is what the AI sees — not the split
@@ -170,8 +197,13 @@ export default {
       query: '',
       /** The table on screen: {id, label, origin}, or null. */
       current: null,
-      /** A deep, editable copy of the current table's branches (local only). */
-      form: { branches: [] }
+      /** A deep, editable copy of the current table's branches. */
+      form: { branches: [] },
+      /** Cleaned baseline of the loaded branches, JSON — drives `dirty`. */
+      original: null,
+      saving: false,
+      /** Bundle-level saved-versions list (all logic tables share one history). */
+      history: []
     }
   },
 
@@ -201,6 +233,17 @@ export default {
     /** True when the open table has branches to show. */
     hasBranches () {
       return Array.isArray(this.form.branches) && this.form.branches.length > 0
+    },
+
+    /** True once the on-screen branches differ from what was loaded. */
+    dirty () {
+      if (this.original === null) { return false }
+      return JSON.stringify(this.cleanBranches(this.form.branches)) !== this.original
+    },
+
+    /** Reset is meaningful only when the firm actually has a saved override. */
+    canReset () {
+      return !!(this.current && this.current.origin === 'firm')
     }
   },
 
@@ -246,25 +289,158 @@ export default {
     async select (item) {
       this.current = { id: item.id, label: item.label, origin: item.origin }
       this.form = { branches: [] }
+      this.original = null
+      this.history = []
       try {
         const detail = await this.api('GET', `/api/firm-manager/logic-trees/${encodeURIComponent(item.id)}`)
-        const branches = Array.isArray(detail.branches) ? detail.branches : []
-        const rowOrigin = item.origin === 'firm' ? 'firm' : 'platform'
-        // Deep copy so on-screen edits never mutate the fetched reference. Each
-        // branch keeps its node id so a later save can merge by id (Slice B).
-        this.form = {
-          branches: branches.map(b => ({
-            id: b.id,
-            branch_name: b.branch_name || '',
-            condition: b.condition || '',
-            action: b.action || '',
-            notes: b.notes || '',
-            origin: rowOrigin
-          }))
-        }
+        this.applyDetail(detail, item.origin)
+        await this.loadHistory(item)
       } catch (err) {
         this.error = this.$t('firmLogicTables.detailFailed')
       }
+    },
+
+    /**
+     * Take an editable local copy of a fetched detail and record the dirty
+     * baseline. Each branch keeps its node id so the save merges edits back by
+     * id and preserves the branch's hidden flow wiring. Deep copy so on-screen
+     * edits never mutate the fetched reference.
+     * @param {{branches?: Array}} detail - the merged logic-table detail
+     * @param {string} origin - 'firm' or 'platform' for this table
+     */
+    applyDetail (detail, origin) {
+      const branches = Array.isArray(detail.branches) ? detail.branches : []
+      const rowOrigin = origin === 'firm' ? 'firm' : 'platform'
+      this.form = {
+        branches: branches.map(b => ({
+          id: b.id,
+          branch_name: b.branch_name || '',
+          condition: b.condition || '',
+          action: b.action || '',
+          notes: b.notes || '',
+          origin: rowOrigin
+        }))
+      }
+      this.original = JSON.stringify(this.cleanBranches(this.form.branches))
+    },
+
+    /**
+     * The branches as they will be saved: the on-screen-only `origin` field
+     * dropped and text trimmed, `id` kept so the backend merges by id. Also the
+     * comparison shape for `dirty`, so a pure-whitespace change never counts.
+     * @param {Array<Object>} branches
+     * @returns {Array<{id,branch_name,condition,action,notes}>}
+     */
+    cleanBranches (branches) {
+      return (branches || []).map(b => ({
+        id: b.id,
+        branch_name: (b.branch_name || '').trim(),
+        condition: (b.condition || '').trim(),
+        action: (b.action || '').trim(),
+        notes: (b.notes || '').trim()
+      }))
+    },
+
+    /**
+     * Save the firm's version of this table's branches. Posts the full branch
+     * list; the backend merges each edit onto the platform node by id (flow
+     * wiring preserved) and stores it in the single `logic-trees` bundle the AI
+     * reads. On success the table becomes firm-authored, so tags and history
+     * refresh.
+     */
+    async save () {
+      if (!this.current || !this.dirty || this.saving) { return }
+      this.saving = true
+      try {
+        const id = this.current.id
+        await this.api('POST', `/api/firm-manager/logic-trees/${encodeURIComponent(id)}`, {
+          branches: this.cleanBranches(this.form.branches)
+        })
+        this.$buefy.toast.open({ message: this.$t('firmLogicTables.saved'), type: 'is-success' })
+        this.current.origin = 'firm'
+        // Re-fetch so the panel shows exactly what was stored and the baseline
+        // matches it.
+        const detail = await this.api('GET', `/api/firm-manager/logic-trees/${encodeURIComponent(id)}`)
+        this.applyDetail(detail, 'firm')
+        await this.loadHistory(this.current)
+        this.markListOrigin(id, 'firm')
+      } catch (err) {
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      } finally {
+        this.saving = false
+      }
+    },
+
+    /** Confirm before discarding the firm's saved edits for this table. */
+    confirmReset () {
+      if (!this.canReset) { return }
+      this.$buefy.dialog.confirm({
+        message: this.$t('firmLogicTables.resetConfirm', { name: this.current.label }),
+        type: 'is-warning',
+        confirmText: this.$t('firmLogicTables.reset'),
+        onConfirm: () => this.reset()
+      })
+    },
+
+    /** Remove the firm override and return the panel to the platform default. */
+    async reset () {
+      if (!this.current || this.saving) { return }
+      this.saving = true
+      try {
+        const id = this.current.id
+        await this.api('DELETE', `/api/firm-manager/logic-trees/${encodeURIComponent(id)}`)
+        this.$buefy.toast.open({ message: this.$t('firmLogicTables.wasReset'), type: 'is-success' })
+        this.current.origin = 'platform'
+        const detail = await this.api('GET', `/api/firm-manager/logic-trees/${encodeURIComponent(id)}`)
+        this.applyDetail(detail, 'platform')
+        await this.loadHistory(this.current)
+        this.markListOrigin(id, 'platform')
+      } catch (err) {
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      } finally {
+        this.saving = false
+      }
+    },
+
+    /**
+     * Keep the rail row's origin tag in step with a save/reset without a full
+     * reload. @param {string} id tree id @param {string} origin new origin
+     */
+    markListOrigin (id, origin) {
+      const row = this.advisory.find(d => d.id === id) || this.getSellers.find(d => d.id === id)
+      if (row) { row.origin = origin }
+    },
+
+    /**
+     * The firm's saved logic-table versions (bundle-level — every table shares
+     * one history). Only loaded once the firm has edits; an unedited firm has
+     * none, which is the normal starting state, not an error.
+     * @param {{origin:string}} item
+     */
+    async loadHistory (item) {
+      if (!item || item.origin !== 'firm') { this.history = []; return }
+      try {
+        const data = await this.api('GET', `/api/firm-manager/logic-trees/${encodeURIComponent(item.id)}/history`)
+        this.history = Array.isArray(data.history) ? data.history : []
+      } catch (err) {
+        this.history = []
+      }
+    },
+
+    /** Add a blank firm-authored branch (appended; no flow wiring). */
+    addBranch () {
+      this.form.branches.push({ branch_name: '', condition: '', action: '', notes: '', origin: 'firm' })
+    },
+
+    /** Remove a branch from the on-screen table. */
+    removeBranch (index) {
+      this.form.branches.splice(index, 1)
+    },
+
+    formatDate (value) {
+      if (!value) { return '' }
+      const d = new Date(value)
+      return isNaN(d.getTime()) ? String(value) : d.toLocaleString()
     },
 
     /**
@@ -377,6 +553,20 @@ export default {
 .lt-table colgroup .c-then { width: 28%; }
 .lt-table colgroup .c-notes { width: 28%; }
 .branch-input >>> input { font-weight: 600; color: #002b64; }
+.branch-input { flex: 1; }
+
+/* Branch name row with its remove control (mirrors the domain-support step ×). */
+.lt-branch-head { display: flex; align-items: flex-start; gap: 0.3rem; }
+.lt-branch-remove {
+  border: 0;
+  background: none;
+  color: #b5b5b5;
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1.6rem;
+  padding: 0 0.25rem;
+}
+.lt-branch-remove:hover { color: #cc0f35; }
 
 /* Action bar. */
 .lt-actionbar {

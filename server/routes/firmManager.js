@@ -2015,7 +2015,11 @@ function _mergeBranchRows (baseTree, rows) {
   const usesNodes = Array.isArray(baseTree.nodes)
   const key = usesNodes ? 'nodes' : 'branches'
   const baseList = usesNodes ? baseTree.nodes : (baseTree.branches || [])
-  const byId = new Map(baseList.map(n => [n.id, n]))
+  // Key by the SAME display id the detail route assigns (_treeBranchRows:
+  // n.id || `row-${i}`), so both graph `nodes` (real ids) and flat_if_then
+  // branches (often id-less) round-trip and keep their hidden fields —
+  // templates included — instead of degrading to a text-only re-add.
+  const byId = new Map(baseList.map((n, i) => [n.id || `row-${i}`, n]))
   const str = v => (typeof v === 'string' ? v : '')
 
   const list = (rows || []).map((row, i) => {

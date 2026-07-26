@@ -8,12 +8,12 @@ const FirmLogicTables = require('~/components/firm/FirmLogicTables.vue').default
 
 /**
  * Component tests for the firm Logic Tables screen (FIRM-EDITABLE-TABLES-PLAN.md
- * Phase 3, §0.6) — the IF→THEN branch tables the advisors' AI reads.
- *
- * This is the LIVE-PREVIEW read pass (Slice A): the rail groups load, a table
- * opens into the four-column IF→THEN grid, an empty table says so, the preview
- * banner is present and Save is inert (nothing persists yet), and on-screen
- * edits touch the local copy only.
+ * Phase 3, Slice B) — the live, editable IF→THEN branch tables the advisors' AI
+ * reads. The claims that matter: the rail groups load, a table opens into the
+ * editable four-column grid (or says so when empty), Save is inert until an edit
+ * and then posts the cleaned branches (id kept, on-screen origin stripped),
+ * reset is offered only for a firm-authored table, and add/remove edit the
+ * local copy.
  *
  * Assertions use i18n KEYS, not English (tests/helpers/mountComponent.js).
  */
@@ -30,11 +30,11 @@ function defaultList () {
   }
 }
 
-function eoyDetail () {
+function eoyDetail (origin) {
   return {
     id: 'eoy_meeting',
     label: 'End of Year Meeting — Planning and Delivery',
-    origin: 'platform',
+    origin: origin || 'platform',
     branches: [
       { id: 'eoy_stage1', branch_name: 'Stage 1 — Pre-Meeting Outreach', condition: 'Advisor is preparing.', action: 'Direct to the EOY Approach Resources.', notes: 'SMS beats email.' },
       { id: 'eoy_stage2', branch_name: 'Stage 2 — Client Audit', condition: 'Meeting is booked.', action: 'Run the audit.', notes: '' }
@@ -50,7 +50,9 @@ function stubFetch (list, details) {
   global.fetch = jest.fn((url) => {
     const u = String(url)
     let data = {}
-    if (/\/logic-trees\/([^/?]+)$/.test(u)) {
+    if (/\/logic-trees\/[^/]+\/history/.test(u)) {
+      data = { history: [] }
+    } else if (/\/logic-trees\/([^/?]+)$/.test(u)) {
       const id = decodeURIComponent(u.match(/\/logic-trees\/([^/?]+)$/)[1])
       data = details[id] || {}
     } else if (/\/logic-trees$/.test(u)) {
@@ -136,19 +138,68 @@ describe('opening a table', () => {
     expect(wrapper.vm.hasBranches).toBe(false)
   })
 
-  test('shows the preview banner and an inert (disabled) Save', async () => {
+  test('Save is disabled until a branch is edited, then enabled', async () => {
     const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
-    expect(wrapper.text()).toContain('firmLogicTables.previewNotice')
-    const save = wrapper.findAll('button').wrappers.find(w => w.text().includes('firmLogicTables.save'))
-    expect(save).toBeTruthy()
-    expect(save.attributes('disabled')).toBeTruthy()
+    const findSave = () => wrapper.findAll('button').wrappers.find(w => w.text().includes('firmLogicTables.save'))
+    expect(wrapper.vm.dirty).toBe(false)
+    expect(findSave().attributes('disabled')).toBeTruthy()
+    wrapper.vm.form.branches[0].condition = 'Reworded by the firm.'
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.dirty).toBe(true)
+    expect(findSave().attributes('disabled')).toBeFalsy()
+  })
+})
+
+describe('saving and resetting', () => {
+  test('save posts the cleaned branches (trimmed, id kept, origin stripped)', async () => {
+    const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
+    wrapper.vm.form.branches[0].condition = '  Firm condition.  '
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => c[1] && c[1].method === 'POST')
+    expect(post).toBeTruthy()
+    expect(post[0]).toBe('/api/firm-manager/logic-trees/eoy_meeting')
+    const body = JSON.parse(post[1].body)
+    expect(body.branches[0].condition).toBe('Firm condition.') // trimmed
+    expect(body.branches[0].id).toBe('eoy_stage1') // id kept so the backend merges by id
+    expect(body.branches[0].origin).toBeUndefined() // on-screen-only field stripped
   })
 
-  test('never posts — this pass persists nothing', async () => {
+  test('after save the table is firm-authored and the rail tag follows', async () => {
     const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
-    wrapper.vm.form.branches[0].action = 'Firm edit on screen.'
-    await wrapper.vm.$nextTick()
-    const anyWrite = global.fetch.mock.calls.find(c => c[1] && c[1].method && c[1].method !== 'GET')
-    expect(anyWrite).toBeFalsy()
+    wrapper.vm.form.branches[0].condition = 'Firm condition.'
+    await wrapper.vm.save()
+    expect(wrapper.vm.current.origin).toBe('firm')
+    expect(wrapper.vm.advisory.find(d => d.id === 'eoy_meeting').origin).toBe('firm')
+  })
+
+  test('reset is offered only for a firm-authored table, and deletes the override', async () => {
+    const list = defaultList()
+    list.advisory[0].origin = 'firm'
+    const wrapper = await openTable(
+      await mountScreen(list, { eoy_meeting: eoyDetail('firm') }),
+      'eoy_meeting', 'End of Year Meeting', 'firm'
+    )
+    expect(wrapper.vm.canReset).toBe(true)
+    await wrapper.vm.reset()
+    const del = global.fetch.mock.calls.find(c => c[1] && c[1].method === 'DELETE')
+    expect(del).toBeTruthy()
+    expect(del[0]).toBe('/api/firm-manager/logic-trees/eoy_meeting')
+    expect(wrapper.vm.current.origin).toBe('platform')
+  })
+
+  test('a platform table cannot be reset', async () => {
+    const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.vm.canReset).toBe(false)
+  })
+})
+
+describe('on-screen editing (local only)', () => {
+  test('add branch appends a firm-origin blank row; remove drops it', async () => {
+    const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
+    wrapper.vm.addBranch()
+    expect(wrapper.vm.form.branches).toHaveLength(3)
+    expect(wrapper.vm.form.branches[2].origin).toBe('firm')
+    wrapper.vm.removeBranch(2)
+    expect(wrapper.vm.form.branches).toHaveLength(2)
   })
 })

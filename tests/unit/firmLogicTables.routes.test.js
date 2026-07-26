@@ -177,6 +177,26 @@ describe('POST /logic-trees/:treeId (save)', () => {
     expect(added.branches).toBeUndefined() // appended guidance row, no wiring
   })
 
+  test('a flat_if_then branch keeps its hidden templates when reworded', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    const flat = logicTrees.loadLogicTrees()
+      .find(t => Array.isArray(t.branches) && t.branches.some(b => Array.isArray(b.templates) && b.templates.length))
+    if (!flat) { return } // no flat tree carries templates in the fixture — nothing to assert
+    const idx = flat.branches.findIndex(b => Array.isArray(b.templates) && b.templates.length)
+    const displayId = flat.branches[idx].id || `row-${idx}` // the id the detail route hands the UI
+
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: flat.id },
+      body: { branches: [{ id: displayId, branch_name: flat.branches[idx].branch_name, condition: 'REWORDED', action: '', notes: '' }] }
+    }), res)
+    const map = overlay.saveFirmConfig.mock.calls[0][2]
+    const saved = map[flat.id].branches[0]
+    expect(saved.condition).toBe('REWORDED')
+    expect(saved.templates).toEqual(flat.branches[idx].templates) // IP preserved, not dropped
+  })
+
   test('a removed row drops out of the saved bundle', async () => {
     const logicTrees = require('../../server/utils/logicTrees')
     const base = logicTrees.loadLogicTrees().find(t => t.id === 'quickfire')

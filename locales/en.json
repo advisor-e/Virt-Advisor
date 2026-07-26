@@ -811,7 +811,6 @@
     "legendFirm": "Edited by your firm",
     "tagPlatform": "Platform",
     "tagFirm": "Your firm",
-    "previewNotice": "Preview — your edits here appear on screen but are not saved yet. Saving, adding branches and restoring earlier versions arrive in the next update.",
     "noBranches": "This logic table has no branches to show.",
     "colBranch": "Logic branch",
     "colIf": "If (condition / trigger)",
@@ -821,6 +820,16 @@
     "reset": "Reset to platform default",
     "save": "Save changes",
     "loadFailed": "Your logic tables could not be loaded. Please try again, and tell us if it keeps happening.",
-    "detailFailed": "That logic table could not be opened. Please try again, and tell us if it keeps happening."
+    "detailFailed": "That logic table could not be opened. Please try again, and tell us if it keeps happening.",
+    "removeBranch": "Remove branch",
+    "saved": "Your changes have been saved.",
+    "resetConfirm": "Reset <strong>{name}</strong> to the platform default? Your firm's saved changes to this logic table will be removed.",
+    "wasReset": "Reset to the platform default.",
+    "historyHeading": "Earlier versions",
+    "historyNote": "Saved versions of your firm's logic-table edits. All logic tables share one history, newest first.",
+    "historyVersion": "Version",
+    "historySavedBy": "Saved by",
+    "historyDate": "Date",
+    "historyEmpty": "No firm changes saved yet — these are the tables as provided. Once you edit and save, every version is kept here."
   }
 }
