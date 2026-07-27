@@ -18,6 +18,7 @@ const { computeQuickPosition, computeExpensesReview } = require('../report/quick
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
+const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
@@ -348,4 +349,39 @@ function leaseVsBuy (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy }
+/**
+ * POST /api/report/cost-of-capital
+ * @param {object} req.body - partial Cost of Capital inputs (merged over the workbook
+ *   sample). The WACC scalars: riskFreeRate, marketRate, beta, inflationRate, taxRate,
+ *   equity, debt, borrowRate — plus an optional growthRate, which OVERRIDES the figure
+ *   the beta helper derives (the workbook wires `E10 = 'Beta Calcs'!F9`; an explicit
+ *   value wins and the result reports which was used via `growthSource`). The beta
+ *   helper series: indexValues[], equityValues[], sharesIssued[], marketReturnRate —
+ *   a series slot may be `null` for a period with no data, which is NOT the same as a
+ *   supplied 0 (that distinction is the corrected source defect; see the model header).
+ *   An omitted field computes on the sample and is named in `defaultedInputs`
+ *   (R8 — defaults never substitute silently).
+ * @returns {object} { success, data, timestamp } — data = { beta {market, company,
+ *   growthRate, roiBeta, volatilityBeta, warnings[], defaultedInputs}, wacc {inputs,
+ *   costOfEquity, costOfEquityPostInflation, costOfEquityPostGrowth, costOfDebtAfterTax,
+ *   equityRatio, debtRatio, equityComponent, debtComponent, wacc, defaultedInputs},
+ *   betaSuggestions {roi, volatility, inUse}, growthSource }. `warnings` are CODES for
+ *   the screen to translate — an implausible beta is reported, never passed on quietly.
+ *
+ * Anonymous, like every other calc route: numbers in, numbers out. It reads no database,
+ * writes nothing, calls no third party, and sends nothing to an LLM — the client's equity
+ * figures are used to compute the response and are never stored or logged.
+ */
+function costOfCapital (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeCostOfCapital(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] cost-of-capital compute failed:', err)
+    res.send(400, { success: false, error: { code: 'COST_OF_CAPITAL_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital }
