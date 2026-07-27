@@ -467,18 +467,24 @@ export default {
 </script>
 
 <style scoped>
+/* Palette, card and table dividers read the shared visual-standard tokens (ReportShell):
+   every swapped value equals the token it points at — a no-change consolidation, not a
+   restyle. Left literal on purpose: the input-column width (340px, widened to 360px for
+   all screens together in Step 3), the card's 16px padding (standard is 16px 18px, swept
+   later), and three model-specific accents whose colours are bespoke — the cyan runway/
+   legend viz, the blue coach panel, and the amber-text (#b36b00) pill/date labels. */
 .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
 @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
-.controls { background: #fff; border: 1px solid #d5e1ee; border-radius: 14px; }
-.group { padding: 15px 16px; border-bottom: 1px solid #d5e1ee; }
+.controls { background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: var(--rs-card-radius); }
+.group { padding: 15px 16px; border-bottom: 1px solid var(--rs-line); }
 .group:last-child { border-bottom: 0; }
-.group h2 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #002b64; font-weight: 600; margin-bottom: 10px; }
-.group h2 .note { font-weight: 300; text-transform: none; letter-spacing: 0; color: #5b6f8a; font-size: 11px; }
+.group h2 { font-size: var(--rs-card-title-size); letter-spacing: .1em; text-transform: uppercase; color: var(--rs-card-title-color); font-weight: 600; margin-bottom: 10px; }
+.group h2 .note { font-weight: 300; text-transform: none; letter-spacing: 0; color: var(--rs-muted); font-size: 11px; }
 .field { margin: 11px 0; }
 .field .row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 5px; }
-.field label { font-size: 12.5px; color: #002b64; font-weight: 300; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-.field output { font-size: 13px; font-weight: 600; color: #0070c0; white-space: nowrap; }
-.field input[type=range] { width: 100%; accent-color: #0070c0; }
+.field label { font-size: 12.5px; color: var(--rs-ink); font-weight: 300; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.field output { font-size: 13px; font-weight: 600; color: var(--rs-accent); white-space: nowrap; }
+.field input[type=range] { width: 100%; accent-color: var(--rs-accent); }
 /* Badge styling lives in components/base/ProvenanceBadge.vue (Phase 3). */
 .results { display: flex; flex-direction: column; gap: 18px; }
 /* Stale-figures banner (R9): a failed recompute must be visibly untrustworthy —
@@ -487,36 +493,36 @@ export default {
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure
    (which also owns the greyed-out stale state). The print rule below still
    reaches it — `.herostrip` is HeroStrip's root element. */
-.card { background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0; border-radius: 14px; padding: 16px; }
-.card h2 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #002b64; font-weight: 600; margin-bottom: 10px; }
-.card h2 .note, .card .note { font-weight: 300; text-transform: none; letter-spacing: 0; color: #5b6f8a; font-size: 12px; }
+.card { background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top); border-radius: var(--rs-card-radius); padding: 16px; }
+.card h2 { font-size: var(--rs-card-title-size); letter-spacing: .1em; text-transform: uppercase; color: var(--rs-card-title-color); font-weight: 600; margin-bottom: 10px; }
+.card h2 .note, .card .note { font-weight: 300; text-transform: none; letter-spacing: 0; color: var(--rs-muted); font-size: 12px; }
 .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.run-sum { font-size: 12.5px; color: #5b6f8a; }
-.runway { position: relative; height: 34px; background: #f1f6fb; border: 1px solid #d5e1ee; border-radius: 9px; overflow: hidden; margin-top: 8px; }
+.run-sum { font-size: 12.5px; color: var(--rs-muted); }
+.runway { position: relative; height: 34px; background: var(--rs-panel-2); border: 1px solid var(--rs-line); border-radius: 9px; overflow: hidden; margin-top: 8px; }
 .runway .fill { position: absolute; top: 0; bottom: 0; left: 0; background: linear-gradient(90deg, #0070c0, #00b1e0); transition: width .25s; }
 .runway .ext { position: absolute; top: 0; bottom: 0; left: 0; background: #7fd3f166; border-left: 2px solid #00b1e0; transition: width .25s; }
-.runticks { display: flex; justify-content: space-between; font-size: 10.5px; color: #5b6f8a; margin-top: 5px; }
-.runlegend { display: flex; gap: 18px; font-size: 12px; color: #5b6f8a; margin-top: 9px; flex-wrap: wrap; align-items: center; }
+.runticks { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--rs-muted); margin-top: 5px; }
+.runlegend { display: flex; gap: 18px; font-size: 12px; color: var(--rs-muted); margin-top: 9px; flex-wrap: wrap; align-items: center; }
 .sw { display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
 .sw-own { background: linear-gradient(90deg, #0070c0, #00b1e0); }
 .sw-ext { background: #7fd3f166; border: 1px solid #00b1e0; }
 .pill { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
-.pill-good { color: #4ca52d; background: #4ca52d1a; }
-.pill-warn { color: #b36b00; background: #ff99001a; }
-.pill-crit { color: #ff0000; background: #ff00000f; }
+.pill-good { color: var(--rs-good); background: var(--rs-good-soft); }
+.pill-warn { color: #b36b00; background: var(--rs-warn-soft); }
+.pill-crit { color: var(--rs-crit); background: var(--rs-crit-soft); }
 table.mini { width: 100%; border-collapse: collapse; font-size: 13px; }
-table.mini td { padding: 6px 10px; border-bottom: 1px solid #d5e1ee; }
+table.mini td { padding: 6px 10px; border-bottom: 1px solid var(--rs-line); }
 table.mini td:last-child { text-align: right; font-weight: 600; }
-table.mini tr.total td { border-bottom: 0; border-top: 2px solid #d5e1ee; font-weight: 600; }
-table.mini td.crit, table.mini .crit { color: #ff0000; }
-.note-cell { color: #5b6f8a; font-weight: 300; }
+table.mini tr.total td { border-bottom: 0; border-top: 2px solid var(--rs-line); font-weight: 600; }
+table.mini td.crit, table.mini .crit { color: var(--rs-crit); }
+.note-cell { color: var(--rs-muted); font-weight: 300; }
 .edu { border-left: 3px solid #00b1e0; background: #0070c012; border-radius: 0 9px 9px 0; padding: 14px 16px; }
 .edu-head { display: flex; align-items: center; gap: 9px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: #0070c0; margin-bottom: 8px; }
 .edu .lead { background: #0070c0; color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .08em; padding: 3px 7px; border-radius: 5px; }
 .edu p { margin: 0; font-size: 14px; line-height: 1.6; }
-.privacy { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: #5b6f8a; background: #f1f6fb; border: 1px solid #d5e1ee; border-radius: 9px; padding: 10px 14px; }
+.privacy { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: var(--rs-muted); background: var(--rs-panel-2); border: 1px solid var(--rs-line); border-radius: 9px; padding: 10px 14px; }
 .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.actions .note { font-size: 12px; color: #5b6f8a; }
+.actions .note { font-size: 12px; color: var(--rs-muted); }
 @media print {
   .controls, .actions, .privacy { display: none !important; }
   .layout { display: block; }
