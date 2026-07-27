@@ -170,13 +170,17 @@ export default {
 </script>
 
 <style scoped>
+/* Palette and card read the shared visual-standard tokens (ReportShell): every swapped
+   value equals the token it points at — a no-change consolidation. Left literal on
+   purpose: the 10px card radius and the 13px/700/.04em card title (both off-standard —
+   standardised to 14px / 12px in Step 3) and the field-label ink (#223a57, no token). */
 .leb-root .herostrip { margin-bottom: 14px; }
 .leb-card {
-  background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0;
-  border-radius: 10px; padding: 16px 18px; margin-bottom: 14px;
+  background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top);
+  border-radius: 10px; padding: var(--rs-card-pad); margin-bottom: 14px;
 }
 .leb-title {
-  font-size: 13px; font-weight: 700; color: #002b64;
+  font-size: 13px; font-weight: 700; color: var(--rs-ink);
   text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px;
 }
 .leb-field {
@@ -185,7 +189,7 @@ export default {
 }
 .leb-field label { font-size: 12.5px; font-weight: 600; color: #223a57; }
 .leb-labels { flex: 1 1 auto; }
-.leb-help { font-size: 11px; color: #5b6f8a; margin: 1px 0 0; }
+.leb-help { font-size: 11px; color: var(--rs-muted); margin: 1px 0 0; }
 .leb-field .control { width: 150px; flex: 0 0 auto; }
 .leb-actions { margin-top: 6px; text-align: right; }
 </style>

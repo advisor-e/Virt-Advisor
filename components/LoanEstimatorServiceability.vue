@@ -344,16 +344,21 @@ export default {
 </script>
 
 <style scoped>
+/* Palette, card and dividers read the shared visual-standard tokens (ReportShell):
+   every swapped value equals the token it points at — a no-change consolidation. Left
+   literal on purpose: the 10px card radius and the 13px/700/.04em card title (both
+   off-standard — standardised to 14px / 12px in Step 3), the field-label ink (#223a57,
+   no standard token) and the zebra row stripe (#f8fbfd). */
 .lesv-card {
-  background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0;
-  border-radius: 10px; padding: 16px 18px; margin-bottom: 14px;
+  background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top);
+  border-radius: 10px; padding: var(--rs-card-pad); margin-bottom: 14px;
 }
 .lesv-title {
-  font-size: 13px; font-weight: 700; color: #002b64;
+  font-size: 13px; font-weight: 700; color: var(--rs-ink);
   text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px;
 }
 .lesv-subtitle {
-  font-size: 12px; font-weight: 700; color: #5b6f8a;
+  font-size: 12px; font-weight: 700; color: var(--rs-muted);
   text-transform: uppercase; letter-spacing: 0.04em; margin: 12px 0 4px;
 }
 .lesv-grid { overflow-x: auto; }
@@ -361,9 +366,9 @@ export default {
   display: grid; grid-template-columns: 220px repeat(4, minmax(110px, 1fr));
   gap: 8px; align-items: center; padding: 3px 0; min-width: 700px;
 }
-.lesv-row.lesv-head { background: #f1f6fb; border-radius: 8px; padding: 6px 0; }
+.lesv-row.lesv-head { background: var(--rs-panel-2); border-radius: 8px; padding: 6px 0; }
 .lesv-grid .lesv-row:not(.lesv-head):nth-child(odd) { background: #f8fbfd; }
-.lesv-head span { font-size: 11px; font-weight: 600; color: #5b6f8a; }
+.lesv-head span { font-size: 11px; font-weight: 600; color: var(--rs-muted); }
 .lesv-label { font-size: 12.5px; font-weight: 600; color: #223a57; }
 .lesv-field {
   display: flex; align-items: center; justify-content: space-between;
@@ -371,9 +376,9 @@ export default {
 }
 .lesv-field label { font-size: 12.5px; font-weight: 600; color: #223a57; }
 .lesv-labels { flex: 1 1 auto; }
-.lesv-help { font-size: 11px; color: #5b6f8a; margin: 1px 0 0; }
+.lesv-help { font-size: 11px; color: var(--rs-muted); margin: 1px 0 0; }
 .lesv-field .control { width: 150px; flex: 0 0 auto; }
-.lesv-stress { border-top: 1px dashed #d5e1ee; margin-top: 8px; padding-top: 10px; }
+.lesv-stress { border-top: 1px dashed var(--rs-line); margin-top: 8px; padding-top: 10px; }
 .lesv-pair { display: flex; gap: 8px; }
 .lesv-row .control { width: auto; }
 .lesv-root .herostrip { margin-bottom: 14px; }

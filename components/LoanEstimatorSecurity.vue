@@ -290,13 +290,19 @@ export default {
 </script>
 
 <style scoped>
+/* Palette, card and dividers read the shared visual-standard tokens (ReportShell):
+   every swapped value equals the token it points at — a no-change consolidation, not
+   a restyle. Left literal on purpose: the 10px card radius and the 13px/700/.04em card
+   title (both off-standard — standardised to 14px / 12px in Step 3), the field-label
+   ink (#223a57, no standard token), the zebra row stripe (#f8fbfd) and the derived-cell
+   cyan box (#eaf7fc / #7fd3f1). */
 .les-root .herostrip { margin-bottom: 14px; }
 .les-card {
-  background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0;
-  border-radius: 10px; padding: 16px 18px; margin-bottom: 14px;
+  background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top);
+  border-radius: 10px; padding: var(--rs-card-pad); margin-bottom: 14px;
 }
 .les-title {
-  font-size: 13px; font-weight: 700; color: #002b64;
+  font-size: 13px; font-weight: 700; color: var(--rs-ink);
   text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px;
 }
 .les-grid { overflow-x: auto; }
@@ -304,9 +310,9 @@ export default {
   display: grid; grid-template-columns: 168px repeat(5, minmax(96px, 1fr));
   gap: 8px; align-items: center; padding: 3px 0; min-width: 720px;
 }
-.les-row.les-head { background: #f1f6fb; border-radius: 8px; padding: 6px 0; }
+.les-row.les-head { background: var(--rs-panel-2); border-radius: 8px; padding: 6px 0; }
 .les-grid .les-row:not(.les-head):nth-child(odd) { background: #f8fbfd; }
-.les-head span { font-size: 11px; font-weight: 600; color: #5b6f8a; }
+.les-head span { font-size: 11px; font-weight: 600; color: var(--rs-muted); }
 .les-label { font-size: 12.5px; font-weight: 600; color: #223a57; }
 .les-derived {
   font-size: 12.5px; color: #223a57; background: #eaf7fc;
@@ -314,14 +320,14 @@ export default {
 }
 .les-foot {
   display: flex; justify-content: space-between; align-items: baseline;
-  margin-top: 10px; padding: 8px 12px; background: #f1f6fb;
-  border: 1px solid #d5e1ee; border-radius: 9px;
+  margin-top: 10px; padding: 8px 12px; background: var(--rs-panel-2);
+  border: 1px solid var(--rs-line); border-radius: 9px;
 }
 .les-foot-label {
   font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
-  font-weight: 600; color: #5b6f8a;
+  font-weight: 600; color: var(--rs-muted);
 }
-.les-foot-value { font-size: 16px; font-weight: 700; color: #0070c0; }
+.les-foot-value { font-size: 16px; font-weight: 700; color: var(--rs-accent); }
 .les-side { display: flex; gap: 14px; flex-wrap: wrap; }
 .les-side .les-card { flex: 1 1 280px; }
 .les-field { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 0; }

@@ -341,6 +341,13 @@ export default {
 </script>
 
 <style scoped>
+/* Palette, card and table dividers read the shared visual-standard tokens (ReportShell):
+   every swapped value equals the token it points at — a no-change consolidation, not a
+   restyle. This screen's card is already on-standard (14px radius, 16px 18px padding,
+   12px/600 title), so it repoints fully. Left literal on purpose: the pass/fail verdict
+   panel (a permitted per-model accent, its own green/red palette), the field-label ink
+   (#223a57, no token), the repayment sub-panel's 10px radius and the 320px input column
+   (widened to 360px for all screens together in Step 3). */
 .ler-root { display: flex; flex-direction: column; gap: 16px; }
 .ler-verdict {
   border-radius: 12px; padding: 18px 20px; border: 1px solid;
@@ -354,41 +361,41 @@ export default {
 .ler-verdict.is-fail h2 { color: #b30000; }
 .ler-verdict.is-fail p { color: #7a4a4a; }
 .ler-card {
-  background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0;
-  border-radius: 14px; padding: 16px 18px;
+  background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top);
+  border-radius: var(--rs-card-radius); padding: var(--rs-card-pad);
 }
 .ler-card h2 {
-  font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
-  color: #002b64; font-weight: 600; margin-bottom: 10px;
+  font-size: var(--rs-card-title-size); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--rs-card-title-color); font-weight: 600; margin-bottom: 10px;
 }
 .ler-scroll { overflow-x: auto; }
 .ler-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
 .ler-table th {
-  text-align: right; font-size: 11px; font-weight: 600; color: #5b6f8a;
-  padding: 6px 10px; border-bottom: 1px solid #d5e1ee;
+  text-align: right; font-size: 11px; font-weight: 600; color: var(--rs-muted);
+  padding: 6px 10px; border-bottom: 1px solid var(--rs-line);
 }
 .ler-table th:first-child, .ler-table td:first-child { text-align: left; }
-.ler-table td { padding: 6px 10px; border-bottom: 1px solid #eef3f8; text-align: right; }
+.ler-table td { padding: 6px 10px; border-bottom: 1px solid var(--rs-bg); text-align: right; }
 .ler-table td:first-child { font-weight: 600; color: #223a57; }
-.ler-table tr.is-combined td { border-top: 2px solid #d5e1ee; border-bottom: 0; font-weight: 700; }
+.ler-table tr.is-combined td { border-top: 2px solid var(--rs-line); border-bottom: 0; font-weight: 700; }
 .ler-mini { width: 100%; border-collapse: collapse; font-size: 13px; }
-.ler-mini td { padding: 6px 10px; border-bottom: 1px solid #eef3f8; }
+.ler-mini td { padding: 6px 10px; border-bottom: 1px solid var(--rs-bg); }
 .ler-mini td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
-.ler-mini tr.is-total td { border-bottom: 0; border-top: 2px solid #d5e1ee; font-weight: 700; }
-.ler-mini .is-crit { color: #ff0000; }
-.ler-note { font-size: 11.5px; color: #5b6f8a; margin: 4px 0 0; font-weight: 300; }
+.ler-mini tr.is-total td { border-bottom: 0; border-top: 2px solid var(--rs-line); font-weight: 700; }
+.ler-mini .is-crit { color: var(--rs-crit); }
+.ler-note { font-size: 11.5px; color: var(--rs-muted); margin: 4px 0 0; font-weight: 300; }
 .ler-calc { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }
 @media (max-width: 860px) { .ler-calc { grid-template-columns: 1fr; } }
 .ler-selects { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
-.ler-select label { display: block; font-size: 12.5px; color: #002b64; font-weight: 300; margin-bottom: 3px; }
+.ler-select label { display: block; font-size: 12.5px; color: var(--rs-ink); font-weight: 300; margin-bottom: 3px; }
 .ler-result { display: flex; flex-direction: column; gap: 12px; }
 .ler-repay {
   display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
-  background: #f1f6fb; border: 1px solid #d5e1ee; border-radius: 10px; padding: 12px 16px;
+  background: var(--rs-panel-2); border: 1px solid var(--rs-line); border-radius: 10px; padding: 12px 16px;
 }
 .ler-repay.is-stale { opacity: .45; }
-.ler-repay-label { font-size: 12.5px; font-weight: 600; color: #5b6f8a; }
-.ler-repay-value { font-size: 22px; font-weight: 700; color: #0070c0; }
+.ler-repay-label { font-size: 12.5px; font-weight: 600; color: var(--rs-muted); }
+.ler-repay-value { font-size: 22px; font-weight: 700; color: var(--rs-accent); }
 @media print {
   .ler-controls { display: none !important; }
   .ler-card, .ler-verdict { break-inside: avoid; }
