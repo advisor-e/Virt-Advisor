@@ -45,8 +45,9 @@ section.firm-domain-support
             @dragend="onDragEnd"
           )
             button.ds-rail-select(type="button" @click="select(item)")
-              span.ds-rail-name {{ item.label }}
-              b-tag(:type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
+              span.ds-rail-name(:class="{ 'is-empty': !item.count }") {{ item.label }}
+              b-tag(v-if="item.count" :type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
+              span.ds-rail-notset(v-else) {{ $t('firmDomainSupport.notSetUp') }}
             b-dropdown.ds-rail-move(aria-role="menu" position="is-bottom-left" :mobile-modal="false")
               template(#trigger)
                 button.ds-rail-movebtn(type="button" :aria-label="$t('firmDomainSupport.moveTo')") ⋯
@@ -610,6 +611,14 @@ export default {
   font: inherit;
 }
 .ds-rail-name { flex: 1; min-width: 0; }
+.ds-rail-name.is-empty { color: #9aa4b2; }
+.ds-rail-notset {
+  flex: 0 0 auto;
+  font-size: 0.66rem;
+  font-style: italic;
+  color: #aeb6c2;
+  white-space: nowrap;
+}
 .ds-rail-move { flex: 0 0 auto; }
 .ds-rail-movebtn {
   background: none;

@@ -1694,9 +1694,12 @@ async function _restoreDomainSupportVersion (firmId, domainId, version, restored
  * @returns {number}
  */
 function _countSupportItems (support) {
-  if (!support) { return 0 }
-  if (Array.isArray(support.materials) && support.materials.length) { return support.materials.length }
-  return (support.support_tools || []).length
+  // Count the EDITABLE four-column materials only. A domain still on the legacy
+  // support_tools shape has no four-column content to edit here, so it honestly
+  // reports 0 — matching the "not authored yet" state the panel shows when the
+  // domain is opened (a non-zero rail count that the panel then contradicts was
+  // the legibility bug the owner hit 2026-07-27).
+  return (support && Array.isArray(support.materials)) ? support.materials.length : 0
 }
 
 /**

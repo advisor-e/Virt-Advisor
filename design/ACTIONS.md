@@ -116,6 +116,14 @@
     registered) remain in the codebase, unreferenced. `FirmRail` is NOT dead — Quizzes uses it.
     **→ Follow-up (P3, cleanup):** delete `FirmDocuments.vue`, its component test, the document/
     storage routes + registrations, and the `firmDocuments` i18n block once no consumer remains.
+  - ☑ **Templates & Videos tab HIDDEN 2026-07-27 (owner decision, this branch).** `v-if="false"`
+    on the tab-item in `FirmManagerHub.vue` — not wired to anything usable in UAT (needs
+    Firm-Manager MySQL), so a live-looking dead tab was misleading. Kept dormant (template-import
+    + video-link code intact), not deleted — a real feature the master team may want.
+  - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
+    editable four-column `materials` (legacy `support_tools` domains report 0, matching the
+    "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"
+    instead of a bare `0`, so progress is legible at a glance (only EOY has content so far).
   - ☐ **Still open:** (1) **Job 2** — fold each material's genuine how-to Q&A into the steps,
     cross-checked against the 10-question quiz banks; (2) per-material origin tags are
     domain-level until the §2.4 compare-screen work.

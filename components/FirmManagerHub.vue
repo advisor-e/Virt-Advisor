@@ -100,8 +100,12 @@ section.firm-manager-hub.section
                   footer.modal-card-foot
                     b-button(@click="showStaircaseHistoryModal = false") Close
 
-      //- ── Tab 3: Templates & Videos ──────────────────────────────────
-      b-tab-item(label="Templates & Videos" icon="play-box-multiple")
+      //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
+      //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
+      //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
+      //- deleted — it's a real feature the master team may still want. Logged in
+      //- ACTIONS alongside the Decision Frameworks removal.
+      b-tab-item(label="Templates & Videos" icon="play-box-multiple" v-if="false")
         .columns
           //- Template Library column
           .column
