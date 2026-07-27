@@ -69,6 +69,15 @@ adds the guard that makes divergence a build failure.
 Shared `HeroStrip` component: solid **`#002b64`**, 14px radius, 20px padding, 12px/32px
 shadow (RULED 2026-07-22). Cells are `HeroFigure`. **3 or 4 cells is a per-model choice.**
 
+**Placement — RULED 2026-07-27: the banner is a FULL-WIDTH band.** It spans the whole
+1120px content column, sitting *above* the two-column input/results layout — a direct child
+of the screen's root element, **never nested inside the results column**. Lease vs Buy
+shipped with its HeroStrip tucked in the `1fr` results column, so it rendered ~740px while
+EBITDA-DCF and the Loan Estimator spanned the full width; the old guards passed it because
+they checked the banner *existed*, not *where*. Fixed 2026-07-27 (all six in-column screens
+lifted their band to the top) and now guarded — `reportHeadlineConsistency.component.test.js`
+asserts the HeroStrip's DOM parent is the screen root, so an in-column banner fails the build.
+
 ### Cards
 | Dial | Standard |
 |---|---|

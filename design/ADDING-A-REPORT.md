@@ -127,6 +127,8 @@ Compose it. Do not hand-roll any of these:
 
 ```pug
 <template lang="pug">
+//- Root is a flex column (gap:16px) so the header, the full-width banner and the
+//- two-column layout space uniformly — see the `.my-root` style note below.
 .my-root
   report-header(
     :back-label="$t('modelLibrary.backToLibrary')"
@@ -135,6 +137,19 @@ Compose it. Do not hand-roll any of these:
     :client="$t('report.preparedFor')"
     :badge="$t('report.illustrative')"   //- Education class only — see step 5
   )
+
+  //- The headline is a FULL-WIDTH band: a direct child of the root, ABOVE the two-column
+  //- layout — never inside a results column. (RULED 2026-07-27; guarded — see step 8.)
+  template(v-if="data")
+    //- Required: a failed recompute must never sit silently behind live-looking figures
+    stale-banner(
+      v-if="error"
+      :title="$t('report.staleTitle')"
+      :message="$t('report.calcUnreachable')"
+      :retry-label="$t('report.retry')"
+      @retry="recompute")
+    hero-strip(:columns="4" :stale="!!error")
+      hero-figure(:label="$t('…')" :value="money(data.x)" :tone="data.x < 0 ? 'crit' : 'default'")
 
   .my-layout
     aside.my-card
@@ -146,17 +161,13 @@ Compose it. Do not hand-roll any of these:
         @input="v => setField(fld, v)")
 
     main(v-if="data")
-      //- Required: a failed recompute must never sit silently behind live-looking figures
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute")
-
-      hero-strip(:columns="4" :stale="!!error")
-        hero-figure(:label="$t('…')" :value="money(data.x)" :tone="data.x < 0 ? 'crit' : 'default'")
+      //- charts, tables, coaching — the rest of the results column
 </template>
+```
+
+```css
+/* Root: flex column so header + full-width band + layout share one vertical rhythm. */
+.my-root { display: flex; flex-direction: column; gap: 16px; }
 ```
 
 ```js
@@ -252,12 +263,14 @@ their expectations from real sources, so they cannot drift from the thing they c
   a failure, not a skip**, so a new report cannot slip through unchecked.
 - [`tests/unit/reportHeadlineConsistency.component.test.js`](../tests/unit/reportHeadlineConsistency.component.test.js)
   — mounts every listed screen against real backend model output and fails if any
-  hand-rolls its headline, leaves stale figures bright, or warns with something transient.
+  hand-rolls its headline, **nests the banner inside a column instead of a full-width band**
+  (its DOM parent must be the screen root), leaves stale figures bright, or warns with
+  something transient.
 - [`tests/unit/reportShellFrame.test.js`](../tests/unit/reportShellFrame.test.js)
   — reads every ready route from the catalogue and fails if its page does not wrap the
   screen in `<report-shell>`. This is what stops a screen shipping with its own frame, or
   none. The list is the catalogue's ready routes, so a new report is covered **automatically**.
 
 All three are mutation-verified: badging Quick Position "Illustrative" fails the first,
-hand-rolling a headline fails the second, and swapping a page's `report-shell` root for a
-plain div fails the third.
+tucking a banner into a column (or hand-rolling a headline) fails the second, and swapping
+a page's `report-shell` root for a plain div fails the third.
