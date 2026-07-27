@@ -1,23 +1,20 @@
 <template lang="pug">
-.lease-vs-buy-page
-  .wrap
-    lease-vs-buy
+report-shell
+  lease-vs-buy
 </template>
 
 <script>
 /**
  * /lease-vs-buy page — the Lease vs Buy model (Valuation · Decision class).
- * Thin: renders the screen component; the calc runs backend-only.
+ * Thin: wraps the screen in the shared ReportShell (which owns the page frame —
+ * canvas, centred 1120px column, padding — and the visual-standard tokens) and
+ * renders the screen component. The calc runs backend-only.
  */
+import ReportShell from '~/components/base/ReportShell.vue'
 import LeaseVsBuy from '~/components/LeaseVsBuy.vue'
 
 export default {
   name: 'LeaseVsBuyPage',
-  components: { LeaseVsBuy }
+  components: { ReportShell, LeaseVsBuy }
 }
 </script>
-
-<style scoped>
-.lease-vs-buy-page { min-height: 100vh; background: #eef3f8; }
-.wrap { max-width: 1120px; margin: 0 auto; padding: 28px 22px 64px; }
-</style>

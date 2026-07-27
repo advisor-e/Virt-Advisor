@@ -343,34 +343,40 @@ export default {
 .lvb-verdict.is-stale { opacity: .45; }
 .lvb-verdict h2 { font-size: 22px; font-weight: 700; margin: 0 0 4px; color: #35761f; }
 .lvb-verdict p { margin: 0; font-size: 12.5px; color: #4d6b41; }
+/* Card, palette and dividers read the shared visual-standard tokens (ReportShell).
+   Every value here equals the token it now points at — a no-change consolidation, not
+   a restyle. Values NOT covered by the standard stay literal: the input-column width
+   (340px, standardised to 360px in Step 3), the green verdict panel (a permitted
+   per-model accent) and the field-label ink (#223a57, no standard token). */
 .lvb-card {
-  background: #fff; border: 1px solid #d5e1ee; border-top: 3px solid #00b1e0;
-  border-radius: 14px; padding: 16px 18px;
+  background: var(--rs-card-bg); border: 1px solid var(--rs-card-border);
+  border-top: 3px solid var(--rs-card-top);
+  border-radius: var(--rs-card-radius); padding: var(--rs-card-pad);
 }
 .lvb-card h2 {
-  font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
-  color: #002b64; font-weight: 600; margin-bottom: 12px;
+  font-size: var(--rs-card-title-size); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--rs-card-title-color); font-weight: 600; margin-bottom: 12px;
 }
 .lvb-mini { width: 100%; border-collapse: collapse; font-size: 13px; }
-.lvb-mini td { padding: 6px 10px; border-bottom: 1px solid #eef3f8; }
+.lvb-mini td { padding: 6px 10px; border-bottom: 1px solid var(--rs-bg); }
 .lvb-mini td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
-.lvb-mini tr.is-total td { border-bottom: 0; border-top: 2px solid #d5e1ee; font-weight: 700; color: #002b64; }
+.lvb-mini tr.is-total td { border-bottom: 0; border-top: 2px solid var(--rs-line); font-weight: 700; color: var(--rs-ink); }
 .lvb-mini tr.is-gap td { padding-top: 14px; }
-.lvb-note { font-size: 11.5px; color: #5b6f8a; margin: 8px 0 0; font-weight: 300; }
+.lvb-note { font-size: 11.5px; color: var(--rs-muted); margin: 8px 0 0; font-weight: 300; }
 .lvb-field {
   display: flex; align-items: center; justify-content: space-between;
   gap: 10px; padding: 3px 0;
 }
 .lvb-field label { font-size: 12.5px; font-weight: 600; color: #223a57; }
 .lvb-labels { flex: 1 1 auto; }
-.lvb-help { font-size: 11px; color: #5b6f8a; margin: 1px 0 0; font-weight: 300; }
+.lvb-help { font-size: 11px; color: var(--rs-muted); margin: 1px 0 0; font-weight: 300; }
 .lvb-field .control { width: 150px; flex: 0 0 auto; }
 /* One field per row — the input column is narrow (~340px), so the running-cost
    and lease grids stack rather than sit two-up. */
 .lvb-grid2 { display: grid; grid-template-columns: 1fr; gap: 0 24px; }
 .lvb-includes {
   display: flex; flex-direction: column; gap: 6px;
-  border-top: 1px dashed #d5e1ee; margin-top: 10px; padding-top: 10px;
+  border-top: 1px dashed var(--rs-line); margin-top: 10px; padding-top: 10px;
 }
 .lvb-root .herostrip { margin-bottom: 0; }
 @media print {
