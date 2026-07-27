@@ -333,6 +333,11 @@ export default {
 
 <style scoped>
 .lvb-root { display: flex; flex-direction: column; gap: 16px; }
+/* Reset the shared ReportHeader's `margin: 0 auto 22px`: inside a flex column that auto
+   margin shrinks the header below full width and its 22px stacks on the flex gap. Zeroing
+   it here (not touching the shared component) leaves the single 16px flex gap as the only
+   spacing between the header and the band. */
+.lvb-root ::v-deep .rs-top { margin: 0; }
 /* House two-column grid: inputs left (~340px), results right — identical to
    MarginBreakeven / QuickPosition / Debtor Drag / Eight Levers / Loan Estimator. */
 .lvb-layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }

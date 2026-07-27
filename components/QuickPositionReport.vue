@@ -492,7 +492,7 @@ export default {
 .field output { font-size: 13px; font-weight: 600; color: var(--rs-accent); white-space: nowrap; }
 .field input[type=range] { width: 100%; accent-color: var(--rs-accent); }
 /* Badge styling lives in components/base/ProvenanceBadge.vue (Phase 3). */
-.results { display: flex; flex-direction: column; gap: 18px; }
+.results { display: flex; flex-direction: column; gap: 16px; }
 /* Stale-figures banner (R9): a failed recompute must be visibly untrustworthy —
    stale figures presented as live are worse than no figures at all. */
 /* The stale banner is components/base/StaleBanner.vue (Phase 3). */

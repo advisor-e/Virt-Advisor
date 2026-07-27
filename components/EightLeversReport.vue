@@ -422,10 +422,15 @@ export default {
   --lev-accent:var(--rs-accent); --lev-accent-bright:var(--rs-accent-bright); --lev-good:var(--rs-good); --lev-warn:var(--rs-warn); --lev-crit:var(--rs-crit);
   --lev-shadow:var(--rs-shadow); --lev-r:var(--rs-radius);
   color:var(--lev-ink);
-  /* Flex column so the header, the full-width headline band and the two-column layout
-     space uniformly — matches Lease vs Buy / EBITDA / Loan Estimator (2026-07-27). */
+  /* Flex column with ONE gap value (16px) so every vertical gap — header→band,
+     band→layout and inside the results column — is identical (owner ruling 2026-07-27). */
   display:flex; flex-direction:column; gap:16px;
 }
+/* Reset the shared ReportHeader's `margin: 0 auto 22px`: inside a flex column that auto
+   margin shrinks the header below full width and its 22px stacks on the flex gap. Zeroing
+   it here (not touching the shared component) leaves the single 16px flex gap as the only
+   spacing between the header and the band. */
+.lev-root ::v-deep .rs-top { margin: 0; }
 
 /* Width + centring now come from the ReportShell wrap; column width (320px), gap (18px)
    and the 900px collapse are left for the Step 3 standardisation (360px / 20px / 860px). */

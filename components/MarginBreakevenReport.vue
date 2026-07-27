@@ -249,10 +249,15 @@ path,
   --mbk-good:var(--rs-good); --mbk-warn:var(--rs-warn); --mbk-crit:var(--rs-crit);
   --mbk-shadow:var(--rs-shadow); --mbk-r:var(--rs-radius);
   color:var(--mbk-ink);
-  /* Flex column so the header, the full-width headline band and the two-column layout
-     space uniformly — matches Lease vs Buy / EBITDA / Loan Estimator (2026-07-27). */
+  /* Flex column with ONE gap value (16px) so every vertical gap — header→band,
+     band→layout and inside the results column — is identical (owner ruling 2026-07-27). */
   display:flex; flex-direction:column; gap:16px;
 }
+/* Reset the shared ReportHeader's `margin: 0 auto 22px`: inside a flex column that auto
+   margin shrinks the header below full width and its 22px stacks on the flex gap. Zeroing
+   it here (not touching the shared component) leaves the single 16px flex gap as the only
+   spacing between the header and the band. */
+.mbk-root ::v-deep .rs-top { margin: 0; }
 .mbk-root strong, .mbk-root b { font-weight:600; }
 .num { font-variant-numeric: tabular-nums; }
 /* Width + centring now come from the ReportShell wrap; column width (340px) is left for
@@ -271,7 +276,7 @@ path,
   --sl-accent:var(--mbk-accent); --sl-line:var(--mbk-line); --sl-panel:var(--mbk-panel);
   --sl-ink:var(--mbk-ink); --sl-warn:var(--mbk-warn); --sl-accent-soft:var(--mbk-accent-soft);
 }
-.mbk-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
+.mbk-results { display:flex; flex-direction:column; gap:16px; min-height:200px; }
 .mbk-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
 @media (max-width:640px) { .mbk-tiles { grid-template-columns:1fr; } }
 .mbk-tile { background:var(--mbk-panel); border:1px solid var(--mbk-line); border-radius:var(--mbk-r); padding:15px 16px; box-shadow:var(--mbk-shadow); }

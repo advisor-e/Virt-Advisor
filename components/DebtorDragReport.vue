@@ -332,10 +332,15 @@ lowY: y(plan[lowIdx])
   --ddg-good:var(--rs-good); --ddg-good-soft:var(--rs-good-soft); --ddg-crit:var(--rs-crit); --ddg-crit-soft:var(--rs-crit-soft); --ddg-warn:var(--rs-warn); --ddg-warn-soft:var(--rs-warn-soft);
   --ddg-shadow:var(--rs-shadow); --ddg-r:var(--rs-radius);
   color:var(--ddg-ink);
-  /* Flex column so the header, the full-width headline band and the two-column layout
-     space uniformly — matches Lease vs Buy / EBITDA / Loan Estimator (2026-07-27). */
+  /* Flex column with ONE gap value (16px) so every vertical gap — header→band,
+     band→layout and inside the results column — is identical (owner ruling 2026-07-27). */
   display:flex; flex-direction:column; gap:16px;
 }
+/* Reset the shared ReportHeader's `margin: 0 auto 22px`: inside a flex column that auto
+   margin shrinks the header below full width and its 22px stacks on the flex gap. Zeroing
+   it here (not touching the shared component) leaves the single 16px flex gap as the only
+   spacing between the header and the band. */
+.ddg-root ::v-deep .rs-top { margin: 0; }
 .ddg-root strong, .ddg-root b { font-weight:600; }
 .ddg-blue { color:var(--rs-accent); }
 .num { font-variant-numeric: tabular-nums; }
@@ -363,7 +368,7 @@ lowY: y(plan[lowIdx])
 }
 .ddg-setbtn { width:100%; font:inherit; font-weight:600; font-size:12.5px; color:var(--ddg-ink); background:var(--ddg-panel-2); border:1px solid var(--ddg-line); border-radius:9px; padding:10px; cursor:pointer; }
 .ddg-setbtn:hover { border-color:var(--ddg-accent); }
-.ddg-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
+.ddg-results { display:flex; flex-direction:column; gap:16px; min-height:200px; }
 .ddg-chartcard { padding:18px; }
 .ddg-chead { display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:2px; }
 .ddg-csub { font-size:12.5px; color:var(--ddg-muted); }

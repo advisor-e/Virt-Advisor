@@ -351,10 +351,15 @@ fields: [
   --bpr-good:var(--rs-good); --bpr-good-soft:var(--rs-good-soft); --bpr-crit:var(--rs-crit); --bpr-crit-soft:var(--rs-crit-soft); --bpr-warn:var(--rs-warn); --bpr-warn-soft:var(--rs-warn-soft);
   --bpr-shadow:var(--rs-shadow); --bpr-r:var(--rs-radius);
   color:var(--bpr-ink);
-  /* Flex column so the header, the full-width headline band and the two-column layout
-     space uniformly — matches Lease vs Buy / EBITDA / Loan Estimator (2026-07-27). */
+  /* Flex column with ONE gap value (16px) so every vertical gap — header→band,
+     band→layout and inside the results column — is identical (owner ruling 2026-07-27). */
   display:flex; flex-direction:column; gap:16px;
 }
+/* The shared ReportHeader carries `margin: 0 auto 22px`. Inside a flex column that auto
+   margin shrinks the header below full width AND its 22px stacks on top of the flex gap.
+   Reset it to 0 here (this does NOT touch the shared component) so the single 16px flex
+   gap is the only spacing between the header and the band. */
+.bpr-root ::v-deep .rs-top { margin: 0; }
 .bpr-root strong, .bpr-root b { font-weight:600; }
 .num { font-variant-numeric: tabular-nums; }
 
@@ -376,7 +381,7 @@ fields: [
   --sl-ink:var(--bpr-ink); --sl-accent-soft:var(--bpr-accent-soft);
 }
 
-.bpr-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
+.bpr-results { display:flex; flex-direction:column; gap:16px; min-height:200px; }
 .bpr-tiles { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
 @media (max-width:560px) { .bpr-tiles { grid-template-columns:1fr; } }
 .bpr-tile { background:var(--bpr-panel); border:1px solid var(--bpr-line); border-radius:var(--bpr-r); padding:16px 17px; box-shadow:var(--bpr-shadow); overflow:hidden; }
