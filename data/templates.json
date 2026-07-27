@@ -9655,5 +9655,101 @@
     ],
     "status": "--",
     "index": 285
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-9724952675",
+    "section": "Do the Job",
+    "subSection": "Specialist Tools",
+    "topic": "Due Diligence",
+    "title": "Due Diligence Support",
+    "link": "id-9724952675",
+    "purpose": "This template provides an easy to understand introduction to Due Diligence. When combined with the 'common sense' templates such as Customer or Client Interviews, you'll quickly find your feet with this topic. The step by step section provdes practical insight on how to get started!",
+    "support": "Merger; Acquisition; Business Purchase; Valuation",
+    "position": 287,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leapfrog",
+      "fundamental": "This template provides an easy to understand introduction to Due Diligence and the step by step section provdes practical insight on how to get started!"
+    },
+    "tags": [
+      "Merger",
+      "Acquisition",
+      "Business Purchase",
+      "Valuation"
+    ],
+    "status": "--",
+    "index": 286
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-568032896",
+    "section": "Do the Job",
+    "subSection": "Specialist Tools",
+    "topic": "Financial Systems",
+    "title": "Systems B4 Scale",
+    "link": "id-568032896",
+    "purpose": "This template is an easy way to introduce the concept of improving systems for your clients. It ALSO serves as a way to introduce a systems review to uncover 'improper transactions' discreetly.",
+    "support": "governance; financial management",
+    "position": 288,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leverage",
+      "fundamental": "This template is an easy way to introduce the concept of improving systems for your clients. It ALSO serves as a way to introduce a systems review to uncover 'improper transactions' discreetly."
+    },
+    "tags": [
+      "governance",
+      "financial management"
+    ],
+    "status": "--",
+    "index": 287
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4277160310",
+    "section": "Do the Job",
+    "subSection": "Specialist Tools",
+    "topic": "HR",
+    "title": "Coping With Adversity",
+    "link": "id-4277160310",
+    "purpose": "This template provides insight into the different ways people cope with frustration or failure. It serves to enable business partners to be more supportive of each other & reduce stress. You can use when dealing with business owners relations issues.",
+    "support": "Stress; Dispute; Conflict",
+    "position": 289,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leverage",
+      "fundamental": "This template provides insight into the different ways people cope with frustration or failure. It serves to enable business partners to be more supportive of each other & reduce stress."
+    },
+    "tags": [
+      "Stress",
+      "Dispute",
+      "Conflict"
+    ],
+    "status": "--",
+    "index": 288
   }
 ]

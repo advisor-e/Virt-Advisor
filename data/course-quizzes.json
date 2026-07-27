@@ -2136,6 +2136,1182 @@
           "keyPoint": "Framing the 'Go Forward' this way invites the client to actively collaborate on the service solution, ensuring the eventual proposal is built exactly around what they want and proving their motivation to act."
         }
       ]
+    },
+    "Purchase Assessment Report 3": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the specific valuation method used for the project approach in the assessment?",
+          "answer": "The Asset-Based method (inclusive of tangible and intangible assets).",
+          "keyPoint": "The model applies '3-Point Sensitivities' (reality-checks) to build a more robust and better-considered understanding of the purchase opportunity.",
+          "id": 1
+        },
+        {
+          "question": "What does the \"primary sensitivity\" in the assessment calculations refer to?",
+          "answer": "The serviceability of a loan to support the purchase.",
+          "keyPoint": "This represents the 'Bankable Price' or the highest probable finance threshold the business could afford.",
+          "id": 2
+        },
+        {
+          "question": "How does the open market differ from the notional market regarding Fair Market Value?",
+          "answer": "Open market prices are influenced by a lack of knowledge, speculation, investor sentiment, and arbitrary formulas, which are assumed not to exist in a notional market.",
+          "keyPoint": "These open market factors lead to sudden fluctuations, limiting the weight that can be attached to comparative open market benchmarks.",
+          "id": 3
+        },
+        {
+          "question": "What is the definition of a tangible asset?",
+          "answer": "Physical Assets - Generally used by the business to support business activities.",
+          "keyPoint": "These are often shown on the balance sheet as Non-current Assets and are not expected to be realized in the current trading year.",
+          "id": 4
+        },
+        {
+          "question": "What is the general guide for a 'Good' goodwill payback period?",
+          "answer": "Less than 3 years.",
+          "keyPoint": "The lower the payback period the better, because this minimizes your risk factor.",
+          "id": 5
+        },
+        {
+          "question": "What does EBPITDA stand for?",
+          "answer": "Earnings Before Proprietor’s Income, Interest, Tax, Depreciation & Amortised Expenses.",
+          "keyPoint": "This method is generally used if the business requires a 'hands-on' business owner as a critical labour unit.",
+          "id": 6
+        },
+        {
+          "question": "What are the four levels of return a business should have?",
+          "answer": "1. Labour Rate/Time Worked, 2. Returns on Funds Invested, 3. Profit or Risk (Premium) Return, 4. Asset Replacement/Reserves.",
+          "keyPoint": "These formulas dictate what the Minimum Acceptable Cash Surplus should be before determining super profits.",
+          "id": 7
+        },
+        {
+          "question": "What do the Margin For Error calculations highlight?",
+          "answer": "The potential fragility of the business's ability to service the purchase price during periods of economic decline.",
+          "keyPoint": "This is an assessment of Risk (for the buyer) rather than an assessment of 'Value'.",
+          "id": 8
+        },
+        {
+          "question": "What is 'Confirmation Bias' in the context of a business purchase?",
+          "answer": "The emotional interference in the decision-making process.",
+          "keyPoint": "It is extremely difficult to separate emotional interference; using strategic frameworks like Porter's 5 Forces or S.W.O.T helps objectively assess true risks.",
+          "id": 9
+        },
+        {
+          "question": "Why is it strongly recommended to ensure hand over terms and support are included in a sale and purchase agreement?",
+          "answer": "To ensure clear expectations regarding training, supplier, and customer introductions between the incoming and outgoing owners.",
+          "keyPoint": "Recording this in writing aids in your risk assessment of supplier continuity.",
+          "id": 10
+        }
+      ]
+    },
+    "Business Clock vs Body Clock": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "How is efficiency defined in layman's terms?",
+          "answer": "\"Getting more done, with less effort.\"",
+          "keyPoint": "If you focus on productivity too much, you run the risk of getting ‘trapped in the hamster's wheel’.",
+          "id": 1
+        },
+        {
+          "question": "How is effectiveness defined in layman's terms?",
+          "answer": "\"The greater the outcome, with the same or less effort.\"",
+          "keyPoint": "It doesn’t matter how efficient we become at completing a task if it isn’t effective in helping us achieve our goals.",
+          "id": 2
+        },
+        {
+          "question": "What is Newton's Third Law in relation to 'Circles of Causality'?",
+          "answer": "\"For every action there is an equal and opposite reaction.\"",
+          "keyPoint": "Identifying the likely consequences of a plan allows you to see negative forces and ensure Key Performance Indicators are balanced and complete.",
+          "id": 3
+        },
+        {
+          "question": "What is chronobiology?",
+          "answer": "The study of biological rhythms and their impact on us and our environment.",
+          "keyPoint": "All living things respond to cycles of the sun and the moon, influencing times of day best suited for creativity or physical exertion.",
+          "id": 4
+        },
+        {
+          "question": "What is a Circadian rhythm?",
+          "answer": "An approximately 24-hour cycle relating to basic sleep/wake patterns.",
+          "keyPoint": "Understanding this cycle helps improve creativity or focus so you can implement changes in your business.",
+          "id": 5
+        },
+        {
+          "question": "What is a Circaseptan rhythm?",
+          "answer": "A 3-week and 7-day cycle relating to immune and healing patterns.",
+          "keyPoint": "Understanding this allows you to plan your year to 'heal' or be fresh for new education or techniques.",
+          "id": 6
+        },
+        {
+          "question": "What neurotransmitter does visualising possible negatives and hardships help produce?",
+          "answer": "Testosterone.",
+          "keyPoint": "Testosterone aids mental acuity, proving that accurate rehearsal of hardships frames your thinking for peak performance.",
+          "id": 7
+        },
+        {
+          "question": "What is the main argument made by Bronson & Merryman regarding mental focus?",
+          "answer": "What matters most is not Positive thinking vs. Negative thinking, but Additive thinking vs. Subtractive thinking.",
+          "keyPoint": "How you frame past attempts and speak to yourself dictates your mental state.",
+          "id": 8
+        },
+        {
+          "question": "What is a subtractive counterfactual?",
+          "answer": "When you ‘wish something didn’t happen’ that contributed to an outcome you are unhappy with.",
+          "keyPoint": "This relies on hindsight and negative association without establishing a clear path forward.",
+          "id": 9
+        },
+        {
+          "question": "What is an additive counterfactual?",
+          "answer": "When you review a past event and imagine something MORE you could have done to achieve a different outcome.",
+          "keyPoint": "This is framed as \"Next time I'll do xyz to get a better outcome,\" which helps reframe negative constraints.",
+          "id": 10
+        }
+      ]
+    },
+    "Sale Assessment Report 3": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the primary approach of the Business Sale Assessment Report?",
+          "answer": "To help place the seller in the ‘negotiation seat of your purchaser’.",
+          "keyPoint": "By reviewing the business from the purchaser's viewpoint, you build a clearer understanding of how to demonstrate value and provide supporting evidence.",
+          "id": 1
+        },
+        {
+          "question": "What does the primary sensitivity (Best Funding Calcs) highlight for a seller?",
+          "answer": "The highest ‘probable’ finance threshold (inclusive of a risk assessment interest rate cover) that the business could afford.",
+          "keyPoint": "To support a sale, the price must be 'bankable' so interested purchasers can gain favorable finance.",
+          "id": 2
+        },
+        {
+          "question": "What are intangible assets/goodwill used to explain?",
+          "answer": "The probability of future (Capitalised) earnings.",
+          "keyPoint": "Goodwill is the main intangible asset, alongside brand equity, intellectual properties, licensing, and customer lists.",
+          "id": 3
+        },
+        {
+          "question": "What does EBITDA stand for?",
+          "answer": "Earnings Before Interest, Tax, Depreciation & Amortised Expenses.",
+          "keyPoint": "This multiple method is generally preferred by investors who have no intention of working in the business themselves.",
+          "id": 4
+        },
+        {
+          "question": "How is the most basic description of calculating a business value shown?",
+          "answer": "Predicted (Future) Net (taxable) Profit x Multiple + Net Tangible Assets + Stock/Materials.",
+          "keyPoint": "The trick is determining a 'Multiple' that reflects the risk factor or likelihood (Confidence factor) of the business performing in the future.",
+          "id": 5
+        },
+        {
+          "question": "Why are cost adjustments (Add Backs) utilized in financial performance analysis?",
+          "answer": "They remove items peculiar to the vendor’s operating position (like one-off legal fees or owner wages).",
+          "keyPoint": "These are removed to show potential purchasers what can be achieved in terms of 'free cash flow'.",
+          "id": 6
+        },
+        {
+          "question": "What is considered a \"Normal\" payback period for super profits?",
+          "answer": "Between 3 and 5 years.",
+          "keyPoint": "Purchasers calculate this to see how long it takes to generate enough 'super profits' to pay back the goodwill component.",
+          "id": 7
+        },
+        {
+          "question": "What is the primary risk factor regarding 'Goodwill Transferability'?",
+          "answer": "That a percentage of customers and staff may leave as a result of lost connection to the original owner.",
+          "keyPoint": "Transferability directly relates to the issue of ‘Future Earnings Probability’ and requires strategic communication to purchasers.",
+          "id": 8
+        },
+        {
+          "question": "What is a recommended legal strategy to protect existing staff during a sale?",
+          "answer": "Include a clause requiring the outgoing business owner to petition for the retention of existing staff as part of the sales agreement.",
+          "keyPoint": "Retaining valuable staff helps maintain existing customer and supplier relations as part of the goodwill component.",
+          "id": 9
+        },
+        {
+          "question": "What common mistake do advisors make with EBPIDT Multiple figures?",
+          "answer": "Misinterpreting the EBPIDT Multiple figure from data collection sources as being the Goodwill (Earnings) Multiple.",
+          "keyPoint": "This results in hyperinflated values because tangible assets and stock/materials end up being charged twice.",
+          "id": 10
+        }
+      ]
+    },
+    "Turnaround Behaviours": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the relationship between values and observable behavior?",
+          "answer": "Physiology drives attitude - not the other way around.",
+          "keyPoint": "If values are in conflict (e.g., Honesty vs Empathy), actions and physical observable behaviors shape the internal culture.",
+          "id": 1
+        },
+        {
+          "question": "Why is \"Pay as you go vs Pay at the end\" a vital structural consideration?",
+          "answer": "Because it directly affects upsell opportunities.",
+          "keyPoint": "Physical layouts and transaction processes dictate the tension or confusion experienced by the customer.",
+          "id": 2
+        },
+        {
+          "question": "What is the benefit of staff wearing name tags?",
+          "answer": "It invites the customer to use the server’s name and feel more personal.",
+          "keyPoint": "Minor structural considerations drastically change the engagement scenario.",
+          "id": 3
+        },
+        {
+          "question": "What is the suggested lead question for a customer at the sales counter when there are fewer than 5 customers?",
+          "answer": "\"What can I excite you with today?\" or \"What can I tempt you with today?\"",
+          "keyPoint": "This script slows the engagement down by sounding unfamiliar, increasing the likelihood of dialogue and permission for up-selling.",
+          "id": 4
+        },
+        {
+          "question": "What is the suggested upsell script if a customer is \"fully engaged\" (joking, laughing)?",
+          "answer": "\"Are you going to reward yourself with a cake/savoury to go with that?\"",
+          "keyPoint": "You must read the customer's response and scale your upsell approach to match their engagement level.",
+          "id": 5
+        },
+        {
+          "question": "How should a server acknowledge the customer 'next in line' when there are 5+ customers?",
+          "answer": "Make eye contact, smile with teeth showing, and say \"I’ll be with you shortly.\"",
+          "keyPoint": "This acknowledges the wait time and diffuses tension at a busy transaction point.",
+          "id": 6
+        },
+        {
+          "question": "What is a suggested lead question when checking on a customer at their table?",
+          "answer": "\"Just checking in - was everything ok with your meal?\"",
+          "keyPoint": "You must ask genuine questions with sincere intent to improve in the future; it's that simple.",
+          "id": 7
+        },
+        {
+          "question": "In the H.E.A.T framework for complaining customers, what does the 'H' mean?",
+          "answer": "Hear what they have to say.",
+          "keyPoint": "Do not interrupt them or cut them short; let them vent before asking if there's anything else.",
+          "id": 8
+        },
+        {
+          "question": "What does the 'E' in the H.E.A.T acronym stand for?",
+          "answer": "Empathise with them.",
+          "keyPoint": "Try to walk in their shoes and acknowledge they have every right to feel disappointed or angry.",
+          "id": 9
+        },
+        {
+          "question": "What does the 'A' in the H.E.A.T acronym stand for?",
+          "answer": "Apologise.",
+          "keyPoint": "Even if only for the way they feel, apologize and thank them for bringing the issue to your attention.",
+          "id": 10
+        }
+      ]
+    },
+    "Powerful Goal Setting": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the overarching objective of a goal setting session?",
+          "answer": "To 'Discover What We’ve Been Missing!'",
+          "keyPoint": "Every participant must contribute to collaborative thinking and explore ideas with an open heart and open mind.",
+          "id": 1
+        },
+        {
+          "question": "What does the 'S' in SMART goals stand for?",
+          "answer": "Specific.",
+          "keyPoint": "Setting a goal is like aiming a rifle; the greater your clarity and specificity, the greater your likelihood of success.",
+          "id": 2
+        },
+        {
+          "question": "Why must goals be 'Measurable'?",
+          "answer": "To guide your actions and ensure you measure your progress frequently.",
+          "keyPoint": "Failing to create measurable goals puts people into 'avoidance' because they don't want to feel negative emotions if they fail.",
+          "id": 3
+        },
+        {
+          "question": "What are the two requirements for the 'Affect' component?",
+          "answer": "1. You must be able to directly influence your own success. 2. Your goals must have a strong emotional affect on you.",
+          "keyPoint": "If your goals rely significantly on others, you have no control over them.",
+          "id": 4
+        },
+        {
+          "question": "What does 'Relative' mean in the context of SMART goals?",
+          "answer": "Understanding the relative importance of each goal and how one goal relates to the others.",
+          "keyPoint": "Goals are more powerful when supported by other goals; failure to achieve one goal may mean lacking the resources or confidence for another.",
+          "id": 5
+        },
+        {
+          "question": "What happens if a goal is not 'Timebound'?",
+          "answer": "It is not a goal, it’s a daydream.",
+          "keyPoint": "Timeframes provide the clarity and motivation necessary to push through challenges.",
+          "id": 6
+        },
+        {
+          "question": "Before setting concrete goals, what should you allow yourself an hour to do?",
+          "answer": "Just to dream and feel good about your own life for a change.",
+          "keyPoint": "Brainstorming desires across different life categories without placing limits provides a necessary 'kick-start'.",
+          "id": 7
+        },
+        {
+          "question": "What is an example of an 'Immediate' timeframe goal?",
+          "answer": "Read a book to improve self esteem or do 25 press-ups each morning.",
+          "keyPoint": "Assigning a realistic timeframe creates an actionable sequence.",
+          "id": 8
+        },
+        {
+          "question": "Why should you place your goals somewhere visible?",
+          "answer": "To enjoy ‘ticking them off’ when achieved (no matter how small they may seem).",
+          "keyPoint": "Success breeds success, maintaining motivation.",
+          "id": 9
+        },
+        {
+          "question": "How should families be involved in SMART goals?",
+          "answer": "Involve the whole family to motivate each other.",
+          "keyPoint": "Goal setting should not be isolated; sharing goals creates mutual accountability.",
+          "id": 10
+        }
+      ]
+    },
+    "Hiring Winners": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "According to Linda Hill's research, what is \"Creative Abrasion\"?",
+          "answer": "The power that comes from healthy debate where everyone is encouraged to contribute, regardless of title or experience.",
+          "keyPoint": "Winning teams 'play-hard-work-hard' by clashing ideas against each other but playing the ball and not the player.",
+          "id": 1
+        },
+        {
+          "question": "What is \"Creative Agility\"?",
+          "answer": "Encouraging a 'healthy curiosity' to experiment and assess.",
+          "keyPoint": "Teams are encouraged to 'let go' so that new ideas present themselves, rather than planning every detail before acting.",
+          "id": 2
+        },
+        {
+          "question": "What is \"Creative Resolution\"?",
+          "answer": "Refusing to ‘go-along-to-get-along’ if it means compromising on quality or innovation.",
+          "keyPoint": "Ideas are combined for a better outcome, and inclusive decision making is a cornerstone of work habits.",
+          "id": 3
+        },
+        {
+          "question": "What is the central lesson of the \"Canoe Metaphor\"?",
+          "answer": "A single disruptive crew member can upset the rhythm of an entire crew, putting the CANOE at risk.",
+          "keyPoint": "With the right crew, everyone travels swiftly and safely, and can briefly carry extra load if a member withdraws peacefully.",
+          "id": 4
+        },
+        {
+          "question": "In the CANOE traits acronym, what does 'C' stand for?",
+          "answer": "Conscientiousness (Efficient/Organised vs Easy Going/Disorderly).",
+          "keyPoint": "Efficient traits suit sequential, repeatable roles, while easy-going traits suit environments that are constantly adapting.",
+          "id": 5
+        },
+        {
+          "question": "What does 'A' stand for in the CANOE traits acronym?",
+          "answer": "Agreeableness (Friendly/Consenting vs Critical/Outspoken).",
+          "keyPoint": "Friendly traits suit help desk or reception roles, while outspoken traits suit objective quality control or debt collection.",
+          "id": 6
+        },
+        {
+          "question": "Which CANOE trait assesses sensitivity versus confidence?",
+          "answer": "Neuroticism (Sensitive/Nervous vs Resilient/Confident).",
+          "keyPoint": "Sensitive/Nervous traits suit roles requiring skepticism (like forensic investigations), while Resilient traits suit high-rejection roles (like sales).",
+          "id": 7
+        },
+        {
+          "question": "How should you \"Flush Out The Talent\"?",
+          "answer": "Put the 'bait' (job advert) in an area where the fish (target candidates) are more likely to frequent.",
+          "keyPoint": "You must be creative and support traditional adverts with social media videos, supplier networks, and 'burley trails' (attractions).",
+          "id": 8
+        },
+        {
+          "question": "What are the 3 stages of grading applicants?",
+          "answer": "Feel, Know, Test.",
+          "keyPoint": "This progressive structure checks for 'gut feel', tests 'evidence' of their skills under pressure, and checks for variance in answers under relaxed conditions.",
+          "id": 9
+        },
+        {
+          "question": "What is the primary purpose of the New Team Member Orientation (buddy system)?",
+          "answer": "To answer questions in the mind of the new hire such as \"Did I make the right choice?\" and \"Do I feel like I can CONTRIBUTE?\"",
+          "keyPoint": "Any learning cycle requires a global and local perspective, providing an action point and a reflection point without fear of causing problems.",
+          "id": 10
+        }
+      ]
+    },
+    "Alignment Statements": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the highest order need in Maslow's Hierarchy?",
+          "answer": "Self-Actualisation.",
+          "keyPoint": "It is about an individual knowing who they are and striving to reach their potential, whilst knowing perfection can never be attained.",
+          "id": 1
+        },
+        {
+          "question": "What does Clayton Alderfer's ERG acronym stand for?",
+          "answer": "Existence, Relatedness, Growth.",
+          "keyPoint": "Alderfer's model improves upon Maslow's by demonstrating that more than one need may motivate at the same time.",
+          "id": 2
+        },
+        {
+          "question": "What is the \"frustration-regression principle\"?",
+          "answer": "If a higher-order need is frustrated, an individual may regress to increase the satisfaction of a lower-order need which appears easier to satisfy.",
+          "keyPoint": "If employees are denied growth opportunities, they may regress to fulfilling relatedness needs by socializing with co-workers more.",
+          "id": 3
+        },
+        {
+          "question": "What are the 5 areas of content (Content Domains) that steal our mental attention?",
+          "answer": "‘Being’, ‘Knowing’, ‘Relating’, ‘Having’ (‘Getting or Keeping’), and ‘Doing’.",
+          "keyPoint": "Our DRIVING content domain is the OUTCOME we want, while the ENABLING content domains are how we try to get it.",
+          "id": 4
+        },
+        {
+          "question": "Which business alignment statement corresponds to the 'Being' domain?",
+          "answer": "Vision.",
+          "keyPoint": "It speaks to stakeholders about where you see the business in the future and when.",
+          "id": 5
+        },
+        {
+          "question": "Which alignment statement corresponds to the 'Knowing' domain?",
+          "answer": "Purpose.",
+          "keyPoint": "It explains to customers and stakeholders why you do what you do beyond economic requirement.",
+          "id": 6
+        },
+        {
+          "question": "Which alignment statement corresponds to the 'Relating' domain?",
+          "answer": "Values.",
+          "keyPoint": "It guides decision-making about how you engage with people inside and outside your business.",
+          "id": 7
+        },
+        {
+          "question": "Which alignment statement corresponds to the 'Doing' domain?",
+          "answer": "Strategy.",
+          "keyPoint": "It speaks to Board Members/Owners regarding the over-arching philosophy about HOW you intend to achieve the Vision.",
+          "id": 8
+        },
+        {
+          "question": "What is the actual meaning behind saying \"Good is Never Enough\" to the team?",
+          "answer": "\"It’s OK to make mistakes so long as we’re constantly striving to improve. Good enough was fine to get us started; but it won’t sustain us in our future.\"",
+          "keyPoint": "Alignment requires translating common sayings into direct behavioral expectations.",
+          "id": 9
+        },
+        {
+          "question": "What is the meaning behind the community alignment statement \"Together We Stand\"?",
+          "answer": "\"We have no role, except in the service of others but we can’t do it on our own; we’re part of a greater team.\"",
+          "keyPoint": "A business only wins if everyone wins alongside them, including suppliers and customers.",
+          "id": 10
+        }
+      ]
+    },
+    "Phone Techniques": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What IS a business culture?",
+          "answer": "It’s a collection of ‘permissions’ (spoken and unspoken) about how a group behaves together.",
+          "keyPoint": "Defining a culture establishes the actions a team wishes to be judged by in the marketplace.",
+          "id": 1
+        },
+        {
+          "question": "What does a business culture DO?",
+          "answer": "A Culture is a Social Contract that makes you feel Safe; where you WANT to belong.",
+          "keyPoint": "A culture reflects leadership actions that are consistent with a stated objective.",
+          "id": 2
+        },
+        {
+          "question": "What is the first point to consider when building your phone track?",
+          "answer": "‘Smile before you dial’ (Smile with teeth) before you answer the phone.",
+          "keyPoint": "Basic physiological actions drastically improve tone and phone presence.",
+          "id": 3
+        },
+        {
+          "question": "Within how many rings should a phone be answered according to the guidelines?",
+          "answer": "3 OR 4 rings.",
+          "keyPoint": "Try not to answer too quickly, as it sounds like you've got nothing else to do.",
+          "id": 4
+        },
+        {
+          "question": "What is an example of an agreed standard phone greeting?",
+          "answer": "\"Welcome to ABC - You’re speaking with Bob!\"",
+          "keyPoint": "Using a specific greeting ensures a standardized professional approach across the entire team.",
+          "id": 5
+        },
+        {
+          "question": "When dealing with hotheads, what does the 'H' in the H.E.A.T acronym mean?",
+          "answer": "Hear what they have to say.",
+          "keyPoint": "Don't interrupt or cut them short – you must listen to them vent.",
+          "id": 6
+        },
+        {
+          "question": "What does the 'E' in the H.E.A.T acronym stand for?",
+          "answer": "Empathise with them.",
+          "keyPoint": "Try to walk in their shoes and maintain a balanced view, avoiding being overly defensive.",
+          "id": 7
+        },
+        {
+          "question": "What does the 'A' in the H.E.A.T acronym stand for?",
+          "answer": "Apologise.",
+          "keyPoint": "You must apologize, even if only for the way they feel.",
+          "id": 8
+        },
+        {
+          "question": "What does taking responsibility (T) in the H.E.A.T acronym entail?",
+          "answer": "Give specific actions and timeframes for what you will do next.",
+          "keyPoint": "You must be accountable, even if it is only to pass a message or phone back with an answer.",
+          "id": 9
+        },
+        {
+          "question": "What is the role of the 'ENFORCER'?",
+          "answer": "Someone who is responsible for reminding the team about the phone track and response times.",
+          "keyPoint": "Because old habits die hard, assigning a specific person ensures the new standards are actively maintained.",
+          "id": 10
+        }
+      ]
+    },
+    "Ratio Analysis": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What are the 5 components in business management (the Advisory staircase)?",
+          "answer": "1. Compilation/Verification, 2. Assimilation, 3. Interpretation, 4. Application, 5. Observation.",
+          "keyPoint": "It is critical that Assimilation is aligned with Interpretation requirements to \"Compare Apples with Apples\".",
+          "id": 1
+        },
+        {
+          "question": "What is a rookie mistake when purchasing external benchmark data?",
+          "answer": "Purchasing data without FIRST Capturing and Quantifying the INTERNAL business assumptions.",
+          "keyPoint": "Without standardizing internal data, the financial performance data is non-standardised and comparisons are flawed.",
+          "id": 2
+        },
+        {
+          "question": "What is the purpose of developing a robust predictive (revenue) model?",
+          "answer": "To ensure the key business variables and their interdependence have been identified.",
+          "keyPoint": "It answers the question, \"what happens if I pull this lever?\" before adjusting operating procedures.",
+          "id": 3
+        },
+        {
+          "question": "Under what condition is benchmark data less relevant for comparison?",
+          "answer": "If the ratios have not been calculated in an identical manner.",
+          "keyPoint": "Using different methods (like credit sales vs total sales for debtor's days) in different periods invalidates the comparison.",
+          "id": 4
+        },
+        {
+          "question": "How can one-off situations distort ratios?",
+          "answer": "A large one-off order invoiced but not paid for can artificially inflate the debtor’s days on hand figure.",
+          "keyPoint": "These anomalies must be removed from the calculation to accurately compare management actions.",
+          "id": 5
+        },
+        {
+          "question": "Why is comparing data from different periods problematic for highly seasonal businesses?",
+          "answer": "Ratios from peak season will fundamentally differ from low season results due to the business cycle, not management action.",
+          "keyPoint": "You must either adjust for seasonality or only compare quarters at the exact same stage of your cycle.",
+          "id": 6
+        },
+        {
+          "question": "What is a key question to ask when interrogating external benchmark data?",
+          "answer": "Are the figures provided from businesses of similar size?",
+          "keyPoint": "Data must be robust, representative of your industry, and calculated using transparent methods.",
+          "id": 7
+        },
+        {
+          "question": "What is the risk of using common size year-on-year data without adjusting for starting positions?",
+          "answer": "You may suffer from confirmation bias and confuse other management decisions as causal to your success.",
+          "keyPoint": "You must adjust data to measure BOTH your 'Start' position AND your 'Finish' position to see true performance.",
+          "id": 8
+        },
+        {
+          "question": "How do you calculate a Common Size Balance Sheet?",
+          "answer": "Divide each item in the balance sheet by Total Assets.",
+          "keyPoint": "This standardizes the data to allow direct comparison of asset proportions across previous years.",
+          "id": 9
+        },
+        {
+          "question": "How do you calculate a Common Size Profit & Loss Account?",
+          "answer": "Divide each item in the P&L account by Total Sales.",
+          "keyPoint": "This allows the business to assess expense and profit margins accurately year over year regardless of total volume changes.",
+          "id": 10
+        }
+      ]
+    },
+    "Remuneration & Incentives": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What type of incentive program is recommended to stop sales teams from giving unnecessary discounts?",
+          "answer": "A 'Profit-Share' programme based on margin.",
+          "keyPoint": "You share margin rather than net profit because sales teams can influence the sale price but have no control over fixed costs.",
+          "id": 1
+        },
+        {
+          "question": "What type of bonus is suitable for a construction gang?",
+          "answer": "A 'Deadline & Retention Bonus'.",
+          "keyPoint": "This rewards completion before a deadline, subject to quality criteria until the owner's retention is deemed satisfactory.",
+          "id": 2
+        },
+        {
+          "question": "When does an 'output' bonus serve as less of an incentive?",
+          "answer": "When the task has greater complexity and variety.",
+          "keyPoint": "For complex roles, it's better to pay the correct salary, provide a learning path, and allow autonomy over daily tasks.",
+          "id": 3
+        },
+        {
+          "question": "What is the main rule for setting any incentive scheme?",
+          "answer": "The system must be clearly documented and open to challenge by both parties.",
+          "keyPoint": "Refusing to discuss bonus issues forces them underground and ruins the purpose of setting an incentive scheme.",
+          "id": 4
+        },
+        {
+          "question": "What is the risk of giving ad-hoc year-end Christmas bonuses?",
+          "answer": "You are in danger of creating an expectation for the next year that you may not be able to deliver on.",
+          "keyPoint": "Fair pay with a documented incentive program that encourages correct, measurable behavior is vastly superior.",
+          "id": 5
+        },
+        {
+          "question": "Should an employee be paid extra for 'on the job' training?",
+          "answer": "Generally no, unless it is a requirement of the role and can be passed on in value to the customer.",
+          "keyPoint": "Paying extra for training means the business effectively pays twice for the new skill.",
+          "id": 6
+        },
+        {
+          "question": "When is offering Shares / Equity appropriate as remuneration?",
+          "answer": "When it is critical to success at a strategic level.",
+          "keyPoint": "Equity demands greater levels of reporting transparency and means shareholders must share your risk appetite.",
+          "id": 7
+        },
+        {
+          "question": "What does \"Time in Lieu\" serve to replace?",
+          "answer": "Overtime worked.",
+          "keyPoint": "It acts as extra paid annual leave as part of the next year's package.",
+          "id": 8
+        },
+        {
+          "question": "What is a \"Pro\" for the Business Owner when offering shares to staff?",
+          "answer": "You can enjoy a sense of ‘shared journey’ and secure additional working capital.",
+          "keyPoint": "Staff and customers become more observant of hierarchical structure and considered in their dealings when ownership is shared.",
+          "id": 9
+        },
+        {
+          "question": "What is a \"Con\" for the Business Owner when offering shares to staff?",
+          "answer": "Depending on shareholding levels, you may require their consent to borrow money or purchase important assets.",
+          "keyPoint": "Furthermore, if the business tips over, dividends or 'excessive salaries' could be clawed back by creditors.",
+          "id": 10
+        }
+      ]
+    },
+    "Succession Planning": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What metaphor is used to describe the business succession process?",
+          "answer": "Building Your ‘Dream Home’.",
+          "keyPoint": "Visual metaphors align people to moving upward and reduce argumentative friction.",
+          "id": 1
+        },
+        {
+          "question": "What is Step 1 in the Succession Process Graphic?",
+          "answer": "Parents/Owners Wish List.",
+          "keyPoint": "This phase gathers stakeholder 'wishes' around what gets passed to who and who does what in return.",
+          "id": 2
+        },
+        {
+          "question": "What is the distinction between 'ownership' and 'stewardship' during the Wish List phase?",
+          "answer": "'Ownership' implies complete legal control, while 'stewardship' is the authority to decide in the best interests of the asset for future generations.",
+          "keyPoint": "Clearly defining these terms dictates how assets are preserved or improved.",
+          "id": 3
+        },
+        {
+          "question": "What is Step 2 in the Succession Process Graphic?",
+          "answer": "Kids/Purchaser's Wish List.",
+          "keyPoint": "This allows the receiving party to articulate what they want their 'bedrooms' to look like before major engineering takes place.",
+          "id": 4
+        },
+        {
+          "question": "What occurs during Step 3, Concept Drawings?",
+          "answer": "Initial thoughts around Valuation, Funding and Feasibility to see if the business case ‘stacks up’.",
+          "keyPoint": "The advisor reports back initial calculations and identifies major hurdles to the stakeholders.",
+          "id": 5
+        },
+        {
+          "question": "What is Step 4 in the Succession Process Graphic?",
+          "answer": "Design Drawings.",
+          "keyPoint": "This requires a more exhaustive review of the business case, inclusive of legal, tax, and estate issues.",
+          "id": 6
+        },
+        {
+          "question": "What happens in Step 5, the Final Design Meeting?",
+          "answer": "Conducting a stakeholder project 'sign-off' meeting.",
+          "keyPoint": "Based on expected costings, stakeholders make final decisions on what they 'must have' and what to 'rule out'.",
+          "id": 7
+        },
+        {
+          "question": "What is Step 6 in the Succession Process Graphic?",
+          "answer": "Construction Begins.",
+          "keyPoint": "This means overseeing the controlled implementation of the project while maintaining the quality and timeline schedule.",
+          "id": 8
+        },
+        {
+          "question": "What is the purpose of seeking stakeholder feedback in Step 3?",
+          "answer": "To define priorities and ‘deal breaker’ points.",
+          "keyPoint": "The project plans are subsequently modified based on this feedback before moving to full design.",
+          "id": 9
+        },
+        {
+          "question": "Why use an Ascension diagram for the graphical process?",
+          "answer": "It helps create the impression that stakeholders are improving as they proceed through the process.",
+          "keyPoint": "Visual frameworks naturally align people to ‘moving upward’ toward a solution.",
+          "id": 10
+        },
+        {
+          "question": "What does Dan Sperber’s ‘Argumentative Theory’ postulate?",
+          "answer": "That we are ‘wired’ to establish an argument that best serves our needs as an instinctual security-based reaction.",
+          "keyPoint": "During stress or conflict in succession, people become polarized to the detriment of the greater good.",
+          "id": 11
+        },
+        {
+          "question": "Why is an effective framework vital in Succession Planning?",
+          "answer": "It provides the basis for collaboration and gains agreement on how the problem will be broken down and solved.",
+          "keyPoint": "Launching straight into finding a solution evokes argumentative feelings; a framework mitigates this.",
+          "id": 12
+        },
+        {
+          "question": "What type of information appeals to the left side of the brain?",
+          "answer": "Order, structure, facts, and language.",
+          "keyPoint": "Engaging both hemispheres ensures complete contextual understanding.",
+          "id": 13
+        },
+        {
+          "question": "What type of information appeals to the right side of the brain?",
+          "answer": "Images, patterns (conceptual hierarchies), and metaphors.",
+          "keyPoint": "Using visual metaphors like building a dream home or climbing Mt. Everest makes the framework 'stick better'.",
+          "id": 14
+        },
+        {
+          "question": "What is the Facilitator's primary role in Succession Planning?",
+          "answer": "To ‘let go’ of the outcome they think should be achieved and guide the process.",
+          "keyPoint": "The facilitator chairs the discussion and ensures the right voices are heard in balance with their position and needs.",
+          "id": 15
+        },
+        {
+          "question": "What is a common primary business concern regarding succession transfer costs?",
+          "answer": "Whether the succession plan still supports a ‘sound business case’ or if transfer costs are too debilitating for incoming parties.",
+          "keyPoint": "High debt burdens can destroy the viability of the inherited business.",
+          "id": 16
+        },
+        {
+          "question": "What must be determined if an immediate successor withdraws due to trauma or life path changes?",
+          "answer": "An alternative plan must be determined.",
+          "keyPoint": "This ensures the original succession plan 'wishes' can still be met despite unexpected trigger events.",
+          "id": 17
+        },
+        {
+          "question": "What should be scrutinized regarding the successor's historical wages?",
+          "answer": "Whether the wages or salary paid to the incoming successor have been at a ‘fair market rate’.",
+          "keyPoint": "If they were underpaid historically, a discount must often be applied to the final purchase price to compensate for 'sweat equity'.",
+          "id": 18
+        },
+        {
+          "question": "What should the succession timeline allow for?",
+          "answer": "The necessary transfer of skills.",
+          "keyPoint": "The implementation timeline must incorporate enough time for outgoing parties to effectively train incoming parties.",
+          "id": 19
+        },
+        {
+          "question": "Why must reasons and methodology be agreed upon if siblings receive disparate figures?",
+          "answer": "To maintain transparency and prevent unresolved feelings of entitlement or fear.",
+          "keyPoint": "All parties must formally agree to the logic to sustain long-term family harmony.",
+          "id": 20
+        }
+      ]
+    },
+    "Systems B4 Scale": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the core quote associated with \"Systems Before Scale\"?",
+          "answer": "\"Get it right before you go big!\"",
+          "keyPoint": "Expanding a business BEFORE reviewing systems is like trying to fix the cracks in the garden hose while putting out a house fire.",
+          "id": 1
+        },
+        {
+          "question": "How is a \"Process\" defined in the presentation?",
+          "answer": "A sequence of actions to produce a component – in a consistent manner.",
+          "keyPoint": "An example is building the Engine or Gearbox for a new car.",
+          "id": 2
+        },
+        {
+          "question": "How is a \"System\" defined?",
+          "answer": "A collection of interdependent processes – acting as a whole.",
+          "keyPoint": "An example is assembling all the individual components to produce a new car that’s ready to drive.",
+          "id": 3
+        },
+        {
+          "question": "What is the basic idea of \"Systems Thinking\"?",
+          "answer": "Every action triggers a reaction (feedback).",
+          "keyPoint": "Any system can be drawn as a diagram of causality, including actions, feedbacks, and delays.",
+          "id": 4
+        },
+        {
+          "question": "What are the two types of feedback in system dynamics?",
+          "answer": "Reinforcing feedback (linear or static loop) and Counteracting/balancing feedback (decision tree or dynamic loop).",
+          "keyPoint": "Sometimes a feedback reaction does not occur immediately, meaning the process contains built-in delays.",
+          "id": 5
+        },
+        {
+          "question": "What are the two most important aspects of any SYSTEM?",
+          "answer": "DESIGN (Architecture) and FEEDBACK LOOP.",
+          "keyPoint": "Design relates to the correct order and placement of resources, while the feedback loop is critical to identifying and removing errors.",
+          "id": 6
+        },
+        {
+          "question": "What is a \"Redundant System\"?",
+          "answer": "A system where whole sections can ‘shut down’ or be replaced by another system in the event of major error.",
+          "keyPoint": "The most advanced systems include redundancies to prevent catastrophic failure.",
+          "id": 7
+        },
+        {
+          "question": "What are the two key elements in flowcharting a system?",
+          "answer": "Nodes and Links.",
+          "keyPoint": "Nodes are the action steps or objectives, and Links are connecting lines that show order, sequence, or decision trees.",
+          "id": 8
+        },
+        {
+          "question": "How many Nodes should a flowchart illustration generally contain?",
+          "answer": "Between 5 to 13 Nodes.",
+          "keyPoint": "Too few suggests a lack of detail, and too many will create information overload.",
+          "id": 9
+        },
+        {
+          "question": "What should you do once your flowchart 'brainstorm' is completed?",
+          "answer": "Write the dominant Nodes onto 'sticky notes' so you can pick them up and shift them.",
+          "keyPoint": "This allows the creative process to kick in to check whether the ‘logical order’ is actually the smartest order.",
+          "id": 10
+        }
+      ]
+    },
+    "Coping With Adversity": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What does a person's Harmonic style indicate?",
+          "answer": "It indicates the dominant habits we use when we don't get what we want, specifically when dealing with loss, conflict, or frustration.",
+          "keyPoint": "If we catch ourselves early in our attempts to cope, we can avoid serious relationship, self-esteem, and poor judgment issues.",
+          "id": 1
+        },
+        {
+          "question": "Which Enneagram Type is known as the \"Rational, Idealistic type\"?",
+          "answer": "Type 1: The Reformer.",
+          "keyPoint": "They are principled, purposeful, self-controlled, and perfectionistic.",
+          "id": 2
+        },
+        {
+          "question": "Which Enneagram Type struggles with possessiveness and acknowledging their own needs?",
+          "answer": "Type 2: The Helper.",
+          "keyPoint": "They are caring, empathetic, and driven to be close to others in order to be needed.",
+          "id": 3
+        },
+        {
+          "question": "Which Enneagram Type is adaptable, success-oriented, and highly driven for advancement?",
+          "answer": "Type 3: The Achiever.",
+          "keyPoint": "At their best, they are self-accepting, authentic role models, though they can suffer from workaholism.",
+          "id": 4
+        },
+        {
+          "question": "Which Enneagram Type is the \"Intense, Cerebral Type\" that can become preoccupied with imaginary constructs?",
+          "answer": "Type 5: The Investigator,.",
+          "keyPoint": "They are perceptive and innovative, but typically have problems with eccentricity, nihilism, and isolation.",
+          "id": 5
+        },
+        {
+          "question": "Which Enneagram Type is known as the \"committed, security-oriented type\" and serves as excellent \"troubleshooters\"?",
+          "answer": "Type 6: The Loyalist.",
+          "keyPoint": "They can foresee problems and foster cooperation, but often battle self-doubt and suspicion.",
+          "id": 6
+        },
+        {
+          "question": "Which Enneagram types utilize the \"Intensity\" coping style?",
+          "answer": "Types 4, 6, and 8.",
+          "keyPoint": "This style looks like watching the news for updates and having recurring, issue-focused (not solution-focused) thoughts.",
+          "id": 7
+        },
+        {
+          "question": "Which Enneagram types utilize the \"Competency\" coping style?",
+          "answer": "Types 1, 3, and 5.",
+          "keyPoint": "This style involves building an action plan without 'room for change' and looking down on others.",
+          "id": 8
+        },
+        {
+          "question": "Which Enneagram types utilize the \"Positive Outlook\" coping style?",
+          "answer": "Types 2, 7, and 9.",
+          "keyPoint": "This style involves having no timelines for action and applying a \"Phew that was close! – without checking for damage\" mentality.",
+          "id": 9
+        },
+        {
+          "question": "What is a recommended \"Tip n Trick\" for people with the Intensity coping style?",
+          "answer": "Put a time limit on 'letting it sink in'.",
+          "keyPoint": "Managing the time spent dwelling on negative news helps prevent recurring, non-solution-focused thoughts.",
+          "id": 10
+        },
+        {
+          "question": "What is the defining disruptive behavior of a Type One (Reformer) in a business setting?",
+          "answer": "They exhibit micro-managing, nit-picking, and often sound condescending with instructions or ‘statements of fact’.",
+          "keyPoint": "Process and detail are critical for Type Ones, so you should focus discussions on logical steps and ask them to consider alternatives to ensure a 'robust' decision.",
+          "id": 11
+        },
+        {
+          "question": "What is an extreme ‘power word’ that is highly effective when coping with a Type Two (Helper)?",
+          "answer": "“Need,” such as saying, “I need your help”.",
+          "keyPoint": "Twos are driven to be close to others and can slip into doing things just to be needed; establishing clear roles and boundaries is critical to prevent resentment.",
+          "id": 12
+        },
+        {
+          "question": "Which Enneagram type is described as having an \"Assertive Type\" social style, a \"Finder\" selling style, and a Competency-based focus?",
+          "answer": "Type Three, the Achiever.",
+          "keyPoint": "Threes are action-oriented and highly driven by advancement, so it is important to encourage them to set targets that are “appropriate and Valid” to today’s market.",
+          "id": 13
+        },
+        {
+          "question": "What should you encourage a Type Four (Individualist) to do regarding their workplace behavior?",
+          "answer": "Encourage them to “Stand outside themselves” and look at their behaviors to see if they allow others to be appreciated for who they are.",
+          "keyPoint": "Fours can be emotionally honest but also moody and disdainful of ordinary ways; appealing to their creative side for a ‘tailored response for the masses’ is an effective coping strategy.",
+          "id": 14
+        },
+        {
+          "question": "What two phrases need to be repeated often to a Type Five (Investigator) to improve their business relations?",
+          "answer": "“People do business with people they like” and “People don’t care how much you know, until they know how much you care”.",
+          "keyPoint": "Fives can appear aloof and completely negative to necessary change, so you must encourage them to connect with the emotional reasons behind issues rather than getting sucked into ‘intellectual sparring’.",
+          "id": 15
+        },
+        {
+          "question": "What disruptive behaviors are typical of a Type Six (Loyalist) when they are under stress?",
+          "answer": "They become overly negative, engage in ‘doom-saying,’ forge ‘conspiracy alliances,’ and display ineffective decision making.",
+          "keyPoint": "Sixes are excellent troubleshooters but struggle with self-doubt; remind them of their competencies and that they are at their best when they back themselves.",
+          "id": 16
+        },
+        {
+          "question": "How should you manage a Type Seven (Enthusiast) when they throw a workplace tantrum?",
+          "answer": "Be firm, state that the behavior is unacceptable, leave the room for 5 minutes so both can cool down, and then sort it out upon returning.",
+          "keyPoint": "Sevens are versatile but can become scattered and undisciplined; coaching them on the ‘count to ten before you act’ principle helps manage their impulsiveness.",
+          "id": 17
+        },
+        {
+          "question": "What specific phrase should you avoid using when confronting a Type Eight (Challenger)?",
+          "answer": "Try to avoid telling them to “calm down”.",
+          "keyPoint": "Eights are powerful and enjoy energy, feeling justified in expressing it; you should match their energy but stay focused entirely on the issue and not the individual.",
+          "id": 18
+        },
+        {
+          "question": "How can you effectively address the lethargy or lack of motivation in a Type Nine (Peacemaker)?",
+          "answer": "Tell them you need their help or show them how making an improvement for themselves helps others as well.",
+          "keyPoint": "Nines tend to be complacent and want everything to be without conflict, so you must patiently 'flush-out' their issues without judgment to facilitate problem-solving.",
+          "id": 19
+        },
+        {
+          "question": "According to Riso-Hudson, what do the \"Harmonic Groups\" tell us about a personality type?",
+          "answer": "They indicate how each person copes with conflict and difficulty when they do not get what they want.",
+          "keyPoint": "This reveals the fundamental way that an individual's personality defends against loss and disappointment.",
+          "id": 20
+        }
+      ]
+    },
+    "Stock Policies": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is Step 1 of the Weighted Stock Review Process?",
+          "answer": "Review Past Sales Reports/ Collate Into Matrix.",
+          "keyPoint": "You must review past sales to determine which units have made great margin, sold in high volumes, sold quickly, and carry unit cost risk.",
+          "id": 1
+        },
+        {
+          "question": "What action is required in Step 2 (Stock Check)?",
+          "answer": "Compare the 'weighted average' results against your current stock holdings.",
+          "keyPoint": "You must assess your average daily units sold against the time taken to arrive from the supplier to properly set re-order minimums.",
+          "id": 2
+        },
+        {
+          "question": "What financial metric should you determine during Step 3 (Financial Check)?",
+          "answer": "Your Quick Ratio (Liquidity).",
+          "keyPoint": "You must assess your total financial exposure to stock against the operational needs of the business before spending money.",
+          "id": 3
+        },
+        {
+          "question": "In the Product Ratings, how many points are awarded for a Margin Achieved that is \"Awesome!\" (Greater Than 101%)?",
+          "answer": "5 Points.",
+          "keyPoint": "The matrix heavily weights items that generate the highest percentage of gross sales profit.",
+          "id": 4
+        },
+        {
+          "question": "Under \"Days on Hand\", what defines a \"Dead Wood\" product?",
+          "answer": "A product that takes Greater Than 75 Days to sell.",
+          "keyPoint": "Extremely slow-moving stock receives the lowest rating of 1 point.",
+          "id": 5
+        },
+        {
+          "question": "How many points are given to a product with a Unit Cost Risk categorized as \"Waking Nites\" (Greater Than $176.00)?",
+          "answer": "1 Point.",
+          "keyPoint": "High unit cost exposure increases risk, so the item is heavily penalized in the weighted average.",
+          "id": 6
+        },
+        {
+          "question": "How many points are given to a product with a \"Minor\" Unit Cost Risk ($1.00 to $25.00)?",
+          "answer": "5 Points.",
+          "keyPoint": "Items with the lowest financial risk per unit receive the maximum weighted points.",
+          "id": 7
+        },
+        {
+          "question": "If a stock item is rated as \"Hot Cakes!\" under Days on Hand, what is its range of days to sell?",
+          "answer": "1 to 13 Days.",
+          "keyPoint": "Products that move immediately are highly favored and score 5 points.",
+          "id": 8
+        },
+        {
+          "question": "Under \"Sales by Volume\", what rating applies to a product that only sells 1 to 5 units?",
+          "answer": "Rare.",
+          "keyPoint": "Very low popularity yields a minimal score of 1 point in the volume weighting.",
+          "id": 9
+        },
+        {
+          "question": "What is Step 4 of the Weighted Stock Review process?",
+          "answer": "Order Stock.",
+          "keyPoint": "Ordering stock is the final step, strictly executed only after reviewing sales matrices, checking current stock transit, and ensuring financial liquidity.",
+          "id": 10
+        }
+      ]
+    },
+    "Due Diligence Support": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What are the three distinct pillars used to systematically stress-test a target entity during due diligence?",
+          "answer": "Financial, Legal, and Operational/Cultural.",
+          "keyPoint": "Systematically testing these pillars helps buyers unearth \"red flags\" or \"price chips,\" ensuring legal and financial protection before signing an agreement.",
+          "id": 1
+        },
+        {
+          "question": "What specifically does the \"Asset Review 1\" template highlight for a business owner?",
+          "answer": "\"Capital Release Potential\".",
+          "keyPoint": "It identifies underutilized physical assets that can be sold off (Released) rather than kept, allowing advisors to spot bloated balance sheets for immediate cash generation.",
+          "id": 2
+        },
+        {
+          "question": "What is considered the biggest hidden risk within a target company's client base?",
+          "answer": "Customer concentration, specifically if a single client accounts for more than 20% of the company's revenue.",
+          "keyPoint": "If a company relies too heavily on one client, the risk to the buyer is exceptionally high should that client decide to leave post-acquisition.",
+          "id": 3
+        },
+        {
+          "question": "What risk do \"Change of Control\" clauses pose during a business acquisition?",
+          "answer": "They can cause agreements with vital suppliers or key customers to automatically terminate the moment the business changes hands.",
+          "keyPoint": "This immediately devalues the company, making it crucial to review material contracts strictly during the legal deep dive.",
+          "id": 4
+        },
+        {
+          "question": "What does the \"FORD\" in the FORD Model acronym stand for?",
+          "answer": "Family, Occupation, Recreation, and Dreams.",
+          "keyPoint": "The FORD Model acts as a \"soft\" due diligence tool to assess staff morale, alignment, and \"Key Person\" flight risks during transitions.",
+          "id": 5
+        },
+        {
+          "question": "In the FORD Model, what potential risk does an employee's lack of \"Recreation\" highlight?",
+          "answer": "It indicates the person may be at a high risk for \"burnout\".",
+          "keyPoint": "Understanding how someone recharges helps assess their energy levels, and hobbies can alternatively reveal untapped leadership potential.",
+          "id": 6
+        },
+        {
+          "question": "Why is a \"Bottom-Up\" approach recommended for Quality of Earnings (QoE) analysis?",
+          "answer": "To independently build up to normalized EBITDA starting from the general ledger (GL) level data.",
+          "keyPoint": "This is vastly superior to working backward from the seller's adjustments because it verifies the quality of underlying information and provides granularity for post-acquisition KPIs.",
+          "id": 7
+        },
+        {
+          "question": "Why must an advisor be highly skeptical of \"management adjustments\" or \"add-backs\" proposed by a seller?",
+          "answer": "Because management often proposes removing \"one-time\" expenses simply to artificially inflate their EBITDA.",
+          "keyPoint": "Every proposed adjustment must be backed by concrete evidence (like invoices), as many vague consulting or structural costs are actually recurring operational expenses.",
+          "id": 8
+        },
+        {
+          "question": "When does best practice dictate that integration planning for \"Day 1\" should begin?",
+          "answer": "During the due diligence phase, not after the deal closes.",
+          "keyPoint": "Including business unit heads early ensures that synergy estimates are grounded in operational reality rather than purely theoretical benchmarks.",
+          "id": 9
+        },
+        {
+          "question": "What is the purpose of using \"Clean Rooms\" prior to closing a transaction?",
+          "answer": "To manage the sharing of sensitive information and prevent the illegal sharing of competitive data.",
+          "keyPoint": "Working with legal counsel to use Clean Rooms prevents \"gun-jumping\" (asserting undue influence on the target) before regulatory approvals are finalized.",
+          "id": 10
+        }
+      ]
+    },
+    "Indicative Value Questions": {
+      "source": "Course Builder Quiz/Specialist Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What differentiates a BIMBO (Buy-In Management Buyout) from a standard MBO (Management Buyout)?",
+          "answer": "In a BIMBO, an external incoming manager partners with the existing internal team.",
+          "keyPoint": "This structure rebalances the insider-knowledge asymmetry, combining the incoming manager's equity with the internal team's continuity and relationships.",
+          "id": 1
+        },
+        {
+          "question": "What are the primary reasons for forming a \"Newco\" (new company) to acquire a business?",
+          "answer": "Asset protection, a clean balance sheet, tax structuring, and investor syndicates.",
+          "keyPoint": "Advisors must pay special attention to shareholder identities, funding structures, and change-of-control clauses in leases or contracts when a Newco is utilized.",
+          "id": 2
+        },
+        {
+          "question": "If an Indicative Value is commissioned for a complete sale, what crucial question must be asked regarding \"Key People\"?",
+          "answer": "\"Are the key people listed above planning to remain with the business after sale?\".",
+          "keyPoint": "Identifying key person dependencies and their post-sale intentions is vital to understanding the true transferrable value of the operation.",
+          "id": 3
+        },
+        {
+          "question": "What specific disclosure must be made regarding perishable stocks on the balance sheet?",
+          "answer": "Which of the stocks are nearing their best by/use by dates as a percentage of the total stock estimate.",
+          "keyPoint": "The business owner has a distinct duty to disclose this to ensure the current stock valuations are completely accurate.",
+          "id": 4
+        },
+        {
+          "question": "What must be verified regarding current Work in Progress (W.I.P)?",
+          "answer": "Whether ‘variations to scope’ have been communicated and accepted in writing.",
+          "keyPoint": "This guarantees that expected W.I.P values and associated revenues are mutually agreed upon and legally enforceable.",
+          "id": 5
+        },
+        {
+          "question": "Under what circumstances might the book value of a tangible asset fail to represent its true value?",
+          "answer": "If vehicles or equipment have damage or faults resulting in a market value lower than the book value, or if assets are now ‘non-operational’ through disrepair or industry disruption.",
+          "keyPoint": "Adjustments must be made for specific industry or economic factors known to owners that could significantly increase or reduce asset values.",
+          "id": 6
+        },
+        {
+          "question": "If a business receives direct payments from a social media following, what must be investigated?",
+          "answer": "The platform's guidelines regarding the on-selling of the social media account.",
+          "keyPoint": "Restrictions on transferring intangible assets or digital accounts can heavily impact whether that revenue stream transfers to a new owner.",
+          "id": 7
+        },
+        {
+          "question": "When gathering comparative data, what should an advisor make note of if there are publicly listed companies in the same industry?",
+          "answer": "To find out the details of their share prices and trading volumes.",
+          "keyPoint": "Analyzing comparable market transactions and public trading data provides external benchmarks to support value calculations.",
+          "id": 8
+        },
+        {
+          "question": "What must be established regarding the last 3 years of Repairs / Maintenance expenditure?",
+          "answer": "Whether the expenditures accurately reflect the needs of the business and if the tax deductions claimed were considered 'Industry norm' or conservative.",
+          "keyPoint": "Analyzing these costs helps determine if the business has been adequately maintained or if expenditures have been artificially minimized to boost apparent profits.",
+          "id": 9
+        },
+        {
+          "question": "What supplementary question helps clarify how the business has historically distributed its profits?",
+          "answer": "\"Does the business have a history of making dividend distributions? If so, does a formal dividend policy exist?\".",
+          "keyPoint": "Understanding the dividend policy explains the historical management of free cash flow and shareholder returns.",
+          "id": 10
+        }
+      ]
     }
   }
 }

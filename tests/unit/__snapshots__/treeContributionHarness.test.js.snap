@@ -78,23 +78,23 @@ exports[`tree-contribution harness — current vs tree-assisted (snapshot net) v
 Object {
   "passA_engineOnly_top6": Array [
     "5 · Advisor Prep [Specialist Tools]",
+    "5 · Due Diligence Support [Specialist Tools]",
     "5 · Business Purchase Assessment 1 [Specialist Tools]",
     "5 · Purchase Assessment Report 3 [Specialist Tools]",
     "5 · Sale Assessment Report 3 [Specialist Tools]",
     "5 · Indicative Value Questions [Specialist Tools]",
-    "5 · Sale Assessment Model 2 [Specialist Tools]",
   ],
   "passB_treeAssisted_top6": Array [
     "8* · Sale Assessment Report 3 [Specialist Tools]",
     "8* · Sale Assessment Model 2 [Specialist Tools]",
     "5  · Advisor Prep [Specialist Tools]",
+    "5  · Due Diligence Support [Specialist Tools]",
     "5* · EBITDA [Revenue & Feasibility Models]",
     "5  · Business Purchase Assessment 1 [Specialist Tools]",
-    "5* · Business Sale Assessment 1 [Specialist Tools]",
   ],
   "promotedIntoTop6_byTreeHint": Array [
+    "Sale Assessment Model 2",
     "EBITDA",
-    "Business Sale Assessment 1",
   ],
   "treeReaches": Array [
     "Business Sale Assessment 1",

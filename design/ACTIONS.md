@@ -144,11 +144,36 @@
     one domain at a time** (mirrors how EOY was made, `dfa8572`). Cash Tactics was trialed in-app as
     the first draft this session and the preview **reverted** (not content-approved). **28 of 29
     domains still to migrate** (only EOY done). Detail: `FIRM-EDITABLE-TABLES-PLAN.md` §0.5.
-  - 📋 **TODO (tomorrow, Mike 2026-07-27) — add `Course Builder Quiz/Specialist Tools Quiz.pdf`
-    to the quiz page.** An untracked PDF sitting in the repo-root `Course Builder Quiz/` folder
-    (dropped in by Mike). Confirmed it is wanted — it should be **added to the Quizzes feature,
-    not deleted**. Exact target (which quiz page / bank, and how the PDF content is ingested) to
-    confirm on pickup.
+  - ✅ **Specialist Tools Quiz INGESTED 2026-07-28 (approved by Mike, this branch).** The PDF is now
+    tracked at `Course Builder Quiz/Specialist Tools Quiz.pdf` (renamed from the browser's `(1)`
+    copy) and its **18 sections / 180 questions are live as 16 CB-30 banks** in
+    [`data/course-quizzes.json`](../data/course-quizzes.json) — banks 31 → 47, questions 320 → 500.
+    Transcription is mechanical from the PDF text (the firm's IP, never retyped or invented); two
+    source artefacts were normalised (ﬁ/ﬀ ligatures, and a stray colon the PDF carries inside the
+    running word "answer"). Fourteen banks are 10 questions; **Succession Planning** and **Coping
+    With Adversity** are 20 each, merging two PDF sections apiece.
+    - **Mapping (exact-title rule, `quizBankKeys.test.js`):** ten sections are named as their page.
+      The rest map on documented page-purpose evidence — Cafe Turnaround Behaviours → *Turnaround
+      Behaviours* ("this example showcases a cafe"), SMART & FAST Goals → *Powerful Goal Setting*
+      (its purpose names the S.M.A.R.T acronym), Succession Metaphor → *Succession Planning* (its
+      purpose names "the use of a 'planning metaphor'"), Weighted Stock Review → *Stock Policies*
+      (a "Weighted Average" stock-prioritisation model), Due Diligence support → *Due Diligence
+      Support* (case only).
+    - **Library refreshed as part of the same job:** `data/templates.json` re-mirrored from
+      `search_content_20260727205143.json` (286 → 289). Mike re-exported **twice** during the
+      session to publish the pages the quiz teaches from — **Due Diligence Support**, **Systems B4
+      Scale**, **Coping With Adversity**, all Specialist Tools. Every one of the 286 pre-existing
+      entries is byte-identical; the diff is purely the three additions.
+    - **One snapshot re-recorded (approved separately):** `treeContributionHarness` — the new
+      *Due Diligence Support* page scores 5 like the other Specialist Tools valuation pages and
+      now enters the top 6 for the sell/exit scenario, displacing the lowest tie. Engine logic
+      untouched; the file's **verdict** assertions (Mike-confirmed correct outcomes) still pass
+      unchanged. Full suite **1,891 green**, lint 0 errors.
+  - ☐ **NEXT (same job) — `Course Builder Quiz/Strategic Tools Quiz.pdf` has never been ingested.**
+    Tracked in the repo since 2026-07-23 but referenced by **no bank** — the only quiz PDF in the
+    folder with no banks behind it. Same shape and roughly the same size as the Specialist Tools
+    job just completed; the build recipe is in that entry above. Expect the same two decisions:
+    section headings that are not exact page titles, and any page the export has not published yet.
   - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"
