@@ -24,8 +24,9 @@
 
     hero-strip(:columns="4" :stale="!!error")
       //- Deliberately no `tone`: a WACC is neither good nor bad on its own, and
-      //- colouring it would assert a judgement the model cannot make. The hurdle
-      //- test that CAN judge it is a later phase.
+      //- colouring it would assert a judgement the model cannot make. The judgement
+      //- belongs to the hurdle test below, which has a specific investment to judge
+      //- against — and that is the only toned element on this screen.
       hero-figure(
         :label="$t('report.costOfCapital.hero.wacc')"
         :value="pct(data.wacc.wacc, 2)"
@@ -102,6 +103,30 @@
           label {{ $t('report.costOfCapital.funding.borrowRate') }}
           b-input(v-model.number="form.borrowRatePct" type="number" step="any" size="is-small")
 
+      //- The hurdle test. Both fields start EMPTY, not seeded from the sample: the
+      //- workbook proposes no investment, and a made-up one would be read as the
+      //- client's own. Until both are filled the verdict card does not appear at all.
+      .coc-card
+        h2 {{ $t('report.costOfCapital.hurdle.title') }}
+        .coc-field
+          label {{ $t('report.costOfCapital.hurdle.investmentCost') }}
+          b-input(
+            :value="form.investmentCost"
+            type="number"
+            step="any"
+            size="is-small"
+            @input="v => onMoneyInput('investmentCost', v)"
+          )
+        .coc-field
+          label {{ $t('report.costOfCapital.hurdle.annualReturn') }}
+          b-input(
+            :value="form.annualReturn"
+            type="number"
+            step="any"
+            size="is-small"
+            @input="v => onMoneyInput('annualReturn', v)"
+          )
+
     section.coc-results
       template(v-if="data")
         //- The whole build-up, line by line, so an advisor can walk a client down it.
@@ -141,6 +166,30 @@
               td {{ $t('report.costOfCapital.build.wacc') }}
               td {{ pct(data.wacc.wacc, 4) }}
           p.coc-note {{ $t('report.costOfCapital.build.note') }}
+
+        //- The hurdle test — the WACC turned into the decision it exists to serve.
+        //- Absent entirely until the backend returns one: an advisor mid-typing is not
+        //- an advisor in error, and a half-filled test has no honest answer to show.
+        //- This is the ONLY figure on the screen allowed a tone. The headline WACC has
+        //- none by deliberate ruling — a cost of capital is neither good nor bad on its
+        //- own — but a verdict genuinely is one or the other.
+        .coc-card(v-if="data.hurdle")
+          h2 {{ $t('report.costOfCapital.hurdle.title') }}
+          p.coc-verdict(:class="'is-' + verdictTone") {{ verdictText }}
+          table.coc-mini
+            tr
+              td {{ $t('report.costOfCapital.hurdle.returnRate') }}
+              td {{ pct(data.hurdle.returnRate, 2) }}
+            tr
+              td {{ $t('report.costOfCapital.hurdle.costOfCapital') }}
+              td {{ pct(data.hurdle.hurdleRate, 2) }}
+            tr
+              td {{ $t('report.costOfCapital.hurdle.needsToEarn') }}
+              td {{ requiredAnnualReturnText }}
+            tr.is-total(v-if="marginLabel")
+              td {{ marginLabel }}
+              td {{ marginAmountText }}
+          p.coc-note {{ $t('report.costOfCapital.hurdle.note') }}
 
         //- The Beta helper. Periods run DOWN the page, not across: twelve columns of
         //- seven-figure shareholders' equity will not fit the results column; twelve
@@ -256,6 +305,17 @@ import reportRecompute from '~/mixins/reportRecompute'
  * two is the source defect that made the spreadsheet publish 1.62% instead of 6.16%
  * (see server/report/costOfCapitalModel.js).
  */
+/**
+ * Hurdle verdict code → the tone it wears. A lookup rather than a chain of conditionals
+ * so an unrecognised code has no tone at all, instead of falling through to the last
+ * branch and colouring an unknown verdict green.
+ */
+const VERDICT_TONE = {
+  CLEARS: 'good',
+  MEETS: 'level',
+  SHORT: 'crit'
+}
+
 export default {
   name: 'CostOfCapital',
 
@@ -287,7 +347,11 @@ export default {
           2634717.948, 2645695.94, 2656719.673, 2667789.338, 2678905.127, null
         ],
         // Beta Calcs M41:X41 — constant across the window.
-        sharesIssued: [7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650]
+        sharesIssued: [7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650, 7650],
+        // The hurdle test. NOT from the workbook and deliberately NOT seeded: an invented
+        // investment would be read as the client's own. Both null = no test to run.
+        investmentCost: null,
+        annualReturn: null
       },
       data: null
       // `error` (stale flag) is provided by the reportRecompute mixin.
@@ -321,6 +385,64 @@ export default {
       if (this.growthOverridden) { return this.form.growthRatePct }
       if (!this.data) { return '' }
       return Math.round(this.data.wacc.inputs.growthRate * 1000000) / 10000
+    },
+
+    /**
+     * The hurdle verdict as a sentence. The engine returns a CODE (`CLEARS`/`MEETS`/
+     * `SHORT`) and the English lives in the locale file — an unknown code must therefore
+     * render nothing rather than a raw `SHORT` at an advisor mid-client-meeting.
+     * @returns {string}
+     */
+    verdictText () {
+      const h = this.data && this.data.hurdle
+      if (!h || !VERDICT_TONE[h.verdict]) { return '' }
+      return this.$t('report.costOfCapital.hurdle.' + h.verdict, {
+        margin: this.num(Math.abs(h.marginRate) * 100, 2)
+      })
+    },
+
+    /**
+     * Which of the three tones the verdict wears. Falls back to the neutral one so an
+     * unrecognised code can never colour a decision green.
+     * @returns {string} 'good' | 'crit' | 'level'
+     */
+    verdictTone () {
+      const h = this.data && this.data.hurdle
+      return (h && VERDICT_TONE[h.verdict]) || 'level'
+    },
+
+    /** What the investment must earn each year just to break even, as money. */
+    requiredAnnualReturnText () {
+      const h = this.data && this.data.hurdle
+      if (!h) { return '' }
+      return this.$t('report.costOfCapital.hurdle.perYear', {
+        amount: this.money(h.requiredAnnualReturn)
+      })
+    },
+
+    /**
+     * "Ahead by" or "Short by" — empty when the investment lands exactly on the hurdle,
+     * which hides the row rather than showing a margin of nothing.
+     * @returns {string}
+     */
+    marginLabel () {
+      const h = this.data && this.data.hurdle
+      if (!h || h.verdict === 'MEETS') { return '' }
+      const key = h.verdict === 'CLEARS' ? 'aheadBy' : 'shortBy'
+      return this.$t('report.costOfCapital.hurdle.' + key)
+    },
+
+    /**
+     * The margin in money, always positive — its direction is carried by `marginLabel`,
+     * so a minus sign here would read as "short by minus $6,600".
+     * @returns {string}
+     */
+    marginAmountText () {
+      const h = this.data && this.data.hurdle
+      if (!h) { return '' }
+      return this.$t('report.costOfCapital.hurdle.perYear', {
+        amount: this.money(Math.abs(h.marginAmount))
+      })
     }
   },
 
@@ -386,6 +508,21 @@ export default {
     },
 
     /**
+     * Take a money figure for the hurdle test. Clearing a field stores `null`, not 0 —
+     * an investment nobody has priced yet is absent, whereas one expected to earn 0 is a
+     * real (and failing) investment. The backend draws the same distinction.
+     *
+     * @param {string} key - 'investmentCost' | 'annualReturn'
+     * @param {string|number} raw - the input's value
+     * @returns {void}
+     */
+    onMoneyInput (key, raw) {
+      const n = Number(raw)
+      const blank = (raw === '' || raw === null || raw === undefined || !Number.isFinite(n))
+      this.form[key] = blank ? null : n
+    },
+
+    /**
      * The backend request — consumed by the reportRecompute mixin (debounce, race guard,
      * stale flag). Display percentages are converted to decimals here.
      * @returns {{ url: string, body: object }}
@@ -415,6 +552,10 @@ export default {
       if (this.growthOverridden) {
         body.growthRate = Number(f.growthRatePct) / 100
       }
+      // Sent only when actually entered. An empty field must not arrive as 0, which the
+      // backend would read as a priced investment expected to earn nothing.
+      if (Number.isFinite(f.investmentCost)) { body.investmentCost = f.investmentCost }
+      if (Number.isFinite(f.annualReturn)) { body.annualReturn = f.annualReturn }
       return { url: '/api/report/cost-of-capital', body }
     },
 
@@ -471,6 +612,16 @@ export default {
   color: var(--rs-accent); text-decoration: underline;
 }
 .coc-relink:hover { color: var(--rs-accent-bright); }
+/* The hurdle verdict — the one tone-carrying element on this screen. Colour is only ever
+   a second signal: the sentence says "clears" or "falls short" in words, so the verdict
+   still reads correctly in greyscale, on a projector, or to a colour-blind advisor. */
+.coc-verdict {
+  margin: 0 0 12px; padding: 10px 12px; border-radius: 10px;
+  font-size: 13.5px; font-weight: 600; border: 1px solid transparent;
+}
+.coc-verdict.is-good { background: var(--rs-good-soft); border-color: #4ca52d44; color: #2f6d1c; }
+.coc-verdict.is-crit { background: var(--rs-crit-soft); border-color: #ff000033; color: #b32020; }
+.coc-verdict.is-level { background: var(--rs-panel-2); border-color: var(--rs-line); color: var(--rs-ink); }
 .coc-mini { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
 .coc-mini td { padding: 6px 10px; border-bottom: 1px solid var(--rs-bg); }
 .coc-mini td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }

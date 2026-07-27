@@ -67,6 +67,24 @@ describe('POST /api/report/cost-of-capital', () => {
     expect(res.body.data.wacc.wacc).toBeGreaterThan(0.06162727725)
   })
 
+  it('carries the hurdle test through when an investment is supplied, and omits it when not', () => {
+    // The route passes the whole body to the model, so the hurdle needs no wiring of its
+    // own — which is exactly why it needs a test: nothing here would fail if a future
+    // refactor started forwarding a hand-picked list of fields instead.
+    const bare = makeRes()
+    costOfCapital({ body: {} }, bare, jest.fn())
+    expect(bare.body.data.hurdle).toBeNull()
+
+    const res = makeRes()
+    costOfCapital({ body: { investmentCost: 250000, annualReturn: 22000 } }, res, jest.fn())
+    expect(res.statusCode).toBe(200)
+    expect(res.body.data.hurdle.verdict).toBe('CLEARS')
+    expect(res.body.data.hurdle.returnRate).toBeCloseTo(0.088, 12)
+    expect(res.body.data.hurdle.requiredAnnualReturn).toBeCloseTo(15406.819312, 5)
+    // judged against the wacc this same response carries
+    expect(res.body.data.hurdle.hurdleRate).toBe(res.body.data.wacc.wacc)
+  })
+
   it('a non-object body computes the declared sample, never crashes', () => {
     const res = makeRes()
     costOfCapital({ body: 'not-json' }, res, jest.fn())

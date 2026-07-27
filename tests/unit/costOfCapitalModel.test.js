@@ -4,9 +4,11 @@ const {
   DEFAULT_INPUTS,
   computeBetaHelper,
   computeWacc,
+  computeHurdleTest,
   computeCostOfCapital,
   stdDevP,
-  WARN
+  WARN,
+  HURDLE
 } = require('../../server/report/costOfCapitalModel')
 
 /**
@@ -389,5 +391,129 @@ describe('Cost of Capital — the standard-deviation helper', () => {
   it('an empty or single-value series has no spread, not a division by zero', () => {
     expect(stdDevP([])).toBe(0)
     expect(stdDevP([42])).toBe(0)
+  })
+})
+
+/**
+ * The hurdle-rate test (owner-ruled 2026-07-28). NOT from the workbook — the workbook
+ * stops at the WACC — so there are no cell references to check against. Instead the
+ * scenarios use round numbers whose every figure can be verified by hand in one line.
+ */
+describe('Cost of Capital — the hurdle-rate test', () => {
+  /* A 10% cost of capital and a $100,000 investment: every derived figure is exact. */
+  const HURDLE_RATE = 0.10
+  const COST = 100000
+
+  it('clears the hurdle, and reports the margin in both percentage points and money', () => {
+    const t = computeHurdleTest({ investmentCost: COST, annualReturn: 12000 }, HURDLE_RATE)
+    expect(t.verdict).toBe(HURDLE.CLEARS)
+    expect(t.returnRate).toBeCloseTo(0.12, 12) //           12,000 / 100,000
+    expect(t.requiredAnnualReturn).toBeCloseTo(10000, 9) // 100,000 x 10%
+    expect(t.marginRate).toBeCloseTo(0.02, 12) //           12% - 10%
+    expect(t.marginAmount).toBeCloseTo(2000, 9) //          12,000 - 10,000
+  })
+
+  it('falls short, and the shortfall is signed rather than reported as a gap', () => {
+    // A negative margin, not an absolute one: the screen decides how to word a shortfall,
+    // and cannot recover the direction from a figure the engine has already flattened.
+    const t = computeHurdleTest({ investmentCost: COST, annualReturn: 8000 }, HURDLE_RATE)
+    expect(t.verdict).toBe(HURDLE.SHORT)
+    expect(t.marginRate).toBeCloseTo(-0.02, 12)
+    expect(t.marginAmount).toBeCloseTo(-2000, 9)
+  })
+
+  it('landing exactly on the hurdle is its own verdict, neither pass nor fail', () => {
+    const t = computeHurdleTest({ investmentCost: COST, annualReturn: 10000 }, HURDLE_RATE)
+    expect(t.verdict).toBe(HURDLE.MEETS)
+    expect(t.marginRate).toBeCloseTo(0, 12)
+    expect(t.marginAmount).toBeCloseTo(0, 9)
+  })
+
+  it('a break-even investment at the REAL wacc still reads as MEETS, not a 1e-18 margin', () => {
+    // The reason HURDLE_EPSILON exists, and the figure is chosen, not arbitrary.
+    // 0.06162727724676392 is not representable in binary, so `cost x wacc / cost` does
+    // not always return the wacc exactly. At $35,000 it lands 6.9e-18 LOW — without the
+    // tolerance an investment priced to break even to the cent is reported as "falls
+    // short of your cost of capital by 0.00 percentage points".
+    //
+    // A quarter of costs behave this way (499 of the 2,000 round thousands from $1k to
+    // $2m). An earlier draft of this test used $250,000, which divides exactly and let a
+    // mutant that deleted the tolerance survive — the test passed while proving nothing.
+    const wacc = computeCostOfCapital({}).wacc.wacc
+    const COST = 35000
+    expect((COST * wacc) / COST).not.toBe(wacc) // the float gap this test exists for
+
+    const t = computeHurdleTest({ investmentCost: COST, annualReturn: COST * wacc }, wacc)
+    expect(t.verdict).toBe(HURDLE.MEETS)
+  })
+
+  it('is not testable until BOTH figures are usable, and says so with null', () => {
+    // The advisor is mid-typing, not wrong: nothing to show beats a nonsense figure.
+    expect(computeHurdleTest({}, HURDLE_RATE)).toBeNull()
+    expect(computeHurdleTest({ investmentCost: COST }, HURDLE_RATE)).toBeNull()
+    expect(computeHurdleTest({ annualReturn: 12000 }, HURDLE_RATE)).toBeNull()
+    expect(computeHurdleTest({ investmentCost: '', annualReturn: 12000 }, HURDLE_RATE)).toBeNull()
+    expect(computeHurdleTest({ investmentCost: null, annualReturn: 12000 }, HURDLE_RATE)).toBeNull()
+  })
+
+  it('a zero or negative investment cost has no return percentage, so there is no test', () => {
+    expect(computeHurdleTest({ investmentCost: 0, annualReturn: 12000 }, HURDLE_RATE)).toBeNull()
+    expect(computeHurdleTest({ investmentCost: -100, annualReturn: 12000 }, HURDLE_RATE)).toBeNull()
+  })
+
+  it('a supplied annual return of ZERO is real data, and fails the test rather than vanishing', () => {
+    // The blank-vs-zero distinction that the source workbook got wrong (correction 1).
+    // An investment expected to earn nothing is a testable investment with a bad answer.
+    const t = computeHurdleTest({ investmentCost: COST, annualReturn: 0 }, HURDLE_RATE)
+    expect(t).not.toBeNull()
+    expect(t.verdict).toBe(HURDLE.SHORT)
+    expect(t.returnRate).toBe(0)
+    expect(t.marginAmount).toBeCloseTo(-10000, 9)
+  })
+
+  it('accepts numbers arriving as JSON strings, without string-concatenating them', () => {
+    const t = computeHurdleTest({ investmentCost: '100000', annualReturn: '12000' }, HURDLE_RATE)
+    expect(t.verdict).toBe(HURDLE.CLEARS)
+    expect(t.returnRate).toBeCloseTo(0.12, 12)
+  })
+
+  it('a loss-making investment reports a negative return, not a suppressed one', () => {
+    const t = computeHurdleTest({ investmentCost: COST, annualReturn: -5000 }, HURDLE_RATE)
+    expect(t.verdict).toBe(HURDLE.SHORT)
+    expect(t.returnRate).toBeCloseTo(-0.05, 12)
+  })
+})
+
+describe('Cost of Capital — the hurdle test inside the assembled model', () => {
+  it('is absent until an investment is supplied — the panel shows nothing by default', () => {
+    expect(computeCostOfCapital({}).hurdle).toBeNull()
+  })
+
+  it('judges against the SAME wacc the response carries, not a re-derived one', () => {
+    // The `inUse` reasoning applied to the hurdle: a verdict measured against a different
+    // figure from the one shown beside it is exactly the kind of quiet lie a screen would
+    // render with confidence. Strict equality, deliberately — close is not the same number.
+    const report = computeCostOfCapital({ investmentCost: 250000, annualReturn: 22000 })
+    expect(report.hurdle.hurdleRate).toBe(report.wacc.wacc)
+  })
+
+  it('gives the worked sample scenario end to end', () => {
+    // 6.16% wacc, a $250,000 investment expected to earn $22,000 a year.
+    const report = computeCostOfCapital({ investmentCost: 250000, annualReturn: 22000 })
+    expect(report.hurdle.verdict).toBe(HURDLE.CLEARS)
+    expect(report.hurdle.returnRate).toBeCloseTo(0.088, 12) //          22,000 / 250,000
+    expect(report.hurdle.requiredAnnualReturn).toBeCloseTo(15406.819312, 5)
+    expect(report.hurdle.marginRate).toBeCloseTo(0.026372722753, 10)
+    expect(report.hurdle.marginAmount).toBeCloseTo(6593.180688, 5)
+  })
+
+  it('tracks the model: a dearer cost of capital can turn the same investment down', () => {
+    // Proof the hurdle is live rather than a static number pasted beside the WACC. Beta
+    // 0.52 -> 3.0 lifts the cost of equity far above the investment's 8.8% return.
+    const cheap = computeCostOfCapital({ investmentCost: 250000, annualReturn: 22000 })
+    const dear = computeCostOfCapital({ investmentCost: 250000, annualReturn: 22000, beta: 3.0 })
+    expect(cheap.hurdle.verdict).toBe(HURDLE.CLEARS)
+    expect(dear.hurdle.verdict).toBe(HURDLE.SHORT)
+    expect(dear.hurdle.hurdleRate).toBeGreaterThan(cheap.hurdle.hurdleRate)
   })
 })

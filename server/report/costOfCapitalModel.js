@@ -97,6 +97,25 @@ const WARN = {
 }
 
 /**
+ * Hurdle-test verdicts. Like `WARN`, these are codes — the SCREEN owns the English.
+ * `MEETS` exists so an investment landing exactly on the cost of capital is not forced
+ * into a pass or a fail it does not deserve.
+ */
+const HURDLE = {
+  CLEARS: 'CLEARS',
+  MEETS: 'MEETS',
+  SHORT: 'SHORT'
+}
+
+/**
+ * How close to the hurdle counts as landing ON it. Two figures derived through different
+ * arithmetic will not compare exactly equal in binary floating point, so an investment
+ * priced to break even to the cent would otherwise be reported as clearing or failing by
+ * a margin of 1e-17. A tenth of a basis point is far below anything an advisor can act on.
+ */
+const HURDLE_EPSILON = 1e-6
+
+/**
  * Coerce to a finite number (accepting JSON-string numbers), else the fallback. The route
  * receives raw JSON, so a numeric field arriving as text must not string-concatenate.
  * @param {*} v
@@ -401,6 +420,64 @@ function computeWacc (inputs) {
 }
 
 /**
+ * The hurdle-rate test (owner-ruled 2026-07-28) — does a proposed investment earn more
+ * than the money funding it costs?
+ *
+ * NOT in the workbook. The workbook stops at the WACC; this turns that figure into the
+ * decision it exists to serve. The arithmetic is deliberately plain — the value is in the
+ * framing, and in giving the answer in MONEY as well as percentage points, because
+ * "it must earn $15,400 a year and it is expected to earn $22,000" is a sentence an
+ * advisor can say to a client, where "8.80% beats 6.16%" is not.
+ *
+ * The hurdle is the WACC exactly as calculated, with NO risk margin added. Some advisors
+ * add a buffer for a risky project; the workbook does not, and inventing one here would
+ * assert a judgement no input has authorised. An optional buffer is a later owner ruling.
+ *
+ * Returns `null` — the screen shows nothing — unless BOTH figures are usable. A blank or
+ * zero investment cost has no return percentage to report, and guessing at one (or
+ * rendering a division by zero) is worse than staying quiet.
+ *
+ * @param {object} src - raw request body; reads `investmentCost` and `annualReturn`.
+ * @param {number} hurdleRate - the WACC this test judges against, as a decimal.
+ * @returns {?{investmentCost: number, annualReturn: number, returnRate: number,
+ *   hurdleRate: number, requiredAnnualReturn: number, marginRate: number,
+ *   marginAmount: number, verdict: string}}
+ */
+function computeHurdleTest (src, hurdleRate) {
+  if (!isFilled(src.investmentCost) || !isFilled(src.annualReturn)) { return null }
+
+  const investmentCost = num(src.investmentCost, 0)
+  const annualReturn = num(src.annualReturn, 0)
+
+  /* A cost of zero has no percentage; a negative cost is not an investment. Both are
+     "nothing to test" rather than an error — the advisor is mid-typing, not wrong. */
+  if (investmentCost <= 0) { return null }
+
+  const returnRate = div(annualReturn, investmentCost)
+  const requiredAnnualReturn = investmentCost * hurdleRate
+  const marginRate = returnRate - hurdleRate
+  const marginAmount = annualReturn - requiredAnnualReturn
+
+  let verdict = HURDLE.MEETS
+  if (marginRate > HURDLE_EPSILON) {
+    verdict = HURDLE.CLEARS
+  } else if (marginRate < -HURDLE_EPSILON) {
+    verdict = HURDLE.SHORT
+  }
+
+  return {
+    investmentCost,
+    annualReturn,
+    returnRate,
+    hurdleRate,
+    requiredAnnualReturn,
+    marginRate,
+    marginAmount,
+    verdict
+  }
+}
+
+/**
  * The whole model, assembled HERE rather than in the route (the marginBreakeven lesson:
  * the golden test must exercise exactly what the screen receives).
  *
@@ -410,7 +487,8 @@ function computeWacc (inputs) {
  * what the screen offers for a one-click adopt.
  *
  * @param {object} [inputs]
- * @returns {{beta: object, wacc: object, betaSuggestions: object, growthSource: string}}
+ * @returns {{beta: object, wacc: object, betaSuggestions: object, growthSource: string,
+ *   hurdle: ?object}} - `hurdle` is null unless the caller supplied a testable investment.
  */
 function computeCostOfCapital (inputs) {
   const src = (inputs && typeof inputs === 'object') ? inputs : {}
@@ -437,7 +515,10 @@ function computeCostOfCapital (inputs) {
       volatility: betaHelper.volatilityBeta, // I15 — from spread vs market spread
       inUse: wacc.inputs.beta //              E8, the beta this result was actually built on
     },
-    growthSource: growthSupplied ? 'supplied' : 'betaHelper'
+    growthSource: growthSupplied ? 'supplied' : 'betaHelper',
+    /* Judged against the WACC just computed, never a re-derived one — the same reasoning
+       that keeps `inUse` honest above. */
+    hurdle: computeHurdleTest(src, wacc.wacc)
   }
 }
 
@@ -445,6 +526,7 @@ module.exports = {
   DEFAULT_INPUTS,
   computeBetaHelper,
   computeWacc,
+  computeHurdleTest,
   computeCostOfCapital,
   stdDevP,
   filled,
@@ -452,5 +534,7 @@ module.exports = {
   MIN_PERIODS,
   TYPICAL_BETA_MIN,
   TYPICAL_BETA_MAX,
-  WARN
+  WARN,
+  HURDLE,
+  HURDLE_EPSILON
 }

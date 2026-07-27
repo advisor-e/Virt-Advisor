@@ -973,6 +973,21 @@
         "betaInUse": "Beta in use",
         "betaInUseSub": "The figure typed on the left"
       },
+      "hurdle": {
+        "title": "Test an investment",
+        "investmentCost": "What the investment costs",
+        "annualReturn": "What it's expected to earn each year",
+        "returnRate": "Return on the investment",
+        "costOfCapital": "Your cost of capital",
+        "needsToEarn": "It needs to earn",
+        "perYear": "{amount} a year",
+        "aheadBy": "Ahead by",
+        "shortBy": "Short by",
+        "CLEARS": "Clears your cost of capital by {margin} percentage points",
+        "MEETS": "Exactly meets your cost of capital",
+        "SHORT": "Falls short of your cost of capital by {margin} percentage points",
+        "note": "The bar is your cost of capital exactly as calculated above, with no safety margin added."
+      },
       "warn": {
         "FEW_PERIODS_MARKET": "Fewer than three periods of share index values — too few to measure a spread.",
         "FEW_PERIODS_COMPANY": "Fewer than three periods of company figures — too few to measure a spread.",

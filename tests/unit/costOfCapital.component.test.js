@@ -5,7 +5,7 @@
 
 const { mountWithBuefy } = require('../helpers/mountComponent')
 const CostOfCapital = require('~/components/CostOfCapital.vue').default
-const { computeCostOfCapital, WARN } = require('~/server/report/costOfCapitalModel')
+const { computeCostOfCapital, WARN, HURDLE } = require('~/server/report/costOfCapitalModel')
 const en = require('~/locales/en.json')
 
 /**
@@ -237,6 +237,237 @@ describe('CostOfCapital screen', () => {
         expect(typeof wording).toBe('string')
         expect(wording.length).toBeGreaterThan(0)
       })
+    })
+  })
+
+  /**
+   * The hurdle-rate test (owner-ruled 2026-07-28). The verdict arithmetic is golden-tested
+   * in the model; these cover only the screen's own risks — that two MONEY fields do not
+   * get the ÷100 every other field on this screen receives, that an empty field reaches
+   * the backend as absent rather than zero, and that a verdict code never reaches an
+   * advisor's eyes untranslated or wearing the wrong colour.
+   */
+  describe('the hurdle-rate test', () => {
+    /** The worked scenario: $250,000 expected to earn $22,000 a year against a 6.16% WACC. */
+    const TESTED = { investmentCost: 250000, annualReturn: 22000 }
+
+    /**
+     * The `<input>` belonging to the field with this label. Located by LABEL, not by
+     * position, so inserting a card above it does not silently re-point the test at a
+     * different box. The harness's `$t()` returns the key, so the key is the label text.
+     *
+     * @param {object} wrapper - the mounted screen
+     * @param {string} labelKey - the i18n key rendered as that field's label
+     * @returns {object|null} a test-utils wrapper for the input, or null if not found
+     */
+    function inputForLabel (wrapper, labelKey) {
+      const fields = wrapper.findAll('.coc-field')
+      for (let i = 0; i < fields.length; i++) {
+        const label = fields.at(i).find('label')
+        if (label.exists() && label.text() === labelKey) { return fields.at(i).find('input') }
+      }
+      return null
+    }
+
+    it('the COST box writes the investment cost, and touches nothing else', async () => {
+      // Every other test in this file calls the methods directly, which proves the
+      // arithmetic and nothing about the wiring: two inputs bound to each other's field
+      // would pass all of them, and only show up in front of a client. This goes through
+      // the actual box on the page.
+      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
+      const box = inputForLabel(wrapper, 'report.costOfCapital.hurdle.investmentCost')
+      expect(box).not.toBeNull() // a renamed label must fail here, not silently skip
+
+      box.setValue('250000')
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.vm.form.investmentCost).toBe(250000)
+      expect(wrapper.vm.form.annualReturn).toBeNull() // the other field stayed put
+      expect(wrapper.vm.recomputeRequest().body.investmentCost).toBe(250000)
+    })
+
+    it('the EARNINGS box writes the annual return, and touches nothing else', async () => {
+      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
+      const box = inputForLabel(wrapper, 'report.costOfCapital.hurdle.annualReturn')
+      expect(box).not.toBeNull()
+
+      box.setValue('22000')
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.vm.form.annualReturn).toBe(22000)
+      expect(wrapper.vm.form.investmentCost).toBeNull()
+      expect(wrapper.vm.recomputeRequest().body.annualReturn).toBe(22000)
+    })
+
+    it('each box SHOWS its own figure back, not the other one', async () => {
+      // Writing and displaying are two separate bindings, and a mutant that pointed the
+      // cost box's display at the earnings value passed every other test here: the typed
+      // figure still reached the right field, so only the advisor's eyes would have
+      // caught it — the box would answer 22,000 to someone who typed 250,000.
+      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
+      wrapper.setData({ form: Object.assign({}, wrapper.vm.form, { investmentCost: 250000, annualReturn: 22000 }) })
+      await wrapper.vm.$nextTick()
+
+      expect(inputForLabel(wrapper, 'report.costOfCapital.hurdle.investmentCost').element.value).toBe('250000')
+      expect(inputForLabel(wrapper, 'report.costOfCapital.hurdle.annualReturn').element.value).toBe('22000')
+    })
+
+    it('the two boxes together produce the worked scenario, in the right order', async () => {
+      // The pair, end to end through the DOM: 250,000 costing / 22,000 earning is 8.80%,
+      // where the reverse would be 1,136% — the two are not confusable by accident, which
+      // is exactly what makes this assertion worth having.
+      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
+      inputForLabel(wrapper, 'report.costOfCapital.hurdle.investmentCost').setValue('250000')
+      inputForLabel(wrapper, 'report.costOfCapital.hurdle.annualReturn').setValue('22000')
+      await wrapper.vm.$nextTick()
+
+      const body = wrapper.vm.recomputeRequest().body
+      const { computeCostOfCapital: compute } = require('~/server/report/costOfCapitalModel')
+      expect(compute(body).hurdle.returnRate).toBeCloseTo(0.088, 12)
+    })
+
+    it('sends the two money figures UNSCALED — they are amounts, not rates', () => {
+      // Every other field on this screen is a display percentage divided by 100. These
+      // two are not, and a ÷100 here would quietly test a $2,500 investment.
+      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
+      wrapper.vm.form.investmentCost = 250000
+      wrapper.vm.form.annualReturn = 22000
+
+      const body = wrapper.vm.recomputeRequest().body
+      expect(body.investmentCost).toBe(250000)
+      expect(body.annualReturn).toBe(22000)
+    })
+
+    it('omits both fields entirely until they are entered', () => {
+      // Not `0`: the backend reads a priced investment expected to earn nothing as a
+      // real (failing) investment, so a blank arriving as zero would invent a verdict.
+      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
+      const body = wrapper.vm.recomputeRequest().body
+      expect('investmentCost' in body).toBe(false)
+      expect('annualReturn' in body).toBe(false)
+    })
+
+    it('clearing a field hands it back as null, while a typed zero is kept and sent', () => {
+      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
+
+      wrapper.vm.onMoneyInput('investmentCost', '250000')
+      wrapper.vm.onMoneyInput('annualReturn', '0')
+      expect(wrapper.vm.form.annualReturn).toBe(0)
+      expect(wrapper.vm.recomputeRequest().body.annualReturn).toBe(0)
+
+      wrapper.vm.onMoneyInput('annualReturn', '')
+      expect(wrapper.vm.form.annualReturn).toBeNull()
+      expect('annualReturn' in wrapper.vm.recomputeRequest().body).toBe(false)
+    })
+
+    it('typing an investment triggers a recompute rather than a stale verdict', async () => {
+      // The deep form watcher is the subject: a verdict left over from the previous
+      // figures is worse than none, because it looks current.
+      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
+      const queued = jest.spyOn(wrapper.vm, 'queueRecompute')
+      wrapper.vm.onMoneyInput('investmentCost', '250000')
+      await wrapper.vm.$nextTick()
+      expect(queued).toHaveBeenCalled()
+    })
+
+    it('shows nothing at all until both figures are supplied', async () => {
+      const wrapper = await mountWithResult(computeCostOfCapital({}))
+      expect(wrapper.vm.data.hurdle).toBeNull()
+      expect(wrapper.find('.coc-verdict').exists()).toBe(false)
+      expect(wrapper.vm.verdictText).toBe('')
+      expect(wrapper.vm.marginLabel).toBe('')
+    })
+
+    it('renders a clearing verdict in words, with the margin, wearing the good tone', async () => {
+      const wrapper = await mountWithResult(computeCostOfCapital(TESTED))
+      expect(wrapper.vm.data.hurdle.verdict).toBe(HURDLE.CLEARS)
+
+      const verdict = wrapper.find('.coc-verdict')
+      expect(verdict.exists()).toBe(true)
+      expect(verdict.classes()).toContain('is-good')
+      // 8.80% against 6.1627% = 2.64 percentage points, looked up under the hurdle
+      // namespace — the harness's $t() returns the key plus its interpolation params.
+      expect(verdict.text()).toContain('report.costOfCapital.hurdle.CLEARS')
+      expect(verdict.text()).toContain('2.64')
+      expect(wrapper.vm.marginLabel).toBe('report.costOfCapital.hurdle.aheadBy')
+    })
+
+    it('renders a shortfall wearing the critical tone, and labels it Short by', async () => {
+      const short = computeCostOfCapital({ investmentCost: 250000, annualReturn: 12000 })
+      const wrapper = await mountWithResult(short)
+      expect(short.hurdle.verdict).toBe(HURDLE.SHORT)
+
+      expect(wrapper.find('.coc-verdict').classes()).toContain('is-crit')
+      expect(wrapper.find('.coc-verdict').text()).toContain('report.costOfCapital.hurdle.SHORT')
+      expect(wrapper.vm.marginLabel).toBe('report.costOfCapital.hurdle.shortBy')
+      // The money margin is shown POSITIVE — its direction is carried by the label, so
+      // a minus sign here would read as "short by minus $10,606".
+      expect(wrapper.vm.marginAmountText).not.toMatch(/-|−/)
+    })
+
+    it('a verdict landing exactly on the hurdle is neutral and hides the margin row', async () => {
+      const report = computeCostOfCapital({})
+      const exact = computeCostOfCapital({
+        investmentCost: 250000,
+        annualReturn: 250000 * report.wacc.wacc
+      })
+      const wrapper = await mountWithResult(exact)
+      expect(exact.hurdle.verdict).toBe(HURDLE.MEETS)
+
+      expect(wrapper.find('.coc-verdict').classes()).toContain('is-level')
+      expect(wrapper.vm.marginLabel).toBe('') // no "ahead by nothing" row
+    })
+
+    it('an unrecognised verdict code is never coloured and never shown raw', async () => {
+      // Defensive: a code added to the engine without wording must degrade to silence,
+      // not to a green tick beside a decision nobody has validated.
+      const rogue = computeCostOfCapital(TESTED)
+      rogue.hurdle = Object.assign({}, rogue.hurdle, { verdict: 'PROBABLY_FINE' })
+      const wrapper = await mountWithResult(rogue)
+
+      expect(wrapper.vm.verdictTone).toBe('level')
+      expect(wrapper.vm.verdictText).toBe('')
+      expect(wrapper.find('.coc-verdict').classes()).not.toContain('is-good')
+      expect(wrapper.text()).not.toContain('PROBABLY_FINE')
+    })
+
+    it('has wording for EVERY verdict the engine can return', () => {
+      // Derived from the engine's own HURDLE map, the WARN pattern: a fourth verdict
+      // added without wording fails the build instead of rendering blank at an advisor.
+      const codes = Object.keys(HURDLE)
+      expect(codes.length).toBe(3)
+      codes.forEach((code) => {
+        expect(HURDLE[code]).toBe(code)
+        const wording = en.report.costOfCapital.hurdle[code]
+        expect(typeof wording).toBe('string')
+        expect(wording.length).toBeGreaterThan(0)
+      })
+      // The two directional labels and the money-per-year frame are wording too.
+      expect(typeof en.report.costOfCapital.hurdle.aheadBy).toBe('string')
+      expect(typeof en.report.costOfCapital.hurdle.shortBy).toBe('string')
+      expect(en.report.costOfCapital.hurdle.perYear).toContain('{amount}')
+    })
+
+    it('formats the money through currencyMixin, in the FIRM\'s currency', async () => {
+      // A private money() would re-hardcode $ and en-US, losing the firm's currency and
+      // the reader's language — the whole reason the mixin exists.
+      //
+      // Asserting on the DIGITS alone does not prove this: a hand-rolled
+      // "'$' + toLocaleString('en-US')" produces the same "15,407" and survived exactly
+      // that test. Changing the firm's currency is what separates the two — a hardcoded
+      // formatter cannot follow it.
+      const wrapper = await mountWithResult(computeCostOfCapital(TESTED))
+      expect(wrapper.vm.requiredAnnualReturnText).toContain('report.costOfCapital.hurdle.perYear')
+
+      wrapper.setData({ firmCurrency: 'GBP' })
+      await wrapper.vm.$nextTick()
+      const gbp = wrapper.vm.requiredAnnualReturnText
+      expect(gbp).toContain('£')
+      expect(gbp).not.toContain('$')
+      expect(gbp).toMatch(/15[,.]40[67]/) // 250,000 x 6.1627%, still the right figure
+
+      // ...and the margin follows it too, not just the one figure that got a test.
+      expect(wrapper.vm.marginAmountText).toContain('£')
     })
   })
 })

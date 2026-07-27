@@ -360,13 +360,19 @@ function leaseVsBuy (req, res, next) {
  *   a series slot may be `null` for a period with no data, which is NOT the same as a
  *   supplied 0 (that distinction is the corrected source defect; see the model header).
  *   An omitted field computes on the sample and is named in `defaultedInputs`
- *   (R8 — defaults never substitute silently).
+ *   (R8 — defaults never substitute silently). Optionally the hurdle-rate test:
+ *   investmentCost + annualReturn — a proposed investment judged against the WACC. Both
+ *   are needed; either alone (or a cost of zero) yields `hurdle: null` rather than a
+ *   guessed figure, because an advisor mid-typing is not an advisor in error.
  * @returns {object} { success, data, timestamp } — data = { beta {market, company,
  *   growthRate, roiBeta, volatilityBeta, warnings[], defaultedInputs}, wacc {inputs,
  *   costOfEquity, costOfEquityPostInflation, costOfEquityPostGrowth, costOfDebtAfterTax,
  *   equityRatio, debtRatio, equityComponent, debtComponent, wacc, defaultedInputs},
- *   betaSuggestions {roi, volatility, inUse}, growthSource }. `warnings` are CODES for
- *   the screen to translate — an implausible beta is reported, never passed on quietly.
+ *   betaSuggestions {roi, volatility, inUse}, growthSource, hurdle }. `hurdle` is null
+ *   unless testable, else {investmentCost, annualReturn, returnRate, hurdleRate,
+ *   requiredAnnualReturn, marginRate, marginAmount, verdict}. `warnings` and `verdict`
+ *   are CODES for the screen to translate — an implausible beta is reported, never
+ *   passed on quietly, and no English is ever put in the engine.
  *
  * Anonymous, like every other calc route: numbers in, numbers out. It reads no database,
  * writes nothing, calls no third party, and sends nothing to an LLM — the client's equity
