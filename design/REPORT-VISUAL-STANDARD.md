@@ -1,9 +1,12 @@
 # Report Visual Standard — one look, locked in
 
-> **Status: PROPOSED — awaiting Mike's sign-off (started 2026-07-27).** No code changed
-> yet. This document is the single agreed description of how every report/model screen in
-> the Model Library looks, and — more importantly — how that look is *enforced* so it can
-> never drift one screen at a time again.
+> **Status: SIGNED OFF + IN BUILD (2026-07-27).** The numbers below are RULED and the
+> shell-and-guard approach is approved. **Step 1 is built and committed** (`20be0e2` —
+> `components/base/ReportShell.vue` + its test; additive only, no screen touched, suite
+> 1,761 green). Steps 2–6 remain, each its own approved change. This document is the
+> single agreed description of how every report/model screen in the Model Library looks,
+> and — more importantly — how that look is *enforced* so it can never drift one screen at
+> a time again.
 >
 > **Companion to** [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md) (the build recipe). Where the
 > two overlap, this file owns the *visual* numbers; the recipe owns the *steps*.
@@ -47,10 +50,10 @@ adds the guard that makes divergence a build failure.
 ### Layout
 | Dial | Standard | Notes |
 |---|---|---|
-| Left input column | **360px** (PROPOSED) | Was 340px on 4 models, 320px on 2. |
+| Left input column | **360px** (RULED 2026-07-27) | Was 340px on 4 models, 320px on 2. |
 | Right (results) column | **`1fr`** (already uniform) | Flexes to fill the rest. |
-| Gap between columns | **20px** (PROPOSED) | Was 20px / 18px. |
-| Total content width | **1120px**, centred (PROPOSED) | Was 1120px / 1180px. |
+| Gap between columns | **20px** (RULED 2026-07-27) | Was 20px / 18px. |
+| Total content width | **1120px**, centred (RULED 2026-07-27) | Was 1120px / 1180px. |
 | Collapse to one column below | **860px** (already ~uniform) | Eight Levers used 900px. |
 
 ### Frame (the page canvas)
@@ -71,9 +74,9 @@ shadow (RULED 2026-07-22). Cells are `HeroFigure`. **3 or 4 cells is a per-model
 | Background | `#ffffff` light / `#0a1f3d` dark |
 | Border | `1px solid #d5e1ee` light / `#1a3559` dark |
 | Top edge | `3px solid #00b1e0` (the cyan signature) |
-| Corner radius | **14px** (PROPOSED) — Loan Estimator currently uses 10px |
+| Corner radius | **14px** (RULED 2026-07-27) — Loan Estimator currently uses 10px |
 | Padding | **`16px 18px`** |
-| Title | navy `#002b64`, uppercase, **12px, letter-spacing .1em, weight 600** (PROPOSED — one size everywhere) |
+| Title | navy `#002b64`, uppercase, **12px, letter-spacing .1em, weight 600** (RULED 2026-07-27 — one size everywhere) |
 
 ### Brand palette (single source)
 Light: bg `#eef3f8` · panel `#ffffff` · panel-2 `#f1f6fb` · ink `#002b64` · muted `#5b6f8a`
@@ -143,8 +146,9 @@ Values in a document still rely on remembering. These two moves make the standar
 
 ## Part 4 — Migration plan (each step its own approval, tests stay green)
 
-1. **Shell + tokens** — add `components/base/ReportShell.vue` and one token sheet; no
-   screen changed yet.
+1. ✅ **Shell + tokens** — `components/base/ReportShell.vue` added with the tokens declared
+   once; no screen changed. **DONE 2026-07-27, commit `20be0e2`** (+ `reportShell.component.test.js`
+   pinning the five numbers and the all-light ruling; suite 1,761 green).
 2. **Adopt, one screen per commit** — move each of the 8 screens onto the shell, deleting
    its copy-pasted frame/palette/card/button. Component tests stay green at every step.
 3. **Standardise the numbers** — 360px / 20px / 1120px / 14px radius / one title size, in
@@ -159,8 +163,10 @@ under the LIVE-APP rule. Logged as a P1 in [`ACTIONS.md`](ACTIONS.md) once appro
 
 ---
 
-## Open decisions for Mike
-1. ~~Dark mode: all-on or all-off?~~ **RULED 2026-07-27: all light** (see Dark mode above).
-2. Confirm the proposed numbers: **360px / 20px gap / 1120px / 14px card radius / 12px card title.**
-3. Approve the shell-and-guard approach (Part 3) as the way to lock it, vs a one-off hand-edit.
-4. Give the go to start building — step 1 (the shell) — or bank the current work first.
+## Open decisions for Mike — ALL RESOLVED 2026-07-27
+1. ~~Dark mode: all-on or all-off?~~ **RULED: all light** (see Dark mode above).
+2. ~~Confirm the proposed numbers.~~ **RULED: 360px / 20px gap / 1120px / 14px card radius / 12px card title.**
+3. ~~Approve the shell-and-guard approach (Part 3) vs a one-off hand-edit.~~ **APPROVED — shell + guard.**
+4. ~~Give the go to start building — step 1 (the shell).~~ **DONE — step 1 built + committed (`20be0e2`).**
+
+Next up: **Step 2** — move the first of the eight screens onto the shell (its own approved change).
