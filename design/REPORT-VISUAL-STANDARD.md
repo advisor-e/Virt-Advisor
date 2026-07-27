@@ -1,12 +1,13 @@
 # Report Visual Standard — one look, locked in
 
-> **Status: SIGNED OFF + IN BUILD (2026-07-27).** The numbers below are RULED and the
-> shell-and-guard approach is approved. **Step 1 is built and committed** (`20be0e2` —
-> `components/base/ReportShell.vue` + its test; additive only, no screen touched, suite
-> 1,761 green). Steps 2–6 remain, each its own approved change. This document is the
-> single agreed description of how every report/model screen in the Model Library looks,
-> and — more importantly — how that look is *enforced* so it can never drift one screen at
-> a time again.
+> **Status: COMPLETE (2026-07-27).** The numbers below are RULED, the shell-and-guard
+> approach is approved, and **all six steps are built, tested and pushed** (Step 1 shell
+> `20be0e2` → Step 6 recipe `29fac32`). Every report/model screen in the Model Library now
+> renders inside the shared `ReportShell` frame + `--rs-*` tokens, the ruled numbers come
+> from that one source, and `tests/unit/reportShellFrame.test.js` fails the build if a live
+> report page ever ships without the shell. This document remains the single agreed
+> description of how the screens look and how that look is *enforced* so it can never drift
+> one screen at a time again. Suite 1,784 green / 127 suites.
 >
 > **Companion to** [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md) (the build recipe). Where the
 > two overlap, this file owns the *visual* numbers; the recipe owns the *steps*.
@@ -149,17 +150,26 @@ Values in a document still rely on remembering. These two moves make the standar
 1. ✅ **Shell + tokens** — `components/base/ReportShell.vue` added with the tokens declared
    once; no screen changed. **DONE 2026-07-27, commit `20be0e2`** (+ `reportShell.component.test.js`
    pinning the five numbers and the all-light ruling; suite 1,761 green).
-2. **Adopt, one screen per commit** — move each of the 8 screens onto the shell, deleting
-   its copy-pasted frame/palette/card/button. Component tests stay green at every step.
-3. **Standardise the numbers** — 360px / 20px / 1120px / 14px radius / one title size, in
-   the shell (so it lands everywhere at once).
-4. **Dark mode** — apply Mike's ruling (A or B) in the one token sheet.
-5. **The guard** — add the frame/shell guard; mutation-verify it (remove the shell from a
-   screen → the guard fails).
-6. **Recipe update** — point `ADDING-A-REPORT.md` step 6/7 at the shell and this file.
+2. ✅ **Adopt, one screen per commit** — all 8 screens moved onto the shell, each deleting
+   its copy-pasted frame/palette/card/button. First five earlier 2026-07-27; last three
+   Quick Position (`9d41582`), EBITDA-DCF (`ebd6ab8`), Loan Estimator (`b927395`).
+3. ✅ **Standardise the numbers** — the two-column layouts read `var(--rs-col-input)` /
+   `var(--rs-col-gap)` (→ 360px / 20px), the Loan Estimator input cards read
+   `var(--rs-card-radius)` (10px → 14px) and the standard 12px/600 title; Eight Levers'
+   900px breakpoint fell to 860px. One source, so a future change lands everywhere. `ff549b6`.
+4. ✅ **Dark mode** — all-light. No code change was needed: the 8 screens carry no
+   `prefers-color-scheme` block (removed on migration) and the shell has none (pinned by
+   `reportShell.component.test.js`). *(The Model Library catalogue's own `--mlb-*` dark
+   block is a separate screen, outside this standard — flagged for a separate owner call.)*
+5. ✅ **The guard** — `tests/unit/reportShellFrame.test.js` fails the build if a ready
+   report's page does not wrap its screen in `<report-shell>`; the guarded list is derived
+   from the catalogue's ready routes, so new reports are covered automatically.
+   Mutation-verified (shell → plain div fails). `264bdb9`.
+6. ✅ **Recipe update** — `ADDING-A-REPORT.md` steps 6/7/8 + checklist + the "three guards"
+   section now teach the shell-first flow and the `--rs-*` tokens. `29fac32`.
 
-Runs on `feat/business-performance-report`; each step is a separate Mike-approved change
-under the LIVE-APP rule. Logged as a P1 in [`ACTIONS.md`](ACTIONS.md) once approved.
+Ran on `feat/business-performance-report`; each step a separate Mike-approved change under
+the LIVE-APP rule. **All six steps complete 2026-07-27.**
 
 ---
 
