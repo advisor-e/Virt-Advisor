@@ -1,0 +1,348 @@
+<title>Working Capital Cycle — layout check</title>
+<style>
+/* ============================================================================
+   FAITHFUL RENDER of the current on-disk code (2026-07-27):
+   - ReportShell tokens + frame  (components/base/ReportShell.vue)
+   - ReportHeader                (components/base/ReportHeader.vue  .rs-top …)
+   - HeroStrip / HeroFigure      (components/base/HeroStrip.vue / HeroFigure.vue)
+   - SliderField                 (components/base/SliderField.vue)
+   - BusinessPerformanceReport   (.bpr-* — INCLUDING the flex-column root I added)
+   Copied verbatim; scoped selectors flattened to plain classes. No invented styling.
+   ============================================================================ */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+
+/* ---- control bar (not part of the app — just to toggle the labels) ---- */
+.diag-bar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 10px 16px; background: #0a1f3d; color: #cfe4f7;
+  font: 13px/1.4 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+.diag-bar strong { color: #fff; }
+.diag-bar label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.diag-bar .note { color: #9fb4d0; }
+
+/* ---- section-label overlays (only when body has .show-tags) ---- */
+[data-tag] { position: relative; }
+body.show-tags [data-tag] { outline: 1.5px dashed #d63; outline-offset: 2px; }
+body.show-tags [data-tag]::before {
+  content: attr(data-tag);
+  position: absolute; top: -2px; left: -2px; z-index: 40;
+  transform: translateY(-100%);
+  background: #d63; color: #fff;
+  font: 700 11px/1 'Open Sans', system-ui, sans-serif; letter-spacing: .04em;
+  padding: 3px 6px; border-radius: 4px 4px 4px 0; white-space: nowrap;
+}
+body.show-tags [data-tag='A']::before,
+body.show-tags [data-tag='C']::before { background: #b32020; outline-color: #b32020; }
+
+/* ========================= ReportShell ========================= */
+.report-shell {
+  --rs-col-input: 360px;
+  --rs-col-gap: 20px;
+  --rs-content-width: 1120px;
+  --rs-frame-pad: 28px 22px 64px;
+
+  --rs-bg: #eef3f8;
+  --rs-panel: #ffffff;
+  --rs-panel-2: #f1f6fb;
+  --rs-ink: #002b64;
+  --rs-muted: #5b6f8a;
+  --rs-line: #d5e1ee;
+  --rs-accent: #0070c0;
+  --rs-accent-bright: #00b1e0;
+  --rs-good: #4ca52d;
+  --rs-warn: #ff9900;
+  --rs-crit: #ff0000;
+
+  --rs-accent-soft: #0070c018;
+  --rs-accent-contrast: #ffffff;
+  --rs-good-soft: #4ca52d1a;
+  --rs-warn-soft: #ff99001a;
+  --rs-crit-soft: #ff00000f;
+  --rs-shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius: 14px;
+
+  --rs-card-bg: var(--rs-panel);
+  --rs-card-border: var(--rs-line);
+  --rs-card-top: var(--rs-accent-bright);
+  --rs-card-radius: 14px;
+  --rs-card-pad: 16px 18px;
+  --rs-card-title-size: 12px;
+  --rs-card-title-color: var(--rs-ink);
+
+  --rs-font: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --rs-font-weight: 300;
+
+  min-height: 100vh;
+  background: var(--rs-bg);
+  font-family: var(--rs-font);
+  font-weight: var(--rs-font-weight);
+  -webkit-font-smoothing: antialiased;
+}
+.report-shell__wrap {
+  max-width: var(--rs-content-width);
+  margin: 0 auto;
+  padding: var(--rs-frame-pad);
+}
+
+/* ========================= .bpr-root (Working Capital Cycle) ========================= */
+.bpr-root {
+  --bpr-bg:var(--rs-bg); --bpr-panel:var(--rs-panel); --bpr-panel-2:var(--rs-panel-2); --bpr-ink:var(--rs-ink); --bpr-muted:var(--rs-muted); --bpr-line:var(--rs-line);
+  --bpr-accent:var(--rs-accent); --bpr-accent-bright:var(--rs-accent-bright); --bpr-accent-soft:var(--rs-accent-soft); --bpr-accent-ink:var(--rs-ink); --bpr-accent-contrast:var(--rs-accent-contrast);
+  --bpr-good:var(--rs-good); --bpr-good-soft:var(--rs-good-soft); --bpr-crit:var(--rs-crit); --bpr-crit-soft:var(--rs-crit-soft); --bpr-warn:var(--rs-warn); --bpr-warn-soft:var(--rs-warn-soft);
+  --bpr-shadow:var(--rs-shadow); --bpr-r:var(--rs-radius);
+  color:var(--bpr-ink);
+  /* FIX (all gaps identical): flex column with ONE gap value = 16px. Every vertical gap —
+     header→band, band→layout, and inside the results column — is now exactly 16px. */
+  display:flex; flex-direction:column; gap:16px;
+
+  --sl-accent:var(--bpr-accent); --sl-line:var(--bpr-line); --sl-panel:var(--bpr-panel);
+  --sl-ink:var(--bpr-ink); --sl-accent-soft:var(--bpr-accent-soft);
+}
+.bpr-root strong, .bpr-root b { font-weight:600; }
+.num { font-variant-numeric: tabular-nums; }
+/* FIX: reset the shared header's own margin (0 auto 22px) so it neither shrinks under
+   flex NOR adds to the gap — the single flex gap above is now the only spacing. In the
+   real Vue code this is `.bpr-root ::v-deep .rs-top { margin: 0; }` (does not touch the
+   shared ReportHeader component). */
+.bpr-root .rs-top { margin: 0; }
+
+.bpr-layout { display:grid; grid-template-columns:var(--rs-col-input) 1fr; gap:var(--rs-col-gap); align-items:start; }
+@media (max-width:860px) { .bpr-layout { grid-template-columns:1fr; } }
+
+.bpr-card { background:var(--bpr-panel); border:1px solid var(--bpr-line); border-radius:var(--bpr-r); box-shadow:var(--bpr-shadow); }
+.bpr-h2 { margin:0; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--bpr-muted); font-weight:600; }
+.bpr-group { padding:15px 16px; border-bottom:1px solid var(--bpr-line); }
+.bpr-group:last-child { border-bottom:0; }
+.bpr-glabel { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.bpr-dot { width:7px; height:7px; border-radius:50%; background:var(--bpr-accent-bright); }
+
+.bpr-results { display:flex; flex-direction:column; gap:16px; min-height:200px; }
+.bpr-tiles { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+@media (max-width:560px) { .bpr-tiles { grid-template-columns:1fr; } }
+.bpr-tile { background:var(--bpr-panel); border:1px solid var(--bpr-line); border-radius:var(--bpr-r); padding:16px 17px; box-shadow:var(--bpr-shadow); overflow:hidden; }
+.bpr-k { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--bpr-muted); font-weight:600; }
+.bpr-v { font-size:30px; font-weight:600; letter-spacing:-.01em; margin-top:6px; line-height:1; }
+.bpr-sub { font-size:12.5px; color:var(--bpr-muted); margin-top:6px; }
+
+.bpr-wheelcard { padding:18px; }
+.bpr-wheelhead { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.bpr-cycsum { font-size:13px; color:var(--bpr-muted); }
+.bpr-cycsum b { color:var(--bpr-ink); }
+.bpr-wheel { display:block; width:100%; height:auto; max-width:560px; margin:6px auto 0; }
+.bpr-coin { fill:var(--bpr-crit); stroke:#fff; stroke-width:1.5;
+  offset-path:path("M330 70 A110 110 0 1 1 329.99 70"); animation:bprOrbit var(--spin,4s) linear infinite; }
+@keyframes bprOrbit { to { offset-distance:100%; } }
+@media (prefers-reduced-motion: reduce) { .bpr-coin { animation:none; } }
+
+.bpr-edu { border-left:3px solid var(--bpr-accent-bright); background:var(--bpr-accent-soft); border-radius:0 9px 9px 0; padding:15px 17px; }
+.bpr-edu-h { display:flex; align-items:center; gap:9px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:var(--bpr-accent); margin-bottom:8px; }
+.bpr-edu-p { margin:0 0 8px; font-size:14px; line-height:1.6; }
+.bpr-edu-p:last-child { margin-bottom:0; }
+.bpr-lead { background:var(--bpr-accent); color:var(--bpr-accent-contrast); font-size:10px; font-weight:600; letter-spacing:.08em; padding:3px 7px; border-radius:5px; }
+
+.bpr-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.bpr-cta { font:inherit; font-weight:600; font-size:13.5px; color:var(--bpr-accent-contrast); background:var(--bpr-accent); border:0; padding:11px 18px; border-radius:10px; cursor:pointer; }
+.bpr-ghost { background:transparent; color:var(--bpr-ink); border:1px solid var(--bpr-line); }
+.bpr-foot { font-size:12px; color:var(--bpr-muted); }
+.bpr-pill { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; }
+.bpr-pill.is-good { color:var(--bpr-good); background:var(--bpr-good-soft); }
+.bpr-pill-dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
+
+/* ========================= ReportHeader (.rs-top) ========================= */
+.rs-top {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  max-width: 1180px; margin: 0 auto 22px; padding: 22px 24px;
+  background: #002b64;
+  border-radius: var(--rs-radius, 14px);
+  color: #fff;
+  box-shadow: var(--rs-shadow, 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426);
+}
+.rs-backlink { display: inline-block; margin-bottom: 10px; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: #7fd3f1; text-decoration: none; opacity: .9; }
+.rs-eyebrow { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #00b1e0; font-weight: 600; }
+.rs-h1 { margin: 4px 0 3px; font-size: 27px; font-weight: 300; letter-spacing: -.01em; }
+.rs-client { font-size: 12.5px; opacity: .85; }
+.rs-badge { flex: none; font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: #ffffff22; border: 1px solid #ffffff44; }
+
+/* ========================= HeroStrip / HeroFigure ========================= */
+.herostrip { background: #002b64; border-radius: 14px; padding: 20px; display: grid; gap: 0; box-shadow: 0 12px 32px -12px #002b6466; }
+.herostrip.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.herostrip.cols-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 700px) { .herostrip.cols-3, .herostrip.cols-4 { grid-template-columns: 1fr 1fr; gap: 14px 0; } }
+.herostrip > *:first-child { border-left: 0; padding-left: 2px; }
+.hs { padding: 2px 16px; border-left: 1px solid #ffffff30; }
+.hk { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: #7fe4ff; font-weight: 700; }
+.hv { font-size: 26px; font-weight: 700; color: #fff; margin-top: 7px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.hv .u { font-size: .5em; font-weight: 400; opacity: .85; }
+.hs2 { font-size: 12px; color: #c7e6fb; margin-top: 6px; }
+
+/* ========================= SliderField ========================= */
+.sl-field { margin: 11px 0; }
+.sl-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 5px; }
+.sl-row label { font-size: 12.5px; color: var(--sl-ink, #002b64); font-weight: 300; }
+.sl-row output { font-size: 13px; font-weight: 600; color: var(--sl-accent, #0070c0); }
+.sl-field input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 4px; outline: none;
+  background: linear-gradient(var(--sl-accent, #0070c0), var(--sl-accent, #0070c0)) 0/var(--sl-fill, 50%) 100% no-repeat, var(--sl-line, #d5e1ee);
+}
+.sl-field input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--sl-panel, #fff); border: 2px solid var(--sl-accent, #0070c0); box-shadow: 0 1px 3px #0003; cursor: pointer; }
+</style>
+
+<div class="diag-bar">
+  <strong>Working Capital Cycle</strong>
+  <span class="note">LOCKED REPORT LAYOUT STANDARD — every model matches this: full-width header [B], full-width banner [C], two-column body [D], 16px gap everywhere</span>
+  <label><input type="checkbox" id="tagToggle" checked> Show section labels [A]–[D2d]</label>
+</div>
+
+<div class="report-shell">
+  <div class="report-shell__wrap">
+
+    <div class="bpr-root" data-tag="A">
+
+      <!-- [B] header -->
+      <header class="rs-top" data-tag="B">
+        <div class="rs-brand">
+          <a class="rs-backlink" href="#">‹ Back to Model Library</a>
+          <div class="rs-eyebrow">Business Performance Report · Education</div>
+          <h1 class="rs-h1">Working Capital Cycle</h1>
+          <div class="rs-client">Prepared for — sample company</div>
+        </div>
+        <div class="rs-badge">Illustrative</div>
+      </header>
+
+      <!-- [C] full-width headline band  (template v-if="out" → hero-strip is a direct child of .bpr-root) -->
+      <div class="herostrip cols-4" data-tag="C">
+        <div class="hs">
+          <div class="hk">Cash cycle</div>
+          <div class="hv">34<span class="u"> days</span></div>
+          <div class="hs2">start of stock to cash in the bank</div>
+        </div>
+        <div class="hs">
+          <div class="hk">Cycle turns</div>
+          <div class="hv">0.9×</div>
+          <div class="hs2">10.6× a year — how often cash recycles</div>
+        </div>
+        <div class="hs">
+          <div class="hk">Annual revenue</div>
+          <div class="hv">$2,543</div>
+          <div class="hs2">from $224 of working capital</div>
+        </div>
+        <div class="hs">
+          <div class="hk">Net profit</div>
+          <div class="hv">$38<span class="u">/mo</span></div>
+          <div class="hs2"><span class="bpr-pill is-good"><span class="bpr-pill-dot"></span> Cash-flow positive</span></div>
+        </div>
+      </div>
+
+      <!-- [D] two-column layout -->
+      <div class="bpr-layout" data-tag="D">
+
+        <!-- [D1] inputs -->
+        <aside class="bpr-card" data-tag="D1">
+          <div class="bpr-group">
+            <div class="bpr-glabel"><span class="bpr-dot"></span><h2 class="bpr-h2">Set-up</h2></div>
+            <div class="sl-field"><div class="sl-row"><label>Initial investment</label><output>$200</output></div><input type="range" min="0" max="500" value="200" style="--sl-fill:40%"></div>
+            <div class="sl-field"><div class="sl-row"><label>Plant &amp; equipment</label><output>40%</output></div><input type="range" min="0" max="100" value="40" style="--sl-fill:40%"></div>
+          </div>
+          <div class="bpr-group">
+            <div class="bpr-glabel"><span class="bpr-dot"></span><h2 class="bpr-h2">Pricing</h2></div>
+            <div class="sl-field"><div class="sl-row"><label>Unit cost</label><output>$1.00</output></div><input type="range" min="0" max="5" value="1" style="--sl-fill:20%"></div>
+            <div class="sl-field"><div class="sl-row"><label>Mark-up</label><output>150%</output></div><input type="range" min="0" max="300" value="150" style="--sl-fill:50%"></div>
+            <div class="sl-field"><div class="sl-row"><label>Discount</label><output>15%</output></div><input type="range" min="0" max="50" value="15" style="--sl-fill:30%"></div>
+          </div>
+          <div class="bpr-group">
+            <div class="bpr-glabel"><span class="bpr-dot"></span><h2 class="bpr-h2">Cycle (days)</h2></div>
+            <div class="sl-field"><div class="sl-row"><label>Days to deliver</label><output>4</output></div><input type="range" min="0" max="30" value="4" style="--sl-fill:13%"></div>
+            <div class="sl-field"><div class="sl-row"><label>Days on hand</label><output>6</output></div><input type="range" min="0" max="30" value="6" style="--sl-fill:20%"></div>
+            <div class="sl-field"><div class="sl-row"><label>Days receivable</label><output>35</output></div><input type="range" min="0" max="90" value="35" style="--sl-fill:39%"></div>
+            <div class="sl-field"><div class="sl-row"><label>Days payable</label><output>15</output></div><input type="range" min="0" max="90" value="15" style="--sl-fill:17%"></div>
+          </div>
+          <div class="bpr-group">
+            <div class="bpr-glabel"><span class="bpr-dot"></span><h2 class="bpr-h2">Costs</h2></div>
+            <div class="sl-field"><div class="sl-row"><label>Fixed costs / month</label><output>$180</output></div><input type="range" min="0" max="500" value="180" style="--sl-fill:36%"></div>
+          </div>
+        </aside>
+
+        <!-- [D2] results -->
+        <section class="bpr-results" data-tag="D2">
+
+          <div class="bpr-tiles" data-tag="D2a">
+            <div class="bpr-tile">
+              <div class="bpr-k">vs starting point</div>
+              <div class="bpr-v num">+$312</div>
+              <div class="bpr-sub num">+14% · annual revenue</div>
+            </div>
+          </div>
+
+          <div class="bpr-card bpr-wheelcard" data-tag="D2b">
+            <div class="bpr-wheelhead">
+              <h2 class="bpr-h2">The cash wheel</h2>
+              <div class="bpr-cycsum">Cash turns <b>0.9×</b> a month · one lap is <b>34 days</b> · you take <b>15d</b> to pay suppliers</div>
+            </div>
+            <svg class="bpr-wheel" viewBox="0 0 500 360" role="img" aria-label="Cash cycle wheel">
+              <defs>
+                <marker id="bprAh" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M0 0 L10 5 L0 10 z" fill="#0070c0"></path>
+                </marker>
+              </defs>
+              <line x1="150" y1="40" x2="150" y2="320" stroke="var(--bpr-line)" stroke-width="1.5" stroke-dasharray="4 5"></line>
+              <rect x="16" y="150" width="116" height="70" rx="11" fill="var(--bpr-panel-2)" stroke="var(--bpr-line)"></rect>
+              <text x="74" y="178" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--bpr-ink)">Fixed costs</text>
+              <text class="num" x="74" y="200" text-anchor="middle" font-size="15" font-weight="600" fill="var(--bpr-ink)">$180/mo</text>
+              <text x="74" y="246" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)">paid whether or not</text>
+              <text x="74" y="260" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)">the wheel turns</text>
+              <g fill="none" stroke="#0070c0" stroke-width="6" stroke-linecap="round" marker-end="url(#bprAh)">
+                <path d="M388.3 86.7 A110 110 0 0 1 423.3 121.7"></path>
+                <path d="M423.3 238.3 A110 110 0 0 1 388.3 273.3"></path>
+                <path d="M271.7 273.3 A110 110 0 0 1 236.7 238.3"></path>
+                <path d="M236.7 121.7 A110 110 0 0 1 271.7 86.7"></path>
+              </g>
+              <circle cx="330" cy="180" r="60" fill="#3a3a3a"></circle>
+              <text x="330" y="171" text-anchor="middle" font-size="9" font-weight="600" letter-spacing="0.5" fill="#ffffff" opacity="0.92">MONEY IN MOVEMENT</text>
+              <text class="num" x="330" y="192" text-anchor="middle" font-size="20" font-weight="600" fill="#ffffff">$224</text>
+              <text x="330" y="207" text-anchor="middle" font-size="9.5" fill="#ffffff" opacity="0.85">working capital</text>
+              <g><circle cx="330" cy="70" r="38" fill="#002b64"></circle>
+                <text x="330" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Cash</text>
+                <text class="num" x="330" y="84" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.9">$224</text></g>
+              <g><circle cx="440" cy="180" r="38" fill="#0070c0"></circle>
+                <text x="440" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Stock</text>
+                <text class="num" x="440" y="194" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.92">10d</text></g>
+              <g><circle cx="330" cy="290" r="38" fill="#4ca52d"></circle>
+                <text x="330" y="288" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Sale</text>
+                <text class="num" x="330" y="304" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.85">1,240 u</text></g>
+              <g><circle cx="220" cy="180" r="38" fill="#ff9900"></circle>
+                <text x="220" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#002b64">Debtors</text>
+                <text class="num" x="220" y="194" text-anchor="middle" font-size="10.5" fill="#002b64" opacity="0.85">35d</text></g>
+              <circle class="bpr-coin" r="7" style="--spin:4s"></circle>
+            </svg>
+          </div>
+
+          <div class="bpr-edu" data-tag="D2c">
+            <div class="bpr-edu-h"><span class="bpr-lead">Coach</span> What this means</div>
+            <p class="bpr-edu-p">You have <strong>$224</strong> of cash tied up in the cycle, and it takes <strong>34 days</strong> to come back as cash — so it turns about <strong>0.9×</strong> a month. Your fixed costs sit <em>outside</em> the wheel and are paid whether it turns or not.</p>
+            <p class="bpr-edu-p">Collect from debtors <strong>7 days</strong> sooner and the wheel turns <strong>1.1×</strong> a month — roughly <strong>$260</strong> more revenue from the same cash.</p>
+          </div>
+
+          <div class="bpr-actions" data-tag="D2d">
+            <button class="bpr-cta">Download PDF</button>
+            <button class="bpr-cta bpr-ghost">Reset</button>
+            <button class="bpr-cta bpr-ghost">Set as starting point</button>
+            <button class="bpr-cta bpr-ghost">Ask the coach</button>
+            <span class="bpr-foot">Illustrative figures — not your client's data.</span>
+          </div>
+
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('tagToggle').addEventListener('change', function (e) {
+    document.body.classList.toggle('show-tags', e.target.checked);
+  });
+  document.body.classList.add('show-tags');
+</script>

@@ -43,6 +43,37 @@ adds the guard that makes divergence a build failure.
 
 ---
 
+## Section anatomy — the skeleton every model shares (RULED 2026-07-27)
+
+Every report/model screen is built from the same labelled sections, in this order. The
+**labelled reference is [`REPORT-LAYOUT-REFERENCE.html`](REPORT-LAYOUT-REFERENCE.html)** —
+open it in a browser; it renders the Working Capital screen with each section tagged
+**[A]–[D2d]** and a toggle to show/hide the labels. Match a new model to it exactly.
+
+| Tag | Section | Rule |
+|---|---|---|
+| **[A]** | Screen root | `display:flex; flex-direction:column; gap:16px` — ONE gap value, so every vertical gap is identical. Resets the shared header margin: `.<root> ::v-deep .rs-top { margin:0 }` (see [B]). |
+| **[B]** | Header (`report-header`) | **Full page width — never shrunk.** The shared ReportHeader carries `margin:0 auto 22px`; inside the flex column [A] that auto margin shrinks it below full width AND its 22px stacks on the flex gap. So the root MUST zero it (the reset in [A]). A header rendered inside a screen without that reset FAILS `reportHeaderFullWidth.test.js`. |
+| **[C]** | Headline banner (`HeroStrip` band) | **Full page width**, a direct child of the root, ABOVE the two-column layout — never inside a column. 3 or 4 `HeroFigure` cells. |
+| **[D]** | Two-column body (`.<x>-layout`) | `grid-template-columns: var(--rs-col-input) 1fr` (360px + flex), `gap: var(--rs-col-gap)`, collapsing at `@media (max-width:860px)`. |
+| **[D1]** | Inputs (`aside`) | Left column: sliders / typed fields. |
+| **[D2]** | Results (`section`) | Right column: `display:flex; flex-direction:column; gap:16px`. The model's cards — **[D2a]** tiles, **[D2b]** the chart/diagram, **[D2c]** the coach panel, **[D2d]** the actions. |
+
+**Gaps: 16px, everywhere (RULED 2026-07-27).** The root gap [A] and the results-column gap
+[D2] are both 16px, so header→banner, banner→body and every card-to-card gap are one number.
+(The two COLUMNS in [D] sit `--rs-col-gap` apart — a horizontal gap, not part of the vertical
+rhythm.)
+
+**Three structural guards enforce this skeleton** (all mutation-verified):
+
+- `reportShellFrame.test.js` — every live report page wraps in `<report-shell>` (the frame).
+- `reportHeadlineConsistency.component.test.js` — the banner [C] exists, greys when stale, and
+  is a FULL-WIDTH band (its DOM parent is the screen root, not a column).
+- `reportHeaderFullWidth.test.js` — a screen that renders the header [B] itself must reset its
+  margin, so it can never shrink again (closes the 2026-07-27 regression).
+
+---
+
 ## Part 1 — The agreed numbers (the standard)
 
 > Proposed values are marked **(PROPOSED)** until Mike signs off. Values already ruled by

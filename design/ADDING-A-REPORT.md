@@ -166,8 +166,16 @@ Compose it. Do not hand-roll any of these:
 ```
 
 ```css
-/* Root: flex column so header + full-width band + layout share one vertical rhythm. */
+/* Root: flex column with ONE gap value (16px) so every vertical gap — header→band,
+   band→layout, card→card — is identical. See the [A]–[D2d] section anatomy in
+   REPORT-VISUAL-STANDARD.md and the labelled REPORT-LAYOUT-REFERENCE.html. */
 .my-root { display: flex; flex-direction: column; gap: 16px; }
+/* MANDATORY when report-header is inside the screen: reset its `margin: 0 auto 22px`.
+   In a flex column that auto margin shrinks the header below full width and doubles the
+   header→band gap. Guarded by reportHeaderFullWidth.test.js. */
+.my-root ::v-deep .rs-top { margin: 0; }
+/* The results column keeps the same 16px rhythm. */
+.my-results { display: flex; flex-direction: column; gap: 16px; }
 ```
 
 ```js
@@ -227,6 +235,9 @@ the catalogue's ready routes, so your report is covered the moment its row flips
 - [ ] Catalogue row added, `modelClass` correct, badge matches the class
 - [ ] Page wraps the screen in `<report-shell>`; the screen declares no frame/palette/
       card/font of its own — it reads the `--rs-*` tokens (see `REPORT-VISUAL-STANDARD.md`)
+- [ ] Matches the [A]–[D2d] section anatomy (`REPORT-LAYOUT-REFERENCE.html`): full-width
+      header + banner, two-column body, root a flex column with a single 16px gap, and
+      `::v-deep .rs-top { margin: 0 }` if the header is rendered inside the screen
 - [ ] Screen composes `ReportHeader` + `HeroStrip`/`HeroFigure` + `StaleBanner`
       (+ `SliderField`, `ProvenanceBadge` where they apply)
 - [ ] `currencyMixin` + `reportRecompute` mixed in; no local `money()`, no local debounce
@@ -252,9 +263,9 @@ Not everything is duplication, and forcing these together would be a redesign:
 If a new report wants something outside this list, raise it as a design decision rather
 than building a second version of an existing block.
 
-## The three guards that enforce this
+## The four guards that enforce this
 
-Three tests make the rules above unbreakable rather than merely written down. All derive
+Four tests make the rules above unbreakable rather than merely written down. All derive
 their expectations from real sources, so they cannot drift from the thing they check:
 
 - [`tests/unit/reportBadgeClass.component.test.js`](../tests/unit/reportBadgeClass.component.test.js)
@@ -271,6 +282,12 @@ their expectations from real sources, so they cannot drift from the thing they c
   screen in `<report-shell>`. This is what stops a screen shipping with its own frame, or
   none. The list is the catalogue's ready routes, so a new report is covered **automatically**.
 
-All three are mutation-verified: badging Quick Position "Illustrative" fails the first,
-tucking a banner into a column (or hand-rolling a headline) fails the second, and swapping
-a page's `report-shell` root for a plain div fails the third.
+- [`tests/unit/reportHeaderFullWidth.test.js`](../tests/unit/reportHeaderFullWidth.test.js)
+  — a screen that renders `report-header` inside itself must reset the header margin
+  (`::v-deep .rs-top { margin: 0 }`), so the header can never shrink below full width in the
+  flex-column root. Closes the 2026-07-27 regression that shipped a narrow header.
+
+All four are mutation-verified: badging Quick Position "Illustrative" fails the first,
+tucking a banner into a column (or hand-rolling a headline) fails the second, swapping a
+page's `report-shell` root for a plain div fails the third, and dropping the `.rs-top`
+margin reset fails the fourth.
