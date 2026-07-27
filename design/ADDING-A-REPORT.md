@@ -98,8 +98,28 @@ are dummy data. See `design/MODEL-CLASSIFICATION.md`.
 
 ### 6. The page — `pages/my-report.vue`
 
-Thin. It renders the report component. Only reports with a **file intake** need more
-(token resolution + step chips — copy `pages/quick-position.vue`).
+Thin, and it **must wrap the screen in `<report-shell>`** — the shared frame (light canvas,
+centred 1120px column, padding) plus the `--rs-*` design tokens, both defined once in
+`components/base/ReportShell.vue`. See
+[`REPORT-VISUAL-STANDARD.md`](REPORT-VISUAL-STANDARD.md) for the tokens and the ruled
+numbers. A page that skips the shell **fails the build** (step 8's frame guard).
+
+```pug
+<template lang="pug">
+report-shell
+  my-report
+</template>
+```
+
+```js
+import ReportShell from '~/components/base/ReportShell.vue'
+import MyReport from '~/components/MyReport.vue'
+export default { name: 'MyReportPage', components: { ReportShell, MyReport } }
+```
+
+Only reports with a **file intake** need more (token resolution + step chips, with
+`report-header` and the chips living in the page *inside* the shell — copy
+`pages/quick-position.vue`).
 
 ### 7. The screen — `components/MyReport.vue`
 
@@ -158,6 +178,16 @@ methods: {
   the literal word "true" in front of advisors on Eight Levers for a day.
 - Use `provenance-badge` wherever a figure can come from a file, so the advisor can tell
   an accounting fact from a typed one.
+- **Declare no frame, palette, colour, card, button or font of your own — read the shell's
+  `--rs-*` tokens.** A card is `background: var(--rs-card-bg); border: 1px solid
+  var(--rs-card-border); border-top: 3px solid var(--rs-card-top); border-radius:
+  var(--rs-card-radius); padding: var(--rs-card-pad)`; a two-column layout is
+  `grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap)` (collapsing at
+  `@media (max-width: 860px)`); text is `var(--rs-ink)` / `var(--rs-muted)`, accents
+  `var(--rs-accent)` / `var(--rs-accent-bright)`. The full token list and the ruled numbers
+  live in [`REPORT-VISUAL-STANDARD.md`](REPORT-VISUAL-STANDARD.md). A genuinely
+  model-specific accent (a chart gradient, a verdict panel) may stay literal — nothing else.
+  There is **no dark mode**: the look is one light standard regardless of the OS theme.
 
 ### 8. Wire it into the consistency guard — **do not skip this**
 
@@ -170,6 +200,11 @@ The list is explicit rather than discovered, so a new report is only protected o
 added. That is the one manual step in this recipe — if you skip it, the guard will not
 protect the new screen and nothing will tell you.
 
+You do **not** need to add anything for the *frame* guard
+([`tests/unit/reportShellFrame.test.js`](../tests/unit/reportShellFrame.test.js)): it reads
+the catalogue's ready routes, so your report is covered the moment its row flips to `ready`
+— and it fails if step 6's page does not wrap the screen in `<report-shell>`.
+
 ---
 
 ## Checklist
@@ -179,6 +214,8 @@ protect the new screen and nothing will tell you.
 - [ ] Route returns `{ success, error: { code, message }, timestamp }` and leaks nothing
 - [ ] Route registered; `firmAuth` only if it accepts uploads
 - [ ] Catalogue row added, `modelClass` correct, badge matches the class
+- [ ] Page wraps the screen in `<report-shell>`; the screen declares no frame/palette/
+      card/font of its own — it reads the `--rs-*` tokens (see `REPORT-VISUAL-STANDARD.md`)
 - [ ] Screen composes `ReportHeader` + `HeroStrip`/`HeroFigure` + `StaleBanner`
       (+ `SliderField`, `ProvenanceBadge` where they apply)
 - [ ] `currencyMixin` + `reportRecompute` mixed in; no local `money()`, no local debounce
@@ -204,9 +241,9 @@ Not everything is duplication, and forcing these together would be a redesign:
 If a new report wants something outside this list, raise it as a design decision rather
 than building a second version of an existing block.
 
-## The two guards that enforce this
+## The three guards that enforce this
 
-Two tests make the rules above unbreakable rather than merely written down. Both derive
+Three tests make the rules above unbreakable rather than merely written down. All derive
 their expectations from real sources, so they cannot drift from the thing they check:
 
 - [`tests/unit/reportBadgeClass.component.test.js`](../tests/unit/reportBadgeClass.component.test.js)
@@ -214,8 +251,13 @@ their expectations from real sources, so they cannot drift from the thing they c
   own `usesRealClientData()` helper. **A shipped report with no entry in its route map is
   a failure, not a skip**, so a new report cannot slip through unchecked.
 - [`tests/unit/reportHeadlineConsistency.component.test.js`](../tests/unit/reportHeadlineConsistency.component.test.js)
-  — mounts all six screens against real backend model output and fails if any hand-rolls
-  its headline, leaves stale figures bright, or warns with something transient.
+  — mounts every listed screen against real backend model output and fails if any
+  hand-rolls its headline, leaves stale figures bright, or warns with something transient.
+- [`tests/unit/reportShellFrame.test.js`](../tests/unit/reportShellFrame.test.js)
+  — reads every ready route from the catalogue and fails if its page does not wrap the
+  screen in `<report-shell>`. This is what stops a screen shipping with its own frame, or
+  none. The list is the catalogue's ready routes, so a new report is covered **automatically**.
 
-Both are mutation-verified: badging Quick Position "Illustrative" fails the first, and
-hand-rolling a headline fails the second.
+All three are mutation-verified: badging Quick Position "Illustrative" fails the first,
+hand-rolling a headline fails the second, and swapping a page's `report-shell` root for a
+plain div fails the third.
