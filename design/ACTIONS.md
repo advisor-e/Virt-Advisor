@@ -177,6 +177,30 @@
     → **Orientation Part 1/2**, *Sales & Mktg Review* → **Sales & Marketing Review**, *Porter's & Pine*
     → **Porters & Pine**; the other five are named exactly as their page. No new library pages were
     needed and no snapshot moved. Full suite **1,913 green**.
+  - ✅ **QUIZ LAB BUILT 2026-07-28 (approved by Mike, this branch) — `scripts/quiz-lab.js`.** The
+    bench the locking test cannot be: it drives the REAL `findQuizBank` and the REAL grader
+    selection once per bank, so it proves a bank is **reachable by a live session** and that every
+    entry id resolves to its **own** model answer — neither of which an exact-title check can show.
+    Writes [`design/QUIZ-LAB-REPORT.md`](QUIZ-LAB-REPORT.md) (metrics · per-bank verdict · library
+    coverage · the opening of the AI's brief per bank) and **exits 1 on a structural fault**, so it
+    can be wired to CI. Run free with `node scripts/quiz-lab.js`; filter with a substring.
+    - **First run, all 58 banks: 0 orphans, 0 misbound, 0 grader faults** across 610 questions.
+    - **Circularity caught during the build (recorded because it would have made the bench
+      worthless):** the first version built the test session's resource **from the bank key**, so a
+      mis-keyed bank matched itself and looked healthy. It now takes the title from the LIBRARY.
+    - **Negative control (the bench is not vacuous):** run against a broken bank file — typo'd key,
+      duplicate entry id, empty model answer — it reported 1 orphan + 1 grader fault and exited 1.
+    - **`--ai N` mode (opt-in, spends credit):** generates real quizzes and flags any question that
+      cites a missing entry or copies an entry near-verbatim. **First AI run (3 banks / 9 questions,
+      E.O.Y Meeting · The 9 Growth Stages · Phone Techniques): every question built from a real bank
+      entry with a valid `bankRef`, none near-verbatim** — CB-30 works end to end on the new content.
+      *Observation, not a defect:* Phone Techniques drew entries 1–3 in order, which may be position
+      bias or may simply be the synthetic session content (the page's purpose text stands in for a
+      transcript) giving the model nothing to choose relevance on. A real session would tell them
+      apart.
+    - ☐ **Still unproven — the SCREEN.** The lab exercises the server path only. Nobody has yet
+      watched a banked quiz render and grade in the running app; that remains the open
+      *live-eyeball* item and wants doing before this branch goes to `master`.
   - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"
