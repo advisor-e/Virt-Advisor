@@ -13,6 +13,7 @@ const QuickPositionReport = require('~/components/QuickPositionReport.vue').defa
 const EbitdaDcfReport = require('~/components/EbitdaDcfReport.vue').default
 const LoanEstimatorReport = require('~/components/LoanEstimatorReport.vue').default
 const LeaseVsBuy = require('~/components/LeaseVsBuy.vue').default
+const CostOfCapital = require('~/components/CostOfCapital.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -22,6 +23,7 @@ const { computeQuickPosition, DEFAULTS: QP_DEFAULTS } = require('~/server/report
 const { computeEbitdaDcf, DEFAULTS: ED_DEFAULTS } = require('~/server/report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('~/server/report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('~/server/report/leaseVsBuyModel')
+const { computeCostOfCapital } = require('~/server/report/costOfCapitalModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -71,7 +73,9 @@ const SCREENS = [
   { name: 'EBITDA & DCF', component: EbitdaDcfReport, result: () => computeEbitdaDcf(Object.assign({}, ED_DEFAULTS)) },
   // An empty body computes every part on the workbook sample — the assembler's own default path.
   { name: 'Loan Estimator', component: LoanEstimatorReport, result: () => computeLoanEstimatorReport({}) },
-  { name: 'Lease vs Buy', component: LeaseVsBuy, result: () => computeLeaseVsBuy({}) }
+  { name: 'Lease vs Buy', component: LeaseVsBuy, result: () => computeLeaseVsBuy({}) },
+  // An empty body computes the workbook sample through the assembler's own default path.
+  { name: 'Cost of Capital (WACC)', component: CostOfCapital, result: () => computeCostOfCapital({}) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

@@ -88,7 +88,7 @@ export const MODELS = [
   { name: '8 Levers Model', category: 'Profitability', summary: 'The eight levers that move profit, and which one to pull first.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/eight-levers' },
   { name: 'Stock Purchasing (Growth Pro)', category: 'Growth', summary: 'Smarter reorder points and buying to free cash without stock-outs.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'Sales Dashboard', category: 'Growth', summary: 'Sales mix, trends and the products carrying the margin.', status: STATUS_SOON, modelClass: CLASS_REPORT },
-  { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/cost-of-capital' },
   { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/lease-vs-buy' },
   { name: 'The Loan Estimator', category: 'Valuation', summary: 'What lenders would lend against, whether the household can service it, and the repayments.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/loan-estimator' },
   { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Compare several property investments side by side.', status: STATUS_SOON, modelClass: CLASS_DECISION },

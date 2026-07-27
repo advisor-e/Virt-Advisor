@@ -39,7 +39,8 @@ const REPORT_SCREEN_FILES = [
   'QuickPositionReport.vue',
   'EbitdaDcfReport.vue',
   'LoanEstimatorReport.vue',
-  'LeaseVsBuy.vue'
+  'LeaseVsBuy.vue',
+  'CostOfCapital.vue'
 ]
 
 /** The `.rs-top` margin reset, tolerant of spacing: `::v-deep .rs-top { margin: 0 … }`. */

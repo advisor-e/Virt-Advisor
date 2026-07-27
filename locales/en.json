@@ -910,6 +910,77 @@
       },
       "yes": "Yes",
       "no": "No"
+    },
+    "costOfCapital": {
+      "title": "Cost of Capital (WACC)",
+      "hero": {
+        "wacc": "Weighted average cost of capital",
+        "waccSub": "The hurdle an investment must clear",
+        "costOfEquity": "Cost of equity",
+        "costOfEquitySub": "What the owners' money expects to earn",
+        "costOfDebt": "Cost of debt (after tax)",
+        "costOfDebtSub": "{rate} borrowing rate, less the tax saved",
+        "fundedByEquity": "Funded by equity",
+        "fundedByEquitySub": "Funded by debt {rate}"
+      },
+      "market": {
+        "title": "Market rates",
+        "riskFree": "5-year government bond rate (%)",
+        "marketReturn": "Average share index return (%)",
+        "beta": "Beta",
+        "betaHelp": "How much this company's returns swing against the market.",
+        "inflation": "Expected inflation rate (%)"
+      },
+      "company": {
+        "title": "Your company",
+        "growth": "Your company's growth rate (%)",
+        "growthHelp": "Worked out from your share figures below. Type over it to use your own.",
+        "growthUseCalculated": "Use the calculated figure",
+        "tax": "Company tax rate (%)"
+      },
+      "funding": {
+        "title": "Funding mix",
+        "equity": "Equity invested",
+        "debt": "Debt (funds borrowed)",
+        "borrowRate": "Borrowing rate (%)"
+      },
+      "build": {
+        "title": "How the answer is reached",
+        "costOfEquity": "Cost of equity",
+        "afterInflation": "after expected inflation",
+        "afterGrowth": "after your company's growth",
+        "timesEquityShare": "× funded by equity {rate}",
+        "equityShare": "Equity's share of the cost",
+        "borrowRate": "Borrowing rate",
+        "timesDebtShare": "× funded by debt {rate}",
+        "lessTax": "less tax saved at {rate}",
+        "debtShare": "Debt's share of the cost",
+        "wacc": "Weighted average cost of capital",
+        "note": "Every figure comes back from the calculation service — nothing on this screen is worked out in the browser."
+      },
+      "helper": {
+        "title": "Beta helper",
+        "lede": "Twelve periods of market and company figures. These suggest a Beta — they never set it. The Beta used in the calculation is the one typed on the left.",
+        "period": "Period",
+        "indexValue": "Share index value",
+        "shareholdersEquity": "Total shareholders' equity",
+        "sharesIssued": "Shares issued",
+        "blankNote": "Leave a period blank if you have no figures for it. A blank period is left out of the workings, rather than counted as a company briefly worth nothing.",
+        "betaFromGrowth": "Beta from growth",
+        "betaFromGrowthSub": "Your growth against the market's",
+        "betaFromVolatility": "Beta from volatility",
+        "betaFromVolatilitySub": "Your swing against the market's",
+        "betaInUse": "Beta in use",
+        "betaInUseSub": "The figure typed on the left"
+      },
+      "warn": {
+        "FEW_PERIODS_MARKET": "Fewer than three periods of share index values — too few to measure a spread.",
+        "FEW_PERIODS_COMPANY": "Fewer than three periods of company figures — too few to measure a spread.",
+        "ROI_BETA_ATYPICAL": "Beta from growth falls outside the usual range of 0.3 to 2.5. Check the figures before relying on it.",
+        "VOLATILITY_BETA_ATYPICAL": "Beta from volatility falls outside the usual range of 0.3 to 2.5. Check the figures before relying on it.",
+        "MARKET_RETURN_ZERO": "The average share index return is zero, so Beta from growth cannot be worked out.",
+        "MARKET_VOLATILITY_ZERO": "The share index does not move across these periods, so Beta from volatility cannot be worked out."
+      }
     }
   },
   "modelLibrary": {
