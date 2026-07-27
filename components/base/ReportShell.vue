@@ -64,6 +64,20 @@ export default {
   --rs-warn: #ff9900;
   --rs-crit: #ff0000;
 
+  /* ─── Soft fills, contrast ink, depth ─────────────────────────────────────
+     The shared "house-palette" extras — soft translucent fills, the on-accent
+     contrast ink, and the card shadow — that the four full-palette screens
+     (Margin Breakeven, Debtor Drag, Working Capital, Eight Levers) each carried
+     privately with IDENTICAL values. Promoted into the single source so those
+     screens drop their own copies (added 2026-07-27). */
+  --rs-accent-soft: #0070c018;
+  --rs-accent-contrast: #ffffff;
+  --rs-good-soft: #4ca52d1a;
+  --rs-warn-soft: #ff99001a;
+  --rs-crit-soft: #ff00000f;
+  --rs-shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius: 14px;
+
   /* ─── Cards ───────────────────────────────────────────────────────────── */
   --rs-card-bg: var(--rs-panel);
   --rs-card-border: var(--rs-line);

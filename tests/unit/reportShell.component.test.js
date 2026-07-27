@@ -69,6 +69,21 @@ describe('ReportShell — the standard is the single source', () => {
     expect(SHELL_SRC).toContain(declaration)
   })
 
+  // The shared "house-palette" extras the four full-palette screens all used identically,
+  // promoted into the single source (2026-07-27) so those screens drop their private copies.
+  const SHARED_EXTRAS = [
+    ['accent soft fill', '--rs-accent-soft: #0070c018'],
+    ['on-accent contrast ink', '--rs-accent-contrast: #ffffff'],
+    ['good soft fill', '--rs-good-soft: #4ca52d1a'],
+    ['warn soft fill', '--rs-warn-soft: #ff99001a'],
+    ['crit soft fill', '--rs-crit-soft: #ff00000f'],
+    ['card shadow', '--rs-shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426']
+  ]
+
+  it.each(SHARED_EXTRAS)('holds the shared %s', (_label, declaration) => {
+    expect(SHELL_SRC).toContain(declaration)
+  })
+
   it('carries no dark-mode rule (Mike ruled one light look, 2026-07-27)', () => {
     // The four screens that once went dark on the OS setting are being unified to light;
     // the shell is the one source, so dark styling must never reappear here. Match an
