@@ -1,24 +1,23 @@
 <template lang="pug">
-.ebitda-dcf-page
-  .wrap
-    report-header(
-      :back-label="$t('modelLibrary.backToLibrary')"
-      :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.ebitdaDcf.eyebrowClass')"
-      :title="$t('report.ebitdaDcf.title')"
-      :client="companyName || ''"
-    )
-    .steps
-      .step(:class="{ active: step === 1, done: step > 1 }" @click="goTo(1)")
-        span.n 1
-        | {{ $t('report.ebitdaDcf.step1') }}
-      .step(:class="{ active: step === 2, done: step > 2 }" @click="goTo(2)")
-        span.n 2
-        | {{ $t('report.ebitdaDcf.step2') }}
-      .step(:class="{ active: step === 3 }")
-        span.n 3
-        | {{ $t('report.ebitdaDcf.step3') }}
-    ebitda-dcf-intake(v-if="step < 3" :api-token="apiToken" :restore="seed" :step="step" @step="step = $event" @confirmed="onConfirmed")
-    ebitda-dcf-report(v-else :seed="seed")
+report-shell
+  report-header(
+    :back-label="$t('modelLibrary.backToLibrary')"
+    :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.ebitdaDcf.eyebrowClass')"
+    :title="$t('report.ebitdaDcf.title')"
+    :client="companyName || ''"
+  )
+  .steps
+    .step(:class="{ active: step === 1, done: step > 1 }" @click="goTo(1)")
+      span.n 1
+      | {{ $t('report.ebitdaDcf.step1') }}
+    .step(:class="{ active: step === 2, done: step > 2 }" @click="goTo(2)")
+      span.n 2
+      | {{ $t('report.ebitdaDcf.step2') }}
+    .step(:class="{ active: step === 3 }")
+      span.n 3
+      | {{ $t('report.ebitdaDcf.step3') }}
+  ebitda-dcf-intake(v-if="step < 3" :api-token="apiToken" :restore="seed" :step="step" @step="step = $event" @confirmed="onConfirmed")
+  ebitda-dcf-report(v-else :seed="seed")
 </template>
 
 <script>
@@ -35,6 +34,7 @@
  */
 import EbitdaDcfIntake from '~/components/EbitdaDcfIntake.vue'
 import ReportHeader from '~/components/base/ReportHeader.vue'
+import ReportShell from '~/components/base/ReportShell.vue'
 import EbitdaDcfReport from '~/components/EbitdaDcfReport.vue'
 
 const TOKEN_KEY = 'advisor_e_token'
@@ -42,7 +42,7 @@ const TOKEN_KEY = 'advisor_e_token'
 export default {
   name: 'EbitdaDcfPage',
 
-  components: { ReportHeader, EbitdaDcfIntake, EbitdaDcfReport },
+  components: { ReportShell, ReportHeader, EbitdaDcfIntake, EbitdaDcfReport },
 
   data () {
     return {
@@ -99,20 +99,23 @@ export default {
 </script>
 
 <style scoped>
-.ebitda-dcf-page { min-height: 100vh; background: #eef3f8; }
-.wrap { max-width: 1120px; margin: 0 auto; padding: 28px 22px 64px; }
+/* The page frame (canvas / centred 1120px column / padding) now lives in the shared
+   ReportShell; the wrapper divs and their CSS are gone. The step chips read the
+   shared visual-standard tokens — every value below equals the token it points at
+   (a no-change consolidation). Left literal: the translucent white `#ffffff30`
+   active-chip number badge (no standard token). */
 .steps { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 20px; }
 .step {
-  display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: #5b6f8a;
-  background: #fff; border: 1px solid #d5e1ee; border-radius: 999px; padding: 7px 14px; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--rs-muted);
+  background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: 999px; padding: 7px 14px; cursor: pointer;
 }
 .step .n {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 20px; height: 20px; border-radius: 50%; background: #d5e1ee; color: #002b64; font-size: 11px;
+  width: 20px; height: 20px; border-radius: 50%; background: var(--rs-line); color: var(--rs-ink); font-size: 11px;
 }
-.step.active { color: #fff; background: #0070c0; border-color: #0070c0; }
-.step.active .n { background: #ffffff30; color: #fff; }
-.step.done { color: #4ca52d; }
-.step.done .n { background: #4ca52d1a; color: #4ca52d; }
+.step.active { color: var(--rs-accent-contrast); background: var(--rs-accent); border-color: var(--rs-accent); }
+.step.active .n { background: #ffffff30; color: var(--rs-accent-contrast); }
+.step.done { color: var(--rs-good); }
+.step.done .n { background: var(--rs-good-soft); color: var(--rs-good); }
 @media print { .steps { display: none !important; } }
 </style>
