@@ -99,6 +99,24 @@ describe.each(SCREENS)('$name', ({ component, result }) => {
     expect(wrapper.findAllComponents({ name: 'HeroFigure' }).length).toBeGreaterThanOrEqual(3)
   })
 
+  it('renders that headline as a FULL-WIDTH band — a direct child of the screen root, not tucked inside a column', async () => {
+    // The banner must span the page (the ~1120px content column), the same on every
+    // model. This is the regression that shipped on Lease vs Buy: its HeroStrip sat
+    // inside the 1fr results column of the two-column layout and rendered ~740px, while
+    // EBITDA-DCF and the Loan Estimator spanned full width — and nothing failed, because
+    // no guard checked banner PLACEMENT (only that it existed). The frame/shell guards
+    // check presence; this checks the banner is a top-level band.
+    //
+    // jsdom has no layout engine (offsetWidth is always 0), so pixel width can't be
+    // measured — but the DOM TREE is real, and full-width vs in-column is exactly the
+    // difference between "the HeroStrip's parent is the screen root" and "its parent is
+    // a results <section>". That ancestry is what we assert.
+    const wrapper = await mountWithResult(component, result())
+    const strip = wrapper.findComponent({ name: 'HeroStrip' })
+    expect(strip.exists()).toBe(true)
+    expect(strip.element.parentElement).toBe(wrapper.element)
+  })
+
   it('greys that headline when the figures go stale, rather than each screen doing its own thing', async () => {
     const wrapper = await mountWithResult(component, result())
     expect(wrapper.findComponent({ name: 'HeroStrip' }).props('stale')).toBe(false)

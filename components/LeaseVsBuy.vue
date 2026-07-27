@@ -10,6 +10,41 @@
   //- client's own figures. No "Illustrative" badge — these become real numbers.
   sample-notice(:text="$t('report.sampleFigures')")
 
+  //- Full-width headline band (owner ruling 2026-07-27): the verdict + HeroStrip span
+  //- the page above the two-column layout on every model, never inside the results column.
+  template(v-if="data")
+    //- A failed recompute must never sit silently behind live-looking figures (R9)
+    stale-banner(
+      v-if="error"
+      :title="$t('report.staleTitle')"
+      :message="$t('report.calcUnreachable')"
+      :retry-label="$t('report.retry')"
+      @retry="recompute"
+    )
+
+    .lvb-verdict(:class="{ 'is-stale': !!error }")
+      h2 {{ data.verdict.recommended === 'lease' ? $t('report.leaseVsBuy.verdict.lease') : $t('report.leaseVsBuy.verdict.buy') }}
+      p {{ $t('report.leaseVsBuy.verdict.savingSub', { amount: money(data.verdict.saving) }) }}
+
+    hero-strip(:columns="3" :stale="!!error")
+      hero-figure(
+        :label="$t('report.leaseVsBuy.hero.costToBuy')"
+        :value="money(data.buy.totalNet)"
+        :sub="$t('report.leaseVsBuy.hero.costToBuySub')"
+        :tone="data.verdict.recommended === 'buy' ? 'good' : 'default'"
+      )
+      hero-figure(
+        :label="$t('report.leaseVsBuy.hero.costToLease')"
+        :value="money(data.lease.totalNet)"
+        :sub="$t('report.leaseVsBuy.hero.costToLeaseSub')"
+        :tone="data.verdict.recommended === 'lease' ? 'good' : 'default'"
+      )
+      hero-figure(
+        :label="$t('report.leaseVsBuy.hero.youSave')"
+        :value="money(data.verdict.saving)"
+        :sub="$t('report.leaseVsBuy.hero.youSaveSub')"
+      )
+
   //- House two-column layout (matches every other same-screen model): the inputs
   //- live in the left column, the results on the right. Collapses to one column
   //- on narrow screens. See MarginBreakevenReport / QuickPositionReport etc.
@@ -128,38 +163,6 @@
 
     section.lvb-results
       template(v-if="data")
-        //- A failed recompute must never sit silently behind live-looking figures (R9)
-        stale-banner(
-          v-if="error"
-          :title="$t('report.staleTitle')"
-          :message="$t('report.calcUnreachable')"
-          :retry-label="$t('report.retry')"
-          @retry="recompute"
-        )
-
-        .lvb-verdict(:class="{ 'is-stale': !!error }")
-          h2 {{ data.verdict.recommended === 'lease' ? $t('report.leaseVsBuy.verdict.lease') : $t('report.leaseVsBuy.verdict.buy') }}
-          p {{ $t('report.leaseVsBuy.verdict.savingSub', { amount: money(data.verdict.saving) }) }}
-
-        hero-strip(:columns="3" :stale="!!error")
-          hero-figure(
-            :label="$t('report.leaseVsBuy.hero.costToBuy')"
-            :value="money(data.buy.totalNet)"
-            :sub="$t('report.leaseVsBuy.hero.costToBuySub')"
-            :tone="data.verdict.recommended === 'buy' ? 'good' : 'default'"
-          )
-          hero-figure(
-            :label="$t('report.leaseVsBuy.hero.costToLease')"
-            :value="money(data.lease.totalNet)"
-            :sub="$t('report.leaseVsBuy.hero.costToLeaseSub')"
-            :tone="data.verdict.recommended === 'lease' ? 'good' : 'default'"
-          )
-          hero-figure(
-            :label="$t('report.leaseVsBuy.hero.youSave')"
-            :value="money(data.verdict.saving)"
-            :sub="$t('report.leaseVsBuy.hero.youSaveSub')"
-          )
-
         //- How the two totals are reached (the workbook's Input-sheet summary rows).
         .lvb-card
           h2 {{ $t('report.leaseVsBuy.compare.title') }}

@@ -8,6 +8,40 @@
     :badge="$t('report.illustrative')"
   )
 
+  //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
+  //- above the two-column layout on every model, never tucked inside the results column.
+  template(v-if="out")
+    //- A failure AFTER the first load must never sit silently behind stale figures (R9).
+    stale-banner(
+      v-if="error"
+      :title="$t('report.staleTitle')"
+      :message="$t('report.calcUnreachable')"
+      :retry-label="$t('report.retry')"
+      @retry="recompute"
+    )
+    hero-strip(:stale="!!error")
+      hero-figure(
+        :label="$t('report.workingCapital.hero.cycle')"
+        :value="round0(out.cycleDays)"
+        :unit="$t('report.workingCapital.hero.cycleUnit')"
+        :sub="$t('report.workingCapital.hero.cycleSub')"
+      )
+      hero-figure(
+        :label="$t('report.workingCapital.hero.factor')"
+        :value="round1(out.cycleFactorMonthly) + '×'"
+        :sub="round0(out.cycleFactorAnnual) + '× ' + $t('report.workingCapital.hero.factorSub')"
+      )
+      hero-figure(
+        :label="$t('report.workingCapital.hero.revenue')"
+        :value="money(out.annualRevenue)"
+        :sub="$t('report.workingCapital.hero.revenueSubFrom') + ' ' + money(out.workingCapital) + ' ' + $t('report.workingCapital.hero.revenueSubCapital')"
+      )
+      hero-figure(:label="$t('report.workingCapital.hero.netProfit')" :value="money(out.netProfitMonthly)")
+        template(#sub)
+          span.bpr-pill(:class="cashflowClass")
+            span.bpr-pill-dot
+            | {{ cashflowText }}
+
   .bpr-layout
     //- INPUTS
     aside.bpr-card
@@ -29,37 +63,6 @@
 
     //- RESULTS
     section.bpr-results(v-if="out")
-      //- A failure AFTER the first load must never sit silently behind stale figures:
-      //- the numbers describe the PREVIOUS inputs while looking live (R9).
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute"
-      )
-      hero-strip(:stale="!!error")
-        hero-figure(
-          :label="$t('report.workingCapital.hero.cycle')"
-          :value="round0(out.cycleDays)"
-          :unit="$t('report.workingCapital.hero.cycleUnit')"
-          :sub="$t('report.workingCapital.hero.cycleSub')"
-        )
-        hero-figure(
-          :label="$t('report.workingCapital.hero.factor')"
-          :value="round1(out.cycleFactorMonthly) + '×'"
-          :sub="round0(out.cycleFactorAnnual) + '× ' + $t('report.workingCapital.hero.factorSub')"
-        )
-        hero-figure(
-          :label="$t('report.workingCapital.hero.revenue')"
-          :value="money(out.annualRevenue)"
-          :sub="$t('report.workingCapital.hero.revenueSubFrom') + ' ' + money(out.workingCapital) + ' ' + $t('report.workingCapital.hero.revenueSubCapital')"
-        )
-        hero-figure(:label="$t('report.workingCapital.hero.netProfit')" :value="money(out.netProfitMonthly)")
-          template(#sub)
-            span.bpr-pill(:class="cashflowClass")
-              span.bpr-pill-dot
-              | {{ cashflowText }}
       .bpr-tiles
         .bpr-tile
           .bpr-k {{ $t('report.workingCapital.tile.vsStart') }}
@@ -348,6 +351,9 @@ fields: [
   --bpr-good:var(--rs-good); --bpr-good-soft:var(--rs-good-soft); --bpr-crit:var(--rs-crit); --bpr-crit-soft:var(--rs-crit-soft); --bpr-warn:var(--rs-warn); --bpr-warn-soft:var(--rs-warn-soft);
   --bpr-shadow:var(--rs-shadow); --bpr-r:var(--rs-radius);
   color:var(--bpr-ink);
+  /* Flex column so the header, the full-width headline band and the two-column layout
+     space uniformly — matches Lease vs Buy / EBITDA / Loan Estimator (2026-07-27). */
+  display:flex; flex-direction:column; gap:16px;
 }
 .bpr-root strong, .bpr-root b { font-weight:600; }
 .num { font-variant-numeric: tabular-nums; }

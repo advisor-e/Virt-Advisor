@@ -8,6 +8,36 @@
     :badge="$t('report.illustrative')"
   )
 
+  //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
+  //- above the two-column layout on every model, never tucked inside the results column.
+  template(v-if="data")
+    //- A failure AFTER the first load must never sit silently behind stale figures (R9).
+    stale-banner(
+      v-if="error"
+      :title="$t('report.staleTitle')"
+      :message="$t('report.calcUnreachable')"
+      :retry-label="$t('report.retry')"
+      @retry="recompute"
+    )
+    hero-strip(:columns="4" :stale="!!error")
+      hero-figure(
+        :label="$t('report.eightLevers.revenue')"
+        :value="money(current.revenue)"
+      )
+      hero-figure(
+        :label="$t('report.eightLevers.profit')"
+        :value="money(current.profit)"
+        :tone="current.profit >= 0 ? 'good' : 'crit'"
+      )
+      hero-figure(
+        :label="$t('report.eightLevers.profitPct')"
+        :value="pct(current.profitPct)"
+      )
+      hero-figure(
+        :label="$t('report.eightLevers.customers')"
+        :value="round0(current.customers)"
+      )
+
   .lev-layout
     aside.lev-card
       .lev-instruct {{ $t('report.eightLevers.instruction') }}
@@ -83,35 +113,6 @@
         b-button.lev-btn(type="is-primary" @click="reset") {{ $t('report.reset') }}
 
     main.lev-main(v-if="data")
-      //- A failure AFTER the first load must never sit silently behind stale figures — the
-      //- numbers on screen would look live while describing the previous inputs.
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute"
-      )
-
-      hero-strip(:columns="4" :stale="!!error")
-        hero-figure(
-          :label="$t('report.eightLevers.revenue')"
-          :value="money(current.revenue)"
-        )
-        hero-figure(
-          :label="$t('report.eightLevers.profit')"
-          :value="money(current.profit)"
-          :tone="current.profit >= 0 ? 'good' : 'crit'"
-        )
-        hero-figure(
-          :label="$t('report.eightLevers.profitPct')"
-          :value="pct(current.profitPct)"
-        )
-        hero-figure(
-          :label="$t('report.eightLevers.customers')"
-          :value="round0(current.customers)"
-        )
-
       section.lev-panel
         h2.lev-ph {{ $t('report.eightLevers.chainTitle') }}
         p.lev-pnote {{ $t('report.eightLevers.chainNote') }}
@@ -421,6 +422,9 @@ export default {
   --lev-accent:var(--rs-accent); --lev-accent-bright:var(--rs-accent-bright); --lev-good:var(--rs-good); --lev-warn:var(--rs-warn); --lev-crit:var(--rs-crit);
   --lev-shadow:var(--rs-shadow); --lev-r:var(--rs-radius);
   color:var(--lev-ink);
+  /* Flex column so the header, the full-width headline band and the two-column layout
+     space uniformly — matches Lease vs Buy / EBITDA / Loan Estimator (2026-07-27). */
+  display:flex; flex-direction:column; gap:16px;
 }
 
 /* Width + centring now come from the ReportShell wrap; column width (320px), gap (18px)

@@ -8,6 +8,31 @@
     :badge="$t('report.illustrative')"
   )
 
+  //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
+  //- above the two-column layout on every model, never tucked inside the results column.
+  template(v-if="data")
+    //- A failure AFTER the first load must never sit silently behind stale figures (R9).
+    stale-banner(
+      v-if="error"
+      :title="$t('report.staleTitle')"
+      :message="$t('report.calcUnreachable')"
+      :retry-label="$t('report.retry')"
+      @retry="recompute"
+    )
+    hero-strip(:stale="!!error")
+      hero-figure(:label="$t('report.marginBreakeven.hero.margin')" :value="pct(data.marginPct)" :sub="$t('report.marginBreakeven.hero.marginSub')")
+      hero-figure(
+        :label="$t('report.marginBreakeven.hero.markup')"
+        :value="round1(data.markup) + '× · ' + pct(data.markup)"
+        :sub="$t('report.marginBreakeven.hero.markupSub')"
+      )
+      hero-figure(:label="$t('report.marginBreakeven.hero.cos')" :value="pct(data.costOfSalesPct)" :sub="$t('report.marginBreakeven.hero.cosSub')")
+      hero-figure(
+        :label="$t('report.marginBreakeven.hero.breakEven')"
+        :value="money(data.requiredSales)"
+        :sub="round0(data.requiredUnits) + ' ' + $t('report.marginBreakeven.hero.breakEvenSub')"
+      )
+
   .mbk-layout
     aside.mbk-card
       .mbk-group(v-for="g in groups" :key="g.k")
@@ -28,29 +53,6 @@
         )
 
     section.mbk-results(v-if="data")
-      //- A failure AFTER the first load must never sit silently behind stale figures:
-      //- the numbers describe the PREVIOUS inputs while looking live (R9).
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute"
-      )
-      hero-strip(:stale="!!error")
-        hero-figure(:label="$t('report.marginBreakeven.hero.margin')" :value="pct(data.marginPct)" :sub="$t('report.marginBreakeven.hero.marginSub')")
-        hero-figure(
-          :label="$t('report.marginBreakeven.hero.markup')"
-          :value="round1(data.markup) + '× · ' + pct(data.markup)"
-          :sub="$t('report.marginBreakeven.hero.markupSub')"
-        )
-        hero-figure(:label="$t('report.marginBreakeven.hero.cos')" :value="pct(data.costOfSalesPct)" :sub="$t('report.marginBreakeven.hero.cosSub')")
-        hero-figure(
-          :label="$t('report.marginBreakeven.hero.breakEven')"
-          :value="money(data.requiredSales)"
-          :sub="round0(data.requiredUnits) + ' ' + $t('report.marginBreakeven.hero.breakEvenSub')"
-        )
-
       .mbk-card.mbk-chartcard
         .mbk-chead
           h2.mbk-h2 {{ $t('report.marginBreakeven.chart.title') }}
@@ -247,6 +249,9 @@ path,
   --mbk-good:var(--rs-good); --mbk-warn:var(--rs-warn); --mbk-crit:var(--rs-crit);
   --mbk-shadow:var(--rs-shadow); --mbk-r:var(--rs-radius);
   color:var(--mbk-ink);
+  /* Flex column so the header, the full-width headline band and the two-column layout
+     space uniformly — matches Lease vs Buy / EBITDA / Loan Estimator (2026-07-27). */
+  display:flex; flex-direction:column; gap:16px;
 }
 .mbk-root strong, .mbk-root b { font-weight:600; }
 .num { font-variant-numeric: tabular-nums; }

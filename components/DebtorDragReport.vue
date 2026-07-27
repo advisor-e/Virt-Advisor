@@ -8,6 +8,35 @@
     :badge="$t('report.illustrative')"
   )
 
+  //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
+  //- above the two-column layout on every model, never tucked inside the results column.
+  //- A failure AFTER the first load must never sit silently behind stale figures (R9).
+  stale-banner(
+    v-if="error"
+    :title="$t('report.staleTitle')"
+    :message="$t('report.calcUnreachable')"
+    :retry-label="$t('report.retry')"
+    @retry="recompute"
+  )
+  hero-strip(:columns="3" :stale="!!error")
+    hero-figure(
+      :label="$t('report.debtorDrag.hero.planLow')"
+      :value="plan ? money(plan.deepestLow.value) : '—'"
+      :sub="planLowSub"
+      :tone="plan && plan.deepestLow.value < 0 ? 'crit' : 'good'"
+    )
+    hero-figure(
+      :label="$t('report.debtorDrag.hero.beforeLow')"
+      :value="before ? money(before.deepestLow.value) : '—'"
+      :sub="beforeLowSub"
+    )
+    hero-figure(
+      :label="$t('report.debtorDrag.hero.effect')"
+      :value="deltaText"
+      :sub="deltaSub"
+      :tone="deltaClass"
+    )
+
   .ddg-layout
     aside.ddg-card
       .ddg-instruct
@@ -33,33 +62,6 @@
         button.ddg-setbtn(@click="freeze") {{ $t('report.debtorDrag.freezeBtn') }}
 
     section.ddg-results
-      //- A failure AFTER the first load must never sit silently behind stale figures:
-      //- the numbers describe the PREVIOUS inputs while looking live (R9).
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute"
-      )
-      hero-strip(:columns="3" :stale="!!error")
-        hero-figure(
-          :label="$t('report.debtorDrag.hero.planLow')"
-          :value="plan ? money(plan.deepestLow.value) : '—'"
-          :sub="planLowSub"
-          :tone="plan && plan.deepestLow.value < 0 ? 'crit' : 'good'"
-        )
-        hero-figure(
-          :label="$t('report.debtorDrag.hero.beforeLow')"
-          :value="before ? money(before.deepestLow.value) : '—'"
-          :sub="beforeLowSub"
-        )
-        hero-figure(
-          :label="$t('report.debtorDrag.hero.effect')"
-          :value="deltaText"
-          :sub="deltaSub"
-          :tone="deltaClass"
-        )
       .ddg-card.ddg-chartcard
         .ddg-chead
           h2.ddg-h2 {{ $t('report.debtorDrag.chart.title') }}
@@ -330,6 +332,9 @@ lowY: y(plan[lowIdx])
   --ddg-good:var(--rs-good); --ddg-good-soft:var(--rs-good-soft); --ddg-crit:var(--rs-crit); --ddg-crit-soft:var(--rs-crit-soft); --ddg-warn:var(--rs-warn); --ddg-warn-soft:var(--rs-warn-soft);
   --ddg-shadow:var(--rs-shadow); --ddg-r:var(--rs-radius);
   color:var(--ddg-ink);
+  /* Flex column so the header, the full-width headline band and the two-column layout
+     space uniformly — matches Lease vs Buy / EBITDA / Loan Estimator (2026-07-27). */
+  display:flex; flex-direction:column; gap:16px;
 }
 .ddg-root strong, .ddg-root b { font-weight:600; }
 .ddg-blue { color:var(--rs-accent); }

@@ -1,5 +1,43 @@
 <template lang="pug">
 .qp-report
+  //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
+  //- above the two-column layout on every model, never tucked inside the results column.
+  template(v-if="result")
+    //- Demo path: every figure is the source model's sample company, not the client's.
+    sample-notice(v-if="onSampleFigures" :text="$t('report.sampleFigures')")
+    //- A failure AFTER the first load must never sit silently behind stale figures (R9)
+    stale-banner(
+      v-if="error"
+      :title="$t('report.staleTitle')"
+      :message="$t('report.calcUnreachable')"
+      :retry-label="$t('report.retry')"
+      @retry="recompute"
+    )
+    hero-strip(:stale="!!error")
+      hero-figure(
+        :label="$t('report.quickPosition.hero.quickCash')"
+        :value="money(result.quickCashAvailable)"
+        :sub="$t('report.quickPosition.hero.quickCashSub')"
+        :tone="result.quickCashAvailable < 0 ? 'crit' : 'default'"
+      )
+      hero-figure(
+        :label="$t('report.quickPosition.hero.coverZero')"
+        :value="monthsText(result.expenseCyclesZeroSales)"
+        :unit="monthsUnit(result.expenseCyclesZeroSales)"
+        :sub="$t('report.quickPosition.hero.coverZeroSub')"
+      )
+      hero-figure(
+        :label="$t('report.quickPosition.hero.withLifeline')"
+        :value="monthsText(result.tradingCyclesWithLifeline)"
+        :unit="monthsUnit(result.tradingCyclesWithLifeline)"
+        :sub="$t('report.quickPosition.hero.withLifelineSub', { amount: money(result.lifelineCapital) })"
+      )
+      hero-figure(
+        :label="$t('report.quickPosition.hero.breakEven')"
+        :value="result.breakEvenSalesRequired === null ? '—' : money(result.breakEvenSalesRequired)"
+        :sub="$t('report.quickPosition.hero.breakEvenSub')"
+      )
+
   .layout
     aside.controls
       .group
@@ -87,41 +125,6 @@
           input(type="range" min="0" max="30" step="1" v-model.number="inputs.discountPct")
 
     section.results(v-if="result")
-      //- Demo path: every figure is the source model's sample company, not the client's.
-      sample-notice(v-if="onSampleFigures" :text="$t('report.sampleFigures')")
-      //- A failure AFTER the first load must never sit silently behind stale figures (R9)
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute"
-      )
-      hero-strip(:stale="!!error")
-        hero-figure(
-          :label="$t('report.quickPosition.hero.quickCash')"
-          :value="money(result.quickCashAvailable)"
-          :sub="$t('report.quickPosition.hero.quickCashSub')"
-          :tone="result.quickCashAvailable < 0 ? 'crit' : 'default'"
-        )
-        hero-figure(
-          :label="$t('report.quickPosition.hero.coverZero')"
-          :value="monthsText(result.expenseCyclesZeroSales)"
-          :unit="monthsUnit(result.expenseCyclesZeroSales)"
-          :sub="$t('report.quickPosition.hero.coverZeroSub')"
-        )
-        hero-figure(
-          :label="$t('report.quickPosition.hero.withLifeline')"
-          :value="monthsText(result.tradingCyclesWithLifeline)"
-          :unit="monthsUnit(result.tradingCyclesWithLifeline)"
-          :sub="$t('report.quickPosition.hero.withLifelineSub', { amount: money(result.lifelineCapital) })"
-        )
-        hero-figure(
-          :label="$t('report.quickPosition.hero.breakEven')"
-          :value="result.breakEvenSalesRequired === null ? '—' : money(result.breakEvenSalesRequired)"
-          :sub="$t('report.quickPosition.hero.breakEvenSub')"
-        )
-
       .card
         .card-head
           h2 {{ $t('report.quickPosition.runway.title') }}
@@ -473,6 +476,9 @@ export default {
    Left literal on purpose: the card's 16px padding (standard is 16px 18px, not one of the
    ruled five), and three model-specific accents whose colours are bespoke — the cyan
    runway/legend viz, the blue coach panel, and the amber-text (#b36b00) pill/date labels. */
+/* Flex column so the full-width headline band and the two-column layout space uniformly
+   (the header lives in the page) — matches Lease vs Buy / EBITDA / Loan Estimator (2026-07-27). */
+.qp-report { display: flex; flex-direction: column; gap: 16px; }
 .layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
 @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 .controls { background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: var(--rs-card-radius); }
