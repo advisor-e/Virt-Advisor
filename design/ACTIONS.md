@@ -107,10 +107,18 @@
     B (next):** Save/Reset/Add-branch live + the prompt-fencing safeguard for firm-authored branch
     text + version history. Scope ruled by Mike 2026-07-24: **reword + add/remove branches**, flow
     kept intact (no re-wiring).
-  - ☐ **Still open:** (1) **DECISION for Mike** — keep or rename/retire the PDF "Decision
-    Frameworks" tab now Domain Support has its own tab (§0.6 wants it retired); (2) **Job 2** —
-    fold each material's genuine how-to Q&A into the steps, cross-checked against the 10-question
-    quiz banks; (3) per-material origin tags are domain-level until the §2.4 compare-screen work.
+  - ☑ **Decision Frameworks (PDF Document Library) tab REMOVED 2026-07-27 (owner decision,
+    this branch).** The tab + its wiring are gone from `FirmManagerHub.vue` (tab-item, the
+    `FirmDocuments` import/registration, and the now-orphaned "Storage % used" header indicator
+    + `loadStorage`/`storagePercent`). **Left dormant on purpose (tab-only removal, the option
+    Mike chose):** `components/firm/FirmDocuments.vue` and the backend document/storage routes
+    (`listDocuments`/`uploadDocument`/`downloadDocument`/`deleteDocument`/`getStorageUsage`, still
+    registered) remain in the codebase, unreferenced. `FirmRail` is NOT dead — Quizzes uses it.
+    **→ Follow-up (P3, cleanup):** delete `FirmDocuments.vue`, its component test, the document/
+    storage routes + registrations, and the `firmDocuments` i18n block once no consumer remains.
+  - ☐ **Still open:** (1) **Job 2** — fold each material's genuine how-to Q&A into the steps,
+    cross-checked against the 10-question quiz banks; (2) per-material origin tags are
+    domain-level until the §2.4 compare-screen work.
   - **The point (Mike's words):** so educators can have a real impact on the AI's
     recommendations and include their own material easily. This is the firm-authoring
     story reaching the engine's decision inputs, not another CRUD screen.

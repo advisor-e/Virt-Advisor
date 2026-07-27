@@ -8,22 +8,15 @@ section.firm-manager-hub.section
           p.title.is-4 Firm Manager Hub
           p.subtitle.is-6.has-text-grey {{ firmProfile.name || firmId }}
       .level-right(style="gap:12px;display:flex;align-items:center;")
-        b-tag(type="is-info is-light" size="is-medium") Storage: {{ storagePercent }}% used
         a.button.is-light.is-small(href="/advisor") ← Back to Advisor
 
     //- Main tabs
     b-tabs(v-model="activeTab" type="is-boxed" animated)
-      //- ── Tab 1: Decision Frameworks (formerly Document Library) ──────
-      b-tab-item(label="Decision Frameworks" icon="file-pdf-box")
-        //- Rebuilt onto the shared FirmRail pattern (FIRM-EDITABLE-TABLES-PLAN.md
-        //- Phase 1) and moved into its own component like FirmQuizzes. Storage
-        //- totals render in this header, so the tab reports changes upward.
-        firm-documents(:api-token="apiToken" @storage-changed="loadStorage")
-
       //- ── Tab: Domain Support (FIRM-EDITABLE-TABLES-PLAN.md Phase 2, §0.6) ──
-      //- The four-column material tables the advisors' AI reads. Added as its
-      //- own tab per §0.6; whether the PDF "Decision Frameworks" tab above is
-      //- renamed/retired is a separate decision, raised once this is real.
+      //- The four-column material tables the advisors' AI reads. The former PDF
+      //- "Decision Frameworks" (Document Library) tab was removed 2026-07-27
+      //- (owner decision); its FirmDocuments component + document/storage routes
+      //- remain in the codebase but dormant (logged in ACTIONS for later deletion).
       b-tab-item(label="Domain Support")
         firm-domain-support(:api-token="apiToken")
 
@@ -668,7 +661,6 @@ section.firm-manager-hub.section
 <script>
 import DOMPurify from 'isomorphic-dompurify'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
-import FirmDocuments from '~/components/firm/FirmDocuments.vue'
 import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 
@@ -729,7 +721,7 @@ const STAIRCASE_STEP_COLORS = BLOCK_TONES
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDocuments, FirmDomainSupport, FirmLogicTables },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables },
 
   props: {
     firmId: { type: String, required: true },
@@ -773,9 +765,6 @@ export default {
       profileForm: { name: '', logo_url: '', primary_colour: '#000000', persona_name: '' },
       loadingProfile: false,
       savingProfile: false,
-
-      // Storage
-      storagePercent: 0,
 
       // Team Case Studies (manager review)
       firmCases: [],
@@ -933,7 +922,6 @@ export default {
     this.loadTemplateImport()
     this.loadVideos()
     this.loadProfile()
-    this.loadStorage()
     this.loadDomains()
     this.loadFirmDistinctions()
     this.loadStaircase()
@@ -961,11 +949,6 @@ export default {
       }
       return res.json()
     },
-
-    // ── Document Library ────────────────────────────────────────────────────
-    // Moved to components/firm/FirmDocuments.vue (FIRM-EDITABLE-TABLES-PLAN.md
-    // Phase 1). The tab reports storage changes via @storage-changed so the
-    // header total stays live.
 
     // ── Template Library Import ─────────────────────────────────────────────
     async loadTemplateImport () {
@@ -1110,14 +1093,6 @@ export default {
       } finally {
         this.savingProfile = false
       }
-    },
-
-    // ── Storage ─────────────────────────────────────────────────────────────
-    async loadStorage () {
-      try {
-        const data = await this.api('GET', '/api/firm-manager/storage')
-        this.storagePercent = data.percentUsed || 0
-      } catch { /* non-critical */ }
     },
 
     // ── Domains (for video tagging) ─────────────────────────────────────────
