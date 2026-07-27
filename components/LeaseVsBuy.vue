@@ -10,181 +10,186 @@
   //- client's own figures. No "Illustrative" badge — these become real numbers.
   sample-notice(:text="$t('report.sampleFigures')")
 
-  template(v-if="data")
-    //- A failed recompute must never sit silently behind live-looking figures (R9)
-    stale-banner(
-      v-if="error"
-      :title="$t('report.staleTitle')"
-      :message="$t('report.calcUnreachable')"
-      :retry-label="$t('report.retry')"
-      @retry="recompute"
-    )
+  //- House two-column layout (matches every other same-screen model): the inputs
+  //- live in the left column, the results on the right. Collapses to one column
+  //- on narrow screens. See MarginBreakevenReport / QuickPositionReport etc.
+  .lvb-layout
+    aside.lvb-inputs
+      .lvb-card
+        h2 {{ $t('report.leaseVsBuy.loan.title') }}
+        .lvb-field
+          label {{ $t('report.leaseVsBuy.loan.loanType') }}
+          b-select(v-model="form.loanType" size="is-small")
+            option(value="T") {{ $t('report.leaseVsBuy.loan.typeTable') }}
+            option(value="R") {{ $t('report.leaseVsBuy.loan.typeReducing') }}
+        .lvb-field
+          label {{ $t('report.leaseVsBuy.loan.purchasePrice') }}
+          b-input(v-model.number="form.purchasePrice" type="number" step="any" size="is-small")
+        .lvb-field
+          label {{ $t('report.leaseVsBuy.loan.deposit') }}
+          b-input(v-model.number="form.deposit" type="number" step="any" size="is-small")
+        .lvb-field
+          label {{ $t('report.leaseVsBuy.loan.interestRate') }}
+          b-input(v-model.number="form.interestRatePct" type="number" step="any" size="is-small")
+        .lvb-field
+          label {{ $t('report.leaseVsBuy.loan.term') }}
+          b-input(v-model.number="form.termMonths" type="number" step="any" size="is-small")
 
-    .lvb-verdict(:class="{ 'is-stale': !!error }")
-      h2 {{ data.verdict.recommended === 'lease' ? $t('report.leaseVsBuy.verdict.lease') : $t('report.leaseVsBuy.verdict.buy') }}
-      p {{ $t('report.leaseVsBuy.verdict.savingSub', { amount: money(data.verdict.saving) }) }}
+      .lvb-card
+        h2 {{ $t('report.leaseVsBuy.dep.title') }}
+        .lvb-field
+          label {{ $t('report.leaseVsBuy.dep.method') }}
+          b-select(v-model="form.depreciationMethod" size="is-small")
+            option(value="sl") {{ $t('report.leaseVsBuy.dep.straightLine') }}
+            option(value="dv") {{ $t('report.leaseVsBuy.dep.diminishing') }}
+        .lvb-field
+          label {{ $t('report.leaseVsBuy.dep.rate') }}
+          b-input(v-model.number="form.depreciationRatePct" type="number" step="any" size="is-small")
 
-    hero-strip(:columns="3" :stale="!!error")
-      hero-figure(
-        :label="$t('report.leaseVsBuy.hero.costToBuy')"
-        :value="money(data.buy.totalNet)"
-        :sub="$t('report.leaseVsBuy.hero.costToBuySub')"
-        :tone="data.verdict.recommended === 'buy' ? 'good' : 'default'"
-      )
-      hero-figure(
-        :label="$t('report.leaseVsBuy.hero.costToLease')"
-        :value="money(data.lease.totalNet)"
-        :sub="$t('report.leaseVsBuy.hero.costToLeaseSub')"
-        :tone="data.verdict.recommended === 'lease' ? 'good' : 'default'"
-      )
-      hero-figure(
-        :label="$t('report.leaseVsBuy.hero.youSave')"
-        :value="money(data.verdict.saving)"
-        :sub="$t('report.leaseVsBuy.hero.youSaveSub')"
-      )
+      .lvb-card
+        h2 {{ $t('report.leaseVsBuy.costs.title') }}
+        .lvb-grid2
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.costs.companyTax') }}
+            b-input(v-model.number="form.companyTaxRatePct" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.costs.gst') }}
+            b-input(v-model.number="form.gstRatePct" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.costs.kmPerMonth') }}
+            b-input(v-model.number="form.kmPerMonth" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.costs.inflation') }}
+            b-input(v-model.number="form.inflationRatePct" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.costs.servicePeriodKm') }}
+            b-input(v-model.number="form.servicePeriodKm" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.costs.serviceCost') }}
+            b-input(v-model.number="form.warrantyServiceCost" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.costs.insurance') }}
+            b-input(v-model.number="form.insurancePerYear" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.costs.tyres') }}
+            b-input(v-model.number="form.tyresCost" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.costs.tyreLifeKm') }}
+            b-input(v-model.number="form.tyreLifeKm" type="number" step="any" size="is-small")
 
-    //- How the two totals are reached (the workbook's Input-sheet summary rows).
-    .lvb-card
-      h2 {{ $t('report.leaseVsBuy.compare.title') }}
-      table.lvb-mini
-        tr
-          td {{ $t('report.leaseVsBuy.compare.buyGross') }}
-          td {{ money(data.buy.grossTotal) }}
-        tr
-          td {{ $t('report.leaseVsBuy.compare.resale') }}
-          td −{{ money(data.buy.resaleValue) }}
-        tr.is-total
-          td {{ $t('report.leaseVsBuy.compare.buyTotal') }}
-          td {{ money(data.buy.totalNet) }}
-        tr.is-gap
-          td {{ $t('report.leaseVsBuy.compare.leaseGross') }}
-          td {{ money(data.lease.grossTotal) }}
-        tr
-          td {{ $t('report.leaseVsBuy.compare.residual') }}
-          td −{{ money(data.lease.residual) }}
-        tr.is-total
-          td {{ $t('report.leaseVsBuy.compare.leaseTotal') }}
-          td {{ money(data.lease.totalNet) }}
-      p.lvb-note {{ $t('report.leaseVsBuy.compare.leaseEndNote', { amount: money(data.lease.endCosts.total) }) }}
+      .lvb-card
+        h2 {{ $t('report.leaseVsBuy.lease.title') }}
+        .lvb-grid2
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.lease.term') }}
+            b-input(v-model.number="form.leaseTermMonths" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.lease.monthly') }}
+            b-input(v-model.number="form.monthlyLeasePayment" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.lease.annualKm') }}
+            b-input(v-model.number="form.annualLeaseKm" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.lease.costPerKmOver') }}
+            b-input(v-model.number="form.costPerKmOver" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.lease.costPerPanel') }}
+            b-input(v-model.number="form.costPerPanel" type="number" step="any" size="is-small")
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.lease.numPanels') }}
+            b-input(v-model.number="form.numPanels" type="number" step="any" size="is-small")
+        .lvb-includes
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.lease.includesServicing') }}
+            b-select(v-model="form.includesServicing" size="is-small")
+              option(value="yes") {{ $t('report.leaseVsBuy.yes') }}
+              option(value="no") {{ $t('report.leaseVsBuy.no') }}
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.lease.includesInsurance') }}
+            b-select(v-model="form.includesInsurance" size="is-small")
+              option(value="yes") {{ $t('report.leaseVsBuy.yes') }}
+              option(value="no") {{ $t('report.leaseVsBuy.no') }}
+          .lvb-field
+            label {{ $t('report.leaseVsBuy.lease.includesTyres') }}
+            b-select(v-model="form.includesTyres" size="is-small")
+              option(value="yes") {{ $t('report.leaseVsBuy.yes') }}
+              option(value="no") {{ $t('report.leaseVsBuy.no') }}
 
-  //- The inputs. Live-recomputes the figures above as they change.
-  .lvb-card
-    h2 {{ $t('report.leaseVsBuy.loan.title') }}
-    .lvb-field
-      label {{ $t('report.leaseVsBuy.loan.loanType') }}
-      b-select(v-model="form.loanType" size="is-small")
-        option(value="T") {{ $t('report.leaseVsBuy.loan.typeTable') }}
-        option(value="R") {{ $t('report.leaseVsBuy.loan.typeReducing') }}
-    .lvb-field
-      label {{ $t('report.leaseVsBuy.loan.purchasePrice') }}
-      b-input(v-model.number="form.purchasePrice" type="number" step="any" size="is-small")
-    .lvb-field
-      label {{ $t('report.leaseVsBuy.loan.deposit') }}
-      b-input(v-model.number="form.deposit" type="number" step="any" size="is-small")
-    .lvb-field
-      label {{ $t('report.leaseVsBuy.loan.interestRate') }}
-      b-input(v-model.number="form.interestRatePct" type="number" step="any" size="is-small")
-    .lvb-field
-      label {{ $t('report.leaseVsBuy.loan.term') }}
-      b-input(v-model.number="form.termMonths" type="number" step="any" size="is-small")
+      .lvb-card
+        h2 {{ $t('report.leaseVsBuy.end.title') }}
+        .lvb-field
+          .lvb-labels
+            label {{ $t('report.leaseVsBuy.end.resale') }}
+            p.lvb-help {{ $t('report.leaseVsBuy.end.resaleHelp') }}
+          b-input(v-model.number="form.assetResaleValue" type="number" step="any" size="is-small")
+        .lvb-field
+          label {{ $t('report.leaseVsBuy.end.residual') }}
+          b-input(v-model.number="form.leaseResidual" type="number" step="any" size="is-small")
 
-  .lvb-card
-    h2 {{ $t('report.leaseVsBuy.dep.title') }}
-    .lvb-field
-      label {{ $t('report.leaseVsBuy.dep.method') }}
-      b-select(v-model="form.depreciationMethod" size="is-small")
-        option(value="sl") {{ $t('report.leaseVsBuy.dep.straightLine') }}
-        option(value="dv") {{ $t('report.leaseVsBuy.dep.diminishing') }}
-    .lvb-field
-      label {{ $t('report.leaseVsBuy.dep.rate') }}
-      b-input(v-model.number="form.depreciationRatePct" type="number" step="any" size="is-small")
+    section.lvb-results
+      template(v-if="data")
+        //- A failed recompute must never sit silently behind live-looking figures (R9)
+        stale-banner(
+          v-if="error"
+          :title="$t('report.staleTitle')"
+          :message="$t('report.calcUnreachable')"
+          :retry-label="$t('report.retry')"
+          @retry="recompute"
+        )
 
-  .lvb-card
-    h2 {{ $t('report.leaseVsBuy.costs.title') }}
-    .lvb-grid2
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.costs.companyTax') }}
-        b-input(v-model.number="form.companyTaxRatePct" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.costs.gst') }}
-        b-input(v-model.number="form.gstRatePct" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.costs.kmPerMonth') }}
-        b-input(v-model.number="form.kmPerMonth" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.costs.inflation') }}
-        b-input(v-model.number="form.inflationRatePct" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.costs.servicePeriodKm') }}
-        b-input(v-model.number="form.servicePeriodKm" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.costs.serviceCost') }}
-        b-input(v-model.number="form.warrantyServiceCost" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.costs.insurance') }}
-        b-input(v-model.number="form.insurancePerYear" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.costs.tyres') }}
-        b-input(v-model.number="form.tyresCost" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.costs.tyreLifeKm') }}
-        b-input(v-model.number="form.tyreLifeKm" type="number" step="any" size="is-small")
+        .lvb-verdict(:class="{ 'is-stale': !!error }")
+          h2 {{ data.verdict.recommended === 'lease' ? $t('report.leaseVsBuy.verdict.lease') : $t('report.leaseVsBuy.verdict.buy') }}
+          p {{ $t('report.leaseVsBuy.verdict.savingSub', { amount: money(data.verdict.saving) }) }}
 
-  .lvb-card
-    h2 {{ $t('report.leaseVsBuy.lease.title') }}
-    .lvb-grid2
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.lease.term') }}
-        b-input(v-model.number="form.leaseTermMonths" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.lease.monthly') }}
-        b-input(v-model.number="form.monthlyLeasePayment" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.lease.annualKm') }}
-        b-input(v-model.number="form.annualLeaseKm" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.lease.costPerKmOver') }}
-        b-input(v-model.number="form.costPerKmOver" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.lease.costPerPanel') }}
-        b-input(v-model.number="form.costPerPanel" type="number" step="any" size="is-small")
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.lease.numPanels') }}
-        b-input(v-model.number="form.numPanels" type="number" step="any" size="is-small")
-    .lvb-includes
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.lease.includesServicing') }}
-        b-select(v-model="form.includesServicing" size="is-small")
-          option(value="yes") {{ $t('report.leaseVsBuy.yes') }}
-          option(value="no") {{ $t('report.leaseVsBuy.no') }}
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.lease.includesInsurance') }}
-        b-select(v-model="form.includesInsurance" size="is-small")
-          option(value="yes") {{ $t('report.leaseVsBuy.yes') }}
-          option(value="no") {{ $t('report.leaseVsBuy.no') }}
-      .lvb-field
-        label {{ $t('report.leaseVsBuy.lease.includesTyres') }}
-        b-select(v-model="form.includesTyres" size="is-small")
-          option(value="yes") {{ $t('report.leaseVsBuy.yes') }}
-          option(value="no") {{ $t('report.leaseVsBuy.no') }}
+        hero-strip(:columns="3" :stale="!!error")
+          hero-figure(
+            :label="$t('report.leaseVsBuy.hero.costToBuy')"
+            :value="money(data.buy.totalNet)"
+            :sub="$t('report.leaseVsBuy.hero.costToBuySub')"
+            :tone="data.verdict.recommended === 'buy' ? 'good' : 'default'"
+          )
+          hero-figure(
+            :label="$t('report.leaseVsBuy.hero.costToLease')"
+            :value="money(data.lease.totalNet)"
+            :sub="$t('report.leaseVsBuy.hero.costToLeaseSub')"
+            :tone="data.verdict.recommended === 'lease' ? 'good' : 'default'"
+          )
+          hero-figure(
+            :label="$t('report.leaseVsBuy.hero.youSave')"
+            :value="money(data.verdict.saving)"
+            :sub="$t('report.leaseVsBuy.hero.youSaveSub')"
+          )
 
-  .lvb-card
-    h2 {{ $t('report.leaseVsBuy.end.title') }}
-    .lvb-field
-      .lvb-labels
-        label {{ $t('report.leaseVsBuy.end.resale') }}
-        p.lvb-help {{ $t('report.leaseVsBuy.end.resaleHelp') }}
-      b-input(v-model.number="form.assetResaleValue" type="number" step="any" size="is-small")
-    .lvb-field
-      label {{ $t('report.leaseVsBuy.end.residual') }}
-      b-input(v-model.number="form.leaseResidual" type="number" step="any" size="is-small")
+        //- How the two totals are reached (the workbook's Input-sheet summary rows).
+        .lvb-card
+          h2 {{ $t('report.leaseVsBuy.compare.title') }}
+          table.lvb-mini
+            tr
+              td {{ $t('report.leaseVsBuy.compare.buyGross') }}
+              td {{ money(data.buy.grossTotal) }}
+            tr
+              td {{ $t('report.leaseVsBuy.compare.resale') }}
+              td −{{ money(data.buy.resaleValue) }}
+            tr.is-total
+              td {{ $t('report.leaseVsBuy.compare.buyTotal') }}
+              td {{ money(data.buy.totalNet) }}
+            tr.is-gap
+              td {{ $t('report.leaseVsBuy.compare.leaseGross') }}
+              td {{ money(data.lease.grossTotal) }}
+            tr
+              td {{ $t('report.leaseVsBuy.compare.residual') }}
+              td −{{ money(data.lease.residual) }}
+            tr.is-total
+              td {{ $t('report.leaseVsBuy.compare.leaseTotal') }}
+              td {{ money(data.lease.totalNet) }}
+          p.lvb-note {{ $t('report.leaseVsBuy.compare.leaseEndNote', { amount: money(data.lease.endCosts.total) }) }}
 
-  .lvb-card(v-if="!data && error")
-    h2 {{ $t('report.calcFailedTitle') }}
-    p.lvb-note {{ $t('report.calcUnreachable') }}
-    b-button(type="is-primary" @click="recompute") {{ $t('report.retry') }}
-  .lvb-card(v-else-if="!data")
-    p.lvb-note {{ $t('report.loading') }}
+      .lvb-card(v-if="!data && error")
+        h2 {{ $t('report.calcFailedTitle') }}
+        p.lvb-note {{ $t('report.calcUnreachable') }}
+        b-button(type="is-primary" @click="recompute") {{ $t('report.retry') }}
+      .lvb-card(v-else-if="!data")
+        p.lvb-note {{ $t('report.loading') }}
 </template>
 
 <script>
@@ -199,10 +204,11 @@ import reportRecompute from '~/mixins/reportRecompute'
 /**
  * LeaseVsBuy — the Lease vs Buy model screen (Valuation · Decision class).
  *
- * A single live-recomputing screen: the advisor types the loan, depreciation,
- * running-cost and lease figures, and the headline band shows which option is
- * cheaper and by how much. Field wording is the workbook's own; the verdict keeps
- * the workbook's "Lease!" / "Buy!" (owner ruling 2026-07-27).
+ * A single live-recomputing screen laid out in the house two-column grid: the
+ * advisor types the loan, depreciation, running-cost and lease figures in the
+ * LEFT column, and the RIGHT column shows which option is cheaper and by how
+ * much. Field wording is the workbook's own; the verdict keeps the workbook's
+ * "Lease!" / "Buy!" (owner ruling 2026-07-27).
  *
  * Decision class — NO "Illustrative" badge (real client numbers). Seeded with the
  * workbook sample and flagged by SampleNotice until the advisor types their own.
@@ -324,6 +330,12 @@ export default {
 
 <style scoped>
 .lvb-root { display: flex; flex-direction: column; gap: 16px; }
+/* House two-column grid: inputs left (~340px), results right — identical to
+   MarginBreakeven / QuickPosition / Debtor Drag / Eight Levers / Loan Estimator. */
+.lvb-layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .lvb-layout { grid-template-columns: 1fr; } }
+.lvb-inputs { display: flex; flex-direction: column; gap: 16px; }
+.lvb-results { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .lvb-verdict {
   border-radius: 12px; padding: 18px 20px; border: 1px solid;
   background: #4ca52d12; border-color: #4ca52d55;
@@ -352,17 +364,19 @@ export default {
 .lvb-field label { font-size: 12.5px; font-weight: 600; color: #223a57; }
 .lvb-labels { flex: 1 1 auto; }
 .lvb-help { font-size: 11px; color: #5b6f8a; margin: 1px 0 0; font-weight: 300; }
-.lvb-field .control { width: 160px; flex: 0 0 auto; }
-.lvb-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; }
-@media (max-width: 640px) { .lvb-grid2 { grid-template-columns: 1fr; } }
+.lvb-field .control { width: 150px; flex: 0 0 auto; }
+/* One field per row — the input column is narrow (~340px), so the running-cost
+   and lease grids stack rather than sit two-up. */
+.lvb-grid2 { display: grid; grid-template-columns: 1fr; gap: 0 24px; }
 .lvb-includes {
-  display: flex; flex-wrap: wrap; gap: 6px 24px;
+  display: flex; flex-direction: column; gap: 6px;
   border-top: 1px dashed #d5e1ee; margin-top: 10px; padding-top: 10px;
 }
-.lvb-includes .lvb-field { flex: 1 1 200px; }
 .lvb-root .herostrip { margin-bottom: 0; }
 @media print {
-  .lvb-card:nth-child(n+5) { display: none !important; }
+  /* On paper the inputs are dropped and the results run full width. */
+  .lvb-inputs { display: none !important; }
+  .lvb-layout { display: block; }
   .lvb-verdict, .lvb-card { break-inside: avoid; }
 }
 </style>

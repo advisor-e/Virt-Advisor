@@ -1,6 +1,7 @@
 <template lang="pug">
 .lease-vs-buy-page
-  lease-vs-buy
+  .wrap
+    lease-vs-buy
 </template>
 
 <script>
@@ -17,7 +18,6 @@ export default {
 </script>
 
 <style scoped>
-.lease-vs-buy-page {
-  min-height: 100vh;
-}
+.lease-vs-buy-page { min-height: 100vh; background: #eef3f8; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 28px 22px 64px; }
 </style>
