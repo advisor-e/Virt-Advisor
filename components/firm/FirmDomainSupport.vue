@@ -113,6 +113,9 @@ section.firm-domain-support
                   td
                     b-input.name-input(
                       v-model="material.name"
+                      v-autogrow
+                      type="textarea"
+                      rows="1"
                       :aria-label="$t('firmDomainSupport.colName')"
                     )
                     b-tag.mt-2(:type="material.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small")
@@ -120,6 +123,7 @@ section.firm-domain-support
                   td
                     b-input(
                       v-model="material.summary"
+                      v-resize-persist="'ds:' + current.id + ':summary:' + mIndex"
                       type="textarea"
                       rows="6"
                       :aria-label="$t('firmDomainSupport.colSummary')"
@@ -127,6 +131,7 @@ section.firm-domain-support
                   td
                     b-input(
                       v-model="material.who_when"
+                      v-resize-persist="'ds:' + current.id + ':who:' + mIndex"
                       type="textarea"
                       rows="4"
                       :aria-label="$t('firmDomainSupport.colWho')"
@@ -177,6 +182,7 @@ section.firm-domain-support
 </template>
 
 <script>
+import { autogrow, resizePersist } from '~/utils/textareaDirectives'
 /**
  * Firm Domain Support (FIRM-EDITABLE-TABLES-PLAN.md Phase 2) — the firm's
  * no-code view of the four-column domain-support material the advisors' AI
@@ -203,6 +209,8 @@ section.firm-domain-support
  */
 export default {
   name: 'FirmDomainSupport',
+
+  directives: { autogrow, resizePersist },
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
@@ -675,11 +683,11 @@ export default {
   padding: 0.6rem;
   border-bottom: 1px solid #eef1f5;
 }
-.ds-table colgroup .c-name { width: 16%; }
+.ds-table colgroup .c-name { width: 20%; }
 .ds-table colgroup .c-summary { width: 30%; }
-.ds-table colgroup .c-who { width: 20%; }
-.ds-table colgroup .c-steps { width: 34%; }
-.name-input >>> input { font-weight: 600; }
+.ds-table colgroup .c-who { width: 18%; }
+.ds-table colgroup .c-steps { width: 32%; }
+.name-input >>> textarea { font-weight: 600; resize: none; }
 
 /* Steps — a numbered list of editable lines. */
 .ds-steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }

@@ -203,8 +203,6 @@ server.post('/api/firm-manager/framework/restore', ...fmGuard, fm.restoreFramewo
 server.get('/api/firm-manager/videos', ...fmGuard, fm.listVideos)
 server.post('/api/firm-manager/videos', ...fmGuard, fm.addVideo)
 server.del('/api/firm-manager/videos/:id', ...fmGuard, fm.deleteVideo)
-server.get('/api/firm-manager/profile', ...fmGuard, fm.getProfile)
-server.put('/api/firm-manager/profile', ...fmGuard, fm.updateProfile)
 server.get('/api/firm-manager/storage', ...fmGuard, fm.getStorageUsage)
 server.get('/api/firm-manager/templates', ...fmGuard, fm.getTemplateImport)
 server.post('/api/firm-manager/templates', ...fmGuard, fm.importTemplates)

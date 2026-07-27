@@ -122,6 +122,28 @@
     on the tab-item in `FirmManagerHub.vue` — not wired to anything usable in UAT (needs
     Firm-Manager MySQL), so a live-looking dead tab was misleading. Kept dormant (template-import
     + video-link code intact), not deleted — a real feature the master team may want.
+  - ☑ **Firm Profile tab REMOVED 2026-07-27 (owner decision, this branch).** The "Firm Profile" tab
+    (firm name / logo URL / brand colour / AI persona name) was a dead-end editor — its data was
+    saved but **consumed nowhere** in the app (advisor experience and theming both verified to ignore
+    it). Fully removed, not hidden: the tab + its data/methods in `FirmManagerHub.vue` (the header
+    subtitle now falls back to the firm id), the `getProfile`/`updateProfile` functions + exports +
+    JSDoc in `firmManager.js`, the two `/api/firm-manager/profile` mounts in `restify-server.js`, and
+    the profile tests in `firmManager.routes.test.js`. Suite 1,859 green.
+  - ✅ **Firm-table editing UX — name wrap + drag-to-size-and-remember (2026-07-27, this branch).**
+    On both `FirmDomainSupport` and `FirmLogicTables`: the Template/Branch name field auto-grows and
+    wraps (was a fixed single-line box that clipped long names) with a widened name column; the
+    Summary / Who & when / If / Then / Notes boxes are drag-resizable and **remember their height
+    per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
+    `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
+    the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
+  - 📋 **Domain-support content migration — METHOD CONFIRMED (2026-07-27, Mike).** Author each
+    domain's four-column draft **from the 43 source PDFs in `domain support/`** — NOT the existing
+    `data/*-domain-support.json`, which plan §0.5 rules a *lossy* summary. **Keep ALL the richness**
+    (fold every field into Summary + Step-by-step); the If-Then logic tables are **left alone** — they
+    already exist as their own PDFs in `Logic Tables/`. Produce the drafts, then **finalise + approve
+    one domain at a time** (mirrors how EOY was made, `dfa8572`). Cash Tactics was trialed in-app as
+    the first draft this session and the preview **reverted** (not content-approved). **28 of 29
+    domains still to migrate** (only EOY done). Detail: `FIRM-EDITABLE-TABLES-PLAN.md` §0.5.
   - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"

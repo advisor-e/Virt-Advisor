@@ -6,7 +6,7 @@ section.firm-manager-hub.section
       .level-left
         div
           p.title.is-4 Firm Manager Hub
-          p.subtitle.is-6.has-text-grey {{ firmProfile.name || firmId }}
+          p.subtitle.is-6.has-text-grey {{ firmId }}
       .level-right(style="gap:12px;display:flex;align-items:center;")
         a.button.is-light.is-small(href="/advisor") ← Back to Advisor
 
@@ -503,30 +503,6 @@ section.firm-manager-hub.section
       b-tab-item(:label="$t('firmQuizzes.tab')" icon="help-circle-outline")
         firm-quizzes(:api-token="apiToken")
 
-      //- ── Tab 4: Firm Profile ────────────────────────────────────────
-      b-tab-item(label="Firm Profile" icon="domain")
-        .columns
-          .column.is-6
-            .has-text-centered.py-5(v-if="loadingProfile")
-              b-loading(:is-full-page="false" :active="true")
-            template(v-else)
-              b-field(label="Firm name")
-                b-input(v-model="profileForm.name")
-              b-field(label="Logo URL")
-                b-input(v-model="profileForm.logo_url" type="url" placeholder="https://…")
-              b-field(label="Brand colour (hex)")
-                b-input(v-model="profileForm.primary_colour" placeholder="#000000" maxlength="7")
-              b-field(
-                label="AI persona name"
-                message="The name your advisors see when using the AI advisor (leave blank to use the default)"
-              )
-                b-input(v-model="profileForm.persona_name" placeholder="e.g. Max")
-              b-button(
-                type="is-primary"
-                :loading="savingProfile"
-                @click="saveProfile"
-              ) Save profile
-
       //- ── Tab: Team Case Studies (manager review) ────────────────────
       b-tab-item(label="Team Case Studies" icon="account-group")
         .has-text-centered.py-5(v-if="loadingFirmCases")
@@ -764,12 +740,6 @@ export default {
       newVideo: { domain: '', title: '', url: '' },
       domains: [],
 
-      // Firm Profile
-      firmProfile: {},
-      profileForm: { name: '', logo_url: '', primary_colour: '#000000', persona_name: '' },
-      loadingProfile: false,
-      savingProfile: false,
-
       // Team Case Studies (manager review)
       firmCases: [],
       loadingFirmCases: false,
@@ -925,7 +895,6 @@ export default {
   mounted () {
     this.loadTemplateImport()
     this.loadVideos()
-    this.loadProfile()
     this.loadDomains()
     this.loadFirmDistinctions()
     this.loadStaircase()
@@ -1064,38 +1033,6 @@ export default {
         this.loadVideos()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      }
-    },
-
-    // ── Firm Profile ────────────────────────────────────────────────────────
-    async loadProfile () {
-      this.loadingProfile = true
-      try {
-        const data = await this.api('GET', '/api/firm-manager/profile')
-        this.firmProfile = data.firm || {}
-        this.profileForm = {
-          name: data.firm.name || '',
-          logo_url: data.firm.logo_url || '',
-          primary_colour: data.firm.primary_colour || '#000000',
-          persona_name: data.firm.persona_name || ''
-        }
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.loadingProfile = false
-      }
-    },
-
-    async saveProfile () {
-      this.savingProfile = true
-      try {
-        await this.api('PUT', '/api/firm-manager/profile', this.profileForm)
-        this.$buefy.toast.open({ message: 'Profile saved.', type: 'is-success' })
-        this.loadProfile()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.savingProfile = false
       }
     },
 

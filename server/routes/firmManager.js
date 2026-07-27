@@ -136,10 +136,6 @@ function _devWriteOverrideBaselines (firmId, obj) {
  *     (history + restore reuse /framework/history + /framework/restore with
  *      configKey='advisory-staircase')
  *
- *   Firm Profile
- *     GET  /api/firm-manager/profile              get firm profile
- *     PUT  /api/firm-manager/profile              update firm profile
- *
  *   Storage
  *     GET  /api/firm-manager/storage              get storage usage summary
  */
@@ -473,55 +469,6 @@ async function deleteVideo (req, res) {
       return sendError(res, 404, 'NOT_FOUND', 'Video not found for this firm')
     }
     res.send(200, { deleted: true })
-  } catch (err) {
-    return serverError(res, 500, 'DB_ERROR', err)
-  }
-}
-
-// ── Firm Profile ──────────────────────────────────────────────────────────────
-
-async function getProfile (req, res) {
-  try {
-    const [rows] = await db.execute(
-      `SELECT id, name, slug, logo_url, primary_colour, persona_name, created_at
-       FROM firms WHERE id = ?`,
-      [req.firmId]
-    )
-    if (rows.length === 0) { return sendError(res, 404, 'NOT_FOUND', 'Firm not found') }
-    res.send(200, { firm: rows[0] })
-  } catch (err) {
-    if (IS_DEV) {
-      res.send(200, { firm: { id: req.firmId, name: 'Dev Firm', slug: 'dev', logo_url: null, primary_colour: '#000000', persona_name: null } }); return
-    }
-    return serverError(res, 500, 'DB_ERROR', err)
-  }
-}
-
-async function updateProfile (req, res) {
-  const allowed = ['name', 'logo_url', 'primary_colour', 'persona_name']
-  const body = req.body || {}
-  const setClauses = []
-  const values = []
-
-  for (const field of allowed) {
-    if (body[field] !== undefined) {
-      setClauses.push(`\`${field}\` = ?`)
-      values.push(body[field])
-    }
-  }
-
-  if (setClauses.length === 0) {
-    return sendError(res, 400, 'NO_FIELDS',
-      `At least one of these fields is required: ${allowed.join(', ')}`)
-  }
-
-  values.push(req.firmId)
-  try {
-    await db.execute(
-      `UPDATE firms SET ${setClauses.join(', ')} WHERE id = ?`,
-      values
-    )
-    res.send(200, { updated: true })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -2263,8 +2210,6 @@ module.exports = {
   listVideos,
   addVideo,
   deleteVideo,
-  getProfile,
-  updateProfile,
   getStorageUsage,
   getTemplateImport,
   importTemplates,

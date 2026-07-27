@@ -111,6 +111,9 @@ section.firm-logic-tables
                     .lt-branch-head
                       b-input.branch-input(
                         v-model="branch.branch_name"
+                        v-autogrow
+                        type="textarea"
+                        rows="1"
                         :aria-label="$t('firmLogicTables.colBranch')"
                       )
                       button.lt-branch-remove(
@@ -123,6 +126,7 @@ section.firm-logic-tables
                   td.td-if
                     b-input(
                       v-model="branch.condition"
+                      v-resize-persist="'lt:' + current.id + ':if:' + bIndex"
                       type="textarea"
                       rows="3"
                       :aria-label="$t('firmLogicTables.colIf')"
@@ -130,6 +134,7 @@ section.firm-logic-tables
                   td.td-then
                     b-input(
                       v-model="branch.action"
+                      v-resize-persist="'lt:' + current.id + ':then:' + bIndex"
                       type="textarea"
                       rows="3"
                       :aria-label="$t('firmLogicTables.colThen')"
@@ -137,6 +142,7 @@ section.firm-logic-tables
                   td
                     b-input(
                       v-model="branch.notes"
+                      v-resize-persist="'lt:' + current.id + ':notes:' + bIndex"
                       type="textarea"
                       rows="3"
                       :aria-label="$t('firmLogicTables.colNotes')"
@@ -176,6 +182,7 @@ section.firm-logic-tables
 </template>
 
 <script>
+import { autogrow, resizePersist } from '~/utils/textareaDirectives'
 /**
  * Firm Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3, §0.6) — the firm's
  * no-code view of the IF→THEN branch tables that steer how a meeting is run.
@@ -203,6 +210,8 @@ section.firm-logic-tables
  */
 export default {
   name: 'FirmLogicTables',
+
+  directives: { autogrow, resizePersist },
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
@@ -665,11 +674,11 @@ export default {
 }
 .lt-table tbody td.td-if { background: #f9fbfe; }
 .lt-table tbody td.td-then { background: #f8fcf9; }
-.lt-table colgroup .c-branch { width: 16%; }
-.lt-table colgroup .c-if { width: 28%; }
-.lt-table colgroup .c-then { width: 28%; }
-.lt-table colgroup .c-notes { width: 28%; }
-.branch-input >>> input { font-weight: 600; color: #002b64; }
+.lt-table colgroup .c-branch { width: 20%; }
+.lt-table colgroup .c-if { width: 27%; }
+.lt-table colgroup .c-then { width: 27%; }
+.lt-table colgroup .c-notes { width: 26%; }
+.branch-input >>> textarea { font-weight: 600; color: #002b64; resize: none; }
 .branch-input { flex: 1; }
 
 /* Branch name row with its remove control (mirrors the domain-support step ×). */
