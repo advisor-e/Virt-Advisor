@@ -20,23 +20,45 @@ section.firm-logic-tables
   b-loading(:is-full-page="false" :active="loading")
 
   .columns(v-if="!loading")
-    //- ── Rail: two groups (advisory / get-the-job) ──────────────────────
+    //- ── Rail: the three master-section groups. Each row can be dragged into
+    //- another group (mouse), or re-filed via its "Move to" menu (keyboard /
+    //- touch). Re-filing is firm-only and display-only — the AI is unaffected.
     .column.is-4
       nav.lt-rail(:aria-label="$t('firmLogicTables.railLabel')")
         .lt-rail-empty(v-if="!groups.length")
           span.has-text-grey.is-size-7 {{ query ? $t('firmLogicTables.noMatchHere') : $t('firmLogicTables.emptyLibrary') }}
 
-        .lt-rail-group(v-for="group in groups" :key="group.key")
+        .lt-rail-group(
+          v-for="group in groups"
+          :key="group.key"
+          :class="{ 'is-drop-target': dragId && dropKey === group.key }"
+          @dragover.prevent="dropKey = group.key"
+          @drop.prevent="onDrop(group.key)"
+        )
           h3.lt-rail-heading {{ group.heading }}
-          button.lt-rail-item(
+          .lt-rail-row(
             v-for="item in group.items"
             :key="item.id"
-            type="button"
-            :class="{ 'is-current': current && current.id === item.id }"
-            @click="select(item)"
+            :class="{ 'is-current': current && current.id === item.id, 'is-dragging': dragId === item.id }"
+            draggable="true"
+            @dragstart="onDragStart(item.id, $event)"
+            @dragend="onDragEnd"
           )
-            span.lt-rail-name {{ item.label }}
-            b-tag(:type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
+            button.lt-rail-select(type="button" @click="select(item)")
+              span.lt-rail-name {{ item.label }}
+              b-tag(:type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
+            b-dropdown.lt-rail-move(aria-role="menu" position="is-bottom-left" :mobile-modal="false")
+              template(#trigger)
+                button.lt-rail-movebtn(type="button" :aria-label="$t('firmLogicTables.moveTo')") ⋯
+              b-dropdown-item(custom aria-role="menuitem")
+                span.lt-move-head {{ $t('firmLogicTables.moveTo') }}
+              b-dropdown-item(
+                v-for="opt in sectionOptions"
+                :key="opt.key"
+                aria-role="menuitem"
+                :disabled="opt.key === group.key"
+                @click="moveTo(item.id, opt.key)"
+              ) {{ opt.label }}
 
     //- ── Panel: the selected table's branches ───────────────────────────
     .column.is-8
@@ -204,7 +226,11 @@ export default {
       original: null,
       saving: false,
       /** Bundle-level saved-versions list (all logic tables share one history). */
-      history: []
+      history: [],
+      /** Rail re-filing drag state (display-only): the id being dragged and the
+       *  group currently hovered as a drop target. */
+      dragId: null,
+      dropKey: null
     }
   },
 
@@ -243,6 +269,15 @@ export default {
     /** Reset is meaningful only when the firm actually has a saved override. */
     canReset () {
       return !!(this.current && this.current.origin === 'firm')
+    },
+
+    /** The three section drop targets, for the "Move to" menu. */
+    sectionOptions () {
+      return [
+        { key: 'doTheJob', label: this.$t('firmLogicTables.groupDoTheJob') },
+        { key: 'getTheJob', label: this.$t('firmLogicTables.groupGetTheJob') },
+        { key: 'getOrganised', label: this.$t('firmLogicTables.groupGetOrganised') }
+      ]
     }
   },
 
@@ -445,6 +480,57 @@ export default {
       return isNaN(d.getTime()) ? String(value) : d.toLocaleString()
     },
 
+    /** Which section array currently holds an item id, or null. */
+    sectionKeyOf (id) {
+      for (const k of ['doTheJob', 'getTheJob', 'getOrganised']) {
+        if (this[k].some(d => d.id === id)) { return k }
+      }
+      return null
+    },
+
+    onDragStart (id, ev) {
+      this.dragId = id
+      if (ev && ev.dataTransfer) {
+        ev.dataTransfer.effectAllowed = 'move'
+        ev.dataTransfer.setData('text/plain', id)
+      }
+    },
+
+    onDragEnd () { this.dragId = null; this.dropKey = null },
+
+    onDrop (toKey) {
+      const id = this.dragId
+      this.dragId = null
+      this.dropKey = null
+      if (id) { this.moveTo(id, toKey) }
+    },
+
+    /**
+     * Re-file an item into another master section for this firm — display-only,
+     * the AI is unaffected (owner ruling 2026-07-27). Optimistically re-buckets
+     * the rail, then persists; a failed save reverts. Moving to the section it
+     * already sits in is a no-op. Both the drag and the "Move to" menu funnel
+     * here. @param {string} id item id @param {string} toKey target section key
+     */
+    async moveTo (id, toKey) {
+      const fromKey = this.sectionKeyOf(id)
+      if (!fromKey || fromKey === toKey) { return }
+      const from = this[fromKey]
+      const idx = from.findIndex(d => d.id === id)
+      if (idx < 0) { return }
+      const [row] = from.splice(idx, 1)
+      this[toKey].push(row)
+      try {
+        await this.api('POST', `/api/firm-manager/logic-trees/${encodeURIComponent(id)}/section`, { section: toKey })
+      } catch (err) {
+        // Revert the optimistic move so the rail never lies about what was saved.
+        const back = this[toKey].indexOf(row)
+        if (back > -1) { this[toKey].splice(back, 1) }
+        from.splice(idx, 0, row)
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      }
+    },
+
     /**
      * Thin authenticated fetch — mirrors the sibling firm tabs so this one can
      * be mounted and tested on its own; the backend re-checks authorisation on
@@ -492,28 +578,57 @@ export default {
   margin: 0 0 0.35rem;
   padding: 0.3rem 0.4rem;
 }
-.lt-rail-item {
+.lt-rail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+}
+.lt-rail-row:hover { background: #f5f7fa; }
+.lt-rail-row.is-current { background: #eaf1fb; border-left-color: #002b64; }
+.lt-rail-row.is-current .lt-rail-name { font-weight: 600; }
+.lt-rail-row.is-dragging { opacity: 0.5; }
+.lt-rail-select {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   background: none;
   border: 0;
-  border-left: 3px solid transparent;
-  cursor: pointer;
+  cursor: grab;
   text-align: left;
   padding: 0.45rem 0.5rem;
   font: inherit;
+}
+.lt-rail-name { flex: 1; min-width: 0; }
+.lt-rail-move { flex: 0 0 auto; }
+.lt-rail-movebtn {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: #8a94a3;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
   border-radius: 4px;
 }
-.lt-rail-item:hover { background: #f5f7fa; }
-.lt-rail-item.is-current {
-  background: #eaf1fb;
-  border-left-color: #002b64;
-  font-weight: 600;
+.lt-rail-movebtn:hover { background: #e8edf4; color: #002b64; }
+.lt-rail-group.is-drop-target {
+  background: #eef5ff;
+  outline: 2px dashed #9fc0ec;
+  outline-offset: -2px;
+  border-radius: 6px;
 }
-.lt-rail-name { flex: 1; }
+.lt-move-head {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a94a3;
+  font-weight: 700;
+}
 .lt-rail-empty { padding: 0.3rem 0.25rem; }
 .panel-empty { text-align: center; padding: 3rem 1rem; }
 

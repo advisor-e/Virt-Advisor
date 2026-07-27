@@ -231,3 +231,32 @@ describe('on-screen editing (local only)', () => {
     expect(wrapper.vm.form.materials[1].origin).toBe('firm')
   })
 })
+
+describe('re-filing into another section (drag / Move to)', () => {
+  test('moveTo posts to the section route and re-buckets the rail', async () => {
+    const wrapper = await mountScreen()
+    expect(wrapper.vm.doTheJob.some(d => d.id === 'eoy')).toBe(true)
+    await wrapper.vm.moveTo('eoy', 'getOrganised')
+    const post = global.fetch.mock.calls.find(c => c[1] && c[1].method === 'POST' && String(c[0]).endsWith('/section'))
+    expect(post).toBeTruthy()
+    expect(post[0]).toBe('/api/firm-manager/domain-support/eoy/section')
+    expect(JSON.parse(post[1].body)).toEqual({ section: 'getOrganised' })
+    expect(wrapper.vm.doTheJob.some(d => d.id === 'eoy')).toBe(false)
+    expect(wrapper.vm.getOrganised.some(d => d.id === 'eoy')).toBe(true)
+  })
+
+  test('moving to the section it already sits in is a no-op (no post)', async () => {
+    const wrapper = await mountScreen()
+    await wrapper.vm.moveTo('eoy', 'doTheJob')
+    const post = global.fetch.mock.calls.find(c => c[1] && c[1].method === 'POST' && String(c[0]).endsWith('/section'))
+    expect(post).toBeFalsy()
+  })
+
+  test('a failed save reverts the optimistic move', async () => {
+    const wrapper = await mountScreen()
+    global.fetch = jest.fn(() => Promise.resolve({ ok: false, statusText: 'boom', json: () => Promise.resolve({}) }))
+    await wrapper.vm.moveTo('eoy', 'getTheJob')
+    expect(wrapper.vm.doTheJob.some(d => d.id === 'eoy')).toBe(true)
+    expect(wrapper.vm.getTheJob.some(d => d.id === 'eoy')).toBe(false)
+  })
+})

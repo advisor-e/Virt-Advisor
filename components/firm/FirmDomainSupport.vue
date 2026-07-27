@@ -20,23 +20,45 @@ section.firm-domain-support
   b-loading(:is-full-page="false" :active="loading")
 
   .columns(v-if="!loading")
-    //- ── Rail: two groups (advisory domains, get-the-job material) ───────
+    //- ── Rail: the three master-section groups. Each row can be dragged into
+    //- another group (mouse), or re-filed via its "Move to" menu (keyboard /
+    //- touch). Re-filing is firm-only and display-only — the AI is unaffected.
     .column.is-4
       nav.ds-rail(:aria-label="$t('firmDomainSupport.railLabel')")
         .ds-rail-empty(v-if="!groups.length")
           span.has-text-grey.is-size-7 {{ query ? $t('firmDomainSupport.noMatchHere') : $t('firmDomainSupport.emptyLibrary') }}
 
-        .ds-rail-group(v-for="group in groups" :key="group.key")
+        .ds-rail-group(
+          v-for="group in groups"
+          :key="group.key"
+          :class="{ 'is-drop-target': dragId && dropKey === group.key }"
+          @dragover.prevent="dropKey = group.key"
+          @drop.prevent="onDrop(group.key)"
+        )
           h3.ds-rail-heading {{ group.heading }}
-          button.ds-rail-item(
+          .ds-rail-row(
             v-for="item in group.items"
             :key="item.id"
-            type="button"
-            :class="{ 'is-current': current && current.id === item.id }"
-            @click="select(item)"
+            :class="{ 'is-current': current && current.id === item.id, 'is-dragging': dragId === item.id }"
+            draggable="true"
+            @dragstart="onDragStart(item.id, $event)"
+            @dragend="onDragEnd"
           )
-            span.ds-rail-name {{ item.label }}
-            b-tag(:type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
+            button.ds-rail-select(type="button" @click="select(item)")
+              span.ds-rail-name {{ item.label }}
+              b-tag(:type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
+            b-dropdown.ds-rail-move(aria-role="menu" position="is-bottom-left" :mobile-modal="false")
+              template(#trigger)
+                button.ds-rail-movebtn(type="button" :aria-label="$t('firmDomainSupport.moveTo')") ⋯
+              b-dropdown-item(custom aria-role="menuitem")
+                span.ds-move-head {{ $t('firmDomainSupport.moveTo') }}
+              b-dropdown-item(
+                v-for="opt in sectionOptions"
+                :key="opt.key"
+                aria-role="menuitem"
+                :disabled="opt.key === group.key"
+                @click="moveTo(item.id, opt.key)"
+              ) {{ opt.label }}
 
     //- ── Panel: the selected domain's four-column material table ─────────
     .column.is-8
@@ -202,7 +224,11 @@ export default {
       /** Cleaned baseline of the loaded materials, JSON — drives `dirty`. */
       original: null,
       saving: false,
-      history: []
+      history: [],
+      /** Rail re-filing drag state (display-only): the id being dragged and the
+       *  group currently hovered as a drop target. */
+      dragId: null,
+      dropKey: null
     }
   },
 
@@ -241,6 +267,15 @@ export default {
     /** Reset is meaningful only when the firm actually has a saved override. */
     canReset () {
       return !!(this.current && this.current.origin === 'firm')
+    },
+
+    /** The three section drop targets, for the "Move to" menu. */
+    sectionOptions () {
+      return [
+        { key: 'doTheJob', label: this.$t('firmDomainSupport.groupDoTheJob') },
+        { key: 'getTheJob', label: this.$t('firmDomainSupport.groupGetTheJob') },
+        { key: 'getOrganised', label: this.$t('firmDomainSupport.groupGetOrganised') }
+      ]
     }
   },
 
@@ -451,6 +486,57 @@ export default {
       return isNaN(d.getTime()) ? String(value) : d.toLocaleString()
     },
 
+    /** Which section array currently holds an item id, or null. */
+    sectionKeyOf (id) {
+      for (const k of ['doTheJob', 'getTheJob', 'getOrganised']) {
+        if (this[k].some(d => d.id === id)) { return k }
+      }
+      return null
+    },
+
+    onDragStart (id, ev) {
+      this.dragId = id
+      if (ev && ev.dataTransfer) {
+        ev.dataTransfer.effectAllowed = 'move'
+        ev.dataTransfer.setData('text/plain', id)
+      }
+    },
+
+    onDragEnd () { this.dragId = null; this.dropKey = null },
+
+    onDrop (toKey) {
+      const id = this.dragId
+      this.dragId = null
+      this.dropKey = null
+      if (id) { this.moveTo(id, toKey) }
+    },
+
+    /**
+     * Re-file a domain into another master section for this firm — display-only,
+     * the AI is unaffected (owner ruling 2026-07-27). Optimistically re-buckets
+     * the rail, then persists; a failed save reverts. Moving to the section it
+     * already sits in is a no-op. Both the drag and the "Move to" menu funnel
+     * here. @param {string} id item id @param {string} toKey target section key
+     */
+    async moveTo (id, toKey) {
+      const fromKey = this.sectionKeyOf(id)
+      if (!fromKey || fromKey === toKey) { return }
+      const from = this[fromKey]
+      const idx = from.findIndex(d => d.id === id)
+      if (idx < 0) { return }
+      const [row] = from.splice(idx, 1)
+      this[toKey].push(row)
+      try {
+        await this.api('POST', `/api/firm-manager/domain-support/${encodeURIComponent(id)}/section`, { section: toKey })
+      } catch (err) {
+        // Revert the optimistic move so the rail never lies about what was saved.
+        const back = this[toKey].indexOf(row)
+        if (back > -1) { this[toKey].splice(back, 1) }
+        from.splice(idx, 0, row)
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      }
+    },
+
     /**
      * Thin authenticated fetch — mirrors FirmQuizzes' helper so this tab can be
      * mounted and tested on its own; the backend re-checks authorisation on
@@ -498,28 +584,57 @@ export default {
   margin: 0 0 0.35rem;
   padding: 0.3rem 0.4rem;
 }
-.ds-rail-item {
+.ds-rail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+}
+.ds-rail-row:hover { background: #f5f7fa; }
+.ds-rail-row.is-current { background: #eaf1fb; border-left-color: #002b64; }
+.ds-rail-row.is-current .ds-rail-name { font-weight: 600; }
+.ds-rail-row.is-dragging { opacity: 0.5; }
+.ds-rail-select {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   background: none;
   border: 0;
-  border-left: 3px solid transparent;
-  cursor: pointer;
+  cursor: grab;
   text-align: left;
   padding: 0.45rem 0.5rem;
   font: inherit;
+}
+.ds-rail-name { flex: 1; min-width: 0; }
+.ds-rail-move { flex: 0 0 auto; }
+.ds-rail-movebtn {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: #8a94a3;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
   border-radius: 4px;
 }
-.ds-rail-item:hover { background: #f5f7fa; }
-.ds-rail-item.is-current {
-  background: #eaf1fb;
-  border-left-color: #002b64;
-  font-weight: 600;
+.ds-rail-movebtn:hover { background: #e8edf4; color: #002b64; }
+.ds-rail-group.is-drop-target {
+  background: #eef5ff;
+  outline: 2px dashed #9fc0ec;
+  outline-offset: -2px;
+  border-radius: 6px;
 }
-.ds-rail-name { flex: 1; }
+.ds-move-head {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a94a3;
+  font-weight: 700;
+}
 .ds-rail-empty { padding: 0.3rem 0.25rem; }
 .panel-empty { text-align: center; padding: 3rem 1rem; }
 
