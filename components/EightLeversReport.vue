@@ -413,15 +413,19 @@ export default {
 
 <style scoped>
 .lev-root {
-  --lev-bg:#eef3f8; --lev-panel:#ffffff; --lev-panel-2:#f1f6fb; --lev-ink:#002b64; --lev-muted:#5b6f8a; --lev-line:#d5e1ee;
-  --lev-accent:#0070c0; --lev-accent-bright:#00b1e0; --lev-good:#4ca52d; --lev-warn:#ff9900; --lev-crit:#ff0000;
-  --lev-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426; --lev-r:14px;
-  background:var(--lev-bg); color:var(--lev-ink);
-  font-family:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-weight:300; -webkit-font-smoothing:antialiased; padding:28px 22px 64px; min-height:100vh;
+  /* Colours flow from the shared ReportShell tokens (single source): --lev-* is a thin
+     alias layer, no colour declared here. Frame removed (ReportShell owns it); dark-mode
+     block removed per the all-light ruling (2026-07-27). Width now matches Lease vs Buy —
+     Eight Levers narrows most, its own cap having been 1180px. */
+  --lev-bg:var(--rs-bg); --lev-panel:var(--rs-panel); --lev-panel-2:var(--rs-panel-2); --lev-ink:var(--rs-ink); --lev-muted:var(--rs-muted); --lev-line:var(--rs-line);
+  --lev-accent:var(--rs-accent); --lev-accent-bright:var(--rs-accent-bright); --lev-good:var(--rs-good); --lev-warn:var(--rs-warn); --lev-crit:var(--rs-crit);
+  --lev-shadow:var(--rs-shadow); --lev-r:var(--rs-radius);
+  color:var(--lev-ink);
 }
 
-.lev-layout { display:grid; grid-template-columns:320px 1fr; gap:18px; max-width:1180px; margin:0 auto; align-items:start; }
+/* Width + centring now come from the ReportShell wrap; column width (320px), gap (18px)
+   and the 900px collapse are left for the Step 3 standardisation (360px / 20px / 860px). */
+.lev-layout { display:grid; grid-template-columns:320px 1fr; gap:18px; align-items:start; }
 @media (max-width: 900px) { .lev-layout { grid-template-columns:1fr; } }
 
 .lev-card {
@@ -464,7 +468,7 @@ export default {
   background:var(--lev-panel-2); border:1px solid var(--lev-line);
   border-radius:9px; padding:9px 12px; box-shadow:none; height:auto;
 }
-.lev-entry >>> input:focus { border-color:var(--lev-accent); box-shadow:0 0 0 3px #0070c018; }
+.lev-entry >>> input:focus { border-color:var(--lev-accent); box-shadow:0 0 0 3px var(--rs-accent-soft); }
 .lev-ehint { font-size:11.5px; color:var(--lev-muted); line-height:1.5; margin-top:6px; }
 
 .lev-actions { margin-top:6px; }
@@ -511,16 +515,9 @@ export default {
 
 /* Stale-figures banner: the calc failed but earlier numbers are still on screen. They must be
    visibly untrustworthy — stale figures presented as live are worse than no figures at all. */
-/* The banner itself is components/base/StaleBanner.vue (Phase 3); this screen keeps
-   its own palette by mapping the shared properties onto its variables — including the
-   dark-mode overrides below, which apply automatically. */
+/* The banner itself is components/base/StaleBanner.vue (Phase 3); this screen maps the
+   shared StaleBanner properties onto its --lev-* aliases, which resolve to ReportShell. */
 .lev-root { --sb-crit:var(--lev-crit); --sb-muted:var(--lev-muted); --sb-radius:var(--lev-r); --sb-gap:14px; }
 .is-stale { opacity:.45; filter:grayscale(0.6); }
-
-@media (prefers-color-scheme: dark) {
-  .lev-root {
-    --lev-bg:#05132a; --lev-panel:#0a1f3d; --lev-panel-2:#0e2440; --lev-ink:#e6f0fa;
-    --lev-muted:#9fb4d0; --lev-line:#1a3559; --lev-accent:#00b1e0; --lev-accent-bright:#7fd3f1;
-  }
-}
+/* (dark-mode block removed 2026-07-27 — all-light ruling; colours come from ReportShell.) */
 </style>
