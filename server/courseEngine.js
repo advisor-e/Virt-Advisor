@@ -439,6 +439,18 @@ async function handleQuizGenerate (body, res) {
   // Firm-authored banks are therefore fenced; platform banks are repo data and
   // stay unfenced, leaving the tuned CB-29/CB-30 prompt behaviour unchanged.
   const bank = findQuizBank(overrides.banks, sessionContext)
+  // Provenance: which bank answered. `bankRef` (already on every question) is
+  // only an entry NUMBER — meaningless without the bank it belongs to, so the
+  // advisor's quiz review and any manager view cannot say where a question came
+  // from. The key is resolved by identity rather than changing findQuizBank's
+  // return shape, which the grader and its tests also depend on.
+  //
+  // Identity ONLY — never the entries. The firm's model answers stay withheld
+  // until after grading (see handleQuizGrade), or the browser would hold the
+  // answers before the advisor writes theirs.
+  const bankKey = bank
+    ? (Object.keys(overrides.banks || {}).find(k => overrides.banks[k] === bank) || null)
+    : null
   const bankEntries = bank
     ? bank.entries.map(e => `Entry ${e.id}\nQuestion: ${e.question}\nKey point: ${e.keyPoint}`).join('\n')
     : ''
@@ -495,7 +507,14 @@ ${jsonShape}`
       console.error('[course:quiz-generate] invalid AI response shape:', result.errors.join('; '))
       return sendError(res, 500, 'QUIZ_GENERATE_FAILED', 'Failed to generate quiz questions')
     }
-    jsonResponse(res, 200, { success: true, questions: result.data.questions })
+    jsonResponse(res, 200, {
+      success: true,
+      questions: result.data.questions,
+      // null when the session's page has no authored bank — the questions were
+      // written from the session content, and the screen says so rather than
+      // implying a firm source that does not exist.
+      bank: bank ? { key: bankKey, source: bank.source || null, origin: bank.origin || 'platform' } : null
+    })
   } catch (e) {
     console.error('[course:quiz-generate]', e.message)
     sendError(res, 500, 'QUIZ_GENERATE_FAILED', 'Failed to generate quiz questions')

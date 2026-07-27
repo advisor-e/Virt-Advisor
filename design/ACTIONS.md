@@ -198,9 +198,56 @@
       bias or may simply be the synthetic session content (the page's purpose text stands in for a
       transcript) giving the model nothing to choose relevance on. A real session would tell them
       apart.
-    - ☐ **Still unproven — the SCREEN.** The lab exercises the server path only. Nobody has yet
-      watched a banked quiz render and grade in the running app; that remains the open
-      *live-eyeball* item and wants doing before this branch goes to `master`.
+    - ☑ **LIVE-EYEBALL DONE 2026-07-28 (Mike, running app).** Both servers were started on the
+      2026-06-29 recipe (backend Node 14.15 by exact path; frontend a PRODUCTION build, not the
+      dev server) and Mike completed two course sessions end to end — **quiz scores 70 and 73**.
+      Generation and grading were also driven directly over HTTP, through the Nuxt proxy as the
+      browser does it: a Systems B4 Scale quiz built from entries 1/8/4, and the grader **passed a
+      strong answer at 80 and failed a vague one at 40, its reasoning quoting the firm's own
+      nodes-and-links teaching** — proof the CB-30 marking guide is authoritative, not GPT's
+      general knowledge. Closes the CB-19 / Stage E live-verification line for the quiz path.
+  - ✅ **QUIZ PROVENANCE BUILT 2026-07-28 (approved by Mike, this branch) — "which bank fed this
+    question?"** Mike's ask: a complaint that "the quizzes aren't accurate" had **no address** —
+    `bankRef` is an entry NUMBER, and nothing said which bank it belonged to.
+    - **Backend** ([`courseEngine.js`](../server/courseEngine.js) `handleQuizGenerate`): the response
+      now carries `bank: { key, source, origin }` (null when the page has no bank). The key is
+      resolved by object identity rather than changing `findQuizBank`'s return shape, which the
+      grader and its tests also depend on.
+    - **SECURITY LINE HELD:** identity only, never entries. The firm's model answers stay withheld
+      until AFTER grading (the existing rule — otherwise the browser holds the answers while the
+      advisor writes theirs). Locked by a test that fails if any bank answer appears in the
+      generate response.
+    - **Frontend** ([`CourseBuilder.vue`](../components/CourseBuilder.vue)): every graded result
+      records `bankKey` / `bankSource` / `bankRef` — on the RESULT, because that is what persists
+      with the course and is what a manager view would later read. Quiz Review shows a quiet grey
+      line: *from Ratio Analysis · question 5 · Course Builder Quiz/Specialist Tools Quiz.pdf*.
+      Three states are deliberately distinct: banked (names it), unbanked (*AI-written from the
+      session content*), and a result saved BEFORE today (says nothing rather than guessing).
+      Advisor-visible on Quiz Review only — the in-quiz result card is left uncluttered.
+    - 11 new tests (5 backend + 6 component); full suite **1,924 green**, lint 0 errors.
+  - 🟠 **Still open — the BACKEND record (the manager half of the same idea).** `log-course` still
+    sends only the score, so `advisor_course_completions` — and therefore **My Progress** and the
+    **Team Dashboard** — are unchanged: they show averages and have never seen a question.
+    - **Gated on Firm-Manager MySQL provisioning, with fresh evidence:** both of tonight's live
+      completions (scores 70 and 73) **failed to record** — `[activityLogger] logCourseSession
+      failed: Access denied for user 'root'@'localhost'`. My Progress returns all-zero tiers and an
+      empty `recentActivity` for that reason alone. This is the P1 blocking a real feature, not a
+      theoretical gap.
+    - **DECISION for Mike when it is unblocked:** whether the per-question record stores the
+      advisor's own free-text ANSWER. Recommendation is **no** — store bank key, entry number,
+      pass/fail and score only. Advisors write differently once they believe a manager reads their
+      words, which would degrade the very signal the record exists to collect. Text can be added
+      later; it cannot be un-stored.
+    - **Cheapest path when it lands:** per-question provenance already persists inside the course
+      record (`va_courses` via `courseStore`, dev-file fallback), so a manager view may be able to
+      read from there rather than needing new columns — but cross-advisor reads are IDOR-sensitive
+      and must go through the same `firmAuth` pattern.
+  - ☐ **Ghost logic-tree references (6) — pre-existing, surfaced by tonight's boot log.** The backend
+    warns at every start: *"logic trees reference template names that do not exist in search content.
+    These produce AI hallucinations"* — `Sales Session`, `Data Session`, `Planning Session`,
+    `People Session`, `Process Session`, `Growth Framework`. **Not caused by the 2026-07-28 library
+    refresh** (it added three pages and removed none, so no name was orphaned by it).
+    `scripts/migrate-ghost-references.js` already exists for this.
   - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"
