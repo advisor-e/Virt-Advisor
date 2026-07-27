@@ -1726,11 +1726,14 @@ async function getDomainSupport (req, res) {
     const getFiles = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
 
     const result = { doTheJob: [], getTheJob: [], getOrganised: [] }
+    const firmSections = await _loadSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE)
 
     const addRow = async (id, label) => {
       const override = await _loadDomainSupportOverride(req.firmId, id)
       const support = require('../utils/domainSupport').resolveDomainSupport(id, override ? { [id]: override } : null)
-      result[_domainSupportSection(id)].push({
+      const moved = firmSections[id]
+      const section = VALID_SECTIONS.includes(moved) ? moved : _domainSupportSection(id)
+      result[section].push({
         id,
         label,
         hasOverride: override !== null,
@@ -1857,6 +1860,61 @@ const { loadFirmLogicTrees, CONFIG_KEYS: CONTENT_CONFIG_KEYS } = require('../uti
 // reader uses (firmContent.DEV_FILES.logicTrees), keyed by firmId.
 const DEV_LOGIC_TREES_FILE = path.resolve(__dirname, '../../data/dev-firm-logic-trees.json')
 
+// ── Section placement (display-only, firm-scoped) ────────────────────────────
+// A firm can re-file a domain-support item or logic table into a different
+// master section (Do the Job / Get the Job / Get Organised) for THEIR firm.
+// Stored as a sparse { itemId: section } map, SEPARATE from content edits, and
+// read ONLY by the two list routes below — never by the advisor/course engines
+// (owner ruling 2026-07-27: re-filing changes the Firm Manager shelf, not the
+// AI's behaviour). Dragging an item back to its platform-default section clears
+// its override, so the map stays sparse.
+const VALID_SECTIONS = ['doTheJob', 'getTheJob', 'getOrganised']
+const LOGIC_TREE_SECTIONS_KEY = 'logic-tree-sections'
+const DOMAIN_SUPPORT_SECTIONS_KEY = 'domain-support-sections'
+const DEV_LOGIC_TREE_SECTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-logic-tree-sections.json')
+const DEV_DOMAIN_SUPPORT_SECTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-domain-support-sections.json')
+
+/**
+ * The firm's { itemId: section } placement overrides for one page, or {}.
+ * @param {string} firmId @param {string} configKey @param {string} devFile
+ * @returns {Promise<Object>}
+ */
+async function _loadSectionMap (firmId, configKey, devFile) {
+  try {
+    const v = await overlay.loadFirmConfig(firmId, configKey)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch (err) {
+    if (IS_DEV) {
+      try {
+        const all = JSON.parse(fs.readFileSync(devFile, 'utf8'))
+        return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
+      } catch { return {} }
+    }
+    throw err
+  }
+}
+
+/**
+ * Persist a firm's section-placement map (prod overlay store, dev-JSON fallback).
+ * @param {string} firmId @param {string} configKey @param {string} devFile
+ * @param {Object} map @param {string} savedBy
+ * @returns {Promise<number|null>}
+ */
+async function _saveSectionMap (firmId, configKey, devFile, map, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(firmId, configKey, map, savedBy)
+  } catch (err) {
+    if (IS_DEV) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(devFile, 'utf8')) } catch {}
+      all[firmId] = map
+      fs.writeFileSync(devFile, JSON.stringify(all, null, 2))
+      return null
+    }
+    throw err
+  }
+}
+
 /**
  * The firm's logic-tree override map ({ treeId: sparse override }) or null —
  * the exact bundle the advisor engine loads, so Firm Manager shows what the AI
@@ -1920,9 +1978,14 @@ async function getLogicTrees (req, res) {
     const logicTrees = require('../utils/logicTrees')
     const base = logicTrees.loadLogicTrees()
     const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    const firmSections = await _loadSectionMap(req.firmId, LOGIC_TREE_SECTIONS_KEY, DEV_LOGIC_TREE_SECTIONS_FILE)
     const result = { doTheJob: [], getTheJob: [], getOrganised: [] }
     for (const tree of base) {
-      result[_treeSection(tree)].push({
+      // The firm's re-file wins over the platform default; an unknown stored
+      // value falls back so a bad override can never lose a row.
+      const moved = firmSections[tree.id]
+      const section = VALID_SECTIONS.includes(moved) ? moved : _treeSection(tree)
+      result[section].push({
         id: tree.id,
         label: tree.name || tree.id,
         count: _treeBranchRows(tree).length,
@@ -2130,6 +2193,60 @@ async function getLogicTreeHistory (req, res) {
   }
 }
 
+/**
+ * POST /api/firm-manager/logic-trees/:treeId/section — re-file a logic table into
+ * a different master section for this firm (display-only; the AI is unaffected).
+ * Body: { section: 'doTheJob' | 'getTheJob' | 'getOrganised' }. Moving an item
+ * back to its platform-default section clears the override.
+ */
+async function setLogicTreeSection (req, res) {
+  const { treeId } = req.params
+  const section = req.body && req.body.section
+  if (!VALID_SECTIONS.includes(section)) {
+    return res.send(400, { success: false, error: { code: 'INVALID_SECTION', message: 'section must be one of: ' + VALID_SECTIONS.join(', ') } })
+  }
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === treeId)
+    if (!base) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    const map = await _loadSectionMap(req.firmId, LOGIC_TREE_SECTIONS_KEY, DEV_LOGIC_TREE_SECTIONS_FILE)
+    if (section === _treeSection(base)) { delete map[treeId] } else { map[treeId] = section }
+    await _saveSectionMap(req.firmId, LOGIC_TREE_SECTIONS_KEY, DEV_LOGIC_TREE_SECTIONS_FILE, map, req.userEmail)
+    res.send(200, { moved: true, treeId, section })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/domain-support/:domainId/section — re-file a
+ * domain-support item into a different master section for this firm
+ * (display-only). Body: { section }. Back-to-default clears the override.
+ */
+async function setDomainSupportSection (req, res) {
+  const { domainId } = req.params
+  const section = req.body && req.body.section
+  if (!VALID_SECTIONS.includes(section)) {
+    return res.send(400, { success: false, error: { code: 'INVALID_SECTION', message: 'section must be one of: ' + VALID_SECTIONS.join(', ') } })
+  }
+  const domains = require('../../data/domains.json') || []
+  const getFiles = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
+  const known = new Set([...domains.map(d => d.id), ...getFiles])
+  if (!known.has(domainId)) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Domain support item not found' } })
+  }
+  try {
+    const map = await _loadSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE)
+    if (section === _domainSupportSection(domainId)) { delete map[domainId] } else { map[domainId] = section }
+    await _saveSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE, map, req.userEmail)
+    res.send(200, { moved: true, domainId, section })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
   quizzablePages,
   listDocuments,
@@ -2175,5 +2292,7 @@ module.exports = {
   getLogicTreeDetail,
   saveLogicTree,
   resetLogicTree,
-  getLogicTreeHistory
+  getLogicTreeHistory,
+  setLogicTreeSection,
+  setDomainSupportSection
 }

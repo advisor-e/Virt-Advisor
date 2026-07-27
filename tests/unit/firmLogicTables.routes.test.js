@@ -39,7 +39,9 @@ const {
   getLogicTreeDetail,
   saveLogicTree,
   resetLogicTree,
-  getLogicTreeHistory
+  getLogicTreeHistory,
+  setLogicTreeSection,
+  setDomainSupportSection
 } = require('../../server/routes/firmManager')
 
 function makeMockRes () {
@@ -249,5 +251,79 @@ describe('GET /logic-trees/:treeId/history', () => {
     expect(res._body.history).toHaveLength(1)
     // Read from the single shared bundle key, not a per-tree key.
     expect(db.execute.mock.calls[0][1]).toEqual(['firm-test-123', 'logic-trees'])
+  })
+})
+
+describe('POST /logic-trees/:treeId/section (re-file, display-only)', () => {
+  test('an invalid section is a clean 400 and saves nothing', async () => {
+    const res = makeMockRes()
+    await setLogicTreeSection(makeReq({ params: { treeId: 'eoy_meeting' }, body: { section: 'nonsense' } }), res)
+    expect(res._status).toBe(400)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('an unknown table id is a clean 404', async () => {
+    const res = makeMockRes()
+    await setLogicTreeSection(makeReq({ params: { treeId: 'no_such_tree' }, body: { section: 'getTheJob' } }), res)
+    expect(res._status).toBe(404)
+  })
+
+  test('a move stores the item under the SEPARATE sections key (never the content key)', async () => {
+    overlay.loadFirmConfig.mockResolvedValue({}) // no prior placements
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    // eoy_meeting defaults to Do the Job; move it to Get the Job.
+    await setLogicTreeSection(makeReq({ params: { treeId: 'eoy_meeting' }, body: { section: 'getTheJob' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body).toMatchObject({ moved: true, treeId: 'eoy_meeting', section: 'getTheJob' })
+    const [firmId, key, map] = overlay.saveFirmConfig.mock.calls[0]
+    expect(firmId).toBe('firm-test-123')
+    expect(key).toBe('logic-tree-sections') // NOT 'logic-trees' — placement is separate from content
+    expect(map).toEqual({ eoy_meeting: 'getTheJob' })
+  })
+
+  test('moving an item back to its default clears the override', async () => {
+    overlay.loadFirmConfig.mockResolvedValue({ eoy_meeting: 'getTheJob' }) // previously moved
+    overlay.saveFirmConfig.mockResolvedValue(2)
+    const res = makeMockRes()
+    // eoy_meeting's platform default is Do the Job.
+    await setLogicTreeSection(makeReq({ params: { treeId: 'eoy_meeting' }, body: { section: 'doTheJob' } }), res)
+    expect(res._status).toBe(200)
+    expect(overlay.saveFirmConfig.mock.calls[0][2]).toEqual({}) // override removed → sparse
+  })
+
+  test('the list route files a moved table under the firm section, not its default', async () => {
+    // Key-aware mock: the sections key returns a placement; the content key does not.
+    overlay.loadFirmConfig.mockImplementation((firmId, key) =>
+      Promise.resolve(key === 'logic-tree-sections' ? { eoy_meeting: 'getTheJob' } : null))
+    const res = makeMockRes()
+    await getLogicTrees(makeReq(), res)
+    expect(res._body.getTheJob.map(t => t.id)).toContain('eoy_meeting') // moved here
+    expect(res._body.doTheJob.map(t => t.id)).not.toContain('eoy_meeting') // gone from default
+  })
+})
+
+describe('POST /domain-support/:domainId/section (re-file, display-only)', () => {
+  test('an invalid section is a clean 400', async () => {
+    const res = makeMockRes()
+    await setDomainSupportSection(makeReq({ params: { domainId: 'eoy' }, body: { section: 'nope' } }), res)
+    expect(res._status).toBe(400)
+  })
+
+  test('an unknown domain id is a clean 404', async () => {
+    const res = makeMockRes()
+    await setDomainSupportSection(makeReq({ params: { domainId: 'not-a-domain' }, body: { section: 'getTheJob' } }), res)
+    expect(res._status).toBe(404)
+  })
+
+  test('a move stores under the domain-support sections key', async () => {
+    overlay.loadFirmConfig.mockResolvedValue({})
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await setDomainSupportSection(makeReq({ params: { domainId: 'eoy' }, body: { section: 'getOrganised' } }), res)
+    expect(res._status).toBe(200)
+    const [, key, map] = overlay.saveFirmConfig.mock.calls[0]
+    expect(key).toBe('domain-support-sections')
+    expect(map).toEqual({ eoy: 'getOrganised' })
   })
 })
