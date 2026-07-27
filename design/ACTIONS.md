@@ -169,11 +169,14 @@
       now enters the top 6 for the sell/exit scenario, displacing the lowest tie. Engine logic
       untouched; the file's **verdict** assertions (Mike-confirmed correct outcomes) still pass
       unchanged. Full suite **1,891 green**, lint 0 errors.
-  - ☐ **NEXT (same job) — `Course Builder Quiz/Strategic Tools Quiz.pdf` has never been ingested.**
-    Tracked in the repo since 2026-07-23 but referenced by **no bank** — the only quiz PDF in the
-    folder with no banks behind it. Same shape and roughly the same size as the Specialist Tools
-    job just completed; the build recipe is in that entry above. Expect the same two decisions:
-    section headings that are not exact page titles, and any page the export has not published yet.
+  - ✅ **Strategic Tools Quiz INGESTED 2026-07-28 (approved by Mike, this branch) — every quiz PDF
+    in `Course Builder Quiz/` now has banks behind it.** Its **11 sections / 110 questions** are live
+    as 11 banks (banks 47 → 58, questions 500 → 610), same mechanical transcription. All 11 sections
+    are abbreviations of their Strategic Tools page and needed no judgement call — *Planning Outcomes*
+    → **Planning Outcomes Review**, *Bizz Targets* → **Business Targets**, *Strategic Orientation.1/.2*
+    → **Orientation Part 1/2**, *Sales & Mktg Review* → **Sales & Marketing Review**, *Porter's & Pine*
+    → **Porters & Pine**; the other five are named exactly as their page. No new library pages were
+    needed and no snapshot moved. Full suite **1,913 green**.
   - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"

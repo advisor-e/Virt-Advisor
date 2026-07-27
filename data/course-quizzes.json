@@ -3312,6 +3312,732 @@
           "id": 10
         }
       ]
+    },
+    "Planning Outcomes Review": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What are the two primary roles of a participant in a planning session?",
+          "answer": "To be ready to explore issues and ideas with an open heart and an open mind.",
+          "keyPoint": "The session's objective is to \"Discover What We’ve Been Missing,\" which requires participants to collaborate and be open to challenging what they believe to be true.",
+          "id": 1
+        },
+        {
+          "question": "What are the four specific \"Planning Domains\" that structure the business review?",
+          "answer": "Business Targets, Strategic Orientation, Organisational Review, and Sales & Marketing Review.",
+          "keyPoint": "These domains provide a comprehensive framework to review everything from financial goals to internal team efficiencies and external market messaging.",
+          "id": 2
+        },
+        {
+          "question": "Which planning domain focuses on reviewing sequential revenue targets, debt ratio/risk tolerance, and work hours/annual leave expectations?",
+          "answer": "Business Targets Plan.",
+          "keyPoint": "This broad plan aligns the specific focus areas of the business with the personal income, lifestyle, and profit expectations of the owner.",
+          "id": 3
+        },
+        {
+          "question": "What is the primary purpose of conducting an Organisational Review?",
+          "answer": "To improve Efficiencies and Team Engagement.",
+          "keyPoint": "This is achieved by specifically reviewing Communication & Reporting Channels, Divisional Roles, and Individual Responsibilities within the hierarchy.",
+          "id": 4
+        },
+        {
+          "question": "In the Sales & Marketing Review, what is the required sequence of actions after you \"Attract Attention\" to your product or service?",
+          "answer": "You must then CONVERT Attention into Interest & Action so that finally, you secure their Custom.",
+          "keyPoint": "Marketing is a sequential process of moving a prospect from mere attention all the way to a secured transaction.",
+          "id": 5
+        },
+        {
+          "question": "Which strategic concept explores how customer trends, supplier tactics, new entrants, and substitute products can all impact your business at the same time?",
+          "answer": "Porter's 5 Forces.",
+          "keyPoint": "This framework helps you look out for changes in the market and anticipate how everyone will react, keeping you ready to take advantage of the situation.",
+          "id": 6
+        },
+        {
+          "question": "What does the \"Progression of Economic Value\" framework suggest will eventually happen to the \"bright new thing\" in a market?",
+          "answer": "It becomes the \"minimum standard\" in the future.",
+          "keyPoint": "This concept identifies what business imperatives to focus on depending on how a company adds value to its customer across the value chain.",
+          "id": 7
+        },
+        {
+          "question": "According to the Sigmoid Curve concept, when is the optimal time to invest in new ideas?",
+          "answer": "While you are still enjoying positive cash flow from your existing product.",
+          "keyPoint": "You must look ahead and plan investments or improvements BEFORE sales drop and you lack the cash to afford necessary changes.",
+          "id": 8
+        },
+        {
+          "question": "What is the core aim of a \"Blue Ocean Strategy\"?",
+          "answer": "To attract customers that wouldn't normally purchase your services or product.",
+          "keyPoint": "It explores ways to make your business, product, or service stand out entirely from all other traditional competitors.",
+          "id": 9
+        },
+        {
+          "question": "What specific problem-solving technique is recommended to ensure collaborative thinking and reduce the effect of dominant personalities during planning?",
+          "answer": "6 hats thinking.",
+          "keyPoint": "Collaboration is key to planning; ensuring everyone is drawn into the problem-solving process prevents single perspectives from dominating the outcomes.",
+          "id": 10
+        }
+      ]
+    },
+    "Business Targets": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "How does \"Argument thinking\" differ from \"Parallel (Collaborative) thinking\" when assessing a building?",
+          "answer": "In Argument thinking, people stand on opposite sides of a building and argue their isolated views. In Parallel thinking, everyone joins together to view the building from the same side at the same time before deciding.",
+          "keyPoint": "Collaborative thinking requires teams to align their perspectives and terminology to assess problems effectively.",
+          "id": 1
+        },
+        {
+          "question": "What specific lifestyle metrics should be recorded in the Business Owner Expectations table?",
+          "answer": "Income and leisure time goals.",
+          "keyPoint": "Setting business targets begins with defining exactly what the business owner personally expects to extract in terms of money and time.",
+          "id": 2
+        },
+        {
+          "question": "What is the first definitive test that an Operational Objective must pass to be considered correctly defined?",
+          "answer": "It must be Observable / Measurable in its DEFINITIVE ASSESSMENT (either achieved or failed).",
+          "keyPoint": "Operational objectives must act as tangible, trackable milestones that serve as a resourcing or execution component of the plan.",
+          "id": 3
+        },
+        {
+          "question": "Why is the statement \"Make work environment nicer, improve morale\" categorized as a poor Operational Objective?",
+          "answer": "It is not measurable, lacks a specific timeframe, and does not define who is responsible or what exact action will be taken.",
+          "keyPoint": "A correct objective must be specific, such as installing a specific machine by the \"End of Sept 2016\" with a designated person responsible.",
+          "id": 4
+        },
+        {
+          "question": "Which three Profit Levers are directly associated with the aims to gain attention, capture interest, and secure custom?",
+          "answer": "Number of Foot-traffic, Number of Prospects, and Number of Customers.",
+          "keyPoint": "These levers represent the top of the sales funnel, transitioning external market attention into outbound message views, walk-ins, and ultimately purchasing customers.",
+          "id": 5
+        },
+        {
+          "question": "How is \"Average Customer Spend\" calculated within the 8 Profit Levers model?",
+          "answer": "Total Sales Value divided by Total Number of Transactions.",
+          "keyPoint": "Understanding the average transaction value is a crucial lever for keeping customers wanting more and multiplying total revenue.",
+          "id": 6
+        },
+        {
+          "question": "What two metrics are multiplied by the \"Number of Customers\" to calculate Total Revenue?",
+          "answer": "Average Customer Spend and Average Customer Frequency.",
+          "keyPoint": "Revenue is not just about getting customers, but multiplying them by how much they spend and how often they buy.",
+          "id": 7
+        },
+        {
+          "question": "Which Profit Lever corresponds to the effort to achieve BRAND RECOGNITION so that customers seek you out?",
+          "answer": "Activity Driven Costs.",
+          "keyPoint": "This represents the specific cost of gaining a customer through targeted activities and marketing efforts.",
+          "id": 8
+        },
+        {
+          "question": "How are Fixed Costs (Overheads) defined in the profit lever framework?",
+          "answer": "The total regular cost of 'Being Open For Business' – even when nobody buys.",
+          "keyPoint": "Overheads are the baseline expenses that must be reduced or managed regardless of sales volume to protect total profits.",
+          "id": 9
+        },
+        {
+          "question": "What is the recommended strategy if you are running short of time while completing the Profit Lever tables?",
+          "answer": "Identify just 1 task per lever for now, and do the rest when time provides.",
+          "keyPoint": "The accumulative effect of even small, incremental \"quick win\" actions across the levers will help drive massive business profits.",
+          "id": 10
+        }
+      ]
+    },
+    "Orientation Part 1": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the very first stage in the Formal Planning Process?",
+          "answer": "Assess Current Position.",
+          "keyPoint": "Before determining strategy, a business must review its client base, insights, financial position, and resources to understand its starting point.",
+          "id": 1
+        },
+        {
+          "question": "What is the definition of \"Strategy\" derived from its original Greek military context?",
+          "answer": "The EFFECTIVE MEANS OF EMPLOYING AND DEPLOYING MEN AND RESOURCES TO ACHIEVE A POLITICAL OUTCOME.",
+          "keyPoint": "In business, strategy represents the overarching ethos, philosophy, or beliefs about how best to achieve the defined Strategic Objective.",
+          "id": 2
+        },
+        {
+          "question": "How is a Strategic Objective defined in the terminology framework?",
+          "answer": "A clearly defined, desired result (singular) inclusive of on-going management plans.",
+          "keyPoint": "The Strategic Objective is the ultimate \"end game\" target that all subsequent strategies, operational objectives, and tactics must support.",
+          "id": 3
+        },
+        {
+          "question": "In the ‘4-Box’ Strategic Language model, what defines the actual methods or \"on the ground\" problem-solving skills used to achieve Operational Objectives?",
+          "answer": "Tactics.",
+          "keyPoint": "Tactics detail the exact task, who will do it, and when it will be completed within allocated timelines.",
+          "id": 4
+        },
+        {
+          "question": "Which military strategy translates in business to \"Saturating the market to ensure its not cost effective for new players to enter\"?",
+          "answer": "Scorched Earth.",
+          "keyPoint": "Military analogies provide contextual awareness for business defensive strategies against new entrants.",
+          "id": 5
+        },
+        {
+          "question": "What business action corresponds to the military strategy of a \"Siege\"?",
+          "answer": "'Ring fencing' client relations by providing multiple service lines and involving the client's existing business network.",
+          "keyPoint": "Just as a siege blocks reinforcements, ring-fencing blocks competitors by deeply integrating into the client's ecosystem.",
+          "id": 6
+        },
+        {
+          "question": "According to Colin James, what specific domain of intelligence is required for contextual awareness and represents where 'group intelligence' resides?",
+          "answer": "'Field Intelligence'.",
+          "keyPoint": "Achieving real collaborative innovation requires structuring team minds via shared templates and language to tap into contextual Field Intelligence.",
+          "id": 7
+        },
+        {
+          "question": "Why did Edward De Bono criticize the \"Argumentative Theory\" introduced by the Catholic Church?",
+          "answer": "Because it sought truth via a logical argument of two sides (positive and negative), which was not developed for 'creative value'.",
+          "keyPoint": "De Bono highlights that collaborative ('6-hats') thinking—where everyone looks from all sides together—is far more crucial for modern business problem-solving than argumentative debate.",
+          "id": 8
+        },
+        {
+          "question": "During the Pre-Planning Meeting Data Collection, what specific analysis table should be completed to record observations about business vulnerabilities and advantages?",
+          "answer": "The S.W.O.T analysis table.",
+          "keyPoint": "Identifying defined Strengths, Weaknesses, Opportunities, and Threats is a foundational step for assessing the current internal and external position.",
+          "id": 9
+        },
+        {
+          "question": "Where should a team brainstorm and record their Operational Objectives and Tactics (actions) during the session?",
+          "answer": "In the Automated Action Plan Reminder.",
+          "keyPoint": "Documenting tasks, responsibilities, and timelines ensures the strategy translates into executable and tracked actions.",
+          "id": 10
+        }
+      ]
+    },
+    "Orientation Part 2": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What are the two key aims of using a guided thinking process with frameworks?",
+          "answer": "1. Enables a 'deeper' understanding and exploration of the issues and possibilities, and 2. Aligns your thinking on singular aspects at a time.",
+          "keyPoint": "Grasping a concept theoretically before relating it to your own business vastly improves comprehension and memory recall.",
+          "id": 1
+        },
+        {
+          "question": "In the 5 Layers of Complexity model, what is the 'Psyche Error' associated with the \"Intelligence\" stage?",
+          "answer": "Optimism Bias.",
+          "keyPoint": "At the Intelligence stage (learning to notice what you don't know), leaders must avoid the cognitive trap of ignoring negative information that threatens current beliefs.",
+          "id": 2
+        },
+        {
+          "question": "What drives the negative manifestation of \"Complacency\" in the Orientation stage?",
+          "answer": "The mind and body's requirement to recover after sustained periods of mental and physical exhaustion (driven by Cathexis Energy).",
+          "keyPoint": "Complacency occurs when owners reach a stage of perceived security and lose focus on the external environment.",
+          "id": 3
+        },
+        {
+          "question": "In Vertical Integration, what are the two main objectives a business is usually trying to secure when expanding up or down the supply chain?",
+          "answer": "Secure Margin or Quality.",
+          "keyPoint": "Vertical integration (e.g., growing the tea vs. owning the cafe) should represent an opportunity to generate profits or protect quality in isolation.",
+          "id": 4
+        },
+        {
+          "question": "What is the major warning or \"False Belief\" associated with improper Horizontal Integration?",
+          "answer": "The false belief of 'Diversified Risk' when offering experience-related products that are not supportive of the core product and offer nil scale or cost benefits.",
+          "keyPoint": "Horizontal integration should support the core product (e.g., selling biscuits with tea, not stereo headphones) to achieve production or supply cost savings.",
+          "id": 5
+        },
+        {
+          "question": "According to Market Diffusion Theory, what percentage of market uptake is generally considered the 'Tipping Point'?",
+          "answer": "15%.",
+          "keyPoint": "Reaching the tipping point (innovators and early adopters) is required before a new product can achieve widespread early and late majority success.",
+          "id": 6
+        },
+        {
+          "question": "In the Boston Model, what term describes a business that has high market share but exists in an industry with low transaction frequency/growth?",
+          "answer": "Cash Cow.",
+          "keyPoint": "Understanding if a product is a Cash Cow, Star, Problem Child, or Dog helps determine whether to execute sales or growth strategies.",
+          "id": 7
+        },
+        {
+          "question": "What defines the \"Critical Price Point\" in Chris Anderson's Technology Points framework?",
+          "answer": "The point where competitors release their versions, creating a race to drop prices to entice the 'Early Majority' to demand the product.",
+          "keyPoint": "Technologies enter at a premium, but manufacturing efficiencies eventually force the price down to achieve widespread market acceptance.",
+          "id": 8
+        },
+        {
+          "question": "What does the Sigmoid Curve framework seek to determine regarding business growth?",
+          "answer": "The Optimum Time to interrupt a Growth Curve before it reaches its peak.",
+          "keyPoint": "You must design and launch your next product/service while the original product is still in growth to offset predictable negative cash flows.",
+          "id": 9
+        },
+        {
+          "question": "How does Blue Ocean Strategy differ from competing in the \"Red Water Zone\"?",
+          "answer": "Instead of differentiating against competitors within normal industry confines (Red Water), it seeks to appeal to non-purchasing customers on the fringes by removing key frictions.",
+          "keyPoint": "Blue Ocean strategy serves a parallel industry to meet a customer need that is currently unmet by any direct competitor.",
+          "id": 10
+        }
+      ]
+    },
+    "Profit Levers & Blue Ocean": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the primary purpose of conducting a Blue Ocean Strategy session?",
+          "answer": "To determine a 'Competitive Edge' or 'Differentiation Point'.",
+          "keyPoint": "The focus is on identifying key customer frustrations that stop them from purchasing, and actively planning to remove those blockages to differentiate.",
+          "id": 1
+        },
+        {
+          "question": "Give three examples of \"Standard Competition Fronts\" found in the Red Water Zone.",
+          "answer": "Price, Quality/Endurance, Convenience & Location, Consistency. (Any three).",
+          "keyPoint": "Competitors in the Red Water Zone seek to differentiate on these fronts but ultimately stay within the confines of 'normal' industry practice.",
+          "id": 2
+        },
+        {
+          "question": "Who is the target audience for a NEW Blue Ocean strategy?",
+          "answer": "Customers that are on the 'Fringes' of purchasing but don't consider the standard industry offer as being of value or relevance to them.",
+          "keyPoint": "By targeting non-consumers and eliminating industry-standard frictions, you create an uncontested market space.",
+          "id": 3
+        },
+        {
+          "question": "What specific method is suggested for brainstorming business activities to apply to the 8 Profit Levers?",
+          "answer": "Write ideas (like Pricing, Packaging, Brand Awareness) on post-it notes and place them against each of the Profit Levers.",
+          "keyPoint": "Visually mapping tasks to profit levers helps prioritize actions that will have the greatest accumulative effect on business growth.",
+          "id": 4
+        },
+        {
+          "question": "In the 8 Profit Levers model, what defines the \"Number of Prospects\"?",
+          "answer": "Shop Walk-ins, Phone-ins, or Social 'Click Thru'.",
+          "keyPoint": "Prospects are those whose interest has been captured (creating self-relevance), distinguishing them from mere foot-traffic.",
+          "id": 5
+        },
+        {
+          "question": "What is the mathematical calculation for determining Total Revenue using the Profit Levers?",
+          "answer": "Number of Customers multiplied by Average Customer Spend multiplied by Average Customer Frequency.",
+          "keyPoint": "Revenue growth is a multiplier effect of the volume of buyers, transaction size, and purchase repetition.",
+          "id": 6
+        },
+        {
+          "question": "Which Profit Lever is directly targeted when a business attempts to \"Buy Materials/Stock FOR LESS\"?",
+          "answer": "Sales Margin.",
+          "keyPoint": "Reducing the cost of goods sold increases the difference between the selling price and the cost, expanding the sales margin.",
+          "id": 7
+        },
+        {
+          "question": "How are \"Activity Driven Costs\" defined in the context of business expenses?",
+          "answer": "The Cost of Gaining A Customer.",
+          "keyPoint": "These are variable costs specifically associated with marketing and achieving brand recognition so customers seek the business out.",
+          "id": 8
+        },
+        {
+          "question": "What action must be taken on the Profit Levers table to ensure actual execution?",
+          "answer": "Build a simple TASK, WHOM, WHEN sheet to prioritize 'quick win' actions.",
+          "keyPoint": "Identifying profit levers is useless without assigning clear responsibilities and deadlines to drive business profits.",
+          "id": 9
+        },
+        {
+          "question": "What should you do if your session is running short of time while working on the 8 Profit Levers?",
+          "answer": "Identify just 1 task per lever for now, and complete the rest when time provides.",
+          "keyPoint": "Taking immediate, actionable steps on even a single task per lever will still initiate the accumulative effect of incremental changes.",
+          "id": 10
+        }
+      ]
+    },
+    "Sales & Marketing Review": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the primary purpose of the \"6 Marketing Questions\" framework?",
+          "answer": "To get clear in your own mind about who you serve, how you add value, and what makes you special.",
+          "keyPoint": "You must firmly \"Know what matters\" from the customer's perspective before crafting any outbound marketing.",
+          "id": 1
+        },
+        {
+          "question": "What is the danger of being blinded by the \"infinite quest for perfection\" during a Product (Fit) Review?",
+          "answer": "You might review the product for what's best for your ego rather than what the customer REALLY values, potentially going broke in the process.",
+          "keyPoint": "Product reviews must utilize skepticism and pessimism to determine what features the target customer is actually motivated to pay for.",
+          "id": 2
+        },
+        {
+          "question": "What does the acronym A.I.D.C.R.A. stand for in the advertising construction model?",
+          "answer": "Attention, Interest, Desire, Credibility, Risk Removal, Action.",
+          "keyPoint": "This framework enforces a logical, psychological order for building effective adverts that transition a prospect from initial awareness to a clear purchase step.",
+          "id": 3
+        },
+        {
+          "question": "When building an Outbound Communication Plan, what three specific elements must you define after choosing your Concept Domain?",
+          "answer": "Mediums, Platforms, and Time & Money (Budget).",
+          "keyPoint": "Most messaging campaigns fail because they lack scheduled execution across specific visual, written, or spoken mediums.",
+          "id": 4
+        },
+        {
+          "question": "According to the Landing Page Logic framework, what should you do in the first 7 seconds (Section 1) to grab a reader's attention?",
+          "answer": "Provide 1 big promise and attractive graphics that depict customer success.",
+          "keyPoint": "The arrival assumption requires immediate validation that the reader has clicked the right link and that the page addresses \"What can you do for me?\".",
+          "id": 5
+        },
+        {
+          "question": "In \"Sparketing\" (Friction Review), what is the difference between a Feature and a Benefit using the drill bit analogy?",
+          "answer": "The Feature is the physical aspect (tungsten tipped), but the Benefit is WHAT that feature DOES for the customer (clean holes exactly where you want with less effort).",
+          "keyPoint": "Marketing statements must sell the 'sizzle' (customer outcome) rather than just the 'steak' (product component) to eliminate purchasing friction.",
+          "id": 6
+        },
+        {
+          "question": "What is the \"Holy Grail\" of branding, according to the presentation?",
+          "answer": "Having an IMAGE, a STORY, and a PROMISE that easily explains what makes you different and HOW THAT BENEFITS YOUR CUSTOMER (all in one).",
+          "keyPoint": "Imagery and messaging must be congruent to build powerful mental associations in the target customer's mind.",
+          "id": 7
+        },
+        {
+          "question": "What is the strict financial purpose of implementing a Customer Loyalty Programme?",
+          "answer": "To REDUCE the cost of gaining a customer and/or to EXTEND the frequency and average spend of EXISTING customers.",
+          "keyPoint": "You must stop giving stuff away if it doesn’t translate into a measurable improvement in business profits.",
+          "id": 8
+        },
+        {
+          "question": "What is the major drawback (Con) of \"Competitor Based Pricing\"?",
+          "answer": "It places you in a 'battle of attrition' with competitors, raising the risk if your 'pockets aren't as deep as theirs'.",
+          "keyPoint": "Comparing 'like for like' forces businesses to fight on price rather than actual differentiated value.",
+          "id": 9
+        },
+        {
+          "question": "What is the difference between \"Point of Sale\" and \"Consultancy selling\" in identifying the Sales Arena?",
+          "answer": "Point of sale is product/features oriented assuming the motive is clear, whereas Consultancy selling places emphasis on the 'investigative' aspects of client needs and long-term relationships.",
+          "keyPoint": "You must map your sales process to match the environment and decision points typical of your specific sales arena.",
+          "id": 10
+        }
+      ]
+    },
+    "Organisational Review": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What are the two primary Session Objectives when conducting an Organisational Review?",
+          "answer": "To develop a plan focused on improving Internal Efficiencies and improving Team Engagement.",
+          "keyPoint": "The organizational review exists to get clear on the internal Who, What, and Why of the business structure.",
+          "id": 1
+        },
+        {
+          "question": "What is the fundamental definition of a business \"Culture\"?",
+          "answer": "It’s a collection of 'permissions' (spoken and unspoken) about how a group behaves together.",
+          "keyPoint": "A Culture acts as a Social Contract that makes employees feel safe and dictates where they WANT to belong.",
+          "id": 2
+        },
+        {
+          "question": "How is a business culture actually formed within an organization?",
+          "answer": "A culture is a reflection of leadership actions that are consistent (or otherwise) with a stated objective to which the group subscribes.",
+          "keyPoint": "Culture does not happen by accident; it is directly shaped by the observed, repeated behaviors of leadership.",
+          "id": 3
+        },
+        {
+          "question": "When dealing with Cultural Core Values, what creates the \"conflict hierarchy\" (Value Stack)?",
+          "answer": "The realization that \"Everything’s important until it clashes with 'another'\".",
+          "keyPoint": "An organization must define the hierarchical order of importance (e.g., Human Needs vs. Customer Needs) to guide decisions when values conflict.",
+          "id": 4
+        },
+        {
+          "question": "When attempting to change organizational behavior, what must you realize you are actually dealing with?",
+          "answer": "People and their habits.",
+          "keyPoint": "True behavioral change requires breaking down actions into psychological components rather than just mandating a \"culture shift\".",
+          "id": 5
+        },
+        {
+          "question": "What are the five necessary components to build a new habit?",
+          "answer": "Reason, Trigger, Micro Habit, Effective Practice, Plan.",
+          "keyPoint": "Repetition of a micro-habit must be associated with a specific trigger environment to successfully replace old behaviors.",
+          "id": 6
+        },
+        {
+          "question": "Why is \"Military Planning\" and the 'chain of command' used as an analogy in business communication?",
+          "answer": "To ensure consistent communication and 'discipline' to ensure consistent actions under pressure.",
+          "keyPoint": "A clear hierarchy is not about ego, but about managing complex variables and bottlenecks efficiently, much like surviving the extremes of war.",
+          "id": 7
+        },
+        {
+          "question": "What is the purpose of designing an Organisational Hierarchy Chart?",
+          "answer": "To visually determine \"Who reports to who?\"",
+          "keyPoint": "Clarifying reporting lines ensures that communication is streamlined and responsibilities are unambiguous across divisions.",
+          "id": 8
+        },
+        {
+          "question": "What type of metric is used to measure the primary output and performance of a specific business division?",
+          "answer": "A Divisional KPI (Key Performance Indicator).",
+          "keyPoint": "For example, measuring 'Average Cash on Hand' ensures the Finance division is meeting its objective of maintaining sufficient working capital.",
+          "id": 9
+        },
+        {
+          "question": "What is a \"Cascaded Operational Objective\"?",
+          "answer": "Milestones broken down to each team layer, linking a specific Divisional Operational Objective to a responsible Team Member.",
+          "keyPoint": "Objectives must cascade down from the broader division to an individual to ensure visibility and task completion.",
+          "id": 10
+        }
+      ]
+    },
+    "Business Dating": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What fundamental question does the \"Business Dating\" framework pose regarding human behavior?",
+          "answer": "WHY Do we change our thinking & behaviour (so much) from personal relations vs business relations?",
+          "keyPoint": "The framework highlights the hypocrisy of exercising caution in personal romance while rushing blindly into permanent business amalgamations.",
+          "id": 1
+        },
+        {
+          "question": "In the dating analogy, what represents a scenario where two parties meet to fulfill a singular project or contract and then move on?",
+          "answer": "A One night stand.",
+          "keyPoint": "This is a purely transactional relationship with no long-term security or commitment expected.",
+          "id": 2
+        },
+        {
+          "question": "How does the \"Dating\" phase improve a business relationship compared to a one night stand?",
+          "answer": "More effort is made to understand each other’s requirements, serving a working partnership that increases security as time develops.",
+          "keyPoint": "Dating builds operational security without demanding total structural commitment.",
+          "id": 3
+        },
+        {
+          "question": "What does the \"Engaged\" stage allow business partners and those around them to do?",
+          "answer": "It allows them to mentally, physically, and financially prepare for amalgamation and allows those around them to 'test' the relationship.",
+          "keyPoint": "Engagement functions as a formal Alliance, exposing cultural fits or flaws before full integration.",
+          "id": 4
+        },
+        {
+          "question": "What business action is directly compared to \"Marriage\"?",
+          "answer": "An Acquisition (two parties become one, fully committed for better or for worse).",
+          "keyPoint": "Acquisition merges entities overnight, often leading to strained circumstances if cultures were not tested first.",
+          "id": 5
+        },
+        {
+          "question": "What is the central warning the author gives about immediate business acquisitions?",
+          "answer": "Few would contemplate getting married on the first date, yet business entities become one overnight and try to mold cultures under strained circumstances.",
+          "keyPoint": "Bypassing the dating phase removes the necessary discovery period required for successful integration.",
+          "id": 6
+        },
+        {
+          "question": "What practical strategy is suggested to simulate \"dating\" before a full business acquisition?",
+          "answer": "Conduct purchase valuations at the outset with a 12-month right of fulfillment allowing for withdrawal.",
+          "keyPoint": "This provides an escape clause, allowing entities to test cultural alignment safely via an Alliance phase.",
+          "id": 7
+        },
+        {
+          "question": "On the quadrant chart explaining the Dating Scene, what does the horizontal X-axis measure?",
+          "answer": "Commitment.",
+          "keyPoint": "The transition from Attraction to Commitment moves a relationship toward engagement and marriage.",
+          "id": 8
+        },
+        {
+          "question": "On the quadrant chart, what does the vertical Y-axis measure?",
+          "answer": "Security.",
+          "keyPoint": "Moving up the axis from Attraction to Security differentiates a fleeting transaction from a stable partnership.",
+          "id": 9
+        },
+        {
+          "question": "What core business decision sits precisely in the middle of the \"Dating Scene\" matrix?",
+          "answer": "Alliance vs Acquisition.",
+          "keyPoint": "The entire framework forces business owners to weigh the safety of a prolonged alliance against the absolute commitment of a rapid acquisition.",
+          "id": 10
+        }
+      ]
+    },
+    "Force Field Analysis": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What are the two core questions that Force Field Analysis attempts to answer ?",
+          "answer": "What’s pushing us forward and holding us back?",
+          "keyPoint": "The tool visually separates the driving forces of change from the restraining constraints.",
+          "id": 1
+        },
+        {
+          "question": "Before starting the analysis session, what must each participant ask for and make to ensure a productive environment?",
+          "answer": "Each must ask for PERMISSION and make a PROMISE.",
+          "keyPoint": "Participants must agree on what 'behaving badly' looks like beforehand to prevent personal attacks during conflict resolution.",
+          "id": 2
+        },
+        {
+          "question": "Why is Force Field Analysis highly effective for groups with the potential for conflict?",
+          "answer": "It allows people to 'describe from a distance' as if they are observing a group, which helps to lessen feelings of guilt or shame.",
+          "keyPoint": "Externalizing the problem removes personal attachment and defensiveness.",
+          "id": 3
+        },
+        {
+          "question": "What is the psychological purpose of defining the 'Worst Case' position during the exercise?",
+          "answer": "To describe a situation more dire than their own, using the fear of the worst outcome to generate the desire to act now.",
+          "keyPoint": "The worst-case scenario must linger in their minds to create a necessary sense of urgency.",
+          "id": 4
+        },
+        {
+          "question": "What typically constitutes the forces \"pushing\" a group to change?",
+          "answer": "External pressures.",
+          "keyPoint": "External market or economic pressures increase urgency and motivation.",
+          "id": 5
+        },
+        {
+          "question": "What typically constitutes the forces \"holding them back\"?",
+          "answer": "Emotions such as fear, uncertainty, risk, or trust (as well as constraints like lack of funds).",
+          "keyPoint": "Restraining forces are often internal, psychological barriers rather than just physical limitations.",
+          "id": 6
+        },
+        {
+          "question": "What is the critical role of the facilitator during this \"bloodletting\" exercise?",
+          "answer": "To keep the discussion away from 'personal attacks'.",
+          "keyPoint": "The facilitator must enforce the promised behavior to maintain a safe environment for open critique.",
+          "id": 7
+        },
+        {
+          "question": "What is the mantra used to ensure the group focuses on future actions rather than past blame when discussing the 'HOW'?",
+          "answer": "\"We play the ball, not the player\".",
+          "keyPoint": "This reinforces teamwork and objective problem-solving over personal grievances.",
+          "id": 8
+        },
+        {
+          "question": "When drawing the model on the whiteboard, what is drawn immediately after the \"Worst Case Position\"?",
+          "answer": "The \"Forces\" pushing me/us towards the goal.",
+          "keyPoint": "The visual structure establishes the boundaries (best/worst) before identifying the specific positive and negative forces at play.",
+          "id": 9
+        },
+        {
+          "question": "What is the final, essential step to ensure the Force Field Analysis results in actual change?",
+          "answer": "Drive an 'action plan' by placing tasks into an automated action plan reminder and CCing relevant people.",
+          "keyPoint": "Discovery without visible, assigned tasks will not improve client outcomes or resolve the restraining forces.",
+          "id": 10
+        }
+      ]
+    },
+    "Pivot": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What is the target audience and primary objective of the \"Pivot\" framework?",
+          "answer": "It provides Rapid Strategy & Simple Test Frameworks For Agile Business Owners.",
+          "keyPoint": "The pivot model is designed for speed and agility, allowing owners to test and adapt quickly rather than building long, static plans.",
+          "id": 1
+        },
+        {
+          "question": "What are the five sequential steps of The Pivot Process?",
+          "answer": "1. Identify the Resistance, 2. Choose Your Competition Fronts, 3. Rehearse the Message, 4. Trial the Prototype, 5. Do It & Review It.",
+          "keyPoint": "This agile cycle guides a business from diagnosing a market problem to executing a tested solution.",
+          "id": 2
+        },
+        {
+          "question": "In Step 1 of the Pivot Process, what core question is discussed to identify market resistance?",
+          "answer": "What’s Forcing The Change?",
+          "keyPoint": "A successful pivot must begin by acknowledging the specific external or internal pressures making the current model unsustainable.",
+          "id": 3
+        },
+        {
+          "question": "What specific framework is utilized in Step 1 to assess pressures from new entrants, substitutes, customers, and suppliers?",
+          "answer": "Porter’s 5 Forces.",
+          "keyPoint": "Porter’s model provides a structured way to diagnose exactly where the market resistance is originating.",
+          "id": 4
+        },
+        {
+          "question": "During the assessment of resistance, what theory is used to determine if the market has simply reached saturation?",
+          "answer": "Market Diffusion Theory.",
+          "keyPoint": "It is crucial to determine if declining sales are due to reaching the 80% saturation threshold or if the product itself is becoming obsolete.",
+          "id": 5
+        },
+        {
+          "question": "In Step 2 (Choose Your Competition Fronts), which framework encourages leaving the \"Red Water Zone\" to eliminate customer frustrations?",
+          "answer": "Blue Ocean Strategy.",
+          "keyPoint": "A pivot often requires stepping outside standard industry practices to appeal to customers on the fringes.",
+          "id": 6
+        },
+        {
+          "question": "During Step 3 (Rehearse the Message), what question must you ask to ensure your new value proposition is viable?",
+          "answer": "Can We Clear The First Hurdle?",
+          "keyPoint": "If you cannot easily explain your pivot using the 6 Marketing Questions, the market will not understand it either.",
+          "id": 7
+        },
+        {
+          "question": "What structured advertising model is used to script the pivot's new messaging?",
+          "answer": "A.I.D.C.R.A (Attention, Interest, Desire, Credibility, Risk Removal, Action).",
+          "keyPoint": "Rehearsing the message ensures the prototype has a logical, persuasive sales funnel before spending money on trials.",
+          "id": 8
+        },
+        {
+          "question": "What are the two strict parameters that must be established before executing \"Trial the Prototype\"?",
+          "answer": "Budget & Timeline.",
+          "keyPoint": "Agile testing requires strict boundaries to ensure the pivot is evaluated quickly without catastrophic financial exposure.",
+          "id": 9
+        },
+        {
+          "question": "Name three specific elements that require a budget and timeline during the prototype trial phase.",
+          "answer": "Product Development, Market Research, and Competitor Analysis (or Team Learning, Prototype Solution, Messaging Appeal).",
+          "keyPoint": "A thorough test parameter sheet ensures every aspect of the new pivot is resourced and measured systematically.",
+          "id": 10
+        }
+      ]
+    },
+    "Porters & Pine": {
+      "source": "Course Builder Quiz/Strategic Tools Quiz.pdf",
+      "transcribed": "2026-07-28",
+      "entries": [
+        {
+          "question": "What does Prof. Michael Porter’s 5 Forces framework seek to explain to a business owner?",
+          "answer": "The forces influencing the profitability of your business (and industry).",
+          "keyPoint": "It identifies the competitive forces at play to help understand the likely financial return on capital and chance of failure.",
+          "id": 1
+        },
+        {
+          "question": "Which specific force in Porter's model asks, \"Could your customers solve their problem in a different way?\"",
+          "answer": "Substitutes.",
+          "keyPoint": "Substitutes threaten profitability by offering alternative products or services that fulfill the same customer need without being a direct industry rival.",
+          "id": 2
+        },
+        {
+          "question": "Which force focuses on the impact of technology and innovative approaches lowering barriers to entry?",
+          "answer": "New Entrants.",
+          "keyPoint": "It evaluates how easily new competitors can enter the marketplace to challenge your market share.",
+          "id": 3
+        },
+        {
+          "question": "According to Joseph Pine's Progression of Economic Value, what are the four stages of economic output starting from Extract?",
+          "answer": "Commodity, Goods, Services, Experience.",
+          "keyPoint": "Businesses must continuously evolve their offerings from raw extraction to orchestrated experiences to meet rising customer expectations.",
+          "id": 4
+        },
+        {
+          "question": "What is the required \"Business Imperative\" when transitioning a product from a Good to a Service?",
+          "answer": "Improve.",
+          "keyPoint": "While Goods require \"Quality Control\", Services require ongoing improvement to meet client demands.",
+          "id": 5
+        },
+        {
+          "question": "What \"Consumer Sensitivity\" metric applies when a business successfully delivers an \"Experience\"?",
+          "answer": "Authenticity.",
+          "keyPoint": "Customers will gladly spend both time and money for an experience they perceive as highly authentic.",
+          "id": 6
+        },
+        {
+          "question": "What natural economic force acts opposite to 'Customisation', threatening to drag value back down the chain?",
+          "answer": "Commoditisation.",
+          "keyPoint": "Without constant innovation and customisation, unique services and goods inevitably become viewed as basic commodities subject to price wars.",
+          "id": 7
+        },
+        {
+          "question": "According to Mike Barnes' addition to Pine's framework, what must happen to render an authentic product or service?",
+          "answer": "Both parties (business owner and consumer) must be on the same emotional level, achieved by a sincere attempt to 'connect'.",
+          "keyPoint": "Connection is the ultimate imperative; a sincere connection ensures the customer never forgets the experience.",
+          "id": 8
+        },
+        {
+          "question": "How does the Starbucks example illustrate Pine's theory of value progression?",
+          "answer": "It demonstrates how a raw coffee bean (commodity) worth 2-3 cents is progressively refined into an experience where customers pay 4−5 a cup.",
+          "keyPoint": "Transactional value increases massively as the delivery promise moves from basic supply to a connected, authentic experience.",
+          "id": 9
+        },
+        {
+          "question": "What action must a client take after reviewing the Progression of Economic Development frameworks?",
+          "answer": "Complete the table to record observations and their response to the changing economic environment.",
+          "keyPoint": "Frameworks are useless unless they are utilized to capture thoughts and design actionable business responses.",
+          "id": 10
+        }
+      ]
     }
   }
 }
