@@ -104,7 +104,10 @@ export default {
    shared visual-standard tokens — every value below equals the token it points at
    (a no-change consolidation). Left literal: the translucent white `#ffffff30`
    active-chip number badge (no standard token). */
-.steps { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 20px; }
+/* Header → chips → content all sit 16px apart (owner ruling 2026-07-27): reset the shared
+   header's 22px bottom margin, and the chips carry a 16px bottom margin. */
+.report-shell ::v-deep .rs-top { margin-bottom: 16px; }
+.steps { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; }
 .step {
   display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--rs-muted);
   background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: 999px; padding: 7px 14px; cursor: pointer;

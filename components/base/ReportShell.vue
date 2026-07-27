@@ -23,7 +23,9 @@
  *      (`HeroStrip`) already proved: one definition, identical by construction.
  *
  * The numbers here are the owner-confirmed standard (2026-07-27): left input column
- * 360px, column gap 20px, content width 1120px, card radius 14px, card title 12px.
+ * 360px, column gap 16px, content width 1120px, card radius 14px, card title 12px, card
+ * padding 16px. The 16px column gap matches the 16px vertical gaps so every gap — across
+ * and down — is one number (revised from 20px, owner ruling 2026-07-27).
  * There is deliberately NO `prefers-color-scheme: dark` rule — Mike ruled one light look
  * on every model regardless of the OS/laptop theme (2026-07-27). Reintroducing a dark
  * media query here is a defect, and `reportShell.component.test.js` fails the build on it.
@@ -46,7 +48,7 @@ export default {
      breakpoint, but a CSS media query cannot read a custom property, so the
      screens hardcode `@media (max-width: 860px)`; keep the two in step. */
   --rs-col-input: 360px;
-  --rs-col-gap: 20px;
+  --rs-col-gap: 16px;
   --rs-content-width: 1120px;
   --rs-collapse: 860px;
   --rs-frame-pad: 28px 22px 64px;
@@ -83,7 +85,7 @@ export default {
   --rs-card-border: var(--rs-line);
   --rs-card-top: var(--rs-accent-bright);
   --rs-card-radius: 14px;
-  --rs-card-pad: 16px 18px;
+  --rs-card-pad: 16px;
   --rs-card-title-size: 12px;
   --rs-card-title-color: var(--rs-ink);
 

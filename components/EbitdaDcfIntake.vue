@@ -391,7 +391,7 @@ export default {
 .drop-rules a { color: var(--rs-accent); font-weight: 600; }
 .drop-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .adjust-note, .note { font-size: 12px; color: var(--rs-muted); }
-.confirm-card { background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: var(--rs-card-radius); padding: 16px; margin-bottom: 16px; }
+.confirm-card { background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: var(--rs-card-radius); padding: var(--rs-card-pad); margin-bottom: 16px; }
 .confirm-card h2 { font-size: var(--rs-card-title-size); letter-spacing: .1em; text-transform: uppercase; color: var(--rs-card-title-color); font-weight: 600; margin-bottom: 10px; }
 .tscroll { overflow-x: auto; }
 .confirm-table { width: 100%; border-collapse: collapse; font-size: 13px; }

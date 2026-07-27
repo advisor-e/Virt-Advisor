@@ -19,9 +19,11 @@ const ReportShell = require('~/components/base/ReportShell.vue').default
  *    custom properties from a scoped `<style>` block, so any such assertion would pass by
  *    accident rather than by truth — see note (2).)
  *
- * 2. THE STANDARD NUMBERS are pinned by reading the source. The five owner-confirmed
- *    values (2026-07-27) live in exactly one file now; a future edit that quietly changes
- *    360/20/1120/14/12 — the very drift this component exists to stop — fails here. And
+ * 2. THE STANDARD NUMBERS are pinned by reading the source. The owner-confirmed values
+ *    (2026-07-27) live in exactly one file now; a future edit that quietly changes
+ *    360/16/1120/14/12 or the 16px card padding — the very drift this component exists to
+ *    stop — fails here. (The column gap and card padding were revised to 16px on 2026-07-27
+ *    so every gap and card inset is one number.) And
  *    the all-light ruling is guarded: a re-introduced `prefers-color-scheme` rule fails
  *    the build, so dark styling cannot creep back into the one source.
  */
@@ -59,10 +61,11 @@ describe('ReportShell — the standard is the single source', () => {
   // be changed silently in the one place it now lives.
   const STANDARD_NUMBERS = [
     ['left input column', '--rs-col-input: 360px'],
-    ['column gap', '--rs-col-gap: 20px'],
+    ['column gap', '--rs-col-gap: 16px'],
     ['content width', '--rs-content-width: 1120px'],
     ['card corner radius', '--rs-card-radius: 14px'],
-    ['card title size', '--rs-card-title-size: 12px']
+    ['card title size', '--rs-card-title-size: 12px'],
+    ['card padding', '--rs-card-pad: 16px;']
   ]
 
   it.each(STANDARD_NUMBERS)('pins the %s', (_label, declaration) => {

@@ -389,7 +389,7 @@ export default {
 @media (max-width: 860px) { .ler-calc { grid-template-columns: 1fr; } }
 .ler-selects { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
 .ler-select label { display: block; font-size: 12.5px; color: var(--rs-ink); font-weight: 300; margin-bottom: 3px; }
-.ler-result { display: flex; flex-direction: column; gap: 12px; }
+.ler-result { display: flex; flex-direction: column; gap: 16px; }
 .ler-repay {
   display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
   background: var(--rs-panel-2); border: 1px solid var(--rs-line); border-radius: 10px; padding: 12px 16px;

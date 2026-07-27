@@ -41,7 +41,7 @@ body.show-tags [data-tag='C']::before { background: #b32020; outline-color: #b32
 /* ========================= ReportShell ========================= */
 .report-shell {
   --rs-col-input: 360px;
-  --rs-col-gap: 20px;
+  --rs-col-gap: 16px;   /* RULED 2026-07-27 (was 20px) — matches the 16px vertical gaps: every gap is 16px */
   --rs-content-width: 1120px;
   --rs-frame-pad: 28px 22px 64px;
 
@@ -193,7 +193,7 @@ body.show-tags [data-tag='C']::before { background: #b32020; outline-color: #b32
 
 <div class="diag-bar">
   <strong>Working Capital Cycle</strong>
-  <span class="note">LOCKED REPORT LAYOUT STANDARD — every model matches this: full-width header [B], full-width banner [C], two-column body [D], 16px gap everywhere</span>
+  <span class="note">LOCKED REPORT LAYOUT STANDARD — full-width header [B] + banner [C], two-column body [D], and 16px gap EVERYWHERE (across and down)</span>
   <label><input type="checkbox" id="tagToggle" checked> Show section labels [A]–[D2d]</label>
 </div>
 

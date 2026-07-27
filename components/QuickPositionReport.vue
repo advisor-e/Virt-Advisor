@@ -499,7 +499,7 @@ export default {
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure
    (which also owns the greyed-out stale state). The print rule below still
    reaches it — `.herostrip` is HeroStrip's root element. */
-.card { background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top); border-radius: var(--rs-card-radius); padding: 16px; }
+.card { background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top); border-radius: var(--rs-card-radius); padding: var(--rs-card-pad); }
 .card h2 { font-size: var(--rs-card-title-size); letter-spacing: .1em; text-transform: uppercase; color: var(--rs-card-title-color); font-weight: 600; margin-bottom: 10px; }
 .card h2 .note, .card .note { font-weight: 300; text-transform: none; letter-spacing: 0; color: var(--rs-muted); font-size: 12px; }
 .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }

@@ -471,7 +471,7 @@ export default {
 </script>
 
 <style scoped>
-.ed-report { display: flex; flex-direction: column; gap: 18px; }
+.ed-report { display: flex; flex-direction: column; gap: 16px; }
 /* Stale-figures banner (R9): a failed recompute must be visibly untrustworthy —
    stale figures presented as live are worse than no figures at all. */
 /* The stale banner is components/base/StaleBanner.vue (Phase 3). */
@@ -488,7 +488,7 @@ export default {
    accents with bespoke tints/no token — the earnings bar chart, the accent-tinted P&L
    total row (#0070c012), the input focus ring (#7fd3f1) and the blue coach panel. */
 .herostrip .mult { width: 52px; margin-left: 6px; border: 0; border-radius: 5px; padding: 2px 6px; font: 600 12px "Open Sans", sans-serif; color: var(--rs-ink); }
-.card { background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top); border-radius: var(--rs-card-radius); padding: 16px; }
+.card { background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top); border-radius: var(--rs-card-radius); padding: var(--rs-card-pad); }
 .card h2 { font-size: var(--rs-card-title-size); letter-spacing: .1em; text-transform: uppercase; color: var(--rs-card-title-color); font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .card h2 .note, .card .note { font-weight: 300; text-transform: none; letter-spacing: 0; color: var(--rs-muted); font-size: 12px; }
 .expand { font-size: 11px; font-weight: 600; color: var(--rs-accent); text-decoration: none; text-transform: none; letter-spacing: 0; }

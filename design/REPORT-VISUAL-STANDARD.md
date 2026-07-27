@@ -59,10 +59,12 @@ open it in a browser; it renders the Working Capital screen with each section ta
 | **[D1]** | Inputs (`aside`) | Left column: sliders / typed fields. |
 | **[D2]** | Results (`section`) | Right column: `display:flex; flex-direction:column; gap:16px`. The model's cards — **[D2a]** tiles, **[D2b]** the chart/diagram, **[D2c]** the coach panel, **[D2d]** the actions. |
 
-**Gaps: 16px, everywhere (RULED 2026-07-27).** The root gap [A] and the results-column gap
-[D2] are both 16px, so header→banner, banner→body and every card-to-card gap are one number.
-(The two COLUMNS in [D] sit `--rs-col-gap` apart — a horizontal gap, not part of the vertical
-rhythm.)
+**Gaps: 16px, everywhere (RULED 2026-07-27).** The root gap [A], the results-column gap [D2]
+AND the gap between the two columns (`--rs-col-gap`) are all 16px — so every gap, across and
+down (header→banner, banner→body, card→card, column→column), is one number. On the stepped
+screens (Quick Position, EBITDA, Loan Estimator) the header→chips→content spacing is 16px too.
+The micro-spacing *inside* a component (tile grids, button rows, chart labels — 14/12/8/… px)
+is deliberately tighter and is NOT forced to 16.
 
 **Three structural guards enforce this skeleton** (all mutation-verified):
 
@@ -84,7 +86,7 @@ rhythm.)
 |---|---|---|
 | Left input column | **360px** (RULED 2026-07-27) | Was 340px on 4 models, 320px on 2. |
 | Right (results) column | **`1fr`** (already uniform) | Flexes to fill the rest. |
-| Gap between columns | **20px** (RULED 2026-07-27) | Was 20px / 18px. |
+| Gap between columns | **16px** (RULED 2026-07-27, revised from 20px) | Matches the 16px vertical gaps so every gap is one number. |
 | Total content width | **1120px**, centred (RULED 2026-07-27) | Was 1120px / 1180px. |
 | Collapse to one column below | **860px** (already ~uniform) | Eight Levers used 900px. |
 
@@ -116,7 +118,7 @@ asserts the HeroStrip's DOM parent is the screen root, so an in-column banner fa
 | Border | `1px solid #d5e1ee` light / `#1a3559` dark |
 | Top edge | `3px solid #00b1e0` (the cyan signature) |
 | Corner radius | **14px** (RULED 2026-07-27) — Loan Estimator currently uses 10px |
-| Padding | **`16px 18px`** |
+| Padding | **`16px`** (RULED 2026-07-27, revised from `16px 18px` — uniform inset via `--rs-card-pad`) |
 | Title | navy `#002b64`, uppercase, **12px, letter-spacing .1em, weight 600** (RULED 2026-07-27 — one size everywhere) |
 
 ### Brand palette (single source)
@@ -194,7 +196,7 @@ Values in a document still rely on remembering. These two moves make the standar
    its copy-pasted frame/palette/card/button. First five earlier 2026-07-27; last three
    Quick Position (`9d41582`), EBITDA-DCF (`ebd6ab8`), Loan Estimator (`b927395`).
 3. ✅ **Standardise the numbers** — the two-column layouts read `var(--rs-col-input)` /
-   `var(--rs-col-gap)` (→ 360px / 20px), the Loan Estimator input cards read
+   `var(--rs-col-gap)` (→ 360px / 16px; the gap was later revised 20px→16px), the Loan Estimator input cards read
    `var(--rs-card-radius)` (10px → 14px) and the standard 12px/600 title; Eight Levers'
    900px breakpoint fell to 860px. One source, so a future change lands everywhere. `ff549b6`.
 4. ✅ **Dark mode** — all-light. No code change was needed: the 8 screens carry no
@@ -215,7 +217,7 @@ the LIVE-APP rule. **All six steps complete 2026-07-27.**
 
 ## Open decisions for Mike — ALL RESOLVED 2026-07-27
 1. ~~Dark mode: all-on or all-off?~~ **RULED: all light** (see Dark mode above).
-2. ~~Confirm the proposed numbers.~~ **RULED: 360px / 20px gap / 1120px / 14px card radius / 12px card title.**
+2. ~~Confirm the proposed numbers.~~ **RULED: 360px / 16px gap / 1120px / 14px card radius / 12px card title / 16px card padding** (the column gap and card padding were revised to 16px on 2026-07-27 so every gap and inset is one number).
 3. ~~Approve the shell-and-guard approach (Part 3) vs a one-off hand-edit.~~ **APPROVED — shell + guard.**
 4. ~~Give the go to start building — step 1 (the shell).~~ **DONE — step 1 built + committed (`20be0e2`).**
 
