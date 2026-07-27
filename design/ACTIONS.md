@@ -100,13 +100,15 @@
     Phase 0), not introduced by the Domain Support tab. **Fix:** move the domain-support save/load
     routes onto the single `domain-support` bundle (as the Logic Tables routes already do via
     `loadFirmLogicTrees`). Gated with the broader **Firm-Manager MySQL provisioning** item.
-  - ◐ **Logic Tables tab — Slice A BUILT (this branch, read-only preview).**
-    `components/firm/FirmLogicTables.vue` (rail + four-column IF→THEN table), two backend READ
-    routes (`getLogicTrees` / `getLogicTreeDetail`) built on the CORRECT single `logic-trees`
-    bundle the engine reads. Hub "Logic Tables" tab added. Save is inert (preview banner). **Slice
-    B (next):** Save/Reset/Add-branch live + the prompt-fencing safeguard for firm-authored branch
-    text + version history. Scope ruled by Mike 2026-07-24: **reword + add/remove branches**, flow
-    kept intact (no re-wiring).
+  - ✅ **Logic Tables tab — Slice B SHIPPED + 3-way grouping + firm re-filing (2026-07-27, this branch).**
+    Editing is fully live: firm-authored branch-text fencing in `logicTrees.formatLogicTreeForPrompt`
+    (`b2c7a62`), Save/Reset/history backend on the single `logic-trees` bundle (`9e6ef23`), and the
+    live editable screen — reword + add/remove branches, per-bundle read-only history; per-version
+    restore deferred (shared-bundle storage would roll back every table) (`af1afa0`). Both
+    firm-editable pages (Logic Tables + Domain Support) now group by the master sections **Do the Job
+    / Get the Job / Get Organised** (`fccb203`), and a firm can re-file an item into another section —
+    display-only, firm-scoped, AI unaffected: backend move routes (`068cbe4`) + drag / "Move to" UI
+    (`9b3aa73`). Full suite 1,863 green.
   - ☑ **Decision Frameworks (PDF Document Library) tab REMOVED 2026-07-27 (owner decision,
     this branch).** The tab + its wiring are gone from `FirmManagerHub.vue` (tab-item, the
     `FirmDocuments` import/registration, and the now-orphaned "Storage % used" header indicator
