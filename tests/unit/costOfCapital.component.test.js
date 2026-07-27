@@ -5,7 +5,7 @@
 
 const { mountWithBuefy } = require('../helpers/mountComponent')
 const CostOfCapital = require('~/components/CostOfCapital.vue').default
-const { computeCostOfCapital, WARN, HURDLE } = require('~/server/report/costOfCapitalModel')
+const { computeCostOfCapital, WARN, HURDLE, SENSITIVITY_STEP } = require('~/server/report/costOfCapitalModel')
 const en = require('~/locales/en.json')
 
 /**
@@ -234,6 +234,117 @@ describe('CostOfCapital screen', () => {
       codes.forEach((code) => {
         expect(WARN[code]).toBe(code) // the map is code→code; a typo here would hide a gap
         const wording = en.report.costOfCapital.warn[code]
+        expect(typeof wording).toBe('string')
+        expect(wording.length).toBeGreaterThan(0)
+      })
+    })
+  })
+
+  describe('adopting a suggested beta (phase 5b)', () => {
+    it('takes the FULL-PRECISION suggestion, not the two decimals on the box', async () => {
+      // Adopting the rounded 0.47 would give an answer that does not match the
+      // suggestion it credits — a small lie, but one an advisor could be asked about.
+      const result = computeCostOfCapital({})
+      const wrapper = await mountWithResult(result)
+      expect(wrapper.vm.form.beta).toBe(0.52) // the workbook's hand-entered figure
+
+      wrapper.vm.adoptBeta('roi')
+      expect(wrapper.vm.form.beta).toBe(result.betaSuggestions.roi)
+      expect(wrapper.vm.form.beta).not.toBe(0.47)
+      expect(wrapper.vm.recomputeRequest().body.beta).toBe(result.betaSuggestions.roi)
+    })
+
+    it('records WHERE the figure came from, and shows it under the field', async () => {
+      const wrapper = await mountWithResult(computeCostOfCapital({}))
+      expect(wrapper.vm.betaSourceLabel).toBe('') // the advisor's own figure to start
+
+      wrapper.vm.adoptBeta('volatility')
+      await wrapper.vm.$nextTick()
+      expect(wrapper.vm.betaSource).toBe('volatility')
+      expect(wrapper.find('.coc-provenance').text()).toBe('report.costOfCapital.market.betaSourceVolatility')
+    })
+
+    it('typing over an adopted beta makes it the advisor\'s own again', async () => {
+      // The provenance must never outlive the figure it describes: a note claiming the
+      // beta came from the helper, sitting under a number the advisor typed, is worse
+      // than no note at all.
+      const wrapper = await mountWithResult(computeCostOfCapital({}))
+      wrapper.vm.adoptBeta('roi')
+      await wrapper.vm.$nextTick()
+      expect(wrapper.vm.betaSource).toBe('roi')
+
+      wrapper.vm.form.beta = 1.1
+      await wrapper.vm.$nextTick()
+      expect(wrapper.vm.betaSource).toBeNull()
+      expect(wrapper.find('.coc-provenance').exists()).toBe(false)
+    })
+
+    it('keeps the note when an UNRELATED field changes', async () => {
+      // A watcher that cleared on any re-render would drop the provenance the moment the
+      // advisor touched the tax rate.
+      const wrapper = await mountWithResult(computeCostOfCapital({}))
+      wrapper.vm.adoptBeta('roi')
+      wrapper.vm.form.taxRatePct = 33
+      await wrapper.vm.$nextTick()
+      expect(wrapper.vm.betaSource).toBe('roi')
+    })
+
+    it('the buttons are on the two SUGGESTIONS, never on the beta in use', async () => {
+      // Three boxes are rendered; only two of them offer anything to adopt. A button on
+      // the third would invite the advisor to adopt the figure they already have.
+      const wrapper = await mountWithResult(computeCostOfCapital({}))
+      expect(wrapper.findAll('.coc-adopt').length).toBe(2)
+      expect(wrapper.find('.coc-beta-box.is-inuse').find('.coc-adopt').exists()).toBe(false)
+    })
+
+    it('does nothing at all before the first result lands', () => {
+      // There is no suggestion to adopt yet, and a click must not blank the beta.
+      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
+      wrapper.vm.adoptBeta('roi')
+      expect(wrapper.vm.form.beta).toBe(0.52)
+      expect(wrapper.vm.betaSource).toBeNull()
+    })
+  })
+
+  describe('what moves the answer most (phase 5c)', () => {
+    it('renders one row per input, in the order the model ranked them', async () => {
+      const result = computeCostOfCapital({})
+      const wrapper = await mountWithResult(result)
+      const rows = wrapper.findAll('.coc-mini.is-sens tbody tr')
+
+      expect(rows.length).toBe(Object.keys(SENSITIVITY_STEP).length)
+      // Ranked, not re-sorted by the screen: the first row must be the model's first.
+      expect(rows.at(0).text()).toContain('report.costOfCapital.sensitivity.item.' + result.sensitivity[0].key)
+    })
+
+    it('shows the change as signed percentage POINTS, not a percentage', async () => {
+      // The figures being compared are themselves percentages, so "+0.36%" would read as
+      // a relative change — a third of a percent rather than a third of a point.
+      const wrapper = await mountWithResult(computeCostOfCapital({}))
+      expect(wrapper.vm.signedPoints(0.003608)).toBe('+0.36')
+      expect(wrapper.vm.signedPoints(-0.000295)).toBe('−0.03')
+      expect(wrapper.vm.signedPoints(0)).toBe('+0.00')
+      expect(wrapper.vm.signedPoints(undefined)).toBe('+0.00') // never NaN at an advisor
+    })
+
+    it('marks a rise and a fall apart by class as well as by sign', async () => {
+      const wrapper = await mountWithResult(computeCostOfCapital({}))
+      const deltas = wrapper.findAll('.coc-delta')
+      const ups = deltas.filter(d => d.classes().includes('is-up'))
+      const downs = deltas.filter(d => d.classes().includes('is-down'))
+      // The sample has both: rates push the WACC up, tax and gearing pull it down.
+      expect(ups.length).toBeGreaterThan(0)
+      expect(downs.length).toBeGreaterThan(0)
+      expect(ups.at(0).text()).toMatch(/^\+/)
+      expect(downs.at(0).text()).toMatch(/^−/)
+    })
+
+    it('has wording for EVERY input the engine ranks', () => {
+      // Derived from the engine's own step map, the WARN/HURDLE pattern: a new input
+      // added to the sensitivity without a label fails the build instead of rendering
+      // "report.costOfCapital.sensitivity.item.newThing" at an advisor.
+      Object.keys(SENSITIVITY_STEP).forEach((key) => {
+        const wording = en.report.costOfCapital.sensitivity.item[key]
         expect(typeof wording).toBe('string')
         expect(wording.length).toBeGreaterThan(0)
       })

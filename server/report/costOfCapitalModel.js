@@ -478,6 +478,68 @@ function computeHurdleTest (src, hurdleRate) {
 }
 
 /**
+ * How far each input is nudged to measure its effect. One percentage point for every
+ * rate, 0.1 for beta (which is a ratio, not a rate, and moves on a different scale).
+ * Small enough that the answer stays in the neighbourhood the advisor is actually in.
+ */
+const SENSITIVITY_STEP = {
+  riskFreeRate: 0.01,
+  marketRate: 0.01,
+  beta: 0.1,
+  inflationRate: 0.01,
+  taxRate: 0.01,
+  borrowRate: 0.01,
+  debtShare: 0.01
+}
+
+/**
+ * "What moves the answer most" — the WACC recomputed with each input raised on its own.
+ *
+ * NOT in the workbook. It answers the question a build-up cannot: of everything on this
+ * screen, which figure is actually driving the answer, and which barely matters? An
+ * advisor who knows the borrowing rate moves it four times as much as inflation knows
+ * where to spend the conversation.
+ *
+ * ONE input changes per line, everything else held. That is the whole meaning of the
+ * figure, and it is stated on screen too — a reader who assumes the lines combine would
+ * badly overestimate the effect of changing two things at once.
+ *
+ * `debtShare` is expressed as a point of the funding mix rather than an amount, because
+ * "a point more debt" is comparable with the rate rises beside it, where "$1,000 more
+ * debt" is not. It moves capital from equity to debt, holding the total.
+ *
+ * @param {object} waccInputs - the SAME inputs the headline WACC was built from.
+ * @param {number} baseWacc - that WACC, so a line's change is measured against the
+ *   figure actually on screen rather than one recomputed slightly differently.
+ * @returns {Array<{key: string, step: number, wacc: number, change: number}>} biggest
+ *   absolute effect first; ties keep their declaration order.
+ */
+function computeSensitivity (waccInputs, baseWacc) {
+  const capital = num(waccInputs.equity, 0) + num(waccInputs.debt, 0)
+
+  const rows = Object.keys(SENSITIVITY_STEP).map(function (key) {
+    const step = SENSITIVITY_STEP[key]
+    let probe
+
+    if (key === 'debtShare') {
+      /* Hold the total and move a point of it across. With no capital at all there is no
+         mix to shift, and the line correctly reports no effect rather than dividing by
+         zero — `div` would return 0 and quietly invent a 100% debt share. */
+      const debtRatio = div(num(waccInputs.debt, 0), capital)
+      const newDebt = capital * (debtRatio + step)
+      probe = Object.assign({}, waccInputs, { debt: newDebt, equity: capital - newDebt })
+    } else {
+      probe = Object.assign({}, waccInputs, { [key]: num(waccInputs[key], 0) + step })
+    }
+
+    const wacc = computeWacc(probe).wacc
+    return { key, step, wacc, change: wacc - baseWacc }
+  })
+
+  return rows.sort(function (a, b) { return Math.abs(b.change) - Math.abs(a.change) })
+}
+
+/**
  * The whole model, assembled HERE rather than in the route (the marginBreakeven lesson:
  * the golden test must exercise exactly what the screen receives).
  *
@@ -518,7 +580,9 @@ function computeCostOfCapital (inputs) {
     growthSource: growthSupplied ? 'supplied' : 'betaHelper',
     /* Judged against the WACC just computed, never a re-derived one — the same reasoning
        that keeps `inUse` honest above. */
-    hurdle: computeHurdleTest(src, wacc.wacc)
+    hurdle: computeHurdleTest(src, wacc.wacc),
+    /* Measured from the same inputs and the same answer, for the same reason. */
+    sensitivity: computeSensitivity(wacc.inputs, wacc.wacc)
   }
 }
 
@@ -527,6 +591,7 @@ module.exports = {
   computeBetaHelper,
   computeWacc,
   computeHurdleTest,
+  computeSensitivity,
   computeCostOfCapital,
   stdDevP,
   filled,
@@ -536,5 +601,6 @@ module.exports = {
   TYPICAL_BETA_MAX,
   WARN,
   HURDLE,
-  HURDLE_EPSILON
+  HURDLE_EPSILON,
+  SENSITIVITY_STEP
 }

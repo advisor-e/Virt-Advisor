@@ -929,6 +929,8 @@
         "marketReturn": "Average share index return (%)",
         "beta": "Beta",
         "betaHelp": "How much this company's returns swing against the market.",
+        "betaSourceRoi": "Using the Beta from growth",
+        "betaSourceVolatility": "Using the Beta from volatility",
         "inflation": "Expected inflation rate (%)"
       },
       "company": {
@@ -971,7 +973,24 @@
         "betaFromVolatility": "Beta from volatility",
         "betaFromVolatilitySub": "Your swing against the market's",
         "betaInUse": "Beta in use",
-        "betaInUseSub": "The figure typed on the left"
+        "betaInUseSub": "The figure typed on the left",
+        "useThisBeta": "Use this Beta"
+      },
+      "sensitivity": {
+        "title": "What moves the answer most",
+        "ifRises": "If this rises",
+        "newWacc": "New cost of capital",
+        "change": "Change",
+        "note": "Each line changes one figure on its own, leaving the others as they are.",
+        "item": {
+          "marketRate": "Share index return +1 point",
+          "beta": "Beta +0.1",
+          "riskFreeRate": "Government bond rate +1 point",
+          "borrowRate": "Borrowing rate +1 point",
+          "inflationRate": "Inflation rate +1 point",
+          "taxRate": "Company tax rate +1 point",
+          "debtShare": "Share funded by debt +1 point"
+        }
       },
       "hurdle": {
         "title": "Test an investment",

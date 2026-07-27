@@ -368,9 +368,11 @@ function leaseVsBuy (req, res, next) {
  *   growthRate, roiBeta, volatilityBeta, warnings[], defaultedInputs}, wacc {inputs,
  *   costOfEquity, costOfEquityPostInflation, costOfEquityPostGrowth, costOfDebtAfterTax,
  *   equityRatio, debtRatio, equityComponent, debtComponent, wacc, defaultedInputs},
- *   betaSuggestions {roi, volatility, inUse}, growthSource, hurdle }. `hurdle` is null
- *   unless testable, else {investmentCost, annualReturn, returnRate, hurdleRate,
- *   requiredAnnualReturn, marginRate, marginAmount, verdict}. `warnings` and `verdict`
+ *   betaSuggestions {roi, volatility, inUse}, growthSource, hurdle, sensitivity }.
+ *   `hurdle` is null unless testable, else {investmentCost, annualReturn, returnRate,
+ *   hurdleRate, requiredAnnualReturn, marginRate, marginAmount, verdict}. `sensitivity`
+ *   is one {key, step, wacc, change} per input, each measuring that input raised ON ITS
+ *   OWN, biggest absolute effect first — the lines do not combine. `warnings` and `verdict`
  *   are CODES for the screen to translate — an implausible beta is reported, never
  *   passed on quietly, and no English is ever put in the engine.
  *

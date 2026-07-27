@@ -5,10 +5,12 @@ const {
   computeBetaHelper,
   computeWacc,
   computeHurdleTest,
+  computeSensitivity,
   computeCostOfCapital,
   stdDevP,
   WARN,
-  HURDLE
+  HURDLE,
+  SENSITIVITY_STEP
 } = require('../../server/report/costOfCapitalModel')
 
 /**
@@ -505,6 +507,65 @@ describe('Cost of Capital — the hurdle test inside the assembled model', () =>
     expect(report.hurdle.requiredAnnualReturn).toBeCloseTo(15406.819312, 5)
     expect(report.hurdle.marginRate).toBeCloseTo(0.026372722753, 10)
     expect(report.hurdle.marginAmount).toBeCloseTo(6593.180688, 5)
+  })
+
+  it('carries a sensitivity line for every input, biggest effect first', () => {
+    const rows = computeCostOfCapital({}).sensitivity
+    expect(rows.length).toBe(Object.keys(SENSITIVITY_STEP).length)
+
+    for (let i = 1; i < rows.length; i++) {
+      expect(Math.abs(rows[i - 1].change)).toBeGreaterThanOrEqual(Math.abs(rows[i].change))
+    }
+    // On the sample the market return leads and the tax rate trails — an ordering that
+    // would silently invert if the sort compared signed change instead of magnitude.
+    expect(rows[0].key).toBe('marketRate')
+    expect(rows[rows.length - 1].key).toBe('taxRate')
+  })
+
+  it('measures each line against the SAME wacc the response carries', () => {
+    const report = computeCostOfCapital({})
+    report.sensitivity.forEach((row) => {
+      expect(row.change).toBeCloseTo(row.wacc - report.wacc.wacc, 12)
+    })
+  })
+
+  it('moves ONE input per line, leaving the others exactly as they were', () => {
+    // The claim the screen makes in words. If a line leaked into the next, the figures
+    // would compound and every effect after the first would be overstated.
+    const base = computeCostOfCapital({})
+    const alone = computeSensitivity(base.wacc.inputs, base.wacc.wacc)
+
+    alone.forEach((row) => {
+      if (row.key === 'debtShare') { return } // expressed as a mix shift, checked below
+      const probe = Object.assign({}, base.wacc.inputs)
+      probe[row.key] = probe[row.key] + SENSITIVITY_STEP[row.key]
+      expect(computeWacc(probe).wacc).toBeCloseTo(row.wacc, 12)
+    })
+  })
+
+  it('shifts a POINT of the funding mix, holding the total capital', () => {
+    // "$1,000 more debt" is not comparable with the rate rises beside it; a point of the
+    // mix is. The total must not change, or the line measures two things at once.
+    const base = computeCostOfCapital({})
+    const row = base.sensitivity.filter(r => r.key === 'debtShare')[0]
+    const capital = base.wacc.inputs.equity + base.wacc.inputs.debt // 80,000
+
+    const probe = Object.assign({}, base.wacc.inputs, { debt: capital * 0.385, equity: capital * 0.615 })
+    expect(computeWacc(probe).wacc).toBeCloseTo(row.wacc, 12) // 37.5% + 1 point
+    expect(probe.debt + probe.equity).toBeCloseTo(capital, 6)
+    // More debt is cheaper here, so the line falls — the only one that does, alongside tax.
+    expect(row.change).toBeLessThan(0)
+  })
+
+  it('a business with no capital at all reports no mix effect, never a division by zero', () => {
+    const rows = computeSensitivity(
+      Object.assign({}, DEFAULT_INPUTS, { equity: 0, debt: 0, growthRate: 0 }),
+      0
+    )
+    rows.forEach((row) => {
+      expect(Number.isFinite(row.wacc)).toBe(true)
+      expect(Number.isFinite(row.change)).toBe(true)
+    })
   })
 
   it('tracks the model: a dearer cost of capital can turn the same investment down', () => {

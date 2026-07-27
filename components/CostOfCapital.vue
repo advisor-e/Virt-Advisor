@@ -63,6 +63,10 @@
           .coc-labels
             label {{ $t('report.costOfCapital.market.beta') }}
             p.coc-help {{ $t('report.costOfCapital.market.betaHelp') }}
+            //- Provenance: shown only while the figure IS the adopted one. Typing over
+            //- it clears the note, so it can never credit a suggestion for a number the
+            //- advisor chose themselves.
+            p.coc-provenance(v-if="betaSourceLabel") {{ betaSourceLabel }}
           b-input(v-model.number="form.beta" type="number" step="any" size="is-small")
         .coc-field
           label {{ $t('report.costOfCapital.market.inflation') }}
@@ -191,6 +195,24 @@
               td {{ marginAmountText }}
           p.coc-note {{ $t('report.costOfCapital.hurdle.note') }}
 
+        //- Which figure is actually driving the answer. One input moves per line —
+        //- stated on screen, because a reader who assumes the lines add up would badly
+        //- overestimate the effect of changing two things at once.
+        .coc-card(v-if="data.sensitivity && data.sensitivity.length")
+          h2 {{ $t('report.costOfCapital.sensitivity.title') }}
+          table.coc-mini.is-sens
+            thead
+              tr
+                th {{ $t('report.costOfCapital.sensitivity.ifRises') }}
+                th {{ $t('report.costOfCapital.sensitivity.newWacc') }}
+                th {{ $t('report.costOfCapital.sensitivity.change') }}
+            tbody
+              tr(v-for="s in data.sensitivity" :key="s.key")
+                td {{ $t('report.costOfCapital.sensitivity.item.' + s.key) }}
+                td {{ pct(s.wacc, 2) }}
+                td.coc-delta(:class="s.change < 0 ? 'is-down' : 'is-up'") {{ signedPoints(s.change) }}
+          p.coc-note {{ $t('report.costOfCapital.sensitivity.note') }}
+
         //- The Beta helper. Periods run DOWN the page, not across: twelve columns of
         //- seven-figure shareholders' equity will not fit the results column; twelve
         //- rows do. It OFFERS two betas and shows the one actually in use beside them.
@@ -244,10 +266,12 @@
               .coc-beta-k {{ $t('report.costOfCapital.helper.betaFromGrowth') }}
               .coc-beta-v {{ num(data.betaSuggestions.roi, 2) }}
               .coc-beta-s {{ $t('report.costOfCapital.helper.betaFromGrowthSub') }}
+              button.coc-adopt(type="button" @click="adoptBeta('roi')") {{ $t('report.costOfCapital.helper.useThisBeta') }}
             .coc-beta-box
               .coc-beta-k {{ $t('report.costOfCapital.helper.betaFromVolatility') }}
               .coc-beta-v {{ num(data.betaSuggestions.volatility, 2) }}
               .coc-beta-s {{ $t('report.costOfCapital.helper.betaFromVolatilitySub') }}
+              button.coc-adopt(type="button" @click="adoptBeta('volatility')") {{ $t('report.costOfCapital.helper.useThisBeta') }}
             .coc-beta-box.is-inuse
               .coc-beta-k {{ $t('report.costOfCapital.helper.betaInUse') }}
               .coc-beta-v {{ num(data.betaSuggestions.inUse, 2) }}
@@ -353,7 +377,11 @@ export default {
         investmentCost: null,
         annualReturn: null
       },
-      data: null
+      data: null,
+      // Which suggestion the beta in the field came from, or null for the advisor's own.
+      // Held with the value it was adopted at, so a later edit can be told apart from it.
+      betaSource: null,
+      adoptedBetaValue: null
       // `error` (stale flag) is provided by the reportRecompute mixin.
     }
   },
@@ -385,6 +413,19 @@ export default {
       if (this.growthOverridden) { return this.form.growthRatePct }
       if (!this.data) { return '' }
       return Math.round(this.data.wacc.inputs.growthRate * 1000000) / 10000
+    },
+
+    /**
+     * The provenance note under the Beta field, or '' when the figure is the advisor's
+     * own. Reads `betaSource` rather than comparing against the current suggestions:
+     * editing the share figures moves those, and the note must keep describing where
+     * the number in the field CAME from, not what happens to match it now.
+     * @returns {string}
+     */
+    betaSourceLabel () {
+      if (!this.betaSource) { return '' }
+      const key = this.betaSource === 'roi' ? 'betaSourceRoi' : 'betaSourceVolatility'
+      return this.$t('report.costOfCapital.market.' + key)
     },
 
     /**
@@ -450,6 +491,19 @@ export default {
     form: {
       deep: true,
       handler () { this.queueRecompute() }
+    },
+
+    /**
+     * Typing over an adopted beta makes it the advisor's own figure again, so the
+     * provenance note must go. Compared against the value it was adopted AT — clearing
+     * on any change at all would drop the note when an unrelated field re-rendered.
+     * @param {number} v - the beta now in the field
+     */
+    'form.beta' (v) {
+      if (this.betaSource && v !== this.adoptedBetaValue) {
+        this.betaSource = null
+        this.adoptedBetaValue = null
+      }
     }
   },
 
@@ -505,6 +559,41 @@ export default {
     /** Hand the growth rate back to the Beta helper. */
     useCalculatedGrowth () {
       this.form.growthRatePct = null
+    },
+
+    /**
+     * Adopt one of the helper's suggested betas into the calculation.
+     *
+     * The workbook hand-enters beta and only NOTES the helper's figures, so adoption is
+     * always a deliberate act — never automatic. The full-precision value is taken, not
+     * the two-decimal figure on the box, so the answer matches the suggestion exactly
+     * rather than the rounding of it.
+     *
+     * @param {string} which - 'roi' | 'volatility'
+     * @returns {void}
+     */
+    adoptBeta (which) {
+      if (!this.data || !this.data.betaSuggestions) { return }
+      const value = this.data.betaSuggestions[which]
+      if (!Number.isFinite(value)) { return }
+      this.form.beta = value
+      this.adoptedBetaValue = value
+      // Set AFTER the value, so the form.beta watcher sees no source yet and cannot
+      // clear the provenance it is in the middle of establishing.
+      this.betaSource = which
+    },
+
+    /**
+     * A change in the WACC as signed percentage points, e.g. 0.003608 → "+0.36".
+     * Percentage POINTS, not a percentage: the figures being compared are themselves
+     * percentages, and "+0.36%" would read as a relative change.
+     * @param {number} v - the change as a decimal fraction
+     * @returns {string}
+     */
+    signedPoints (v) {
+      const n = Number(v)
+      const safe = Number.isFinite(n) ? n : 0
+      return (safe >= 0 ? '+' : '−') + this.num(Math.abs(safe) * 100, 2)
     },
 
     /**
@@ -622,6 +711,32 @@ export default {
 .coc-verdict.is-good { background: var(--rs-good-soft); border-color: #4ca52d44; color: #2f6d1c; }
 .coc-verdict.is-crit { background: var(--rs-crit-soft); border-color: #ff000033; color: #b32020; }
 .coc-verdict.is-level { background: var(--rs-panel-2); border-color: var(--rs-line); color: var(--rs-ink); }
+/* Provenance under the Beta field — quieter than the help text above it, because it
+   describes where a figure came from rather than asking for one. */
+.coc-provenance { font-size: 11px; color: var(--rs-accent); margin: 2px 0 0; font-weight: 600; }
+/* The adopt button: the same understated link treatment as "use the calculated figure",
+   so adopting a beta reads as the same kind of act as handing the growth rate back. */
+.coc-adopt {
+  display: inline-block; margin-top: 7px; padding: 0;
+  background: none; border: 0; cursor: pointer;
+  font: inherit; font-size: 11px; font-weight: 700;
+  color: var(--rs-accent); text-decoration: underline;
+}
+.coc-adopt:hover { color: var(--rs-accent-bright); }
+.coc-mini thead th {
+  font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--rs-muted); font-weight: 700; text-align: right;
+  padding: 0 10px 7px; border-bottom: 1px solid var(--rs-line);
+}
+.coc-mini thead th:first-child { text-align: left; }
+/* A rise and a fall are told apart by the sign first — colour is only ever the second
+   signal, as on the hurdle verdict. */
+/* Three columns, two of them numbers: `.coc-mini` right-aligns only its last cell, which
+   would leave the WACC column ragged against the change beside it. */
+.coc-mini.is-sens td:nth-child(2), .coc-mini.is-sens td:nth-child(3) { text-align: right; font-weight: 600; }
+.coc-delta { white-space: nowrap; }
+.coc-delta.is-up { color: #b32020; }
+.coc-delta.is-down { color: #2f6d1c; }
 .coc-mini { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
 .coc-mini td { padding: 6px 10px; border-bottom: 1px solid var(--rs-bg); }
 .coc-mini td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
