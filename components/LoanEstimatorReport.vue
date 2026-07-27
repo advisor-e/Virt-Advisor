@@ -344,10 +344,11 @@ export default {
 /* Palette, card and table dividers read the shared visual-standard tokens (ReportShell):
    every swapped value equals the token it points at — a no-change consolidation, not a
    restyle. This screen's card is already on-standard (14px radius, 16px 18px padding,
-   12px/600 title), so it repoints fully. Left literal on purpose: the pass/fail verdict
-   panel (a permitted per-model accent, its own green/red palette), the field-label ink
-   (#223a57, no token), the repayment sub-panel's 10px radius and the 320px input column
-   (widened to 360px for all screens together in Step 3). */
+   12px/600 title), so it repoints fully. The two-column calc layout reads the shared
+   --rs-col-input / --rs-col-gap tokens (Step 3, standardised to 360px / 20px). Left literal
+   on purpose: the pass/fail verdict panel (a permitted per-model accent, its own green/red
+   palette), the field-label ink (#223a57, no token) and the repayment sub-panel's 10px
+   radius. */
 .ler-root { display: flex; flex-direction: column; gap: 16px; }
 .ler-verdict {
   border-radius: 12px; padding: 18px 20px; border: 1px solid;
@@ -384,7 +385,7 @@ export default {
 .ler-mini tr.is-total td { border-bottom: 0; border-top: 2px solid var(--rs-line); font-weight: 700; }
 .ler-mini .is-crit { color: var(--rs-crit); }
 .ler-note { font-size: 11.5px; color: var(--rs-muted); margin: 4px 0 0; font-weight: 300; }
-.ler-calc { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }
+.ler-calc { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
 @media (max-width: 860px) { .ler-calc { grid-template-columns: 1fr; } }
 .ler-selects { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
 .ler-select label { display: block; font-size: 12.5px; color: var(--rs-ink); font-weight: 300; margin-bottom: 3px; }

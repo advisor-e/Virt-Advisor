@@ -468,12 +468,12 @@ export default {
 
 <style scoped>
 /* Palette, card and table dividers read the shared visual-standard tokens (ReportShell):
-   every swapped value equals the token it points at — a no-change consolidation, not a
-   restyle. Left literal on purpose: the input-column width (340px, widened to 360px for
-   all screens together in Step 3), the card's 16px padding (standard is 16px 18px, swept
-   later), and three model-specific accents whose colours are bespoke — the cyan runway/
-   legend viz, the blue coach panel, and the amber-text (#b36b00) pill/date labels. */
-.layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+   every swapped value equals the token it points at. The two-column layout reads the
+   shared --rs-col-input / --rs-col-gap tokens (Step 3, standardised to 360px / 20px).
+   Left literal on purpose: the card's 16px padding (standard is 16px 18px, not one of the
+   ruled five), and three model-specific accents whose colours are bespoke — the cyan
+   runway/legend viz, the blue coach panel, and the amber-text (#b36b00) pill/date labels. */
+.layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
 @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 .controls { background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: var(--rs-card-radius); }
 .group { padding: 15px 16px; border-bottom: 1px solid var(--rs-line); }

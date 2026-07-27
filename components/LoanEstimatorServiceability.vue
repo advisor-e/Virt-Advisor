@@ -344,18 +344,17 @@ export default {
 </script>
 
 <style scoped>
-/* Palette, card and dividers read the shared visual-standard tokens (ReportShell):
-   every swapped value equals the token it points at — a no-change consolidation. Left
-   literal on purpose: the 10px card radius and the 13px/700/.04em card title (both
-   off-standard — standardised to 14px / 12px in Step 3), the field-label ink (#223a57,
+/* Palette, card and dividers read the shared visual-standard tokens (ReportShell). The
+   card frame + title now read the --rs-card-* tokens (Step 3, standardised to the 14px
+   radius and 12px/600/.1em title). Left literal on purpose: the field-label ink (#223a57,
    no standard token) and the zebra row stripe (#f8fbfd). */
 .lesv-card {
   background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-top: 3px solid var(--rs-card-top);
-  border-radius: 10px; padding: var(--rs-card-pad); margin-bottom: 14px;
+  border-radius: var(--rs-card-radius); padding: var(--rs-card-pad); margin-bottom: 14px;
 }
 .lesv-title {
-  font-size: 13px; font-weight: 700; color: var(--rs-ink);
-  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px;
+  font-size: var(--rs-card-title-size); font-weight: 600; color: var(--rs-card-title-color);
+  text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px;
 }
 .lesv-subtitle {
   font-size: 12px; font-weight: 700; color: var(--rs-muted);

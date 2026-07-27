@@ -336,7 +336,7 @@ lowY: y(plan[lowIdx])
 .num { font-variant-numeric: tabular-nums; }
 /* Width + centring now come from the ReportShell wrap; column width (340px) left for the
    Step 3 standardisation to 360px. */
-.ddg-layout { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; }
+.ddg-layout { display:grid; grid-template-columns:var(--rs-col-input) 1fr; gap:var(--rs-col-gap); align-items:start; }
 @media (max-width:860px) { .ddg-layout { grid-template-columns:1fr; } }
 .ddg-card { background:var(--ddg-panel); border:1px solid var(--ddg-line); border-radius:var(--ddg-r); box-shadow:var(--ddg-shadow); }
 .ddg-h2 { margin:0; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--ddg-muted); font-weight:600; }

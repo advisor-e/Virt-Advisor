@@ -332,7 +332,7 @@ export default {
 .lvb-root { display: flex; flex-direction: column; gap: 16px; }
 /* House two-column grid: inputs left (~340px), results right — identical to
    MarginBreakeven / QuickPosition / Debtor Drag / Eight Levers / Loan Estimator. */
-.lvb-layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+.lvb-layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
 @media (max-width: 860px) { .lvb-layout { grid-template-columns: 1fr; } }
 .lvb-inputs { display: flex; flex-direction: column; gap: 16px; }
 .lvb-results { display: flex; flex-direction: column; gap: 16px; min-width: 0; }

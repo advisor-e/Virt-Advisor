@@ -354,7 +354,7 @@ fields: [
 
 /* Width + centring now come from the ReportShell wrap; column width (340px) left for the
    Step 3 standardisation to 360px. */
-.bpr-layout { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; }
+.bpr-layout { display:grid; grid-template-columns:var(--rs-col-input) 1fr; gap:var(--rs-col-gap); align-items:start; }
 @media (max-width:860px) { .bpr-layout { grid-template-columns:1fr; } }
 
 .bpr-card { background:var(--bpr-panel); border:1px solid var(--bpr-line); border-radius:var(--bpr-r); box-shadow:var(--bpr-shadow); }

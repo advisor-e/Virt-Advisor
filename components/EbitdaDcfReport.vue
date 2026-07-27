@@ -483,8 +483,8 @@ export default {
    HeroStrip's root, which the slot renders inside. */
 /* Palette, cards and table dividers read the shared visual-standard tokens (ReportShell):
    every swapped value equals the token it points at — a no-change consolidation, not a
-   restyle. Left literal on purpose: the card's 16px padding (standard 16px 18px, swept in
-   Step 3), the inline `font:` shorthands on the editable inputs, and the model-specific
+   restyle. Left literal on purpose: the card's 16px padding (standard is 16px 18px, not
+   one of the ruled five), the inline `font:` shorthands on the editable inputs, and the model-specific
    accents with bespoke tints/no token — the earnings bar chart, the accent-tinted P&L
    total row (#0070c012), the input focus ring (#7fd3f1) and the blue coach panel. */
 .herostrip .mult { width: 52px; margin-left: 6px; border: 0; border-radius: 5px; padding: 2px 6px; font: 600 12px "Open Sans", sans-serif; color: var(--rs-ink); }

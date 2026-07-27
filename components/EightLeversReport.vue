@@ -425,8 +425,8 @@ export default {
 
 /* Width + centring now come from the ReportShell wrap; column width (320px), gap (18px)
    and the 900px collapse are left for the Step 3 standardisation (360px / 20px / 860px). */
-.lev-layout { display:grid; grid-template-columns:320px 1fr; gap:18px; align-items:start; }
-@media (max-width: 900px) { .lev-layout { grid-template-columns:1fr; } }
+.lev-layout { display:grid; grid-template-columns:var(--rs-col-input) 1fr; gap:var(--rs-col-gap); align-items:start; }
+@media (max-width: 860px) { .lev-layout { grid-template-columns:1fr; } }
 
 .lev-card {
   background:var(--lev-panel); border:1px solid var(--lev-line); border-radius:var(--lev-r);

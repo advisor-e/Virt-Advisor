@@ -371,7 +371,7 @@ export default {
 <style scoped>
 /* Palette, card and table dividers read the shared visual-standard tokens (ReportShell):
    every swapped value equals the token it points at — a no-change consolidation. Left
-   literal on purpose: the confirm-card 16px padding (standard 16px 18px, swept in Step 3)
+   literal on purpose: the confirm-card 16px padding (standard is 16px 18px, not a ruled number)
    and the bespoke tints with no standard token — the cyan drop-zone dash (#7fd3f1), the
    softer green/red state fills (#4ca52d12 / #ff00000a / #ff00001a) and the amber-text
    (#b36b00) warning labels. */
