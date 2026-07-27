@@ -144,6 +144,11 @@
     one domain at a time** (mirrors how EOY was made, `dfa8572`). Cash Tactics was trialed in-app as
     the first draft this session and the preview **reverted** (not content-approved). **28 of 29
     domains still to migrate** (only EOY done). Detail: `FIRM-EDITABLE-TABLES-PLAN.md` §0.5.
+  - 📋 **TODO (tomorrow, Mike 2026-07-27) — add `Course Builder Quiz/Specialist Tools Quiz.pdf`
+    to the quiz page.** An untracked PDF sitting in the repo-root `Course Builder Quiz/` folder
+    (dropped in by Mike). Confirmed it is wanted — it should be **added to the Quizzes feature,
+    not deleted**. Exact target (which quiz page / bank, and how the PDF content is ingested) to
+    confirm on pickup.
   - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"
