@@ -61,22 +61,26 @@ beforeEach(() => {
 })
 
 describe('GET /logic-trees (list)', () => {
-  test('returns advisory and get-the-job groups from the real trees', async () => {
+  test('splits the real trees into the three master sections', async () => {
     const res = makeMockRes()
     await getLogicTrees(makeReq(), res)
     expect(res._status).toBe(200)
-    const advisoryIds = res._body.advisory.map(t => t.id)
-    const getIds = res._body.getSellers.map(t => t.id)
-    expect(advisoryIds).toContain('eoy_meeting')
-    // A get-the-job tree lands in its own group, never in advisory.
+    const doIds = res._body.doTheJob.map(t => t.id)
+    const getIds = res._body.getTheJob.map(t => t.id)
+    const orgIds = res._body.getOrganised.map(t => t.id)
+    // Client-delivery tree → Do the Job; get_ tree → Get the Job; org_/fm_ → Get Organised.
+    expect(doIds).toContain('eoy_meeting')
     expect(getIds).toContain('get_marketing')
-    expect(advisoryIds).not.toContain('get_marketing')
+    expect(orgIds).toContain('org_ca_firm_strategy')
+    // Each tree lands in exactly one group.
+    expect(doIds).not.toContain('get_marketing')
+    expect(doIds).not.toContain('org_ca_firm_strategy')
   })
 
   test('a table carries a branch count and platform origin by default', async () => {
     const res = makeMockRes()
     await getLogicTrees(makeReq(), res)
-    const eoy = res._body.advisory.find(t => t.id === 'eoy_meeting')
+    const eoy = res._body.doTheJob.find(t => t.id === 'eoy_meeting')
     expect(eoy.count).toBeGreaterThan(0)
     expect(eoy.origin).toBe('platform')
   })
@@ -85,7 +89,7 @@ describe('GET /logic-trees (list)', () => {
     overlay.loadFirmConfig.mockResolvedValue({ eoy_meeting: { nodes: [] } })
     const res = makeMockRes()
     await getLogicTrees(makeReq(), res)
-    const eoy = res._body.advisory.find(t => t.id === 'eoy_meeting')
+    const eoy = res._body.doTheJob.find(t => t.id === 'eoy_meeting')
     expect(eoy.origin).toBe('firm')
   })
 })

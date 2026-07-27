@@ -190,10 +190,10 @@ export default {
     return {
       loading: false,
       error: '',
-      /** List-route payload: registered advisory domains, each {id,label,count,origin}. */
-      advisoryDomains: [],
-      /** List-route payload: the get-the-job seller files, same shape. */
-      getSellers: [],
+      /** List-route payload, split by master section — each row {id,label,count,origin}. */
+      doTheJob: [],
+      getTheJob: [],
+      getOrganised: [],
       query: '',
       /** The domain on screen: {id, label, origin} plus its merged detail. */
       current: null,
@@ -208,26 +208,23 @@ export default {
 
   computed: {
     /**
-     * The rail: two headed groups, each a flat list of domains filtered by the
-     * search box. An empty group is dropped so the rail never shows a heading
-     * over nothing.
+     * The rail: the three master-section groups (Do the Job / Get the Job / Get
+     * Organised), each a flat list filtered by the search box. An empty group is
+     * dropped so the rail never shows a heading over nothing.
      */
     groups () {
       const q = this.query.trim().toLowerCase()
-      const match = list => list
+      const match = list => (list || [])
         .filter(d => !q || String(d.label || '').toLowerCase().includes(q))
         .map(d => ({ id: d.id, label: d.label, count: d.count, origin: d.origin }))
 
-      const groups = []
-      const advisory = match(this.advisoryDomains)
-      if (advisory.length) {
-        groups.push({ key: 'advisory', heading: this.$t('firmDomainSupport.groupAdvisory'), items: advisory })
-      }
-      const sellers = match(this.getSellers)
-      if (sellers.length) {
-        groups.push({ key: 'sellers', heading: this.$t('firmDomainSupport.groupSellers'), items: sellers })
-      }
-      return groups
+      return [
+        { key: 'doTheJob', heading: this.$t('firmDomainSupport.groupDoTheJob'), list: this.doTheJob },
+        { key: 'getTheJob', heading: this.$t('firmDomainSupport.groupGetTheJob'), list: this.getTheJob },
+        { key: 'getOrganised', heading: this.$t('firmDomainSupport.groupGetOrganised'), list: this.getOrganised }
+      ]
+        .map(g => ({ key: g.key, heading: g.heading, items: match(g.list) }))
+        .filter(g => g.items.length)
     },
 
     /** True when the open domain has four-column material to edit. */
@@ -263,8 +260,9 @@ export default {
       this.error = ''
       try {
         const data = await this.api('GET', '/api/firm-manager/domain-support')
-        this.advisoryDomains = (data.advisoryDomains || []).map(this.normaliseListRow)
-        this.getSellers = (data.getSellers || []).map(this.normaliseListRow)
+        this.doTheJob = (data.doTheJob || []).map(this.normaliseListRow)
+        this.getTheJob = (data.getTheJob || []).map(this.normaliseListRow)
+        this.getOrganised = (data.getOrganised || []).map(this.normaliseListRow)
       } catch (err) {
         this.error = this.$t('firmDomainSupport.loadFailed')
       } finally {
@@ -411,7 +409,9 @@ export default {
      * reload. @param {string} id domain id @param {string} origin new origin
      */
     markListOrigin (id, origin) {
-      const row = this.advisoryDomains.find(d => d.id === id) || this.getSellers.find(d => d.id === id)
+      const row = this.doTheJob.find(d => d.id === id) ||
+        this.getTheJob.find(d => d.id === id) ||
+        this.getOrganised.find(d => d.id === id)
       if (row) { row.origin = origin }
     },
 

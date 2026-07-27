@@ -22,12 +22,15 @@ const FirmDomainSupport = require('~/components/firm/FirmDomainSupport.vue').def
 /** The domain list the list route serves. EOY is migrated; profit is not. */
 function defaultList () {
   return {
-    advisoryDomains: [
+    doTheJob: [
       { id: 'eoy', label: 'End of Year', supportTools: 0, origin: 'platform' },
       { id: 'profit', label: 'Profitability', supportTools: 3, origin: 'platform' }
     ],
-    getSellers: [
+    getTheJob: [
       { id: 'get-marketing', label: 'marketing', supportTools: 2, origin: 'platform' }
+    ],
+    getOrganised: [
+      { id: 'org-leadership', label: 'leadership development', supportTools: 0, origin: 'platform' }
     ]
   }
 }
@@ -109,10 +112,11 @@ describe('loading', () => {
 })
 
 describe('the rail', () => {
-  test('lists the two groups with their domains', async () => {
+  test('lists the three master-section groups with their domains', async () => {
     const wrapper = await mountScreen()
-    expect(wrapper.text()).toContain('firmDomainSupport.groupAdvisory')
-    expect(wrapper.text()).toContain('firmDomainSupport.groupSellers')
+    expect(wrapper.text()).toContain('firmDomainSupport.groupDoTheJob')
+    expect(wrapper.text()).toContain('firmDomainSupport.groupGetTheJob')
+    expect(wrapper.text()).toContain('firmDomainSupport.groupGetOrganised')
     expect(wrapper.text()).toContain('End of Year')
     expect(wrapper.text()).toContain('Profitability')
   })
@@ -181,12 +185,12 @@ describe('saving and resetting', () => {
     wrapper.vm.form.materials[0].summary = 'Firm summary.'
     await wrapper.vm.save()
     expect(wrapper.vm.current.origin).toBe('firm')
-    expect(wrapper.vm.advisoryDomains.find(d => d.id === 'eoy').origin).toBe('firm')
+    expect(wrapper.vm.doTheJob.find(d => d.id === 'eoy').origin).toBe('firm')
   })
 
   test('reset is offered only for a firm-authored domain, and deletes the override', async () => {
     const list = defaultList()
-    list.advisoryDomains[0].origin = 'firm'
+    list.doTheJob[0].origin = 'firm'
     const wrapper = await openDomain(await mountScreen(list), 'eoy', 'End of Year', 'firm')
     expect(wrapper.vm.canReset).toBe(true)
     await wrapper.vm.reset()

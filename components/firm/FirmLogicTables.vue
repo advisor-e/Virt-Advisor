@@ -175,8 +175,9 @@ section.firm-logic-tables
  * (firmContent), so what a firm sees here is what the AI sees — not the split
  * per-key storage the domain-support routes use (that gap is a logged P1).
  *
- * The rail is a simple two-group list (advisory / get-the-job) per the approved
- * mockup, matching FirmDomainSupport — not the FirmRail accordion.
+ * The rail is a simple three-group list (Do the Job / Get the Job / Get
+ * Organised — the master export's sections), matching FirmDomainSupport — not
+ * the FirmRail accordion.
  */
 export default {
   name: 'FirmLogicTables',
@@ -190,10 +191,10 @@ export default {
     return {
       loading: false,
       error: '',
-      /** List-route payload: advisory logic tables, each {id,label,count,origin}. */
-      advisory: [],
-      /** List-route payload: the get-the-job logic tables, same shape. */
-      getSellers: [],
+      /** List-route payload, split by master section — each row {id,label,count,origin}. */
+      doTheJob: [],
+      getTheJob: [],
+      getOrganised: [],
       query: '',
       /** The table on screen: {id, label, origin}, or null. */
       current: null,
@@ -209,25 +210,23 @@ export default {
 
   computed: {
     /**
-     * The rail: two headed groups, each a flat list of tables filtered by the
-     * search box. An empty group is dropped so no heading sits over nothing.
+     * The rail: the three master-section groups (Do the Job / Get the Job / Get
+     * Organised), each a flat list filtered by the search box. An empty group is
+     * dropped so no heading sits over nothing.
      */
     groups () {
       const q = this.query.trim().toLowerCase()
-      const match = list => list
+      const match = list => (list || [])
         .filter(d => !q || String(d.label || '').toLowerCase().includes(q))
         .map(d => ({ id: d.id, label: d.label, count: d.count, origin: d.origin }))
 
-      const groups = []
-      const advisory = match(this.advisory)
-      if (advisory.length) {
-        groups.push({ key: 'advisory', heading: this.$t('firmLogicTables.groupAdvisory'), items: advisory })
-      }
-      const sellers = match(this.getSellers)
-      if (sellers.length) {
-        groups.push({ key: 'sellers', heading: this.$t('firmLogicTables.groupSellers'), items: sellers })
-      }
-      return groups
+      return [
+        { key: 'doTheJob', heading: this.$t('firmLogicTables.groupDoTheJob'), list: this.doTheJob },
+        { key: 'getTheJob', heading: this.$t('firmLogicTables.groupGetTheJob'), list: this.getTheJob },
+        { key: 'getOrganised', heading: this.$t('firmLogicTables.groupGetOrganised'), list: this.getOrganised }
+      ]
+        .map(g => ({ key: g.key, heading: g.heading, items: match(g.list) }))
+        .filter(g => g.items.length)
     },
 
     /** True when the open table has branches to show. */
@@ -258,8 +257,9 @@ export default {
       this.error = ''
       try {
         const data = await this.api('GET', '/api/firm-manager/logic-trees')
-        this.advisory = (data.advisory || []).map(this.normaliseListRow)
-        this.getSellers = (data.getSellers || []).map(this.normaliseListRow)
+        this.doTheJob = (data.doTheJob || []).map(this.normaliseListRow)
+        this.getTheJob = (data.getTheJob || []).map(this.normaliseListRow)
+        this.getOrganised = (data.getOrganised || []).map(this.normaliseListRow)
       } catch (err) {
         this.error = this.$t('firmLogicTables.loadFailed')
       } finally {
@@ -407,7 +407,9 @@ export default {
      * reload. @param {string} id tree id @param {string} origin new origin
      */
     markListOrigin (id, origin) {
-      const row = this.advisory.find(d => d.id === id) || this.getSellers.find(d => d.id === id)
+      const row = this.doTheJob.find(d => d.id === id) ||
+        this.getTheJob.find(d => d.id === id) ||
+        this.getOrganised.find(d => d.id === id)
       if (row) { row.origin = origin }
     },
 

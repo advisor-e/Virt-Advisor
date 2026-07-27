@@ -1702,43 +1702,45 @@ function _countSupportItems (support) {
 /**
  * GET /api/firm-manager/domain-support — list all domain support + firm overrides
  */
+/**
+ * Which master section a domain-support item belongs to, for the three-way rail
+ * (FIRM-EDITABLE-TABLES-PLAN.md — matches the master export's do-the-job /
+ * get-the-job / get-organised sections). The `get-*` seller files are
+ * get-the-job; the firm-management domains (org-*, fm-coach-culture,
+ * people-power) are get-organised; everything else is client-delivery advisory
+ * = do-the-job. Kept here, not in the data, because domains.json carries no
+ * section field. A future firm re-file (drag) will override this default.
+ * @param {string} id - domain or seller id
+ * @returns {'doTheJob'|'getTheJob'|'getOrganised'}
+ */
+function _domainSupportSection (id) {
+  const s = String(id || '')
+  if (s.startsWith('get-')) { return 'getTheJob' }
+  if (s.startsWith('org-') || s === 'fm-coach-culture' || s === 'people-power') { return 'getOrganised' }
+  return 'doTheJob'
+}
+
 async function getDomainSupport (req, res) {
   try {
     const domains = require('../../data/domains.json') || []
-
-    // Load GET files list
     const getFiles = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
 
-    const result = {
-      advisoryDomains: [],
-      getSellers: []
-    }
+    const result = { doTheJob: [], getTheJob: [], getOrganised: [] }
 
-    // Load advisory domains with firm overrides
-    for (const domain of domains) {
-      const override = await _loadDomainSupportOverride(req.firmId, domain.id)
-      const support = require('../utils/domainSupport').resolveDomainSupport(domain.id, override ? { [domain.id]: override } : null)
-      result.advisoryDomains.push({
-        id: domain.id,
-        label: domain.label,
+    const addRow = async (id, label) => {
+      const override = await _loadDomainSupportOverride(req.firmId, id)
+      const support = require('../utils/domainSupport').resolveDomainSupport(id, override ? { [id]: override } : null)
+      result[_domainSupportSection(id)].push({
+        id,
+        label,
         hasOverride: override !== null,
         supportTools: _countSupportItems(support),
         origin: override ? 'firm' : 'platform'
       })
     }
 
-    // Load GET files with firm overrides
-    for (const fileId of getFiles) {
-      const override = await _loadDomainSupportOverride(req.firmId, fileId)
-      const support = require('../utils/domainSupport').resolveDomainSupport(fileId, override ? { [fileId]: override } : null)
-      result.getSellers.push({
-        id: fileId,
-        label: fileId.replace('get-', '').replace(/-/g, ' '),
-        hasOverride: override !== null,
-        supportTools: _countSupportItems(support),
-        origin: override ? 'firm' : 'platform'
-      })
-    }
+    for (const domain of domains) { await addRow(domain.id, domain.label) }
+    for (const fileId of getFiles) { await addRow(fileId, fileId.replace('get-', '').replace(/-/g, ' ')) }
 
     res.send(200, result)
   } catch (err) {
@@ -1868,16 +1870,22 @@ function _loadFirmLogicTreeMap (firmId) {
 }
 
 /**
- * True for a "get-the-job" advisor-development tree — kept in its own rail
- * group because GET content is advisor-facing selling material, not client-work
- * logic (memory feedback_get_vs_client_logic).
+ * Which master section a logic table belongs to, for the three-way rail (matches
+ * the master export's do-the-job / get-the-job / get-organised sections). The
+ * tree's own `section` tag wins where present; otherwise the id prefix decides —
+ * `org_`/`fm_` = get-organised (firm-management), `get_` = get-the-job
+ * (advisor-facing selling material, memory feedback_get_vs_client_logic), and
+ * everything else is client-delivery logic = do-the-job. `section` is only
+ * partly populated in the data, so the prefix is the reliable fallback. A future
+ * firm re-file (drag) will override this default.
  * @param {Object} tree
- * @returns {boolean}
+ * @returns {'doTheJob'|'getTheJob'|'getOrganised'}
  */
-function _isGetTree (tree) {
-  return String(tree.id || '').startsWith('get') ||
-    String(tree.domainSupport || '').startsWith('get') ||
-    tree.type === 'flat_if_then'
+function _treeSection (tree) {
+  const id = String(tree.id || '')
+  if (tree.section === 'get-organised' || id.startsWith('org_') || id.startsWith('fm_')) { return 'getOrganised' }
+  if (tree.section === 'get-the-job' || id.startsWith('get_')) { return 'getTheJob' }
+  return 'doTheJob'
 }
 
 /**
@@ -1912,18 +1920,16 @@ async function getLogicTrees (req, res) {
     const logicTrees = require('../utils/logicTrees')
     const base = logicTrees.loadLogicTrees()
     const firmMap = await _loadFirmLogicTreeMap(req.firmId)
-    const advisory = []
-    const getSellers = []
+    const result = { doTheJob: [], getTheJob: [], getOrganised: [] }
     for (const tree of base) {
-      const entry = {
+      result[_treeSection(tree)].push({
         id: tree.id,
         label: tree.name || tree.id,
         count: _treeBranchRows(tree).length,
         origin: (firmMap && firmMap[tree.id]) ? 'firm' : 'platform'
-      }
-      if (_isGetTree(tree)) { getSellers.push(entry) } else { advisory.push(entry) }
+      })
     }
-    res.send(200, { advisory, getSellers })
+    res.send(200, result)
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }

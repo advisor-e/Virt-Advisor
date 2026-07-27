@@ -20,12 +20,15 @@ const FirmLogicTables = require('~/components/firm/FirmLogicTables.vue').default
 
 function defaultList () {
   return {
-    advisory: [
+    doTheJob: [
       { id: 'eoy_meeting', label: 'End of Year Meeting', count: 5, origin: 'platform' },
       { id: 'conflict_meeting', label: 'Conflict Meeting', count: 6, origin: 'firm' }
     ],
-    getSellers: [
+    getTheJob: [
       { id: 'get_marketing', label: 'Get Marketing', count: 5, origin: 'platform' }
+    ],
+    getOrganised: [
+      { id: 'org_leadership', label: 'Leadership & Partner Development', count: 4, origin: 'platform' }
     ]
   }
 }
@@ -100,10 +103,11 @@ describe('loading', () => {
 })
 
 describe('the rail', () => {
-  test('lists the two groups with their tables', async () => {
+  test('lists the three master-section groups with their tables', async () => {
     const wrapper = await mountScreen()
-    expect(wrapper.text()).toContain('firmLogicTables.groupAdvisory')
-    expect(wrapper.text()).toContain('firmLogicTables.groupSellers')
+    expect(wrapper.text()).toContain('firmLogicTables.groupDoTheJob')
+    expect(wrapper.text()).toContain('firmLogicTables.groupGetTheJob')
+    expect(wrapper.text()).toContain('firmLogicTables.groupGetOrganised')
     expect(wrapper.text()).toContain('End of Year Meeting')
     expect(wrapper.text()).toContain('Get Marketing')
   })
@@ -169,12 +173,12 @@ describe('saving and resetting', () => {
     wrapper.vm.form.branches[0].condition = 'Firm condition.'
     await wrapper.vm.save()
     expect(wrapper.vm.current.origin).toBe('firm')
-    expect(wrapper.vm.advisory.find(d => d.id === 'eoy_meeting').origin).toBe('firm')
+    expect(wrapper.vm.doTheJob.find(d => d.id === 'eoy_meeting').origin).toBe('firm')
   })
 
   test('reset is offered only for a firm-authored table, and deletes the override', async () => {
     const list = defaultList()
-    list.advisory[0].origin = 'firm'
+    list.doTheJob[0].origin = 'firm'
     const wrapper = await openTable(
       await mountScreen(list, { eoy_meeting: eoyDetail('firm') }),
       'eoy_meeting', 'End of Year Meeting', 'firm'
