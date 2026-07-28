@@ -68,29 +68,9 @@
             //- advisor chose themselves.
             p.coc-provenance(v-if="betaSourceLabel") {{ betaSourceLabel }}
           b-input(v-model.number="form.beta" type="number" step="any" size="is-small")
-        .coc-field
-          label {{ $t('report.costOfCapital.market.inflation') }}
-          b-input(v-model.number="form.inflationRatePct" type="number" step="any" size="is-small")
 
       .coc-card
         h2 {{ $t('report.costOfCapital.company.title') }}
-        .coc-field
-          .coc-labels
-            label {{ $t('report.costOfCapital.company.growth') }}
-            p.coc-help {{ $t('report.costOfCapital.company.growthHelp') }}
-            button.coc-relink(
-              v-if="growthOverridden"
-              type="button"
-              @click="useCalculatedGrowth"
-            ) {{ $t('report.costOfCapital.company.growthUseCalculated') }}
-          b-input(
-            :class="{ 'is-derived': !growthOverridden }"
-            :value="growthDisplay"
-            type="number"
-            step="any"
-            size="is-small"
-            @input="onGrowthInput"
-          )
         .coc-field
           label {{ $t('report.costOfCapital.company.tax') }}
           b-input(v-model.number="form.taxRatePct" type="number" step="any" size="is-small")
@@ -140,12 +120,6 @@
             tr
               td {{ $t('report.costOfCapital.build.costOfEquity') }}
               td {{ pct(data.wacc.costOfEquity, 4) }}
-            tr
-              td.indent {{ $t('report.costOfCapital.build.afterInflation') }}
-              td {{ pct(data.wacc.costOfEquityPostInflation, 4) }}
-            tr
-              td.indent {{ $t('report.costOfCapital.build.afterGrowth') }}
-              td {{ pct(data.wacc.costOfEquityPostGrowth, 4) }}
             tr
               td.indent {{ $t('report.costOfCapital.build.timesEquityShare', { rate: pct(data.wacc.equityRatio, 1) }) }}
               td
@@ -311,18 +285,19 @@ import reportRecompute from '~/mixins/reportRecompute'
  *
  * ── Two behaviours worth knowing about ──
  *
- * 1. THE GROWTH RATE follows the Beta helper's share figures until the advisor types
- *    over it, at which point their figure wins and a "use the calculated figure" link
- *    appears to hand it back. `form.growthRatePct === null` means "follow the helper",
- *    and the backend is told which of the two it is using (`growthSource`) rather than
- *    guessing. Owner ruling 2026-07-28: editable, with the link, so a typed number can
- *    never silently stop tracking.
+ * 1. THERE IS NO INFLATION OR GROWTH FIELD, deliberately. The source workbook applied
+ *    both on top of the CAPM cost of equity; the owner ruled them out on 2026-07-29 as
+ *    indefensible (inflation is already inside the nominal bond and index rates, and a
+ *    company's own growth is not a component of its discount rate — see correction (4)
+ *    in server/report/costOfCapitalModel.js). The fields went with them: an input that no
+ *    longer moves the answer is worse than no input, because an advisor would type into
+ *    it, watch nothing happen, and reasonably conclude the screen was broken.
  *
  * 2. BETA IS NOT ADOPTED AUTOMATICALLY. The helper offers two candidate betas; the
  *    calculation uses the one typed on the left. That is the workbook's own design
  *    (`WACC Calcs!E8` is hand-entered, "be guided by your Beta calcs") and it earned its
- *    keep — the human's 0.52 sits between the helper's 0.47 and 0.36. A one-click adopt
- *    button is a later phase.
+ *    keep — the human's 0.52 sits between the helper's 0.47 and 0.36. The helper is now
+ *    purely advisory in both directions: nothing it derives reaches the WACC by itself.
  *
  * A blank period in the helper's series is `null`, deliberately distinct from a typed 0:
  * a period with no figures is absent, not a company briefly worth nothing. Conflating the
@@ -355,13 +330,12 @@ export default {
         riskFreeRatePct: 3.9, //   E6
         marketRatePct: 8.99, //    E7 (and Beta Calcs F10 — the same figure)
         beta: 0.52, //             E8
-        inflationRatePct: 6.5, //  E9
         taxRatePct: 28, //         E12
         equity: 50000, //          E14
         debt: 30000, //            E15
         borrowRatePct: 6, //       E17
-        // null = follow the Beta helper (the workbook's own wiring, E10 = 'Beta Calcs'!F9).
-        growthRatePct: null,
+        // E9 (inflation) and E10 (growth) are absent by ruling — see note 1 in the
+        // component doc above and correction (4) in the model.
         // Beta Calcs M10:X10 — twelve months of the market index.
         indexValues: [4393, 4463, 4730, 4703, 4653, 4731, 4883, 4891, 4846, 4691, 4546, 4394],
         // Beta Calcs M40:X40 — ELEVEN filled and a deliberate trailing blank, the
@@ -396,23 +370,6 @@ export default {
       const out = []
       for (let i = 0; i < this.form.indexValues.length; i++) { out.push(i) }
       return out
-    },
-
-    /** True when the advisor has typed their own growth rate over the calculated one. */
-    growthOverridden () {
-      return Number.isFinite(this.form.growthRatePct)
-    },
-
-    /**
-     * What the growth field shows: the advisor's own figure once they have typed one,
-     * otherwise the rate the backend derived from the share figures below (rounded for
-     * display only — an untouched field is never sent, so nothing is lost).
-     * @returns {number|string}
-     */
-    growthDisplay () {
-      if (this.growthOverridden) { return this.form.growthRatePct }
-      if (!this.data) { return '' }
-      return Math.round(this.data.wacc.inputs.growthRate * 1000000) / 10000
     },
 
     /**
@@ -546,22 +503,6 @@ export default {
     },
 
     /**
-     * Take the advisor's typed growth rate. Clearing the field hands the figure back to
-     * the Beta helper, exactly as the "use the calculated figure" link does.
-     * @param {string|number} raw
-     * @returns {void}
-     */
-    onGrowthInput (raw) {
-      const n = Number(raw)
-      this.form.growthRatePct = (raw === '' || raw === null || raw === undefined || !Number.isFinite(n)) ? null : n
-    },
-
-    /** Hand the growth rate back to the Beta helper. */
-    useCalculatedGrowth () {
-      this.form.growthRatePct = null
-    },
-
-    /**
      * Adopt one of the helper's suggested betas into the calculation.
      *
      * The workbook hand-enters beta and only NOTES the helper's figures, so adoption is
@@ -623,7 +564,6 @@ export default {
         riskFreeRate: (Number(f.riskFreeRatePct) || 0) / 100,
         marketRate,
         beta: Number(f.beta) || 0,
-        inflationRate: (Number(f.inflationRatePct) || 0) / 100,
         taxRate: (Number(f.taxRatePct) || 0) / 100,
         equity: Number(f.equity) || 0,
         debt: Number(f.debt) || 0,
@@ -635,11 +575,6 @@ export default {
         // one field drives both. Sending it explicitly also keeps it out of the
         // backend's `defaultedInputs` (R8), where it would read as a silent fallback.
         marketReturnRate: marketRate
-      }
-      // Omitted entirely unless overridden, so the backend reports `growthSource`
-      // honestly instead of being handed a figure it derived itself.
-      if (this.growthOverridden) {
-        body.growthRate = Number(f.growthRatePct) / 100
       }
       // Sent only when actually entered. An empty field must not arrive as 0, which the
       // backend would read as a priced investment expected to earn nothing.
@@ -688,19 +623,6 @@ export default {
 .coc-labels { flex: 1 1 auto; }
 .coc-help { font-size: 11px; color: var(--rs-muted); margin: 1px 0 0; font-weight: 300; }
 .coc-field .control { width: 130px; flex: 0 0 auto; }
-/* The growth field while it is still following the Beta helper: a dashed accent edge,
-   the same cue the Loan Estimator uses for a figure it derived rather than was given. */
-.coc-field ::v-deep .is-derived input {
-  background: var(--rs-panel-2); border-style: dashed; border-color: var(--rs-accent-bright);
-  color: var(--rs-ink);
-}
-.coc-relink {
-  display: inline-block; margin-top: 4px; padding: 0;
-  background: none; border: 0; cursor: pointer;
-  font: inherit; font-size: 11px; font-weight: 600;
-  color: var(--rs-accent); text-decoration: underline;
-}
-.coc-relink:hover { color: var(--rs-accent-bright); }
 /* The hurdle verdict — the one tone-carrying element on this screen. Colour is only ever
    a second signal: the sentence says "clears" or "falls short" in words, so the verdict
    still reads correctly in greyscale, on a projector, or to a colour-blind advisor. */

@@ -36,11 +36,12 @@ describe('POST /api/report/cost-of-capital', () => {
     expect(next).toHaveBeenCalled()
 
     const data = res.body.data
-    expect(data.wacc.wacc).toBeCloseTo(0.06162727725, 9) //        E26, corrected
+    expect(data.wacc.wacc).toBeCloseTo(0.0571175, 9) //            E26, corrected
     expect(data.beta.growthRate).toBeCloseTo(0.04245666083, 9) //  AE42, corrected
     expect(data.betaSuggestions.roi).toBeCloseTo(0.47226541524, 8) //     I9
     expect(data.betaSuggestions.volatility).toBeCloseTo(0.36173857867, 8) // I15
-    expect(data.growthSource).toBe('betaHelper') //  E10 = 'Beta Calcs'!F9
+    // Correction (4): the E10 growth wiring is gone, so there is no source to report.
+    expect(data.growthSource).toBeUndefined()
 
     // R8: an empty body computes the sample and DECLARES it
     expect(data.wacc.defaultedInputs).toContain('beta')
@@ -58,13 +59,30 @@ describe('POST /api/report/cost-of-capital', () => {
 
   it('passes supplied inputs through to the maths', () => {
     const res = makeRes()
-    costOfCapital({ body: { beta: 1.5, growthRate: 0 } }, res, jest.fn())
+    costOfCapital({ body: { beta: 1.5 } }, res, jest.fn())
 
     expect(res.statusCode).toBe(200)
-    expect(res.body.data.growthSource).toBe('supplied')
     expect(res.body.data.betaSuggestions.inUse).toBe(1.5)
     // A riskier company costs more to fund than the sample's beta of 0.52.
-    expect(res.body.data.wacc.wacc).toBeGreaterThan(0.06162727725)
+    expect(res.body.data.wacc.wacc).toBeGreaterThan(0.0571175)
+  })
+
+  it('CORRECTION 4: an inflation or growth rate on the request changes nothing', () => {
+    // The route forwards the whole body to the model. A stale caller — an un-updated
+    // screen, a saved request, an integration built against the old shape — must get the
+    // standard-practice answer, not a quietly different one.
+    const plain = makeRes()
+    costOfCapital({ body: {} }, plain, jest.fn())
+
+    const stale = makeRes()
+    costOfCapital({ body: { inflationRate: 0.065, growthRate: 0.04245666083 } }, stale, jest.fn())
+
+    expect(stale.statusCode).toBe(200)
+    expect(stale.body.data.wacc.wacc).toBeCloseTo(plain.body.data.wacc.wacc, 12)
+    expect(stale.body.data.wacc.wacc).toBeCloseTo(0.0571175, 9)
+    // Not echoed back either — the response must not imply they were taken into account.
+    expect(stale.body.data.wacc.inputs.inflationRate).toBeUndefined()
+    expect(stale.body.data.wacc.inputs.growthRate).toBeUndefined()
   })
 
   it('carries the hurdle test through when an investment is supplied, and omits it when not', () => {
@@ -80,7 +98,7 @@ describe('POST /api/report/cost-of-capital', () => {
     expect(res.statusCode).toBe(200)
     expect(res.body.data.hurdle.verdict).toBe('CLEARS')
     expect(res.body.data.hurdle.returnRate).toBeCloseTo(0.088, 12)
-    expect(res.body.data.hurdle.requiredAnnualReturn).toBeCloseTo(15406.819312, 5)
+    expect(res.body.data.hurdle.requiredAnnualReturn).toBeCloseTo(14279.375, 5)
     // judged against the wacc this same response carries
     expect(res.body.data.hurdle.hurdleRate).toBe(res.body.data.wacc.wacc)
   })
@@ -89,7 +107,7 @@ describe('POST /api/report/cost-of-capital', () => {
     const res = makeRes()
     costOfCapital({ body: 'not-json' }, res, jest.fn())
     expect(res.statusCode).toBe(200)
-    expect(res.body.data.wacc.wacc).toBeCloseTo(0.06162727725, 9)
+    expect(res.body.data.wacc.wacc).toBeCloseTo(0.0571175, 9)
   })
 
   it('a compute failure returns the safe 400 shape and leaks nothing', () => {

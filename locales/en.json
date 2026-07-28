@@ -930,14 +930,10 @@
         "beta": "Beta",
         "betaHelp": "How much this company's returns swing against the market.",
         "betaSourceRoi": "Using the Beta from growth",
-        "betaSourceVolatility": "Using the Beta from volatility",
-        "inflation": "Expected inflation rate (%)"
+        "betaSourceVolatility": "Using the Beta from volatility"
       },
       "company": {
         "title": "Your company",
-        "growth": "Your company's growth rate (%)",
-        "growthHelp": "Worked out from your share figures below. Type over it to use your own.",
-        "growthUseCalculated": "Use the calculated figure",
         "tax": "Company tax rate (%)"
       },
       "funding": {
@@ -949,8 +945,6 @@
       "build": {
         "title": "How the answer is reached",
         "costOfEquity": "Cost of equity",
-        "afterInflation": "after expected inflation",
-        "afterGrowth": "after your company's growth",
         "timesEquityShare": "× funded by equity {rate}",
         "equityShare": "Equity's share of the cost",
         "borrowRate": "Borrowing rate",
@@ -987,7 +981,6 @@
           "beta": "Beta +0.1",
           "riskFreeRate": "Government bond rate +1 point",
           "borrowRate": "Borrowing rate +1 point",
-          "inflationRate": "Inflation rate +1 point",
           "taxRate": "Company tax rate +1 point",
           "debtShare": "Share funded by debt +1 point"
         }

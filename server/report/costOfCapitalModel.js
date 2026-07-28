@@ -13,8 +13,9 @@
  *     BETA figures from a pasted series of index values and shareholders' equity
  *     (`computeBetaHelper`). The workbook's main sheet does NOT read the helper's beta:
  *     `WACC Calcs!E8` is hand-entered, with a note saying "be guided by your Beta calcs".
- *     Only the GROWTH rate is wired across (`E10 = 'Beta Calcs'!F9`). We keep that
- *     relationship — the helper OFFERS a beta, the caller decides — see `computeCostOfCapital`.
+ *     We keep that relationship — the helper OFFERS a beta, the caller decides — see
+ *     `computeCostOfCapital`. The growth rate the helper derives now serves only the
+ *     ROI beta (`I9 = F9/F10`); it no longer reaches the WACC — see correction (4).
  *
  * ── CORRECTED FROM THE SOURCE (owner-ruled 2026-07-28, to be fixed in the .xlsx too) ──
  *
@@ -26,10 +27,13 @@
  *       a. `AE40 = X40 - M40` reaches for the last SLOT, not the last FILLED period, so
  *          the growth calculation subtracts the opening equity from an empty cell:
  *          `AE42 = AE40/M40` = -2,569,800 / 2,569,800 = **-1**, a -100% growth rate.
- *          That flows to `WACC Calcs!E10`, and `M19 = L20 + (L20 * E10)` multiplies the
+ *          That flowed to `WACC Calcs!E10`, and `M19 = L20 + (L20 * E10)` multiplied the
  *          cost of equity by (1 + -1) = 0 — so `I23`, the EQUITY contribution to the
- *          WACC, is zero and the workbook's headline 1.62% is the DEBT cost alone.
+ *          WACC, was zero and the workbook's headline 1.62% was the DEBT cost alone.
  *          Corrected: growth = (last filled - first filled) / first filled = +4.2457%.
+ *          (Correction (4) since removes that `E10` wiring altogether, so this defect can
+ *          no longer reach the WACC by any route — but the growth figure still feeds the
+ *          ROI beta, so getting it right still matters.)
  *
  *       b. `M62 = STDEV.P(M43:X43)` spans all twelve share-value cells. The twelfth is 0
  *          (its own `if(M40=0,0,...)` guard firing on the blank), so a zero share price is
@@ -41,7 +45,7 @@
  *     plausible at last: the ROI beta becomes ~0.47, close to the 0.52 a human had already
  *     typed into `E8` by judgement.
  *
- * (2) THE COST-OF-EQUITY FORMULA. `H21 = E6 + E7*E8` adds the risk-free rate to
+ * (2) THE COST-OF-EQUITY FORMULA. `K21 = E6 + E7*E8` adds the risk-free rate to
  *     beta x the market RETURN. The Capital Asset Pricing Model multiplies beta by the
  *     market PREMIUM — the market return less the risk-free rate — because the reward for
  *     bearing risk is only the excess over what a government bond pays for none. As
@@ -53,17 +57,48 @@
  *     the MARKET index average (4,660) instead of the company's own (343). It should be
  *     `$Y$50`. Traced: this row feeds only the displayed variance/volatility figures on
  *     that sheet (`Y52`/`M54`/`Y54`/`N56`/`M56`) — the volatility beta reaches
- *     `F15` via `O62 = M62/Y50`, which is clean — so it never touched the WACC. Corrected
+ *     `F15` via `P62 = M62/Y50`, which is clean — so it never touched the WACC. Corrected
  *     here anyway (`companyVarianceFromOwnMean`) so the ported figures agree with the sheet
  *     once the .xlsx is fixed.
  *
+ * (4) THE TWO ADJUSTMENTS ON TOP OF CAPM — REMOVED (owner-ruled 2026-07-29). The workbook
+ *     does not stop at the CAPM figure. It applies two further multipliers before the cost
+ *     of equity is weighted into the WACC:
+ *
+ *         L20 "Post Inflation"   = K21 * (1 + E9)    // E9 = "Expected Real Inflation Rate"
+ *         M19 "Post Real Growth" = L20 * (1 + E10)   // E10 = the company's own growth
+ *         I23                    = H23 * M19         // the equity contribution
+ *
+ *     Both are wrong, for different reasons, and neither survives:
+ *
+ *       a. INFLATION IS ALREADY IN THE INPUTS. `E6` is a government bond rate and `E7` a
+ *          share index return — market rates quoted in NOMINAL terms, so expected inflation
+ *          is inside them already. Multiplying the result by (1 + inflation) counts it a
+ *          second time. A model works entirely in nominal terms or entirely in real ones;
+ *          this one took nominal inputs and then inflated them. (The sheet's own label,
+ *          "Expected REAL Inflation Rate", shows a real-terms model was intended — but the
+ *          inputs feeding it were never converted.)
+ *
+ *       b. GROWTH IS NOT A COMPONENT OF A DISCOUNT RATE. The cost of equity is what
+ *          investors REQUIRE for bearing risk, and under CAPM risk is carried entirely by
+ *          beta. How fast the company happened to grow does not change what its
+ *          shareholders demand. Growth belongs in the cash flows being discounted, never in
+ *          the rate they are discounted at — counting it in both places is double-counting.
+ *          It also runs backwards as an incentive: the faster a company grew, the higher
+ *          its hurdle became, so a good year made every future investment look worse.
+ *          (Separately, the figure was a TOTAL change across the supplied window used as
+ *          though it were a per-year rate — so it was the wrong number even on its own
+ *          terms. That mattered when it fed the WACC; it no longer does.)
+ *
+ *     Corrected: the equity contribution weights the CAPM cost of equity directly
+ *     (`I23 = H23 * K21`). On the sample the WACC moves 6.16% -> 5.71%. `E9` and `E10`
+ *     are no longer inputs to the WACC at all — a rate that changes nothing must not sit
+ *     on screen inviting an advisor to tune it. The growth rate is still derived by the
+ *     Beta helper, where it legitimately drives the ROI beta.
+ *
  * ── FIDELITY NOTES — reproduced as the source has them, NOT corrected ──
- *   - The growth rate is a TOTAL change across the supplied window, not annualised, and
- *     the workbook applies it once as a plain multiplier (`M19 = L20 * (1 + growth)`).
- *     Using a company's own recent growth to inflate its cost of equity is the workbook's
- *     own method, not standard CAPM. Ported as-is; flagged for a later owner ruling.
- *   - `H22` (cost of debt after tax) is displayed but not referenced by `E26`, which
- *     reaches the same figure the long way (`I24 - J24`). Both are returned, and a test
+ *   - `K22` (cost of debt after tax) is displayed but not referenced by `E26`, which
+ *     reaches the same figure the long way (`I24 - K24`). Both are returned, and a test
  *     pins that they agree.
  *   - Beta is an INPUT to the WACC, hand-entered. The helper's betas are advisory.
  *
@@ -183,15 +218,14 @@ const DEFAULT_INPUTS = {
   riskFreeRate: 0.039, //     E6  — 5 Yr Govt Bond Investment Rate
   marketRate: 0.0899, //      E7  — Market Rate (Avg Share Index Return Rate)
   beta: 0.52, //              E8  — hand-entered, "be guided by your Beta calcs"
-  inflationRate: 0.065, //    E9  — Expected Real Inflation Rate
   taxRate: 0.28, //           E12 — Company Tax Rate
   equity: 50000, //           E14 — Equity (Cash) Invested
   debt: 30000, //             E15 — Debt (Funds Borrowed)
   borrowRate: 0.06, //        E17 — Borrowing (Loan) Rate
 
-  /* `E10` (company real growth) is NOT listed here: the workbook derives it from the
-     helper (`E10 = 'Beta Calcs'!F9`). `computeCostOfCapital` wires it across, and a
-     caller may override it. See `computeWacc`'s `growthRate`. */
+  /* `E9` (expected inflation) and `E10` (company real growth) are deliberately absent:
+     correction (4) removed both from the WACC, so neither is an input to it any longer.
+     The growth rate is still derived on the `Beta Calcs` side for the ROI beta. */
 
   /* ── `Beta Calcs` sheet ───────────────────────────────────────────────────── */
   /** Market index values, `M10:X10` — twelve months, all filled. */
@@ -248,16 +282,16 @@ function computeBetaHelper (inputs) {
 
   const warnings = []
 
-  /* ── Market side (`M10:X10`, `M7`, `Y10`, `Y17`, `M29`, `O29`) ───────────────── */
+  /* ── Market side (`M10:X10`, `M7`, `Y10`, `Y17`, `M29`, `P29`) ───────────────── */
   const indexFilled = filled(indexValues)
   const marketTotal = sum(indexFilled) //                     Y10  = 55,924
   const marketAverage = div(marketTotal, indexFilled.length) // Y17 = 4,660.333333
   const marketStdDev = stdDevP(indexFilled) //                M29  = 169.3946739
-  const marketVolatilityPct = div(marketStdDev, marketAverage) // O29 = 0.03634818838
+  const marketVolatilityPct = div(marketStdDev, marketAverage) // P29 = 0.03634818838
 
   if (indexFilled.length < MIN_PERIODS) { warnings.push(WARN.FEW_PERIODS_MARKET) }
 
-  /* ── Company side (`M40:X40`, `M41:X41`, `M43`, `M37`, `Y43`, `Y50`, `M62`, `O62`) ──
+  /* ── Company side (`M40:X40`, `M41:X41`, `M43`, `M37`, `Y43`, `Y50`, `M62`, `P62`) ──
      Share value per period = that period's equity / that period's shares (`M43`). A
      period counts only when its equity is filled AND its share count is usable, so a
      blank can never enter as a zero share price. */
@@ -273,7 +307,7 @@ function computeBetaHelper (inputs) {
   const companyTotal = sum(shareValues) //                    Y43 = 3,773.089622
   const companyAverage = div(companyTotal, companyPeriods) // Y50 = 343.0081475
   const companyStdDev = stdDevP(shareValues) //               M62, blanks excluded
-  const companyVolatilityPct = div(companyStdDev, companyAverage) // O62
+  const companyVolatilityPct = div(companyStdDev, companyAverage) // P62
 
   if (companyPeriods < MIN_PERIODS) { warnings.push(WARN.FEW_PERIODS_COMPANY) }
 
@@ -308,7 +342,7 @@ function computeBetaHelper (inputs) {
       total: marketTotal, //            Y10
       average: marketAverage, //        Y17
       stdDev: marketStdDev, //          M29
-      volatilityPct: marketVolatilityPct //  O29 / F16
+      volatilityPct: marketVolatilityPct //  P29 / F16
     },
     company: {
       periods: companyPeriods, //       M37
@@ -316,7 +350,7 @@ function computeBetaHelper (inputs) {
       total: companyTotal, //           Y43
       average: companyAverage, //       Y50
       stdDev: companyStdDev, //         M62
-      volatilityPct: companyVolatilityPct, // O62 / F15
+      volatilityPct: companyVolatilityPct, // P62 / F15
       varianceFromOwnMean: companyVarianceFromOwnMean, // M52:X52, corrected (3)
       openingEquity, //  M40
       closingEquity, //  last filled of M40:X40
@@ -334,8 +368,9 @@ function computeBetaHelper (inputs) {
  * The `WACC Calcs` sheet: blend the cost of equity and the after-tax cost of debt in the
  * proportions the business is funded.
  *
- * @param {object} [inputs] - the scalar inputs above, plus `growthRate` (`E10`), which the
- *   workbook feeds from the helper. A caller may pass it explicitly to override.
+ * @param {object} [inputs] - the scalar inputs above. `inflationRate` and `growthRate` are
+ *   NOT among them: correction (4) removed both from the WACC, and accepting them here
+ *   would let a caller believe they still moved the answer.
  * @returns {object} every intermediate the sheet shows, plus `wacc` (`E26`).
  */
 function computeWacc (inputs) {
@@ -351,32 +386,21 @@ function computeWacc (inputs) {
   const riskFreeRate = scalar('riskFreeRate') //   E6
   const marketRate = scalar('marketRate') //       E7
   const beta = scalar('beta') //                   E8
-  const inflationRate = scalar('inflationRate') // E9
   const taxRate = scalar('taxRate') //             E12
   const equity = scalar('equity') //               E14
   const debt = scalar('debt') //                   E15
   const borrowRate = scalar('borrowRate') //       E17
 
-  /* `growthRate` has no sample of its own — the workbook derives it. A caller that does
-     not supply one gets 0 (growth-neutral) and is TOLD, rather than silently inheriting
-     the sample company's growth. */
-  let growthRate = 0
-  if (isFilled(src.growthRate)) {
-    growthRate = num(src.growthRate, 0)
-  } else {
-    defaultedInputs.push('growthRate')
-  }
-
   /* ── Cost of equity — CAPM, corrected (2) ────────────────────────────────────
-     H21 as written: riskFree + marketRate * beta (double-counts the risk-free rate). */
+     K21 as written: riskFree + marketRate * beta (double-counts the risk-free rate).
+     This is the FINAL cost of equity: correction (4) removed the sheet's two further
+     multipliers (`L20` post-inflation, `M19` post-growth), so nothing else is applied. */
   const marketPremium = marketRate - riskFreeRate
-  const costOfEquity = riskFreeRate + beta * marketPremium //        H21, corrected
-  const costOfEquityPostInflation = costOfEquity * (1 + inflationRate) // L20
-  const costOfEquityPostGrowth = costOfEquityPostInflation * (1 + growthRate) // M19
+  const costOfEquity = riskFreeRate + beta * marketPremium //        K21, corrected
 
   /* ── Cost of debt ────────────────────────────────────────────────────────────
      Interest is deductible, so the real cost is the rate less the tax it saves. */
-  const costOfDebtAfterTax = borrowRate - (borrowRate * taxRate) //  H22
+  const costOfDebtAfterTax = borrowRate - (borrowRate * taxRate) //  K22
 
   /* ── Capital mix ─────────────────────────────────────────────────────────────── */
   const capital = equity + debt
@@ -384,9 +408,9 @@ function computeWacc (inputs) {
   const debtRatio = div(debt, capital) //                            H24 = 0.375
 
   /* ── The two weighted contributions, and the answer ──────────────────────────── */
-  const equityComponent = equityRatio * costOfEquityPostGrowth //    I23
+  const equityComponent = equityRatio * costOfEquity //              I23, corrected (4)
   const debtComponentPreTax = debtRatio * borrowRate //              I24
-  const debtTaxShield = debtComponentPreTax * taxRate //             J24
+  const debtTaxShield = debtComponentPreTax * taxRate //             K24
   const debtComponent = debtComponentPreTax - debtTaxShield //       L24
   const wacc = equityComponent + debtComponent //                    E26
 
@@ -395,24 +419,20 @@ function computeWacc (inputs) {
       riskFreeRate,
       marketRate,
       beta,
-      inflationRate,
-      growthRate,
       taxRate,
       equity,
       debt,
       borrowRate
     },
     marketPremium,
-    costOfEquity, //                          H21 (corrected)
-    costOfEquityPostInflation, // L20
-    costOfEquityPostGrowth, //       M19
-    costOfDebtAfterTax, //               H22
+    costOfEquity, //                          K21 (corrected)
+    costOfDebtAfterTax, //               K22
     capital,
     equityRatio, //                             H23
     debtRatio, //                                 H24
     equityComponent, //                     I23
     debtComponentPreTax, //             I24
-    debtTaxShield, //                         J24
+    debtTaxShield, //                         K24
     debtComponent, //                         L24
     wacc, //                                           E26
     defaultedInputs
@@ -486,7 +506,6 @@ const SENSITIVITY_STEP = {
   riskFreeRate: 0.01,
   marketRate: 0.01,
   beta: 0.1,
-  inflationRate: 0.01,
   taxRate: 0.01,
   borrowRate: 0.01,
   debtShare: 0.01
@@ -497,8 +516,8 @@ const SENSITIVITY_STEP = {
  *
  * NOT in the workbook. It answers the question a build-up cannot: of everything on this
  * screen, which figure is actually driving the answer, and which barely matters? An
- * advisor who knows the borrowing rate moves it four times as much as inflation knows
- * where to spend the conversation.
+ * advisor who knows the borrowing rate moves it twelve times as much as the tax rate
+ * knows where to spend the conversation.
  *
  * ONE input changes per line, everything else held. That is the whole meaning of the
  * figure, and it is stated on screen too — a reader who assumes the lines combine would
@@ -543,31 +562,27 @@ function computeSensitivity (waccInputs, baseWacc) {
  * The whole model, assembled HERE rather than in the route (the marginBreakeven lesson:
  * the golden test must exercise exactly what the screen receives).
  *
- * Wires the helper's growth rate into the WACC exactly as the workbook does
- * (`E10 = 'Beta Calcs'!F9`) unless the caller supplied one. Beta is NOT wired: the
- * workbook hand-enters it, and the helper's betas stay advisory — `betaSuggestions` is
- * what the screen offers for a one-click adopt.
+ * NOTHING is wired from the helper into the WACC. The workbook wired the growth rate
+ * across (`E10 = 'Beta Calcs'!F9`); correction (4) removed that path, because growth is
+ * not a component of a discount rate. Beta was never wired either — the workbook
+ * hand-enters it, and the helper's betas stay advisory, which is what `betaSuggestions`
+ * offers the screen for a one-click adopt. The helper is now purely advisory in both
+ * directions: it suggests, and the WACC is built only from what the advisor typed.
  *
  * @param {object} [inputs]
- * @returns {{beta: object, wacc: object, betaSuggestions: object, growthSource: string,
- *   hurdle: ?object}} - `hurdle` is null unless the caller supplied a testable investment.
+ * @returns {{beta: object, wacc: object, betaSuggestions: object, hurdle: ?object,
+ *   sensitivity: Array}} - `hurdle` is null unless the caller supplied a testable
+ *   investment.
  */
 function computeCostOfCapital (inputs) {
   const src = (inputs && typeof inputs === 'object') ? inputs : {}
 
   const betaHelper = computeBetaHelper(src)
 
-  /* The workbook's own wiring: growth comes from the helper. An explicit growthRate on
-     the request wins, and which of the two was used is reported, never guessed at. */
-  const growthSupplied = isFilled(src.growthRate)
-  const waccInputs = Object.assign({}, src, {
-    growthRate: growthSupplied ? num(src.growthRate, 0) : betaHelper.growthRate
-  })
-
   /* Computed ONCE and reused: two calls could not disagree today, but `inUse` claiming a
      beta the returned `wacc` was not built from is precisely the kind of quiet lie a
      screen would render with confidence. */
-  const wacc = computeWacc(waccInputs)
+  const wacc = computeWacc(src)
 
   return {
     beta: betaHelper,
@@ -577,7 +592,6 @@ function computeCostOfCapital (inputs) {
       volatility: betaHelper.volatilityBeta, // I15 — from spread vs market spread
       inUse: wacc.inputs.beta //              E8, the beta this result was actually built on
     },
-    growthSource: growthSupplied ? 'supplied' : 'betaHelper',
     /* Judged against the WACC just computed, never a re-derived one — the same reasoning
        that keeps `inUse` honest above. */
     hurdle: computeHurdleTest(src, wacc.wacc),

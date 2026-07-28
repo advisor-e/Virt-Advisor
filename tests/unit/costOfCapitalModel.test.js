@@ -34,7 +34,7 @@ const WB = {
   marketTotal: 55924, //        Y10
   marketAverage: 4660.333333, // Y17
   marketStdDev: 169.3946739, //  M29
-  marketVolatilityPct: 0.03634818838, // O29 / F16
+  marketVolatilityPct: 0.03634818838, // P29 / F16
 
   // `Beta Calcs` — company side
   companyPeriods: 11, //        M37  (already counts FILLED periods — correct as written)
@@ -44,36 +44,48 @@ const WB = {
   companyClosingEquity: 2678905.127, // W40 (last FILLED; X40 is blank)
 
   // `WACC Calcs` — the debt half (UNCORRECTED: must match exactly)
-  costOfDebtAfterTax: 0.0432, // H22
+  costOfDebtAfterTax: 0.0432, // K22
   equityRatio: 0.625, //         H23
   debtRatio: 0.375, //           H24
   debtComponentPreTax: 0.0225, // I24
-  debtTaxShield: 0.0063, //      J24
+  debtTaxShield: 0.0063, //      K24
   debtComponent: 0.0162, //      L24
 
   /* ── The DEFECTIVE values, kept as sentinels ─────────────────────────────────── */
   DEFECT_companyStdDev: 94.90073186, //      M62 — blank read as a zero share price
-  DEFECT_companyVolatilityPct: 0.2766719466, // O62 / F15
+  DEFECT_companyVolatilityPct: 0.2766719466, // P62 / F15
   DEFECT_equityChange: -2569800, //          AE40 — `X40 - M40` over a blank X40
   DEFECT_growthRate: -1, //                  AE42 / F9 — a -100% growth rate
   DEFECT_roiBeta: -11.12347052, //           I9
   DEFECT_volatilityBeta: 7.611712135, //     I15
-  DEFECT_costOfEquity: 0.085748, //          H21 — market RETURN, not the premium
-  DEFECT_costOfEquityPostInflation: 0.09132162, // L20
+  DEFECT_costOfEquity: 0.085748, //          K21 — market RETURN, not the premium
   DEFECT_equityComponent: 0, //              I23 — the equity half, annihilated
-  DEFECT_wacc: 0.0162 //                     E26 — the debt cost alone, published as the WACC
+  DEFECT_wacc: 0.0162, //                    E26 — the debt cost alone, published as the WACC
+
+  /* ── CORRECTION 4 sentinels (owner ruling 2026-07-29) ────────────────────────────
+     The two multipliers the workbook applied on top of CAPM, and the WACC they
+     produced. These are no longer defects of the SOURCE — they are the values THIS
+     MODEL published until 2026-07-29. They are pinned so that re-adding either
+     multiplier fails loudly: the arithmetic would still be internally consistent, so
+     nothing but a sentinel would catch it. */
+  SUPERSEDED_costOfEquityPostInflation: 0.06972342, //  L20 = K21 x (1 + E9)
+  SUPERSEDED_costOfEquityPostGrowth: 0.07268364359, //  M19 = L20 x (1 + E10)
+  SUPERSEDED_equityComponent: 0.04542727725, //         I23 = H23 x M19
+  SUPERSEDED_wacc: 0.06162727725 //                     E26 — 6.16%
 }
 
 /* ── Hand-derived corrected values ───────────────────────────────────────────────
    growth      = (W40 - M40) / M40 = (2,678,905.127 - 2,569,800) / 2,569,800
                = 109,105.127 / 2,569,800                      = 0.04245666083
    costOfEquity= E6 + E8 x (E7 - E6) = 0.039 + 0.52 x 0.0509  = 0.065468
-   postInfl.   = 0.065468 x 1.065                             = 0.06972342
-   postGrowth  = 0.06972342 x 1.04245666083                   = 0.07268364359
-   equityComp. = 0.625 x 0.07268364359                        = 0.04542727725
-   WACC        = 0.04542727725 + 0.0162                       = 0.06162727725  (6.16%)
+   equityComp. = 0.625 x 0.065468                             = 0.0409175
+   WACC        = 0.0409175 + 0.0162                           = 0.0571175      (5.71%)
    roiBeta     = 0.04245666083 / 0.0899                       = 0.47226541524
-   volBeta     = 0.01314854200 / 0.03634818838                = 0.36173857867   */
+   volBeta     = 0.01314854200 / 0.03634818838                = 0.36173857867
+
+   Note what is NOT in this chain any more: the "Post Inflation" and "Post Real Growth"
+   multipliers. Correction (4) removed both, so the CAPM cost of equity is weighted
+   straight into the WACC. See WB.SUPERSEDED_* for the figures that produced. */
 const FIX = {
   equityChange: 109105.127,
   growthRate: 0.04245666083,
@@ -82,10 +94,8 @@ const FIX = {
   roiBeta: 0.47226541524,
   volatilityBeta: 0.36173857867,
   costOfEquity: 0.065468,
-  costOfEquityPostInflation: 0.06972342,
-  costOfEquityPostGrowth: 0.07268364359,
-  equityComponent: 0.04542727725,
-  wacc: 0.06162727725
+  equityComponent: 0.0409175,
+  wacc: 0.0571175
 }
 
 describe('Cost of Capital — beta helper, market side (must match the workbook exactly)', () => {
@@ -109,7 +119,7 @@ describe('Cost of Capital — beta helper, market side (must match the workbook 
     expect(beta.market.stdDev).toBeCloseTo(WB.marketStdDev, 6)
   })
 
-  it('expresses market volatility as spread over mean (O29 / F16)', () => {
+  it('expresses market volatility as spread over mean (P29 / F16)', () => {
     expect(beta.market.volatilityPct).toBeCloseTo(WB.marketVolatilityPct, 10)
   })
 })
@@ -140,7 +150,7 @@ describe('Cost of Capital — beta helper, company side', () => {
       expect(beta.company.volatilityPct).toBeCloseTo(FIX.companyVolatilityPct, 8)
     })
 
-    it('SENTINEL: does not reproduce the workbook\'s blank-as-zero spread (M62/O62)', () => {
+    it('SENTINEL: does not reproduce the workbook\'s blank-as-zero spread (M62/P62)', () => {
       // 94.90 is a spread of 27.67% on values that only range 335.92-350.18 — the whole of
       // it is the empty twelfth cell entering as a share price of nothing.
       expect(beta.company.stdDev).not.toBeCloseTo(WB.DEFECT_companyStdDev, 3)
@@ -212,14 +222,14 @@ describe('Cost of Capital — the WACC calculation', () => {
       expect(wacc.debtRatio).toBeCloseTo(WB.debtRatio, 10)
     })
 
-    it('weights, tax-shields and nets the debt cost (I24, J24, L24)', () => {
+    it('weights, tax-shields and nets the debt cost (I24, K24, L24)', () => {
       expect(wacc.debtComponentPreTax).toBeCloseTo(WB.debtComponentPreTax, 10)
       expect(wacc.debtTaxShield).toBeCloseTo(WB.debtTaxShield, 10)
       expect(wacc.debtComponent).toBeCloseTo(WB.debtComponent, 10)
     })
 
-    it('reaches the same debt cost by both of the sheet\'s routes (H22 x H24 == L24)', () => {
-      // The sheet shows H22 but computes E26 the long way. If the two ever disagree, one
+    it('reaches the same debt cost by both of the sheet\'s routes (K22 x H24 == L24)', () => {
+      // The sheet shows K22 but computes E26 the long way. If the two ever disagree, one
       // of them is wrong and the screen would be showing a figure the answer is not using.
       expect(wacc.costOfDebtAfterTax).toBeCloseTo(WB.costOfDebtAfterTax, 10)
       expect(wacc.debtRatio * wacc.costOfDebtAfterTax).toBeCloseTo(wacc.debtComponent, 12)
@@ -232,16 +242,51 @@ describe('Cost of Capital — the WACC calculation', () => {
       expect(wacc.costOfEquity).toBeCloseTo(FIX.costOfEquity, 10)
     })
 
-    it('SENTINEL: does not double-count the risk-free rate (H21 as written)', () => {
+    it('SENTINEL: does not double-count the risk-free rate (K21 as written)', () => {
       expect(wacc.costOfEquity).not.toBeCloseTo(WB.DEFECT_costOfEquity, 5)
       // The gap is exactly beta x riskFree — the term the workbook failed to subtract.
       const overstatement = WB.DEFECT_costOfEquity - wacc.costOfEquity
       expect(overstatement).toBeCloseTo(DEFAULT_INPUTS.beta * DEFAULT_INPUTS.riskFreeRate, 9)
     })
 
-    it('applies inflation then growth, in that order (L20, M19)', () => {
-      expect(wacc.costOfEquityPostInflation).toBeCloseTo(FIX.costOfEquityPostInflation, 10)
-      expect(wacc.costOfEquityPostGrowth).toBeCloseTo(FIX.costOfEquityPostGrowth, 10)
+    /* ── CORRECTION 4 (owner ruling 2026-07-29) ────────────────────────────────────
+       The CAPM figure is FINAL. The workbook applied two further multipliers before
+       weighting it; both were removed as indefensible — inflation is already inside the
+       nominal bond and index rates, and a company's own growth is not a component of the
+       rate at which its cash flows are discounted. */
+    it('CORRECTION 4: applies NOTHING on top of CAPM — no inflation, no growth step', () => {
+      // The intermediates are gone from the result shape entirely. A screen reading them
+      // would render `undefined`, which is the point: there is no such stage any more.
+      expect(wacc.costOfEquityPostInflation).toBeUndefined()
+      expect(wacc.costOfEquityPostGrowth).toBeUndefined()
+
+      // And the equity half is weighted from the CAPM figure itself.
+      expect(wacc.equityComponent).toBeCloseTo(wacc.equityRatio * wacc.costOfEquity, 12)
+    })
+
+    it('CORRECTION 4 SENTINEL: neither multiplier can creep back in', () => {
+      // Re-adding either would leave the arithmetic internally consistent, so only a
+      // pinned value catches it. These are the figures THIS MODEL published until
+      // 2026-07-29 — not source defects, but superseded answers.
+      expect(wacc.costOfEquity).not.toBeCloseTo(WB.SUPERSEDED_costOfEquityPostInflation, 6)
+      expect(wacc.costOfEquity).not.toBeCloseTo(WB.SUPERSEDED_costOfEquityPostGrowth, 6)
+      expect(wacc.equityComponent).not.toBeCloseTo(WB.SUPERSEDED_equityComponent, 6)
+      expect(wacc.wacc).not.toBeCloseTo(WB.SUPERSEDED_wacc, 6)
+    })
+
+    it('CORRECTION 4: inflationRate and growthRate are not inputs, and cannot be smuggled in', () => {
+      // A caller that still sends them must not move the answer — otherwise the ruling
+      // holds only for callers that happen to have been updated.
+      const withBoth = computeWacc(Object.assign({}, DEFAULT_INPUTS, {
+        inflationRate: 0.065,
+        growthRate: 0.04245666083
+      }))
+      expect(withBoth.wacc).toBeCloseTo(FIX.wacc, 12)
+      expect(withBoth.inputs.inflationRate).toBeUndefined()
+      expect(withBoth.inputs.growthRate).toBeUndefined()
+      // ...and neither is reported as having been defaulted, because neither is an input.
+      expect(withBoth.defaultedInputs).not.toContain('inflationRate')
+      expect(withBoth.defaultedInputs).not.toContain('growthRate')
     })
   })
 
@@ -267,7 +312,7 @@ describe('Cost of Capital — the WACC calculation', () => {
       // Sanity band: a real business's blended funding cost sits between its cheapest
       // money (after-tax debt) and its dearest (equity).
       expect(wacc.wacc).toBeGreaterThan(wacc.costOfDebtAfterTax)
-      expect(wacc.wacc).toBeLessThan(wacc.costOfEquityPostGrowth)
+      expect(wacc.wacc).toBeLessThan(wacc.costOfEquity)
     })
   })
 })
@@ -300,10 +345,16 @@ describe('Cost of Capital — blanks, and the R8 no-silent-defaults rule', () =>
     expect(supplied.defaultedInputs).toEqual([])
   })
 
-  it('a WACC called with no growth rate says so, rather than inheriting the sample\'s', () => {
-    const noGrowth = computeWacc(DEFAULT_INPUTS)
-    expect(noGrowth.defaultedInputs).toContain('growthRate')
-    expect(noGrowth.inputs.growthRate).toBe(0)
+  it('names every WACC input it fell back on, and nothing it did not', () => {
+    // R8: a figure computed on a sample default is always declared. The list is now
+    // exactly the seven scalars the WACC still takes — correction (4) removed two.
+    const bare = computeWacc({})
+    expect(bare.defaultedInputs.slice().sort()).toEqual([
+      'beta', 'borrowRate', 'debt', 'equity', 'marketRate', 'riskFreeRate', 'taxRate'
+    ])
+
+    const supplied = computeWacc(DEFAULT_INPUTS)
+    expect(supplied.defaultedInputs).toEqual([])
   })
 })
 
@@ -352,18 +403,30 @@ describe('Cost of Capital — the guard-rails', () => {
 })
 
 describe('Cost of Capital — the assembled payload (what the screen receives)', () => {
-  it('wires the helper\'s growth into the WACC, as the workbook does (E10 = Beta Calcs!F9)', () => {
+  it('CORRECTION 4: the helper\'s growth no longer reaches the WACC (the E10 wiring is gone)', () => {
     const report = computeCostOfCapital({})
-    expect(report.growthSource).toBe('betaHelper')
-    expect(report.wacc.inputs.growthRate).toBeCloseTo(report.beta.growthRate, 12)
+
+    // The helper still derives it — it is what the ROI beta is built from...
+    expect(report.beta.growthRate).toBeCloseTo(FIX.growthRate, 10)
+    expect(report.betaSuggestions.roi).toBeCloseTo(FIX.roiBeta, 8)
+
+    // ...but nothing carries it into the calculation, and `growthSource` is gone with it:
+    // there is no longer a choice of source to report.
+    expect(report.wacc.inputs.growthRate).toBeUndefined()
+    expect(report.growthSource).toBeUndefined()
     expect(report.wacc.wacc).toBeCloseTo(FIX.wacc, 10)
   })
 
-  it('an explicitly supplied growth rate wins, and is reported as such', () => {
-    const report = computeCostOfCapital({ growthRate: 0.10 })
-    expect(report.growthSource).toBe('supplied')
-    expect(report.wacc.inputs.growthRate).toBeCloseTo(0.10, 12)
-    expect(report.wacc.wacc).toBeGreaterThan(FIX.wacc) // more growth, dearer equity
+  it('CORRECTION 4: a caller who still sends a growth rate gets the same answer', () => {
+    // The strongest form of the ruling: growth cannot move the WACC by ANY route, not
+    // merely by the route that was unwired. A screen left un-updated changes nothing.
+    const plain = computeCostOfCapital({})
+    const withGrowth = computeCostOfCapital({ growthRate: 0.10 })
+    const withBoth = computeCostOfCapital({ growthRate: 0.10, inflationRate: 0.20 })
+
+    expect(withGrowth.wacc.wacc).toBeCloseTo(plain.wacc.wacc, 12)
+    expect(withBoth.wacc.wacc).toBeCloseTo(plain.wacc.wacc, 12)
+    expect(plain.wacc.wacc).toBeCloseTo(FIX.wacc, 10)
   })
 
   it('offers both betas but reports the one the answer was actually built on', () => {
@@ -433,16 +496,19 @@ describe('Cost of Capital — the hurdle-rate test', () => {
 
   it('a break-even investment at the REAL wacc still reads as MEETS, not a 1e-18 margin', () => {
     // The reason HURDLE_EPSILON exists, and the figure is chosen, not arbitrary.
-    // 0.06162727724676392 is not representable in binary, so `cost x wacc / cost` does
-    // not always return the wacc exactly. At $35,000 it lands 6.9e-18 LOW — without the
-    // tolerance an investment priced to break even to the cent is reported as "falls
-    // short of your cost of capital by 0.00 percentage points".
+    // 0.057117499999999995 is not representable in binary, so `cost x wacc / cost` does
+    // not always return the wacc exactly. At $7,000 it lands 6.9e-18 HIGH — without the
+    // tolerance an investment priced to break even to the cent is reported with a
+    // spurious verdict rather than "exactly meets your cost of capital".
     //
-    // A quarter of costs behave this way (499 of the 2,000 round thousands from $1k to
-    // $2m). An earlier draft of this test used $250,000, which divides exactly and let a
-    // mutant that deleted the tolerance survive — the test passed while proving nothing.
+    // 434 of the 2,000 round thousands from $1k to $2m behave this way. The cost MUST be
+    // re-chosen whenever the WACC changes: this test used $250,000 until 2026-07-28 (it
+    // divides exactly, and a mutant deleting the tolerance survived), then $35,000 — and
+    // correction (4) moved the WACC to a value $35,000 ALSO divides exactly, which would
+    // have left the test passing while proving nothing all over again. The assertion on
+    // the next line is what makes that failure loud instead of silent.
     const wacc = computeCostOfCapital({}).wacc.wacc
-    const COST = 35000
+    const COST = 7000
     expect((COST * wacc) / COST).not.toBe(wacc) // the float gap this test exists for
 
     const t = computeHurdleTest({ investmentCost: COST, annualReturn: COST * wacc }, wacc)
@@ -500,26 +566,33 @@ describe('Cost of Capital — the hurdle test inside the assembled model', () =>
   })
 
   it('gives the worked sample scenario end to end', () => {
-    // 6.16% wacc, a $250,000 investment expected to earn $22,000 a year.
+    // 5.71% wacc, a $250,000 investment expected to earn $22,000 a year.
     const report = computeCostOfCapital({ investmentCost: 250000, annualReturn: 22000 })
     expect(report.hurdle.verdict).toBe(HURDLE.CLEARS)
     expect(report.hurdle.returnRate).toBeCloseTo(0.088, 12) //          22,000 / 250,000
-    expect(report.hurdle.requiredAnnualReturn).toBeCloseTo(15406.819312, 5)
-    expect(report.hurdle.marginRate).toBeCloseTo(0.026372722753, 10)
-    expect(report.hurdle.marginAmount).toBeCloseTo(6593.180688, 5)
+    expect(report.hurdle.requiredAnnualReturn).toBeCloseTo(14279.375, 5)
+    expect(report.hurdle.marginRate).toBeCloseTo(0.0308825, 10)
+    expect(report.hurdle.marginAmount).toBeCloseTo(7720.625, 5)
   })
 
   it('carries a sensitivity line for every input, biggest effect first', () => {
     const rows = computeCostOfCapital({}).sensitivity
     expect(rows.length).toBe(Object.keys(SENSITIVITY_STEP).length)
+    // Correction (4) removed inflation from the WACC, so it must no longer be offered as
+    // a lever the advisor can pull — a row measuring a figure that does nothing is worse
+    // than no row, because it ranks it against six that do.
+    expect(rows.map(r => r.key)).not.toContain('inflationRate')
 
     for (let i = 1; i < rows.length; i++) {
       expect(Math.abs(rows[i - 1].change)).toBeGreaterThanOrEqual(Math.abs(rows[i].change))
     }
-    // On the sample the market return leads and the tax rate trails — an ordering that
-    // would silently invert if the sort compared signed change instead of magnitude.
+    // On the sample the market return leads and the debt share trails — an ordering that
+    // would silently invert if the sort compared signed change instead of magnitude
+    // (both trailing rows are NEGATIVE, and the larger negative sorts FIRST here).
     expect(rows[0].key).toBe('marketRate')
-    expect(rows[rows.length - 1].key).toBe('taxRate')
+    expect(rows[rows.length - 1].key).toBe('debtShare')
+    expect(rows[rows.length - 2].key).toBe('taxRate')
+    expect(rows[rows.length - 1].change).toBeLessThan(0)
   })
 
   it('measures each line against the SAME wacc the response carries', () => {

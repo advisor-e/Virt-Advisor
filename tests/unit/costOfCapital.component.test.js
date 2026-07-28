@@ -50,10 +50,9 @@ describe('CostOfCapital screen', () => {
     const body = wrapper.vm.recomputeRequest().body
 
     expect(wrapper.vm.recomputeRequest().url).toBe('/api/report/cost-of-capital')
-    // Rates: display form ÷ 100 (3.9 → 0.039, 8.99 → 0.0899, 6.5 → 0.065, 28 → 0.28, 6 → 0.06)
+    // Rates: display form ÷ 100 (3.9 → 0.039, 8.99 → 0.0899, 28 → 0.28, 6 → 0.06)
     expect(body.riskFreeRate).toBeCloseTo(0.039, 8)
     expect(body.marketRate).toBeCloseTo(0.0899, 8)
-    expect(body.inflationRate).toBeCloseTo(0.065, 8)
     expect(body.taxRate).toBeCloseTo(0.28, 8)
     expect(body.borrowRate).toBeCloseTo(0.06, 8)
     // Beta and the money amounts are NOT rates — they pass through untouched.
@@ -81,49 +80,51 @@ describe('CostOfCapital screen', () => {
     // something it displays.
     expect(result.wacc.defaultedInputs).toEqual([])
     expect(result.beta.defaultedInputs).toEqual([])
-    expect(result.wacc.wacc).toBeCloseTo(0.06162727724676392, 10)
+    expect(result.wacc.wacc).toBeCloseTo(0.057117499999999995, 10)
   })
 
-  describe('the growth rate (owner ruling 2026-07-28)', () => {
-    it('follows the Beta helper until it is typed over — the request omits growthRate', () => {
+  /* ── CORRECTION 4 — the inflation and growth fields are GONE (ruling 2026-07-29) ──
+     The workbook applied both on top of CAPM; both were ruled indefensible. The fields
+     went with them, because an input that no longer moves the answer is worse than no
+     input: an advisor would type into it, watch nothing happen, and reasonably conclude
+     the screen was broken. These tests exist because REMOVING a control leaves nothing
+     behind to fail — only an assertion that it is absent will notice it coming back. */
+  describe('no inflation or growth field (owner ruling 2026-07-29)', () => {
+    it('sends neither rate to the backend', () => {
       const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
-      expect(wrapper.vm.growthOverridden).toBe(false)
-      // Omitted ENTIRELY, not sent as null/0: the backend then reports growthSource
-      // honestly instead of being handed back a figure it derived itself.
-      expect('growthRate' in wrapper.vm.recomputeRequest().body).toBe(false)
-      expect(computeCostOfCapital(wrapper.vm.recomputeRequest().body).growthSource).toBe('betaHelper')
+      const body = wrapper.vm.recomputeRequest().body
+      expect('inflationRate' in body).toBe(false)
+      expect('growthRate' in body).toBe(false)
+      // And what it DOES send still computes the standard-practice answer.
+      expect(computeCostOfCapital(body).wacc.wacc).toBeCloseTo(0.0571175, 9)
     })
 
-    it('shows the calculated figure in the field once the backend answers', async () => {
-      const wrapper = await mountWithResult(computeCostOfCapital({}))
-      // 4.245666… % rounded to 4 dp for display. The field is never SENT while it is
-      // following, so this rounding costs no precision.
-      expect(wrapper.vm.growthDisplay).toBeCloseTo(4.2457, 4)
+    it('renders no input for either — located by LABEL, never by position', () => {
+      // The harness's $t() returns the KEY, so a surviving field shows its key verbatim.
+      // Asserting on labels rather than input indexes means re-ordering the form cannot
+      // make this pass or fail by accident.
+      const text = mountWithBuefy(CostOfCapital, { propsData: {} }).text()
+      expect(text).not.toContain('report.costOfCapital.market.inflation')
+      expect(text).not.toContain('report.costOfCapital.company.growth')
+      expect(text).not.toContain('report.costOfCapital.company.growthUseCalculated')
+      // The company card must still be there — this is a removal, not a collapse.
+      expect(text).toContain('report.costOfCapital.company.tax')
     })
 
-    it('a typed figure wins, and is sent as a decimal', () => {
-      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
-      wrapper.vm.onGrowthInput('7.5')
-      expect(wrapper.vm.growthOverridden).toBe(true)
-      expect(wrapper.vm.growthDisplay).toBe(7.5)
-      expect(wrapper.vm.recomputeRequest().body.growthRate).toBeCloseTo(0.075, 8)
-      expect(computeCostOfCapital(wrapper.vm.recomputeRequest().body).growthSource).toBe('supplied')
+    it('drops the two build-up rows, so the table cannot render an empty stage', () => {
+      const text = mountWithBuefy(CostOfCapital, { propsData: {} }).text()
+      expect(text).not.toContain('report.costOfCapital.build.afterInflation')
+      expect(text).not.toContain('report.costOfCapital.build.afterGrowth')
     })
 
-    it('"use the calculated figure" hands it back to the helper', () => {
-      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
-      wrapper.vm.onGrowthInput('7.5')
-      wrapper.vm.useCalculatedGrowth()
-      expect(wrapper.vm.growthOverridden).toBe(false)
-      expect('growthRate' in wrapper.vm.recomputeRequest().body).toBe(false)
-    })
-
-    it('clearing the field also hands it back — a blank is not a growth rate of zero', () => {
-      const wrapper = mountWithBuefy(CostOfCapital, { propsData: {} })
-      wrapper.vm.onGrowthInput('7.5')
-      wrapper.vm.onGrowthInput('')
-      expect(wrapper.vm.growthOverridden).toBe(false)
-      expect('growthRate' in wrapper.vm.recomputeRequest().body).toBe(false)
+    it('keeps the growth rate working where it still belongs — the Beta helper', () => {
+      // The ruling removed growth from the DISCOUNT RATE, not from the beta it legitimately
+      // drives. A fix that also killed the ROI suggestion would have overshot.
+      const report = computeCostOfCapital(
+        mountWithBuefy(CostOfCapital, { propsData: {} }).vm.recomputeRequest().body
+      )
+      expect(report.beta.growthRate).toBeCloseTo(0.04245666083, 9)
+      expect(report.betaSuggestions.roi).toBeCloseTo(0.47226541524, 8)
     })
   })
 
@@ -196,15 +197,18 @@ describe('CostOfCapital screen', () => {
     // appears further down as the debt's share of the cost, which is correct and is
     // precisely the coincidence that made the original defect so hard to see.
     const waccCell = heroes.at(0).props('value')
-    expect(waccCell).toBe('6.16%')
+    expect(waccCell).toBe('5.71%')
     expect(waccCell).not.toMatch(/1\.62/)
+    // ...nor the 6.16% this screen showed until correction (4). Same reasoning as above:
+    // a superseded answer is as misleading to quote as a defective one.
+    expect(waccCell).not.toMatch(/6\.16/)
 
     expect(heroes.at(1).props('value')).toBe('6.55%') // cost of equity
     expect(heroes.at(2).props('value')).toBe('4.32%') // cost of debt after tax
     expect(heroes.at(3).props('value')).toBe('62.5%') // funded by equity
 
     const text = wrapper.text()
-    expect(text).toMatch(/6\.1627%/) // the build-up's own total, to 4 dp
+    expect(text).toMatch(/5\.7117%/) // the build-up's own total, to 4 dp
     // Both suggested betas are shown beside the one in use.
     expect(text).toMatch(/0\.47/)
     expect(text).toMatch(/0\.36/)
@@ -496,10 +500,10 @@ describe('CostOfCapital screen', () => {
       const verdict = wrapper.find('.coc-verdict')
       expect(verdict.exists()).toBe(true)
       expect(verdict.classes()).toContain('is-good')
-      // 8.80% against 6.1627% = 2.64 percentage points, looked up under the hurdle
+      // 8.80% against 5.7117% = 3.09 percentage points, looked up under the hurdle
       // namespace — the harness's $t() returns the key plus its interpolation params.
       expect(verdict.text()).toContain('report.costOfCapital.hurdle.CLEARS')
-      expect(verdict.text()).toContain('2.64')
+      expect(verdict.text()).toContain('3.09')
       expect(wrapper.vm.marginLabel).toBe('report.costOfCapital.hurdle.aheadBy')
     })
 
@@ -564,7 +568,7 @@ describe('CostOfCapital screen', () => {
       // the reader's language — the whole reason the mixin exists.
       //
       // Asserting on the DIGITS alone does not prove this: a hand-rolled
-      // "'$' + toLocaleString('en-US')" produces the same "15,407" and survived exactly
+      // "'$' + toLocaleString('en-US')" produces the same "14,279" and survived exactly
       // that test. Changing the firm's currency is what separates the two — a hardcoded
       // formatter cannot follow it.
       const wrapper = await mountWithResult(computeCostOfCapital(TESTED))
@@ -575,7 +579,7 @@ describe('CostOfCapital screen', () => {
       const gbp = wrapper.vm.requiredAnnualReturnText
       expect(gbp).toContain('£')
       expect(gbp).not.toContain('$')
-      expect(gbp).toMatch(/15[,.]40[67]/) // 250,000 x 6.1627%, still the right figure
+      expect(gbp).toMatch(/14[,.]279/) // 250,000 x 5.7117%, still the right figure
 
       // ...and the margin follows it too, not just the one figure that got a test.
       expect(wrapper.vm.marginAmountText).toContain('£')

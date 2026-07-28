@@ -352,10 +352,10 @@ function leaseVsBuy (req, res, next) {
 /**
  * POST /api/report/cost-of-capital
  * @param {object} req.body - partial Cost of Capital inputs (merged over the workbook
- *   sample). The WACC scalars: riskFreeRate, marketRate, beta, inflationRate, taxRate,
- *   equity, debt, borrowRate — plus an optional growthRate, which OVERRIDES the figure
- *   the beta helper derives (the workbook wires `E10 = 'Beta Calcs'!F9`; an explicit
- *   value wins and the result reports which was used via `growthSource`). The beta
+ *   sample). The WACC scalars: riskFreeRate, marketRate, beta, taxRate, equity, debt,
+ *   borrowRate. There is deliberately no inflationRate or growthRate: the owner ruled
+ *   both out of the WACC on 2026-07-29 (correction (4) in the model), so sending either
+ *   would change nothing — the route accepts neither rather than appearing to. The beta
  *   helper series: indexValues[], equityValues[], sharesIssued[], marketReturnRate —
  *   a series slot may be `null` for a period with no data, which is NOT the same as a
  *   supplied 0 (that distinction is the corrected source defect; see the model header).
@@ -366,9 +366,9 @@ function leaseVsBuy (req, res, next) {
  *   guessed figure, because an advisor mid-typing is not an advisor in error.
  * @returns {object} { success, data, timestamp } — data = { beta {market, company,
  *   growthRate, roiBeta, volatilityBeta, warnings[], defaultedInputs}, wacc {inputs,
- *   costOfEquity, costOfEquityPostInflation, costOfEquityPostGrowth, costOfDebtAfterTax,
+ *   costOfEquity, costOfDebtAfterTax,
  *   equityRatio, debtRatio, equityComponent, debtComponent, wacc, defaultedInputs},
- *   betaSuggestions {roi, volatility, inUse}, growthSource, hurdle, sensitivity }.
+ *   betaSuggestions {roi, volatility, inUse}, hurdle, sensitivity }.
  *   `hurdle` is null unless testable, else {investmentCost, annualReturn, returnRate,
  *   hurdleRate, requiredAnnualReturn, marginRate, marginAmount, verdict}. `sensitivity`
  *   is one {key, step, wacc, change} per input, each measuring that input raised ON ITS
