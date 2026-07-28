@@ -503,6 +503,13 @@ section.firm-manager-hub.section
       b-tab-item(:label="$t('firmQuizzes.tab')" icon="help-circle-outline")
         firm-quizzes(:api-token="apiToken")
 
+      //- ── Tab: Team Progress (advisor capability overview) ───────────
+      //- Reads GET /api/activity/team, which already sits behind this Hub's own
+      //- guard (firmAuth + requireManagerRole) — the firm comes from the verified
+      //- token, never from the browser. Body lives in its own component (CB-23).
+      b-tab-item(:label="$t('firmTeamProgress.tab')" icon="chart-line")
+        firm-team-progress(:api-token="apiToken")
+
       //- ── Tab: Team Case Studies (manager review) ────────────────────
       b-tab-item(label="Team Case Studies" icon="account-group")
         .has-text-centered.py-5(v-if="loadingFirmCases")
@@ -643,6 +650,7 @@ import DOMPurify from 'isomorphic-dompurify'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
+import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 const { BLOCK_TONES } = require('~/utils/brandTokens')
@@ -701,7 +709,7 @@ const STAIRCASE_STEP_COLORS = BLOCK_TONES
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmTeamProgress },
 
   props: {
     firmId: { type: String, required: true },

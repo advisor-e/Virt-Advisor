@@ -836,5 +836,20 @@
     "historySavedBy": "Saved by",
     "historyDate": "Date",
     "historyEmpty": "No firm changes saved yet — these are the tables as provided. Once you edit and save, every version is kept here."
+  },
+  "firmTeamProgress": {
+    "tab": "Team Progress",
+    "lede": "Your advisors' completed VA cases and course sessions, grouped by capability level. Advisors see only their own record.",
+    "cellLegend": "Each level shows sessions completed, with the average quiz score beneath.",
+    "colAdvisor": "Advisor",
+    "tierEntry": "Entry Level",
+    "tierIntermediate": "Intermediate",
+    "tierAdvanced": "Advanced",
+    "colTotal": "Total",
+    "colLastActive": "Last Active",
+    "empty": "No advisor activity recorded yet. This will fill in as your team completes VA cases and course sessions.",
+    "loadFailed": "Could not load team progress. The activity record could not be reached.",
+    "retry": "Try again",
+    "loading": "Loading team progress…"
   }
 }
