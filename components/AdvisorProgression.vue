@@ -14,7 +14,11 @@
     button.btn-prog-retry(@click="fetchData") Try again
 
   //- ── Advisor self-view ────────────────────────────────────────────────
-  template(v-else-if="!isFirmManager")
+  //- This screen is one advisor's own record and nothing else. The firm-wide
+  //- team table that used to share this component now lives in its own Firm
+  //- Manager Hub tab (components/firm/FirmTeamProgress.vue) — it was only ever
+  //- reachable behind an isFirmManager prop the app never set.
+  template(v-else)
     .prog-header
       h2.prog-title My Progress
       p.prog-sub Your advisory capability across all VA cases, courses, and sessions
@@ -63,30 +67,6 @@
           .prog-activity-meta
             span.prog-tier-pill(:class="'pill-' + item.tier") {{ tierLabel(item.tier) }}
             span.prog-activity-date {{ formatDate(item.completedAt) }}
-
-  //- ── Firm manager team view ───────────────────────────────────────────
-  template(v-else)
-    .prog-header
-      h2.prog-title Team Progress
-      p.prog-sub Advisory capability overview across your firm
-
-    .prog-team-empty(v-if="!advisors.length")
-      p No advisor activity recorded yet. This view will populate once your team starts completing VA cases and course sessions.
-
-    .prog-team-table(v-else)
-      .prog-team-header-row
-        .prog-th Advisor
-        .prog-th(v-for="tier in tierDefs" :key="tier.key" :class="'th-' + tier.key") {{ tier.shortLabel }}
-        .prog-th Total
-        .prog-th Last Active
-      .prog-team-row(v-for="a in advisors" :key="a.advisorId")
-        .prog-td.prog-td-advisor {{ a.advisorId }}
-        .prog-td(v-for="tier in tierDefs" :key="tier.key")
-          .prog-team-tier-block(:class="'block-' + tier.key")
-            span.prog-team-count {{ a.tiers[tier.key].vaSessions + a.tiers[tier.key].courseSessions }}
-            span.prog-team-score(v-if="a.tiers[tier.key].avgQuizScore !== null") {{ a.tiers[tier.key].avgQuizScore }}%
-        .prog-td {{ a.totalSessions }}
-        .prog-td {{ a.lastActive ? formatDate(a.lastActive) : '—' }}
 </template>
 
 <script>
@@ -114,7 +94,6 @@ export default {
   props: {
     advisorId: { type: String, default: 'local-advisor' },
     firmId: { type: String, default: 'local-firm' },
-    isFirmManager: { type: Boolean, default: false },
     // Verified login pass (JWT). Defaults to the safe local-dev bypass token.
     apiToken: { type: String, default: 'dev-local-bypass' }
   },
@@ -129,11 +108,10 @@ export default {
         advanced: { vaSessions: 0, courseSessions: 0, avgQuizScore: null, lastActive: null }
       },
       recentActivity: [],
-      advisors: [],
       tierDefs: [
-        { key: 'entry-level', label: 'Entry Level', shortLabel: 'Entry', desc: 'Foundational advisory tools and techniques' },
-        { key: 'intermediate', label: 'Intermediate', shortLabel: 'Inter.', desc: 'Building advisory depth and selling skills' },
-        { key: 'advanced', label: 'Advanced', shortLabel: 'Advanced', desc: 'Strategic, governance and specialist delivery' }
+        { key: 'entry-level', label: 'Entry Level', desc: 'Foundational advisory tools and techniques' },
+        { key: 'intermediate', label: 'Intermediate', desc: 'Building advisory depth and selling skills' },
+        { key: 'advanced', label: 'Advanced', desc: 'Strategic, governance and specialist delivery' }
       ]
     }
   },
@@ -149,37 +127,34 @@ export default {
   },
 
   methods: {
+    /**
+     * Load this advisor's own progression record.
+     *
+     * Identity (advisor + firm) is derived server-side from the bearer pass and is
+     * never sent in the request, so an advisor can only ever read their own record.
+     * A failed read sets `error` rather than leaving the zeros on screen: an
+     * unreachable record and an advisor who has genuinely done nothing must not
+     * look the same (the fault that hid this feature's only real defect).
+     *
+     * @returns {Promise<void>}
+     */
     async fetchData () {
       this.loading = true
       this.error = null
       try {
-        // Identity (advisor + firm) is derived server-side from this pass — not sent in the request.
-        const authHeaders = { Authorization: `Bearer ${this.apiToken}` }
-        if (this.isFirmManager) {
-          const res = await fetch('/api/activity/team', { headers: authHeaders })
-          if (!res.ok) {
-            this.error = 'Could not load team progress. Please try again.'
-            return
-          }
-          const data = await res.json()
-          if (data.success) {
-            this.advisors = data.advisors || []
-          } else {
-            this.error = 'Could not load team progress. Please try again.'
-          }
+        const res = await fetch('/api/activity/progression', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) {
+          this.error = 'Could not load your progress. Please try again.'
+          return
+        }
+        const data = await res.json()
+        if (data.success) {
+          this.tiers = data.tiers || this.tiers
+          this.recentActivity = data.recentActivity || []
         } else {
-          const res = await fetch('/api/activity/progression', { headers: authHeaders })
-          if (!res.ok) {
-            this.error = 'Could not load your progress. Please try again.'
-            return
-          }
-          const data = await res.json()
-          if (data.success) {
-            this.tiers = data.tiers || this.tiers
-            this.recentActivity = data.recentActivity || []
-          } else {
-            this.error = 'Could not load your progress. Please try again.'
-          }
+          this.error = 'Could not load your progress. Please try again.'
         }
       } catch (e) {
         this.error = 'Could not connect to the activity service. Please try again.'
@@ -366,53 +341,4 @@ export default {
 .pill-intermediate { background: #f3e8ff; color: #7c3aed; }
 .pill-advanced     { background: #fef3c7; color: #d97706; }
 .prog-activity-date { font-size: 11px; color: #9ca3af; }
-
-/* ── Firm manager team view ── */
-.prog-team-empty {
-  margin: 24px;
-  padding: 20px;
-  background: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #6b7280;
-  text-align: center;
-}
-.prog-team-empty p { margin: 0; }
-
-.prog-team-table { padding: 16px 24px 24px; overflow-x: auto; }
-.prog-team-header-row,
-.prog-team-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 80px 110px;
-  gap: 0;
-  align-items: center;
-}
-.prog-team-header-row {
-  border-bottom: 2px solid #e5e7eb;
-  margin-bottom: 4px;
-}
-.prog-th {
-  font-size: 11px; font-weight: 700; color: #9ca3af;
-  text-transform: uppercase; letter-spacing: 0.05em;
-  padding: 6px 8px;
-}
-.th-entry-level  { color: #0284c7; }
-.th-intermediate { color: #7c3aed; }
-.th-advanced     { color: #d97706; }
-
-.prog-team-row {
-  border-bottom: 1px solid #f3f4f6;
-  padding: 8px 0;
-}
-.prog-team-row:last-child { border-bottom: none; }
-.prog-td { padding: 4px 8px; font-size: 13px; color: #374151; }
-.prog-td-advisor { font-weight: 600; color: #111827; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.prog-team-tier-block { display: flex; flex-direction: column; gap: 1px; }
-.prog-team-count { font-size: 14px; font-weight: 700; color: #111827; }
-.block-entry-level  .prog-team-count { color: #0284c7; }
-.block-intermediate .prog-team-count { color: #7c3aed; }
-.block-advanced     .prog-team-count { color: #d97706; }
-.prog-team-score { font-size: 10px; color: #9ca3af; }
 </style>

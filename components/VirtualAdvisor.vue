@@ -168,13 +168,13 @@
     :firmName="advisorProfile && advisorProfile.firmName ? advisorProfile.firmName : 'My Firm'"
   )
 
-  //- Capability progression
+  //- Capability progression — the advisor's own record only. The firm-wide team
+  //- view is a Firm Manager Hub tab, so no manager flag is passed down here.
   AdvisorProgression(
     v-else-if="mode === 'progression'"
     :advisorId="advisorId"
     :firmId="firmId"
     :apiToken="apiToken"
-    :isFirmManager="isFirmManager"
     @exit="reset"
   )
 
