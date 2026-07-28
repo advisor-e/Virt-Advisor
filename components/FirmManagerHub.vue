@@ -6,152 +6,25 @@ section.firm-manager-hub.section
       .level-left
         div
           p.title.is-4 Firm Manager Hub
-          p.subtitle.is-6.has-text-grey {{ firmProfile.name || firmId }}
+          p.subtitle.is-6.has-text-grey {{ firmId }}
       .level-right(style="gap:12px;display:flex;align-items:center;")
-        b-tag(type="is-info is-light" size="is-medium") Storage: {{ storagePercent }}% used
         a.button.is-light.is-small(href="/advisor") ← Back to Advisor
 
     //- Main tabs
     b-tabs(v-model="activeTab" type="is-boxed" animated)
-      //- ── Tab 1: Document Library ─────────────────────────────────────
-      b-tab-item(label="Document Library" icon="file-pdf-box")
-        .columns
-          .column.is-3
-            b-menu
-              b-menu-list(label="Category")
-                b-menu-item(
-                  v-for="cat in documentCategories"
-                  :key="cat.key"
-                  :label="cat.label"
-                  :active="selectedCategory === cat.key"
-                  @click="selectCategory(cat.key)"
-                )
-          .column
-            //- Upload
-            .box.mb-4
-              p.has-text-weight-semibold.mb-3 Upload a document
-              b-field(grouped)
-                b-field(expanded label="File (PDF only)")
-                  b-upload(v-model="uploadFile" accept=".pdf" expanded)
-                    a.button.is-light.is-fullwidth
-                      b-icon(icon="upload")
-                      span {{ uploadFile ? uploadFile.name : 'Choose PDF…' }}
-                b-field(:label="'\u00a0'")
-                  b-button(
-                    type="is-primary"
-                    :loading="uploading"
-                    :disabled="!uploadFile"
-                    @click="submitUpload"
-                  ) Upload
+      //- ── Tab: Domain Support (FIRM-EDITABLE-TABLES-PLAN.md Phase 2, §0.6) ──
+      //- The four-column material tables the advisors' AI reads. The former PDF
+      //- "Decision Frameworks" (Document Library) tab was removed 2026-07-27
+      //- (owner decision); its FirmDocuments component + document/storage routes
+      //- remain in the codebase but dormant (logged in ACTIONS for later deletion).
+      b-tab-item(label="Domain Support")
+        firm-domain-support(:api-token="apiToken")
 
-            //- Document list
-            .has-text-centered.py-5(v-if="loadingDocs")
-              b-loading(:is-full-page="false" :active="true")
-            div(v-else)
-              p.has-text-weight-semibold.mb-2 Platform documents
-              b-table.mb-5(
-                :data="baseDocs"
-                :hoverable="true"
-                empty-string="No platform documents in this category"
-              )
-                b-table-column(v-slot="{ row }" field="name" label="File name") {{ row.name }}
-                b-table-column(v-slot="{ row }" label="Actions" width="120")
-                  b-button(size="is-small" icon-left="download" @click="downloadDoc(row)") Download
-
-              p.has-text-weight-semibold.mb-2 Your firm's documents
-              b-table(
-                :data="firmDocs"
-                :hoverable="true"
-                empty-string="No documents uploaded yet"
-              )
-                b-table-column(v-slot="{ row }" field="name" label="File name") {{ row.name }}
-                b-table-column(v-slot="{ row }" label="Actions" width="200")
-                  b-button.mr-1(
-                    size="is-small"
-                    icon-left="download"
-                    @click="downloadDoc(row)"
-                  ) Download
-                  b-button(
-                    size="is-small"
-                    type="is-danger is-light"
-                    icon-left="delete"
-                    @click="confirmDeleteDoc(row)"
-                  ) Remove
-
-      //- ── Tab 2: Decision Framework — PLATFORM ADMIN ONLY (2026-07-16) ──
-      //- Raw-JSON power tool kept for support/debugging; hidden from firm
-      //- managers (the friendly Staircase + Distinctions tabs are their
-      //- editors). UI gate only — the /framework routes stay manager-level
-      //- because the Staircase tab's version history rides them.
-      b-tab-item(v-if="isPlatformAdmin" label="Decision Framework" icon="code-json")
-        .columns
-          .column.is-3
-            b-menu
-              b-menu-list(label="Framework section")
-                b-menu-item(
-                  v-for="fk in frameworkKeys"
-                  :key="fk.key"
-                  :label="fk.label"
-                  :active="selectedFrameworkKey === fk.key"
-                  @click="selectFrameworkKey(fk.key)"
-                )
-          .column
-            .has-text-centered.py-5(v-if="loadingFramework")
-              b-loading(:is-full-page="false" :active="true")
-            template(v-else)
-              b-notification.mb-4(
-                v-if="!frameworkOverride"
-                type="is-info is-light"
-                :closable="false"
-              )
-                | No firm override saved for this section. The AI uses the platform default.
-                | Add your overrides below and save to activate them.
-
-              b-field(label="Your firm's override JSON")
-                b-input(
-                  v-model="frameworkJson"
-                  type="textarea"
-                  rows="16"
-                  custom-class="is-family-monospace"
-                  placeholder='{ "key": "value" }'
-                )
-
-              b-field(grouped)
-                b-button(
-                  type="is-primary"
-                  :loading="savingFramework"
-                  @click="saveFramework"
-                ) Save override
-                b-button(
-                  type="is-light"
-                  :disabled="!frameworkOverride"
-                  @click="clearFrameworkEditor"
-                ) Reset editor
-                b-button(
-                  type="is-light"
-                  :disabled="!frameworkHistory.length"
-                  @click="showHistoryModal = true"
-                ) Version history ({{ frameworkHistory.length }})
-
-              //- Version history modal
-              b-modal(v-model="showHistoryModal" has-modal-card)
-                .modal-card
-                  header.modal-card-head
-                    p.modal-card-title Version history
-                  section.modal-card-body
-                    b-table(:data="frameworkHistory" :hoverable="true")
-                      b-table-column(v-slot="{ row }" field="version" label="Version" width="80") v{{ row.version }}
-                      b-table-column(v-slot="{ row }" field="saved_by" label="Saved by") {{ row.saved_by }}
-                      b-table-column(v-slot="{ row }" field="created_at" label="Date") {{ formatDate(row.created_at) }}
-                      b-table-column(v-slot="{ row }" label="" width="100")
-                        b-button(
-                          v-if="!row.is_active"
-                          size="is-small"
-                          @click="restoreVersion(row)"
-                        ) Restore
-                        b-tag(v-else type="is-success is-light") Active
-                  footer.modal-card-foot
-                    b-button(@click="showHistoryModal = false") Close
+      //- ── Tab: Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3, §0.6) ──
+      //- The IF→THEN branch tables. Read-only preview (Slice A); Save + the
+      //- prompt-fencing safeguard land in Slice B.
+      b-tab-item(label="Logic Tables")
+        firm-logic-tables(:api-token="apiToken")
 
       //- ── Tab: Advisory Staircase ────────────────────────────────────
       b-tab-item(label="Advisory Staircase" icon="stairs")
@@ -172,7 +45,9 @@ section.firm-manager-hub.section
                 :style="{ borderLeftColor: stepColour(step.step).accent, backgroundColor: stepColour(step.step).tint }"
               )
                 .staircase-step-head
-                  span.staircase-step-badge(:style="{ backgroundColor: stepColour(step.step).accent }") {{ step.step }}
+                  //- Text colour comes from the tone, not a fixed white: on the
+                  //- lighter brand accents white is unreadable (cyan 2.51:1).
+                  span.staircase-step-badge(:style="{ backgroundColor: stepColour(step.step).accent, color: stepColour(step.step).fg }") {{ step.step }}
                   span.staircase-step-title Step {{ step.step }}
                 b-field(grouped)
                   b-field(label="Step name" expanded)
@@ -225,8 +100,12 @@ section.firm-manager-hub.section
                   footer.modal-card-foot
                     b-button(@click="showStaircaseHistoryModal = false") Close
 
-      //- ── Tab 3: Templates & Videos ──────────────────────────────────
-      b-tab-item(label="Templates & Videos" icon="play-box-multiple")
+      //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
+      //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
+      //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
+      //- deleted — it's a real feature the master team may still want. Logged in
+      //- ACTIONS alongside the Decision Frameworks removal.
+      b-tab-item(label="Templates & Videos" icon="play-box-multiple" v-if="false")
         .columns
           //- Template Library column
           .column
@@ -618,29 +497,11 @@ section.firm-manager-hub.section
                 ) {{ editingDistinctionId ? 'Save changes' : 'Add distinction' }}
                 b-button(@click="closeDistinctionForm") Cancel
 
-      //- ── Tab 4: Firm Profile ────────────────────────────────────────
-      b-tab-item(label="Firm Profile" icon="domain")
-        .columns
-          .column.is-6
-            .has-text-centered.py-5(v-if="loadingProfile")
-              b-loading(:is-full-page="false" :active="true")
-            template(v-else)
-              b-field(label="Firm name")
-                b-input(v-model="profileForm.name")
-              b-field(label="Logo URL")
-                b-input(v-model="profileForm.logo_url" type="url" placeholder="https://…")
-              b-field(label="Brand colour (hex)")
-                b-input(v-model="profileForm.primary_colour" placeholder="#000000" maxlength="7")
-              b-field(
-                label="AI persona name"
-                message="The name your advisors see when using the AI advisor (leave blank to use the default)"
-              )
-                b-input(v-model="profileForm.persona_name" placeholder="e.g. Max")
-              b-button(
-                type="is-primary"
-                :loading="savingProfile"
-                @click="saveProfile"
-              ) Save profile
+      //- ── Tab: Quizzes (CB-31 Phase 3) ───────────────────────────────
+      //- Body lives in its own component — the Hub is already over the
+      //- decompose rule (CB-23), so a new tab adds a line here, not 200.
+      b-tab-item(:label="$t('firmQuizzes.tab')" icon="help-circle-outline")
+        firm-quizzes(:api-token="apiToken")
 
       //- ── Tab: Team Case Studies (manager review) ────────────────────
       b-tab-item(label="Team Case Studies" icon="account-group")
@@ -779,8 +640,12 @@ section.firm-manager-hub.section
 
 <script>
 import DOMPurify from 'isomorphic-dompurify'
+import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
+import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
+import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
+const { BLOCK_TONES } = require('~/utils/brandTokens')
 
 // The distinctions picker offers the Do-the-Job templates a distinction can meaningfully
 // boost. Do NOT filter on includedInClient (that field only governs client self-serve
@@ -821,32 +686,22 @@ const DISTINCTION_DOMAINS = [
   { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
 ]
 
-const DOCUMENT_CATEGORIES = [
-  { key: 'logic-tables', label: 'Logic Tables' },
-  { key: 'domain-support', label: 'Domain Support' },
-  { key: 'templates', label: 'Templates' }
-]
-
-const FRAMEWORK_KEYS = [
-  { key: 'recommendation-rules', label: 'Recommendation rules' },
-  { key: 'domain-weights', label: 'Domain weights' },
-  { key: 'capability-tiers', label: 'Capability tiers' },
-  { key: 'custom-prompts', label: 'Custom prompts' }
-]
-
 // Per-step accent + faint background tint so each staircase step reads as its own
 // block (avoids "map-shock" — steps blending into one). Cycles if a firm ever has
 // more steps than colours.
-const STAIRCASE_STEP_COLORS = [
-  { accent: '#3e8ed0', tint: '#eef6fc' },
-  { accent: '#48c78e', tint: '#eefbf4' },
-  { accent: '#f4793b', tint: '#fdf2eb' },
-  { accent: '#7957d5', tint: '#f3effb' },
-  { accent: '#f14668', tint: '#fdecf0' }
-]
+//
+// Brought onto the brand palette 2026-07-22 (Mike's instruction). The former
+// values were Bulma defaults — a green, orange, purple and red that appear
+// nowhere in design/BRAND-TOKENS.md, whose rule is that the palette applies to
+// every screen. They also put white badge text on accents measuring as low as
+// 2.14:1, which a low-vision reader could not read; every tone now pairs the
+// accent with a text colour that clears 4.5:1. See utils/brandTokens.js.
+const STAIRCASE_STEP_COLORS = BLOCK_TONES
 
 export default {
   name: 'FirmManagerHub',
+
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables },
 
   props: {
     firmId: { type: String, required: true },
@@ -862,25 +717,6 @@ export default {
   data () {
     return {
       activeTab: 0,
-
-      // Document Library
-      documentCategories: DOCUMENT_CATEGORIES,
-      selectedCategory: DOCUMENT_CATEGORIES[0].key,
-      baseDocs: [],
-      firmDocs: [],
-      loadingDocs: false,
-      uploadFile: null,
-      uploading: false,
-
-      // Decision Framework
-      frameworkKeys: FRAMEWORK_KEYS,
-      selectedFrameworkKey: FRAMEWORK_KEYS[0].key,
-      frameworkOverride: null,
-      frameworkJson: '',
-      frameworkHistory: [],
-      loadingFramework: false,
-      savingFramework: false,
-      showHistoryModal: false,
 
       // Advisory Staircase
       staircaseBase: null,
@@ -903,15 +739,6 @@ export default {
       addingVideo: false,
       newVideo: { domain: '', title: '', url: '' },
       domains: [],
-
-      // Firm Profile
-      firmProfile: {},
-      profileForm: { name: '', logo_url: '', primary_colour: '#000000', persona_name: '' },
-      loadingProfile: false,
-      savingProfile: false,
-
-      // Storage
-      storagePercent: 0,
 
       // Team Case Studies (manager review)
       firmCases: [],
@@ -986,11 +813,6 @@ export default {
   },
 
   computed: {
-    // Gates the raw Decision Framework tab (platform admin = also the interim
-    // mentor role, so the mentor keeps the support tool).
-    isPlatformAdmin () {
-      return this.userRole === 'platform_admin'
-    },
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
@@ -1071,13 +893,8 @@ export default {
   },
 
   mounted () {
-    this.loadDocuments()
-    // Raw Decision Framework data only exists for the admin-gated tab.
-    if (this.isPlatformAdmin) { this.loadFramework() }
     this.loadTemplateImport()
     this.loadVideos()
-    this.loadProfile()
-    this.loadStorage()
     this.loadDomains()
     this.loadFirmDistinctions()
     this.loadStaircase()
@@ -1104,165 +921,6 @@ export default {
         throw new Error(err.message || res.statusText)
       }
       return res.json()
-    },
-
-    // ── Document Library ────────────────────────────────────────────────────
-    async loadDocuments () {
-      this.loadingDocs = true
-      try {
-        const data = await this.api('GET',
-          `/api/firm-manager/documents?category=${this.selectedCategory}`)
-        this.baseDocs = data.base || []
-        this.firmDocs = data.firm || []
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.loadingDocs = false
-      }
-    },
-
-    selectCategory (key) {
-      this.selectedCategory = key
-      this.loadDocuments()
-    },
-
-    async submitUpload () {
-      if (!this.uploadFile) { return }
-      this.uploading = true
-      try {
-        const form = new FormData()
-        form.append('file', this.uploadFile)
-        form.append('category', this.selectedCategory)
-        await this.api('POST', '/api/firm-manager/documents', form, true)
-        this.$buefy.toast.open({ message: 'Document uploaded.', type: 'is-success' })
-        this.uploadFile = null
-        this.loadDocuments()
-        this.loadStorage()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.uploading = false
-      }
-    },
-
-    async downloadDoc (row) {
-      // Fetch with the Bearer token (an <a>-tab navigation can't send it), then
-      // save the returned blob client-side. `source` + `category` let the backend
-      // authorise the file (firm-owned vs platform) before streaming it.
-      try {
-        const params = new URLSearchParams({
-          fileId: row.id,
-          fileName: row.name,
-          source: row.source || 'firm',
-          category: this.selectedCategory
-        })
-        const res = await fetch(`/api/firm-manager/documents/download?${params.toString()}`, {
-          headers: { Authorization: `Bearer ${this.apiToken}` }
-        })
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ message: res.statusText }))
-          throw new Error(err.message || res.statusText)
-        }
-        const blob = await res.blob()
-        const objectUrl = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = objectUrl
-        a.setAttribute('download', row.name)
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(objectUrl)
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      }
-    },
-
-    confirmDeleteDoc (row) {
-      this.$buefy.dialog.confirm({
-        message: DOMPurify.sanitize(`Remove <strong>${row.name}</strong> from your firm's library?`, { USE_PROFILES: { html: true } }),
-        type: 'is-danger',
-        confirmText: 'Remove',
-        onConfirm: () => this.deleteDoc(row)
-      })
-    },
-
-    async deleteDoc (row) {
-      try {
-        await this.api('DELETE', `/api/firm-manager/documents/${row.id}`)
-        this.$buefy.toast.open({ message: 'Document removed.', type: 'is-success' })
-        this.loadDocuments()
-        this.loadStorage()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      }
-    },
-
-    // ── Decision Framework ──────────────────────────────────────────────────
-    async loadFramework () {
-      this.loadingFramework = true
-      try {
-        const data = await this.api('GET',
-          `/api/firm-manager/framework?configKey=${this.selectedFrameworkKey}`)
-        this.frameworkOverride = data.firmOverride
-        this.frameworkJson = data.firmOverride
-          ? JSON.stringify(data.firmOverride, null, 2)
-          : ''
-        const hist = await this.api('GET',
-          `/api/firm-manager/framework/history?configKey=${this.selectedFrameworkKey}`)
-        this.frameworkHistory = hist.history || []
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.loadingFramework = false
-      }
-    },
-
-    selectFrameworkKey (key) {
-      this.selectedFrameworkKey = key
-      this.loadFramework()
-    },
-
-    clearFrameworkEditor () {
-      this.frameworkJson = this.frameworkOverride
-        ? JSON.stringify(this.frameworkOverride, null, 2)
-        : ''
-    },
-
-    async saveFramework () {
-      let parsed
-      try {
-        parsed = JSON.parse(this.frameworkJson)
-      } catch {
-        this.$buefy.toast.open({ message: 'Invalid JSON — please check the syntax.', type: 'is-warning' })
-        return
-      }
-      this.savingFramework = true
-      try {
-        const res = await this.api('POST', '/api/firm-manager/framework', {
-          configKey: this.selectedFrameworkKey,
-          configJson: parsed
-        })
-        this.$buefy.toast.open({ message: `Saved as version ${res.version}.`, type: 'is-success' })
-        this.loadFramework()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.savingFramework = false
-      }
-    },
-
-    async restoreVersion (row) {
-      try {
-        const res = await this.api('POST', '/api/firm-manager/framework/restore', {
-          configKey: this.selectedFrameworkKey,
-          versionId: row.id
-        })
-        this.$buefy.toast.open({ message: `Restored as version ${res.version}.`, type: 'is-success' })
-        this.showHistoryModal = false
-        this.loadFramework()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      }
     },
 
     // ── Template Library Import ─────────────────────────────────────────────
@@ -1376,46 +1034,6 @@ export default {
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       }
-    },
-
-    // ── Firm Profile ────────────────────────────────────────────────────────
-    async loadProfile () {
-      this.loadingProfile = true
-      try {
-        const data = await this.api('GET', '/api/firm-manager/profile')
-        this.firmProfile = data.firm || {}
-        this.profileForm = {
-          name: data.firm.name || '',
-          logo_url: data.firm.logo_url || '',
-          primary_colour: data.firm.primary_colour || '#000000',
-          persona_name: data.firm.persona_name || ''
-        }
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.loadingProfile = false
-      }
-    },
-
-    async saveProfile () {
-      this.savingProfile = true
-      try {
-        await this.api('PUT', '/api/firm-manager/profile', this.profileForm)
-        this.$buefy.toast.open({ message: 'Profile saved.', type: 'is-success' })
-        this.loadProfile()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.savingProfile = false
-      }
-    },
-
-    // ── Storage ─────────────────────────────────────────────────────────────
-    async loadStorage () {
-      try {
-        const data = await this.api('GET', '/api/firm-manager/storage')
-        this.storagePercent = data.percentUsed || 0
-      } catch { /* non-critical */ }
     },
 
     // ── Domains (for video tagging) ─────────────────────────────────────────
@@ -2050,7 +1668,8 @@ export default {
   width: 1.6rem;
   height: 1.6rem;
   border-radius: 50%;
-  color: #fff;
+  /* Colour is set inline per step from the tone — see utils/brandTokens.js.
+     It is not fixed white: white fails AA on the lighter brand accents. */
   font-weight: 700;
   font-size: 0.85rem;
   flex-shrink: 0;

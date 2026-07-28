@@ -203,8 +203,6 @@ server.post('/api/firm-manager/framework/restore', ...fmGuard, fm.restoreFramewo
 server.get('/api/firm-manager/videos', ...fmGuard, fm.listVideos)
 server.post('/api/firm-manager/videos', ...fmGuard, fm.addVideo)
 server.del('/api/firm-manager/videos/:id', ...fmGuard, fm.deleteVideo)
-server.get('/api/firm-manager/profile', ...fmGuard, fm.getProfile)
-server.put('/api/firm-manager/profile', ...fmGuard, fm.updateProfile)
 server.get('/api/firm-manager/storage', ...fmGuard, fm.getStorageUsage)
 server.get('/api/firm-manager/templates', ...fmGuard, fm.getTemplateImport)
 server.post('/api/firm-manager/templates', ...fmGuard, fm.importTemplates)
@@ -224,6 +222,23 @@ server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
 server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 server.get('/api/firm-manager/quizzes', ...fmGuard, fm.getQuizzes)
 server.post('/api/firm-manager/quizzes', ...fmGuard, fm.saveQuizzes)
+server.get('/api/firm-manager/domain-support', ...fmGuard, fm.getDomainSupport)
+server.get('/api/firm-manager/domain-support/:domainId', ...fmGuard, fm.getDomainSupportDetail)
+server.post('/api/firm-manager/domain-support/:domainId', ...fmGuard, fm.saveDomainSupport)
+server.del('/api/firm-manager/domain-support/:domainId', ...fmGuard, fm.resetDomainSupport)
+server.get('/api/firm-manager/domain-support/:domainId/history', ...fmGuard, fm.getDomainSupportHistory)
+server.post('/api/firm-manager/domain-support/:domainId/restore', ...fmGuard, fm.restoreDomainSupport)
+// Display-only re-file into another master section (firm-scoped; AI unaffected).
+server.post('/api/firm-manager/domain-support/:domainId/section', ...fmGuard, fm.setDomainSupportSection)
+// Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3). Slice A: read; Slice B:
+// save/reset/history on the single `logic-trees` bundle the advisor engine reads
+// (firm-authored branch text is fenced in logicTrees.formatLogicTreeForPrompt).
+server.get('/api/firm-manager/logic-trees', ...fmGuard, fm.getLogicTrees)
+server.get('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.getLogicTreeDetail)
+server.post('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.saveLogicTree)
+server.del('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.resetLogicTree)
+server.get('/api/firm-manager/logic-trees/:treeId/history', ...fmGuard, fm.getLogicTreeHistory)
+server.post('/api/firm-manager/logic-trees/:treeId/section', ...fmGuard, fm.setLogicTreeSection)
 // Manager case-review feed: the firm's shared case studies (with their decision
 // traces) for review. Manager-gated + firm-scoped; private cases never surface.
 server.get('/api/firm-manager/cases', ...fmGuard, casesRoute.listFirmCases)

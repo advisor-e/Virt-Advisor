@@ -23,6 +23,316 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
+  Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
+  firm-editable.** ✅ **PLANNED 2026-07-23 — [`FIRM-EDITABLE-TABLES-PLAN.md`](FIRM-EDITABLE-TABLES-PLAN.md)** (cascade + override model agreed with Mike; Phase 0 is the next task).
+  - ✅ **Phase 0 BUILT 2026-07-23 (approved by Mike, this branch):** firm-aware content
+    loading is live behind the engines. New `server/utils/firmContent.js` (config keys
+    `domain-support` / `logic-trees`, dev-file fallback like Distinctions);
+    `domainSupport.js` + `logicTrees.js` merge a firm's sparse override at the point of
+    use (platform caches stay pristine — no merged copy is ever cached); both engines
+    load the overlays once per request from the firmAuth-verified `firmId` and thread
+    them through every detection/format/walk call site. `deepMerge` moved verbatim to
+    dependency-free `server/utils/deepMerge.js` (firmOverlay re-exports it unchanged)
+    so content utils don't pull the MySQL pool into their require chain. 21 new tests in
+    `tests/unit/firmContent.test.js` incl. the CROSS-FIRM LEAK TESTS (acceptance 1);
+    suite 1,747 green.
+  - **Scenario Lab delta (Phase 0 acceptance, recorded honestly):** the deterministic
+    lab drives the template RESOLVER directly (`scripts/scenario-lab.js` →
+    `resolveTemplatesWithOutlier`) and its require chain never reaches
+    domainSupport/logicTrees, so it is structurally blind to this change — before/after
+    delta is provably **zero**. The override's real effect (firm keyword/trigger edits
+    changing detection for that firm only, and only for that firm) is demonstrated by
+    the dedicated detection tests in `firmContent.test.js` instead.
+  - ☐ **Stale lab baseline found (log, not Phase 0):** committed
+    `design/SCENARIO-LAB-REPORT.md` was last re-baselined 2026-07-14 **AI-ON**, before
+    the 2026-07-22 master export replaced `data/templates.json` — a fresh deterministic
+    run differs substantially (and AI-OFF metrics are not comparable to the AI-ON
+    baseline). Re-baseline with the AI layer ON when Mike wants the spend; my
+    regenerated copy was restored, not committed, to avoid replacing a stronger
+    baseline with a misleading weaker one.
+  - ✅ **Phase 1 BUILT 2026-07-23 (approved by Mike, this branch):** Document Library
+    rebuilt onto the rail → panel pattern. The rail (tone bands, drop-tab accordion,
+    open/closed state) is now the SHARED `components/firm/FirmRail.vue` — FirmQuizzes
+    ported onto it with all 26 of its tests passing unchanged, and the new
+    `components/firm/FirmDocuments.vue` consumes it (Hub tab is now one line; the old
+    b-menu + two-table markup and its six Hub methods are gone). All copy through
+    `$t('firmDocuments.*')` (en.json, same en-only pattern as firmQuizzes). Rulings
+    (Mike, 2026-07-23): text-only buttons — no icon font; three new lines of page copy
+    approved verbatim. Fixes *quiz-rail-stuck-open* once in the shared rail (see that
+    row) and takes this screen out of the *no-icon-font* blast radius.
+  - ✅ **Phase 2 STARTED 2026-07-24 (approved by Mike, this branch) — EOY is the first domain
+    migrated to the four-column standard (§0.5); engine wired.** `data/eoy-domain-support.json`
+    re-authored from the source PDF into `materials[]` (name / summary / who_when / steps),
+    keeping label + trigger_keywords + a refreshed overview; the three `domainSupport.js`
+    formatters render the `materials` shape at every call site, with the legacy `support_tools`
+    path kept as a fallback so the other 42 domains are unchanged. Deep EOY coaching still feeds
+    Learn mode via the untouched `eoy-reference.json`. 6 new tests in
+    `tests/unit/domainSupportMaterials.test.js`; suite 1,792 green. Commit `dfa8572`. In-app
+    mockups (Domain Support + Logic Tables) reviewed and approved by Mike.
+  - ✅ **TAB STRUCTURE RULED 2026-07-24 (Mike) — plan §0.6:** two dedicated Firm Manager tabs,
+    **Domain Support** (four-column tables) and **Logic Tables** (IF→THEN grids); the umbrella
+    "Decision Frameworks" is retired (that tab → "Domain Support"). Supersedes plan §0
+    decision 1. The backend `/framework` "Decision Framework" feature is a different thing and
+    is NOT renamed. Commit `2172e34`.
+  - ✅ **Domain Support editable tab BUILT 2026-07-24 (approved by Mike, this branch). Commit
+    `ccf1d04`; full suite 1,815 green.** [`components/firm/FirmDomainSupport.vue`](../components/firm/FirmDomainSupport.vue):
+    two-group rail (advisory domains / get-the-job) + four-column inline-editable table (Template ·
+    Summary · Who & when · Step-by-step), origin tags, version history — wired to the existing
+    `getDomainSupport*` / `saveDomainSupport*` routes. Save/Reset live (sparse `{materials}`
+    override; deepMerge replaces the array). Labels per Mike's mockup sign-off. EOY renders fully;
+    a domain still on the legacy `support_tools` shape shows a "not migrated" notice.
+    - **Security (done):** firm-authored `overview`+`materials` fenced with `fenceUntrusted` in ALL
+      THREE prompt formatters (`formatDomainSupportForPrompt`, `formatDomainContextForSession`,
+      `formatDomainSummaryForDesign`) — untrusted text read as data, never instructions (CLAUDE.md;
+      mirrors CB-30). Platform output byte-unchanged (`tests/unit/domainSupportFencing.test.js`).
+    - **Fix (done):** list route counts `materials` (EOY shows 4, not 0).
+    - Added as its OWN tab, **non-destructive** — the PDF "Decision Frameworks" tab is untouched.
+  - 🟠 **P1 · WIRE — domain-support firm overrides use a config key the engine doesn't read.**
+    The save routes store per-domain keys (`domain-support-<id>`) via `overlay.saveFirmConfig`,
+    but the advisor engine loads a SINGLE `domain-support` bundle
+    ([`advisorEngine.js`](../server/advisorEngine.js) L1461 → [`firmContent.js`](../server/utils/firmContent.js) L96,
+    `CONFIG_KEYS.domainSupport = 'domain-support'`). **Today it works** — with no Firm-Manager
+    MySQL, both sides fall back to the SAME dev file (`data/dev-firm-domain-support.json`,
+    shape `{firmId:{domainId:override}}`), so a saved EOY edit does reach the AI (traced end to
+    end). **But once MySQL is provisioned the two keys stop reconciling** and firm domain-support
+    edits would show in Firm Manager yet never reach the AI. Pre-existing (b1bd546 skeleton +
+    Phase 0), not introduced by the Domain Support tab. **Fix:** move the domain-support save/load
+    routes onto the single `domain-support` bundle (as the Logic Tables routes already do via
+    `loadFirmLogicTrees`). Gated with the broader **Firm-Manager MySQL provisioning** item.
+  - ✅ **Logic Tables tab — Slice B SHIPPED + 3-way grouping + firm re-filing (2026-07-27, this branch).**
+    Editing is fully live: firm-authored branch-text fencing in `logicTrees.formatLogicTreeForPrompt`
+    (`b2c7a62`), Save/Reset/history backend on the single `logic-trees` bundle (`9e6ef23`), and the
+    live editable screen — reword + add/remove branches, per-bundle read-only history; per-version
+    restore deferred (shared-bundle storage would roll back every table) (`af1afa0`). Both
+    firm-editable pages (Logic Tables + Domain Support) now group by the master sections **Do the Job
+    / Get the Job / Get Organised** (`fccb203`), and a firm can re-file an item into another section —
+    display-only, firm-scoped, AI unaffected: backend move routes (`068cbe4`) + drag / "Move to" UI
+    (`9b3aa73`). Full suite 1,863 green.
+  - ☑ **Decision Frameworks (PDF Document Library) tab REMOVED 2026-07-27 (owner decision,
+    this branch).** The tab + its wiring are gone from `FirmManagerHub.vue` (tab-item, the
+    `FirmDocuments` import/registration, and the now-orphaned "Storage % used" header indicator
+    + `loadStorage`/`storagePercent`). **Left dormant on purpose (tab-only removal, the option
+    Mike chose):** `components/firm/FirmDocuments.vue` and the backend document/storage routes
+    (`listDocuments`/`uploadDocument`/`downloadDocument`/`deleteDocument`/`getStorageUsage`, still
+    registered) remain in the codebase, unreferenced. `FirmRail` is NOT dead — Quizzes uses it.
+    **→ Follow-up (P3, cleanup):** delete `FirmDocuments.vue`, its component test, the document/
+    storage routes + registrations, and the `firmDocuments` i18n block once no consumer remains.
+  - ☑ **Templates & Videos tab HIDDEN 2026-07-27 (owner decision, this branch).** `v-if="false"`
+    on the tab-item in `FirmManagerHub.vue` — not wired to anything usable in UAT (needs
+    Firm-Manager MySQL), so a live-looking dead tab was misleading. Kept dormant (template-import
+    + video-link code intact), not deleted — a real feature the master team may want.
+  - ☑ **Firm Profile tab REMOVED 2026-07-27 (owner decision, this branch).** The "Firm Profile" tab
+    (firm name / logo URL / brand colour / AI persona name) was a dead-end editor — its data was
+    saved but **consumed nowhere** in the app (advisor experience and theming both verified to ignore
+    it). Fully removed, not hidden: the tab + its data/methods in `FirmManagerHub.vue` (the header
+    subtitle now falls back to the firm id), the `getProfile`/`updateProfile` functions + exports +
+    JSDoc in `firmManager.js`, the two `/api/firm-manager/profile` mounts in `restify-server.js`, and
+    the profile tests in `firmManager.routes.test.js`. Suite 1,859 green.
+  - ✅ **Firm-table editing UX — name wrap + drag-to-size-and-remember (2026-07-27, this branch).**
+    On both `FirmDomainSupport` and `FirmLogicTables`: the Template/Branch name field auto-grows and
+    wraps (was a fixed single-line box that clipped long names) with a widened name column; the
+    Summary / Who & when / If / Then / Notes boxes are drag-resizable and **remember their height
+    per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
+    `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
+    the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
+  - 📋 **Domain-support content migration — METHOD CONFIRMED (2026-07-27, Mike).** Author each
+    domain's four-column draft **from the 43 source PDFs in `domain support/`** — NOT the existing
+    `data/*-domain-support.json`, which plan §0.5 rules a *lossy* summary. **Keep ALL the richness**
+    (fold every field into Summary + Step-by-step); the If-Then logic tables are **left alone** — they
+    already exist as their own PDFs in `Logic Tables/`. Produce the drafts, then **finalise + approve
+    one domain at a time** (mirrors how EOY was made, `dfa8572`). Cash Tactics was trialed in-app as
+    the first draft this session and the preview **reverted** (not content-approved). **28 of 29
+    domains still to migrate** (only EOY done). Detail: `FIRM-EDITABLE-TABLES-PLAN.md` §0.5.
+  - ✅ **Specialist Tools Quiz INGESTED 2026-07-28 (approved by Mike, this branch).** The PDF is now
+    tracked at `Course Builder Quiz/Specialist Tools Quiz.pdf` (renamed from the browser's `(1)`
+    copy) and its **18 sections / 180 questions are live as 16 CB-30 banks** in
+    [`data/course-quizzes.json`](../data/course-quizzes.json) — banks 31 → 47, questions 320 → 500.
+    Transcription is mechanical from the PDF text (the firm's IP, never retyped or invented); two
+    source artefacts were normalised (ﬁ/ﬀ ligatures, and a stray colon the PDF carries inside the
+    running word "answer"). Fourteen banks are 10 questions; **Succession Planning** and **Coping
+    With Adversity** are 20 each, merging two PDF sections apiece.
+    - **Mapping (exact-title rule, `quizBankKeys.test.js`):** ten sections are named as their page.
+      The rest map on documented page-purpose evidence — Cafe Turnaround Behaviours → *Turnaround
+      Behaviours* ("this example showcases a cafe"), SMART & FAST Goals → *Powerful Goal Setting*
+      (its purpose names the S.M.A.R.T acronym), Succession Metaphor → *Succession Planning* (its
+      purpose names "the use of a 'planning metaphor'"), Weighted Stock Review → *Stock Policies*
+      (a "Weighted Average" stock-prioritisation model), Due Diligence support → *Due Diligence
+      Support* (case only).
+    - **Library refreshed as part of the same job:** `data/templates.json` re-mirrored from
+      `search_content_20260727205143.json` (286 → 289). Mike re-exported **twice** during the
+      session to publish the pages the quiz teaches from — **Due Diligence Support**, **Systems B4
+      Scale**, **Coping With Adversity**, all Specialist Tools. Every one of the 286 pre-existing
+      entries is byte-identical; the diff is purely the three additions.
+    - **One snapshot re-recorded (approved separately):** `treeContributionHarness` — the new
+      *Due Diligence Support* page scores 5 like the other Specialist Tools valuation pages and
+      now enters the top 6 for the sell/exit scenario, displacing the lowest tie. Engine logic
+      untouched; the file's **verdict** assertions (Mike-confirmed correct outcomes) still pass
+      unchanged. Full suite **1,891 green**, lint 0 errors.
+  - ✅ **Strategic Tools Quiz INGESTED 2026-07-28 (approved by Mike, this branch) — every quiz PDF
+    in `Course Builder Quiz/` now has banks behind it.** Its **11 sections / 110 questions** are live
+    as 11 banks (banks 47 → 58, questions 500 → 610), same mechanical transcription. All 11 sections
+    are abbreviations of their Strategic Tools page and needed no judgement call — *Planning Outcomes*
+    → **Planning Outcomes Review**, *Bizz Targets* → **Business Targets**, *Strategic Orientation.1/.2*
+    → **Orientation Part 1/2**, *Sales & Mktg Review* → **Sales & Marketing Review**, *Porter's & Pine*
+    → **Porters & Pine**; the other five are named exactly as their page. No new library pages were
+    needed and no snapshot moved. Full suite **1,913 green**.
+  - ✅ **QUIZ LAB BUILT 2026-07-28 (approved by Mike, this branch) — `scripts/quiz-lab.js`.** The
+    bench the locking test cannot be: it drives the REAL `findQuizBank` and the REAL grader
+    selection once per bank, so it proves a bank is **reachable by a live session** and that every
+    entry id resolves to its **own** model answer — neither of which an exact-title check can show.
+    Writes [`design/QUIZ-LAB-REPORT.md`](QUIZ-LAB-REPORT.md) (metrics · per-bank verdict · library
+    coverage · the opening of the AI's brief per bank) and **exits 1 on a structural fault**, so it
+    can be wired to CI. Run free with `node scripts/quiz-lab.js`; filter with a substring.
+    - **First run, all 58 banks: 0 orphans, 0 misbound, 0 grader faults** across 610 questions.
+    - **Circularity caught during the build (recorded because it would have made the bench
+      worthless):** the first version built the test session's resource **from the bank key**, so a
+      mis-keyed bank matched itself and looked healthy. It now takes the title from the LIBRARY.
+    - **Negative control (the bench is not vacuous):** run against a broken bank file — typo'd key,
+      duplicate entry id, empty model answer — it reported 1 orphan + 1 grader fault and exited 1.
+    - **`--ai N` mode (opt-in, spends credit):** generates real quizzes and flags any question that
+      cites a missing entry or copies an entry near-verbatim. **First AI run (3 banks / 9 questions,
+      E.O.Y Meeting · The 9 Growth Stages · Phone Techniques): every question built from a real bank
+      entry with a valid `bankRef`, none near-verbatim** — CB-30 works end to end on the new content.
+      *Observation, not a defect:* Phone Techniques drew entries 1–3 in order, which may be position
+      bias or may simply be the synthetic session content (the page's purpose text stands in for a
+      transcript) giving the model nothing to choose relevance on. A real session would tell them
+      apart.
+    - ☑ **LIVE-EYEBALL DONE 2026-07-28 (Mike, running app).** Both servers were started on the
+      2026-06-29 recipe (backend Node 14.15 by exact path; frontend a PRODUCTION build, not the
+      dev server) and Mike completed two course sessions end to end — **quiz scores 70 and 73**.
+      Generation and grading were also driven directly over HTTP, through the Nuxt proxy as the
+      browser does it: a Systems B4 Scale quiz built from entries 1/8/4, and the grader **passed a
+      strong answer at 80 and failed a vague one at 40, its reasoning quoting the firm's own
+      nodes-and-links teaching** — proof the CB-30 marking guide is authoritative, not GPT's
+      general knowledge. Closes the CB-19 / Stage E live-verification line for the quiz path.
+  - ✅ **QUIZ PROVENANCE BUILT 2026-07-28 (approved by Mike, this branch) — "which bank fed this
+    question?"** Mike's ask: a complaint that "the quizzes aren't accurate" had **no address** —
+    `bankRef` is an entry NUMBER, and nothing said which bank it belonged to.
+    - **Backend** ([`courseEngine.js`](../server/courseEngine.js) `handleQuizGenerate`): the response
+      now carries `bank: { key, source, origin }` (null when the page has no bank). The key is
+      resolved by object identity rather than changing `findQuizBank`'s return shape, which the
+      grader and its tests also depend on.
+    - **SECURITY LINE HELD:** identity only, never entries. The firm's model answers stay withheld
+      until AFTER grading (the existing rule — otherwise the browser holds the answers while the
+      advisor writes theirs). Locked by a test that fails if any bank answer appears in the
+      generate response.
+    - **Frontend** ([`CourseBuilder.vue`](../components/CourseBuilder.vue)): every graded result
+      records `bankKey` / `bankSource` / `bankRef` — on the RESULT, because that is what persists
+      with the course and is what a manager view would later read. Quiz Review shows a quiet grey
+      line: *from Ratio Analysis · question 5 · Course Builder Quiz/Specialist Tools Quiz.pdf*.
+      Three states are deliberately distinct: banked (names it), unbanked (*AI-written from the
+      session content*), and a result saved BEFORE today (says nothing rather than guessing).
+      Advisor-visible on Quiz Review only — the in-quiz result card is left uncluttered.
+    - 11 new tests (5 backend + 6 component); full suite **1,924 green**, lint 0 errors.
+  - ➡ **MOVED TO THE LAPTOP 2026-07-29 (Mike's call) — the whole advisor-progress section
+    now belongs to branch `feat/advisor-progress`**, cut from `origin/master` and pushed;
+    its briefing is [`ADVISOR-PROGRESS-HANDOVER.md`](ADVISOR-PROGRESS-HANDOVER.md) (the two
+    screens, why they render zeros, the mocked Team Dashboard, the missing component tests).
+    Nothing had to be moved out of this branch — every advisor-progress file is
+    byte-identical between `master` and here. **The desktop does not pick these items up.**
+    The one exception is the per-question record immediately below: it builds on the quiz
+    provenance that exists only on THIS branch, so it waits until this branch merges to
+    `master` and the laptop merges `master` in.
+  - 🟠 **Still open — the BACKEND record (the manager half of the same idea).** `log-course` still
+    sends only the score, so `advisor_course_completions` — and therefore **My Progress** and the
+    **Team Dashboard** — are unchanged: they show averages and have never seen a question.
+    - **Gated on Firm-Manager MySQL provisioning, with fresh evidence:** both of tonight's live
+      completions (scores 70 and 73) **failed to record** — `[activityLogger] logCourseSession
+      failed: Access denied for user 'root'@'localhost'`. My Progress returns all-zero tiers and an
+      empty `recentActivity` for that reason alone. This is the P1 blocking a real feature, not a
+      theoretical gap.
+    - **DECISION for Mike when it is unblocked:** whether the per-question record stores the
+      advisor's own free-text ANSWER. Recommendation is **no** — store bank key, entry number,
+      pass/fail and score only. Advisors write differently once they believe a manager reads their
+      words, which would degrade the very signal the record exists to collect. Text can be added
+      later; it cannot be un-stored.
+    - **Cheapest path when it lands:** per-question provenance already persists inside the course
+      record (`va_courses` via `courseStore`, dev-file fallback), so a manager view may be able to
+      read from there rather than needing new columns — but cross-advisor reads are IDOR-sensitive
+      and must go through the same `firmAuth` pattern.
+  - ☐ **Ghost logic-tree references (6) — pre-existing, surfaced by tonight's boot log.** The backend
+    warns at every start: *"logic trees reference template names that do not exist in search content.
+    These produce AI hallucinations"* — `Sales Session`, `Data Session`, `Planning Session`,
+    `People Session`, `Process Session`, `Growth Framework`. **Not caused by the 2026-07-28 library
+    refresh** (it added three pages and removed none, so no name was orphaned by it).
+    `scripts/migrate-ghost-references.js` already exists for this.
+  - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
+    editable four-column `materials` (legacy `support_tools` domains report 0, matching the
+    "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"
+    instead of a bare `0`, so progress is legible at a glance (only EOY has content so far).
+  - ☐ **Still open:** (1) **Job 2** — fold each material's genuine how-to Q&A into the steps,
+    cross-checked against the 10-question quiz banks; (2) per-material origin tags are
+    domain-level until the §2.4 compare-screen work.
+  - **The point (Mike's words):** so educators can have a real impact on the AI's
+    recommendations and include their own material easily. This is the firm-authoring
+    story reaching the engine's decision inputs, not another CRUD screen.
+  - **Scope named so far:** (1) Document Library page brought to the same layout and
+    code pattern as the Quizzes and Distinctions pages; (2) the logic tables and
+    domain-support data become **dynamic, editable tables at Firm Manager level**.
+  - **Plan from what already exists, not from scratch** — Mike's instruction is to base
+    it on the layout and code already used in those two pages:
+    [`components/firm/FirmQuizzes.vue`](../components/firm/FirmQuizzes.vue) (rail →
+    panel, brand block tones, data-driven ordering/filtering via
+    [`data/quizzable-sections.json`](../data/quizzable-sections.json)) and the Advisory
+    Distinctions tab in [`FirmManagerHub.vue`](../components/FirmManagerHub.vue)
+    (firm-overlay CRUD, version history, restore).
+  - **Reuse, don't reinvent:** the layered firm-overlay machinery
+    ([`server/utils/firmOverlay.js`](../server/utils/firmOverlay.js), config_key rows in
+    `firm_framework_versions`) already gives version history, restore and the IDOR-safe
+    guard for free — the same pattern behind Distinctions, the Staircase and the new
+    quiz banks. Skill: `firm-manager-edit-target`.
+  - **Known gates to settle when planning:** firm-authored table content becomes
+    untrusted input reaching the engine, so it needs the same `origin`-tagged fencing the
+    quiz banks got (CB-31 Phase 2); and Firm-Manager MySQL persistence is still not
+    provisioned, so this runs on the dev-file fallback like every other Firm Manager
+    feature until it is.
+
+- <a id="quiz-rail-stuck-open"></a>☑ **FIXED 2026-07-23 (Phase 1 of the firm-editable tables build, approved by Mike).**
+  Exactly the fix direction below: open-state is now THREE-STATE (unset / opened /
+  closed) inside the shared `components/firm/FirmRail.vue` — an explicit close always
+  wins over auto-expand, auto-expand applies only while the firm has expressed no
+  choice, and a changed search text resets the flags so a stale close can never hide a
+  new search's hits. The missing "a sub-section can be CLOSED again" test now exists
+  (4 cases in `tests/unit/firmQuizzes.component.test.js`, incl. the exact reported
+  scenario). Original report, kept for the record:
+  **BUG — a Quizzes-rail drop-tab cannot be closed once a quiz inside it has been
+  opened.** Reported by Mike 2026-07-22 on Growth Framework; it is not specific to that
+  section — it happens in ANY sub-section as soon as a page inside it is selected.
+  **Cause is known**, in [`FirmQuizzes.vue`](../components/firm/FirmQuizzes.vue) (the
+  `sub.isOpen` computation in `tree`): open-state is
+  `openSubs[key] || (searching && has hits) || (holds the current page)`. That last
+  clause FORCES the panel open, so `toggleSub` flipping the manual flag to false has no
+  effect — the condition still returns true and the panel re-opens on the same tick.
+  **Introduced today** with the auto-expand that fixed the "search finds matches but
+  shows nothing" defect: making "contains the current page" force-open was right for
+  first render and wrong as a permanent override of an explicit collapse.
+  **Fix direction:** the manual flag must be able to say *closed*, not just *open* —
+  e.g. store three states (unset / opened / closed) and let an explicit close win over
+  the auto-expand, keeping auto-expand only where the firm has not expressed a choice.
+  **No test caught it:** the component tests assert the rail renders and that search
+  expands a match, but nothing asserts a sub-section can be CLOSED again. Add that case
+  with the fix.
+
+- <a id="no-icon-font"></a>☐ **BUG — every `<b-icon>` in the app renders as NOTHING; no icon font is loaded.**
+  **Partial ruling 2026-07-23 (Mike, Phase 1):** the rebuilt Document Library is
+  text-only — no `b-icon` props, CSS-drawn shapes where an affordance is needed — so
+  this screen no longer depends on the missing font. The APP-WIDE decision (install
+  `@mdi/font` locally vs remove the remaining icon props) stays open below.
+  Found 2026-07-22 when a disclosure arrow would not appear however it was styled.
+  Buefy's default icon pack is Material Design Icons and `b-icon` emits
+  `<i class="mdi mdi-…">`, but [`nuxt.config.js`](../nuxt.config.js) loads only
+  `buefy/dist/buefy.css` and the Open Sans webfont — no MDI stylesheet, and
+  [`plugins/buefy.js`](../plugins/buefy.js) sets no `defaultIconPack`. So every icon
+  across the app is blank: the seven Firm Manager tab icons, the document-library and
+  video buttons, everything. **Not cosmetic where an icon is the only affordance** — the
+  Quizzes rail's expand arrow was invisible, leaving a control that gave the firm no sign
+  it could be opened. Worked around there with a CSS-drawn triangle
+  ([`FirmQuizzes.vue`](../components/firm/FirmQuizzes.vue) `.rail-chev`) so it cannot
+  depend on a missing font. **The app-wide fix is still open** and needs a decision:
+  install `@mdi/font` as a local asset (no CDN, offline-safe) versus removing the icon
+  props. Predates today — nobody had noticed because no screen depended on an icon alone.
+
 Two honest answers on different axes — the file used to conflate them:
 
 - **Highest-SEVERITY open item:** the **dev-toolchain reconcile** → add 2 `overrides` + flip `engine-strict` back to `true` (P1, stack governance — the last unclosed Stack-Constitution drift). **But it is overnight-reinstall-gated** — not a now-task. → [§Dev-toolchain](#dev-toolchain)

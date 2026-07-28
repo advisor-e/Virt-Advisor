@@ -57,6 +57,13 @@ data/dev-firm-coaching.json
 # Dev-only firm quiz overlay (created locally when MySQL is unavailable)
 data/dev-firm-quizzes.json
 
+# Dev-only firm content overlays — domain support + logic trees (created locally when MySQL is unavailable)
+data/dev-firm-domain-support.json
+data/dev-firm-logic-trees.json
+# Dev-only firm section placement overlays (firm re-filing, display-only)
+data/dev-firm-logic-tree-sections.json
+data/dev-firm-domain-support-sections.json
+
 # Dev-only case studies (created locally when MySQL is unavailable)
 data/dev-cases.json
 

@@ -122,4 +122,49 @@ function resolveTemplateName (heading, templates) {
   return { ok: false, reason: 'none', candidates }
 }
 
-module.exports = { resolveTemplateName, normalise, tokenSet }
+/**
+ * The page library, as the quiz editor needs to draw it.
+ *
+ * Deliberately served from the SAME list `resolveTemplateName` binds against,
+ * so the pages a manager can see are exactly the pages a save will accept. A
+ * second, independently-loaded list would drift and offer pages the validator
+ * then rejects.
+ *
+ * Returns fresh objects, never the cached records, so a caller cannot mutate
+ * the module-level cache that every resolve depends on.
+ *
+ * `bindable` says whether a quiz can actually be attached to this page. Quiz
+ * banks are keyed by page TITLE, so when two pages share a title — 7 do in the
+ * shipped library, e.g. "Advisor Prep" — the resolver rightly refuses rather
+ * than guess which twin was meant, and a save would be rejected. Without this
+ * flag the editor would happily offer such a page, take a whole quiz, and only
+ * then refuse it. Better to say so up front than to waste the author's work.
+ *
+ * A title drawn from the library always hits the resolver's exact tier (it
+ * matches at least itself), so bindability reduces to: does exactly one row
+ * carry this normalised title? Shared `normalise` keeps that in step with the
+ * resolver rather than re-implementing its idea of sameness.
+ *
+ * @param {Array<Object>} [templates] - injectable template list (tests)
+ * @returns {Array<{page: string, section: string, subSection: string,
+ *                  title: string, bindable: boolean}>}
+ */
+function listTemplatePages (templates) {
+  const list = Array.isArray(templates) ? templates : loadTemplates()
+
+  const titleCounts = new Map()
+  for (const t of list) {
+    const n = normalise(t.title)
+    titleCounts.set(n, (titleCounts.get(n) || 0) + 1)
+  }
+
+  return list.map(t => ({
+    page: t.page,
+    section: t.section || '',
+    subSection: t.subSection || '',
+    title: t.title,
+    bindable: titleCounts.get(normalise(t.title)) === 1
+  }))
+}
+
+module.exports = { resolveTemplateName, listTemplatePages, normalise, tokenSet }
