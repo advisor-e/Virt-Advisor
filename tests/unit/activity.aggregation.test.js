@@ -11,11 +11,13 @@
  * the wrong capability tier, or "Recent Activity" sorted oldest-first would all have shipped
  * green.
  *
- * This file feeds realistic rows through and pins the output. It is deliberately a record of
- * what the code does TODAY, before anything is changed — including the two behaviours we
- * already believe are wrong, which are marked CURRENT BEHAVIOUR and are expected to fail
- * loudly when they are fixed. A test that quietly agreed with a change would be worth
- * nothing.
+ * This file feeds realistic rows through and pins the output. It began as a record of what
+ * the code did BEFORE anything was changed — including behaviours we already believed were
+ * wrong, marked CURRENT BEHAVIOUR so that fixing one would fail the suite rather than pass
+ * quietly. A test that agreed with every change would be worth nothing.
+ *
+ * One of those has since been fixed: the silent database failure (see the last describe
+ * block). Two remain, both about a session carrying no capability tier.
  *
  * The database is a stand-in throughout: no MySQL is needed to run this, which is the whole
  * point — the real one has never been provisioned.
@@ -328,47 +330,31 @@ describe('getTeam — the firm manager\'s table', () => {
 
 // ── How the routes behave when the database is not there ──────────────────────
 
-describe('database failure — CURRENT BEHAVIOUR, expected to change', () => {
+describe('database failure — the advisor is told, not shown a page of zeros', () => {
   let errSpy
 
   beforeEach(() => { errSpy = jest.spyOn(console, 'error').mockImplementation(() => {}) })
   afterEach(() => errSpy.mockRestore())
 
   /**
-   * This is the fault the feature actually has, and the reason it is invisible.
-   * Each query ends `.catch(() => [[]])`, so a refused connection is replaced with an empty
-   * result and the advisor is shown a tidy page of zeros — identical to a genuinely new
-   * advisor. These two tests pin that behaviour so the honest-failure fix has something to
-   * break. WHEN THAT FIX LANDS, BOTH SHOULD FAIL AND BE REWRITTEN — they are a record of
-   * the defect, not a specification.
+   * FIXED 2026-07-29. Until this date each query ended `.catch(() => [[]])`, so a refused
+   * connection was replaced with an empty result: the advisor saw a tidy page of zeros and
+   * "No activity yet", identical in every pixel to a genuinely new advisor. That is what
+   * kept the only real fault in this feature invisible for months — Mike completed two
+   * course sessions on 2026-07-28 and the failure was silent at both ends.
+   *
+   * The four swallows are gone. The honest path below them already existed, and the screen's
+   * error state (AdvisorProgression.vue — a message plus a Try Again button) already
+   * existed too; it had simply never been reachable.
+   *
+   * These tests replace three that pinned the old behaviour deliberately, so that removing
+   * the swallow could not pass unnoticed. It did not: the mutation run flagged it.
+   *
+   * NOT changed, and deliberately so: the WRITE path (activityLogger) stays fire-and-forget.
+   * A database outage must never interrupt an advisor mid-session. Only reading is loud.
    */
-  test('a refused connection is reported to the advisor as 200 with no activity', async () => {
+  test('a refused connection is an error, not an empty record', async () => {
     db.execute.mockRejectedValue(new Error("Access denied for user 'root'@'localhost'"))
-    const res = makeMockRes()
-
-    await getProgression(makeReq(), res)
-
-    expect(res._status).toBe(200)
-    expect(res._body.tiers.intermediate.vaSessions).toBe(0)
-    expect(res._body.recentActivity).toEqual([])
-    // Nothing anywhere in the reply says the query never ran.
-    expect(JSON.stringify(res._body)).not.toMatch(/error|unavailable|denied/i)
-  })
-
-  test('the manager sees the same thing — an empty firm, not a broken one', async () => {
-    db.execute.mockRejectedValue(new Error("Access denied for user 'root'@'localhost'"))
-    const res = makeMockRes()
-
-    await getTeam(makeReq(), res)
-
-    expect(res._status).toBe(200)
-    expect(res._body.advisors).toEqual([])
-  })
-
-  test('a failure BEFORE the query does surface honestly, as a 500', async () => {
-    // The inconsistency in one test: the same feature answers a rejected query with a
-    // cheerful 200 and a thrown one with a truthful 500.
-    db.execute.mockImplementation(() => { throw new Error('pool exhausted') })
     const res = makeMockRes()
 
     await getProgression(makeReq(), res)
@@ -376,8 +362,60 @@ describe('database failure — CURRENT BEHAVIOUR, expected to change', () => {
     expect(res._status).toBe(500)
     expect(res._body.error.code).toBe('DB_ERROR')
     expect(res._body.success).toBe(false)
-    // The real reason is logged for the server operator, never returned to the browser.
+    // The reply must not be mistakable for a real, empty record.
+    expect(res._body.tiers).toBeUndefined()
+    expect(res._body.recentActivity).toBeUndefined()
+  })
+
+  test('the manager is told too — a broken firm never reads as an empty one', async () => {
+    db.execute.mockRejectedValue(new Error("Access denied for user 'root'@'localhost'"))
+    const res = makeMockRes()
+
+    await getTeam(makeReq(), res)
+
+    expect(res._status).toBe(500)
+    expect(res._body.error.code).toBe('DB_ERROR')
+    expect(res._body.advisors).toBeUndefined()
+  })
+
+  test('both ways a query can fail now give the same honest answer', async () => {
+    // A rejected promise and a synchronous throw used to diverge — 200 for one, 500 for the
+    // other, in the same feature. Pinned together so they can never drift apart again.
+    db.execute.mockImplementation(() => { throw new Error('pool exhausted') })
+    const res = makeMockRes()
+
+    await getProgression(makeReq(), res)
+
+    expect(res._status).toBe(500)
+    expect(res._body.error.code).toBe('DB_ERROR')
+  })
+
+  test('the real reason is logged for the operator, never sent to the browser', async () => {
+    db.execute.mockRejectedValue(new Error("Access denied for user 'root'@'localhost'"))
+    const res = makeMockRes()
+
+    await getProgression(makeReq(), res)
+
+    // Full detail server-side...
     expect(errSpy).toHaveBeenCalled()
-    expect(JSON.stringify(res._body)).not.toMatch(/pool exhausted/)
+    expect(errSpy.mock.calls.flat().join(' ')).toMatch(/Access denied/)
+    // ...safe generic message to the client. No credentials, host or SQL leaves the server.
+    const body = JSON.stringify(res._body)
+    expect(body).not.toMatch(/Access denied/)
+    expect(body).not.toMatch(/root|localhost|SELECT/)
+  })
+
+  test('an empty database still reads as a genuinely new advisor', async () => {
+    // The other half of the fix: "nothing yet" must still be possible to say. If every
+    // empty result now looked like an error, a new advisor would be shown a fault.
+    mockRowsByTable([], [])
+    const res = makeMockRes()
+
+    await getProgression(makeReq(), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.success).toBe(true)
+    expect(res._body.recentActivity).toEqual([])
+    expect(res._body.tiers['entry-level'].vaSessions).toBe(0)
   })
 })

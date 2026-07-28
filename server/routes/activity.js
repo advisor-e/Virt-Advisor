@@ -97,7 +97,7 @@ async function getProgression (req, res) {
          WHERE advisor_id = ? AND firm_id = ?
          ORDER BY completed_at DESC LIMIT 200`,
         [advisorId, firmId]
-      ).catch(() => [[]]),
+      ),
       db.execute(
         `SELECT course_id, course_title, session_index, session_title,
                 quiz_score, highest_tier, completed_at
@@ -105,7 +105,7 @@ async function getProgression (req, res) {
          WHERE advisor_id = ? AND firm_id = ?
          ORDER BY completed_at DESC LIMIT 200`,
         [advisorId, firmId]
-      ).catch(() => [[]])
+      )
     ])
 
     // Aggregate per tier
@@ -193,7 +193,7 @@ async function getTeam (req, res) {
          WHERE firm_id = ?
          GROUP BY advisor_id, highest_tier`,
         [firmId]
-      ).catch(() => [[]]),
+      ),
       db.execute(
         `SELECT advisor_id, highest_tier,
                 COUNT(*) as count,
@@ -203,7 +203,7 @@ async function getTeam (req, res) {
          WHERE firm_id = ?
          GROUP BY advisor_id, highest_tier`,
         [firmId]
-      ).catch(() => [[]])
+      )
     ])
 
     // Build per-advisor map
