@@ -230,6 +230,44 @@ describe('on-screen editing (local only)', () => {
     expect(wrapper.vm.form.materials).toHaveLength(2)
     expect(wrapper.vm.form.materials[1].origin).toBe('firm')
   })
+
+  test('moveStep moves a step down and back up, leaving the set intact', async () => {
+    const wrapper = await openDomain(await mountScreen(), 'eoy', 'End of Year')
+    const material = wrapper.vm.form.materials[0]
+    const original = material.steps.slice()
+
+    wrapper.vm.moveStep(material, 0, 1)
+    expect(material.steps[0]).toBe(original[1])
+    expect(material.steps[1]).toBe(original[0])
+
+    wrapper.vm.moveStep(material, 1, -1)
+    expect(material.steps).toEqual(original)
+  })
+
+  test('moveStep ignores a move off either end rather than losing the step', async () => {
+    const wrapper = await openDomain(await mountScreen(), 'eoy', 'End of Year')
+    const material = wrapper.vm.form.materials[0]
+    const original = material.steps.slice()
+
+    wrapper.vm.moveStep(material, 0, -1)
+    wrapper.vm.moveStep(material, material.steps.length - 1, 1)
+
+    expect(material.steps).toEqual(original)
+  })
+
+  test('a reordered step survives Save in its new position', async () => {
+    const wrapper = await openDomain(await mountScreen(), 'eoy', 'End of Year')
+    const material = wrapper.vm.form.materials[0]
+    const wasSecond = material.steps[1]
+
+    wrapper.vm.moveStep(material, 1, -1)
+    await wrapper.vm.save()
+
+    const post = global.fetch.mock.calls.find(c => c[1] && c[1].method === 'POST' && !String(c[0]).endsWith('/section'))
+    expect(post).toBeTruthy()
+    const sent = JSON.parse(post[1].body)
+    expect(sent.materials[0].steps[0]).toBe(wasSecond)
+  })
 })
 
 describe('re-filing into another section (drag / Move to)', () => {

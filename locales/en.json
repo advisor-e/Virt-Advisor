@@ -784,6 +784,8 @@
     "stepLabel": "Step {n}",
     "addStep": "+ Add step",
     "removeStep": "Remove step",
+    "moveStepUp": "Move step up",
+    "moveStepDown": "Move step down",
     "addMaterial": "+ Add material",
     "reset": "Reset to platform default",
     "resetConfirm": "Reset <strong>{name}</strong> to the platform default? Your firm's saved changes to this domain will be removed.",
