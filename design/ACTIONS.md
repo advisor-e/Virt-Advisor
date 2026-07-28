@@ -225,6 +225,15 @@
       session content*), and a result saved BEFORE today (says nothing rather than guessing).
       Advisor-visible on Quiz Review only — the in-quiz result card is left uncluttered.
     - 11 new tests (5 backend + 6 component); full suite **1,924 green**, lint 0 errors.
+  - ➡ **MOVED TO THE LAPTOP 2026-07-29 (Mike's call) — the whole advisor-progress section
+    now belongs to branch `feat/advisor-progress`**, cut from `origin/master` and pushed;
+    its briefing is [`ADVISOR-PROGRESS-HANDOVER.md`](ADVISOR-PROGRESS-HANDOVER.md) (the two
+    screens, why they render zeros, the mocked Team Dashboard, the missing component tests).
+    Nothing had to be moved out of this branch — every advisor-progress file is
+    byte-identical between `master` and here. **The desktop does not pick these items up.**
+    The one exception is the per-question record immediately below: it builds on the quiz
+    provenance that exists only on THIS branch, so it waits until this branch merges to
+    `master` and the laptop merges `master` in.
   - 🟠 **Still open — the BACKEND record (the manager half of the same idea).** `log-course` still
     sends only the score, so `advisor_course_completions` — and therefore **My Progress** and the
     **Team Dashboard** — are unchanged: they show averages and have never seen a question.
