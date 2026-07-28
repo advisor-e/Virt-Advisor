@@ -136,6 +136,37 @@
     per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
     `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
     the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
+  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 7 of 29 domains migrated**
+    (eoy `dfa8572`, then **systems · risk · staff · succession · valuation** `bfc4b37`, then
+    **stock-purchasing**). Mike's instruction 2026-07-29: migrate them ALL, then he reviews and
+    edits in the app rather than approving each draft in chat. **Resume order — 22 left:**
+    conflict, data-systems, due-diligence, fm-coach-culture, forecasting, get-marketing,
+    get-positioning, get-pricing-proposals, get-sales, get-sales-tracker, get-seminar,
+    get-team-problem, governance, org-board-pack, org-capacity-planner, org-firm-strategy,
+    org-leadership, people-power, profit, raising-capital, sales-marketing, strategy.
+    - **Two rules being applied (Mike, 2026-07-29):** (1) **If-Then rows drop out** of Domain
+      Support — the Logic Tables tab owns those grids under §0.6, so keeping them would put the
+      same content in two editable places. Valuation and stock-purchasing both carry a logic
+      table at the end of their source (valuation's is the *unlabelled* one §0.5 warned about).
+      (2) The **seven non-support documents go last** — Coaching Content, Dashboard, Powerful
+      Seminars, Sales & Marketing slide table, Cautious Reveal, Trial Fit, Why Use Rev Models are
+      slide decks / FAQs / an index, and §0.5 still records their handling as undecided.
+    - **Summary length is the standard to hold:** EOY's summaries run 254–322 chars. The first
+      Systems draft put **2,600 characters** in one Summary cell and Mike rejected it on sight;
+      re-authored so Summary is 3 sentences and the teaching lives in Step-by-step, where the
+      four-column standard intends it. Migrated files now run 333–463 chars.
+    - **`who_when` is the one drafted field** (the gap §0.5 predicted) — EXCEPT where the source
+      carries its own suitability line, which succession and stock-purchasing both do, so those
+      are the firm's words.
+    - **Content-loss check performed per domain:** only 13 templates have a `*-reference.json`
+      second home (that is why EOY could summarise freely — `eoy-reference.json` was untouched).
+      Systems, risk, staff, succession, valuation and stock-purchasing have **none**, so their
+      files are the only home for that teaching and nothing was dropped from them.
+    - **Helper used:** a scratchpad `apply-materials.js` splices `materials[]` in and removes
+      `support_tools`, preserving `label` / `trigger_keywords` / `overview` / `diagnostic_entry` /
+      `advisor_guidance` verbatim — those last two are still read by the prompt formatters
+      ([`domainSupport.js`](../server/utils/domainSupport.js) L190, L267, L344) and must not be
+      dropped just because EOY's file happens not to have them.
   - 📋 **Domain-support content migration — METHOD CONFIRMED (2026-07-27, Mike).** Author each
     domain's four-column draft **from the 43 source PDFs in `domain support/`** — NOT the existing
     `data/*-domain-support.json`, which plan §0.5 rules a *lossy* summary. **Keep ALL the richness**
