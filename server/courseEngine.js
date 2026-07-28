@@ -18,6 +18,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
+const { loadFirmDomainSupport, loadFirmLogicTrees } = require('../server/utils/firmContent')
 const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
 const { isClarificationRequest, prefillDesignState, requestedSessionCount } = require('../server/utils/designInterview')
@@ -31,6 +32,14 @@ let _openaiClient = null
 function getOpenAI () {
   if (!_openaiClient) { _openaiClient = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY }) }
   return _openaiClient
+}
+
+// Lazy firmOverlay accessor (the advisorEngine pattern) — firmOverlay pulls in
+// the MySQL pool via ./db, which must not load at require time.
+let _loadFirmConfig = null
+function loadFirmConfig (...args) {
+  if (!_loadFirmConfig) { _loadFirmConfig = require('../server/utils/firmOverlay').loadFirmConfig }
+  return _loadFirmConfig(...args)
 }
 
 const { loadPrompt } = require('../server/utils/promptLoader')
@@ -150,9 +159,12 @@ function handleDesign (req, body, res) {
     const summariesText = formatSummariesForPrompt(filterSummariesByQuery(allUserText, 12))
     const sectionDescText = formatSectionDescriptionsForPrompt()
 
-    const detectedDomains = detectDomainsForDesign(allUserText)
+    // Firm content overlay (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
+    // identity from the firmAuth-verified req, never the body.
+    const firmDomainSupport = await loadFirmDomainSupport(req.firmId, loadFirmConfig)
+    const detectedDomains = detectDomainsForDesign(allUserText, firmDomainSupport)
     const domainSummaries = detectedDomains
-      .map(id => formatDomainSummaryForDesign(id))
+      .map(id => formatDomainSummaryForDesign(id, firmDomainSupport))
       .filter(Boolean)
       .join('\n\n')
 
@@ -337,15 +349,19 @@ async function handleSession (req, body, res) {
       )
     : ''
 
-  // Domain support context — match session topic to the relevant domain support JSON
+  // Domain support context — match session topic to the relevant domain support JSON.
+  // Firm content overlays (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
+  // identity from the firmAuth-verified req, never the body.
+  const firmDomainSupport = await loadFirmDomainSupport(req.firmId, loadFirmConfig)
+  const firmLogicTrees = await loadFirmLogicTrees(req.firmId, loadFirmConfig)
   const domainQuery = focusQuery
-  const domainId = detectDomainForSession(domainQuery)
+  const domainId = detectDomainForSession(domainQuery, firmDomainSupport)
   const domainContext = domainId
-    ? '\n\n' + formatDomainContextForSession(domainId, sessionContext?.resources || [])
+    ? '\n\n' + formatDomainContextForSession(domainId, sessionContext?.resources || [], firmDomainSupport)
     : ''
 
   // Logic tree reference — match session topic to a learn-mode logic tree
-  const logicTree = detectLogicTree(domainQuery)
+  const logicTree = detectLogicTree(domainQuery, firmLogicTrees)
   const logicTreeContext = logicTree ? '\n\n' + (buildLearnReferenceText(logicTree) || '') : ''
 
   const advisorContext = advisorProfile
@@ -423,6 +439,18 @@ async function handleQuizGenerate (body, res) {
   // Firm-authored banks are therefore fenced; platform banks are repo data and
   // stay unfenced, leaving the tuned CB-29/CB-30 prompt behaviour unchanged.
   const bank = findQuizBank(overrides.banks, sessionContext)
+  // Provenance: which bank answered. `bankRef` (already on every question) is
+  // only an entry NUMBER — meaningless without the bank it belongs to, so the
+  // advisor's quiz review and any manager view cannot say where a question came
+  // from. The key is resolved by identity rather than changing findQuizBank's
+  // return shape, which the grader and its tests also depend on.
+  //
+  // Identity ONLY — never the entries. The firm's model answers stay withheld
+  // until after grading (see handleQuizGrade), or the browser would hold the
+  // answers before the advisor writes theirs.
+  const bankKey = bank
+    ? (Object.keys(overrides.banks || {}).find(k => overrides.banks[k] === bank) || null)
+    : null
   const bankEntries = bank
     ? bank.entries.map(e => `Entry ${e.id}\nQuestion: ${e.question}\nKey point: ${e.keyPoint}`).join('\n')
     : ''
@@ -479,7 +507,14 @@ ${jsonShape}`
       console.error('[course:quiz-generate] invalid AI response shape:', result.errors.join('; '))
       return sendError(res, 500, 'QUIZ_GENERATE_FAILED', 'Failed to generate quiz questions')
     }
-    jsonResponse(res, 200, { success: true, questions: result.data.questions })
+    jsonResponse(res, 200, {
+      success: true,
+      questions: result.data.questions,
+      // null when the session's page has no authored bank — the questions were
+      // written from the session content, and the screen says so rather than
+      // implying a firm source that does not exist.
+      bank: bank ? { key: bankKey, source: bank.source || null, origin: bank.origin || 'platform' } : null
+    })
   } catch (e) {
     console.error('[course:quiz-generate]', e.message)
     sendError(res, 500, 'QUIZ_GENERATE_FAILED', 'Failed to generate quiz questions')

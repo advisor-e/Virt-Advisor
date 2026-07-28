@@ -12,6 +12,8 @@
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
 const masterExport = require('./masterExport')
+const { mergeEntry } = require('./firmContent')
+const { fenceUntrusted } = require('./promptSafety')
 
 let _trees = null
 const _refCache = new Map()
@@ -108,12 +110,47 @@ function loadLogicTrees () {
 }
 
 /**
+ * The tree list the CURRENT REQUEST should see: the cached platform base with
+ * the firm's per-tree overrides (if any) merged in — Phase 0 of
+ * design/FIRM-EDITABLE-TABLES-PLAN.md §3. Overrides apply to EXISTING tree ids
+ * only; adding whole new trees is the Phase 3 scope decision. With no override
+ * the base array is returned as-is (zero cost, zero behaviour change). Merged
+ * copies are built fresh per call and never written back into _trees — that is
+ * the cross-firm isolation guarantee.
+ * @param {Object|null} firmTrees - the firm's override map, keyed by tree id
+ *   (loadFirmLogicTrees), or null
+ * @returns {Array<Object>}
+ */
+function effectiveTrees (firmTrees) {
+  const base = loadLogicTrees()
+  if (!firmTrees || typeof firmTrees !== 'object' || Array.isArray(firmTrees)) { return base }
+  return base.map((tree) => {
+    const override = firmTrees[tree.id]
+    if (override && typeof override === 'object' && !Array.isArray(override)) {
+      const merged = mergeEntry(tree, override)
+      // Mark this per-request merged copy as carrying firm-authored branch text
+      // so the prompt formatter fences it (formatLogicTreeForPrompt). Set on the
+      // fresh merged object only — never on the shared base — and non-enumerable
+      // so it can never leak into an API response or JSON. This is the single
+      // point a tree becomes firm-authored, so the whole engine sees the flag
+      // for free without threading it through every call site.
+      Object.defineProperty(merged, '__firmAuthored', { value: true, enumerable: false, configurable: true })
+      return merged
+    }
+    return tree
+  })
+}
+
+/**
  * Detects which logic tree (if any) best matches the advisor's opening message.
  * Scores each tree by counting how many of its entry_triggers appear in the message.
- * Returns the highest-scoring tree, or null if nothing matches.
+ * Returns the highest-scoring tree, or null if nothing matches. A firm override
+ * that edits entry_triggers changes which tree fires FOR THAT FIRM.
+ * @param {string} message
+ * @param {Object|null} [firmTrees] - the firm's override map (loadFirmLogicTrees)
  */
-function detectLogicTree (message) {
-  const trees = loadLogicTrees()
+function detectLogicTree (message, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
   const lower = message.toLowerCase()
 
   let bestMatch = null
@@ -136,9 +173,11 @@ function detectLogicTree (message) {
 /**
  * Returns all logic trees that match the message, sorted by score descending.
  * Every tree scoring at least one trigger is returned — no arbitrary cap.
+ * @param {string} message
+ * @param {Object|null} [firmTrees] - the firm's override map (loadFirmLogicTrees)
  */
-function detectLogicTrees (message) {
-  const trees = loadLogicTrees()
+function detectLogicTrees (message, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
   const lower = message.toLowerCase()
 
   return trees
@@ -153,23 +192,31 @@ function detectLogicTrees (message) {
 
 /**
  * Formats a single tree node into a readable text block for the AI.
+ * @param {Object} node
+ * @param {Array<Object>} allNodes
+ * @param {boolean} [fence=false] - when true, the firm-editable free-text fields
+ *   (condition, action, question, notes) are wrapped with fenceUntrusted so the
+ *   model reads firm-authored text as data, not instructions. Short structural
+ *   labels (branch_name) are left as-is, mirroring how domain-support fences
+ *   prose but not labels. Off by default → platform output is byte-identical.
  */
-function formatNodeForPrompt (node, allNodes) {
+function formatNodeForPrompt (node, allNodes, fence = false) {
   const lines = []
+  const fx = v => (fence ? fenceUntrusted(v) : v)
 
   lines.push(`**[${node.branch_name}]** (${node.type})`)
-  lines.push(`Condition: ${node.condition}`)
+  lines.push(`Condition: ${fx(node.condition)}`)
 
   if (node.type === 'assessment' && node.gate_question) {
     lines.push(`Gate check: ${node.gate_question}`)
   }
 
   if (node.action) {
-    lines.push(`Action: ${node.action}`)
+    lines.push(`Action: ${fx(node.action)}`)
   }
 
   if (node.question) {
-    lines.push(`Ask: "${node.question}"`)
+    lines.push(fence ? `Ask: ${fenceUntrusted(node.question)}` : `Ask: "${node.question}"`)
   }
 
   if (node.sales_process) {
@@ -189,7 +236,7 @@ function formatNodeForPrompt (node, allNodes) {
   }
 
   if (node.notes) {
-    lines.push(`Notes: ${node.notes}`)
+    lines.push(`Notes: ${fx(node.notes)}`)
   }
 
   if (node.branches && node.branches.length > 0) {
@@ -213,14 +260,15 @@ function formatNodeForPrompt (node, allNodes) {
  * Learn-mode coaching — never walked, and never fed into the client recommendation path
  * (Get-the-Job content must not reach client templates — design §2.5).
  */
-function formatFlatBranch (branch) {
+function formatFlatBranch (branch, fence = false) {
+  const fx = v => (fence ? fenceUntrusted(v) : v)
   const lines = [`**[${branch.branch_name}]**`]
-  if (branch.condition) { lines.push(`Condition: ${branch.condition}`) }
-  if (branch.action) { lines.push(`Action: ${branch.action}`) }
+  if (branch.condition) { lines.push(`Condition: ${fx(branch.condition)}`) }
+  if (branch.action) { lines.push(`Action: ${fx(branch.action)}`) }
   if (branch.templates && branch.templates.length > 0) {
     lines.push(`Templates: ${branch.templates.join(', ')}`)
   }
-  if (branch.notes) { lines.push(`Notes: ${branch.notes}`) }
+  if (branch.notes) { lines.push(`Notes: ${fx(branch.notes)}`) }
   return lines.join('\n')
 }
 
@@ -250,13 +298,17 @@ function formatLogicTreeForPrompt (tree) {
     ''
   ].join('\n')
 
+  // A firm-overridden tree carries firm-authored branch text (tagged in
+  // effectiveTrees); fence it so the model treats it as data, not instructions.
+  const fence = !!(tree && tree.__firmAuthored)
+
   const nodeBlocks = (tree.nodes || [])
-    .map(node => formatNodeForPrompt(node, tree.nodes))
+    .map(node => formatNodeForPrompt(node, tree.nodes, fence))
     .join('\n\n')
 
   // flat_if_then trees keep their rules at the tree level (`tree.branches`), not in nodes.
   const flatBlocks = (tree.branches || [])
-    .map(formatFlatBranch)
+    .map(branch => formatFlatBranch(branch, fence))
     .join('\n\n')
 
   const approachBlock = tree.approach_guidance
@@ -1160,8 +1212,8 @@ function scorePattern (signalText, pattern) {
   return words.filter(w => signalText.includes(w)).length
 }
 
-function walkLogicTree (state, treeId) {
-  const trees = loadLogicTrees()
+function walkLogicTree (state, treeId, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
   const tree = trees.find(t => t.id === treeId)
   if (!tree || !tree.nodes || !tree.nodes.length) { return [] }
   const signalText = buildSignalText(state)
@@ -1199,4 +1251,4 @@ function walkLogicTree (state, treeId) {
   return [...templates]
 }
 
-module.exports = { loadLogicTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }

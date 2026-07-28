@@ -1,0 +1,51 @@
+{
+  "_comment": "Which library sub-sections can hold quiz material, and the order they are listed in. Mike's rulings 2026-07-22: (1) the Quizzes editor lists only genuine advisory-content areas, so it never nags a firm to fill a gap that should not exist; (2) areas appear in the same order as the owner's own headers documents, not the order the export happens to store them in.",
+  "_source": "The section headers documents the owner maintains in 'central frameworks/': 'Do the Job Content headers (5).pdf', 'Get Org. Headers.pdf', 'Get the Job Content Headers.pdf'.",
+  "_rule": "sectionOrder ranks the sections. For each section, `restrictions` (if present) is BOTH the allow-list AND the running order; otherwise `subSectionOrder` gives the order without restricting. Anything not named falls to the end in export order, so a new area is never silently dropped or hidden.",
+  "_notLimited": {
+    "Get the Job": "All 8 sub-sections are advisory content per its headers document.",
+    "Get Organised": "All 3 are advisory content. 'Firm Manager Access' and 'Advisor Access' sound like app permissions but its headers document describes real material — CA Capacity Planner, CA Firm Strategy, Leadership, Firm Board Pack, Coaching & Culture, Group Coaching Tutorials, Advisor Growth Plan."
+  },
+  "_excludedFromDoTheJob": {
+    "(blank)": "2 pages carry no sub-section at all — 'Specialist Content 1' and 'Programme Pages'. They appear in no headers document. Shown before this rule under an invented heading, which misrepresented the library.",
+    "External Advisors": "6 pages — Insurance, Legal, Loan Estimator, Retirement Calcs, Cost of Capital, Crypto Asset Allocations.",
+    "Firm Manager Access": "3 pages — CA Firm Strategy, Leadership, Firm Board Pack. NOTE: the Get Organised headers document describes these three as Get Organised content, but the export files them under Do the Job. Flagged upstream, not corrected here.",
+    "Risk Advisor Access": "1 page — Business Insurance Model. Same mismatch as above.",
+    "Reporting": "1 page — Dashboard Report."
+  },
+  "sectionOrder": [
+    "Do the Job",
+    "Get the Job",
+    "Get Organised"
+  ],
+  "restrictions": {
+    "Do the Job": [
+      "Help",
+      "Client On Boarding",
+      "EOY Notes & Docs",
+      "Growth Framework",
+      "Revenue & Feasibility Models",
+      "General Tools",
+      "Lite Fundamentals",
+      "Strategic Tools",
+      "Specialist Tools",
+      "Governance Tools"
+    ]
+  },
+  "subSectionOrder": {
+    "_getTheJobNote": "The Get the Job document is prose, not a clean numbered list — it runs Sales Tracker, Marketing, Seminar Delivery, Positioning, Learning to Sell, Pricing & Proposals. 'Sales Tracker' is not a sub-section in the export, and three real sub-sections go unmentioned; those three are appended in export order rather than guessed at.",
+    "Get the Job": [
+      "Marketing",
+      "Seminar Delivery",
+      "Positioning",
+      "Learning to Sell",
+      "Pricing & Proposals"
+    ],
+    "_getOrganisedNote": "Its document runs Firm Manager Access content, then (Advisor) Access content, with the Risk Advisor material described inside the advisor section. This matches the export's own order.",
+    "Get Organised": [
+      "Firm Manager Access",
+      "Advisor Access",
+      "Risk Advisor Access"
+    ]
+  }
+}

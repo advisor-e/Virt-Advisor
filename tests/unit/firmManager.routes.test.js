@@ -41,8 +41,6 @@ const {
   listVideos,
   addVideo,
   deleteVideo,
-  getProfile,
-  updateProfile,
   getStorageUsage,
   getStaircase,
   saveStaircase
@@ -474,67 +472,6 @@ describe('deleteVideo', () => {
 
     expect(res._status).toBe(200)
     expect(res._body.deleted).toBe(true)
-  })
-})
-
-// ── Firm Profile ──────────────────────────────────────────────────────────────
-
-describe('getProfile', () => {
-  test('returns 404 when firm is not found', async () => {
-    db.execute.mockResolvedValue([[]])
-
-    const req = makeReq()
-    const res = makeMockRes()
-
-    await getProfile(req, res, jest.fn())
-
-    expect(res._status).toBe(404)
-  })
-
-  test('returns firm data when found', async () => {
-    db.execute.mockResolvedValue([[
-      {
- id: 'firm-test-123',
-name: 'Acme Advisory',
-slug: 'acme',
-logo_url: null,
-        primary_colour: '#003366',
-persona_name: 'Max',
-created_at: '2026-01-01'
-}
-    ]])
-
-    const req = makeReq()
-    const res = makeMockRes()
-
-    await getProfile(req, res, jest.fn())
-
-    expect(res._status).toBe(200)
-    expect(res._body.firm.name).toBe('Acme Advisory')
-    expect(res._body.firm.persona_name).toBe('Max')
-  })
-})
-
-describe('updateProfile', () => {
-  test('returns 400 when no updatable fields are provided', async () => {
-    const req = makeReq({ body: {} })
-    const res = makeMockRes()
-
-    await updateProfile(req, res, jest.fn())
-
-    expect(res._status).toBe(400)
-  })
-
-  test('updates and returns 200 when valid fields provided', async () => {
-    db.execute.mockResolvedValue([{ affectedRows: 1 }])
-
-    const req = makeReq({ body: { name: 'Updated Firm Name', persona_name: 'Advisor' } })
-    const res = makeMockRes()
-
-    await updateProfile(req, res, jest.fn())
-
-    expect(res._status).toBe(200)
-    expect(res._body.updated).toBe(true)
   })
 })
 

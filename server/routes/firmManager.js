@@ -136,10 +136,6 @@ function _devWriteOverrideBaselines (firmId, obj) {
  *     (history + restore reuse /framework/history + /framework/restore with
  *      configKey='advisory-staircase')
  *
- *   Firm Profile
- *     GET  /api/firm-manager/profile              get firm profile
- *     PUT  /api/firm-manager/profile              update firm profile
- *
  *   Storage
  *     GET  /api/firm-manager/storage              get storage usage summary
  */
@@ -473,55 +469,6 @@ async function deleteVideo (req, res) {
       return sendError(res, 404, 'NOT_FOUND', 'Video not found for this firm')
     }
     res.send(200, { deleted: true })
-  } catch (err) {
-    return serverError(res, 500, 'DB_ERROR', err)
-  }
-}
-
-// ── Firm Profile ──────────────────────────────────────────────────────────────
-
-async function getProfile (req, res) {
-  try {
-    const [rows] = await db.execute(
-      `SELECT id, name, slug, logo_url, primary_colour, persona_name, created_at
-       FROM firms WHERE id = ?`,
-      [req.firmId]
-    )
-    if (rows.length === 0) { return sendError(res, 404, 'NOT_FOUND', 'Firm not found') }
-    res.send(200, { firm: rows[0] })
-  } catch (err) {
-    if (IS_DEV) {
-      res.send(200, { firm: { id: req.firmId, name: 'Dev Firm', slug: 'dev', logo_url: null, primary_colour: '#000000', persona_name: null } }); return
-    }
-    return serverError(res, 500, 'DB_ERROR', err)
-  }
-}
-
-async function updateProfile (req, res) {
-  const allowed = ['name', 'logo_url', 'primary_colour', 'persona_name']
-  const body = req.body || {}
-  const setClauses = []
-  const values = []
-
-  for (const field of allowed) {
-    if (body[field] !== undefined) {
-      setClauses.push(`\`${field}\` = ?`)
-      values.push(body[field])
-    }
-  }
-
-  if (setClauses.length === 0) {
-    return sendError(res, 400, 'NO_FIELDS',
-      `At least one of these fields is required: ${allowed.join(', ')}`)
-  }
-
-  values.push(req.firmId)
-  try {
-    await db.execute(
-      `UPDATE firms SET ${setClauses.join(', ')} WHERE id = ?`,
-      values
-    )
-    res.send(200, { updated: true })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -1467,7 +1414,59 @@ async function saveStaircase (req, res) {
 // starting point and what the firm changed.
 
 const { CONFIG_KEY: QUIZ_KEY, validateQuizOverride, mergeQuizBanks } = require('../utils/firmQuizzes')
+const { listTemplatePages } = require('../utils/resolveTemplateName')
 const BASE_QUIZZES = require('../../data/course-quizzes.json')
+const QUIZZABLE = require('../../data/quizzable-sections.json')
+
+/**
+ * Keep only pages in sub-sections that can hold quiz material.
+ *
+ * Mike's ruling 2026-07-22: the editor lists genuine advisory-content areas
+ * only. Two of the excluded Do-the-Job pages carry no sub-section at all, so
+ * before this rule they appeared under a heading the app invented — showing a
+ * group that exists nowhere in the firm's library.
+ *
+ * A section absent from `restrictions` is unrestricted, so a section added
+ * upstream stays visible rather than silently disappearing.
+ *
+ * @param {Array<Object>} pages - rows from listTemplatePages()
+ * @returns {Array<Object>} the subset that may hold a quiz
+ */
+function quizzablePages (pages) {
+  const limits = (QUIZZABLE && QUIZZABLE.restrictions) || {}
+  const sectionOrder = (QUIZZABLE && QUIZZABLE.sectionOrder) || []
+  const subOrder = (QUIZZABLE && QUIZZABLE.subSectionOrder) || {}
+
+  const kept = pages.filter((p) => {
+    const allowed = limits[p.section]
+    return Array.isArray(allowed) ? allowed.includes(p.subSection) : true
+  })
+
+  // Anything unnamed ranks last rather than first, so a sub-section added
+  // upstream appears at the end of its section instead of jumping to the top.
+  const LAST = Number.MAX_SAFE_INTEGER
+  const rankOf = (list, value) => {
+    if (!Array.isArray(list)) { return LAST }
+    const i = list.indexOf(value)
+    return i === -1 ? LAST : i
+  }
+  // Where a section is restricted, the allow-list doubles as its running order,
+  // so the two can never disagree.
+  const subList = section => (Array.isArray(limits[section]) ? limits[section] : subOrder[section])
+
+  return kept
+    .map((page, i) => ({ page, i }))
+    .sort((a, b) => {
+      const sa = rankOf(sectionOrder, a.page.section)
+      const sb = rankOf(sectionOrder, b.page.section)
+      if (sa !== sb) { return sa - sb }
+      const ta = rankOf(subList(a.page.section), a.page.subSection)
+      const tb = rankOf(subList(b.page.section), b.page.subSection)
+      if (ta !== tb) { return ta - tb }
+      return a.i - b.i // keep the export's own order within a sub-section
+    })
+    .map(entry => entry.page)
+}
 
 function _devReadQuizzes (firmId) {
   try {
@@ -1505,7 +1504,16 @@ async function _saveQuizOverride (firmId, cfg, savedBy) {
 
 /**
  * GET /api/firm-manager/quizzes — the firm's quiz material.
- * @returns {{base: Object, firmOverride: Object|null, merged: Object, hasOverride: boolean}}
+ *
+ * `pages` is every page that can hold quiz material — not just the pages that
+ * already have one. The editor lists every such sub-section including the empty
+ * ones, so a firm can SEE where it has no quiz material; hiding those would
+ * hide the gap. It comes from the resolver's own list, so the pages offered are
+ * exactly the pages a save will accept, filtered to the advisory-content areas
+ * (see data/quizzable-sections.json).
+ *
+ * @returns {{base: Object, firmOverride: Object|null, merged: Object,
+ *            hasOverride: boolean, pages: Array<Object>}}
  */
 async function getQuizzes (req, res) {
   try {
@@ -1518,7 +1526,8 @@ async function getQuizzes (req, res) {
       base,
       firmOverride,
       merged: mergeQuizBanks(base, firmOverride),
-      hasOverride: firmOverride !== null
+      hasOverride: firmOverride !== null,
+      pages: quizzablePages(listTemplatePages())
     })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -1545,7 +1554,651 @@ async function saveQuizzes (req, res) {
   }
 }
 
+// ── Domain Support ──────────────────────────────────────────────────────────
+
+const DEV_DOMAIN_SUPPORT_FILE = path.resolve(__dirname, '../../data/dev-firm-domain-support.json')
+const DOMAIN_SUPPORT_KEY_PREFIX = 'domain-support-'
+
+function _devReadDomainSupport (firmId, domainId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
+    const firm = all[firmId] || {}
+    return firm[domainId] || null
+  } catch { return null }
+}
+
+function _devWriteDomainSupport (firmId, domainId, cfg) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
+  } catch {}
+  if (!all[firmId]) { all[firmId] = {} }
+  all[firmId][domainId] = cfg
+  fs.writeFileSync(DEV_DOMAIN_SUPPORT_FILE, JSON.stringify(all, null, 2))
+}
+
+async function _loadDomainSupportOverride (firmId, domainId) {
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+  try {
+    return await overlay.loadFirmConfig(firmId, configKey)
+  } catch (err) {
+    if (IS_DEV) { return _devReadDomainSupport(firmId, domainId) }
+    throw err
+  }
+}
+
+async function _saveDomainSupportOverride (firmId, domainId, cfg, savedBy) {
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+  try {
+    return await overlay.saveFirmConfig(firmId, configKey, cfg, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteDomainSupport(firmId, domainId, cfg); return null }
+    throw err
+  }
+}
+
+async function _getDomainSupportHistory (firmId, domainId) {
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+  try {
+    const [rows] = await db.execute(
+      `SELECT version, saved_by, created_at
+       FROM firm_framework_versions
+       WHERE firm_id = ? AND config_key = ?
+       ORDER BY version DESC`,
+      [firmId, configKey]
+    )
+    return rows
+  } catch (err) {
+    if (IS_DEV) { return [] }
+    throw err
+  }
+}
+
+async function _restoreDomainSupportVersion (firmId, domainId, version, restoredBy) {
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+  try {
+    const [rows] = await db.execute(
+      `SELECT config_json FROM firm_framework_versions
+       WHERE firm_id = ? AND config_key = ? AND version = ?`,
+      [firmId, configKey, version]
+    )
+    if (rows.length === 0) { throw new Error('Version not found') }
+    const cfg = JSON.parse(rows[0].config_json)
+    await _saveDomainSupportOverride(firmId, domainId, cfg, restoredBy)
+    return true
+  } catch (err) {
+    if (IS_DEV) { return false }
+    throw err
+  }
+}
+
+/**
+ * How many editable items a domain's support holds, for the rail count. The
+ * four-column `materials` shape (§0.5) is counted first; a domain still on the
+ * legacy `support_tools` shape falls back to that. Without this, a migrated
+ * domain (e.g. EOY) reported 0 because only support_tools was counted.
+ * @param {Object|null} support - the merged domain-support entry
+ * @returns {number}
+ */
+function _countSupportItems (support) {
+  // Count the EDITABLE four-column materials only. A domain still on the legacy
+  // support_tools shape has no four-column content to edit here, so it honestly
+  // reports 0 — matching the "not authored yet" state the panel shows when the
+  // domain is opened (a non-zero rail count that the panel then contradicts was
+  // the legibility bug the owner hit 2026-07-27).
+  return (support && Array.isArray(support.materials)) ? support.materials.length : 0
+}
+
+/**
+ * GET /api/firm-manager/domain-support — list all domain support + firm overrides
+ */
+/**
+ * Which master section a domain-support item belongs to, for the three-way rail
+ * (FIRM-EDITABLE-TABLES-PLAN.md — matches the master export's do-the-job /
+ * get-the-job / get-organised sections). The `get-*` seller files are
+ * get-the-job; the firm-management domains (org-*, fm-coach-culture,
+ * people-power) are get-organised; everything else is client-delivery advisory
+ * = do-the-job. Kept here, not in the data, because domains.json carries no
+ * section field. A future firm re-file (drag) will override this default.
+ * @param {string} id - domain or seller id
+ * @returns {'doTheJob'|'getTheJob'|'getOrganised'}
+ */
+function _domainSupportSection (id) {
+  const s = String(id || '')
+  if (s.startsWith('get-')) { return 'getTheJob' }
+  if (s.startsWith('org-') || s === 'fm-coach-culture' || s === 'people-power') { return 'getOrganised' }
+  return 'doTheJob'
+}
+
+async function getDomainSupport (req, res) {
+  try {
+    const domains = require('../../data/domains.json') || []
+    const getFiles = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
+
+    const result = { doTheJob: [], getTheJob: [], getOrganised: [] }
+    const firmSections = await _loadSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE)
+
+    const addRow = async (id, label) => {
+      const override = await _loadDomainSupportOverride(req.firmId, id)
+      const support = require('../utils/domainSupport').resolveDomainSupport(id, override ? { [id]: override } : null)
+      const moved = firmSections[id]
+      const section = VALID_SECTIONS.includes(moved) ? moved : _domainSupportSection(id)
+      result[section].push({
+        id,
+        label,
+        hasOverride: override !== null,
+        supportTools: _countSupportItems(support),
+        origin: override ? 'firm' : 'platform'
+      })
+    }
+
+    for (const domain of domains) { await addRow(domain.id, domain.label) }
+    for (const fileId of getFiles) { await addRow(fileId, fileId.replace('get-', '').replace(/-/g, ' ')) }
+
+    res.send(200, result)
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/domain-support/:domainId — get domain support detail with firm override
+ */
+async function getDomainSupportDetail (req, res) {
+  const { domainId } = req.params
+  try {
+    const domainSupport = require('../utils/domainSupport')
+    const override = await _loadDomainSupportOverride(req.firmId, domainId)
+    const merged = domainSupport.resolveDomainSupport(domainId, override ? { [domainId]: override } : null)
+    res.send(200, merged || {})
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/domain-support/:domainId — save domain support override
+ */
+async function saveDomainSupport (req, res) {
+  const { domainId } = req.params
+  const override = req.body || {}
+
+  try {
+    const version = await _saveDomainSupportOverride(req.firmId, domainId, override, req.userEmail)
+    res.send(200, { saved: true, version, domainId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * DELETE /api/firm-manager/domain-support/:domainId — reset to platform default
+ */
+async function resetDomainSupport (req, res) {
+  const { domainId } = req.params
+  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+
+  try {
+    if (!IS_DEV) {
+      await db.execute(
+        `UPDATE firm_framework_versions SET is_active = 0
+         WHERE firm_id = ? AND config_key = ?`,
+        [req.firmId, configKey]
+      )
+    } else {
+      let all = {}
+      try {
+        all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
+      } catch {}
+      if (all[req.firmId]) { delete all[req.firmId][domainId] }
+      fs.writeFileSync(DEV_DOMAIN_SUPPORT_FILE, JSON.stringify(all, null, 2))
+    }
+    res.send(200, { reset: true, domainId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/domain-support/:domainId/history — version history
+ */
+async function getDomainSupportHistory (req, res) {
+  const { domainId } = req.params
+  try {
+    const history = await _getDomainSupportHistory(req.firmId, domainId)
+    res.send(200, { history, domainId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/domain-support/:domainId/restore — restore a version
+ */
+async function restoreDomainSupport (req, res) {
+  const { domainId } = req.params
+  const { version } = req.body || {}
+
+  if (typeof version !== 'number') {
+    return res.send(400, { success: false, error: { code: 'INVALID_VERSION', message: 'version must be a number' } })
+  }
+
+  try {
+    await _restoreDomainSupportVersion(req.firmId, domainId, version, req.userEmail)
+    res.send(200, { restored: true, domainId, version })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+// ── Logic Tables ─────────────────────────────────────────────────────────────
+// The firm-editable IF→THEN branch tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3,
+// §0.6). Deliberately built on the SINGLE `logic-trees` overlay bundle the
+// advisor engine actually reads (firmContent.loadFirmLogicTrees, keyed by tree
+// id) — so a firm's save reaches the AI in production, not only the dev-file
+// fallback. The domain-support routes' split per-key storage is a separate,
+// pre-existing gap logged as a P1 to reconcile (see ACTIONS.md); this feature
+// does not repeat it. Slice A is READ-ONLY (list + detail); save/reset/history
+// land in Slice B alongside the prompt-fencing safeguard.
+
+const { loadFirmLogicTrees, CONFIG_KEYS: CONTENT_CONFIG_KEYS } = require('../utils/firmContent')
+
+// The firm's whole logic-tree override bundle is stored under ONE config key
+// ('logic-trees') as a map { treeId: override } — not per-key like domain
+// support. Saving one table therefore loads the whole map, sets one key, and
+// writes the whole map back. Dev falls back to the same gitignored JSON the
+// reader uses (firmContent.DEV_FILES.logicTrees), keyed by firmId.
+const DEV_LOGIC_TREES_FILE = path.resolve(__dirname, '../../data/dev-firm-logic-trees.json')
+
+// ── Section placement (display-only, firm-scoped) ────────────────────────────
+// A firm can re-file a domain-support item or logic table into a different
+// master section (Do the Job / Get the Job / Get Organised) for THEIR firm.
+// Stored as a sparse { itemId: section } map, SEPARATE from content edits, and
+// read ONLY by the two list routes below — never by the advisor/course engines
+// (owner ruling 2026-07-27: re-filing changes the Firm Manager shelf, not the
+// AI's behaviour). Dragging an item back to its platform-default section clears
+// its override, so the map stays sparse.
+const VALID_SECTIONS = ['doTheJob', 'getTheJob', 'getOrganised']
+const LOGIC_TREE_SECTIONS_KEY = 'logic-tree-sections'
+const DOMAIN_SUPPORT_SECTIONS_KEY = 'domain-support-sections'
+const DEV_LOGIC_TREE_SECTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-logic-tree-sections.json')
+const DEV_DOMAIN_SUPPORT_SECTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-domain-support-sections.json')
+
+/**
+ * The firm's { itemId: section } placement overrides for one page, or {}.
+ * @param {string} firmId @param {string} configKey @param {string} devFile
+ * @returns {Promise<Object>}
+ */
+async function _loadSectionMap (firmId, configKey, devFile) {
+  try {
+    const v = await overlay.loadFirmConfig(firmId, configKey)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch (err) {
+    if (IS_DEV) {
+      try {
+        const all = JSON.parse(fs.readFileSync(devFile, 'utf8'))
+        return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
+      } catch { return {} }
+    }
+    throw err
+  }
+}
+
+/**
+ * Persist a firm's section-placement map (prod overlay store, dev-JSON fallback).
+ * @param {string} firmId @param {string} configKey @param {string} devFile
+ * @param {Object} map @param {string} savedBy
+ * @returns {Promise<number|null>}
+ */
+async function _saveSectionMap (firmId, configKey, devFile, map, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(firmId, configKey, map, savedBy)
+  } catch (err) {
+    if (IS_DEV) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(devFile, 'utf8')) } catch {}
+      all[firmId] = map
+      fs.writeFileSync(devFile, JSON.stringify(all, null, 2))
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * The firm's logic-tree override map ({ treeId: sparse override }) or null —
+ * the exact bundle the advisor engine loads, so Firm Manager shows what the AI
+ * sees. Threads overlay.loadFirmConfig, with the dev-file fallback inside
+ * firmContent (mirrors how the engines load it).
+ * @param {string} firmId
+ * @returns {Promise<Object|null>}
+ */
+function _loadFirmLogicTreeMap (firmId) {
+  return loadFirmLogicTrees(firmId, overlay.loadFirmConfig)
+}
+
+/**
+ * Which master section a logic table belongs to, for the three-way rail (matches
+ * the master export's do-the-job / get-the-job / get-organised sections). The
+ * tree's own `section` tag wins where present; otherwise the id prefix decides —
+ * `org_`/`fm_` = get-organised (firm-management), `get_` = get-the-job
+ * (advisor-facing selling material, memory feedback_get_vs_client_logic), and
+ * everything else is client-delivery logic = do-the-job. `section` is only
+ * partly populated in the data, so the prefix is the reliable fallback. A future
+ * firm re-file (drag) will override this default.
+ * @param {Object} tree
+ * @returns {'doTheJob'|'getTheJob'|'getOrganised'}
+ */
+function _treeSection (tree) {
+  const id = String(tree.id || '')
+  if (tree.section === 'get-organised' || id.startsWith('org_') || id.startsWith('fm_')) { return 'getOrganised' }
+  if (tree.section === 'get-the-job' || id.startsWith('get_')) { return 'getTheJob' }
+  return 'doTheJob'
+}
+
+/**
+ * Normalise a tree's branches to the four display columns, whichever shape the
+ * tree uses: a branching `nodes` graph or a `flat_if_then` `branches` list. Each
+ * node's `id` rides along so a later save can merge edits back by id and
+ * preserve the node's hidden flow wiring (Slice B).
+ * @param {Object} tree
+ * @returns {Array<{id:string,branch_name:string,condition:string,action:string,notes:string}>}
+ */
+function _treeBranchRows (tree) {
+  const src = Array.isArray(tree.nodes)
+    ? tree.nodes
+    : (Array.isArray(tree.branches) ? tree.branches : [])
+  return src.map((n, i) => ({
+    id: n.id || `row-${i}`,
+    branch_name: n.branch_name || '',
+    condition: n.condition || '',
+    // A pure-question node has no `action`; show its question so the row isn't
+    // blank. Slice B decides how such a node round-trips on save.
+    action: n.action || n.question || '',
+    notes: n.notes || ''
+  }))
+}
+
+/**
+ * GET /api/firm-manager/logic-trees — list every logic table, grouped
+ * advisory / get-the-job, with branch counts and Platform/Your-firm origin.
+ */
+async function getLogicTrees (req, res) {
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const base = logicTrees.loadLogicTrees()
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    const firmSections = await _loadSectionMap(req.firmId, LOGIC_TREE_SECTIONS_KEY, DEV_LOGIC_TREE_SECTIONS_FILE)
+    const result = { doTheJob: [], getTheJob: [], getOrganised: [] }
+    for (const tree of base) {
+      // The firm's re-file wins over the platform default; an unknown stored
+      // value falls back so a bad override can never lose a row.
+      const moved = firmSections[tree.id]
+      const section = VALID_SECTIONS.includes(moved) ? moved : _treeSection(tree)
+      result[section].push({
+        id: tree.id,
+        label: tree.name || tree.id,
+        count: _treeBranchRows(tree).length,
+        origin: (firmMap && firmMap[tree.id]) ? 'firm' : 'platform'
+      })
+    }
+    res.send(200, result)
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/logic-trees/:treeId — one logic table's branches as the
+ * four display columns, with the firm's override merged in for display.
+ */
+async function getLogicTreeDetail (req, res) {
+  const { treeId } = req.params
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    const merged = logicTrees.effectiveTrees(firmMap).find(t => t.id === treeId)
+    if (!merged) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    res.send(200, {
+      id: merged.id,
+      label: merged.name || merged.id,
+      origin: (firmMap && firmMap[treeId]) ? 'firm' : 'platform',
+      branches: _treeBranchRows(merged)
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * Load the firm's raw logic-tree override map ({ treeId: override }) for
+ * WRITING — the same store + dev-file the reader uses, but returned raw so one
+ * key can be mutated. Missing / malformed → {} (a firm with no edits yet).
+ * @param {string} firmId - authenticated firm id (never client-supplied)
+ * @returns {Promise<Object>}
+ */
+async function _loadFirmLogicTreesMapRaw (firmId) {
+  try {
+    const v = await overlay.loadFirmConfig(firmId, CONTENT_CONFIG_KEYS.logicTrees)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch (err) {
+    if (IS_DEV) {
+      try {
+        const all = JSON.parse(fs.readFileSync(DEV_LOGIC_TREES_FILE, 'utf8'))
+        return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
+      } catch { return {} }
+    }
+    throw err
+  }
+}
+
+/**
+ * Persist the firm's whole logic-tree override map. Prod goes through the
+ * overlay store (version history + restore for free); dev writes the gitignored
+ * JSON the reader falls back to.
+ * @param {string} firmId
+ * @param {Object} map - { treeId: override }
+ * @param {string} savedBy - userEmail
+ * @returns {Promise<number|null>} the new version, or null in dev
+ */
+async function _saveFirmLogicTreesMap (firmId, map, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(firmId, CONTENT_CONFIG_KEYS.logicTrees, map, savedBy)
+  } catch (err) {
+    if (IS_DEV) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(DEV_LOGIC_TREES_FILE, 'utf8')) } catch {}
+      all[firmId] = map
+      fs.writeFileSync(DEV_LOGIC_TREES_FILE, JSON.stringify(all, null, 2))
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * Build a tree's full override branch-list from the edited display rows,
+ * PRESERVING each existing node's hidden flow wiring (branches / next_node /
+ * templates / type / stage …) and appending firm-added rows as new guidance
+ * branches with no wiring. Scope: reword + add/remove, flow intact
+ * (Mike 2026-07-24). deepMerge replaces arrays wholesale, so the override must
+ * carry the COMPLETE list — a sparse list would drop the untouched branches.
+ *
+ * @param {Object} baseTree - the platform tree (nodes- or flat_if_then-shaped)
+ * @param {Array<{id?:string,branch_name?:string,condition?:string,action?:string,notes?:string}>} rows
+ * @returns {{ key: 'nodes'|'branches', list: Array<Object> }}
+ */
+function _mergeBranchRows (baseTree, rows) {
+  const usesNodes = Array.isArray(baseTree.nodes)
+  const key = usesNodes ? 'nodes' : 'branches'
+  const baseList = usesNodes ? baseTree.nodes : (baseTree.branches || [])
+  // Key by the SAME display id the detail route assigns (_treeBranchRows:
+  // n.id || `row-${i}`), so both graph `nodes` (real ids) and flat_if_then
+  // branches (often id-less) round-trip and keep their hidden fields —
+  // templates included — instead of degrading to a text-only re-add.
+  const byId = new Map(baseList.map((n, i) => [n.id || `row-${i}`, n]))
+  const str = v => (typeof v === 'string' ? v : '')
+
+  const list = (rows || []).map((row, i) => {
+    const existing = row && row.id ? byId.get(row.id) : null
+    if (existing) {
+      // Reword in place: overwrite only the four editable fields, keep the rest
+      // (flow wiring, templates, type) exactly as the platform authored them.
+      const next = { ...existing, branch_name: str(row.branch_name), condition: str(row.condition), notes: str(row.notes) }
+      // A pure-question node has no `action` — its display `action` was really
+      // its `question` (_treeBranchRows), so the edit round-trips back there.
+      if (existing.question !== undefined && (existing.action === undefined || existing.action === '')) {
+        next.question = str(row.action)
+      } else {
+        next.action = str(row.action)
+      }
+      return next
+    }
+    // Firm-added branch: a new guidance row, appended, with no flow wiring.
+    return {
+      id: (row && typeof row.id === 'string' && row.id) ? row.id : `firm-branch-${i}`,
+      branch_name: str(row && row.branch_name),
+      condition: str(row && row.condition),
+      action: str(row && row.action),
+      notes: str(row && row.notes)
+    }
+  })
+  return { key, list }
+}
+
+/**
+ * POST /api/firm-manager/logic-trees/:treeId — save the firm's edits to one
+ * logic table. Body: { branches: [{id,branch_name,condition,action,notes}] }.
+ * The edits merge onto the SINGLE `logic-trees` bundle the advisor engine reads,
+ * so a save reaches the AI (fenced — see logicTrees.formatLogicTreeForPrompt).
+ */
+async function saveLogicTree (req, res) {
+  const { treeId } = req.params
+  const rows = req.body && Array.isArray(req.body.branches) ? req.body.branches : null
+  if (!rows) {
+    return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'branches array required' } })
+  }
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === treeId)
+    if (!base) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    const { key, list } = _mergeBranchRows(base, rows)
+    const map = await _loadFirmLogicTreesMapRaw(req.firmId)
+    map[treeId] = { [key]: list }
+    const version = await _saveFirmLogicTreesMap(req.firmId, map, req.userEmail)
+    res.send(200, { saved: true, version, treeId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * DELETE /api/firm-manager/logic-trees/:treeId — reset one table to the platform
+ * default by dropping its key from the firm's override bundle.
+ */
+async function resetLogicTree (req, res) {
+  const { treeId } = req.params
+  try {
+    const map = await _loadFirmLogicTreesMapRaw(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(map, treeId)) {
+      delete map[treeId]
+      await _saveFirmLogicTreesMap(req.firmId, map, req.userEmail)
+    }
+    res.send(200, { reset: true, treeId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/logic-trees/:treeId/history — the saved versions of the
+ * firm's logic-tree bundle. NOTE: logic tables share ONE stored bundle, so this
+ * history is bundle-level (every table's saves interleaved), not per-table. It
+ * is read-only in Slice B; a per-table restore is deferred because restoring the
+ * shared bundle would roll back every table at once (needs its own design).
+ * `treeId` is accepted for URL symmetry with domain-support but not used.
+ */
+async function getLogicTreeHistory (req, res) {
+  try {
+    let history = []
+    try {
+      const [rows] = await db.execute(
+        `SELECT version, saved_by, created_at
+         FROM firm_framework_versions
+         WHERE firm_id = ? AND config_key = ?
+         ORDER BY version DESC`,
+        [req.firmId, CONTENT_CONFIG_KEYS.logicTrees]
+      )
+      history = rows
+    } catch (err) {
+      if (!IS_DEV) { throw err }
+    }
+    res.send(200, { history })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/logic-trees/:treeId/section — re-file a logic table into
+ * a different master section for this firm (display-only; the AI is unaffected).
+ * Body: { section: 'doTheJob' | 'getTheJob' | 'getOrganised' }. Moving an item
+ * back to its platform-default section clears the override.
+ */
+async function setLogicTreeSection (req, res) {
+  const { treeId } = req.params
+  const section = req.body && req.body.section
+  if (!VALID_SECTIONS.includes(section)) {
+    return res.send(400, { success: false, error: { code: 'INVALID_SECTION', message: 'section must be one of: ' + VALID_SECTIONS.join(', ') } })
+  }
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === treeId)
+    if (!base) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    const map = await _loadSectionMap(req.firmId, LOGIC_TREE_SECTIONS_KEY, DEV_LOGIC_TREE_SECTIONS_FILE)
+    if (section === _treeSection(base)) { delete map[treeId] } else { map[treeId] = section }
+    await _saveSectionMap(req.firmId, LOGIC_TREE_SECTIONS_KEY, DEV_LOGIC_TREE_SECTIONS_FILE, map, req.userEmail)
+    res.send(200, { moved: true, treeId, section })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/domain-support/:domainId/section — re-file a
+ * domain-support item into a different master section for this firm
+ * (display-only). Body: { section }. Back-to-default clears the override.
+ */
+async function setDomainSupportSection (req, res) {
+  const { domainId } = req.params
+  const section = req.body && req.body.section
+  if (!VALID_SECTIONS.includes(section)) {
+    return res.send(400, { success: false, error: { code: 'INVALID_SECTION', message: 'section must be one of: ' + VALID_SECTIONS.join(', ') } })
+  }
+  const domains = require('../../data/domains.json') || []
+  const getFiles = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
+  const known = new Set([...domains.map(d => d.id), ...getFiles])
+  if (!known.has(domainId)) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Domain support item not found' } })
+  }
+  try {
+    const map = await _loadSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE)
+    if (section === _domainSupportSection(domainId)) { delete map[domainId] } else { map[domainId] = section }
+    await _saveSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE, map, req.userEmail)
+    res.send(200, { moved: true, domainId, section })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
+  quizzablePages,
   listDocuments,
   uploadDocument,
   downloadDocument,
@@ -1557,8 +2210,6 @@ module.exports = {
   listVideos,
   addVideo,
   deleteVideo,
-  getProfile,
-  updateProfile,
   getStorageUsage,
   getTemplateImport,
   importTemplates,
@@ -1578,5 +2229,18 @@ module.exports = {
   getStaircase,
   saveStaircase,
   getQuizzes,
-  saveQuizzes
+  saveQuizzes,
+  getDomainSupport,
+  getDomainSupportDetail,
+  saveDomainSupport,
+  resetDomainSupport,
+  getDomainSupportHistory,
+  restoreDomainSupport,
+  getLogicTrees,
+  getLogicTreeDetail,
+  saveLogicTree,
+  resetLogicTree,
+  getLogicTreeHistory,
+  setLogicTreeSection,
+  setDomainSupportSection
 }

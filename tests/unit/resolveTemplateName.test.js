@@ -7,7 +7,7 @@
 // auto-bind mis-files a quiz silently, so the "refuse" paths matter as much as
 // the "bind" ones — hence full-branch coverage.
 
-const { resolveTemplateName, normalise, tokenSet } = require('../../server/utils/resolveTemplateName')
+const { resolveTemplateName, listTemplatePages, normalise, tokenSet } = require('../../server/utils/resolveTemplateName')
 
 // Fixture mirrors the 18 General-Section-Quiz templates (real titles, fake ids).
 const T = [
@@ -194,5 +194,82 @@ describe('exported helpers', () => {
   test('tokenSet returns distinct word tokens', () => {
     expect([...tokenSet('6 Hats Hats')].sort()).toEqual(['6', 'hats'])
     expect(tokenSet('   ').size).toBe(0)
+  })
+})
+
+// CB-31 Phase 3 — the quiz editor draws its page rail from this list. It must
+// come from the SAME source the resolver binds against, or the editor would
+// offer pages that a save then refuses.
+describe('listTemplatePages', () => {
+  const WITH_GROUPING = [
+    { page: 'id-1', section: 'Do the Job', subSection: 'Reporting', title: 'Dashboard Report' },
+    { page: 'id-2', section: 'Do the Job', subSection: 'Cash', title: 'Working Capital Cycle' }
+  ]
+
+  test('returns the grouping fields the rail needs', () => {
+    expect(listTemplatePages(WITH_GROUPING)).toEqual([
+      { page: 'id-1', section: 'Do the Job', subSection: 'Reporting', title: 'Dashboard Report', bindable: true },
+      { page: 'id-2', section: 'Do the Job', subSection: 'Cash', title: 'Working Capital Cycle', bindable: true }
+    ])
+  })
+
+  test('a missing section or sub-section becomes an empty string, never undefined', () => {
+    const [row] = listTemplatePages([{ page: 'id-9', title: 'Orphan Page' }])
+    expect(row).toEqual({ page: 'id-9', section: '', subSection: '', title: 'Orphan Page', bindable: true })
+  })
+
+  test('every page the editor is offered is one the resolver can bind', () => {
+    for (const row of listTemplatePages(T)) {
+      expect(resolveTemplateName(row.title, T).ok).toBe(true)
+    }
+  })
+
+  // The flag exists to stop the editor offering a page whose save would be
+  // refused. So it is pinned to what the resolver ACTUALLY does, not to the
+  // reasoning behind it — if the two ever disagree, this fails.
+  describe('bindable tracks the resolver, page by page', () => {
+    const TWINS = [
+      { page: 'id-1', title: 'Advisor Prep' },
+      { page: 'id-2', title: 'Advisor Prep' },
+      { page: 'id-3', title: 'Debtor Protocols' }
+    ]
+
+    test('a duplicated title is marked not bindable; a unique one is', () => {
+      const rows = listTemplatePages(TWINS)
+      expect(rows.map(r => r.bindable)).toEqual([false, false, true])
+    })
+
+    test('titles differing only by punctuation count as the same name', () => {
+      const rows = listTemplatePages([
+        { page: 'id-1', title: "My Sales Logistics & Mktg' Plan" },
+        { page: 'id-2', title: 'My Sales Logistics & Mktg Plan' }
+      ])
+      expect(rows.every(r => r.bindable === false)).toBe(true)
+    })
+
+    test('across the real library, bindable agrees with the resolver on every page', () => {
+      for (const row of listTemplatePages()) {
+        expect(row.bindable).toBe(resolveTemplateName(row.title).ok)
+      }
+    })
+
+    test('the real library still has pages that cannot take a quiz — the reason this flag exists', () => {
+      const blocked = listTemplatePages().filter(r => !r.bindable)
+      expect(blocked.length).toBeGreaterThan(0)
+      expect(blocked.every(r => typeof r.title === 'string' && r.title)).toBe(true)
+    })
+  })
+
+  test('mutating the result cannot corrupt the cache every resolve depends on', () => {
+    const first = listTemplatePages()
+    first[0].title = 'CORRUPTED'
+    expect(listTemplatePages()[0].title).not.toBe('CORRUPTED')
+  })
+
+  test('the real library loads and carries its grouping', () => {
+    const pages = listTemplatePages()
+    expect(pages.length).toBeGreaterThan(0)
+    expect(pages.every(p => typeof p.page === 'string' && typeof p.title === 'string')).toBe(true)
+    expect(pages.some(p => p.subSection)).toBe(true)
   })
 })

@@ -18,24 +18,10 @@ const { FRAMEWORK } = require('../../config/integration')
 const db = require('./db')
 
 // ── Merge logic ───────────────────────────────────────────────────────────────
+// Lives in ./deepMerge (dependency-free) so content modules can use the same
+// rule without requiring this module's MySQL pool; re-exported here unchanged.
 
-function deepMerge (base, override) {
-  if (typeof base !== 'object' || base === null) { return override }
-  if (typeof override !== 'object' || override === null) { return override }
-  if (Array.isArray(override)) { return override }
-
-  const result = { ...base }
-  for (const key of Object.keys(override)) {
-    const baseVal = base[key]
-    const overrideVal = override[key]
-    const bothObjects = (
-      typeof baseVal === 'object' && baseVal !== null && !Array.isArray(baseVal) &&
-      typeof overrideVal === 'object' && overrideVal !== null && !Array.isArray(overrideVal)
-    )
-    result[key] = bothObjects ? deepMerge(baseVal, overrideVal) : overrideVal
-  }
-  return result
-}
+const { deepMerge } = require('./deepMerge')
 
 // ── DB operations ─────────────────────────────────────────────────────────────
 
