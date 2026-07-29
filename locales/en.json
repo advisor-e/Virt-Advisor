@@ -831,6 +831,7 @@
     "removeBranch": "Remove branch",
     "moveBranchUp": "Move branch up",
     "moveBranchDown": "Move branch down",
+    "orderNote": "Row order is the order these rules are read — moving a row changes how the table reads, not the decision flow.",
     "saved": "Your changes have been saved.",
     "resetConfirm": "Reset <strong>{name}</strong> to the platform default? Your firm's saved changes to this logic table will be removed.",
     "wasReset": "Reset to the platform default.",

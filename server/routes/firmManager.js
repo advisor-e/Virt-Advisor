@@ -1953,14 +1953,18 @@ async function getLogicTrees (req, res) {
  * four display columns, with the firm's override merged in for display.
  *
  * `reorderable` tells the editor whether the firm may move rows up and down.
- * It is FALSE for `nodes`-shaped trees, because those are a graph whose entry
- * point is positional: `walkLogicTree` starts at `tree.nodes[0].id`
- * ([`logicTrees.js`](../utils/logicTrees.js)), so promoting a different row to
- * the top would repoint where the engine begins reasoning — a change to the
- * FLOW, which firm editing deliberately excludes (Mike's scope ruling
- * 2026-07-24: reword + add/remove, flow intact). It is TRUE only for
- * `flat_if_then` trees, whose `branches` are self-contained rules with no entry
- * semantics, so their order is presentation alone.
+ *
+ * A `flat_if_then` tree is always reorderable — its branches are self-contained
+ * rules with no entry semantics. A `nodes`-shaped tree is reorderable only once
+ * it records its entry point in `entry_node`, because the walk used to start at
+ * whatever sat first (`tree.nodes[0].id`) and moving rows would have repointed
+ * where the engine begins reasoning — a FLOW change, which firm editing
+ * excludes (Mike's scope ruling 2026-07-24: reword + add/remove, flow intact).
+ * With the entry recorded, order is presentation alone.
+ *
+ * The check is deliberately per-tree rather than a blanket `true`: a tree added
+ * later without `entry_node`, or carrying a dangling one, falls back to the
+ * positional start, so it must not be offered for reordering.
  */
 async function getLogicTreeDetail (req, res) {
   const { treeId } = req.params
@@ -1975,7 +1979,8 @@ async function getLogicTreeDetail (req, res) {
       id: merged.id,
       label: merged.name || merged.id,
       origin: (firmMap && firmMap[treeId]) ? 'firm' : 'platform',
-      reorderable: !Array.isArray(merged.nodes),
+      reorderable: !Array.isArray(merged.nodes) ||
+        !!(merged.entry_node && merged.nodes.some(n => n.id === merged.entry_node)),
       branches: _treeBranchRows(merged)
     })
   } catch (err) {

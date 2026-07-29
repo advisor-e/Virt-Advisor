@@ -93,6 +93,9 @@ section.firm-logic-tables
 
           //- The four-column IF→THEN table.
           .table-scroll(v-else)
+            //- Says out loud what reordering does and does not do, so a firm is
+            //- never guessing whether moving a row changed the engine.
+            p.lt-ordernote(v-if="current.reorderable") {{ $t('firmLogicTables.orderNote') }}
             table.lt-table
               colgroup
                 col.c-branch
@@ -746,6 +749,11 @@ export default {
   font-size: 0.95rem;
   line-height: 1.6rem;
   padding: 0 0.18rem;
+}
+.lt-ordernote {
+  font-size: 0.78rem;
+  color: #7a869a;
+  margin-bottom: 0.6rem;
 }
 .lt-branch-move:hover:not(:disabled) { color: #002b64; }
 .lt-branch-move:disabled { color: #dde2e9; cursor: default; }
