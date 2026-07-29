@@ -532,6 +532,42 @@ Two honest answers on different axes — the file used to conflate them:
       reading, with no visible twin. The master app marked it hidden, so it is deliberately not
       claimable. Flagged rather than quietly granted.
     - Two allowances are fractional (15.2, 24.23) and round to whole minutes.
+  - ✅ **P2 · FIXED 2026-07-30 (Mike-approved) — the tutorial-video sentence is alive again, across
+    83 templates.** **The premise below was half wrong, and the correction is the useful part: the
+    data was never missing.** Every one of the 289 records in `data/templates.json` carries a `cpd`
+    block, and **83 hold `cpd.watchedVideo` above zero** — the injector was simply reading
+    `videoMinutes`, a hand-made *copy* of that field, which **0 of 289 records have**. Meanwhile
+    [`cpdCatalogue.js`](../server/utils/cpdCatalogue.js) L108 reads `cpd.watchedVideo` off the very
+    same list and has always worked — one file read the original, the other a stale duplicate.
+    **Fix:** [`videoInjector.js`](../server/utils/videoInjector.js) reads the authored field, with
+    cpdCatalogue's guards (finite number, rounded, 1–1440 minutes, `isHidden` skipped), and
+    **`scripts/sync-video-minutes.js` is DELETED** — its only job was to create the duplicate that
+    rots, and nothing else ever read it. Recoverable from git history.
+    - **Rounding is deliberate and follows precedent, not invention:** the export carries 15.2 and
+      24.23, and *"a 15.2-minute tutorial video"* is not English. `Math.round` matches
+      `cpdCatalogue.activityMinutes`, so the advice and the advisor's own CPD record state the
+      **same** number for the same video rather than differing by a decimal.
+    - **18 tests — the first this file has ever had**, which is the actual repair: the outage was
+      invisible for ten weeks precisely because nothing tested it. The first test pins that the
+      minutes come from the authored field, so reintroducing a synced copy goes red at once.
+    - **Mutation-verified 7/8, control green, every mutation proven to have applied.** **One
+      survivor was a REAL gap, and it is the same lesson as the CPD screen's:** widening the block
+      boundary does not move where the sentence lands — that is decided separately, by the first
+      blank line — so the ordering test could not see it. What it *does* widen is the
+      "already mentioned?" check, so **one template could be silently skipped because a LATER
+      template's prose mentioned a video**, and that advisor would never learn their video existed.
+      Now pinned. *(The 8th survivor is judged EQUIVALENT, not a gap: removing the "at least a
+      minute" bound cannot change any output, because a rounded zero is already excluded by the
+      `minutes > 0` check below it. The bound is kept as a statement of intent. Recorded as
+      judgement, not as a proven kill.)*
+    - ☐ **NOT PROVEN BY EYE.** The tests prove the sentence is produced; nobody has seen it in real
+      advice. Needs a live session recommending a template that has one — *E.O.Y Meeting* (9 min),
+      *Growth Curve* (15) and *Loan Estimator* (12) all qualify.
+    - ☐ **LOGGED, NOT FIXED — the sentence is hardcoded English on the backend**
+      ([`videoInjector.js`](../server/utils/videoInjector.js)), so a non-English advisor gets one
+      English line inside otherwise translated advice. Pre-existing and out of scope here; it needs
+      its own decision, because `vue-i18n` does not exist on the backend and the wording would have
+      to be resolved another way. *Original entry follows for the record:*
   - ☐ **NEW · P2 · FIX — the tutorial-video sentence has been DEAD since 19 May 2026.**
     [`videoInjector.js`](../server/utils/videoInjector.js) reads `t.videoMinutes`, and **no
     record in `data/templates.json` has that field**, so the map is empty and the function
@@ -643,8 +679,8 @@ Two honest answers on different axes — the file used to conflate them:
     master export gives it no CPD time, so it is not claimable. Both look like bugs and are not;
     say so before anyone hunts them. *(Still true for next time: close every other
     `localhost:3000` tab before opening it — session 4's six-connection trap.)*
-  - ☐ **STILL OPEN — no manager view of CPD** (see above, unchanged), and the tutorial-video
-    sentence is still dead (its own P2 above, untouched by this session).
+  - ☐ **STILL OPEN — no manager view of CPD** (see above, unchanged). ~~the tutorial-video
+    sentence is still dead~~ — **FIXED 2026-07-30**, its own P2 above.
 
   ### Session 7 (2026-07-30, laptop) — the two CPD wording gaps, closed
 
