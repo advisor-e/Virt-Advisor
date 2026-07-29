@@ -136,14 +136,20 @@
     per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
     `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
     the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
-  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 7 of 29 domains migrated**
-    (eoy `dfa8572`, then **systems · risk · staff · succession · valuation** `bfc4b37`, then
-    **stock-purchasing**). Mike's instruction 2026-07-29: migrate them ALL, then he reviews and
-    edits in the app rather than approving each draft in chat. **Resume order — 22 left:**
-    conflict, data-systems, due-diligence, fm-coach-culture, forecasting, get-marketing,
-    get-positioning, get-pricing-proposals, get-sales, get-sales-tracker, get-seminar,
-    get-team-problem, governance, org-board-pack, org-capacity-planner, org-firm-strategy,
-    org-leadership, people-power, profit, raising-capital, sales-marketing, strategy.
+  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 17 of 29 domains migrated.**
+    Done: eoy (`dfa8572`) · systems · risk · staff · succession · valuation (`bfc4b37`) ·
+    stock-purchasing (`2a63982`) · conflict · due-diligence · governance (`ce4bf2d`) ·
+    get-positioning · get-pricing-proposals · raising-capital (`6b24276`) · get-team-problem ·
+    org-leadership · org-capacity-planner (`abc0826`) · org-firm-strategy.
+    Mike's instruction 2026-07-29: migrate them ALL, then he reviews and edits in the app
+    rather than approving each draft in chat — and do not stop until they are done.
+    **Resume order — 12 left:** data-systems, fm-coach-culture, forecasting, get-marketing,
+    get-sales, get-sales-tracker, get-seminar, org-board-pack, people-power, profit,
+    sales-marketing, strategy.
+    - **The 12 left are the heavy ones.** Several draw on multiple source PDFs rather than one:
+      forecasting (3 docs, ~1.2 MB), strategy (4 docs), data-systems (3 incl. the 1.6 MB
+      Dashboard), profit (4), sales-marketing (2, one of which is the Powerful Seminars deck —
+      a §0.5 "not really a support doc"). Budget roughly double the effort per domain.
     - **Two rules being applied (Mike, 2026-07-29):** (1) **If-Then rows drop out** of Domain
       Support — the Logic Tables tab owns those grids under §0.6, so keeping them would put the
       same content in two editable places. Valuation and stock-purchasing both carry a logic
