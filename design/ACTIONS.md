@@ -636,12 +636,13 @@ Two honest answers on different axes — the file used to conflate them:
     there so those tests stay about the parent, and a separate unstubbed test pins that the CPD
     section really is mounted and really is handed the same login pass — a stub would pass
     whether or not it was.
-  - ☐ **NOT PROVEN BY EYE.** Tests, fixtures and mutation only; the suite cannot see a screen.
-    **Before opening it: close every other `localhost:3000` tab** (session 4's six-connection
-    trap). With the current local dev data the screen will show **Lite Planning** with all three
-    activities (11 · 40 · 20 min). **"General Meeting Agenda" will NOT appear** — the master
-    export gives it no CPD time, so it is not claimable. That is correct behaviour and looks
-    exactly like a bug; say so before anyone hunts it.
+  - ☑ ~~**NOT PROVEN BY EYE.**~~ **LIVE-PROVEN BY MIKE 2026-07-30.** He ran the screen against
+    the local dev data and signed it off. **Both predictions held exactly**, which is the useful
+    part of the record: the screen showed **Lite Planning** with all three activities
+    (11 · 40 · 20 min) and a total of 11m, and **"General Meeting Agenda" did NOT appear** — the
+    master export gives it no CPD time, so it is not claimable. Both look like bugs and are not;
+    say so before anyone hunts them. *(Still true for next time: close every other
+    `localhost:3000` tab before opening it — session 4's six-connection trap.)*
   - ☐ **STILL OPEN — no manager view of CPD** (see above, unchanged), and the tutorial-video
     sentence is still dead (its own P2 above, untouched by this session).
 
@@ -693,8 +694,33 @@ Two honest answers on different axes — the file used to conflate them:
     path — each an assertion that could pass while proving only half of what it appeared to.
     **Standing habit, now earned four times over: when two things could satisfy an assertion, one
     test must separate them.**
-  - ☐ **NOT PROVEN BY EYE.** Tests and mutation only. Both boxes need a human to look at them;
-    the same six-connection tab trap applies before anyone judges the screen.
+  - ☑ ~~**NOT PROVEN BY EYE.**~~ **LIVE-PROVEN BY MIKE 2026-07-30, and signed off** — the CPD
+    record, the pledge box with its new **Cancel**, and the **Withdraw** confirmation were all
+    run in the browser and behaved as designed. This feature had never been seen working before
+    today; it is now proven by eye as well as by tests.
+    - ⚠ **Worth knowing before the next report of "the Cancel button is missing":** it is **not**
+      on the activity row, which correctly shows only **Record** and **Withdraw**. Cancel lives
+      inside the pledge box, beside the confirming Record. That was the one point of confusion.
+    - **Getting there cost most of the morning, and none of it was this code** — see the
+      environment note below.
+  - **ENVIRONMENT — the servers could not be started at all, and it was never the app.**
+    `node` and `npm` were unresolvable in *every* terminal on the laptop: the Windows user `Path`
+    had been rewritten as a plain string (`REG_SZ`), so its last two entries — the literal text
+    `%NVM_HOME%;%NVM_SYMLINK%` — were never substituted and pointed nowhere. Repaired by writing
+    the two real folders as `REG_EXPAND_SZ`, original value backed up first. **Nothing in this
+    repository was changed for it.** Three findings worth keeping:
+    - **The dev server runs on the locked Node 14.15**, cleanly. (An older note claimed it needed
+      Node 20; that is wrong and has been corrected.)
+    - **A `Ctrl+C`'d Nuxt dev server may survive, and later re-claim port 3000.** Three had
+      stacked up unnoticed; one that had been pushed to a random port rebuilt itself when the
+      squatter died and took 3000, so the *next* start went to a random port and looked broken.
+      Always list the node processes and check who owns 3000 before diagnosing anything.
+    - **Grepping `.nuxt` proves nothing in dev** — it holds only ~26 scaffolding files; the
+      bundles live in memory. A string that certainly renders shows zero hits. An "it isn't in
+      the build" conclusion from that grep would have been flatly wrong.
+    - Also confirmed while there: `.env` **is** now read (`OPENAI_API_KEY present=true`, no JWT
+      placeholder warning), closing out the 2026-07-29 fix. The MySQL placeholder warning and the
+      `[activityStore] … using the dev file` lines are the fallback working as designed.
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
