@@ -77,6 +77,7 @@
 </template>
 
 <script>
+import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
 
 /**
  * Advisory areas this screen can name, as i18n keys under `advisorProgress.domain.*`.
@@ -158,7 +159,7 @@ export default {
       this.loading = true
       this.error = null
       try {
-        const res = await fetch('/api/activity/progression', {
+        const res = await fetchWithTimeout('/api/activity/progression', {
           headers: { Authorization: `Bearer ${this.apiToken}` }
         })
         if (!res.ok) {

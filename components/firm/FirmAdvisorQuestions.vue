@@ -79,6 +79,7 @@ section.advisor-questions
 </template>
 
 <script>
+import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
 
 export default {
   name: 'FirmAdvisorQuestions',
@@ -137,7 +138,7 @@ export default {
       this.loading = true
       this.error = false
       try {
-        const res = await fetch(
+        const res = await fetchWithTimeout(
           `/api/activity/team/advisor/${encodeURIComponent(this.advisorId)}`,
           { headers: { Authorization: `Bearer ${this.apiToken}` } }
         )

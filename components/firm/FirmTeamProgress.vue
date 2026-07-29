@@ -95,6 +95,7 @@ section.firm-team-progress
 
 <script>
 import FirmAdvisorQuestions from '~/components/firm/FirmAdvisorQuestions.vue'
+import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
 
 /** The three capability levels, in the order a manager reads them. */
 const TIER_DEFS = [
@@ -160,7 +161,7 @@ export default {
       this.loading = true
       this.error = false
       try {
-        const res = await fetch('/api/activity/team', {
+        const res = await fetchWithTimeout('/api/activity/team', {
           headers: { Authorization: `Bearer ${this.apiToken}` }
         })
         if (!res.ok) { throw new Error(res.statusText) }
