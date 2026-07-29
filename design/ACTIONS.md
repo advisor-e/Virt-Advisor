@@ -183,16 +183,24 @@
     per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
     `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
     the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
-  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 20 of 29 domains migrated.**
+  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 22 of 29 domains migrated.**
     Done: eoy (`dfa8572`) · systems · risk · staff · succession · valuation (`bfc4b37`) ·
     stock-purchasing (`2a63982`) · conflict · due-diligence · governance (`ce4bf2d`) ·
     get-positioning · get-pricing-proposals · raising-capital (`6b24276`) · get-team-problem ·
     org-leadership · org-capacity-planner (`abc0826`) · org-firm-strategy ·
-    **data-systems · fm-coach-culture · forecasting (2026-07-29, this branch)**.
+    **data-systems · fm-coach-culture · forecasting (`2428903`) · get-marketing · get-sales
+    (2026-07-29, this branch)**.
     Mike's instruction 2026-07-29: migrate them ALL, then he reviews and edits in the app
     rather than approving each draft in chat — and do not stop until they are done.
-    **Resume order — 9 left:** get-marketing, get-sales, get-sales-tracker, get-seminar,
-    org-board-pack, people-power, profit, sales-marketing, strategy.
+    **Resume order — 7 left:** get-sales-tracker, get-seminar, org-board-pack, people-power,
+    profit, sales-marketing, strategy.
+    - **get-marketing / get-sales were clean** — material names in the old files matched their
+      source PDFs, so nothing had to be carried across or judged. Two shaping notes:
+      `Get Marketing Support.pdf` carries **one** four-step execution method for the whole domain
+      rather than per-material steps, so those steps were distributed to the materials they belong
+      to and each row's detail filled from the doc's own source-template table; and the **Decision
+      Tree was moved to the FRONT** of `get-sales` (the old file had it last) because the source
+      uses it *before contact* to choose Campaign vs Total Needs.
     - **Findings from the 2026-07-29 batch, recorded because two change the method's assumptions:**
       (1) **`Dashboard Support.pdf` is NOT one of the seven "not really a support doc" problem
       cases** — it carries its own *Summary of the Theory* and a five-step method at the end, so it
