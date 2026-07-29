@@ -757,6 +757,30 @@ Two honest answers on different axes — the file used to conflate them:
     - Also confirmed while there: `.env` **is** now read (`OPENAI_API_KEY present=true`, no JWT
       placeholder warning), closing out the 2026-07-29 fix. The MySQL placeholder warning and the
       `[activityStore] … using the dev file` lines are the fallback working as designed.
+  - ☐ **NEW FINDING 2026-07-30 — 21 page ids in the template library are shared by more than one
+    record, and some of the pairs are plainly DIFFERENT templates.** Noticed while proving the
+    video fix; **not investigated, and nothing was changed** — `data/templates.json` derives from
+    the master export, which is never edited here. Examples: `id-4277160310` → *Client pre Meeting*
+    **and** *Coping With Adversity*; `bizz360` → *Working Capital Cycle* **and** *Activity Ratios*;
+    `id-679676385` → *App Review* **and** *What's Applicable*. Others are true duplicates (the same
+    title twice) or spelling variants (*Finance & Depreciation* / *Finance and Depreciation*).
+    **Seven of the shared pages carry a tutorial video.**
+    - **Today's fix is unaffected** — the injector matches on **title**, so each template uses its
+      own record. **But it is a second reason the deleted sync script had to go:** that script
+      matched on **page**, so it would have handed *Coping With Adversity* the video length
+      belonging to *Client pre Meeting*. A page-keyed lookup is not safe on this data.
+    - **For anyone keying anything on `page`:** check for collisions first, or key on title as
+      `cpdCatalogue` and `videoInjector` do. **Raise the pairings upstream** — whether they are
+      intentional is a question for whoever authors the export, not something to resolve here.
+  - **HANDOVER TO THE DESKTOP (2026-07-30).** The desktop spent today on Domain Support and its
+    wiring to the AI engine, and at `7dd83fd` it fixed **the domain-support config-key P1** — the
+    same fault this laptop had queued as its next task. **Checked before starting anything:** the
+    two branches' file lists overlap in **exactly two files — `design/ACTIONS.md` and
+    `locales/en.json`** — and nothing else. Both are append-heavy, so expect conflicts in both when
+    the branches meet at `master`: **read the merge rather than accepting it**, especially in this
+    file, which is the project's shared memory. This branch **deliberately did NOT touch** the
+    domain-support P1 entry above, so the desktop's own record carries its closure and the two
+    machines do not both write the same entry.
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
