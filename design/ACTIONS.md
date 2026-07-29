@@ -452,7 +452,8 @@
       record (`va_courses` via `courseStore`, dev-file fallback), so a manager view may be able to
       read from there rather than needing new columns — but cross-advisor reads are IDOR-sensitive
       and must go through the same `firmAuth` pattern.
-  - ✅ **Ghost logic-tree references — 29 → 1. FIXED 2026-07-30 (approved by Mike, this branch).
+  - ✅ **Ghost logic-tree references — 29 → 0, ALL CLOSED 2026-07-30 (the last one needed Mike's
+    ruling, recorded at the end of this entry). FIXED 2026-07-30 (approved by Mike, this branch).
     Full suite 1,971 green, 11 snapshots unchanged, lint 0 errors. ⚠ READ THIS BEFORE EVER RUNNING
     `scripts/migrate-ghost-references.js` — it would have destroyed real content.**
     The backend warned at every start that six template names in `data/logic_trees.json` matched
@@ -493,22 +494,67 @@
       "existed for it" would have made things worse. Anchored to the **committed**
       `data/templates.json`, NOT the gitignored export, which would make the guard pass vacuously
       on a fresh clone and in CI. Scope mirrors `validateLogicTreeReferences` (node trees only;
-      flat_if_then Learn trees excluded for the documented reason). Allowlist holds exactly one
-      entry, and a fourth test **fails once that entry resolves**, so the allowlist cannot outlive
-      its reason. The failure message tells the next reader to check the slug before deleting.
+      flat_if_then Learn trees excluded for the documented reason). **The allowlist is now EMPTY**
+      (it held one entry, `Growth Framework`, until Mike ruled on it later the same day), so the
+      dead-reference test runs with no exemptions at all. The failure message tells the next reader
+      to check the slug before deleting.
+      - **Recorded honestly:** while the allowlist is empty, the "every allowlist entry is still
+        needed" test iterates nothing and proves nothing. That is stated in the file so a passing
+        no-op is not mistaken for a working guard.
+      - ☐ **P3 · TEST follow-up (found 2026-07-30, NOT done — needs its own approval):** that test
+        checks an allowlisted name is still **absent from the library**, but not that it is still
+        **referenced by a tree**. So a name that stops being used would leave a stale exemption
+        behind — the one thing the allowlist rule exists to prevent. Nothing is stale today
+        (the list is empty), which is why this was logged rather than folded into that change.
     - **Negative control run (the guard is not vacuous):** against broken fixtures it caught the
       real retitle defect and a hand typo, and correctly ignored `[placeholders]`, prose
       fragments, the allowlisted name and a healthy tree. **Blind spot recorded honestly:** if
       someone runs the deletion script the dead name is *gone*, so the guard falls silent — a rule
       recommending nothing looks identical to a healthy one. That is why the test also pins the
       five corrected names by name.
-    - ☐ **DECISION outstanding (Mike) — `Growth Framework`, the 1 remaining dead reference**
-      (`frameworks_find` node `ff_branch1_milestones`). **It is not a page — it is a library
-      subSection** holding six: *The 9 Growth Stages*, *Growth Curve*, *Lite Fundamentals
-      Components*, *Growth Fundamentals Framework Philosophy*, *Growth Curve Checklist*,
-      *Revealing the Growth Curve Freehand*. The CB-34 resolver returns *Growth Fundamentals
-      Framework Philosophy* on word overlap alone — a **guess**, not evidence, so it was not
-      acted on. Left honestly dead and allowlisted until Mike names the page.
+    - ✅ **RULED + FIXED 2026-07-30 (Mike, same session) — `Growth Framework` → `Growth Curve`.
+      The last dead reference is closed; 29 → 0.** (`frameworks_find` node
+      `ff_branch1_milestones`.) **A different fault from the five retitles, which is why no slug
+      could solve it:** the source PDF names a *framework* — "THEN use the 'Growth Fundamentals
+      Framework'" — where all six other branches in that table name a page, and in the library
+      `Growth Framework` is a **subSection holding six** pages (*The 9 Growth Stages*, *Growth
+      Curve*, *Lite Fundamentals Components*, *Growth Fundamentals Framework Philosophy*, *Growth
+      Curve Checklist*, *Revealing the Growth Curve Freehand*). There was never a page of that
+      name to go dead, so this needed the owner's ruling, not a lookup.
+      - **The evidence put to Mike:** of the six, only *Growth Curve* carries
+        `includedInClient: true` — the rest are advisor-side reference material — and its stated
+        purpose is *"align your mutual understanding of their contextual position"*, which is the
+        branch note's *"pick a spot on the curve"* almost word for word.
+      - **The CB-34 resolver's guess was the worst of the six.** It returned *Growth Fundamentals
+        Framework Philosophy* on word overlap: the *"Full Monty… all the information **you** need"*
+        advisor study manual, the one page you would never open in front of a confused owner. Not
+        acting on a word-overlap guess was the right call, and is the case for keeping content
+        rulings with Mike rather than with the resolver.
+      - **MEASURED before the edit, through the production soft-hint path** (`walkLogicTree` →
+        `treeHintNames` → `resolveTemplatesWithOutlier`), one variable changed, states built on the
+        fields `buildSignalText` actually reads. **The branch is live** — reached in 3 of 3
+        hand-built milestone states, so it was firing and recommending nothing. **Effect, stated
+        honestly:** *Growth Curve* now earns `tree_hint:+3` where the old name earned nothing, which
+        puts it in the AI's shortlist in **3 of 8** plausible domains (people-power r4, valuation
+        r5, forecasting r6) and changes the **advisor's cards in 1 of 8** (people-power:
+        *8 Profit Levers* → *Growth Curve*). In `strategy` — the likeliest domain for this
+        conversation — nothing changes, because `TREE_HINT_BOOST = 3` is deliberately too weak to
+        beat that domain's own matches. Guide, not replace, working as designed.
+      - **⚠ A measurement artefact to know about:** the first run reported the page "not in the
+        pool", which was wrong — `scoringLog` is capped at 20 rows
+        ([`templateResolver.js`](../server/utils/templateResolver.js) L622), so absent-from-the-log
+        is **not** unscored. Re-measured against the AI shortlist (`candidates`) and the displayed
+        cards (`buildDisplaySet`) instead, which is what actually reaches people.
+      - **The Scenario Lab could not see this change** — 0 of its 51 cases reach Branch 1, the same
+        structural blindness recorded for the entry-node work. The measurement above stands in for
+        it; no lab delta is claimed.
+      - **Guard extended:** a new test pins the ruling to the node — `Growth Framework` must never
+        reappear as a reference, `Growth Curve` must exist in the library, and Branch 1 must name
+        exactly it. A bad merge fails there rather than quietly returning the branch to
+        recommending nothing.
+      - **The `action` prose was left alone** ("Use the Growth Fundamentals Framework"). It names a
+        real framework, not a missing page, so it carries none of the hallucination risk that
+        justified the seven prose swaps above — and it is Mike's wording.
     - ✅ **7 prose mentions in tree `notes` SWAPPED 2026-07-30 (approved by Mike, same session).**
       The AI reads `notes`, so these carried the **same hallucination risk** as the template
       references — it could still name a page the advisor cannot find. 7 occurrences across 6

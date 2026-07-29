@@ -40,16 +40,15 @@ const templates = require('../../data/templates.json')
  * Names allowed to be absent from the library, each with the reason it is not
  * simply a defect. Keep this list SHORT and evidenced — an entry added to quiet
  * a failure, rather than to record a decision, defeats the whole test.
+ *
+ * EMPTY since 2026-07-30. It held exactly one entry, "Growth Framework", until
+ * Mike ruled which page that rule means (see the Branch 1 test below). While the
+ * list is empty the "still needed, still absent" test iterates nothing and
+ * therefore proves nothing — that is correct rather than coverage, and it is
+ * stated here so no one mistakes a passing no-op for a working guard. The real
+ * control is the dead-reference test, which now runs with no exemptions at all.
  */
-const ALLOWED_ABSENT = {
-  // Not a page: "Growth Framework" is a subSection of the library holding six
-  // pages (The 9 Growth Stages, Growth Curve, Lite Fundamentals Components,
-  // Growth Fundamentals Framework Philosophy, Growth Curve Checklist, Revealing
-  // the Growth Curve Freehand). Which one this rule means is the firm's call,
-  // not the engine's, and not the AI's to guess — so it stays honestly dead and
-  // visible here until Mike rules on it. Logged in design/ACTIONS.md.
-  'Growth Framework': 'a subSection, not a page — awaiting the owner\'s ruling on which page it means'
-}
+const ALLOWED_ABSENT = {}
 
 // The same shape filter validateLogicTreeReferences applies: a reference is a
 // real template name only if it is not a `[placeholder]`, not a prose fragment
@@ -119,5 +118,22 @@ describe('logic-tree template references resolve to real library pages', () => {
     for (const live of ['Lite Planning', 'Lite Data', 'Lite Sales', 'Lite People', 'Lite Process']) {
       expect(libraryTitles.has(live)).toBe(true)
     }
+  })
+
+  test('frameworks_find Branch 1 names a real page, not the subSection', () => {
+    // Ruled by Mike 2026-07-30, and a different fault from the five retitles: the
+    // source PDF names the FRAMEWORK ("THEN use the 'Growth Fundamentals
+    // Framework'") where every other branch in that table names a page, and in
+    // the library "Growth Framework" is a subSection holding six pages. No slug
+    // could resolve it, so it needed the owner's ruling, not a lookup. Of the six,
+    // only Growth Curve is built to be shown to a client (includedInClient) and
+    // its stated purpose is aligning "their contextual position" — the note's
+    // "pick a spot on the curve". Pinned to the node so a bad merge fails here
+    // rather than quietly returning this branch to recommending nothing.
+    const refs = collectReferences()
+    expect(refs.map(r => r.name)).not.toContain('Growth Framework')
+    expect(libraryTitles.has('Growth Curve')).toBe(true)
+    const branch1 = refs.filter(r => r.tree === 'frameworks_find' && r.node === 'ff_branch1_milestones')
+    expect(branch1.map(r => r.name)).toEqual(['Growth Curve'])
   })
 })
