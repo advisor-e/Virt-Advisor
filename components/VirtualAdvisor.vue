@@ -1294,8 +1294,12 @@ export default {
       this.catchUpOutcomes = {}
       this.catchUpBusy = false
       this.catchUpError = null
-      const noConversation = ['course']
-      if (!noConversation.includes(selected)) {
+      // PANEL_MODES is the single list of modes that show a panel instead of a
+      // conversation. This used to be a second, local copy — it drifted when the
+      // firm dashboard was deleted and never gained 'progression', so opening My
+      // Progress asked vue-i18n for `opening.progression`, a key that has never
+      // existed, and pushed the raw key into the message list as an opening line.
+      if (!PANEL_MODES.includes(selected)) {
         if (selected === 'client') {
           // "Who is this session for?" comes before the intake (design
           // 2026-07-14) — initClientSession() runs when the step resolves.

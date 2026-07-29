@@ -91,3 +91,70 @@ describe('VirtualAdvisor — the chat input appears only in conversational modes
     expect(declared).not.toContain('discover')
   })
 })
+
+/**
+ * The SAME drift, found live on 2026-07-29 in a second place.
+ *
+ * `selectMode()` opens a conversation with a greeting — `$t('opening.' + mode)` — and
+ * skipped that only for modes on its OWN local list, `noConversation = ['course']`.
+ * That was a third copy of "modes that are a panel, not a conversation", and it had
+ * drifted twice over: it never gained `progression`, and it kept `firm` until the
+ * FirmDashboard deletion.
+ *
+ * The visible consequence: opening My Progress asked vue-i18n for `opening.progression`,
+ * a key that has never existed in any locale file, and pushed the raw key text into the
+ * message list as the assistant's opening line. Nothing displayed it — the progression
+ * panel replaces the message area — so it surfaced only as a console warning, and only
+ * once someone finally opened the screen. It had been latent since the screen was built.
+ *
+ * The fix is to delete the third list and use PANEL_MODES, so this cannot drift again.
+ */
+describe('VirtualAdvisor — a panel mode never opens a conversation', () => {
+  /** The guard inside selectMode that decides whether to push a greeting. */
+  function openingGate () {
+    const m = /if \(!([A-Za-z_]+)\.includes\(selected\)\) \{/.exec(SRC)
+    expect(m).not.toBeNull()
+    return m[1]
+  }
+
+  it('gates the opening greeting on PANEL_MODES, not a list of its own', () => {
+    expect(openingGate()).toBe('PANEL_MODES')
+  })
+
+  it('keeps no second list of non-conversational modes', () => {
+    // Naming the dead variable directly: its return in any form is the defect itself.
+    expect(SRC).not.toContain('noConversation')
+  })
+
+  it('asks for no opening greeting a locale file cannot answer', () => {
+    // The real assertion behind the rule: every mode that DOES open a conversation must
+    // have an `opening.<mode>` string. This is what would have caught the live defect —
+    // and it now also catches a new conversational mode shipped without its greeting.
+    const en = require('../../locales/en.json')
+    const conversational = modesRenderingAPanel()
+    expect(conversational).toContain('progression')
+
+    const modeKeys = Array.from(SRC.matchAll(/selectMode\('([a-z]+)'\)/g)).map(m => m[1])
+    expect(modeKeys.length).toBeGreaterThan(0)
+
+    modeKeys
+      .filter(mode => !declaredPanelModes().includes(mode))
+      // 'client' asks who the session is for before any greeting — see selectMode.
+      .filter(mode => mode !== 'client')
+      .forEach((mode) => {
+        expect(typeof en.opening[mode]).toBe('string')
+      })
+  })
+
+  it('gates progression specifically — the mode whose greeting never existed', () => {
+    // The regression anchor. `progression` must stay on PANEL_MODES: off it, selectMode
+    // reaches $t('opening.progression') again, and there is no such string to find.
+    expect(declaredPanelModes()).toContain('progression')
+    expect(require('../../locales/en.json').opening.progression).toBeUndefined()
+  })
+
+  // NOT asserted: that a panel mode has no `opening.*` string. `course` legitimately
+  // has one — CourseBuilder runs its own conversation inside the panel and uses
+  // `$t('opening.course')` in four places. A panel may own a greeting; what it must
+  // not do is have selectMode push one on its behalf.
+})
