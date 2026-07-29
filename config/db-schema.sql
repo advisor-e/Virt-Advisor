@@ -181,6 +181,59 @@ CREATE TABLE IF NOT EXISTS `advisor_course_completions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
+-- advisor_cpd_claims
+-- One row per CPD activity an advisor DECLARES they have completed — watching a
+-- template's tutorial video, reading the template, or rehearsing it with a
+-- colleague. The claimable time comes from the master export's `cpd` block
+-- (server/utils/cpdCatalogue.js); the claim itself is the advisor's own pledge.
+--
+-- THE ROW IS AN ATTESTATION, and is built to be defensible as one:
+--   * `pledge_key` + `pledge_version` record the exact declaration shown at the
+--     moment of the claim, so a later rewording never changes what an advisor
+--     actually agreed to. The words live in the locale files, not in this row.
+--   * `minutes` and `template_title` are FROZEN at claim time. `data/templates.json`
+--     is replaced wholesale on every master export (five times since May 2026); a
+--     total an advisor may already have submitted must not move underneath them.
+--   * A withdrawal sets `withdrawn_at` and the row STAYS. If a figure has already
+--     gone into a real CPD submission, a vanished record is worse than a
+--     withdrawn one.
+--
+-- DELIBERATELY NO UNIQUE KEY. Repeats are the point (owner ruling 2026-07-29): an
+-- advisor who watched a video three times because the concept was hard has done the
+-- work three times and may claim it three times. De-duplicating here would erase
+-- genuine effort.
+--
+-- IDENTITY IS THE TITLE, NOT THE PAGE. Neither `page` nor `title` is unique in the
+-- master export (21 page ids and 5 titles are duplicated), and the activity tables
+-- store template NAMES — so the normalised title is the join. `template_page` is
+-- kept only to build the Advisor-e link.
+--
+-- advisor_id is not FK-constrained — advisors table belongs to the Advisor-e platform.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `advisor_cpd_claims` (
+  `id`              INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+  `advisor_id`      VARCHAR(64)      NOT NULL,
+  -- See advisor_va_sessions.advisor_name — captured at write time from the
+  -- advisor's own verified JWT, NULL until the token carries a name claim.
+  `advisor_name`    VARCHAR(128)              DEFAULT NULL,
+  `firm_id`         VARCHAR(64)      NOT NULL,
+  `template_title`  VARCHAR(255)     NOT NULL,
+  `template_page`   VARCHAR(64)               DEFAULT NULL,
+  `activity`        ENUM('video','reading','rehearsal') NOT NULL,
+  `minutes`         SMALLINT UNSIGNED NOT NULL,
+  `pledge_key`      VARCHAR(64)      NOT NULL,
+  `pledge_version`  SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+  `claimed_at`      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `withdrawn_at`    DATETIME                  DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_cpd_advisor`  (`advisor_id`, `firm_id`),
+  KEY `idx_cpd_firm`     (`firm_id`),
+  KEY `idx_cpd_claimed`  (`claimed_at`),
+  CONSTRAINT `fk_cpd_firm`
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
 -- va_clients
 -- The firm-scoped client register (client knowledge base, design 2026-07-14).
 -- One row per client business, per firm — every advisor at the firm selects

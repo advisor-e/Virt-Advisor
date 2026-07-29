@@ -7,6 +7,9 @@
  * GET  /api/activity/progression             — advisor's own tier progression view
  * GET  /api/activity/team                    — firm manager's team overview
  * GET  /api/activity/team/advisor/:advisorId — one advisor's quiz detail, for a manager
+ * GET  /api/activity/cpd                     — advisor's own CPD record
+ * POST /api/activity/cpd/record              — pledge one completed CPD activity
+ * POST /api/activity/cpd/withdraw            — withdraw one of your own claims
  *
  * SECURITY: advisorId and firmId are derived from the verified JWT (firmAuth
  * middleware attaches req.advisorId / req.firmId) — never trusted from the
@@ -17,6 +20,7 @@
 const activityStore = require('../utils/activityStore')
 const { logCourseSession } = require('../utils/activityLogger')
 const { normaliseQuizQuestions } = require('../utils/quizRecord')
+const cpdCatalogue = require('../utils/cpdCatalogue')
 const { sendError } = require('../utils/sendError')
 
 const TIERS = ['entry-level', 'intermediate', 'advanced']
@@ -444,4 +448,333 @@ async function getAdvisorQuestions (req, res) {
   }
 }
 
-module.exports = { logCourse, getProgression, getTeam, getAdvisorQuestions }
+// ── CPD record ────────────────────────────────────────────────────────────────
+// An advisor's CPD claims are their own professional record. Every route below is
+// the caller's own record only — there is deliberately no manager-facing view in
+// this slice, and adding one would be a privacy decision, not a code change.
+
+/** A claim id is a row id, not an identifier the advisor types. */
+const MAX_CLAIM_ID = 4294967295
+
+/**
+ * Read a JSON column of template names back out as a list of strings.
+ *
+ * mysql2 hands back a JSON column already parsed while the dev-file fallback stores
+ * it as a string, so both shapes arrive here — the same seam as parseQuizQuestions.
+ * Anything unreadable is an empty list: a malformed row costs that row's templates,
+ * never the whole screen.
+ *
+ * @param {*} value - the raw column value.
+ * @returns {string[]}
+ */
+function parseNameList (value) {
+  const raw = Array.isArray(value) ? value : parseQuizQuestions(value)
+  return raw.filter(n => typeof n === 'string' && n.trim())
+}
+
+/**
+ * Every template the advisor's own work has used, with when they last used it.
+ *
+ * The date drives display order — most recent work first — and is also what tells a
+ * template the advisor has genuinely used apart from one they have merely claimed
+ * against in the past.
+ *
+ * @param {object[]} vaSessions - the advisor's client sessions.
+ * @param {object[]} courseSessions - the advisor's course sessions.
+ * @returns {Map<string, {name: string, lastUsedAt: *}>} keyed by normalised title.
+ */
+function collectTemplateUse (vaSessions, courseSessions) {
+  const use = new Map()
+  const add = (names, when) => {
+    for (const name of names) {
+      const key = cpdCatalogue.normaliseTitle(name)
+      if (!key) { continue }
+      const held = use.get(key)
+      if (!held) {
+        use.set(key, { name, lastUsedAt: when || null })
+      } else if (when && (!held.lastUsedAt || String(when) > String(held.lastUsedAt))) {
+        held.lastUsedAt = when
+      }
+    }
+  }
+  for (const row of vaSessions) { add(parseNameList(row.recommended_templates), row.completed_at) }
+  for (const row of courseSessions) { add(parseNameList(row.session_resources), row.completed_at) }
+  return use
+}
+
+/**
+ * Group an advisor's stored claims by template and activity.
+ *
+ * The title stored ON THE CLAIM is carried through, not looked up again: it is the
+ * spelling the advisor pledged against, and the export may since have renamed it.
+ *
+ * @param {object[]} rows - claim rows.
+ * @returns {Map<string, {title: string, byActivity: Map<string, object[]>}>} keyed by
+ *   normalised title.
+ */
+function groupClaims (rows) {
+  const byTemplate = new Map()
+  for (const row of rows) {
+    const key = cpdCatalogue.normaliseTitle(row.template_title)
+    if (!key) { continue }
+    let held = byTemplate.get(key)
+    if (!held) { held = { title: row.template_title, byActivity: new Map() }; byTemplate.set(key, held) }
+    const byActivity = held.byActivity
+    const list = byActivity.get(row.activity) || []
+    list.push({
+      id: Number(row.id),
+      minutes: Number(row.minutes),
+      claimedAt: row.claimed_at,
+      withdrawnAt: row.withdrawn_at || null,
+      pledgeKey: row.pledge_key,
+      pledgeVersion: Number(row.pledge_version)
+    })
+    byActivity.set(row.activity, list)
+  }
+  return byTemplate
+}
+
+/**
+ * Return the authenticated advisor's own CPD record — what they may claim, what they
+ * have claimed, and the running total.
+ *
+ * The claimable list is built from the templates their own sessions actually used, so
+ * an advisor can never record CPD against the library at large. A template they have
+ * claimed against in the past is listed even if it no longer appears in their recent
+ * sessions: a standing claim must never disappear from the record that carries it.
+ *
+ * @route GET /api/activity/cpd
+ * @param {string} req.advisorId - advisor identity from the verified JWT (firmAuth)
+ * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
+ * @returns {200} { success: true, advisorId, totalMinutes, claimedCount, templates }
+ *   — `totalMinutes` and `claimedCount` count STANDING claims only; withdrawn ones
+ *   remain visible on their activity as history.
+ * @returns {403} NO_ADVISOR_IDENTITY · {500} DB_ERROR (standard error envelope)
+ */
+async function getCpd (req, res) {
+  const advisorId = req.advisorId
+  const firmId = req.firmId
+
+  if (!advisorId) {
+    sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
+    return
+  }
+
+  try {
+    const [{ vaSessions, courseSessions }, claimRows] = await Promise.all([
+      activityStore.readAdvisorSessions(advisorId, firmId),
+      activityStore.readAdvisorClaims(advisorId, firmId)
+    ])
+
+    const use = collectTemplateUse(vaSessions, courseSessions)
+    const claims = groupClaims(claimRows)
+
+    // Templates the advisor has used, plus any they hold a claim against — the union,
+    // so a claim can never be orphaned by a template dropping out of recent work.
+    const keys = new Set([...use.keys(), ...claims.keys()])
+
+    let totalMinutes = 0
+    let claimedCount = 0
+    const templates = []
+
+    for (const key of keys) {
+      const used = use.get(key)
+      const entry = cpdCatalogue.lookupTemplate(used ? used.name : key)
+      const held = claims.get(key)
+      const claimedHere = held ? held.byActivity : null
+      if (!entry && !claimedHere) { continue }
+
+      const activities = []
+      // The activities the export still offers, in catalogue order…
+      for (const a of (entry ? entry.activities : [])) {
+        const list = (claimedHere && claimedHere.get(a.activity)) || []
+        const standing = list.filter(c => !c.withdrawnAt)
+        totalMinutes += standing.reduce((sum, c) => sum + c.minutes, 0)
+        claimedCount += standing.length
+        activities.push({
+          activity: a.activity,
+          minutes: a.minutes,
+          pledgeKey: a.pledgeKey,
+          claimedCount: standing.length,
+          claimedMinutes: standing.reduce((sum, c) => sum + c.minutes, 0),
+          claims: list
+        })
+      }
+      // …plus any activity that only exists as history. A re-authored export must not
+      // silently drop a claim an advisor may already have submitted.
+      if (claimedHere) {
+        for (const [activity, list] of claimedHere) {
+          if (activities.some(a => a.activity === activity)) { continue }
+          const standing = list.filter(c => !c.withdrawnAt)
+          const standingMinutes = standing.reduce((sum, c) => sum + c.minutes, 0)
+          totalMinutes += standingMinutes
+          claimedCount += standing.length
+          activities.push({
+            activity,
+            // No longer offered by the export — recorded, but not claimable again.
+            minutes: null,
+            pledgeKey: list[0].pledgeKey,
+            claimedCount: standing.length,
+            claimedMinutes: standingMinutes,
+            claims: list
+          })
+        }
+      }
+      if (!activities.length) { continue }
+
+      templates.push({
+        // The catalogue's spelling when it still knows the template; otherwise the
+        // one stored on the claim, which is what the advisor actually pledged against.
+        title: entry ? entry.title : (held ? held.title : used.name),
+        page: entry ? entry.page : null,
+        lastUsedAt: used ? used.lastUsedAt : null,
+        activities
+      })
+    }
+
+    // Most recently used first; never-used-but-claimed sink to the bottom, then by
+    // title so the order is stable rather than dependent on Map insertion.
+    templates.sort((a, b) => {
+      if (a.lastUsedAt && b.lastUsedAt && a.lastUsedAt !== b.lastUsedAt) {
+        return String(b.lastUsedAt).localeCompare(String(a.lastUsedAt))
+      }
+      if (a.lastUsedAt && !b.lastUsedAt) { return -1 }
+      if (!a.lastUsedAt && b.lastUsedAt) { return 1 }
+      return a.title.localeCompare(b.title)
+    })
+
+    res.send(200, { success: true, advisorId, totalMinutes, claimedCount, templates })
+  } catch (err) {
+    console.error('[activity] getCpd error:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not load your CPD record')
+  }
+}
+
+/**
+ * Record one CPD claim — the advisor's pledge that they completed the activity.
+ *
+ * NOTHING THAT GIVES THE CLAIM ITS VALUE COMES FROM THE REQUEST. The body names a
+ * template and one of three activities; the minutes, the template's real title and
+ * page, and the wording of the pledge are all resolved server-side from the master
+ * export (cpdCatalogue). A claim is a professional declaration, so a client that
+ * could name its own figure could inflate a regulated record.
+ *
+ * @route POST /api/activity/cpd/record
+ * @param {object} req.body - { templateTitle, activity } — 'video' | 'reading' | 'rehearsal'
+ * @param {string} req.advisorId - advisor identity from the verified JWT (firmAuth)
+ * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
+ * @param {string} [req.advisorName] - display name from the same verified token
+ * @returns {200} { success: true, claim } — the stored row, including its id
+ * @returns {403} NO_ADVISOR_IDENTITY · {400} INVALID_CLAIM · {400} NOT_CLAIMABLE ·
+ *   {500} CPD_RECORD_FAILED (standard error envelope)
+ */
+async function recordCpd (req, res) {
+  const advisorId = req.advisorId
+  const firmId = req.firmId
+
+  if (!advisorId) {
+    sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
+    return
+  }
+
+  const request = cpdCatalogue.normaliseClaimRequest(req.body)
+  if (!request) {
+    sendError(res, 400, 'INVALID_CLAIM', 'A CPD claim needs a template and one of the three activities')
+    return
+  }
+
+  try {
+    // An advisor may only claim against templates their own work has used. Checked
+    // against their stored sessions, not against anything the request asserts.
+    const { vaSessions, courseSessions } = await activityStore.readAdvisorSessions(advisorId, firmId)
+    const use = collectTemplateUse(vaSessions, courseSessions)
+    if (!use.has(cpdCatalogue.normaliseTitle(request.templateTitle))) {
+      sendError(res, 400, 'NOT_CLAIMABLE', 'You can only record CPD for a template your own work has used')
+      return
+    }
+
+    const resolved = cpdCatalogue.resolveClaim(request.templateTitle, request.activity)
+    if (!resolved) {
+      sendError(res, 400, 'NOT_CLAIMABLE', 'That template carries no CPD time for that activity')
+      return
+    }
+
+    const claim = await activityStore.recordCpdClaim({
+      advisorId,
+      advisorName: req.advisorName || null,
+      firmId,
+      templateTitle: resolved.title,
+      templatePage: resolved.page,
+      activity: resolved.activity,
+      minutes: resolved.minutes,
+      pledgeKey: resolved.pledgeKey,
+      pledgeVersion: resolved.pledgeVersion
+    })
+
+    res.send(200, { success: true, claim })
+  } catch (err) {
+    // Never swallowed, unlike the mid-session write in activityLogger: an advisor who
+    // is not told their pledge failed will believe they have declared something.
+    console.error('[activity] recordCpd error:', err.message)
+    sendError(res, 500, 'CPD_RECORD_FAILED', 'Could not record your CPD claim')
+  }
+}
+
+/**
+ * Withdraw one of the authenticated advisor's own standing CPD claims.
+ *
+ * The row is kept and stamped withdrawn rather than deleted — the claim may already
+ * have been submitted elsewhere, and a record that vanishes is worse than one showing
+ * a claim made and later withdrawn.
+ *
+ * @route POST /api/activity/cpd/withdraw
+ * @param {object} req.body - { claimId }
+ * @param {string} req.advisorId - advisor identity from the verified JWT (firmAuth)
+ * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
+ * @returns {200} { success: true }
+ * @returns {403} NO_ADVISOR_IDENTITY · {400} INVALID_CLAIM · {404} CLAIM_NOT_FOUND ·
+ *   {500} CPD_WITHDRAW_FAILED (standard error envelope)
+ */
+async function withdrawCpd (req, res) {
+  const advisorId = req.advisorId
+  const firmId = req.firmId
+
+  if (!advisorId) {
+    sendError(res, 403, 'NO_ADVISOR_IDENTITY', 'Your session does not identify an advisor')
+    return
+  }
+
+  const raw = req.body && req.body.claimId
+  const claimId = (typeof raw === 'number' || (typeof raw === 'string' && raw.trim() !== ''))
+    ? Number(raw)
+    : NaN
+  if (!Number.isFinite(claimId) || claimId < 1 || claimId > MAX_CLAIM_ID ||
+      Math.round(claimId) !== claimId) {
+    sendError(res, 400, 'INVALID_CLAIM', 'That is not a CPD claim reference')
+    return
+  }
+
+  try {
+    const withdrawn = await activityStore.withdrawCpdClaim(claimId, advisorId, firmId)
+    if (!withdrawn) {
+      // One answer for "already withdrawn", "does not exist" and "belongs to someone
+      // else" — so the route cannot be used to discover other advisors' claims.
+      sendError(res, 404, 'CLAIM_NOT_FOUND', 'That CPD claim is not one of yours to withdraw')
+      return
+    }
+    res.send(200, { success: true })
+  } catch (err) {
+    console.error('[activity] withdrawCpd error:', err.message)
+    sendError(res, 500, 'CPD_WITHDRAW_FAILED', 'Could not withdraw your CPD claim')
+  }
+}
+
+module.exports = {
+  logCourse,
+  getProgression,
+  getTeam,
+  getAdvisorQuestions,
+  getCpd,
+  recordCpd,
+  withdrawCpd
+}

@@ -187,6 +187,11 @@ server.get('/api/activity/team', firmAuth, requireManagerRole, activityRoute.get
 // the firm comes from the token, and the advisor id in the path is confined to that
 // firm by the query — see the SECURITY note on getAdvisorQuestions.
 server.get('/api/activity/team/advisor/:advisorId', firmAuth, requireManagerRole, activityRoute.getAdvisorQuestions)
+// CPD record. firmAuth only, no manager role: these are the caller's OWN claims, and
+// there is deliberately no manager-facing view of another advisor's CPD in this slice.
+server.get('/api/activity/cpd', firmAuth, activityRoute.getCpd)
+server.post('/api/activity/cpd/record', firmAuth, activityRoute.recordCpd)
+server.post('/api/activity/cpd/withdraw', firmAuth, activityRoute.withdrawCpd)
 
 // ── Cases routes ──
 // All firmAuth-guarded: identity (advisorId/firmId) comes from the verified JWT,
