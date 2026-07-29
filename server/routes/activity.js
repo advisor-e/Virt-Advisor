@@ -15,6 +15,7 @@
 
 const activityStore = require('../utils/activityStore')
 const { logCourseSession } = require('../utils/activityLogger')
+const { normaliseQuizQuestions } = require('../utils/quizRecord')
 const { sendError } = require('../utils/sendError')
 
 const TIERS = ['entry-level', 'intermediate', 'advanced']
@@ -24,11 +25,36 @@ function emptyTier () {
 }
 
 /**
+ * Read the stored per-question record back out.
+ *
+ * mysql2 hands back a JSON column already parsed, while the dev-file fallback stores
+ * the same value as a JSON string — so both shapes arrive here. Anything unreadable
+ * becomes an empty list rather than throwing: a malformed record is a missing detail,
+ * not a reason to fail the whole progress screen.
+ *
+ * @param {*} value - the raw column value.
+ * @returns {object[]}
+ */
+function parseQuizQuestions (value) {
+  if (Array.isArray(value)) { return value }
+  if (typeof value !== 'string' || !value) { return [] }
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed : []
+  } catch (err) {
+    return []
+  }
+}
+
+/**
  * Log a completed course session for the authenticated advisor.
  *
  * @route POST /api/activity/log-course
  * @param {object} req.body - session detail only (no identity): { courseId, courseTitle,
- *   courseTopic, sessionIndex, sessionTitle, sessionResources, quizScore }
+ *   courseTopic, sessionIndex, sessionTitle, sessionResources, quizScore, quizQuestions }.
+ *   `quizQuestions` is per-question detail — bank, entry number, pass/fail, score — and
+ *   is normalised through quizRecord before storage; the advisor's written answer is
+ *   deliberately not accepted (owner recommendation, ADVISOR-PROGRESS-HANDOVER §6).
  * @param {string} req.advisorId - advisor identity from the verified JWT (firmAuth)
  * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
  * @returns {200} { success: true }
@@ -40,7 +66,7 @@ async function logCourse (req, res) {
   const firmId = req.firmId
   const {
     courseId, courseTitle, courseTopic,
-    sessionIndex, sessionTitle, sessionResources, quizScore
+    sessionIndex, sessionTitle, sessionResources, quizScore, quizQuestions
   } = req.body || {}
 
   if (!advisorId) {
@@ -64,7 +90,10 @@ async function logCourse (req, res) {
     sessionIndex: Number(sessionIndex),
     sessionTitle: String(sessionTitle || '').slice(0, 255),
     sessionResources: Array.isArray(sessionResources) ? sessionResources : [],
-    quizScore: (quizScore !== null && quizScore !== undefined) ? Number(quizScore) : null
+    quizScore: (quizScore !== null && quizScore !== undefined) ? Number(quizScore) : null,
+    // Client-supplied detail, so normalised before it goes anywhere near storage.
+    // Bank, entry number, pass/fail and score only — never the advisor's own words.
+    quizQuestions: normaliseQuizQuestions(quizQuestions)
   })
 
   res.send(200, { success: true })
@@ -141,11 +170,15 @@ async function getProgression (req, res) {
     }))
     const recentCourse = courseSessions.slice(0, 20).map(r => ({
       type: 'course',
-courseTitle: r.course_title,
-sessionTitle: r.session_title,
+      courseTitle: r.course_title,
+      sessionTitle: r.session_title,
       quizScore: r.quiz_score,
-tier: r.highest_tier,
-completedAt: r.completed_at
+      // The advisor's own per-question detail. Safe on THIS route because it returns
+      // only the caller's own record; a manager-facing version would be a cross-advisor
+      // read and needs the same firmAuth treatment before it exists.
+      quizQuestions: parseQuizQuestions(r.quiz_questions),
+      tier: r.highest_tier,
+      completedAt: r.completed_at
     }))
     const recentActivity = [...recentVA, ...recentCourse]
       .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))

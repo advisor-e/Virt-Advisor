@@ -1559,7 +1559,19 @@ export default {
             sessionIndex: this.activeSessionIndex,
             sessionTitle: session.title,
             sessionResources: session.resources || [],
-            quizScore: (score !== null && score !== undefined) ? score : null
+            quizScore: (score !== null && score !== undefined) ? score : null,
+            // Per-question record: which bank fed each question and how it went.
+            // Only the address and the verdict — never the advisor's own answer,
+            // the question text, or the marker's feedback. The backend normalises
+            // this again on arrival; sending less here is the first line, not the
+            // only one.
+            quizQuestions: (this.quizResults || []).map(r => ({
+              bankKey: r.bankKey || null,
+              bankRef: r.bankRef || null,
+              score: r.ungraded ? null : r.score,
+              passed: r.passed === true,
+              ungraded: r.ungraded === true
+            }))
           })
         })
       } catch (e) {

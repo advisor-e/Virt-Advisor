@@ -163,6 +163,12 @@ CREATE TABLE IF NOT EXISTS `advisor_course_completions` (
   `session_title`     VARCHAR(255)     NOT NULL,
   `session_resources` JSON                      DEFAULT NULL,
   `quiz_score`        TINYINT UNSIGNED          DEFAULT NULL,
+  -- Per-question record: [{bankKey, bankRef, score, passed, ungraded}, ...].
+  -- Deliberately NOT the advisor's written answer, the question text or the marker's
+  -- feedback (owner recommendation, ADVISOR-PROGRESS-HANDOVER §6) — advisors write
+  -- differently once they believe a manager reads their words. Normalised and capped
+  -- by server/utils/quizRecord.js before it is written; NULL when a quiz was skipped.
+  `quiz_questions`    JSON                      DEFAULT NULL,
   `highest_tier`      ENUM('entry-level','intermediate','advanced') DEFAULT NULL,
   `completed_at`      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

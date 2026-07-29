@@ -65,11 +65,13 @@ async function logVASession (advisorId, firmId, domain, recommendedTemplates, ad
  * @param {string}   params.sessionTitle    - Session title
  * @param {string[]} [params.sessionResources] - Template names used as resources
  * @param {number|null} [params.quizScore]  - Quiz score 0–100, or null if skipped
+ * @param {object[]} [params.quizQuestions] - Per-question record, already normalised by
+ *   quizRecord: bank, entry number, pass/fail, score. Never the advisor's own answer.
  */
 async function logCourseSession (params) {
   const {
  advisorId, advisorName, firmId, courseId, courseTitle, courseTopic,
-    sessionIndex, sessionTitle, sessionResources, quizScore
+    sessionIndex, sessionTitle, sessionResources, quizScore, quizQuestions
 } = params || {}
 
   if (!advisorId || !firmId || !courseId) { return }
@@ -86,6 +88,9 @@ async function logCourseSession (params) {
       sessionTitle: String(sessionTitle || '').slice(0, 255),
       resources,
       quizScore: (quizScore !== null && quizScore !== undefined) ? Number(quizScore) : null,
+      // Already normalised by the route; defaulted here so a direct caller cannot
+      // write an undefined into the column.
+      quizQuestions: Array.isArray(quizQuestions) ? quizQuestions : [],
       tier: getHighestTier(resources)
     })
   } catch (err) {

@@ -53,7 +53,7 @@ const SQL_ADVISOR_VA =
 
 const SQL_ADVISOR_COURSE =
   `SELECT course_id, course_title, session_index, session_title,
-                quiz_score, highest_tier, completed_at
+                quiz_score, quiz_questions, highest_tier, completed_at
          FROM advisor_course_completions
          WHERE advisor_id = ? AND firm_id = ?
          ORDER BY completed_at DESC LIMIT 200`
@@ -86,8 +86,9 @@ const SQL_INSERT_VA =
 const SQL_INSERT_COURSE =
   `INSERT IGNORE INTO advisor_course_completions
          (advisor_id, advisor_name, firm_id, course_id, course_title, course_topic,
-          session_index, session_title, session_resources, quiz_score, highest_tier)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          session_index, session_title, session_resources, quiz_score, quiz_questions,
+          highest_tier)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 // ── Reads ─────────────────────────────────────────────────────────────────────
 
@@ -183,10 +184,12 @@ async function recordVASession (row) {
  */
 async function recordCourseSession (row) {
   const resources = row.resources && row.resources.length ? JSON.stringify(row.resources) : null
+  const questions = row.quizQuestions && row.quizQuestions.length ? JSON.stringify(row.quizQuestions) : null
   try {
     await db.execute(SQL_INSERT_COURSE, [
       row.advisorId, row.advisorName || null, row.firmId, row.courseId, row.courseTitle,
-      row.courseTopic, row.sessionIndex, row.sessionTitle, resources, row.quizScore, row.tier
+      row.courseTopic, row.sessionIndex, row.sessionTitle, resources, row.quizScore,
+      questions, row.tier
     ])
   } catch (err) {
     if (!devFallbackEnabled()) { throw err }
@@ -208,6 +211,7 @@ async function recordCourseSession (row) {
       session_title: row.sessionTitle,
       session_resources: resources,
       quiz_score: row.quizScore,
+      quiz_questions: questions,
       highest_tier: row.tier,
       completed_at: _now()
     })

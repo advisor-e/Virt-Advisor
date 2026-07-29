@@ -187,9 +187,69 @@ describe('getProgression — one advisor\'s own record', () => {
       courseTitle: 'Cashflow Basics',
       sessionTitle: 'Session One',
       quizScore: 70,
+      // Empty rather than absent: a session recorded before the per-question record
+      // existed must not make the screen branch on undefined.
+      quizQuestions: [],
       tier: 'intermediate',
       completedAt: '2026-07-28T20:00:00Z'
     })
+  })
+
+  // ── The per-question record ─────────────────────────────────────────────────
+  // Returned on THIS route only, which serves the caller's own record. A manager
+  // reading a colleague's questions is a cross-advisor read and does not exist yet.
+
+  test('returns the per-question detail stored with a session', async () => {
+    const stored = [
+      { bankKey: 'Ratio Analysis', bankRef: 5, score: 80, passed: true, ungraded: false },
+      { bankKey: null, bankRef: null, score: 40, passed: false, ungraded: false }
+    ]
+    const res = await run([], [{
+      course_id: 'c1',
+course_title: 'C',
+session_index: 0,
+session_title: 'S1',
+      quiz_score: 60,
+quiz_questions: JSON.stringify(stored),
+      highest_tier: 'entry-level',
+completed_at: '2026-07-28T20:00:00Z'
+    }])
+
+    expect(res._body.recentActivity[0].quizQuestions).toEqual(stored)
+  })
+
+  test('accepts the column already parsed, as mysql2 returns a JSON column', async () => {
+    // The dev fallback stores a string; MySQL hands back an array. Both must work,
+    // or the feature would behave differently on the two storage paths.
+    const stored = [{ bankKey: 'Ratio Analysis', bankRef: 5, score: 80, passed: true, ungraded: false }]
+    const res = await run([], [{
+      course_id: 'c1',
+course_title: 'C',
+session_index: 0,
+session_title: 'S1',
+      quiz_score: 80,
+quiz_questions: stored,
+      highest_tier: 'entry-level',
+completed_at: '2026-07-28T20:00:00Z'
+    }])
+
+    expect(res._body.recentActivity[0].quizQuestions).toEqual(stored)
+  })
+
+  test('a malformed record is an empty list, not a broken screen', async () => {
+    for (const bad of ['{ not json', '"a string"', '42', null, undefined]) {
+      const res = await run([], [{
+        course_id: 'c1',
+course_title: 'C',
+session_index: 0,
+session_title: 'S1',
+        quiz_score: 80,
+quiz_questions: bad,
+        highest_tier: 'entry-level',
+completed_at: '2026-07-28T20:00:00Z'
+      }])
+      expect(res._body.recentActivity[0].quizQuestions).toEqual([])
+    }
   })
 
   test('recent activity is capped at 10 and keeps the 10 newest', async () => {

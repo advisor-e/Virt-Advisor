@@ -154,6 +154,26 @@ describe('the fallback reproduces the SQL the routes rely on', () => {
     expect(courseRows[0].count).toBe('2')
   })
 
+  test('round-trips the per-question record', async () => {
+    const questions = [
+      { bankKey: 'Ratio Analysis', bankRef: 5, score: 80, passed: true, ungraded: false },
+      { bankKey: null, bankRef: null, score: null, passed: false, ungraded: true }
+    ]
+    await activityStore.recordCourseSession(course({ quizQuestions: questions }))
+
+    const { courseSessions } = await activityStore.readAdvisorSessions('a1', 'f1')
+    expect(JSON.parse(courseSessions[0].quiz_questions)).toEqual(questions)
+  })
+
+  test('a session with no per-question record stores null, not an empty array', async () => {
+    // A skipped quiz has nothing to record. Null matches what the DB column holds
+    // and is what the route's parser treats as "no detail".
+    await activityStore.recordCourseSession(course({ quizQuestions: [] }))
+
+    const { courseSessions } = await activityStore.readAdvisorSessions('a1', 'f1')
+    expect(courseSessions[0].quiz_questions).toBeNull()
+  })
+
   test('carries the display name captured at write time through to the team read', async () => {
     await activityStore.recordCourseSession(course())
 
