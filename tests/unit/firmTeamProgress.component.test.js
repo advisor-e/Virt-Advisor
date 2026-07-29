@@ -34,6 +34,7 @@ function advisor (id, opts) {
       intermediate: tier('intermediate'),
       advanced: tier('advanced')
     },
+    unclassifiedSessions: o.unclassifiedSessions || 0,
     lastActive: o.lastActive === undefined ? '2026-07-28T10:00:00Z' : o.lastActive,
     totalSessions: o.totalSessions === undefined ? 0 : o.totalSessions
   }
@@ -133,6 +134,42 @@ describe('a team with activity', () => {
   test('shows the legend explaining the two numbers in each cell', async () => {
     const wrapper = await mountTab(team)
     expect(wrapper.text()).toContain('firmTeamProgress.cellLegend')
+  })
+
+  test('says how many of an advisor\'s sessions are not yet at a level', async () => {
+    const wrapper = await mountTab({
+      body: {
+        success: true,
+        // Deliberately different from totalSessions: mutation testing showed that with
+        // both set to 9, sending the TOTAL to this message instead of the unlevelled
+        // count was invisible to the test.
+        advisors: [advisor('adv-c', { unclassifiedSessions: 9, totalSessions: 12 })]
+      }
+    })
+    // The count is interpolated, so the assertion pins the number reaching the message
+    // rather than the English around it.
+    expect(wrapper.text()).toContain('firmTeamProgress.notLevelled {"n":9}')
+    expect(wrapper.text()).not.toContain('firmTeamProgress.notLevelled {"n":12}')
+  })
+
+  test('explains the Total column only when something is actually unlevelled', async () => {
+    const clean = await mountTab({
+      body: { success: true, advisors: [advisor('adv-1', { totalSessions: 4 })] }
+    })
+    expect(clean.text()).not.toContain('firmTeamProgress.totalLegend')
+
+    const mixed = await mountTab({
+      body: {
+        success: true,
+        advisors: [advisor('adv-1', { unclassifiedSessions: 2, totalSessions: 6 })]
+      }
+    })
+    expect(mixed.text()).toContain('firmTeamProgress.totalLegend')
+  })
+
+  test('an advisor with nothing unlevelled carries no stray note', async () => {
+    const wrapper = await mountTab(team)
+    expect(wrapper.findAll('tbody tr').at(1).text()).not.toContain('firmTeamProgress.notLevelled')
   })
 
   test('a payload missing a tier still renders the advisor rather than blanking the row', async () => {

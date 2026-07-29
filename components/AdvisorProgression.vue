@@ -47,6 +47,13 @@
           span.prog-last-active(v-if="tiers[tier.key].lastActive") Last active {{ formatDate(tiers[tier.key].lastActive) }}
           span.prog-no-activity(v-else) No activity yet
 
+    //- Work the tier lookup could not place. Said out loud so the three cards above
+    //- are not read as the whole record. The two lines below use $t() while the rest
+    //- of this screen is still hardcoded English — new strings do not add to the
+    //- i18n debt, and these seed the block the pending sweep will fill.
+    .prog-unlevelled(v-if="unclassifiedSessions")
+      p {{ $t('advisorProgress.notLevelled', { n: unclassifiedSessions }) }}
+
     .prog-empty-notice(v-if="!hasAnyActivity")
       p Complete a VA case or course session to start building your progress record here.
 
@@ -65,7 +72,7 @@
             .prog-activity-title {{ item.type === 'va' ? (item.domain ? domainLabel(item.domain) : 'Advisory Session') : item.courseTitle }}
             .prog-activity-sub {{ item.type === 'va' ? 'VA Case' : item.sessionTitle }}
           .prog-activity-meta
-            span.prog-tier-pill(:class="'pill-' + item.tier") {{ tierLabel(item.tier) }}
+            span.prog-tier-pill(:class="item.tier ? 'pill-' + item.tier : 'pill-none'") {{ tierLabel(item.tier) }}
             span.prog-activity-date {{ formatDate(item.completedAt) }}
 </template>
 
@@ -108,6 +115,8 @@ export default {
         advanced: { vaSessions: 0, courseSessions: 0, avgQuizScore: null, lastActive: null }
       },
       recentActivity: [],
+      /** Completed sessions no capability tier could hold — counted, never dropped. */
+      unclassifiedSessions: 0,
       tierDefs: [
         { key: 'entry-level', label: 'Entry Level', desc: 'Foundational advisory tools and techniques' },
         { key: 'intermediate', label: 'Intermediate', desc: 'Building advisory depth and selling skills' },
@@ -117,8 +126,17 @@ export default {
   },
 
   computed: {
+    /**
+     * Whether this advisor has done anything at all. Unclassified sessions count:
+     * without them, someone with three completed sessions that no tier could hold
+     * would be told to "start building your progress record" — the same denial of
+     * real work the team table used to make about them.
+     *
+     * @returns {boolean}
+     */
     hasAnyActivity () {
-      return Object.values(this.tiers).some(t => t.vaSessions > 0 || t.courseSessions > 0)
+      return this.unclassifiedSessions > 0 ||
+        Object.values(this.tiers).some(t => t.vaSessions > 0 || t.courseSessions > 0)
     }
   },
 
@@ -153,6 +171,7 @@ export default {
         if (data.success) {
           this.tiers = data.tiers || this.tiers
           this.recentActivity = data.recentActivity || []
+          this.unclassifiedSessions = data.unclassifiedSessions || 0
         } else {
           this.error = 'Could not load your progress. Please try again.'
         }
@@ -168,7 +187,15 @@ export default {
       return new Date(dt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
     },
 
+    /**
+     * The badge on an activity row. A session the tier lookup could not place has no
+     * key at all, and rendered as an empty pill — it now says so instead.
+     *
+     * @param {string|null} key - tier key, or null/unknown for an unplaced session.
+     * @returns {string} the label to show.
+     */
     tierLabel (key) {
+      if (!key) { return this.$t('advisorProgress.noLevelYet') }
       const found = this.tierDefs.find(t => t.key === key)
       return found ? found.label : key
     },
@@ -294,6 +321,15 @@ export default {
 .prog-tier-footer { padding: 8px 16px 12px; }
 .prog-last-active { font-size: 11px; color: #9ca3af; }
 .prog-no-activity { font-size: 11px; color: #d1d5db; font-style: italic; }
+
+/* ── Sessions with no capability level ── */
+.prog-unlevelled {
+  margin: 0 24px 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+.prog-unlevelled p { margin: 0; }
+.pill-none { background: #f3f4f6; color: #6b7280; }
 
 /* ── Empty notice ── */
 .prog-empty-notice {

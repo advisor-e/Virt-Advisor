@@ -16,8 +16,11 @@
  * wrong, marked CURRENT BEHAVIOUR so that fixing one would fail the suite rather than pass
  * quietly. A test that agreed with every change would be worth nothing.
  *
- * One of those has since been fixed: the silent database failure (see the last describe
- * block). Two remain, both about a session carrying no capability tier.
+ * Both have since been fixed, and this file is the record of it: the silent database
+ * failure (see the last describe block), and — on 2026-07-29, by owner ruling — the two
+ * about a session carrying no capability tier. Those CURRENT BEHAVIOUR tests did their
+ * job: pinning a known-wrong behaviour made fixing it fail the suite, which is how the
+ * change got read rather than waved through.
  *
  * The database is a stand-in throughout: no MySQL is needed to run this, which is the whole
  * point — the real one has never been provisioned.
@@ -205,15 +208,34 @@ describe('getProgression — one advisor\'s own record', () => {
     expect(res._body.tiers['entry-level'].vaSessions).toBe(14)
   })
 
-  test('CURRENT BEHAVIOUR — a tierless session still appears in Recent Activity', async () => {
+  test('a tierless session appears in Recent Activity and is now also counted', async () => {
     const res = await run()
 
-    // The recent list maps every row; the tier counts skip tierless ones. So this session
-    // is visible to the advisor while counting towards nothing. Recorded, not endorsed —
-    // if the tier lookup starts returning null often this becomes a real inconsistency.
+    // It still shows in the list with a null tier — the screen labels that "No level yet"
+    // rather than an empty badge. What changed on 2026-07-29 is that it is no longer
+    // invisible to the totals: the count below is what the screen reports.
     const orphan = res._body.recentActivity.find(r => r.completedAt === '2026-07-29T08:00:00Z')
     expect(orphan).toBeDefined()
     expect(orphan.tier).toBeNull()
+    expect(res._body.unclassifiedSessions).toBe(1)
+  })
+
+  test('unclassified sessions are counted across both sources', async () => {
+    const res = await run(
+      [{ highest_tier: null, domain: 'cash', completed_at: '2026-07-29T08:00:00Z' }],
+      [{ course_id: 'c9', course_title: 'Odd One', session_index: 0, session_title: 'S1', quiz_score: 55, highest_tier: null, completed_at: '2026-07-29T09:00:00Z' }]
+    )
+
+    expect(res._body.unclassifiedSessions).toBe(2)
+  })
+
+  test('an advisor with everything levelled reports zero unclassified, not undefined', async () => {
+    const res = await run(
+      [{ highest_tier: 'advanced', domain: 'profit', completed_at: '2026-07-28T19:30:00Z' }],
+      []
+    )
+
+    expect(res._body.unclassifiedSessions).toBe(0)
   })
 
   test('the advisor ID in the reply is the one from the verified pass', async () => {
@@ -306,18 +328,80 @@ describe('getTeam — the firm manager\'s table', () => {
     expect(a.tiers.advanced.avgQuizScore).toBeNull()
   })
 
-  test('CURRENT BEHAVIOUR — a tierless row lists the advisor with nothing recorded', async () => {
+  // ── Sessions with no capability tier ────────────────────────────────────────
+  // FIXED 2026-07-29 (owner ruling: count them and say so, rather than hide either
+  // the sessions or the advisor). These replace the CURRENT BEHAVIOUR test that
+  // recorded the defect: an advisor whose work was ALL unclassified was listed with
+  // zeros everywhere and no date, reading to a manager as someone who had done
+  // nothing. Tierless rows are routine, not exotic — server/utils/tierLookup.js
+  // returns no tier for an empty tool list and for the role-based "Get Organised"
+  // pages by design.
+
+  test('an advisor whose work is all unclassified is counted, not blanked', async () => {
     const res = await run([
       { advisor_id: 'adv-c', highest_tier: null, count: '9', last_active: '2026-07-28T12:00:00Z' }
     ], [])
 
-    // The advisor row is created before the tier is checked, so adv-c appears on the
-    // manager's table with all zeros and no last-active date, despite nine real sessions.
-    // Recorded, not endorsed — to a manager this reads as an advisor who has done nothing.
     expect(res._body.advisors).toHaveLength(1)
     expect(res._body.advisors[0]).toMatchObject({
-      advisorId: 'adv-c', lastActive: null, totalSessions: 0
+      advisorId: 'adv-c',
+      unclassifiedSessions: 9,
+      totalSessions: 9,
+      lastActive: '2026-07-28T12:00:00Z'
     })
+  })
+
+  test('unclassified sessions are counted but land in no tier', async () => {
+    const res = await run([
+      { advisor_id: 'adv-c', highest_tier: null, count: '9', last_active: '2026-07-28T12:00:00Z' }
+    ], [])
+
+    const c = res._body.advisors[0]
+    for (const tier of ['entry-level', 'intermediate', 'advanced']) {
+      expect(c.tiers[tier]).toEqual({ vaSessions: 0, courseSessions: 0, avgQuizScore: null })
+    }
+  })
+
+  test('unclassified sessions add to the total alongside levelled ones', async () => {
+    const res = await run([
+      { advisor_id: 'adv-a', highest_tier: 'advanced', count: '3', last_active: '2026-07-28T19:00:00Z' },
+      { advisor_id: 'adv-a', highest_tier: null, count: '2', last_active: '2026-07-29T08:00:00Z' }
+    ], [])
+
+    const a = res._body.advisors[0]
+    expect(a.tiers.advanced.vaSessions).toBe(3)
+    expect(a.unclassifiedSessions).toBe(2)
+    expect(a.totalSessions).toBe(5)
+  })
+
+  test('an unclassified session still counts as being active', async () => {
+    const res = await run([
+      { advisor_id: 'adv-a', highest_tier: 'advanced', count: '3', last_active: '2026-07-20T09:00:00Z' },
+      { advisor_id: 'adv-a', highest_tier: null, count: '1', last_active: '2026-07-29T08:00:00Z' }
+    ], [])
+
+    // The later date belongs to the unclassified row. Before the fix the date was only
+    // read inside the tier check, so the advisor's most recent work was invisible.
+    expect(res._body.advisors[0].lastActive).toBe('2026-07-29T08:00:00Z')
+  })
+
+  test('an unclassified course session is counted, and its scores stay out of every average', async () => {
+    const res = await run([], [
+      { advisor_id: 'adv-a', highest_tier: 'intermediate', count: '2', avg_score: '80.0000', last_active: '2026-07-20T09:00:00Z' },
+      { advisor_id: 'adv-a', highest_tier: null, count: '4', avg_score: '30.0000', last_active: '2026-07-21T09:00:00Z' }
+    ])
+
+    const a = res._body.advisors[0]
+    expect(a.unclassifiedSessions).toBe(4)
+    expect(a.totalSessions).toBe(6)
+    // An average belongs to a tier; these rows have none, so 30 must not drag 80 down.
+    expect(a.tiers.intermediate.avgQuizScore).toBe(80)
+  })
+
+  test('an advisor with no unclassified work reports zero, not undefined', async () => {
+    const res = await run()
+
+    expect(res._body.advisors[0].unclassifiedSessions).toBe(0)
   })
 
   test('the firm ID in the reply is the one from the verified pass', async () => {

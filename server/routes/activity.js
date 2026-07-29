@@ -75,7 +75,9 @@ async function logCourse (req, res) {
  * @param {string} req.advisorId - advisor identity from the verified JWT (firmAuth); the
  *   only advisor whose data is returned — a client cannot request another advisor's record
  * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
- * @returns {200} { success: true, advisorId, tiers, recentActivity }
+ * @returns {200} { success: true, advisorId, tiers, unclassifiedSessions, recentActivity }
+ *   — `unclassifiedSessions` counts completed sessions the tier lookup could not place;
+ *   they appear in `recentActivity` with a null tier and in no tier's counts.
  * @returns {403} NO_ADVISOR_IDENTITY · {500} DB_ERROR (standard error envelope)
  */
 async function getProgression (req, res) {
@@ -110,10 +112,16 @@ async function getProgression (req, res) {
 
     // Aggregate per tier
     const tiers = Object.fromEntries(TIERS.map(t => [t, emptyTier()]))
+    // Sessions the tier lookup could not place. Counted and reported rather than
+    // dropped: a session with no recommended tool, or one built only on the
+    // role-based "Get Organised" pages, has no capability tier by design
+    // (server/utils/tierLookup.js) — but it is still work the advisor did, and
+    // silently omitting it understates their record.
+    let unclassifiedSessions = 0
 
     for (const row of vaSessions) {
       const t = row.highest_tier
-      if (!t || !tiers[t]) { continue }
+      if (!t || !tiers[t]) { unclassifiedSessions++; continue }
       tiers[t].vaSessions++
       if (!tiers[t].lastActive || row.completed_at > tiers[t].lastActive) {
         tiers[t].lastActive = row.completed_at
@@ -123,7 +131,7 @@ async function getProgression (req, res) {
     const courseScores = {}
     for (const row of courseSessions) {
       const t = row.highest_tier
-      if (!t || !tiers[t]) { continue }
+      if (!t || !tiers[t]) { unclassifiedSessions++; continue }
       tiers[t].courseSessions++
       if (!tiers[t].lastActive || row.completed_at > tiers[t].lastActive) {
         tiers[t].lastActive = row.completed_at
@@ -157,7 +165,7 @@ completedAt: r.completed_at
       .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
       .slice(0, 10)
 
-    res.send(200, { success: true, advisorId, tiers, recentActivity })
+    res.send(200, { success: true, advisorId, tiers, unclassifiedSessions, recentActivity })
   } catch (err) {
     console.error('[activity] getProgression error:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load progression data')
@@ -171,7 +179,9 @@ completedAt: r.completed_at
  * @route GET /api/activity/team
  * @param {string} req.firmId - firm identity from the verified JWT (firmAuth); the only
  *   firm whose team is returned — a client cannot request another firm's data
- * @returns {200} { success: true, firmId, advisors }
+ * @returns {200} { success: true, firmId, advisors } — each advisor carries per-tier
+ *   counts, an `unclassifiedSessions` tally for work no tier could hold, a `totalSessions`
+ *   figure that includes it, and the date they were last active at anything.
  * @returns {400} MISSING_PARAMS · {500} DB_ERROR (standard error envelope)
  */
 async function getTeam (req, res) {
@@ -214,6 +224,11 @@ async function getTeam (req, res) {
         advisorMap[id] = {
           advisorId: id,
           tiers: Object.fromEntries(TIERS.map(t => [t, { vaSessions: 0, courseSessions: 0, avgQuizScore: null }])),
+          // Sessions with no capability tier (see getProgression above for why they
+          // occur). Counted here so an advisor whose work is ALL unclassified is
+          // listed with their real activity instead of reading as someone who has
+          // done nothing — which is what a manager saw before 2026-07-29.
+          unclassifiedSessions: 0,
           lastActive: null
         }
       }
@@ -225,8 +240,12 @@ async function getTeam (req, res) {
       const t = row.highest_tier
       if (t && a.tiers[t]) {
         a.tiers[t].vaSessions = Number(row.count)
-        if (!a.lastActive || row.last_active > a.lastActive) { a.lastActive = row.last_active }
+      } else {
+        a.unclassifiedSessions += Number(row.count)
       }
+      // Last active is when the advisor last worked — a session with no tier is
+      // still a session, so this sits outside the tier check.
+      if (!a.lastActive || row.last_active > a.lastActive) { a.lastActive = row.last_active }
     }
 
     for (const row of courseRows) {
@@ -237,13 +256,20 @@ async function getTeam (req, res) {
         if (row.avg_score !== null) {
           a.tiers[t].avgQuizScore = Math.round(Number(row.avg_score))
         }
-        if (!a.lastActive || row.last_active > a.lastActive) { a.lastActive = row.last_active }
+      } else {
+        // Counted, but its quiz scores are not averaged anywhere: an average
+        // belongs to a capability tier, and these rows have none.
+        a.unclassifiedSessions += Number(row.count)
       }
+      if (!a.lastActive || row.last_active > a.lastActive) { a.lastActive = row.last_active }
     }
 
     const advisors = Object.values(advisorMap).map(a => ({
       ...a,
-      totalSessions: TIERS.reduce((sum, t) => sum + a.tiers[t].vaSessions + a.tiers[t].courseSessions, 0)
+      // Everything the advisor did, including the sessions no tier could hold.
+      totalSessions: TIERS.reduce(
+        (sum, t) => sum + a.tiers[t].vaSessions + a.tiers[t].courseSessions, 0
+      ) + a.unclassifiedSessions
     })).sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive))
 
     res.send(200, { success: true, firmId, advisors })

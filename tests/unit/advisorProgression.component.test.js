@@ -170,6 +170,47 @@ describe('recent activity', () => {
   })
 })
 
+describe('sessions with no capability level', () => {
+  // Owner ruling 2026-07-29: count them and say so. Routine, not exotic — a session
+  // with no recommended tool has no tier by design (server/utils/tierLookup.js).
+  const unlevelled = {
+    body: {
+      success: true,
+      tiers: tiers(),
+      unclassifiedSessions: 3,
+      recentActivity: [{ type: 'va', domain: 'profit', tier: null, completedAt: '2026-07-29T08:00:00Z' }]
+    }
+  }
+
+  test('says how many sessions are not yet at a level', async () => {
+    const wrapper = await mountScreen(unlevelled)
+    expect(wrapper.find('.prog-unlevelled').text()).toContain('advisorProgress.notLevelled {"n":3}')
+  })
+
+  test('says nothing at all when every session has a level', async () => {
+    const wrapper = await mountScreen({
+      body: { success: true, tiers: tiers({ entryLevel: { vaSessions: 2 } }), unclassifiedSessions: 0, recentActivity: [] }
+    })
+    expect(wrapper.find('.prog-unlevelled').exists()).toBe(false)
+  })
+
+  test('does not tell an advisor with unlevelled work to start building a record', async () => {
+    // Three completed sessions and "Complete a VA case to start building your progress
+    // record" on the same screen is the same denial of real work the team table made.
+    const wrapper = await mountScreen(unlevelled)
+    expect(wrapper.find('.prog-empty-notice').exists()).toBe(false)
+  })
+
+  test('labels an unlevelled activity row instead of showing an empty badge', async () => {
+    const wrapper = await mountScreen(unlevelled)
+    const badge = wrapper.find('.prog-activity-row .prog-tier-pill')
+    expect(badge.text()).toBe('advisorProgress.noLevelYet')
+    expect(badge.classes()).toContain('pill-none')
+    // 'pill-null' was what the old class binding produced.
+    expect(badge.classes()).not.toContain('pill-null')
+  })
+})
+
 describe('a new advisor and a broken record look different', () => {
   test('no activity shows the encouraging notice, the tier cards, and no error', async () => {
     const wrapper = await mountScreen()

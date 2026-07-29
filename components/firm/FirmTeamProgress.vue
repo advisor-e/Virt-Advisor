@@ -19,7 +19,9 @@ section.firm-team-progress
       | {{ $t('firmTeamProgress.empty') }}
 
     div(v-else)
-      p.has-text-grey.is-size-7.mb-2 {{ $t('firmTeamProgress.cellLegend') }}
+      p.has-text-grey.is-size-7.mb-2
+        | {{ $t('firmTeamProgress.cellLegend') }}
+        template(v-if="anyUnclassified")  {{ $t('firmTeamProgress.totalLegend') }}
 
       b-table(:data="advisors" :hoverable="true")
         b-table-column(
@@ -45,10 +47,13 @@ section.firm-team-progress
           v-slot="{ row }"
           field="totalSessions"
           :label="$t('firmTeamProgress.colTotal')"
-          width="80"
+          width="110"
           numeric
         )
-          | {{ row.totalSessions }}
+          .total-cell
+            span {{ row.totalSessions }}
+            span.unlevelled.has-text-grey.is-size-7(v-if="row.unclassifiedSessions")
+              | {{ $t('firmTeamProgress.notLevelled', { n: row.unclassifiedSessions }) }}
 
         b-table-column(
           v-slot="{ row }"
@@ -87,6 +92,19 @@ export default {
       /** One row per advisor, newest-active first, as /api/activity/team returns them. */
       advisors: [],
       tierDefs: TIER_DEFS
+    }
+  },
+
+  computed: {
+    /**
+     * True when at least one advisor has sessions no capability level could hold.
+     * The Total column then exceeds the three level columns added together, so the
+     * legend explaining that only appears when it is actually needed.
+     *
+     * @returns {boolean}
+     */
+    anyUnclassified () {
+      return this.advisors.some(a => a.unclassifiedSessions > 0)
     }
   },
 
@@ -172,4 +190,6 @@ export default {
 .tier-count.tier-intermediate { color: #7c3aed; }
 .tier-count.tier-advanced     { color: #d97706; }
 .tier-score { margin-top: 1px; }
+.total-cell { display: flex; flex-direction: column; line-height: 1.2; }
+.unlevelled { margin-top: 1px; white-space: nowrap; }
 </style>

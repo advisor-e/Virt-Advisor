@@ -837,10 +837,16 @@
     "historyDate": "Date",
     "historyEmpty": "No firm changes saved yet — these are the tables as provided. Once you edit and save, every version is kept here."
   },
+  "advisorProgress": {
+    "notLevelled": "{n} sessions are not yet at a capability level.",
+    "noLevelYet": "No level yet"
+  },
   "firmTeamProgress": {
     "tab": "Team Progress",
     "lede": "Your advisors' completed VA cases and course sessions, grouped by capability level. Advisors see only their own record.",
     "cellLegend": "Each level shows sessions completed, with the average quiz score beneath.",
+    "totalLegend": "Total includes sessions not yet at a capability level.",
+    "notLevelled": "{n} not yet at a level",
     "colAdvisor": "Advisor",
     "tierEntry": "Entry Level",
     "tierIntermediate": "Intermediate",
