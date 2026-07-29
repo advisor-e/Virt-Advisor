@@ -109,6 +109,53 @@
     / Get the Job / Get Organised** (`fccb203`), and a firm can re-file an item into another section —
     display-only, firm-scoped, AI unaffected: backend move routes (`068cbe4`) + drag / "Move to" UI
     (`9b3aa73`). Full suite 1,863 green.
+  - ✅ **Editing ergonomics SHIPPED 2026-07-29 (this branch) — found while Mike was about to edit
+    29 domains of four-column tables.** Domain-support **steps** were single-line inputs, so a
+    full-sentence step scrolled sideways and could not be read; the name/summary/who columns got
+    auto-grow and drag-to-size on 2026-07-27 and the steps column was simply left behind. Each step
+    is now an auto-growing textarea with **↑ ↓ reorder controls** and its own resize handle
+    suppressed (a drag handle fights an autogrow directive); the step number is top-aligned so it
+    no longer drifts down the side of a long step (`a7f68de`). Arrows were chosen over
+    drag-and-drop deliberately — dragging inside a table cell is fiddly and this table is about to
+    be edited heavily. `moveStep` **splices** rather than assigning by index (Vue 2 cannot observe
+    `arr[i] = x`, so a swap would reorder the data without redrawing). The test that earns its
+    keep proves a reordered step reaches the **save payload** in its new position — reordering that
+    looks right on screen but saves the old order is the failure that would surface weeks later.
+  - ✅ **🔑 Logic-tree ENTRY POINT is now data, not array position — 2026-07-29 (this branch,
+    `71b7a2c` + `98ecc51`). Read this before touching `walkLogicTree` or the trees file.**
+    Branch reorder was nearly shipped for all 42 logic tables and would have **silently changed
+    engine behaviour**: `walkLogicTree` started at `tree.nodes[0].id`, so on a nodes-shaped tree
+    the first row IS the entry point and promoting another row repoints where the engine begins
+    reasoning — a FLOW change, which firm editing excludes (Mike's §0.6 scope ruling 2026-07-24).
+    It would also have stuck: `_mergeBranchRows` maps rows in the order the browser sends them and
+    `deepMerge` replaces arrays wholesale.
+    - **Fix (Phase 1):** `entry_node` added to all **37** node-shaped trees in
+      [`data/logic_trees.json`](../data/logic_trees.json), each set to the id of the node that sat
+      first at the time — derived from behaviour, never chosen, so it cannot introduce a
+      difference. `walkLogicTree` honours it and falls back to the first row when it is missing or
+      dangling. Swept first: that line was the **only** positional read of nodes in the backend
+      (every other link is by id, and `next_stage` looks up by stage value).
+    - **Proof (this is live code — advisorEngine template hints + the zero-candidate fallback):**
+      both paths A/B'd on identical inputs, every tree against every Scenario Lab case —
+      **42 trees × 52 states = 2,184 comparisons, 933 template hits, 250 walks genuinely
+      traversing branches, ZERO differences.** The 11 committed snapshots also passed unchanged.
+    - **Worth recording because it nearly went unnoticed:** the FIRST version of that proof fed
+      states with fields `buildSignalText` does not read (`coreProblem`, `domain`), so the signal
+      text was empty, every score was 0, and almost every walk stopped at its entry node. It
+      reported "identical" while proving nearly nothing. The same mistake made the first unit
+      tests pass vacuously. Both were rebuilt on the real fields (`clientRaisedIssue`,
+      `situationDiagnostic`, `industry`, `detectedDomain`) and the reason is commented in
+      `tests/unit/logicTreeEntryNode.test.js` so it is not reintroduced.
+    - **Phase 3:** `reorderable` on the detail route is computed **per tree** — a flat_if_then
+      tree always qualifies; a nodes-shaped one qualifies only while it carries an `entry_node`
+      naming a node that exists. A tree added later without one is refused rather than silently
+      offered, and a route test sweeps every real tree to enforce it. `moveBranch` re-checks the
+      flag rather than trusting that the buttons were hidden.
+    - **On-screen copy is MINE, not Mike's** (standing in until he changes it): *"Row order is the
+      order these rules are read — moving a row changes how the table reads, not the decision
+      flow."* Shown only where reordering is offered. **Honest residual:** reordering does change
+      the order branches are presented to the AI (`formatLogicTreeForPrompt` walks the array), which
+      is presentation, not the deterministic walk — hence the note.
   - ☑ **Decision Frameworks (PDF Document Library) tab REMOVED 2026-07-27 (owner decision,
     this branch).** The tab + its wiring are gone from `FirmManagerHub.vue` (tab-item, the
     `FirmDocuments` import/registration, and the now-orphaned "Storage % used" header indicator
