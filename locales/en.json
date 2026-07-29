@@ -760,6 +760,8 @@
   "firmDomainSupport": {
     "lede": "Edit the support material your advisors' AI draws on for each domain. Changes apply to your firm only; the platform version stays underneath and can be restored at any time.",
     "searchPlaceholder": "Search domains",
+    "hideList": "Hide list",
+    "showList": "Show list",
     "railLabel": "Domains",
     "groupDoTheJob": "Do the Job",
     "groupGetTheJob": "Get the Job",
@@ -803,6 +805,8 @@
   "firmLogicTables": {
     "lede": "The IF-THEN rules that steer how a meeting is run. Each row is a branch: a condition your advisor meets, the action to take, and why. Editing these changes the guidance the AI gives — for your firm only.",
     "searchPlaceholder": "Search logic tables",
+    "hideList": "Hide list",
+    "showList": "Show list",
     "railLabel": "Logic tables",
     "groupDoTheJob": "Do the Job",
     "groupGetTheJob": "Get the Job",

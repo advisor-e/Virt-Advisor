@@ -298,3 +298,66 @@ describe('re-filing into another section (drag / Move to)', () => {
     expect(wrapper.vm.getTheJob.some(d => d.id === 'eoy')).toBe(false)
   })
 })
+
+// Hiding the domain list to give the four-column table the full width (Mike,
+// 2026-07-29). Display only — it must never touch the material being edited.
+describe('hide / show the domain list', () => {
+  afterEach(() => { window.localStorage.clear() })
+
+  test('hiding the list removes the rail and gives the table the full width', async () => {
+    const wrapper = await mountScreen()
+    expect(wrapper.find('.ds-rail').exists()).toBe(true)
+    expect(wrapper.find('.column.is-8').exists()).toBe(true)
+
+    await wrapper.find('.ds-railtoggle').trigger('click')
+
+    expect(wrapper.find('.ds-rail').exists()).toBe(false)
+    expect(wrapper.find('.column.is-12').exists()).toBe(true)
+  })
+
+  test('the control stays on screen and flips its label, so the list can always be brought back', async () => {
+    const wrapper = await mountScreen()
+    expect(wrapper.find('.ds-railtoggle').text()).toContain('firmDomainSupport.hideList')
+
+    await wrapper.find('.ds-railtoggle').trigger('click')
+    expect(wrapper.find('.ds-railtoggle').exists()).toBe(true)
+    expect(wrapper.find('.ds-railtoggle').text()).toContain('firmDomainSupport.showList')
+
+    await wrapper.find('.ds-railtoggle').trigger('click')
+    expect(wrapper.find('.ds-rail').exists()).toBe(true)
+  })
+
+  // The regression that would go unnoticed: the preference looks right for the
+  // rest of the session and is silently forgotten on the next visit.
+  test('the choice survives leaving the screen and coming back', async () => {
+    const first = await mountScreen()
+    await first.find('.ds-railtoggle').trigger('click')
+
+    const second = await mountScreen()
+    expect(second.vm.railHidden).toBe(true)
+    expect(second.find('.ds-rail').exists()).toBe(false)
+  })
+
+  test('the edited material is untouched by hiding the list', async () => {
+    const wrapper = await mountScreen()
+    await openDomain(wrapper, 'eoy', 'End of Year')
+    wrapper.vm.form.materials[0].summary = 'edited on screen'
+
+    await wrapper.find('.ds-railtoggle').trigger('click')
+
+    expect(wrapper.vm.form.materials[0].summary).toBe('edited on screen')
+    expect(wrapper.vm.dirty).toBe(true)
+  })
+
+  test('blocked storage does not break the toggle', async () => {
+    const wrapper = await mountScreen()
+    const setItem = window.localStorage.setItem
+    window.localStorage.setItem = () => { throw new Error('blocked') }
+    try {
+      await wrapper.find('.ds-railtoggle').trigger('click')
+      expect(wrapper.vm.railHidden).toBe(true)
+    } finally {
+      window.localStorage.setItem = setItem
+    }
+  })
+})

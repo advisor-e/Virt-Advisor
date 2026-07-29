@@ -5,7 +5,10 @@ section.firm-logic-tables
 
   b-message(v-if="error" type="is-danger" has-icon :closable="false") {{ error }}
 
-  //- Toolbar — search
+  //- Toolbar — search, and the control that hides the table list to give the
+  //- branch grid the full width. It sits here, beside the search, so it is
+  //- reachable whether or not a table is open — hiding the list can never
+  //- strand the editor on a screen with no way back to it.
   .level.mb-4
     .level-left
       b-field.mb-0
@@ -16,6 +19,12 @@ section.firm-logic-tables
           :placeholder="$t('firmLogicTables.searchPlaceholder')"
           :aria-label="$t('firmLogicTables.searchPlaceholder')"
         )
+    .level-right
+      button.button.is-small.lt-railtoggle(
+        type="button"
+        :aria-expanded="String(!railHidden)"
+        @click="toggleRail"
+      ) {{ railHidden ? $t('firmLogicTables.showList') : $t('firmLogicTables.hideList') }}
 
   b-loading(:is-full-page="false" :active="loading")
 
@@ -23,7 +32,7 @@ section.firm-logic-tables
     //- ── Rail: the three master-section groups. Each row can be dragged into
     //- another group (mouse), or re-filed via its "Move to" menu (keyboard /
     //- touch). Re-filing is firm-only and display-only — the AI is unaffected.
-    .column.is-4
+    .column.is-4(v-if="!railHidden")
       nav.lt-rail(:aria-label="$t('firmLogicTables.railLabel')")
         .lt-rail-empty(v-if="!groups.length")
           span.has-text-grey.is-size-7 {{ query ? $t('firmLogicTables.noMatchHere') : $t('firmLogicTables.emptyLibrary') }}
@@ -61,7 +70,8 @@ section.firm-logic-tables
               ) {{ opt.label }}
 
     //- ── Panel: the selected table's branches ───────────────────────────
-    .column.is-8
+    //- Takes the whole row once the list is hidden, which is the point of it.
+    .column(:class="railHidden ? 'is-12' : 'is-8'")
       .box.panel-empty(v-if="!current")
         p.has-text-weight-semibold {{ $t('firmLogicTables.pickPrompt') }}
         p.has-text-grey.is-size-7 {{ $t('firmLogicTables.pickHint') }}
@@ -202,6 +212,10 @@ section.firm-logic-tables
 
 <script>
 import { autogrow, resizePersist } from '~/utils/textareaDirectives'
+
+/** Where this browser remembers whether the table list is hidden. */
+const RAIL_STATE_KEY = 'lt:railHidden'
+
 /**
  * Firm Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3, §0.6) — the firm's
  * no-code view of the IF→THEN branch tables that steer how a meeting is run.
@@ -258,7 +272,12 @@ export default {
       /** Rail re-filing drag state (display-only): the id being dragged and the
        *  group currently hovered as a drop target. */
       dragId: null,
-      dropKey: null
+      dropKey: null,
+      /** Table list collapsed, giving the branch grid the full width. A personal
+       *  display preference like the drag-to-size box heights — remembered in
+       *  this browser only, never in the firm's saved content. Restored in
+       *  mounted(), never here: localStorage does not exist during SSR. */
+      railHidden: false
     }
   },
 
@@ -310,10 +329,32 @@ export default {
   },
 
   mounted () {
+    this.restoreRailState()
     this.load()
   },
 
   methods: {
+    /**
+     * Restore the collapsed/expanded state of the table list from this browser.
+     * Client-only and failure-tolerant: private browsing or blocked storage
+     * simply leaves the list showing, which is the safe default.
+     */
+    restoreRailState () {
+      if (typeof window === 'undefined') { return }
+      try {
+        this.railHidden = window.localStorage.getItem(RAIL_STATE_KEY) === '1'
+      } catch (e) { /* storage blocked — keep the list showing */ }
+    },
+
+    /** Hide or show the table list, remembering the choice for next time. */
+    toggleRail () {
+      this.railHidden = !this.railHidden
+      if (typeof window === 'undefined') { return }
+      try {
+        window.localStorage.setItem(RAIL_STATE_KEY, this.railHidden ? '1' : '0')
+      } catch (e) { /* storage blocked — the toggle still works this session */ }
+    },
+
     /** GET the logic-table list (advisory + get-the-job). */
     async load () {
       this.loading = true

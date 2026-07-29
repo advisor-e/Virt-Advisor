@@ -183,17 +183,71 @@
     per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
     `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
     the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
-  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 23 of 29 domains migrated.**
-    Done: eoy (`dfa8572`) · systems · risk · staff · succession · valuation (`bfc4b37`) ·
+  - ✅ **Domain-support content migration — COMPLETE 2026-07-29. 29 of 29 domains on the
+    four-column standard; no repo file remains on the legacy `support_tools` shape.**
+    Done earlier: eoy (`dfa8572`) · systems · risk · staff · succession · valuation (`bfc4b37`) ·
     stock-purchasing (`2a63982`) · conflict · due-diligence · governance (`ce4bf2d`) ·
     get-positioning · get-pricing-proposals · raising-capital (`6b24276`) · get-team-problem ·
-    org-leadership · org-capacity-planner (`abc0826`) · org-firm-strategy ·
-    **data-systems · fm-coach-culture · forecasting (`2428903`) · get-marketing · get-sales
-    (`e3d6843`) · get-sales-tracker (2026-07-29, this branch)**.
+    org-leadership · org-capacity-planner (`abc0826`) · org-firm-strategy · data-systems ·
+    fm-coach-culture · forecasting (`2428903`) · get-marketing · get-sales (`e3d6843`) ·
+    get-sales-tracker (`edee78a`).
+    **Final six (2026-07-29, this branch):** get-seminar (16 rows) · org-board-pack (11) ·
+    people-power (26) · strategy (4) · profit (4) · sales-marketing (17).
     Mike's instruction 2026-07-29: migrate them ALL, then he reviews and edits in the app
-    rather than approving each draft in chat — and do not stop until they are done.
-    **Resume order — 6 left:** get-seminar, org-board-pack, people-power, profit,
-    sales-marketing, strategy.
+    rather than approving each draft in chat.
+    - **A test had to change, because the migration invalidated it.**
+      `tests/unit/domainSupportMaterials.test.js` proved the legacy `support_tools` renderer
+      still works **by rendering the `profit` domain** — which is now migrated, so the guard had
+      no legacy file left to point at. The fallback branch in
+      [`domainSupport.js`](../server/utils/domainSupport.js) L141 is NOT dead (a firm override can
+      carry the old shape at any time), so the guard now drives it through a firm override
+      instead: `{materials: [], support_tools: [...]}`. Arrays merge wholesale, so emptying
+      `materials` selects the legacy branch exactly as a pre-migration file did. Approved by Mike;
+      no production code touched.
+    - **Findings from the final six — three change the method's assumptions:**
+      (1) **people-power is the fm-coach-culture problem again, larger.** The source names **26**
+      templates; the live file held **7** authored "Framework" entries under entirely different
+      names (Owner Alignment, Team Engagement, Customer Engagement/NPS, Recruitment, Remuneration,
+      SMART Goals, plus an If-Then row). None were deleted — each was **folded into the source
+      template it corresponds to** (Recruitment → *Hiring Winners*, Remuneration → *Remuneration &
+      Incentives*, NPS → *Client Survey*, Team Engagement → *Team Survey*, SMART → *GE.SMART & FAST
+      Goals*, Owner Alignment → *L.Suppt.Alignment*), following the fm-coach-culture ruling that
+      folded legacy PIP content into its source row "rather than left as a duplicate".
+      (2) **org-board-pack carries two rows with no source document at all** — *White Paper
+      Program* (external thought-leadership marketing, a different thing from the source's *Board
+      White Paper* internal proposal template) and *Deming's Volatility Principles in Governance*.
+      Both are live engine content today, so both were **carried across** as ordinary rows, visible
+      for Mike to remove in-app. **→ Owner decision outstanding**, same as the four
+      fm-coach-culture rows.
+      (3) **sales-marketing's 16 review frameworks have NO Step-by-step, deliberately.**
+      `Sales & Marketing Slides table.pdf` is one of the seven "not really a support doc" cases: a
+      bare index table carrying a summary and a benefit per framework and **no method at all**.
+      Writing steps would mean inventing the firm's IP, so those cells are empty for Mike to fill
+      in-app. *Powerful Seminars*, whose own 24-page deck does carry a method, got the full 18-step
+      treatment in the same file.
+    - **Also recorded:** get-seminar's source names 16 materials against 4 grouped tools in the old
+      file; strategy and profit were the two clean ones — source and old file agreed, so those were
+      a reshape only. Summaries hold the standard band (345–543 chars); the three longest sit in
+      strategy, where the source teaching is densest.
+  - ✅ **"Hide list / Show list" SHIPPED 2026-07-29 (Mike's ask, approved; this branch) — more
+    editing room on both firm-editable tables.** Found while Mike was editing the migrated
+    domain-support content: the rail takes a third of the width (`is-4`) and the table the rest, so
+    the Step-by-step and Who-&-when boxes were cramped. A small control **beside the search box** —
+    where Mike asked for it — collapses the rail and gives the table the full row (`is-12`), about
+    50% more width. Label ruled by Mike from three options: **Hide list / Show list**.
+    - Built on **both** `FirmDomainSupport.vue` and `FirmLogicTables.vue` — the same layout with
+      the same problem, and the pair has been kept in step throughout (grouping, Move to, autogrow).
+    - **The control sits in the toolbar, not the panel header, on purpose:** it is reachable whether
+      or not a domain is open, so hiding the list can never strand an editor on a screen with no way
+      back to it. A test locks that.
+    - The choice is remembered per browser (`ds:railHidden` / `lt:railHidden`), mirroring the
+      `resize-persist` box heights: a personal display preference, **never** in the firm's saved
+      content. Restored in `mounted()`, never `data()` — localStorage does not exist during SSR.
+      Blocked storage fails soft (the list simply shows).
+    - 10 new component tests (5 per screen), including the two that earn their keep: the preference
+      **survives leaving the screen and coming back** (the regression that would otherwise look fine
+      all session and be silently forgotten), and the two screens keep **separate** preferences.
+      Full suite **1,953 green**, lint 0 errors.
     - **get-marketing / get-sales were clean** — material names in the old files matched their
       source PDFs, so nothing had to be carried across or judged. Two shaping notes:
       `Get Marketing Support.pdf` carries **one** four-step execution method for the whole domain
