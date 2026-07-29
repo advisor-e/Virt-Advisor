@@ -8,6 +8,32 @@ the other.**
 **Branch point:** cut from `origin/master`, not from the desktop's working branch. Read
 [§7 Why that matters](#7-why-the-branch-point-matters) before assuming you have everything.
 
+> ## ⚠ THIS DOCUMENT IS THE BRIEFING, NOT THE CURRENT STATE
+>
+> **Read the `◐ ACTIVE WORKSTREAM — Advisor Progress` block in
+> [`ACTIONS.md`](ACTIONS.md) first.** Five of the steps below were done on 2026-07-29
+> and this file has not been rewritten — its **§8 suggested order of work would send
+> you into finished work**. Specifically, as of the second 2026-07-29 laptop session:
+>
+> - **§4 honest failure — DONE.** The `.catch(() => [[]])` swallows are gone; a broken
+>   database now says so instead of rendering a page of zeros.
+> - **§5 two manager views — SETTLED.** The team view is a **Firm Manager Hub tab**
+>   (`components/firm/FirmTeamProgress.vue`). The team table that used to live inside
+>   `AdvisorProgression.vue` has been **removed**, so that component is now one
+>   advisor's own record and nothing else — §2's "both progress screens in one
+>   component" no longer describes it. `FirmDashboard.vue` is untouched and still a
+>   mockup, but note it is **unreachable in the running app**: the button that opens it
+>   sits behind an `isFirmManager` prop nothing ever sets.
+> - **§6 testing — LARGELY DONE.** Both screens now have component tests (32 of them),
+>   plus a backend aggregation suite. Still missing: `activityLogger.js` has **no tests
+>   at all**, and the i18n gap on `AdvisorProgression.vue` is still open.
+> - **§7 branch point — RESOLVED.** `master` has been merged in; the quiz-provenance
+>   groundwork is here, so the per-question record is no longer blocked.
+>
+> **Still true and still the point:** nothing has ever been written to a database, and
+> everything real is behind provisioning MySQL. Both screens will show their error
+> message until it exists — that is them working correctly.
+
 ---
 
 ## 1. What this feature is, in one paragraph
