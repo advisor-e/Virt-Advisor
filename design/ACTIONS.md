@@ -363,7 +363,7 @@ Two honest answers on different axes — the file used to conflate them:
   - ✅ **DEV-FILE FALLBACK BUILT 2026-07-29 — the feature works with NO database**, commit `4ac8453`. New [`activityStore.js`](../server/utils/activityStore.js): activity was the ONE store lacking the try-MySQL-then-JSON-file pattern that case studies, courses, clients, firm overlays and firm content all have. That, not MySQL provisioning, is why these screens had never shown anything. The SQL moved there verbatim so the routes' aggregation is untouched; the fallback reproduces INSERT IGNORE de-duplication, GROUP BY with NULL as its own group, AVG ignoring NULL scores, and COUNT/AVG as **strings** like mysql2's. **Honest-failure kept on both sides of the seam:** production propagates a DB failure untouched; inside the fallback a MISSING file is a new advisor and a CORRUPT one throws. 17 tests. Proven end to end against a genuinely absent database.
   - ✅ **`.env` WAS NEVER READ 2026-07-29**, commit `37f29c1`. The backend starts with plain `node`, which does not load `.env` — so the OpenAI key, the JWT secret and the CA path sat in the file while the process reported them missing. Now loaded at the entry point (not via a `-r dotenv/config` flag, which would silently do nothing on the direct-path launch recipes), guarded so a deployment without dotenv still boots. The placeholder-MySQL warning was also corrected: it claimed the routes "will return empty data", untrue since the fallback landed. **`dotenv` is undeclared — logged as its own P1**, see [§undeclared-dotenv](#undeclared-dotenv).
   - ✅ **i18n SWEEP DONE 2026-07-29 — `AdvisorProgression.vue` is fully translated.** 21 `$t()` calls; zero hardcoded user-facing English left. Same words as before — moved, not rewritten, so no wording needed re-approval. `DOMAIN_LABELS` (a map of English) became `KNOWN_DOMAINS` (a list of codes) with the wording in `advisorProgress.domain.*`; an unknown domain still falls back to its raw code so a new engine domain is visibly unlabelled rather than invisible. The error state now stores an i18n KEY rather than an English sentence. **Two of the screen's own tests did go red** — the ones asserting English domain names — against the claim that key-based assertions would survive the sweep; repointed at keys. *(Honest note: that claim was 16/18 right, not 18/18.)*
-  - ☐ **NEXT (each its own approval):** (1) `activityLogger.js` write path still has **no direct tests** (`activityStore` now does, which covers most of the risk); ~~(2) `FirmDashboard.vue`~~ — **DELETED 2026-07-29 on Mike's ruling**, with its button, its `firm` panel mode and its two orphaned backend routes; (3) 🔒 **provision MySQL** — no longer blocks the screens, only real multi-machine persistence; ~~(4) per-question quiz record~~ — **BUILT 2026-07-29**, see below.
+  - ☐ **NEXT (each its own approval):** ~~(1) `activityLogger.js` write path still has **no direct tests**~~ — **DONE 2026-07-29 (session 4), commit `94fbc61`, 45 tests, 14/14 mutants killed**; ~~(2) `FirmDashboard.vue`~~ — **DELETED 2026-07-29 on Mike's ruling**, with its button, its `firm` panel mode and its two orphaned backend routes; (3) 🔒 **provision MySQL** — no longer blocks the screens, only real multi-machine persistence; ~~(4) per-question quiz record~~ — **BUILT 2026-07-29**, see below.
   - ✅ **PER-QUESTION RECORD BUILT 2026-07-29 — the substantive open feature of this workstream.** `log-course` sent only a score, so the tables had never seen an individual question and a manager could see *that* an advisor got 73, never *what* they got wrong. Now each completed session stores `[{bankKey, bankRef, score, passed, ungraded}, ...]` in a `quiz_questions` JSON column, and the advisor's own progression returns it.
     - **The standing recommendation was implemented rather than re-asked: NO free text.** Not the advisor's written answer, not the question text, not the marker's feedback. Advisors write differently once they believe a manager reads their words, which would degrade the very signal the record exists to collect — and text can be added later, but cannot be un-stored. **Proven, not asserted:** an end-to-end run submitting `answer` and `question` fields alongside the real data found **no trace of them anywhere on disk**.
     - **Treated as hostile input.** The identity on this route comes from the JWT, but the question detail comes from the browser. New `server/utils/quizRecord.js` drops unknown fields rather than passing them through, coerces every type, refuses out-of-range values instead of clamping them into something plausible (a score of 900 becomes "no score", not 100), and caps both the array and each string so a crafted payload cannot bloat a row. **15 tests** — the 100% standard CLAUDE.md sets for functions processing untrusted input.
@@ -384,7 +384,95 @@ Two honest answers on different axes — the file used to conflate them:
     - ✅ *(was item 1)* merge `master` in — **done**, commit `ce9ef42`; the branch is level with `origin/master`, not 46 behind.
     - ✅ *(was item 2)* the team-progress tab in the Hub — **done**, see above.
     - ◐ *(was item 3)* tests — **done for both screens** (32 new component tests); **i18n still open**, now item 2 above.
-  - ☐ **P3 · DOC — `activityLogger.js` L9-11 is stale.** Its header says advisorId/firmId "come from the client request body". They do not — the route derives both from the verified JWT. A reader would misjudge this feature's security posture from that comment.
+  - ☑ ~~**P3 · DOC — `activityLogger.js` L9-11 is stale.**~~ **ALREADY FIXED — found 2026-07-29 (session 4) while writing that file's tests.** The header now states plainly that advisorId/firmId are JWT-derived and NOT taken from the request body, and says the earlier comment misdescribed the feature's security posture. The entry, not the code, was out of date. *(Third instance in one day of this file lagging the code — see the file's own "trust the CODE, not these flags" warning at the top.)*
+
+  ### Session 4 (2026-07-29, laptop) — a by-eye attempt, two defects, and the last test gap closed
+
+  Three commits (`5a6cb7c`, `086419f`, `94fbc61`), all pushed. Suite **2,085 → 2,158 / 140 suites**
+  (+73), lint 0 errors, tree clean, **20 ahead / 0 behind** `master`.
+
+  - ⚠ **THE SPINNING SCREEN WAS NEVER AN APP FAULT — record this so nobody hunts it again.**
+    My Progress span for ever with **no red in the console and NOTHING in the backend log**,
+    while identical requests from Node answered in 20 ms. Cause: **Chrome allows only SIX
+    simultaneous connections per host, and in Nuxt dev EVERY OPEN TAB permanently holds one for
+    hot-reload** (`[HMR] connected`). With all six taken, the screen's `fetch` was **queued
+    inside the browser and never sent**. A *fresh tab makes it worse*, which defeats the obvious
+    "reload and see". **Fix: close the other `localhost:3000` tabs.** Production-immune — there
+    is no hot-reload connection there.
+    - **The diagnostic that cracked it:** `Get-NetTCPConnection -RemotePort 3000 -State
+      Established` → 6, owner `chrome`. And before that, **counting the backend log against my
+      own calls** — every entry was attributable, which proved the browser had never once
+      reached the progression route while the Firm Manager tab had. **Rule of thumb: a request
+      absent from the SERVER log never left the browser — stop debugging the server.**
+    - **Also learned:** Restify has **no hot-reload**. A backend running since before a commit
+      serves the OLD code — routes 405, new fields silently absent. Compare source-file mtimes
+      against the process start time before believing any live behaviour.
+  - ✅ **FIX — a panel mode no longer opens a conversation**, commit `5a6cb7c`. `selectMode()`
+    kept a THIRD copy of "modes that are a panel, not a chat" (`noConversation`), alongside
+    `PANEL_MODES` and the template's own chain. It had drifted twice: it never gained
+    `progression`, and it carried `firm` until the FirmDashboard deletion. So opening My Progress
+    asked vue-i18n for **`opening.progression`, a key that has never existed in any locale file**,
+    and pushed the raw key into the message list as the assistant's opening line. Nothing
+    displayed it — the progression panel replaces the message area — so it surfaced only as a
+    console warning, and only once someone finally opened the screen. **Latent since the screen
+    was built.** The duplicate list is deleted and the check reads `PANEL_MODES`. +4 tests in the
+    file that already guards this exact drift.
+    - **Deliberately NOT asserted:** that a panel mode has no `opening.*` string. `course`
+      legitimately has one — CourseBuilder runs its own conversation *inside* the panel and uses
+      it four times. A panel may own a greeting; what it must not do is have `selectMode` push
+      one on its behalf. *(My first version of that test was wrong and was corrected, not the
+      code.)*
+  - ✅ **FIX — every activity screen now has a request time limit**, commit `086419f`. `fetch()`
+    has no timeout of its own, so an unanswered request stays pending for the life of the page;
+    all three screens share the `loading = true … finally { loading = false }` shape, so the
+    spinner never stops and the user is told nothing. **This is the read-path swallow defect one
+    layer up** — a failure that renders as "still working". New
+    [`utils/fetchWithTimeout.js`](../utils/fetchWithTimeout.js) wired into **all three** screens,
+    not just the one that failed (section-wide, per the standing scope rule).
+    - **It ABORTS, not merely abandons.** An abandoned request keeps holding one of the browser's
+      six connection slots, so a screen that timed out would make the next one likelier to time
+      out too. Where the browser has no `AbortController` it still stops waiting.
+    - **No new user-facing wording** — a timeout rejects, landing in the `catch` each screen
+      already has, reusing the error copy already approved. **All 66 existing component tests
+      passed UNMODIFIED**, so the wiring is behaviour-preserving; nothing was re-pinned to make
+      it green. 24 new tests, and the screens are tested individually because a correct helper
+      proves nothing about whether a screen calls it.
+  - ✅ **`activityLogger.js` TESTED — the last untested file in this workstream**, commit
+    `94fbc61`, **45 tests**. It decides *what* is written into an advisor's permanent record and
+    had never run under a test: a value truncated at the wrong length, a tier from the wrong
+    list, or a genuine 0 turned into "no score" would all be written permanently, and no
+    read-side test could tell afterwards.
+    - **Pins the deliberate asymmetry with the read path**, so it is not "corrected" by someone
+      who has read only the other half: writes **swallow** their errors (a storage outage must
+      never interrupt a live advisor session) **but still log the CAUSE**. That console line is
+      the only trace a lost write leaves — "it failed" with no reason is what made the live MySQL
+      refusal take a day to pin down.
+    - Also pinned: identity is required or nothing is written (an unattributable row inflates a
+      firm's totals and belongs to nobody); the tier is computed at WRITE time; a genuine `0`
+      survives while a skipped quiz stays `null`; a non-array list never reaches the store; a
+      missing title stores `''` rather than the four-letter word `"undefined"`; every string is
+      cut to its column width, because an oversized value refused by the database mid-session
+      would vanish into the fire-and-forget swallow.
+    - **Mutation-verified: 14 of 14 killed**, green control, every mutation proven to have
+      changed the file before its verdict was believed. No production file was modified.
+  - ☐ **NEW · DECISION for Mike — `sessionIndex` is not validated (found, deliberately NOT
+    fixed).** `Number(undefined)` is `NaN` and nothing rejects it: the dev file turns `NaN` into
+    `null` on `JSON.stringify`, while **MySQL would refuse the row outright — and because the
+    write is fire-and-forget, that refusal is swallowed and the session is lost with only a
+    console line.** It is also **half the de-duplication key** (advisor, course, index), so a
+    `NaN` cannot match an existing row and `INSERT IGNORE` cannot do its job. Every real caller
+    supplies it (CourseBuilder passes the loop index), so it is not biting today. **Pinned as a
+    `CURRENT BEHAVIOUR` test** so a future fix FAILS the suite and gets read rather than passing
+    quietly — the pattern that paid off on the two tier oddities. Changing a write path needs its
+    own ruling.
+  - ☐ **STILL NOT PROVEN BY EYE.** The servers were shut down at Mike's instruction before any
+    screen was opened. Everything this session is proven by tests, fixtures and mutation only.
+    **Before the next attempt: close every `localhost:3000` tab but one.**
+  - **Seeded for that attempt (local only):** `data/dev-activity.json` — gitignored, never in the
+    repo — now carries one course session for `sample-advisor-02` with **9 questions across 3
+    real quiz banks, one unmarked**, so Quiz detail renders a genuine weakest-first rollup
+    (Debtor Protocols 42 · Working Capital Cycle 68 · 7 Cash Drivers 85). The three older
+    sessions still show 0 questions, correctly — they predate the per-question record.
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
   - **What was read before merging, rather than assumed:** **Logic Tables is finished and live** — Save writes a firm-only override, Reset restores the platform default, version history, and **firm-authored branch text is fenced before it reaches the AI**; overrides merge into a fresh per-request copy never written back to the shared cache (cross-firm isolation). **Domain Support is a deliberate, banner-labelled PREVIEW** — Save/Reset inert, because persisting firm text and its AI fencing land together in the next slice, *so the surface is never live before its safeguard*; only EOY is migrated to the four-column shape and other domains show an honest "not yet in this format" notice. **The removed Decision Frameworks (PDF library) tab was Mike's own 2026-07-27 decision** — the AI never read those PDFs, so no engine behaviour changed; component and routes left dormant with a P3 cleanup logged.

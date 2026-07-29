@@ -38,9 +38,25 @@ the other.**
 >   and sees a topic rollup, weakest first, then the sessions themselves. So §6's "the
 >   substantive open feature" is closed, and its open decision is no longer open.
 >
+> - **§6 testing — NOW CLOSED.** `activityLogger.js` was the last untested file and now has
+>   **45 tests** (14/14 mutants killed). The i18n gap on `AdvisorProgression.vue` is also
+>   closed. Suite stands at **2,158 / 140 suites**.
+> - **Two defects fixed since (session 4, 2026-07-29):** `selectMode()` held a third,
+>   drifted copy of the panel-mode list, so opening My Progress asked for
+>   `opening.progression` — a key that has never existed; and **no screen's `fetch` had a
+>   timeout**, so an unanswered request left the spinner running for ever. All three
+>   activity screens now use `utils/fetchWithTimeout.js`.
+>
 > **Still true and still the point:** nothing has ever been written to a database, and
 > everything real is behind provisioning MySQL. Both screens will show their error
 > message until it exists — that is them working correctly.
+>
+> ⚠ **BEFORE YOU OPEN A SCREEN AND CONCLUDE IT IS BROKEN: close every other
+> `localhost:3000` tab.** Chrome allows six simultaneous connections per host and, in
+> development, each open tab permanently holds one for hot-reload. With all six taken a
+> screen's request is **queued in the browser and never sent** — endless spinner, nothing
+> red in the console, and **nothing in the backend log**. A fresh tab makes it worse. This
+> cost an afternoon on 2026-07-29; it cannot happen in production.
 
 ---
 
