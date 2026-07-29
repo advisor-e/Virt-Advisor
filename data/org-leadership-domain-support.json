@@ -1,9 +1,21 @@
 {
   "domain": "org-leadership",
   "label": "leadership development and partner management",
-  "trigger_keywords": ["partner promotion", "leadership development", "conduct management", "enneagram", "ethics", "demerit", "partner checklist", "leadership pipeline", "performance management", "professional conduct", "culture leadership", "values alignment"],
+  "trigger_keywords": [
+    "partner promotion",
+    "leadership development",
+    "conduct management",
+    "enneagram",
+    "ethics",
+    "demerit",
+    "partner checklist",
+    "leadership pipeline",
+    "performance management",
+    "professional conduct",
+    "culture leadership",
+    "values alignment"
+  ],
   "overview": "Leadership development in a professional services firm operates across two distinct dimensions: developing the next generation of leaders through a structured promotion pathway, and managing the conduct and culture of the existing leadership group. The most common failure in CA and advisory firm leadership is promoting technically excellent practitioners into leadership roles without assessing their leadership capability — creating leaders who are brilliant at the work but ineffective at developing people, managing conduct, and making partnership-level decisions. A rigorous promotion checklist, a conduct management framework, and the use of personality profiling tools (particularly the Enneagram) together provide a comprehensive approach to building and sustaining a high-quality leadership culture.",
-
   "diagnostic_entry": {
     "primary_question": "Is the leadership challenge primarily about developing and promoting the next generation of leaders, managing conduct or performance issues within the existing leadership group, building self-awareness and communication effectiveness across the team, or maintaining ethical standards and accountability?",
     "leadership_pipeline": "When the firm's leadership pipeline is thin — when there are no credible internal succession candidates for partner or management roles — the intervention requires a structured development pathway, not just a promotion checklist. The checklist defines the destination; the development pathway defines how candidates get there.",
@@ -11,203 +23,52 @@
     "self_awareness_and_communication": "When leadership effectiveness is being undermined by interpersonal friction, communication breakdowns, or leadership style mismatches, personality profiling provides the shared language and framework for productive conversations. The Enneagram is particularly effective in professional services contexts because it addresses motivational drivers, not just behavioural patterns.",
     "ethical_standards": "When conduct issues involve professional ethics, the intervention must be both developmental and consequential. A demerit system provides a graduated, transparent, and consistent accountability mechanism that treats ethics breaches seriously without defaulting immediately to dismissal for first-time or minor infractions."
   },
-
-  "support_tools": [
-
+  "materials": [
     {
-      "name": "Partner Promotion Checklist",
-      "purpose": "Provides a structured, evidence-based framework for evaluating whether a candidate is genuinely ready for partnership — assessing capability across the four dimensions that determine partner-level success in a professional services firm.",
-      "core_principle": "The most costly leadership mistake in a CA or advisory firm is promoting someone to partner who is not ready. The cost is not just the underperformance of the promoted individual — it is the signal it sends to the rest of the team about what the firm values, and the difficulty of managing down someone who has already received the public recognition of a promotion.",
-      "when_to_use": "Use for all partner or principal admission decisions — both internal promotions and external lateral hires at the partner level.",
-
-      "four_dimensions": [
-        {
-          "dimension": "Technical Competence",
-          "description": "Has demonstrated consistent expert-level judgement in their technical domain. Handles the most complex client scenarios independently. Is recognised by peers, clients, and professional networks as a technical authority.",
-          "evidence_required": [
-            "Examples of complex technical matters resolved independently",
-            "Client feedback or NPS data that specifically references technical quality",
-            "Peer review scores or quality assessment results",
-            "CPD record and any specialist qualifications obtained"
-          ]
-        },
-        {
-          "dimension": "Client Relationship Ownership",
-          "description": "Has a defined portfolio of clients whose primary relationship is with the candidate — clients who trust the individual, not just the firm brand, and who would follow the candidate in a lateral move.",
-          "evidence_required": [
-            "Client retention data for the candidate's portfolio over 3+ years",
-            "Revenue growth in existing client relationships attributable to the candidate",
-            "Testimonials or references from key clients",
-            "Evidence of the candidate navigating difficult client conversations independently"
-          ]
-        },
-        {
-          "dimension": "Business Development",
-          "description": "Has a track record of generating new client revenue — not just servicing what exists. Understands and accepts that partnership requires consistent contribution to firm growth, not just delivery excellence.",
-          "evidence_required": [
-            "New client revenue generated in the preceding 24 months (name and revenue)",
-            "Pipeline of identified business development opportunities with a credible action plan",
-            "Referral network development — COI relationships maintained and producing referrals",
-            "Evidence of speaking, writing, or thought leadership that creates inbound enquiries"
-          ]
-        },
-        {
-          "dimension": "Leadership and People Development",
-          "description": "Demonstrates the capacity to build and develop the capabilities of others — not just manage tasks. Has evidence of staff developing and being promoted under their supervision.",
-          "evidence_required": [
-            "Staff who have been promoted or significantly developed under their direct supervision",
-            "360-degree feedback scores from direct reports",
-            "Evidence of coaching or mentoring activity beyond task management",
-            "Handling of at least one difficult people management situation with a documented positive outcome"
-          ]
-        }
-      ],
-
-      "scoring_and_decision": {
-        "approach": "Score each dimension independently using a 1-5 scale with defined descriptors for each level. A candidate must achieve a minimum of 3 in all four dimensions and an average of 4 across the four to be considered promotion-ready.",
-        "red_lines": [
-          "A score of 1 or 2 in any dimension is a disqualifier — regardless of scores in other dimensions",
-          "Business development score of 2 or below disqualifies regardless of technical excellence",
-          "A candidate who has not had a people management responsibility should not be admitted to partnership in a people-management role"
-        ]
-      }
-    },
-
-    {
-      "name": "Conduct Management Framework",
-      "purpose": "Provides a structured, evidence-based, and legally defensible process for managing conduct issues within the leadership group — ensuring that conduct concerns are addressed consistently, documented thoroughly, and escalated proportionately.",
-      "core_principle": "Conduct management fails most often because it is inconsistent. When conduct standards are applied rigorously to some individuals and ignored for others — particularly senior individuals — the firm's culture interprets this as evidence that the standards are aspirational, not real. Consistent application, even when uncomfortable at the senior level, is the only way to make conduct standards credible.",
-      "when_to_use": "Use when a leader's behaviour is creating documented harm — to team members, client relationships, or the firm's reputation — and informal conversation has not produced a change in behaviour.",
-
-      "conduct_categories": [
-        {
-          "category": "Performance Conduct",
-          "description": "Failure to meet agreed performance standards — billing targets, client retention, people management obligations. Managed through the Performance Improvement Plan (PIP) framework.",
-          "process": "Refer to the PIP framework in the fm-coach-culture domain."
-        },
-        {
-          "category": "Behavioural Conduct",
-          "description": "Behaviour that is inconsistent with the firm's stated values — including aggressive communication, disrespect of team members, failure to maintain confidentiality, or conduct that creates a hostile working environment.",
-          "process": "Document specific instances with evidence. Conduct a formal meeting with the individual, a support person present if requested, and a partner or HR representative. State the specific behaviour, the standard required, and the support available. Document the outcome and review at an agreed date."
-        },
-        {
-          "category": "Professional Conduct",
-          "description": "Conduct that affects the firm's professional obligations — including errors in professional judgement, failure to comply with compliance standards, or conduct that creates regulatory or legal risk for the firm.",
-          "process": "Engage the firm's professional indemnity insurer and legal advisor before taking any action. Professional conduct issues have consequences beyond the individual that require specific expertise to manage."
-        }
-      ],
-
-      "progressive_discipline_sequence": [
-        { "level": 1, "action": "Informal conversation — documented by the manager but not placed on file. Purpose is to make the individual aware of the concern and create an opportunity to self-correct." },
-        { "level": 2, "action": "Formal verbal warning — documented and placed on file. Specific behaviour described, standard required stated, improvement period and consequences of recurrence both defined." },
-        { "level": 3, "action": "Written warning — formal letter documenting the breach, prior warnings, the required improvement, and the consequence of a further breach." },
-        { "level": 4, "action": "Final written warning or suspension — used for serious or repeated breaches. Requires HR or legal review before issuing." },
-        { "level": 5, "action": "Termination — requires legal advice and, in the case of a partner, review of the partnership agreement. Never proceed without documented evidence at all prior levels." }
-      ],
-      "conduct_and_effect_matrix": {
-        "principle": "A 'Conduct & Effect' matrix links behavioural or performance failures directly to financial consequences (profit share), governed by a Code of Conduct and the distinction between Gross Negligence and an honest Mistake.",
-        "boardroom_manipulation_tactics": "The matrix names specific disruptive boardroom archetypes to make them recognisable and addressable — for example the 'Taxi Driver mentality', 'The Assassin', 'The Bully & The Donkey', and 'Machiavellian' behaviour.",
-        "yellow_card": "When a partner displays disruptive boardroom behaviour, issue a Yellow Card to put them 'on notice' with a specific timeline (e.g., 24 hours or 7 days) to correct the behaviour before demerit points are applied.",
-        "bonus_points_system": "The positive counterpart to the demerit system: it incentivises growth — for example an extra 12k bonus for generating more than 100k in new client fees.",
-        "demerit_link": "Demerit points tie infractions to profit share entitlement; accumulating 20 points in 12 months results in immediate resignation and forfeiture of the client base (see the Ethics Demerit System tool for thresholds)."
-      }
-    },
-
-    {
-      "name": "Enneagram Leadership Profiling",
-      "purpose": "Provides a personality profiling framework tailored to professional services leadership contexts — creating shared language for leadership team communication, identifying leadership style strengths and blind spots, and improving the quality of interpersonal dynamics within the partnership.",
-      "core_principle": "The Enneagram is particularly valuable in leadership contexts because it addresses motivational drivers — why people behave as they do under stress — rather than simply describing observable behaviour. In a partnership where leadership style clashes and communication breakdowns are common sources of dysfunction, understanding the motivational drivers behind each partner's behaviour is more useful than surface-level communication style analysis.",
-      "when_to_use": "Use when leadership team dynamics are creating friction, when communication between partners is frequently misunderstood or misinterpreted, or when preparing a new partner for the interpersonal complexity of a partnership environment.",
-
-      "nine_types_overview": [
-        { "type": 1, "name": "The Reformer", "core_motivation": "To be good, ethical, and right. Fears being corrupt or wrong.", "leadership_strength": "High standards, principled, reliable", "leadership_blind_spot": "Rigid, critical, resistant to ambiguity", "under_stress": "Becomes judgmental and perfectionistic" },
-        { "type": 2, "name": "The Helper", "core_motivation": "To be needed and appreciated. Fears being unwanted or unloved.", "leadership_strength": "Empathetic, relationship-focused, team-supportive", "leadership_blind_spot": "Struggles with saying no, may enable underperformance to preserve relationships", "under_stress": "Becomes manipulative and resentful when needs are unmet" },
-        { "type": 3, "name": "The Achiever", "core_motivation": "To be successful and admired. Fears failure and being worthless.", "leadership_strength": "Goal-oriented, energetic, results-focused", "leadership_blind_spot": "May cut corners for results, struggles with vulnerability", "under_stress": "Becomes deceptive about difficulties to maintain image" },
-        { "type": 4, "name": "The Individualist", "core_motivation": "To be unique and authentic. Fears having no personal significance.", "leadership_strength": "Creative, emotionally perceptive, brings distinctive perspective", "leadership_blind_spot": "May become withdrawn or dramatic, struggles with team conformity", "under_stress": "Becomes self-absorbed and alienated" },
-        { "type": 5, "name": "The Investigator", "core_motivation": "To be capable and knowledgeable. Fears being useless or incompetent.", "leadership_strength": "Analytical, thorough, deep expertise", "leadership_blind_spot": "Withdraws from team engagement, over-analyzes before deciding", "under_stress": "Becomes reclusive and detached" },
-        { "type": 6, "name": "The Loyalist", "core_motivation": "To have security and support. Fears being without guidance or support.", "leadership_strength": "Trustworthy, responsible, anticipates problems", "leadership_blind_spot": "Anxiety-prone, may create worst-case scenarios, struggles with authority", "under_stress": "Becomes reactive and defensive" },
-        { "type": 7, "name": "The Enthusiast", "core_motivation": "To be happy and avoid pain. Fears being deprived or in pain.", "leadership_strength": "Optimistic, versatile, energetic initiator", "leadership_blind_spot": "Struggles to follow through, avoids difficult conversations", "under_stress": "Becomes scattered, impulsive, and superficial" },
-        { "type": 8, "name": "The Challenger", "core_motivation": "To be self-reliant and in control. Fears being controlled or harmed.", "leadership_strength": "Decisive, confident, protects the team", "leadership_blind_spot": "Confrontational, struggles with delegating control, can intimidate", "under_stress": "Becomes aggressive and domineering" },
-        { "type": 9, "name": "The Peacemaker", "core_motivation": "To have peace and harmony. Fears conflict and loss of connection.", "leadership_strength": "Mediating, inclusive, able to see all perspectives", "leadership_blind_spot": "Conflict-avoidant, may fail to take a clear position when required", "under_stress": "Becomes passive-aggressive and disengaged" }
-      ],
-
-      "application_in_leadership_teams": {
-        "partnership_dynamics": "In a CA firm partnership, the most common destructive pairing is a Type 8 (Challenger) partner who makes decisions unilaterally paired with a Type 9 (Peacemaker) partner who avoids raising concerns. The Enneagram framework creates the language for the Type 9 to name the dynamic and the Type 8 to understand the impact of their style.",
-        "client_communication": "Understanding a client's Enneagram type enables the advisor to tailor their communication style — a Type 1 client needs precision and evidence; a Type 3 client needs to see results and status; a Type 5 client needs depth and space to process.",
-        "team_composition": "A leadership team dominated by a single type or cluster of types has identifiable blind spots. A team of all Type 5s will over-analyse and under-act. A team of all Type 3s will move fast but may miss risk. Profiling the team creates awareness of collective blind spots that no individual audit would reveal."
-      }
-    },
-
-    {
-      "name": "Ethics Demerit System",
-      "purpose": "Provides a graduated, transparent, and consistently applied accountability mechanism for ethics breaches within the firm — ensuring that professional ethics standards are treated as real, enforceable commitments rather than aspirational statements.",
-      "core_principle": "An ethics standard that is never enforced is not a standard — it is a suggestion. The demerit system provides graduated consequences that are proportionate to the severity of the breach, transparent to all partners, and consistently applied regardless of seniority. Its value is not primarily punitive — it is the signal it sends about the firm's genuine commitment to its stated values.",
-      "when_to_use": "Use as part of the firm's governance framework when establishing or refreshing ethics standards, when an ethics breach has occurred that requires a structured response, or when the firm is preparing for a merger or external quality audit.",
-
-      "breach_categories": [
-        {
-          "category": "Minor Breach",
-          "examples": ["Failure to complete CPD requirements by the due date", "Late submission of regulatory filings where no client harm resulted", "Use of firm resources for minor personal purposes without authorisation"],
-          "consequence": "Formal notation in the partner's file. Discussion at the next partner review meeting. No financial penalty unless repeated.",
-          "demerit_points": 1
-        },
-        {
-          "category": "Moderate Breach",
-          "examples": ["Providing advice outside the scope of the firm's professional indemnity coverage without disclosure", "Failure to manage a conflict of interest appropriately after it was identified", "Misrepresentation of qualifications or experience to a client"],
-          "consequence": "Written warning. Mandatory remediation training or supervision for a defined period. Financial penalty equivalent to one month's profit distribution if the breach is repeated within 12 months.",
-          "demerit_points": 3
-        },
-        {
-          "category": "Serious Breach",
-          "examples": ["Client funds used for unauthorised purposes", "Deliberate suppression of information material to a client's decision", "Conduct that brings the firm into serious professional or public disrepute"],
-          "consequence": "Suspension pending investigation. Engagement of legal and professional indemnity advisors. Potential referral to the professional regulatory body. If upheld, termination of the partnership agreement.",
-          "demerit_points": 10
-        }
-      ],
-
-      "demerit_threshold_and_consequences": {
-        "accumulation": "Demerit points accumulate over a rolling 36-month period. Points from more than 36 months ago are no longer active.",
-        "thresholds": [
-          { "points": 5, "consequence": "Mandatory review meeting with the managing partner and a written improvement plan" },
-          { "points": 8, "consequence": "Formal disciplinary review. Reduction in profit share by 10% for 6 months." },
-          { "points": 12, "consequence": "Final warning and 6-month probationary period. Reduction in profit share by 25%." },
-          { "points": 15, "consequence": "Exit from the partnership — processes governed by the partnership agreement." }
-        ]
-      },
-
-      "governance_requirements": [
-        "The demerit register must be maintained by an independent partner or an external governance advisor — not the managing partner, who may have a conflict of interest",
-        "All partners must have access to the categories, point allocations, and thresholds — the system cannot operate as a surprise",
-        "Any partner who believes a demerit has been wrongly applied has 14 days to formally contest the decision through the firm's dispute resolution process",
-        "The demerit register is reviewed annually as part of the partnership governance cycle"
+      "name": "Directorship Pathway Guidelines",
+      "summary": "A transparent five-year roadmap into partnership, with strict benchmarks for experience, character and competency so promotion stops being a judgement call. It protects the firm as much as it develops the candidate: proven track record, cultural alignment, and personal financial affairs in order. Pathway 2 carries the competency assessment itself, rated 1 to 5 from \"needs serious attention\" to \"competent to coach others effectively\".",
+      "who_when": "Professional service firms, accounting practices and mid-sized businesses cultivating internal talent for equity partnership or directorship.",
+      "steps": [
+        "Identify the Partner in Pathway and allocate them an Assessment Partner to own the relationship.",
+        "Introduce them to the Directorship Pathway 1 guidelines so the five-year timeline, the expected CPD hours and the requirement to submit at least two formal white papers are understood from the start.",
+        "Check the baseline before investing in competency testing — around 30 months of firm experience, $250k of fees managed, and $125k of organic fee growth generated.",
+        "Confirm the character guidelines are met: culturally aligned, insurable, a family trust in place, and personal financial affairs in good order.",
+        "Run the competency assessment from the Directorship Pathway 2 grid as a 360-degree review across Get Organised, Get the Job and Do the Job.",
+        "Have the candidate rate themselves 1 to 5 on competencies such as securing profitable engagements, chairing a formal directors' meeting, delegation, debt recovery and financial management.",
+        "Compare their self-rating against the average of the existing partners, and treat the gaps as the coaching plan rather than a verdict.",
+        "At the end of the five-year maximum, either move them into sharing equity and risk, or exit them as terminally unsuitable — the pathway does not run indefinitely."
       ]
     },
-
     {
-      "name": "Leadership Development — If-Then Guidance",
-      "purpose": "Decision logic for the most common leadership development complications — failed promotions, conduct management resistance, Enneagram misuse, and ethics breach escalation.",
-      "if_then_logic": [
-        {
-          "condition": "A promotion candidate meets three of four dimensions on the checklist but is significantly below target on business development",
-          "action": "Do not promote. Business development is a non-negotiable partnership dimension — a partner who cannot generate new revenue is a cost to the remaining partners' growth capacity. Design an 18-24 month development plan with specific, measurable business development milestones. Re-evaluate against the full checklist when the milestones have been met."
-        },
-        {
-          "condition": "A senior partner is resistant to the conduct management process and claims the standards do not apply at their level",
-          "action": "This response is itself a conduct issue. The managing partner must address the resistance directly and immediately — partner-level exemption from conduct standards is one of the most corrosive messages a firm can send to its team. If the managing partner is unable to hold the standard with the senior partner, engage an external advisor to facilitate the conversation."
-        },
-        {
-          "condition": "An Enneagram profiling session creates conflict rather than understanding between partners",
-          "action": "Stop the session. Enneagram profiling can amplify existing interpersonal tensions if the facilitator does not have sufficient experience with high-conflict professional groups. Debrief individually before bringing the group back together. The individual debrief conversations reveal whether the conflict is about the profiling content or is a pre-existing relationship issue using the profiling session as a proxy battleground."
-        },
-        {
-          "condition": "A Serious Breach (10 demerit points) is contested by the partner involved",
-          "action": "Activate the formal dispute resolution process immediately. Engage the firm's external legal advisor before taking any further action. Do not suspend without legal advice — an unlawful suspension creates greater liability than the underlying breach. Document every action and communication from the point the breach was identified."
-        }
+      "name": "Enneagram-Based Employment Questions",
+      "summary": "Takes interviewing past technical competence to the motivations, stress triggers and social preferences underneath, using the nine Enneagram types and the broader work styles they group into — Soloists, Initiators and Cooperators. It lets an owner build a balanced team and anticipate how someone behaves under pressure, and it gives the interviewer questions sharp enough to reveal genuine self-awareness.",
+      "who_when": "Hiring managers, executive coaches and advisors doing advanced vetting for leadership, management or highly collaborative roles.",
+      "steps": [
+        "Use it during the associate phase, before any partnership decision is on the table.",
+        "Identify the candidate's core type from the nine — Reformer, Achiever, Peacemaker, Investigator, Challenger, Enthusiast and the rest.",
+        "Ask the question built for that type rather than a generic one — an Investigator how they cope when they know others are wrong; a Challenger how they hold back sarcasm in the face of incompetence.",
+        "Probe an Achiever on how they cope when those around them appear to be having more success, and an Enthusiast on how they organise themselves across competing tasks.",
+        "Evaluate how they handle conflict, how they prioritise under pressure, and how they behave inside a team.",
+        "Read the answers for self-awareness and emotional intelligence — that is the signal the exercise exists to produce, not the type label itself.",
+        "Use the profile afterwards to align the role to natural strengths and to anticipate the friction points before they appear."
+      ]
+    },
+    {
+      "name": "Partner Accountability & Conduct Framework",
+      "summary": "The governance layer: a Code of Conduct, a Conduct & Effect matrix, and a points system that ties behaviour directly to money. Demerits accumulate against profit share — 20 points inside 12 months triggers immediate resignation and forfeiture of the client base — while a bonus system rewards growth. It also names boardroom manipulation tactics so toxic behaviour can be labelled objectively instead of argued about emotionally.",
+      "who_when": "Existing boards, established partnerships and executive teams needing strict governance, conflict resolution or formal performance management.",
+      "steps": [
+        "On acceptance as a partner, integrate them into the framework immediately and have them sign the Code of Conduct.",
+        "Make sure they understand the difference between Gross Negligence and a Mistake, and how demerit and bonus points reach their profit share.",
+        "Assess partners regularly against the Finder, Minder, Grinder matrix — securing new clients, maintaining existing relationships, and delivering the technical work.",
+        "Name disruptive behaviour against the Boardroom Manipulation Tactics rather than describing it — The Assassin, cold logic used to shut down creative discussion, scorched-earth tactics.",
+        "Issue a Yellow Card to put a partner on notice, citing the agreed response time — from immediate or 24 hours through to 90 days — before any demerits are applied.",
+        "If the behaviour is not corrected in that window, apply the Conduct & Effect matrix to calculate the demerit points, combining a base score with the severity of the effect.",
+        "Track the running total: 20 points within 12 months triggers immediate resignation and trade restrictions.",
+        "Apply the bonus system in the same disciplined way — a partner generating more than $100k in new combined client fees earns the set bonus before profit share is calculated."
       ]
     }
-
   ],
-
   "advisor_guidance": {
     "promotion_decisions_are_culture_signals": "Every promotion decision in a professional services firm is read by the entire team as a signal of what the firm actually values — not what it says it values. A promotion of a technically excellent but relationship-poor partner sends the message that relationship skills are optional. Use the checklist consistently, and when candidates fall short of it, be explicit about why and what the development pathway is.",
     "conduct_management_at_senior_level_requires_courage": "The most important conduct management interventions are at the most senior levels, where the cultural impact is greatest. The most common failure is allowing poor conduct at the partner level to persist because the managing partner is conflict-averse, or because the conduct is being tolerated in exchange for the individual's financial contribution. Financial contribution does not exempt any individual from the firm's conduct standards.",
