@@ -1555,57 +1555,107 @@ async function saveQuizzes (req, res) {
 }
 
 // ── Domain Support ──────────────────────────────────────────────────────────
+// Built on the SINGLE `domain-support` overlay bundle the advisor and course
+// engines actually read (firmContent.loadFirmDomainSupport → CONFIG_KEYS
+// .domainSupport), keyed by domain id — the same arrangement as Logic Tables
+// below.
+//
+// It was per-key ('domain-support-<id>') until 2026-07-30. Saves landed under a
+// key no reader ever selects, and the shared dev-file fallback hid it entirely:
+// with no MySQL both sides fall back to data/dev-firm-domain-support.json in the
+// same { firmId: { domainId: override } } shape, so a saved edit DID reach the
+// AI in development. On MySQL the two keys would never reconcile — Firm Manager
+// would report "saved" and the firm's content would silently never reach the
+// AI. Reconciled while nothing was stored yet; see ACTIONS.md.
+
+const { loadFirmLogicTrees, CONFIG_KEYS: CONTENT_CONFIG_KEYS } = require('../utils/firmContent')
 
 const DEV_DOMAIN_SUPPORT_FILE = path.resolve(__dirname, '../../data/dev-firm-domain-support.json')
-const DOMAIN_SUPPORT_KEY_PREFIX = 'domain-support-'
 
-function _devReadDomainSupport (firmId, domainId) {
-  try {
-    const all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
-    const firm = all[firmId] || {}
-    return firm[domainId] || null
-  } catch { return null }
+// The seller-facing support files, which have no row in domains.json.
+const DOMAIN_SUPPORT_GET_FILES = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
+
+/**
+ * Is this a real domain-support id? The override bundle is a plain object keyed
+ * by domain id, and `domainId` arrives from the URL, so an id is checked against
+ * the known set before it is ever used as a key — an unchecked `__proto__` or
+ * `constructor` would be an assignment to the object's prototype rather than a
+ * stored override. (Under the old per-key storage the id was only ever part of a
+ * config_key string, so this could not arise.) Refusing unknown ids also stops a
+ * firm accumulating overrides for domains that do not exist.
+ * @param {string} id - the domain or seller-file id from the request
+ * @returns {boolean}
+ */
+function _isKnownDomainSupportId (id) {
+  if (typeof id !== 'string' || !id) { return false }
+  if (DOMAIN_SUPPORT_GET_FILES.includes(id)) { return true }
+  const domains = require('../../data/domains.json') || []
+  return domains.some(d => d && d.id === id)
 }
 
-function _devWriteDomainSupport (firmId, domainId, cfg) {
-  let all = {}
+/**
+ * Load the firm's raw domain-support override map ({ domainId: sparse override })
+ * for reading and writing — the same store and dev file the engines read, but
+ * returned raw so one key can be mutated. Missing / malformed → {} (a firm with
+ * no edits yet).
+ * @param {string} firmId - authenticated firm id (never client-supplied)
+ * @returns {Promise<Object>}
+ */
+async function _loadFirmDomainSupportMapRaw (firmId) {
   try {
-    all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
-  } catch {}
-  if (!all[firmId]) { all[firmId] = {} }
-  all[firmId][domainId] = cfg
-  fs.writeFileSync(DEV_DOMAIN_SUPPORT_FILE, JSON.stringify(all, null, 2))
-}
-
-async function _loadDomainSupportOverride (firmId, domainId) {
-  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
-  try {
-    return await overlay.loadFirmConfig(firmId, configKey)
+    const v = await overlay.loadFirmConfig(firmId, CONTENT_CONFIG_KEYS.domainSupport)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
   } catch (err) {
-    if (IS_DEV) { return _devReadDomainSupport(firmId, domainId) }
+    if (IS_DEV) {
+      try {
+        const all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
+        return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
+      } catch { return {} }
+    }
     throw err
   }
 }
 
-async function _saveDomainSupportOverride (firmId, domainId, cfg, savedBy) {
-  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+/**
+ * Persist the firm's whole domain-support override map. Prod goes through the
+ * overlay store (version history + restore for free); dev writes the gitignored
+ * JSON the engines fall back to.
+ * @param {string} firmId
+ * @param {Object} map - { domainId: sparse override }
+ * @param {string} savedBy - userEmail
+ * @returns {Promise<number|null>} the new version, or null in dev
+ */
+async function _saveFirmDomainSupportMap (firmId, map, savedBy) {
   try {
-    return await overlay.saveFirmConfig(firmId, configKey, cfg, savedBy)
+    return await overlay.saveFirmConfig(firmId, CONTENT_CONFIG_KEYS.domainSupport, map, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteDomainSupport(firmId, domainId, cfg); return null }
+    if (IS_DEV) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8')) } catch {}
+      all[firmId] = map
+      fs.writeFileSync(DEV_DOMAIN_SUPPORT_FILE, JSON.stringify(all, null, 2))
+      return null
+    }
     throw err
   }
 }
 
-async function _getDomainSupportHistory (firmId, domainId) {
-  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
+/**
+ * The saved versions of the firm's domain-support bundle. NOTE: every domain
+ * shares ONE stored bundle, so this history is bundle-level (all domains' saves
+ * interleaved), not per-domain — the same caveat as Logic Tables. Restore is
+ * still per-domain; see _restoreDomainSupportVersion.
+ * @param {string} firmId
+ * @returns {Promise<Array<Object>>}
+ */
+async function _getDomainSupportHistory (firmId) {
   try {
     const [rows] = await db.execute(
       `SELECT version, saved_by, created_at
        FROM firm_framework_versions
        WHERE firm_id = ? AND config_key = ?
        ORDER BY version DESC`,
-      [firmId, configKey]
+      [firmId, CONTENT_CONFIG_KEYS.domainSupport]
     )
     return rows
   } catch (err) {
@@ -1614,17 +1664,34 @@ async function _getDomainSupportHistory (firmId, domainId) {
   }
 }
 
+/**
+ * Restore ONE domain to how it stood at a saved version, leaving every other
+ * domain as it is today. The bundle is shared, so restoring it wholesale would
+ * roll all 29 domains back — instead this reads that version's bundle, lifts out
+ * just this domain's entry, and writes it into the CURRENT map. A domain absent
+ * from that version had no override at the time, so restoring it clears today's
+ * override rather than inventing one.
+ * @param {string} firmId
+ * @param {string} domainId
+ * @param {number} version
+ * @param {string} restoredBy - userEmail
+ * @returns {Promise<boolean>}
+ */
 async function _restoreDomainSupportVersion (firmId, domainId, version, restoredBy) {
-  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
   try {
     const [rows] = await db.execute(
       `SELECT config_json FROM firm_framework_versions
        WHERE firm_id = ? AND config_key = ? AND version = ?`,
-      [firmId, configKey, version]
+      [firmId, CONTENT_CONFIG_KEYS.domainSupport, version]
     )
     if (rows.length === 0) { throw new Error('Version not found') }
-    const cfg = JSON.parse(rows[0].config_json)
-    await _saveDomainSupportOverride(firmId, domainId, cfg, restoredBy)
+    const bundle = JSON.parse(rows[0].config_json)
+    const past = (bundle && typeof bundle === 'object' && !Array.isArray(bundle))
+      ? Object.prototype.hasOwnProperty.call(bundle, domainId) ? bundle[domainId] : undefined
+      : undefined
+    const map = await _loadFirmDomainSupportMapRaw(firmId)
+    if (past === undefined) { delete map[domainId] } else { map[domainId] = past }
+    await _saveFirmDomainSupportMap(firmId, map, restoredBy)
     return true
   } catch (err) {
     if (IS_DEV) { return false }
@@ -1673,13 +1740,16 @@ function _domainSupportSection (id) {
 async function getDomainSupport (req, res) {
   try {
     const domains = require('../../data/domains.json') || []
-    const getFiles = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
 
     const result = { doTheJob: [], getTheJob: [], getOrganised: [] }
     const firmSections = await _loadSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE)
+    // ONE store read for the whole screen. Every domain's override lives in the
+    // same bundle, so loading per domain inside the loop meant ~36 round-trips
+    // to render one page.
+    const overrides = await _loadFirmDomainSupportMapRaw(req.firmId)
 
-    const addRow = async (id, label) => {
-      const override = await _loadDomainSupportOverride(req.firmId, id)
+    const addRow = (id, label) => {
+      const override = overrides[id] || null
       const support = require('../utils/domainSupport').resolveDomainSupport(id, override ? { [id]: override } : null)
       const moved = firmSections[id]
       const section = VALID_SECTIONS.includes(moved) ? moved : _domainSupportSection(id)
@@ -1692,8 +1762,8 @@ async function getDomainSupport (req, res) {
       })
     }
 
-    for (const domain of domains) { await addRow(domain.id, domain.label) }
-    for (const fileId of getFiles) { await addRow(fileId, fileId.replace('get-', '').replace(/-/g, ' ')) }
+    for (const domain of domains) { addRow(domain.id, domain.label) }
+    for (const fileId of DOMAIN_SUPPORT_GET_FILES) { addRow(fileId, fileId.replace('get-', '').replace(/-/g, ' ')) }
 
     res.send(200, result)
   } catch (err) {
@@ -1708,7 +1778,8 @@ async function getDomainSupportDetail (req, res) {
   const { domainId } = req.params
   try {
     const domainSupport = require('../utils/domainSupport')
-    const override = await _loadDomainSupportOverride(req.firmId, domainId)
+    const overrides = await _loadFirmDomainSupportMapRaw(req.firmId)
+    const override = overrides[domainId] || null
     const merged = domainSupport.resolveDomainSupport(domainId, override ? { [domainId]: override } : null)
     res.send(200, merged || {})
   } catch (err) {
@@ -1717,14 +1788,23 @@ async function getDomainSupportDetail (req, res) {
 }
 
 /**
- * POST /api/firm-manager/domain-support/:domainId — save domain support override
+ * POST /api/firm-manager/domain-support/:domainId — save one domain's override
+ * into the SINGLE `domain-support` bundle the advisor and course engines read,
+ * so a save reaches the AI (fenced — see domainSupport.js's three formatters).
+ * The whole map is written back because one bundle holds every domain.
  */
 async function saveDomainSupport (req, res) {
   const { domainId } = req.params
   const override = req.body || {}
 
+  if (!_isKnownDomainSupportId(domainId)) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Domain support not found' } })
+  }
+
   try {
-    const version = await _saveDomainSupportOverride(req.firmId, domainId, override, req.userEmail)
+    const map = await _loadFirmDomainSupportMapRaw(req.firmId)
+    map[domainId] = override
+    const version = await _saveFirmDomainSupportMap(req.firmId, map, req.userEmail)
     res.send(200, { saved: true, version, domainId })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -1732,26 +1812,18 @@ async function saveDomainSupport (req, res) {
 }
 
 /**
- * DELETE /api/firm-manager/domain-support/:domainId — reset to platform default
+ * DELETE /api/firm-manager/domain-support/:domainId — reset one domain to the
+ * platform default by dropping its key from the firm's override bundle. Every
+ * other domain's edits are left untouched.
  */
 async function resetDomainSupport (req, res) {
   const { domainId } = req.params
-  const configKey = DOMAIN_SUPPORT_KEY_PREFIX + domainId
 
   try {
-    if (!IS_DEV) {
-      await db.execute(
-        `UPDATE firm_framework_versions SET is_active = 0
-         WHERE firm_id = ? AND config_key = ?`,
-        [req.firmId, configKey]
-      )
-    } else {
-      let all = {}
-      try {
-        all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
-      } catch {}
-      if (all[req.firmId]) { delete all[req.firmId][domainId] }
-      fs.writeFileSync(DEV_DOMAIN_SUPPORT_FILE, JSON.stringify(all, null, 2))
+    const map = await _loadFirmDomainSupportMapRaw(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(map, domainId)) {
+      delete map[domainId]
+      await _saveFirmDomainSupportMap(req.firmId, map, req.userEmail)
     }
     res.send(200, { reset: true, domainId })
   } catch (err) {
@@ -1760,12 +1832,14 @@ async function resetDomainSupport (req, res) {
 }
 
 /**
- * GET /api/firm-manager/domain-support/:domainId/history — version history
+ * GET /api/firm-manager/domain-support/:domainId/history — the saved versions of
+ * the firm's domain-support bundle. Bundle-level, not per-domain (see
+ * _getDomainSupportHistory); `domainId` is echoed back for the caller's benefit.
  */
 async function getDomainSupportHistory (req, res) {
   const { domainId } = req.params
   try {
-    const history = await _getDomainSupportHistory(req.firmId, domainId)
+    const history = await _getDomainSupportHistory(req.firmId)
     res.send(200, { history, domainId })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -1773,7 +1847,8 @@ async function getDomainSupportHistory (req, res) {
 }
 
 /**
- * POST /api/firm-manager/domain-support/:domainId/restore — restore a version
+ * POST /api/firm-manager/domain-support/:domainId/restore — restore this one
+ * domain to a saved version, leaving the others as they are.
  */
 async function restoreDomainSupport (req, res) {
   const { domainId } = req.params
@@ -1781,6 +1856,10 @@ async function restoreDomainSupport (req, res) {
 
   if (typeof version !== 'number') {
     return res.send(400, { success: false, error: { code: 'INVALID_VERSION', message: 'version must be a number' } })
+  }
+
+  if (!_isKnownDomainSupportId(domainId)) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Domain support not found' } })
   }
 
   try {
@@ -1796,12 +1875,13 @@ async function restoreDomainSupport (req, res) {
 // §0.6). Deliberately built on the SINGLE `logic-trees` overlay bundle the
 // advisor engine actually reads (firmContent.loadFirmLogicTrees, keyed by tree
 // id) — so a firm's save reaches the AI in production, not only the dev-file
-// fallback. The domain-support routes' split per-key storage is a separate,
-// pre-existing gap logged as a P1 to reconcile (see ACTIONS.md); this feature
-// does not repeat it. Slice A is READ-ONLY (list + detail); save/reset/history
+// fallback. Domain support was reconciled onto the same arrangement on
+// 2026-07-30 (see the P1 note above its own block); both pages now store the way
+// the engines read. Slice A is READ-ONLY (list + detail); save/reset/history
 // land in Slice B alongside the prompt-fencing safeguard.
-
-const { loadFirmLogicTrees, CONFIG_KEYS: CONTENT_CONFIG_KEYS } = require('../utils/firmContent')
+//
+// `loadFirmLogicTrees` / `CONTENT_CONFIG_KEYS` are required at the top of the
+// Domain Support block above — both features read the same module.
 
 // The firm's whole logic-tree override bundle is stored under ONE config key
 // ('logic-trees') as a map { treeId: override } — not per-key like domain

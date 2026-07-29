@@ -88,18 +88,56 @@
       mirrors CB-30). Platform output byte-unchanged (`tests/unit/domainSupportFencing.test.js`).
     - **Fix (done):** list route counts `materials` (EOY shows 4, not 0).
     - Added as its OWN tab, **non-destructive** — the PDF "Decision Frameworks" tab is untouched.
-  - 🟠 **P1 · WIRE — domain-support firm overrides use a config key the engine doesn't read.**
-    The save routes store per-domain keys (`domain-support-<id>`) via `overlay.saveFirmConfig`,
-    but the advisor engine loads a SINGLE `domain-support` bundle
-    ([`advisorEngine.js`](../server/advisorEngine.js) L1461 → [`firmContent.js`](../server/utils/firmContent.js) L96,
-    `CONFIG_KEYS.domainSupport = 'domain-support'`). **Today it works** — with no Firm-Manager
-    MySQL, both sides fall back to the SAME dev file (`data/dev-firm-domain-support.json`,
-    shape `{firmId:{domainId:override}}`), so a saved EOY edit does reach the AI (traced end to
-    end). **But once MySQL is provisioned the two keys stop reconciling** and firm domain-support
-    edits would show in Firm Manager yet never reach the AI. Pre-existing (b1bd546 skeleton +
-    Phase 0), not introduced by the Domain Support tab. **Fix:** move the domain-support save/load
-    routes onto the single `domain-support` bundle (as the Logic Tables routes already do via
-    `loadFirmLogicTrees`). Gated with the broader **Firm-Manager MySQL provisioning** item.
+  - ✅ **P1 · WIRE — domain-support firm overrides now use the config key the engine reads.
+    FIXED 2026-07-30 (approved by Mike, this branch). Full suite 1,967 green, lint 0 errors.**
+    **The defect:** the save routes stored per-domain keys (`domain-support-<id>`) via
+    `overlay.saveFirmConfig`, but both engines load a SINGLE `domain-support` bundle
+    ([`advisorEngine.js`](../server/advisorEngine.js) L1461 · [`courseEngine.js`](../server/courseEngine.js)
+    L164/L355 → [`firmContent.js`](../server/utils/firmContent.js) L96,
+    `CONFIG_KEYS.domainSupport = 'domain-support'`). Pre-existing (b1bd546 skeleton + Phase 0),
+    not introduced by the Domain Support tab. **It worked only by accident:** with no Firm-Manager
+    MySQL, both sides fall back to the SAME dev file (`data/dev-firm-domain-support.json`, shape
+    `{firmId:{domainId:override}}`), so a saved EOY edit did reach the AI. On MySQL the two keys
+    would never reconcile — Firm Manager would report "saved" and the firm's content would
+    **silently** never reach the AI. Fixed while nothing was stored yet, so no data migration was
+    needed; the 29 migrated domains were already in the bundle shape.
+    - **The fix** (one file, [`server/routes/firmManager.js`](../server/routes/firmManager.js),
+      +142/−62; **no engine file touched**, so the AI path is byte-identical): the seven per-key
+      helpers and `DOMAIN_SUPPORT_KEY_PREFIX` are replaced by `_loadFirmDomainSupportMapRaw` /
+      `_saveFirmDomainSupportMap` on `CONTENT_CONFIG_KEYS.domainSupport` — mirroring the Logic
+      Tables routes, which were deliberately built this way. Every reference was traced first
+      (all inside that one file). Reset drops one key from the bundle instead of the old
+      `is_active = 0` UPDATE, which is meaningless on shared storage.
+    - **Perf, same cause:** the list route loaded the override *inside* the loop — ~36 store
+      round-trips to draw one screen. Now one read before the loop.
+    - **History is now bundle-level** (all domains' saves interleaved), the same honest caveat
+      Logic Tables carries. Nothing visible changed: the screen shows history read-only.
+    - **Restore stayed PER-DOMAIN, deliberately** — it reads that version's bundle, lifts out
+      just that domain's entry and writes it into the CURRENT map, so restoring EOY cannot roll
+      back the other 28. A domain absent from that version had no override then, so restoring it
+      **clears** today's override rather than inventing one. Both branches are tested. (Logic
+      Tables deferred per-table restore for exactly this reason — this technique would work there
+      too; see the follow-up below.)
+    - **SEC — a new exposure closed in the same change, not carried:** the domain id is now an
+      object key rather than part of a config_key string, so an unchecked `__proto__` /
+      `constructor` / `prototype` would assign the map's prototype instead of storing an override.
+      New `_isKnownDomainSupportId` validates against domains.json + the seven `get-*` files;
+      unknown ids get a clean 404. This risk did not exist under per-key storage, so closing it is
+      part of the fix, not adjacent scope. `setDomainSupportSection` was checked and **already**
+      validated its id — no pre-existing hole there.
+    - **Tests:** new [`tests/unit/firmDomainSupport.routes.test.js`](../tests/unit/firmDomainSupport.routes.test.js),
+      14 cases. **The one that earns its keep asserts the save key is literally `'domain-support'`** —
+      a behavioural test in dev *cannot* catch this bug, because both sides fall back to the same
+      file, which is precisely why it survived from b1bd546. The key is hardcoded in the test
+      rather than imported, so a rename cannot slip past both sides at once. Also pinned: saving
+      one domain leaves the others' edits intact, reset drops only its own key, history reads the
+      shared key, and the two restore branches above.
+    - **→ Follow-up (P3, cleanup, NOT done — needs its own approval):** the seven `get-*` file
+      names now exist **twice** in `firmManager.js` — the hoisted `DOMAIN_SUPPORT_GET_FILES` and a
+      literal copy inside `setDomainSupportSection` (L2281). Two copies of one list is the drift
+      the single-source rule exists to stop; collapse it to the constant.
+    - **→ Follow-up (P2, NOT done):** give **Logic Tables** the same per-table restore, using the
+      lift-one-key-from-the-old-bundle technique proven here.
   - ✅ **Logic Tables tab — Slice B SHIPPED + 3-way grouping + firm re-filing (2026-07-27, this branch).**
     Editing is fully live: firm-authored branch-text fencing in `logicTrees.formatLogicTreeForPrompt`
     (`b2c7a62`), Save/Reset/history backend on the single `logic-trees` bundle (`9e6ef23`), and the
