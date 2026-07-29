@@ -3035,7 +3035,7 @@
           "branch_name": "Branch 1C — Design AND People Problem",
           "type": "recommendation",
           "condition": "Process design is flawed AND people are not executing — compounded failure",
-          "notes": "Sequence matters: fix the design first, then address the people execution. Attempting to hold people accountable to a broken process creates resentment and confusion — it will be seen as blame-shifting. Use Process Session to rebuild the architecture. Then use People vs. Process to relaunch expectations and accountability once the design is sound. Where the Shifting the Burden archetype is present — short-term workarounds have been layered on top of a structural problem — identify and remove the workarounds before redesigning the core process.",
+          "notes": "Sequence matters: fix the design first, then address the people execution. Attempting to hold people accountable to a broken process creates resentment and confusion — it will be seen as blame-shifting. Use Lite Process to rebuild the architecture. Then use People vs. Process to relaunch expectations and accountability once the design is sound. Where the Shifting the Burden archetype is present — short-term workarounds have been layered on top of a structural problem — identify and remove the workarounds before redesigning the core process.",
           "templates": [
             "Lite Process",
             "People vs. Process",
@@ -3081,7 +3081,7 @@
           "branch_name": "Branch 2A — Building a Data System",
           "type": "recommendation",
           "condition": "Client needs to build a KPI, dashboard, or measurement system",
-          "notes": "A data system is the Reinforcing Loop engine of the business — good data feeds better decisions, which produce better results, which generate better data. Without it, the business is flying blind. Start with: what decisions do we make weekly that a KPI could improve? Design backwards from the decision, not forwards from the data available. Avoid Tampering — acting on common-cause variation as if it were special-cause. Build Volatility Analysis in from the start to distinguish signal from noise. Data Session will define the KPI architecture. Nine Growth Aspects provides a full-business lens to ensure no system is overlooked.",
+          "notes": "A data system is the Reinforcing Loop engine of the business — good data feeds better decisions, which produce better results, which generate better data. Without it, the business is flying blind. Start with: what decisions do we make weekly that a KPI could improve? Design backwards from the decision, not forwards from the data available. Avoid Tampering — acting on common-cause variation as if it were special-cause. Build Volatility Analysis in from the start to distinguish signal from noise. Lite Data will define the KPI architecture. Nine Growth Aspects provides a full-business lens to ensure no system is overlooked.",
           "templates": [
             "Lite Data",
             "Nine Growth Aspects"
@@ -3154,7 +3154,7 @@
           "branch_name": "Branch 3A — Clarity Failure",
           "type": "recommendation",
           "condition": "Staff don't know what the system requires — communication or documentation failure",
-          "notes": "Rebuild the communication architecture of the system. Every system must have: (1) A documented standard — what does 'correct' look like? (2) A training event — not just a written document; (3) A reference point — where do people check when unsure? (4) A feedback mechanism — how do people flag when the system is wrong or unclear? People vs. Process re-establishes expectations and accountability post-clarity rebuild. Process Session documents and standardises the system.",
+          "notes": "Rebuild the communication architecture of the system. Every system must have: (1) A documented standard — what does 'correct' look like? (2) A training event — not just a written document; (3) A reference point — where do people check when unsure? (4) A feedback mechanism — how do people flag when the system is wrong or unclear? People vs. Process re-establishes expectations and accountability post-clarity rebuild. Lite Process documents and standardises the system.",
           "templates": [
             "Lite Process",
             "People vs. Process"
@@ -3198,7 +3198,7 @@
           "branch_name": "Branch 4A — Six Sigma Pathway",
           "type": "recommendation",
           "condition": "Client operates a high-volume, mass-market model where variation is a defect",
-          "notes": "Six Sigma uses DMAIC: Define → Measure → Analyse → Improve → Control. Every process is mapped, measured, and statistically controlled. The target is 3.4 defects per million opportunities. Implementation in an SME context: start with the highest-volume, highest-consequence process first (not the most visible problem). Process Session maps the current state. Volatility Analysis (from the Data Session) establishes what is normal variation vs defect signal. Build control charts into the Data System so the team can self-monitor without constant management oversight.",
+          "notes": "Six Sigma uses DMAIC: Define → Measure → Analyse → Improve → Control. Every process is mapped, measured, and statistically controlled. The target is 3.4 defects per million opportunities. Implementation in an SME context: start with the highest-volume, highest-consequence process first (not the most visible problem). Lite Process maps the current state. Volatility Analysis (from the Lite Data) establishes what is normal variation vs defect signal. Build control charts into the Data System so the team can self-monitor without constant management oversight.",
           "templates": [
             "Lite Process",
             "Lite Data",
@@ -3210,7 +3210,7 @@
           "branch_name": "Branch 4B — Lean Pathway",
           "type": "recommendation",
           "condition": "Client wants to remove waste and maximise value delivery at minimum cost",
-          "notes": "Lean identifies eight types of waste: Transportation, Inventory, Motion, Waiting, Overproduction, Overprocessing, Defects, Skills (under-utilised talent). The value stream map is the primary tool — walk the entire process from customer request to customer receipt and mark every step as Value-Adding, Non-Value-Adding but Necessary, or Pure Waste. Remove Pure Waste first, then challenge each Non-Value-Adding-but-Necessary step. Lean works best when paired with a Data System that reveals where waste is accumulating in real time. Process Session runs the value stream mapping session. Capacity, Capability, Opportunity identifies where the lean savings can be redeployed.",
+          "notes": "Lean identifies eight types of waste: Transportation, Inventory, Motion, Waiting, Overproduction, Overprocessing, Defects, Skills (under-utilised talent). The value stream map is the primary tool — walk the entire process from customer request to customer receipt and mark every step as Value-Adding, Non-Value-Adding but Necessary, or Pure Waste. Remove Pure Waste first, then challenge each Non-Value-Adding-but-Necessary step. Lean works best when paired with a Data System that reveals where waste is accumulating in real time. Lite Process runs the value stream mapping session. Capacity, Capability, Opportunity identifies where the lean savings can be redeployed.",
           "templates": [
             "Lite Process",
             "Capacity, Capability, Opportunity",
@@ -3927,7 +3927,7 @@
           "branch_name": "Branch 3B — Reducing Goodwill Transferability Risk",
           "type": "recommendation",
           "condition": "Business value is concentrated in the owner — goodwill will not transfer without them",
-          "notes": "Personal goodwill is the largest single discount factor in any business sale. A buyer paying for goodwill that leaves with the seller is taking a speculative risk, and will either refuse to pay for it or demand a long vendor earnout tied to client retention. Building transferable goodwill: (1) Systemise — document every core process. A buyer must be able to see how the business runs without relying on the owner's knowledge. Use Process Session to map and document systems; (2) Build management depth — if the owner is the only decision-maker, the business cannot run post-sale. Develop a management layer that operates independently; (3) Convert client relationships — move client relationships from owner-personal to business-systemic: CRM records, service agreements, communication trails, account management by staff not just the owner; (4) Build recurring revenue — contracted, subscription, or retainer income that survives an ownership change is worth a premium multiple; (5) Create a transition plan — buyers value a structured vendor transition period (6-12 months) that transfers knowledge and relationships systematically.",
+          "notes": "Personal goodwill is the largest single discount factor in any business sale. A buyer paying for goodwill that leaves with the seller is taking a speculative risk, and will either refuse to pay for it or demand a long vendor earnout tied to client retention. Building transferable goodwill: (1) Systemise — document every core process. A buyer must be able to see how the business runs without relying on the owner's knowledge. Use Lite Process to map and document systems; (2) Build management depth — if the owner is the only decision-maker, the business cannot run post-sale. Develop a management layer that operates independently; (3) Convert client relationships — move client relationships from owner-personal to business-systemic: CRM records, service agreements, communication trails, account management by staff not just the owner; (4) Build recurring revenue — contracted, subscription, or retainer income that survives an ownership change is worth a premium multiple; (5) Create a transition plan — buyers value a structured vendor transition period (6-12 months) that transfers knowledge and relationships systematically.",
           "templates": [
             "Business Sale Assessment 1",
             "Sale Assessment Model 2"

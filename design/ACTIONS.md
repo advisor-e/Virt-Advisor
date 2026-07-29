@@ -509,13 +509,24 @@
       *Revealing the Growth Curve Freehand*. The CB-34 resolver returns *Growth Fundamentals
       Framework Philosophy* on word overlap alone — a **guess**, not evidence, so it was not
       acted on. Left honestly dead and allowlisted until Mike names the page.
-    - ☐ **DECISION outstanding (Mike) — 7 prose mentions of the old names in tree `notes`**
-      (e.g. *"Use Process Session to rebuild the architecture"*, *"Volatility Analysis (from the
-      Data Session)"* — `systems` nodes 4/6/12/15/16, `valuation` node 12). The AI reads `notes`,
-      so these carry the **same hallucination risk** as the template references just fixed: it can
-      still name a page the advisor cannot find. **Deliberately not touched — this is the firm's
-      own writing**, and rewording it is Mike's call, not a mechanical correction. The guard above
-      does not cover prose (it would false-positive on ordinary sentences).
+    - ✅ **7 prose mentions in tree `notes` SWAPPED 2026-07-30 (approved by Mike, same session).**
+      The AI reads `notes`, so these carried the **same hallucination risk** as the template
+      references — it could still name a page the advisor cannot find. 7 occurrences across 6
+      fields: `systems` nodes `sys_b1c_both`, `sys_b2a_data`, `sys_b3a_clarity`, `sys_b4a_sixsigma`
+      (×2), `sys_b4b_lean`, and `valuation` node `val_b3_goodwill`. **NAME SWAP ONLY — Mike's
+      sentences are otherwise byte-unchanged**; this is the firm's own writing and rewording it was
+      explicitly not in scope. Verified afterwards: **zero occurrences of the five old names remain
+      anywhere in the file**, prose or references. Suite 1,971 green.
+      - ☐ **One reading artefact left for Mike, deliberately not "tidied":** `sys_b4a_sixsigma`
+        now reads *"Volatility Analysis (from **the Lite Data**) establishes what is normal
+        variation…"* — grammatical but awkward, because the old title absorbed the article
+        naturally and the new one does not. Fixing it means deleting a word of Mike's prose, which
+        is a different act from correcting a page name, so it was flagged rather than done. The
+        other six read cleanly (*"Use Lite Process to rebuild the architecture"*).
+      - **The guard does not cover prose** and deliberately so: a substring check over free text
+        would false-positive on ordinary sentences. Prose mentions remain a manual concern at the
+        next retitle — the guard will catch the *reference*, which is the signal to come and look
+        at the notes too.
   - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"
