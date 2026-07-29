@@ -545,7 +545,9 @@ Two honest answers on different axes — the file used to conflate them:
     `cpd.watchedVideo` off the template record directly, exactly as cpdCatalogue now does, and
     delete the manual sync step so it cannot rot again.** Nothing is broken on screen; advice
     simply stopped mentioning the videos.
-  - ☐ **NEXT — the screen (slice 2), its own approval.** `components/CpdRecord.vue` mounted
+  - ☑ ~~**NEXT — the screen (slice 2), its own approval.**~~ **BUILT 2026-07-29 (session 6) —
+    see below.** Kept for the wording, which is the signed-off source and must still not be
+    re-asked or invented: `components/CpdRecord.vue` mounted
     inside My Progress (NOT more of `AdvisorProgression.vue`, which is 405 lines and was
     deliberately reduced to one job), plus the approved wording into `locales/en.json`. **The
     wording is already signed off** — do not re-ask or invent it: section **CPD Record** /
@@ -566,6 +568,85 @@ Two honest answers on different axes — the file used to conflate them:
     happens in a room we cannot see. That is the design Mike chose (over a bare estimate), and
     it is how professional CPD logs work; the mitigations are the name, the timestamp and the
     stored wording on every row. The screen's copy must make the self-declaration plain.
+    **Met by the screen (session 6):** the pledge sentence and the declaration notice are both
+    shown before anything is recorded.
+
+  ### Session 6 (2026-07-29, laptop) — the CPD screen
+
+  Suite **2,299 → 2,334 / 144 suites** (+35), lint 0 errors. **An advisor can now see and
+  record their own CPD.** Session 5's backend had no screen at all, so none of it was
+  reachable.
+
+  - ✅ **CPD SCREEN BUILT (Mike-approved; wording was already signed off and was used
+    verbatim).** New [`components/CpdRecord.vue`](../components/CpdRecord.vue) (441 lines),
+    mounted at the foot of My Progress by an 8-line change to
+    [`AdvisorProgression.vue`](../components/AdvisorProgression.vue) — its own component, not
+    more of a screen that was deliberately cut back to one job. It shows the running total,
+    then each template the advisor's own work has used with its claimable activities, a
+    **Record** button per activity, and **Withdraw** where something is standing.
+    - **The approved wording went into `locales/en.json` as a new top-level `cpd` block —
+      top-level because the pledge key stored on every claim row is literally
+      `cpd.pledge.video`.** The wording has to live at that exact key, or a claim made today
+      could not be shown in the words the advisor agreed to after a future rewording. That is
+      the whole point of storing a key rather than a sentence, and it constrains where the
+      block may sit. English only, like `advisorProgress` and `firmTeamProgress`; the seven
+      other locales carry the core chat UI and fall back.
+    - **The screen sends only a template name and an activity** — pinned by a test asserting
+      the POST body has exactly those two fields. Minutes, the real title and the pledge are
+      resolved server-side, so this screen could not inflate a regulated figure even if the
+      browser were tampered with.
+    - **Nothing is recorded without the pledge being shown.** Record opens a modal carrying
+      that activity's declaration and the "This is your own declaration…" notice; the write
+      happens only on the second, deliberate press. Pinned by a test that the first press
+      writes nothing at all.
+    - **A failed write is said out loud and the pledge stays open** — the backend deliberately
+      does NOT swallow these (unlike the mid-session `activityLogger` write), and the screen
+      had to match: an advisor who is not told their pledge failed will believe they have
+      declared something they have not.
+    - **Success re-reads the record rather than adjusting the figures here.** The total an
+      advisor may declare is the server's, computed from the rows it actually stored — never
+      one this screen incremented.
+    - **Repeats stay claimable after a claim** (owner ruling): Record remains available beside
+      the tally, because three viewings are three records.
+    - **An activity the export no longer offers is shown as history without a Record button** —
+      recorded, visible, withdrawable, but not claimable again.
+  - ✅ **OWNER RULING — Withdraw takes back the MOST RECENT recording**, one press, rather than
+    listing every claim with its own date and button. The recordings are identical apart from
+    their timestamp, so the extra choice buys nothing; and nothing is lost either way, since
+    the server keeps the row and stamps it withdrawn. Ordering is by claim date with the higher
+    id breaking a tie — a date column with no sub-second precision can return two identical
+    stamps, and "most recent" must still resolve to exactly one row. A claim with no readable
+    date sorts oldest, so it can never be withdrawn in place of the newest.
+  - ⚠ **TWO GAPS LEFT OPEN DELIBERATELY — both need wording Mike has not approved, and
+    inventing copy is against CLAUDE.md.**
+    - **The pledge box has no Cancel button.** It closes with the ✕ in its header, or Escape,
+      or a click outside. Functional, but "Cancel" would read better.
+    - **Withdraw acts immediately, with no confirmation step.** A confirmation needs a question
+      sentence that does not exist yet. Mitigated by the action being recoverable — the row is
+      kept and marked withdrawn, and the advisor can simply Record again — but it is one click
+      on a professional record. **Both are one short wording decision away from being closed.**
+  - **Mutation-verified: 24 of 24 killed**, green control, every mutation proven to have applied,
+    harness outside the repo restoring by checksum. **The first run had ONE survivor and it was
+    a real gap:** deleting the HTTP-status check in the read path changed nothing, because every
+    failure fixture also tripped the success-flag guard below it — so a proxy or gateway
+    answering 502 with its own JSON would have rendered as a genuine CPD record, total included.
+    ⚠ **This is the THIRD appearance of that same blind spot in this feature** (Team Progress
+    tab, then the quiz-detail route, now here). A failure fixture that trips two guards at once
+    can only ever prove one of them. Worth a standing habit: when a screen checks both the HTTP
+    status and a success flag, one test must break them apart.
+  - **One existing test file changed:** `advisorProgression.component.test.js` asserted the
+    screen made exactly one request, and the new section makes its own. The child is stubbed
+    there so those tests stay about the parent, and a separate unstubbed test pins that the CPD
+    section really is mounted and really is handed the same login pass — a stub would pass
+    whether or not it was.
+  - ☐ **NOT PROVEN BY EYE.** Tests, fixtures and mutation only; the suite cannot see a screen.
+    **Before opening it: close every other `localhost:3000` tab** (session 4's six-connection
+    trap). With the current local dev data the screen will show **Lite Planning** with all three
+    activities (11 · 40 · 20 min). **"General Meeting Agenda" will NOT appear** — the master
+    export gives it no CPD time, so it is not claimable. That is correct behaviour and looks
+    exactly like a bug; say so before anyone hunts it.
+  - ☐ **STILL OPEN — no manager view of CPD** (see above, unchanged), and the tutorial-video
+    sentence is still dead (its own P2 above, untouched by this session).
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
   - **What was read before merging, rather than assumed:** **Logic Tables is finished and live** — Save writes a firm-only override, Reset restores the platform default, version history, and **firm-authored branch text is fenced before it reaches the AI**; overrides merge into a fresh per-request copy never written back to the shared cache (cross-firm isolation). **Domain Support is a deliberate, banner-labelled PREVIEW** — Save/Reset inert, because persisting firm text and its AI fencing land together in the next slice, *so the surface is never live before its safeguard*; only EOY is migrated to the four-column shape and other domains show an honest "not yet in this format" notice. **The removed Decision Frameworks (PDF library) tab was Mike's own 2026-07-27 decision** — the AI never read those PDFs, so no engine behaviour changed; component and routes left dormant with a P3 cleanup logged.
