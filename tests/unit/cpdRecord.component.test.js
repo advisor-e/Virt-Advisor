@@ -111,6 +111,21 @@ function writes () {
   return global.fetch.mock.calls.filter(c => c[1] && c[1].method === 'POST')
 }
 
+/**
+ * Press Withdraw on the row, then Withdraw again in the confirmation box.
+ *
+ * TWO deliberate presses: the row's button no longer writes anything by itself. The
+ * tests below are about which claim is taken back, so they go through the whole real
+ * path rather than calling the method — a confirmation that could be bypassed in a
+ * test is one that could be bypassed in the screen.
+ */
+async function withdrawConfirmed (wrapper) {
+  wrapper.find('.btn-cpd-withdraw').trigger('click')
+  await settle(wrapper)
+  wrapper.find('.cpd-withdraw-modal .modal-card-foot button').trigger('click')
+  await settle(wrapper)
+}
+
 afterEach(() => { delete global.fetch })
 
 describe('reading the advisor\'s own CPD record', () => {
@@ -309,6 +324,20 @@ describe('recording a claim requires the pledge', () => {
     expect(wrapper.find('.cpd-total').text()).toContain('cpd.minutesOnly')
   })
 
+  test('Cancel on the pledge records nothing', async () => {
+    const wrapper = await mountSection()
+    wrapper.find('.btn-cpd-record').trigger('click')
+    await settle(wrapper)
+    // The SECOND footer button. The first is Record, and pressing that would prove
+    // nothing about Cancel.
+    wrapper.findAll('.modal-card-foot button').at(1).trigger('click')
+    await settle(wrapper)
+
+    expect(writes().length).toBe(0)
+    expect(wrapper.vm.pledgeOpen).toBe(false)
+    expect(wrapper.vm.pledge).toBe(null)
+  })
+
   test('closing the pledge records nothing', async () => {
     const wrapper = await mountSection()
     wrapper.find('.btn-cpd-record').trigger('click')
@@ -337,6 +366,8 @@ describe('a claim that failed to save says so', () => {
     // leave the advisor believing they had declared something.
     expect(wrapper.vm.pledgeOpen).toBe(true)
     expect(wrapper.find('.cpd-modal .cpd-write-error').text()).toBe('cpd.recordFailed')
+    // Once only, for the same reason as the withdrawal's.
+    expect(wrapper.findAll('.cpd-write-error').length).toBe(1)
   })
 
   test('a claim that never reached the server is also reported', async () => {
@@ -442,6 +473,105 @@ describe('repeats count, and the tally is the server\'s', () => {
   })
 })
 
+describe('withdrawing asks first', () => {
+  /** One standing claim — enough to put a Withdraw button on the row. */
+  function withOneClaim () {
+    return {
+      body: record({
+        totalMinutes: 11,
+        templates: [template({
+          activities: [activity({
+            claimedCount: 1,
+            claimedMinutes: 11,
+            claims: [{ id: 4, minutes: 11, claimedAt: '2026-07-29T09:00:00Z', withdrawnAt: null }]
+          })]
+        })]
+      })
+    }
+  }
+
+  test('pressing Withdraw writes NOTHING — it opens the confirmation', async () => {
+    const wrapper = await mountSection(withOneClaim())
+    wrapper.find('.btn-cpd-withdraw').trigger('click')
+    await settle(wrapper)
+
+    // The whole point of this box: a professional record is not altered by one press.
+    expect(writes().length).toBe(0)
+    expect(wrapper.vm.withdrawOpen).toBe(true)
+  })
+
+  test('the confirmation asks the question and says the recording is kept', async () => {
+    const wrapper = await mountSection(withOneClaim())
+    wrapper.find('.btn-cpd-withdraw').trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.find('.cpd-withdraw-modal .cpd-modal-pledge').text()).toBe('cpd.withdrawQuestion')
+    expect(wrapper.find('.cpd-withdraw-modal .cpd-modal-declaration').text()).toBe('cpd.withdrawNote')
+  })
+
+  test('Cancel withdraws nothing', async () => {
+    const wrapper = await mountSection(withOneClaim())
+    wrapper.find('.btn-cpd-withdraw').trigger('click')
+    await settle(wrapper)
+    wrapper.findAll('.cpd-withdraw-modal .modal-card-foot button').at(1).trigger('click')
+    await settle(wrapper)
+
+    expect(writes().length).toBe(0)
+    expect(wrapper.vm.withdrawOpen).toBe(false)
+    expect(wrapper.vm.withdrawTarget).toBe(null)
+  })
+
+  test('the confirmation acts on the row that was pressed, not the first one', async () => {
+    const wrapper = await mountSection([
+      {
+        body: record({
+          totalMinutes: 31,
+          templates: [template({
+            activities: [
+              activity({
+                claimedCount: 1,
+                claimedMinutes: 11,
+                claims: [{ id: 1, minutes: 11, claimedAt: '2026-07-27T09:00:00Z', withdrawnAt: null }]
+              }),
+              activity({
+                activity: 'rehearsal',
+                minutes: 20,
+                pledgeKey: 'cpd.pledge.rehearsal',
+                claimedCount: 1,
+                claimedMinutes: 20,
+                claims: [{ id: 2, minutes: 20, claimedAt: '2026-07-28T09:00:00Z', withdrawnAt: null }]
+              })
+            ]
+          })]
+        })
+      },
+      { body: { success: true } },
+      { body: record() }
+    ])
+    wrapper.findAll('.btn-cpd-withdraw').at(1).trigger('click')
+    await settle(wrapper)
+    wrapper.find('.cpd-withdraw-modal .modal-card-foot button').trigger('click')
+    await settle(wrapper)
+
+    // id 2 is the rehearsal. A box that had lost track of its row would take back the
+    // video instead — a wrong figure on a record that may go to a professional body.
+    expect(JSON.parse(writes()[0][1].body)).toEqual({ claimId: 2 })
+  })
+
+  test('a failed withdrawal keeps the confirmation open with the reason on it', async () => {
+    const wrapper = await mountSection([withOneClaim(), { ok: false, body: {} }])
+    await withdrawConfirmed(wrapper)
+
+    // Same rule as a failed pledge: an advisor told nothing would believe the recording
+    // had gone, and would not press again.
+    expect(wrapper.vm.withdrawOpen).toBe(true)
+    expect(wrapper.find('.cpd-withdraw-modal .cpd-write-error').text()).toBe('cpd.withdrawFailed')
+    // Exactly ONE. The message belongs inside the box the advisor is looking at, not
+    // there AND behind it — two copies of a failure read as two failures.
+    expect(wrapper.findAll('.cpd-write-error').length).toBe(1)
+  })
+})
+
 describe('withdrawing takes back the most recent recording', () => {
   /** Three standing claims, deliberately NOT in date order in the array. */
   const threeClaims = [
@@ -471,8 +601,7 @@ describe('withdrawing takes back the most recent recording', () => {
       { body: { success: true } },
       withClaims(threeClaims.slice(0, 1))
     ])
-    wrapper.find('.btn-cpd-withdraw').trigger('click')
-    await settle(wrapper)
+    await withdrawConfirmed(wrapper)
 
     const [url, opts] = writes()[0]
     expect(url).toBe('/api/activity/cpd/withdraw')
@@ -488,8 +617,7 @@ describe('withdrawing takes back the most recent recording', () => {
       { body: { success: true } },
       { body: record() }
     ])
-    wrapper.find('.btn-cpd-withdraw').trigger('click')
-    await settle(wrapper)
+    await withdrawConfirmed(wrapper)
     // id 4 is the newest but is already withdrawn; the newest STANDING one is id 1.
     expect(JSON.parse(writes()[0][1].body)).toEqual({ claimId: 1 })
   })
@@ -505,8 +633,7 @@ describe('withdrawing takes back the most recent recording', () => {
       { body: { success: true } },
       { body: record() }
     ])
-    wrapper.find('.btn-cpd-withdraw').trigger('click')
-    await settle(wrapper)
+    await withdrawConfirmed(wrapper)
     expect(JSON.parse(writes()[0][1].body)).toEqual({ claimId: 8 })
   })
 
@@ -519,8 +646,7 @@ describe('withdrawing takes back the most recent recording', () => {
       { body: { success: true } },
       { body: record() }
     ])
-    wrapper.find('.btn-cpd-withdraw').trigger('click')
-    await settle(wrapper)
+    await withdrawConfirmed(wrapper)
     expect(JSON.parse(writes()[0][1].body)).toEqual({ claimId: 2 })
   })
 
@@ -530,8 +656,8 @@ describe('withdrawing takes back the most recent recording', () => {
       { body: { success: true } },
       withClaims(threeClaims.slice(0, 2))
     ])
-    wrapper.find('.btn-cpd-withdraw').trigger('click')
-    await settle(wrapper)
+    await withdrawConfirmed(wrapper)
+    expect(wrapper.vm.withdrawOpen).toBe(false)
     expect(wrapper.vm.totalMinutes).toBe(22)
     expect(wrapper.find('.cpd-activity-claimed').text()).toContain('"n":2')
   })
@@ -541,8 +667,7 @@ describe('withdrawing takes back the most recent recording', () => {
       withClaims(threeClaims),
       { ok: false, body: {} }
     ])
-    wrapper.find('.btn-cpd-withdraw').trigger('click')
-    await settle(wrapper)
+    await withdrawConfirmed(wrapper)
 
     expect(wrapper.find('.cpd-write-error').text()).toBe('cpd.withdrawFailed')
     expect(wrapper.vm.totalMinutes).toBe(33)
@@ -551,8 +676,7 @@ describe('withdrawing takes back the most recent recording', () => {
 
   test('a withdrawal that never reached the server is also reported', async () => {
     const wrapper = await mountSection([withClaims(threeClaims), { reject: true }])
-    wrapper.find('.btn-cpd-withdraw').trigger('click')
-    await settle(wrapper)
+    await withdrawConfirmed(wrapper)
     expect(wrapper.find('.cpd-write-error').text()).toBe('cpd.withdrawFailed')
   })
 })
@@ -577,8 +701,11 @@ describe('a write in flight cannot be started twice', () => {
 
   test('a withdraw while one is in flight does nothing', async () => {
     const wrapper = await mountSection()
-    wrapper.setData({ busy: true })
-    await wrapper.vm.withdraw(activity({ claims: [{ id: 1, claimedAt: '2026-07-29T09:00:00Z' }] }))
+    wrapper.setData({
+      busy: true,
+      withdrawTarget: activity({ claims: [{ id: 1, claimedAt: '2026-07-29T09:00:00Z' }] })
+    })
+    await wrapper.vm.confirmWithdraw()
     expect(writes().length).toBe(0)
   })
 })

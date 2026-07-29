@@ -16,8 +16,10 @@ section.cpd-record
     p.cpd-total {{ $t('cpd.totalRecorded', { time: formatMinutes(totalMinutes) }) }}
 
     //- A write that failed is said out loud. An advisor who is not told their pledge
-    //- failed will believe they have declared something they have not.
-    p.cpd-write-error(v-if="writeError && !pledgeOpen") {{ $t(writeError) }}
+    //- failed will believe they have declared something they have not. Suppressed while
+    //- either box is open, because each carries the same message inside itself — where
+    //- the advisor is actually looking.
+    p.cpd-write-error(v-if="writeError && !pledgeOpen && !withdrawOpen") {{ $t(writeError) }}
 
     p.cpd-empty(v-if="!templates.length") {{ $t('cpd.empty') }}
 
@@ -43,7 +45,7 @@ section.cpd-record
             v-if="act.claimedCount"
             type="button"
             :disabled="busy"
-            @click="withdraw(act)"
+            @click="openWithdraw(act)"
           ) {{ $t('cpd.withdraw') }}
 
   //- The pledge. Nothing is ever recorded without the advisor first reading the exact
@@ -61,6 +63,24 @@ section.cpd-record
         p.cpd-write-error(v-if="writeError") {{ $t(writeError) }}
       footer.modal-card-foot
         b-button(type="is-primary" :loading="busy" @click="confirmPledge") {{ $t('cpd.record') }}
+        b-button(:disabled="busy" @click="closePledge") {{ $t('cpd.cancel') }}
+
+  //- Withdrawing was one press on a professional record. This box stands between the
+  //- button and the write; the write itself is unchanged. Its own `v-if` matters as much
+  //- as the pledge's: with nothing pending, neither modal puts a card in the DOM, so the
+  //- two can never be confused for one another.
+  b-modal(v-model="withdrawOpen" has-modal-card trap-focus)
+    .modal-card.cpd-modal.cpd-withdraw-modal(v-if="withdrawTarget")
+      header.modal-card-head
+        p.modal-card-title {{ $t('cpd.withdrawTitle') }}
+        button.delete(type="button" @click="closeWithdraw")
+      section.modal-card-body
+        p.cpd-modal-pledge {{ $t('cpd.withdrawQuestion') }}
+        p.cpd-modal-declaration {{ $t('cpd.withdrawNote') }}
+        p.cpd-write-error(v-if="writeError") {{ $t(writeError) }}
+      footer.modal-card-foot
+        b-button(type="is-primary" :loading="busy" @click="confirmWithdraw") {{ $t('cpd.withdraw') }}
+        b-button(:disabled="busy" @click="closeWithdraw") {{ $t('cpd.cancel') }}
 </template>
 
 <script>
@@ -103,7 +123,10 @@ export default {
       templates: [],
       /** The claim awaiting the advisor's pledge: { templateTitle, activity }. */
       pledge: null,
-      pledgeOpen: false
+      pledgeOpen: false,
+      /** The activity whose most recent recording is awaiting confirmation. */
+      withdrawTarget: null,
+      withdrawOpen: false
     }
   },
 
@@ -119,6 +142,19 @@ export default {
     pledgeOpen (open) {
       if (!open) {
         this.pledge = null
+        this.writeError = null
+      }
+    },
+
+    /**
+     * The same clean-up for the withdrawal box, for the same reason — Escape and a
+     * click outside are Buefy's to handle and no method of ours sees them.
+     *
+     * @param {boolean} open - the modal's new state.
+     */
+    withdrawOpen (open) {
+      if (!open) {
+        this.withdrawTarget = null
         this.writeError = null
       }
     }
@@ -267,6 +303,22 @@ export default {
     },
 
     /**
+     * Ask before withdrawing. Nothing is written at this point.
+     *
+     * @param {object} act - the activity to withdraw from.
+     */
+    openWithdraw (act) {
+      this.writeError = null
+      this.withdrawTarget = act
+      this.withdrawOpen = true
+    },
+
+    /** Dismiss the confirmation without withdrawing anything. */
+    closeWithdraw () {
+      this.withdrawOpen = false
+    },
+
+    /**
      * Withdraw the most recent standing claim on one activity (owner ruling: a single
      * Withdraw, taking back the latest recording, rather than a line per claim).
      *
@@ -274,15 +326,18 @@ export default {
      * already have gone into a real CPD submission and a record that vanishes is worse
      * than one showing a claim made and later withdrawn.
      *
-     * @param {object} act - the activity to withdraw from.
+     * A failure leaves the confirmation open with the reason on it, exactly as a failed
+     * pledge does: an advisor told nothing would believe the recording had gone.
+     *
      * @returns {Promise<void>}
      */
-    async withdraw (act) {
-      if (this.busy) { return }
-      const claim = this.latestStandingClaim(act)
+    async confirmWithdraw () {
+      if (!this.withdrawTarget || this.busy) { return }
+      const claim = this.latestStandingClaim(this.withdrawTarget)
       // Nothing standing to withdraw. Can only happen if the record changed underneath
       // this screen; re-reading is more honest than reporting a failure that isn't one.
-      if (!claim) { await this.load(true); return }
+      // The box closes with it — leaving it open would invite a second press at nothing.
+      if (!claim) { this.withdrawOpen = false; await this.load(true); return }
 
       this.busy = true
       this.writeError = null
@@ -300,6 +355,7 @@ export default {
           this.writeError = 'cpd.withdrawFailed'
           return
         }
+        this.withdrawOpen = false
         await this.load(true)
       } catch (e) {
         this.writeError = 'cpd.withdrawFailed'

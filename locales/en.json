@@ -929,8 +929,12 @@
     },
     "activityWithTime": "{name} ({n} min)",
     "record": "Record",
+    "cancel": "Cancel",
     "recorded": "Recorded {n} time — {minutes} min | Recorded {n} times — {minutes} min",
     "withdraw": "Withdraw",
+    "withdrawTitle": "Withdraw a recording",
+    "withdrawQuestion": "Withdraw your most recent recording of this activity?",
+    "withdrawNote": "The recording is kept and marked withdrawn. You can record it again at any time.",
     "empty": "Nothing to record yet. CPD activities appear here once you have used a template in a client session or a course.",
     "declaration": "This is your own declaration. The date and time are recorded against your name.",
     "pledge": {

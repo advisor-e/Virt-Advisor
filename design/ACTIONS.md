@@ -617,14 +617,11 @@ Two honest answers on different axes — the file used to conflate them:
     id breaking a tie — a date column with no sub-second precision can return two identical
     stamps, and "most recent" must still resolve to exactly one row. A claim with no readable
     date sorts oldest, so it can never be withdrawn in place of the newest.
-  - ⚠ **TWO GAPS LEFT OPEN DELIBERATELY — both need wording Mike has not approved, and
-    inventing copy is against CLAUDE.md.**
-    - **The pledge box has no Cancel button.** It closes with the ✕ in its header, or Escape,
-      or a click outside. Functional, but "Cancel" would read better.
-    - **Withdraw acts immediately, with no confirmation step.** A confirmation needs a question
-      sentence that does not exist yet. Mitigated by the action being recoverable — the row is
-      kept and marked withdrawn, and the advisor can simply Record again — but it is one click
-      on a professional record. **Both are one short wording decision away from being closed.**
+  - ☑ ~~**TWO GAPS LEFT OPEN DELIBERATELY — both need wording Mike has not approved, and
+    inventing copy is against CLAUDE.md.**~~ **BOTH CLOSED 2026-07-30 (session 7) — see below.**
+    Kept for the record of why they were left: the pledge box closed only with the ✕, Escape or
+    a click outside; and Withdraw acted immediately, one click on a professional record, with no
+    question sentence in existence to put in front of it.
   - **Mutation-verified: 24 of 24 killed**, green control, every mutation proven to have applied,
     harness outside the repo restoring by checksum. **The first run had ONE survivor and it was
     a real gap:** deleting the HTTP-status check in the read path changed nothing, because every
@@ -647,6 +644,58 @@ Two honest answers on different axes — the file used to conflate them:
     exactly like a bug; say so before anyone hunts it.
   - ☐ **STILL OPEN — no manager view of CPD** (see above, unchanged), and the tutorial-video
     sentence is still dead (its own P2 above, untouched by this session).
+
+  ### Session 7 (2026-07-30, laptop) — the two CPD wording gaps, closed
+
+  Suite **2,334 → 2,340 / 144 suites** (+6), lint 0 errors. Session 6 shipped the CPD screen
+  with two gaps left open *because the wording did not exist* — not because the work was hard.
+  Mike supplied both, and they were used verbatim.
+
+  - ✅ **CANCEL ON THE PLEDGE BOX + A CONFIRMATION BEFORE WITHDRAW (Mike-approved; wording
+    chosen by Mike from three options each, then used word for word).** Four new keys in the
+    top-level `cpd` block of [`locales/en.json`](../locales/en.json) — `cancel`,
+    `withdrawTitle`, `withdrawQuestion`, `withdrawNote` — and the two changes in
+    [`CpdRecord.vue`](../components/CpdRecord.vue). **The write path itself was not touched**;
+    `withdraw(act)` became `openWithdraw(act)` + `confirmWithdraw()`, with the network call
+    moved intact behind the second, deliberate press.
+    - **Approved wording, recorded so it is never re-asked or re-invented:** button **Cancel**;
+      title *Withdraw a recording*; question *"Withdraw your most recent recording of this
+      activity?"*; note *"The recording is kept and marked withdrawn. You can record it again at
+      any time."*
+    - **Why the question says "this activity" and not the activity's name:** Mike's choice of
+      three. The button pressed is already on that row, so naming it again buys little — but the
+      wording deliberately says **most recent**, because Withdraw takes back one recording and an
+      advisor with three would otherwise expect all three to go.
+    - **No minutes figure is promised in the copy**, deliberately: the screen holds the *total*
+      claimed minutes for an activity, not the minutes of the single row being taken back. A
+      number we cannot compute is worse than no number on a record that may go to a body.
+    - **Built as a second `b-modal` in the component rather than `$buefy.dialog.confirm`** — the
+      pattern used by [`FirmDocuments.vue`](../components/firm/FirmDocuments.vue) L330 and
+      [`FirmDomainSupport.vue`](../components/firm/FirmDomainSupport.vue) L423. Two reasons, both
+      recorded so this is not read as drift: the Buefy dialog takes a **single message string**
+      and the approved copy is a question *plus* a separate reassurance sentence; and it draws
+      itself outside the component, so a test could only prove a dialog was *asked for*, never
+      that pressing Withdraw wrote nothing. On a professional record the stop should be provable.
+      Both modals guard their card with `v-if`, so only one is ever in the DOM and they cannot be
+      confused for one another.
+    - **A failed withdrawal keeps the box open with the reason on it**, matching the failed
+      pledge exactly — an advisor told nothing would believe the recording had gone. A success
+      closes it and re-reads the server's record rather than adjusting the figure here.
+  - **Mutation-verified: 8 of 8 killed**, green control, every mutation proven to have applied,
+    harness outside the repo (the component is redirected to a mutated **copy** via a scratchpad
+    jest config — the repo is never written to).
+    ⚠ **The first run had ONE survivor and it was a real gap — and it is the SAME blind spot for
+    the fourth time on this feature.** Removing the guard that hides the section-level error
+    while a box is open changed nothing, because the test read the **first** matching element and
+    found the right words either way: a failed write would have printed its message **twice**,
+    once inside the box and once behind it. Now pinned by asserting there is exactly **one**.
+    The previous three were the Team Progress tab, the quiz-detail route and session 6's CPD read
+    path — each an assertion that could pass while proving only half of what it appeared to.
+    **Standing habit, now earned four times over: when two things could satisfy an assertion, one
+    test must separate them.**
+  - ☐ **NOT PROVEN BY EYE.** Tests and mutation only. Both boxes need a human to look at them;
+    the same six-connection tab trap applies before anyone judges the screen.
+
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
   - **What was read before merging, rather than assumed:** **Logic Tables is finished and live** — Save writes a firm-only override, Reset restores the platform default, version history, and **firm-authored branch text is fenced before it reaches the AI**; overrides merge into a fresh per-request copy never written back to the shared cache (cross-firm isolation). **Domain Support is a deliberate, banner-labelled PREVIEW** — Save/Reset inert, because persisting firm text and its AI fencing land together in the next slice, *so the surface is never live before its safeguard*; only EOY is migrated to the four-column shape and other domains show an honest "not yet in this format" notice. **The removed Decision Frameworks (PDF library) tab was Mike's own 2026-07-27 decision** — the AI never read those PDFs, so no engine behaviour changed; component and routes left dormant with a P3 cleanup logged.
