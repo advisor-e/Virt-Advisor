@@ -914,5 +914,32 @@
       "retry": "Try again",
       "loading": "Loading quiz detail…"
     }
+  },
+  "cpd": {
+    "title": "CPD Record",
+    "subtitle": "Continuing Professional Development",
+    "totalRecorded": "CPD time recorded: {time}",
+    "hoursMinutes": "{h}h {m}m",
+    "hoursOnly": "{h}h",
+    "minutesOnly": "{m}m",
+    "activityName": {
+      "video": "Tutorial video",
+      "reading": "Read the template",
+      "rehearsal": "Rehearse with a colleague"
+    },
+    "activityWithTime": "{name} ({n} min)",
+    "record": "Record",
+    "recorded": "Recorded {n} time — {minutes} min | Recorded {n} times — {minutes} min",
+    "withdraw": "Withdraw",
+    "empty": "Nothing to record yet. CPD activities appear here once you have used a template in a client session or a course.",
+    "declaration": "This is your own declaration. The date and time are recorded against your name.",
+    "pledge": {
+      "video": "I confirm I have watched this tutorial video in full.",
+      "reading": "I confirm I have read this template in full.",
+      "rehearsal": "I confirm I have rehearsed this template with a colleague."
+    },
+    "loadFailed": "Could not load your CPD record",
+    "recordFailed": "Could not record your CPD claim",
+    "withdrawFailed": "Could not withdraw your CPD claim"
   }
 }

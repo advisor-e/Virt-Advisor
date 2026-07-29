@@ -53,9 +53,20 @@ async function settle (wrapper) {
   await wrapper.vm.$nextTick()
 }
 
+/**
+ * The CPD section is a child component that loads itself, so an unstubbed mount makes
+ * a second request and every assertion about "the" call becomes ambiguous. It is
+ * stubbed here so these tests stay about this screen; that it is actually mounted is
+ * pinned by its own test below, and its behaviour by cpdRecord.component.test.js.
+ */
+const STUB_CPD = { CpdRecord: true }
+
 async function mountScreen (result) {
   stubFetch(result || { body: { success: true, tiers: tiers(), recentActivity: [] } })
-  const wrapper = mountWithBuefy(AdvisorProgression, { propsData: { apiToken: 'test-token' } })
+  const wrapper = mountWithBuefy(AdvisorProgression, {
+    propsData: { apiToken: 'test-token' },
+    stubs: STUB_CPD
+  })
   await settle(wrapper)
   return wrapper
 }
@@ -76,7 +87,8 @@ describe('reading the advisor\'s own record', () => {
     // advisor could read a colleague's record by changing it.
     stubFetch({ body: { success: true, tiers: tiers(), recentActivity: [] } })
     const wrapper = mountWithBuefy(AdvisorProgression, {
-      propsData: { apiToken: 'test-token', advisorId: 'someone-else', firmId: 'another-firm' }
+      propsData: { apiToken: 'test-token', advisorId: 'someone-else', firmId: 'another-firm' },
+      stubs: STUB_CPD
     })
     await settle(wrapper)
     const [url, opts] = global.fetch.mock.calls[0]
@@ -275,5 +287,21 @@ describe('this screen is one advisor\'s own record and nothing else', () => {
     })
     expect(wrapper.find('.prog-team-table').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('someone-else')
+  })
+})
+
+describe('the CPD record sits inside this screen', () => {
+  // Mounted UNSTUBBED, unlike every test above: the point here is that the section is
+  // really there and really wired. A stub would pass whether or not it was.
+  test('renders the CPD section and hands it the same login pass', async () => {
+    stubFetch({ body: { success: true, tiers: tiers(), recentActivity: [] } })
+    const wrapper = mountWithBuefy(AdvisorProgression, { propsData: { apiToken: 'test-token' } })
+    await settle(wrapper)
+
+    expect(wrapper.find('.cpd-record').exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'CpdRecord' }).props('apiToken')).toBe('test-token')
+    // Its own request, on its own route — this screen does not fetch CPD on its behalf.
+    const urls = global.fetch.mock.calls.map(c => c[0])
+    expect(urls).toContain('/api/activity/cpd')
   })
 })

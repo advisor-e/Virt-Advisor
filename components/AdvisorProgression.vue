@@ -74,10 +74,16 @@
           .prog-activity-meta
             span.prog-tier-pill(:class="item.tier ? 'pill-' + item.tier : 'pill-none'") {{ tierLabel(item.tier) }}
             span.prog-activity-date {{ formatDate(item.completedAt) }}
+
+    //- The advisor's own CPD record — its own component, not more of this one, which
+    //- was deliberately reduced to a single job. It loads itself and carries its own
+    //- empty and error states, so a CPD outage cannot take the progress record with it.
+    cpd-record(:api-token="apiToken")
 </template>
 
 <script>
 import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
+import CpdRecord from '~/components/CpdRecord.vue'
 
 /**
  * Advisory areas this screen can name, as i18n keys under `advisorProgress.domain.*`.
@@ -93,6 +99,8 @@ const KNOWN_DOMAINS = [
 
 export default {
   name: 'AdvisorProgression',
+
+  components: { CpdRecord },
 
   props: {
     advisorId: { type: String, default: 'local-advisor' },
