@@ -23,7 +23,14 @@ section.firm-team-progress
         | {{ $t('firmTeamProgress.cellLegend') }}
         template(v-if="anyUnclassified")  {{ $t('firmTeamProgress.totalLegend') }}
 
-      b-table(:data="advisors" :hoverable="true")
+      b-table(
+        ref="table"
+        :data="advisors"
+        :hoverable="true"
+        detailed
+        detail-key="advisorId"
+        :show-detail-icon="false"
+      )
         b-table-column(
           v-slot="{ row }"
           field="advisorId"
@@ -65,9 +72,29 @@ section.firm-team-progress
           width="130"
         )
           | {{ row.lastActive ? formatDate(row.lastActive) : '—' }}
+
+        //- The way into one advisor's question-level record. A worded button rather
+        //- than a bare chevron: what opens is a different kind of thing from the
+        //- counts beside it, and a manager should know that before clicking.
+        b-table-column(
+          v-slot="{ row }"
+          :label="$t('firmTeamProgress.detail.expand')"
+          width="120"
+        )
+          b-button(size="is-small" outlined @click="toggleDetail(row)")
+            | {{ $t('firmTeamProgress.detail.expand') }}
+
+        //- Mounted only when a row is open, so no advisor's detail is fetched — or
+        //- shown — until a manager deliberately asks for that person.
+        template(#detail="props")
+          firm-advisor-questions(
+            :api-token="apiToken"
+            :advisor-id="props.row.advisorId"
+          )
 </template>
 
 <script>
+import FirmAdvisorQuestions from '~/components/firm/FirmAdvisorQuestions.vue'
 
 /** The three capability levels, in the order a manager reads them. */
 const TIER_DEFS = [
@@ -81,6 +108,8 @@ const EMPTY_TIER = { vaSessions: 0, courseSessions: 0, avgQuizScore: null }
 
 export default {
   name: 'FirmTeamProgress',
+
+  components: { FirmAdvisorQuestions },
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
@@ -143,6 +172,19 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+
+    /**
+     * Open or close one advisor's quiz detail.
+     *
+     * Delegated to the table rather than tracked here, so the open row and the button
+     * that opened it can never disagree about which advisor is showing.
+     *
+     * @param {Object} row - the advisor row that was clicked.
+     * @returns {void}
+     */
+    toggleDetail (row) {
+      if (this.$refs.table) { this.$refs.table.toggleDetails(row) }
     },
 
     /**

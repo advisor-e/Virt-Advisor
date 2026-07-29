@@ -100,6 +100,23 @@ describe('malformed input cannot corrupt a row', () => {
     expect(normaliseQuizQuestions([good({ score: Infinity })])[0].score).toBeNull()
   })
 
+  test('a MISSING score is no score — never a zero the advisor did not earn', () => {
+    // Found by mutation testing 2026-07-29, and it was a live defect: Number(null),
+    // Number(''), Number([]) and Number(false) are all 0, and 0 is a real score. So a
+    // question that came back with no mark at all was recorded as zero out of 100 —
+    // a failure the advisor never had, now visible to their manager against a named
+    // topic. Each of these four is the whole reason this test exists.
+    expect(normaliseQuizQuestions([good({ score: null })])[0].score).toBeNull()
+    expect(normaliseQuizQuestions([good({ score: '' })])[0].score).toBeNull()
+    expect(normaliseQuizQuestions([good({ score: '   ' })])[0].score).toBeNull()
+    expect(normaliseQuizQuestions([good({ score: [] })])[0].score).toBeNull()
+    expect(normaliseQuizQuestions([good({ score: false })])[0].score).toBeNull()
+    // The other side of the same claim: a genuine zero still survives untouched.
+    expect(normaliseQuizQuestions([good({ score: 0 })])[0].score).toBe(0)
+    // And a score that arrives as a numeric string is still a score.
+    expect(normaliseQuizQuestions([good({ score: '73' })])[0].score).toBe(73)
+  })
+
   test('a fractional score is rounded, not stored as a decimal', () => {
     expect(normaliseQuizQuestions([good({ score: 72.6 })])[0].score).toBe(73)
   })

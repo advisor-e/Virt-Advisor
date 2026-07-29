@@ -894,6 +894,25 @@
     "empty": "No advisor activity recorded yet. This will fill in as your team completes VA cases and course sessions.",
     "loadFailed": "Could not load team progress. The activity record could not be reached.",
     "retry": "Try again",
-    "loading": "Loading team progress…"
+    "loading": "Loading team progress…",
+    "detail": {
+      "expand": "Quiz detail",
+      "byTopic": "By topic",
+      "colTopic": "Topic",
+      "colAsked": "Asked",
+      "colCorrect": "Correct",
+      "colAverage": "Average",
+      "noTopic": "Topic not recorded",
+      "notMarkedCount": "{n} not marked",
+      "sessions": "Session by session",
+      "question": "Question {n}",
+      "passed": "Passed",
+      "notPassed": "Not passed",
+      "notMarked": "Not marked",
+      "empty": "No quiz questions recorded yet. Sessions completed before this record existed show no questions.",
+      "loadFailed": "Could not load this advisor's quiz detail.",
+      "retry": "Try again",
+      "loading": "Loading quiz detail…"
+    }
   }
 }

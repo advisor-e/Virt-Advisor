@@ -3,9 +3,10 @@
 /**
  * Activity routes — capability progression data for advisors and firm managers.
  *
- * POST /api/activity/log-course        — log a completed course session
- * GET  /api/activity/progression       — advisor's own tier progression view
- * GET  /api/activity/team              — firm manager's team overview
+ * POST /api/activity/log-course              — log a completed course session
+ * GET  /api/activity/progression             — advisor's own tier progression view
+ * GET  /api/activity/team                    — firm manager's team overview
+ * GET  /api/activity/team/advisor/:advisorId — one advisor's quiz detail, for a manager
  *
  * SECURITY: advisorId and firmId are derived from the verified JWT (firmAuth
  * middleware attaches req.advisorId / req.firmId) — never trusted from the
@@ -306,4 +307,141 @@ async function getTeam (req, res) {
   }
 }
 
-module.exports = { logCourse, getProgression, getTeam }
+/**
+ * Order the topic rollup so the weakest sits at the top — the whole point of the
+ * view is "what should I coach this person on", and that answer should not have to
+ * be hunted for down a list.
+ *
+ * Two deliberate choices: the correct-rate is measured over MARKED questions only
+ * (an unmarked question is not evidence of anything, so it must not read as a fail),
+ * and a topic whose questions were all unmarked scores as 1 so it sinks rather than
+ * heading the list on no evidence at all. A question whose bank was never recorded
+ * is not a topic and always sits last, however it scored.
+ *
+ * @param {object} a - one rolled-up topic.
+ * @param {object} b - another.
+ * @returns {number} standard comparator result.
+ */
+function compareTopics (a, b) {
+  if ((a.bankKey === null) !== (b.bankKey === null)) { return a.bankKey === null ? 1 : -1 }
+  const rate = (t) => {
+    const marked = t.asked - t.notMarked
+    return marked > 0 ? t.correct / marked : 1
+  }
+  const rateA = rate(a)
+  const rateB = rate(b)
+  if (rateA !== rateB) { return rateA - rateB }
+  // Same rate: the topic they were asked about more is the better-evidenced one.
+  if (a.asked !== b.asked) { return b.asked - a.asked }
+  return String(a.bankKey).localeCompare(String(b.bankKey))
+}
+
+/**
+ * Group every question across a set of sessions by the bank it came from.
+ *
+ * `notMarked` is kept as its own tally rather than folded into either side: a question
+ * the marker never scored is neither right nor wrong, and counting it as wrong would
+ * invent a weakness the advisor never showed.
+ *
+ * @param {object[]} sessions - sessions already carrying a normalised `questions` array.
+ * @returns {Array<{bankKey: string|null, asked: number, correct: number,
+ *   notMarked: number, avgScore: number|null}>} weakest topic first.
+ */
+function rollUpTopics (sessions) {
+  const byBank = new Map()
+
+  for (const session of sessions) {
+    for (const q of session.questions) {
+      const key = q.bankKey || null
+      let topic = byBank.get(key)
+      if (!topic) {
+        topic = { bankKey: key, asked: 0, correct: 0, notMarked: 0, scores: [] }
+        byBank.set(key, topic)
+      }
+      topic.asked++
+      if (q.ungraded === true) { topic.notMarked++; continue }
+      if (q.passed === true) { topic.correct++ }
+      if (typeof q.score === 'number') { topic.scores.push(q.score) }
+    }
+  }
+
+  return Array.from(byBank.values()).map(t => ({
+    bankKey: t.bankKey,
+    asked: t.asked,
+    correct: t.correct,
+    notMarked: t.notMarked,
+    avgScore: t.scores.length
+      ? Math.round(t.scores.reduce((sum, n) => sum + n, 0) / t.scores.length)
+      : null
+  })).sort(compareTopics)
+}
+
+/**
+ * Return one advisor's per-question quiz record for their firm manager.
+ *
+ * SECURITY — the one client-supplied value on this route is the advisor id, and it is
+ * the reason this route needs reading carefully. The firm still comes from the verified
+ * JWT, and `readAdvisorSessions` filters on advisor AND firm together, so a manager
+ * asking for an advisor outside their own firm gets an empty record rather than someone
+ * else's data — and learns nothing about whether that advisor exists. Manager/admin role
+ * is enforced upstream by requireManagerRole, exactly as on the team overview.
+ *
+ * PRIVACY — this is the first place one person's question-level results are shown to
+ * another person, so the read is narrowed on the way out as well as on the way in: every
+ * question is put back through `normaliseQuizQuestions`, which passes only bank, entry
+ * number, score, pass/fail and unmarked. Even if a future write path (or a hand-edited
+ * dev file) ever stored an advisor's own words, they could not reach a manager's screen
+ * through here.
+ *
+ * @route GET /api/activity/team/advisor/:advisorId
+ * @param {string} req.params.advisorId - the advisor to look at; constrained to the
+ *   manager's own firm by the query, never trusted on its own
+ * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
+ * @returns {200} { success: true, advisorId, topics, sessions } — `topics` is the
+ *   per-bank rollup, weakest first; `sessions` is every course session newest-first,
+ *   each with its own questions (empty for sessions completed before this record existed)
+ * @returns {400} MISSING_PARAMS · {500} DB_ERROR (standard error envelope)
+ */
+async function getAdvisorQuestions (req, res) {
+  // Firm from the verified token; advisor from the URL, capped like every other
+  // stored identifier so an oversized parameter cannot reach the query.
+  const firmId = req.firmId
+  const rawAdvisorId = (req.params && req.params.advisorId) || ''
+  const advisorId = String(rawAdvisorId).slice(0, 64)
+
+  if (!firmId) {
+    sendError(res, 400, 'MISSING_PARAMS', 'firmId is required')
+    return
+  }
+
+  if (!advisorId) {
+    sendError(res, 400, 'MISSING_PARAMS', 'advisorId is required')
+    return
+  }
+
+  try {
+    // Reuses the advisor's own read deliberately: it is the function that already
+    // filters on advisor AND firm together, so the firm boundary here is the same
+    // proven one rather than a second query that could drift away from it. It also
+    // reads the VA sessions, which this view does not use — client cases carry no
+    // quiz — a cheap indexed read in exchange for not duplicating the scoping.
+    const { courseSessions } = await activityStore.readAdvisorSessions(advisorId, firmId)
+
+    const sessions = courseSessions.map(r => ({
+      courseTitle: r.course_title,
+      sessionTitle: r.session_title,
+      quizScore: (r.quiz_score === null || r.quiz_score === undefined) ? null : Number(r.quiz_score),
+      tier: r.highest_tier || null,
+      completedAt: r.completed_at,
+      // Normalised on the way out as well as in — see the PRIVACY note above.
+      questions: normaliseQuizQuestions(parseQuizQuestions(r.quiz_questions))
+    }))
+
+    res.send(200, { success: true, advisorId, topics: rollUpTopics(sessions), sessions })
+  } catch (err) {
+    console.error('[activity] getAdvisorQuestions error:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not load advisor quiz data')
+  }
+}
+
+module.exports = { logCourse, getProgression, getTeam, getAdvisorQuestions }

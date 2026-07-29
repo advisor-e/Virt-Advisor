@@ -257,3 +257,66 @@ describe('a read failure is said out loud', () => {
     expect(wrapper.text()).toContain('adv-9')
   })
 })
+
+describe('the drill-down into one advisor', () => {
+  const twoAdvisors = {
+    success: true,
+    advisors: [
+      advisor('adv-1', { totalSessions: 6 }),
+      advisor('adv-2', { totalSessions: 4 })
+    ]
+  }
+
+  /** Answer by URL, so the team read and an advisor read can be told apart. */
+  function stubByUrl () {
+    global.fetch = jest.fn(url => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(
+        url === '/api/activity/team'
+          ? twoAdvisors
+          : { success: true, topics: [], sessions: [] }
+      )
+    }))
+  }
+
+  async function mountWithRows () {
+    stubByUrl()
+    const wrapper = mountWithBuefy(FirmTeamProgress, { propsData: { apiToken: 'test-token' } })
+    await settle(wrapper)
+    return wrapper
+  }
+
+  test('nobody\'s question record is read until a manager asks for that person', async () => {
+    // The privacy claim in the wiring rather than the prose: showing a team must not
+    // quietly pull every advisor's individual results along with it.
+    const wrapper = await mountWithRows()
+
+    expect(wrapper.findAll('tbody tr').length).toBe(2)
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+    expect(global.fetch.mock.calls[0][0]).toBe('/api/activity/team')
+  })
+
+  test('the Quiz detail button opens that advisor\'s record, and only that advisor\'s', async () => {
+    const wrapper = await mountWithRows()
+
+    await wrapper.findAll('tbody tr').at(1).find('button').trigger('click')
+    await settle(wrapper)
+
+    expect(global.fetch).toHaveBeenCalledTimes(2)
+    expect(global.fetch.mock.calls[1][0]).toBe('/api/activity/team/advisor/adv-2')
+    expect(wrapper.findAll('.advisor-questions').length).toBe(1)
+  })
+
+  test('clicking again closes it', async () => {
+    const wrapper = await mountWithRows()
+    const button = () => wrapper.findAll('tbody tr').at(0).find('button')
+
+    await button().trigger('click')
+    await settle(wrapper)
+    expect(wrapper.findAll('.advisor-questions').length).toBe(1)
+
+    await button().trigger('click')
+    await settle(wrapper)
+    expect(wrapper.findAll('.advisor-questions').length).toBe(0)
+  })
+})

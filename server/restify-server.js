@@ -183,6 +183,10 @@ server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.
 server.post('/api/activity/log-course', firmAuth, activityRoute.logCourse)
 server.get('/api/activity/progression', firmAuth, activityRoute.getProgression)
 server.get('/api/activity/team', firmAuth, requireManagerRole, activityRoute.getTeam)
+// One advisor's quiz detail, for their manager. Same guard pair as the team overview:
+// the firm comes from the token, and the advisor id in the path is confined to that
+// firm by the query — see the SECURITY note on getAdvisorQuestions.
+server.get('/api/activity/team/advisor/:advisorId', firmAuth, requireManagerRole, activityRoute.getAdvisorQuestions)
 
 // ── Cases routes ──
 // All firmAuth-guarded: identity (advisorId/firmId) comes from the verified JWT,

@@ -39,9 +39,20 @@ function safeString (value, max) {
  * Clamp an untrusted value to a whole number within [min, max], or null.
  * Rejects NaN, Infinity, and numeric strings' surprises by requiring a finite number.
  *
+ * MISSING IS NOT ZERO (fixed 2026-07-29, found by mutation testing). `Number(null)`,
+ * `Number('')`, `Number([])` and `Number(false)` are all **0**, and 0 is a legitimate
+ * score — so a question that arrived with no mark at all was being recorded as zero
+ * out of 100, indistinguishable from an advisor who genuinely scored nothing. That is
+ * a fabricated failure, and the manager-facing view shows it against a named topic.
+ * Only a number, or a string with something numeric in it, can be a score; everything
+ * else is "no score", exactly as an out-of-range 900 already was.
+ *
  * @param {*} value @param {number} min @param {number} max @returns {number|null}
  */
 function safeInt (value, min, max) {
+  if (typeof value !== 'number' && (typeof value !== 'string' || value.trim() === '')) {
+    return null
+  }
   const n = Number(value)
   if (!Number.isFinite(n)) { return null }
   const rounded = Math.round(n)
