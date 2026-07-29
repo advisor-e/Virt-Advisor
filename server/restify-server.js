@@ -33,6 +33,25 @@
   }
 }())
 
+// ── Local .env loading ────────────────────────────────────────────────────────
+// MUST run before config/integration.js, which reads process.env at require time.
+//
+// Loaded HERE at the entry point rather than via a `node -r dotenv/config` flag in
+// the npm script, so it works however the process is started — the documented
+// recipes start this server by direct path, not always through `npm run backend`.
+// Before this, .env was written and never read: the OpenAI key, the JWT secret and
+// the CA bundle path all sat in the file while the process reported them missing.
+//
+// dotenv never overwrites a variable already present in the environment, so a real
+// deployment's injected config always wins. The require is guarded because env may
+// legitimately be supplied by the platform with no .env file or package present —
+// a missing loader must degrade to "use the real environment", never stop the boot.
+try {
+  require('dotenv').config()
+} catch (err) {
+  process.stderr.write('[startup] NOTE: dotenv unavailable — using the process environment as-is.\n')
+}
+
 const restify = require('restify')
 
 // ── Startup guards — fail fast on placeholder config in production ────────────
@@ -63,7 +82,10 @@ const restify = require('restify')
       console.error('[startup] FATAL: MYSQL_PASSWORD is still set to the placeholder value.')
       process.exit(1)
     } else {
-      console.error('[startup] WARNING: MYSQL_PASSWORD is placeholder — activity/progression routes will return empty data.')
+      // Says what actually happens now. The old wording ("routes will return empty
+      // data") predates the dev-file fallback and would have a developer read a
+      // working screen as a broken one.
+      console.error('[startup] WARNING: MYSQL_PASSWORD is placeholder — no MySQL. Stores fall back to their DEV-ONLY JSON files (data/dev-*.json); this is not production persistence.')
     }
   }
 })()
