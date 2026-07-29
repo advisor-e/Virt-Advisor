@@ -2,142 +2,83 @@
   "domain": "get-positioning",
   "label": "Get the Job — Positioning",
   "trigger_keywords": [
-    "positioning", "trusted authority", "congruence", "helicopter story", "CCO",
-    "capacity capability opportunity", "engagement types", "advice facilitation education",
-    "look both ways", "selling yourself", "trusted advisor", "authority",
-    "vendor of hours", "three engagement types", "trigger event", "knowledge gap",
-    "helicopter analogy", "control tower", "annual meeting", "somatic connection",
-    "vibe", "norepinephrine", "expand engagement", "up-sell naturally",
-    "advisor identity", "personal brand", "position myself", "how to position"
+    "positioning",
+    "trusted authority",
+    "congruence",
+    "helicopter story",
+    "CCO",
+    "capacity capability opportunity",
+    "engagement types",
+    "advice facilitation education",
+    "look both ways",
+    "selling yourself",
+    "trusted advisor",
+    "authority",
+    "vendor of hours",
+    "three engagement types",
+    "trigger event",
+    "knowledge gap",
+    "helicopter analogy",
+    "control tower",
+    "annual meeting",
+    "somatic connection",
+    "vibe",
+    "norepinephrine",
+    "expand engagement",
+    "up-sell naturally",
+    "advisor identity",
+    "personal brand",
+    "position myself",
+    "how to position"
   ],
   "overview": "The Get the Job — Positioning content teaches advisors how to move from being a transactional 'vendor of hours' to a trusted authority. It covers four core frameworks: how to categorise and structure client engagements (Three Engagement Types), how to assess growth constraints in any business (CCO), how to dismantle the once-a-year meeting mentality (Helicopter Story), and how to achieve total personal congruence in client interactions (Mastering Positioning). Intermediate-level content suited to senior advisors focused on fee growth.",
   "diagnostic_entry": {
     "primary_question": "What is the primary challenge you are working on — understanding how to structure an engagement, assessing a client's growth potential, convincing a client to meet more regularly, or building your own personal authority and trust in client relationships?"
   },
-  "support_tools": [
+  "materials": [
     {
-      "name": "Three Engagement Types",
-      "purpose": "A framework for categorising every client interaction as Advice, Facilitation, or Education — and defining the advisor's correct role, delivery position, and imperative for each type.",
-      "core_principle": "Engagements must be driven by what the client genuinely needs, not by what the advisor wants to sell. The 'Look Both Ways' approach — examining pre-event causes and post-event effects — naturally extends the engagement arena without the client ever feeling up-sold.",
-      "when_to_use": "Whenever the advisor needs to define the nature of the work before beginning. Particularly useful when a client presents a specific trigger event (e.g., a loan drawdown, a business purchase, a compliance issue) — the advisor categorises the work before proposing a scope.",
-      "key_benefits": [
-        "Prevents misaligned engagements — the advisor knows their position (hierarchical for advice, professionally detached for facilitation) before the meeting begins",
-        "The 'Look Both Ways' method surfaces pre-event work (feasibility) and post-event work (management meetings) that the client often hasn't considered",
-        "Removes the pressure to up-sell — additional work arises naturally from examining cause and effect",
-        "Gives the client clear expectations: they know whether they are receiving advice, being facilitated through a process, or being educated"
-      ],
-      "advisor_confidence_note": "Identify the driver first — consequence, trigger event, or knowledge gap — before selecting the engagement type. If the client is facing a loan drawdown, the pre-event work (feasibility) and post-event work (management meetings post-drawdown) are both legitimate engagement opportunities that you can raise without it feeling like a pitch.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Identify and Categorise",
-          "steps": [
-            { "name": "Identify the driver", "guidance": "Determine if the client is facing a clear consequence (requiring direct advice), a trigger event (requiring facilitation), or a knowledge gap (requiring education). This determines everything that follows." },
-            { "name": "Determine the engagement type", "guidance": "Categorise the work as Advice (hierarchical position, accuracy imperative), Facilitation (professionally detached, reveal imperative), or Education (sequential comprehension, chunking imperative)." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Look Both Ways and Deliver",
-          "steps": [
-            { "name": "Look both ways", "guidance": "Examine the cause/pre-event (e.g., feasibility of a loan) and the effect/post-event (e.g., management meetings after drawdown). Both may represent legitimate paid work the client hasn't yet considered." },
-            { "name": "Deliver on the imperative", "guidance": "For Advice: prioritise accuracy. For Facilitation: build to the reveal moment. For Education: chunk the content into sequential, digestible steps — never overwhelm." }
-          ]
-        }
+      "name": "The Three Engagement Types",
+      "summary": "Clarifies what kind of relationship a piece of work actually is — Advice, Facilitation or Education — so engagements are driven by doing the job properly rather than by up-selling. Each type gives the client something distinct: acceptance of advice where the consequence is clear, handling of a trigger event, or sequential comprehension that closes a knowledge gap. It also sets the advisor's own position, hierarchical for advice, professionally detached for facilitation.",
+      "who_when": "Clients experiencing a specific trigger event such as a loan drawdown, clients with a knowledge gap, and situations that call for direct advice.",
+      "steps": [
+        "Identify the driver — is the client facing a clear consequence, a trigger event, or a knowledge gap?",
+        "Determine the engagement type from that driver: Advice, Facilitation, or Education.",
+        "Look Both Ways — examine the cause before the event (the feasibility of the loan) and the effect after it (the management meetings once it is drawn down).",
+        "Deliver on the imperative for the type chosen: accuracy for advice, the reveal for facilitation, chunking for education."
       ]
     },
     {
       "name": "Capacity, Capability, Opportunity (CCO)",
-      "purpose": "A structured diagnostic framework for evaluating how a business can realistically grow — separating physical constraints (Capacity), skill and financial limitations (Capability), and market realities (Opportunity).",
-      "core_principle": "Growth conversations become unfocused when all three dimensions are conflated. CCO separates them deliberately — a business may have the opportunity and capability to grow but lack the physical capacity, or have capacity and opportunity but not the financial resources to fund the next step.",
-      "when_to_use": "When advising a business aiming to scale, increase transaction volumes, or move into new premium markets. Can be used internally as a diagnostic before the client meeting, or presented externally as the meeting agenda itself.",
-      "key_benefits": [
-        "Provides a structured, three-part diagnostic that the advisor can use internally to find areas to add value — without solving everything on the spot",
-        "Acts as a perfect entry point to introduce additional services naturally, without it feeling like up-selling",
-        "Clearly separates physical bottlenecks (capacity) from skill/financial gaps (capability) from market demand issues (opportunity)",
-        "Can be used as a formal agenda structure: each dimension becomes an agenda item with its own discussion"
-      ],
-      "advisor_confidence_note": "CCO does not need to be formally presented every time. Use it internally first to identify where the value gaps are, then raise the most relevant dimension with the client. The goal is to find the one constraint that, if removed, would have the greatest impact — not to solve all three at once.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Assess the Three Dimensions",
-          "steps": [
-            { "name": "Assess Capacity", "guidance": "Evaluate whether the business can physically produce more or handle higher transactional volume — check downtime, machinery limits, team availability, and whether bottlenecks exist." },
-            { "name": "Assess Capability", "guidance": "Evaluate whether the business has the skills, personnel depth, and financial resources to support the growth. Look at staff expertise, management depth, and funding access." },
-            { "name": "Assess Opportunity", "guidance": "Look for proof of strong market demand from existing or new clients before proceeding. If demand is not there, growing capacity or capability will not solve the problem." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Frame and Apply",
-          "steps": [
-            { "name": "Frame the discussion", "guidance": "Introduce CCO formally as the agenda structure for the meeting, or use it silently as your internal diagnostic — then surface only the most critical finding with the client." }
-          ]
-        }
+      "summary": "A structured lens for judging whether a business can realistically grow. It separates the physical bottlenecks (capacity) from the skill and funding limits (capability), and forces a check against market reality (opportunity). It works as an internal diagnostic or as a formal agenda, and is a natural entry point for teasing out service offerings without solving everything on the spot.",
+      "who_when": "Businesses aiming to scale, to increase transaction volumes, or to move into new premium markets.",
+      "steps": [
+        "Frame the discussion — either introduce the framework formally as an agenda item, or use it internally to assess where the client stands.",
+        "Assess capacity — can they physically produce more or handle higher transactional volume? Check downtime, machinery limits, and whether the team is already a bottleneck.",
+        "Assess capability — do they have the skills, the depth of personnel, and the financial resources or funding to support growth?",
+        "Assess opportunity — look for proof of real market demand from existing or new clients before going any further."
       ]
     },
     {
-      "name": "Helicopter Story",
-      "purpose": "A visual whiteboard analogy that challenges the flawed logic of once-a-year accounting meetings by showing the client how dangerous it is to navigate a volatile business environment without a regular 'flight plan' review.",
-      "core_principle": "The advisor is the Air Control Tower. A pilot who only calls the tower once a year is flying blind. Once the client accepts this analogy, asking for regular strategic meetings becomes the logical conclusion — not a sales pitch.",
-      "when_to_use": "When a client resists regular advisory check-ins or views accounting as an annual compliance exercise. Use in a first or second meeting to reframe the relationship before proposing a recurring advisory schedule.",
-      "key_benefits": [
-        "Dismantles the 'once a year' mentality using a visual analogy — no data or spreadsheets required",
-        "Positions the advisor as an essential Air Control Tower rather than a reactive compliance service",
-        "The 'blindfold' metaphor makes the risk of poor internal reporting immediately tangible to the client",
-        "The 'three-ton load' (representing internal fraud or high-impact events) creates urgency without scaremongering"
-      ],
-      "advisor_confidence_note": "Draw the story as you tell it — this is a whiteboard or paper exercise, not a slide deck. Start with the wavy ground (seasonal volatility) and mountain (high-impact events). Build to the blindfolded pilot. Ask: 'What use is the Air Control Tower if the pilot only calls once a year?' Then hand the question back: 'How often do you feel you should meet to review your strategic flight plan?'",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Draw the Story",
-          "steps": [
-            { "name": "Draw the scene", "guidance": "Illustrate wavy ground (high frequency, low impact seasonal volatility) and a mountain (high impact events like market crashes or fraud)." },
-            { "name": "Introduce the helicopter", "guidance": "The helicopter is the business. The pilot is the business owner. The dashboard is their internal reporting." },
-            { "name": "Apply the blindfold", "guidance": "Show how inaccurate or untimely financial data puts a blindfold on the pilot — they are flying the business without being able to see the terrain." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Position the Tower and Secure the Meeting",
-          "steps": [
-            { "name": "Draw the control tower", "guidance": "Draw the control tower (the advisor) and ask: 'What use is the control tower if the pilot only calls once a year?'" },
-            { "name": "Secure the meeting commitment", "guidance": "Hand the question back to the client: 'How often do you feel you should meet to discuss your strategic flight plan?' Let them arrive at the answer." }
-          ]
-        }
+      "name": "The Helicopter Story",
+      "summary": "A visual analogy that dismantles the logic of the once-a-year accounting meeting. The business is a helicopter, the owner is the pilot, the internal reporting is the dashboard, and the economy is wavy ground with the occasional mountain. Inaccurate or late data blindfolds the pilot — and it positions the advisor as the air control tower, which makes asking for regular meetings a natural conclusion rather than a pitch.",
+      "who_when": "Clients who treat accounting as an annual compliance exercise and resist regular advisory check-ins.",
+      "steps": [
+        "Draw the scene — wavy ground for high-frequency, low-impact seasonal volatility, and a mountain for the high-impact events.",
+        "Introduce the helicopter — the business is the aircraft, the owner is the pilot, and their internal reporting is the dashboard.",
+        "Apply the blindfold — show what inaccurate or untimely data does to a pilot flying that terrain, including the risk of a 3-ton load nobody spotted.",
+        "Position the control tower — draw it, place the advisor in it, and ask what use a control tower is if the pilot only calls once a year.",
+        "Secure the meeting — ask the client how often they think they should be reviewing their strategic flight plan."
       ]
     },
     {
       "name": "Mastering Positioning",
-      "purpose": "A behavioural guide for shifting from selling a service (what you do) to selling yourself (who you are) — achieving total congruence between technical advice, body language, tone of voice, and fundamental values to build biological trust.",
-      "core_principle": "Trust is biological. If your tone or body language triggers a client's chemical survival response (norepinephrine), the logic of your advice will not matter. Positioning is about occupying a space of trust and authority before any spreadsheet is opened.",
-      "when_to_use": "In all prospect and client interactions — particularly initial meetings where trust and authority are still being established. This is not a technique to deploy situationally; it is a permanent shift in how the advisor shows up.",
-      "key_benefits": [
-        "Removes friction from the advisory process — when the client is relaxed and trusting, influence is far easier",
-        "Shifts the competitive battleground from service comparison (commoditised) to personal identity (unique)",
-        "Total congruence — matching technical advice with body language, tone, and values — prevents the biological trust breakdown that derails good advice",
-        "Establishes the 'somatic connection': the unspoken feeling of alignment that opens the door to collaborative influence"
-      ],
-      "advisor_confidence_note": "A sales pitch focuses on what you do. Positioning is about who you are. Before any meeting, set your strategic intent: 'I am here to occupy a space of trust and authority.' Monitor the vibe in the room — a poor vibe signals the client's survival response has been triggered. Slow down, align your tone and body language, and let the somatic connection re-establish before proceeding.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Set Intent and Align Delivery",
-          "steps": [
-            { "name": "Focus on the client's mind", "guidance": "Before opening a spreadsheet, set your strategic intent to occupy a space of trust and authority. This is the foundation from which all other positioning flows." },
-            { "name": "Align your delivery (congruence)", "guidance": "Ensure your technical advice perfectly matches your body language, tone of voice, and fundamental values. Incongruence between these triggers scepticism regardless of how good the advice is." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Monitor and Establish the Connection",
-          "steps": [
-            { "name": "Monitor the vibe", "guidance": "Be aware that a poor vibe can trigger the client's chemical survival response (norepinephrine), making them defensive and risk-averse. If the room feels off, do not push harder — slow down and re-align." },
-            { "name": "Establish the somatic connection", "guidance": "Aim for the unspoken feeling of alignment — the point where the client relaxes and true collaborative influence becomes possible. This is the moment positioning has worked." }
-          ]
-        }
+      "summary": "How to stop being a vendor of hours and become a trusted authority. The shift is from selling a service to selling yourself: occupying a space of trust in the client's mind before any spreadsheet is opened, and holding total congruence between the advice, the tone and the body language. Trust here is biological — a poor vibe triggers a survival response and the logic of the advice stops mattering.",
+      "who_when": "Every prospect and client interaction, and especially first meetings where trust and authority are still being established.",
+      "steps": [
+        "Focus on the client's mind first — set the intent to occupy a space of trust and authority before opening a spreadsheet.",
+        "Align the delivery — make the technical advice, the body language, the tone of voice and the underlying values all say the same thing.",
+        "Monitor the vibe — a poor one triggers the client's chemical survival response and turns them sceptical and defensive.",
+        "Establish the somatic connection — the unspoken sense of alignment that lets the client relax, which is the point at which real collaborative influence starts."
       ]
     }
   ],
