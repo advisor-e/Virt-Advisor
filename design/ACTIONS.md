@@ -183,16 +183,33 @@
     per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
     `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
     the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
-  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 17 of 29 domains migrated.**
+  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 20 of 29 domains migrated.**
     Done: eoy (`dfa8572`) · systems · risk · staff · succession · valuation (`bfc4b37`) ·
     stock-purchasing (`2a63982`) · conflict · due-diligence · governance (`ce4bf2d`) ·
     get-positioning · get-pricing-proposals · raising-capital (`6b24276`) · get-team-problem ·
-    org-leadership · org-capacity-planner (`abc0826`) · org-firm-strategy.
+    org-leadership · org-capacity-planner (`abc0826`) · org-firm-strategy ·
+    **data-systems · fm-coach-culture · forecasting (2026-07-29, this branch)**.
     Mike's instruction 2026-07-29: migrate them ALL, then he reviews and edits in the app
     rather than approving each draft in chat — and do not stop until they are done.
-    **Resume order — 12 left:** data-systems, fm-coach-culture, forecasting, get-marketing,
-    get-sales, get-sales-tracker, get-seminar, org-board-pack, people-power, profit,
-    sales-marketing, strategy.
+    **Resume order — 9 left:** get-marketing, get-sales, get-sales-tracker, get-seminar,
+    org-board-pack, people-power, profit, sales-marketing, strategy.
+    - **Findings from the 2026-07-29 batch, recorded because two change the method's assumptions:**
+      (1) **`Dashboard Support.pdf` is NOT one of the seven "not really a support doc" problem
+      cases** — it carries its own *Summary of the Theory* and a five-step method at the end, so it
+      migrated like any other doc. One fewer undecided item than §0.5 assumed.
+      (2) **The unlabelled grid in `3 pill Fin Mgt` (the one §0.5 flagged for manual eyes) is NOT a
+      logic table** — it is the seven-stage *Client Progression* map pairing each client mindset with
+      the template that suits it. Kept as a material row; the Logic Tables tab does not want it.
+      (3) **`fm-coach-culture` is the worst divergence found so far.** The source PDF names **16**
+      materials; the existing JSON had **6**, under entirely different names. Four of those six have
+      **no source PDF at all** (fee estimate/job creep, COI engagement, applicant screening, group
+      coaching) and read as generic industry content rather than firm IP — but they are live engine
+      content today, so they were **carried across, not deleted**, and are visible as ordinary rows
+      for Mike to remove in-app. The legacy PIP structure was folded into the PDF's *Advisory PIP
+      Template* row rather than left as a duplicate. **→ Owner decision outstanding:** keep or delete
+      those four rows.
+    - **Honest variance:** summaries in `fm-coach-culture` and `forecasting` run to ~550 chars against
+      the 333–463 the earlier files hold. Still three sentences, but at the long end; trimmable in-app.
     - **The 12 left are the heavy ones.** Several draw on multiple source PDFs rather than one:
       forecasting (3 docs, ~1.2 MB), strategy (4 docs), data-systems (3 incl. the 1.6 MB
       Dashboard), profit (4), sales-marketing (2, one of which is the Powerful Seminars deck —

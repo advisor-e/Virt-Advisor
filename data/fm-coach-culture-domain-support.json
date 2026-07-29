@@ -2,7 +2,7 @@
   "domain": "fm-coach-culture",
   "label": "firm management coaching and culture",
   "trigger_keywords": ["firm manager", "firm culture", "visible learning", "coaching plan", "advisory coaching", "performance improvement", "PIP", "fee estimate", "job creep", "scope creep", "applicant screening", "team feedback", "COI prospect", "paper tower", "group coaching", "team building"],
-  "overview": "Firm management coaching addresses the operational and cultural mechanics of running a high-performing advisory practice — from managing underperforming advisors through a structured improvement process, to preventing fee erosion through disciplined scope management, to building a referral network through systematic COI engagement. The advisor leading this work operates simultaneously as a coach, a process designer, and a cultural architect. The diagnostic must distinguish between individual performance issues (which require a PIP or conduct pathway), structural problems (which require process redesign), and cultural drift (which requires leadership intervention at the firm level).",
+  "overview": "Firm management coaching addresses the operational and cultural mechanics of running a high-performing advisory practice — from managing underperforming advisors through a structured improvement process, to preventing fee erosion through disciplined scope management, to building the firm's own learning culture. The advisor leading this work operates simultaneously as a coach, a process designer, and a cultural architect. The diagnostic must distinguish between individual performance issues (which require a PIP or conduct pathway), structural problems (which require process redesign), and cultural drift (which requires leadership intervention at the firm level). The material is for firm and practice owners at a medium complexity level, and runs from the flipped training loop and the Golden Hour / Platinum Hour rhythm, through recruitment and leadership self-assessment, to the team-building exercises and the performance improvement plan.",
 
   "diagnostic_entry": {
     "primary_question": "Is the firm management challenge primarily an individual performance issue requiring a structured improvement plan, a fee and scope management problem driven by job creep, a referral network gap requiring COI development, or a recruitment and team composition problem?",
@@ -12,201 +12,252 @@
     "recruitment_and_team_composition": "When underperformance is structural rather than individual — when the role is wrong, the team composition is misaligned, or the business is growing beyond its current talent — recruitment and role design are required. Competency-based screening prevents the common mistake of hiring for technical skill while ignoring cultural fit and client-facing capability."
   },
 
-  "support_tools": [
-
+  "materials": [
     {
-      "name": "Advisor Performance Improvement Plan (PIP)",
-      "purpose": "Provides a structured, documentable, and legally defensible framework for managing underperforming advisors — ensuring the improvement process is fair to the individual, clear in its expectations, and protective of the firm.",
-      "core_principle": "A PIP is a coaching instrument, not a termination pathway. Its purpose is to create the conditions for the advisor to succeed, with documented evidence of the support provided. If the advisor does not improve, the documentation provides the legal foundation for the next step.",
-      "when_to_use": "Use when an advisor is consistently missing agreed performance metrics and informal coaching has not produced improvement. Do not use a PIP as a surprise — the performance concerns must have been raised in prior conversations.",
-
-      "pip_structure": {
-        "components": [
-          {
-            "component": "Performance Concerns",
-            "description": "A specific, measurable description of the performance gap. Reference actual data — client satisfaction scores, billing targets, activity metrics, compliance breaches. Do not use generalisations such as 'attitude' or 'effort' without supporting evidence."
-          },
-          {
-            "component": "Performance Standards Required",
-            "description": "The specific standards the advisor must meet during and after the PIP period. These must be achievable and consistent with what is expected of peers in equivalent roles."
-          },
-          {
-            "component": "Coaching and Support Provided",
-            "description": "The firm's commitment during the PIP period — coaching sessions scheduled, training provided, process changes made to remove structural barriers to performance. This section protects the firm by demonstrating genuine support."
-          },
-          {
-            "component": "Review Timeline",
-            "description": "A defined review period (typically 30, 60, or 90 days) with scheduled check-in points. Each check-in must be documented with the advisor's progress against each metric."
-          },
-          {
-            "component": "Outcome Criteria",
-            "description": "Explicitly state: (1) what constitutes successful completion of the PIP and what happens next, and (2) what constitutes failure to meet the PIP standards and what the consequences are. Vague outcome criteria create legal exposure."
-          }
-        ]
-      },
-
-      "visible_learning": {
-        "principle": "Visible Learning (inspired by John Hattie's meta-analysis of 800+ studies on educational achievement) translates directly to advisory practice coaching: advisors must see their own performance data clearly and understand the gap between current and required performance before any coaching intervention can be effective.",
-        "paper_tower_exercise": "A team-building and coaching diagnostic where teams compete to build the tallest freestanding paper tower using limited materials. The exercise reveals problem-solving approach, team dynamics, communication under pressure, and leadership emergence — all observable by the coach without the distortion of self-reporting."
-      }
+      "name": "Flipping the Training Process",
+      "summary": "Shifts the firm off generic learning paths and onto a technology-enabled closed feedback loop, so training is driven strictly by real client needs rather than by what the firm decided it wanted to teach. It guarantees the firm's time and resources go to solving the exact problems its clients are actually facing. For the advisor it removes ambiguity, because it states plainly who on the team needs to learn what, and by when.",
+      "who_when": "Practice partners, training managers, and HR leaders responsible for mapping out the internal training curriculum and tracking progress.",
+      "steps": [
+        "Identify the problem — start by asking what common problems we see our clients dealing with.",
+        "Work backwards to the Common Success Actions: the specific actions that will move the needle for a client in that situation.",
+        "Align internal operations — align the divisions and develop or edit templates so they support client education and the problem-solving logic.",
+        "Assign the tasks by asking who needs to learn what, and over what timeframe, then import those tasks into a timeline or reminder platform.",
+        "Monitor and refine — track completed tasks and filter the reports for Common Failures, using that data to keep improving the feedback loop."
+      ]
     },
-
     {
-      "name": "Fee Estimate and Job Creep Management",
-      "purpose": "Provides the process and behavioural framework for preventing scope creep from eroding advisory firm margins — standardising how new work is scoped, estimated, and billed, and coaching advisors to have fee conversations confidently.",
-      "core_principle": "Job creep is almost always a symptom of conflict avoidance, not generosity. Advisors who absorb extra work without billing it do so because raising a fee conversation feels uncomfortable. The firm must remove the discomfort by making fee conversations a structured process, not a personal initiative.",
-      "when_to_use": "Use when margin analysis shows advisory hours being written off against client engagements, when advisors are completing work outside the defined scope without a change order, or when fee realisation rates are declining.",
-
-      "fee_estimate_letter_standard": {
-        "required_elements": [
-          "Scope of work — precisely what is included in the engagement",
-          "Exclusions — explicitly what is not included, to prevent assumption creep",
-          "Estimated fee or fee range with the basis for the estimate (time-based, fixed, or value-based)",
-          "Trigger for re-estimate — the specific conditions under which a new fee estimate will be issued before additional work proceeds",
-          "Client sign-off — a documented acceptance of the scope and fee, not just an email acknowledgement"
-        ]
-      },
-
-      "change_order_protocol": {
-        "trigger": "Any work request that falls outside the documented scope in the fee estimate letter must trigger a change order before the work begins.",
-        "steps": [
-          "Identify the out-of-scope request",
-          "Estimate the additional time and cost",
-          "Issue a written change order with the additional scope and fee",
-          "Obtain client approval before commencing — verbal approval is not sufficient",
-          "Document the approved change order in the client file"
-        ],
-        "coaching_note": "Most advisors avoid the change order conversation because they fear the client's reaction. Reframe the conversation: the change order is a professional service to the client — it prevents surprises on the final invoice. Clients who respect professional advice generally respect transparent fee management."
-      }
+      "name": "Advisor Case Study Prep",
+      "summary": "A structured checklist and workflow for preparing and running internal client review sessions. For the client it means their issues are analysed against a consistent framework — Planning & Data, Sales & Marketing, People & Process — and that new ideas are tested in a revenue model before anything changes in the real business. For the advisor it is a definitive roadmap: what to do before the meeting in the Golden Hour, and how to capture peers' ideas and objections in the Platinum Hour.",
+      "who_when": "Advisors actively preparing for a client review, or those ready to present a client case study to their internal team for feedback.",
+      "steps": [
+        "Load and select — create the business entity in Advisor-e and select the most industry-appropriate revenue model.",
+        "Structure the plan — open the Client Service Plan and add the regular content: dashboard reports, revenue models, agenda notes.",
+        "Analyse the issues against the Get Organised, Get the Job, Do the Job framework to see which domain needs the most help.",
+        "Review the content — select a supporting template, watch the tutorial video, note any changes you want, and log the time in your CPD log.",
+        "Run the session — introduce the client financials and the trends you have observed, explain your service offer, open the floor to peers for ideas, and capture those ideas in the client service plan while still in the session."
+      ]
     },
-
     {
-      "name": "Centre of Influence (COI) Engagement Framework",
-      "purpose": "Converts ad hoc COI relationship management into a systematic pipeline development process — identifying the right COI prospects, building structured engagement activities, and converting relationships into consistent referral sources.",
-      "core_principle": "A COI is a professional whose clients overlap with the advisory firm's target client profile. The most valuable COIs are those who already refer clients to other professionals — they understand referral reciprocity and are predisposed to a systematic engagement relationship.",
-      "when_to_use": "Use when the advisory firm's referral pipeline is inconsistent, when the firm is dependent on a small number of referral sources, or when the firm is entering a new market segment and needs to build a referral network from scratch.",
-
-      "coi_identification": {
-        "primary_coi_categories": [
-          "Accountants and tax advisors — clients who are also receiving accounting services have financial complexity that often requires advisory input",
-          "Solicitors and estate planning lawyers — estate, trust, and succession clients frequently need coordinated financial advice",
-          "Mortgage brokers — clients purchasing or refinancing property are often simultaneously making investment and insurance decisions",
-          "Business bankers — clients with business lending facilities are natural advisory prospects"
-        ],
-        "qualification_criteria": [
-          "Serves clients in the advisory firm's target demographic or industry",
-          "Has a track record of referring clients to other professionals (ask directly)",
-          "Is credentialled and reputable — the referral relationship reflects on the advisory firm",
-          "Is not already engaged in an exclusive referral arrangement with a competitor"
-        ]
-      },
-
-      "coi_engagement_cadence": {
-        "initial_meeting": "Conduct a peer introduction meeting — not a sales meeting. The objective is to understand the COI's client base, their referral behaviour, and their professional interests. Share the advisory firm's client profile and specialisations. Do not ask for referrals in the first meeting.",
-        "ongoing_engagement": [
-          "Quarterly value-add touchpoint — a brief, relevant article, market update, or client scenario that demonstrates expertise",
-          "Annual joint event or seminar — positions both parties as thought leaders to each other's client bases",
-          "Referral reciprocity — track inbound referrals from each COI and proactively identify and refer clients with unmet needs back to them",
-          "Annual relationship review — a formal conversation about the referral relationship, what is working, and how it can be developed"
-        ]
-      }
+      "name": "Team Training O.S",
+      "summary": "Field Outcome Statements that define the responsibilities, boundaries and expected coaching for each advisory tier. For the firm it means a client is matched with an advisor working at the right level of expertise — software training at one end, facilitating complex conflict-based business solutions at the other. For the team member it sets career expectations explicitly: an Associate Advisor manages accounts proactively but is not expected to hunt prospects, while a Strategic Advisor knows what to master to become a future partnership option.",
+      "who_when": "Management tracking the Professional's Journey, and team members who need to understand their own role boundaries and their upward progression path.",
+      "steps": [
+        "Assess capability — identify the team member's baseline skills, such as intimate knowledge of the software and tools.",
+        "Assign the role and its boundaries — map them to the matching tier, for example Advisory Support, and enforce the boundaries that come with it, such as not being required to conduct meetings in isolation.",
+        "Target the coaching to that role through the Advisor-e Support framework: software orientation for Support roles, advanced facilitation and consultative sales for Strategic roles.",
+        "Advance responsibilities as skills increase — moving a Support member to Support +, where they run educational client meetings as a testing ground for the Associate role."
+      ]
     },
-
+    {
+      "name": "Building Learning Culture",
+      "summary": "Establishes the rules of engagement for a transparent environment of constant improvement — a safe, non-judgmental team culture. For the client it guarantees the advice they receive is not one person's opinion but the product of a whole advisory team validating its field intelligence through structured group feedback. For the advisor it is a social contract that makes it safe to be imperfect, with scripts for sharing a vulnerability and receiving peer feedback without taking offence.",
+      "who_when": "The entire organisation — a visible learning culture requires that everybody participates, no exceptions.",
+      "steps": [
+        "Independent prep — the team member starts in their Golden Hour, working alone, which forces active participation in their own learning and development.",
+        "Group transition — the member moves into the Platinum Hour, the session dedicated to team feedback and group problem solving.",
+        "Present the case using the structured Platinum Case Study Format: the client's financials, the trends observed, and the service offer.",
+        "Validate via feedback — the rest of the team uses the VISIBLE Learning Culture Feedback Model to state explicitly what stands out, what they want to clarify or challenge, and to validate the presenter.",
+        "Review the real-world output — after the client meeting, the member returns to the next Platinum Hour to run a review: what went well, what went less well, and the future actions."
+      ]
+    },
+    {
+      "name": "Coaching Progress Plan",
+      "summary": "A spreadsheet tracking a 60-session coaching curriculum, including pricing models, hours and specific skills training. It makes the return on coaching measurable by mapping topics, planned attendees and delivery hours against specific field outcomes. For the advisor it is a predictable pathway that moves them from technical software usage through to advanced soft skills such as sales framing and COI development.",
+      "who_when": "Practice managers and advisors managing long-term professional development.",
+      "steps": [
+        "Review the pricing model and the total coaching hours allocated for the period.",
+        "Identify the next chronological session — for example Framing 1A — and note its specific skill outcome.",
+        "Complete the minimum required preparation, such as watching the assigned tutorial videos.",
+        "Conduct the coaching session with the designated team members.",
+        "Measure success against the stated field objective before moving on to the next module."
+      ]
+    },
+    {
+      "name": "FM Hiring Winners",
+      "summary": "A strategic deck covering recruitment theory, leadership alignment, candidate screening and orientation. It exists to prevent the extreme financial cost of a bad hire, by first defining the firm's leadership style, then flushing out the right talent and testing applicants rigorously rather than hiring on impression. For the new hire it provides a structured buddy system during orientation that validates their career choice and gives them safe, immediate tasks.",
+      "who_when": "Leadership teams and HR managers actively preparing to recruit and onboard new staff.",
+      "steps": [
+        "Define your own leadership style — for example Creative Abrasion versus Creative Resolution.",
+        "Assess the role requirements against the organisational structure to establish whether a full-time hire is genuinely needed.",
+        "Flush out talent by placing creative job ads in non-traditional locations.",
+        "Grade applicants through the three-stage process: Feel (Meeting 1), Know (Meeting 2) and Test (Meeting 3).",
+        "Implement the structured AM/PM orientation table across the new hire's first two days."
+      ]
+    },
+    {
+      "name": "FM Leadership 1",
+      "summary": "A questionnaire testing the alignment between a leader's personality and what the business's culture actually needs. It ensures the leadership style being deployed suits the firm's industry — the strict compliance an accounting firm depends on is not what a creative design agency needs. For the leader it draws out the pros and cons of a Creativity culture against a Discipline culture, which stops them mimicking a leadership style that does not fit them.",
+      "who_when": "Senior leadership teams defining the strategic operational culture of the firm.",
+      "steps": [
+        "List the pros and cons of a Creativity culture versus a Discipline culture for your firm.",
+        "Identify what behaviour your current leadership style is attempting to reflect in others.",
+        "Document any specific individuals you have modelled your leadership style upon.",
+        "Analyse whether your desired culture, your industry's needs and your personal traits are authentically aligned."
+      ]
+    },
+    {
+      "name": "FM Leadership 2",
+      "summary": "A self-reflection questionnaire that challenges a leader on their inclusivity and on how they handle disagreement. It exists so leadership blind spots do not quietly create an environment that stifles diversity or silences junior staff. For the leader it forces the uncomfortable question of whether they value being right more than they value the team finding the best solution.",
+      "who_when": "Existing partners, practice managers, and emerging leaders.",
+      "steps": [
+        "Rate your firm's business culture on a scale of 1 to 10.",
+        "Reflect on how actively you seek diversity when recruiting.",
+        "Assess how inclusive your meetings really are — do you call on the quiet ones at the back?",
+        "Evaluate whether you demonstrate healthy respect for every team member regardless of position.",
+        "Document honestly how you cope when a team member disagrees with your opinion."
+      ]
+    },
+    {
+      "name": "FM Team 'CANOE' Review",
+      "summary": "A 360-degree review spreadsheet measuring five observable personality traits: Conscientiousness, Agreeableness, Neuroticism, Openness and Extraversion. Collating the team's averages highlights trait gaps, so future job advertisements seek complementary skills instead of cloning the personalities already in the room. For the individual it builds emotional intelligence by setting how I see myself directly against how others see me.",
+      "who_when": "Whole teams undergoing a synergy audit, and managers preparing a hiring plan.",
+      "steps": [
+        "Allocate up to five colleagues to observe each team member privately.",
+        "Have each individual complete the self-assessment against the provided trait indicators.",
+        "Have the designated peers complete their observation assessments.",
+        "Collate the data into the Team Summary spreadsheet.",
+        "Analyse the combined averages to identify where the team lacks diversity."
+      ]
+    },
+    {
+      "name": "Job Ad — Associate Advisor",
+      "summary": "A pre-written job advertisement for recruiting an Associate Advisor. It saves drafting time and states the firm's expectations plainly, including the starting fee base target of $135,000 and the training hours allotted. For the applicant it defines the partnership pathway, the exact size of the portfolio they would manage, and the structural support available to them.",
+      "who_when": "Hiring managers actively seeking to recruit ambitious mid-level accountants.",
+      "steps": [
+        "Customise the firm name and the regional district details.",
+        "Adjust the starting fee base and client numbers to match your internal capacity.",
+        "Publish the ad in targeted recruitment areas.",
+        "Request that applicants submit a short video, to demonstrate their communication skills.",
+        "Grade applicants against the stated partnership pathway criteria."
+      ]
+    },
+    {
+      "name": "Paper Tower Model",
+      "summary": "A spreadsheet calculator that measures the profit or loss of a team construction exercise. It translates soft skills — team communication and planning — into hard financial metrics, which is what makes inefficiency visible to a business owner rather than abstract. For the participant it demonstrates first-hand how rushing into action without a plan produces material waste and a financial loss.",
+      "who_when": "Workshop facilitators running team-building and conflict resolution exercises.",
+      "steps": [
+        "Wait for the team to complete the physical tower build.",
+        "Input the exact number of minutes taken into the spreadsheet.",
+        "Input the number of paper batches drawn, at $2,000 cost per batch of 20.",
+        "Measure the final height of the tower in millimetres and input it.",
+        "Review the auto-calculated final profit or loss figure and announce it to the group."
+      ]
+    },
+    {
+      "name": "Paper Tower Review Questions",
+      "summary": "The facilitator's debrief script that breaks down the psychology and dynamics observed during the Paper Tower exercise. It turns a simple game into a business lesson by introducing the nine-step team process for managing future corporate projects. For the participant it exposes whether they default to chaotic outcome-oriented behaviour or to structured, process-driven logic.",
+      "who_when": "Facilitators guiding the post-exercise reflection session.",
+      "steps": [
+        "Ask the group whether their objective was accurately defined, and whether a financial calculation was done before they started building.",
+        "Read back exact, timestamped observations of what team members said during the exercise.",
+        "Ask the group directly whether they were outcome-oriented or process-driven.",
+        "Reveal the nine-step team process — appoint a chairperson, determine a SMART objective, brainstorm without assessment, and so on.",
+        "Facilitate a discussion on how that nine-step process applies to their real work tasks."
+      ]
+    },
+    {
+      "name": "Paper Tower Task Sheet",
+      "summary": "The formal rule sheet handed to participants, setting out the constraints of the tower exercise. For the facilitator it sets indisputable boundaries, which is what creates the artificial pressure needed to test team dynamics safely. For the participant it forces the team to manage a strict 30-minute deadline against the high cost of materials.",
+      "who_when": "Teams directly participating in the Paper Tower workshop.",
+      "steps": [
+        "Read the objective: build a tower profitably, based on materials, height and time.",
+        "Receive the initial 100 sheets of paper.",
+        "Use the strict 20-minute planning phase — no prefabrication allowed.",
+        "Execute the build within the strict 10-minute construction phase.",
+        "Ensure the completed tower stands self-supported for at least one minute."
+      ]
+    },
+    {
+      "name": "Spaghetti Tower Task Sheet",
+      "summary": "An alternative team construction exercise focused strictly on structural stability and height rather than on financial profitability. For the facilitator it tests the team's ability to prototype and communicate under pressure using deliberately fragile materials. For the participant it challenges physical execution, creativity and collaborative problem solving.",
+      "who_when": "Teams needing an engaging icebreaker or a physical communication test.",
+      "steps": [
+        "Review the rules: build the tallest tower possible within 30 minutes.",
+        "Collect the exact resources — 20 sticks of spaghetti, tape, one metre of string, and two marshmallows.",
+        "Use the 20-minute preparation phase without prefabricating materials.",
+        "Construct the tower in the final 10 minutes, placing one complete marshmallow at the very top.",
+        "Ensure the structure stands self-supported for one minute before it is measured."
+      ]
+    },
+    {
+      "name": "Team Workshop Run Sheet",
+      "summary": "A minute-by-minute logistical schedule dictating the flow of a two-day team workshop. It protects the return on taking staff offline by keeping the event on time and stopping momentum leaking away between sessions. For the facilitator it removes the stress of event management by fixing the timings for content blocks, breaks and daily reviews in advance.",
+      "who_when": "Event facilitators and managers organising internal firm retreats or training days.",
+      "steps": [
+        "Review the overarching schedule for Day 1 and Day 2.",
+        "Prepare content specifically to fit the designated 90-minute session blocks.",
+        "Adhere strictly to the designated start and finish times for morning tea and lunch breaks.",
+        "Execute the required 10-minute management reviews within the schedule.",
+        "Conclude each day strictly with the allocated 30-minute Day Review session."
+      ]
+    },
+    {
+      "name": "Advisory PIP Template",
+      "summary": "Formalises a Performance Improvement Plan tailored to advisory roles and software adoption. It protects the firm against fee loss and against a toxic culture, by documenting underperformance precisely and stopping vocal resistance from undermining the visible learning culture. For the advisor it removes all ambiguity: exactly what the performance gap is, which behaviours to start and stop, and what mentorship is available. A PIP is a coaching instrument, not a termination pathway.",
+      "who_when": "Team members failing to meet the minimum pre- and post-meeting portal expectations, or resisting advisory engagement. Never use a PIP as a surprise — the concerns must already have been raised in earlier conversations.",
+      "steps": [
+        "Document the exact data metric of failure — for example 30 assigned clients but only 14 portal entities created. Reference actual data such as client satisfaction scores, billing targets, activity metrics or compliance breaches; never generalisations like 'attitude' or 'effort' without evidence.",
+        "Clarify the firm's minimum expectations for loading financials and tagging post-meeting actions. The standards must be achievable and consistent with what is expected of peers in equivalent roles.",
+        "Define the specific actions the employee must implement and the behaviours they must cease immediately.",
+        "State the firm's own commitment for the period — coaching sessions scheduled, training provided, and any process changes that remove structural barriers to performance. This section is what demonstrates genuine support rather than a paper trail.",
+        "Assign a specific partner or mentor for role-play and software support.",
+        "Schedule strict review milestones — for example at 30, 60 and 90 days — and document the advisor's progress against each metric at every check-in.",
+        "State the outcome criteria explicitly: what counts as successful completion and what happens next, and what counts as failure to meet the standard and what the consequences are. Vague outcome criteria create legal exposure.",
+        "Ground the whole plan in Visible Learning — the advisor must be able to see their own performance data clearly, and understand the gap between current and required performance, before any coaching intervention can work."
+      ]
+    },
+    {
+      "name": "Group Coaching Programme",
+      "summary": "The structure for running advisory group coaching: a consistent cohort of four to eight advisors meeting monthly for ninety minutes. Consistency of membership is the whole point — groups that churn never develop the trust that vulnerability-based learning depends on. The coach facilitates rather than dominates, because the value comes from peer challenge and shared experience rather than from the coach supplying answers.",
+      "who_when": "Firms developing a cohort of advisors together, where the aim is peer learning rather than one-to-one skills transfer. Not suitable until the group has enough trust to speak candidly — invest the first one or two sessions in building that foundation.",
+      "steps": [
+        "Fix the cadence — monthly 90-minute sessions with a consistent cohort of 4-8 advisors.",
+        "Open with a check-in: a brief report from each advisor on one win and one challenge since the last session, which creates the accountability rhythm.",
+        "Deliver a 20-minute skill or concept focus on a specific advisory technique, framework or scenario.",
+        "Work a real, anonymised client scenario as a case study or role play, presented by one advisor and workshopped by the group.",
+        "Close with a commitment round — each advisor states one specific action they will take before the next session — then a brief individual reflection on one insight from the session.",
+        "Hold the facilitator discipline: intervene when the discussion loses direction, not when it becomes uncomfortable."
+      ]
+    },
     {
       "name": "Applicant Screening and Competency-Based Recruitment",
-      "purpose": "Provides a structured recruitment framework that evaluates advisory candidates on both technical competency and client-facing capability — reducing the risk of hiring technically qualified advisors who fail in a client relationship context.",
-      "core_principle": "Most advisory recruitment failures are not technical failures — they are cultural and relational failures. A candidate who cannot manage client expectations, handle objections, or build trust under pressure will underperform regardless of their technical qualifications. The screening process must deliberately test these capabilities.",
-      "when_to_use": "Use when the firm is recruiting for client-facing advisory roles. Adapt the framework for support or specialist roles by adjusting the competency weighting.",
-
-      "screening_stages": [
-        {
-          "stage": "Application Review",
-          "focus": "Professional qualifications, relevant experience, career trajectory, and evidence of client-facing success (not just tenure). Reject applications that do not demonstrate measurable client outcomes — 'managed a portfolio of clients' is not evidence; 'retained 95% of clients over three years with an average NPS of 8.5' is."
-        },
-        {
-          "stage": "Structured Interview",
-          "focus": "Behavioural questions based on the STAR method (Situation, Task, Action, Result). Specific areas to probe: client conflict management, fee conversation handling, dealing with underperformance feedback, and working within a team framework.",
-          "sample_questions": [
-            "Tell me about a time a client was unhappy with your advice. How did you handle it and what was the outcome?",
-            "Describe a situation where you had to have a difficult conversation about fees with a client. What was your approach?",
-            "Give me an example of when you identified that a client's brief was actually different from what they said they wanted. How did you manage that?"
-          ]
-        },
-        {
-          "stage": "Technical Assessment",
-          "focus": "A relevant case study or scenario that mirrors the type of work the candidate will be doing. Assess both the quality of the technical analysis and how they communicate the findings — the latter is often more important in a client-facing role."
-        },
-        {
-          "stage": "Reference Checking",
-          "focus": "Speak directly with at least two referees who have managed the candidate in a client-facing context. Ask specifically about client retention, complaint management, and performance against revenue targets. Do not accept written references as a substitute for verbal reference calls."
-        }
-      ],
-
-      "cultural_fit_assessment": {
-        "principle": "Cultural fit is not about personality match — it is about alignment with the firm's operating standards, client service philosophy, and professional values. Candidates who are technically strong but culturally misaligned create more disruption than those who are technically adequate but highly aligned.",
-        "assessment_approach": "Include a structured conversation about the firm's non-negotiable standards — response time commitments, documentation requirements, fee transparency protocols, and peer feedback processes. Observe how the candidate responds: candidates who push back on standards that other team members accept consistently are a cultural fit risk."
-      }
+      "summary": "A four-stage screening process for advisory hires that tests demonstrated client outcomes rather than tenure. Cultural fit here is not personality match — it is alignment with the firm's operating standards, client service philosophy and professional values. A technically strong but culturally misaligned candidate creates more disruption than a technically adequate but highly aligned one.",
+      "who_when": "Hiring managers screening applicants for client-facing advisory roles, used alongside the FM Hiring Winners deck where a more detailed competency assessment is needed.",
+      "steps": [
+        "Application review — look for professional qualifications, relevant experience, career trajectory and evidence of client-facing success rather than tenure. 'Managed a portfolio of clients' is not evidence; 'retained 95% of clients over three years with an average NPS of 8.5' is.",
+        "Structured interview — use behavioural questions on the STAR method (Situation, Task, Action, Result), probing client conflict management, fee conversation handling, response to underperformance feedback, and working within a team framework. For example: tell me about a time a client was unhappy with your advice — how did you handle it and what was the outcome? Describe a difficult fee conversation and your approach. Give me an example of when a client's brief turned out to be different from what they said they wanted.",
+        "Technical assessment — set a case study or scenario that mirrors the actual work. Assess both the quality of the analysis and how they communicate the findings; in a client-facing role the second is often the more important.",
+        "Reference checking — speak directly with at least two referees who have managed the candidate in a client-facing context, asking specifically about client retention, complaint management and performance against revenue targets. A written reference is not a substitute for a verbal call.",
+        "Assess cultural fit through a structured conversation about the firm's non-negotiable standards — response times, documentation requirements, fee transparency protocols, peer feedback processes — and observe the response. A candidate who consistently pushes back on standards other team members accept is a cultural fit risk."
+      ]
     },
-
     {
-      "name": "Firm Culture — Group Coaching and Team Development",
-      "purpose": "Provides structured group coaching methodologies for building team cohesion, surfacing hidden performance blockers, and creating a learning culture in which individual advisors develop faster through peer engagement.",
-      "core_principle": "Individual coaching is necessary but insufficient for firm culture development. Group coaching creates shared language, mutual accountability, and the social proof that makes behaviour change sustainable. Advisors who learn alongside peers are more likely to apply new approaches than those who learn in isolation.",
-      "when_to_use": "Use when the firm is developing a structured learning and development program, when team dynamics are creating friction, or when a cohort of advisors needs to develop similar capabilities within a defined timeframe.",
-
-      "group_coaching_structure": {
-        "session_frequency": "Monthly 90-minute sessions with a consistent cohort of 4-8 advisors. Consistency of participants is essential — coaching groups that churn in membership do not develop the trust required for vulnerability-based learning.",
-        "session_design": [
-          "Opening check-in — brief report from each advisor on one win and one challenge since the last session (creates accountability rhythm)",
-          "Skill or concept focus — a 20-minute input on a specific advisory technique, framework, or scenario",
-          "Case study or role play — a real client scenario (anonymised) presented by one advisor and workshopped by the group",
-          "Commitment round — each advisor states one specific action they will take before the next session",
-          "Closing reflection — brief individual sharing of one insight from the session"
-        ],
-        "facilitator_role": "The group coach facilitates but does not dominate. The most valuable learning in group coaching comes from peer-to-peer challenge and shared experience, not from the coach providing answers. Hold space for the group to work through problems — intervene when the discussion loses direction, not when it becomes uncomfortable."
-      },
-
-      "visible_learning_culture": {
-        "flipping_the_learning": {
-          "principle": "Also called Flipping the Training Process — a technology-enabled closed feedback loop in which training is strictly driven by real client needs rather than generic, firm-led learning paths.",
-          "traditional_vs_flipped": "A traditional path starts by determining what the firm wants to deliver, develops the content, and has an advisor present it. The flipped process starts by identifying the common problems clients are facing, then works backward: what the client needs to do, what the advisor needs to learn to facilitate that, and finally tracking the tasks to find common failures and update the templates."
-        },
-        "platinum_hr_loop": {
-          "principle": "The Golden Hr is the advisor's individual preparation before a client meeting. The Platinum Hr is the group session dedicated to team feedback and group problem solving, where a client case is workshopped before and after the engagement.",
-          "steps": [
-            { "step": 1, "name": "Golden Hr (prepare)", "guidance": "Before the client meeting, the advisor outlines exactly what they need to do (the Golden Hr preparation)." },
-            { "step": 2, "name": "Group Transition", "guidance": "The member transitions into the Platinum Hr session, dedicated to team feedback and group problem solving — capturing ideas and objections from peers before facing the client." },
-            { "step": 3, "name": "Present the Case", "guidance": "Using the structured Platinum Case Study Format, the member presents the client's financials, observed trends, and service offer to the team." },
-            { "step": 4, "name": "Validate via Feedback", "guidance": "The team uses the VISIBLE Learning Culture Feedback Model to explicitly state what 'stands out' and what they want to clarify or challenge." },
-            { "step": 5, "name": "Review Real-World Output", "guidance": "After dealing with the client, the member returns to the next Platinum Hr to run a Review session — what went well, what went less well, and future actions." }
-          ]
-        }
-      }
+      "name": "Fee Estimate and Job Creep Management",
+      "summary": "The process and behavioural framework for stopping scope creep from eroding advisory margins — standardising how new work is scoped, estimated and billed, and coaching advisors to hold fee conversations confidently. Job creep is almost always a symptom of conflict avoidance rather than generosity: advisors absorb extra work because raising the fee feels uncomfortable. The firm removes that discomfort by making the fee conversation a structured process rather than a personal initiative.",
+      "who_when": "Use when margin analysis shows advisory hours being written off against engagements, when advisors complete out-of-scope work without a change order, or when fee realisation rates are declining.",
+      "steps": [
+        "Standardise the fee estimate letter so every one carries the same five elements: the scope of work; the exclusions, stated explicitly to prevent assumption creep; the estimated fee or range with the basis for it (time-based, fixed or value-based); the trigger conditions for a re-estimate; and a documented client sign-off, not just an email acknowledgement.",
+        "Treat any request falling outside the documented scope as a change order trigger — raised before the work begins, not after.",
+        "Identify the out-of-scope request and estimate the additional time and cost.",
+        "Issue a written change order setting out the additional scope and fee, and obtain client approval before commencing. Verbal approval is not sufficient.",
+        "Document the approved change order in the client file.",
+        "Coach the advisor through the reframe: the change order is a professional service to the client because it prevents a surprise on the final invoice. Clients who respect professional advice generally respect transparent fee management."
+      ]
     },
-
     {
-      "name": "Firm Management — If-Then Guidance",
-      "purpose": "Decision logic for the most common firm management complications — PIP escalation, fee dispute resolution, COI relationship breakdowns, and recruitment failures.",
-      "if_then_logic": [
-        {
-          "condition": "Advisor on a PIP is not meeting the improvement milestones at the first check-in",
-          "action": "Do not wait until the end of the PIP period to address the shortfall. Document the check-in outcome immediately and schedule a review meeting. Determine whether the shortfall is due to lack of effort, lack of capability, or a structural barrier the firm has not removed. Adjust the support if the barrier is structural; escalate to the next HR step if the issue is effort or conduct."
-        },
-        {
-          "condition": "Client disputes a fee for work that was completed outside the original scope",
-          "action": "Do not absorb the fee to preserve the relationship. Review the fee estimate letter and change order documentation. If the change order was properly documented and approved, hold the position professionally — absorbing the fee creates a precedent that the firm's scope management process can be overridden. If there was no change order, use the dispute as the impetus to implement the change order protocol immediately."
-        },
-        {
-          "condition": "A previously active COI has stopped making referrals",
-          "action": "Schedule a direct conversation — do not assume the relationship has deteriorated. Common causes include the COI feeling that their clients were not well-served, that the referral relationship was one-directional, or simply that other priorities have displaced the advisory firm in their referral mindset. Address the specific issue identified before investing further in the relationship."
-        },
-        {
-          "condition": "A recently hired advisor is technically strong but struggling to build client relationships",
-          "action": "Do not wait for the performance gap to reach PIP territory. Assign a senior advisor as a shadow coach for client meetings and use the debrief process to build the relational skills directly. Identify whether the issue is confidence, communication style, or client management process — each requires a different intervention."
-        }
+      "name": "Centre of Influence (COI) Engagement Framework",
+      "summary": "Converts ad hoc relationship management into a systematic referral pipeline — identifying the right COI prospects, running structured engagement, and turning relationships into a consistent referral source. A COI is a professional whose clients overlap with the firm's target client profile. The most valuable ones already refer clients to other professionals, because they understand referral reciprocity and are predisposed to a systematic relationship.",
+      "who_when": "Use when the referral pipeline is inconsistent, when the firm depends on a small number of referral sources, or when it is entering a new market segment and must build a referral network from scratch.",
+      "steps": [
+        "Identify the primary COI categories: accountants and tax advisors, whose clients carry the financial complexity that needs advisory input; solicitors and estate planning lawyers, whose estate, trust and succession clients need coordinated advice; mortgage brokers, whose clients are making investment and insurance decisions at the same time; and business bankers, whose lending clients are natural advisory prospects.",
+        "Qualify each prospect against four criteria — serves clients in the firm's target demographic or industry; has a track record of referring to other professionals (ask directly); is credentialled and reputable, because the relationship reflects on the firm; and is not already in an exclusive arrangement with a competitor.",
+        "Run the initial meeting as a peer introduction, not a sales meeting: understand their client base, their referral behaviour and their professional interests, and share the firm's client profile and specialisations. Do not ask for referrals in the first meeting.",
+        "Maintain a quarterly value-add touchpoint — a brief, relevant article, market update or client scenario that demonstrates expertise.",
+        "Run an annual joint event or seminar that positions both parties as thought leaders to each other's client base.",
+        "Track inbound referrals from each COI, and proactively identify and refer clients with unmet needs back to them.",
+        "Hold an annual relationship review — a formal conversation about what is working in the referral relationship and how it can be developed."
       ]
     }
-
   ],
 
   "advisor_guidance": {
