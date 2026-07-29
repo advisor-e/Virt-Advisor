@@ -404,6 +404,58 @@ describe('getTeam — the firm manager\'s table', () => {
     expect(res._body.advisors[0].unclassifiedSessions).toBe(0)
   })
 
+  // ── Advisor display names ───────────────────────────────────────────────────
+  // Captured at write time from each advisor's own verified token. A manager's token
+  // carries the manager's name, never a colleague's, and this app holds no advisors
+  // table to join against — so a read-time lookup is not available to us.
+
+  test('reports the advisor\'s captured name alongside their id', async () => {
+    const res = await run([
+      { advisor_id: 'adv-a', advisor_name: 'Jordan Reeve', highest_tier: 'advanced', count: '3', last_active: '2026-07-28T19:00:00Z' }
+    ], [])
+
+    expect(res._body.advisors[0]).toMatchObject({ advisorId: 'adv-a', advisorName: 'Jordan Reeve' })
+  })
+
+  test('reports a null name rather than inventing one', async () => {
+    // The state until Advisor-e's token carries a name claim. The screen shows the id.
+    const res = await run()
+
+    expect(res._body.advisors[0].advisorName).toBeNull()
+  })
+
+  test('prefers the name from the most recent activity', async () => {
+    // An advisor who changed their name is shown the current one, not the oldest row's.
+    const res = await run([
+      { advisor_id: 'adv-a', advisor_name: 'Jordan Old', highest_tier: 'entry-level', count: '1', last_active: '2026-07-01T09:00:00Z' },
+      { advisor_id: 'adv-a', advisor_name: 'Jordan New', highest_tier: 'advanced', count: '2', last_active: '2026-07-28T19:00:00Z' }
+    ], [])
+
+    expect(res._body.advisors[0].advisorName).toBe('Jordan New')
+  })
+
+  test('takes an older name rather than none at all', async () => {
+    // Any name beats an id, so a newer row without one does not erase an older one.
+    const res = await run([
+      { advisor_id: 'adv-a', advisor_name: 'Jordan Reeve', highest_tier: 'entry-level', count: '1', last_active: '2026-07-01T09:00:00Z' },
+      { advisor_id: 'adv-a', advisor_name: null, highest_tier: 'advanced', count: '2', last_active: '2026-07-28T19:00:00Z' }
+    ], [])
+
+    expect(res._body.advisors[0].advisorName).toBe('Jordan Reeve')
+  })
+
+  test('an unclassified session still carries its name and date', async () => {
+    // Both used to be read inside the tier check, which is how nine real sessions read
+    // as an advisor who had done nothing. The name must not regress the same way.
+    const res = await run([
+      { advisor_id: 'adv-c', advisor_name: 'Sam Ellis', highest_tier: null, count: '9', last_active: '2026-07-28T12:00:00Z' }
+    ], [])
+
+    expect(res._body.advisors[0]).toMatchObject({
+      advisorName: 'Sam Ellis', unclassifiedSessions: 9, lastActive: '2026-07-28T12:00:00Z'
+    })
+  })
+
   test('the firm ID in the reply is the one from the verified pass', async () => {
     const res = await run()
 

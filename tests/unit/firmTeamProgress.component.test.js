@@ -29,6 +29,7 @@ function advisor (id, opts) {
   )
   return {
     advisorId: id,
+    advisorName: o.advisorName === undefined ? null : o.advisorName,
     tiers: {
       'entry-level': tier('entryLevel'),
       intermediate: tier('intermediate'),
@@ -134,6 +135,30 @@ describe('a team with activity', () => {
   test('shows the legend explaining the two numbers in each cell', async () => {
     const wrapper = await mountTab(team)
     expect(wrapper.text()).toContain('firmTeamProgress.cellLegend')
+  })
+
+  test('shows the advisor\'s name when one was captured, with the id beneath it', async () => {
+    const wrapper = await mountTab({
+      body: {
+        success: true,
+        advisors: [advisor('adv-1', { advisorName: 'Jordan Reeve', totalSessions: 3 })]
+      }
+    })
+    const row = wrapper.findAll('tbody tr').at(0)
+    expect(row.text()).toContain('Jordan Reeve')
+    // The id stays visible so a row can still be matched to the platform record.
+    expect(row.find('.advisor-id').text()).toBe('adv-1')
+  })
+
+  test('falls back to the id when no name was captured, and shows no empty line', async () => {
+    // The state until Advisor-e's token carries a name claim. It must read as an
+    // identifier, never as a blank space where a person should be.
+    const wrapper = await mountTab({
+      body: { success: true, advisors: [advisor('adv-1', { totalSessions: 3 })] }
+    })
+    const row = wrapper.findAll('tbody tr').at(0)
+    expect(row.text()).toContain('adv-1')
+    expect(row.find('.advisor-id').exists()).toBe(false)
   })
 
   test('says how many of an advisor\'s sessions are not yet at a level', async () => {

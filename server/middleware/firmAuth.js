@@ -49,6 +49,7 @@ function firmAuth (req, res, next) {
     req.advisorId = DEV_ADVISOR_ID
     req.userRole = AUTH.managerRole
     req.userEmail = 'dev@local'
+    req.advisorName = 'Dev Advisor'
     return next()
   }
   // Dev mentor bypass — authenticate as the cross-firm mentor (platform_admin)
@@ -84,6 +85,9 @@ function firmAuth (req, res, next) {
   req.advisorId = payload[AUTH.advisorIdClaim] || payload.sub || null
   req.userRole = role || null
   req.userEmail = payload[AUTH.emailClaim] || payload.sub || 'unknown'
+  // Display name, when Advisor-e includes one. Null is a valid answer: screens fall
+  // back to the advisor ID rather than inventing or guessing a name.
+  req.advisorName = payload[AUTH.nameClaim] || null
 
   return next()
 }

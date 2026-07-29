@@ -38,6 +38,7 @@ function clean () { try { fs.unlinkSync(DEV_FILE) } catch (e) { /* not there —
 
 const course = over => Object.assign({
   advisorId: 'a1',
+  advisorName: 'Jordan Reeve',
   firmId: 'f1',
   courseId: 'c1',
   courseTitle: 'Cashflow Basics',
@@ -151,6 +152,22 @@ describe('the fallback reproduces the SQL the routes rely on', () => {
     const { courseRows } = await activityStore.readFirmSessions('f1')
     expect(Number(courseRows[0].avg_score)).toBe(70)
     expect(courseRows[0].count).toBe('2')
+  })
+
+  test('carries the display name captured at write time through to the team read', async () => {
+    await activityStore.recordCourseSession(course())
+
+    const { courseRows } = await activityStore.readFirmSessions('f1')
+    expect(courseRows[0].advisor_name).toBe('Jordan Reeve')
+  })
+
+  test('a session recorded with no name reports null, not an empty string', async () => {
+    // Until Advisor-e's token carries a name claim. Null is what the screen tests for
+    // when deciding to fall back to the id; '' would render as a blank line.
+    await activityStore.recordCourseSession(course({ advisorName: null }))
+
+    const { courseRows } = await activityStore.readFirmSessions('f1')
+    expect(courseRows[0].advisor_name).toBeNull()
   })
 
   test('a group with no scored quiz at all reports no average', async () => {

@@ -26,6 +26,12 @@ const AUTH = {
   advisorIdClaim: 'advisorId', // JWT claim that carries the advisor's unique ID. TODO: confirm with Advisor-e auth team
   roleClaim: 'role', // JWT claim that carries the user's role string
   emailClaim: 'email', // JWT claim for the user's email (falls back to 'sub')
+  // JWT claim for the user's display name. Advisor-e allocates the advisor ID and
+  // authenticates the user before they ever reach this app, so the name arrives with
+  // the same verified token — this is the link-in point, not a lookup we perform.
+  // Absent claim = the team table shows the advisor ID, which is today's behaviour.
+  // TODO: confirm the field name with the Advisor-e auth team.
+  nameClaim: 'name',
 
   managerRole: 'firm_manager', // role value granting Firm Manager hub access
   adminRole: 'platform_admin', // role value granting platform-wide access

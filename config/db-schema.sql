@@ -124,6 +124,11 @@ CREATE TABLE IF NOT EXISTS `firm_storage_usage` (
 CREATE TABLE IF NOT EXISTS `advisor_va_sessions` (
   `id`                    INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   `advisor_id`            VARCHAR(64)   NOT NULL,
+  -- Display name captured at write time from the advisor's own verified JWT. Stored
+  -- rather than looked up because a firm manager's token carries the manager's name,
+  -- never a colleague's, and this app holds no advisors table to join against.
+  -- NULL when Advisor-e's token carries no name claim — screens then show the ID.
+  `advisor_name`          VARCHAR(128)           DEFAULT NULL,
   `firm_id`               VARCHAR(64)   NOT NULL,
   `domain`                VARCHAR(128)           DEFAULT NULL,
   `recommended_templates` JSON                   DEFAULT NULL,
@@ -147,6 +152,9 @@ CREATE TABLE IF NOT EXISTS `advisor_va_sessions` (
 CREATE TABLE IF NOT EXISTS `advisor_course_completions` (
   `id`                INT UNSIGNED     NOT NULL AUTO_INCREMENT,
   `advisor_id`        VARCHAR(64)      NOT NULL,
+  -- See advisor_va_sessions.advisor_name — captured at write time, NULL until the
+  -- Advisor-e token carries a name claim.
+  `advisor_name`      VARCHAR(128)              DEFAULT NULL,
   `firm_id`           VARCHAR(64)      NOT NULL,
   `course_id`         VARCHAR(64)      NOT NULL,
   `course_title`      VARCHAR(255)     NOT NULL,

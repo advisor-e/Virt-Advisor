@@ -58,15 +58,19 @@ const SQL_ADVISOR_COURSE =
          WHERE advisor_id = ? AND firm_id = ?
          ORDER BY completed_at DESC LIMIT 200`
 
+// MAX(advisor_name) picks one name per group deterministically rather than the very
+// latest. The route then takes the name from whichever group was most recently active,
+// which is what matters: names change rarely, and picking a stale one for an advisor
+// who has not worked recently is not worth a correlated subquery.
 const SQL_TEAM_VA =
-  `SELECT advisor_id, highest_tier, COUNT(*) as count,
+  `SELECT advisor_id, MAX(advisor_name) as advisor_name, highest_tier, COUNT(*) as count,
                 MAX(completed_at) as last_active
          FROM advisor_va_sessions
          WHERE firm_id = ?
          GROUP BY advisor_id, highest_tier`
 
 const SQL_TEAM_COURSE =
-  `SELECT advisor_id, highest_tier,
+  `SELECT advisor_id, MAX(advisor_name) as advisor_name, highest_tier,
                 COUNT(*) as count,
                 AVG(quiz_score) as avg_score,
                 MAX(completed_at) as last_active
@@ -76,14 +80,14 @@ const SQL_TEAM_COURSE =
 
 const SQL_INSERT_VA =
   `INSERT INTO advisor_va_sessions
-         (advisor_id, firm_id, domain, recommended_templates, highest_tier)
-       VALUES (?, ?, ?, ?, ?)`
+         (advisor_id, advisor_name, firm_id, domain, recommended_templates, highest_tier)
+       VALUES (?, ?, ?, ?, ?, ?)`
 
 const SQL_INSERT_COURSE =
   `INSERT IGNORE INTO advisor_course_completions
-         (advisor_id, firm_id, course_id, course_title, course_topic,
+         (advisor_id, advisor_name, firm_id, course_id, course_title, course_topic,
           session_index, session_title, session_resources, quiz_score, highest_tier)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 // ── Reads ─────────────────────────────────────────────────────────────────────
 
@@ -148,13 +152,14 @@ async function recordVASession (row) {
   const templates = row.templates && row.templates.length ? JSON.stringify(row.templates) : null
   try {
     await db.execute(SQL_INSERT_VA,
-      [row.advisorId, row.firmId, row.domain, templates, row.tier])
+      [row.advisorId, row.advisorName || null, row.firmId, row.domain, templates, row.tier])
   } catch (err) {
     if (!devFallbackEnabled()) { throw err }
     _warnFallback('recordVASession', err)
     const all = _devReadAll()
     all.vaSessions.push({
       advisor_id: row.advisorId,
+      advisor_name: row.advisorName || null,
       firm_id: row.firmId,
       domain: row.domain,
       recommended_templates: templates,
@@ -180,8 +185,8 @@ async function recordCourseSession (row) {
   const resources = row.resources && row.resources.length ? JSON.stringify(row.resources) : null
   try {
     await db.execute(SQL_INSERT_COURSE, [
-      row.advisorId, row.firmId, row.courseId, row.courseTitle, row.courseTopic,
-      row.sessionIndex, row.sessionTitle, resources, row.quizScore, row.tier
+      row.advisorId, row.advisorName || null, row.firmId, row.courseId, row.courseTitle,
+      row.courseTopic, row.sessionIndex, row.sessionTitle, resources, row.quizScore, row.tier
     ])
   } catch (err) {
     if (!devFallbackEnabled()) { throw err }
@@ -194,6 +199,7 @@ async function recordCourseSession (row) {
     if (duplicate) { return }
     all.courseSessions.push({
       advisor_id: row.advisorId,
+      advisor_name: row.advisorName || null,
       firm_id: row.firmId,
       course_id: row.courseId,
       course_title: row.courseTitle,
@@ -281,10 +287,14 @@ function _group (rows, withAverage) {
     const key = `${row.advisor_id} ${row.highest_tier === undefined ? null : row.highest_tier}`
     let g = groups.get(key)
     if (!g) {
-      g = { advisor_id: row.advisor_id, highest_tier: row.highest_tier || null, count: 0, last_active: null, _scores: [] }
+      g = { advisor_id: row.advisor_id, advisor_name: null, highest_tier: row.highest_tier || null, count: 0, last_active: null, _scores: [] }
       groups.set(key, g)
     }
     g.count++
+    // MAX(advisor_name) in the SQL; the same deterministic pick here.
+    if (row.advisor_name && (!g.advisor_name || row.advisor_name > g.advisor_name)) {
+      g.advisor_name = row.advisor_name
+    }
     if (!g.last_active || String(row.completed_at) > String(g.last_active)) {
       g.last_active = row.completed_at
     }
@@ -294,6 +304,7 @@ function _group (rows, withAverage) {
   return Array.from(groups.values()).map((g) => {
     const out = {
       advisor_id: g.advisor_id,
+      advisor_name: g.advisor_name,
       highest_tier: g.highest_tier,
       count: String(g.count),
       last_active: g.last_active

@@ -29,7 +29,10 @@ section.firm-team-progress
           field="advisorId"
           :label="$t('firmTeamProgress.colAdvisor')"
         )
-          span.has-text-weight-semibold {{ row.advisorId }}
+          span.has-text-weight-semibold {{ row.advisorName || row.advisorId }}
+          //- The ID stays visible under a name so a manager can still match a row to
+          //- the platform record. Hidden entirely when there is no name to sit above.
+          .advisor-id.has-text-grey.is-size-7(v-if="row.advisorName") {{ row.advisorId }}
 
         b-table-column(
           v-for="tier in tierDefs"
@@ -192,4 +195,5 @@ export default {
 .tier-score { margin-top: 1px; }
 .total-cell { display: flex; flex-direction: column; line-height: 1.2; }
 .unlevelled { margin-top: 1px; white-space: nowrap; }
+.advisor-id { line-height: 1.2; }
 </style>

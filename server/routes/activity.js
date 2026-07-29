@@ -55,6 +55,8 @@ async function logCourse (req, res) {
 
   await logCourseSession({
     advisorId: String(advisorId).slice(0, 64),
+    // From the verified JWT, like the ids — never from the body.
+    advisorName: req.advisorName || null,
     firmId: String(firmId).slice(0, 64),
     courseId: String(courseId).slice(0, 64),
     courseTitle: String(courseTitle || '').slice(0, 255),
@@ -188,6 +190,11 @@ async function getTeam (req, res) {
       if (!advisorMap[id]) {
         advisorMap[id] = {
           advisorId: id,
+          // Display name captured when this advisor did the work, from their own
+          // verified token. NOT looked up at read time: the manager's token carries
+          // the manager's name, never a colleague's. Null until Advisor-e includes a
+          // name claim, and the screen falls back to the ID rather than inventing one.
+          advisorName: null,
           tiers: Object.fromEntries(TIERS.map(t => [t, { vaSessions: 0, courseSessions: 0, avgQuizScore: null }])),
           // Sessions with no capability tier (see getProgression above for why they
           // occur). Counted here so an advisor whose work is ALL unclassified is
@@ -200,6 +207,30 @@ async function getTeam (req, res) {
       return advisorMap[id]
     }
 
+    /**
+     * Fold one grouped row into an advisor's summary: when they were last active, and
+     * the display name to show them by.
+     *
+     * Both live outside the tier check on purpose. A session with no capability tier
+     * is still a session — before 2026-07-29 the date was read inside that check, so
+     * an advisor's most recent work was invisible if it happened to be unclassified,
+     * and the same would be true of their name.
+     *
+     * The name from the MOST RECENTLY ACTIVE group wins, so an advisor who changed
+     * their name is shown the current one. Any name is better than none, so a name on
+     * an older row is still taken when nothing newer carries one.
+     *
+     * @param {object} a - the advisor summary being built.
+     * @param {object} row - one grouped row from the store.
+     */
+    const noteActivity = (a, row) => {
+      if (!a.lastActive || row.last_active > a.lastActive) {
+        a.lastActive = row.last_active
+        if (row.advisor_name) { a.advisorName = row.advisor_name }
+      }
+      if (!a.advisorName && row.advisor_name) { a.advisorName = row.advisor_name }
+    }
+
     for (const row of vaRows) {
       const a = ensureAdvisor(row.advisor_id)
       const t = row.highest_tier
@@ -208,9 +239,7 @@ async function getTeam (req, res) {
       } else {
         a.unclassifiedSessions += Number(row.count)
       }
-      // Last active is when the advisor last worked — a session with no tier is
-      // still a session, so this sits outside the tier check.
-      if (!a.lastActive || row.last_active > a.lastActive) { a.lastActive = row.last_active }
+      noteActivity(a, row)
     }
 
     for (const row of courseRows) {
@@ -226,7 +255,7 @@ async function getTeam (req, res) {
         // belongs to a capability tier, and these rows have none.
         a.unclassifiedSessions += Number(row.count)
       }
-      if (!a.lastActive || row.last_active > a.lastActive) { a.lastActive = row.last_active }
+      noteActivity(a, row)
     }
 
     const advisors = Object.values(advisorMap).map(a => ({

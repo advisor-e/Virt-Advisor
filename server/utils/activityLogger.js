@@ -28,13 +28,15 @@ const { getHighestTier } = require('./tierLookup')
  * @param {string}   firmId               - Firm identifier (JWT-derived, from the route)
  * @param {string|null} domain            - Detected advisory domain (e.g. 'profit', 'staff')
  * @param {string[]} recommendedTemplates - Template titles extracted from Phase 3 response
+ * @param {string|null} [advisorName]     - Display name from the same verified JWT
  */
-async function logVASession (advisorId, firmId, domain, recommendedTemplates) {
+async function logVASession (advisorId, firmId, domain, recommendedTemplates, advisorName) {
   if (!advisorId || !firmId) { return }
   try {
     const templates = Array.isArray(recommendedTemplates) ? recommendedTemplates : []
     await activityStore.recordVASession({
       advisorId: String(advisorId).slice(0, 64),
+      advisorName: advisorName ? String(advisorName).slice(0, 128) : null,
       firmId: String(firmId).slice(0, 64),
       domain: domain ? String(domain).slice(0, 128) : null,
       templates,
@@ -54,6 +56,7 @@ async function logVASession (advisorId, firmId, domain, recommendedTemplates) {
  *
  * @param {object} params
  * @param {string}   params.advisorId       - Advisor identifier
+ * @param {string}   [params.advisorName]   - Display name from the same verified JWT
  * @param {string}   params.firmId          - Firm identifier
  * @param {string}   params.courseId        - Course UUID from CourseBuilder
  * @param {string}   params.courseTitle     - Course title
@@ -65,7 +68,7 @@ async function logVASession (advisorId, firmId, domain, recommendedTemplates) {
  */
 async function logCourseSession (params) {
   const {
- advisorId, firmId, courseId, courseTitle, courseTopic,
+ advisorId, advisorName, firmId, courseId, courseTitle, courseTopic,
     sessionIndex, sessionTitle, sessionResources, quizScore
 } = params || {}
 
@@ -74,6 +77,7 @@ async function logCourseSession (params) {
     const resources = Array.isArray(sessionResources) ? sessionResources : []
     await activityStore.recordCourseSession({
       advisorId: String(advisorId).slice(0, 64),
+      advisorName: advisorName ? String(advisorName).slice(0, 128) : null,
       firmId: String(firmId).slice(0, 64),
       courseId: String(courseId).slice(0, 64),
       courseTitle: String(courseTitle || '').slice(0, 255),
