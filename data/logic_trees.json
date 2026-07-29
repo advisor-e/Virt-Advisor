@@ -31,6 +31,7 @@
         "doing badly",
         "wish it could do better"
       ],
+      "entry_node": "qf_initial",
       "nodes": [
         {
           "id": "qf_initial",
@@ -176,6 +177,7 @@
         "client revenue is low",
         "client needs more customers"
       ],
+      "entry_node": "cs_initial",
       "nodes": [
         {
           "id": "cs_initial",
@@ -319,6 +321,7 @@
         "don't know where the money goes",
         "never have enough cash"
       ],
+      "entry_node": "cf_initial",
       "nodes": [
         {
           "id": "cf_initial",
@@ -483,6 +486,7 @@
         "management structure",
         "management oversight"
       ],
+      "entry_node": "gov_pre_assessment",
       "nodes": [
         {
           "id": "gov_pre_assessment",
@@ -737,6 +741,7 @@
         "planning session",
         "strategy"
       ],
+      "entry_node": "cp_initial",
       "nodes": [
         {
           "id": "cp_initial",
@@ -903,6 +908,7 @@
         "lean theory",
         "operational mistakes"
       ],
+      "entry_node": "sp_domain_split",
       "nodes": [
         {
           "id": "sp_domain_split",
@@ -1171,6 +1177,7 @@
         "business will look like",
         "does not know what the business"
       ],
+      "entry_node": "ff_initial",
       "nodes": [
         {
           "id": "ff_initial",
@@ -1373,6 +1380,7 @@
           "discovery_style": "Growth Curve, EOY/Volatility Review, Revenue Model, How You Rate tables"
         }
       ],
+      "entry_node": "sp_qualify",
       "nodes": [
         {
           "id": "sp_qualify",
@@ -1738,6 +1746,7 @@
         "speaking engagement"
       ],
       "stage_entry_question": "Where are you in the process right now — just starting to design the content, already have content and preparing to deliver, or are you close to the event and working on logistics?",
+      "entry_node": "ps_stage1",
       "nodes": [
         {
           "id": "ps_stage1",
@@ -1883,6 +1892,7 @@
         "business model session",
         "flawed assumptions"
       ],
+      "entry_node": "tf_stage1",
       "nodes": [
         {
           "id": "tf_stage1",
@@ -1974,6 +1984,7 @@
         "how do i introduce",
         "where do i start with models"
       ],
+      "entry_node": "cr_step1",
       "nodes": [
         {
           "id": "cr_step1",
@@ -2095,6 +2106,7 @@
         "global reference",
         "local reference"
       ],
+      "entry_node": "eoy_stage1",
       "nodes": [
         {
           "id": "eoy_stage1",
@@ -2186,6 +2198,7 @@
         "disassociation"
       ],
       "stage_entry_question": "Which part of the Facilitation 101 sequence do you want to work on — the opening frame, building your 3rd person story, or knowing when and how to secure relevance with the client?",
+      "entry_node": "fac_stage1",
       "nodes": [
         {
           "id": "fac_stage1",
@@ -2253,6 +2266,7 @@
         "reveal"
       ],
       "stage_entry_question": "Which part of the Growth Curve reveal do you want to work on — the opening positioning and script, building your persona, delivering the story, the drawing technique, or how to close the session?",
+      "entry_node": "gc_stage1",
       "nodes": [
         {
           "id": "gc_stage1",
@@ -2355,6 +2369,7 @@
         "facilitation"
       ],
       "stage_entry_question": "Which part of running a conflict meeting do you want to work on — understanding the psychology behind why people dig in, creating a pathway for them to let go, the step-by-step facilitation process, the framing and status tools, or using Force Field Analysis to drive action?",
+      "entry_node": "conf_stage1",
       "nodes": [
         {
           "id": "conf_stage1",
@@ -2449,6 +2464,7 @@
         "macro view"
       ],
       "stage_entry_question": "Which part of the Capacity, Capability, Opportunity framework do you want to work on — setting up the conversation with legitimate constraints, assessing what the business can produce (Capacity), evaluating whether they are skilled and resourced to compete (Capability), or testing whether the market actually wants what they offer (Opportunity)?",
+      "entry_node": "cco_stage1",
       "nodes": [
         {
           "id": "cco_stage1",
@@ -2524,6 +2540,7 @@
         "facilitate"
       ],
       "stage_entry_question": "Which part of the Heald Matrix do you want to work on — understanding why it works and how to introduce it, the four quadrants and their descriptions, how to reveal and facilitate the self-assessment, or how to guide the client toward action and close into a planning engagement?",
+      "entry_node": "hm_stage1",
       "nodes": [
         {
           "id": "hm_stage1",
@@ -2593,6 +2610,7 @@
         "volatile"
       ],
       "stage_entry_question": "Which part of Deming's Theory of Volatility do you want to work on — why averages mislead and what to use instead, the four types of variation, how to diagnose root cause using causation versus coincidence, or the four strategic options for stabilising the business?",
+      "entry_node": "dv_stage1",
       "nodes": [
         {
           "id": "dv_stage1",
@@ -2662,6 +2680,7 @@
         "money moving"
       ],
       "stage_entry_question": "Which part of the Working Capital Cycle do you want to work on — understanding the cycle and the difference between fixed and working capital, diagnosing the three problem types correctly, applying cash preservation tactics, or auditing costs and management effectiveness?",
+      "entry_node": "wc_stage1",
       "nodes": [
         {
           "id": "wc_stage1",
@@ -2730,6 +2749,7 @@
         "apples with apples"
       ],
       "stage_entry_question": "Which part of Ratio Analysis do you want to work on — the Advisory Staircase and collaborative philosophy, when data is less relevant and what makes a comparison invalid, common size year on year data, or how to interrogate external benchmark data?",
+      "entry_node": "ra_stage1",
       "nodes": [
         {
           "id": "ra_stage1",
@@ -2818,6 +2838,7 @@
         "fixed costs"
       ],
       "stage_entry_question": "Which part of Dashboard Discussions do you want to work on — the 3x3 framework and category secrets philosophy, the profitability and margin metrics, the capital and balance sheet metrics, or the facilitation process including root cause analysis and building the action plan?",
+      "entry_node": "dd_stage1",
       "nodes": [
         {
           "id": "dd_stage1",
@@ -2910,6 +2931,7 @@
         "effective",
         "quality management"
       ],
+      "entry_node": "sys_preassess",
       "nodes": [
         {
           "id": "sys_preassess",
@@ -3371,6 +3393,7 @@
         "transfer",
         "legal liability"
       ],
+      "entry_node": "rm_preassess",
       "nodes": [
         {
           "id": "rm_preassess",
@@ -3695,6 +3718,7 @@
         "BIMBO",
         "Newco"
       ],
+      "entry_node": "val_preassess",
       "nodes": [
         {
           "id": "val_preassess",
@@ -3985,6 +4009,7 @@
         "business continuation",
         "business contingency"
       ],
+      "entry_node": "succ_preassess",
       "nodes": [
         {
           "id": "succ_preassess",
@@ -4287,6 +4312,7 @@
         "buying equipment",
         "hiring staff"
       ],
+      "entry_node": "pf_entry",
       "nodes": [
         {
           "id": "pf_entry",
@@ -4726,6 +4752,7 @@
         "buy side due diligence",
         "sell side due diligence"
       ],
+      "entry_node": "dd_preassess",
       "nodes": [
         {
           "id": "dd_preassess",
@@ -5319,6 +5346,7 @@
         "imported goods",
         "stock holding costs"
       ],
+      "entry_node": "sp_entry",
       "nodes": [
         {
           "id": "sp_entry",
@@ -5538,6 +5566,7 @@
         "capital structure",
         "debt vs equity"
       ],
+      "entry_node": "rc_entry",
       "nodes": [
         {
           "id": "rc_entry",
@@ -5702,6 +5731,7 @@
         "coaching agenda",
         "fee negotiation"
       ],
+      "entry_node": "fmc_entry",
       "nodes": [
         {
           "id": "fmc_entry",
@@ -5936,6 +5966,7 @@
         "powerful seminars",
         "get seminar"
       ],
+      "entry_node": "gs_entry",
       "nodes": [
         {
           "id": "gs_entry",
@@ -6070,6 +6101,7 @@
         "partner decision",
         "firm operational decision"
       ],
+      "entry_node": "cas_entry",
       "nodes": [
         {
           "id": "cas_entry",
@@ -6194,6 +6226,7 @@
         "governance structure",
         "reactive management"
       ],
+      "entry_node": "fbp_entry",
       "nodes": [
         {
           "id": "fbp_entry",
@@ -6337,6 +6370,7 @@
         "scorched earth",
         "the assassin"
       ],
+      "entry_node": "ol_entry",
       "nodes": [
         {
           "id": "ol_entry",
@@ -6471,6 +6505,7 @@
         "myob setup",
         "cloud accounting setup"
       ],
+      "entry_node": "fsr_entry",
       "nodes": [
         {
           "id": "fsr_entry",
@@ -6582,6 +6617,7 @@
         "financial culture",
         "culture of financial oversight"
       ],
+      "entry_node": "tpfm_entry",
       "nodes": [
         {
           "id": "tpfm_entry",
@@ -6728,6 +6764,7 @@
         "debtor protocols",
         "working capital tactics"
       ],
+      "entry_node": "ct_entry",
       "nodes": [
         {
           "id": "ct_entry",
