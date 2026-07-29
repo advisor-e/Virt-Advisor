@@ -21,9 +21,11 @@ the other.**
 >   (`components/firm/FirmTeamProgress.vue`). The team table that used to live inside
 >   `AdvisorProgression.vue` has been **removed**, so that component is now one
 >   advisor's own record and nothing else — §2's "both progress screens in one
->   component" no longer describes it. `FirmDashboard.vue` is untouched and still a
->   mockup, but note it is **unreachable in the running app**: the button that opens it
->   sits behind an `isFirmManager` prop nothing ever sets.
+>   component" no longer describes it. **`FirmDashboard.vue` has been DELETED** (owner
+>   ruling), along with the Course Builder button that opened it, the `firm` panel mode,
+>   and the two `/api/firm/*` stub routes it never actually called — so §5 below
+>   describes a file that no longer exists. The "Sarah Chen" fiction is gone from the
+>   codebase entirely.
 > - **§6 testing — LARGELY DONE.** Both screens now have component tests (32 of them),
 >   plus a backend aggregation suite. Still missing: `activityLogger.js` has **no tests
 >   at all**, and the i18n gap on `AdvisorProgression.vue` is still open.

@@ -156,16 +156,7 @@
     :apiToken="apiToken"
     :advisorProfile="advisorProfile"
     :orgTemplateIds="orgTemplateIds"
-    :isFirmManager="isFirmManager"
     @exit="reset"
-    @openFirmDashboard="selectMode('firm')"
-  )
-
-  //- Firm dashboard
-  FirmDashboard(
-    v-else-if="mode === 'firm'"
-    :firmId="firmId"
-    :firmName="advisorProfile && advisorProfile.firmName ? advisorProfile.firmName : 'My Firm'"
   )
 
   //- Capability progression — the advisor's own record only. The firm-wide team
@@ -179,7 +170,7 @@
   )
 
   //- Conversation
-  .messages-area(v-else-if="mode && mode !== 'course' && mode !== 'firm' && mode !== 'progression'" ref="messagesArea")
+  .messages-area(v-else-if="mode && mode !== 'course' && mode !== 'progression'" ref="messagesArea")
     .messages-list
       div(
         v-for="(msg, index) in messages"
@@ -849,14 +840,17 @@ _md.disable(['image', 'html_inline', 'html_block'])
  *
  * Each of these renders its own component in the `v-if` chain at the top of the template
  * instead of a message thread, so the chat input must not appear beneath it. Kept as one
- * named list rather than a chain of `mode !== '...'` tests, because that chain is how
- * `firm` came to be missing: the mode was added to the template and nobody updated the
- * separate condition further down.
+ * named list rather than a chain of `mode !== '...'` tests, because that chain is how the
+ * former `firm` mode came to be missing: it was added to the template and nobody updated
+ * the separate condition further down.
+ *
+ * (`firm` itself was removed 2026-07-29 with the FirmDashboard mock. The team view is now
+ * a Firm Manager Hub tab, not a mode of this component.)
  *
  * Adding a panel mode? Add it here too — `tests/unit/virtualAdvisorInput.component.test.js`
  * checks every entry, and checks the conversational modes still HAVE an input.
  */
-const PANEL_MODES = ['course', 'progression', 'firm']
+const PANEL_MODES = ['course', 'progression']
 
 // Primary issues per domain — Workshop 1 output, authored by Mike Barnes 2026-06-02
 const PRIMARY_ISSUES = {
@@ -1300,7 +1294,7 @@ export default {
       this.catchUpOutcomes = {}
       this.catchUpBusy = false
       this.catchUpError = null
-      const noConversation = ['course', 'firm']
+      const noConversation = ['course']
       if (!noConversation.includes(selected)) {
         if (selected === 'client') {
           // "Who is this session for?" comes before the intake (design

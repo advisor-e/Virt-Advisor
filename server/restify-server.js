@@ -92,7 +92,6 @@ const restify = require('restify')
 
 const healthRoute = require('./routes/health')
 const translateRoute = require('./routes/translate')
-const firmRoute = require('./routes/firm')
 const firmManagerRoute = require('./routes/firmManager')
 const activityRoute = require('./routes/activity')
 const casesRoute = require('./routes/cases')
@@ -175,8 +174,12 @@ server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfInta
 // WRITE managers only (account-wide setting). Persistence via firmOverlay (config_key 'currency').
 server.get('/api/report/currency', firmAuth, currencyRoute.get)
 server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.set)
-server.get('/api/firm/advisors', firmAuth, firmRoute.getAdvisors)
-server.post('/api/firm/insights', firmAuth, firmRoute.postInsights)
+// /api/firm/advisors and /api/firm/insights were removed 2026-07-29 with the
+// FirmDashboard mock they existed for. Both were stubs returning empty data, and
+// proposed a three-table schema (advisors/courses/course_sessions) that was never
+// built — while the real data has always been in advisor_va_sessions,
+// advisor_course_completions and va_courses. The team view is now a Firm Manager Hub
+// tab reading /api/activity/team.
 server.post('/api/activity/log-course', firmAuth, activityRoute.logCourse)
 server.get('/api/activity/progression', firmAuth, activityRoute.getProgression)
 server.get('/api/activity/team', firmAuth, requireManagerRole, activityRoute.getTeam)

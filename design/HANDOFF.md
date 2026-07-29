@@ -268,11 +268,13 @@ These are confirmed pre-production issues. They are not blocking for initial han
 
 **Resolved:** Server-side session storage is implemented in `server/advisorEngine.js`. All conversation state is held in a server-side `Map` (`sessionStore`) keyed by a 16-byte random session ID. The client receives only the session ID; no state is round-tripped. Sessions expire after 2 hours of inactivity and are pruned every 15 minutes. For multi-process deployments, replace the `Map` with a Redis-backed store.
 
-### L3 — `/api/firm/advisors` and `/api/firm/insights` are stub-only
+### L3 — `/api/firm/advisors` and `/api/firm/insights` are stub-only — RESOLVED BY DELETION 2026-07-29
 
-These two routes now have `firmAuth` middleware applied (JWT required) but the handlers return empty placeholder data. They must be wired to real DB queries before the FirmDashboard can display live team data. The FirmDashboard.vue component currently uses client-side mock data.
+~~These two routes now have `firmAuth` middleware applied (JWT required) but the handlers return empty placeholder data. They must be wired to real DB queries before the FirmDashboard can display live team data.~~
 
-**Fix required:** Implement the DB queries documented in `server/routes/firm.js` TODOs. The `FirmDashboard.vue` frontend will also need to send a JWT `Authorization` header when the stubs are replaced.
+**Resolved by removing them, not by wiring them.** Both routes and `server/routes/firm.js` are deleted, together with the `FirmDashboard.vue` mock they existed to serve (owner ruling, 2026-07-29). Their only caller was commented-out code inside that mock, and the schema they proposed — `advisors` / `courses` / `course_sessions` — was never built, while the real data has always lived in `advisor_va_sessions`, `advisor_course_completions` and `va_courses`.
+
+**The firm-manager team view now exists for real:** a Team Progress tab in `FirmManagerHub.vue` reading `GET /api/activity/team`, which is behind `firmAuth + requireManagerRole` and takes the firm from the verified token.
 
 ### L4 — Static template name alias map requires manual maintenance
 

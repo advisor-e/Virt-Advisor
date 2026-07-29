@@ -4,7 +4,6 @@
   //- ── Course builder nav bar ──────────────────────────────────────────────
   .cb-nav-bar
     button.btn-my-courses(@click="goToCourses") ← My Courses
-    button.btn-team-dashboard(v-if="isFirmManager" @click="$emit('openFirmDashboard')") Team Dashboard
 
   //- ── AI processing bar — visible whenever any AI call is in-flight ────────
   .ai-loading-bar(v-if="isDesignStreaming || isSessionStreaming || isGeneratingQuiz")
@@ -461,7 +460,6 @@ export default {
     firmId: { type: String, default: 'local-firm' },
     advisorProfile: { type: Object, default: null },
     orgTemplateIds: { type: Array, default: null },
-    isFirmManager: { type: Boolean, default: false },
     // Verified login pass (JWT). Defaults to the safe local-dev bypass token.
     apiToken: { type: String, default: 'dev-local-bypass' }
   },
@@ -1623,13 +1621,6 @@ export default {
   padding: 4px 0; transition: color 0.15s;
 }
 .btn-my-courses:hover { color: #1e40af; }
-.btn-team-dashboard {
-  background: #0f766e; color: #fff;
-  border: none; border-radius: 6px;
-  padding: 5px 14px; font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: background 0.15s;
-}
-.btn-team-dashboard:hover { background: #0d6560; }
 
 /* ── Server-storage error banner (CB-16/17) ─────────────── */
 .course-error-banner {
