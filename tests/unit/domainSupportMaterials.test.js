@@ -50,10 +50,28 @@ describe('domain-support four-column materials shape — EOY (§0.5)', () => {
 })
 
 describe('domain-support legacy support_tools shape — regression guard', () => {
-  test('a domain still on the legacy shape renders through the original rich renderer, not the four-column one', () => {
-    const block = formatDomainSupportForPrompt('profit')
+  // Every repo file is now on the four-column shape (content migration completed
+  // 2026-07-29), so this guard can no longer point at a real domain — it drives
+  // the fallback through a firm override instead. `materials: []` is what selects
+  // the legacy branch: arrays merge wholesale, so an override emptying `materials`
+  // and supplying `support_tools` reproduces the pre-migration shape exactly.
+  // The branch still has to work: a firm override can carry it at any time.
+  const legacyShape = {
+    materials: [],
+    support_tools: [{
+      name: 'Legacy Tool',
+      purpose: 'A tool still described in the pre-§0.5 rich shape.',
+      core_principle: 'The original renderer must keep working.',
+      when_to_use: 'Whenever an entry carries no four-column materials.'
+    }]
+  }
+
+  test('an entry still on the legacy shape renders through the original rich renderer, not the four-column one', () => {
+    const block = formatDomainSupportForPrompt('profit', { profit: legacyShape })
     expect(block).toBeTruthy()
     expect(block).toContain('## Domain Support Reference')
+    expect(block).toContain('### Legacy Tool')
+    expect(block).toContain('**Purpose:**')
     // The four-column renderer is the only place this label appears.
     expect(block).not.toContain('**How to use it:**')
   })
