@@ -30,6 +30,7 @@
   "dependencies": {
     "buefy": "^0.9.29",
     "bulma": "^0.9.4",
+    "dotenv": "8.6.0",
     "formidable": "2.1.2",
     "googleapis": "123.0.0",
     "graceful-fs": "^4.2.11",
