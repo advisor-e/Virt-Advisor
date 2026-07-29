@@ -116,6 +116,22 @@ section.firm-logic-tables
                         rows="1"
                         :aria-label="$t('firmLogicTables.colBranch')"
                       )
+                      //- Reorder is offered only where row order is presentation
+                      //- alone. A nodes-shaped tree starts its walk at row 1, so
+                      //- moving rows there would repoint the engine's entry.
+                      template(v-if="current.reorderable")
+                        button.lt-branch-move(
+                          type="button"
+                          :disabled="bIndex === 0"
+                          :aria-label="$t('firmLogicTables.moveBranchUp')"
+                          @click="moveBranch(bIndex, -1)"
+                        ) ↑
+                        button.lt-branch-move(
+                          type="button"
+                          :disabled="bIndex === form.branches.length - 1"
+                          :aria-label="$t('firmLogicTables.moveBranchDown')"
+                          @click="moveBranch(bIndex, 1)"
+                        ) ↓
                       button.lt-branch-remove(
                         type="button"
                         :aria-label="$t('firmLogicTables.removeBranch')"
@@ -331,7 +347,9 @@ export default {
      * @param {{id:string,label:string,origin:string}} item rail row
      */
     async select (item) {
-      this.current = { id: item.id, label: item.label, origin: item.origin }
+      // `reorderable` is declared up front, not added later: Vue 2 cannot make a
+      // property reactive once the object exists, so the arrows would never appear.
+      this.current = { id: item.id, label: item.label, origin: item.origin, reorderable: false }
       this.form = { branches: [] }
       this.original = null
       this.history = []
@@ -355,6 +373,9 @@ export default {
     applyDetail (detail, origin) {
       const branches = Array.isArray(detail.branches) ? detail.branches : []
       const rowOrigin = origin === 'firm' ? 'firm' : 'platform'
+      // Only the backend knows whether this table's row order is presentation
+      // or flow; default to NOT reorderable if the field is missing.
+      if (this.current) { this.current.reorderable = detail.reorderable === true }
       this.form = {
         branches: branches.map(b => ({
           id: b.id,
@@ -481,6 +502,30 @@ export default {
     /** Remove a branch from the on-screen table. */
     removeBranch (index) {
       this.form.branches.splice(index, 1)
+    },
+
+    /**
+     * Move a branch one row up or down (on-screen only; Save persists it).
+     *
+     * GUARDED, and the guard is the point. Row order is presentation only for
+     * `flat_if_then` tables. A `nodes`-shaped tree is a graph whose entry point
+     * is positional — `walkLogicTree` starts at `tree.nodes[0].id` — so moving
+     * rows there would repoint where the engine begins, which is a FLOW change
+     * and outside what firms may edit (Mike, 2026-07-24). The backend decides
+     * via `reorderable` on the detail response; this re-checks it rather than
+     * trusting that the buttons were hidden.
+     *
+     * Splice rather than index assignment: Vue 2 cannot observe `arr[i] = x`.
+     *
+     * @param {number} index - the branch's current row
+     * @param {number} delta - -1 to move up, +1 to move down
+     */
+    moveBranch (index, delta) {
+      if (!this.current || !this.current.reorderable) { return }
+      const target = index + delta
+      if (target < 0 || target >= this.form.branches.length) { return }
+      const [moved] = this.form.branches.splice(index, 1)
+      this.form.branches.splice(target, 0, moved)
     },
 
     formatDate (value) {
@@ -693,6 +738,17 @@ export default {
   padding: 0 0.25rem;
 }
 .lt-branch-remove:hover { color: #cc0f35; }
+.lt-branch-move {
+  border: 0;
+  background: none;
+  color: #7a869a;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1.6rem;
+  padding: 0 0.18rem;
+}
+.lt-branch-move:hover:not(:disabled) { color: #002b64; }
+.lt-branch-move:disabled { color: #dde2e9; cursor: default; }
 
 /* Action bar. */
 .lt-actionbar {

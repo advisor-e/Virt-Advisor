@@ -1951,6 +1951,16 @@ async function getLogicTrees (req, res) {
 /**
  * GET /api/firm-manager/logic-trees/:treeId — one logic table's branches as the
  * four display columns, with the firm's override merged in for display.
+ *
+ * `reorderable` tells the editor whether the firm may move rows up and down.
+ * It is FALSE for `nodes`-shaped trees, because those are a graph whose entry
+ * point is positional: `walkLogicTree` starts at `tree.nodes[0].id`
+ * ([`logicTrees.js`](../utils/logicTrees.js)), so promoting a different row to
+ * the top would repoint where the engine begins reasoning — a change to the
+ * FLOW, which firm editing deliberately excludes (Mike's scope ruling
+ * 2026-07-24: reword + add/remove, flow intact). It is TRUE only for
+ * `flat_if_then` trees, whose `branches` are self-contained rules with no entry
+ * semantics, so their order is presentation alone.
  */
 async function getLogicTreeDetail (req, res) {
   const { treeId } = req.params
@@ -1965,6 +1975,7 @@ async function getLogicTreeDetail (req, res) {
       id: merged.id,
       label: merged.name || merged.id,
       origin: (firmMap && firmMap[treeId]) ? 'firm' : 'platform',
+      reorderable: !Array.isArray(merged.nodes),
       branches: _treeBranchRows(merged)
     })
   } catch (err) {

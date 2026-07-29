@@ -87,6 +87,54 @@ async function openTable (wrapper, id, label, origin) {
 
 afterEach(() => { delete global.fetch })
 
+describe('reordering branches (only where order is presentation, not flow)', () => {
+  // eoyDetail() carries no `reorderable`, standing in for a nodes-shaped tree.
+  const flatDetail = () => Object.assign(eoyDetail(), { reorderable: true })
+
+  test('no move controls on a table the backend will not let the firm reorder', async () => {
+    const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.vm.current.reorderable).toBe(false)
+    expect(wrapper.findAll('.lt-branch-move').length).toBe(0)
+  })
+
+  test('move controls appear on a reorderable table', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: flatDetail() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.vm.current.reorderable).toBe(true)
+    expect(wrapper.findAll('.lt-branch-move').length).toBeGreaterThan(0)
+  })
+
+  test('moveBranch reorders on a reorderable table and survives the save payload', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: flatDetail() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    const wasSecond = wrapper.vm.form.branches[1].id
+
+    wrapper.vm.moveBranch(1, -1)
+    expect(wrapper.vm.form.branches[0].id).toBe(wasSecond)
+
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => c[1] && c[1].method === 'POST')
+    expect(JSON.parse(post[1].body).branches[0].id).toBe(wasSecond)
+  })
+
+  // The guard, not the hidden buttons, is what protects the flow.
+  test('moveBranch refuses to act on a non-reorderable table even if called directly', async () => {
+    const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
+    const before = wrapper.vm.form.branches.map(b => b.id)
+    wrapper.vm.moveBranch(1, -1)
+    expect(wrapper.vm.form.branches.map(b => b.id)).toEqual(before)
+  })
+
+  test('a move off either end is ignored rather than losing a branch', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: flatDetail() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    const before = wrapper.vm.form.branches.map(b => b.id)
+    wrapper.vm.moveBranch(0, -1)
+    wrapper.vm.moveBranch(before.length - 1, 1)
+    expect(wrapper.vm.form.branches.map(b => b.id)).toEqual(before)
+  })
+})
+
 describe('loading', () => {
   test('asks the backend for the logic-table list, with the bearer token', async () => {
     await mountScreen()

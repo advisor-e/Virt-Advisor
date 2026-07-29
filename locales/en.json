@@ -829,6 +829,8 @@
     "loadFailed": "Your logic tables could not be loaded. Please try again, and tell us if it keeps happening.",
     "detailFailed": "That logic table could not be opened. Please try again, and tell us if it keeps happening.",
     "removeBranch": "Remove branch",
+    "moveBranchUp": "Move branch up",
+    "moveBranchDown": "Move branch down",
     "saved": "Your changes have been saved.",
     "resetConfirm": "Reset <strong>{name}</strong> to the platform default? Your firm's saved changes to this logic table will be removed.",
     "wasReset": "Reset to the platform default.",

@@ -118,6 +118,32 @@ describe('GET /logic-trees/:treeId (detail)', () => {
     expect(res._status).toBe(404)
     expect(res._body.success).toBe(false)
   })
+
+  // Row order is presentation only on a flat rule list. On a nodes-shaped tree
+  // it is FLOW: walkLogicTree starts at tree.nodes[0].id, so promoting a
+  // different row would repoint where the engine begins reasoning.
+  test('a nodes-shaped tree is NOT reorderable — its first row is the entry point', async () => {
+    const res = makeMockRes()
+    await getLogicTreeDetail(makeReq({ params: { treeId: 'eoy_meeting' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body.reorderable).toBe(false)
+  })
+
+  test('a flat_if_then tree IS reorderable — its rules are self-contained', async () => {
+    const res = makeMockRes()
+    await getLogicTreeDetail(makeReq({ params: { treeId: 'get_sales_tracker' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body.reorderable).toBe(true)
+  })
+
+  test('every real tree that owns nodes is refused reordering', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    for (const tree of logicTrees.effectiveTrees(null)) {
+      const res = makeMockRes()
+      await getLogicTreeDetail(makeReq({ params: { treeId: tree.id } }), res)
+      expect(res._body.reorderable).toBe(!Array.isArray(tree.nodes))
+    }
+  })
 })
 
 describe('POST /logic-trees/:treeId (save)', () => {
