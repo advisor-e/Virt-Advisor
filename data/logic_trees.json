@@ -244,7 +244,7 @@
           "condition": "Issue is identified as Selling",
           "action": "Proceed to Lite Fundamentals Selling.",
           "templates": [
-            "Sales Session"
+            "Lite Sales"
           ],
           "notes": "Focuses strictly on sales fundamentals."
         },
@@ -386,7 +386,7 @@
           "action": "Brainstorm cash tactics, use Debtor Protocols and Lite Fundamentals Data.",
           "templates": [
             "Debtor Protocols",
-            "Data Session"
+            "Lite Data"
           ],
           "notes": "Brainstorm as a team to add cash management tactics to the support page in the Working Capital Cycle template (Firm Manager mode)."
         },
@@ -804,7 +804,7 @@
             "1 pg Bizz Case",
             "4 Part Bizz Plan",
             "Lite Strategy",
-            "Planning Session"
+            "Lite Planning"
           ],
           "support_templates": [],
           "notes": "Use the Lite Fundamentals Planning template if you wish to develop ongoing strategic reviews. It provides a basic introduction to planning and features a pre-meeting video to put the client at ease. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name."
@@ -958,7 +958,7 @@
           "condition": "Client responds: 'Their Engagement (attitude) is the problem'",
           "action": "Review the Lite Fundamentals 'PEOPLE' template. If you don't have the right team in the canoe, consider the Hiring Winners template also.",
           "templates": [
-            "People Session",
+            "Lite People",
             "Hiring Winners",
             "Hire Winners"
           ],
@@ -989,7 +989,7 @@
           "condition": "Client responds: 'Lacking Skill sets'",
           "action": "Focus on the Delegation & Feedback protocols in the Lite Fundamentals 'People' template. Consider also the Turnaround Behaviours template.",
           "templates": [
-            "People Session",
+            "Lite People",
             "Turnaround Behaviours",
             "Hiring Winners"
           ],
@@ -1002,7 +1002,7 @@
           "condition": "Client responds: 'Poor Systems'",
           "action": "Review the Lite Fundamentals 'Process' template. For a more advanced organisation, explore the Organisational Review template.",
           "templates": [
-            "Process Session",
+            "Lite Process",
             "Organisational Review"
           ],
           "notes": "This branch is used when staff effectiveness is hindered by operational processes rather than individual capabilities."
@@ -1141,8 +1141,8 @@
           "action": "Use the People vs Process template as a diagnosis tool. It contains frameworks to help unpack the source of the problem — whether the root cause is the people, the process, or both. This is a diagnosis template, not the complete solution. Follow with the appropriate Lite Fundamentals session (People or Process) based on what the diagnosis reveals.",
           "templates": [
             "People vs. Process",
-            "People Session",
-            "Process Session",
+            "Lite People",
+            "Lite Process",
             "Wages Review"
           ],
           "notes": "People vs Process is a starting diagnosis, not an end deliverable. Always identify which Lite Fundamentals session to follow with based on what it reveals."
@@ -1292,8 +1292,8 @@
           "action": "Use People vs Process, Lite Fundamentals People + Lite Fundamentals Process, or an Organisational Review.",
           "templates": [
             "People vs. Process",
-            "People Session",
-            "Process Session",
+            "Lite People",
+            "Lite Process",
             "Organisational Review"
           ],
           "notes": "'People vs Process' helps diagnose the issues. The Lite templates provide simple remedy options. The Organisational Review offers more in-depth suggestions."
@@ -3026,7 +3026,7 @@
           "condition": "The process design itself is the root problem — wrong steps, missing steps, unclear handoffs",
           "notes": "Run a full process mapping session. The 5-13 node rule: fewer than 5 nodes usually means a step has been skipped or merged; more than 13 nodes means the process is too complex and will not be followed. Identify where the Delay Factor is creating oversteering — where teams take corrective action before the effect of their last action has been visible, creating oscillation. Check for Limits to Growth archetype: the process may be generating output that is hitting an invisible constraint (capacity, skill, resource) that is dampening it. Apply Capacity, Capability, Opportunity to identify the constraint.",
           "templates": [
-            "Process Session",
+            "Lite Process",
             "Capacity, Capability, Opportunity"
           ]
         },
@@ -3037,7 +3037,7 @@
           "condition": "Process design is flawed AND people are not executing — compounded failure",
           "notes": "Sequence matters: fix the design first, then address the people execution. Attempting to hold people accountable to a broken process creates resentment and confusion — it will be seen as blame-shifting. Use Process Session to rebuild the architecture. Then use People vs. Process to relaunch expectations and accountability once the design is sound. Where the Shifting the Burden archetype is present — short-term workarounds have been layered on top of a structural problem — identify and remove the workarounds before redesigning the core process.",
           "templates": [
-            "Process Session",
+            "Lite Process",
             "People vs. Process",
             "Organisational Review"
           ]
@@ -3083,7 +3083,7 @@
           "condition": "Client needs to build a KPI, dashboard, or measurement system",
           "notes": "A data system is the Reinforcing Loop engine of the business — good data feeds better decisions, which produce better results, which generate better data. Without it, the business is flying blind. Start with: what decisions do we make weekly that a KPI could improve? Design backwards from the decision, not forwards from the data available. Avoid Tampering — acting on common-cause variation as if it were special-cause. Build Volatility Analysis in from the start to distinguish signal from noise. Data Session will define the KPI architecture. Nine Growth Aspects provides a full-business lens to ensure no system is overlooked.",
           "templates": [
-            "Data Session",
+            "Lite Data",
             "Nine Growth Aspects"
           ]
         },
@@ -3156,7 +3156,7 @@
           "condition": "Staff don't know what the system requires — communication or documentation failure",
           "notes": "Rebuild the communication architecture of the system. Every system must have: (1) A documented standard — what does 'correct' look like? (2) A training event — not just a written document; (3) A reference point — where do people check when unsure? (4) A feedback mechanism — how do people flag when the system is wrong or unclear? People vs. Process re-establishes expectations and accountability post-clarity rebuild. Process Session documents and standardises the system.",
           "templates": [
-            "Process Session",
+            "Lite Process",
             "People vs. Process"
           ]
         },
@@ -3200,8 +3200,8 @@
           "condition": "Client operates a high-volume, mass-market model where variation is a defect",
           "notes": "Six Sigma uses DMAIC: Define → Measure → Analyse → Improve → Control. Every process is mapped, measured, and statistically controlled. The target is 3.4 defects per million opportunities. Implementation in an SME context: start with the highest-volume, highest-consequence process first (not the most visible problem). Process Session maps the current state. Volatility Analysis (from the Data Session) establishes what is normal variation vs defect signal. Build control charts into the Data System so the team can self-monitor without constant management oversight.",
           "templates": [
-            "Process Session",
-            "Data Session",
+            "Lite Process",
+            "Lite Data",
             "Capacity, Capability, Opportunity"
           ]
         },
@@ -3212,9 +3212,9 @@
           "condition": "Client wants to remove waste and maximise value delivery at minimum cost",
           "notes": "Lean identifies eight types of waste: Transportation, Inventory, Motion, Waiting, Overproduction, Overprocessing, Defects, Skills (under-utilised talent). The value stream map is the primary tool — walk the entire process from customer request to customer receipt and mark every step as Value-Adding, Non-Value-Adding but Necessary, or Pure Waste. Remove Pure Waste first, then challenge each Non-Value-Adding-but-Necessary step. Lean works best when paired with a Data System that reveals where waste is accumulating in real time. Process Session runs the value stream mapping session. Capacity, Capability, Opportunity identifies where the lean savings can be redeployed.",
           "templates": [
-            "Process Session",
+            "Lite Process",
             "Capacity, Capability, Opportunity",
-            "Data Session"
+            "Lite Data"
           ]
         },
         {
@@ -3226,7 +3226,7 @@
           "templates": [
             "Capacity, Capability, Opportunity",
             "Nine Growth Aspects",
-            "Process Session"
+            "Lite Process"
           ]
         },
         {
@@ -3277,7 +3277,7 @@
           "condition": "A team member or manager blames an external force or an individual's mistake for a system failure",
           "action": "Shift the perspective using Circles of Causality before any fix is attempted. The core insight is that in complex systems, 'the enemy is us' — the system's own structure created the conditions for the failure. This requires a Shift of Mind (Metanoia): the team must stop looking outward for blame and start looking at how the structure, incentives, and feedback loops of the system itself produced the result. Ask: 'If we removed that person or that external event — what in our system would have produced this same outcome eventually anyway?'",
           "templates": [
-            "Process Session",
+            "Lite Process",
             "People vs. Process"
           ],
           "notes": "Blame culture is a symptom of a system that has not been designed to surface and own its own failures. Structure Influences Behaviour — if the system punishes honesty about failures, people will always blame externally. The Circles of Causality reframe is the prerequisite to any meaningful system improvement: until the team owns the structure, they will keep treating symptoms."
@@ -3289,8 +3289,8 @@
           "condition": "A short-term fix or manual workaround has been proposed or is already in use instead of addressing the root cause",
           "action": "Map the underlying structure before accepting any symptomatic fix. The Shifting the Burden archetype describes what happens when a workaround relieves the symptom just enough to reduce the pressure to fix the root cause — the fundamental problem remains and the symptom eventually returns, often worse. Use the 5 Whys technique to get below the symptomatic fix to the structural root. Then design a fundamental solution that removes the need for the workaround. Warn the client: every layer of workaround added makes the eventual structural fix harder and more expensive.",
           "templates": [
-            "Process Session",
-            "Data Session"
+            "Lite Process",
+            "Lite Data"
           ],
           "notes": "The test for a symptomatic fix is simple: 'If we removed this workaround tomorrow, would the problem return?' If yes, it is a burden-shift — not a fix. The structural solution must be identified and planned even if the workaround is kept temporarily. Do not normalise workarounds by building the next process step around them."
         },
@@ -3315,7 +3315,7 @@
           "condition": "A sudden surge or drop in performance has caused the team to react immediately — changing course, over-hiring, cutting costs, or reversing a recent decision before the effects of that decision have had time to show",
           "action": "Check the system for Delay Factors before any reactive change is made. A Delay is the lag between an action and its visible feedback — the system is still responding to the last decision when the next one is already being made. Oversteering happens when leaders treat this lag as evidence that the last action failed, and reverse course prematurely. The result is oscillation: the system swings between over-correction and under-correction and never stabilises. Standardise the interpretation of data — use Volatility Analysis to distinguish common-cause variation (normal range, do not act) from special-cause events (genuine anomaly, act deliberately).",
           "templates": [
-            "Data Session",
+            "Lite Data",
             "Capacity, Capability, Opportunity"
           ],
           "notes": "Cross-reference the demings_volatility coaching tree and the financial_systems_review advisory tree for the full volatility interpretation framework. The diagnostic question is: 'Is this a special-cause event that demands a response, or common-cause variation that we are mistakenly reacting to?' Acting on common-cause variation as if it were special cause is Deming's Tampering — it adds instability rather than reducing it."
@@ -3327,9 +3327,9 @@
           "condition": "The team is struggling to influence complex system behaviour — there are too many variables, everything seems connected to everything else, and it is unclear where to start",
           "action": "Use Causal Loop Diagrams (CLDs) to map how the key variables in the system interact and find leverage points. A leverage point is a place in the system where a small, well-targeted change produces significant and lasting improvement across the whole system. In circular systems, intervening at the wrong point produces either no effect or an equal and opposite reaction elsewhere. The CLD maps: which variables reinforce each other (Reinforcing Loops), which variables balance and correct each other (Balancing Loops), and where the Delay Factors sit. The highest-leverage interventions are almost always structural — changing a policy, a feedback loop, or an incentive — rather than operational.",
           "templates": [
-            "Process Session",
+            "Lite Process",
             "Nine Growth Aspects",
-            "Data Session"
+            "Lite Data"
           ],
           "notes": "Leverage points in order of increasing power (from Donella Meadows): numbers (least powerful) → feedback loop strength → information flows → rules → goals → paradigms → power to change paradigms (most powerful). Most operational fixes address numbers. The most durable improvements change the information flows or the rules. Ask: 'What is the one thing — if it changed — that would make the biggest difference to how this system behaves?'"
         },
@@ -3340,8 +3340,8 @@
           "condition": "A new system improvement or plan of action is being executed — and the team needs to anticipate and measure the likely resistance or negative reactions it will generate",
           "action": "Before rollout, identify the likely opposite reactions the new system will generate and build them into the KPI set from day one. Based on Newton's Third Law — every action generates an equal and opposite reaction — no system change is consequence-free. Common reactions: a new performance measurement system generates gaming behaviour; a new efficiency process generates staff resistance and workaround creation; a new sales target generates short-term deal-rushing that undermines long-term margin. Measuring the pushback is not pessimism — it is a complete picture. If the reaction metrics are not in the KPI set, the team will only see the intended results and miss the unintended consequences until they have already compounded.",
           "templates": [
-            "Data Session",
-            "Process Session",
+            "Lite Data",
+            "Lite Process",
             "People vs. Process"
           ],
           "notes": "The practical implementation: for every intended KPI in the new system, ask 'What behaviour does measuring this incentivise — and what is the unintended consequence of that behaviour?' Add a counter-metric that captures the reaction. For example: if measuring individual output, also measure quality and team collaboration indicators — the reaction to individual output targets is almost always a decline in both."
@@ -6806,7 +6806,7 @@
           "action": "Implement on-site billing apps synced to accounting software (e.g., Tradify to Xero). Invoices must be generated immediately upon job completion to start the payment clock instantly. Every day of billing lag is a day removed from the working capital cycle.",
           "templates": [
             "Debtor Protocols",
-            "Data Session"
+            "Lite Data"
           ],
           "notes": "This is an operational fix, not a financial one. Establish a non-negotiable rule: invoice on the day the work is done. Systems and apps make this frictionless and remove the 'I forgot' excuse."
         },

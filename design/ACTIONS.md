@@ -452,12 +452,70 @@
       record (`va_courses` via `courseStore`, dev-file fallback), so a manager view may be able to
       read from there rather than needing new columns — but cross-advisor reads are IDOR-sensitive
       and must go through the same `firmAuth` pattern.
-  - ☐ **Ghost logic-tree references (6) — pre-existing, surfaced by tonight's boot log.** The backend
-    warns at every start: *"logic trees reference template names that do not exist in search content.
-    These produce AI hallucinations"* — `Sales Session`, `Data Session`, `Planning Session`,
-    `People Session`, `Process Session`, `Growth Framework`. **Not caused by the 2026-07-28 library
-    refresh** (it added three pages and removed none, so no name was orphaned by it).
-    `scripts/migrate-ghost-references.js` already exists for this.
+  - ✅ **Ghost logic-tree references — 29 → 1. FIXED 2026-07-30 (approved by Mike, this branch).
+    Full suite 1,971 green, 11 snapshots unchanged, lint 0 errors. ⚠ READ THIS BEFORE EVER RUNNING
+    `scripts/migrate-ghost-references.js` — it would have destroyed real content.**
+    The backend warned at every start that six template names in `data/logic_trees.json` matched
+    nothing in the search content (*"These produce AI hallucinations"*): `Sales Session`,
+    `Data Session`, `Planning Session`, `People Session`, `Process Session`, `Growth Framework`.
+    Six distinct names, but **29 actual references across 22 nodes** — the boot log dedupes.
+    - **What they really were: five LIVE pages that had been RETITLED upstream in Advisor-e.**
+      Proved from each page's own slug in the master export, which still spells the old name —
+      `planning-session` → **"Lite Planning"**, `data-session` → **"Lite Data"**, `sales-session` →
+      **"Lite Sales"**, `people-session` → **"Lite People"**, `process-session` → **"Lite Process"**.
+      The CB-12 lesson exactly: titles drift, slugs don't. Not caused by the 2026-07-28 library
+      refresh (it added three pages and removed none).
+    - **🔴 The existing repair script was the WRONG tool and would have caused real harm.**
+      `migrate-ghost-references.js` **deletes** what it cannot resolve
+      (`node.templates.filter(name => !ghosts.includes(name))`). Running it would have stripped
+      **28 correct recommendations** out of the trees — 13 from `systems` alone — after which the
+      trees would have validated clean while recommending nothing in those spots. A worse state
+      than the warning, and invisible. The script is left in place but must not be run on these.
+    - **The fix:** the five stale titles renamed to the live page titles (28 references, 7 trees).
+      Mechanical, no judgement — each mapping is proved by the slug. Diff is 28 insertions /
+      28 deletions, no reformatting (the file is exactly `JSON.stringify(…, null, 2)` + newline).
+      The one-off script aborted rather than writing if any target title were missing from the
+      export, so it could not create a fresh dead reference.
+    - **MEASURED, not assumed — and the committed bench could NOT see this.**
+      [`treeContributionHarness.test.js`](../tests/unit/treeContributionHarness.test.js) only
+      exercises the `valuation` and `governance` trees, so it is structurally blind to all seven
+      trees touched here; its snapshots passing is *expected*, not evidence. Measured instead
+      through the same production soft-hint path (`resolveTemplates` + `treeHintNames`), one
+      variable changed: **4 of 7 trees moved their deterministic top-6** — `systems` (*Lite
+      Process* enters at 7), `client_sales` (*Lite Sales* 6 → **9**, now 2nd), `cashflow` and
+      `cash_tactics` (*Lite Data* enters at 8, now 2nd). `staff_performance`, `client_planning`
+      and `frameworks_find` are equally fixed; their references are simply out-scored on the test
+      case. **This is a deliberate behaviour change:** those rules recommended nothing before.
+    - ✅ **GUARD SHIPPED so this cannot rot silently again:**
+      [`tests/unit/logicTreeTemplateNames.test.js`](../tests/unit/logicTreeTemplateNames.test.js)
+      fails the build if any client-delivery tree names a page the library lacks. **A boot warning
+      is not a control** — this one was logged, backlogged and carried for days while the tool that
+      "existed for it" would have made things worse. Anchored to the **committed**
+      `data/templates.json`, NOT the gitignored export, which would make the guard pass vacuously
+      on a fresh clone and in CI. Scope mirrors `validateLogicTreeReferences` (node trees only;
+      flat_if_then Learn trees excluded for the documented reason). Allowlist holds exactly one
+      entry, and a fourth test **fails once that entry resolves**, so the allowlist cannot outlive
+      its reason. The failure message tells the next reader to check the slug before deleting.
+    - **Negative control run (the guard is not vacuous):** against broken fixtures it caught the
+      real retitle defect and a hand typo, and correctly ignored `[placeholders]`, prose
+      fragments, the allowlisted name and a healthy tree. **Blind spot recorded honestly:** if
+      someone runs the deletion script the dead name is *gone*, so the guard falls silent — a rule
+      recommending nothing looks identical to a healthy one. That is why the test also pins the
+      five corrected names by name.
+    - ☐ **DECISION outstanding (Mike) — `Growth Framework`, the 1 remaining dead reference**
+      (`frameworks_find` node `ff_branch1_milestones`). **It is not a page — it is a library
+      subSection** holding six: *The 9 Growth Stages*, *Growth Curve*, *Lite Fundamentals
+      Components*, *Growth Fundamentals Framework Philosophy*, *Growth Curve Checklist*,
+      *Revealing the Growth Curve Freehand*. The CB-34 resolver returns *Growth Fundamentals
+      Framework Philosophy* on word overlap alone — a **guess**, not evidence, so it was not
+      acted on. Left honestly dead and allowlisted until Mike names the page.
+    - ☐ **DECISION outstanding (Mike) — 7 prose mentions of the old names in tree `notes`**
+      (e.g. *"Use Process Session to rebuild the architecture"*, *"Volatility Analysis (from the
+      Data Session)"* — `systems` nodes 4/6/12/15/16, `valuation` node 12). The AI reads `notes`,
+      so these carry the **same hallucination risk** as the template references just fixed: it can
+      still name a page the advisor cannot find. **Deliberately not touched — this is the firm's
+      own writing**, and rewording it is Mike's call, not a mechanical correction. The guard above
+      does not cover prose (it would false-positive on ordinary sentences).
   - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"
