@@ -1,25 +1,31 @@
 'use strict'
 
 /**
- * activityLogger — fire-and-forget DB writes for advisor activity tracking.
+ * activityLogger — fire-and-forget writes for advisor activity tracking.
  *
- * Both functions swallow errors internally so a DB failure never interrupts
- * an active advisor session or course. Errors are logged to console only.
+ * Both functions swallow errors internally so a storage failure never interrupts
+ * an active advisor session or course. Errors are logged to console only. This
+ * asymmetry with the READ path is deliberate: a read that fails must say so on
+ * screen, a write that fails must never take an advisor's session down with it.
  *
- * INTEGRATION NOTE (for Advisor-e team):
- *   advisorId and firmId currently come from the client request body.
- *   Replace with JWT-derived values once the auth layer is wired in.
+ * Persistence (and the dev-file fallback that makes this work without MySQL) lives
+ * in activityStore — see that file for why the fallback exists.
+ *
+ * IDENTITY: advisorId and firmId are derived by the route from the verified JWT
+ * (firmAuth) and passed in. They are NOT taken from the client request body — an
+ * earlier version of this comment said they were, which misdescribed the security
+ * posture of the whole feature.
  */
 
-const db = require('./db')
+const activityStore = require('./activityStore')
 const { getHighestTier } = require('./tierLookup')
 
 /**
  * Logs a completed VA client session to advisor_va_sessions.
  * Called once when happyConfirmed transitions to true in advisor.js.
  *
- * @param {string}   advisorId            - Advisor identifier (client-supplied; upgrade to JWT)
- * @param {string}   firmId               - Firm identifier (client-supplied; upgrade to JWT)
+ * @param {string}   advisorId            - Advisor identifier (JWT-derived, from the route)
+ * @param {string}   firmId               - Firm identifier (JWT-derived, from the route)
  * @param {string|null} domain            - Detected advisory domain (e.g. 'profit', 'staff')
  * @param {string[]} recommendedTemplates - Template titles extracted from Phase 3 response
  */
@@ -27,19 +33,15 @@ async function logVASession (advisorId, firmId, domain, recommendedTemplates) {
   if (!advisorId || !firmId) { return }
   try {
     const templates = Array.isArray(recommendedTemplates) ? recommendedTemplates : []
-    const tier = getHighestTier(templates)
-    await db.execute(
-      `INSERT INTO advisor_va_sessions
-         (advisor_id, firm_id, domain, recommended_templates, highest_tier)
-       VALUES (?, ?, ?, ?, ?)`,
-      [
-        String(advisorId).slice(0, 64),
-        String(firmId).slice(0, 64),
-        domain ? String(domain).slice(0, 128) : null,
-        templates.length ? JSON.stringify(templates) : null,
-        tier
-      ]
-    )
+    await activityStore.recordVASession({
+      advisorId: String(advisorId).slice(0, 64),
+      firmId: String(firmId).slice(0, 64),
+      domain: domain ? String(domain).slice(0, 128) : null,
+      templates,
+      // Computed at WRITE time and stored, never at read time: the catalogue changes,
+      // and a session done in March must not silently change tier in July.
+      tier: getHighestTier(templates)
+    })
   } catch (err) {
     console.error('[activityLogger] logVASession failed:', err.message)
   }
@@ -70,25 +72,18 @@ async function logCourseSession (params) {
   if (!advisorId || !firmId || !courseId) { return }
   try {
     const resources = Array.isArray(sessionResources) ? sessionResources : []
-    const tier = getHighestTier(resources)
-    await db.execute(
-      `INSERT IGNORE INTO advisor_course_completions
-         (advisor_id, firm_id, course_id, course_title, course_topic,
-          session_index, session_title, session_resources, quiz_score, highest_tier)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        String(advisorId).slice(0, 64),
-        String(firmId).slice(0, 64),
-        String(courseId).slice(0, 64),
-        String(courseTitle || '').slice(0, 255),
-        courseTopic ? String(courseTopic).slice(0, 255) : null,
-        Number(sessionIndex),
-        String(sessionTitle || '').slice(0, 255),
-        resources.length ? JSON.stringify(resources) : null,
-        (quizScore !== null && quizScore !== undefined) ? Number(quizScore) : null,
-        tier
-      ]
-    )
+    await activityStore.recordCourseSession({
+      advisorId: String(advisorId).slice(0, 64),
+      firmId: String(firmId).slice(0, 64),
+      courseId: String(courseId).slice(0, 64),
+      courseTitle: String(courseTitle || '').slice(0, 255),
+      courseTopic: courseTopic ? String(courseTopic).slice(0, 255) : null,
+      sessionIndex: Number(sessionIndex),
+      sessionTitle: String(sessionTitle || '').slice(0, 255),
+      resources,
+      quizScore: (quizScore !== null && quizScore !== undefined) ? Number(quizScore) : null,
+      tier: getHighestTier(resources)
+    })
   } catch (err) {
     console.error('[activityLogger] logCourseSession failed:', err.message)
   }

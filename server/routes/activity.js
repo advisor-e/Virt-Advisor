@@ -13,7 +13,7 @@
  * The team-overview route additionally requires a firm-manager role.
  */
 
-const db = require('../utils/db')
+const activityStore = require('../utils/activityStore')
 const { logCourseSession } = require('../utils/activityLogger')
 const { sendError } = require('../utils/sendError')
 
@@ -92,23 +92,7 @@ async function getProgression (req, res) {
   }
 
   try {
-    const [[vaSessions], [courseSessions]] = await Promise.all([
-      db.execute(
-        `SELECT highest_tier, domain, completed_at
-         FROM advisor_va_sessions
-         WHERE advisor_id = ? AND firm_id = ?
-         ORDER BY completed_at DESC LIMIT 200`,
-        [advisorId, firmId]
-      ),
-      db.execute(
-        `SELECT course_id, course_title, session_index, session_title,
-                quiz_score, highest_tier, completed_at
-         FROM advisor_course_completions
-         WHERE advisor_id = ? AND firm_id = ?
-         ORDER BY completed_at DESC LIMIT 200`,
-        [advisorId, firmId]
-      )
-    ])
+    const { vaSessions, courseSessions } = await activityStore.readAdvisorSessions(advisorId, firmId)
 
     // Aggregate per tier
     const tiers = Object.fromEntries(TIERS.map(t => [t, emptyTier()]))
@@ -195,26 +179,7 @@ async function getTeam (req, res) {
   }
 
   try {
-    const [[vaRows], [courseRows]] = await Promise.all([
-      db.execute(
-        `SELECT advisor_id, highest_tier, COUNT(*) as count,
-                MAX(completed_at) as last_active
-         FROM advisor_va_sessions
-         WHERE firm_id = ?
-         GROUP BY advisor_id, highest_tier`,
-        [firmId]
-      ),
-      db.execute(
-        `SELECT advisor_id, highest_tier,
-                COUNT(*) as count,
-                AVG(quiz_score) as avg_score,
-                MAX(completed_at) as last_active
-         FROM advisor_course_completions
-         WHERE firm_id = ?
-         GROUP BY advisor_id, highest_tier`,
-        [firmId]
-      )
-    ])
+    const { vaRows, courseRows } = await activityStore.readFirmSessions(firmId)
 
     // Build per-advisor map
     const advisorMap = {}

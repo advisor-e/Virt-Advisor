@@ -73,5 +73,9 @@ data/dev-clients.json
 # Dev-only courses (created locally when MySQL is unavailable)
 data/dev-courses.json
 
+# Dev-only advisor activity — VA sessions and course completions
+# (created locally when MySQL is unavailable)
+data/dev-activity.json
+
 # Local CA cert bundle (machine-specific export from Windows cert store)
 certs/

@@ -437,6 +437,16 @@ describe('database failure — the advisor is told, not shown a page of zeros', 
    * NOT changed, and deliberately so: the WRITE path (activityLogger) stays fire-and-forget.
    * A database outage must never interrupt an advisor mid-session. Only reading is loud.
    */
+  // Since 2026-07-29 the honest-failure guarantee is a PRODUCTION guarantee. Outside
+  // production a database failure is not a fault at all — the dev JSON file is the
+  // intended store (activityStore, the same fallback five other stores already had).
+  // These tests therefore run as production; the dev path has its own block below.
+  let realNodeEnv
+  beforeEach(() => { realNodeEnv = process.env.NODE_ENV; process.env.NODE_ENV = 'production' })
+  afterEach(() => {
+    if (realNodeEnv === undefined) { delete process.env.NODE_ENV } else { process.env.NODE_ENV = realNodeEnv }
+  })
+
   test('a refused connection is an error, not an empty record', async () => {
     db.execute.mockRejectedValue(new Error("Access denied for user 'root'@'localhost'"))
     const res = makeMockRes()
