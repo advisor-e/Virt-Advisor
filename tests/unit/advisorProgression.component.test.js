@@ -143,14 +143,18 @@ describe('recent activity', () => {
     const wrapper = await mountScreen(recent)
     const rows = wrapper.findAll('.prog-activity-row')
     expect(rows.length).toBe(2)
+    // The course title is real data and stays literal; the advisory area is a label,
+    // so it is asserted as its i18n key.
     expect(rows.at(0).find('.prog-activity-title').text()).toBe('Cashflow Rescue')
-    expect(rows.at(1).find('.prog-activity-title').text()).toBe('Profitability')
+    expect(rows.at(1).find('.prog-activity-title').text()).toBe('advisorProgress.domain.profit')
   })
 
-  test('names the advisory area in plain English, not its internal code', async () => {
+  test('names the advisory area through a label, never as a bare internal code', async () => {
     const wrapper = await mountScreen(recent)
-    expect(wrapper.text()).toContain('Profitability')
-    expect(wrapper.text()).not.toContain('profit')
+    const title = wrapper.findAll('.prog-activity-row').at(1).find('.prog-activity-title')
+    expect(title.text()).toBe('advisorProgress.domain.profit')
+    // The bare engine code must never be what an advisor reads.
+    expect(title.text()).not.toBe('profit')
   })
 
   test('an unmapped area falls back to the code rather than rendering blank', async () => {

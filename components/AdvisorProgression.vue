@@ -2,16 +2,17 @@
 .advisor-progression
 
   .prog-nav-bar
-    button.btn-prog-back(@click="$emit('exit')") ← Back to Menu
+    button.btn-prog-back(@click="$emit('exit')") {{ $t('advisorProgress.backToMenu') }}
 
   .prog-loading(v-if="loading")
     .prog-loading-inner
       .prog-spinner
-      p Loading progress data...
+      p {{ $t('advisorProgress.loading') }}
 
+  //- `error` holds an i18n KEY, not a sentence — see fetchData.
   .prog-error(v-else-if="error")
-    p.prog-error-msg {{ error }}
-    button.btn-prog-retry(@click="fetchData") Try again
+    p.prog-error-msg {{ $t(error) }}
+    button.btn-prog-retry(@click="fetchData") {{ $t('advisorProgress.retry') }}
 
   //- ── Advisor self-view ────────────────────────────────────────────────
   //- This screen is one advisor's own record and nothing else. The firm-wide
@@ -20,8 +21,8 @@
   //- reachable behind an isFirmManager prop the app never set.
   template(v-else)
     .prog-header
-      h2.prog-title My Progress
-      p.prog-sub Your advisory capability across all VA cases, courses, and sessions
+      h2.prog-title {{ $t('advisorProgress.title') }}
+      p.prog-sub {{ $t('advisorProgress.subtitle') }}
 
     .prog-tiers
       .prog-tier-card(
@@ -30,35 +31,34 @@
         :class="'tier-card-' + tier.key"
       )
         .prog-tier-top
-          span.prog-tier-label {{ tier.label }}
-          span.prog-tier-desc {{ tier.desc }}
+          span.prog-tier-label {{ $t(tier.labelKey) }}
+          span.prog-tier-desc {{ $t(tier.descKey) }}
         .prog-tier-stats
           .prog-stat
             .prog-stat-num {{ tiers[tier.key].vaSessions }}
-            .prog-stat-label VA Cases
+            .prog-stat-label {{ $t('advisorProgress.statVaCases') }}
           .prog-stat
             .prog-stat-num {{ tiers[tier.key].courseSessions }}
-            .prog-stat-label Course Sessions
+            .prog-stat-label {{ $t('advisorProgress.statCourseSessions') }}
           .prog-stat
             .prog-stat-num(v-if="tiers[tier.key].avgQuizScore !== null") {{ tiers[tier.key].avgQuizScore }}%
             .prog-stat-num(v-else) —
-            .prog-stat-label Avg Quiz
+            .prog-stat-label {{ $t('advisorProgress.statAvgQuiz') }}
         .prog-tier-footer
-          span.prog-last-active(v-if="tiers[tier.key].lastActive") Last active {{ formatDate(tiers[tier.key].lastActive) }}
-          span.prog-no-activity(v-else) No activity yet
+          span.prog-last-active(v-if="tiers[tier.key].lastActive")
+            | {{ $t('advisorProgress.lastActive', { date: formatDate(tiers[tier.key].lastActive) }) }}
+          span.prog-no-activity(v-else) {{ $t('advisorProgress.noActivityYet') }}
 
     //- Work the tier lookup could not place. Said out loud so the three cards above
-    //- are not read as the whole record. The two lines below use $t() while the rest
-    //- of this screen is still hardcoded English — new strings do not add to the
-    //- i18n debt, and these seed the block the pending sweep will fill.
+    //- are not read as the whole record.
     .prog-unlevelled(v-if="unclassifiedSessions")
       p {{ $t('advisorProgress.notLevelled', { n: unclassifiedSessions }) }}
 
     .prog-empty-notice(v-if="!hasAnyActivity")
-      p Complete a VA case or course session to start building your progress record here.
+      p {{ $t('advisorProgress.emptyNotice') }}
 
     .prog-recent(v-if="recentActivity.length")
-      h3.prog-recent-heading Recent Activity
+      h3.prog-recent-heading {{ $t('advisorProgress.recentHeading') }}
       .prog-activity-list
         .prog-activity-row(v-for="(item, i) in recentActivity" :key="i")
           .prog-activity-type-icon(:class="item.type === 'va' ? 'type-va' : 'type-course'")
@@ -69,8 +69,8 @@
               path(stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z")
               path(stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422A12.083 12.083 0 0 1 21 18.5a12.083 12.083 0 0 1-9 0 12.083 12.083 0 0 1-9 0A12.083 12.083 0 0 1 3 18.5l9-4.5z")
           .prog-activity-body
-            .prog-activity-title {{ item.type === 'va' ? (item.domain ? domainLabel(item.domain) : 'Advisory Session') : item.courseTitle }}
-            .prog-activity-sub {{ item.type === 'va' ? 'VA Case' : item.sessionTitle }}
+            .prog-activity-title {{ activityTitle(item) }}
+            .prog-activity-sub {{ item.type === 'va' ? $t('advisorProgress.vaCase') : item.sessionTitle }}
           .prog-activity-meta
             span.prog-tier-pill(:class="item.tier ? 'pill-' + item.tier : 'pill-none'") {{ tierLabel(item.tier) }}
             span.prog-activity-date {{ formatDate(item.completedAt) }}
@@ -78,22 +78,17 @@
 
 <script>
 
-const DOMAIN_LABELS = {
-  profit: 'Profitability',
-  staff: 'Staff & Team',
-  'data-systems': 'Data & Systems',
-  'sales-marketing': 'Sales & Marketing',
-  forecasting: 'Financial Management',
-  strategy: 'Strategy & Planning',
-  governance: 'Governance & Leadership',
-  succession: 'Succession Planning',
-  valuation: 'Valuation',
-  risk: 'Risk Management',
-  conflict: 'Conflict Meetings',
-  'end-of-year': 'End of Year',
-  'due-diligence': 'Due Diligence',
-  systems: 'Systems'
-}
+/**
+ * Advisory areas this screen can name, as i18n keys under `advisorProgress.domain.*`.
+ * A LIST, not a map of English: the wording lives in the locale files. An area absent
+ * from this list falls back to its own code rather than rendering blank — a new domain
+ * added to the engine must never silently produce an unlabelled row here.
+ */
+const KNOWN_DOMAINS = [
+  'profit', 'staff', 'data-systems', 'sales-marketing', 'forecasting', 'strategy',
+  'governance', 'succession', 'valuation', 'risk', 'conflict', 'end-of-year',
+  'due-diligence', 'systems'
+]
 
 export default {
   name: 'AdvisorProgression',
@@ -118,9 +113,9 @@ export default {
       /** Completed sessions no capability tier could hold — counted, never dropped. */
       unclassifiedSessions: 0,
       tierDefs: [
-        { key: 'entry-level', label: 'Entry Level', desc: 'Foundational advisory tools and techniques' },
-        { key: 'intermediate', label: 'Intermediate', desc: 'Building advisory depth and selling skills' },
-        { key: 'advanced', label: 'Advanced', desc: 'Strategic, governance and specialist delivery' }
+        { key: 'entry-level', labelKey: 'advisorProgress.tierEntry', descKey: 'advisorProgress.tierEntryDesc' },
+        { key: 'intermediate', labelKey: 'advisorProgress.tierIntermediate', descKey: 'advisorProgress.tierIntermediateDesc' },
+        { key: 'advanced', labelKey: 'advisorProgress.tierAdvanced', descKey: 'advisorProgress.tierAdvancedDesc' }
       ]
     }
   },
@@ -154,6 +149,9 @@ export default {
      * unreachable record and an advisor who has genuinely done nothing must not
      * look the same (the fault that hid this feature's only real defect).
      *
+     * `error` holds an i18n KEY, not a sentence — the template translates it. Storing
+     * the English here would put user-facing wording back in the component.
+     *
      * @returns {Promise<void>}
      */
     async fetchData () {
@@ -164,7 +162,7 @@ export default {
           headers: { Authorization: `Bearer ${this.apiToken}` }
         })
         if (!res.ok) {
-          this.error = 'Could not load your progress. Please try again.'
+          this.error = 'advisorProgress.loadFailed'
           return
         }
         const data = await res.json()
@@ -173,18 +171,36 @@ export default {
           this.recentActivity = data.recentActivity || []
           this.unclassifiedSessions = data.unclassifiedSessions || 0
         } else {
-          this.error = 'Could not load your progress. Please try again.'
+          this.error = 'advisorProgress.loadFailed'
         }
       } catch (e) {
-        this.error = 'Could not connect to the activity service. Please try again.'
+        this.error = 'advisorProgress.connectFailed'
       } finally {
         this.loading = false
       }
     },
 
+    /**
+     * Day-month-year. Deliberately not the browser's short numeric default: 7/8 is a
+     * different day in two countries. Matches the team table's format.
+     *
+     * @param {string|Date} dt @returns {string}
+     */
     formatDate (dt) {
       if (!dt) { return '' }
       return new Date(dt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+    },
+
+    /**
+     * The heading on an activity row: the advisory area for a client case, the course
+     * title for a course session.
+     *
+     * @param {object} item - one recentActivity entry.
+     * @returns {string}
+     */
+    activityTitle (item) {
+      if (item.type !== 'va') { return item.courseTitle }
+      return item.domain ? this.domainLabel(item.domain) : this.$t('advisorProgress.advisorySession')
     },
 
     /**
@@ -197,11 +213,19 @@ export default {
     tierLabel (key) {
       if (!key) { return this.$t('advisorProgress.noLevelYet') }
       const found = this.tierDefs.find(t => t.key === key)
-      return found ? found.label : key
+      return found ? this.$t(found.labelKey) : key
     },
 
+    /**
+     * An advisory area's name for display. An area this screen does not know falls back
+     * to its own code rather than rendering blank, so a domain added to the engine is
+     * visibly unlabelled rather than invisible.
+     *
+     * @param {string} domain - the engine's domain code, e.g. 'profit'.
+     * @returns {string}
+     */
     domainLabel (domain) {
-      return DOMAIN_LABELS[domain] || domain
+      return KNOWN_DOMAINS.includes(domain) ? this.$t(`advisorProgress.domain.${domain}`) : domain
     }
   }
 }
