@@ -31,6 +31,12 @@ the other.**
 >   at all**, and the i18n gap on `AdvisorProgression.vue` is still open.
 > - **§7 branch point — RESOLVED.** `master` has been merged in; the quiz-provenance
 >   groundwork is here, so the per-question record is no longer blocked.
+> - **§6 per-question record — BUILT, AND SO IS THE MANAGER VIEW.** The open decision §6
+>   describes was implemented rather than re-asked, the recommended way: **no free text**.
+>   A manager now opens any advisor's row in Team Progress via a **Quiz detail** button
+>   (`GET /api/activity/team/advisor/:advisorId` + `components/firm/FirmAdvisorQuestions.vue`)
+>   and sees a topic rollup, weakest first, then the sessions themselves. So §6's "the
+>   substantive open feature" is closed, and its open decision is no longer open.
 >
 > **Still true and still the point:** nothing has ever been written to a database, and
 > everything real is behind provisioning MySQL. Both screens will show their error
