@@ -183,17 +183,17 @@
     per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
     `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
     the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
-  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 22 of 29 domains migrated.**
+  - ◐ **Domain-support content migration — IN PROGRESS 2026-07-29. 23 of 29 domains migrated.**
     Done: eoy (`dfa8572`) · systems · risk · staff · succession · valuation (`bfc4b37`) ·
     stock-purchasing (`2a63982`) · conflict · due-diligence · governance (`ce4bf2d`) ·
     get-positioning · get-pricing-proposals · raising-capital (`6b24276`) · get-team-problem ·
     org-leadership · org-capacity-planner (`abc0826`) · org-firm-strategy ·
     **data-systems · fm-coach-culture · forecasting (`2428903`) · get-marketing · get-sales
-    (2026-07-29, this branch)**.
+    (`e3d6843`) · get-sales-tracker (2026-07-29, this branch)**.
     Mike's instruction 2026-07-29: migrate them ALL, then he reviews and edits in the app
     rather than approving each draft in chat — and do not stop until they are done.
-    **Resume order — 7 left:** get-sales-tracker, get-seminar, org-board-pack, people-power,
-    profit, sales-marketing, strategy.
+    **Resume order — 6 left:** get-seminar, org-board-pack, people-power, profit,
+    sales-marketing, strategy.
     - **get-marketing / get-sales were clean** — material names in the old files matched their
       source PDFs, so nothing had to be carried across or judged. Two shaping notes:
       `Get Marketing Support.pdf` carries **one** four-step execution method for the whole domain
