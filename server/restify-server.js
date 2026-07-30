@@ -264,6 +264,9 @@ server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 server.put('/api/firm-manager/staircase/platform/:id', ...fmGuard, fm.setStaircaseOverride)
 server.del('/api/firm-manager/staircase/platform/:id', ...fmGuard, fm.resetStaircaseOverride)
 server.put('/api/firm-manager/staircase/platform/:id/decline', ...fmGuard, fm.setStaircaseDecline)
+// Phase 3 — keep the firm's version of a step the platform has since changed. The
+// Adopt half of that choice is the reset route above, which needs no second endpoint.
+server.post('/api/firm-manager/staircase/platform/:id/keep-mine', ...fmGuard, fm.keepMineStaircaseStep)
 server.post('/api/firm-manager/staircase/own', ...fmGuard, fm.addOwnStaircaseStep)
 server.put('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.updateOwnStaircaseStep)
 server.del('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.deleteOwnStaircaseStep)

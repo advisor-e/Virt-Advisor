@@ -10,6 +10,7 @@ const DEV_STAIRCASE_FILE = path.resolve(__dirname, '../../data/dev-firm-staircas
 const DEV_STAIRCASE_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-declines.json')
 const DEV_STAIRCASE_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-overrides.json')
 const DEV_STAIRCASE_OWN_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-own.json')
+const DEV_STAIRCASE_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-override-baselines.json')
 const DEV_TEMPLATES_FILE = path.resolve(__dirname, '../../data/dev-firm-templates.json')
 const DEV_LASTSEEN_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-lastseen.json')
 const DEV_OVERRIDE_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-override-baselines.json')
@@ -1486,25 +1487,145 @@ function _sanitiseStaircaseFields (body) {
   return { ok: true, value }
 }
 
+// ── Phase 3 — platform-update review on steps a firm has edited ───────────────
+// A firm's edit SHIELDS a step from later platform wording (firm-wins-and-sticks),
+// which is right until the platform improves that step: the firm then never sees the
+// improvement, permanently, with nothing on screen to say so. This is the same
+// mechanism Stage E gives Advisory Distinctions — stamp the platform row's content
+// signature when the firm edits, and when the live signature later differs, offer
+// Adopt (drop the edit, take the platform's step) or Keep mine (re-stamp, so the
+// prompt clears until the platform's NEXT change).
+//
+// ONE HONEST DIFFERENCE FROM DISTINCTIONS, worth knowing before reading this as an
+// exact copy. A mentor authors distinctions in the running app, so a firm sees drift
+// within minutes. The staircase is a COMMITTED FILE (data/advisory-staircase.json),
+// so its signature changes when a release ships, not while anyone is looking. The
+// detection is identical; the cadence is release-to-release.
+//
+// There is deliberately NO "since your last visit" half here. That notice covers rows
+// a firm has NOT edited, and reads the mentor row's updated_at/created_at — timestamps
+// the staircase file does not carry. A step a firm has not touched already updates
+// itself silently, which is the wanted behaviour; inventing timestamps to announce it
+// would be building a feature nobody asked for out of data that does not exist.
+const STAIRCASE_BASELINES_KEY = 'staircase-override-baselines'
+
+function _devReadStaircaseBaselines (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_STAIRCASE_BASELINES_FILE, 'utf8'))
+    const v = all[firmId]
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch { return {} }
+}
+
+function _devWriteStaircaseBaselines (firmId, obj) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_STAIRCASE_BASELINES_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = obj
+  fs.writeFileSync(DEV_STAIRCASE_BASELINES_FILE, JSON.stringify(all, null, 2))
+}
+
+/**
+ * A stable content signature of a platform step's meaningful fields.
+ *
+ * Deterministic (fixed field order) so the same content always signs identically, and
+ * limited to EDITABLE_STEP_FIELDS: `id` is identity and `step` is a POSITION the
+ * resolver assigns, so including either would report a firm's step as "updated"
+ * because a step above it was declined — an update prompt for a change that never
+ * touched this step's wording.
+ *
+ * @param {Object} row - a platform step
+ * @returns {string} the signature, or '' for a missing row
+ */
+function _staircaseStepSignature (row) {
+  if (!row || typeof row !== 'object') { return '' }
+  const norm = {}
+  for (const field of EDITABLE_STEP_FIELDS) {
+    norm[field] = String(row[field] === null || row[field] === undefined ? '' : row[field]).trim()
+  }
+  return JSON.stringify(norm)
+}
+
+async function _loadStaircaseBaselines (firmId) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, STAIRCASE_BASELINES_KEY)
+    return (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+  } catch (err) {
+    if (IS_DEV) { return _devReadStaircaseBaselines(firmId) }
+    throw err
+  }
+}
+
+async function _saveStaircaseBaselines (firmId, obj, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, STAIRCASE_BASELINES_KEY, obj, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteStaircaseBaselines(firmId, obj); return }
+    throw err
+  }
+}
+
+/**
+ * Which of this firm's edited steps the platform has changed since the firm last
+ * stated its version.
+ *
+ * A MISSING BASELINE IS BACKFILLED, NOT TREATED AS DRIFT. An edit made before this
+ * feature existed has no stamp, and reading that as "the platform changed this" would
+ * greet every such firm with a review prompt for an update that never happened. The
+ * honest reading is "assume in sync now, track from here".
+ *
+ * @param {string} firmId
+ * @param {Object} overrides - the firm's edits, keyed by platform step id
+ * @param {string} savedBy - audit attribution for a backfill write
+ * @returns {Promise<string[]>} platform step ids to offer Adopt / Keep mine on
+ */
+async function _staircaseDriftIds (firmId, overrides, savedBy) {
+  const edited = Object.keys(overrides || {})
+  if (edited.length === 0) { return [] }
+
+  const baselines = await _loadStaircaseBaselines(firmId)
+  const driftIds = []
+  let backfilled = false
+
+  for (const step of BASE_STAIRCASE.steps) {
+    if (!step || !edited.includes(step.id)) { continue }
+    const sig = _staircaseStepSignature(step)
+    if (!Object.prototype.hasOwnProperty.call(baselines, step.id)) {
+      baselines[step.id] = sig
+      backfilled = true
+    } else if (baselines[step.id] !== sig) {
+      driftIds.push(step.id)
+    }
+  }
+
+  if (backfilled) { await _saveStaircaseBaselines(firmId, baselines, savedBy) }
+  return driftIds
+}
+
 /**
  * @route GET /api/firm-manager/staircase
  * The tab's whole picture: Advisor-e's steps, this firm's decisions, and the resolved
  * list those two produce — the SAME resolved list the advisor's selector and the
  * engine's ceiling read, so the screen can never show a firm something different from
  * what its advisors get.
- * @returns {{base: Object, state: Object, resolved: Array, hasOverride: boolean}}
+ * @returns {{base: Object, state: Object, resolved: Array, driftIds: string[],
+ *   hasOverride: boolean}} `driftIds` are the firm's edited steps the platform has
+ *   changed since — the tab offers Adopt / Keep mine on those.
  */
 async function getStaircase (req, res) {
   try {
     const firmOverride = await _loadStaircase(req.firmId)
     const state = await loadFirmStaircaseState(req.firmId, overlay.loadFirmConfig, BASE_STAIRCASE.steps)
     const resolved = await loadBlendedStaircase(req.firmId, overlay.loadFirmConfig)
+    const driftIds = await _staircaseDriftIds(req.firmId, state.overrides, req.userEmail)
     res.send(200, {
       base: BASE_STAIRCASE,
       firmOverride,
       state,
       resolved: resolved.steps,
       defaultCeiling: resolved.defaultCeiling,
+      driftIds,
       hasOverride: firmOverride !== null ||
         state.declinedIds.length > 0 ||
         Object.keys(state.overrides).length > 0 ||
@@ -1535,6 +1656,14 @@ async function setStaircaseOverride (req, res) {
     const current = (overrides && typeof overrides === 'object' && !Array.isArray(overrides)) ? overrides : {}
     const next = { ...current, [id]: { ...(current[id] || {}), ...sani.value } }
     await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, next, req.userEmail)
+    // Stamp the platform step's current wording as the drift baseline: the firm has
+    // just stated its version against THIS text, so a later platform change to it is
+    // what the firm should be offered (Phase 3).
+    const baselines = await _loadStaircaseBaselines(req.firmId)
+    const platformRow = BASE_STAIRCASE.steps.find(s => s && s.id === id)
+    await _saveStaircaseBaselines(
+      req.firmId, { ...baselines, [id]: _staircaseStepSignature(platformRow) }, req.userEmail
+    )
     res.send(200, { updated: true, id })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -1560,6 +1689,16 @@ async function resetStaircaseOverride (req, res) {
       const next = { ...current }
       delete next[id]
       await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, next, req.userEmail)
+    }
+    // Also the Adopt path (Phase 3): the firm no longer holds its own version, so the
+    // drift baseline goes with it. A stale baseline is inert — it is dropped to keep
+    // the store honest, and so a later re-edit stamps fresh rather than inheriting a
+    // signature from a decision the firm has since undone.
+    const baselines = await _loadStaircaseBaselines(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(baselines, id)) {
+      const nextB = { ...baselines }
+      delete nextB[id]
+      await _saveStaircaseBaselines(req.firmId, nextB, req.userEmail)
     }
     res.send(200, { reset: true, id })
   } catch (err) {
@@ -1600,6 +1739,43 @@ async function setStaircaseDecline (req, res) {
     }
     await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.declines, [...set], req.userEmail)
     res.send(200, { declined, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/staircase/platform/:id/keep-mine
+ * Phase 3 "Keep mine" — the firm has seen the platform's update to a step it edited
+ * and is keeping its own version. Re-stamps the drift baseline to the platform's
+ * CURRENT wording, so the review prompt clears until the platform's NEXT change. The
+ * firm's edit is left untouched; the Adopt half of the choice is the existing
+ * reset route, which drops the edit and takes the platform's step.
+ *
+ * 409 rather than a silent success when the firm holds no edit: nothing is being
+ * kept, and stamping a baseline for a step the firm does not override would arm a
+ * prompt that can never fire.
+ *
+ * @param {string} id - a platform step id (as-*)
+ * @returns {{keptMine: true, id: string}}
+ */
+async function keepMineStaircaseStep (req, res) {
+  const id = String(req.params.id || '')
+  const platformRow = BASE_STAIRCASE.steps.find(s => s && s.id === id)
+  if (!platformRow) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform staircase step with that id')
+  }
+  try {
+    const overrides = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, {})
+    const current = (overrides && typeof overrides === 'object' && !Array.isArray(overrides)) ? overrides : {}
+    if (!Object.prototype.hasOwnProperty.call(current, id)) {
+      return sendError(res, 409, 'NOT_OVERRIDDEN', 'Your firm has no custom version of that step')
+    }
+    const baselines = await _loadStaircaseBaselines(req.firmId)
+    await _saveStaircaseBaselines(
+      req.firmId, { ...baselines, [id]: _staircaseStepSignature(platformRow) }, req.userEmail
+    )
+    res.send(200, { keptMine: true, id })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -2642,6 +2818,7 @@ module.exports = {
   setStaircaseOverride,
   resetStaircaseOverride,
   setStaircaseDecline,
+  keepMineStaircaseStep,
   addOwnStaircaseStep,
   updateOwnStaircaseStep,
   deleteOwnStaircaseStep,

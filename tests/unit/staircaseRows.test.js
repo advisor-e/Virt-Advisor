@@ -79,6 +79,36 @@ describe('buildStaircaseRows', () => {
     expect(live.map(r => r.id)).toEqual(['as-compliance'])
   })
 
+  test('an edited step the platform has since changed carries the update flag', () => {
+    const resolved = [{ id: 'as-interpretation', step: 1, name: 'Our review', source: 'firm-override' }]
+    const { live } = buildStaircaseRows(resolved, BASE, [], ['as-interpretation'])
+    expect(live[0].hasUpdate).toBe(true)
+    // The compare panel reads the platform's wording off the row itself, so it can
+    // never pair one step's version with another's.
+    expect(live[0].platformVersion).toMatchObject({ id: 'as-interpretation', name: 'Interpretation' })
+  })
+
+  test('an UNEDITED step is never flagged, even if its id is in the drift list', () => {
+    // A step the firm has not touched already takes the platform's new wording, so
+    // there is nothing to choose between — a prompt here would offer a decision that
+    // has already been made.
+    const resolved = [{ id: 'as-interpretation', step: 1, name: 'Interpretation', source: 'platform' }]
+    const { live } = buildStaircaseRows(resolved, BASE, [], ['as-interpretation'])
+    expect(live[0].hasUpdate).toBe(false)
+    expect(live[0].platformVersion).toBeNull()
+  })
+
+  test('a firm-own step is never flagged — it inherits from nothing', () => {
+    const resolved = [{ id: 'fs-1', step: 1, name: 'Board advisory', source: 'firm-own' }]
+    const { live } = buildStaircaseRows(resolved, BASE, [], ['fs-1'])
+    expect(live[0].hasUpdate).toBe(false)
+  })
+
+  test('no drift list means no flags, not a crash', () => {
+    const resolved = [{ id: 'as-interpretation', step: 1, name: 'Our review', source: 'firm-override' }]
+    expect(buildStaircaseRows(resolved, BASE, []).live[0].hasUpdate).toBe(false)
+  })
+
   test('missing or malformed input yields two empty lists, never a crash', () => {
     expect(buildStaircaseRows(null, null, null)).toEqual({ live: [], switchedOff: [] })
     expect(buildStaircaseRows(undefined, BASE, 'nope').switchedOff).toEqual([])

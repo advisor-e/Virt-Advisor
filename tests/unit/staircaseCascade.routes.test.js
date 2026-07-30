@@ -311,3 +311,160 @@ describe('GET /api/firm-manager/staircase', () => {
     expect(res._body.resolved.map(s => s.name)).toEqual(BASE.steps.map(s => s.name))
   })
 })
+
+// ── Phase 3 — platform-update review on a step the firm edited ────────────────
+//
+// The point of these: a firm's edit shields a step from the platform's later
+// wording, which is right until it silently means "this firm never sees any
+// improvement to this step again". What must be provable is that the prompt fires
+// when the platform genuinely changed the step, never when it did not, and that
+// each of the two answers actually settles it.
+
+// Hardcoded rather than imported on purpose — the storage key is a contract, and a
+// rename that silently orphaned every firm's baselines would show up here.
+const BASELINES_KEY = 'staircase-override-baselines'
+
+describe('platform-update drift on an edited step', () => {
+  test('editing a step stamps a baseline, and that baseline reports no drift', async () => {
+    mockKeys({})
+    await fm.setStaircaseOverride(makeReq({ params: { id: STEP_ID }, body: { name: 'Ours' } }), makeRes())
+
+    const stamped = savedTo(BASELINES_KEY)
+    expect(stamped).toHaveProperty(STEP_ID)
+
+    // Feed the stamp straight back: nothing about the platform has changed since.
+    jest.clearAllMocks()
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    mockKeys({ [CONFIG_KEYS.overrides]: { [STEP_ID]: { name: 'Ours' } }, [BASELINES_KEY]: stamped })
+    const res = makeRes()
+
+    await fm.getStaircase(makeReq(), res)
+
+    expect(res._body.driftIds).toEqual([])
+  })
+
+  test('a baseline that no longer matches the platform is reported as drift', async () => {
+    mockKeys({
+      [CONFIG_KEYS.overrides]: { [STEP_ID]: { name: 'Ours' } },
+      [BASELINES_KEY]: { [STEP_ID]: 'the wording as it stood when they edited' }
+    })
+    const res = makeRes()
+
+    await fm.getStaircase(makeReq(), res)
+
+    expect(res._body.driftIds).toEqual([STEP_ID])
+  })
+
+  test('an edit with NO baseline is backfilled, not reported as an update', async () => {
+    // An edit made before this feature existed has no stamp. Reading that as "the
+    // platform changed this" would greet the firm with a review prompt for an update
+    // that never happened — so it is stamped as in-sync and tracked from here.
+    mockKeys({ [CONFIG_KEYS.overrides]: { [STEP_ID]: { name: 'Ours' } } })
+    const res = makeRes()
+
+    await fm.getStaircase(makeReq(), res)
+
+    expect(res._body.driftIds).toEqual([])
+    expect(savedTo(BASELINES_KEY)).toHaveProperty(STEP_ID)
+  })
+
+  test('a step the firm never edited is never reported, whatever is stored', async () => {
+    // Nothing is shielded, so the platform wording already reaches them: there is no
+    // choice left to offer.
+    mockKeys({ [BASELINES_KEY]: { [STEP_ID]: 'stale' } })
+    const res = makeRes()
+
+    await fm.getStaircase(makeReq(), res)
+
+    expect(res._body.driftIds).toEqual([])
+  })
+
+  test('resetting a step drops its baseline with the edit', async () => {
+    mockKeys({
+      [CONFIG_KEYS.overrides]: { [STEP_ID]: { name: 'Ours' } },
+      [BASELINES_KEY]: { [STEP_ID]: 'stale', 'as-observation': 'kept' }
+    })
+
+    await fm.resetStaircaseOverride(makeReq({ params: { id: STEP_ID } }), makeRes())
+
+    expect(savedTo(BASELINES_KEY)).toEqual({ 'as-observation': 'kept' })
+  })
+})
+
+describe('POST /api/firm-manager/staircase/platform/:id/keep-mine', () => {
+  test('re-stamps the baseline so the prompt clears, leaving the edit alone', async () => {
+    mockKeys({
+      [CONFIG_KEYS.overrides]: { [STEP_ID]: { name: 'Ours' } },
+      [BASELINES_KEY]: { [STEP_ID]: 'stale' }
+    })
+    const res = makeRes()
+
+    await fm.keepMineStaircaseStep(makeReq({ params: { id: STEP_ID } }), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.keptMine).toBe(true)
+    // The firm's wording is untouched — only the baseline moved.
+    expect(savedTo(CONFIG_KEYS.overrides)).toBeUndefined()
+
+    const stamped = savedTo(BASELINES_KEY)
+    expect(stamped[STEP_ID]).not.toBe('stale')
+
+    // And the prompt is genuinely gone, not merely re-stamped.
+    jest.clearAllMocks()
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    mockKeys({ [CONFIG_KEYS.overrides]: { [STEP_ID]: { name: 'Ours' } }, [BASELINES_KEY]: stamped })
+    const after = makeRes()
+
+    await fm.getStaircase(makeReq(), after)
+
+    expect(after._body.driftIds).toEqual([])
+  })
+
+  test('409s when the firm holds no version to keep', async () => {
+    // Stamping a baseline for a step the firm does not override would arm a prompt
+    // that can never fire.
+    mockKeys({})
+    const res = makeRes()
+
+    await fm.keepMineStaircaseStep(makeReq({ params: { id: STEP_ID } }), res)
+
+    expect(res._status).toBe(409)
+    expect(res._body.error.code).toBe('NOT_OVERRIDDEN')
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('404s on a step Advisor-e does not have', async () => {
+    mockKeys({})
+    const res = makeRes()
+
+    await fm.keepMineStaircaseStep(makeReq({ params: { id: 'as-invented' } }), res)
+
+    expect(res._status).toBe(404)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+})
+
+describe('the drift signature', () => {
+  test('a step moving position is not an update — only its wording counts', async () => {
+    // The `step` number is a POSITION the resolver assigns: declining a step above
+    // renumbers everything below it. Signing that would tell a firm the platform had
+    // rewritten a step it never touched.
+    mockKeys({})
+    await fm.setStaircaseOverride(makeReq({ params: { id: STEP_ID }, body: { name: 'Ours' } }), makeRes())
+    const stamped = savedTo(BASELINES_KEY)
+
+    jest.clearAllMocks()
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    mockKeys({
+      // Every step above is switched off, so this step is renumbered on the way out.
+      [CONFIG_KEYS.declines]: BASE.steps.slice(0, 2).map(s => s.id),
+      [CONFIG_KEYS.overrides]: { [STEP_ID]: { name: 'Ours' } },
+      [BASELINES_KEY]: stamped
+    })
+    const res = makeRes()
+
+    await fm.getStaircase(makeReq(), res)
+
+    expect(res._body.driftIds).toEqual([])
+  })
+})

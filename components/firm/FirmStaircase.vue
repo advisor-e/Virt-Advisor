@@ -37,12 +37,20 @@ section.firm-staircase
         span.staircase-step-badge(:style="{ backgroundColor: stepColour(row.step).accent, color: stepColour(row.step).fg }") {{ row.step }}
         span.staircase-step-title {{ $t('firmStaircase.stepLabel', { n: row.step }) }}
         b-tag(:type="badge(row.kind).type" size="is-small") {{ badge(row.kind).label }}
+        b-tag(v-if="row.hasUpdate" type="is-warning" size="is-small") {{ $t('firmStaircase.platformUpdated') }}
       p.has-text-weight-semibold.mb-1 {{ row.name }}
       p.is-size-7.mb-2(v-if="row.selectorDescription") {{ row.selectorDescription }}
       p.is-size-7.has-text-grey.mb-3
         span.has-text-weight-semibold {{ $t('firmStaircase.fieldCeiling') }}:
         |  {{ capitalise(row.complexityCeiling) }}
       .buttons.mb-0
+        b-button(
+          v-if="row.hasUpdate"
+          size="is-small"
+          type="is-warning"
+          icon-left="bell-ring"
+          @click="openUpdateReview(row)"
+        ) {{ $t('firmStaircase.reviewUpdate') }}
         b-button(size="is-small" :disabled="busyId === row.id" @click="openForm(row)") {{ $t('firmStaircase.edit') }}
         b-button(
           v-if="row.kind === 'customised'"
@@ -82,6 +90,44 @@ section.firm-staircase
             :loading="busyId === row.id"
             @click="switchOn(row.id)"
           ) {{ $t('firmStaircase.switchOn') }}
+
+    //- ── Platform-update review (Phase 3) ──────────────────────────────────
+    //- The firm's edit shielded this step from the platform's later wording. Show
+    //- both versions side by side and let them choose, rather than either imposing
+    //- the change or leaving them shielded from it forever without knowing.
+    b-modal(v-model="showUpdateModal" has-modal-card trap-focus)
+      .modal-card(style="max-width:720px" v-if="updateRow")
+        header.modal-card-head
+          p.modal-card-title {{ $t('firmStaircase.updateModalTitle') }}
+        section.modal-card-body
+          p.mb-4.has-text-grey {{ $t('firmStaircase.updateModalLede') }}
+          .columns
+            .column
+              p.has-text-weight-semibold.mb-2 {{ $t('firmStaircase.platformCurrent') }}
+              .box.is-shadowless(style="background:#fffbeb")
+                p.is-size-7.has-text-grey.mb-1 {{ $t('firmStaircase.fieldName') }}
+                p.mb-2 {{ updateRow.platformVersion.name }}
+                p.is-size-7.has-text-grey.mb-1 {{ $t('firmStaircase.fieldDescription') }}
+                p.is-size-7.mb-2 {{ updateRow.platformVersion.selectorDescription }}
+                p.is-size-7.has-text-grey.mb-1 {{ $t('firmStaircase.fieldCeiling') }}
+                p.is-size-7 {{ capitalise(updateRow.platformVersion.complexityCeiling) }}
+            .column
+              p.has-text-weight-semibold.mb-2 {{ $t('firmStaircase.yourVersion') }}
+              .box.is-shadowless(style="background:#f0fff4")
+                p.is-size-7.has-text-grey.mb-1 {{ $t('firmStaircase.fieldName') }}
+                p.mb-2 {{ updateRow.name }}
+                p.is-size-7.has-text-grey.mb-1 {{ $t('firmStaircase.fieldDescription') }}
+                p.is-size-7.mb-2 {{ updateRow.selectorDescription }}
+                p.is-size-7.has-text-grey.mb-1 {{ $t('firmStaircase.fieldCeiling') }}
+                p.is-size-7 {{ capitalise(updateRow.complexityCeiling) }}
+        footer.modal-card-foot
+          b-button(
+            type="is-primary"
+            :loading="resolvingUpdate"
+            @click="adoptUpdate(updateRow.id)"
+          ) {{ $t('firmStaircase.adoptPlatform') }}
+          b-button(:loading="resolvingUpdate" @click="keepMine(updateRow.id)") {{ $t('firmStaircase.keepMine') }}
+          b-button(@click="closeUpdateReview") {{ $t('firmStaircase.cancel') }}
 
     //- ── Add / Edit form ───────────────────────────────────────────────────
     .box.staircase-form.mt-5(v-if="showForm")
@@ -187,6 +233,12 @@ export default {
       state: { declinedIds: [], overrides: {}, ownRows: [] },
       // The firm's effective steps, resolved and renumbered by the backend.
       resolvedSteps: [],
+      // Steps this firm edited that the platform has changed since — each gets a
+      // Review update button offering Adopt / Keep mine (Phase 3).
+      driftIds: [],
+      showUpdateModal: false,
+      updateRow: null,
+      resolvingUpdate: false,
       defaultCeiling: '',
       savingCeiling: false,
       history: [],
@@ -210,7 +262,8 @@ export default {
       return buildStaircaseRows(
         this.resolvedSteps,
         this.base ? this.base.steps : [],
-        this.state.declinedIds
+        this.state.declinedIds,
+        this.driftIds
       )
     },
 
@@ -249,6 +302,7 @@ export default {
           ownRows: (data.state && data.state.ownRows) || []
         }
         this.resolvedSteps = data.resolved || []
+        this.driftIds = data.driftIds || []
         this.defaultCeiling = data.defaultCeiling || (data.base && data.base.defaultCeiling) || ''
         await this.loadHistory()
       } catch (e) {
@@ -385,6 +439,60 @@ export default {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       } finally {
         this.busyId = null
+      }
+    },
+
+    // ── Phase 3 — review a platform update to a step this firm edited ───────
+    openUpdateReview (row) {
+      this.updateRow = row
+      this.showUpdateModal = true
+    },
+
+    closeUpdateReview () {
+      this.showUpdateModal = false
+      this.updateRow = null
+    },
+
+    /**
+     * Adopt — drop the firm's version and take the platform's current step, which
+     * then keeps tracking the platform as it changes again. Reuses the reset route,
+     * which also clears the drift baseline, so there is no second endpoint doing the
+     * same write under a different name.
+     * @param {string} id - a platform step id
+     * @returns {Promise<void>}
+     */
+    async adoptUpdate (id) {
+      this.resolvingUpdate = true
+      try {
+        await this.api('DELETE', `/api/firm-manager/staircase/platform/${encodeURIComponent(id)}`)
+        this.closeUpdateReview()
+        await this.load()
+        this.toast('firmStaircase.adopted')
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.resolvingUpdate = false
+      }
+    },
+
+    /**
+     * Keep mine — the firm's version stays. The baseline is re-stamped to the
+     * platform's current wording, so this prompt clears until the platform changes
+     * the step again rather than reappearing on every visit.
+     * @param {string} id - a platform step id
+     * @returns {Promise<void>}
+     */
+    async keepMine (id) {
+      this.resolvingUpdate = true
+      try {
+        await this.api('POST', `/api/firm-manager/staircase/platform/${encodeURIComponent(id)}/keep-mine`)
+        this.closeUpdateReview()
+        await this.load()
+        this.toast('firmStaircase.keptMine')
+      } catch (e) {
+        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
+      } finally {
+        this.resolvingUpdate = false
       }
     },
 

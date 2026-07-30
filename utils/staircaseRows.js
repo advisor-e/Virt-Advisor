@@ -42,13 +42,19 @@ const KIND_BY_SOURCE = {
  *   step's wording still exists (the firm's own edit of it, if any, is not shown: what
  *   comes back on is Advisor-e's current version).
  * @param {Array<string>} declinedIds - the platform ids this firm switched off.
+ * @param {Array<string>} [driftIds] - edited steps the platform has changed since the
+ *   firm last stated its version. Those rows carry `hasUpdate`, which is what puts a
+ *   Review update button on them, and `platformVersion` — the platform's current
+ *   wording — for the side-by-side compare.
  * @returns {{live: Array<Object>, switchedOff: Array<Object>}} each row carries a
  *   `kind` of 'platform' | 'customised' | 'firm-own' | 'declined'.
  */
-function buildStaircaseRows (resolvedSteps, baseSteps, declinedIds) {
+function buildStaircaseRows (resolvedSteps, baseSteps, declinedIds, driftIds) {
   const resolved = Array.isArray(resolvedSteps) ? resolvedSteps : []
   const base = Array.isArray(baseSteps) ? baseSteps : []
   const declined = new Set(Array.isArray(declinedIds) ? declinedIds : [])
+  const drifted = new Set(Array.isArray(driftIds) ? driftIds : [])
+  const byId = new Map(base.filter(s => s && s.id !== null && s.id !== undefined).map(s => [s.id, s]))
 
   const live = resolved
     .filter(row => row && row.id !== null && row.id !== undefined)
@@ -56,7 +62,22 @@ function buildStaircaseRows (resolvedSteps, baseSteps, declinedIds) {
     // costs nothing and stops inconsistent storage from drawing one step in both
     // lists, where switching it "off" from the top list would look like it did nothing.
     .filter(row => !declined.has(row.id))
-    .map(row => ({ ...row, kind: KIND_BY_SOURCE[row.source] || 'platform' }))
+    .map((row) => {
+      const kind = KIND_BY_SOURCE[row.source] || 'platform'
+      // Only an EDITED step can have an update to review: a step the firm has not
+      // touched already takes the platform's new wording, so there is nothing to
+      // choose between. Flagging one would offer a decision that has been made.
+      const hasUpdate = kind === 'customised' && drifted.has(row.id)
+      return {
+        ...row,
+        kind,
+        hasUpdate,
+        // The platform's CURRENT version, for the side-by-side compare. Carried on the
+        // row so the panel never has to re-look-up an id and risk showing one step's
+        // wording beside another's.
+        platformVersion: hasUpdate ? (byId.get(row.id) || null) : null
+      }
+    })
 
   const switchedOff = base
     .filter(row => row && row.id !== null && row.id !== undefined && declined.has(row.id))
