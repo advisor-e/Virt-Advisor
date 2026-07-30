@@ -221,6 +221,15 @@
     per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
     `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
     the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
+  - ☐ **OWNER REVIEW — the 18 rows still needing Mike's eye are listed in
+    [`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](DOMAIN-SUPPORT-REVIEW-CHECKLIST.md)** (laptop,
+    2026-07-30). Counted from the data files themselves, not from notes: **165 of the 181 rows
+    have all four columns filled.** The 18 are 16 blank Step-by-step cells (all in
+    `sales-marketing`, deliberately — the source carries no method) and the 2 unsourced
+    `org-board-pack` rows to keep or delete. ⚠ The desktop's claim of **four** similar rows in
+    `fm-coach-culture` **could not be confirmed** — the rows carry no field recording their
+    origin, so that count exists only in the notes; verifying it means reading that domain's
+    source PDF against its 20 rows.
   - ✅ **Domain-support content migration — COMPLETE 2026-07-29. 29 of 29 domains on the
     four-column standard; no repo file remains on the legacy `support_tools` shape.**
     Done earlier: eoy (`dfa8572`) · systems · risk · staff · succession · valuation (`bfc4b37`) ·
