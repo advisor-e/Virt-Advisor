@@ -2,7 +2,7 @@
   "domain": "people-power",
   "label": "people engagement, recruitment and performance",
   "trigger_keywords": ["people power", "owner alignment", "team engagement", "customer engagement", "recruitment", "remuneration", "SMART goals", "staff retention", "employee engagement", "hiring", "performance goals", "salary review", "incentive structure", "people strategy", "workforce planning"],
-  "overview": "People Power addresses the people strategy dimension of business advisory — the systems and frameworks that attract, engage, develop, and retain the right people at every level of the organisation. The diagnostic must distinguish between owner alignment issues (where the leadership group is not unified on direction), team engagement problems (where frontline staff are disengaged or underperforming), customer engagement gaps (where client relationships are transactional rather than loyal), and structural people problems (where the recruitment, remuneration, and goal-setting systems are producing the wrong outcomes). All four dimensions must be assessed before any people strategy intervention can be effective — symptoms at the team level often have their root cause in misalignment at the owner level.",
+  "overview": "People Power addresses the people strategy dimension of business advisory — the systems and frameworks that attract, engage, develop, and retain the right people at every level of the organisation. The diagnostic must distinguish between owner alignment issues (where the leadership group is not unified on direction), team engagement problems (where frontline staff are disengaged or underperforming), customer engagement gaps (where client relationships are transactional rather than loyal), and structural people problems (where the recruitment, remuneration, and goal-setting systems are producing the wrong outcomes). All four dimensions must be assessed before any people strategy intervention can be effective — symptoms at the team level often have their root cause in misalignment at the owner level. The table below holds the templates the People Power material provides: the stakeholder surveys, the performance improvement toolkit, the remuneration and incentive models, the experiential team exercises, and the hiring, personality and habit material.",
 
   "diagnostic_entry": {
     "primary_question": "Is the people challenge primarily an owner alignment issue where the leadership group lacks clarity or agreement on direction, a team engagement problem where frontline staff are disengaged or underperforming, a customer engagement gap where client loyalty and NPS are below target, a recruitment problem, a remuneration structure issue, or a goal-setting and performance management gap?",
@@ -14,227 +14,333 @@
     "goal_setting": "Goal-setting failures produce one of two outcomes: goals that are too vague to be actionable (producing drift), or goals that are so narrowly defined that they drive the wrong behaviour (producing gaming). The SMART framework, applied rigorously and reviewed regularly, prevents both failure modes."
   },
 
-  "support_tools": [
-
+  "materials": [
     {
-      "name": "Owner Alignment Framework",
-      "purpose": "Provides a structured process for establishing alignment among the business owner group on the five dimensions that determine organisational direction — values, vision, operating principles, decision-making authority, and role clarity.",
-      "core_principle": "Owner alignment is the foundation of organisational culture. When owners model coherent values, a clear direction, and consistent decision-making, the organisation has a stable cultural reference point. When owners are visibly misaligned — contradicting each other's decisions, sending different messages to staff — the organisation cannot build a coherent culture regardless of what is written in the values statement.",
-      "when_to_use": "Use at the start of any people strategy engagement where the owner group has more than one individual, when staff feedback indicates confusion about leadership direction, or when performance management interventions are being undermined by inconsistent owner behaviour.",
-
-      "five_alignment_dimensions": [
-        {
-          "dimension": "Shared Values",
-          "description": "The non-negotiable principles that govern how the business operates — what it will not do regardless of the financial opportunity, how it treats staff and clients, and what defines its character. Shared values are not a statement on the wall; they are the decisions the owners make consistently under pressure.",
-          "alignment_process": "Each owner articulates their top 5 personal professional values independently. Map the overlaps — these are the genuine shared values. Address gaps without consensus — these are the hidden misalignments that produce inconsistent behaviour."
-        },
-        {
-          "dimension": "Strategic Direction",
-          "description": "Where the business is going in the next 3-5 years — the market it wants to serve, the scale it aims to achieve, and the competitive position it is building toward. Owners who disagree on strategic direction will make incompatible decisions on hiring, pricing, and investment.",
-          "alignment_process": "Use a facilitated strategy session where each owner presents their vision for the business in 3 years. Identify the divergences and facilitate a structured conversation to reach a documented consensus. Document the agreed direction and review it annually."
-        },
-        {
-          "dimension": "Operating Principles",
-          "description": "The agreed norms for how the business operates day-to-day — how decisions are made, how disagreements are resolved, how clients are served, and what standards apply to everyone regardless of seniority.",
-          "alignment_process": "Draft a simple Operating Agreement: 10-15 documented principles that all owners agree to operate by. This is not a legal document — it is a behavioural commitment. Review it annually and update as the business evolves."
-        },
-        {
-          "dimension": "Decision-Making Authority",
-          "description": "Clarity on who makes which decisions — which decisions require full owner consensus, which can be made by the managing owner or CEO, and which are delegated to management. Ambiguity in decision-making authority is one of the most common causes of owner friction.",
-          "alignment_process": "Build a decision authority matrix: categorise all significant decision types by who has authority to decide (one owner, majority, consensus), and ensure all owners agree on the categorisation."
-        },
-        {
-          "dimension": "Role Clarity",
-          "description": "Each owner has a defined primary role in the business — operational, strategic, client-facing, or a combination. Owners who operate outside their agreed role create confusion for staff and undermine the authority of whoever holds that role.",
-          "alignment_process": "Document each owner's primary role, the decisions that sit within that role, and the boundaries of the role. Review role boundaries whenever the business structure changes significantly."
-        }
+      "name": "Business Clock vs Body Clock",
+      "summary": "Explores the difference between efficiency and effectiveness, and how to align work productivity with the body's natural circadian and circaseptan rhythms. Work scheduled against the rhythm costs more effort for less output, and sustained long enough it produces burnout. The material is about matching demanding work to the hours a person actually has capacity for.",
+      "who_when": "Owners and teams working long hours for falling output, where the problem looks like capacity but is closer to burnout.",
+      "steps": [
+        "Separate the two questions: is the work being done efficiently, and is it the effective work to be doing at all?",
+        "Map the working week against the body clock — the daily circadian rhythm and the weekly circaseptan rhythm.",
+        "Schedule the most demanding work into the periods of natural high capacity, and routine work into the troughs.",
+        "Protect the recovery points the rhythm depends on rather than trading them away for extra hours."
       ]
     },
-
     {
-      "name": "Team Engagement Framework",
-      "purpose": "Provides a diagnostic and intervention framework for understanding and improving the engagement of frontline and management staff — identifying the specific drivers of disengagement and targeting interventions that produce measurable improvement.",
-      "core_principle": "Employee engagement is the degree to which staff are emotionally committed to the organisation's goals and willing to invest discretionary effort in achieving them. Engaged staff do not just do their job — they look for ways to make it better. Disengaged staff do the minimum required. Actively disengaged staff undermine the engagement of others.",
-      "when_to_use": "Use when staff turnover is above industry norms, when productivity or quality metrics are declining despite adequate resourcing, or when management feedback indicates morale problems that are not being addressed through normal channels.",
-
-      "engagement_diagnostic": {
-        "twelve_engagement_drivers": [
-          "I know what is expected of me at work",
-          "I have the materials and equipment I need to do my job right",
-          "At work, I have the opportunity to do what I do best every day",
-          "In the last seven days, I have received recognition or praise for doing good work",
-          "My manager or someone at work seems to care about me as a person",
-          "There is someone at work who encourages my development",
-          "At work, my opinions seem to count",
-          "The mission or purpose of my organisation makes me feel my job is important",
-          "My fellow staff members are committed to doing quality work",
-          "I have a best friend at work",
-          "In the last six months, someone at work has talked to me about my progress",
-          "This last year, I have had opportunities to learn and grow"
-        ],
-        "source": "Adapted from Gallup's Q12 Engagement Framework — the most empirically validated engagement measurement framework in organisational research.",
-        "scoring": "Rate each item on a 1-5 scale (1 = strongly disagree, 5 = strongly agree). Team average below 3.5 on any item indicates a priority area for intervention. Items 1-6 predict individual performance; items 7-12 predict team and organisational outcomes."
-      },
-
-      "engagement_intervention_priorities": [
-        {
-          "priority": "Role clarity and expectations (Item 1)",
-          "intervention": "Structured role description review and a weekly or fortnightly 1:1 between manager and team member specifically focused on priorities and expectations. Role clarity is the single highest-correlating driver of individual performance."
-        },
-        {
-          "priority": "Recognition and acknowledgement (Item 4)",
-          "intervention": "Implement a structured recognition cadence — weekly team meeting with a specific recognition agenda item, peer-to-peer recognition mechanism, and monthly manager-to-team recognition communication. Recognition does not require financial investment — the most effective recognition is specific, timely, and public."
-        },
-        {
-          "priority": "Development opportunity (Items 6 and 12)",
-          "intervention": "Establish an individual development plan for each team member — a documented conversation about where they want to go, what capabilities they need to develop, and what the organisation can provide. Organisations that invest visibly in development retain staff at significantly higher rates than those that do not."
-        }
+      "name": "Cafe Turnaround Behaviours",
+      "summary": "Structural considerations for a counter-service business, together with specific up-sell scripts for staff. Which script is used depends on how engaged the customer is and how long the queue is — a busy queue calls for a different line from a quiet counter. It turns service behaviour from personality into something trainable and consistent.",
+      "who_when": "Hospitality and counter-service clients where staff behaviour at the point of sale is the main lever on revenue per customer.",
+      "steps": [
+        "Work through the structural considerations for the site before touching the scripts.",
+        "Match the up-sell script to the customer's engagement level — an engaged customer and a distracted one take different lines.",
+        "Match the script to the queue length, so the busy periods use the shorter prompts.",
+        "Train the staff on the scripts as standard behaviour, rather than leaving the up-sell to individual confidence."
       ]
     },
-
     {
-      "name": "Customer Engagement and NPS Framework",
-      "purpose": "Provides a structured approach to measuring, understanding, and improving the quality of client relationships — using NPS as the primary metric and a systematic feedback loop to convert client insights into service improvements.",
-      "core_principle": "Client loyalty is earned through consistent experiences that exceed expectation, not through relationship charm alone. The advisor's role is to help the business build the systems that create consistently excellent client experiences — feedback loops, service standards, and recovery protocols — so that loyalty is a structural outcome, not a personality-dependent one.",
-      "when_to_use": "Use when client retention rates are below target, when the business is growing revenue from new clients but not retaining existing ones, or when the client experience is inconsistent across different staff or delivery channels.",
-
-      "net_promoter_score": {
-        "question": "On a scale of 0-10, how likely are you to recommend us to a friend or colleague?",
-        "scoring": {
-          "promoters": "Score 9-10: Loyal enthusiasts who will fuel growth by referring others",
-          "passives": "Score 7-8: Satisfied but unenthusiastic — vulnerable to competitive offers",
-          "detractors": "Score 0-6: Unhappy clients who can damage the brand through negative word of mouth"
-        },
-        "calculation": "NPS = % Promoters − % Detractors. A score above 50 is excellent; above 70 is world-class. Most professional service firms target 40-60.",
-        "follow_up": "NPS is a diagnostic tool, not an outcome. For every response below 8, a follow-up conversation should be scheduled within 48 hours to understand the specific concern and what would change the client's rating."
-      },
-
-      "feedback_loop_design": {
-        "collection": "Survey clients at two moments: immediately after a significant engagement concludes (transactional NPS) and annually (relationship NPS). Transactional NPS reveals service quality at specific touchpoints; relationship NPS reveals the health of the overall relationship.",
-        "analysis": "Segment NPS data by service line, advisor, and client tenure. Patterns within segments reveal systematic issues — if NPS is consistently lower for one service line or one advisor, the cause is identifiable and addressable.",
-        "action": "Every NPS result below 7 must trigger an action — either a recovery conversation or a service change. An NPS system that collects data but does not produce action loses credibility with clients who were honest enough to give a low score."
-      }
+      "name": "Client Survey",
+      "summary": "A guide and script for conducting conversational surveys that gather honest feedback on service delivery and internal communication. Open-ended, conversational questions get past the coded language and the polite non-answers a written checklist produces. For the advisor it yields the objective data a strategic roadmap is built on — it shows exactly where the business is leaking value.",
+      "who_when": "Established businesses benchmarking performance, diagnosing a sudden drop in retention, or improving stakeholder engagement. Conducted eyeball-to-eyeball or over the phone, never as a form.",
+      "steps": [
+        "Do not use a rigid, lengthy script. Secure permission first, by sounding genuinely interested.",
+        "Call the client and open plainly: \"The reason for my call is to see if you'd be open to giving us some honest feedback…\"",
+        "Ask open-ended questions — what are your expectations regarding how we deliver, where are the workflow bottlenecks — and let the answers run.",
+        "Where a numeric benchmark is also wanted, ask the recommendation question on a 0-10 scale: 9-10 are promoters, 7-8 passives, 0-6 detractors, and the score is the percentage of promoters less the percentage of detractors.",
+        "Survey at two moments: straight after a significant engagement concludes, and once a year for the relationship as a whole.",
+        "Segment the results by service line, advisor and client tenure — a pattern inside one segment is an identifiable, fixable cause.",
+        "Follow up every low score quickly, with a named owner. Feedback collected and not acted on leaves a client more likely to leave than if they had never been asked.",
+        "Show the participant you have acted on their input — that is what builds the long-term trust the next survey depends on."
+      ]
     },
-
     {
-      "name": "Recruitment Framework",
-      "purpose": "Provides a structured, role-specific recruitment process that improves the quality and retention rate of new hires — reducing the cost and disruption of failed recruitment decisions.",
-      "core_principle": "Most recruitment failures are selection failures, not sourcing failures. The cost of a failed hire — in productivity, management time, team morale, and client disruption — is typically 1.5-3× the annual salary of the role. A disciplined selection process that takes more time upfront is almost always cheaper than a fast process that produces the wrong outcome.",
-      "when_to_use": "Use when designing or reviewing a recruitment process for a specific role, when the firm has experienced a pattern of failed hires, or when expanding the team significantly.",
-
-      "job_design_before_sourcing": {
-        "principle": "The most common recruitment failure is hiring for the wrong job. Before sourcing candidates, invest in designing the role correctly: what outcomes is this role accountable for, what capabilities are non-negotiable, and what is the cultural context the person must thrive in?",
-        "job_design_components": [
-          "Outcome accountability — the 3-5 specific outcomes this role is responsible for delivering, with measurable standards",
-          "Non-negotiable capabilities — the 3-5 capabilities without which the person cannot do the job (distinct from nice-to-haves)",
-          "Cultural context — the operating environment: pace, ambiguity, management style, peer relationships",
-          "Growth trajectory — what development opportunity exists in this role and where can it lead"
-        ]
-      },
-
-      "sourcing_strategy": {
-        "internal_first": "Before any external sourcing, assess whether an internal candidate can be developed or redeployed into the role. Internal promotion has a lower sourcing cost, faster ramp time, and a higher retention rate than external hiring.",
-        "referral_network": "Staff referrals produce higher-quality candidates and better retention outcomes than job board sourcing. Design a referral incentive that rewards staff for referring candidates who are successfully hired and retained for a minimum period (typically 6 months).",
-        "specialist_sourcing": "For specialist or senior roles, engage a recruiter with domain expertise in the relevant field. A recruiter who understands the technical requirements of the role will screen more effectively than a generalist recruiter who is screening on keywords."
-      },
-
-      "onboarding_as_retention": {
-        "principle": "The first 90 days determines retention. New hires who feel welcomed, informed, and connected to a clear purpose in their first 90 days are significantly more likely to remain for 2+ years. New hires who are left to find their own feet are the primary source of early-tenure attrition.",
-        "ninety_day_plan": [
-          "Day 1: Personal welcome from the manager. Access to all required systems and tools. Introduction to the team.",
-          "Week 1: Structured orientation to the business — purpose, values, operating model, and the new hire's specific role.",
-          "Month 1: First formal check-in against the onboarding plan. Identify any capability gaps or resource needs.",
-          "Day 60: Second check-in. Review progress against the role's outcome accountabilities. Address any concerns on both sides.",
-          "Day 90: 90-day review. Formal assessment of the new hire's progress. Confirm mutual expectations for the next quarter."
-        ]
-      }
+      "name": "Coping with Covid",
+      "summary": "Explains the three Enneagram Harmonic Coping Styles — Intensity, Competency and Positive Outlook — and how each is used to defend against loss and disappointment. Knowing which style a person defaults to explains behaviour that otherwise looks irrational under pressure. It gives a manager a way to respond to the coping style instead of arguing with the behaviour.",
+      "who_when": "Teams under sustained pressure or working through a shock, where behaviour has changed and the manager cannot read it.",
+      "steps": [
+        "Identify which of the three harmonic styles each person defaults to under loss or disappointment: Intensity, Competency or Positive Outlook.",
+        "Read the current behaviour as a defence against the loss rather than as the problem itself.",
+        "Respond in the style the person is coping in, rather than requiring them to adopt yours.",
+        "Use it alongside the types material where a specific personality is making the behaviour hard to manage."
+      ]
     },
-
     {
-      "name": "Remuneration Framework",
-      "purpose": "Provides a structured approach to designing and reviewing remuneration — ensuring pay is competitive with the market, internally equitable, and aligned to individual and organisational performance.",
-      "core_principle": "Remuneration is not primarily a motivational tool — research consistently shows that once pay is perceived as fair, additional pay increases do not proportionately increase performance. However, pay that is perceived as unfair is a powerful demotivator. The remuneration framework must ensure that staff believe their pay is fair relative to the market and to their peers before any incentive structure can be effective.",
-      "when_to_use": "Use when designing a remuneration structure for a growing team, when conducting an annual salary review, when experiencing attrition that exit interview data suggests is pay-related, or when designing an incentive or profit-sharing program.",
-
-      "remuneration_structure": {
-        "base_pay": {
-          "principle": "Base pay should be set at or above the market median for equivalent roles in the same geography and industry. Pay below the market median creates ongoing attrition risk that is disproportionately skewed toward the best performers — who have the most options.",
-          "market_benchmarking": "Source market data from at least two independent sources annually: published salary surveys and current advertised role data for comparable positions. Do not rely on anecdotal evidence or outdated data — the market for skilled roles moves faster than annual benchmarking cycles."
-        },
-        "variable_pay": {
-          "principle": "Variable pay is effective when it is tied to outcomes that the individual can directly influence, is paid within a short timeframe of the performance that earned it, and represents a meaningful proportion of total compensation.",
-          "common_structures": [
-            { "structure": "Individual performance bonus", "description": "Paid for achieving specific, pre-agreed individual targets. Most effective for roles with clear individual output metrics — sales, production, client billing.", "pitfall": "Avoid purely subjective bonus criteria — if the individual cannot predict their bonus at the start of the year based on their own effort, the motivational value is lost." },
-            { "structure": "Team performance bonus", "description": "Paid when the team achieves a collective target. Builds collaboration but can create free-rider problems if individual contributions are not separately visible.", "pitfall": "Only effective when team interdependency is genuine — where individual success genuinely depends on team performance." },
-            { "structure": "Profit sharing", "description": "A percentage of business profit distributed to staff. Reinforces ownership mentality and aligns staff interests with business health. Most effective in businesses where staff can observe and influence the profit drivers.", "pitfall": "Profit sharing that is opaque — where staff cannot see how the profit figure is calculated or how their behaviour influences it — produces goodwill but not performance alignment." }
-          ]
-        },
-        "non_financial_remuneration": {
-          "principle": "For many staff — particularly in professional services — non-financial elements of the employment proposition are as important as pay. Flexible working, development investment, autonomy, and purpose alignment are increasingly the deciding factors in employment decisions for high-quality candidates.",
-          "key_elements": ["Flexible working arrangements — location and hours flexibility where operationally viable", "Development investment — funded CPD, conference attendance, professional qualifications", "Autonomy — clearly defined scope within which the individual can make decisions without approval", "Wellbeing support — physical and mental health provisions"]
-        }
-      }
+      "name": "Coping with the types at their worst",
+      "summary": "Details the nine Enneagram personality types, the disruptive behaviours each produces in a business, and specific strategies for coping with them. It is written for the worst-case version of each type — how the person behaves under pressure, not at their best. The point is to manage the issue without making the person the issue.",
+      "who_when": "Managers dealing with an individual whose behaviour is disrupting a team, and advisors coaching an owner through it.",
+      "steps": [
+        "Identify the type driving the disruptive behaviour before deciding on a response.",
+        "Read the behaviour against that type's worst-case pattern rather than treating it as a one-off.",
+        "Apply the coping strategy the material gives for that type — for a Challenger (Type 8), who copes with intensity, match their energy but stay focused on the issue, not the person.",
+        "Avoid telling someone in that state to \"calm down\"; it escalates the behaviour rather than settling it.",
+        "Where the behaviour is a performance issue rather than a personality one, move to the Managing Poor Performance guide instead."
+      ]
     },
-
     {
-      "name": "SMART Goal-Setting and Performance Review Framework",
-      "purpose": "Provides a structured approach to setting, reviewing, and calibrating individual performance goals — ensuring that goals drive the right behaviour, are genuinely measurable, and are reviewed frequently enough to course-correct before year-end.",
-      "core_principle": "The purpose of a goal is to create aligned effort. A goal that is too vague produces drift — the individual is busy but not purposefully. A goal that is too narrow produces gaming — the individual hits the metric while undermining the broader intention. The SMART framework, applied rigorously and reviewed regularly, prevents both failure modes.",
-      "when_to_use": "Use at the start of any performance period to set individual goals, when reviewing an underperforming team member's objectives, or when redesigning the firm's performance management cycle.",
-
-      "smart_framework": {
-        "specific": {
-          "description": "The goal states precisely what must be achieved — who, what, when, where. Vague goals ('improve client service') cannot be evaluated and do not direct effort.",
-          "test": "Can a third party, reading the goal without context, understand exactly what achievement looks like?"
-        },
-        "measurable": {
-          "description": "The goal has a defined measure of success — a number, a percentage, a completion date, or a documented outcome. If it cannot be measured, it cannot be evaluated.",
-          "test": "At the end of the period, will there be agreement on whether the goal was achieved — or will it require a subjective judgement?"
-        },
-        "achievable": {
-          "description": "The goal is stretching but realistic given the individual's current capability, resources, and time. Goals that are set too high create learned helplessness; goals set too low create complacency.",
-          "test": "Has the individual who owns the goal agreed that it is achievable with effort? Goals imposed without agreement have lower achievement rates than goals set collaboratively."
-        },
-        "relevant": {
-          "description": "The goal connects to the individual's role and the organisation's priorities. Goals that are irrelevant to either the individual's growth or the business's objectives are compliance exercises, not performance tools.",
-          "test": "If this goal is achieved, will it make a meaningful difference to the individual's contribution or the business's results?"
-        },
-        "time_bound": {
-          "description": "The goal has a defined completion date or review cadence. Open-ended goals produce open-ended effort — the time boundary creates the commitment.",
-          "test": "Is there a specific date by which this will be completed or reviewed?"
-        }
-      },
-
-      "review_cadence": {
-        "quarterly_review": "Formal review of progress against all SMART goals. Not a grading exercise — a problem-solving conversation. If a goal is off track, the review identifies why and what changes to goals, resources, or approach are required.",
-        "monthly_check_in": "Brief (15-30 minute) 1:1 focused on the individual's highest-priority goal for the month. The purpose is course correction — not evaluation.",
-        "annual_review": "Full performance evaluation against the year's SMART goals, calibrated against the team's performance to ensure consistency of standards across managers. Feed directly into remuneration decisions — the link between performance and pay must be visible and consistent."
-      }
+      "name": "EF.Incentive Points Explained",
+      "summary": "A team-based points reward programme: how points are earned through sales, the rules that penalise, and how points are redeemed for prizes. It drives inter-coaching and peer support, because points make one person's result visible to everybody else. It suits repeatable output rather than work where an individual can move the margin.",
+      "who_when": "Businesses with measurable, repeatable output where staff cannot directly influence profitability — the alternative to profit share.",
+      "steps": [
+        "Confirm the team performs repeatable output and cannot directly influence margin; if they can, use the Profit Share Model instead.",
+        "Set out how points are earned through sales, and what activity earns what.",
+        "Set the penalisation rules, so the scheme cannot be gamed.",
+        "Publish the prize redemption schedule so the points carry a visible value.",
+        "Track and post results regularly — the peer visibility is what produces the inter-coaching."
+      ]
     },
-
     {
-      "name": "People Power — If-Then Guidance",
-      "purpose": "Decision logic for the most common people strategy complications — owner misalignment blocking team progress, engagement surveys with no follow-through, recruitment that consistently fails, and remuneration disputes.",
-      "if_then_logic": [
-        {
-          "condition": "Team engagement interventions are not producing improvement despite investment",
-          "action": "Check whether the owner alignment foundation is solid before continuing team-level interventions. Disengagement that is driven by visible owner conflict or inconsistent leadership cannot be fixed by team-level programs. Interview 3-5 team members individually (guaranteed anonymity) and ask directly: what is the biggest barrier to engagement in this organisation? Their answers will reveal whether the root cause is team-level or owner-level."
-        },
-        {
-          "condition": "NPS feedback is consistently below target but no action is being taken on the results",
-          "action": "NPS without follow-through is counterproductive — clients who give a low score and receive no response are more likely to leave than clients who were never surveyed. Implement a mandatory response protocol: every score below 8 requires a named follow-up owner and a 48-hour response deadline. Review compliance at the monthly management meeting."
-        },
-        {
-          "condition": "Multiple new hires have left within their first 6 months",
-          "action": "Conduct exit interviews with all departing staff within 2 weeks of departure — not at the point of resignation, when answers are often guarded. Map the exit interview findings to the recruitment and onboarding process. The most common causes of early-tenure attrition are: role mismatch (the job was different from what was described), management quality (the day-to-day experience of working for their manager), and culture fit (the organisation's actual culture was different from its stated culture)."
-        },
-        {
-          "condition": "A high-performing individual is seeking a salary above the approved remuneration band",
-          "action": "Before rejecting the request, run a market benchmarking check. If the individual's requested salary is within the market range for their role and performance level, the band is wrong — not the request. The cost of losing a high performer to a competitor is always greater than the cost of correcting the band. If the request is genuinely above market, a transparent conversation about the market data is more effective than a band-based refusal."
-        }
+      "name": "EF.Profit Share Agreement",
+      "summary": "The formal legal contract behind a profit share: the terms for distributing a bonus pool based on project profitability, the costs attributed against it, and the wash-up clauses. It fixes the eligibility criteria in writing — a minimum of twelve months' employment, for example — before any money is discussed. It is executed once the model and thresholds are settled, not before.",
+      "who_when": "Businesses running a profit share where staff can directly influence the margin. Executed after the Profit Share Model has set the thresholds and splits.",
+      "steps": [
+        "Settle the model and the thresholds first, on the Profit Share Model spreadsheet.",
+        "Execute the agreement, making the eligibility criteria explicit — for example a minimum of 12 months' employment.",
+        "State the attributed costs that come off before the surplus is calculated.",
+        "Include the wash-up clause that retains a percentage of bonuses until year end, so cash flow stays safe.",
+        "Deduct the appropriate taxes on distribution, and keep the calculation visible to the staff it applies to."
+      ]
+    },
+    {
+      "name": "GE.SMART & FAST Goals",
+      "summary": "A presentation on formulating goals using the SMART method, with the weight put on the 'Affect' component and on mental visualisation of the result. A goal that is too vague produces drift; one that is too narrow produces gaming, where the number is hit and the intention is undermined. Applied rigorously and reviewed often enough to course-correct, it is what converts intention into aligned effort.",
+      "who_when": "Set at the start of a performance period, when reviewing an underperforming team member's objectives, or when redesigning the firm's performance cycle.",
+      "steps": [
+        "Make the goal Specific: a third party reading it without context should understand exactly what achievement looks like.",
+        "Make it Measurable: at the end of the period there must be agreement on whether it was met, not a subjective judgement.",
+        "Make it Achievable — stretching but realistic, and agreed by the person who owns it; imposed goals are achieved less often than goals set together.",
+        "Make it Relevant to both the individual's role and the firm's priorities, or it is a compliance exercise.",
+        "Make it Time-bound, with a completion or review date attached.",
+        "Work the Affect component: have the person visualise the achieved result, not simply write the words down.",
+        "Check in monthly for 15-30 minutes on the highest-priority goal — course correction, not evaluation.",
+        "Review formally each quarter as a problem-solving conversation, and annually against the team as a whole so standards stay consistent between managers."
+      ]
+    },
+    {
+      "name": "Hiring Winners",
+      "summary": "Strategies for assessing leadership styles, testing the CANOE traits, staying legally compliant, and grading applicants through a three-stage process. It moves hiring off gut feel and onto observable behaviour, because people bend their perspective in a standard interview. Most hiring failures are selection failures rather than sourcing failures, and the cost of one runs well past the salary.",
+      "who_when": "Scaling businesses, leaders frustrated by team conflict, and firms that have had a run of hires not work out.",
+      "steps": [
+        "Design the role before sourcing anyone: the outcomes it is accountable for, the non-negotiable capabilities, the cultural context it sits in, and where it can lead.",
+        "Map the daily tasks to decide whether you need a specialist or a utility player.",
+        "Look internally first — internal moves cost less to source, ramp faster and are retained longer — then to staff referrals, then to a specialist recruiter for senior or technical roles.",
+        "Grade applicants through the three stages — Feel, Know, Test — and test them in more than one environment, for example shifting the third meeting to a café.",
+        "Test the CANOE traits by asking for specific anecdotes rather than opinions: \"give me an idea of when you last prepared for something you love\" tests conscientiousness through behaviour.",
+        "Check that the candidate's traits complement the existing team rather than duplicating it — balance beats hiring clones.",
+        "Stay inside the legal compliance boundaries the material sets out for questioning and assessment.",
+        "Orient the new hire with a buddy trained in the global and local presentation frameworks, and run structured check-ins through the first 90 days — that period is what decides retention."
+      ]
+    },
+    {
+      "name": "L.Suppt.Alignment",
+      "summary": "Connects Maslow's and Alderfer's theories of need to the five content domains — Being, Knowing, Relating, Having and Doing — and uses them to craft the Vision, Purpose and Strategy statements. It gives the leadership group a common frame for what the business is for, before they argue about what it should do. Where owners are visibly unaligned, staff read it as leadership not knowing where it is going, and no downstream people programme will hold.",
+      "who_when": "Leadership groups working in silos or that have lost their overall direction. Used in a facilitated session, and before any team-level people intervention in a multi-owner firm.",
+      "steps": [
+        "Work the five content domains — Being, Knowing, Relating, Having, Doing — against Maslow's and Alderfer's levels of need.",
+        "Have each owner independently write their top five professional values, then map the overlaps: those are the genuine shared values, and the gaps are the hidden misalignments.",
+        "Have each owner present their picture of the business in three years, then facilitate to a single documented direction.",
+        "Draft the Vision, Purpose and Strategy statements out of that work, in the firm's own words.",
+        "Agree ten to fifteen operating principles the owners commit to behaving by — a behavioural commitment, not a legal document.",
+        "Build a decision authority matrix: which decisions need consensus, which sit with the managing owner, which are delegated.",
+        "Document each owner's primary role and its boundaries, so staff know whose authority they are under.",
+        "Review the direction, the principles and the role boundaries annually, or whenever the structure changes."
+      ]
+    },
+    {
+      "name": "Leadership Review",
+      "summary": "A self-assessment questionnaire for leaders covering the culture they are actually creating: creativity against discipline, how inclusive the team is, and how conflict gets resolved. It is answered by the leader about themselves, which makes it the opening of a coaching conversation rather than a score. The gap between how a leader rates themselves and how the team experiences them is usually where the work is.",
+      "who_when": "Owners and managers at the start of a leadership development or culture engagement, and as a periodic self-check afterwards.",
+      "steps": [
+        "Have the leader complete the questionnaire on their own, before any discussion.",
+        "Work through the balance they have described between a culture of creativity and one of discipline, and what the business currently needs more of.",
+        "Review how inclusive they judge the team to be, and what evidence they are reading that from.",
+        "Review how conflict is currently resolved, and what happens when it is not.",
+        "Compare their answers against the Team Survey results where both exist — the difference between the two is the conversation."
+      ]
+    },
+    {
+      "name": "Managing Poor Performance",
+      "summary": "Government-based guidelines that separate poor performance from misconduct, set out what a Performance Improvement Plan requires, and cover the handling of stress and bullying claims. The distinction matters because the legal process differs: a skill or training gap is managed forward, misconduct is disciplined. Acting in good faith with clear documentation is what protects the employer.",
+      "who_when": "Employers managing staff who are not meeting the job standard despite prior informal coaching and support, and advisors coaching an owner through the conversation.",
+      "steps": [
+        "Establish first whether the issue is a genuine skill or training gap (performance) or a behavioural or attitude issue (misconduct) — the process differs.",
+        "Set clear expectations in writing, so the standard being missed is not itself in dispute.",
+        "Offer practical solutions, support and training rather than only stating the gap.",
+        "Allow a realistic timeframe for the improvement to actually happen.",
+        "Keep the process objective, forward-looking and in good faith, documenting each step as you go.",
+        "Handle any stress or bullying claim that arises under this guidance, rather than inside the performance conversation."
+      ]
+    },
+    {
+      "name": "Notice of PIP Meeting",
+      "summary": "The formal letter inviting an employee to a meeting about their underperformance, proposing a structured Performance Improvement Plan. It states the performance gaps plainly, and advises the employee to bring a support person. Sending it is what makes the process a fair one rather than an ambush.",
+      "who_when": "Sent by the employer once informal coaching has not closed the gap — the first formal step, before any plan is agreed.",
+      "steps": [
+        "Send the notice before the meeting, not at it.",
+        "State the performance gaps clearly enough that the employee knows what will be discussed.",
+        "Advise the employee to bring a support person.",
+        "Give enough notice for them to prepare and to arrange that person.",
+        "Reference the draft plan that will be discussed at the meeting."
+      ]
+    },
+    {
+      "name": "PIP Template",
+      "summary": "The form that documents the performance gap, the employer's expectations, the actions required, the support and training provided, and the scheduled review dates. It is completed with the employee after the consultation meeting, not written at them beforehand. Its value is that improvement, or the absence of it, becomes a matter of record rather than opinion.",
+      "who_when": "Completed after the PIP meeting, then reviewed at the scheduled intervals — commonly 30, 60 and 90 days.",
+      "steps": [
+        "Hold the consultation meeting first: discuss the concerns, review the draft, and let the employee respond to it.",
+        "Complete the template — the performance gap, the specific actions required, the support and training the employer will provide, and the timeline for improvement.",
+        "Set the review dates on the plan itself.",
+        "Meet at each interval and assess progress against the milestones.",
+        "Decide at each review whether the plan continues, closes, or moves to a formal warning."
+      ]
+    },
+    {
+      "name": "Paper Tower Model",
+      "summary": "The calculation spreadsheet that works out the profit or loss of the paper tower exercise from materials drawn, height achieved and time taken. Automating the scoring is what lets the facilitator watch behaviour instead of doing arithmetic at the front of the room. It also drives the financial point home — poor teamwork ends up with a number attached to it.",
+      "who_when": "Facilitators running the paper tower exercise in a team workshop or strategic retreat.",
+      "steps": [
+        "Record the number of sheets each team draws, whether they use them or not.",
+        "Record the time taken to build.",
+        "Measure the finished height.",
+        "Calculate the profit as height achieved less the cost of materials and the time taken, and show each team the result before the debrief begins."
+      ]
+    },
+    {
+      "name": "Paper Tower Review Questions",
+      "summary": "The debrief guide for the exercise: it walks the team through the nine-step planning process and evaluates how they actually behaved. The most telling question is whether anybody completed a financial calculation before they started building. Its purpose is to map what happened on the table onto how the team works every day.",
+      "who_when": "Used immediately after the tower is measured, with the team that built it.",
+      "steps": [
+        "Ask the opening questions: did you have fun, did you make a profit, where did you go wrong.",
+        "Ask directly whether anybody completed a financial calculation before building started.",
+        "Read back specific observations with the time at which they happened, rather than generalising about the team.",
+        "Walk through the nine-step planning process and show where the team skipped a step.",
+        "Map each behaviour onto the equivalent workplace habit, and agree what changes on Monday."
+      ]
+    },
+    {
+      "name": "Paper Tower Task Sheet",
+      "summary": "The instructions and constraints for building a self-supporting tower from paper inside strict time limits, drawing up to 500 sheets in batches. Every sheet drawn counts as cost whether it is used or not, and no prefabrication is allowed before the build starts. The constraints are what make the exercise behave like a real project.",
+      "who_when": "Handed to the building team at the start of the exercise, before the planning timer starts.",
+      "steps": [
+        "Issue the materials and state the constraints, including that there is no prefabrication.",
+        "Allow 20 minutes to plan.",
+        "Allow 10 minutes to build, immediately after planning.",
+        "Require the tower to be self-supporting and to stand for a full minute before it is measured.",
+        "Count every sheet drawn as cost, used or not."
+      ]
+    },
+    {
+      "name": "Productive Habits (Slides)",
+      "summary": "Explains the progressive learning path from Acquiring through to Mastery, and introduces a five-step framework for building a replacement habit. The emphasis is on replacement rather than removal — an unwanted habit is displaced by a deliberate one, not simply stopped. It is the teaching that sits behind the Productive Habits worksheet.",
+      "who_when": "Owners or teams trying to change working behaviour that keeps reverting. Presented before the worksheet is filled in.",
+      "steps": [
+        "Locate where the person currently sits on the learning path, from Acquiring through to Mastery.",
+        "Name the habit that will replace the unwanted one, rather than the habit to be stopped.",
+        "Work the five steps of the replacement framework in order.",
+        "Move to the Productive Habits worksheet to commit it to a plan."
+      ]
+    },
+    {
+      "name": "Productive Habits (Doc)",
+      "summary": "A simple matrix tracking the reason for the change, the trigger, the micro-habit, the effective practice and the long-term plan. It keeps the change small enough to actually happen — a micro-habit attached to an existing trigger rather than a resolution. The written reason is what the person returns to when the practice slips.",
+      "who_when": "Completed by the individual after the Productive Habits presentation, then reviewed with them periodically.",
+      "steps": [
+        "Write the reason the change matters, in the person's own words.",
+        "Identify the trigger the new behaviour will attach to.",
+        "Define the micro-habit — small enough to be done on the worst day.",
+        "Record the effective practice that builds on it.",
+        "Set the long-term plan, and review the matrix rather than relying on memory."
+      ]
+    },
+    {
+      "name": "Profit Share Model",
+      "summary": "The spreadsheet that calculates gross margin thresholds, bonus splits and the quarterly wash-up distributions for each team member. It makes the scheme arguable in numbers rather than in principle — staff can see the threshold, the split, and what their own behaviour would be worth. The wash-up facility retains a percentage until year end so the firm's cash flow stays safe.",
+      "who_when": "Project-based or margin-influencing teams. Modelled before the Profit Share Agreement is executed, then administered quarterly.",
+      "steps": [
+        "Confirm the team can genuinely influence the margin; otherwise use the points programme instead.",
+        "Set the gross margin thresholds at which a bonus pool starts to form.",
+        "Set the bonus splits between the business and the team members.",
+        "Model what an increase in sales or a reduction in cost would be worth, and show the team that number — it is what makes them think laterally about both.",
+        "Hold back the wash-up percentage until the final quarter, then distribute after tax."
+      ]
+    },
+    {
+      "name": "Remuneration & Incentives",
+      "summary": "Guidelines for matching the remuneration option — equity, bonus, time in lieu — to the behaviour the business wants and to what its profitability can carry. Once pay is seen as fair, more pay does not buy proportionately more performance; pay seen as unfair is a powerful demotivator. So the structure has to be right before any incentive sitting on top of it will work.",
+      "who_when": "Designing a structure for a growing team, at an annual salary review, or when exit interviews point at pay.",
+      "steps": [
+        "Decide the behaviour you want before choosing the instrument — equity, bonus and time in lieu each pull differently.",
+        "Set base pay at or above the market median for the role, geography and industry; below-median pay loses the best performers first, because they have the most options.",
+        "Benchmark against at least two independent sources each year — published surveys and currently advertised comparable roles — rather than anecdote.",
+        "Check internal equity before market position: staff who believe a peer of equal contribution is paid more are more likely to leave than staff who are simply below market.",
+        "Tie any variable pay to outcomes the individual can actually influence, pay it close to the performance that earned it, and make it large enough to matter.",
+        "Choose the variable structure deliberately — individual bonus where output is clearly individual, team bonus only where the interdependency is genuine, profit share where staff can see and move the profit drivers.",
+        "Keep the calculation transparent; an opaque scheme buys goodwill but not performance alignment.",
+        "Count the non-financial part of the package as remuneration too — flexibility, funded development, autonomy and wellbeing support are often the deciding factors for good candidates."
+      ]
+    },
+    {
+      "name": "Spaghetti Tower Task Sheet",
+      "summary": "The instructions and constraints for the spaghetti version of the tower exercise — spaghetti, tape, string and a marshmallow. It is the rapid, low-cost option: a fast ice-breaker that still exposes how a team plans and communicates under pressure. Same discipline as the paper tower, with almost no setup.",
+      "who_when": "Facilitators needing a short team challenge inside a workshop or retreat.",
+      "steps": [
+        "Issue the exact resources: 20 sticks of spaghetti, tape, string and a marshmallow.",
+        "State the constraints, including no prefabrication before building starts.",
+        "Allow 20 minutes to plan and 10 minutes to build.",
+        "Require the tower to be self-supporting, to hold the marshmallow at the top, and to stand for a minute before it is measured.",
+        "Debrief using the Paper Tower Review Questions."
+      ]
+    },
+    {
+      "name": "Supplier Survey",
+      "summary": "A conversational survey framework for suppliers, designed to uncover communication gaps and the product or training opportunities a business is not being told about. Suppliers see the business from the outside and often know exactly where the friction is. It is run the same way as the client survey — a conversation, not a form.",
+      "who_when": "Established businesses benchmarking their supply relationships, or looking for untapped product and training opportunities.",
+      "steps": [
+        "Secure permission first by sounding genuinely interested, rather than reading a script.",
+        "Ask open-ended questions about how the relationship works day to day, and where communication breaks down.",
+        "Ask directly what products, training or support the supplier offers that the business is not using.",
+        "Record the workflow bottlenecks the supplier names — they see the ones inside the business that staff have stopped noticing.",
+        "Act on the input, and show the supplier that you did."
+      ]
+    },
+    {
+      "name": "Team 'CANOE' Review",
+      "summary": "A spreadsheet matrix that collates and averages 360-degree feedback from the team against the Big Five traits — Conscientiousness, Agreeableness, Neuroticism, Openness, Extraversion. Because it measures observable traits rather than temperament, it survives the bending of perspective a standard interview invites. Averaged across the team, it shows where the trait gaps and the communication gaps actually sit.",
+      "who_when": "Scaling businesses, teams in conflict, and any firm about to hire — run on the existing team before the new role is defined.",
+      "steps": [
+        "Have every team member complete the 360-degree review on the others.",
+        "Collate the responses in the matrix and average them.",
+        "Read the trait gaps across the team as a whole, not the score of any one individual.",
+        "Use the gaps to decide which traits the next hire needs to complement.",
+        "Where communication is the presenting problem, map the gaps onto where it is breaking down and advise on the structure from there."
+      ]
+    },
+    {
+      "name": "Team Survey",
+      "summary": "A brief internal questionnaire asking employees about role clarity, workflow bottlenecks, the feedback they get from management, and what could be delegated. It surfaces the blind spots an owner cannot see from the inside, early enough to act before people resign. A survey that produces results and no action is worse than none — it tells staff their view is collected but not valued.",
+      "who_when": "Established businesses benchmarking engagement, or where turnover, quality or morale is drifting. Only run it if the firm is prepared to act on the answers.",
+      "steps": [
+        "Ask about role clarity, workflow bottlenecks, the feedback people receive from management, and what they believe could be delegated.",
+        "Score the engagement drivers 1-5: whether people know what is expected of them, have the materials to do the job, get to do what they do best, have been recognised recently, feel someone cares about them and encourages their development, feel their opinions count, believe the work matters, trust their colleagues' standards, have a friend at work, have discussed their progress in the last six months, and have had the chance to learn and grow.",
+        "Treat a team average below 3.5 on any item as a priority area for intervention.",
+        "Where role clarity scores low, start there — it correlates most strongly with individual performance — through a role review and a regular one-to-one on priorities and expectations.",
+        "Where recognition scores low, build a cadence rather than a budget: a recognition item in the weekly meeting, a peer-to-peer mechanism, and a monthly note from the manager.",
+        "Where development scores low, write an individual development plan with each person — where they want to go, what capability they need, and what the firm will provide.",
+        "Share the results with the team, name what will change, and report back on a set date.",
+        "Where the answers point at the leadership group rather than the team, go back to the alignment work before spending anything on team programmes."
+      ]
+    },
+    {
+      "name": "Team Workshop Run Sheet",
+      "summary": "A minute-by-minute schedule template for facilitating a two-day team-building and strategic alignment workshop. It fixes the session times, the content, the purpose of each block and the resources it needs, so presenters arrive prepared and the days do not drift. Breaks and reviews are scheduled rather than improvised.",
+      "who_when": "Facilitators running a two-day team or alignment workshop. Completed during planning, then used live on the day.",
+      "steps": [
+        "Lay out both days block by block, with the session time, start and finish.",
+        "State the content, the purpose and the resources required for each block.",
+        "Schedule the breaks and the management reviews rather than leaving them to the day.",
+        "Slot the experiential exercises and the alignment work into the blocks they belong in.",
+        "Close each day with a review session."
       ]
     }
-
   ],
 
   "advisor_guidance": {

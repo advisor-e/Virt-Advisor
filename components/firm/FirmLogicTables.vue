@@ -5,7 +5,10 @@ section.firm-logic-tables
 
   b-message(v-if="error" type="is-danger" has-icon :closable="false") {{ error }}
 
-  //- Toolbar — search
+  //- Toolbar — search, and the control that hides the table list to give the
+  //- branch grid the full width. It sits here, beside the search, so it is
+  //- reachable whether or not a table is open — hiding the list can never
+  //- strand the editor on a screen with no way back to it.
   .level.mb-4
     .level-left
       b-field.mb-0
@@ -16,6 +19,12 @@ section.firm-logic-tables
           :placeholder="$t('firmLogicTables.searchPlaceholder')"
           :aria-label="$t('firmLogicTables.searchPlaceholder')"
         )
+    .level-right
+      button.button.is-small.lt-railtoggle(
+        type="button"
+        :aria-expanded="String(!railHidden)"
+        @click="toggleRail"
+      ) {{ railHidden ? $t('firmLogicTables.showList') : $t('firmLogicTables.hideList') }}
 
   b-loading(:is-full-page="false" :active="loading")
 
@@ -23,7 +32,7 @@ section.firm-logic-tables
     //- ── Rail: the three master-section groups. Each row can be dragged into
     //- another group (mouse), or re-filed via its "Move to" menu (keyboard /
     //- touch). Re-filing is firm-only and display-only — the AI is unaffected.
-    .column.is-4
+    .column.is-4(v-if="!railHidden")
       nav.lt-rail(:aria-label="$t('firmLogicTables.railLabel')")
         .lt-rail-empty(v-if="!groups.length")
           span.has-text-grey.is-size-7 {{ query ? $t('firmLogicTables.noMatchHere') : $t('firmLogicTables.emptyLibrary') }}
@@ -61,7 +70,8 @@ section.firm-logic-tables
               ) {{ opt.label }}
 
     //- ── Panel: the selected table's branches ───────────────────────────
-    .column.is-8
+    //- Takes the whole row once the list is hidden, which is the point of it.
+    .column(:class="railHidden ? 'is-12' : 'is-8'")
       .box.panel-empty(v-if="!current")
         p.has-text-weight-semibold {{ $t('firmLogicTables.pickPrompt') }}
         p.has-text-grey.is-size-7 {{ $t('firmLogicTables.pickHint') }}
@@ -93,6 +103,9 @@ section.firm-logic-tables
 
           //- The four-column IF→THEN table.
           .table-scroll(v-else)
+            //- Says out loud what reordering does and does not do, so a firm is
+            //- never guessing whether moving a row changed the engine.
+            p.lt-ordernote(v-if="current.reorderable") {{ $t('firmLogicTables.orderNote') }}
             table.lt-table
               colgroup
                 col.c-branch
@@ -116,6 +129,22 @@ section.firm-logic-tables
                         rows="1"
                         :aria-label="$t('firmLogicTables.colBranch')"
                       )
+                      //- Reorder is offered only where row order is presentation
+                      //- alone. A nodes-shaped tree starts its walk at row 1, so
+                      //- moving rows there would repoint the engine's entry.
+                      template(v-if="current.reorderable")
+                        button.lt-branch-move(
+                          type="button"
+                          :disabled="bIndex === 0"
+                          :aria-label="$t('firmLogicTables.moveBranchUp')"
+                          @click="moveBranch(bIndex, -1)"
+                        ) ↑
+                        button.lt-branch-move(
+                          type="button"
+                          :disabled="bIndex === form.branches.length - 1"
+                          :aria-label="$t('firmLogicTables.moveBranchDown')"
+                          @click="moveBranch(bIndex, 1)"
+                        ) ↓
                       button.lt-branch-remove(
                         type="button"
                         :aria-label="$t('firmLogicTables.removeBranch')"
@@ -183,6 +212,10 @@ section.firm-logic-tables
 
 <script>
 import { autogrow, resizePersist } from '~/utils/textareaDirectives'
+
+/** Where this browser remembers whether the table list is hidden. */
+const RAIL_STATE_KEY = 'lt:railHidden'
+
 /**
  * Firm Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3, §0.6) — the firm's
  * no-code view of the IF→THEN branch tables that steer how a meeting is run.
@@ -239,7 +272,12 @@ export default {
       /** Rail re-filing drag state (display-only): the id being dragged and the
        *  group currently hovered as a drop target. */
       dragId: null,
-      dropKey: null
+      dropKey: null,
+      /** Table list collapsed, giving the branch grid the full width. A personal
+       *  display preference like the drag-to-size box heights — remembered in
+       *  this browser only, never in the firm's saved content. Restored in
+       *  mounted(), never here: localStorage does not exist during SSR. */
+      railHidden: false
     }
   },
 
@@ -291,10 +329,32 @@ export default {
   },
 
   mounted () {
+    this.restoreRailState()
     this.load()
   },
 
   methods: {
+    /**
+     * Restore the collapsed/expanded state of the table list from this browser.
+     * Client-only and failure-tolerant: private browsing or blocked storage
+     * simply leaves the list showing, which is the safe default.
+     */
+    restoreRailState () {
+      if (typeof window === 'undefined') { return }
+      try {
+        this.railHidden = window.localStorage.getItem(RAIL_STATE_KEY) === '1'
+      } catch (e) { /* storage blocked — keep the list showing */ }
+    },
+
+    /** Hide or show the table list, remembering the choice for next time. */
+    toggleRail () {
+      this.railHidden = !this.railHidden
+      if (typeof window === 'undefined') { return }
+      try {
+        window.localStorage.setItem(RAIL_STATE_KEY, this.railHidden ? '1' : '0')
+      } catch (e) { /* storage blocked — the toggle still works this session */ }
+    },
+
     /** GET the logic-table list (advisory + get-the-job). */
     async load () {
       this.loading = true
@@ -331,7 +391,9 @@ export default {
      * @param {{id:string,label:string,origin:string}} item rail row
      */
     async select (item) {
-      this.current = { id: item.id, label: item.label, origin: item.origin }
+      // `reorderable` is declared up front, not added later: Vue 2 cannot make a
+      // property reactive once the object exists, so the arrows would never appear.
+      this.current = { id: item.id, label: item.label, origin: item.origin, reorderable: false }
       this.form = { branches: [] }
       this.original = null
       this.history = []
@@ -355,6 +417,9 @@ export default {
     applyDetail (detail, origin) {
       const branches = Array.isArray(detail.branches) ? detail.branches : []
       const rowOrigin = origin === 'firm' ? 'firm' : 'platform'
+      // Only the backend knows whether this table's row order is presentation
+      // or flow; default to NOT reorderable if the field is missing.
+      if (this.current) { this.current.reorderable = detail.reorderable === true }
       this.form = {
         branches: branches.map(b => ({
           id: b.id,
@@ -481,6 +546,30 @@ export default {
     /** Remove a branch from the on-screen table. */
     removeBranch (index) {
       this.form.branches.splice(index, 1)
+    },
+
+    /**
+     * Move a branch one row up or down (on-screen only; Save persists it).
+     *
+     * GUARDED, and the guard is the point. Row order is presentation only for
+     * `flat_if_then` tables. A `nodes`-shaped tree is a graph whose entry point
+     * is positional — `walkLogicTree` starts at `tree.nodes[0].id` — so moving
+     * rows there would repoint where the engine begins, which is a FLOW change
+     * and outside what firms may edit (Mike, 2026-07-24). The backend decides
+     * via `reorderable` on the detail response; this re-checks it rather than
+     * trusting that the buttons were hidden.
+     *
+     * Splice rather than index assignment: Vue 2 cannot observe `arr[i] = x`.
+     *
+     * @param {number} index - the branch's current row
+     * @param {number} delta - -1 to move up, +1 to move down
+     */
+    moveBranch (index, delta) {
+      if (!this.current || !this.current.reorderable) { return }
+      const target = index + delta
+      if (target < 0 || target >= this.form.branches.length) { return }
+      const [moved] = this.form.branches.splice(index, 1)
+      this.form.branches.splice(target, 0, moved)
     },
 
     formatDate (value) {
@@ -693,6 +782,22 @@ export default {
   padding: 0 0.25rem;
 }
 .lt-branch-remove:hover { color: #cc0f35; }
+.lt-branch-move {
+  border: 0;
+  background: none;
+  color: #7a869a;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1.6rem;
+  padding: 0 0.18rem;
+}
+.lt-ordernote {
+  font-size: 0.78rem;
+  color: #7a869a;
+  margin-bottom: 0.6rem;
+}
+.lt-branch-move:hover:not(:disabled) { color: #002b64; }
+.lt-branch-move:disabled { color: #dde2e9; cursor: default; }
 
 /* Action bar. */
 .lt-actionbar {

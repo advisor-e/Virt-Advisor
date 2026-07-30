@@ -11,156 +11,101 @@
     "agile theory", "feasibility stage", "advisory marketing", "get more clients",
     "transition to advisory", "compliance to consulting"
   ],
-  "overview": "The Get the Job — Marketing content helps advisors transition from basic tax compliance to high-value consulting. It is primarily strategic and communication in nature — a turnkey system equipped with communication templates, predictive modelling, and legal safeguards. Tools cover the full outreach lifecycle: automated prospect warming via quizzes and video links, portal invitations, staff training programs, crisis communication, and third-party legal agreements. Entry-level and suitable for all advisors.",
+  "overview": "The Get the Job — Marketing content helps advisors transition from basic tax compliance to high-value consulting. It is primarily strategic and communication in nature — a turnkey system equipped with communication templates, predictive modelling, and legal safeguards. Tools cover the full outreach lifecycle: automated prospect warming via quizzes and video links, portal invitations, staff training programs, crisis communication, and third-party legal agreements. Entry-level and suitable for all advisors. The seven materials below are sequenced by the four-step execution method: prepare the system, warm the prospect with a micro-step, invite and orient them, then formalise the engagement.",
+
   "diagnostic_entry": {
     "primary_question": "What stage of client outreach or marketing are you working on — generating new leads, inviting clients to the portal, training their staff, managing a crisis, or formalising a third-party relationship?"
   },
-  "support_tools": [
+
+  "materials": [
     {
       "name": "1st Response & Proposal Templates",
-      "purpose": "A structured email and engagement framework based on 'Agile Theory' project management — breaking new advisory engagements into Feasibility, Planning, and Implementation sprints.",
-      "core_principle": "Reduce the financial risk of a large upfront commitment by starting with a bounded $5,000 feasibility stage requiring only 5 hours of the client's time. Establish clear expectations from the first response.",
-      "when_to_use": "When a prospect or existing client enquires about a large project or new advisory engagement. The first response must set the structure before scope discussions begin.",
-      "key_benefits": [
-        "Establishes the advisor as a strategic partner from the first interaction — not just a reactive service provider",
-        "Secures initial paid work at low financial risk for the client (feasibility stage only)",
-        "Systematically reviews critical business functions (Planning, Data Management, Marketing) before finalising budgets",
-        "Sets clear expectations about the client's time commitment (approximately 5 hours) before any fee is agreed"
-      ],
-      "advisor_confidence_note": "Lead with the feasibility stage in your first response — never present the full project scope upfront. Position the $5,000 feasibility as the sensible starting point that protects both parties before committing to a larger budget.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Send the 1st Response",
-          "steps": [
-            { "name": "Frame the Agile approach", "guidance": "Use the 1st Response Email template to explain the Feasibility → Planning → Implementation sprint structure. Set expectations clearly about the initial stage." },
-            { "name": "Confirm client time commitment", "guidance": "State that the feasibility stage requires approximately 5 hours of the client's time. Make this visible upfront so there are no surprises." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Progress the Engagement",
-          "steps": [
-            { "name": "Complete the feasibility review", "guidance": "Systematically review the key business functions (Planning, Data, Marketing, etc.) to assess structural integrity before finalising the full budget." },
-            { "name": "Move to Planning and Implementation", "guidance": "Once the feasibility stage is paid and complete, move to the next sprint with a clearly agreed scope and fee." }
-          ]
-        }
+      "summary": "Brings Agile Theory to advisory engagements by breaking a project into manageable sprints — Feasibility, Planning, Implementation — rather than asking for the whole thing upfront. For the owner it removes the risk of committing to a large, expensive project blind: a $5,000 feasibility stage taking about five hours of their time establishes the structural integrity first. For the advisor it sets clear expectations, secures paid work early, and positions them as a strategic partner reviewing the critical business functions.",
+      "who_when": "Prospects and existing clients enquiring about large projects or new advisory engagements.",
+      "steps": [
+        "Introduce the engagement as three sprints — Feasibility, Planning, Implementation — rather than one commitment, so the client is deciding one step at a time.",
+        "Scope the feasibility sprint explicitly: about $5,000 and roughly five hours of the client's time, to assess structural integrity before any budget is finalised.",
+        "State what the feasibility sprint systematically reviews — Planning, Data Management, Marketing and the other critical business functions — so the client sees a method rather than an opinion.",
+        "Set expectations in writing before work starts, so the transition from feasibility into planning is a decision the client already understands.",
+        "Where the project involves sensitive operational data or reveals the firm's proprietary frameworks, put the Mutual Confidentiality Agreement in place at this feasibility stage, not later."
       ]
     },
     {
       "name": "Marketing Campaigns, Quizzes & Video Hyperlinks",
-      "purpose": "Automated outreach assets — including the 3rd Quarter Campaign, online quizzes (Growth Fundamentals, What's Applicable, HR Maths), and Vimeo video links — that act as 'micro-steps' between an initial approach and a formal meeting.",
-      "core_principle": "Let the tools do the selling. A 3-minute quiz or a short Vimeo link warms a prospect far more effectively than a cold phone call — it highlights their own operational gaps before you ever ask for a meeting.",
-      "when_to_use": "When you want to generate qualified leads, prime existing clients for a quarterly planning discussion, or warm up a new prospect before a sales call. Use before reaching out for a formal meeting.",
-      "key_benefits": [
-        "Automates outreach — the quiz or video does the qualifying work without manual sales effort",
-        "Focuses the client's attention on seasonal risks (e.g., the 'perfect storm' of tax and holidays) and upcoming planning needs",
-        "Generates warm leads: prospects who engage with the content are far more receptive to a follow-up call",
-        "Three quizzes cover different entry points: Growth Fundamentals (general), What's Applicable (module fit), HR Maths (people cost awareness)"
-      ],
-      "advisor_confidence_note": "Embed the relevant video hyperlink in your email signature, or send a targeted text message with the quiz link. When you follow up, frame the call as reviewing their quiz results — not as a sales call. Monitor completions to prioritise your follow-up sequence.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Select and Deploy",
-          "steps": [
-            { "name": "Identify target clients or prospects", "guidance": "Build a list of clients who need a nudge for quarterly planning, or cold targets who require warming before a formal approach." },
-            { "name": "Embed or send the micro-step asset", "guidance": "Embed a Video Hyperlink in your email signature, or send a direct text or email with the 3-minute quiz link. Use the Get.TCM.Quiz link email template for the quiz approach." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Follow Up on Engagement",
-          "steps": [
-            { "name": "Monitor quiz completions", "guidance": "Track who has completed the quiz. Favourable completions indicate a warm prospect ready for a follow-up call." },
-            { "name": "Book the meeting", "guidance": "Contact engaged prospects within 48 hours. Frame the call around their quiz results — you are reviewing their answers, not pitching a service." }
-          ]
-        }
+      "summary": "Outreach assets that automate the approach and act as a micro-step between first contact and a formal meeting, using short videos and quick quizzes to open discussion on cash forecasting, business planning and growth fundamentals. For the owner they focus attention on a seasonal risk — the perfect storm of tax and the holidays — and let them test their assumptions in three minutes. For the advisor they generate qualified leads and prime a client for the theme of the meeting without heavy manual selling.",
+      "who_when": "Existing clients needing a nudge toward quarterly planning, and new prospects who need warming up before a sales call. The entry point for any advisor uncomfortable with direct selling.",
+      "steps": [
+        "Identify the target list, then choose the asset that matches the theme you want the meeting to be about.",
+        "Embed a specific video hyperlink in your email signature — the Bags of Cash video for cash forecasting, for example — or send a targeted text containing the link.",
+        "Use the three online quizzes as the qualifying step: Growth Fundamentals, What's Applicable, and HR Maths. They take about three minutes and are designed to prime a prospect for the sales meeting that follows.",
+        "Run the seasonal campaign where it fits — the third-quarter outreach uses email and text scripts on cash forecasting and business planning to secure working capital reviews ahead of the holiday silly season.",
+        "Monitor the results to identify warm leads, then follow up by reviewing their quiz results with them rather than making a pitch."
       ]
     },
     {
       "name": "90-Day Best Practice Training Outreach",
-      "purpose": "A structured 4–5 session Zoom-based training program for a client's administrative staff, teaching correct use of accounting software (Xero), transaction coding, and monthly quality control.",
-      "core_principle": "Proactively solve the 'birds-nest nightmare' at the source — poorly coded accounts cost the advisor time and the client money at year-end. Training the admin team creates a new revenue stream while preventing costly mistakes.",
-      "when_to_use": "When a client uses digital accounting software but has an untrained or inexperienced admin team. Use after the portal is set up and the client relationship is established.",
-      "key_benefits": [
-        "Creates a new recurring revenue stream ($1,500–$1,800 + GST, billed in 3 monthly instalments)",
-        "Reduces year-end clean-up time by training staff on correct coding and quality control upfront",
-        "Prevents 'surprise' tax bills from the IRD caused by incorrect data entry",
-        "Structured training plan covers 4–5 Zoom sessions: software coding, transaction generation, monthly quality control, 90-day close-off"
-      ],
-      "advisor_confidence_note": "Standardise the fee at $1,500 + GST for local traders and $1,800 + GST for businesses trading internationally. Bill in 3 monthly instalments to reduce friction. Present it as an investment in the client's admin team, not a training product."
-    },
-    {
-      "name": "Crisis Management Templates",
-      "purpose": "Email and phone scripts (3 emails, 2 phone scripts) for reaching out to clients during economic lockdowns, supply chain disruptions, or sudden market downturns. Includes tools to model 'Good, Bad & Ugly' cash flow scenarios.",
-      "core_principle": "Demonstrate immense value during a crisis at no initial cost. Helping a client through a crisis cements the relationship far more than any sales pitch — and it naturally leads to paid programming when stability returns.",
-      "when_to_use": "Whenever an active client faces a sudden economic downturn, lockdown, or severe market disruption. Use immediately — do not wait for the client to reach out.",
-      "key_benefits": [
-        "Provides a compassionate, structured outreach framework — not a generic check-in email",
-        "Helps clients model three revenue scenarios ('Good, Bad & Ugly') before cash pressure becomes a crisis",
-        "Prepares clients to secure bank funding before credit divisions are overwhelmed",
-        "Focuses the client on one of three core functions: Getting Organised, Getting the Job, or Doing the Job"
-      ],
-      "advisor_confidence_note": "Reach out before the client contacts you. Use the email template first, then follow up by phone using the provided scripts. Position the 'Good, Bad & Ugly' scenario modelling as a free tool you are offering during a difficult period — ask for nothing in return at this stage."
-    },
-    {
-      "name": "Portal Invitations & System Checklists",
-      "purpose": "Email invitation templates (from direct to conservative) for onboarding clients to the Advisor-e portal, plus internal firm checklists for setting up client accounts via the Xero API.",
-      "core_principle": "Standardise the firm's onboarding process. Set up the client's portal with their data before they ever log in — so their first experience is a fully populated dashboard, not an empty screen.",
-      "when_to_use": "When onboarding a new or existing client to the Advisor-e portal, or when transitioning a client to the firm's advisory software platform. Also used internally by staff managing client setups.",
-      "key_benefits": [
-        "Three email variations (direct to conservative) allow the advisor to match the invitation tone to the client relationship",
-        "Framing the portal as a 'mental gym' lowers client intimidation around new technology",
-        "Internal checklists ensure consistent setup: Xero API import, financial data load, menu customisation, 15-minute orientation session",
-        "Grants the client 24/7 access to a centralised hub for agendas, action plans, and templates"
-      ],
-      "advisor_confidence_note": "Set up the client's entity and import their financial data before sending the invitation — never invite them to an empty portal. Follow up within 48 hours of sending the email using a phone script to book a 15-minute Zoom orientation. Treat the portal release as a process, not a single email event.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Internal Setup",
-          "steps": [
-            { "name": "Create the client entity via Xero API", "guidance": "Use the 'Let the Software do the Lifting' checklist. Mass-create business entities, import their cash volatility and financial performance data, and customise the Client Service Plan menus." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Send the Invitation",
-          "steps": [
-            { "name": "Select and send the invitation email", "guidance": "Choose from the three Get.Invitation email variations. Direct tone suits established clients; conservative ('mental gym') tone works better for new or technology-hesitant clients." },
-            { "name": "Follow up within 48 hours", "guidance": "Call within 48 hours to personally walk them through their first login and book a 15-minute Zoom orientation session." }
-          ]
-        }
+      "summary": "A structured four-to-five-session training plan delivered over Zoom, teaching a client's own admin staff to use Xero properly. For the owner it means correct coding, sound transaction handling and monthly quality control — which is what prevents costly mistakes and surprise tax bills. For the advisor it pre-empts the birds-nest nightmares that otherwise have to be untangled at year end, and creates a revenue stream in its own right.",
+      "who_when": "Business owners using digital accounting software who have no formal bookkeeping training or an inexperienced admin team. Also the natural pivot when a client's underlying data turns out to be too messy for advisory work.",
+      "steps": [
+        "Diagnose the data first — if the client's underlying records are messy, sell this before attempting any advisory engagement built on those numbers.",
+        "Schedule four to five Zoom sessions with the people who actually do the work, not the owner.",
+        "Cover software coding, transaction generation, and monthly quality control across the sessions.",
+        "Close off the 90 days formally, so the improvement is checked rather than assumed.",
+        "Price it as standard: $1,500 + GST for local traders, $1,800 + GST where the business trades internationally, billed in three monthly instalments to ease the client's cash flow."
       ]
     },
     {
-      "name": "Third-Party Collaboration & Legal Templates",
-      "purpose": "Formal templates for formalising relationships with external parties — including the Mutual Confidentiality Agreement (NDA), Banker Login email, and External Advisor Consent form.",
-      "core_principle": "Protect the firm's intellectual property and the client's data while systematically building referral networks with bankers and other external advisors. Every third-party relationship must be formalised before sensitive information is shared.",
-      "when_to_use": "When a client or prospect needs to share sensitive operational data; when revealing proprietary consulting frameworks to map a custom software application; when inviting a banker or external advisor into the client's portal. Also used to build mutual referral relationships.",
-      "key_benefits": [
-        "NDA protects the advisor's intellectual property and the client's confidential financial data during project evaluations",
-        "Banker Login email builds referral networks — the banker gains visibility of the client's exposure dashboard and may send unattached clients to the advisor",
-        "External Advisor Consent form secures formal privacy compliance before granting third-party portal access",
-        "Builds transparency with lenders, potentially accelerating the client's funding process"
-      ],
-      "advisor_confidence_note": "Introduce the NDA during the Feasibility stage of any new project where proprietary frameworks will be shared. Use the Banker Login email as a deliberate referral strategy — the template includes a script reminding the banker that you accept referrals for advisory work without requiring the client to leave their existing compliance accountant."
+      "name": "Crisis Management (COVID-19 Email & Phone Scripts)",
+      "summary": "A compassionate, structured way to reach clients during a lockdown, supply shortage or sudden downturn — three emails and two phone scripts. For the owner it models Good, Bad and Ugly revenue scenarios and gets them to the bank before the credit division is overwhelmed, then narrows their focus to one of three functions: Getting Organised, Getting the Job, or Doing the Job. For the advisor it demonstrates real value and empathy at no initial cost, which is what cements the relationship.",
+      "who_when": "All active clients facing a sudden economic downturn, lockdown or severe market disruption.",
+      "steps": [
+        "Reach out early using the email templates — the point is contact and clarity, not a sale.",
+        "Model the Good, Bad and Ugly revenue scenarios with the client so the range is quantified rather than feared.",
+        "Move quickly on funding: help them prepare and approach the bank before credit divisions are swamped.",
+        "Narrow their attention to one of the three core functions — Getting Organised, Getting the Job, or Doing the Job — so a panicking owner has one thing to work on.",
+        "Follow up by phone using the scripts; the free help given here is what leads to paid programmes later."
+      ]
+    },
+    {
+      "name": "Portal Invitations & System Checklists (\"Let the Software do the Lifting\")",
+      "summary": "Invitation emails in three tones, from direct to conservative, paired with the internal checklists for building the client's portal account. The conservative version frames the software as a mental gym, which lowers the intimidation for a client who has never had a portal. For the owner it is 24/7 access to a single hub for meeting agendas, action plans and improvement templates; for the advisor it standardises onboarding and makes client engagement visible.",
+      "who_when": "New or existing clients moving onto the firm's advisory platform, and the internal staff who set those accounts up.",
+      "steps": [
+        "Prepare the system before making contact — use the Xero API to mass-create the business entities in the portal.",
+        "Import each client's cash volatility and financial performance data so their dashboard is populated before they ever log in.",
+        "Tailor the Client Service Plan by hiding or locking the modules they do not need yet, so the first view is not overwhelming.",
+        "Send the invitation email in the tone that suits the client — direct through to the conservative mental gym framing.",
+        "Treat the release as a process rather than one event: email, then a text reminder, then a call within 48 hours to walk them through their first login and explain why it helps them.",
+        "Book and run the 15-minute orientation session over Zoom."
+      ]
+    },
+    {
+      "name": "Third-Party Collaboration & Legal Templates (Consent, Banker Login, NDA)",
+      "summary": "Formalises relationships with people outside the engagement. The Mutual Confidentiality Agreement protects intellectual property and sensitive financial information; the consent template lets an external advisor such as a banker see specified portal pages. For the owner it builds transparency with a lender and can speed up funding; for the advisor it protects proprietary methods and builds a referral relationship with bankers.",
+      "who_when": "Clients requiring bank loans, the external banking partners themselves, and prospects evaluating a custom software project where proprietary frameworks will be shared.",
+      "steps": [
+        "Introduce the Mutual Confidentiality Agreement at the Feasibility stage — when sensitive operational data is about to be shared, or when the firm's proprietary consulting frameworks are being revealed.",
+        "Secure the client's formal consent through the external advisor consent email before any third party is given access, naming the specific pages they may see, such as the Covid-19 section and the Loan Estimator.",
+        "Send the banker the short registration email with their link to the platform.",
+        "Bring the banker into the client's exposure dashboard so the cash flow scenarios are visible to the lender.",
+        "Use the script that tells the banker you accept referrals for advisory work without requiring the client to leave their existing compliance accountant — that is what makes the referral safe for them to make.",
+        "Never share proprietary frameworks or client financial data with a third party before the agreement or consent form is in place."
+      ]
     },
     {
       "name": "Website Blurbs & Messaging Plan",
-      "purpose": "Ready-to-use website copywriting templates structured around four 'bands' (Attention, Problem, Position, Solution), plus a slide deck for mapping out the firm's global messaging strategy, marketing timeline, and service ascension diagram.",
-      "core_principle": "Answer the client's core question ('How much is enough?') within the first 7–20 seconds of visiting the website. All social media, blog, and website content must align to the target market's specific problems — not the firm's credentials.",
-      "when_to_use": "When revamping the firm's website, aligning the team's marketing messaging, or building a comprehensive communication and seminar timeline. Use the Messaging Plan when the firm needs to identify their core Concept Domains and target market problems.",
-      "key_benefits": [
-        "Pre-written copy for all four homepage bands — eliminates hours of copywriting from scratch",
-        "Service descriptions position the firm's offering aspirationally (from Basic Accounting to Legacy Package)",
-        "Messaging Plan aligns all marketing channels (social media, blog, seminars) to the same target market problems",
-        "Ascension diagram makes the firm's value ladder visible to prospects from the first website visit"
-      ],
-      "advisor_confidence_note": "Use the four-band structure for the homepage: Band 1 grabs attention, Band 2 names the client's problem, Band 3 positions the firm as the solution, Band 4 shows how to engage. The Messaging Plan slide deck should be completed at the firm level before individual marketing assets are produced."
+      "summary": "Ready-to-use copy that maps a homepage into bands — attention, problem, position, solution — together with a slide deck for planning the firm's global messaging and its timeline. For the owner visiting the site, it answers the question they actually arrived with, such as how much is enough, inside the first 7 to 20 seconds. For the firm it saves hours of copywriting and aligns website, blog and social content to the same target-market problems.",
+      "who_when": "Accounting firms revamping a website, aligning a team's marketing efforts, or building a communication timeline across marketing and seminar activity.",
+      "steps": [
+        "Write the homepage in bands — attention, then problem, then position, then solution — rather than as continuous prose.",
+        "Answer the visitor's core question inside the first 7 to 20 seconds; that is the whole window you have.",
+        "Position the service range aspirationally using the ascension diagram, from Basic Accounting through to Legacy packages.",
+        "Use the messaging plan deck to identify the target market's problems and establish the core Concept Domains the firm speaks to.",
+        "Build the broad timeline for marketing and seminar activity from those domains, so social, blog and website work all point at the same problems."
+      ]
     }
   ],
+
   "advisor_guidance": {
     "sequence": "Follow the 4-step outreach sequence: (1) Internal system preparation — set up client portals before contact. (2) Micro-step outreach — quiz or video link to warm the prospect. (3) Portal invitation and follow-up — invite and orient. (4) Formalise the engagement — use 1st Response, NDA, or consent forms as required.",
     "entry_point": "If you are uncomfortable with direct selling, start with the micro-steps (quiz links and video hyperlinks). These assets do the qualifying work for you — when you follow up, you are reviewing their quiz results, not making a cold pitch.",

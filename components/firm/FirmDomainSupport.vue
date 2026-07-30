@@ -5,7 +5,10 @@ section.firm-domain-support
 
   b-message(v-if="error" type="is-danger" has-icon :closable="false") {{ error }}
 
-  //- Toolbar — search
+  //- Toolbar — search, and the control that hides the domain list to give the
+  //- table the full width. It sits here, beside the search, so it is reachable
+  //- whether or not a domain is open — hiding the list can never strand the
+  //- editor on a screen with no way back to it.
   .level.mb-4
     .level-left
       b-field.mb-0
@@ -16,6 +19,12 @@ section.firm-domain-support
           :placeholder="$t('firmDomainSupport.searchPlaceholder')"
           :aria-label="$t('firmDomainSupport.searchPlaceholder')"
         )
+    .level-right
+      button.button.is-small.ds-railtoggle(
+        type="button"
+        :aria-expanded="String(!railHidden)"
+        @click="toggleRail"
+      ) {{ railHidden ? $t('firmDomainSupport.showList') : $t('firmDomainSupport.hideList') }}
 
   b-loading(:is-full-page="false" :active="loading")
 
@@ -23,7 +32,7 @@ section.firm-domain-support
     //- ── Rail: the three master-section groups. Each row can be dragged into
     //- another group (mouse), or re-filed via its "Move to" menu (keyboard /
     //- touch). Re-filing is firm-only and display-only — the AI is unaffected.
-    .column.is-4
+    .column.is-4(v-if="!railHidden")
       nav.ds-rail(:aria-label="$t('firmDomainSupport.railLabel')")
         .ds-rail-empty(v-if="!groups.length")
           span.has-text-grey.is-size-7 {{ query ? $t('firmDomainSupport.noMatchHere') : $t('firmDomainSupport.emptyLibrary') }}
@@ -62,7 +71,8 @@ section.firm-domain-support
               ) {{ opt.label }}
 
     //- ── Panel: the selected domain's four-column material table ─────────
-    .column.is-8
+    //- Takes the whole row once the list is hidden, which is the point of it.
+    .column(:class="railHidden ? 'is-12' : 'is-8'")
       //- Nothing picked yet.
       .box.panel-empty(v-if="!current")
         p.has-text-weight-semibold {{ $t('firmDomainSupport.pickPrompt') }}
@@ -141,13 +151,29 @@ section.firm-domain-support
                       li(v-for="(step, sIndex) in material.steps" :key="sIndex")
                         b-input(
                           v-model="material.steps[sIndex]"
+                          v-autogrow
+                          type="textarea"
+                          rows="1"
                           :aria-label="$t('firmDomainSupport.stepLabel', { n: sIndex + 1 })"
                         )
-                        button.ds-step-remove(
-                          type="button"
-                          :aria-label="$t('firmDomainSupport.removeStep')"
-                          @click="removeStep(material, sIndex)"
-                        ) ×
+                        .ds-step-tools
+                          button.ds-step-move(
+                            type="button"
+                            :disabled="sIndex === 0"
+                            :aria-label="$t('firmDomainSupport.moveStepUp')"
+                            @click="moveStep(material, sIndex, -1)"
+                          ) ↑
+                          button.ds-step-move(
+                            type="button"
+                            :disabled="sIndex === material.steps.length - 1"
+                            :aria-label="$t('firmDomainSupport.moveStepDown')"
+                            @click="moveStep(material, sIndex, 1)"
+                          ) ↓
+                          button.ds-step-remove(
+                            type="button"
+                            :aria-label="$t('firmDomainSupport.removeStep')"
+                            @click="removeStep(material, sIndex)"
+                          ) ×
                     button.ds-step-add(type="button" @click="addStep(material)")
                       | {{ $t('firmDomainSupport.addStep') }}
 
@@ -183,6 +209,10 @@ section.firm-domain-support
 
 <script>
 import { autogrow, resizePersist } from '~/utils/textareaDirectives'
+
+/** Where this browser remembers whether the domain list is hidden. */
+const RAIL_STATE_KEY = 'ds:railHidden'
+
 /**
  * Firm Domain Support (FIRM-EDITABLE-TABLES-PLAN.md Phase 2) — the firm's
  * no-code view of the four-column domain-support material the advisors' AI
@@ -237,7 +267,12 @@ export default {
       /** Rail re-filing drag state (display-only): the id being dragged and the
        *  group currently hovered as a drop target. */
       dragId: null,
-      dropKey: null
+      dropKey: null,
+      /** Domain list collapsed, giving the table the full width. A personal
+       *  display preference like the drag-to-size box heights — remembered in
+       *  this browser only, never in the firm's saved content. Restored in
+       *  mounted(), never here: localStorage does not exist during SSR. */
+      railHidden: false
     }
   },
 
@@ -289,10 +324,32 @@ export default {
   },
 
   mounted () {
+    this.restoreRailState()
     this.load()
   },
 
   methods: {
+    /**
+     * Restore the collapsed/expanded state of the domain list from this
+     * browser. Client-only and failure-tolerant: private browsing or blocked
+     * storage simply leaves the list showing, which is the safe default.
+     */
+    restoreRailState () {
+      if (typeof window === 'undefined') { return }
+      try {
+        this.railHidden = window.localStorage.getItem(RAIL_STATE_KEY) === '1'
+      } catch (e) { /* storage blocked — keep the list showing */ }
+    },
+
+    /** Hide or show the domain list, remembering the choice for next time. */
+    toggleRail () {
+      this.railHidden = !this.railHidden
+      if (typeof window === 'undefined') { return }
+      try {
+        window.localStorage.setItem(RAIL_STATE_KEY, this.railHidden ? '1' : '0')
+      } catch (e) { /* storage blocked — the toggle still works this session */ }
+    },
+
     /**
      * GET the domain list. The count each row carries comes straight from the
      * list route; a domain on the new `materials` shape currently reports 0
@@ -482,6 +539,26 @@ export default {
     /** Remove a step from a material (on-screen only this pass). */
     removeStep (material, index) {
       material.steps.splice(index, 1)
+    },
+
+    /**
+     * Move one step up or down within its own material (on-screen only this
+     * pass — Save persists it like any other edit).
+     *
+     * Splice rather than index assignment: Vue 2 cannot observe
+     * `arr[i] = x`, so a straight swap would reorder the data without
+     * redrawing the list. Out-of-range moves are ignored so the first and
+     * last steps are safe even if the disabled buttons are bypassed.
+     *
+     * @param {{steps: string[]}} material - the material being reordered
+     * @param {number} index - the step's current position
+     * @param {number} delta - -1 to move up, +1 to move down
+     */
+    moveStep (material, index, delta) {
+      const target = index + delta
+      if (target < 0 || target >= material.steps.length) { return }
+      const [moved] = material.steps.splice(index, 1)
+      material.steps.splice(target, 0, moved)
     },
 
     /** Add a blank material row (on-screen only this pass). */
@@ -695,12 +772,15 @@ export default {
   counter-increment: s;
   display: grid;
   grid-template-columns: 1.4rem 1fr auto;
-  align-items: center;
+  /* Top-aligned, not centred: a step box now grows with its text, and a
+     centred number would drift down the side of a long step. */
+  align-items: start;
   gap: 0.35rem;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.45rem;
 }
 .ds-steps li::before {
   content: counter(s);
+  margin-top: 0.35rem;
   width: 1.2rem;
   height: 1.2rem;
   border-radius: 50%;
@@ -712,6 +792,24 @@ export default {
   align-items: center;
   justify-content: center;
 }
+/* Per-step controls: reorder up, reorder down, remove. */
+.ds-step-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding-top: 0.25rem;
+}
+.ds-step-move {
+  border: 0;
+  background: none;
+  color: #7a869a;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+}
+.ds-step-move:hover:not(:disabled) { color: #002b64; }
+.ds-step-move:disabled { color: #dde2e9; cursor: default; }
 .ds-step-remove {
   border: 0;
   background: none;
@@ -722,6 +820,8 @@ export default {
   padding: 0 0.3rem;
 }
 .ds-step-remove:hover { color: #cc0f35; }
+/* Steps grow with their content; the drag handle would fight the autogrow. */
+.ds-steps >>> textarea { resize: none; }
 .ds-step-add {
   font-size: 0.8rem;
   color: #002b64;

@@ -1247,7 +1247,15 @@ function walkLogicTree (state, treeId, firmTrees) {
     if (bestBranch && bestScore > 0) { walkNode(bestBranch.next_node, depth + 1) }
   }
 
-  walkNode(tree.nodes[0].id, 0)
+  // Start where the tree SAYS to start, not wherever a node happens to sit.
+  // `entry_node` was added so a firm can reorder rows for readability without
+  // silently repointing the engine (array position used to be the entry point).
+  // The positional fallback keeps any tree without the field behaving exactly
+  // as it always did.
+  const entryId = (tree.entry_node && tree.nodes.some(n => n.id === tree.entry_node))
+    ? tree.entry_node
+    : tree.nodes[0].id
+  walkNode(entryId, 0)
   return [...templates]
 }
 
