@@ -1745,12 +1745,67 @@ Two honest answers on different axes — the file used to conflate them:
     GLOBAL file, putting one firm's client notes into every other firm's prompts). **Carrying a
     claim from a session note is not reading the code, and the difference showed up in the
     design.**
-  - ☐ **STILL OPEN — Phase 2's last piece: the tab controls.** Switch off / Switch on / Edit /
-    Reset to platform / Add step, wired to the six routes. **Wording RULED by Mike 2026-07-31:
-    mirror the Advisory Distinctions tab verbatim** (`Switch off` / `Switch on` /
-    `Reset to platform` / `Add step`, form titles `New step` / `Edit step`) rather than invent
-    staircase-specific words, so the Hub reads as one screen. Then **Phase 3**: the
-    *Adopt / Keep mine* offer when Advisor-e changes a step a firm has edited.
+  - ✅ **Phase 2's last piece — the tab controls — BUILT in Session 14 below (`801dd4f`).**
+    Wording RULED by Mike 2026-07-31: mirror the Advisory Distinctions tab verbatim
+    (`Switch off` / `Switch on` / `Reset to platform` / `Add step`, form titles
+    `New step` / `Edit step`) rather than invent staircase-specific words, so the Hub reads
+    as one screen. **Phase 3 remains open**: the *Adopt / Keep mine* offer when Advisor-e
+    changes a step a firm has edited.
+
+  ### Session 14 (2026-07-31, laptop) — the tab caught up with its plumbing
+
+  One commit (`801dd4f`), pushed. Suite **3,191 → 3,208 / 201 suites**, lint 0 errors, tree
+  clean, **56 ahead / 0 behind** `master`. Session opened with `/startup`: 0 behind, nothing
+  to catch up on.
+
+  **The screen was undoing yesterday's fix on every press of Save.** Phase 2 changed a firm's
+  staircase from a frozen copy into decisions, but the tab above it was still the whole-config
+  editor — five text boxes and one Save that posted all five steps at once, re-creating the
+  private snapshot the storage change had just removed. Each step is now a decision: Edit,
+  Switch off, Reset to platform, Add step, Remove.
+
+  - ✅ **THE DEFECT THIS ALMOST REBUILT IN THE BROWSER, and it would have been silent.** The
+    save route records exactly the fields it receives, and a recorded field stops tracking
+    Advisor-e's wording for good. Posting the whole form would therefore have frozen the two
+    fields a firm never touched at today's text — **rename one step, silently stop receiving
+    improvements to the other two**, which is the defect the whole mechanism exists to prevent,
+    rebuilt one layer up. `utils/staircaseRows.buildStepEdit` sends only what changed and is
+    the most-tested thing in the change. **Its corollary, decided rather than asked:** a firm
+    editing its version back to Advisor-e's wording in *every* field is asking for Advisor-e's
+    step again, so that is a **reset, not a save** — a save of identical text would leave the
+    row frozen at wording that merely matches today. Honest limit written into the code: the
+    routes merge, so a single field cannot be un-overridden on its own; the firm presses Reset
+    to platform and edits again. No remove-one-field verb was invented for a case no one has hit.
+  - ✅ **NO SECOND COPY OF THE MECHANISM.** The merge stays server-side in
+    `resolveInheritedRows`; the tab draws the `resolved` list the advisor's selector and the
+    engine's ceiling already read, so the management screen cannot disagree with a live session.
+    `utils/staircaseRows` adds only what the resolver deliberately leaves out — **the
+    switched-off steps**, which an advisor must never be offered but a manager must be able to
+    bring back. They sit below the live list and **unnumbered**: a step that simply vanished
+    reads as data loss, and one printing "Step 3" beside a list running 1, 2, 3 claims a
+    position it does not hold.
+  - ✅ **VERSION HISTORY WAS ABOUT TO LIE, AND WAS RULED ON RATHER THAN LEFT.** The steps moved
+    to their own keys, so a restore under `advisory-staircase` could have reported success while
+    nothing on screen moved — the silent kind of failure. **Mike ruled: relabel to "Ceiling
+    history"**, covering what it now genuinely governs, with the per-step undo (Reset to
+    platform) named in the note. The alternative of merging four keys into one restorable
+    history was offered and not taken: it needs a rule for what "restore" means across four
+    stores, which is a design, not a bolt-on.
+  - **Layout ruled by Mike: keep the brand-toned step blocks**, not a Distinctions-style table.
+    The 2026-07-22 palette instruction stands; the verbatim-wording ruling was about words, and
+    was not read as licence to restyle the screen.
+  - **Tab extracted to `components/firm/FirmStaircase.vue`** alongside the four others — the Hub
+    loses 232 lines and gains 6 — and its strings moved into `locales/en.json`, which the inline
+    version never did (the Hub and the Distinctions tab are still hardcoded English).
+  - ⚠ **NOT PROVEN BY EYE — no one has clicked it.** The suite covers the logic, both Pug
+    templates compile, lint is clean; the button-to-route wiring is argued and tested, not
+    demonstrated in the running app. Mike's dev server is never started or restarted from here.
+    **This is the one outstanding check on the feature.**
+  - ☐ **FOUND, NOT FIXED (needs its own approval).** `firmDistinctions` falls back to its dev
+    JSON stand-ins on **any** store failure, including in production; `firmStaircase` was
+    deliberately tightened in Session 13 to rethrow, so an outage cannot be dressed up as "this
+    firm has no override". **The two now behave differently**, and the looser one is the
+    desktop's ground — flagged in Session 13, still true, still not this session's scope.
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
