@@ -1267,6 +1267,63 @@ Two honest answers on different axes — the file used to conflate them:
     PATH (`export PATH="$NVM_SYMLINK:$PATH"` first), and PowerShell here-strings (`@'…'@`) are a
     syntax error there — for a long commit message, write it to the scratchpad and `git commit -F`.
 
+  ### Session 9 (2026-07-30, laptop) — the coverage gate had never run, and now it does
+
+  Three commits (`0148fad`, `dac0e88`, `aa10dbe`) plus this note, all pushed. Suite
+  **2,837 → 3,050 / 191 suites**, lint 0 errors, tree clean. **No production code was
+  touched** — one config file, six test files, two documents. Full record:
+  [`COVERAGE-DEBT.md`](COVERAGE-DEBT.md).
+
+  - 🔴 **READ THIS BEFORE YOUR NEXT COMMIT, DESKTOP: `npm test` now collects coverage on every
+    run, so `.husky/pre-commit` enforces it.** Two consequences for you. The suite goes from
+    ~11s to ~18s, which is the whole price. And **a commit that drops coverage in a bucket
+    below its floor will now be REFUSED** — that is the point of the change, but it will be a
+    surprise the first time. If it blocks you, the fix is a test, or raising the floor in the
+    same commit once the number genuinely improved; never lowering one. Floors and their
+    reasoning are commented per-bucket in `jest.config.js`.
+  - **What started this:** the small ACTIONS.md task to extend the coverage gate to the landed
+    Collaborate paths. Sizing it found that **this repo had never collected coverage on any
+    automated run** — `npm test` was bare `jest`, the hook was bare `jest`, and there is no CI
+    directory. So the existing thresholds only ever fired if a human typed
+    `npm run test:coverage`, and doing the task as written would have recorded a standard that
+    still gated nothing.
+  - **Root cause, read from history not guessed:** the old `global: { lines: 80 }` dates from
+    2026-05-04 (`d793b77`), when `collectCoverageFrom` reached **9 files** in `server/utils`.
+    That folder now holds **47** and an AI engine grew inside it. **The standard did not slip;
+    the measured set grew five-fold underneath a number nobody was checking.** Two standards
+    CLAUDE.md names outright — **Restify routes ≥90% and mixins ≥80% — were not being measured
+    at all.**
+  - **Repo-wide 70.9% → 78.8% lines.** Buckets that crossed their standard today:
+    `server/utils/` 67.9→84.1%, `mixins/**` 32.4→93.4%, `server/middleware/` 89.4→**100% and
+    pinned**. `server/routes/` rose 72.1→74.1% but **stays a floor**, because it cannot reach
+    90% until `firmManager.js` is done.
+  - **The gaps closed were chosen for what they guard, not for the number.** Untested-until-now
+    and now covered: the **dev mentor bypass** and **all of `requireMentorRole`** (the one gate
+    that deliberately crosses the firm boundary — a `firm_manager` must be refused);
+    **`anonymiseCasePreview`**, the only case route that sends client content to an LLM, whose
+    contract is that the raw summary and transcript never come back; the **13 learn-mode prompt
+    formatters**, where a renamed data file silently strips an advisor's entire coaching
+    reference; **`caseMixin`**'s server-derived ownership, token race and id-only promotion;
+    and **`localeMixin`**'s prototype-pollution guards on an LLM-built reply.
+  - ⚠ **`firmManager.js` owes 264 lines and is DELIBERATELY NOT DONE HERE.** It is the file
+    Collaborate slice 2 rewrites, and the desktop's active area. Writing its tests *as part of*
+    that slice makes them the rewrite's safety net; writing them now would collide. Same
+    warning as session 8: whoever starts slice 2 says so first.
+  - ⚠ **`advisorEngine.js` (510 lines owed, 37%) is FROZEN, not forgotten.** 3,343 lines of SSE
+    streaming engine; chasing the number as it stands means mocking so heavily the tests test
+    the mocks. Decompose-then-test is its own workstream. Its real safety net today is
+    `scripts/scenario-lab.js`, which Jest cannot count — and which has known blind spots
+    recorded above, so a green lab run is not evidence for a change it does not reach.
+  - **Two of my own mistakes, recorded because they cost real time:** a blanket `/undefined/`
+    assertion is a false positive (the Heald Matrix reference legitimately reads *"do not leave
+    the next step undefined"*), and a bucket's floor **must be recomputed whenever its
+    exclusions change** — the first `./server/collaborate/` floor was measured with its 0% boot
+    file still in the bucket and read 83 over code that measures 96.
+  - **Also found, not a coverage job:** **`store/` does not exist.** CLAUDE.md names Vuex
+    modules as the only global state mechanism and lists `store/` as a directory; the repo has
+    no such directory. Documentation describing something that is not there — worth a decision,
+    not a fix.
+
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
   - **What was read before merging, rather than assumed:** **Logic Tables is finished and live** — Save writes a firm-only override, Reset restores the platform default, version history, and **firm-authored branch text is fenced before it reaches the AI**; overrides merge into a fresh per-request copy never written back to the shared cache (cross-firm isolation). **Domain Support is a deliberate, banner-labelled PREVIEW** — Save/Reset inert, because persisting firm text and its AI fencing land together in the next slice, *so the surface is never live before its safeguard*; only EOY is migrated to the four-column shape and other domains show an honest "not yet in this format" notice. **The removed Decision Frameworks (PDF library) tab was Mike's own 2026-07-27 decision** — the AI never read those PDFs, so no engine behaviour changed; component and routes left dormant with a P3 cleanup logged.
