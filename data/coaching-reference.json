@@ -1,5 +1,6 @@
 [
   {
+    "id": "cr-growth-fundamentals-framework",
     "template": "Growth Fundamentals Framework",
     "howItHelps": "The Growth Fundamentals Curve is a superb way to create self-relevance for your clients. It's the fastest and easiest way to capture your client's attention, align mutual understanding of their contextual position and assess their desire for change.",
     "whatToLookFor": "Any client that can fog a mirror. Use with any business client experiencing market changes who seeks growth or improvement opportunities. Particularly effective when a client is unsure where to start or what advisory services they need.",
@@ -13,6 +14,7 @@
     ]
   },
   {
+    "id": "cr-eoy-meeting",
     "template": "EOY Meeting",
     "howItHelps": "This template and matching meeting script enables you to facilitate a Global and Local reference to support your meeting. These references give you two bites at the cherry to secure additional services from your client, without high pressure tactics.",
     "whatToLookFor": "Any client you have historically struggled to suggest additional services to. Clients who only engage around compliance work and have not yet explored advisory services.",
@@ -24,6 +26,7 @@
     ]
   },
   {
+    "id": "cr-working-capital-cycle",
     "template": "Working Capital Cycle",
     "howItHelps": "This template often achieves an 'A-ha' moment for the client as they understand the money in movement and use of profits principles. This is the best foundation discussion you can have with a business owner that fails to understand the importance of regularly reviewing their financial accounts and performance.",
     "whatToLookFor": "Clients who make comments like 'How come I have no money or a big tax bill but don't have any cash in the bank?' Clients who don't understand the relationship between profit and cash.",
@@ -36,6 +39,7 @@
     ]
   },
   {
+    "id": "cr-8-profit-levers",
     "template": "8 Profit Levers",
     "howItHelps": "This template encourages your client to walk the customer's journey and recognise the mini decisions required to gain their business and deliver profitably to their expectations. It's a fundamental framework to identify business growth potential by incremental changes rather than drastic movements.",
     "whatToLookFor": "Clients who show signs of jumping-all-in on ideas like dropping prices or putting them up versus customer loyalty programmes or new product lines WITHOUT exploring the impact of the idea on the rest of their business.",
@@ -48,6 +52,7 @@
     ]
   },
   {
+    "id": "cr-deming-s-theory-of-volatility",
     "template": "Deming's Theory of Volatility",
     "howItHelps": "This template discusses Deming's Theory of Volatility — it encourages people to accept that business goes up and down and to learn to properly interpret the data they're reviewing. Extremely helpful in identifying and supporting the calculation of required working capital; use it to aid in applications for finance and help owners get clear on the dangers of running the business too low in cash reserves.",
     "whatToLookFor": "Clients who show an overreaction to success or failure without taking the time to assess Causality vs Correlation vs Coincidence. Clients who are jumping from one chaos to another.",
@@ -60,6 +65,7 @@
     ]
   },
   {
+    "id": "cr-rubbish-in-rubbish-out",
     "template": "Rubbish In - Rubbish Out",
     "howItHelps": "This template focuses on the Chart of Accounts as a foundation for Reporting and Interpretation; it challenges the business owner to consider what's important for them to measure.",
     "whatToLookFor": "Clients who don't engage much around the numbers when you're presenting their year end accounts. Clients who discuss the end result but don't relate specific business decisions to any performance metric in their accounts.",
@@ -72,6 +78,7 @@
     ]
   },
   {
+    "id": "cr-revenue-model",
     "template": "Revenue Model",
     "howItHelps": "Revenue models aid in the calculation of activity and financial variables and serve to quantify the business owner's expectations. From a facilitative point of view, Revenue Models shift the burden of proof away from you and back towards the client's business model.",
     "whatToLookFor": "Clients who have ambitious revenue targets but no clear model for how they will achieve them. Clients who need to understand the drivers behind their revenue.",
@@ -84,6 +91,7 @@
     ]
   },
   {
+    "id": "cr-dashboard-discussions",
     "template": "Dashboard Discussions",
     "howItHelps": "This template helps you explore the different performance and activity ratio reports available in the Advisor-e financial dashboard with your clients. Also includes the 7 Cash Drivers template to help prepare clients for financial management reporting services.",
     "whatToLookFor": "Clients who are ready to move into regular management reporting and need to understand what metrics matter. Clients who need help interpreting their dashboard data.",
@@ -95,6 +103,7 @@
     ]
   },
   {
+    "id": "cr-ratio-analysis",
     "template": "Ratio Analysis",
     "howItHelps": "This template explores the plus and minus of benchmark data and raises concerns about when data doesn't count. Also assists in developing KPIs and introduces the concept of Common Size trend analysis.",
     "whatToLookFor": "Clients who need to benchmark their performance or develop meaningful KPIs. Clients who are over-relying on industry benchmarks without understanding their relevance.",
@@ -106,6 +115,7 @@
     ]
   },
   {
+    "id": "cr-loan-estimator",
     "template": "Loan Estimator",
     "howItHelps": "This template allows your client's finance advisor or banker to complete a Summary Position view of your mutual client's credit lines. Helps clients understand which assets provide easy liquidity and aids discussion of whether wealth should be captured inside or outside the business.",
     "whatToLookFor": "Clients who explain they are under financial duress and need to go to the bank to secure finance. Clients who don't have a clear picture of their borrowing position.",
@@ -118,6 +128,7 @@
     ]
   },
   {
+    "id": "cr-customer-journey",
     "template": "Customer Journey",
     "howItHelps": "A lite version of sales-related documents focused on the customer journey from first awareness to decision to purchase, plus a basic problem solving flowchart to help find the source of failing sales. Can be used as a standalone discussion in under an hour or as an introduction to a more complete sales review.",
     "whatToLookFor": "Clients who are struggling to secure sales and wish to explore their options. Clients who don't understand why their sales pipeline is not converting.",
@@ -130,6 +141,7 @@
     ]
   },
   {
+    "id": "cr-planning-outcomes-review",
     "template": "Planning Outcomes Review",
     "howItHelps": "Use this document to help sell the planning session and to make sure the planning framework is focused on the correct business outcomes. Examines 4 main planning domains: Business Model, Strategic Orientation, Organisational Function and Sales and Marketing.",
     "whatToLookFor": "Clients who ask for a planning session but when asked what their core issue is, struggle to stay in any single lane — jumping across business functions without showing clear cause and effect.",
@@ -142,6 +154,7 @@
     ]
   },
   {
+    "id": "cr-porter-s-pine",
     "template": "Porter's & Pine",
     "howItHelps": "Porter's 5 Forces framework guides a strategic review of your client's business. The Progression of Value by Joseph Pine is an excellent supporting framework for the same discussion.",
     "whatToLookFor": "Clients who need to consider a redesign of their business offer or solution as part of their drive toward more sales. Clients facing competitive pressure.",
@@ -154,6 +167,7 @@
     ]
   },
   {
+    "id": "cr-blue-ocean-strategy-8-profit-levers",
     "template": "Blue Ocean Strategy & 8 Profit Levers",
     "howItHelps": "Explores the Profit Levers and Blue Ocean strategy to help clients identify their competition and differentiation points. A smaller document that suits those pushed for time or dipping their toes into strategic planning.",
     "whatToLookFor": "Clients who need to consider a redesign of their business offer as part of their drive toward more sales but don't have time for a deep strategic review.",
@@ -165,6 +179,7 @@
     ]
   },
   {
+    "id": "cr-covid-19-client-pre-meeting",
     "template": "Covid 19 Client Pre-Meeting",
     "howItHelps": "Contains a video and presentation that explains the way people cope with adversity. The most practical way to serve the topic of wellness for a business person — helps clients identify their dominant coping style so they can catch themselves when fixated.",
     "whatToLookFor": "Clients who explain they are struggling in business — especially husband and wife teams. Clients showing signs of stress, anxiety, or reactive decision-making driven by fear rather than logic.",
