@@ -160,6 +160,15 @@
       to the AI: all three prompt surfaces × 29 domains, same SHA-256 before and after.
       `tests/unit/domainSupportRowIds.test.js` locks all 181 and was **proven to fail** before
       being trusted.
+    - ✅ **STEP 2 DONE — `51b77a5`: 15 `cr-` ids on the platform coaching reference.** The same
+      defect and the same fix as Domain Support. **The `cr-` prefix is not decoration:** a
+      firm's own PROMOTED coaching entries live under the *same* firmOverlay config key
+      (`coaching-reference`) and already carry ids — but **numbers**, assigned by
+      `appendFirmCoachingEntry`. Two id systems under one key is how a collision arrives later;
+      the prefix keeps them permanently apart. Proven byte-identical to the AI (SHA-256 of the
+      rendered coaching block, 8,483 chars, unchanged), and
+      `tests/unit/coachingReferenceRowIds.test.js` locks the id set **and the row count**, so a
+      16th entry cannot be committed without an id.
     - ✅ **ROW-ID READINESS OF THE OTHER FIVE BLOCKS — CHECKED, NOT ASSUMED (2026-07-30).** The
       mechanism cannot be adopted by a block whose rows have no stable identity. Read from the
       data, not inferred:
@@ -168,10 +177,10 @@
       |---|---|---|
       | Advisory Distinctions | `pd-N` stable ids | ✅ the reference implementation |
       | Domain Support | 181 ids added today (`79de6d9`) | ✅ done |
-      | **Logic Tables** | `nodes` carry `id` — **356 nodes, 0 missing, unique within tree** (`qf_initial`) | ✅ **already ready — no work needed** |
+      | **Logic Tables** | **381 rows** carry `id` — 356 graph `nodes` + **25 `flat_if_then` `branches` the first count missed** — 0 missing, unique within tree | ✅ ready, and **now ENFORCED** (`0a2534d`) |
       | **Quizzes** | questions carry `id` (0 missing) — but a **bank** is keyed by template **title** | ⚠ ready at question level only |
       | **Advisory Staircase** | `steps` keyed by `step` — a **position number** | ⚠ no stable id |
-      | **Coaching reference** | 15 rows keyed by `template` — a **title** | ❌ the same defect Domain Support had |
+      | **Coaching reference** | 15 `cr-` ids added 2026-07-31 (`51b77a5`) | ✅ **done** |
 
       - 🔴 **QUIZZES NEEDS A MIKE RULING, NOT A PATCH — title-as-identity is DELIBERATE there.**
         `quizBankKeys.test.js` **fails any bank key that is not an exact template title**, and PR
@@ -181,8 +190,11 @@
         Adding a bank id collides with that decision. **Do not "fix" it unilaterally.**
       - **Advisory Staircase: position is not identity.** Insert a step and `step: 3` silently
         means a different row — the same silent breakage as a retitle, arriving by another route.
-      - **Coaching reference is the cheap one** — 15 rows, the identical shape of fix Domain
-        Support just had, and the obvious next step if one is wanted.
+      - ✅ **Coaching reference — DONE 2026-07-31 (`51b77a5`), see step 2 above.**
+      - ⚠ **STILL OPEN, both unchanged: Advisory Staircase and Quizzes.** The Staircase keys on
+        a position number, so inserting a step silently redefines every row below it — the same
+        fault, unfixed. Quizzes is **not a defect to patch**: title-as-identity is deliberate
+        there and locked by `quizBankKeys.test.js`. **It needs Mike's ruling, not a fix.**
   - ☐ **NEW 2026-07-30 — THIS APP'S OWN REPORTING HAS NO ROLL-UP ABOVE THE FIRM, and it is
     listed as a job nowhere.** Mike, same session: reporting cascades **up** — adviser actions
     summarise to the firm manager, then group, global, mentor; *"every tier is the same screen,
@@ -1522,6 +1534,52 @@ Two honest answers on different axes — the file used to conflate them:
     **slice 2/3 collision warning is now partly moot** (slice 2 has all but disappeared — see
     the ownership correction), but **the storage re-key still changes the ground under Domain
     Support and Logic Tables, and still needs whoever starts it to say so first.**
+
+  ### Session 11 (2026-07-31, laptop) — two id gaps closed, and a live defect found by closing one
+
+  Three commits (`51b77a5`, `0a2534d`, `c7bf261`) plus this note, all pushed. Suite
+  **3,062 → 3,076 / 194 suites**, lint 0 errors, tree clean, **47 ahead / 0 behind** `master`.
+  Session opened with `/startup`: 0 behind, nothing to catch up on.
+
+  - ✅ **Coaching reference: 15 `cr-` ids + a lock test** (`51b77a5`). Substance in
+    [§Collaborate](#collaborate-merge) step 2. Data file and one test; **no code touched**;
+    the AI prompt proven byte-identical by hash.
+  - ✅ **Logic Tables: the ids were right by care alone — now they are enforced** (`0a2534d`).
+    **Nothing was broken and nothing was fixed**, which is the whole point: all 381 rows
+    already carried an id and *nothing stopped the next one going without*. **The earlier
+    readiness count (356) missed the 25 `flat_if_then` `branches`** — corrected in the table
+    above. Two vacuous-pass traps closed deliberately: a tree in an unknown shape would have
+    made the id loop iterate an empty list, and an empty read would have passed every check.
+    **The check is proven permanently, not once** — a plain function run against a
+    deliberately broken tree inside the test file, rather than a one-off done by breaking the
+    real data and putting it back.
+  - 🔴 **A LIVE DEFECT FOUND WHILE WRITING THAT TEST, REPORTED BEFORE BEING TOUCHED, THEN FIXED
+    ON MIKE'S SAY-SO** (`c7bf261`). `_mergeBranchRows` gave a firm-added row the id
+    `firm-branch-${i}` — **its position in the submitted list**. An existing firm row keeps its
+    id because the client sends it back, so the moment a new row landed at the index where an
+    earlier row's number was minted, **two rows carried the same id**. Silent: no error, the
+    table still renders, and a firm's decision would land on whichever the code reached first.
+    **Proven before fixing** — the new test returned 3 rows and 2 distinct ids on the old code.
+    The generated id now dodges every id already spoken for (platform rows + whatever the
+    submitted rows arrived with), so ids never renumber and never collide. Four tests, each
+    guarding a different failure. **Safe to change today for the same reason as the storage
+    re-key: no firm has saved anything anywhere, so there is no stored duplicate to migrate.**
+  - **The pattern across all three: an id that encodes a POSITION or a TITLE is not an id.**
+    Domain Support had it (title), the coaching reference had it (title), firm-added logic rows
+    had it (position). **The Advisory Staircase still does** — `steps` keyed by `step`, a
+    position number. It is the last one of these left, and it is not fixed.
+  - ⚠ **One of my own errors, recorded because the pattern matters.** I reported "LINT CLEAN"
+    when lint had in fact failed: the shell exit code I checked belonged to the `tail` at the
+    end of the pipe, not to `eslint`. **A green from a piped command is not a green from the
+    command.** Caught it, fixed the style error, re-checked with a real exit code — but it was
+    reported to Mike wrongly first, and the pre-commit hook would have caught it anyway, which
+    is exactly why that gate exists.
+  - **HANDOVER TO THE DESKTOP.** This session touched **`server/routes/firmManager.js` — your
+    active area** — but only inside `_mergeBranchRows` (~20 lines, id assignment only). **No
+    storage, auth or overlay surface was changed**, and `data/*-domain-support.json` was not
+    touched at all. Merge before starting the Collaborate storage work, because that function
+    is one the rewrite touches. **The slice 2/3 warning stands unchanged: whoever starts the
+    storage re-key says so first.**
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
