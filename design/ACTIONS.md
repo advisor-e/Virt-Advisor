@@ -215,13 +215,13 @@
       - ⚠ **STILL OPEN: Quizzes, unchanged.** **Not a defect to patch** — title-as-identity is
         deliberate there and locked by `quizBankKeys.test.js`. **It needs Mike's ruling, not a
         fix.** It is now the only one of the six blocks not ready.
-      - ☐ **NEW 2026-07-31 — A FIRM'S STAIRCASE OVERRIDE REPLACES THE WHOLE `steps` ARRAY, so a
-        firm that has customised it would never see a step the platform later adds.** `deepMerge`
-        replaces arrays wholesale and the save route stores a full copy. **Deliberately NOT fixed
-        on the spot:** the correct answer is the decline / override / add-your-own mechanism this
-        very section is about, so it belongs **with** that work rather than bolted on ahead of it
-        in a form that would then be rewritten. Not urgent — it can only bite when Advisor-e
-        changes the platform staircase. *Source:* staircase build 2026-07-31.
+      - ✅ **FIXED 2026-07-31 (`5a3de15` + `8ec9973`) — A FIRM'S STAIRCASE OVERRIDE REPLACED THE
+        WHOLE `steps` ARRAY, so a firm that had customised it would never have seen a step the
+        platform later adds.** Logged the same morning and deliberately left for the mechanism
+        rather than bolted on ahead of it — which is exactly how it was closed: the staircase is
+        the **first block onto the shared mechanism**, so the fix and the workstream are the same
+        change. `deepMerge` is gone from the blend; a step the firm has not touched now stays
+        current with Advisor-e automatically. See Session 13 below.
   - ☐ **NEW 2026-07-30 — THIS APP'S OWN REPORTING HAS NO ROLL-UP ABOVE THE FIRM, and it is
     listed as a job nowhere.** Mike, same session: reporting cascades **up** — adviser actions
     summarise to the firm manager, then group, global, mentor; *"every tier is the same screen,
@@ -233,16 +233,15 @@
     stored copies, and a summary of summaries, not a re-count of every adviser.** The one real
     trap is performance: built naively, a mentor opening the screen pulls every adviser on the
     platform. Collaborate already solved exactly that; copy it rather than rediscover it.
-  - ☐ **P2 · TEST — Collaborate's coverage gates did NOT come across, and its code is now
-    landed but ungated.** Its own `jest.config.js` ran `collectCoverage: true` on every
-    invocation and enforced global 88% / `server/routes/` 90% / `sanitiseInput`,
-    `validateAIResponse`, `productionGuard` **100%** — which is how it held 99.72%. This repo's
-    `jest.config.js` collects only from `server/courseEngine.js`, `server/utils/**` and
-    `server-middleware/**`, none of which reach `server/collaborate/**`, and it was left
-    unedited by design in slice 1. **The tests all still run and pass; only the enforcement is
-    absent**, so coverage on that code can now regress silently. Fix: extend
-    `collectCoverageFrom` + `coverageThreshold` to the `collaborate` paths, carrying their
-    thresholds across unchanged. Cheap, and it belongs before slice 2 adds to that code.
+  - ✅ **P2 · TEST — Collaborate's coverage gates DID come across. CLOSED (stale row corrected
+    2026-07-31).** This row said the landed Collaborate code was ungated and asked for
+    `collectCoverageFrom` + `coverageThreshold` to be extended to it. That was done on
+    2026-07-30 in the same rebuild that re-based the whole coverage config: `jest.config.js`
+    now collects from `server/**` (reaching `server/collaborate/**`) and carries four
+    Collaborate buckets plus the three 100% utils — see its own comment explaining that the
+    numbers are a **re-partition** of Collaborate's `global: 88/78/88/88`, not a relaxation of
+    it. **Found by reading `jest.config.js` rather than trusting this row** — the standing rule
+    at the top of this file ("trust the CODE, not these flags") earning its place again.
   - ☐ **P3 · WIRE — repo plumbing now exists twice, deliberately.** Two `audit-gate.js`, two
     `restify-server.js`, two `db-schema.sql`, two `config/integration.js`, and two each of
     `sanitiseInput.js` / `sendError.js` / `validateAIResponse.js` (`health.js` and `db.js` were
@@ -1670,6 +1669,88 @@ Two honest answers on different axes — the file used to conflate them:
     than reinvent: Distinctions for the downward direction (decline / override / add-own, id
     pinned), case reviews for the upward one (promote only on an explicit approval, content
     read back from the database rather than trusted from the browser, withdraw to reverse).
+
+  ### Session 13 (2026-07-31, laptop) — the one mechanism, and the staircase onto it
+
+  Three commits (`1d10a62`, `5a3de15`, `8ec9973`), all pushed. Suite **3,129 → 3,191 / 200
+  suites**, lint 0 errors throughout, tree clean, **54 ahead / 0 behind** `master`. Session
+  opened with `/startup`: 0 behind, both open PRs merged, nothing to catch up on.
+
+  **This is the ruled sequencing being executed, not a detour** — unify the mechanism at two
+  levels first, then add the middle tiers once. Mike picked the Collaborate workstream and
+  left the choice of first block to me; the staircase was chosen over Domain Support because
+  it is five rows in one file whose two readers already funnel through one resolver, so a
+  mistake is cheap to find, and because putting it on the mechanism **closes an already-logged
+  defect** rather than only building infrastructure.
+
+  - ✅ **PHASE 1 (`1d10a62`) — the mechanism lifted out whole.**
+    `server/utils/resolveInheritedRows.js` is now the block-agnostic decline / override /
+    add-your-own resolver; `resolveDistinctions.js` is a thin caller of it.
+    **The proof it changed nothing: `resolveDistinctions.test.js` and the four other
+    distinction test files passed UNTOUCHED.** Not one assertion was edited — that was the
+    acceptance condition set before starting, and an edit to any of them would have meant the
+    refactor had changed behaviour and was wrong. Four guarantees are now written down as
+    rules with their own tests rather than inherited as behaviour: identity is not editable,
+    no phantom rows, decline beats override, and the edit REPLACES the original so nothing
+    scored per row can be counted twice. Two levels only, deliberately — the middle tiers are
+    added in that one file, later, rather than guessed at now.
+  - ✅ **PHASE 2 READ HALF (`5a3de15`) — a firm's staircase was a frozen copy.** The override
+    was a complete copy of all five steps merged with `deepMerge`, which replaces an array
+    wholesale, so **the moment a firm edited one word, all five became their private snapshot
+    of that day's wording** — a step Advisor-e added later could never reach them, with nothing
+    on screen to suggest they had stopped receiving updates. Now decisions keyed to step ids,
+    resolved through the shared mechanism. Storage is **additive** (three new keys beside the
+    untouched `advisory-staircase`, which stays the home of `defaultCeiling` — a single
+    setting is not a list of rows, the same reason Currency is out of the mechanism).
+  - ✅ **PHASE 2 WRITE HALF (`8ec9973`) — six routes**, mirroring the distinction cascade
+    verb-for-verb. Four guarantees enforced server-side: the **server assigns a new step's id**
+    (a browser id could collide with an `as-*` and silently replace one of Advisor-e's), ids
+    are highest-so-far + 1 rather than the row count, **switching off is not deleting**, and a
+    firm **cannot switch off its last step** (409 `LAST_STEP`, which can explain itself where
+    the blend's silent fallback cannot).
+  - ⚠ **TWO EXISTING TESTS CHANGED IN THE READ HALF, AND THAT IS CORRECT HERE** — unlike Phase
+    1, this phase changes behaviour on purpose. Both asserted that a firm's saved list
+    *replaces* Advisor-e's, which is the defect itself. Rewritten to the new rule with their
+    original intent intact (junk never reaches an advisor mid-session; a description is never
+    `undefined`), plus a third test proving a field the firm did not write keeps Advisor-e's
+    wording rather than blanking it. **The distinction that matters: a test edited because
+    behaviour deliberately changed is legitimate; a test edited to make a refactor go green is
+    not.**
+  - **A migration promise built for data that does not exist.** `adaptLegacyWholeConfig` reads
+    a whole-config save as edits — by id first, then by **position**, because the old shape
+    replaced the array wholesale so the firm's first row WAS the platform's first row; reading
+    it any other way would re-file their wording under the wrong steps. Only fields that
+    genuinely DIFFER are carried across. No MySQL row exists and there is no dev file on this
+    laptop — but the old tab is live and **the desktop's dev files cannot be read from here**.
+  - **The dev fallback was TIGHTENED rather than copied.** `firmDistinctions` falls back to the
+    JSON stand-ins on ANY store failure; `firmStaircase` rethrows in production, and the blend
+    logs it and serves the platform base. A stray dev file on a production box must not rewrite
+    a firm's staircase, and an outage must not be dressed up as "this firm has no override".
+    **Worth considering for `firmDistinctions` too — not changed here, because it is the
+    desktop's ground and was not this session's approved scope.**
+  - ✅ **CHECKED, NOT ASSUMED — two claims verified against code rather than carried:**
+    (1) firm-authored staircase wording **never enters a prompt as configuration**; it reaches
+    the AI only inside advisor chat text, the situation summary or the prior-engagement
+    summary, all three already fenced (`advisorEngine.js` L84, L203, L2739), so no fencing was
+    added where none was needed. (2) Session 12's proxy trap does **not** apply to the new
+    routes — `/api/firm-manager` is already mounted to `apiProxy.js` and connect mounts on a
+    `/` boundary.
+  - 🔴 **MIKE'S CHALLENGE, AND THE RIGHT ANSWER TO IT.** Asked mid-session whether I had read
+    the code for BOTH cascades — upward (case-review promote/withdraw) and downward
+    (Distinctions hierarchy/permissions) — the honest answer was **partly**: the downward
+    resolver yes, the upward path and the permission layer no, they were being carried from
+    session notes. Reading them changed the work: the storage became additive rather than a
+    rewrite, and the routes gained the "server assigns identity, never the browser" rule taken
+    straight from `cases.promote` (whose own header records that the old flow appended to a
+    GLOBAL file, putting one firm's client notes into every other firm's prompts). **Carrying a
+    claim from a session note is not reading the code, and the difference showed up in the
+    design.**
+  - ☐ **STILL OPEN — Phase 2's last piece: the tab controls.** Switch off / Switch on / Edit /
+    Reset to platform / Add step, wired to the six routes. **Wording RULED by Mike 2026-07-31:
+    mirror the Advisory Distinctions tab verbatim** (`Switch off` / `Switch on` /
+    `Reset to platform` / `Add step`, form titles `New step` / `Edit step`) rather than invent
+    staircase-specific words, so the Hub reads as one screen. Then **Phase 3**: the
+    *Adopt / Keep mine* offer when Advisor-e changes a step a firm has edited.
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
