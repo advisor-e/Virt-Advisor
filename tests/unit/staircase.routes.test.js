@@ -147,7 +147,15 @@ describe('GET /api/advisor/staircase — never breaks the session', () => {
     expect(res._body.steps.length).toBe(BASE.steps.length)
   })
 
-  test('individual malformed rows are dropped, and the good ones still arrive', async () => {
+  // CHANGED 2026-07-31 with the staircase joining the one firm-editable mechanism.
+  // It used to assert that a saved list REPLACED the platform's wholesale, so a
+  // four-row config left the advisor with whatever survived filtering. That was the
+  // defect: a firm's saved staircase became a frozen private copy, and a step
+  // Advisor-e added later could never reach them. A partial list is now read as
+  // edits of the steps it names — the ones it does not name stay current, and
+  // removing a step is what declining it is for. The original intent is unchanged
+  // and still asserted: malformed rows must never reach an advisor mid-session.
+  test('malformed rows never reach the selector, and the good one lands as an edit', async () => {
     overlay.loadFirmConfig.mockResolvedValue({
       steps: [
         { step: 1, name: 'Kept', selectorDescription: 'fine' },
@@ -160,16 +168,41 @@ describe('GET /api/advisor/staircase — never breaks the session', () => {
 
     await get(makeReq(), res)
 
-    expect(res._body.steps).toEqual([{ step: 1, name: 'Kept', selectorDescription: 'fine' }])
+    // The firm's wording landed on the step it was written for.
+    expect(res._body.steps[0]).toEqual({ step: 1, name: 'Kept', selectorDescription: 'fine' })
+    // The junk was not turned into steps an advisor could pick.
+    const names = res._body.steps.map(s => s.name)
+    expect(names).not.toContain('No step number')
+    expect(names).not.toContain('No step key at all')
+    // And the steps this firm never touched are still there, still Advisor-e's.
+    expect(names.slice(1)).toEqual(BASE.steps.slice(1).map(s => s.name))
   })
 
   test('a step with no description sends an empty string, never undefined', async () => {
-    overlay.loadFirmConfig.mockResolvedValue({ steps: [{ step: 1, name: 'Terse' }] })
+    // Written through a step the firm ADDED, which is now the shape that can carry no
+    // description at all: on an inherited step, a field the firm did not write is not
+    // an edit, so Advisor-e's description stays rather than being blanked.
+    overlay.loadFirmConfig.mockResolvedValue({ steps: [{ step: 6, name: 'Terse' }] })
     const res = makeMockRes()
 
     await get(makeReq(), res)
 
-    expect(res._body.steps[0].selectorDescription).toBe('')
+    const added = res._body.steps[res._body.steps.length - 1]
+    expect(added.name).toBe('Terse')
+    expect(added.selectorDescription).toBe('')
+  })
+
+  test('a field the firm did not write keeps Advisor-e wording, rather than blanking it', async () => {
+    // The freshness half of the mechanism, and the reason the two tests above changed:
+    // an absent field is not an edit. A firm that renamed a step still receives
+    // Advisor-e's description for it.
+    overlay.loadFirmConfig.mockResolvedValue({ steps: [{ step: 1, name: 'Our name for it' }] })
+    const res = makeMockRes()
+
+    await get(makeReq(), res)
+
+    expect(res._body.steps[0].name).toBe('Our name for it')
+    expect(res._body.steps[0].selectorDescription).toBe(BASE.steps[0].selectorDescription)
   })
 })
 
