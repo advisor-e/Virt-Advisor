@@ -27,78 +27,11 @@ section.firm-manager-hub.section
         firm-logic-tables(:api-token="apiToken")
 
       //- ── Tab: Advisory Staircase ────────────────────────────────────
+      //- Body lives in its own component. It was the whole-config editor here
+      //- until 2026-07-31; every step is now a decision (switch off / edit /
+      //- reset / add your own) through the one firm-editable mechanism.
       b-tab-item(label="Advisory Staircase" icon="stairs")
-        .columns
-          .column
-            .has-text-centered.py-5(v-if="loadingStaircase")
-              b-loading(:is-full-page="false" :active="true")
-            template(v-else)
-              b-notification.mb-4(
-                v-if="!staircaseOverride"
-                type="is-info is-light"
-                :closable="false"
-              ) No firm changes saved — the AI uses the platform-default Advisory Staircase. Edit the steps below and save to make them your firm's.
-
-              .staircase-step(
-                v-for="step in staircaseForm.steps"
-                :key="step.step"
-                :style="{ borderLeftColor: stepColour(step.step).accent, backgroundColor: stepColour(step.step).tint }"
-              )
-                .staircase-step-head
-                  //- Text colour comes from the tone, not a fixed white: on the
-                  //- lighter brand accents white is unreadable (cyan 2.51:1).
-                  span.staircase-step-badge(:style="{ backgroundColor: stepColour(step.step).accent, color: stepColour(step.step).fg }") {{ step.step }}
-                  span.staircase-step-title Step {{ step.step }}
-                b-field(grouped)
-                  b-field(label="Step name" expanded)
-                    b-input(v-model="step.name" maxlength="120")
-                  b-field(label="Complexity ceiling")
-                    b-select(v-model="step.complexityCeiling")
-                      option(v-for="c in staircaseCeilingOptions" :key="c" :value="c") {{ capitalise(c) }}
-                b-field.mb-0(label="What this step looks like")
-                  b-input(
-                    v-model="step.selectorDescription"
-                    type="textarea"
-                    rows="2"
-                    @input.native="autoGrow"
-                  )
-
-              b-field.mt-4(label="Default complexity ceiling" message="Used when a step has no ceiling set.")
-                b-select(v-model="staircaseForm.defaultCeiling")
-                  option(v-for="c in staircaseCeilingOptions" :key="c" :value="c") {{ capitalise(c) }}
-
-              b-field.mt-4(grouped)
-                b-button(
-                  type="is-primary"
-                  :loading="savingStaircase"
-                  @click="saveStaircase"
-                ) Save changes
-                b-button(type="is-light" @click="resetStaircase") Reset
-                b-button(
-                  type="is-light"
-                  :disabled="!staircaseHistory.length"
-                  @click="showStaircaseHistoryModal = true"
-                ) Version history ({{ staircaseHistory.length }})
-
-              //- Version history modal
-              b-modal(v-model="showStaircaseHistoryModal" has-modal-card)
-                .modal-card
-                  header.modal-card-head
-                    p.modal-card-title Version history
-                  section.modal-card-body
-                    b-table(:data="staircaseHistory" :hoverable="true")
-                      b-table-column(v-slot="{ row }" field="version" label="Version" width="80") v{{ row.version }}
-                      b-table-column(v-slot="{ row }" field="saved_by" label="Saved by") {{ row.saved_by }}
-                      b-table-column(v-slot="{ row }" field="created_at" label="Date") {{ formatDate(row.created_at) }}
-                      b-table-column(v-slot="{ row }" label="" width="100")
-                        b-button(
-                          v-if="!row.is_active"
-                          size="is-small"
-                          @click="restoreStaircaseVersion(row)"
-                        ) Restore
-                        b-tag(v-else type="is-success is-light") Active
-                  footer.modal-card-foot
-                    b-button(@click="showStaircaseHistoryModal = false") Close
+        firm-staircase(:api-token="apiToken")
 
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
@@ -650,10 +583,10 @@ import DOMPurify from 'isomorphic-dompurify'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
+import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
-const { BLOCK_TONES } = require('~/utils/brandTokens')
 
 // The distinctions picker offers the Do-the-Job templates a distinction can meaningfully
 // boost. Do NOT filter on includedInClient (that field only governs client self-serve
@@ -694,22 +627,10 @@ const DISTINCTION_DOMAINS = [
   { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
 ]
 
-// Per-step accent + faint background tint so each staircase step reads as its own
-// block (avoids "map-shock" — steps blending into one). Cycles if a firm ever has
-// more steps than colours.
-//
-// Brought onto the brand palette 2026-07-22 (Mike's instruction). The former
-// values were Bulma defaults — a green, orange, purple and red that appear
-// nowhere in design/BRAND-TOKENS.md, whose rule is that the palette applies to
-// every screen. They also put white badge text on accents measuring as low as
-// 2.14:1, which a low-vision reader could not read; every tone now pairs the
-// accent with a text colour that clears 4.5:1. See utils/brandTokens.js.
-const STAIRCASE_STEP_COLORS = BLOCK_TONES
-
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmTeamProgress },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress },
 
   props: {
     firmId: { type: String, required: true },
@@ -725,15 +646,6 @@ export default {
   data () {
     return {
       activeTab: 0,
-
-      // Advisory Staircase
-      staircaseBase: null,
-      staircaseOverride: null,
-      staircaseForm: { steps: [], defaultCeiling: '' },
-      staircaseHistory: [],
-      loadingStaircase: false,
-      savingStaircase: false,
-      showStaircaseHistoryModal: false,
 
       // Template import
       templateImport: { hasImport: false, templateCount: 0, history: [] },
@@ -881,22 +793,6 @@ export default {
         list = list.filter(t => t.title.toLowerCase().includes(q))
       }
       return list
-    },
-    // Allowed complexity-ceiling values, derived from the platform base the
-    // backend sends (single source of truth) — never a hardcoded list.
-    staircaseCeilingOptions () {
-      if (!this.staircaseBase) { return [] }
-      const set = new Set(this.staircaseBase.steps.map(s => s.complexityCeiling))
-      set.add(this.staircaseBase.defaultCeiling)
-      return [...set]
-    }
-  },
-
-  watch: {
-    // A textarea reports scrollHeight 0 while its tab is hidden, so size the
-    // staircase descriptions whenever the active tab changes (and it becomes visible).
-    activeTab () {
-      this.$nextTick(() => this.sizeStaircaseTextareas())
     }
   },
 
@@ -905,7 +801,6 @@ export default {
     this.loadVideos()
     this.loadDomains()
     this.loadFirmDistinctions()
-    this.loadStaircase()
     this.loadFirmCases()
   },
 
@@ -1362,94 +1257,6 @@ export default {
       }
     },
 
-    // ── Advisory Staircase (whole-config firm override) ─────────────────────
-    async loadStaircase () {
-      this.loadingStaircase = true
-      try {
-        const data = await this.api('GET', '/api/firm-manager/staircase')
-        this.staircaseBase = data.base
-        this.staircaseOverride = data.firmOverride || null
-        // Edit the firm's saved override if it exists, otherwise start from the base.
-        this.staircaseForm = JSON.parse(JSON.stringify(data.firmOverride || data.base))
-        const hist = await this.api('GET',
-          '/api/firm-manager/framework/history?configKey=advisory-staircase')
-        this.staircaseHistory = hist.history || []
-        this.$nextTick(() => this.sizeStaircaseTextareas())
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.loadingStaircase = false
-      }
-    },
-
-    // Discard unsaved edits — revert to the last saved state (override, or base if none).
-    resetStaircase () {
-      const source = this.staircaseOverride || this.staircaseBase
-      this.staircaseForm = JSON.parse(JSON.stringify(source))
-      this.$nextTick(() => this.sizeStaircaseTextareas())
-    },
-
-    // Per-step accent colour (cycles if there are ever more steps than colours).
-    stepColour (stepNum) {
-      return STAIRCASE_STEP_COLORS[(stepNum - 1) % STAIRCASE_STEP_COLORS.length]
-    },
-
-    // Grow a description textarea to fit its content — no inner scrollbar.
-    autoGrow (e) {
-      const el = e && e.target
-      if (!el || el.tagName !== 'TEXTAREA') { return }
-      el.style.height = 'auto'
-      el.style.height = el.scrollHeight + 'px'
-    },
-
-    // Size every visible description textarea to its content (after load / reset /
-    // tab reveal — scrollHeight is 0 while the tab is hidden, so skip hidden ones).
-    sizeStaircaseTextareas () {
-      if (!process.client || !this.$el) { return }
-      this.$el.querySelectorAll('.staircase-step textarea').forEach((el) => {
-        if (el.offsetParent === null) { return }
-        el.style.height = 'auto'
-        el.style.height = el.scrollHeight + 'px'
-      })
-    },
-
-    async saveStaircase () {
-      const blankStep = this.staircaseForm.steps.find(s => !s.name || !s.name.trim())
-      if (blankStep) {
-        this.$buefy.toast.open({ message: 'Every step needs a name.', type: 'is-warning' })
-        return
-      }
-      this.savingStaircase = true
-      try {
-        const res = await this.api('POST', '/api/firm-manager/staircase', {
-          staircase: this.staircaseForm
-        })
-        this.$buefy.toast.open({
-          message: res.version ? `Saved as version ${res.version}.` : 'Saved.',
-          type: 'is-success'
-        })
-        this.loadStaircase()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      } finally {
-        this.savingStaircase = false
-      }
-    },
-
-    async restoreStaircaseVersion (row) {
-      try {
-        const res = await this.api('POST', '/api/firm-manager/framework/restore', {
-          configKey: 'advisory-staircase',
-          versionId: row.id
-        })
-        this.$buefy.toast.open({ message: `Restored as version ${res.version}.`, type: 'is-success' })
-        this.showStaircaseHistoryModal = false
-        this.loadStaircase()
-      } catch (e) {
-        this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
-      }
-    },
-
     // ── Helpers ─────────────────────────────────────────────────────────────
     // ── Team Case Studies (manager review) ──────────────────────────────────
     async loadFirmCases () {
@@ -1628,10 +1435,6 @@ export default {
 
     formatDate (iso) {
       return iso ? new Date(iso).toLocaleDateString() : ''
-    },
-
-    capitalise (s) {
-      return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''
     }
   }
 }
@@ -1655,35 +1458,6 @@ export default {
   font-family: 'Courier New', monospace;
   font-size: 0.85rem;
 }
-
-/* Advisory Staircase — colour-coded, compact per-step rows (avoid map-shock) */
-.staircase-step {
-  padding: 0.7rem 0.9rem;
-  margin-bottom: 0.6rem;
-  border-left: 4px solid #dbdbdb;
-  border-radius: 5px;
-}
-.staircase-step-head {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-.staircase-step-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 50%;
-  /* Colour is set inline per step from the tone — see utils/brandTokens.js.
-     It is not fixed white: white fails AA on the lighter brand accents. */
-  font-weight: 700;
-  font-size: 0.85rem;
-  flex-shrink: 0;
-}
-.staircase-step-title { font-weight: 600; color: #363636; }
-.staircase-step textarea { overflow: hidden; }
 
 /* Advisory Distinctions — form + template picker */
 .distinction-form { border: 1px solid #dbdbdb; }
