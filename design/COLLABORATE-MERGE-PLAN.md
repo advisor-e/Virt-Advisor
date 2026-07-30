@@ -1,7 +1,13 @@
 # Collaborate → Firm Manager Hub — merge plan
 
-**Written 2026-07-30 (laptop), branch `feat/advisor-progress`. Nothing in this plan has been
-built. Every slice below needs Mike's approval individually (CLAUDE.md → LIVE-APP rule).**
+**Written 2026-07-30 (laptop), branch `feat/advisor-progress`. Every slice below needs Mike's
+approval individually (CLAUDE.md → LIVE-APP rule).**
+
+> **STATUS (updated 2026-07-30): SLICE 1 IS BUILT AND PUSHED** (`8215bec`) — Collaborate's code
+> is in this repo under `*/collaborate/`, wired to nothing, suites 186 / 2,837 green. **Slices
+> 2–6 are still unbuilt and unapproved.** Full record, including the two follow-ups it left
+> open and the silent `~/`-alias trap that nearly bound Collaborate's components to *our*
+> mixins, is in [`ACTIONS.md`](ACTIONS.md) → §Collaborate.
 
 ## 0. The owner's ruling that started this
 
@@ -242,11 +248,12 @@ algorithm.
 
 ## 5. Suggested order of work
 
-Nothing here is approved. Each slice is separately approvable and separately provable.
+Slice 1 is approved and built; **slices 2–6 are not approved.** Each slice is separately
+approvable and separately provable.
 
 | # | Slice | Why this order |
 |---|---|---|
-| 1 | **Bring the code across, wired to nothing.** Collaborate's `components/`, `server/routes/people.js`, `server/data/*`, its middleware, tests and locales land in this repo under their own names. Rename the colliding `profile` locale section. Nothing appears in the UI. | Both suites must go green in one repo *before* any behaviour changes. If this slice is hard, everything after it is harder. |
+| 1 | ✅ **DONE 2026-07-30 (`8215bec`) — brought the code across, wired to nothing.** Landed under `*/collaborate/` rather than "their own names", because 8 paths collided with ours and 4 of those differ; namespacing meant **zero edits to our files** (bar one `.gitignore` exception line). Their 14 pages landed as **components**, not in `pages/`, so no URL became reachable. The `profile` locale clash never arose — their wording file landed whole at `locales/collaborate/en.json`. Scope was wider than this row assumed: getting their 431 tests green also needed their pages, both mixins, `config/integration.js`, `server-middleware/api.js` and 2 scripts. | Both suites must go green in one repo *before* any behaviour changes. If this slice is hard, everything after it is harder. |
 | 2 | **One tier vocabulary, and scope resolved at the door.** Collaborate's `roles.js` tier list becomes the app's canonical one. `firmAuth` stops resolving a bare `req.firmId` and resolves the caller's **tier + scope chain**; the two middlewares' identity shapes are reconciled in the same pass (`req.identity` vs `req.firmId`/`req.userRole`). | Everything downstream reads scope. Getting this right once is what stops firm-as-top being re-introduced by accident. |
 | 3 | **Widen the override storage to scope-keyed — while there is still no data.** `firm_framework_versions` becomes `(scope_level, scope_id, config_key)`; the `firms` FK goes; the 5 `firmOverlay` functions and `firmContent`'s loader take a scope; `mergeEntry` becomes a fold over the chain (platform → global group → group → firm). | §4.4: no override row exists anywhere, so this is a schema edit today and a live content migration later. Do it before anything authors against the old shape. |
 | 4 | **Surface the console as a Hub tab.** `ManagerConsole.vue` is currently a whole page with its own dark banner and stat tiles; it needs reframing to sit inside `b-tabs` beside Domain Support without looking like a different application. | Lands on correct foundations rather than needing rework. |
