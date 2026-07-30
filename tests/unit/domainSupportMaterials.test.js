@@ -30,15 +30,24 @@ describe('domain-support four-column materials shape — EOY (§0.5)', () => {
     expect(block).not.toContain('### Advisor Guidance')
   })
 
-  test('the course session context renders a material matched by resource name', () => {
-    const ctx = formatDomainContextForSession('eoy', ['Basic Targets'])
-    expect(ctx).toContain('### Basic Targets')
+  // Both of these replace earlier tests that pinned the removed name-matching
+  // filter ("renders a material matched by resource name" / "falls back to the
+  // first material"). That filter was the P1 defect, not a feature: material
+  // names are teaching concepts, not template names, so the match could not work
+  // and its slice(0, 1) fallback silently hid the failure.
+  test('the course session context renders EVERY material for the domain, not a matched subset', () => {
+    const ctx = formatDomainContextForSession('eoy')
+    const eoy = require('../../data/eoy-domain-support.json')
+    expect(eoy.materials.length).toBeGreaterThan(1)
+    eoy.materials.forEach(m => expect(ctx).toContain(`### ${m.name}`))
     expect(ctx).toContain('**How to use it:**')
   })
 
-  test('with no matching resource name, the session context falls back to the first material', () => {
-    const ctx = formatDomainContextForSession('eoy', ['nothing-matches-here'])
-    expect(ctx).toContain('### EOY Meeting Agenda')
+  test('the session context no longer depends on session resource names', () => {
+    // The old signature took resourceNames second; passing anything there must
+    // not change the output, which is the direct proof the coupling is gone.
+    expect(formatDomainContextForSession('eoy')).toBe(formatDomainContextForSession('eoy', undefined))
+    expect(formatDomainContextForSession('eoy')).toContain('### Basic Targets')
   })
 
   test('the design summary lists the four materials as teaching frameworks and keeps the not-a-resource guard', () => {
