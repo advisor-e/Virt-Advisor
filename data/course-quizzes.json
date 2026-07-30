@@ -549,6 +549,22 @@
           "question": "What are the two key aims that any guided thinking process must achieve?",
           "answer": "It must enable a deeper understanding and exploration of issues, and it must align or focus thinking on singular aspects at a time.",
           "keyPoint": "Edward De Bono refers to this focused, singular alignment as \"parallel thinking\"."
+        },
+        {
+          "id": 11,
+          "question": "What are the four key domains of intelligence identified in the \"6 Hats Thinking\" presentation?",
+          "answer": "The four domains are: 1. Cerebral / Logical / Analytical, 2. Mature Emotional (ability to hold conflicting information in harmony), 3. Somatic or Intuitive, and 4. 'Field Intelligence' (contextual awareness where group intelligence resides).",
+          "keyPoint": "Group intelligence resides within 'Field Intelligence', which provides contextual awareness both within and outside the body.",
+          "source": "Course Builder Quiz/Governance Quiz.pdf",
+          "transcribed": "2026-07-30"
+        },
+        {
+          "id": 12,
+          "question": "What triggers and prompts are associated with the Black Hat and Yellow Hat in the 6 Hats Framework?",
+          "answer": "The Black Hat trigger is \"Judge's robe\" (prompting cautious, careful, critical, negative thinking, and asking 'why not?'); the Yellow Hat trigger is \"Sunshine\" (prompting optimism, benefits, values, and objective value assessment).",
+          "keyPoint": "The Black Hat forces risk assessment and critical caution, while the Yellow Hat requires objective evaluation of positive benefits and value.",
+          "source": "Course Builder Quiz/Governance Quiz.pdf",
+          "transcribed": "2026-07-30"
         }
       ]
     },
@@ -4036,6 +4052,270 @@
           "answer": "Complete the table to record observations and their response to the changing economic environment.",
           "keyPoint": "Frameworks are useless unless they are utilized to capture thoughts and design actionable business responses.",
           "id": 10
+        }
+      ]
+    },
+    "Board Member Conduct": {
+      "source": "Course Builder Quiz/Governance Quiz.pdf",
+      "transcribed": "2026-07-30",
+      "entries": [
+        {
+          "id": 1,
+          "question": "In team functioning assessment exercises, what is meant by the \"Waterline\" position?",
+          "answer": "The \"Waterline\" position is the operational level at which board members feel the team functions most often.",
+          "keyPoint": "Team baseline capability is evaluated by identifying its most frequent operational performance level ('Waterline') alongside high and low tide variations."
+        },
+        {
+          "id": 2,
+          "question": "What are the five Team Functioning Levels listed from Level 1 (highest) down to Level 5 (lowest)?",
+          "answer": "Level 1: Flow State, Level 2: Role Observance, Level 3: Conformist Contribution, Level 4: Machiavellian, and Level 5: Violation.",
+          "keyPoint": "Team dynamics range across five explicit performance tiers, from authentic creative collaboration down to unethical violation."
+        },
+        {
+          "id": 3,
+          "question": "What characterizes Level 1 (Flow State) performance regarding conflict, diversity, and pressure?",
+          "answer": "Level 1 operates through authentic expression and 'creative abrasion', where truth is pursued over feelings, flare-ups are forgiven quickly, roles are fluid ('all hands to the pump'), and diversity of insight is valued over 'virtue signalling'.",
+          "keyPoint": "Peak performance requires 'creative abrasion' and fluid roles where individuals set aside ego facades to pursue collective truth under pressure."
+        },
+        {
+          "id": 4,
+          "question": "How does Level 3 (Conformist Contribution) conduct differ from Level 2 regarding leadership messaging and policy reliance?",
+          "answer": "At Level 3, the 'message comes down from above', structure/titles defend senior positions, members 'drive within their lanes', and policies/micromanagement are used to avoid being challenged.",
+          "keyPoint": "Average-performing teams rely on formal hierarchy, conformity, and rigid procedures to shield leadership from challenge."
+        },
+        {
+          "id": 5,
+          "question": "What distinguishes Level 4 (Machiavellian) team conduct from Level 5 (Violation) regarding financial reporting?",
+          "answer": "At Level 4, numbers are 'fudged' while members stay within the bounds of the law; at Level 5, evidence of numbers being fraudulent appears.",
+          "keyPoint": "Machiavellian teams undermine work through calculated non-compliance and fudged data, whereas Violation teams engage in unreported fraud and survival-mode ethics."
+        },
+        {
+          "id": 6,
+          "question": "What internal justifications and behaviors characterize a Level 5 (Violation) team environment?",
+          "answer": "Members operate in 'survival mode', violate personal standards, adopt an 'every man for himself' mentality, view company theft as 'perks of the job', and view absenteeism as payback.",
+          "keyPoint": "Level 5 represents total breakdown where ethics are abandoned and illegal or retaliatory actions go unreported."
+        },
+        {
+          "id": 7,
+          "question": "How does the \"Assassin\" boardroom manipulation tactic manifest in meetings?",
+          "answer": "The Assassin deliberately engages in divisive tactics using personality alliances to fuel an 'us against them' culture.",
+          "keyPoint": "Boardroom manipulation tactics include toxic relational behaviors like forming divisive cliques ('The Assassin') or using cold logic to attack people rather than issues."
+        },
+        {
+          "id": 8,
+          "question": "According to the \"Fall from Grace\" model under pressure, what two internal elements fill the gap when self-connection drops away?",
+          "answer": "The Head supplies a fixed story (the fixation), and the Heart supplies a driving emotion (the passion).",
+          "keyPoint": "Under pressure, individuals stop responding to the person in front of them and execute coded self-protection patterns driven by mental fixations and emotional passions."
+        },
+        {
+          "id": 9,
+          "question": "What are the four steps in \"Catching Yourself in the Act\" as formulated by Riso and Hudson?",
+          "answer": "1. Notice the Body, 2. Name the Reaction, 3. Let the Gap Open, and 4. Choose the Response.",
+          "keyPoint": "Interrupting destructive behavioral patterns requires recognizing early physical signals, naming emotional reactions neutrally, and creating space to choose a constructive response."
+        },
+        {
+          "id": 10,
+          "question": "What are four of the 9 Growth Aspects detailed for business development in the board materials?",
+          "answer": "Four of the aspects are: Process Improvement, Customer Focus, Sales (Process), Authenticity, Inventory & Equipment, Team Focus, Innovation, Governance, or Harmony / Balance.",
+          "keyPoint": "Holistic organizational maturity requires tracking performance across 9 distinct operational and structural growth domains."
+        }
+      ]
+    },
+    "Draft White Papers": {
+      "source": "Course Builder Quiz/Governance Quiz.pdf",
+      "transcribed": "2026-07-30",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What essential contents must be included in the Executive Summary of a white paper according to the guidelines?",
+          "answer": "An opening grab sentence/paragraph, definition of the issue/opportunity, proposed solution, market potential, vital financial/statistical numbers, and easy-to-skim graphics/bullet points.",
+          "keyPoint": "Executive summaries must succinctly summarize problem framing, proposed solutions, financial statistics, and market potential."
+        },
+        {
+          "id": 2,
+          "question": "What is the recommended maximum length and timing for writing an Executive Summary?",
+          "answer": "It must be a maximum of one page in length and should be written only after completing the entire white paper.",
+          "keyPoint": "Executive summaries synthesize the completed document into a standalone decision piece limited to one page."
+        },
+        {
+          "id": 3,
+          "question": "What key questions must be answered under the \"Problem/Opportunity\" title in a white paper?",
+          "answer": "What is the issue/opportunity, why does it exist, how is it worsening/developing (drivers), who is affected, and what will happen if a solution is not found.",
+          "keyPoint": "Problem analysis requires establishing problem causality, impact scope, worsening drivers, and the cost of inaction."
+        },
+        {
+          "id": 4,
+          "question": "What content belongs under the \"Historical Context\" paragraph title in a white paper?",
+          "answer": "Milestones, events, and developments that brought the situation to its current state (\"How did we get here?\").",
+          "keyPoint": "Providing historical context requires mapping chronological events and milestones that led to the current problem."
+        },
+        {
+          "id": 5,
+          "question": "What items must be documented when detailing the \"(Suggested) Solution\" in a white paper?",
+          "answer": "How the solution serves the end user, feasibility data/research, best practice implementation considerations, risk considerations regarding chance of failure, and a suggested action timeline.",
+          "keyPoint": "Proposed solutions must be justified using feasibility data, implementation best practices, failure risk evaluations, and timelines."
+        },
+        {
+          "id": 6,
+          "question": "What specific comparative analyses must be presented in the \"Title for Benefits\" section?",
+          "answer": "Cost, time, and ease of implementation comparisons between the solution options considered.",
+          "keyPoint": "Demonstrating solution benefits requires systematic comparison of cost, timeframe, and execution effort against alternatives."
+        },
+        {
+          "id": 7,
+          "question": "What vendor-related information must be detailed in the Benefits section of a white paper?",
+          "answer": "Considerations for selecting a vendor and the formal business case for sign-up/purchase.",
+          "keyPoint": "Procurement recommendations require evaluating vendor selection criteria alongside the formal business purchasing case."
+        },
+        {
+          "id": 8,
+          "question": "What two reference sections are required at the conclusion of a white paper?",
+          "answer": "A Bibliography (List of Research Sources / Titles - Author Names - Publication Dates) and a Glossary of Technical Terms / Common Abbreviations.",
+          "keyPoint": "Professional white papers require complete source attributions and technical glossaries to maintain rigor."
+        },
+        {
+          "id": 9,
+          "question": "What writing style guideline is established regarding the target audience of an executive summary?",
+          "answer": "It must be written in your target audience's 'language'.",
+          "keyPoint": "Communication tone and vocabulary must align precisely with the expertise and language of the intended audience."
+        },
+        {
+          "id": 10,
+          "question": "Why is it specified that readers should be able to understand the concept of the entire white paper from the Executive Summary alone?",
+          "answer": "Executive readers require a concise, self-contained overview that communicates the full strategic concept without requiring them to read the entire body text.",
+          "keyPoint": "An Executive Summary must function as a complete, independent decision-making document."
+        }
+      ]
+    },
+    "Governance Introduction": {
+      "source": "Course Builder Quiz/Governance Quiz.pdf",
+      "transcribed": "2026-07-30",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What is the Latin origin and literal meaning of the words 'Govern' and 'Gubernator'?",
+          "answer": "'Govern' comes from the Latin 'Gubernare' meaning 'To Steer', and 'Gubernator' refers to 'The Pilot of the Ship'.",
+          "keyPoint": "Governance is fundamentally an active function of steering and piloting an organization rather than passive oversight."
+        },
+        {
+          "id": 2,
+          "question": "What are the Institute of Directors (I.O.D) Four Pillars of Governance?",
+          "answer": "1. Determine (Organisation) Purpose, 2. (Build) Effective Governance Culture, 3. Holding (Management) to Account, and 4. (Maintain) Effective Compliance.",
+          "keyPoint": "Board governance rests upon four fundamental pillars spanning strategy, culture, management oversight, and compliance."
+        },
+        {
+          "id": 3,
+          "question": "What warning did Crown Prosecutor Brian Dickey issue regarding the \"Facade of Governance\" following the 2009 GFC?",
+          "answer": "He stated: \"The Facade of Governance will not act as a Shield...\" and \"It's not about the Structure and Procedures; it's about the quality of the Decisions!\".",
+          "keyPoint": "Governance compliance structures and formal procedures offer no protection if decision quality is flawed."
+        },
+        {
+          "id": 4,
+          "question": "How do Advisory Boards and Boards of Directors differ regarding membership size, formal powers, and director liability?",
+          "answer": "Advisory Boards have 2-4 members with no veto powers, cannot pass resolutions, and carry no legal liability; Boards of Directors (6-8 members in NZ) are formally appointed and fully liable for failed dealings and OSH compliance.",
+          "keyPoint": "Formal directors carry full statutory liability and governance authority, whereas advisory boards provide non-binding guidance without fiduciary risk."
+        },
+        {
+          "id": 5,
+          "question": "Why must minutes be recorded with extreme precision in an Advisory Board structure?",
+          "answer": "Minutes must be recorded carefully to ensure that specific instructions are NOT provided to management, preserving advisory status.",
+          "keyPoint": "Advisory boards must carefully document proceedings to prevent stepping into executive direction or assuming formal board liability."
+        },
+        {
+          "id": 6,
+          "question": "What frame of reference should define the core summary statement of a CEO report?",
+          "answer": "\"These are the things we believe to be true and are supported by evidence; these are the things we HOPE are true but don't really know for certain; and these are the things we now know are NOT true and require us to make changes...\".",
+          "keyPoint": "CEO reporting must explicitly categorize operational evidence, unverified assumptions, and disproven beliefs."
+        },
+        {
+          "id": 7,
+          "question": "What four category assumptions form the foundation of business beliefs in a CEO report?",
+          "answer": "Customer Assumptions, Workforce Assumptions, Distribution Assumptions, and Supply Assumptions.",
+          "keyPoint": "Strategic direction relies on foundation assumptions regarding customer value, workforce retention, distribution channels, and supply chains."
+        },
+        {
+          "id": 8,
+          "question": "Name six specific report components that should be included in Production, Sales & Marketing Manager reports.",
+          "answer": "Any six of: Competitor Features Comparison, 'Substitute' products, Technology/Material improvements, Planned Product/Pricing Innovations, Market Share Analysis, Customer Satisfaction Surveys, Customer Complaints/Churn rates, Sales Sector Estimates, Inbound Enquiries, Social Media Analytics, Outbound spend per enquiry, or Campaign Costings.",
+          "keyPoint": "Managerial reporting requires comprehensive market, competitive, and operational analytics to validate strategic assumptions."
+        },
+        {
+          "id": 9,
+          "question": "What is mandated by Section 131 and Section 135 of the NZ Companies Act 1993 regarding director legal duties?",
+          "answer": "Section 131 mandates that directors must act in good faith and in the best interests of the company; Section 135 prohibits reckless trading that creates substantial risk of serious loss to creditors.",
+          "keyPoint": "Company law imposes strict statutory obligations on directors to act in good faith and avoid reckless trading risks."
+        },
+        {
+          "id": 10,
+          "question": "Under the Effective Governance Components framework, what elements are detailed under \"Boardroom Conduct\"?",
+          "answer": "Creative Thinking & Decision Making Frameworks, The Role of the Chair, Member Behaviour / Removing the Ego from the Boardroom, and Accountability.",
+          "keyPoint": "Boardroom conduct governance requires explicit protocols for decision frameworks, chair leadership, ego removal, and personal accountability."
+        }
+      ]
+    },
+    "Quality Decisions": {
+      "source": "Course Builder Quiz/Governance Quiz.pdf",
+      "transcribed": "2026-07-30",
+      "entries": [
+        {
+          "id": 1,
+          "question": "What Psyche Error is associated with the \"Foundation\" layer of complexity, and what mindset phrase represents it?",
+          "answer": "Confirmation Bias is associated with Foundation; its mindset phrase is \"Being Curious - Open Heart & Open Mind\" (trying to avoid confirmation bias).",
+          "keyPoint": "Organizational foundation phases are especially susceptible to Confirmation Bias when leaders fail to maintain open curiosity."
+        },
+        {
+          "id": 2,
+          "question": "How is the \"Mere-Exposure Effect\" (Over-Exposure) defined, and what corporate examples are cited in the presentation?",
+          "answer": "It is the psychological phenomenon where people develop a preference for things merely because they are familiar (\"better the devil you know\"), leading to an avoidance of commitment or attempts to minimize exposure. Nokia and Kodak are cited as examples.",
+          "keyPoint": "Over-exposure and familiarity bias cause mature companies to avoid risk and cling to existing models, driving corporate failure as seen with Kodak and Nokia."
+        },
+        {
+          "id": 3,
+          "question": "How does the source text illustrate the difference between Causation, Correlation, and Coincidence using car examples?",
+          "answer": "Putting petrol in a diesel car causing engine damage is Causation; running low tyre pressure, hitting a pothole, and getting a puncture is Correlation; driving while listening to AC/DC when the engine blows up is Coincidence.",
+          "keyPoint": "Causation requires direct evidence of influence, correlation involves co-occurring observable factors, and coincidence represents independent simultaneous events."
+        },
+        {
+          "id": 4,
+          "question": "What are the four cause types in W. Edward Deming's Theory of Volatility, and how is \"Tampering\" defined?",
+          "answer": "1. Common Cause (High Frequency, Low Impact), 2. Special Cause (Low Frequency, High Impact), 3. Seasonal Cause (Predictable pattern), and 4. Tampering (Over-reacting to common/seasonal cause).",
+          "keyPoint": "Tampering occurs when management overreacts to expected common or seasonal volatility, destabilizing system performance."
+        },
+        {
+          "id": 5,
+          "question": "What is the primary structural difference between a Contrast Model and a Matrix Model framework?",
+          "answer": "Contrast Models show interrelationships between planning factors (satisfying logic/emotions across sequential timelines like Past-Present-Future); Matrix Models highlight issue drivers across variable extremities to label scenarios (e.g., Rising Star, Cash Cow).",
+          "keyPoint": "Contrast models structure sequential planning across time, whereas matrix models evaluate extreme variable drivers to categorize strategic scenarios."
+        },
+        {
+          "id": 6,
+          "question": "What characterizes a sound \"Double-Blind\" test in a corporate decision-making context?",
+          "answer": "A double-blind test separates the test designer from the test itself and hides experimental groups to actively disprove a theory. In business, an internally designed survey is proofed by an independent review group, conducted by a third party, and presented to management without prior internal interpretation.",
+          "keyPoint": "Sound decision testing actively seeks to disprove hypotheses and eliminates internal interpretation bias through third-party execution."
+        },
+        {
+          "id": 7,
+          "question": "What statistical findings were presented regarding the Serious Fraud Office investigation of NZ finance companies post-2009 GFC?",
+          "answer": "Out of 65 finance companies, 31 were investigated and 24 were charged.",
+          "keyPoint": "Governance failure in NZ finance companies resulted in criminal charges against over a third of the sector's institutions."
+        },
+        {
+          "id": 8,
+          "question": "What is a Decision 'Workpaper', and what critical components must it contain?",
+          "answer": "A Decision Workpaper is a formal habit-building document showing the problem, considered solutions with pros/cons, selected logic, counter arguments, reviewable milestones, and 'EARLY FAILURE INDICATORS'.",
+          "keyPoint": "Quality decision-making requires documented logic, explicitly stated counter-arguments, failure indicators, and independent review."
+        },
+        {
+          "id": 9,
+          "question": "How does the source text distinguish between \"Risk\" and \"Uncertainty\"?",
+          "answer": "Risk refers to decision-making situations where all potential outcomes and their probabilities are known; Uncertainty refers to situations where outcomes and/or probabilities are NOT known.",
+          "keyPoint": "Without uncertainty there is no risk, only clear danger."
+        },
+        {
+          "id": 10,
+          "question": "What three core questions derived from Bayesian Theory help reduce over-reliance on emotions and bias?",
+          "answer": "1. How confident am I in the truth of my initial belief? 2. Assuming my original belief is true, how confident am I that the new evidence is correct? 3. Independent of my original belief, how confident am I that the new evidence is correct?.",
+          "keyPoint": "Bayesian decision principles force leaders to evaluate new evidence independently of existing beliefs to prevent confirmation and optimism bias."
         }
       ]
     }
