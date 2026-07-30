@@ -57,7 +57,79 @@
   - **Acceptance test for the storage change: a firm-level user's behaviour must be
     byte-identical.** The existing tabs' tests are the safety net; any passing a bare `firmId`
     around must be READ, not just made to compile.
-  - ☐ **Slice 1 not started** — needs its own approval. Nothing has been built.
+  - 🔵 **ENTRY POINTS IN THE MASTER APP (Mike, 2026-07-30) — this repo surfaces at THREE
+    places inside Advisor-e, and slice 4 depends on it.** Firm manager clicks a page called
+    **"Manage AI Coach"**, and *that* is what opens the Firm Manager Hub. The adviser reaches
+    most adviser-level features from a head-banner button called **"AI help"**, and the
+    performance-reporting screens (built at client level) from a second head-banner button
+    called **"Performance Reports"**. So a Hub tab is never its own URL — it is reached through
+    "Manage AI Coach" — and the AI section and the reports are *different buttons at different
+    levels*, not one navigation surface.
+  - ✅ **SLICE 1 BUILT 2026-07-30 (approved by Mike, laptop, branch `feat/advisor-progress`) —
+    Collaborate's code is in this repo, namespaced, inert, and proven.**
+    **86 new files; exactly ONE existing file of ours modified (`.gitignore`, approved — see
+    below); this entry is the record, not part of the change.**
+    Suites: **186 / 2,837 green** — our 148 / 2,406 unchanged and their 38 / 431 intact, both
+    totals whole. Lint **0 errors** (10 warnings from the landed code, 9 of them `no-console`,
+    which this repo sets to warn). Landing map: `components/collaborate/` (8 components),
+    `components/collaborate/screens/` (14 pages), `mixins/collaborate/`, `server/collaborate/`
+    (16 files), `config|data|locales|scripts|server-middleware|tests /collaborate/`.
+    - ⚠ **THE REAL TRAP, and it would have been SILENT: the `~/` alias.** Collaborate's
+      components import `~/mixins/speechMixin`, `~/mixins/localeMixin` and `~/data/languages`
+      — and **this repo has a file at all three of those paths.** `~` resolves from the repo
+      root, so left unrewritten their components would have quietly bound to *our* mixins and
+      *our* `data/languages.json` (ours is `.json`, theirs `.js`; jest resolves `.js` first) and
+      the tests would still have gone green against the wrong code. All 15 alias references are
+      namespaced and verified — `grep` for any `~/…` in the landed tree not going via
+      `/collaborate/` must return nothing. **Anyone landing more of this app must re-run that
+      check.** By contrast the paths that *broke* (a missed `config/integration` hop in
+      `routes/people.js`) threw immediately — loud beats silent, and only the alias class is
+      dangerous.
+    - **Their 14 pages landed as COMPONENTS (`components/collaborate/screens/`), not under
+      `pages/`** — deliberate: Nuxt auto-routes everything in `pages/`, and slice 1 must add no
+      reachable URL to an app already deployed in UAT. The entry-point note above makes this
+      the permanent answer, not just a slice-1 precaution: the console is reached through
+      "Manage AI Coach", so it should never own a URL. Reversible in slice 4 by moving files.
+    - **`.gitignore` gained one exception line**, the single edit to one of our files.
+      `search_content_*.json` (line 37) has **no folder anchor**, so Collaborate's tracked
+      337 KB template snapshot — which its 17 marketplace tests cannot run without — would have
+      been **invisible to git anywhere in this repo**: green on the laptop that copied it in,
+      missing on the desktop and in CI. Same class as the gitignored-export/worktree trap
+      recorded at §PR-24 above. The JSON is byte-identical and was never edited (CLAUDE.md's
+      hard rule); only `advisoryTemplates.js`'s own `SNAPSHOT` path constant — which its header
+      documents as a seam meant to be repointed — was changed.
+    - **Nothing is wired: no Restify route registered, no menu entry, the locale file not
+      connected, no page reachable.** As designed — and therefore **none of slice 1 is provable
+      by eye, only by the suites** (plan §6 risk 4). Say so rather than implying a working
+      screen.
+    - **No npm install was needed.** Every test-relevant package is at an **identical** version
+      in both repos (jest, babel-jest, @vue/test-utils 1.3.6, @vue/vue2-jest 27.0.0, vue,
+      vue-i18n, jsonwebtoken, mysql2, restify, nuxt, buefy, pug, vuex). Collaborate's only three
+      extra dev dependencies are Playwright, markdownlint and a webpack plugin — so **its 2
+      browser end-to-end tests did NOT come across**; that is the one part of its safety net
+      still outside this repo.
+    - ✅ **Cross-machine: still no contact with the desktop's ground.** The desktop's active
+      files (`firmManager.js`, `components/firm/*`, `data/*-domain-support.json`) are untouched;
+      slice 1's only shared-file edit is `.gitignore`, which the desktop has not touched.
+      **Slices 2–3 remain the collision — whoever starts slice 2 says so first.**
+  - ☐ **P2 · TEST — Collaborate's coverage gates did NOT come across, and its code is now
+    landed but ungated.** Its own `jest.config.js` ran `collectCoverage: true` on every
+    invocation and enforced global 88% / `server/routes/` 90% / `sanitiseInput`,
+    `validateAIResponse`, `productionGuard` **100%** — which is how it held 99.72%. This repo's
+    `jest.config.js` collects only from `server/courseEngine.js`, `server/utils/**` and
+    `server-middleware/**`, none of which reach `server/collaborate/**`, and it was left
+    unedited by design in slice 1. **The tests all still run and pass; only the enforcement is
+    absent**, so coverage on that code can now regress silently. Fix: extend
+    `collectCoverageFrom` + `coverageThreshold` to the `collaborate` paths, carrying their
+    thresholds across unchanged. Cheap, and it belongs before slice 2 adds to that code.
+  - ☐ **P3 · WIRE — repo plumbing now exists twice, deliberately.** Two `audit-gate.js`, two
+    `restify-server.js`, two `db-schema.sql`, two `config/integration.js`, and two each of
+    `sanitiseInput.js` / `sendError.js` / `validateAIResponse.js` (`health.js` and `db.js` were
+    byte-identical, so those are honest duplicates of nothing). Reconciling them means editing
+    our copies, which slice 1 was scoped to avoid — and `integration.js` + `db-schema.sql` are
+    auth/storage surfaces that slices 2–3 rewrite anyway. **Do not merge them ad hoc**; fold
+    into slice 2 (identity/scope) and slice 3 (storage) where each pair is being rewritten with
+    tests around it. Plan §6 risk 2.
 - <a id="cpd-pdf-export"></a>☐ **NEW (Mike, 2026-07-30) — the CPD record must be exportable as a
   PDF**, because the adviser sends it to their accounting society. **Its own task, NOT part of
   the Collaborate merge.** Groundwork already checked: this app needs **no PDF dependency** —

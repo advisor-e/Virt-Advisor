@@ -36,6 +36,13 @@ logs
 # Generated search exports (not for version control)
 search_content_*.json
 
+# EXCEPTION — Collaborate's template-catalogue snapshot IS version-controlled.
+# It arrived tracked in the Collaborate repo (advisor-e/Colab) and its 17 marketplace
+# tests cannot run without it. The pattern above has no folder anchor, so without this
+# line the file would be invisible to git anywhere in the repo: green on the machine
+# that copied it in, missing on the other machine and in CI.
+!data/collaborate/search_content_20260625201604.json
+
 # Dev-only firm distinctions (created locally when MySQL is unavailable)
 data/dev-firm-distinctions.json
 data/dev-firm-distinction-declines.json
