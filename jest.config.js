@@ -103,7 +103,12 @@ module.exports = {
     // 22% to 82% lines and this bucket from 67.9% to 84.1% — so it now EXCEEDS the 80%
     // standard, and the measured ratchet is the binding number rather than the standard.
     './server/utils/': { statements: 81, branches: 64, functions: 82, lines: 83 },
-    './mixins/': { statements: 29, branches: 20, functions: 31, lines: 31 },
+    // Was a floor at 29/20/31/31 — the whole bucket was effectively untested, against a
+    // written 80% standard that was not being measured at all. caseMixin (0% → 100%),
+    // localeMixin (1.6% → 100%) and currencyMixin (38% → 100%) were covered on
+    // 2026-07-30, taking the bucket to 93.4% lines: now ABOVE its standard, so the
+    // measured ratchet binds. speechMixin (78% lines) is the remaining laggard.
+    './mixins/': { statements: 91, branches: 87, functions: 96, lines: 92 },
     './server-middleware/': { statements: 9, branches: 12, functions: 4, lines: 10 },
     './server/advisorEngine.js': { statements: 35, branches: 24, functions: 35, lines: 36 },
     './server/services/': { statements: 12, branches: 0, functions: 0, lines: 13 },

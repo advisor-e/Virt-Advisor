@@ -41,7 +41,7 @@ Measured 2026-07-30 across 8,759 lines. Repo-wide: **6,750 covered — 77.1%**
 |---|---|---|---|---|
 | **264** | `server/routes/firmManager.js` | 61% | 90% | ⚠ **Pay this during Collaborate slice 2**, which rewrites this file — the tests are that rewrite's safety net. Desktop is also active here; say so before starting. |
 | **510** | `server/advisorEngine.js` | 37% | 80% | 🔴 **DEFERRED DELIBERATELY** — see below. Frozen, not forgotten. |
-| **122** | `mixins/**` | 32% | 80% | `caseMixin` 65 (0% today), `localeMixin` 50, `currencyMixin` 9, `speechMixin` 2. Collaborate's mixin tests are a *pattern* to follow — checked, and they share no lines with ours, so not a copy. |
+| **16** | `mixins/speechMixin.js` | 78% | 80% | The one mixin still short. Its microphone lifecycle *is* tested (`speechMixin.component.test.js`); the gap is branches. Bucket is already above standard, so this is optional. |
 | **84** | `server-middleware/**` (ours) | 12% | 80% | 4 SSE proxies at 0%: `advisor.js`, `course.js`, `translate.js`, `apiProxy.js`. Need a fake backend to drive. `report.js` (58%) is the only one with tests. |
 | **60** | `server/routes/report.js` | 40% | 90% | The largest remaining route gap after firmManager. |
 | **37** | `server/services/**` | 14% | 80% | `driveService.js` needs Google credentials — the documented-blocker class. Make it fail loudly rather than fake it. |
@@ -83,6 +83,35 @@ Paid later the same session, all in code that guards a boundary:
 - **`server/routes/health.js` 0% → 100%.** Three lines, but the shape (`200` + `ok: true`)
   is a contract with things outside this repo: a deploy check, a load balancer, the master
   app. Also asserted to leak nothing but `ok` and `timestamp`.
+
+Third batch — the whole `mixins/**` bucket, **32.4% → 93.4% lines**, above its 80% standard
+for the first time (it had never been measured at all):
+
+- **`caseMixin.js` 0% → 100% lines** (48 tests) — 216 lines and the largest untested file
+  outside the AI engine. Three behaviours exist because of a rule or a past defect, and are
+  asserted hardest: **"mine" is keyed on the server-returned advisor id**, so a colleague's
+  firm-shared case stays visible to the AI but is never listed as the advisor's own; the
+  **token race** that once made saved cases look *wiped* after a refresh, because the first
+  load ran before the parent resolved the Bearer token; and **promotion sends only a case
+  id**, so promoted coaching text and its audit stamp cannot be forged from the browser.
+  Also covers the microphone teardown on panel close — the same privacy class as the
+  recogniser defect in `speechMixin.component.test.js`.
+- **`localeMixin.js` 1.6% → 100% lines** (22 tests) — the language picker and the on-demand
+  AI translation of the whole UI. The tests that matter prove the **prototype-pollution
+  guards still hold**: the reply is built by an LLM and turned back into a nested object, so
+  a returned key of `__proto__.x` or `constructor.prototype.x` would otherwise write onto
+  every object in the page. Both are asserted dropped, and `Object.prototype` untouched.
+- **`currencyMixin.js` 38% → 100% on all four metrics** (18 tests) — every money figure on
+  every report screen. Its doc comment promises that *any* failure (401, offline, backend
+  down) silently keeps the cached currency because "a report must render regardless"; that
+  promise is the kind that rots unnoticed, since a swallowed error looks the same whether
+  it is deliberate or accidental. Most of the suite drives those failure paths.
+
+**A trap for anyone testing an async `mounted()` here:** `caseMixin.mounted()` awaits the
+legacy-case migration and only *then* calls the load, which awaits again — so a single
+`$nextTick()` settles neither and **every assertion fails against empty state for the same
+wrong reason**. Use a microtask loop, not `setImmediate`, because the promotion tests run
+under jest's fake timers, which fake `setImmediate` too.
 
 **Two fixtures of mine that were wrong, and what they proved:** a DB-failure test asserted
 502 and got 404, because `getSharedForFirm` deliberately falls back to the dev file outside
