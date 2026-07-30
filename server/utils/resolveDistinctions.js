@@ -14,11 +14,21 @@
  *                 fire, so a matched template's boost is never double-counted)
  *   - own       : the firm added its own row            -> it comes along
  *
+ * THE RULES NOW LIVE IN ONE PLACE. Those three behaviours were ruled (Mike,
+ * 2026-07-30) to be the single firm-editable mechanism for every block, so they were
+ * lifted verbatim into server/utils/resolveInheritedRows.js and this file became a
+ * thin caller of it. Distinctions behaviour is UNCHANGED — tests/unit/
+ * resolveDistinctions.test.js passed untouched across the move, which is what proves
+ * it. Change the mechanism there, not here; this file's job is only to supply the
+ * distinction vocabulary (its source tags) and its documented shape.
+ *
  * This function is pure (no I/O, no engine coupling): the caller supplies the
  * platform rows and the firm's stored changes, and gets the resolved list back.
  * The engine and the Firm Manager UI both read from this single resolver so the
  * advisor session and the management screen can never disagree.
  */
+
+const { resolveInheritedRows } = require('./resolveInheritedRows')
 
 /**
  * A distinction row. Platform rows carry a stable string id (pd-N); firm-own rows
@@ -38,11 +48,19 @@
 /** @typedef {'platform'|'firm-override'|'firm-own'} DistinctionSource */
 
 /**
+ * The tags this feature's UI badges rows with. Passed explicitly rather than relying
+ * on the shared module's defaults, so a change to those defaults for a newer block
+ * can never silently re-label the distinctions screen.
+ * @type {{inherited: string, override: string, own: string}}
+ */
+const DISTINCTION_SOURCE_LABELS = { inherited: 'platform', override: 'firm-override', own: 'firm-own' }
+
+/**
  * Build a firm's effective distinction list from the platform rows and the firm's
  * changes. Order: platform rows first (in their original order, with declined rows
  * removed and overridden rows swapped in place), then the firm's own rows.
  *
- * Resolution rules:
+ * Resolution rules (guaranteed by resolveInheritedRows):
  *  - decline takes precedence over an override of the same id (a row the firm
  *    switched off stays off, even if a stale override exists for it);
  *  - an override keyed to an id that is not a real platform row is ignored (a stale
@@ -60,41 +78,7 @@
  *   the resolved effective list
  */
 function resolveEffectiveDistinctions (platformRows, firmState) {
-  const platform = Array.isArray(platformRows) ? platformRows : []
-
-  const state = firmState && typeof firmState === 'object' ? firmState : {}
-  const declinedIds = new Set(Array.isArray(state.declinedIds) ? state.declinedIds : [])
-  const overrides = state.overrides && typeof state.overrides === 'object' && !Array.isArray(state.overrides)
-    ? state.overrides
-    : {}
-  const ownRows = Array.isArray(state.ownRows) ? state.ownRows : []
-
-  const effective = []
-
-  for (const row of platform) {
-    if (!row || row.id === null || row.id === undefined) { continue }
-    const id = row.id
-
-    // Declined: the firm switched this platform row off. Decline wins over an
-    // override of the same id, so a row stays off until the firm re-enables it.
-    if (declinedIds.has(id)) { continue }
-
-    const override = Object.prototype.hasOwnProperty.call(overrides, id) ? overrides[id] : null
-    if (override && typeof override === 'object' && !Array.isArray(override)) {
-      // Firm's edited version REPLACES the platform original — the platform row is
-      // not also emitted, so its boost cannot stack with the firm's.
-      effective.push({ ...row, ...override, id, source: 'firm-override', overridesId: id })
-    } else {
-      effective.push({ ...row, source: 'platform' })
-    }
-  }
-
-  for (const row of ownRows) {
-    if (!row || row.id === null || row.id === undefined) { continue }
-    effective.push({ ...row, source: 'firm-own' })
-  }
-
-  return effective
+  return resolveInheritedRows(platformRows, firmState, { sourceLabels: DISTINCTION_SOURCE_LABELS })
 }
 
 module.exports = { resolveEffectiveDistinctions }
