@@ -27,6 +27,7 @@
   },
   "materials": [
     {
+      "id": "raising-capital-startup-pitch-deck",
       "name": "Startup Pitch Deck",
       "summary": "A slide-by-slide structure for pitching to investors that answers the critical questions concisely instead of burying them. It forces the founder to distil the business model, the competitive advantage and the financial need into something digestible, and gives the advisor a frame for walking them through their Status Quo, Problem and Solution until the narrative is investor-ready.",
       "who_when": "Early-stage startups and entrepreneurs seeking seed capital, venture capital or angel investment.",
@@ -39,6 +40,7 @@
       ]
     },
     {
+      "id": "raising-capital-venture-capital-investment-cycle",
       "name": "Venture Capital Investment Cycle",
       "summary": "Breaks the venture capital relationship into three phases — pre-investment, post-investment and exit — so a founder sees the whole arc rather than the raise alone. It removes the illusion of speed and prepares them for a long-term partnership, and it gives the advisor the ground for early conversations about valuation, control, and the exit that will eventually be expected.",
       "who_when": "High-growth startups targeting institutional venture capital.",
@@ -49,6 +51,7 @@
       ]
     },
     {
+      "id": "raising-capital-six-procedural-hurdles-of-fundraising",
       "name": "Six Procedural Hurdles of Fundraising",
       "summary": "The six-month funnel a raise actually runs through, laid out so founders stop expecting money to change hands after one good meeting. Skipping a step is a common cause of failure. For the advisor it turns fundraising into a trackable pipeline with defined milestones rather than a series of hopeful conversations.",
       "who_when": "Founders actively out in the market looking for funding.",
@@ -62,6 +65,7 @@
       ]
     },
     {
+      "id": "raising-capital-90-day-due-diligence-preparation-plan",
       "name": "90-Day Due Diligence Preparation Plan",
       "summary": "Turns an overwhelming legal, financial and tax compliance burden into a chronological three-month project. Being investor-ready before a term sheet is signed builds confidence and shortens the close, and it gives the advisor a hard timeline for project-managing the internal clean-up — unassigned intellectual property and revenue mismatches being the usual offenders.",
       "who_when": "Startups with a funding round three to six months away who know they have compliance gaps to close.",
@@ -72,6 +76,7 @@
       ]
     },
     {
+      "id": "raising-capital-kotter-s-8-step-change-management-process",
       "name": "Kotter's 8-Step Change Management Process",
       "summary": "A pragmatic sequence for putting a strategic transformation into practice without it failing on execution. It carries leadership through the hard middle of a restructure and insists the new way is anchored in the culture rather than announced and abandoned — which is what separates a change that holds from one that quietly reverts.",
       "who_when": "Established businesses implementing a major organisational change.",
@@ -87,6 +92,7 @@
       ]
     },
     {
+      "id": "raising-capital-six-patterns-of-entrepreneurship",
       "name": "Six Patterns of Entrepreneurship",
       "summary": "Widens entrepreneurship beyond the Silicon Valley template so a founder can weigh risk, control and lifestyle against six real paths. Its central question is Rich versus Royal — maximum wealth or retained control — and answering it honestly points to the financing and operating structure that actually fits the life the client wants.",
       "who_when": "Aspiring entrepreneurs, MBA graduates, and family business successors.",

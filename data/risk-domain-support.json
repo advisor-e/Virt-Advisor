@@ -21,6 +21,7 @@
   },
   "materials": [
     {
+      "id": "risk-and-uncertainty-core-theory",
       "name": "Risk and Uncertainty — Core Theory",
       "summary": "Establishes what risk actually is before any process starts. Under ISO 31000 risk is the effect of uncertainty on objectives — and that effect can be positive as well as negative. Uncertainty comes from a deficiency of information about future events, so the whole aim of risk management is to reduce it. Transferring risk is not a modern invention; it is a practice that has evolved over four thousand years.",
       "who_when": "Clients who treat risk as nothing more than an insurance policy, or who need to understand why a structured process is worth the effort before starting one.",
@@ -35,6 +36,7 @@
       ]
     },
     {
+      "id": "risk-5-step-risk-management-framework",
       "name": "5-Step Risk Management Framework",
       "summary": "The practical process — a systematic application of policies and procedures to identify, evaluate and treat the risks threatening the client's objectives. Every treatment is weighed on cost against certainty of outcome, and every treatment leaves residual risk behind, so the process is continuous rather than a one-off exercise.",
       "who_when": "Any client formalising how they handle risk, and any client reviewing their exposure after an incident or a change in their operating environment.",

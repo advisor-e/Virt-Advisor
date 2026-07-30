@@ -19,6 +19,7 @@
 
   "materials": [
     {
+      "id": "get-marketing-1st-response-proposal-templates",
       "name": "1st Response & Proposal Templates",
       "summary": "Brings Agile Theory to advisory engagements by breaking a project into manageable sprints — Feasibility, Planning, Implementation — rather than asking for the whole thing upfront. For the owner it removes the risk of committing to a large, expensive project blind: a $5,000 feasibility stage taking about five hours of their time establishes the structural integrity first. For the advisor it sets clear expectations, secures paid work early, and positions them as a strategic partner reviewing the critical business functions.",
       "who_when": "Prospects and existing clients enquiring about large projects or new advisory engagements.",
@@ -31,6 +32,7 @@
       ]
     },
     {
+      "id": "get-marketing-marketing-campaigns-quizzes-video-hyperlinks",
       "name": "Marketing Campaigns, Quizzes & Video Hyperlinks",
       "summary": "Outreach assets that automate the approach and act as a micro-step between first contact and a formal meeting, using short videos and quick quizzes to open discussion on cash forecasting, business planning and growth fundamentals. For the owner they focus attention on a seasonal risk — the perfect storm of tax and the holidays — and let them test their assumptions in three minutes. For the advisor they generate qualified leads and prime a client for the theme of the meeting without heavy manual selling.",
       "who_when": "Existing clients needing a nudge toward quarterly planning, and new prospects who need warming up before a sales call. The entry point for any advisor uncomfortable with direct selling.",
@@ -43,6 +45,7 @@
       ]
     },
     {
+      "id": "get-marketing-90-day-best-practice-training-outreach",
       "name": "90-Day Best Practice Training Outreach",
       "summary": "A structured four-to-five-session training plan delivered over Zoom, teaching a client's own admin staff to use Xero properly. For the owner it means correct coding, sound transaction handling and monthly quality control — which is what prevents costly mistakes and surprise tax bills. For the advisor it pre-empts the birds-nest nightmares that otherwise have to be untangled at year end, and creates a revenue stream in its own right.",
       "who_when": "Business owners using digital accounting software who have no formal bookkeeping training or an inexperienced admin team. Also the natural pivot when a client's underlying data turns out to be too messy for advisory work.",
@@ -55,6 +58,7 @@
       ]
     },
     {
+      "id": "get-marketing-crisis-management-covid-19-email-phone-scripts",
       "name": "Crisis Management (COVID-19 Email & Phone Scripts)",
       "summary": "A compassionate, structured way to reach clients during a lockdown, supply shortage or sudden downturn — three emails and two phone scripts. For the owner it models Good, Bad and Ugly revenue scenarios and gets them to the bank before the credit division is overwhelmed, then narrows their focus to one of three functions: Getting Organised, Getting the Job, or Doing the Job. For the advisor it demonstrates real value and empathy at no initial cost, which is what cements the relationship.",
       "who_when": "All active clients facing a sudden economic downturn, lockdown or severe market disruption.",
@@ -67,6 +71,7 @@
       ]
     },
     {
+      "id": "get-marketing-portal-invitations-system-checklists-let-the-software-do-the-lifting",
       "name": "Portal Invitations & System Checklists (\"Let the Software do the Lifting\")",
       "summary": "Invitation emails in three tones, from direct to conservative, paired with the internal checklists for building the client's portal account. The conservative version frames the software as a mental gym, which lowers the intimidation for a client who has never had a portal. For the owner it is 24/7 access to a single hub for meeting agendas, action plans and improvement templates; for the advisor it standardises onboarding and makes client engagement visible.",
       "who_when": "New or existing clients moving onto the firm's advisory platform, and the internal staff who set those accounts up.",
@@ -80,6 +85,7 @@
       ]
     },
     {
+      "id": "get-marketing-third-party-collaboration-legal-templates-consent-banker-login-nda",
       "name": "Third-Party Collaboration & Legal Templates (Consent, Banker Login, NDA)",
       "summary": "Formalises relationships with people outside the engagement. The Mutual Confidentiality Agreement protects intellectual property and sensitive financial information; the consent template lets an external advisor such as a banker see specified portal pages. For the owner it builds transparency with a lender and can speed up funding; for the advisor it protects proprietary methods and builds a referral relationship with bankers.",
       "who_when": "Clients requiring bank loans, the external banking partners themselves, and prospects evaluating a custom software project where proprietary frameworks will be shared.",
@@ -93,6 +99,7 @@
       ]
     },
     {
+      "id": "get-marketing-website-blurbs-messaging-plan",
       "name": "Website Blurbs & Messaging Plan",
       "summary": "Ready-to-use copy that maps a homepage into bands — attention, problem, position, solution — together with a slide deck for planning the firm's global messaging and its timeline. For the owner visiting the site, it answers the question they actually arrived with, such as how much is enough, inside the first 7 to 20 seconds. For the firm it saves hours of copywriting and aligns website, blog and social content to the same target-market problems.",
       "who_when": "Accounting firms revamping a website, aligning a team's marketing efforts, or building a communication timeline across marketing and seminar activity.",

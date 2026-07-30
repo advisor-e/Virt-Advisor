@@ -22,6 +22,7 @@
   },
   "materials": [
     {
+      "id": "stock-purchasing-inventory-framework",
       "name": "Inventory Framework",
       "summary": "The Weighted Average Inventory model — a data-driven way to decide what to reorder and when, balancing product velocity, profit margin and cash liquidity so capital is not trapped in poor performers while the high-volume favourites never run out. Its distinguishing feature is a mandatory financial check before any order is placed, which is what lifts the conversation from supply-chain management to business liquidity and seasonal capital planning.",
       "who_when": "Retailers, wholesalers, e-commerce brands and any inventory-heavy business — particularly one carrying a mix of high-volume commodities and unique, singular or exotic items, since the framework has explicit exceptions for both.",

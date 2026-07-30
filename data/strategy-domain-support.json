@@ -14,6 +14,7 @@
 
   "materials": [
     {
+      "id": "strategy-revealing-the-growth-curve",
       "name": "Revealing the Growth Curve",
       "summary": "A guided story that walks a client through the nine stages of business growth in the third person, through a persona, so the concept is understood before it is applied to them. Third person creates the dissociation that stops a client judging the idea before they have heard all of it, and gives permission for the humour that makes it stick. Its purpose is alignment and repositioning you as a strategic advisor — not selling.",
       "who_when": "Any client not yet engaged with advisory services — particularly inside the EOY meeting or a first advisory conversation, where the relationship needs to move from transactional to strategic.",
@@ -32,6 +33,7 @@
       ]
     },
     {
+      "id": "strategy-the-heald-matrix",
       "name": "The Heald Matrix",
       "summary": "A two-axis matrix — Innovation and Creativity against Methodology and Process — that shows an owner why they avoid planning, through four positions: Turtle, Shotgun, Lab-Rat and Pioneer. It works because you cannot tell an owner their coping mechanism is not serving them; it is better that they see it themselves and decide to change. Once they have felt how easily they can let it go and gain clarity of action, a planning session stops being something you have to sell.",
       "who_when": "Clients resistant to planning, claiming to be too busy, or with no idea where to start. Works in a formal meeting agenda or drawn on a napkin over coffee, which is what shifts a highly formal relationship into a collaborative one.",
@@ -52,6 +54,7 @@
       ]
     },
     {
+      "id": "strategy-capacity-capability-opportunity",
       "name": "Capacity, Capability, Opportunity",
       "summary": "A macro-level framework for identifying the legitimate constraints restricting a client's ability to grow, across three pillars: how much the model can produce, whether the client is equipped to compete, and whether the market wants what they sell. Calling them legitimate constraints gives the issues validity and removes the guilt attached to them, which is what lets an owner let go of a limiting belief. It also protects the advisor from picking up every problem-child client and suffering fee creep.",
       "who_when": "Used before recommending any strategic direction, and to judge whether a constraint is temporary and better dealt with later. Can be run visibly on the agenda, verbally anchored, or kept as the advisor's own mental checklist where a structured review would feel inappropriate.",
@@ -70,6 +73,7 @@
       ]
     },
     {
+      "id": "strategy-client-planning-framework",
       "name": "Client Planning Framework",
       "summary": "Decides which planning approach a client actually needs, based on their business maturity rather than applying one template to everyone. It splits at the first question — a startup or an owner new to planning, against a well-established business — and each branch leads to a different depth of engagement. Whatever the branch, the plan is supported by a Revenue Model, which is what keeps it financially aligned.",
       "who_when": "Whenever a client says \"I need a business plan\" — used once planning buy-in is secured and the real constraints have been validated.",

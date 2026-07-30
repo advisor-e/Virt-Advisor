@@ -29,6 +29,7 @@
   },
   "materials": [
     {
+      "id": "get-pricing-proposals-advisory-pricing-model",
       "name": "Advisory Pricing Model",
       "summary": "A spreadsheet that takes the guesswork out of pricing — bundled options, content suggestions and a Blank Team matrix that lets fees be built from the actual people assigned to each task. It breaks a complex job into scoping, research, presentation and implementation, and includes a detailed Due Diligence Scoping Model for mergers and acquisitions. For the owner it makes the fee transparent; for the firm it protects profitability and stops scope creep.",
       "who_when": "Firms putting several team members on one project, and complex bespoke engagements — especially due diligence or structural reviews.",
@@ -42,6 +43,7 @@
       ]
     },
     {
+      "id": "get-pricing-proposals-general-advisory-proposal",
       "name": "General Advisory Proposal",
       "summary": "A slide deck that turns discovery findings into a logical pitch, visually connecting the client's End Game to the actions needed to reach it. It names their objectives and the Legitimate Constraints holding them back, and — unusually — states how many hours of the client's own time the work will demand, so expectations are set from day one rather than argued about later.",
       "who_when": "Clients needing bespoke, customised consulting built around their own specific business problems.",
@@ -54,6 +56,7 @@
       ]
     },
     {
+      "id": "get-pricing-proposals-lite-fundamentals-proposal",
       "name": "Lite Fundamentals Proposal",
       "summary": "A pre-campaigned, out-of-the-box advisory programme built on three digestible pillars — Getting More Organised, Getting More Work, and Doing More Profitable Work. It demystifies growth by teaching fundamentals such as the working capital cycle, the four levels of consumer awareness and process improvement cycles, and it is generated from a merge table rather than written from scratch, which makes it scalable across many clients.",
       "who_when": "Smaller businesses and clients who need foundational coaching and structured systems rather than a complex customised intervention.",
@@ -66,6 +69,7 @@
       ]
     },
     {
+      "id": "get-pricing-proposals-variation-to-scope-of-works",
       "name": "Variation to Scope of Works",
       "summary": "The document that keeps a signed engagement honest when the client asks for something that was never quoted — financing new equipment, a bank finance application, any new project appearing after the agreement. It records the new issue, the timeline and the additional fee, and is signed before the extra work starts rather than invoiced afterwards.",
       "who_when": "Any signed engagement where the client raises an out-of-scope request — used immediately, not at the end.",

@@ -21,6 +21,7 @@
   },
   "materials": [
     {
+      "id": "valuation-business-sale-assessment-framework-the-3-point-sensitivities",
       "name": "Business Sale Assessment Framework — The 3-Point Sensitivities",
       "summary": "Puts the seller in the purchaser's negotiation seat, so they can see what evidence a buyer needs before they set a price. The underlying method is asset-based, covering tangible assets such as plant and machinery and intangible ones such as goodwill, patents and trademarks — but adding assets and applying a profit multiplier is not enough and leads to overvaluation. Three reality checks test whether the price is bankable for the buyer.",
       "who_when": "Owners preparing to sell, and advisors testing whether an asking price a client has in mind will survive a purchaser's scrutiny.",
@@ -35,6 +36,7 @@
       ]
     },
     {
+      "id": "valuation-business-valuation-6-step-methodology",
       "name": "Business Valuation — 6-Step Methodology",
       "summary": "The working method behind the assessment, from raw financials to an indicative value range. It establishes the true cash available to a buyer, separates super profits from the return the owner should expect anyway, tests the result against the sensitivities, and only then produces a Low / Average / High range built from goodwill, intangibles, tangibles and stock.",
       "who_when": "Advisors running an actual valuation for a client — a full sale, a partial sell-down, or a purchase the client is considering.",

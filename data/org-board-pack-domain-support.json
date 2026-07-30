@@ -14,6 +14,7 @@
 
   "materials": [
     {
+      "id": "org-board-pack-master-agenda-notes",
       "name": "Master Agenda & Notes",
       "summary": "A streamlined meeting template that tracks time allocations, reviews progress against the financial KPIs, captures what has gone well and less well, and records the key takeaways. It is what turns a casual business chat into a structured, accountable meeting, because every item carries a time and an owner. Used alongside the Meeting Minutes, it holds directors to the actions they were assigned last time.",
       "who_when": "Any firm size running monthly or quarterly board or advisory board meetings — the shorter working-meeting alternative to the full BoardPack Agenda.",
@@ -27,6 +28,7 @@
       ]
     },
     {
+      "id": "org-board-pack-risk-mgt-cover",
       "name": "Risk Mgt Cover",
       "summary": "A formal risk management process built on the Risk Tactics Matrix, which evaluates every threat by probability and consequence. Where a risk lands on the matrix decides the strategy: Accept it as it stands, Avoid the activity, Reduce the exposure, or Transfer it to a third party by insurance or contract. Treated as a living document rather than an annual compliance exercise, it is what moves risk from something discovered in hindsight to something managed in advance.",
       "who_when": "Firms exposed to market volatility or operational threats, and any board preparing for an external quality audit or regulatory review. Reviewed at every board meeting, with a named owner reporting on each risk.",
@@ -40,6 +42,7 @@
       ]
     },
     {
+      "id": "org-board-pack-annual-board-plan",
       "name": "Annual Board Plan",
       "summary": "A 12-month calendar mapping the scheduled strategic board items — budgets, the CEO performance review, annual financials, technology policy, the culture review — one core theme to each month. It stops the board being bogged down in reactive, day-to-day issues by guaranteeing the high-level topics are addressed systematically across the year. For the advisor it means thematic advisory sessions can be prepared well in advance.",
       "who_when": "Maturing firms moving from ad-hoc planning to an institutionalised annual governance rhythm. Set at the start of the financial year, then reviewed as part of year-end governance.",
@@ -53,6 +56,7 @@
       ]
     },
     {
+      "id": "org-board-pack-board-white-paper",
       "name": "Board White Paper",
       "summary": "The standard format for pitching a new idea or a major purchase to the board: an executive summary, the historical context, the suggested solution, the measurable benefits, and an analysis of the alternatives. It removes gut-feeling pitches from the boardroom by forcing research and a written business case before capital is committed. It also gives the advisor a clear frame for drafting or reviewing a strategic expansion plan.",
       "who_when": "Firms evaluating a major expenditure, a merger, a new market entry or a significant internal change. Circulated with the board pack, ahead of the meeting at which the decision will be taken.",
@@ -66,6 +70,7 @@
       ]
     },
     {
+      "id": "org-board-pack-boardpack-agenda",
       "name": "BoardPack Agenda",
       "summary": "The full board meeting agenda, allocating specific timeframes to board-only time, conflict of interest declarations, reports, scheduled items and resolutions. Ring-fencing time for general business is what stops the meeting collapsing into an operational status update, because the scheduled strategic items keep their slot. It is distributed ahead of the meeting together with the papers directors are expected to have read.",
       "who_when": "Firms running a formal board or advisory board, at each scheduled meeting. Distributed roughly two weeks beforehand.",
@@ -79,6 +84,7 @@
       ]
     },
     {
+      "id": "org-board-pack-meeting-minutes",
       "name": "Meeting Minutes",
       "summary": "The formal record of the meeting: attendance, apologies, guests, the scribe, and the matters discussed and approved. Minutes are what legally record decisions and hold directors accountable for what they were assigned, so they are filled in during the meeting rather than reconstructed afterwards. They are circulated with the next agenda, which is what closes the loop on every action.",
       "who_when": "Every board or advisory board meeting, in any size of firm. Written live by a named scribe.",
@@ -91,6 +97,7 @@
       ]
     },
     {
+      "id": "org-board-pack-boardpack-table",
       "name": "Boardpack Table",
       "summary": "A compliance tracking sheet listing every document issued for the meeting — agendas, CEO reports, financials, major correspondence — with a checkbox for each director to confirm they have read and understood it. It prevents time being wasted in the room bringing people up to speed, and means every director debates from the same factual baseline. It also creates the evidence trail that each director engaged with the material.",
       "who_when": "Boards where directors are arriving unprepared or unread. Completed by each director before the meeting begins.",
@@ -103,6 +110,7 @@
       ]
     },
     {
+      "id": "org-board-pack-quality-decisions",
       "name": "Quality Decisions",
       "summary": "Educational material on why capable boards still make poor decisions: the Psyche Errors — optimism bias, confirmation bias, complacency — and the rules for telling causation from correlation or coincidence. It introduces the Decision Workpaper, which records the problem, the options considered, the logic behind the route chosen, the counter-arguments and the early failure indicators. The frameworks behind it — the 5 Whys, Deming's Theory of Volatility, double-blind testing — let an advisor challenge an owner's assumptions safely.",
       "who_when": "High-growth firms, firms in transition or succession, and boards prone to emotional or heavily biased decision-making. Used in the meeting itself, whenever a complex problem arises.",
@@ -118,6 +126,7 @@
       ]
     },
     {
+      "id": "org-board-pack-resolutions",
       "name": "Resolutions",
       "summary": "The legal templates that formally authorise a major financial or structural move — raising capital, paying dividends, buying a major asset, launching a new company. Signing one creates a legally binding, auditable trail of the directors' unanimous or majority vote, which is what protects the corporate veil. It is drafted at the meeting where the decision is made, not weeks afterwards.",
       "who_when": "Incorporated firms executing binding financial commitments or structural changes. Drafted and signed at the meeting itself, immediately after the decision.",
@@ -130,6 +139,7 @@
       ]
     },
     {
+      "id": "org-board-pack-white-paper-program",
       "name": "White Paper Program",
       "summary": "A programme for producing firm-branded thought leadership — white papers, technical updates and market commentary — that positions the firm as an authority in its chosen segments. It creates conversation starters for clients and referral partners, drives inbound enquiries, and develops the technical and writing capability of the advisors who produce them. The best topics sit where the firm's deepest expertise meets the client's most pressing concern.",
       "who_when": "Firms building market profile in a specific industry or service niche, or whose pipeline relies too heavily on reactive referrals. Run as an ongoing programme with a named author per paper.",
@@ -144,6 +154,7 @@
       ]
     },
     {
+      "id": "org-board-pack-deming-s-volatility-principles-in-governance",
       "name": "Deming's Volatility Principles in Governance",
       "summary": "Applies W. Edwards Deming's work on variation to the board table: most management interventions are responses to random noise rather than to a genuine signal. Common cause variation is the normal fluctuation of a system that is working properly; special cause variation comes from an identifiable event and warrants investigation. Reacting to the first — what Deming called tampering — makes the firm less stable, not more.",
       "who_when": "Boards making reactive decisions off short-term performance swings, or introducing a new metric into the reporting pack.",

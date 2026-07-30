@@ -24,6 +24,7 @@
   },
   "materials": [
     {
+      "id": "org-capacity-planner-base-capacity-job-estimation-model",
       "name": "Base Capacity & Job Estimation Model",
       "summary": "Sets the baseline assumptions — how long jobs take, who performs them, and what that costs at each staff level and charge-out rate. It calculates job costs dynamically and exposes skill deficiencies, most usefully the moment expensive senior people are absorbing junior work because the lower tier is too thin. Past known fees can be aligned against projected assumptions so the model stays grounded in what the firm actually bills.",
       "who_when": "Any professional service firm wanting to understand its true baseline capacity, validate chargeable targets, or work out why staff feel overworked when the totals say there is enough time.",
@@ -39,6 +40,7 @@
       ]
     },
     {
+      "id": "org-capacity-planner-scenario-versioning-management-model",
       "name": "Scenario Versioning & Management Model",
       "summary": "Keeps every what-if inside one file rather than a sprawl of near-identical spreadsheets. Scenarios are saved through native version history — \"Base Scenario\", \"Under a thousand clients\" — variables changed in the blue cells, and earlier versions restored to compare outcomes. Views are customisable, so a smaller partnership can hide unused partner rows and dashboards rather than scrolling past them.",
       "who_when": "Firms of varying partnership size, particularly under six partners, who want to model what-if scenarios aggressively without creating a cluster of disorganised files.",
@@ -53,6 +55,7 @@
       ]
     },
     {
+      "id": "org-capacity-planner-client-trimming-advisory-transition-model",
       "name": "Client Trimming & Advisory Transition Model",
       "summary": "Answers the oldest objection in advisory — \"we want to do it, but we don't have the time\". It models dropping a defined percentage of the lower tier: how many clients, exactly what fees are lost, and precisely how many hours come back. Those hours are then reallocated to higher-margin advisory work, which turns dropping clients from a frightening idea into arithmetic, and often ends in higher profit from fewer working hours.",
       "who_when": "Firms trapped in a high-volume compliance cycle, losing margin to senior staff doing junior work, and wanting to pivot to higher-value advisory.",

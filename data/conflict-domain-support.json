@@ -25,6 +25,7 @@
   },
   "materials": [
     {
+      "id": "conflict-psychology-detachment-and-the-cognitive-pathway",
       "name": "Conflict Psychology — Detachment and the Cognitive Pathway",
       "summary": "Explains why people dig in. Because we process new information by association with past experience, we take personal ownership of our understanding — so conflicting evidence does not feel like information, it feels like a loss of self or a moment of embarrassment. That is why people double down on a position they can see is wrong. The facilitator's job is to build a cognitive pathway that lets someone separate their emotional attachment from the belief itself.",
       "who_when": "Advisors preparing to facilitate any meeting where positions are already entrenched — before the room is booked, not once the argument has started.",
@@ -38,6 +39,7 @@
       ]
     },
     {
+      "id": "conflict-force-field-analysis-the-6-step-conflict-meeting",
       "name": "Force Field Analysis — The 6-Step Conflict Meeting",
       "summary": "The whiteboard exercise built for groups with real potential for conflict, run as a six-step meeting. It works because participants describe the situation at arm's length instead of defending themselves directly, and because the worst-case picture is drawn deliberately early to create the desire to act. Its governing rule is play the ball, not the player.",
       "who_when": "Facilitated group sessions where the parties disagree and the meeting could go badly — partnerships, families in dispute, management teams stuck on a decision.",
