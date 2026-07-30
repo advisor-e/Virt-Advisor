@@ -105,6 +105,31 @@
     would *worsen* the over-match — `strategy` goes 4 → 13 rows with shared first words
     (*Business* Targets / *Business* Dating, *Orientation* Part 1 / 2, *Profit* Levers).
 
+- <a id="content-routing-map"></a>☐ **P1 · BUILD — a visible routing map: which material reaches
+  CLIENT RECOMMENDATIONS, and which is ADVISOR-READ-ONLY.** Raised by Mike 2026-07-31, after the
+  `flat_if_then` finding on the three new logic tables: client-facing logic was about to be filed
+  in a shape the engine never walks, which would have looked complete on screen and influenced
+  nothing.
+  - **The failure class this guards.** Content filed in the wrong lane is invisible — it renders,
+    it saves, it passes tests, and it silently never reaches the AI. That has now happened three
+    times: the domain-support storage-key P1 (2026-07-30), the Course Builder session-briefing P1
+    (2026-07-30), and this near-miss. All three were found by hand. Nothing in the app shows the
+    routing, so there is no way to notice the next one.
+  - **What to build:** a GENERATED table — a script plus a committed report, never hand-maintained,
+    because a hand-written copy is wrong the day an asset moves. One row per content asset:
+    asset · type · lane (client-recommendation / advisor-learn-only / both) · the code path that
+    decides the lane · evidence.
+  - **Must cover at least:** the 42 logic trees (`nodes` = walked, its `templates` become client
+    recommendations; `flat_if_then` = Learn-mode reference, never walked —
+    [`logicTrees.js`](../server/utils/logicTrees.js) L257–261); the 29 domain-support files (they
+    brief the AI, they do NOT pick templates — §0.6 ruling); `data/templates.json`
+    (`includedInClient`); the 62 quiz banks; the distinctions cascade.
+  - **Must state its own blind spots** (no-silent-caps rule): any asset it cannot classify is
+    listed as UNKNOWN — never omitted, and never defaulted into a lane.
+  - **Open, for Mike:** whether this also becomes a visible screen in Firm Manager, or stays a
+    developer report. Recommendation: build the generated report first — it is the thing that
+    keeps the answer true — and decide on a screen once we can see the real table.
+
 - <a id="new-source-docs-2026-07-30"></a>☐ **3 new source documents added 2026-07-30 (commit `e443c52`) —
   read and planned, NOT YET TRANSCRIBED.** New master export
   `Central Frameworks/search_content_20260730041439.json` adds 2 library pages (**Speak Easy**,
