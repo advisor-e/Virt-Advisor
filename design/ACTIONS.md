@@ -1752,11 +1752,12 @@ Two honest answers on different axes — the file used to conflate them:
     as one screen. **Phase 3 remains open**: the *Adopt / Keep mine* offer when Advisor-e
     changes a step a firm has edited.
 
-  ### Session 14 (2026-07-31, laptop) — the tab caught up with its plumbing
+  ### Session 14 (2026-07-31, laptop) — the tab caught up with its plumbing, then Phase 3
 
-  One commit (`801dd4f`), pushed. Suite **3,191 → 3,208 / 201 suites**, lint 0 errors, tree
-  clean, **56 ahead / 0 behind** `master`. Session opened with `/startup`: 0 behind, nothing
-  to catch up on.
+  Two feature commits (`801dd4f`, `c4c2a6d`) plus this record, all pushed. Suite
+  **3,191 → 3,221 / 201 suites**, lint 0 errors, tree clean, **58 ahead / 0 behind** `master`.
+  Session opened with `/startup`: 0 behind, nothing to catch up on. **The staircase workstream
+  is now COMPLETE — Phases 1, 2 and 3 all in.**
 
   **The screen was undoing yesterday's fix on every press of Save.** Phase 2 changed a firm's
   staircase from a frozen copy into decisions, but the tab above it was still the whole-config
@@ -1797,10 +1798,48 @@ Two honest answers on different axes — the file used to conflate them:
   - **Tab extracted to `components/firm/FirmStaircase.vue`** alongside the four others — the Hub
     loses 232 lines and gains 6 — and its strings moved into `locales/en.json`, which the inline
     version never did (the Hub and the Distinctions tab are still hardcoded English).
-  - ⚠ **NOT PROVEN BY EYE — no one has clicked it.** The suite covers the logic, both Pug
-    templates compile, lint is clean; the button-to-route wiring is argued and tested, not
-    demonstrated in the running app. Mike's dev server is never started or restarted from here.
-    **This is the one outstanding check on the feature.**
+  - ✅ **PHASE 3 (`c4c2a6d`) — a firm's edit was hiding our later wording from them, silently
+    and permanently. Now it offers.** An edit SHIELDS a step from the platform's later text,
+    which is right until it means that firm never sees any improvement to that step again with
+    nothing on screen to say so. `Review update` opens a side-by-side compare; the firm chooses
+    **Adopt** (drop their version, take ours, resume tracking) or **Keep mine** (their wording
+    stays, the prompt clears until our NEXT change). **Adopt needed no new route** — it is the
+    existing reset, which already drops the override and now the baseline with it; only
+    Keep-mine is new, and it **409s rather than quietly succeeding** when the firm holds no
+    version to keep, because stamping a baseline for an unedited step arms a prompt that can
+    never fire. Wording RULED by Mike 2026-07-31: **"Platform"**, matching the badge already on
+    those rows, not "mentor" (there is no mentor here) and not "Advisor-e" (which would have
+    left one screen using two names).
+  - ⚠ **TWO TRAPS, EACH OF WHICH WOULD HAVE ANNOUNCED A CHANGE THAT NEVER HAPPENED.**
+    (1) An edit made before this feature has **no baseline**; reading that as drift would greet
+    every such firm with a review prompt on first load, so it is backfilled as in-sync and
+    tracked from there. (2) The signature covers **wording only, never `step`** — that number is
+    a POSITION the resolver assigns, so switching off a step above renumbers everything below
+    it, and signing it would tell a firm we had rewritten a step nobody touched. A test declines
+    two steps above an edited one and proves silence.
+  - **THE HONEST DIFFERENCE FROM DISTINCTIONS, written into the code so it is not later read as
+    a copy that drifted.** A mentor authors distinctions in the running app, so a firm sees drift
+    within minutes; **the staircase is a committed file**, so its signature changes when a release
+    ships. Same detection, release-to-release cadence. There is **deliberately no "since your last
+    visit" half**: that notice reads `updated_at`/`created_at` timestamps the staircase file does
+    not carry, and a step a firm has not edited already updates itself silently, which is the
+    wanted behaviour. Inventing timestamps to announce it would be building a feature out of data
+    that does not exist.
+  - ✅ **NEAR-MISS CLOSED — four dev-only staircase files were not gitignored** while all fifteen
+    of their siblings were: the three cascade keys from Session 13 plus the Phase 3 baselines.
+    They hold one firm's dev configuration and were one `git add .` from the repo. **The pattern
+    worth carrying: a new storage key needs a new ignore line, and it was missed twice running.**
+  - ⚠ **NOT PROVEN BY EYE — no one has clicked ANY of it, Phase 2 or Phase 3.** The suite covers
+    the logic, the Pug templates compile, lint is clean; the button-to-route wiring is argued and
+    tested, not demonstrated in the running app. Mike's dev server is never started or restarted
+    from here. **This is the one outstanding check on the feature** — Firm Manager Hub → Advisory
+    Staircase: edit a step, switch one off, add one, and confirm the switched-off group brings it
+    back.
+  - **WHERE THIS LEAVES THE ONE-MECHANISM RULING.** The staircase is the **first block on it
+    whole** — resolver, storage, routes, screen and the update offer. Still on their own
+    per-feature arrangements: **Domain Support, Logic Tables, Quizzes, the coaching reference**
+    (Currency stays out by design — a single setting is not a list of rows). The middle
+    management tiers still land ONCE, in `resolveInheritedRows.js`, per the ruled sequencing.
   - ☐ **FOUND, NOT FIXED (needs its own approval).** `firmDistinctions` falls back to its dev
     JSON stand-ins on **any** store failure, including in production; `firmStaircase` was
     deliberately tightened in Session 13 to rethrow, so an outage cannot be dressed up as "this
