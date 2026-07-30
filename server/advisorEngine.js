@@ -39,9 +39,10 @@ const clientStore = require('../server/utils/clientStore')
 const { listForClient } = require('../server/utils/caseStore')
 const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistoryScoringInputs } = require('../server/utils/priorEngagement')
 
+const { loadBlendedStaircase } = require('../server/utils/staircaseConfig')
+
 // Reference data
 const DOMAINS = require('../data/domains.json')
-const BASE_STAIRCASE = require('../data/advisory-staircase.json')
 
 // The per-domain diagnostic "question battery" — REMOVED from the intake (memory
 // design-conversational-intake). These accreted on top of the locked 14 and turned
@@ -314,12 +315,6 @@ let _loadFirmConfig = null
 function loadFirmConfig (...args) {
   if (!_loadFirmConfig) { _loadFirmConfig = require('../server/utils/firmOverlay').loadFirmConfig }
   return _loadFirmConfig(...args)
-}
-
-let _deepMerge = null
-function deepMerge (...args) {
-  if (!_deepMerge) { _deepMerge = require('../server/utils/firmOverlay').deepMerge }
-  return _deepMerge(...args)
 }
 
 // ── Startup checks ──
@@ -1445,16 +1440,13 @@ async function handleQuery (rawBody, res, identity) {
     ? await loadFirmCoaching(firmId).catch(() => null)
     : null
 
-  // Load the firm's Advisory Staircase override and blend it over the platform
-  // base. A firm that has not customised it falls through to the base unchanged,
-  // so behaviour is identical to before for those firms. The blended config is
-  // handed to buildCaseState so a firm's edits change the complexity ceiling.
-  const firmStaircaseOverride = firmId
-    ? await loadFirmConfig(firmId, 'advisory-staircase').catch(() => null)
-    : null
-  const staircaseConfig = firmStaircaseOverride
-    ? deepMerge(BASE_STAIRCASE, firmStaircaseOverride)
-    : BASE_STAIRCASE
+  // The firm's Advisory Staircase — platform base with the firm's override blended
+  // over it. A firm that has not customised it falls through to the base unchanged.
+  // The blend lives in utils/staircaseConfig so that GET /api/advisor/staircase —
+  // which gives the advisor's on-screen selector its wording — reads the SAME one.
+  // While it was inline here, the ceiling honoured a firm's edits and the selector
+  // did not, so a firm's renamed steps reached nobody (fixed 2026-07-31).
+  const staircaseConfig = await loadBlendedStaircase(firmId, loadFirmConfig)
 
   // Firm content overlays (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
   // the firm's domain-support and logic-tree edits, loaded once per request

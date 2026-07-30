@@ -828,8 +828,8 @@ import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
+import staircaseMixin from '~/mixins/staircaseMixin'
 import growthFundamentals from '~/data/growth-fundamentals.json'
-import advisoryStaircase from '~/data/advisory-staircase.json'
 import finMgtTable from '~/data/fin-mgt-table.json'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
@@ -869,7 +869,7 @@ const PRIMARY_ISSUES = {
 
 export default {
   name: 'VirtualAdvisor',
-  mixins: [speechMixin, localeMixin, caseMixin],
+  mixins: [speechMixin, localeMixin, caseMixin, staircaseMixin],
 
   props: {
     orgTemplateIds: {
@@ -969,14 +969,10 @@ export default {
       // selector uses name + problem; the file's extra solution/template fields
       // ride along, unused here). Mirrors growthStages / staircaseSteps below.
       finMgtThemes: finMgtTable.themes,
-      // Single source of truth — steps read from data/advisory-staircase.json.
-      // Label keeps the "Step N:" prefix (the server derives the step number from it);
-      // description uses the data file's selectorDescription wording.
-      staircaseSteps: advisoryStaircase.steps.map(s => ({
-        ...s,
-        name: `Step ${s.step}: ${s.name}`,
-        description: s.selectorDescription
-      })),
+      // `staircaseSteps` is NOT declared here — it comes from staircaseMixin, which
+      // starts from data/advisory-staircase.json and then swaps in the firm's own
+      // wording from GET /api/advisor/staircase. A copy here would win the Vue merge
+      // and silently restore the defect: a firm's renamed steps reaching nobody.
       // Single source of truth — the on-screen selector reads name + description
       // from data/growth-fundamentals.json (the full framework rides along, unused here).
       growthStages: growthFundamentals.stages

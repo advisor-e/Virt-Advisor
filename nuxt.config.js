@@ -71,6 +71,11 @@ export default {
 
   // Proxy /api/advisor/* to the Restify backend
   serverMiddleware: [
+    // MUST stay above '/api/advisor'. That entry is the SSE engine proxy, which
+    // forwards only POSTs to /query and calls next() for anything else — so a plain
+    // GET /api/advisor/staircase would fall through every handler to a Nuxt 404,
+    // and the firm's staircase wording would never reach the selector.
+    { path: '/api/advisor/staircase', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/advisor', handler: '~/server-middleware/advisor.js' },
     { path: '/api/translate', handler: '~/server-middleware/translate.js' },
     { path: '/api/course', handler: '~/server-middleware/course.js' },

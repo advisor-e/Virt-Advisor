@@ -100,6 +100,7 @@ const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
+const staircaseRoute = require('./routes/staircase')
 const { firmAuth, requireManagerRole, requireMentorRole } = require('./middleware/firmAuth')
 // Advisor + course engines — migrated from Nuxt server-middleware per the
 // coding-team Req 7 ruling (OpenAI logic + key backend-only). Connect-style
@@ -160,6 +161,10 @@ server.opts('/*', (req, res, next) => { res.send(204); return next() })
 server.get('/api/health', healthRoute.get)
 server.post('/api/translate/locale', translateRoute.post)
 server.post('/api/advisor/query', firmAuth, advisorEngine)
+// The firm's Advisory Staircase wording for the in-session selector. READ open to
+// any firm user (every advisor is asked the staircase question); the WRITE lives on
+// the manager-only /api/firm-manager/staircase. Same blend the engine uses.
+server.get('/api/advisor/staircase', firmAuth, staircaseRoute.get)
 server.post('/api/course', firmAuth, courseEngine)
 server.post('/api/report/working-capital-cycle', reportRoute.workingCapitalCycle)
 server.post('/api/report/debtor-drag', reportRoute.debtorDrag)
