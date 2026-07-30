@@ -553,6 +553,52 @@
       session content*), and a result saved BEFORE today (says nothing rather than guessing).
       Advisor-visible on Quiz Review only — the in-quiz result card is left uncluttered.
     - 11 new tests (5 backend + 6 component); full suite **1,924 green**, lint 0 errors.
+  - ✅ **Governance Quiz INGESTED 2026-07-30 (approved by Mike, this branch). `79f72f7`; full suite
+    1,980 green / 133 suites, lint 0 errors.** Its **5 sections / 50 questions** — banks **58 → 62**,
+    questions **610 → 652**. Data only: one file (`data/course-quizzes.json`) plus the source PDF;
+    no code touched, so the AI path is byte-identical.
+    - **Four sections were exact template titles and became new banks** — *Board Member Conduct*,
+      *Draft White Papers*, *Governance Introduction*, *Quality Decisions*, 10 entries each, all in
+      **Do the Job / Governance Tools** (an allowed quizzable area, so they reach the Quizzes editor).
+    - **🔑 The fifth section, "Board 6 Hats", is NOT a template title — and could not become its own
+      bank.** The library holds exactly one 6 Hats page (`id-5038284749`, General Tools), whose bank
+      already carried 10 questions from `General Section Quiz.pdf`. Filing a second bank would (a)
+      fail [`quizBankKeys.test.js`](../tests/unit/quizBankKeys.test.js), which enforces exact titles,
+      and (b) even past that gate, be **silently unused** — both keys canonicalise to `6 Hats` and
+      `findQuizBank` keeps only the first. So the SKIP-DUPLICATES ruling (2026-07-20) applied.
+    - **Skip list, listed not silent — 8 of 10 skipped, 2 merged as ids 11–12.** Kept: the **four
+      domains of intelligence** (absent), and the **Black Hat triggers** — the bank carried Red and
+      Yellow but covered the Black Hat **nowhere**, so an advisor could pass a 6 Hats quiz never
+      meeting the hat that forces risk assessment. That one restates Yellow and was flagged as a
+      judgement call before Mike approved it. Skipped: cross-purposes, Sperber, De Bono's 10-fold,
+      Purpose vs Area Focus, the Double Blind, the hat-order rule, (Problem, Because, Results), the
+      two aims of parallel thinking.
+    - **Provenance:** entries 11–12 carry their own `source`/`transcribed`, because the bank header
+      says `General Section Quiz.pdf` and that is no longer true of those two. Extra fields do not
+      disturb the shape the locking test checks. Flagged to Mike as an addition beyond the proposal.
+    - **One transcription deviation, Mike-approved:** Q47 arrives from the PDF with an italic
+      artefact (*"…65 finance companies 31were investigated 24 were charged"*); written as
+      "Out of 65 finance companies, 31 were investigated and 24 were charged." Punctuation only.
+    - **Verified by running the real lookup, not by reading code:** `findQuizBank` reaches all five
+      banks, and **"Board 6 Hats" → `6 Hats`** through the CB-34 tolerant pass. `quiz-lab`:
+      62 banks / 652 questions / **0 orphans / 0 misbound / 0 grader faults**; new coverage row
+      *Do the Job / Governance Tools 8 pages, 4 with a bank*.
+  - ☐ **P3 · DOC — [`QUIZ-LAB-REPORT.md`](QUIZ-LAB-REPORT.md) is now STALE** (says 58 banks / 610
+    questions; reality is 62 / 652). **Do NOT regenerate it on a machine with no `OPENAI_API_KEY`:**
+    an AI-OFF run silently DROPS the report's *"Generated quizzes (AI mode)"* section — ~600 lines of
+    real AI-written examples — leaving a weaker document that still looks complete. That happened
+    2026-07-30 and was restored from git rather than committed (same trap the Scenario Lab report
+    recorded 2026-07-23). Re-baseline only where a key exists.
+    - ⚠ **`scripts/quiz-lab.js` ignores unknown flags** — `--help` does not print usage, it RUNS the
+      lab and **overwrites the committed report**. That is how the above happened. Never invoke it
+      casually; it is a write, not a read.
+  - ☑ **LIVE END-TO-END CONFIRMED BY MIKE 2026-07-30 — the advisor AND firm-manager halves.** In his
+    words: he ran a quiz, got the answers, saw the pass/fail score, **went into My Progress as an
+    advisor and saw it recorded, then went in at firm-manager level and saw it recorded there.**
+    This is the reporting half that the 2026-07-28 live-eyeball (above, ~L402) did not cover.
+    **⚠ The laptop branch's own session-4 note still reads "STILL NOT PROVEN BY EYE" for that
+    screen — that note is STALE and Mike's account supersedes it.** Recorded here because it cannot
+    be corrected on the laptop's branch from this machine; flagged in the handover instead.
   - ➡ **MOVED TO THE LAPTOP 2026-07-29 (Mike's call) — the whole advisor-progress section
     now belongs to branch `feat/advisor-progress`**, cut from `origin/master` and pushed;
     its briefing is [`ADVISOR-PROGRESS-HANDOVER.md`](ADVISOR-PROGRESS-HANDOVER.md) (the two
@@ -704,9 +750,38 @@
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"
     instead of a bare `0`, so progress is legible at a glance (only EOY has content so far).
-  - ☐ **Still open:** (1) **Job 2** — fold each material's genuine how-to Q&A into the steps,
-    cross-checked against the 10-question quiz banks; (2) per-material origin tags are
-    domain-level until the §2.4 compare-screen work.
+  - ☐ **Still open:** (1) **Job 2 — SCOPE CORRECTED 2026-07-30, read this before starting it;**
+    (2) per-material origin tags are domain-level until the §2.4 compare-screen work.
+  - 🔴 **JOB 2 IS NOT A 29-DOMAIN JOB — the earlier wording was written 2026-07-27 and is STALE.**
+    It read as "fold each material's genuine how-to Q&A into the steps" across the board. But the
+    **2026-07-29 migrations of the remaining 28 domains already folded that depth in as they went** —
+    proven by reading a late-migrated file: `governance-domain-support.json` step 7 carries the
+    *Waterline* and the five Team Functioning Levels, step 4 defines *Tampering*, step 5 names the
+    *Assassin*. That is Q&A-depth content already living in the steps. **The genuine gap is EOY
+    ONLY** — the first domain, migrated 2026-07-24 under the explicit "Job 1: Q&A untouched" rule,
+    before the richer method existed. Corrected because this line sent a session down that blind
+    alley on 2026-07-30; left standing it would do so again.
+    - **EOY analysis already done (read-only, 2026-07-30) — 21 Q&As classified, nothing written.**
+      **6 genuine folds** (all Mike's own words, absent from the steps): the *"faster you go, the
+      bigger the mess"* punchline (Agenda step 4); the KPI test question *"…if we knew the answer to
+      X, how would that help us in our future decision making..?"* (Basic Targets step 5); the
+      Farmer's-ladder endpoints *Labourer (1) → Vertical/Consortium Owner (8)* (Rural step 3); the
+      four Strategic farm-expense examples (Rural step 5); the quiet-persona handling *"fill up the
+      'theatre' with energy"* and the **'By the Way' script** for a rude client (Scripts step 2).
+      **13 drops** — 9 already in the steps near-verbatim, and **4 test-style ones already covered by
+      the `E.O.Y Meeting` bank** (entries 8, 9, 6, 7), which is exactly what the cross-check is for:
+      signed-off quiz material must not be duplicated into the steps. **2 for Mike** (teaching
+      content, not delivery): the Quick-ratio definition, and the Working Capital Cycle KPI elements.
+      Not started — needs its own approval, and it is a small tidy-up, not a programme.
+    - ☐ **P3 · CONTENT (Mike) — two defects in `Domain Support/EOY Support.pdf` itself.** (1) The
+      *Basic Targets* Q&A ends with an **orphan numbered item "6."** — a question begun and never
+      written. (2) *Rural* Q&A 5 cites *"the standard **6-step** Accounts Review"*, but no material
+      in the document describes a 6-step accounts review; the steps carry a single accounts-review
+      step. Either a detail that never made it across, or loose wording. His source, his call.
+    - **Also noted:** *"Tampering"* is defined nowhere in the EOY steps or the `E.O.Y Meeting` bank,
+      though Agenda step 4 asks advisors to classify it. It **is** defined in the new
+      `Quality Decisions` bank (entry 4) and in the governance material — different templates, so
+      legitimately separate under the cross-bank rule, not a gap to close by copying.
   - **The point (Mike's words):** so educators can have a real impact on the AI's
     recommendations and include their own material easily. This is the firm-authoring
     story reaching the engine's decision inputs, not another CRUD screen.
