@@ -159,8 +159,30 @@
       hypothetical (five titles were retitled upstream the week before). Proven byte-identical
       to the AI: all three prompt surfaces × 29 domains, same SHA-256 before and after.
       `tests/unit/domainSupportRowIds.test.js` locks all 181 and was **proven to fail** before
-      being trusted. **The other five blocks will each need the same check — a row-level stable
-      id — before they can adopt the mechanism. Do not assume they have one.**
+      being trusted.
+    - ✅ **ROW-ID READINESS OF THE OTHER FIVE BLOCKS — CHECKED, NOT ASSUMED (2026-07-30).** The
+      mechanism cannot be adopted by a block whose rows have no stable identity. Read from the
+      data, not inferred:
+
+      | Block | Row identity today | Verdict |
+      |---|---|---|
+      | Advisory Distinctions | `pd-N` stable ids | ✅ the reference implementation |
+      | Domain Support | 181 ids added today (`79de6d9`) | ✅ done |
+      | **Logic Tables** | `nodes` carry `id` — **356 nodes, 0 missing, unique within tree** (`qf_initial`) | ✅ **already ready — no work needed** |
+      | **Quizzes** | questions carry `id` (0 missing) — but a **bank** is keyed by template **title** | ⚠ ready at question level only |
+      | **Advisory Staircase** | `steps` keyed by `step` — a **position number** | ⚠ no stable id |
+      | **Coaching reference** | 15 rows keyed by `template` — a **title** | ❌ the same defect Domain Support had |
+
+      - 🔴 **QUIZZES NEEDS A MIKE RULING, NOT A PATCH — title-as-identity is DELIBERATE there.**
+        `quizBankKeys.test.js` **fails any bank key that is not an exact template title**, and PR
+        #27 turned on exactly this: `"Board 6 Hats"` could not become its own bank because past
+        that gate both keys canonicalise to `6 Hats` and `findQuizBank` keeps only the first. So
+        a bank's identity is its title *on purpose*, locked by a test someone wrote knowingly.
+        Adding a bank id collides with that decision. **Do not "fix" it unilaterally.**
+      - **Advisory Staircase: position is not identity.** Insert a step and `step: 3` silently
+        means a different row — the same silent breakage as a retitle, arriving by another route.
+      - **Coaching reference is the cheap one** — 15 rows, the identical shape of fix Domain
+        Support just had, and the obvious next step if one is wanted.
   - ☐ **NEW 2026-07-30 — THIS APP'S OWN REPORTING HAS NO ROLL-UP ABOVE THE FIRM, and it is
     listed as a job nowhere.** Mike, same session: reporting cascades **up** — adviser actions
     summarise to the firm manager, then group, global, mentor; *"every tier is the same screen,
