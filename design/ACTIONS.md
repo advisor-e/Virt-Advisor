@@ -23,6 +23,52 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="collaborate-merge"></a>☐ **NEW WORKSTREAM RULED 2026-07-30 (Mike) — merge the Advisor
+  Collaborate app into this repo and surface its manager console as a Firm Manager Hub tab.**
+  Full plan: [`COLLABORATE-MERGE-PLAN.md`](COLLABORATE-MERGE-PLAN.md). Collaborate is a
+  **separate repository** (`advisor-e/Colab`, laptop path `C:\Users\mb\Projects\Advisor
+  Collaborate`) — 38 suites / 431 tests / 99.72% line coverage, same locked stack (Nuxt 2.14.0,
+  Restify 9.1.0, Node 14.15, Buefy, vue-i18n 8), same `config/integration.js → AUTH` login seam.
+  Mike's framing: Virt Advisor is the container for **three** features — performance reports,
+  the AI section, and Collaborate — pulled through by the master team as one repo.
+  - **Scope finding:** the manager page **cannot travel alone** — three of its six endpoints are
+    group routes, and it reads advisers, approvals, the activity feed and the audit log. The job
+    is *merge the app, then surface its page as a tab*, not *move one component*.
+  - 🔴 **RULED — the 5-level cascade is built in PROPERLY, now; firm-as-top is not carried
+    forward.** Mentor → global group manager → group manager → firm manager → adviser
+    (pass-through) → client; documents clone DOWN, reporting rolls UP, every tier is the same
+    screen re-scoped. *Curator and coach do not clone documents and sit outside the chain.*
+    **The half-measure of confining tiers to one tab, or logging the seams for the master team,
+    was offered, rejected, and must never be re-proposed** (one-directional rule).
+  - **Why now is the cheapest it will ever be: there is NO DATA TO MIGRATE.** MySQL has never
+    been provisioned, so no override row exists anywhere. Re-keying
+    `firm_framework_versions` from `(firm_id, config_key)` to `(scope_level, scope_id,
+    config_key)` is a schema edit today and a live migration of a firm's authored content later.
+  - **The truncation is concentrated — ~6 functions + 1 table**, read not guessed: the 5
+    `firmOverlay.js` functions, `firmContent.js`'s loader, `mergeEntry` (2-arg merge → fold over
+    the chain), `firmAuth`, and the table above. `deepMerge` already generalises.
+  - **Collaborate has ALREADY built the self-similar tier console** — one component for all four
+    manager tiers, production serving every tier from one role-gated page, roll-up tree for
+    higher tiers, per-tier stat tiles, scope re-derived server-side each request. No stubs needed
+    there; the room to make is in **this** repo's tabs.
+  - ✅ **View-as ruled NOT a significant risk (Mike)** — the adviser generates and submits their
+    own CPD report, so they are the check. Offered and still open: stamp each claim with who was
+    signed in, so a stray entry can be explained rather than argued about.
+  - **Acceptance test for the storage change: a firm-level user's behaviour must be
+    byte-identical.** The existing tabs' tests are the safety net; any passing a bare `firmId`
+    around must be READ, not just made to compile.
+  - ☐ **Slice 1 not started** — needs its own approval. Nothing has been built.
+- <a id="cpd-pdf-export"></a>☐ **NEW (Mike, 2026-07-30) — the CPD record must be exportable as a
+  PDF**, because the adviser sends it to their accounting society. **Its own task, NOT part of
+  the Collaborate merge.** Groundwork already checked: this app needs **no PDF dependency** —
+  six screens (Business Performance, Debtor Drag, Margin Breakeven, EBITDA-DCF, Quick Position,
+  Course Builder) already export via `window.print()` behind a Download button plus an
+  `@media print` stylesheet, and `MarginBreakevenReport.vue` names its method `downloadPdf()`.
+  Following that pattern avoids a real PDF library, which would be a fight on locked Node 14.15
+  (most need Node 18+), and satisfies memory `mike-scope-instructions` — match the section,
+  don't invent a new look. ⚠ **Honest limit:** the browser makes the PDF and the adviser saves it, so
+  there is no server-side copy of what was sent and layout depends on their browser. If the
+  society ever needs a document the firm can vouch for independently, that is a much bigger job.
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
   firm-editable.** ✅ **PLANNED 2026-07-23 — [`FIRM-EDITABLE-TABLES-PLAN.md`](FIRM-EDITABLE-TABLES-PLAN.md)** (cascade + override model agreed with Mike; Phase 0 is the next task).
