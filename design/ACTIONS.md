@@ -112,6 +112,12 @@
       files (`firmManager.js`, `components/firm/*`, `data/*-domain-support.json`) are untouched;
       slice 1's only shared-file edit is `.gitignore`, which the desktop has not touched.
       **Slices 2–3 remain the collision — whoever starts slice 2 says so first.**
+    - ⚠ **SLICE 2 GAINED A NEW READER 2026-07-31 (`cb6d43c`) — `server/utils/staircaseConfig.js`
+      reads `firm_framework_versions` via `loadFirmConfig(firmId, 'advisory-staircase')`, so it
+      is one of the surfaces the `(scope_level, scope_id, config_key)` re-key must make
+      level-aware.** It is small — a single call inside one function — but it is a *new* one,
+      added after the collision list above was written, and it has **two** callers (the engine's
+      complexity ceiling and `GET /api/advisor/staircase`), which is the whole point of it.
   - 🔴 **RULED 2026-07-30 (Mike, laptop) — THE ADVISORY DISTINCTIONS MECHANISM IS THE SINGLE
     FIRM-EDITABLE MECHANISM EVERYWHERE.** *"Domain support, logic tables, quizzes, everything
     that's at firm manager level should be following the same mechanism pattern."* This
@@ -179,7 +185,7 @@
       | Domain Support | 181 ids added today (`79de6d9`) | ✅ done |
       | **Logic Tables** | **381 rows** carry `id` — 356 graph `nodes` + **25 `flat_if_then` `branches` the first count missed** — 0 missing, unique within tree | ✅ ready, and **now ENFORCED** (`0a2534d`) |
       | **Quizzes** | questions carry `id` (0 missing) — but a **bank** is keyed by template **title** | ⚠ ready at question level only |
-      | **Advisory Staircase** | `steps` keyed by `step` — a **position number** | ⚠ no stable id |
+      | **Advisory Staircase** | 5 `as-` ids added 2026-07-31 (`221e18c`) | ✅ **done — the last of the four** |
       | **Coaching reference** | 15 `cr-` ids added 2026-07-31 (`51b77a5`) | ✅ **done** |
 
       - 🔴 **QUIZZES NEEDS A MIKE RULING, NOT A PATCH — title-as-identity is DELIBERATE there.**
@@ -188,13 +194,34 @@
         that gate both keys canonicalise to `6 Hats` and `findQuizBank` keeps only the first. So
         a bank's identity is its title *on purpose*, locked by a test someone wrote knowingly.
         Adding a bank id collides with that decision. **Do not "fix" it unilaterally.**
-      - **Advisory Staircase: position is not identity.** Insert a step and `step: 3` silently
-        means a different row — the same silent breakage as a retitle, arriving by another route.
       - ✅ **Coaching reference — DONE 2026-07-31 (`51b77a5`), see step 2 above.**
-      - ⚠ **STILL OPEN, both unchanged: Advisory Staircase and Quizzes.** The Staircase keys on
-        a position number, so inserting a step silently redefines every row below it — the same
-        fault, unfixed. Quizzes is **not a defect to patch**: title-as-identity is deliberate
-        there and locked by `quizBankKeys.test.js`. **It needs Mike's ruling, not a fix.**
+      - ✅ **ADVISORY STAIRCASE — DONE 2026-07-31 (`221e18c`). THE LAST OF THE FOUR; the family
+        is closed** (domain support · coaching reference · firm-added logic rows · staircase).
+        5 `as-` ids + `advisoryStaircaseRowIds.test.js`, which also **refuses an id that is
+        merely a position wearing a new hat** (`3`, `step-3`, `as-3`) and locks the row count.
+        - ⚠ **BE HONEST ABOUT WHAT THE IDS DO TODAY: nothing at runtime.** The advisor's answer
+          travels as chat text ("Step 3: Interpretation — …") and carries no id, so the ids
+          exist for the cascade to hang a decline/override off, exactly as `pd-N` does. Wiring
+          an id through the answer is cascade work, not a loose end to tidy.
+        - **The safety gain came from `resolveStaircaseStep`, not the ids** — the engine used to
+          take the position number out of the answer and trust it, so a reordered staircase
+          silently re-pointed every stored answer at a different ceiling. It now resolves by
+          **name first, position second**, so a step that moves but keeps its name still
+          resolves correctly. A hardcoded `/Step ([1-5])/` went with it: a sixth step had been
+          silently unreadable.
+        - **Known limit, stated in-code:** a step both *renamed and moved* still resolves by
+          position. No rule can recover it from that text — only an id travelling with the
+          answer can, which is the cascade.
+      - ⚠ **STILL OPEN: Quizzes, unchanged.** **Not a defect to patch** — title-as-identity is
+        deliberate there and locked by `quizBankKeys.test.js`. **It needs Mike's ruling, not a
+        fix.** It is now the only one of the six blocks not ready.
+      - ☐ **NEW 2026-07-31 — A FIRM'S STAIRCASE OVERRIDE REPLACES THE WHOLE `steps` ARRAY, so a
+        firm that has customised it would never see a step the platform later adds.** `deepMerge`
+        replaces arrays wholesale and the save route stores a full copy. **Deliberately NOT fixed
+        on the spot:** the correct answer is the decline / override / add-your-own mechanism this
+        very section is about, so it belongs **with** that work rather than bolted on ahead of it
+        in a form that would then be rewritten. Not urgent — it can only bite when Advisor-e
+        changes the platform staircase. *Source:* staircase build 2026-07-31.
   - ☐ **NEW 2026-07-30 — THIS APP'S OWN REPORTING HAS NO ROLL-UP ABOVE THE FIRM, and it is
     listed as a job nowhere.** Mike, same session: reporting cascades **up** — adviser actions
     summarise to the firm manager, then group, global, mentor; *"every tier is the same screen,
@@ -1580,6 +1607,69 @@ Two honest answers on different axes — the file used to conflate them:
     touched at all. Merge before starting the Collaborate storage work, because that function
     is one the rewrite touches. **The slice 2/3 warning stands unchanged: whoever starts the
     storage re-key says so first.**
+
+  ### Session 12 (2026-07-31, laptop) — the Advisory Staircase, both halves
+
+  Two commits (`cb6d43c`, `221e18c`) plus this note, all pushed. Suite **3,076 → 3,129 / 197
+  suites**, lint 0 errors, tree clean, **50 ahead / 0 behind** `master`. Session opened with
+  `/startup`: 0 behind, nothing to catch up on.
+
+  - ✅ **A firm's renamed staircase steps reached the ENGINE but never the ADVISOR** (`cb6d43c`).
+    The override set the complexity ceiling, so the two ceiling dropdowns on the Firm Manager
+    tab worked — but `VirtualAdvisor.vue` built the selector's options from
+    `data/advisory-staircase.json` **baked into the bundle at build time**, so **Step name** and
+    **What this step looks like**, the two largest fields, were saved, versioned and restorable
+    while reaching nobody. The tab rendered as working. Nothing was broken for a real firm: no
+    override exists anywhere, in MySQL or the dev file. **The rule it was breaking was already
+    written down** — `resolveDistinctions.js` says in its own header that the engine and the Firm
+    Manager UI read one resolver "so the advisor session and the management screen can never
+    disagree". Fix: `utils/staircaseConfig.js` owns the blend; the engine and the new
+    `GET /api/advisor/staircase` both read it. **Worth a sweep: what other config has two
+    readers?**
+  - 🔴 **THE TRAP OF THE SESSION — 18 passing route tests sat behind a request that could not
+    reach the route.** Every test called the handler directly, so all of them passed whether or
+    not the browser could get there. It could not: `/api/advisor` is mounted to the **SSE engine
+    proxy**, which forwards only POSTs to `/query` and `next()`s everything else, so a real
+    `GET /api/advisor/staircase` fell through every handler to a **Nuxt 404** — with a fully
+    green suite behind it. **A green suite proves the handler, not the wiring.** Fixed by
+    registering the specific path to `apiProxy.js` **above** `/api/advisor` in `nuxt.config.js`,
+    and there is now a test that fails if anyone reorders those lines. **Standing check: any new
+    frontend→backend path means reading `nuxt.config.js` serverMiddleware, not just the route
+    list.**
+  - ⚠ **The dev stand-in nearly made the whole fix look broken.** With MySQL unprovisioned a
+    firm-manager save lands in `data/dev-firm-staircase.json`; a read that only knew about MySQL
+    would have reported "no override" and served Advisor-e's wording — an invisible failure in
+    the one environment the feature can currently be tried in. Raised before it shipped and the
+    fallback put in the **shared** blend, so the complexity ceiling honours it too. **Copy this
+    whenever adding a firm-config read.**
+  - ✅ **The staircase's position-as-identity closed — the LAST of the four** (`221e18c`).
+    Substance in [§Collaborate](#collaborate-merge) above, including the honest note that the
+    ids do nothing at runtime and the safety came from `resolveStaircaseStep`.
+  - ⚠ **I DEVIATED FROM THE PLAN MIKE APPROVED, AND SAID SO AT THE TIME.** The proposal said the
+    engine would **refuse** to resolve when the name contradicted the position, falling back to
+    the default ceiling. Building it revealed that would degrade every returning client of every
+    firm that had **renamed** a step — the common event, and the entire point of the tab fixed
+    that same morning. Built name-first-then-position instead, which is never worse than the old
+    behaviour. **When analysis shows the approved detail is the worse one, build the better one
+    and report the deviation plainly — do not ship a known-worse rule because it was described
+    first.**
+  - ☐ **FOUND, NOT FIXED — `staircaseStep`, `growthStage` and `finMgtTheme` are ALWAYS saved
+    null on a case record.** `submitStaircaseStep` clears `selectedStaircaseStep`
+    (`VirtualAdvisor.vue` L1719) before `createCase` reads it (L1253); the same holds for the
+    other two selectors. **First judged more serious than it is, then corrected by checking:
+    this is NOT data loss.** The live remember-this-client feature reads the staircase position
+    out of `decisionTrace.situation` (`extractSavedClientFactsFromCases`), never the column, and
+    `lastStaircaseStep` / `lastGrowthStage` in `priorEngagement.js` are computed and read by
+    nothing. So it is dead wiring plus **one test (`priorEngagement.test.js`) asserting a shape
+    reality never produces** — a small source of false confidence, not a live fault. *Source:*
+    staircase investigation 2026-07-31.
+  - **Mike asked mid-session whether the case-review promote/withdraw and the Distinctions
+    clone-down patterns were being followed across the Hub.** The straight answer was **no** —
+    this session was one hop (firm → advisor display), not a hierarchy, so neither applied.
+    They remain the two reference implementations to **read** before the cascade work rather
+    than reinvent: Distinctions for the downward direction (decline / override / add-own, id
+    pinned), case reviews for the upward one (promote only on an explicit approval, content
+    read back from the database rather than trusted from the browser, withdraw to reverse).
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
