@@ -5,6 +5,11 @@ const DEV_DISTINCTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-disti
 const DEV_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-declines.json')
 const DEV_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-overrides.json')
 const DEV_STAIRCASE_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase.json')
+// The staircase's three cascade keys, added 2026-07-31 when it joined the one
+// firm-editable mechanism. Same TEST-ONLY convention as the distinction files above.
+const DEV_STAIRCASE_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-declines.json')
+const DEV_STAIRCASE_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-overrides.json')
+const DEV_STAIRCASE_OWN_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-own.json')
 const DEV_TEMPLATES_FILE = path.resolve(__dirname, '../../data/dev-firm-templates.json')
 const DEV_LASTSEEN_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-lastseen.json')
 const DEV_OVERRIDE_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-override-baselines.json')
@@ -1350,12 +1355,22 @@ async function _saveStaircaseOverride (firmId, cfg, savedBy) {
 }
 
 // Returns an error string if the override is invalid, or null if it is well-formed.
+//
+// `steps` became OPTIONAL on 2026-07-31. Per-step wording is no longer saved as a
+// whole copy — it goes through the cascade routes below, one decision at a time — so
+// this route's remaining job is the ceiling settings. A body that still carries steps
+// is validated exactly as before, which is why no existing caller changed.
 function _validateStaircase (cfg) {
   if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) {
     return 'staircase must be a non-array JSON object'
   }
-  if (!Array.isArray(cfg.steps) || cfg.steps.length === 0) {
+  if (cfg.steps !== undefined && (!Array.isArray(cfg.steps) || cfg.steps.length === 0)) {
     return 'steps must be a non-empty array'
+  }
+  if (cfg.steps === undefined) {
+    return STAIRCASE_CEILINGS.has(cfg.defaultCeiling)
+      ? null
+      : `defaultCeiling must be one of: ${[...STAIRCASE_CEILINGS].join(', ')}`
   }
   const allowed = [...STAIRCASE_CEILINGS].join(', ')
   const seen = new Set()
@@ -1383,10 +1398,290 @@ function _validateStaircase (cfg) {
   return null
 }
 
+// ── Staircase cascade (the one firm-editable mechanism, 2026-07-31) ────────────
+// Switch a platform step off, edit one, or add your own — each a single decision
+// keyed to a step id, stored in its own key. Mirrors the distinction routes above,
+// deliberately: same shapes, same verbs, same error codes, so a reader who knows one
+// knows the other.
+
+const {
+  loadFirmStaircaseState, CONFIG_KEYS: STAIRCASE_KEYS, EDITABLE_STEP_FIELDS, FIRM_STEP_PREFIX
+} = require('../utils/firmStaircase')
+const { loadBlendedStaircase } = require('../utils/staircaseConfig')
+
+const STAIRCASE_DEV_FILES = {
+  [STAIRCASE_KEYS.declines]: DEV_STAIRCASE_DECLINES_FILE,
+  [STAIRCASE_KEYS.overrides]: DEV_STAIRCASE_OVERRIDES_FILE,
+  [STAIRCASE_KEYS.own]: DEV_STAIRCASE_OWN_FILE
+}
+
+const PLATFORM_STEP_IDS = new Set(BASE_STAIRCASE.steps.map(s => s.id))
+
+function _devReadStaircasePart (file, firmId, fallback) {
+  try {
+    const all = JSON.parse(fs.readFileSync(file, 'utf8'))
+    return Object.prototype.hasOwnProperty.call(all, firmId) ? all[firmId] : fallback
+  } catch { return fallback }
+}
+
+function _devWriteStaircasePart (file, firmId, value) {
+  let all = {}
+  try { all = JSON.parse(fs.readFileSync(file, 'utf8')) } catch {}
+  all[firmId] = value
+  fs.writeFileSync(file, JSON.stringify(all, null, 2))
+}
+
+async function _loadStaircasePart (firmId, key, fallback) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, key)
+    return (stored === null || stored === undefined) ? fallback : stored
+  } catch (err) {
+    if (IS_DEV) { return _devReadStaircasePart(STAIRCASE_DEV_FILES[key], firmId, fallback) }
+    throw err
+  }
+}
+
+async function _saveStaircasePart (firmId, key, value, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, key, value, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteStaircasePart(STAIRCASE_DEV_FILES[key], firmId, value); return }
+    throw err
+  }
+}
+
+/**
+ * Accept only the fields a firm may edit on a step, in the types they must be.
+ *
+ * `id` and `step` are absent from EDITABLE_STEP_FIELDS on purpose: the id is identity
+ * and the number is a position the resolver assigns. Neither is the firm's to set, and
+ * letting either through the body would let a firm re-point an edit at another step.
+ *
+ * @param {Object} body
+ * @returns {{ok: boolean, value?: Object, code?: string, message?: string}}
+ */
+function _sanitiseStaircaseFields (body) {
+  const src = (body && typeof body === 'object' && !Array.isArray(body)) ? body : {}
+  const value = {}
+  for (const field of EDITABLE_STEP_FIELDS) {
+    if (!Object.prototype.hasOwnProperty.call(src, field)) { continue }
+    if (field === 'complexityCeiling') {
+      if (!STAIRCASE_CEILINGS.has(src[field])) {
+        return { ok: false, code: 'INVALID_CEILING', message: `complexityCeiling must be one of: ${[...STAIRCASE_CEILINGS].join(', ')}` }
+      }
+      value[field] = src[field]
+      continue
+    }
+    if (typeof src[field] !== 'string') {
+      return { ok: false, code: 'INVALID_FIELD', message: `${field} must be a string` }
+    }
+    value[field] = src[field].trim()
+  }
+  if (Object.keys(value).length === 0) {
+    return { ok: false, code: 'NO_FIELDS', message: `Provide at least one of: ${EDITABLE_STEP_FIELDS.join(', ')}` }
+  }
+  if (Object.prototype.hasOwnProperty.call(value, 'name') && !value.name) {
+    return { ok: false, code: 'INVALID_FIELD', message: 'name must not be empty' }
+  }
+  return { ok: true, value }
+}
+
+/**
+ * @route GET /api/firm-manager/staircase
+ * The tab's whole picture: Advisor-e's steps, this firm's decisions, and the resolved
+ * list those two produce — the SAME resolved list the advisor's selector and the
+ * engine's ceiling read, so the screen can never show a firm something different from
+ * what its advisors get.
+ * @returns {{base: Object, state: Object, resolved: Array, hasOverride: boolean}}
+ */
 async function getStaircase (req, res) {
   try {
     const firmOverride = await _loadStaircase(req.firmId)
-    res.send(200, { base: BASE_STAIRCASE, firmOverride, hasOverride: firmOverride !== null })
+    const state = await loadFirmStaircaseState(req.firmId, overlay.loadFirmConfig, BASE_STAIRCASE.steps)
+    const resolved = await loadBlendedStaircase(req.firmId, overlay.loadFirmConfig)
+    res.send(200, {
+      base: BASE_STAIRCASE,
+      firmOverride,
+      state,
+      resolved: resolved.steps,
+      defaultCeiling: resolved.defaultCeiling,
+      hasOverride: firmOverride !== null ||
+        state.declinedIds.length > 0 ||
+        Object.keys(state.overrides).length > 0 ||
+        state.ownRows.length > 0
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/staircase/platform/:id
+ * Edit an Advisor-e step for this firm. Fields the body does not carry are NOT
+ * recorded, so they keep tracking Advisor-e's wording rather than being frozen at
+ * today's text — the whole point of the mechanism.
+ * @param {string} id - a platform step id (as-*)
+ * @returns {{updated: true, id: string}}
+ */
+async function setStaircaseOverride (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_STEP_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform staircase step with that id')
+  }
+  const sani = _sanitiseStaircaseFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    const overrides = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, {})
+    const current = (overrides && typeof overrides === 'object' && !Array.isArray(overrides)) ? overrides : {}
+    const next = { ...current, [id]: { ...(current[id] || {}), ...sani.value } }
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, next, req.userEmail)
+    res.send(200, { updated: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/staircase/platform/:id
+ * Reset to platform — drop this firm's version so Advisor-e's step applies again, and
+ * keeps applying as Advisor-e changes it. Idempotent.
+ * @param {string} id - a platform step id (as-*)
+ * @returns {{reset: true, id: string}}
+ */
+async function resetStaircaseOverride (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_STEP_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform staircase step with that id')
+  }
+  try {
+    const overrides = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, {})
+    const current = (overrides && typeof overrides === 'object' && !Array.isArray(overrides)) ? overrides : {}
+    if (Object.prototype.hasOwnProperty.call(current, id)) {
+      const next = { ...current }
+      delete next[id]
+      await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, next, req.userEmail)
+    }
+    res.send(200, { reset: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/staircase/platform/:id/decline
+ * Switch an Advisor-e step off for this firm, or back on. The step is not deleted —
+ * a firm that switches one back on gets Advisor-e's current wording for it, and any
+ * edit it had made is still there underneath.
+ * @param {string} id - a platform step id (as-*)
+ * @param {boolean} req.body.declined
+ * @returns {{declined: boolean, id: string}}
+ */
+async function setStaircaseDecline (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_STEP_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform staircase step with that id')
+  }
+  const declined = (req.body || {}).declined
+  if (typeof declined !== 'boolean') {
+    return sendError(res, 400, 'INVALID_DECLINED', 'declined must be a boolean')
+  }
+  try {
+    const stored = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.declines, [])
+    const set = new Set(Array.isArray(stored) ? stored : [])
+    if (declined) { set.add(id) } else { set.delete(id) }
+    // Switching every step off would leave an advisor mid-session with nothing to
+    // choose from. The blend has a second lock for this; refusing here is the first,
+    // and the only one that can explain itself to the person who asked for it.
+    if (declined && set.size >= PLATFORM_STEP_IDS.size) {
+      const ownRows = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.own, [])
+      if (!Array.isArray(ownRows) || ownRows.length === 0) {
+        return sendError(res, 409, 'LAST_STEP', 'At least one step must stay switched on — add your own step first, or switch another back on')
+      }
+    }
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.declines, [...set], req.userEmail)
+    res.send(200, { declined, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/staircase/own
+ * Add a step of the firm's own, after Advisor-e's. Its id is assigned here (fs-N) and
+ * never taken from the body — an id from the browser could collide with a platform
+ * step and silently replace it.
+ * @returns {{added: true, id: string}}
+ */
+async function addOwnStaircaseStep (req, res) {
+  const sani = _sanitiseStaircaseFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  if (!sani.value.name) {
+    return sendError(res, 400, 'INVALID_FIELD', 'A step needs a name')
+  }
+  try {
+    const stored = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    // Highest existing number + 1, never the row count: reusing a deleted step's id
+    // would hand a new step the decisions recorded against the old one.
+    const used = rows
+      .map(r => parseInt(String((r && r.id) || '').replace(FIRM_STEP_PREFIX, ''), 10))
+      .filter(n => Number.isInteger(n))
+    const id = `${FIRM_STEP_PREFIX}${(used.length ? Math.max(...used) : 0) + 1}`
+    const next = [...rows, {
+      id,
+      name: sani.value.name,
+      selectorDescription: sani.value.selectorDescription || '',
+      complexityCeiling: sani.value.complexityCeiling || BASE_STAIRCASE.defaultCeiling
+    }]
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.own, next, req.userEmail)
+    res.send(201, { added: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/staircase/own/:id
+ * Edit a step this firm added.
+ * @param {string} id - a firm step id (fs-*)
+ * @returns {{updated: true, id: string}}
+ */
+async function updateOwnStaircaseStep (req, res) {
+  const id = String(req.params.id || '')
+  const sani = _sanitiseStaircaseFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    const stored = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    const index = rows.findIndex(r => r && r.id === id)
+    if (index === -1) {
+      return sendError(res, 404, 'NOT_FOUND', 'No step of your own with that id')
+    }
+    const next = rows.map((r, i) => (i === index ? { ...r, ...sani.value, id } : r))
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.own, next, req.userEmail)
+    res.send(200, { updated: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/staircase/own/:id
+ * Remove a step this firm added. Only the firm's own steps can be removed — an
+ * Advisor-e step is switched off, never deleted, so it can come back.
+ * @param {string} id - a firm step id (fs-*)
+ * @returns {{removed: true, id: string}}
+ */
+async function deleteOwnStaircaseStep (req, res) {
+  const id = String(req.params.id || '')
+  try {
+    const stored = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    if (!rows.some(r => r && r.id === id)) {
+      return sendError(res, 404, 'NOT_FOUND', 'No step of your own with that id')
+    }
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.own, rows.filter(r => !(r && r.id === id)), req.userEmail)
+    res.send(200, { removed: true, id })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -2344,6 +2639,12 @@ module.exports = {
   promoteOverridesForDeletedRow,
   getStaircase,
   saveStaircase,
+  setStaircaseOverride,
+  resetStaircaseOverride,
+  setStaircaseDecline,
+  addOwnStaircaseStep,
+  updateOwnStaircaseStep,
+  deleteOwnStaircaseStep,
   getQuizzes,
   saveQuizzes,
   getDomainSupport,

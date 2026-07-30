@@ -259,6 +259,14 @@ server.put('/api/firm-manager/distinctions/platform/:id/decline', ...fmGuard, fm
 server.post('/api/firm-manager/distinctions/platform/:id/move', ...fmGuard, fm.moveDistinction)
 server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
 server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
+// The staircase cascade — one decision per request, mirroring the distinction routes
+// above (2026-07-31, the staircase joining the one firm-editable mechanism).
+server.put('/api/firm-manager/staircase/platform/:id', ...fmGuard, fm.setStaircaseOverride)
+server.del('/api/firm-manager/staircase/platform/:id', ...fmGuard, fm.resetStaircaseOverride)
+server.put('/api/firm-manager/staircase/platform/:id/decline', ...fmGuard, fm.setStaircaseDecline)
+server.post('/api/firm-manager/staircase/own', ...fmGuard, fm.addOwnStaircaseStep)
+server.put('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.updateOwnStaircaseStep)
+server.del('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.deleteOwnStaircaseStep)
 server.get('/api/firm-manager/quizzes', ...fmGuard, fm.getQuizzes)
 server.post('/api/firm-manager/quizzes', ...fmGuard, fm.saveQuizzes)
 server.get('/api/firm-manager/domain-support', ...fmGuard, fm.getDomainSupport)
