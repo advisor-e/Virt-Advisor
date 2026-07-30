@@ -1153,6 +1153,48 @@ Two honest answers on different axes — the file used to conflate them:
     domain-support P1 entry above, so the desktop's own record carries its closure and the two
     machines do not both write the same entry.
 
+  ### Session 8 (2026-07-30, laptop) — the master merge, a claim that did not survive, and the Collaborate ruling
+
+  Three commits (`7b945b5`, `f7993b5`, `750f822`), all pushed. Suite **2,340 → 2,406 / 148
+  suites**, lint 0 errors, tree clean, **33 ahead / 0 behind** `master`. **No production code
+  was touched** — a merge and three documents.
+
+  - **The merge the desktop asked for is DONE** (`7b945b5`). `origin/master` merged in once PRs
+    #25/#26 landed: 25 behind → 0. The two branches' only overlapping files were
+    `design/ACTIONS.md` and `locales/en.json`, exactly as session 7 predicted — and git resolved
+    **both with no conflict**, because each side had appended to a different region.
+    **Verified rather than trusted:** both sides' entries confirmed present, `en.json` re-parsed,
+    the four approved CPD keys checked by value.
+  - ⚠ **The domain-support config-key P1 was closed by the DESKTOP (`7dd83fd`), not here** — it
+    had been sitting at the top of this laptop's list. **Lesson: read what a merge brought before
+    starting a task that was queued before it.**
+  - 🔴 **A CLAIM INHERITED FROM THE OTHER MACHINE'S NOTES WAS WRONG, AND MIKE CAUGHT IT.** The
+    desktop's session notes said *"the migrated content of 28 domains has never been read on
+    screen"*; that was relayed to Mike, who pushed back. **This very file records him editing
+    that content in the app on 2026-07-29** — the *Hide list / Show list* control exists because
+    he asked for it while doing so. **Counting from the data took one command and gave the true
+    answer: 165 of 181 rows carry all four columns.** The real gap is **16 blank Step-by-step
+    cells, ALL in `sales-marketing`** (deliberate — that source is an index table with no
+    method), plus **2 unsourced `org-board-pack` rows** to keep or delete. A further "four in
+    `fm-coach-culture`" **could NOT be confirmed** — those rows carry no field recording their
+    origin, so the count exists only in prose. Written up as
+    [`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](DOMAIN-SUPPORT-REVIEW-CHECKLIST.md) (`f7993b5`).
+    **Standing rule earned here: a claim inherited from another machine's session notes is a
+    claim to CHECK, not to pass on.** It is the same failure mode as this file's own "trust the
+    CODE, not these flags" warning, arriving from a new direction.
+  - ✅ **COLLABORATE MERGE RULED AND PLANNED** (`750f822`) — see [§Collaborate](#collaborate-merge)
+    for the substance. Recorded here only as the session's outcome: Collaborate is a **separate
+    repository**; its manager page cannot travel alone; the four-tier gap is in **this** repo,
+    not in Collaborate; and Mike ruled the five-level cascade is **built in properly now**, the
+    half-measure rejected. Nothing built — slice 1 returns for its own approval.
+  - ⚠ **CROSS-MACHINE COLLISION WARNING (the reason this block matters to the desktop).** Slices
+    2–3 of the Collaborate plan re-key the firm override storage and make `firmAuth` scope-aware,
+    which **changes the ground under Domain Support and Logic Tables — the desktop's active
+    area.** Both machines must not move that layer at once. Whoever starts slice 2 says so first.
+  - **Two mechanical traps worth not rediscovering:** the Bash tool has no `npm`/`node` on its
+    PATH (`export PATH="$NVM_SYMLINK:$PATH"` first), and PowerShell here-strings (`@'…'@`) are a
+    syntax error there — for a long commit message, write it to the scratchpad and `git commit -F`.
+
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
   - **What was read before merging, rather than assumed:** **Logic Tables is finished and live** — Save writes a firm-only override, Reset restores the platform default, version history, and **firm-authored branch text is fenced before it reaches the AI**; overrides merge into a fresh per-request copy never written back to the shared cache (cross-firm isolation). **Domain Support is a deliberate, banner-labelled PREVIEW** — Save/Reset inert, because persisting firm text and its AI fencing land together in the next slice, *so the surface is never live before its safeguard*; only EOY is migrated to the four-column shape and other domains show an honest "not yet in this format" notice. **The removed Decision Frameworks (PDF library) tab was Mike's own 2026-07-27 decision** — the AI never read those PDFs, so no engine behaviour changed; component and routes left dormant with a P3 cleanup logged.
