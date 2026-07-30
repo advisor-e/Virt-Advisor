@@ -1,181 +1,72 @@
 {
   "domain": "org-capacity-planner",
   "label": "CA firm capacity planning",
-  "trigger_keywords": ["capacity planner", "capacity planning", "capacity model", "scenario versioning", "client trimming", "WIP management", "staff utilisation", "fee earner capacity", "practice capacity", "resource planning", "workload management", "practice load"],
+  "trigger_keywords": [
+    "capacity planner",
+    "capacity planning",
+    "capacity model",
+    "scenario versioning",
+    "client trimming",
+    "WIP management",
+    "staff utilisation",
+    "fee earner capacity",
+    "practice capacity",
+    "resource planning",
+    "workload management",
+    "practice load"
+  ],
   "overview": "Capacity planning in a CA or advisory firm is the structured process of aligning available fee earner hours to the current and projected client workload — identifying surpluses and deficits before they become operational crises. The three capacity models (base capacity, scenario versioning, and client trimming) address different planning horizons and problems. Base capacity answers 'where are we now?' Scenario versioning answers 'what happens if we grow, shrink, or restructure?' Client trimming answers 'which clients are consuming capacity that should be redeployed?' All three must be run before any staffing or structural decision is made.",
-
   "diagnostic_entry": {
     "primary_question": "Is the capacity challenge a current-state measurement problem (the firm does not have clear visibility of available vs. committed hours), a future-state planning problem (a growth or restructuring decision requires modelling multiple scenarios), or a client portfolio optimisation problem (certain clients are consuming disproportionate capacity relative to their fee contribution)?",
     "current_state_measurement": "Run the base capacity model first. Establish total available hours, actual utilisation by staff level, and WIP quantum by service line. This baseline is the prerequisite for any other capacity planning work — scenario modelling is meaningless without an accurate starting position.",
     "future_state_planning": "Once the baseline is established, build the scenario version models. Scenarios should include at minimum: the status quo trajectory, a growth scenario (e.g. 20% WIP increase), and a structural change scenario (e.g. partner retirement, new service line, merger). Each scenario reveals different capacity requirements and informs staffing and investment decisions.",
     "client_portfolio_optimisation": "If the base model reveals that overall capacity is adequate but certain fee earners are overloaded, run the client trimming analysis. Identify clients whose fee-to-hours ratio is below the firm's target return — these are candidates for fee renegotiation, service reduction, or managed exit. Releasing low-value client hours creates capacity for higher-value work without increasing headcount."
   },
-
-  "support_tools": [
-
+  "materials": [
     {
-      "name": "Base Capacity Model",
-      "purpose": "Establishes the firm's current capacity position — the relationship between available fee earner hours, actual utilisation rates, and WIP demand — providing the factual baseline for all subsequent capacity planning decisions.",
-      "core_principle": "Most firms believe they know their capacity position but are operating on assumptions, not data. The base capacity model forces the conversion of assumptions into measured actuals — available hours minus non-billable time minus write-offs equals true productive capacity.",
-      "when_to_use": "Run at the start of any capacity engagement, at the beginning of each financial year, and whenever a material change (new hire, partner exit, service line change) occurs.",
-
-      "model_components": [
-        {
-          "component": "Total Available Hours",
-          "calculation": "Standard working weeks per year × days per week × hours per day × number of fee earners",
-          "typical_adjustments": "Deduct: annual leave (4-6 weeks), public holidays, CPD and training days, sick leave provision (3-5 days). Result is the gross available hours per annum."
-        },
-        {
-          "component": "Target Utilisation Rate",
-          "description": "The percentage of gross available hours that should be billable or client-chargeable. Industry benchmarks: senior partners 55-65%, managers 70-80%, senior staff 75-85%, junior staff 80-90%. Partners carry a higher non-billable load (business development, firm management, supervision) which explains the lower utilisation target.",
-          "calculation": "Target Billable Hours = Gross Available Hours × Target Utilisation Rate"
-        },
-        {
-          "component": "Actual Utilisation",
-          "description": "Measure actual billed and billable hours from the time recording system for the trailing 12 months. Compare to target utilisation. A persistent gap of more than 10 percentage points below target indicates a structural issue — poor work allocation, excessive non-billable time, or low WIP volume.",
-          "red_flags": [
-            "Senior staff utilisation below 60% — likely a WIP shortage or poor allocation from partners",
-            "Junior staff utilisation above 90% — burnout risk; no buffer for quality review and CPD",
-            "High variance between fee earners in the same grade — unequal workload distribution"
-          ]
-        },
-        {
-          "component": "WIP Quantum by Service Line",
-          "description": "Map total WIP (contracted client work in progress) against the capacity required to deliver it. Segment by service line (compliance, tax, advisory, audit) and compare the WIP demand profile to the available capacity profile by skill level.",
-          "output": "A clear picture of where capacity surplus or deficit exists by service line and skill level — the foundation for redeployment, recruitment, or client portfolio decisions."
-        }
-      ]
-    },
-
-    {
-      "name": "Scenario Versioning Model",
-      "purpose": "Projects the firm's capacity position under multiple defined future states — enabling the partnership to make staffing, investment, and structural decisions on the basis of modelled evidence rather than assumption.",
-      "core_principle": "A firm that only models its current position cannot make confident decisions about its future. Scenario versioning converts 'what if' questions into quantified capacity impacts, allowing the partnership to assess the staffing and financial implications of each strategic option before committing.",
-      "when_to_use": "Use when a material strategic decision is under consideration: growth targets, partner admission or retirement, merger or acquisition, new service line launch, or significant technology adoption. Each decision has a capacity implication that must be modelled before it is made.",
-
-      "standard_scenarios": [
-        {
-          "scenario": "Status Quo Trajectory",
-          "description": "Project current WIP growth rates forward using a 12-month rolling trend. Model the capacity requirement at 12 and 24 months if current growth continues without structural change. This scenario reveals whether the firm will hit a capacity ceiling on its current trajectory and when.",
-          "key_output": "The month or quarter at which current staffing hits target utilisation ceiling — the trigger point for recruitment or service level reduction."
-        },
-        {
-          "scenario": "Growth Acceleration",
-          "description": "Model the capacity requirement if WIP grows by a defined percentage above the current trend (e.g. 20% or 30% growth scenarios from a marketing or BD initiative). Identify the staffing profile and cost required to service the growth.",
-          "key_output": "The incremental headcount required at each staff level to service the growth scenario, with the associated payroll cost. Compare to the projected revenue from the additional WIP to assess whether the growth is financially viable."
-        },
-        {
-          "scenario": "Partner Retirement or Exit",
-          "description": "Model the capacity impact of removing a partner from the billable pool, including both the direct loss of their billable hours and the client portfolio transition requirements. Quantify the expected client attrition risk and the capacity required by remaining staff to absorb the transitioned portfolio.",
-          "key_output": "The net capacity impact (hours freed up from the departing partner's supervisory load versus client hours that must be absorbed), and the timeline over which the transition must be managed."
-        },
-        {
-          "scenario": "New Service Line Launch",
-          "description": "Model the capacity diversion required to build and deliver a new service line — including the learning curve period where fee earners are investing non-billable hours in capability development. Identify whether the new service line can be staffed from existing capacity or requires dedicated headcount.",
-          "key_output": "The break-even point at which the new service line generates sufficient revenue to justify the capacity investment, and the minimum viable WIP required at launch to make the service line economically rational."
-        }
-      ]
-    },
-
-    {
-      "name": "Client Trimming Analysis",
-      "purpose": "Identifies clients whose fee-to-hours ratio is below the firm's target return, enabling a structured and commercially rational approach to either renegotiating those client relationships, reducing the service delivered, or managing an exit — releasing capacity for higher-value work.",
-      "core_principle": "Every hour invested in a below-target client is an hour not invested in a higher-value client or business development. Client trimming is not about abandoning clients — it is about ensuring the firm's most finite resource (experienced fee earner time) is deployed against the highest-value opportunities.",
-      "when_to_use": "Use when the firm is at or near capacity but revenue growth is lagging, when senior fee earners are consistently overloaded but billing targets are not being met, or when the firm is preparing to take on significant new WIP and needs to identify capacity without increasing headcount.",
-
-      "analysis_process": [
-        {
-          "step": 1,
-          "name": "Fee Realisation Analysis",
-          "action": "For each client, calculate the fee realisation rate: actual fees billed ÷ (hours worked × standard hourly rate). A realisation rate below 85% on a consistent basis indicates the client is being subsidised — either through write-offs, discounting, or scope creep absorption.",
-          "benchmark": "Target realisation rate: 90-100%. Clients below 80% for more than two consecutive years are primary trimming candidates."
-        },
-        {
-          "step": 2,
-          "name": "Strategic Value Assessment",
-          "action": "Apply a qualitative filter to the below-target clients. Some may be below target because of a temporary situation (business going through a difficult period, relationship investment in a growing client) — these are not trimming candidates. Others may be chronically unprofitable with no strategic rationale — these are the primary targets.",
-          "strategic_value_factors": ["Referral potential", "Growth trajectory of the client business", "Relationship with an influential COI", "Profile or brand value in the firm's target market"]
-        },
-        {
-          "step": 3,
-          "name": "Client Exit or Renegotiation Decision",
-          "action": "For each identified trimming candidate, determine whether the relationship should be (a) renegotiated to a higher fee structure, (b) reduced to a lower service level the client accepts, or (c) managed to an exit. The decision depends on the client's likely response to each option and the firm's relationship capital with that client.",
-          "exit_management": "A managed client exit requires a minimum 90-day notice period, a professional introduction to an alternative service provider, and a transition of all client files and records. A poorly managed exit creates reputational risk. A well-managed exit creates goodwill — the client may return as a better-fit client in the future."
-        },
-        {
-          "step": 4,
-          "name": "Capacity Redeployment",
-          "action": "Quantify the hours released by the trimming decisions and map them explicitly to the highest-value capacity applications identified in the base model — whether existing WIP that is under-resourced, new client acquisition, or service line development.",
-          "output": "A documented capacity redeployment plan that connects the trimming decisions to specific, measurable outcomes — closing the loop between the analytical work and the commercial benefit."
-        }
-      ]
-    },
-
-    {
-      "name": "Capacity Planning — 5-Step Implementation Process",
-      "purpose": "Provides the sequenced implementation pathway for embedding capacity planning as an ongoing management practice in the firm — not as a one-off analytical exercise but as a quarterly discipline.",
-      "core_principle": "Capacity planning has no lasting value if it is performed once and shelved. The goal of the implementation process is to install the planning discipline into the firm's quarterly management rhythm — so that capacity decisions are made proactively, based on current data, rather than reactively, based on operational pain.",
-      "when_to_use": "Use after the initial base model and scenario analysis have been completed, to transition from a one-off engagement to an embedded management practice.",
-
+      "name": "Base Capacity & Job Estimation Model",
+      "summary": "Sets the baseline assumptions — how long jobs take, who performs them, and what that costs at each staff level and charge-out rate. It calculates job costs dynamically and exposes skill deficiencies, most usefully the moment expensive senior people are absorbing junior work because the lower tier is too thin. Past known fees can be aligned against projected assumptions so the model stays grounded in what the firm actually bills.",
+      "who_when": "Any professional service firm wanting to understand its true baseline capacity, validate chargeable targets, or work out why staff feel overworked when the totals say there is enough time.",
       "steps": [
-        {
-          "step": 1,
-          "name": "Install Time Recording Discipline",
-          "action": "Capacity planning is only as accurate as the time recording data it is built on. Audit current time recording compliance — the percentage of fee earners recording time daily against client matters. Implement a mandatory daily time recording standard with a named partner accountable for compliance. A weekly compliance report should be reviewed at partner level.",
-          "target": "95%+ daily time recording compliance across all fee earners within 60 days of the standard being set."
-        },
-        {
-          "step": 2,
-          "name": "Build the Capacity Dashboard",
-          "action": "Create a single-page capacity dashboard that shows, at a glance: total available hours, actual utilisation by staff level, WIP quantum by service line, and write-off rates by client and partner. The dashboard should be updated monthly from time recording data and reviewed at the monthly partner meeting.",
-          "format": "The dashboard does not need to be complex — a well-structured spreadsheet updated from the practice management system is sufficient. The discipline of reviewing it regularly matters more than the sophistication of the tool."
-        },
-        {
-          "step": 3,
-          "name": "Establish Quarterly Scenario Review",
-          "action": "At the start of each quarter, run a scenario review using the updated base model data. Update the growth and structural scenarios for changes in the WIP pipeline, staff changes, and strategic direction. Use the scenario outputs to make staffing and resourcing decisions for the coming quarter before the capacity constraint is felt.",
-          "output": "A quarterly capacity decision record — a documented record of what the model showed, what decisions were made, and the rationale. This creates an audit trail of capacity management decisions and provides the evidence base for future pattern recognition."
-        },
-        {
-          "step": 4,
-          "name": "Annual Client Portfolio Review",
-          "action": "Conduct the client trimming analysis annually as part of the firm's strategic planning cycle. Review fee realisation rates for all clients, apply the strategic value filter, and make formal decisions on client retention, renegotiation, or exit. Document the decisions and track the capacity released against the redeployment plan.",
-          "timing": "Align with the financial year end so that the capacity decisions inform the next year's budget and resourcing plan."
-        },
-        {
-          "step": 5,
-          "name": "Connect Capacity to Recruitment and Investment Decisions",
-          "action": "Establish a formal governance rule: no new hire is approved without a current capacity model showing that existing capacity cannot service the growth at target utilisation. This rule does not prevent recruitment — it ensures that recruitment decisions are based on evidence rather than instinct, and that the firm does not over-hire in a growth period and then face a capacity surplus when growth normalises.",
-          "cultural_change": "This step often requires a change in partner culture — shifting from 'we feel stretched, let's hire' to 'let's measure the constraint before we hire'. The data from steps 1-4 makes this cultural shift possible because it provides the evidence that replaces instinct."
-        }
+        "Determine how many hours an average, a small and a large job takes.",
+        "Select which team member performs each task from the dropdown, so cost follows the level actually doing the work — Junior, Senior, Equity Partner.",
+        "If family-group clients distort the compliance statistics, override the total client count with the actual number of returns filed.",
+        "Enter past known fees and apply seasonal adjustments — the model assumes a perfect world, and the adjustment is what brings adjusted capacity back into a realistic range.",
+        "If you are mid-year, change the period tracker (for example to 10 periods) so actual-versus-planned tracking stays accurate.",
+        "Review the skill levels tab for the telling bottleneck: upper-level team members with spare capacity while the tiers below them have none.",
+        "Read that pattern for what it is — highly paid staff stepping down into lower-rate jobs, which halves the effective charge-out rate.",
+        "Map fee ranges and client service categories such as Growth, Protect and Transition to discuss where the team should actually be deployed."
       ]
     },
-
     {
-      "name": "Capacity Planning — If-Then Guidance",
-      "purpose": "Decision logic for the most common capacity planning complications — utilisation variance, WIP growth outpacing headcount, senior staff bottlenecks, and scenario divergence from actuals.",
-      "if_then_logic": [
-        {
-          "condition": "Base model shows adequate average utilisation but specific staff are consistently overloaded",
-          "action": "Do not respond by hiring at the overloaded staff's level. Map the overloaded individual's WIP load by client and service line. Identify whether the overload is caused by insufficient delegation (work that could be handled by a junior staff member is being retained by the senior), or by a genuine specialisation bottleneck. Address delegation first — hiring before the delegation problem is solved will replicate the problem at the new hire level."
-        },
-        {
-          "condition": "Scenario model shows the firm will hit a capacity ceiling within 6 months on the growth trajectory",
-          "action": "Begin the recruitment process immediately — the average recruitment, onboarding, and productive contribution timeline for a qualified CA hire is 3-6 months. Waiting until the capacity ceiling is reached means the firm will be operating above sustainable utilisation for the entire recruitment period, increasing write-off rates and burnout risk."
-        },
-        {
-          "condition": "Client trimming analysis identifies a significant volume of below-target clients but exits would create a revenue gap",
-          "action": "Sequence the exits over 12-18 months, aligned to the business development pipeline's ability to replace the revenue. Calculate the net margin impact of each exit — a client at 70% realisation generating $50k revenue has a lower net margin contribution than the headline figure suggests. Replacing them with a 95% realisation client at $40k is a net positive margin outcome despite the lower revenue."
-        },
-        {
-          "condition": "Capacity model actuals are consistently diverging from scenario projections",
-          "action": "Audit the quality of the time recording data. The most common source of scenario divergence is time recording that is being recorded against incorrect client or service line codes, creating a distorted picture of where capacity is being consumed. A data quality audit of time recording entries is required before the model can be trusted."
-        }
+      "name": "Scenario Versioning & Management Model",
+      "summary": "Keeps every what-if inside one file rather than a sprawl of near-identical spreadsheets. Scenarios are saved through native version history — \"Base Scenario\", \"Under a thousand clients\" — variables changed in the blue cells, and earlier versions restored to compare outcomes. Views are customisable, so a smaller partnership can hide unused partner rows and dashboards rather than scrolling past them.",
+      "who_when": "Firms of varying partnership size, particularly under six partners, who want to model what-if scenarios aggressively without creating a cluster of disorganised files.",
+      "steps": [
+        "Hide unused partner rows and unnecessary dashboards if the firm has fewer than six partners.",
+        "Use the filter range on the fee spread page so each partner sees only their own clients while entering fees.",
+        "Have each partner clear the filter, select themselves, enter their data without scrolling the whole firm, then select all again when finished.",
+        "Save the current state through File then Version History, and name it plainly — Base Scenario, Trimmed Base.",
+        "Change only the variables in the blue cells so it stays obvious what was altered.",
+        "Adjust the number of periods where the firm is tracking mid-year, so volatility graphs and capacity ranges calculate correctly.",
+        "Use restore to toggle between versions and compare outcomes side by side rather than copying the file."
+      ]
+    },
+    {
+      "name": "Client Trimming & Advisory Transition Model",
+      "summary": "Answers the oldest objection in advisory — \"we want to do it, but we don't have the time\". It models dropping a defined percentage of the lower tier: how many clients, exactly what fees are lost, and precisely how many hours come back. Those hours are then reallocated to higher-margin advisory work, which turns dropping clients from a frightening idea into arithmetic, and often ends in higher profit from fewer working hours.",
+      "who_when": "Firms trapped in a high-volume compliance cycle, losing margin to senior staff doing junior work, and wanting to pivot to higher-value advisory.",
+      "steps": [
+        "Save the current state as a version first, so the base scenario survives whatever you try next.",
+        "Go to the client trimming section and select a percentage of bottom-tier clients to drop — the bottom 10%, for instance.",
+        "Read what the model returns: the number of clients affected, the precise fee loss, and the exact hours freed.",
+        "Reallocate those recovered hours by adjusting the advisory percentage for partners, associates and senior managers.",
+        "Compare the resulting hours and fee potential against the base version rather than against impressions.",
+        "Frame the decision on the three pillars — Capacity freed by the trim, Capability meaning the templates and skills are ready, and Opportunity meaning the larger clients willing to engage.",
+        "Treat the output as a scenario, not a report: the value is in projecting assumptions, not in historical accuracy."
       ]
     }
-
   ],
-
   "advisor_guidance": {
     "data_quality_determines_model_quality": "Capacity planning is only as reliable as the time recording data it is built on. A firm that does not have consistent, accurate daily time recording cannot build a meaningful capacity model — the first intervention must be time recording compliance, not the analytical framework. Do not build the model on unreliable data and present it as fact.",
     "scenario_modelling_changes_partner_behaviour": "The most significant value of scenario modelling in a CA firm is not the output — it is the change in how the partnership discusses capacity. Partners who have seen the modelled impact of a partner retirement or a 25% growth scenario make fundamentally different resourcing decisions than partners who are operating on instinct. The model creates a shared evidence base that depersonalises what would otherwise be subjective debates.",

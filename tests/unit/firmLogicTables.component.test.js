@@ -87,6 +87,54 @@ async function openTable (wrapper, id, label, origin) {
 
 afterEach(() => { delete global.fetch })
 
+describe('reordering branches (only where order is presentation, not flow)', () => {
+  // eoyDetail() carries no `reorderable`, standing in for a nodes-shaped tree.
+  const flatDetail = () => Object.assign(eoyDetail(), { reorderable: true })
+
+  test('no move controls on a table the backend will not let the firm reorder', async () => {
+    const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.vm.current.reorderable).toBe(false)
+    expect(wrapper.findAll('.lt-branch-move').length).toBe(0)
+  })
+
+  test('move controls appear on a reorderable table', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: flatDetail() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.vm.current.reorderable).toBe(true)
+    expect(wrapper.findAll('.lt-branch-move').length).toBeGreaterThan(0)
+  })
+
+  test('moveBranch reorders on a reorderable table and survives the save payload', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: flatDetail() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    const wasSecond = wrapper.vm.form.branches[1].id
+
+    wrapper.vm.moveBranch(1, -1)
+    expect(wrapper.vm.form.branches[0].id).toBe(wasSecond)
+
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => c[1] && c[1].method === 'POST')
+    expect(JSON.parse(post[1].body).branches[0].id).toBe(wasSecond)
+  })
+
+  // The guard, not the hidden buttons, is what protects the flow.
+  test('moveBranch refuses to act on a non-reorderable table even if called directly', async () => {
+    const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
+    const before = wrapper.vm.form.branches.map(b => b.id)
+    wrapper.vm.moveBranch(1, -1)
+    expect(wrapper.vm.form.branches.map(b => b.id)).toEqual(before)
+  })
+
+  test('a move off either end is ignored rather than losing a branch', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: flatDetail() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    const before = wrapper.vm.form.branches.map(b => b.id)
+    wrapper.vm.moveBranch(0, -1)
+    wrapper.vm.moveBranch(before.length - 1, 1)
+    expect(wrapper.vm.form.branches.map(b => b.id)).toEqual(before)
+  })
+})
+
 describe('loading', () => {
   test('asks the backend for the logic-table list, with the bearer token', async () => {
     await mountScreen()
@@ -235,5 +283,65 @@ describe('re-filing into another section (drag / Move to)', () => {
     await wrapper.vm.moveTo('eoy_meeting', 'getOrganised')
     expect(wrapper.vm.doTheJob.some(d => d.id === 'eoy_meeting')).toBe(true) // put back
     expect(wrapper.vm.getOrganised.some(d => d.id === 'eoy_meeting')).toBe(false)
+  })
+})
+
+// Hiding the table list to give the branch grid the full width (Mike,
+// 2026-07-29). Display only — it must never touch the branches being edited.
+describe('hide / show the table list', () => {
+  afterEach(() => { window.localStorage.clear() })
+
+  test('hiding the list removes the rail and gives the branch grid the full width', async () => {
+    const wrapper = await mountScreen()
+    expect(wrapper.find('.lt-rail').exists()).toBe(true)
+    expect(wrapper.find('.column.is-8').exists()).toBe(true)
+
+    await wrapper.find('.lt-railtoggle').trigger('click')
+
+    expect(wrapper.find('.lt-rail').exists()).toBe(false)
+    expect(wrapper.find('.column.is-12').exists()).toBe(true)
+  })
+
+  test('the control stays on screen and flips its label, so the list can always be brought back', async () => {
+    const wrapper = await mountScreen()
+    expect(wrapper.find('.lt-railtoggle').text()).toContain('firmLogicTables.hideList')
+
+    await wrapper.find('.lt-railtoggle').trigger('click')
+    expect(wrapper.find('.lt-railtoggle').exists()).toBe(true)
+    expect(wrapper.find('.lt-railtoggle').text()).toContain('firmLogicTables.showList')
+
+    await wrapper.find('.lt-railtoggle').trigger('click')
+    expect(wrapper.find('.lt-rail').exists()).toBe(true)
+  })
+
+  // The regression that would go unnoticed: the preference looks right for the
+  // rest of the session and is silently forgotten on the next visit.
+  test('the choice survives leaving the screen and coming back', async () => {
+    const first = await mountScreen()
+    await first.find('.lt-railtoggle').trigger('click')
+
+    const second = await mountScreen()
+    expect(second.vm.railHidden).toBe(true)
+    expect(second.find('.lt-rail').exists()).toBe(false)
+  })
+
+  test('the edited branches are untouched by hiding the list', async () => {
+    const wrapper = await mountScreen()
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting — Planning and Delivery')
+    wrapper.vm.form.branches[0].action = 'edited on screen'
+
+    await wrapper.find('.lt-railtoggle').trigger('click')
+
+    expect(wrapper.vm.form.branches[0].action).toBe('edited on screen')
+    expect(wrapper.vm.dirty).toBe(true)
+  })
+
+  // Domain Support and Logic Tables remember their own state separately: hiding
+  // the list on one screen must not hide it on the other.
+  test('the two screens keep separate preferences', async () => {
+    const wrapper = await mountScreen()
+    await wrapper.find('.lt-railtoggle').trigger('click')
+    expect(window.localStorage.getItem('lt:railHidden')).toBe('1')
+    expect(window.localStorage.getItem('ds:railHidden')).toBeNull()
   })
 })

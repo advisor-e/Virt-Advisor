@@ -88,18 +88,56 @@
       mirrors CB-30). Platform output byte-unchanged (`tests/unit/domainSupportFencing.test.js`).
     - **Fix (done):** list route counts `materials` (EOY shows 4, not 0).
     - Added as its OWN tab, **non-destructive** — the PDF "Decision Frameworks" tab is untouched.
-  - 🟠 **P1 · WIRE — domain-support firm overrides use a config key the engine doesn't read.**
-    The save routes store per-domain keys (`domain-support-<id>`) via `overlay.saveFirmConfig`,
-    but the advisor engine loads a SINGLE `domain-support` bundle
-    ([`advisorEngine.js`](../server/advisorEngine.js) L1461 → [`firmContent.js`](../server/utils/firmContent.js) L96,
-    `CONFIG_KEYS.domainSupport = 'domain-support'`). **Today it works** — with no Firm-Manager
-    MySQL, both sides fall back to the SAME dev file (`data/dev-firm-domain-support.json`,
-    shape `{firmId:{domainId:override}}`), so a saved EOY edit does reach the AI (traced end to
-    end). **But once MySQL is provisioned the two keys stop reconciling** and firm domain-support
-    edits would show in Firm Manager yet never reach the AI. Pre-existing (b1bd546 skeleton +
-    Phase 0), not introduced by the Domain Support tab. **Fix:** move the domain-support save/load
-    routes onto the single `domain-support` bundle (as the Logic Tables routes already do via
-    `loadFirmLogicTrees`). Gated with the broader **Firm-Manager MySQL provisioning** item.
+  - ✅ **P1 · WIRE — domain-support firm overrides now use the config key the engine reads.
+    FIXED 2026-07-30 (approved by Mike, this branch). Full suite 1,967 green, lint 0 errors.**
+    **The defect:** the save routes stored per-domain keys (`domain-support-<id>`) via
+    `overlay.saveFirmConfig`, but both engines load a SINGLE `domain-support` bundle
+    ([`advisorEngine.js`](../server/advisorEngine.js) L1461 · [`courseEngine.js`](../server/courseEngine.js)
+    L164/L355 → [`firmContent.js`](../server/utils/firmContent.js) L96,
+    `CONFIG_KEYS.domainSupport = 'domain-support'`). Pre-existing (b1bd546 skeleton + Phase 0),
+    not introduced by the Domain Support tab. **It worked only by accident:** with no Firm-Manager
+    MySQL, both sides fall back to the SAME dev file (`data/dev-firm-domain-support.json`, shape
+    `{firmId:{domainId:override}}`), so a saved EOY edit did reach the AI. On MySQL the two keys
+    would never reconcile — Firm Manager would report "saved" and the firm's content would
+    **silently** never reach the AI. Fixed while nothing was stored yet, so no data migration was
+    needed; the 29 migrated domains were already in the bundle shape.
+    - **The fix** (one file, [`server/routes/firmManager.js`](../server/routes/firmManager.js),
+      +142/−62; **no engine file touched**, so the AI path is byte-identical): the seven per-key
+      helpers and `DOMAIN_SUPPORT_KEY_PREFIX` are replaced by `_loadFirmDomainSupportMapRaw` /
+      `_saveFirmDomainSupportMap` on `CONTENT_CONFIG_KEYS.domainSupport` — mirroring the Logic
+      Tables routes, which were deliberately built this way. Every reference was traced first
+      (all inside that one file). Reset drops one key from the bundle instead of the old
+      `is_active = 0` UPDATE, which is meaningless on shared storage.
+    - **Perf, same cause:** the list route loaded the override *inside* the loop — ~36 store
+      round-trips to draw one screen. Now one read before the loop.
+    - **History is now bundle-level** (all domains' saves interleaved), the same honest caveat
+      Logic Tables carries. Nothing visible changed: the screen shows history read-only.
+    - **Restore stayed PER-DOMAIN, deliberately** — it reads that version's bundle, lifts out
+      just that domain's entry and writes it into the CURRENT map, so restoring EOY cannot roll
+      back the other 28. A domain absent from that version had no override then, so restoring it
+      **clears** today's override rather than inventing one. Both branches are tested. (Logic
+      Tables deferred per-table restore for exactly this reason — this technique would work there
+      too; see the follow-up below.)
+    - **SEC — a new exposure closed in the same change, not carried:** the domain id is now an
+      object key rather than part of a config_key string, so an unchecked `__proto__` /
+      `constructor` / `prototype` would assign the map's prototype instead of storing an override.
+      New `_isKnownDomainSupportId` validates against domains.json + the seven `get-*` files;
+      unknown ids get a clean 404. This risk did not exist under per-key storage, so closing it is
+      part of the fix, not adjacent scope. `setDomainSupportSection` was checked and **already**
+      validated its id — no pre-existing hole there.
+    - **Tests:** new [`tests/unit/firmDomainSupport.routes.test.js`](../tests/unit/firmDomainSupport.routes.test.js),
+      14 cases. **The one that earns its keep asserts the save key is literally `'domain-support'`** —
+      a behavioural test in dev *cannot* catch this bug, because both sides fall back to the same
+      file, which is precisely why it survived from b1bd546. The key is hardcoded in the test
+      rather than imported, so a rename cannot slip past both sides at once. Also pinned: saving
+      one domain leaves the others' edits intact, reset drops only its own key, history reads the
+      shared key, and the two restore branches above.
+    - **→ Follow-up (P3, cleanup, NOT done — needs its own approval):** the seven `get-*` file
+      names now exist **twice** in `firmManager.js` — the hoisted `DOMAIN_SUPPORT_GET_FILES` and a
+      literal copy inside `setDomainSupportSection` (L2281). Two copies of one list is the drift
+      the single-source rule exists to stop; collapse it to the constant.
+    - **→ Follow-up (P2, NOT done):** give **Logic Tables** the same per-table restore, using the
+      lift-one-key-from-the-old-bundle technique proven here.
   - ✅ **Logic Tables tab — Slice B SHIPPED + 3-way grouping + firm re-filing (2026-07-27, this branch).**
     Editing is fully live: firm-authored branch-text fencing in `logicTrees.formatLogicTreeForPrompt`
     (`b2c7a62`), Save/Reset/history backend on the single `logic-trees` bundle (`9e6ef23`), and the
@@ -109,6 +147,53 @@
     / Get the Job / Get Organised** (`fccb203`), and a firm can re-file an item into another section —
     display-only, firm-scoped, AI unaffected: backend move routes (`068cbe4`) + drag / "Move to" UI
     (`9b3aa73`). Full suite 1,863 green.
+  - ✅ **Editing ergonomics SHIPPED 2026-07-29 (this branch) — found while Mike was about to edit
+    29 domains of four-column tables.** Domain-support **steps** were single-line inputs, so a
+    full-sentence step scrolled sideways and could not be read; the name/summary/who columns got
+    auto-grow and drag-to-size on 2026-07-27 and the steps column was simply left behind. Each step
+    is now an auto-growing textarea with **↑ ↓ reorder controls** and its own resize handle
+    suppressed (a drag handle fights an autogrow directive); the step number is top-aligned so it
+    no longer drifts down the side of a long step (`a7f68de`). Arrows were chosen over
+    drag-and-drop deliberately — dragging inside a table cell is fiddly and this table is about to
+    be edited heavily. `moveStep` **splices** rather than assigning by index (Vue 2 cannot observe
+    `arr[i] = x`, so a swap would reorder the data without redrawing). The test that earns its
+    keep proves a reordered step reaches the **save payload** in its new position — reordering that
+    looks right on screen but saves the old order is the failure that would surface weeks later.
+  - ✅ **🔑 Logic-tree ENTRY POINT is now data, not array position — 2026-07-29 (this branch,
+    `71b7a2c` + `98ecc51`). Read this before touching `walkLogicTree` or the trees file.**
+    Branch reorder was nearly shipped for all 42 logic tables and would have **silently changed
+    engine behaviour**: `walkLogicTree` started at `tree.nodes[0].id`, so on a nodes-shaped tree
+    the first row IS the entry point and promoting another row repoints where the engine begins
+    reasoning — a FLOW change, which firm editing excludes (Mike's §0.6 scope ruling 2026-07-24).
+    It would also have stuck: `_mergeBranchRows` maps rows in the order the browser sends them and
+    `deepMerge` replaces arrays wholesale.
+    - **Fix (Phase 1):** `entry_node` added to all **37** node-shaped trees in
+      [`data/logic_trees.json`](../data/logic_trees.json), each set to the id of the node that sat
+      first at the time — derived from behaviour, never chosen, so it cannot introduce a
+      difference. `walkLogicTree` honours it and falls back to the first row when it is missing or
+      dangling. Swept first: that line was the **only** positional read of nodes in the backend
+      (every other link is by id, and `next_stage` looks up by stage value).
+    - **Proof (this is live code — advisorEngine template hints + the zero-candidate fallback):**
+      both paths A/B'd on identical inputs, every tree against every Scenario Lab case —
+      **42 trees × 52 states = 2,184 comparisons, 933 template hits, 250 walks genuinely
+      traversing branches, ZERO differences.** The 11 committed snapshots also passed unchanged.
+    - **Worth recording because it nearly went unnoticed:** the FIRST version of that proof fed
+      states with fields `buildSignalText` does not read (`coreProblem`, `domain`), so the signal
+      text was empty, every score was 0, and almost every walk stopped at its entry node. It
+      reported "identical" while proving nearly nothing. The same mistake made the first unit
+      tests pass vacuously. Both were rebuilt on the real fields (`clientRaisedIssue`,
+      `situationDiagnostic`, `industry`, `detectedDomain`) and the reason is commented in
+      `tests/unit/logicTreeEntryNode.test.js` so it is not reintroduced.
+    - **Phase 3:** `reorderable` on the detail route is computed **per tree** — a flat_if_then
+      tree always qualifies; a nodes-shaped one qualifies only while it carries an `entry_node`
+      naming a node that exists. A tree added later without one is refused rather than silently
+      offered, and a route test sweeps every real tree to enforce it. `moveBranch` re-checks the
+      flag rather than trusting that the buttons were hidden.
+    - **On-screen copy is MINE, not Mike's** (standing in until he changes it): *"Row order is the
+      order these rules are read — moving a row changes how the table reads, not the decision
+      flow."* Shown only where reordering is offered. **Honest residual:** reordering does change
+      the order branches are presented to the AI (`formatLogicTreeForPrompt` walks the array), which
+      is presentation, not the deterministic walk — hence the note.
   - ☑ **Decision Frameworks (PDF Document Library) tab REMOVED 2026-07-27 (owner decision,
     this branch).** The tab + its wiring are gone from `FirmManagerHub.vue` (tab-item, the
     `FirmDocuments` import/registration, and the now-orphaned "Storage % used" header indicator
@@ -136,6 +221,122 @@
     per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
     `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
     the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
+  - ✅ **Domain-support content migration — COMPLETE 2026-07-29. 29 of 29 domains on the
+    four-column standard; no repo file remains on the legacy `support_tools` shape.**
+    Done earlier: eoy (`dfa8572`) · systems · risk · staff · succession · valuation (`bfc4b37`) ·
+    stock-purchasing (`2a63982`) · conflict · due-diligence · governance (`ce4bf2d`) ·
+    get-positioning · get-pricing-proposals · raising-capital (`6b24276`) · get-team-problem ·
+    org-leadership · org-capacity-planner (`abc0826`) · org-firm-strategy · data-systems ·
+    fm-coach-culture · forecasting (`2428903`) · get-marketing · get-sales (`e3d6843`) ·
+    get-sales-tracker (`edee78a`).
+    **Final six (2026-07-29, this branch):** get-seminar (16 rows) · org-board-pack (11) ·
+    people-power (26) · strategy (4) · profit (4) · sales-marketing (17).
+    Mike's instruction 2026-07-29: migrate them ALL, then he reviews and edits in the app
+    rather than approving each draft in chat.
+    - **A test had to change, because the migration invalidated it.**
+      `tests/unit/domainSupportMaterials.test.js` proved the legacy `support_tools` renderer
+      still works **by rendering the `profit` domain** — which is now migrated, so the guard had
+      no legacy file left to point at. The fallback branch in
+      [`domainSupport.js`](../server/utils/domainSupport.js) L141 is NOT dead (a firm override can
+      carry the old shape at any time), so the guard now drives it through a firm override
+      instead: `{materials: [], support_tools: [...]}`. Arrays merge wholesale, so emptying
+      `materials` selects the legacy branch exactly as a pre-migration file did. Approved by Mike;
+      no production code touched.
+    - **Findings from the final six — three change the method's assumptions:**
+      (1) **people-power is the fm-coach-culture problem again, larger.** The source names **26**
+      templates; the live file held **7** authored "Framework" entries under entirely different
+      names (Owner Alignment, Team Engagement, Customer Engagement/NPS, Recruitment, Remuneration,
+      SMART Goals, plus an If-Then row). None were deleted — each was **folded into the source
+      template it corresponds to** (Recruitment → *Hiring Winners*, Remuneration → *Remuneration &
+      Incentives*, NPS → *Client Survey*, Team Engagement → *Team Survey*, SMART → *GE.SMART & FAST
+      Goals*, Owner Alignment → *L.Suppt.Alignment*), following the fm-coach-culture ruling that
+      folded legacy PIP content into its source row "rather than left as a duplicate".
+      (2) **org-board-pack carries two rows with no source document at all** — *White Paper
+      Program* (external thought-leadership marketing, a different thing from the source's *Board
+      White Paper* internal proposal template) and *Deming's Volatility Principles in Governance*.
+      Both are live engine content today, so both were **carried across** as ordinary rows, visible
+      for Mike to remove in-app. **→ Owner decision outstanding**, same as the four
+      fm-coach-culture rows.
+      (3) **sales-marketing's 16 review frameworks have NO Step-by-step, deliberately.**
+      `Sales & Marketing Slides table.pdf` is one of the seven "not really a support doc" cases: a
+      bare index table carrying a summary and a benefit per framework and **no method at all**.
+      Writing steps would mean inventing the firm's IP, so those cells are empty for Mike to fill
+      in-app. *Powerful Seminars*, whose own 24-page deck does carry a method, got the full 18-step
+      treatment in the same file.
+    - **Also recorded:** get-seminar's source names 16 materials against 4 grouped tools in the old
+      file; strategy and profit were the two clean ones — source and old file agreed, so those were
+      a reshape only. Summaries hold the standard band (345–543 chars); the three longest sit in
+      strategy, where the source teaching is densest.
+  - ✅ **"Hide list / Show list" SHIPPED 2026-07-29 (Mike's ask, approved; this branch) — more
+    editing room on both firm-editable tables.** Found while Mike was editing the migrated
+    domain-support content: the rail takes a third of the width (`is-4`) and the table the rest, so
+    the Step-by-step and Who-&-when boxes were cramped. A small control **beside the search box** —
+    where Mike asked for it — collapses the rail and gives the table the full row (`is-12`), about
+    50% more width. Label ruled by Mike from three options: **Hide list / Show list**.
+    - Built on **both** `FirmDomainSupport.vue` and `FirmLogicTables.vue` — the same layout with
+      the same problem, and the pair has been kept in step throughout (grouping, Move to, autogrow).
+    - **The control sits in the toolbar, not the panel header, on purpose:** it is reachable whether
+      or not a domain is open, so hiding the list can never strand an editor on a screen with no way
+      back to it. A test locks that.
+    - The choice is remembered per browser (`ds:railHidden` / `lt:railHidden`), mirroring the
+      `resize-persist` box heights: a personal display preference, **never** in the firm's saved
+      content. Restored in `mounted()`, never `data()` — localStorage does not exist during SSR.
+      Blocked storage fails soft (the list simply shows).
+    - 10 new component tests (5 per screen), including the two that earn their keep: the preference
+      **survives leaving the screen and coming back** (the regression that would otherwise look fine
+      all session and be silently forgotten), and the two screens keep **separate** preferences.
+      Full suite **1,953 green**, lint 0 errors.
+    - **get-marketing / get-sales were clean** — material names in the old files matched their
+      source PDFs, so nothing had to be carried across or judged. Two shaping notes:
+      `Get Marketing Support.pdf` carries **one** four-step execution method for the whole domain
+      rather than per-material steps, so those steps were distributed to the materials they belong
+      to and each row's detail filled from the doc's own source-template table; and the **Decision
+      Tree was moved to the FRONT** of `get-sales` (the old file had it last) because the source
+      uses it *before contact* to choose Campaign vs Total Needs.
+    - **Findings from the 2026-07-29 batch, recorded because two change the method's assumptions:**
+      (1) **`Dashboard Support.pdf` is NOT one of the seven "not really a support doc" problem
+      cases** — it carries its own *Summary of the Theory* and a five-step method at the end, so it
+      migrated like any other doc. One fewer undecided item than §0.5 assumed.
+      (2) **The unlabelled grid in `3 pill Fin Mgt` (the one §0.5 flagged for manual eyes) is NOT a
+      logic table** — it is the seven-stage *Client Progression* map pairing each client mindset with
+      the template that suits it. Kept as a material row; the Logic Tables tab does not want it.
+      (3) **`fm-coach-culture` is the worst divergence found so far.** The source PDF names **16**
+      materials; the existing JSON had **6**, under entirely different names. Four of those six have
+      **no source PDF at all** (fee estimate/job creep, COI engagement, applicant screening, group
+      coaching) and read as generic industry content rather than firm IP — but they are live engine
+      content today, so they were **carried across, not deleted**, and are visible as ordinary rows
+      for Mike to remove in-app. The legacy PIP structure was folded into the PDF's *Advisory PIP
+      Template* row rather than left as a duplicate. **→ Owner decision outstanding:** keep or delete
+      those four rows.
+    - **Honest variance:** summaries in `fm-coach-culture` and `forecasting` run to ~550 chars against
+      the 333–463 the earlier files hold. Still three sentences, but at the long end; trimmable in-app.
+    - **The 12 left are the heavy ones.** Several draw on multiple source PDFs rather than one:
+      forecasting (3 docs, ~1.2 MB), strategy (4 docs), data-systems (3 incl. the 1.6 MB
+      Dashboard), profit (4), sales-marketing (2, one of which is the Powerful Seminars deck —
+      a §0.5 "not really a support doc"). Budget roughly double the effort per domain.
+    - **Two rules being applied (Mike, 2026-07-29):** (1) **If-Then rows drop out** of Domain
+      Support — the Logic Tables tab owns those grids under §0.6, so keeping them would put the
+      same content in two editable places. Valuation and stock-purchasing both carry a logic
+      table at the end of their source (valuation's is the *unlabelled* one §0.5 warned about).
+      (2) The **seven non-support documents go last** — Coaching Content, Dashboard, Powerful
+      Seminars, Sales & Marketing slide table, Cautious Reveal, Trial Fit, Why Use Rev Models are
+      slide decks / FAQs / an index, and §0.5 still records their handling as undecided.
+    - **Summary length is the standard to hold:** EOY's summaries run 254–322 chars. The first
+      Systems draft put **2,600 characters** in one Summary cell and Mike rejected it on sight;
+      re-authored so Summary is 3 sentences and the teaching lives in Step-by-step, where the
+      four-column standard intends it. Migrated files now run 333–463 chars.
+    - **`who_when` is the one drafted field** (the gap §0.5 predicted) — EXCEPT where the source
+      carries its own suitability line, which succession and stock-purchasing both do, so those
+      are the firm's words.
+    - **Content-loss check performed per domain:** only 13 templates have a `*-reference.json`
+      second home (that is why EOY could summarise freely — `eoy-reference.json` was untouched).
+      Systems, risk, staff, succession, valuation and stock-purchasing have **none**, so their
+      files are the only home for that teaching and nothing was dropped from them.
+    - **Helper used:** a scratchpad `apply-materials.js` splices `materials[]` in and removes
+      `support_tools`, preserving `label` / `trigger_keywords` / `overview` / `diagnostic_entry` /
+      `advisor_guidance` verbatim — those last two are still read by the prompt formatters
+      ([`domainSupport.js`](../server/utils/domainSupport.js) L190, L267, L344) and must not be
+      dropped just because EOY's file happens not to have them.
   - 📋 **Domain-support content migration — METHOD CONFIRMED (2026-07-27, Mike).** Author each
     domain's four-column draft **from the 43 source PDFs in `domain support/`** — NOT the existing
     `data/*-domain-support.json`, which plan §0.5 rules a *lossy* summary. **Keep ALL the richness**
@@ -251,12 +452,81 @@
       record (`va_courses` via `courseStore`, dev-file fallback), so a manager view may be able to
       read from there rather than needing new columns — but cross-advisor reads are IDOR-sensitive
       and must go through the same `firmAuth` pattern.
-  - ☐ **Ghost logic-tree references (6) — pre-existing, surfaced by tonight's boot log.** The backend
-    warns at every start: *"logic trees reference template names that do not exist in search content.
-    These produce AI hallucinations"* — `Sales Session`, `Data Session`, `Planning Session`,
-    `People Session`, `Process Session`, `Growth Framework`. **Not caused by the 2026-07-28 library
-    refresh** (it added three pages and removed none, so no name was orphaned by it).
-    `scripts/migrate-ghost-references.js` already exists for this.
+  - ✅ **Ghost logic-tree references — 29 → 1. FIXED 2026-07-30 (approved by Mike, this branch).
+    Full suite 1,971 green, 11 snapshots unchanged, lint 0 errors. ⚠ READ THIS BEFORE EVER RUNNING
+    `scripts/migrate-ghost-references.js` — it would have destroyed real content.**
+    The backend warned at every start that six template names in `data/logic_trees.json` matched
+    nothing in the search content (*"These produce AI hallucinations"*): `Sales Session`,
+    `Data Session`, `Planning Session`, `People Session`, `Process Session`, `Growth Framework`.
+    Six distinct names, but **29 actual references across 22 nodes** — the boot log dedupes.
+    - **What they really were: five LIVE pages that had been RETITLED upstream in Advisor-e.**
+      Proved from each page's own slug in the master export, which still spells the old name —
+      `planning-session` → **"Lite Planning"**, `data-session` → **"Lite Data"**, `sales-session` →
+      **"Lite Sales"**, `people-session` → **"Lite People"**, `process-session` → **"Lite Process"**.
+      The CB-12 lesson exactly: titles drift, slugs don't. Not caused by the 2026-07-28 library
+      refresh (it added three pages and removed none).
+    - **🔴 The existing repair script was the WRONG tool and would have caused real harm.**
+      `migrate-ghost-references.js` **deletes** what it cannot resolve
+      (`node.templates.filter(name => !ghosts.includes(name))`). Running it would have stripped
+      **28 correct recommendations** out of the trees — 13 from `systems` alone — after which the
+      trees would have validated clean while recommending nothing in those spots. A worse state
+      than the warning, and invisible. The script is left in place but must not be run on these.
+    - **The fix:** the five stale titles renamed to the live page titles (28 references, 7 trees).
+      Mechanical, no judgement — each mapping is proved by the slug. Diff is 28 insertions /
+      28 deletions, no reformatting (the file is exactly `JSON.stringify(…, null, 2)` + newline).
+      The one-off script aborted rather than writing if any target title were missing from the
+      export, so it could not create a fresh dead reference.
+    - **MEASURED, not assumed — and the committed bench could NOT see this.**
+      [`treeContributionHarness.test.js`](../tests/unit/treeContributionHarness.test.js) only
+      exercises the `valuation` and `governance` trees, so it is structurally blind to all seven
+      trees touched here; its snapshots passing is *expected*, not evidence. Measured instead
+      through the same production soft-hint path (`resolveTemplates` + `treeHintNames`), one
+      variable changed: **4 of 7 trees moved their deterministic top-6** — `systems` (*Lite
+      Process* enters at 7), `client_sales` (*Lite Sales* 6 → **9**, now 2nd), `cashflow` and
+      `cash_tactics` (*Lite Data* enters at 8, now 2nd). `staff_performance`, `client_planning`
+      and `frameworks_find` are equally fixed; their references are simply out-scored on the test
+      case. **This is a deliberate behaviour change:** those rules recommended nothing before.
+    - ✅ **GUARD SHIPPED so this cannot rot silently again:**
+      [`tests/unit/logicTreeTemplateNames.test.js`](../tests/unit/logicTreeTemplateNames.test.js)
+      fails the build if any client-delivery tree names a page the library lacks. **A boot warning
+      is not a control** — this one was logged, backlogged and carried for days while the tool that
+      "existed for it" would have made things worse. Anchored to the **committed**
+      `data/templates.json`, NOT the gitignored export, which would make the guard pass vacuously
+      on a fresh clone and in CI. Scope mirrors `validateLogicTreeReferences` (node trees only;
+      flat_if_then Learn trees excluded for the documented reason). Allowlist holds exactly one
+      entry, and a fourth test **fails once that entry resolves**, so the allowlist cannot outlive
+      its reason. The failure message tells the next reader to check the slug before deleting.
+    - **Negative control run (the guard is not vacuous):** against broken fixtures it caught the
+      real retitle defect and a hand typo, and correctly ignored `[placeholders]`, prose
+      fragments, the allowlisted name and a healthy tree. **Blind spot recorded honestly:** if
+      someone runs the deletion script the dead name is *gone*, so the guard falls silent — a rule
+      recommending nothing looks identical to a healthy one. That is why the test also pins the
+      five corrected names by name.
+    - ☐ **DECISION outstanding (Mike) — `Growth Framework`, the 1 remaining dead reference**
+      (`frameworks_find` node `ff_branch1_milestones`). **It is not a page — it is a library
+      subSection** holding six: *The 9 Growth Stages*, *Growth Curve*, *Lite Fundamentals
+      Components*, *Growth Fundamentals Framework Philosophy*, *Growth Curve Checklist*,
+      *Revealing the Growth Curve Freehand*. The CB-34 resolver returns *Growth Fundamentals
+      Framework Philosophy* on word overlap alone — a **guess**, not evidence, so it was not
+      acted on. Left honestly dead and allowlisted until Mike names the page.
+    - ✅ **7 prose mentions in tree `notes` SWAPPED 2026-07-30 (approved by Mike, same session).**
+      The AI reads `notes`, so these carried the **same hallucination risk** as the template
+      references — it could still name a page the advisor cannot find. 7 occurrences across 6
+      fields: `systems` nodes `sys_b1c_both`, `sys_b2a_data`, `sys_b3a_clarity`, `sys_b4a_sixsigma`
+      (×2), `sys_b4b_lean`, and `valuation` node `val_b3_goodwill`. **NAME SWAP ONLY — Mike's
+      sentences are otherwise byte-unchanged**; this is the firm's own writing and rewording it was
+      explicitly not in scope. Verified afterwards: **zero occurrences of the five old names remain
+      anywhere in the file**, prose or references. Suite 1,971 green.
+      - ☐ **One reading artefact left for Mike, deliberately not "tidied":** `sys_b4a_sixsigma`
+        now reads *"Volatility Analysis (from **the Lite Data**) establishes what is normal
+        variation…"* — grammatical but awkward, because the old title absorbed the article
+        naturally and the new one does not. Fixing it means deleting a word of Mike's prose, which
+        is a different act from correcting a page name, so it was flagged rather than done. The
+        other six read cleanly (*"Use Lite Process to rebuild the architecture"*).
+      - **The guard does not cover prose** and deliberately so: a substring check over free text
+        would false-positive on ordinary sentences. Prose mentions remain a manual concern at the
+        next retitle — the guard will catch the *reference*, which is the signal to come and look
+        at the notes too.
   - ☑ **Domain Support rail made honest 2026-07-27.** `_countSupportItems` now counts only the
     editable four-column `materials` (legacy `support_tools` domains report 0, matching the
     "not authored yet" panel they show when opened); the rail renders a muted "Not set up yet"

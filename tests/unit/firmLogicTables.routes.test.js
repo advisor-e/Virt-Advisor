@@ -118,6 +118,48 @@ describe('GET /logic-trees/:treeId (detail)', () => {
     expect(res._status).toBe(404)
     expect(res._body.success).toBe(false)
   })
+
+  // Order became presentation once the entry point was recorded in entry_node
+  // (Phase 1). Before that, walkLogicTree started at tree.nodes[0].id and
+  // moving rows would have repointed where the engine begins reasoning.
+  test('a nodes-shaped tree IS reorderable now that it records its entry point', async () => {
+    const res = makeMockRes()
+    await getLogicTreeDetail(makeReq({ params: { treeId: 'eoy_meeting' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body.reorderable).toBe(true)
+  })
+
+  test('a flat_if_then tree IS reorderable — its rules are self-contained', async () => {
+    const res = makeMockRes()
+    await getLogicTreeDetail(makeReq({ params: { treeId: 'get_sales_tracker' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body.reorderable).toBe(true)
+  })
+
+  test('every real tree is reorderable — all 42 now qualify', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    for (const tree of logicTrees.effectiveTrees(null)) {
+      const res = makeMockRes()
+      await getLogicTreeDetail(makeReq({ params: { treeId: tree.id } }), res)
+      expect(res._body.reorderable).toBe(true)
+    }
+  })
+
+  // The guard that protects a tree added later: without a usable entry_node the
+  // walk falls back to whatever sits first, so reordering must not be offered.
+  test('a nodes-shaped tree whose entry_node is missing or dangling is refused', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    const real = logicTrees.effectiveTrees(null).find(t => Array.isArray(t.nodes) && t.nodes.length)
+
+    // deepMerge overwrites rather than skipping, so an override of `undefined`
+    // wipes the recorded entry just as an empty or dangling one does.
+    for (const bad of [undefined, '', 'no_such_node']) {
+      overlay.loadFirmConfig.mockResolvedValue({ [real.id]: { entry_node: bad } })
+      const res = makeMockRes()
+      await getLogicTreeDetail(makeReq({ params: { treeId: real.id } }), res)
+      expect(res._body.reorderable).toBe(false)
+    }
+  })
 })
 
 describe('POST /logic-trees/:treeId (save)', () => {
