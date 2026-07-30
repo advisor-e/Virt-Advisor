@@ -112,6 +112,66 @@
       files (`firmManager.js`, `components/firm/*`, `data/*-domain-support.json`) are untouched;
       slice 1's only shared-file edit is `.gitignore`, which the desktop has not touched.
       **Slices 2–3 remain the collision — whoever starts slice 2 says so first.**
+  - 🔴 **RULED 2026-07-30 (Mike, laptop) — THE ADVISORY DISTINCTIONS MECHANISM IS THE SINGLE
+    FIRM-EDITABLE MECHANISM EVERYWHERE.** *"Domain support, logic tables, quizzes, everything
+    that's at firm manager level should be following the same mechanism pattern."* This
+    supersedes the per-feature approach each tab was built with.
+    - **What "the mechanism" means:** a level may **decline** a row it inherited, **override**
+      one, or **add its own**; when the level above changes a row this level had edited, it is
+      **offered** the update (*Mentor updated this → Adopt / Keep mine*) rather than having it
+      imposed; a delete above leaves the customising level keeping theirs. Version history and
+      restore already ride the same store for free.
+    - **Inventory taken before ruling — 1 rich, 6 plain.** Rich: **Advisory Distinctions**
+      (`resolveDistinctions.js`). Plain merge/overlay, all to be brought up: **Domain Support**,
+      **Logic Tables**, **Quizzes**, **Advisory Staircase**, **coaching reference**, **Currency**.
+    - ⚠ **Currency is the one deliberate exception.** The pattern is for *a list of rows
+      inherited from above*; currency is a single setting, where "switch this row off" and "add
+      your own" are meaningless. Forcing it there is cargo-cult, not consistency. Left alone.
+    - 🔴 **THIS DOCUMENT'S §4 AND §4.4 CONTRADICT EACH OTHER, AND §4.4 IS THE WRONG HALF.** §4
+      says a document *"clones down through each level"*; §4.4 says `mergeEntry` becomes *"a
+      fold over the chain"*. Those are different architectures, and a plan built off §4.4 was
+      proposed to Mike before he caught it. **The resolved model is neither pure clone nor pure
+      layer — it is what Distinctions already does:** a row nobody has touched stays current
+      with the mentor's edits automatically, and any row a level *has* edited is protected, with
+      the mentor's update offered. Clone-like protection where it matters, automatic freshness
+      where it does not. See the correction note now in the plan's §4.4.
+    - 🔴 **OWNERSHIP CORRECTED — LOGIN, ROLES AND THE HIERARCHY ARE ADVISORY.COM'S, NOT OURS**
+      (Mike, 2026-07-30): *"There is no separate login for virtual adviser… all of the
+      hierarchy, all of the authentication and login is driven via the master app."* `firmAuth.js`
+      is a **reader**, not a login — it verifies a token Advisory already issued and lifts claims
+      out of it. **Never invent role-value names here**; a constant with a TODO for the master
+      team is the correct shape, exactly as `AUTH.mentorRole` already does. This is the
+      2026-06-26 [`USER-LEVEL-CASCADE-HANDOVER.md`](USER-LEVEL-CASCADE-HANDOVER.md) position,
+      which is clearer than slice 2's wording and wins: the four middle roles *"have no distinct
+      functionality in this app"* and all operate it as a Firm Manager.
+      **Consequence: the old slice 2 all but disappears** — it collapses to stamping `groupId` /
+      `globalId` when Advisory begins sending them, which is meaningless until something consumes
+      them. It is not a slice; it is two lines inside the storage work.
+    - **SEQUENCING RULED: unify the mechanism at two levels FIRST, then add the middle levels
+      once.** This reverses the storage-first order proposed earlier the same session. Extending
+      **one** mechanism to five levels is far less work than extending seven and merging them
+      afterwards. Both the mechanism change and the scope re-key are cheap **only while no firm
+      has saved content** — which is still true today, and is the whole timing argument.
+    - ✅ **STEP 1 DONE — `79de6d9`: 181 stable ids across the 29 domain-support files.** The
+      mechanism keys a firm's decisions to a row **id**; Domain Support rows had none, so
+      identity was the `name`. Keying on a title means a retitle silently discards a firm's
+      choices and a switched-off row quietly returns — no error, no warning, and not
+      hypothetical (five titles were retitled upstream the week before). Proven byte-identical
+      to the AI: all three prompt surfaces × 29 domains, same SHA-256 before and after.
+      `tests/unit/domainSupportRowIds.test.js` locks all 181 and was **proven to fail** before
+      being trusted. **The other five blocks will each need the same check — a row-level stable
+      id — before they can adopt the mechanism. Do not assume they have one.**
+  - ☐ **NEW 2026-07-30 — THIS APP'S OWN REPORTING HAS NO ROLL-UP ABOVE THE FIRM, and it is
+    listed as a job nowhere.** Mike, same session: reporting cascades **up** — adviser actions
+    summarise to the firm manager, then group, global, mentor; *"every tier is the same screen,
+    re-scoped"*. Collaborate's **people** roll-up is built and tested (`ConsoleNode.vue`, lazy
+    per-node loading). **Ours is not:** `activity.js`'s team-overview route is firm-manager gated
+    and firm-scoped, as are Team Progress and the CPD screens. **Design note that makes this
+    cheaper than it sounds: up and down are not mirror images.** Down = clones, which must be
+    stored (hence the scope columns). **Up = summaries computed at read time — no new table, no
+    stored copies, and a summary of summaries, not a re-count of every adviser.** The one real
+    trap is performance: built naively, a mentor opening the screen pulls every adviser on the
+    platform. Collaborate already solved exactly that; copy it rather than rediscover it.
   - ☐ **P2 · TEST — Collaborate's coverage gates did NOT come across, and its code is now
     landed but ungated.** Its own `jest.config.js` ran `collectCoverage: true` on every
     invocation and enforced global 88% / `server/routes/` 90% / `sanitiseInput`,
@@ -1398,6 +1458,48 @@ Two honest answers on different axes — the file used to conflate them:
     modules as the only global state mechanism and lists `store/` as a directory; the repo has
     no such directory. Documentation describing something that is not there — worth a decision,
     not a fix.
+
+  ### Session 10 (2026-07-30, laptop) — a ruling that redirects the workstream, and step one of it
+
+  Two commits (`79de6d9` + this note) plus two merges. Suite **3,058 → 3,062 / 192 suites**,
+  lint 0 errors, tree clean. The substance is in [§Collaborate](#collaborate-merge) — recorded
+  here only as what happened and what the desktop needs.
+
+  - **PR #27 merged to `master` (`b3b6ad6`), and `master` merged back in here.** The Governance
+    quiz — 62 banks / 652 questions, counted from the data rather than taken from the PR body.
+    `ACTIONS.md` auto-merged with no conflict again, each side having appended to a different
+    region; both sides' entries were confirmed present rather than assumed. **A test-count jump
+    with no test file changed (3,050 → 3,058) was explained, not waved through:**
+    `quizBankKeys.test.js` generates two cases per bank, and 4 banks arrived.
+  - 🔴 **THE RULING — the Distinctions mechanism becomes the single firm-editable mechanism
+    everywhere.** Full record, the inventory behind it (1 rich, 6 plain), the Currency
+    exception, the corrected sequencing and the ownership correction on login/roles are all in
+    [§Collaborate](#collaborate-merge). **This redirects the Collaborate slice list** — read it
+    before picking up slice 2 or 3 from the plan, both of which it overtakes.
+  - ✅ **Step one built: 181 stable row ids** (`79de6d9`). Data and one test only; no code
+    touched; prompt output proven byte-identical.
+  - ⚠ **THREE OF MY OWN ERRORS THIS SESSION, RECORDED BECAUSE THE PATTERN MATTERS MORE THAN THE
+    SLIPS.** All three were the same failure: **reading a plan as authority instead of reading
+    the code and asking the owner.** (1) I proposed resolving tiers and inventing manager
+    role-value names at the front door — Mike: *"there is no separate login for virtual
+    adviser"*; auth is Advisory's entirely. (2) I described the cascade as layered diffs when
+    Mike's model is cloning, having followed the plan's §4.4 over its own §4. (3) I recommended
+    storage-first sequencing that the inventory then reversed. **The plan document was wrong or
+    stale in all three places** — it is now corrected in-file. Standing lesson, and a sibling of
+    session 8's "a claim inherited from another machine's notes is a claim to CHECK": *a design
+    document is a claim too. The code and the owner outrank it.*
+  - **Two mechanical traps worth not rediscovering.** The 29 domain-support files are **CRLF and
+    do not survive a PowerShell `Get-Content`/`Set-Content` round-trip** — one restore silently
+    rewrote line endings and left a 25-line phantom diff; revert with `git checkout` and re-run a
+    deterministic generator instead. And **14 of the 29 carry hand formatting**
+    (`trigger_keywords` on one line) that a JSON re-dump reflows, so edits to them must be
+    surgical text insertions or the real change drowns in a whole-file diff.
+  - **HANDOVER TO THE DESKTOP.** This session touched **`data/*-domain-support.json` — your
+    active area** — but additively only: 181 `id` keys inserted, nothing else altered, no code
+    file changed. If you have uncommitted work in those files, merge carefully. The
+    **slice 2/3 collision warning is now partly moot** (slice 2 has all but disappeared — see
+    the ownership correction), but **the storage re-key still changes the ground under Domain
+    Support and Logic Tables, and still needs whoever starts it to say so first.**
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*

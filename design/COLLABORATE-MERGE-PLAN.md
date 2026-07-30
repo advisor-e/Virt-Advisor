@@ -223,6 +223,29 @@ That is roughly **six functions and one table** — the whole two-level assumpti
 `deepMerge` already generalises: merging a chain is a reduce over the same function, not a new
 algorithm.
 
+> 🔴 **CORRECTION 2026-07-30 — THE TABLE ROW ABOVE FOR `mergeEntry` IS WRONG, AND SO IS THE
+> WORD "fold" WHEREVER IT APPEARS IN THIS SECTION.** §4 of this same document says a document
+> *"clones down through each level"*; §4.4 says the merge becomes *"a fold over the chain"*.
+> Those are **different architectures**, and the contradiction is live: a plan built off the
+> §4.4 wording was put to Mike on 2026-07-30 and he caught it.
+>
+> **The ruled model is neither pure clone nor pure layer — it is what Advisory Distinctions
+> already does** (`server/utils/resolveDistinctions.js`): a row nobody has touched stays current
+> with the mentor's edits automatically, and any row a level *has* edited is protected, with the
+> mentor's update **offered** (*Adopt / Keep mine*) rather than applied. Clone-like protection
+> where it matters, automatic freshness where it does not.
+>
+> **Ruled the same day: that mechanism becomes the single one used everywhere** — Domain
+> Support, Logic Tables, Quizzes, the Staircase and the coaching reference all come up to it
+> (Currency excepted: a single setting, not a list of rows). And **the sequencing reverses** —
+> unify the mechanism at two levels first, then add the middle levels once, because extending
+> one mechanism to five levels beats extending seven and merging them later. Full record and
+> the taken inventory: [`ACTIONS.md`](ACTIONS.md) → §Collaborate.
+>
+> **Slice 2 in §5 is also overtaken** — see the ownership correction in `ACTIONS.md`: login,
+> roles and the hierarchy belong to Advisory.com, so this repo never determines a tier and must
+> never invent role-value names. What survives is two lines inside the storage work.
+
 **Design rules that follow, binding on every slice below:**
 
 1. **No new code takes a bare `firmId` as its scope.** A route resolves a tier and a scope; a
