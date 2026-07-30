@@ -24,10 +24,10 @@
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
 - <a id="course-session-domain-briefing"></a>✅ **P1 · FIX — Course Builder's session briefing reached the WRONG domain materials.
-  FOUND *and* FIXED 2026-07-30 (approved by Mike, this branch). Full suite 2,016 green / 134 suites,
-  lint 0 errors. Measured effect: across the 29 domains, materials reaching the session prompt go
-  51 → 181 — and 51 was the *best case* for the old code (`people-power` 3 → 26, `sales-marketing`
-  2 → 17, `get-seminar` 3 → 16). No longer blocks the 3 new source documents.**
+  FOUND *and* FIXED 2026-07-30 (approved by Mike, this branch, commit `dd0b031`). Full suite 2,016
+  green / 134 suites, lint 0 errors. Measured effect: across the 29 domains, materials reaching the
+  session prompt go 51 → 181 — and 51 was the *best case* for the old code (`people-power` 3 → 26,
+  `sales-marketing` 2 → 17, `get-seminar` 3 → 16). No longer blocks the 3 new source documents.**
   - **The fix (3 files, no selection logic touched):** the name-match filter and the
     `materials.slice(0, 1)` fallback are gone from
     [`formatDomainContextForSession`](../server/utils/domainSupport.js); it now sends the detected
@@ -104,6 +104,48 @@
   - **Blocks:** transcription of the 3 new source documents (2026-07-30). 14 new rows into this path
     would *worsen* the over-match — `strategy` goes 4 → 13 rows with shared first words
     (*Business* Targets / *Business* Dating, *Orientation* Part 1 / 2, *Profit* Levers).
+
+- <a id="new-source-docs-2026-07-30"></a>☐ **3 new source documents added 2026-07-30 (commit `e443c52`) —
+  read and planned, NOT YET TRANSCRIBED.** New master export
+  `Central Frameworks/search_content_20260730041439.json` adds 2 library pages (**Speak Easy**,
+  **Mapping the Marketing & Sales Process**, both Do the Job / Strategic Tools) — diffed title-by-title
+  against the committed `data/templates.json`: 0 removed, no retitles.
+  - **Strategic Planning Support.pdf** — 9 materials (Planning Outcomes Review · Business Targets ·
+    Orientation Part 1 · Orientation Part 2 · Profit Levers & Blue Ocean · SWOT / PEST · Business
+    Dating · Pivot · Porters & Pine). Proposed home: **`strategy`** domain (4 → 13 rows).
+  - **Organisational Review Support.pdf** — 2 materials (Organisational Review · Org Chart Only).
+    Proposed home: **`staff`** domain (2 → 4 rows). Judgement call, flagged to Mike: client-facing
+    org design rather than firm-facing, so `staff` fits its keywords better than the `org-*` (firm)
+    domains or `people-power`, but not decided.
+  - **Sales & Marketing Support.pdf** — 3 materials (Mapping the Marketing & Sales Process · Sales &
+    Mktg Review · Speak Easy). Home: existing **`sales-marketing`** domain. The Sales & Mktg Review
+    material groups the existing 16-row menu into **5 stages** (offer → message → funnel → outreach/
+    channel → proposal) covering **9 of the 16** rows; **7 get no method** (Customer Type Table,
+    Sparketing, Branding Review, Customer Loyalty Programme, Pricing, Packaging/Bundling, Sales
+    Process Review) — named in the doc's benefits paragraph but given no step anywhere in it. Ruled:
+    keep all 16 rows, distribute the 5-stage detail into the 9 it covers, leave the 7 empty rather
+    than invent a method (CLAUDE.md — never fabricate the firm's IP).
+  - **3 new logic tables** (Branch Chain IF/THEN, the existing `flat_if_then` shape) — Strategic
+    Planning (11 branches), Organisational Review (8), Sales & Marketing (13). **Found:** the
+    Organisational Review branch table is duplicated verbatim inside its own support PDF
+    (lines 170–307) — transcribes ONCE, into Logic Tables only, per the §0.6 tab split. **Found:**
+    none of the 3 carry a `templates[]` column; a branch's THEN text names a real material in several
+    cases (e.g. "Execute Blue Ocean Strategy", "Apply the Sigmoid Curve model") but `templates[]`
+    must be derived only where the name is verifiable against the library — left empty and flagged
+    to Mike otherwise, never guessed. The existing `logicTreeTemplateNames.test.js` build guard would
+    catch a wrong name regardless.
+  - **8 of the 14 material names are working names, not exact library titles** — resolved against
+    the new export and will need the swap on transcription: Planning Outcomes → Planning Outcomes
+    Review · Bizz Targets → Business Targets · Strategic Orientation.1/.2 → Orientation Part 1/2 ·
+    S.W.O.T PEST → SWOT / PEST · Porter's & Pine → Porters & Pine · Org Chart → Org Chart Only ·
+    Sales & Mktg Review → Sales & Marketing Review.
+  - **Deleted by Mike, same commit:** `Sales & Marketing Slides table.pdf` — a one-page contents
+    index for a *Sales & Marketing Review* deck never held in this repo; predates the refined
+    domain-support/logic-table structure and fit neither. Superseded by `Sales & Marketing
+    Support.pdf`. **Orphaned by the deletion:** `data/sales-marketing-slides.json` (the PDF's
+    extract) — traced, nothing in the codebase reads it — a candidate for removal, not yet approved.
+  - **Blocked until 2026-07-30 by the P1 above**, now clear. **Not started:** the actual data-file
+    transcription (adding the 14 materials + 32 branches into the domain-support / logic-trees JSON).
 
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
