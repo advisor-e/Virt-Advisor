@@ -79,4 +79,62 @@ async function loadBlendedStaircase (firmId, loadFirmConfig) {
   return override ? deepMerge(BASE_STAIRCASE, override) : BASE_STAIRCASE
 }
 
-module.exports = { loadBlendedStaircase, CONFIG_KEY, BASE_STAIRCASE }
+/**
+ * Resolve the advisor's staircase answer to a step in their firm's staircase.
+ *
+ * WHAT THE ANSWER LOOKS LIKE. The selector submits its label plus the step's
+ * description as ordinary chat text — "Step 3: Interpretation — The conversation
+ * has broadened…". That text is what gets stored on the case's decision trace and
+ * read back for a returning client, so it is the only identity the engine has.
+ * It carries the step's POSITION and its NAME, but no id: the id lives in the data
+ * file and cannot travel this route without changing what the advisor types.
+ *
+ * WHY NAME FIRST. The engine used to take the position number and trust it. Insert
+ * or reorder a step in the platform file and every stored "Step 3" silently means a
+ * different step — a different complexity ceiling, and different templates
+ * recommended, with nothing to notice. Matching the name first survives exactly
+ * that: a step that moved from 3 to 4 but kept its name still resolves correctly.
+ *
+ * WHY IT STILL FALLS BACK TO THE NUMBER. A firm renaming a step is the common
+ * event — it is the whole point of the Firm Manager tab. After a rename the stored
+ * name matches nothing, and refusing to resolve would degrade every returning
+ * client of every firm that has ever edited a word. The number is what the engine
+ * used before, so the fallback is never worse than the old behaviour; the name
+ * match is strictly a gain on top of it.
+ *
+ * HONEST LIMIT: a step that was BOTH renamed and moved cannot be recovered from
+ * this text by any rule, and will resolve by position as it does today. Closing
+ * that needs the id to travel with the answer, which belongs with the firm-editable
+ * cascade — see tests/unit/advisoryStaircaseRowIds.test.js.
+ *
+ * @param {string|null} answerText - the advisor's stored staircase answer.
+ * @param {Object} [staircase] - the firm's blended staircase (defaults to the base).
+ * @returns {Object|null} the matched step row, or null when nothing matches — the
+ *   caller then falls back to the config's defaultCeiling, as it always has.
+ */
+function resolveStaircaseStep (answerText, staircase = BASE_STAIRCASE) {
+  if (!answerText || typeof answerText !== 'string' || answerText === 'pending') { return null }
+
+  const steps = (staircase && Array.isArray(staircase.steps)) ? staircase.steps : []
+  if (!steps.length) { return null }
+
+  // No [1-5] here, deliberately: the old pattern could not read a sixth step, so a
+  // staircase grown by one silently lost its top rung to the default ceiling.
+  const match = /Step\s*(\d+)\s*:?\s*([^\n]*)/i.exec(answerText)
+  if (!match) { return null }
+
+  const position = parseInt(match[1], 10)
+  // The label runs up to the dash that separates it from the description. Only the
+  // FIRST separator is honoured — a description may contain dashes of its own.
+  const label = String(match[2] || '').split(/\s[—–-]\s/)[0].trim().toLowerCase()
+
+  if (label) {
+    const byName = steps.filter(s => s && typeof s.name === 'string' && s.name.trim().toLowerCase() === label)
+    // Only an unambiguous name wins; two steps sharing a name prove nothing.
+    if (byName.length === 1) { return byName[0] }
+  }
+
+  return steps.find(s => s && s.step === position) || null
+}
+
+module.exports = { loadBlendedStaircase, resolveStaircaseStep, CONFIG_KEY, BASE_STAIRCASE }

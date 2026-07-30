@@ -39,7 +39,7 @@ const clientStore = require('../server/utils/clientStore')
 const { listForClient } = require('../server/utils/caseStore')
 const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistoryScoringInputs } = require('../server/utils/priorEngagement')
 
-const { loadBlendedStaircase } = require('../server/utils/staircaseConfig')
+const { loadBlendedStaircase, resolveStaircaseStep } = require('../server/utils/staircaseConfig')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -2423,8 +2423,13 @@ async function handleQuery (rawBody, res, identity) {
     const reportsFromAdvisorFirm = state.reportsFromFirm && /\byes\b|we do|our firm|my firm|we provide|we deliver|i do|i deliver|we produce/i.test(state.reportsFromFirm)
     const reviewYes = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && /\byes\b|yeah|absolutely|definitely|would help|would benefit|good idea/i.test(state.wouldBenefitFromReview)
     const reviewNo = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && !reviewYes
-    const staircaseStep = state.advisoryStaircase ? (state.advisoryStaircase.match(/Step\s*([1-5])/i) || [])[1] : null
-    const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
+    // Resolved against the FIRM's staircase, by name first and position second.
+    // This used to be a bare /Step ([1-5])/ on the answer text, which meant the
+    // position was treated as the step's identity: reorder the staircase and every
+    // stored answer silently pointed at a different step, with a different
+    // complexity ceiling behind it. See utils/staircaseConfig.resolveStaircaseStep.
+    const _resolvedStaircaseStep = resolveStaircaseStep(state.advisoryStaircase, staircaseConfig)
+    const staircaseNum = _resolvedStaircaseStep ? _resolvedStaircaseStep.step : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated|spoke\s+to\s+(?:me|us)\s+about|called\s+(?:me|us)\s+about|phoned\s+(?:me|us)|reached\s+out|got\s+in\s+touch|contacted\s+(?:me|us)|they\s+(?:called|rang|phoned|messaged|emailed|texted)/i.test(state.clientRaisedIssue)
 
     // Parse meeting count — upper bound of a range taken so capacity covers all
