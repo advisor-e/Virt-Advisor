@@ -1042,6 +1042,35 @@ Two honest answers on different axes — the file used to conflate them:
 
 ## OPEN — actionable now (build / decide this session)
 
+- <a id="fabricated-detail-in-summaries"></a>☐ **P1 · CONTENT/VERIFY — a FABRICATED detail was found living in the domain-support
+  data, presented as the firm's own material. One confirmed instance; the blast radius is unknown.**
+  **Deferred by Mike on 2026-07-31 — logged deliberately, NOT to be picked up next**, so the
+  three-document transcription is finished first. Not started.
+  - **The confirmed instance.** The `A.I.D.C.R.A Advertisement Framework` row in
+    [`sales-marketing-domain-support.json`](../data/sales-marketing-domain-support.json) expanded
+    the acronym as *"Attention, Interest, Desire, **Conviction, Response**, Action"*. Mike's ruling,
+    2026-07-31: **that was AI-generated when the summary was drafted — none of his templates use it.**
+    The correct expansion, in both new source PDFs, is *Credibility, Risk Removal*. Mike corrected
+    the row himself the same day.
+  - **Why this one mattered more than a typo.** It was specific, plausible and authoritative — a
+    six-part expansion of the firm's own acronym — and it reached the AI on **every** sales-marketing
+    conversation. It was found only because a new source document happened to contradict it.
+  - **Why the blast radius is unknown.** The domain-support summaries across all 29 domains were
+    drafted the same way. Swept `data/` for this specific wording on 2026-07-31: **no other
+    occurrence** (the two `conviction` hits in `cautious-reveal-reference.json` and
+    `trial-fit-reference.json` are the ordinary English word, verified in context, not the acronym).
+    That clears THIS fabrication and says nothing about any other.
+  - **Why no existing test catches it.** Every domain-support test checks structure, reach, fencing
+    and counts — that a row renders, saves and gets to the prompt. **Nothing compares a summary
+    against its source PDF**, so an invented specific passes every gate we have. Same class as the
+    content-routing problem: it looks right, reads authoritatively, and is wrong.
+  - **Do NOT bulk-regenerate the summaries** — that would replace one set of unverified AI text with
+    another. The check has to be against the source documents.
+  - **Open question for whoever picks it up:** whether a sample of high-risk rows is enough (rows
+    naming an acronym, a numbered model, or a named framework — the shape that carries inventable
+    specifics), or whether all 29 domains need reading against their PDFs. Sample first, and report
+    the hit rate before deciding — the hit rate is the evidence for how far to go.
+
 - ☐ **P2 · VERIFY — the advisor-chat recommendation change has NOT been exercised live.** Merged 2026-07-22 (PR #21, `d791a9a`): the AI now declares its recommendations in a trailing `[[TEMPLATES: …]]` marker, which the engine holds back from the SSE stream so it never reaches the advisor. Covered by 22 tests — parsing, catalogue validation, the stream hold-back across awkward chunk splits, a truncated marker — but **no real conversation has been run against it**, because this machine has no `OPENAI_API_KEY` and every advisor request fails at startup. What tests cannot answer: whether the answer still streams smoothly and nothing odd appears at the end. **Do one real Virtual Advisor conversation wherever a key exists before this reaches UAT**, and check (a) the reply streams normally, (b) no `[[TEMPLATES` text is ever visible, (c) the session's recommended templates look right on the Team Dashboard. *Source: session 2026-07-22.*
 
 - ✅ **P2 · UX — DONE 2026-07-22. Sample figures now say so.** Wording approved by Mike: **"These are sample numbers, not your client's"** (`report.sampleFigures`), shown via new [`components/base/SampleNotice.vue`](../components/base/SampleNotice.vue). Both exposure points covered: (1) **demo/manual mode** on Quick Position and EBITDA — no seed, so every figure is the sample company's; (2) **the projection dials on SEEDED runs too** — growth %, discount % and exit multiple start on the sample's settings even when the P&L above came from the client's files, and the notice clears the moment any dial is touched (it is about the DEFAULTS, not about the dials being editable). A group-level notice, not a per-cell tag: the grid is 24 rows × 5 years and tagging every cell is noise the eye stops seeing — which is how the original problem went unnoticed. +6 tests, including the negative cases (gone once seeded, gone once a dial is set) because a warning that never disappears is one advisors learn to ignore. Suite 1,563 green. *Original entry:* Found live by Mike during the R13–R24 smoke session: on the EBITDA screen's demo/manual path he changed sales to $145,000 and got a −$5,409,687 gross profit — arithmetically correct, because the OTHER cells (cost of sales $5,554,687 etc.) still silently held the sample company's figures. Two exposure points: (1) **demo/manual mode** — every cell starts as a sample figure with no on-screen marker saying so; (2) **the projection dials on seeded runs too** — the five growth %, five discount % and exit-multiple cells default to the sample's settings with nothing labelling them as assumptions to adjust (the P&L rows have R11 provenance badges; the dials have nothing). Direction: a visible "sample figure — adjust for your client" treatment (per-cell tag or a banner over the group) on demo-mode cells and the projection dials, wording to be approved by Mike before coding; QP demo mode gets the same review. Complements R8/R11 (backend declares defaults; intake badges facts) — this is the last leg: the SCREEN saying which numbers are still assumptions. *Source: live smoke pass 2026-07-20.*

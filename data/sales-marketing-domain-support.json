@@ -15,17 +15,26 @@
     {
       "name": "6 Marketing Questions",
       "summary": "Explores six key questions that test whether the client has considered their value from the customer's perspective rather than their own. It settles who they serve, how they add value and what makes them special. Nothing else in the review works properly until this is clear — it is the know-what-matters step.",
-      "who_when": "Sales and Marketing Review page 5. Used when the client is unclear who they serve, what makes them different, or why customers choose them."
+      "who_when": "Sales and Marketing Review page 5. Used when the client is unclear who they serve, what makes them different, or why customers choose them.",
+      "steps": [
+        "Complete the 6 Critical Marketing Questions: clarify the target profile, the key concerns and problems, the legitimate purchasing constraints, the unique traits, the value addition, and the messaging channels."
+      ]
     },
     {
       "name": "Product Fit",
       "summary": "Explores the trade-offs between business profitability and customer acceptance — whether the offer is genuinely aligned with what the target customer wants to buy at the price being asked. It is aimed squarely at conversion: turning the marketing leads already being generated into sales. Get it right and even a sub-standard salesperson can win the work.",
-      "who_when": "Sales and Marketing Review page 7. Used when leads are arriving but not converting, or the client is discounting to win work."
+      "who_when": "Sales and Marketing Review page 7. Used when leads are arriving but not converting, or the client is discounting to win work.",
+      "steps": [
+        "Perform a Product (Fit) Review: evaluate customer fit against the resistance factors, then compare the product's capabilities against the standard competitor fronts — price, quality, convenience, status and the rest."
+      ]
     },
     {
       "name": "10 Marketing Messages",
       "summary": "Explores ten marketing statements written to speak to the customer's actual purchase decision points. It converts what was defined in the 6 Marketing Questions into sticky outbound messaging. The test is whether the client can explain it to somebody else in the customer's language rather than their own.",
-      "who_when": "Sales and Marketing Review page 10. Used when the client has a good product but struggles to articulate its value, or advertising is not generating leads."
+      "who_when": "Sales and Marketing Review page 10. Used when the client has a good product but struggles to articulate its value, or advertising is not generating leads.",
+      "steps": [
+        "Complete the 10 Critical Marketing Messages framework — defining the target market, the one big promise, the unique traits, the risk removal guarantees, and the rest."
+      ]
     },
     {
       "name": "Customer Type Table",
@@ -34,23 +43,35 @@
     },
     {
       "name": "A.I.D.C.R.A Advertisement Framework",
-      "summary": "Explains the logical order in which an advertisement should be constructed — Attention, Interest, Desire, Conviction, Response, Action. Working to the sequence produces more effective adverts, and it doubles as a review framework so ads can be A/B tested against something other than opinion.",
-      "who_when": "Sales and Marketing Review page 14. Used when the client is spending on advertising that is not performing."
+      "summary": "Explains the logical order in which an advertisement should be constructed — Attention, Interest, Desire, Credibility, Risk Removal, Action. Working to the sequence produces more effective adverts, and it doubles as a review framework so ads can be A/B tested against something other than opinion.",
+      "who_when": "Sales and Marketing Review page 14. Used when the client is spending on advertising that is not performing.",
+      "steps": [
+        "Structure the promotional assets using the A.I.D.C.R.A Model: Attention (bold headlines and graphics), Interest (common problem descriptions), Desire (wants, needs, peer status), Credibility (proof and testimonials), Risk Removal (guarantees and free trials), and Action (clear 3-step instructions)."
+      ]
     },
     {
       "name": "Digital Funnel Storyboard",
       "summary": "Maps the sequential offerings, messages and responses that move a target customer from their couch to the client's cash register. It puts every marketing asset — website, social, email, advertising — into one comprehensive plan rather than leaving them running separately. The output is a single sequence rather than a collection of activity.",
-      "who_when": "Sales and Marketing Review page 17. Used when the client has marketing assets but no coherent strategy connecting them."
+      "who_when": "Sales and Marketing Review page 17. Used when the client has marketing assets but no coherent strategy connecting them.",
+      "steps": [
+        "Map the digital customer journeys across the price tiers: Free (lead magnets), Tiny Fee (entry products), Small Fee, Target Client, Golden Client, and Premium Client."
+      ]
     },
     {
       "name": "(Outbound) Messaging Plan",
       "summary": "Schedules the client's messaging activity, working through medium, platform, time and cost as planning considerations. Its purpose is executability: a campaign that survives alongside everything else the business has to do. Without it, campaigns are designed and then quietly displaced by day-to-day work.",
-      "who_when": "Sales and Marketing Review page 22. Used when the client wants to run campaigns but has no structured plan for executing them."
+      "who_when": "Sales and Marketing Review page 22. Used when the client wants to run campaigns but has no structured plan for executing them.",
+      "steps": [
+        "Schedule the concept domains across the four primary mediums: Video, Article or content post, Speech, and Blog."
+      ]
     },
     {
       "name": "(Inbound) Landing Page Review",
       "summary": "Defines the reader's logic and the landing page's logic, then uses both to sequence the text, graphics and widgets on the page. Matching the page to how a prospect actually reads and decides is what converts traffic into enquiry. It is the inbound counterpart to the messaging plan.",
-      "who_when": "Sales and Marketing Review page 26. Used when digital traffic reaches the site but does not convert."
+      "who_when": "Sales and Marketing Review page 26. Used when digital traffic reaches the site but does not convert.",
+      "steps": [
+        "Design the landing page architecture section by section, aligning the reader's logic with the landing page's logic and with the specific marketing statements."
+      ]
     },
     {
       "name": "Sparketing (Friction) Review",
@@ -80,7 +101,10 @@
     {
       "name": "Sales Channel Options",
       "summary": "Explores the different sales channel options available and drives a pros and cons discussion on each. The point is to identify several ways of engaging salespeople to reach a wider market, rather than defaulting to the one channel the business has always used. Reach is weighed against what the business can actually support.",
-      "who_when": "Sales and Marketing Review page 41. Used when the client relies on a single channel and wants wider market reach."
+      "who_when": "Sales and Marketing Review page 41. Used when the client relies on a single channel and wants wider market reach.",
+      "steps": [
+        "Evaluate the sales distribution channel options — Commission-Only, Salaried, Licensed Distributor, Formal Alliance — against the control, cash flow and scalability trade-offs each one carries."
+      ]
     },
     {
       "name": "Sales Process Review",
@@ -90,7 +114,11 @@
     {
       "name": "Drafting Tender Proposals",
       "summary": "Notes and ideas to incorporate into tender applications as the client sees fit. The source treats this as general reading rather than material for a focused session. It is there for firms whose revenue depends on tenders and who want to strengthen the applications they already make.",
-      "who_when": "Sales and Marketing Review page 52. General reading for clients who rely on tenders or RFPs — not a facilitated session."
+      "who_when": "Sales and Marketing Review page 52. General reading for clients who rely on tenders or RFPs — not a facilitated session.",
+      "steps": [
+        "Include contents pages and separator cards for rapid navigation, and state the full pricing boldly up front.",
+        "Limit the critical success factors to 3–5 key points, frame the text positively, and map the explicit communication flows that prevent administrative bottlenecks."
+      ]
     },
     {
       "name": "Powerful Seminars",
@@ -115,6 +143,42 @@
         "Make the call to action clear, and design it in from the beginning rather than bolting it on at the end. The invitation should feel like inviting good friends to a special dinner, not a pitch.",
         "Brief every staff member on their specific role at the event, introduce any guest speaker properly, and make sure handouts carry the presenters' names, topics and full contact details — with spare copies for the people who take one for a friend.",
         "Check light and sound in advance: test every microphone and know the drop-out spots, hold a handheld mic at sternum level and move your body with your head if it is unidirectional, walk the stage while someone listens from the back, and never let the overhead lighting blind you or the audience."
+      ]
+    },
+    {
+      "name": "Mapping the Marketing & Sales Process",
+      "summary": "Links marketing collateral and the sales process to the psychological drivers behind a buying decision, so messaging is aligned to the dominant motive — Self Preservation, Social Status or Self Actualisation — and objections are pre-empted across the progressive stages of commitment rather than met at the end. For the advisor it supplies a 5-stage consultancy sales roadmap and the objection-handling to go with it: how to hold positioning control, establish Local Status, and flush out the real concern rather than the stated one.",
+      "who_when": "Business consultants, professional service providers, B2B sales professionals, and advisors structuring consultative or high-value sales engagements.",
+      "steps": [
+        "Map the customer's motive: identify the dominant buying motive — Self Preservation (security, comfort, certainty), Social Status (acceptance, contribution, validation), or Self Actualisation (achievement, focus, materialism).",
+        "Assess their decision processing style using Honey & Mumford: Activist (impulsive, needs action sequences), Pragmatist (emotive, seeks proof and data), Reflector (needs time to process), or Theorist (needs to contribute to the solution).",
+        "Establish the initial contact tactic: Artillery (marketing funnels driving to the point of sale), Sniper (direct face-to-face selling), or Platoon (marketing and support combined, to confirm and scope the engagement).",
+        "Stage 1 — Preparation and pre-approach: build the suspect list, pre-qualify against visible profile criteria, refine to a prospect list, and establish the pre-approach tactics.",
+        "Stage 2 — Positioning (introduction) meeting: establish Local Status, frame the meeting objective, state your Big Idea with push and pull frames, and secure agreement to enter discovery.",
+        "Stage 3 — Scoping (fact find) meeting: establish the permission boundaries, clarify the desired outcomes, identify the legitimate constraints and risk concerns, and clarify the timeline and budget ranges.",
+        "Stage 4 — Analyse and prepare the written proposal: perform the cost and delivery reviews, prepare the solution around a Minimum Viable Offer, and structure the recommendations around their constraint and risk concerns.",
+        "Stage 5 — Presentation and implementation meetings: call out the ghosts, trial close on each proposal point, address what objections remain, and complete the engagement paperwork.",
+        "Flush out the real concern behind \"it costs too much\": calculate the financial loss or gain over time, illustrate the feature and benefit trade-offs, and show social status or prestige proof from aspirational peers.",
+        "Behind \"it won't work\": trial close the logic as it is revealed, and provide social proof — testimonials, referrals, data-based research, industry figures.",
+        "Behind \"it won't work for me\": evaluate whether the circumstance variation genuinely negates the solution, then present case studies and stories of clients with the same profile succeeding.",
+        "Behind \"I can wait\": demonstrate the logical timeline connecting the offer to the end outcome, and calculate the cost of delay in money, in time, or in anxiety.",
+        "Behind \"it's too hard\": frame the current situation as a burning platform, where jumping sooner minimises the pain, and provide a clear action sequence or flowchart."
+      ]
+    },
+    {
+      "name": "Speak Easy",
+      "summary": "A four-part workshop — Learn, Investigate, Talk, Execute — that takes a professional services firm from transactional, low-margin work towards high-value, scalable advisory packages. It works by starting at the client's pain rather than the firm's service list: identify the problems, link each to its root cause and its downstream effect, and only then build the promise statements, the scalable offers and the elevator pitch. The cause is what establishes credibility; the effect is what establishes empathy.",
+      "who_when": "Accountants, lawyers, financial advisers, business coaches and professional service firms seeking to move from transactional work to high-value, scalable advisory packages.",
+      "steps": [
+        "Learn their concerns: define the target 'A' demographic and the Goldilocks State — the ideal conditions across Knowledge, Skill, Resource, Environment and Attitude.",
+        "Identify 5–6 common client problems, isolate the 3 main problems they actually want fixed, and link each one to its root Cause, which establishes credibility, and its downstream Effect, which establishes empathy.",
+        "Formulate the core promise statements: Who I Work With, What I Help Them To Achieve, What They Enjoy As A Result, and The Magic Happens When.",
+        "Investigate scale options: define the Premium Service Offer — full strategic planning, monthly KPI reviews, and the like.",
+        "Identify the replicated or automated components, and the layered delivery mediums — video reviews, foundation knowledge workshops, group work-groups — to establish the pilot service offers.",
+        "Draft scalable service option statements across the delivery formats: Exclusive Coaching, Workshops, Online Coaching, Platform Presentations.",
+        "Talk their language: align the messaging focus, timing and channels with the stage the client has reached in their own decision-making.",
+        "Construct the BBQ Statement — an elevator pitch with permission — across its six parts: General Title (the high-level professional role); Positioning Statement (the target audience identifier, answering \"is he talking to me?\"); Value Proposition (the direct statement of impact, answering \"what can he do for me?\"); Left Brain Explanation (the technical approach or methodology); Right Brain Metaphor Story (the relatable narrative or analogy); and Visibility Statement (the practical explanation of how delivery actually happens).",
+        "Execute the plan: complete the 13-task implementation roadmap, assigning responsibility (Whom) and timelines (When) to review past clients, create the marketing statements, sequence the outbound activity, match the inbound web traffic, and update the hard-copy media."
       ]
     }
   ],

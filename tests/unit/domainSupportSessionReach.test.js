@@ -89,10 +89,16 @@ describe('session briefing reaches every domain material (P1 regression guard)',
     // The measured live failure: with the resource "Sales & Marketing Review",
     // only "Sales Channel Options" and "Sales Process Review" matched — because
     // their names begin with "Sales", not because they fit. The other 14 were
-    // invisible. All 17 must now be present.
+    // invisible. All of them must now be present.
+    //
+    // The count is pinned exactly rather than as a floor, deliberately: it is the
+    // non-vacuity guard for the assertion below, and an exact figure also trips
+    // whenever content is added, forcing a look. It did exactly that on
+    // 2026-07-31 when Mapping the Marketing & Sales Process and Speak Easy were
+    // transcribed from Sales & Marketing Support.pdf — 17 → 19.
     const out = formatDomainContextForSession('sales-marketing')
     const mats = DOMAINS.find(d => d.id === 'sales-marketing').json.materials
-    expect(mats.length).toBe(17)
+    expect(mats.length).toBe(19)
     mats.forEach(m => expect(out).toContain(`### ${m.name}`))
   })
 

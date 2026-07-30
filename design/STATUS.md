@@ -4,7 +4,7 @@
 > The source of truth is [`ACTIONS.md`](ACTIONS.md); this is a view of it. Every
 > row links back to the full entry, where the reasoning and evidence live.
 
-**54 outstanding** — 9 in progress · 38 open · 7 blocked. **105 completed** (listed at the bottom).
+**55 outstanding** — 9 in progress · 39 open · 7 blocked. **105 completed** (listed at the bottom).
 
 Completed work is kept here on purpose: so a task is never done twice, and so a new
 task that resembles an old one can be traced back to the code that solved it.
@@ -13,41 +13,42 @@ task that resembles an old one can be traced back to the code that solved it.
 
 | Priority | Type | Status | Task | Section | |
 |---|---|---|---|---|---|
-| P2 | DECISION+BUILD | In progress | 28 dormant trees → harvest JUDGMENT into signals | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1055) |
-| P2 | BUILD/DECISION | In progress | Get-the-Job Stage 2: due_diligence | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1074) |
-| P2 | BUILD | In progress | Course persistence (courses + progress) — BUILT 2026-07-15, Stages A–D (Course Builder table CB-16/CB-17) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1076) |
-| P2 | BUILD/DECISION | In progress | Business Performance Report (NEW feature, in design) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1136) |
-| P3 | BUILD | In progress | Close the improvement loop | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1117) |
-| P3 | BUILD | In progress | Learn-mode domain-support enrichment — BUILT 2026-07-16 (ruled: INJECT) | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1148) |
+| P2 | DECISION+BUILD | In progress | 28 dormant trees → harvest JUDGMENT into signals | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1084) |
+| P2 | BUILD/DECISION | In progress | Get-the-Job Stage 2: due_diligence | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1103) |
+| P2 | BUILD | In progress | Course persistence (courses + progress) — BUILT 2026-07-15, Stages A–D (Course Builder table CB-16/CB-17) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1105) |
+| P2 | BUILD/DECISION | In progress | Business Performance Report (NEW feature, in design) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1165) |
+| P3 | BUILD | In progress | Close the improvement loop | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1146) |
+| P3 | BUILD | In progress | Learn-mode domain-support enrichment — BUILT 2026-07-16 (ruled: INJECT) | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1177) |
 | — | — | In progress | Report-model maths — verified against source Excel 2026-07-10; 1 proven formula flaw FIXED, others are faithful/not-flaws | CODE-REVIEW SWEEP — 2026-07-10 (5-reviewer pass, whole app) | [open](ACTIONS.md#L966) |
 | — | — | In progress | CourseBuilder SSE never aborted — *(course half ✅ FIXED 2026-07-15, b8ef0ed — AbortController on every context switch; see Course Builder table CB-… | CODE-REVIEW SWEEP — 2026-07-10 (5-reviewer pass, whole app) | [open](ACTIONS.md#L976) |
-| — | — | In progress | (history) Engine could not recognise a business in CRISIS (the quickfire SURVIVAL branch) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1063) |
+| — | — | In progress | (history) Engine could not recognise a business in CRISIS (the quickfire SURVIVAL branch) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1092) |
 | P1 | BUILD | Open | a visible routing map: which material reaches CLIENT RECOMMENDATIONS, and which is ADVISOR-READ-ONLY | ★ BIGGEST PRIORITY RIGHT NOW | [open](ACTIONS.md#L108) |
+| P1 | CONTENT/VERIFY | Open | a FABRICATED detail was found living in the domain-support data, presented as the firm's own material | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1045) |
 | P2 | SALVAGE | Open | PR #1 (chore/i18n-jsdoc-cleanup, opened 2026-06-30) CLOSED UNMERGED 2026-07-21, deliberately | CODE-REVIEW SWEEP — 2026-07-18 (report feature, 3-reviewer pass) | [open](ACTIONS.md#L934) |
-| P2 | VERIFY | Open | the advisor-chat recommendation change has NOT been exercised live | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1045) |
-| P2 | PROCESS | Open | Adopt release tags as the integration hand-off to the master team | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1053) |
-| P2 | CONTENT | Open | P2 · CONTENT (Mike/master-team) — the EOY scripts text is not in the app's data, and "EOY Scripts Only" is not a page in the current master export | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1082) |
-| P2 | FIX | Open | Learn mode is profile-blind: it asks questions the advisor profile already answers | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1084) |
-| P2 | BUILD | Open | P2 · BUILD (pre-production) — Firm Manager config persistence → MySQL | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1088) |
-| P2 | BUILD | Open | Distinctions cascade, Stage 3 — hierarchy hook-up to the master app (mentor→firms→advisors) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1090) |
-| P2 | FIX | Open | Coaching-reference review, Phase 2: cap + domain-filter the injected entries | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1125) |
-| P2 | SEC/FIX | Open | Coaching-reference review, Phase 3: server-side caseContext | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1127) |
-| P2 | BUILD | Open | Education gates on the Advisory Staircase — RULED: advisor-choice prompt (Mike's own design, 2026-07-16) | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1152) |
+| P2 | VERIFY | Open | the advisor-chat recommendation change has NOT been exercised live | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1074) |
+| P2 | PROCESS | Open | Adopt release tags as the integration hand-off to the master team | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1082) |
+| P2 | CONTENT | Open | P2 · CONTENT (Mike/master-team) — the EOY scripts text is not in the app's data, and "EOY Scripts Only" is not a page in the current master export | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1111) |
+| P2 | FIX | Open | Learn mode is profile-blind: it asks questions the advisor profile already answers | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1113) |
+| P2 | BUILD | Open | P2 · BUILD (pre-production) — Firm Manager config persistence → MySQL | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1117) |
+| P2 | BUILD | Open | Distinctions cascade, Stage 3 — hierarchy hook-up to the master app (mentor→firms→advisors) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1119) |
+| P2 | FIX | Open | Coaching-reference review, Phase 2: cap + domain-filter the injected entries | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1154) |
+| P2 | SEC/FIX | Open | Coaching-reference review, Phase 3: server-side caseContext | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1156) |
+| P2 | BUILD | Open | Education gates on the Advisory Staircase — RULED: advisor-choice prompt (Mike's own design, 2026-07-16) | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1181) |
 | P3 | DOC | Open | ↳ QUIZ-LAB-REPORT.md is now STALE (says 58 banks / 610 questions; reality is 62 / 652) | ★ BIGGEST PRIORITY RIGHT NOW | [open](ACTIONS.md#L608) |
 | P3 | TEST | Open | ↳ P3 · TEST follow-up (found 2026-07-30, NOT done — needs its own approval): that test checks an allowlisted name is still absent from the library, b… | ★ BIGGEST PRIORITY RIGHT NOW | [open](ACTIONS.md#L699) |
 | P3 | CONTENT | Open | ↳ P3 · CONTENT (Mike) — two defects in Domain Support/EOY Support.pdf itself | ★ BIGGEST PRIORITY RIGHT NOW | [open](ACTIONS.md#L798) |
 | P3 | ENV | Open | npm 8 is not installed on the desktop, which is the machine that does the installs | CODE-REVIEW SWEEP — 2026-07-18 (report feature, 3-reviewer pass) | [open](ACTIONS.md#L902) |
-| P3 | TEST | Open | jest.config.js collectCoverageFrom excludes the decision engine + routes (advisorEngine.js, courseEngine.js, server/routes/, mixins/), so the Const… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1101) |
-| P3 | TEST | Open | No component-test infrastructure and no Playwright, anywhere in the repo | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1103) |
-| P3 | STRUCT | Open | Monolithic components, no base/shared split | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1105) |
-| P3 | DOC | Open | Sparse JSDoc. Mixins lack @param/@returns; course.js has none; advisor.js ~4 tags across 2061 lines. Scheduled into the planned cleanup pass — see… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1107) |
-| P3 | I | Open | P3 · I18N — Hardcoded English in templates (e.g | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1109) |
-| P3 | EDIT-TARGET | Open | Bring building blocks under Firm-Manager no-code editing: 14-question weight sliders, Strategy table (strategyResolver rules), primary-issues table… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1111) |
-| P3 | EDIT-TARGET | Open | Plan-mode's 2 proprietary frameworks are embedded (locked) inside plan.txt and flagged "should become firm-editable." Add to the firm-editable cons… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1113) |
-| P3 | BUILD | Open | Profile → DB. Move the advisor profile off localStorage into the firm DB (same migration family as case studies). *Source:* registry Part 1A → Prof… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1115) |
-| P3 | BUILD | Open | Auditability goals. Decision Trace (per-recommendation trace) + Config versioning (edit history; tag each saved case with the active config version… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1131) |
-| P3 | DOC | Open | P3 · DOC tidy — fold any remaining per-file detail from registry_compilation_wip; resolve the Org CA Capacity Planner mislabelled-PDF flag (Part 2A) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1134) |
-| P3 | BUILD | Open | HOW-swap scope — RULED: YES, both places | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1150) |
+| P3 | TEST | Open | jest.config.js collectCoverageFrom excludes the decision engine + routes (advisorEngine.js, courseEngine.js, server/routes/, mixins/), so the Const… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1130) |
+| P3 | TEST | Open | No component-test infrastructure and no Playwright, anywhere in the repo | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1132) |
+| P3 | STRUCT | Open | Monolithic components, no base/shared split | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1134) |
+| P3 | DOC | Open | Sparse JSDoc. Mixins lack @param/@returns; course.js has none; advisor.js ~4 tags across 2061 lines. Scheduled into the planned cleanup pass — see… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1136) |
+| P3 | I | Open | P3 · I18N — Hardcoded English in templates (e.g | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1138) |
+| P3 | EDIT-TARGET | Open | Bring building blocks under Firm-Manager no-code editing: 14-question weight sliders, Strategy table (strategyResolver rules), primary-issues table… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1140) |
+| P3 | EDIT-TARGET | Open | Plan-mode's 2 proprietary frameworks are embedded (locked) inside plan.txt and flagged "should become firm-editable." Add to the firm-editable cons… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1142) |
+| P3 | BUILD | Open | Profile → DB. Move the advisor profile off localStorage into the firm DB (same migration family as case studies). *Source:* registry Part 1A → Prof… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1144) |
+| P3 | BUILD | Open | Auditability goals. Decision Trace (per-recommendation trace) + Config versioning (edit history; tag each saved case with the active config version… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1160) |
+| P3 | DOC | Open | P3 · DOC tidy — fold any remaining per-file detail from registry_compilation_wip; resolve the Org CA Capacity Planner mislabelled-PDF flag (Part 2A) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1163) |
+| P3 | BUILD | Open | HOW-swap scope — RULED: YES, both places | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1179) |
 | — | — | Open | 3 new source documents added 2026-07-30 (commit e443c52) — read and planned, NOT YET TRANSCRIBED | ★ BIGGEST PRIORITY RIGHT NOW | [open](ACTIONS.md#L133) |
 | — | — | Open | NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with Quizzes and Advisory Distinctions, and make the LOGIC TABLES and D… | ★ BIGGEST PRIORITY RIGHT NOW | [open](ACTIONS.md#L175) |
 | — | — | Open | ↳ Stale lab baseline found (log, not Phase 0): committed design/SCENARIO-LAB-REPORT.md was last re-baselined 2026-07-14 AI-ON, before the 2026-07-22… | ★ BIGGEST PRIORITY RIGHT NOW | [open](ACTIONS.md#L196) |
@@ -58,15 +59,15 @@ task that resembles an old one can be traced back to the code that solved it.
 | — | — | Open | ↳ Phase 4 — the "add a report" recipe (doc and/or /add-report skill) | CODE-REVIEW SWEEP — 2026-07-18 (report feature, 3-reviewer pass) | [open](ACTIONS.md#L930) |
 | — | — | Open | Non-atomic Stage-D delete across stores — server/routes/mentor.js L181 — a mid-way failure leaves the master row live while firms lose their overri… | CODE-REVIEW SWEEP — 2026-07-10 (5-reviewer pass, whole app) | [open](ACTIONS.md#L972) |
 | — | — | Open | Session-state read-modify-write race on concurrent same-session requests — advisorEngine.js (last-write-wins loses answers) | CODE-REVIEW SWEEP — 2026-07-10 (5-reviewer pass, whole app) | [open](ACTIONS.md#L973) |
-| — | — | Open | ↳ CONTENT GAP — Productive Habits needs a content summary | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1058) |
-| — | — | Open | STACK DRIFT (dev toolchain) — flip engine-strict back to true | ⛔ DO-FIRST P1 (stack governance — overnight/reinstall-gated) | [open](ACTIONS.md#L1172) |
-| — | — | Blocked | STATE — Vuex installed but unused — RULED: PARKED until the Advisor-e UAT settles, then bundled with the localStorage→MySQL migration | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1149) |
-| — | — | Blocked | BUILD — Broaden urgency-trigger detection (follow-up to Intervention Urgency, evidence-gated) | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1161) |
-| — | — | Blocked | BUILD — Primary-issue selector remnant (evidence-gated) | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1162) |
-| — | — | Blocked | BUILD — Firm Manager: master-export self-service upload (Stage 2) | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1163) |
-| — | — | Blocked | OPS (not code) — Provision the va_case_studies MySQL table | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1164) |
-| — | — | Blocked | FEATURE (future, parked) — Advisor-enablement distinction table, paired to Learn mode | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1165) |
-| — | — | Blocked | BUILD (later) — Distinctions cascade Stage 4 — case-study → suggested-distinction loop (north-star #4; out of scope for the cascade build itself) | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1166) |
+| — | — | Open | ↳ CONTENT GAP — Productive Habits needs a content summary | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1087) |
+| — | — | Open | STACK DRIFT (dev toolchain) — flip engine-strict back to true | ⛔ DO-FIRST P1 (stack governance — overnight/reinstall-gated) | [open](ACTIONS.md#L1201) |
+| — | — | Blocked | STATE — Vuex installed but unused — RULED: PARKED until the Advisor-e UAT settles, then bundled with the localStorage→MySQL migration | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1178) |
+| — | — | Blocked | BUILD — Broaden urgency-trigger detection (follow-up to Intervention Urgency, evidence-gated) | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1190) |
+| — | — | Blocked | BUILD — Primary-issue selector remnant (evidence-gated) | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1191) |
+| — | — | Blocked | BUILD — Firm Manager: master-export self-service upload (Stage 2) | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1192) |
+| — | — | Blocked | OPS (not code) — Provision the va_case_studies MySQL table | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1193) |
+| — | — | Blocked | FEATURE (future, parked) — Advisor-enablement distinction table, paired to Learn mode | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1194) |
+| — | — | Blocked | BUILD (later) — Distinctions cascade Stage 4 — case-study → suggested-distinction loop (north-star #4; out of scope for the cascade build itself) | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1195) |
 
 ## Completed
 
@@ -152,43 +153,43 @@ task that resembles an old one can be traced back to the code that solved it.
 | — | — | FIXED 2026-07-15 — server-middleware/course.js was missing the client-disconnect cleanup that advisor.js added → abandoned SSE sockets wedged the d… | CODE-REVIEW SWEEP — 2026-07-10 (5-reviewer pass, whole app) | [open](ACTIONS.md#L981) |
 | — | — | FIXED 2026-07-22 — retryLastMessage duplicated the user turn | CODE-REVIEW SWEEP — 2026-07-10 (5-reviewer pass, whole app) | [open](ACTIONS.md#L982) |
 | — | — | FIXED 2026-07-22 — profileQuestions index drift | CODE-REVIEW SWEEP — 2026-07-10 (5-reviewer pass, whole app) | [open](ACTIONS.md#L983) |
-| P2 | UX | DONE 2026-07-22. Sample figures now say so. Wording approved by Mike: "These are sample numbers, not your client's" (report.sampleFigures), shown v… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1047) |
-| P1 | STACK | P1 · STACK DEVIATION CLOSED 2026-07-22 — the three report components' text is now in locales/en.json (report.debtorDrag 56 strings, report.marginBr… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1049) |
-| P2 | DOC | Backfill the unknown commits in the deployed-versions ledger | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1051) |
-| P2 | RESOLVED | P2 · RESOLVED 2026-06-25 — crisis recognition now robust + live-validated (see ACTIONS-ARCHIVE) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1062) |
-| — | — | ↳ STEP 1 DONE (2026-06-24) — recognition | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1064) |
-| — | — | ↳ STEP 2 VALIDATED (2026-06-24) — Mike's IP, no-code, proven end-to-end | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1065) |
-| P2 | DATA | Tree→template provenance sweep RESOLVED 2026-06-24 | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1067) |
-| — | — | ↳ get_positioning — 4 fabricated template names (Business Assessment Report, Revenue Model What-if, Agenda & Notes, Management Reporting Annual Plan)… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1068) |
-| — | — | ↳ get_marketing / get_team_problem / get_sales_tracker — all refs PDF-verified advisor-dev kit (legitimately absent from the client search JSON) → ke… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1069) |
-| — | — | ↳ valuation — Valuation support.pdf (the sweep had only read Valuation Logic.pdf) is the real source; MBO/BIMBO/Newco ratified upstream by Mike (Indi… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1070) |
-| P3 | SEC/TEST | Ghost-reference validator scope LOCKED to node trees (2026-06-24) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1072) |
-| P1 | FIX | Learn topic-router never re-routed on a mid-conversation pivot | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1078) |
-| P2 | FIX | Verbatim-content honesty at the data boundary (Learn + all chat modes) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1080) |
-| — | — | FIXED 2026-07-22 — /api/clients proxy wiring | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1086) |
-| P2 | DONE | Distinctions cascade, mentor authoring surface (the UI origin of the cast) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1092) |
-| — | — | ↳ A single-source loader (server/utils/platformDistinctions.js); repointed all 5 platform reads; byte-identical with no stored rows | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1093) |
-| — | — | ↳ B /api/mentor/distinctions CRUD (firmAuth + requireMentorRole, global scope, never req.firmId); dev-file fallback; prod save errors re-thrown | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1094) |
-| — | — | ↳ C mentor UI (components/MentorDistinctions.vue + tabbed pages/mentor.vue); self-contained (firm screen untouched); nuxt build green | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1095) |
-| — | — | ↳ D — delete semantics ("keep theirs") | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1096) |
-| — | — | ↳ E — mentor-update review (adopt/keep-mine) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1097) |
-| P3 | TEST | dev-fallback tests no longer depend on local data/dev-*.json files | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1100) |
-| P1 | SEC/FIX | Coaching-reference learning loop hardened (Phase 1 of the 2026-07-15 review) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1119) |
-| P2 | BUILD | Mentor case-study review (per-case, manager-gated, anonymised) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1129) |
-| — | — | org_leadership home — RULED: stays in Learn mode | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1147) |
-| P3 | BUILD | Raw-JSON "Decision Framework" Firm Manager tab — SHIPPED 2026-07-16 (ruled: HIDE, admin/mentor-only) | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1151) |
-| — | — | "Context domains override the strategy layer" — RULED: current per-domain handling IS the design | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1153) |
-| P2 | SEC | Tier 2 fabrication watch: enforcement ON | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1159) |
-| — | — | EXPERIENCE — Frustration detection BUILT 2026-06-25 | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1160) |
+| P2 | UX | DONE 2026-07-22. Sample figures now say so. Wording approved by Mike: "These are sample numbers, not your client's" (report.sampleFigures), shown v… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1076) |
+| P1 | STACK | P1 · STACK DEVIATION CLOSED 2026-07-22 — the three report components' text is now in locales/en.json (report.debtorDrag 56 strings, report.marginBr… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1078) |
+| P2 | DOC | Backfill the unknown commits in the deployed-versions ledger | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1080) |
+| P2 | RESOLVED | P2 · RESOLVED 2026-06-25 — crisis recognition now robust + live-validated (see ACTIONS-ARCHIVE) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1091) |
+| — | — | ↳ STEP 1 DONE (2026-06-24) — recognition | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1093) |
+| — | — | ↳ STEP 2 VALIDATED (2026-06-24) — Mike's IP, no-code, proven end-to-end | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1094) |
+| P2 | DATA | Tree→template provenance sweep RESOLVED 2026-06-24 | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1096) |
+| — | — | ↳ get_positioning — 4 fabricated template names (Business Assessment Report, Revenue Model What-if, Agenda & Notes, Management Reporting Annual Plan)… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1097) |
+| — | — | ↳ get_marketing / get_team_problem / get_sales_tracker — all refs PDF-verified advisor-dev kit (legitimately absent from the client search JSON) → ke… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1098) |
+| — | — | ↳ valuation — Valuation support.pdf (the sweep had only read Valuation Logic.pdf) is the real source; MBO/BIMBO/Newco ratified upstream by Mike (Indi… | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1099) |
+| P3 | SEC/TEST | Ghost-reference validator scope LOCKED to node trees (2026-06-24) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1101) |
+| P1 | FIX | Learn topic-router never re-routed on a mid-conversation pivot | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1107) |
+| P2 | FIX | Verbatim-content honesty at the data boundary (Learn + all chat modes) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1109) |
+| — | — | FIXED 2026-07-22 — /api/clients proxy wiring | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1115) |
+| P2 | DONE | Distinctions cascade, mentor authoring surface (the UI origin of the cast) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1121) |
+| — | — | ↳ A single-source loader (server/utils/platformDistinctions.js); repointed all 5 platform reads; byte-identical with no stored rows | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1122) |
+| — | — | ↳ B /api/mentor/distinctions CRUD (firmAuth + requireMentorRole, global scope, never req.firmId); dev-file fallback; prod save errors re-thrown | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1123) |
+| — | — | ↳ C mentor UI (components/MentorDistinctions.vue + tabbed pages/mentor.vue); self-contained (firm screen untouched); nuxt build green | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1124) |
+| — | — | ↳ D — delete semantics ("keep theirs") | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1125) |
+| — | — | ↳ E — mentor-update review (adopt/keep-mine) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1126) |
+| P3 | TEST | dev-fallback tests no longer depend on local data/dev-*.json files | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1129) |
+| P1 | SEC/FIX | Coaching-reference learning loop hardened (Phase 1 of the 2026-07-15 review) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1148) |
+| P2 | BUILD | Mentor case-study review (per-case, manager-gated, anonymised) | OPEN — actionable now (build / decide this session) | [open](ACTIONS.md#L1158) |
+| — | — | org_leadership home — RULED: stays in Learn mode | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1176) |
+| P3 | BUILD | Raw-JSON "Decision Framework" Firm Manager tab — SHIPPED 2026-07-16 (ruled: HIDE, admin/mentor-only) | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1180) |
+| — | — | "Context domains override the strategy layer" — RULED: current per-domain handling IS the design | NEEDS A MIKE DECISION (no code until you rule) | [open](ACTIONS.md#L1182) |
+| P2 | SEC | Tier 2 fabrication watch: enforcement ON | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1188) |
+| — | — | EXPERIENCE — Frustration detection BUILT 2026-06-25 | GATED — not startable yet (evidence / auth / ops blocked) | [open](ACTIONS.md#L1189) |
 
 </details>
 
 ## What this table does not tell you
 
-- It reads the **first line** of each entry. `ACTIONS.md` is 1173 lines and single
+- It reads the **first line** of each entry. `ACTIONS.md` is 1202 lines and single
   entries run past 6,000 characters — the detail, the evidence and the rulings are in
   there, not here. Follow the link.
-- **121 list lines carry no status marker** and are therefore not rows above. They are
+- **127 list lines carry no status marker** and are therefore not rows above. They are
   sub-points inside entries, not tasks — but they are counted here rather than dropped,
   so the difference between "no tasks" and "not parsed" is always visible.
 - A row marked Done reflects what the entry says. It is not independent proof the work
