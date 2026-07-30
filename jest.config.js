@@ -77,8 +77,11 @@ module.exports = {
     // Financial models (business performance report). 100% lines across all 11 files;
     // CLAUDE.md treats financial logic as must-test, so this is held high deliberately.
     './server/report/': { statements: 96, branches: 85, functions: 99, lines: 99 },
-    // firmAuth — the IDOR-safe guard every firm-scoped route depends on.
-    './server/middleware/': { statements: 88, branches: 93, functions: 99, lines: 88 },
+    // firmAuth — the IDOR-safe guard every firm-scoped route depends on. Reached 100% on
+    // all four metrics on 2026-07-30: the dev MENTOR bypass and the whole of
+    // requireMentorRole (the one gate that deliberately crosses the firm boundary) had no
+    // test at all. Held at 100 — nothing in this file may regress.
+    './server/middleware/': { statements: 100, branches: 100, functions: 100, lines: 100 },
     // CB-13 (design/COURSE-BUILDER-PLAN.md Phase 5): the course engine was untested until
     // 2026-07-15; `lines: 90` is that original lock, unchanged. The other three metrics
     // were added 2026-07-30 as measured floors so branch coverage cannot rot behind it.
@@ -91,7 +94,10 @@ module.exports = {
     './server/utils/validateAIResponse.js': { statements: 100, branches: 100, functions: 100, lines: 100 },
 
     // ── FLOORS: below standard, ratcheted. Debt in design/COVERAGE-DEBT.md ──────────
-    './server/routes/': { statements: 69, branches: 64, functions: 74, lines: 71 },
+    // Raised from 69/64/74/71 on 2026-07-30 (health.js 0→100%, cases.js 76→98.6%).
+    // Cannot reach its 90% standard until firmManager.js (264 lines) and report.js (60)
+    // are done — firmManager deliberately waits for Collaborate slice 2, which rewrites it.
+    './server/routes/': { statements: 71, branches: 65, functions: 75, lines: 73 },
     // Was a floor at 65/58/79/66. The 13 learn-mode reference formatters were covered on
     // 2026-07-30 (tests/unit/learnReferenceFormatters.test.js), taking logicTrees.js from
     // 22% to 82% lines and this bucket from 67.9% to 84.1% — so it now EXCEEDS the 80%

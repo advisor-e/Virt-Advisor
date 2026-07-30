@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken')
 const TEST_SECRET = 'test-secret-for-auth-tests'
 const WRONG_SECRET = 'wrong-secret'
 
-const { firmAuth, requireManagerRole } = require('../../server/middleware/firmAuth')
+const { firmAuth, requireManagerRole, requireMentorRole } = require('../../server/middleware/firmAuth')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -224,6 +224,51 @@ describe('dev auth bypass', () => {
     expect(next).not.toHaveBeenCalled()
     expect(res._status).toBe(401)
   })
+
+  // The SECOND dev bypass — authenticating as the cross-firm mentor (platform_admin) —
+  // had no test at all, though it grants a strictly wider identity than the one above:
+  // the mentor view is not firm-scoped. It must fail closed on exactly the same terms.
+  const DEV_MENTOR_TOKEN = 'dev-local-mentor'
+
+  test('rejects the dev MENTOR token by default (ALLOW_DEV_AUTH unset)', () => {
+    const fn = firmAuthWithEnv({ allowDevAuth: undefined, nodeEnv: 'development' })
+    const req = { headers: { authorization: `Bearer ${DEV_MENTOR_TOKEN}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    fn(req, res, next)
+
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+  })
+
+  test('rejects the dev MENTOR token in production even when ALLOW_DEV_AUTH=true', () => {
+    const fn = firmAuthWithEnv({ allowDevAuth: 'true', nodeEnv: 'production' })
+    const req = { headers: { authorization: `Bearer ${DEV_MENTOR_TOKEN}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    fn(req, res, next)
+
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+  })
+
+  test('accepts the dev MENTOR token in dev, as the mentor rather than a firm advisor', () => {
+    const fn = firmAuthWithEnv({ allowDevAuth: 'true', nodeEnv: 'development' })
+    const req = { headers: { authorization: `Bearer ${DEV_MENTOR_TOKEN}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    fn(req, res, next)
+
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(req.userRole).toBe('platform_admin')
+    expect(req.userEmail).toBe('dev-mentor@local')
+    // advisorId must be null — the mentor is not an advisor, and anything that reads
+    // advisorId to scope a query must see the absence rather than a borrowed id.
+    expect(req.advisorId).toBeNull()
+  })
 })
 
 // ── requireManagerRole ────────────────────────────────────────────────────────
@@ -285,5 +330,69 @@ describe('requireManagerRole', () => {
     requireManagerRole(req, res, jest.fn())
 
     expect(res._status).toBe(403)
+  })
+})
+
+// ── requireMentorRole ─────────────────────────────────────────────────────────
+// This gate had NO tests, and it guards the one path that deliberately crosses the
+// firm boundary: the mentor reads anonymised cases shared from every firm. Where
+// requireManagerRole admits two roles, this one admits exactly one — a firm_manager
+// must NOT pass, or a firm's own manager could read across firms.
+
+describe('requireMentorRole', () => {
+  test('calls next() when role is the mentor role (platform_admin)', () => {
+    const req = { userRole: 'platform_admin' }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    requireMentorRole(req, res, next)
+
+    expect(next).toHaveBeenCalledTimes(1)
+  })
+
+  test('returns 403 for a firm_manager — manager rights do not cross firms', () => {
+    const req = { userRole: 'firm_manager' }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    requireMentorRole(req, res, next)
+
+    expect(res._status).toBe(403)
+    expect(next).not.toHaveBeenCalled()
+  })
+
+  test('returns 403 for an advisor', () => {
+    const res = makeMockRes()
+
+    requireMentorRole({ userRole: 'advisor' }, res, jest.fn())
+
+    expect(res._status).toBe(403)
+  })
+
+  test.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['an empty string', ''],
+    ['an unknown string', 'super_user']
+  ])('returns 403 when role is %s', (_label, userRole) => {
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    requireMentorRole({ userRole }, res, next)
+
+    expect(res._status).toBe(403)
+    expect(next).not.toHaveBeenCalled()
+  })
+
+  test('names the required role in the error envelope', () => {
+    const res = makeMockRes()
+
+    requireMentorRole({ userRole: 'advisor' }, res, jest.fn())
+
+    // This file's mock keeps the raw body written by sendError, so parse it here.
+    const body = JSON.parse(res._body)
+    expect(body.success).toBe(false)
+    expect(body.error.code).toBe('FORBIDDEN')
+    expect(body.error.message).toContain('platform_admin')
   })
 })

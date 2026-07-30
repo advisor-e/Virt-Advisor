@@ -33,7 +33,7 @@ enforces it. Cost: `npm test` went from ~11s to ~20s.
 
 ## The debt
 
-Measured 2026-07-30 across 8,759 lines. Repo-wide: **6,694 covered — 76.4%**
+Measured 2026-07-30 across 8,759 lines. Repo-wide: **6,750 covered — 77.1%**
 (70.9% when this file was opened the same day; see *Paid* below).
 "Owed" = lines that must newly execute to reach that row's standard.
 
@@ -43,12 +43,13 @@ Measured 2026-07-30 across 8,759 lines. Repo-wide: **6,694 covered — 76.4%**
 | **510** | `server/advisorEngine.js` | 37% | 80% | 🔴 **DEFERRED DELIBERATELY** — see below. Frozen, not forgotten. |
 | **122** | `mixins/**` | 32% | 80% | `caseMixin` 65 (0% today), `localeMixin` 50, `currencyMixin` 9, `speechMixin` 2. Collaborate's mixin tests are a *pattern* to follow — checked, and they share no lines with ours, so not a copy. |
 | **84** | `server-middleware/**` (ours) | 12% | 80% | 4 SSE proxies at 0%: `advisor.js`, `course.js`, `translate.js`, `apiProxy.js`. Need a fake backend to drive. `report.js` (58%) is the only one with tests. |
-| **60** | `server/routes/report.js` | 40% | 90% | |
+| **60** | `server/routes/report.js` | 40% | 90% | The largest remaining route gap after firmManager. |
 | **37** | `server/services/**` | 14% | 80% | `driveService.js` needs Google credentials — the documented-blocker class. Make it fail loudly rather than fake it. |
-| **20** | `server/routes/cases.js` | 76% | 90% | |
-| **3** | `server/routes/health.js` | 0% | 90% | Three lines. |
 | **2** | `server/routes/mentor.js` | 88% | 90% | |
-| **1** | `server/middleware/firmAuth.js` | 89.4% | 90% | **One line** on the guard every firm-scoped route depends on. |
+
+⚠ **`server/routes/**` cannot reach its 90% standard until `firmManager.js` and `report.js`
+are done**, so it stays a floor (now 73% lines, up from 71%) rather than becoming a standard
+— even though 8 of its 10 files are individually at or near it.
 
 ## Paid — 2026-07-30, the day this file was opened
 
@@ -62,6 +63,33 @@ Measured 2026-07-30 across 8,759 lines. Repo-wide: **6,694 covered — 76.4%**
   object and the four identity fields (`sessionId`, `clientId`, `advisorId`, `firmId`),
   which were entirely unexercised despite being the values the engine must firm-validate.
   **Its old `branches: 85` was retired by being met, not by being lowered.**
+
+Paid later the same session, all in code that guards a boundary:
+
+- **`server/middleware/firmAuth.js` 89.4% → 100% on all four metrics, and pinned there.**
+  Two things had no test at all: the dev **mentor** bypass (a strictly wider identity than
+  the dev advisor bypass it sits beside — the mentor view is not firm-scoped), and the whole
+  of **`requireMentorRole`**, the one gate that deliberately crosses the firm boundary.
+  Where `requireManagerRole` admits two roles, that one must admit exactly one, or a firm's
+  own manager could read across firms. Now asserted, including that a `firm_manager` is
+  refused.
+- **`server/routes/cases.js` 76.3% → 98.6%.** `anonymiseCasePreview` was exported and
+  mounted with **no test at all** — the one case route that sends client content to an LLM.
+  Its contract is a privacy boundary, so the tests assert it: manager-gated, firm-scoped,
+  shared-cases-only, and **the raw summary and transcript never appear in the response**,
+  only the scrubbed copy. Plus a table over every handler proving each fails closed on
+  missing identity and returns a safe envelope — no stack trace, path or SQL — when the DB
+  fails in production.
+- **`server/routes/health.js` 0% → 100%.** Three lines, but the shape (`200` + `ok: true`)
+  is a contract with things outside this repo: a deploy check, a load balancer, the master
+  app. Also asserted to leak nothing but `ok` and `timestamp`.
+
+**Two fixtures of mine that were wrong, and what they proved:** a DB-failure test asserted
+502 and got 404, because `getSharedForFirm` deliberately falls back to the dev file outside
+production — so that test now pins `NODE_ENV`, and its sibling documents the dev behaviour.
+And a `shareCaseWithMentor` fixture sent a flat body and got a correct 400: the approved copy
+arrives nested under `anonymised`. **Both were my error, not the code's** — worth stating,
+because a failing new test on old code reads as a bug until you check.
 
 **Two things worth not rediscovering:**
 
