@@ -2137,7 +2137,27 @@ function _mergeBranchRows (baseTree, rows) {
   const byId = new Map(baseList.map((n, i) => [n.id || `row-${i}`, n]))
   const str = v => (typeof v === 'string' ? v : '')
 
-  const list = (rows || []).map((row, i) => {
+  // A firm-added row's id IS its identity — the firm-editable cascade keys the
+  // firm's decisions about a row to it. It must therefore be unique and it must
+  // never change. It used to be the row's POSITION in the submitted list
+  // (`firm-branch-${i}`), which is neither: a new row landing at the index where
+  // an existing firm row's number was minted produced TWO rows carrying that id,
+  // with no error. So a generated id now dodges every id already spoken for —
+  // every platform row, and every id the submitted rows arrived with (which is
+  // how previously-saved firm rows keep theirs).
+  const taken = new Set(byId.keys())
+  for (const row of (rows || [])) {
+    if (row && typeof row.id === 'string' && row.id) { taken.add(row.id) }
+  }
+  let firmSeq = 0
+  const nextFirmBranchId = () => {
+    while (taken.has(`firm-branch-${firmSeq}`)) { firmSeq++ }
+    const id = `firm-branch-${firmSeq}`
+    taken.add(id)
+    return id
+  }
+
+  const list = (rows || []).map((row) => {
     const existing = row && row.id ? byId.get(row.id) : null
     if (existing) {
       // Reword in place: overwrite only the four editable fields, keep the rest
@@ -2154,7 +2174,7 @@ function _mergeBranchRows (baseTree, rows) {
     }
     // Firm-added branch: a new guidance row, appended, with no flow wiring.
     return {
-      id: (row && typeof row.id === 'string' && row.id) ? row.id : `firm-branch-${i}`,
+      id: (row && typeof row.id === 'string' && row.id) ? row.id : nextFirmBranchId(),
       branch_name: str(row && row.branch_name),
       condition: str(row && row.condition),
       action: str(row && row.action),
