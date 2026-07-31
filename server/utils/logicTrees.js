@@ -241,6 +241,52 @@ function detectLogicTrees (message, firmTrees) {
 }
 
 /**
+ * Explains WHY the detector opened what it opened: the same scoring as
+ * `detectLogicTrees`, but returning each tree's score and the exact trigger
+ * phrases that matched.
+ *
+ * Read-only — nothing here feeds a request. It exists because the trigger lists
+ * are firm-editable and, until now, invisible: a firm could change which table
+ * opens with no way to see the phrase that did it (design/ACTIONS.md →
+ * trigger-vocabulary-sweep).
+ *
+ * ⚠ Its ORDERING MUST stay identical to `detectLogicTrees`, and its top row
+ * identical to `detectLogicTree`'s single winner — otherwise the screen would
+ * confidently explain a decision production never made. Both are locked by
+ * tests/unit/phraseProbe.test.js over the whole corpus, not by spot-checks.
+ * The `.sort` below relies on the same stable-sort tie behaviour as
+ * `detectLogicTrees` (Array.prototype.sort is stable in Node 11+), so an
+ * equal-scoring pair keeps platform file order in both.
+ *
+ * @param {string} message - the advisor's words
+ * @param {Object|null} [firmTrees] - the firm's override map (loadFirmLogicTrees)
+ * @returns {Array<{id:string,name:string,shape:string,score:number,matched:string[]}>}
+ *   every tree scoring at least one trigger, highest first
+ */
+function explainDetection (message, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
+  const lower = (typeof message === 'string' ? message : '').toLowerCase()
+
+  const rows = []
+  for (const tree of trees) {
+    const matched = (tree.entry_triggers || []).filter(trigger => triggerMatches(lower, trigger))
+    if (matched.length === 0) { continue }
+    rows.push({
+      id: tree.id,
+      name: tree.name || tree.id,
+      // Which lane the table's content reaches: a `nodes` tree is walked and its
+      // templates become client recommendations; `flat_if_then` is Learn-mode
+      // reference and is never walked (see formatLogicTreeForPrompt).
+      shape: Array.isArray(tree.nodes) ? 'nodes' : 'flat_if_then',
+      score: matched.length,
+      matched
+    })
+  }
+  rows.sort((a, b) => b.score - a.score)
+  return rows
+}
+
+/**
  * Formats a single tree node into a readable text block for the AI.
  * @param {Object} node
  * @param {Array<Object>} allNodes
@@ -1309,4 +1355,4 @@ function walkLogicTree (state, treeId, firmTrees) {
   return [...templates]
 }
 
-module.exports = { loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }

@@ -2240,6 +2240,63 @@ async function getLogicTreeHistory (req, res) {
 }
 
 /**
+ * POST /api/firm-manager/logic-trees/probe — run one sentence through every
+ * DETERMINISTIC layer of the engine and report what it did: which domain was
+ * detected, which logic tables opened and on exactly which phrases, and which
+ * problem signals fired. Body: { text }.
+ *
+ * A POST because the payload is free text, not an identifier — it must not land
+ * in a URL, a server log or a browser history. Nothing is written: this is a
+ * read of the engine's behaviour, not a change to it.
+ *
+ * The advisory-distinctions layer is absent by design and says so in
+ * `notMeasured` — its phrases are AI-judged, not literal (see phraseProbe).
+ */
+async function probeLogicTreePhrase (req, res) {
+  const text = req.body && typeof req.body.text === 'string' ? req.body.text : null
+  if (!text || !text.trim()) {
+    return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'text required' } })
+  }
+  try {
+    const phraseProbe = require('../utils/phraseProbe')
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    res.send(200, phraseProbe.probeText(text, firmMap))
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/logic-trees/:treeId/preview-triggers — what WOULD change
+ * if this table's trigger phrases were edited. Body: { add: [], remove: [] }.
+ *
+ * ⚠ NOTHING IS SAVED. The proposal is merged in memory for the length of the
+ * request. It exists so a firm can see, before committing, whether a new word
+ * would take conversations away from another table — the check that was done by
+ * hand on 2026-07-31 and survived nowhere.
+ */
+async function previewLogicTreeTriggers (req, res) {
+  const { treeId } = req.params
+  const body = req.body || {}
+  const add = Array.isArray(body.add) ? body.add : []
+  const remove = Array.isArray(body.remove) ? body.remove : []
+  if (add.length === 0 && remove.length === 0) {
+    return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'add or remove required' } })
+  }
+  try {
+    const phraseProbe = require('../utils/phraseProbe')
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    const result = phraseProbe.previewTriggerChange({ treeId, add, remove, firmTrees: firmMap })
+    if (!result) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    res.send(200, result)
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
  * POST /api/firm-manager/logic-trees/:treeId/section — re-file a logic table into
  * a different master section for this firm (display-only; the AI is unaffected).
  * Body: { section: 'doTheJob' | 'getTheJob' | 'getOrganised' }. Moving an item
@@ -2338,5 +2395,7 @@ module.exports = {
   resetLogicTree,
   getLogicTreeHistory,
   setLogicTreeSection,
+  probeLogicTreePhrase,
+  previewLogicTreeTriggers,
   setDomainSupportSection
 }

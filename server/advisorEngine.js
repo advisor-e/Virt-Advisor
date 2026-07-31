@@ -3333,6 +3333,13 @@ module.exports.findNearMissDistinctions = findNearMissDistinctions
 module.exports.extractSavedClientFactsFromCases = extractSavedClientFactsFromCases
 module.exports.resolveSavedClientContext = resolveSavedClientContext
 module.exports.parseSavedFactAnswer = parseSavedFactAnswer
+// Exported for the read-only Firm Manager phrase probe (server/utils/phraseProbe.js)
+// so it scores domains with the ENGINE'S OWN compiled patterns rather than a second
+// copy built from domains.json. scripts/domain-detection-check.js already keeps such
+// a copy; a third would be the drift this week's routing defects were made of.
+// Read-only by contract: the patterns carry the /g flag, so consumers must use
+// String.match (stateless) and never RegExp.test (stateful via lastIndex).
+module.exports.DOMAIN_PATTERNS = DOMAIN_PATTERNS
 module.exports.buildSavedFactConfirmPrompt = buildSavedFactConfirmPrompt
 module.exports.continuityClaimAllowed = continuityClaimAllowed
 module.exports.buildContinuityDirective = buildContinuityDirective
