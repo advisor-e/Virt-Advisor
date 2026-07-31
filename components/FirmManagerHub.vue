@@ -1438,5 +1438,4 @@ export default {
 
 /* Switched-off (declined) rows in the unified distinctions list read as muted. */
 .distinction-off { opacity: 0.5; }
-}
 </style>
