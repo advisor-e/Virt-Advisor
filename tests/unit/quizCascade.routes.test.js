@@ -619,3 +619,235 @@ describe('GET /api/firm-manager/quizzes', () => {
     expect(Array.isArray(res._body.pages)).toBe(true)
   })
 })
+
+// ── Phase 4: Adopt / Keep mine (2026-08-01) ──────────────────────────────────
+//
+// A firm that edits one of Advisor-e's questions is deliberately shielded from our
+// later improvements to it. What must be proven here is not that a signature gets
+// stored, but that the firm is asked exactly when Advisor-e genuinely changed the
+// question, never when it did not, and that each of the two answers actually settles
+// it. Ported from the staircase's Phase 3 tests, case for case.
+
+// Hardcoded rather than imported on purpose — the storage key is a contract, and a
+// rename that silently orphaned every firm's baselines would show up here.
+const QUIZ_BASELINES_KEY = 'quiz-override-baselines'
+
+describe('platform-update drift on an edited question', () => {
+  test('editing a question stamps a baseline, and that baseline reports no drift', async () => {
+    mockKeys({})
+    await fm.setQuizOverride(makeReq({ params: { qid: QID }, body: { question: 'Ours?' } }), makeRes())
+
+    const stamped = savedTo(QUIZ_BASELINES_KEY)
+    expect(stamped).toHaveProperty(QID)
+
+    // Feed the stamp straight back: nothing about Advisor-e's question has changed.
+    jest.clearAllMocks()
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    mockKeys({ [CONFIG_KEYS.overrides]: { [QID]: { question: 'Ours?' } }, [QUIZ_BASELINES_KEY]: stamped })
+    const res = makeRes()
+
+    await fm.getQuizzes(makeReq(), res)
+
+    expect(res._body.driftQids).toEqual([])
+  })
+
+  test('a baseline that no longer matches the platform is reported as drift', async () => {
+    mockKeys({
+      [CONFIG_KEYS.overrides]: { [QID]: { question: 'Ours?' } },
+      [QUIZ_BASELINES_KEY]: { [QID]: 'the wording as it stood when they edited' }
+    })
+    const res = makeRes()
+
+    await fm.getQuizzes(makeReq(), res)
+
+    expect(res._body.driftQids).toEqual([QID])
+  })
+
+  test('an edit with NO baseline is backfilled, not reported as an update', async () => {
+    // An edit made before Phase 4 existed carries no stamp. Reading that as "Advisor-e
+    // changed this" would greet the firm with a review prompt for an update that never
+    // happened — on every question it had ever edited, at once.
+    mockKeys({ [CONFIG_KEYS.overrides]: { [QID]: { question: 'Ours?' } } })
+    const res = makeRes()
+
+    await fm.getQuizzes(makeReq(), res)
+
+    expect(res._body.driftQids).toEqual([])
+    expect(savedTo(QUIZ_BASELINES_KEY)).toHaveProperty(QID)
+  })
+
+  test('a question the firm never edited is never reported, whatever is stored', async () => {
+    // Nothing is shielded, so Advisor-e's wording already reaches them: there is no
+    // choice left to offer.
+    mockKeys({ [QUIZ_BASELINES_KEY]: { [QID]: 'stale' } })
+    const res = makeRes()
+
+    await fm.getQuizzes(makeReq(), res)
+
+    expect(res._body.driftQids).toEqual([])
+  })
+
+  test('an override on a qid Advisor-e no longer ships is not offered as an update', async () => {
+    // There is nothing to compare against and nothing to adopt. loadFirmQuizState
+    // already treats such an override as junk rather than a decision; reporting it
+    // here would make this the one place in the app that disagreed.
+    mockKeys({
+      [CONFIG_KEYS.overrides]: { 'qz-retired-question': { question: 'Ours?' } },
+      [QUIZ_BASELINES_KEY]: { 'qz-retired-question': 'stale' }
+    })
+    const res = makeRes()
+
+    await fm.getQuizzes(makeReq(), res)
+
+    expect(res._body.driftQids).toEqual([])
+  })
+
+  test('resetting a question drops its baseline with the edit', async () => {
+    mockKeys({
+      [CONFIG_KEYS.overrides]: { [QID]: { question: 'Ours?' } },
+      [QUIZ_BASELINES_KEY]: { [QID]: 'stale', [OTHER_QID]: 'kept' }
+    })
+
+    await fm.resetQuizOverride(makeReq({ params: { qid: QID } }), makeRes())
+
+    expect(savedTo(QUIZ_BASELINES_KEY)).toEqual({ [OTHER_QID]: 'kept' })
+  })
+
+  test('a second edited question is not swept in with the one that drifted', async () => {
+    mockKeys({
+      [CONFIG_KEYS.overrides]: { [QID]: { question: 'Ours?' }, [OTHER_QID]: { question: 'Also ours?' } },
+      [QUIZ_BASELINES_KEY]: { [QID]: 'stale' }
+    })
+    const res = makeRes()
+
+    await fm.getQuizzes(makeReq(), res)
+
+    // OTHER_QID carried no stamp, so it is backfilled as in-sync rather than joining QID.
+    expect(res._body.driftQids).toEqual([QID])
+  })
+})
+
+describe('POST /api/firm-manager/quizzes/platform/:qid/keep-mine', () => {
+  test('re-stamps the baseline so the prompt clears, leaving the edit alone', async () => {
+    mockKeys({
+      [CONFIG_KEYS.overrides]: { [QID]: { question: 'Ours?' } },
+      [QUIZ_BASELINES_KEY]: { [QID]: 'stale' }
+    })
+    const res = makeRes()
+
+    await fm.keepMineQuizQuestion(makeReq({ params: { qid: QID } }), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.keptMine).toBe(true)
+    // The firm's wording is untouched — only the baseline moved.
+    expect(savedTo(CONFIG_KEYS.overrides)).toBeUndefined()
+
+    const stamped = savedTo(QUIZ_BASELINES_KEY)
+    expect(stamped[QID]).not.toBe('stale')
+
+    // And the prompt is genuinely gone, not merely re-stamped.
+    jest.clearAllMocks()
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    mockKeys({ [CONFIG_KEYS.overrides]: { [QID]: { question: 'Ours?' } }, [QUIZ_BASELINES_KEY]: stamped })
+    const after = makeRes()
+
+    await fm.getQuizzes(makeReq(), after)
+
+    expect(after._body.driftQids).toEqual([])
+  })
+
+  test('409s when the firm holds no version to keep', async () => {
+    // Stamping a baseline for a question the firm does not override would arm a
+    // prompt that can never fire.
+    mockKeys({})
+    const res = makeRes()
+
+    await fm.keepMineQuizQuestion(makeReq({ params: { qid: QID } }), res)
+
+    expect(res._status).toBe(409)
+    expect(res._body.error.code).toBe('NOT_OVERRIDDEN')
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('404s on a question Advisor-e does not have', async () => {
+    mockKeys({})
+    const res = makeRes()
+
+    await fm.keepMineQuizQuestion(makeReq({ params: { qid: 'qz-invented' } }), res)
+
+    expect(res._status).toBe(404)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('keeps only the question asked about, leaving other baselines alone', async () => {
+    mockKeys({
+      [CONFIG_KEYS.overrides]: { [QID]: { question: 'Ours?' } },
+      [QUIZ_BASELINES_KEY]: { [QID]: 'stale', [OTHER_QID]: 'untouched' }
+    })
+
+    await fm.keepMineQuizQuestion(makeReq({ params: { qid: QID } }), makeRes())
+
+    expect(savedTo(QUIZ_BASELINES_KEY)[OTHER_QID]).toBe('untouched')
+  })
+})
+
+describe('the quiz drift signature', () => {
+  test('a question moving position is not an update — only its wording counts', async () => {
+    // `id` is a POSITION the resolver reassigns whenever a question above it is
+    // switched off. Signing it would tell a firm Advisor-e had rewritten a question
+    // that the FIRM itself had renumbered by switching a different one off.
+    mockKeys({})
+    await fm.setQuizOverride(makeReq({ params: { qid: QID }, body: { question: 'Ours?' } }), makeRes())
+    const stamped = savedTo(QUIZ_BASELINES_KEY)
+
+    jest.clearAllMocks()
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    mockKeys({
+      // Another question in the same bank is switched off, renumbering this one.
+      [CONFIG_KEYS.declines]: [BANK_ENTRIES[1].qid],
+      [CONFIG_KEYS.overrides]: { [QID]: { question: 'Ours?' } },
+      [QUIZ_BASELINES_KEY]: stamped
+    })
+    const res = makeRes()
+
+    await fm.getQuizzes(makeReq(), res)
+
+    expect(res._body.driftQids).toEqual([])
+  })
+
+  test('every field a firm may edit is signed, so any of them drifting is caught', async () => {
+    // A field left out of the signature is a field Advisor-e could rewrite without the
+    // firm ever being told. Proven per field rather than in aggregate, so adding a
+    // fourth editable field and forgetting the signature fails here.
+    const { EDITABLE_QUESTION_FIELDS } = require('../../server/utils/firmQuizzes')
+    const platformRow = BANK_ENTRIES[0]
+
+    mockKeys({})
+    await fm.setQuizOverride(makeReq({ params: { qid: QID }, body: { question: 'Ours?' } }), makeRes())
+    const stamped = savedTo(QUIZ_BASELINES_KEY)[QID]
+
+    for (const field of EDITABLE_QUESTION_FIELDS) {
+      // Rebuild the signature with exactly one field moved. It must differ from the
+      // stamp, which is only true if that field is part of what gets signed.
+      const moved = JSON.stringify(
+        EDITABLE_QUESTION_FIELDS.reduce((acc, f) => {
+          acc[f] = f === field
+            ? 'CHANGED BY ADVISOR-E'
+            : String(platformRow[f] === null || platformRow[f] === undefined ? '' : platformRow[f]).trim()
+          return acc
+        }, {})
+      )
+      expect(stamped).not.toBe(moved)
+    }
+
+    // And the control: rebuilt with NOTHING moved, it must MATCH — otherwise the loop
+    // above would pass even if the signature were of something else entirely.
+    const unmoved = JSON.stringify(
+      EDITABLE_QUESTION_FIELDS.reduce((acc, f) => {
+        acc[f] = String(platformRow[f] === null || platformRow[f] === undefined ? '' : platformRow[f]).trim()
+        return acc
+      }, {})
+    )
+    expect(stamped).toBe(unmoved)
+  })
+})

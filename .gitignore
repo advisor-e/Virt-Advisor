@@ -76,6 +76,8 @@ data/dev-firm-quizzes.json
 data/dev-firm-quiz-declines.json
 data/dev-firm-quiz-overrides.json
 data/dev-firm-quiz-own.json
+# Phase 4 drift baselines (2026-08-01) — added with the key, per the rule above.
+data/dev-firm-quiz-override-baselines.json
 
 # Dev-only firm content overlays — domain support + logic trees (created locally when MySQL is unavailable)
 data/dev-firm-domain-support.json

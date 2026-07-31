@@ -22,6 +22,7 @@ const DEV_QUIZZES_FILE = path.resolve(__dirname, '../../data/dev-firm-quizzes.js
 const DEV_QUIZ_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-declines.json')
 const DEV_QUIZ_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-overrides.json')
 const DEV_QUIZ_OWN_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-own.json')
+const DEV_QUIZ_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-override-baselines.json')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 function _devReadDistinctions (firmId) {
@@ -2047,7 +2048,9 @@ async function _saveQuizOverride (firmId, cfg, savedBy) {
  *
  * @returns {{base: Object, firmOverride: Object|null, merged: Object,
  *            resolved: Object, state: Object, hasOverride: boolean,
- *            hasDecisions: boolean, pages: Array<Object>}}
+ *            hasDecisions: boolean, pages: Array<Object>, driftQids: string[]}}
+ *   `driftQids` are the firm's edited questions Advisor-e has changed since — the tab
+ *   offers Adopt / Keep mine on those (Phase 4).
  */
 async function getQuizzes (req, res) {
   try {
@@ -2055,12 +2058,14 @@ async function getQuizzes (req, res) {
     const base = _platformQuizBanks()
     const state = await loadFirmQuizState(req.firmId, overlay.loadFirmConfig, base)
     const resolved = await loadBlendedQuizBanks(req.firmId, overlay.loadFirmConfig)
+    const driftQids = await _quizDriftQids(req.firmId, state.overrides, req.userEmail)
     res.send(200, {
       base,
       firmOverride,
       merged: mergeQuizBanks(base, firmOverride),
       resolved,
       state,
+      driftQids,
       hasOverride: firmOverride !== null,
       hasDecisions: state.declinedIds.length > 0 ||
         Object.keys(state.overrides).length > 0 ||
@@ -2113,10 +2118,24 @@ async function saveQuizzes (req, res) {
 // to say what happens — a firm switching off the last question is choosing
 // AI-written questions, not no questions.
 
+/**
+ * Where a firm's drift baselines live (Phase 4) — mirroring STAIRCASE_BASELINES_KEY.
+ *
+ * DELIBERATELY NOT ADDED TO THE READER'S `CONFIG_KEYS`. Those three keys are the
+ * firm's DECISIONS, and `loadFirmQuizState` asks "has this firm decided anything?"
+ * by looking at them. A baseline is not a decision — it is our record of the wording
+ * a decision was made against. Filed alongside the three, a firm that had only ever
+ * been stamped would start reading as a firm with its own quiz configuration.
+ */
+const QUIZ_BASELINES_KEY = 'quiz-override-baselines'
+
 const QUIZ_DEV_FILES = {
   [QUIZ_KEYS.declines]: DEV_QUIZ_DECLINES_FILE,
   [QUIZ_KEYS.overrides]: DEV_QUIZ_OVERRIDES_FILE,
-  [QUIZ_KEYS.own]: DEV_QUIZ_OWN_FILE
+  [QUIZ_KEYS.own]: DEV_QUIZ_OWN_FILE,
+  // Listed here so _loadQuizPart/_saveQuizPart carry baselines with no second pair of
+  // dev-file helpers. The staircase grew its own because it had no such map to join.
+  [QUIZ_BASELINES_KEY]: DEV_QUIZ_BASELINES_FILE
 }
 
 /**
@@ -2130,10 +2149,25 @@ const QUIZ_DEV_FILES = {
  * @type {Set<string>}
  */
 const PLATFORM_QIDS = new Set()
+
+/**
+ * The platform question behind each qid.
+ *
+ * Built in the same pass as PLATFORM_QIDS because Phase 4 needs the question's
+ * CONTENT, not just its existence, and the staircase's `steps.find(...)` has no cheap
+ * equivalent here — the questions are nested two deep across 62 banks, so a scan per
+ * lookup would repeat that walk for every edited question on every load of the tab.
+ * @type {Map<string, Object>}
+ */
+const PLATFORM_QUESTIONS = new Map()
+
 for (const [bankKey, bank] of Object.entries(BASE_QUIZZES.banks || {})) {
   if (bankKey.startsWith('_')) { continue }
   for (const entry of (bank && Array.isArray(bank.entries)) ? bank.entries : []) {
-    if (entry && entry.qid) { PLATFORM_QIDS.add(entry.qid) }
+    if (entry && entry.qid) {
+      PLATFORM_QIDS.add(entry.qid)
+      PLATFORM_QUESTIONS.set(entry.qid, entry)
+    }
   }
 }
 
@@ -2218,6 +2252,82 @@ async function _carryLegacyQuizDecisionsForward (firmId, savedBy) {
   }
 }
 
+// ── Phase 4: Adopt / Keep mine ────────────────────────────────────────────────
+//
+// A firm that edits one of Advisor-e's questions is deliberately shielded from our
+// later improvements to it — that is the whole point of an override. Phase 4 is how
+// the firm finds out we changed it anyway: we record the wording its edit was made
+// against, notice when ours moves away from that, and offer the choice.
+//
+// This is a PORT of the staircase's Phase 3, not a new design. Same key shape, same
+// backfill rule, same 409. Where the two must differ it is said so out loud, so a
+// reader who knows one knows the other — the standing rule on this feature.
+
+/**
+ * A stable content signature of a platform question's meaningful fields.
+ *
+ * Deterministic (fixed field order) and limited to EDITABLE_QUESTION_FIELDS, for the
+ * same reason the staircase excludes `step`: `id` is the POSITION the resolver
+ * reassigns whenever a question above it is switched off, so signing it would report a
+ * firm's question as "updated by Advisor-e" because the firm itself switched off a
+ * different question. `qid` is identity and never changes.
+ *
+ * @param {Object} row - a platform question
+ * @returns {string} the signature, or '' for a missing row
+ */
+function _quizQuestionSignature (row) {
+  if (!row || typeof row !== 'object') { return '' }
+  const norm = {}
+  for (const field of EDITABLE_QUESTION_FIELDS) {
+    norm[field] = String(row[field] === null || row[field] === undefined ? '' : row[field]).trim()
+  }
+  return JSON.stringify(norm)
+}
+
+/**
+ * Which of this firm's edited questions Advisor-e has changed since the firm last
+ * stated its version.
+ *
+ * A MISSING BASELINE IS BACKFILLED, NOT TREATED AS DRIFT. An edit made before this
+ * feature existed carries no stamp, and reading that as "Advisor-e changed this" would
+ * greet every such firm with a review prompt for an update that never happened — on
+ * every question it had ever edited, at once. The honest reading is "assume in sync
+ * now, track from here". Same rule as the staircase.
+ *
+ * @param {string} firmId - from the verified JWT, never the request body
+ * @param {Object} overrides - the firm's edits, keyed by platform question id
+ * @param {string} savedBy - audit attribution for a backfill write
+ * @returns {Promise<string[]>} platform qids to offer Adopt / Keep mine on
+ */
+async function _quizDriftQids (firmId, overrides, savedBy) {
+  const edited = Object.keys(overrides || {})
+  if (edited.length === 0) { return [] }
+
+  const stored = await _loadQuizPart(firmId, QUIZ_BASELINES_KEY, {})
+  const baselines = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? { ...stored } : {}
+  const driftQids = []
+  let backfilled = false
+
+  for (const qid of edited) {
+    const platformRow = PLATFORM_QUESTIONS.get(qid)
+    // An override keyed to a qid Advisor-e no longer ships is not drift — there is
+    // nothing to compare against and nothing to adopt. loadFirmQuizState already
+    // treats it as junk rather than a decision; offering a review of it here would
+    // be the one place in the app that disagreed.
+    if (!platformRow) { continue }
+    const sig = _quizQuestionSignature(platformRow)
+    if (!Object.prototype.hasOwnProperty.call(baselines, qid)) {
+      baselines[qid] = sig
+      backfilled = true
+    } else if (baselines[qid] !== sig) {
+      driftQids.push(qid)
+    }
+  }
+
+  if (backfilled) { await _saveQuizPart(firmId, QUIZ_BASELINES_KEY, baselines, savedBy) }
+  return driftQids
+}
+
 /**
  * Accept only the fields a firm may edit on a question, in the types they must be.
  *
@@ -2264,9 +2374,11 @@ function _sanitiseQuizFields (body) {
  * frozen at today's text — the whole point of the mechanism, and the exact defect
  * the old whole-bank overlay caused.
  *
- * No drift baseline is stamped here. The staircase stamps one so it can later offer
- * Adopt / Keep mine; for quizzes that is Phase 4, and stamping baselines before the
- * screen that reads them exists would leave stored state nothing can act on.
+ * Stamps Advisor-e's CURRENT wording as the drift baseline (Phase 4): the firm has
+ * just stated its version against THIS text, so a later change by us to it is what the
+ * firm should be offered. Before Phase 4 this deliberately stamped nothing, because
+ * baselines written ahead of the screen that reads them would be state nothing could
+ * act on.
  *
  * @param {string} qid - a platform question id (qz-*)
  * @returns {{updated: true, qid: string}}
@@ -2284,6 +2396,14 @@ async function setQuizOverride (req, res) {
     const current = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
     const next = { ...current, [qid]: { ...(current[qid] || {}), ...sani.value } }
     await _saveQuizPart(req.firmId, QUIZ_KEYS.overrides, next, req.userEmail)
+    const storedB = await _loadQuizPart(req.firmId, QUIZ_BASELINES_KEY, {})
+    const baselines = (storedB && typeof storedB === 'object' && !Array.isArray(storedB)) ? storedB : {}
+    await _saveQuizPart(
+      req.firmId,
+      QUIZ_BASELINES_KEY,
+      { ...baselines, [qid]: _quizQuestionSignature(PLATFORM_QUESTIONS.get(qid)) },
+      req.userEmail
+    )
     res.send(200, { updated: true, qid })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -2295,6 +2415,13 @@ async function setQuizOverride (req, res) {
  * Reset to Advisor-e's — drop this firm's version so Advisor-e's question applies
  * again, and keeps applying as Advisor-e improves it. Idempotent: resetting a
  * question the firm never edited is a no-op, not an error.
+ *
+ * THIS IS ALSO THE ADOPT HALF of Phase 4's choice — adopting our update means taking
+ * our question, which is exactly a reset. The drift baseline is dropped with the edit:
+ * a stale baseline is inert, but dropping it keeps the store honest and makes a later
+ * re-edit stamp fresh rather than inherit a signature from a decision the firm has
+ * since undone. Same reasoning as the staircase's reset.
+ *
  * @param {string} qid - a platform question id (qz-*)
  * @returns {{reset: true, qid: string}}
  */
@@ -2312,7 +2439,57 @@ async function resetQuizOverride (req, res) {
       delete next[qid]
       await _saveQuizPart(req.firmId, QUIZ_KEYS.overrides, next, req.userEmail)
     }
+    const storedB = await _loadQuizPart(req.firmId, QUIZ_BASELINES_KEY, {})
+    const baselines = (storedB && typeof storedB === 'object' && !Array.isArray(storedB)) ? storedB : {}
+    if (Object.prototype.hasOwnProperty.call(baselines, qid)) {
+      const nextB = { ...baselines }
+      delete nextB[qid]
+      await _saveQuizPart(req.firmId, QUIZ_BASELINES_KEY, nextB, req.userEmail)
+    }
     res.send(200, { reset: true, qid })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/quizzes/platform/:qid/keep-mine
+ * Phase 4 "Keep mine" — the firm has seen Advisor-e's update to a question it edited
+ * and is keeping its own version. Re-stamps the drift baseline to Advisor-e's CURRENT
+ * wording, so the review prompt clears until our NEXT change. The firm's edit is left
+ * untouched; the Adopt half of the choice is the existing reset route, which drops the
+ * edit and takes Advisor-e's question.
+ *
+ * 409 rather than a silent success when the firm holds no edit: nothing is being kept,
+ * and stamping a baseline for a question the firm does not override would arm a prompt
+ * that can never fire — it would sit in storage waiting for a change to a question this
+ * firm reads from us anyway.
+ *
+ * @param {string} qid - a platform question id (qz-*)
+ * @returns {{keptMine: true, qid: string}}
+ */
+async function keepMineQuizQuestion (req, res) {
+  const qid = String(req.params.qid || '')
+  const platformRow = PLATFORM_QUESTIONS.get(qid)
+  if (!platformRow) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform quiz question with that id')
+  }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.overrides, {})
+    const current = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+    if (!Object.prototype.hasOwnProperty.call(current, qid)) {
+      return sendError(res, 409, 'NOT_OVERRIDDEN', 'Your firm has no custom version of that question')
+    }
+    const storedB = await _loadQuizPart(req.firmId, QUIZ_BASELINES_KEY, {})
+    const baselines = (storedB && typeof storedB === 'object' && !Array.isArray(storedB)) ? storedB : {}
+    await _saveQuizPart(
+      req.firmId,
+      QUIZ_BASELINES_KEY,
+      { ...baselines, [qid]: _quizQuestionSignature(platformRow) },
+      req.userEmail
+    )
+    res.send(200, { keptMine: true, qid })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -3277,6 +3454,7 @@ module.exports = {
   saveQuizzes,
   setQuizOverride,
   resetQuizOverride,
+  keepMineQuizQuestion,
   setQuizDecline,
   addOwnQuizQuestion,
   updateOwnQuizQuestion,
