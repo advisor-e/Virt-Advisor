@@ -141,6 +141,58 @@ function effectiveTrees (firmTrees) {
   })
 }
 
+// ── Trigger matching ───────────────────────────────────────────────────────
+// A trigger must start at a WORD BOUNDARY. It may still run on into the rest of
+// the word, so "workflow" catches "workflows" and "margin" catches "margins".
+//
+// Why this exists (2026-07-31). Matching was a raw substring test, so a short
+// trigger fired inside unrelated words. `staff_performance` carries the trigger
+// "HR", which matched t-HR-ee, t-HR-ough, s-HR-unk, c-HR-onic and t-HR-eshold:
+// across the 51 Scenario Lab cases it fired in ELEVEN, opening the staff table
+// for conversations about margins, forecasting and due diligence. "ratio" fired
+// inside sepa-RATIO-n, "DD" inside a-DD-ed, "hiring" inside re-HIRING. Measured
+// on the same 51 cases, the boundary rule moves 8: four from the wrong table to
+// the right one (systems, sales_process, demings_volatility, conflict_meeting)
+// and three from a wrong table to none.
+//
+// The boundary is LEADING ONLY, chosen by measurement rather than taste. A
+// trailing \b as well — the "whole word" rule — reads as the tidier choice and
+// is worse: it drops "margins", "benchmarked", "management reports",
+// "bottlenecks", "workflows", "avoided" and "drawings", and costs one Scenario
+// Lab case its correct table (systems·no documentation, matched via workflows).
+//
+// Node 14: no lookbehind, no named groups. All 1,005 committed triggers were
+// checked for regex metacharacters (zero) and none begins with punctuation, but
+// the source is firm-editable, so the pattern is escaped regardless — a firm
+// typing "(" into a trigger must not throw at request time.
+const _triggerRe = new Map()
+
+/**
+ * Does `trigger` appear in `lower` starting at a word boundary?
+ * @param {string} lower - the message, already lowercased
+ * @param {string} trigger - a single entry_trigger, any case
+ * @returns {boolean}
+ */
+function triggerMatches (lower, trigger) {
+  let re = _triggerRe.get(trigger)
+  if (!re) {
+    const escaped = String(trigger).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    re = new RegExp('\\b' + escaped)
+    _triggerRe.set(trigger, re)
+  }
+  return re.test(lower)
+}
+
+/**
+ * Counts how many of a tree's entry_triggers the message matches.
+ * @param {Object} tree
+ * @param {string} lower - the message, already lowercased
+ * @returns {number}
+ */
+function scoreTriggers (tree, lower) {
+  return (tree.entry_triggers || []).filter(trigger => triggerMatches(lower, trigger)).length
+}
+
 /**
  * Detects which logic tree (if any) best matches the advisor's opening message.
  * Scores each tree by counting how many of its entry_triggers appear in the message.
@@ -157,9 +209,7 @@ function detectLogicTree (message, firmTrees) {
   let bestScore = 0
 
   for (const tree of trees) {
-    const score = (tree.entry_triggers || []).filter(trigger =>
-      lower.includes(trigger.toLowerCase())
-    ).length
+    const score = scoreTriggers(tree, lower)
 
     if (score > bestScore) {
       bestScore = score
@@ -183,7 +233,7 @@ function detectLogicTrees (message, firmTrees) {
   return trees
     .map(tree => ({
       tree,
-      score: (tree.entry_triggers || []).filter(t => lower.includes(t.toLowerCase())).length
+      score: scoreTriggers(tree, lower)
     }))
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score)
