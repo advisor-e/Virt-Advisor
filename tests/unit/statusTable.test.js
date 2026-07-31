@@ -18,7 +18,7 @@ const { collectItems, parseItem, summarise } = require('../../scripts/generate-s
 
 describe('status table generator', () => {
   describe('it cannot silently report nothing', () => {
-    const { items, unparsed } = collectItems()
+    const { items, unparsed, topLevelUnparsed } = collectItems()
 
     it('parses a realistic number of items out of ACTIONS.md', () => {
       // Floors, not exact counts — the backlog moves. They fail if parsing
@@ -34,11 +34,25 @@ describe('status table generator', () => {
       expect(done.length).toBeGreaterThan(0)
     })
 
-    it('leaves few list lines unattributed, and never hides how many', () => {
-      // `unparsed` is reported in the generated file on purpose. This asserts it
-      // stays a small minority — if most lines stop parsing, the table is
-      // lying by omission even though it still renders rows.
-      expect(unparsed).toBeLessThan(items.length)
+    it('never loses a TOP-LEVEL entry, and never hides how many it could not read', () => {
+      // Watches the lines that can actually go missing. A top-level list line with
+      // no readable status is a task absent from the table; an indented line is an
+      // evidence bullet under an item and is SUPPOSED to carry no marker.
+      //
+      // Changed 2026-08-01 (approved). The previous form compared `unparsed`
+      // against `items.length`, which measured how thoroughly the backlog was
+      // documented rather than whether the generator could still read it: on the
+      // day it was changed it stood at 172 vs 173, one evidence bullet from
+      // failing, and would have blocked the next detailed entry whoever wrote it.
+      // Wholesale parsing failure — the bug this file exists for — still shows up
+      // as `items.length` collapsing, which the floor above catches.
+      //
+      // 3 today: two are summary pointers that are correctly not tasks, and one is
+      // a real DEFERRED item whose ⏸ glyph the parser does not recognise (logged
+      // separately). The ceiling is deliberately just above that, not generous.
+      expect(topLevelUnparsed).toBeLessThanOrEqual(5)
+      // `unparsed` is still reported in the generated file on purpose — the count
+      // is never hidden, it just no longer gates the build.
       expect(typeof unparsed).toBe('number')
     })
 

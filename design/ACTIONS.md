@@ -201,6 +201,17 @@
     L466), (2) the weak `TREE_HINT_BOOST` (+3) toward the pages that reasoning points at, and (3) the
     zero-candidate fallback. When the **wrong** table opens, the AI is handed irrelevant reasoning —
     worse than none.
+  - **⚠ CORRECTION 2026-08-01 — the reassurance above is thinner than it reads, measured through the
+    new probe.** Run through all three deterministic layers, the named openers *"their attitude is the
+    problem, they have checked out"*, *"they simply do not have the skills for the job"* and *"we have
+    had high turnover and are rehiring constantly"* return **no table, no domain and ZERO signals**. So
+    "templates still come from signals" does not hold for these three: the signal layer is as blind to
+    them as the trigger layer. The domain **is** recoverable — the AI backstop picks it up — and the
+    distinctions layer is AI-judged so the probe cannot see whether it would have caught them. Two
+    caveats kept deliberately: production matches over the whole `collectedAnswers` block rather than a
+    bare opener (the 2026-07-31 severity correction stands, and is not being walked back), and three
+    sentences are not a measurement of all 42 tables. Recorded because the original wording would let
+    someone conclude the gap is cushioned when for these cases it is not.
   - **Scope, and why it is not one commit.** 42 tables, each needing candidate words checked against the
     other 41 (so nothing is stolen) and a real before/after. **The words are the firm's language**, so
     each table's list needs Mike's wording approval — this is not a bulk mechanical edit.
@@ -209,6 +220,76 @@
   - **Known casualty to fix here:** the Scenario Lab case `staff·high turnover` now opens no table. It
     had been reaching `staff_performance` only because *hiring* matched inside "re**hiring**" — right
     answer, wrong reason. Needs a *turnover* / *rehiring* trigger.
+  - **✅ TOOLING FOR THIS SWEEP — BUILT 2026-08-01 (approved by Mike, this branch, commit `754d204`).
+    Suite 2,111 green / 139 suites, lint 0 errors.** Raised by Mike: a read-only view of what affects
+    what, aligned with the tests, that warns of effects *before* a change. **Step 1 of two — backend
+    only, NO SCREEN YET, nothing eyeballed.**
+    - **What exists now.** [`server/utils/phraseProbe.js`](../server/utils/phraseProbe.js) +
+      `logicTrees.explainDetection` answer two questions: *what does the engine do with this sentence*
+      (domain detected · tables opened **and the exact phrases that opened them** · signals extracted),
+      and *if I add these words, what moves* — the corpus run twice, reporting GAINED (with the table it
+      was **taken from**), LOST, otherMoves and unchanged. Two read-only routes behind the existing
+      `fmGuard`; **neither writes anything**, the proposal is merged in memory and discarded.
+    - **It replaces a day of hand-measurement with about a second.** Proposing the four phrases this
+      item recommends: **1 gained** (exactly the `staff·high turnover` casualty above, on *rehiring*),
+      **0 taken from another table**, 0 lost, 469 unchanged — the "nothing is stolen" check this item
+      says each of the 42 tables needs.
+    - **The measurement trap is designed out, not avoided by care.** Both runs happen in ONE call with
+      explicit inputs, so neither can read the other's edit as its own baseline (the 2026-07-30 trap).
+      The proposal merges exactly as a save would (`firmContent.mergeEntry`, arrays replace wholesale)
+      and drives the REAL detector — no second scoring implementation exists.
+    - **Single source, not a third copy.** `advisorEngine` gained ONE line exporting `DOMAIN_PATTERNS`
+      (no existing line changed, no behaviour moved) so the probe scores domains with the engine's own
+      compiled patterns. `scripts/domain-detection-check.js` already keeps one copy; a third would be
+      exactly the drift this week's routing defects were made of.
+    - **The test that earns its keep** ([`tests/unit/phraseProbe.test.js`](../tests/unit/phraseProbe.test.js),
+      28 cases): across all 470 corpus sentences, `explainDetection` must agree with the real
+      `detectLogicTrees` on ordering and `detectLogicTree` on the winner. A spot-check would pass for
+      years while the two diverged, after which the screen would explain a decision the engine never
+      made — worse than no screen, because it would be believed. The corpus is asserted non-trivial so
+      the guard cannot pass vacuously.
+    - **Found by those tests and fixed in the same commit:** the phrase cap was 50 while
+      `staff_performance` carries **59** triggers, so a firm rewriting the biggest table would have had
+      9 phrases silently ignored. Raised to 200 (sized against the data), and anything beyond the cap is
+      counted into `phrasesIgnored` — never dropped in silence.
+    - **⚠ CORPUS LIMIT, reported in the payload itself.** The 470 sentences are branch conditions (419)
+      and Scenario Lab cases (51) — the firm's own words, nothing invented, nothing to hand-maintain.
+      They are **NOT** recordings of advisor speech, so they show what a change would take from other
+      tables but do **not** prove a table opens for natural language. The typed probe covers that. Two
+      of the four phrases tried above moved nothing precisely because advisors' wording is not in the
+      corpus — the limit is real, not theoretical.
+    - **⚠ The 4th phrase layer is NOT covered, by design** — see the distinctions-cap item below. Every
+      response carries `notMeasured` naming it, so the tool can never read as "nothing else affects this".
+    - **NEXT: the screen** (Step 2) — wording to be approved before any of it is written.
+
+- <a id="distinction-trigger-cap"></a>☐ **P2 · DECISION/SEC — only the FIRST FIVE trigger phrases of any Advisory
+  Distinction ever reach the AI, while the screen shows all of them and invites more.** Found 2026-08-01,
+  by Mike's question "how does this compare with the advisory distinctions page — or will they be at cross
+  purposes?" Not yet fixed; needs his ruling, so logged rather than actioned.
+  - **The evidence.** [`_classifyMatchingRows`](../server/advisorEngine.js) builds its prompt from
+    `row.triggers.slice(0, 5)`. [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) renders the
+    column as `row.triggers.join(', ')` — every phrase, no cap shown — and the row is firm-editable.
+  - **Measured on today's committed platform content: 56 of the 67 distinctions carry more than five
+    phrases; 67 phrases in total never reach the engine.** Which five survive is array order, not a
+    choice anyone made.
+  - **Severity stated fairly, not alarmingly.** Distinction triggers are **not literal matches** — they
+    are *examples* shown to gpt-4o-mini, which decides semantically against the row's `description`. So
+    examples six onward are guidance, not gates, and the engine may well behave identically without
+    them. This is **nothing like** the domain-support storage-key defect, where content genuinely never
+    arrived. **The defect is the SILENCE, not the loss:** the screen invites work that provably has no
+    effect. Same family as the three routing defects of 2026-07-30/31, which is why the question found it.
+  - **Two honest options, both needing Mike:** (a) send all phrases and cap by prompt-size with a stated
+    limit, or (b) keep the five and say so on screen ("the first five guide the AI"). Not for the AI to
+    pick — (a) changes what reaches a live model, (b) changes the firm's understanding of its own controls.
+  - **⚠ Why the new phrase probe does NOT cover this layer** (and says so in every response via
+    `notMeasured`): a distinction match costs an OpenAI call per sentence, so it can never be a free,
+    repeatable before/after like the logic-table preview. A distinctions workbench is possible but must be
+    a **sampled** tool that declares its cost and its sample — a separate build, not an extension of
+    [the trigger workbench above](#trigger-vocabulary-sweep).
+  - **Do NOT "fix" this by adding literal matching to distinctions.** The semantic classifier is the
+    design (it replaced exact keyword matching deliberately — see the comment above `classifyDistinctions`),
+    and the two systems using the same column heading *"Trigger phrases"* for two different mechanisms is
+    itself worth a wording decision on the hub.
 
 - <a id="trigger-word-boundary"></a>✅ **P1 · FIX — entry triggers matched anywhere inside a word, so "HR"
   fired on "t-HR-ee". FOUND *and* FIXED 2026-07-31 (approved by Mike, this branch, commit `4debcfc`).

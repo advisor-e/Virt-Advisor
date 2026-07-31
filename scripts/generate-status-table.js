@@ -127,7 +127,16 @@ function summarise (cleaned) {
  * Reads ACTIONS.md and returns every status-bearing item plus the count of list
  * lines that carried no marker.
  *
- * @returns {{items: Array<Object>, unparsed: number, totalLines: number}}
+ * `topLevelUnparsed` counts only UNINDENTED list lines that failed to parse.
+ * That is the number worth watching: a top-level line with no readable status is
+ * a task missing from the table, whereas an indented line is an evidence bullet
+ * under an item and is expected to carry no marker. The two are separated because
+ * the guard that used to compare `unparsed` against `items.length` was really
+ * measuring how thoroughly the backlog is documented — it sat one line from
+ * failing (172 vs 173 on 2026-08-01) and would have blocked the next detailed
+ * entry whoever wrote it.
+ *
+ * @returns {{items: Array<Object>, unparsed: number, topLevelUnparsed: number, totalLines: number}}
  */
 function collectItems () {
   // Split on either ending: ACTIONS.md is CRLF on disk, and a trailing \r is a
@@ -136,6 +145,7 @@ function collectItems () {
   const items = []
   let section = '(top of file)'
   let unparsed = 0
+  let topLevelUnparsed = 0
 
   lines.forEach((raw, index) => {
     const heading = raw.match(/^##\s+(.*)$/)
@@ -155,10 +165,17 @@ function collectItems () {
     }
 
     const item = parseItem(raw, index + 1, section, continuation)
-    if (item) { items.push(item) } else if (/^\s*-\s+\S/.test(raw)) { unparsed += 1 }
+    if (item) {
+      items.push(item)
+    } else if (/^\s*-\s+\S/.test(raw)) {
+      unparsed += 1
+      // Unindented: this line sits where a task sits, so failing to read it means
+      // a task is missing from the table rather than a detail bullet going uncounted.
+      if (/^-\s+\S/.test(raw)) { topLevelUnparsed += 1 }
+    }
   })
 
-  return { items, unparsed, totalLines: lines.length }
+  return { items, unparsed, topLevelUnparsed, totalLines: lines.length }
 }
 
 /**
