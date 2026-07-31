@@ -2153,7 +2153,12 @@ Two honest answers on different axes — the file used to conflate them:
     own English headings, so the tab is no worse than it was — but it is now the odd one out on a
     Hub that was just deliberately made consistent.
 
-  ### ☐ NEXT JOB — Quizzes Phase 4 (Adopt / Keep mine) — planned and approved, NOT started
+  ### ◐ Quizzes Phase 4 (Adopt / Keep mine) — STAGE A DONE 2026-08-01 (`ab31075`), STAGE B NEXT
+
+  > **Status corrected 2026-08-01.** Stage A (the record) is built, tested, mutation-proven and
+  > committed — see Session 19 below. **Stage B (the screen) is the next job.** The plan below is
+  > left verbatim because Stage B still follows it; the Stage A items in it are now history, not
+  > to-do. Nothing of Phase 4 is visible to a firm yet.
 
   The last piece of the quizzes workstream, and a **port of what the Advisory Staircase already
   does** (Phase 3, `keepMineStaircaseStep` / `_staircaseDriftIds` / `_staircaseStepSignature` /
@@ -2191,6 +2196,55 @@ Two honest answers on different axes — the file used to conflate them:
   this question", "Review update", the existing panel text).
 
   **Do Stage A, prove it, commit, then Stage B** — so nobody is ever holding a half-built feature.
+
+  ### Session 19 (2026-08-01, laptop) — Quizzes Phase 4 STAGE A: the record
+
+  One commit (`ab31075`). Suite **3,424 → 3,437 / 209 suites**, lint 0 errors, coverage up, tree
+  clean. Same day and same session as Session 18 below; recorded separately because it is a
+  different piece of work.
+
+  - ✅ **BUILT, exactly as the plan above set out.** New additive key `quiz-override-baselines`
+    (+ its gitignored dev file, added in the same commit as the key); `_quizQuestionSignature`
+    over `EDITABLE_QUESTION_FIELDS`; the stamp in `setQuizOverride`; `_quizDriftQids` returned
+    from `getQuizzes` as `driftQids`; the baseline dropped by the reset route (which **is** the
+    Adopt half); and `POST /api/firm-manager/quizzes/platform/:qid/keep-mine`, **409 not a silent
+    success** when the firm holds no edit.
+  - 🔴 **A MISSING BASELINE IS BACKFILLED, NOT READ AS DRIFT** — the rule the whole feature turns
+    on. An edit made before today carries no stamp; reading that as "Advisor-e changed this" would
+    greet every such firm with a review prompt **on every question it had ever edited, at once**,
+    for updates that never happened.
+  - **TWO DELIBERATE DEPARTURES FROM THE STAIRCASE, both commented in code so the next reader
+    does not "fix" them:**
+    - The baselines key is **NOT** added to the reader's `CONFIG_KEYS`. Those three keys are the
+      firm's DECISIONS, and `loadFirmQuizState` asks "has this firm decided anything?" by looking
+      at them. **A baseline is not a decision** — filed alongside the three, a firm that had only
+      ever been *stamped* would start reading as a firm with its own quiz configuration.
+    - A `PLATFORM_QUESTIONS` Map is built beside `PLATFORM_QIDS`. The staircase can
+      `steps.find(...)`; quiz questions are nested two deep across 62 banks, so a scan per lookup
+      would repeat that walk for every edited question on every load of the tab.
+  - **An override keyed to a qid Advisor-e no longer ships is NOT offered as an update** — nothing
+    to compare against and nothing to adopt, and `loadFirmQuizState` already treats such a row as
+    junk rather than a decision. Reporting it here would make this the one place that disagreed.
+  - **13 new tests**, ported case for case from the staircase's, **plus two the staircase has no
+    equivalent of**: the retired-qid case, and a **per-field** check that everything a firm may
+    edit is actually signed — carrying a **control assertion**, so the loop cannot pass by
+    comparing the signature against something else entirely.
+  - **Mutation-tested 7/7 killed**, control green, production file restored **byte-identical
+    (proven by SHA-256, not by eye)**. The mutants are the ones that would harm a firm: backfill
+    removed, drift never reported, nothing stamped on edit, a stale baseline left on reset,
+    keep-mine silently succeeding, a retired qid offered for review, a field dropped from the
+    signature.
+    - ⚠ **THE FIRST RUN REPORTED 3/7 AND THE VERDICT WAS A LIE — FIFTH SIGHTING OF THE CRLF
+      TRAP.** Four multi-line patterns silently matched nothing because this repo's source files
+      are CRLF and the patterns were written with `\n`. **A skipped mutant reads like "no test
+      needed" when it means "no test ran".** The harness now normalises to the file's own line
+      endings; the skip path also prints loudly rather than passing quietly. Extends the
+      2026-07-28 and 2026-07-29 mutation lessons.
+  - ☐ **STAGE B — THE SCREEN — IS THE NEXT JOB AND IS NOT STARTED.** Flagged questions get a tag
+    and a **Review update** button opening a side-by-side panel with Adopt / Keep mine.
+    **No wording decisions are outstanding** — the staircase's labels are approved and the
+    consistency ruling says the tabs read the same, so they are mirrored verbatim. Nothing of
+    Phase 4 is visible to a firm until this lands.
 
   ### Session 18 (2026-08-01, laptop) — the rebuilt screen would not have opened at all
 
@@ -2241,9 +2295,9 @@ Two honest answers on different axes — the file used to conflate them:
     touched.**
   - ✅ **ADVISORY DISTINCTIONS VIEWED AND APPROVED BY MIKE — "all works good".** The Session 17
     cards rebuild is confirmed on screen; that verification is **closed**.
-  - ⚠ **THE ADVISORY STAIRCASE REBUILD HAS STILL NOT BEEN SEEN RUNNING.** Smaller change than
-    Distinctions and it now has its own rendering tests — but it is an **open check, not a closed
-    one**, and Session 17 rebuilt both.
+  - ✅ **THE ADVISORY STAIRCASE TAB WAS ALSO VIEWED AND APPROVED THE SAME DAY — "staircase tab
+    all good".** Session 17 rebuilt two screens and **both are now confirmed on screen**. No
+    screen verification is outstanding on the Firm Manager Hub.
   - **Dev-run facts worth not re-deriving:** `pages/firm-manager.vue` **auto-signs in on
     `localhost`** as `dev-firm-001` (no login step, and that firm owns the sample overrides), and
     the tab reads `data/advisory-distinctions.json` — **67 platform rows across 14 domains**,
