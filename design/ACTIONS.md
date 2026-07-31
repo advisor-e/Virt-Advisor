@@ -241,8 +241,50 @@
       trap. A real before/after needs two processes with different `cwd`.
     - ⚠ **`staff_performance.description` still describes only the attitude/competency split** — not
       updated, so it under-describes the tree by one path.
-  - ☐ **Still to transcribe: Strategic Planning (11 branches) and Sales & Marketing (13).** Both take
-    the `nodes` ruling above.
+  - ✅ **Strategic Planning's 11 branches BUILT 2026-07-31 (approved by Mike, this branch)** — as a
+    **third path inside `client_planning`** (7 → 19 nodes), following the `staff_performance`
+    precedent above rather than a standalone tree. A standalone tree would have to carry the words
+    `client_planning` already owns (*strategy*, *strategic planning*, *business plan*), and
+    `detectLogicTree` simply picks whichever tree matches most triggers — so the two would fight.
+    - **`cp_initial` widened from two ways to three**, the third being "or is something blocking the
+      strategy work itself?". The startup and established paths are otherwise untouched.
+    - **Routing question is the one authored sentence** (a flat table has no question), Mike's chosen
+      wording: *"Which is blocking this plan — the owner only seeing what they want to see, running
+      out of steam after a long effort, unable to separate themselves from the business, or set on
+      how it has always been done; or is it the business itself — leads that do not convert, the fees
+      they can charge, merging with another business, results that swing about, a product past its
+      peak, or head-to-head competition on price?"* It does not enumerate the eleventh rule (the
+      out-voted meeting participant); measurement confirmed the answer patterns reach it anyway.
+    - **Templates derived only where verifiable** — the PDF carries no templates column.
+      `SWOT / PEST` and `Porters & Pine` (over-exposure, the row names both), `Business Dating` (merger),
+      `Demings Volatility`, `Profit Levers & Blue Ocean` (red water), `Succession Planning` (role
+      identification). All pass the `logicTreeTemplateNames.test.js` build guard.
+    - **Measured before vs after, snapshot taken before the file was edited** (avoiding the `firmTrees`
+      merge trap recorded above): **6 existing paths byte-identical** — templates *and* node paths;
+      at prompt level 6 of 8 text blocks byte-identical, Branch 2b differing only by a trailing
+      newline, and only the opening question genuinely changed. **All 11 new rules reach their own
+      node.** Cost: the tree's prompt goes ~1,483 → ~3,639 tokens, **9th of 42 trees** (`succession`
+      ~9,312, `staff_performance` ~4,900). Full suite 2,043 green / 136 suites, lint 0 errors.
+    - **Found by that measurement and fixed here:** the merger row lost `cp_initial` to the
+      established-business branch, whose pattern contains *business* **twice** — `scorePattern` counts
+      each occurrence, so it scored 2 against the merger row's 1. Adding *merge* and *combine* to the
+      new branch corrected it; the 6 existing paths were re-measured afterwards and stayed identical.
+      **Worth carrying: a repeated word in an `answer_pattern` silently doubles that branch's score.**
+  - ☐ **P2 · RULING NEEDED (Mike) — six of the eleven branches have an empty `templates[]`**, left
+    empty rather than guessed (CLAUDE.md — never fabricate the firm's IP). They give the advisor the
+    reasoning but no page. Four name a *method* where a library page plausibly fits: Parallel Thinking
+    (`cp_block_bias` and `cp_block_consensus_trap`) → **6 Hats**?; the Leverage/Intelligence-stage row
+    (`cp_block_complacency`) and the Sigmoid Curve row (`cp_block_life_cycle`) → **Growth Curve**?
+    Two name something with no library page at all: "Product (Fit) Review"
+    (`cp_block_conversion_deficit`) and "For Them / Sorted for Maximum Fee"
+    (`cp_block_premium_pricing`).
+  - ⚠ **Same entry-trigger caveat as the staff table** ([P1 above](#staff-tree-entry-triggers)), not
+    introduced by this change and not fixed by it. The 11 rules are reachable once the planning table
+    is open, and realistic openers do open it (*"we are doing strategic planning but the owner only
+    hears what they want to hear"* → `client_planning`). A symptom stated alone — *"they are stuck
+    competing head to head on price"* — still selects **no tree at all**.
+  - ☐ **Still to transcribe: Sales & Marketing (13 branches)** — the last piece of this workstream.
+    Takes the `nodes` ruling above.
 
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT

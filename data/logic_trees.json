@@ -748,8 +748,8 @@
           "branch_name": "Initial Assessment",
           "type": "question",
           "condition": "Client states: 'I need a business plan'",
-          "question": "Is this for a Startup, or is it a Well Established Business?",
-          "notes": "Both paths can be supported with a Revenue Model. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "question": "Is this for a Startup, is it a Well Established Business, or is something blocking the strategy work itself?",
+          "notes": "The first two paths choose the planning template by business maturity, and both can be supported with a Revenue Model. The third path is different in kind: the planning conversation is already happening but is blocked — by how the owner is thinking, or by a situation in the market or the business. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
           "support_templates": [],
           "branches": [
             {
@@ -759,6 +759,10 @@
             {
               "answer_pattern": "established business / been operating for years / existing business",
               "next_node": "cp_branch2_established"
+            },
+            {
+              "answer_pattern": "blocked / stuck / will not commit / confirmation bias / ignoring reality / exhausted / complacency / role identification / cannot let go / always done it that way / resistance to change / conversions low / maximum fees / merge / merger / combine / amalgamation / fluctuations / tampering / maturity / sales decline / price competition / red water / out-voted / consensus",
+              "next_node": "cp_blocks_entry"
             }
           ]
         },
@@ -860,6 +864,170 @@
             "Sales & Marketing Review"
           ],
           "notes": "Porter's & Pine are short-form templates that can be used to explore strategic issues or create demand for structured management review services."
+        },
+        {
+          "id": "cp_blocks_entry",
+          "branch_name": "Strategy Blocks — What Is Getting In The Way?",
+          "type": "question",
+          "condition": "The planning conversation is under way but blocked — by how the owner is thinking, or by a situation in the market or the business",
+          "question": "Which is blocking this plan — the owner only seeing what they want to see, running out of steam after a long effort, unable to separate themselves from the business, or set on how it has always been done; or is it the business itself — leads that do not convert, the fees they can charge, merging with another business, results that swing about, a product past its peak, or head-to-head competition on price?",
+          "notes": "These are independent rules, not a sequence — more than one can be true at once. Work the block the client is actually showing.",
+          "branches": [
+            {
+              "answer_pattern": "confirmation bias / only hearing what they want / reality not aligned with desires / ignoring true reality / searching only for supporting views / cognitive dissonance / planning paralysis",
+              "next_node": "cp_block_bias"
+            },
+            {
+              "answer_pattern": "complacency / exhaustion / worn out after sustained effort / unable to maintain focus / wants to extract from the day-to-day / step back / running out of steam",
+              "next_node": "cp_block_complacency"
+            },
+            {
+              "answer_pattern": "role identification / planned succession / acting out how a boss should / cannot get out of their own way / they are the business / personal worth tied to business value",
+              "next_node": "cp_block_role_identification"
+            },
+            {
+              "answer_pattern": "over-exposure / familiarity principle / this is how we have always done it / resistance to change / avoiding commitment to new strategies / set in their ways / keep what we have",
+              "next_node": "cp_block_over_exposure"
+            },
+            {
+              "answer_pattern": "lead generation high but sales conversions low / leads do not convert / poor product to market fit / customer purchasing resistance / customers not motivated to buy",
+              "next_node": "cp_block_conversion_deficit"
+            },
+            {
+              "answer_pattern": "wants to charge maximum fees / premium pricing / eliminating customer execution risk / full delivery / what can we charge / fee level",
+              "next_node": "cp_block_premium_pricing"
+            },
+            {
+              "answer_pattern": "merger / amalgamation / two family business entities combining / combine operations / merge without cultural failure / joining another business",
+              "next_node": "cp_block_merger"
+            },
+            {
+              "answer_pattern": "high frequency low impact fluctuations / common cause variation / tampering / over-reacting to the numbers / results swing about / volatility / standard deviation",
+              "next_node": "cp_block_volatility"
+            },
+            {
+              "answer_pattern": "product curve approaching peak of maturity / sales about to decline / product past its peak / sigmoid curve / life cycle saturation / need a new product before decline",
+              "next_node": "cp_block_life_cycle"
+            },
+            {
+              "answer_pattern": "trapped in direct price and feature competition / red water zone / head-to-head on price / commoditised market / everyone selling the same thing",
+              "next_node": "cp_block_red_water"
+            },
+            {
+              "answer_pattern": "meeting participants out-vote the one who spots a critical structural flaw / consensus thinking trap / majority overruled the dissenting voice / group meeting disagreement / out-voted",
+              "next_node": "cp_block_consensus_trap"
+            }
+          ]
+        },
+        {
+          "id": "cp_block_bias",
+          "branch_name": "Cognitive Dissonance / Bias",
+          "type": "recommendation",
+          "condition": "IF the client displays Confirmation Bias (reality not aligned with desires, searching only for supporting views while ignoring true reality)",
+          "action": "THEN direct team thinking via structure/templates and apply Parallel Thinking (viewing the building from all 4 sides simultaneously)",
+          "templates": [],
+          "notes": "Avoids anxiety and confrontation with true reality; prevents repeating the same mistakes."
+        },
+        {
+          "id": "cp_block_complacency",
+          "branch_name": "Exhaustion / Complacency",
+          "type": "recommendation",
+          "condition": "IF the client displays Complacency (exhaustion after sustained effort, unable to maintain focus, seeking to extract from the day-to-day)",
+          "action": "THEN apply the Leverage growth tactic under the Intelligence stage; establish delegated divisional roles and reporting channels",
+          "templates": [],
+          "notes": "Mind/body requires recovery of Cathexis/Libidinal energy; demands proven internal processes."
+        },
+        {
+          "id": "cp_block_role_identification",
+          "branch_name": "Succession / Role Identification",
+          "type": "recommendation",
+          "condition": "IF the client displays Role-Identification during planned succession (acting out how a 'Boss' should, unable to 'get out of their own way')",
+          "action": "THEN apply Succession layer principles to help the client separate personal worth from business value",
+          "templates": [
+            "Succession Planning"
+          ],
+          "notes": "Role identification creates inauthentic behaviour and deep anxiety over 'lost self' post-succession."
+        },
+        {
+          "id": "cp_block_over_exposure",
+          "branch_name": "Over-Exposure / Resistance to Change",
+          "type": "recommendation",
+          "condition": "IF the client displays Over-Exposure / the Familiarity Principle (\"this is how we've always done it\", avoiding commitment to new strategies)",
+          "action": "THEN challenge known assumptions; present external P.E.S.T insights and Porter's 5 Forces data to highlight the risks of keeping what we have vs. achieving what we need",
+          "templates": [
+            "SWOT / PEST",
+            "Porters & Pine"
+          ],
+          "notes": "Driven by the desire to keep the known safe; Kodak and Nokia cited as classic failures of this principle."
+        },
+        {
+          "id": "cp_block_conversion_deficit",
+          "branch_name": "Marketing Conversion Deficit",
+          "type": "recommendation",
+          "condition": "IF customer lead generation is high, but sales conversions remain low",
+          "action": "THEN conduct a Product (Fit) Review to evaluate customer purchasing resistance, competitor comparison, and customer motivation",
+          "templates": [],
+          "notes": "Indicates poor product-to-market fit, or hoping customers do something they are not naturally motivated to do."
+        },
+        {
+          "id": "cp_block_premium_pricing",
+          "branch_name": "Premium Pricing for Full Delivery",
+          "type": "recommendation",
+          "condition": "IF the client wants to charge maximum fees while eliminating customer execution risk",
+          "action": "THEN structure the offering under \"For Them / Sorted for Maximum Fee\", providing detailed discovery, qualified diagnosis, tailored solution, and convenient execution",
+          "templates": [],
+          "notes": "Customers pay maximum fees when the problem completely disappears in a risk-free manner."
+        },
+        {
+          "id": "cp_block_merger",
+          "branch_name": "Corporate Merger / Amalgamation",
+          "type": "recommendation",
+          "condition": "IF two family business entities wish to combine operations or merge without risking cultural failure",
+          "action": "THEN implement \"Business Dating\" with purchase valuations completed at the outset and a 12-month right of fulfilment allowing clean withdrawal",
+          "templates": [
+            "Business Dating"
+          ],
+          "notes": "Prevents rushing into 'Marriage' on the first date and allows testing relationship strain under low risk."
+        },
+        {
+          "id": "cp_block_volatility",
+          "branch_name": "Operational Volatility / Tampering",
+          "type": "recommendation",
+          "condition": "IF process performance displays high frequency, low impact fluctuations (Common Cause)",
+          "action": "THEN calculate standard deviation ranges (tolerance) and avoid 'Tampering' (over-reacting to common cause)",
+          "templates": [
+            "Demings Volatility"
+          ],
+          "notes": "68% of data falls within 1 standard deviation; over-reacting creates destabilisation rather than control."
+        },
+        {
+          "id": "cp_block_life_cycle",
+          "branch_name": "Product Life Cycle Saturation",
+          "type": "recommendation",
+          "condition": "IF the client's product curve approaches the peak of maturity before sales decline",
+          "action": "THEN apply the Sigmoid Curve model; interrupt the growth curve at Point X to time the introduction of a new product/service before decline",
+          "templates": [],
+          "notes": "Offsets the initial negative outputs of new product development with ongoing cash flow from the original line."
+        },
+        {
+          "id": "cp_block_red_water",
+          "branch_name": "Red Water Market Saturation",
+          "type": "recommendation",
+          "condition": "IF the client is trapped in direct price/feature competition (Red Water Zone)",
+          "action": "THEN execute Blue Ocean Strategy; identify customer purchasing blockages/frictions on the fringes and remove them to create uncontested market space",
+          "templates": [
+            "Profit Levers & Blue Ocean"
+          ],
+          "notes": "Focuses on removing frictions rather than competing within normal industry practices (e.g., Cirque du Soleil)."
+        },
+        {
+          "id": "cp_block_consensus_trap",
+          "branch_name": "Group Meeting Disagreement",
+          "type": "recommendation",
+          "condition": "IF 3 meeting participants out-vote 1 participant who spots a critical structural flaw (Consensus Thinking Trap)",
+          "action": "THEN shift facilitation from consensus or argument thinking to De Bono's Parallel Thinking, directing everyone to inspect the exact same side together",
+          "templates": [],
+          "notes": "Consensus appeases the majority but ignores critical cracks; parallel thinking yields collaborative truth."
         }
       ]
     },
