@@ -184,8 +184,8 @@
           "branch_name": "Initial Assessment",
           "type": "question",
           "condition": "Client states: 'I'm not making enough Sales'",
-          "question": "Do you mean the number of Sales or do you mean the Profit left over afterwards?",
-          "notes": "Both branches can be supported with a Revenue Model. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
+          "question": "Do you mean the number of Sales, the Profit left over afterwards, or is the sales conversation itself the problem?",
+          "notes": "The first two branches diagnose the sales result and can both be supported with a Revenue Model. The third is about the selling itself — how a particular buyer decides, what they are objecting to, or how the sales function is built and paid. Select the appropriate Revenue & Feasibility Model from the template list [Do the Job > Revenue & Feasibility Models > ...]. Use this order: (1) title match — find a template whose title names the client industry or business type; (2) tags match — scan all conversation signals against the tags of every Revenue & Feasibility Model; (3) purpose match — read the purpose field for the closest operational match. If no match found after all three steps, tell the advisor explicitly rather than guessing or inventing a name.",
           "support_templates": [],
           "branches": [
             {
@@ -195,6 +195,10 @@
             {
               "answer_pattern": "profit / margin / money left over",
               "next_node": "cs_branch2_profit"
+            },
+            {
+              "answer_pattern": "buyer / impulsive / proof / reassurance / reflector / theorist / disturbed / time to process / withdraw / objection / objecting / costs too much / won't work / can wait / too hard / commission / salaried / licensed / distributor / overheads / recruitment / churn / control / expectations / pricing",
+              "next_node": "cs_selling_entry"
             }
           ]
         },
@@ -305,6 +309,227 @@
             "Rubbish In - Rubbish Out"
           ],
           "notes": "Clarification of business data and inputs is likely needed before applying specific models."
+        },
+        {
+          "id": "cs_selling_entry",
+          "branch_name": "The Selling Itself — Which Part?",
+          "type": "question",
+          "condition": "The problem is the sales conversation rather than the sales result",
+          "question": "Is this about how this particular buyer makes decisions, an objection they have raised, or how the sales function itself is set up and paid?",
+          "notes": "Three separate families of rule, taken from the source table's own grouping. The first two are about a single live sales conversation; the third is a structural choice about the business's sales function.",
+          "branches": [
+            {
+              "answer_pattern": "buyer / processing style / impulsive / proof / reassurance / time to process / voice ideas / solution design / honey / mumford / activist / pragmatist / reflector / theorist",
+              "next_node": "cs_style_entry"
+            },
+            {
+              "answer_pattern": "objection / objecting / pushing back / costs too much / won't work / not for me / can wait / too hard / flushing out real concerns",
+              "next_node": "cs_objection_entry"
+            },
+            {
+              "answer_pattern": "sales function / commission / salaried / licensed distributor / distribution model / overheads / recruitment / churn / customer experience consistency / value-based / pricing strategy",
+              "next_node": "cs_function_entry"
+            }
+          ]
+        },
+        {
+          "id": "cs_style_entry",
+          "branch_name": "Processing Style — Which Buyer Is This?",
+          "type": "question",
+          "condition": "The advisor is describing how a particular buyer takes in information and reaches a decision",
+          "question": "Which describes them — wants it now, wants proof, needs time alone with it, or wants a say in how it is designed?",
+          "notes": "Honey & Mumford Processing Styles. One buyer, four alternative readings — pick the one that fits, not several.",
+          "branches": [
+            {
+              "answer_pattern": "impulsive / wants it now / I like it I want it now / decides on the spot / activist",
+              "next_node": "cs_style_activist"
+            },
+            {
+              "answer_pattern": "emotive but seeks proof / validation / reassurance / needs evidence / testimonials / pragmatist",
+              "next_node": "cs_style_pragmatist"
+            },
+            {
+              "answer_pattern": "emotionally disturbed by decision-making / needs time to process / wants to withdraw and think / go away and consider it / reflector",
+              "next_node": "cs_style_reflector"
+            },
+            {
+              "answer_pattern": "contribute / voice ideas / a say in solution design / input on how it is built / theorist",
+              "next_node": "cs_style_theorist"
+            }
+          ]
+        },
+        {
+          "id": "cs_style_activist",
+          "branch_name": "Processing Style: Activist",
+          "type": "recommendation",
+          "condition": "IF the client exhibits impulsive decision-making (\"I like it, I want it now\")",
+          "action": "THEN explain the clear sequence of ACTION and detail the immediate steps required to purchase",
+          "templates": [],
+          "notes": "Honey & Mumford Processing Styles."
+        },
+        {
+          "id": "cs_style_pragmatist",
+          "branch_name": "Processing Style: Pragmatist",
+          "type": "recommendation",
+          "condition": "IF the client is emotive but seeks proof, validation, and reassurance",
+          "action": "THEN provide hard data, statistical evidence, customer testimonials, and case study examples",
+          "templates": [],
+          "notes": "Honey & Mumford Processing Styles."
+        },
+        {
+          "id": "cs_style_reflector",
+          "branch_name": "Processing Style: Reflector",
+          "type": "recommendation",
+          "condition": "IF the client feels emotionally disturbed by decision-making and requires time to process",
+          "action": "THEN slow down the sales pace; allow the client to withdraw and work through the process independently",
+          "templates": [],
+          "notes": "Honey & Mumford Processing Styles."
+        },
+        {
+          "id": "cs_style_theorist",
+          "branch_name": "Processing Style: Theorist",
+          "type": "recommendation",
+          "condition": "IF the client desires active contribution and wants to voice ideas on solution design",
+          "action": "THEN invite client input on delivery/installation while setting clear non-variance boundaries",
+          "templates": [],
+          "notes": "Honey & Mumford Processing Styles."
+        },
+        {
+          "id": "cs_objection_entry",
+          "branch_name": "Objection — Which One?",
+          "type": "question",
+          "condition": "The buyer has raised an objection and the advisor needs the root cause behind it",
+          "question": "Which are they saying — it costs too much, it won't work, it won't work for me, I can wait, or it's too hard?",
+          "notes": "Flushing Out Real Concerns. The stated objection is the symptom; each rule names the root cause underneath it.",
+          "branches": [
+            {
+              "answer_pattern": "costs too much / expensive / price shock / cannot see the value / lacks perceived worth",
+              "next_node": "cs_obj_cost"
+            },
+            {
+              "answer_pattern": "it won't work / disagrees with the reasoning / does not believe it / lacks belief / does not buy the logic",
+              "next_node": "cs_obj_logic"
+            },
+            {
+              "answer_pattern": "it won't work for me / my circumstances are different / we are unique / not relevant to my business",
+              "next_node": "cs_obj_relevance"
+            },
+            {
+              "answer_pattern": "I can wait / no urgency / not now / later / not sufficiently disturbed by the current problem",
+              "next_node": "cs_obj_timing"
+            },
+            {
+              "answer_pattern": "it's too hard / too much effort / too risky / overwhelming / cannot face it",
+              "next_node": "cs_obj_effort"
+            }
+          ]
+        },
+        {
+          "id": "cs_obj_cost",
+          "branch_name": "Objection: Cost",
+          "type": "recommendation",
+          "condition": "IF the client states \"It costs too much\" (root cause: lacks perceived value or price shock)",
+          "action": "THEN calculate financial loss/gain over time, illustrate feature/benefit trade-offs, and prove social status/prestige",
+          "templates": [],
+          "notes": "Flushing Out Real Concerns."
+        },
+        {
+          "id": "cs_obj_logic",
+          "branch_name": "Objection: Logic/Belief",
+          "type": "recommendation",
+          "condition": "IF the client states \"It won't work\" (root cause: disagrees with the reasoning or lacks belief)",
+          "action": "THEN trial close logic as revealed; present social proof from industry leaders, data, and referrals",
+          "templates": [],
+          "notes": "Flushing Out Real Concerns."
+        },
+        {
+          "id": "cs_obj_relevance",
+          "branch_name": "Objection: Relevance",
+          "type": "recommendation",
+          "condition": "IF the client states \"It won't work for me\" (root cause: perceives unique personal/business circumstances)",
+          "action": "THEN evaluate if the circumstance variation negates the solution; share case studies of identical client profiles",
+          "templates": [],
+          "notes": "Flushing Out Real Concerns."
+        },
+        {
+          "id": "cs_obj_timing",
+          "branch_name": "Objection: Timing",
+          "type": "recommendation",
+          "condition": "IF the client states \"I can wait\" (root cause: low urgency / not sufficiently disturbed by the current problem)",
+          "action": "THEN demonstrate the logical timeline between offer and end benefits; calculate the monetary/stress cost of delay",
+          "templates": [],
+          "notes": "Flushing Out Real Concerns."
+        },
+        {
+          "id": "cs_obj_effort",
+          "branch_name": "Objection: Effort/Risk",
+          "type": "recommendation",
+          "condition": "IF the client states \"It's too hard\" (root cause: perceives high risk or overwhelming effort)",
+          "action": "THEN frame the current state as a 'burning platform' (Hindenburg); provide simplified sequence flowcharts",
+          "templates": [],
+          "notes": "Flushing Out Real Concerns."
+        },
+        {
+          "id": "cs_function_entry",
+          "branch_name": "Sales Function — How Is It Built and Paid?",
+          "type": "question",
+          "condition": "The business owner is choosing how to structure, staff or price the sales function",
+          "question": "Which matters most — keeping fixed overheads down, control over the customer experience, scaling without recruiting, or getting the most from each engagement?",
+          "notes": "The first three are alternative sales-distribution models, each with its own trade-off; the fourth is a pricing strategy and can sit alongside any of them.",
+          "branches": [
+            {
+              "answer_pattern": "minimise fixed overheads / keep them down / scale the sales team quickly / commission only / no base salary",
+              "next_node": "cs_dist_commission"
+            },
+            {
+              "answer_pattern": "high control over sales activity / consistent customer experience / salaried team / employed people",
+              "next_node": "cs_dist_salaried"
+            },
+            {
+              "answer_pattern": "scale globally / expand without recruiting or training / licensed distributor / independent distributors / use their infrastructure",
+              "next_node": "cs_dist_distributor"
+            },
+            {
+              "answer_pattern": "maximise profit per engagement / value based pricing / flush out client expectations / charge what it is worth / negotiate firmly",
+              "next_node": "cs_price_value"
+            }
+          ]
+        },
+        {
+          "id": "cs_dist_commission",
+          "branch_name": "Sales Distribution: Commission Only",
+          "type": "recommendation",
+          "condition": "IF the business owner seeks to minimise fixed overheads and scale sales team size rapidly",
+          "action": "THEN adopt a Commission-Only sales team; implement structured coaching to retain control over tactics",
+          "templates": [],
+          "notes": "Cons: higher member churn, potential cut-throat culture."
+        },
+        {
+          "id": "cs_dist_salaried",
+          "branch_name": "Sales Distribution: Salaried",
+          "type": "recommendation",
+          "condition": "IF the business owner requires high control over sales activity and customer experience consistency",
+          "action": "THEN adopt a Salaried sales team; set minimum activity levels and conduct regular training sessions",
+          "templates": [],
+          "notes": "Cons: increased fixed costs, exposed to economic volatility."
+        },
+        {
+          "id": "cs_dist_distributor",
+          "branch_name": "Sales Distribution: Licensed Distributor",
+          "type": "recommendation",
+          "condition": "IF the business owner wants to scale globally without incurring direct recruitment/training costs",
+          "action": "THEN engage Independent Licensed Distributors; leverage their established business infrastructure",
+          "templates": [],
+          "notes": "Cons: harder to track inputs, competing for 'sales share'."
+        },
+        {
+          "id": "cs_price_value",
+          "branch_name": "Pricing Strategy: Value Based",
+          "type": "recommendation",
+          "condition": "IF the business owner aims to maximise profit-per-engagement and flush out client expectations",
+          "action": "THEN conduct thorough scoping, establish market awareness of points of differentiation, and negotiate firmly",
+          "templates": [],
+          "notes": "Requires willingness to let some prospects walk away."
         }
       ]
     },

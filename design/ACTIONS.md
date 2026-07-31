@@ -283,8 +283,49 @@
     is open, and realistic openers do open it (*"we are doing strategic planning but the owner only
     hears what they want to hear"* → `client_planning`). A symptom stated alone — *"they are stuck
     competing head to head on price"* — still selects **no tree at all**.
-  - ☐ **Still to transcribe: Sales & Marketing (13 branches)** — the last piece of this workstream.
-    Takes the `nodes` ruling above.
+  - ✅ **Sales & Marketing's 13 branches BUILT 2026-07-31 (approved by Mike, this branch) — the
+    workstream's last piece. All 14 materials and all 32 branches are now in.** Home measured, not
+    assumed: `client_sales` (8 → 25 nodes). A realistic opener — *"my client needs more sales, their
+    customers keep objecting that it costs too much"* — selects it, and the three sales-related
+    `get_*` trees never compete because those are the **advisor** selling advisory services, whereas
+    these 13 are the **client's** business selling to its customers.
+    - **Shape ruled by Mike: three families, mirroring the source table's own Notes column** —
+      Honey & Mumford processing styles (4), Flushing Out Real Concerns objections (5), sales
+      distribution + pricing (4) — rather than a flat 13-way. A flat list would have asked the AI to
+      choose between three different *questions* (who is this buyer / what did they object to / how
+      is the team built) instead of between answers.
+    - **Measured before vs after, snapshot taken before the file was edited: 6 existing paths
+      byte-identical** (templates and node paths), only the opening question's prompt block changed,
+      and **13 of 13 new rules reach their own node.** Prompt ~1,282 → ~3,499 tokens. Full suite
+      2,043 green / 136 suites, lint 0 errors.
+    - **All 13 keep an empty `templates[]`** — see the ruling item below.
+    - ⚠ **A REGRESSION WAS INTRODUCED AND CAUGHT BY THE MEASUREMENT, not by the tests.** The first
+      draft of the new `cs_initial` branch used the ordinary words *needs / sales / selling / value*,
+      which out-scored the two branches that own them: the "selling" path and plain *"my client needs
+      more sales"* both stopped recommending anything. Rewritten to distinctive vocabulary only
+      (*buyer, impulsive, objection, salaried, distributor, overheads…*) and re-measured to
+      byte-identical. **The whole 2,043-test suite passed while that regression was live** — routing
+      behaviour is not covered by any test, which is why the before/after walk is the control here.
+  - ☐ **P2 · RULING NEEDED (Mike) — all 13 Sales & Marketing branches have an empty `templates[]`.**
+    The library has no page for Honey & Mumford processing styles, for "Flushing Out Real Concerns",
+    or for the three sales-distribution models, so nothing was verifiable and nothing was guessed
+    (CLAUDE.md — never fabricate the firm's IP). The single near-match is **Sales Teams**, a Revenue &
+    Feasibility Model that is *not* `includedInClient` — a derivation for Mike, not a lookup. Until
+    ruled, this table gives the advisor the reasoning with no page attached. *(Companion to the
+    six-branch ruling on Strategic Planning above.)*
+  - ☐ **P3 · SCORING — a repeated word in an `answer_pattern` silently doubles that branch's score.**
+    `scorePattern` ([`logicTrees.js`](../server/utils/logicTrees.js) L1205–1213) counts every
+    occurrence of a matched word, so a pattern naming *wants* twice scores 2 on that word alone.
+    **Found by measurement twice in one day** — it mis-routed the merger row on Strategic Planning and
+    the licensed-distributor row on Sales & Marketing; both were fixed in place. A sweep of all 42
+    trees found **34 of 333 branches carry a duplicated scoring word**, most of them pre-existing
+    (`governance`: *leadership, style, team, conduct, decision, governance, culture*;
+    `risk_management`: *high*; `systems`: *planning, capacity*), and several introduced by this
+    session's own Strategic Planning commit (`cp_block_merger`: *business*; `cp_block_life_cycle`:
+    *product, peak, curve, decline*). **No harm is proven** — every affected path measured correct —
+    so this is logged rather than swept. The fix is either de-duplicating the patterns or making
+    `scorePattern` count distinct words; the second changes scoring for all 42 trees at once and would
+    need a full before/after.
 
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
