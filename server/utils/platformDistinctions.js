@@ -68,13 +68,23 @@ function _writeDevRows (rows) {
 /**
  * Load the platform (mentor) distinction rows. Prefers the stored mentor set from
  * the global overlay scope; on a clean miss (null) returns the committed seed; on a
- * loader error (e.g. no MySQL in dev) tries the dev-JSON fallback, then the seed. A
- * stored EMPTY array is honoured (the mentor genuinely cleared the set) — only
+ * loader error IN DEVELOPMENT tries the dev-JSON fallback, then the seed. A stored
+ * EMPTY array is honoured (the mentor genuinely cleared the set) — only
  * null/undefined/non-array/throw falls through to the dev file or seed.
+ *
+ * IN PRODUCTION A READ ERROR IS RE-THROWN, matching the save path below rather than
+ * quietly answering with the seed. Two reasons, and the second is the serious one:
+ * a stray dev file on a production box must never be served as the mentor's live
+ * set; and every mentor edit is a READ-MODIFY-WRITE (`loadPlatformDistinctions` ->
+ * splice -> `savePlatformDistinctions`), so answering a failed read with the seed
+ * would let one edit overwrite the mentor's whole authored set with the shipped
+ * defaults. Every caller already handles the rejection — the mentor and Firm
+ * Manager routes return a 500, and the advisor engine logs it and uses the seed.
  *
  * @param {Function} [loadFirmConfig] - async (firmId, key) => stored value
  *   (firmOverlay.loadFirmConfig). When omitted, the dev file (if any) then the seed.
  * @returns {Promise<Array>} the platform distinction rows
+ * @throws in production, when the store cannot be read
  */
 async function loadPlatformDistinctions (loadFirmConfig) {
   if (typeof loadFirmConfig === 'function') {
@@ -82,14 +92,17 @@ async function loadPlatformDistinctions (loadFirmConfig) {
       const stored = await loadFirmConfig(PLATFORM_SCOPE, PLATFORM_CONFIG_KEY)
       if (Array.isArray(stored)) { return stored }
       return SEED_PLATFORM_ROWS // clean miss (null) — production: nothing stored yet
-    } catch (_e) {
+    } catch (err) {
+      if (!_isDev()) { throw err }
       // No DB (dev) or read error — try the dev-JSON fallback before the seed.
       const dev = _readDevRows()
       if (dev) { return dev }
       return SEED_PLATFORM_ROWS
     }
   }
-  // No loader injected — dev file (if any) then seed.
+  // No loader injected — dev file (if any) then seed. Production never takes this
+  // path: both callers inject firmOverlay.loadFirmConfig.
+  if (!_isDev()) { return SEED_PLATFORM_ROWS }
   const dev = _readDevRows()
   return dev || SEED_PLATFORM_ROWS
 }

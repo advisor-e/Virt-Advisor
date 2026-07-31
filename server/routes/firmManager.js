@@ -777,11 +777,25 @@ async function deleteDistinction (req, res) {
 // req.firmId — a client-supplied firmId is never trusted (IDOR).
 
 // The platform (mentor) set is now dynamic — the mentor can author it (the cascade
-// origin, DISTINCTIONS-CASCADE-PLAN.md §6) — so its ids are loaded per request via
+// origin, DISTINCTIONS-CASCADE-PLAN.md §6) — so its rows are loaded per request via
 // the single platform loader (falls back to the committed seed when nothing stored).
-async function _loadPlatformIds () {
-  const rows = await loadPlatformDistinctions(overlay.loadFirmConfig)
-  return new Set(rows.map(r => r.id))
+//
+// WHY THIS ANSWERS THE RESPONSE ITSELF. Every route below checks the id against the
+// platform set BEFORE its try block, because a 404 for an unknown id must come before
+// any store write. In production loadPlatformDistinctions REJECTS on a storage fault
+// rather than quietly serving the seed, and an async Restify handler that rejects
+// answers NOTHING AT ALL — the manager's browser would sit there until it gave up.
+// So the fault is turned into the same 500 the handler's own catch would have sent.
+//
+// @param {Object} res - restify response; answered with a 500 when the read fails
+// @returns {Promise<Array|null>} the platform rows, or null once `res` is answered
+async function _platformRowsOr500 (res) {
+  try {
+    return await loadPlatformDistinctions(overlay.loadFirmConfig)
+  } catch (err) {
+    serverError(res, 500, 'DB_ERROR', err)
+    return null
+  }
 }
 
 async function _loadDeclines (firmId) {
@@ -1120,7 +1134,8 @@ async function markDistinctionsReviewed (req, res) {
  */
 async function setDistinctionOverride (req, res) {
   const id = String(req.params.id || '')
-  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
   const platformRow = platformRows.find(r => r.id === id)
   if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
@@ -1151,7 +1166,9 @@ async function setDistinctionOverride (req, res) {
  */
 async function resetDistinctionOverride (req, res) {
   const id = String(req.params.id || '')
-  if (!(await _loadPlatformIds()).has(id)) {
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
+  if (!platformRows.some(r => r.id === id)) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   try {
@@ -1187,7 +1204,8 @@ async function resetDistinctionOverride (req, res) {
  */
 async function keepMineDistinction (req, res) {
   const id = String(req.params.id || '')
-  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
   const platformRow = platformRows.find(r => r.id === id)
   if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
@@ -1215,7 +1233,9 @@ async function keepMineDistinction (req, res) {
  */
 async function setDistinctionDecline (req, res) {
   const id = String(req.params.id || '')
-  if (!(await _loadPlatformIds()).has(id)) {
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
+  if (!platformRows.some(r => r.id === id)) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   const declined = (req.body || {}).declined
@@ -1246,7 +1266,8 @@ async function setDistinctionDecline (req, res) {
  */
 async function moveDistinction (req, res) {
   const id = String(req.params.id || '')
-  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
   const platformRow = platformRows.find(r => r.id === id)
   if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')

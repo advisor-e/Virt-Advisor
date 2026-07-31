@@ -18,7 +18,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
-const { loadFirmDomainSupport, loadFirmLogicTrees } = require('../server/utils/firmContent')
+const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
 const { isClarificationRequest, prefillDesignState, requestedSessionCount } = require('../server/utils/designInterview')
@@ -160,8 +160,10 @@ function handleDesign (req, body, res) {
     const sectionDescText = formatSectionDescriptionsForPrompt()
 
     // Firm content overlay (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
-    // identity from the firmAuth-verified req, never the body.
-    const firmDomainSupport = await loadFirmDomainSupport(req.firmId, loadFirmConfig)
+    // identity from the firmAuth-verified req, never the body. A production storage
+    // fault rejects rather than reading as "no override"; readForSession logs it and
+    // designs the course from the platform content instead of failing the request.
+    const firmDomainSupport = await readForSession(loadFirmDomainSupport, req.firmId, loadFirmConfig, 'course')
     const detectedDomains = detectDomainsForDesign(allUserText, firmDomainSupport)
     const domainSummaries = detectedDomains
       .map(id => formatDomainSummaryForDesign(id, firmDomainSupport))
@@ -351,9 +353,10 @@ async function handleSession (req, body, res) {
 
   // Domain support context — match session topic to the relevant domain support JSON.
   // Firm content overlays (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
-  // identity from the firmAuth-verified req, never the body.
-  const firmDomainSupport = await loadFirmDomainSupport(req.firmId, loadFirmConfig)
-  const firmLogicTrees = await loadFirmLogicTrees(req.firmId, loadFirmConfig)
+  // identity from the firmAuth-verified req, never the body. As above, a production
+  // storage fault is logged and the session runs on the platform content.
+  const firmDomainSupport = await readForSession(loadFirmDomainSupport, req.firmId, loadFirmConfig, 'course')
+  const firmLogicTrees = await readForSession(loadFirmLogicTrees, req.firmId, loadFirmConfig, 'course')
   const domainQuery = focusQuery
   const domainId = detectDomainForSession(domainQuery, firmDomainSupport)
   const domainContext = domainId

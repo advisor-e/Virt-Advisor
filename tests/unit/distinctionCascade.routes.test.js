@@ -280,3 +280,36 @@ describe('moveDistinction', () => {
     expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
   })
 })
+
+// ── Production storage fault → 500, never an unanswered request ──────────────
+
+describe('platform read failure in production', () => {
+  // The platform loader now REJECTS in production rather than quietly answering with
+  // the committed seed. Each of these routes checks the id against the platform set
+  // BEFORE its try block, so without _platformRowsOr500 the handler's promise would
+  // reject and an async Restify handler that rejects SENDS NOTHING — the manager's
+  // browser would hang until it timed out. These prove it answers instead.
+  const cases = [
+    ['setDistinctionOverride', res => setDistinctionOverride(makeReq({ params: { id: VALID_ID }, body: { description: 'x' } }), res)],
+    ['resetDistinctionOverride', res => resetDistinctionOverride(makeReq({ params: { id: VALID_ID } }), res)],
+    ['setDistinctionDecline', res => setDistinctionDecline(makeReq({ params: { id: VALID_ID }, body: { declined: true } }), res)],
+    ['moveDistinction', res => moveDistinction(makeReq({ params: { id: VALID_ID }, body: { targetDomain: OTHER_DOMAIN } }), res)]
+  ]
+
+  it.each(cases)('%s answers 500 DB_ERROR and writes nothing', async (_name, run) => {
+    const prevEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    try {
+      overlay.loadFirmConfig.mockRejectedValue(new Error('no db'))
+      const res = makeRes()
+
+      await expect(run(res)).resolves.not.toThrow()
+
+      expect(res._status).toBe(500)
+      expect(res._body.error.code).toBe('DB_ERROR')
+      expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+    } finally {
+      process.env.NODE_ENV = prevEnv
+    }
+  })
+})

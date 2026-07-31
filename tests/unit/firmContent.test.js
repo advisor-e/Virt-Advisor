@@ -10,7 +10,10 @@
  * to before.
  */
 
-const { CONFIG_KEYS, mergeEntry, loadFirmDomainSupport, loadFirmLogicTrees } = require('../../server/utils/firmContent')
+const fs = require('fs')
+const {
+  CONFIG_KEYS, mergeEntry, loadFirmDomainSupport, loadFirmLogicTrees, readForSession
+} = require('../../server/utils/firmContent')
 
 // A loader stub that returns a value per config key (mirrors firmOverlay.loadFirmConfig).
 const loaderFor = byKey => jest.fn((firmId, key) => Promise.resolve(byKey[key]))
@@ -51,6 +54,62 @@ describe('firmContent loaders', () => {
     const loader = jest.fn(() => Promise.reject(new Error('no db')))
     expect(await loadFirmDomainSupport('firm-not-in-any-dev-file', loader)).toBeNull()
     expect(await loadFirmLogicTrees('firm-not-in-any-dev-file', loader)).toBeNull()
+  })
+
+  it('production rejects on a store failure — it never reads a stand-in file', async () => {
+    // In production, answering null would tell the session "this firm has edited
+    // nothing", which is exactly what a healthy store says about an untouched firm —
+    // so an outage would be invisible. And a stray dev file on the server would be
+    // served as that firm's live domain-support and logic-tree wording.
+    jest.resetModules()
+    const prevEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    try {
+      const prod = require('../../server/utils/firmContent')
+      // Plant a stray dev file. Only the dev paths are faked — everything else reads
+      // for real, so jest's own internals are untouched (and are why this asserts on
+      // the dev-file calls rather than on the spy having no calls at all).
+      const realRead = fs.readFileSync
+      const isDevFile = p => typeof p === 'string' &&
+        (p.includes('dev-firm-domain-support') || p.includes('dev-firm-logic-trees'))
+      const readSpy = jest.spyOn(fs, 'readFileSync').mockImplementation((p, ...rest) =>
+        isDevFile(p) ? JSON.stringify({ 'firm-A': { profit: { overview: 'stray dev text' } } }) : realRead(p, ...rest))
+      const reject = () => Promise.reject(new Error('no db'))
+
+      await expect(prod.loadFirmDomainSupport('firm-A', reject)).rejects.toThrow('no db')
+      await expect(prod.loadFirmLogicTrees('firm-A', reject)).rejects.toThrow('no db')
+      expect(readSpy.mock.calls.filter(([p]) => isDevFile(p))).toHaveLength(0)
+
+      readSpy.mockRestore()
+    } finally {
+      process.env.NODE_ENV = prevEnv
+      jest.resetModules()
+    }
+  })
+})
+
+// ── readForSession — the engines' safety net ─────────────────────────────────
+
+describe('readForSession', () => {
+  it('passes the override map straight through when the read succeeds', async () => {
+    const loader = loaderFor({ [CONFIG_KEYS.domainSupport]: { profit: { overview: 'Firm A' } } })
+    const map = await readForSession(loadFirmDomainSupport, 'firm-A', loader, 'advisor')
+    expect(map).toEqual({ profit: { overview: 'Firm A' } })
+  })
+
+  it('logs and answers null when the read rejects — a live session must not die', async () => {
+    // The counterweight to the production guard above: a firm manager gets an error,
+    // but an advisor mid-conversation gets the platform content and a server log,
+    // never a failed request.
+    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const failing = () => Promise.reject(new Error('no db'))
+
+    const map = await readForSession(failing, 'firm-A', () => {}, 'advisor')
+
+    expect(map).toBeNull()
+    expect(errSpy).toHaveBeenCalled()
+    expect(errSpy.mock.calls[0][0]).toContain('[advisor]')
+    errSpy.mockRestore()
   })
 })
 

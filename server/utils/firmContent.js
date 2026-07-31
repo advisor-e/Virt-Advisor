@@ -19,8 +19,10 @@
  * unit-testable without a database.
  *
  * In development the store rejects (no MySQL); we fall back to gitignored
- * dev-JSON maps keyed by firmId, mirroring firmDistinctions. Anything
- * malformed loads as null — a bad save must never take down a session.
+ * dev-JSON maps keyed by firmId, mirroring firmDistinctions. That fallback is
+ * DEV-ONLY: in production an unreachable store is thrown to the caller (see
+ * `_load`). Anything malformed loads as null — a bad save must never take down
+ * a session.
  *
  * The merge itself happens in domainSupport.js / logicTrees.js AT THE POINT
  * OF USE, per request. Merged copies are never written into either module's
@@ -42,6 +44,8 @@ const DEV_FILES = {
   domainSupport: 'data/dev-firm-domain-support.json',
   logicTrees: 'data/dev-firm-logic-trees.json'
 }
+
+const IS_DEV = process.env.NODE_ENV !== 'production'
 
 const isPlainObject = v => typeof v === 'object' && v !== null && !Array.isArray(v)
 
@@ -69,18 +73,29 @@ function _readDevMap (file) {
 /**
  * Load one firm content overlay, preferring the injected (production) loader
  * and falling back to the dev-JSON map keyed by firmId.
+ *
+ * THE FALLBACK IS DEV-ONLY, DELIBERATELY — matching firmStaircase.js and
+ * firmDistinctions.js. In production an unreachable store is thrown to the caller:
+ * the Firm Manager route turns it into a 500 the manager can see, and the engines
+ * log it and run on the platform content. Returning null instead would tell a
+ * session "this firm has edited nothing", which is indistinguishable from the truth
+ * and hides the outage; and a stray dev file on a production box would be served as
+ * that firm's live domain-support and logic-tree wording.
+ *
  * @param {Function} loadFirmConfig - async (firmId, key) => stored value
  * @param {string|null} firmId - the authenticated firm id (never client-supplied)
  * @param {string} key - firmOverlay config key
  * @param {string} devFile - dev-JSON fallback path
  * @returns {Promise<Object|null>} the override map, or null when none/malformed
+ * @throws in production, when the store cannot be read
  */
 async function _load (loadFirmConfig, firmId, key, devFile) {
   if (!firmId) { return null }
   let value
   try {
     value = await loadFirmConfig(firmId, key)
-  } catch (_e) {
+  } catch (err) {
+    if (!IS_DEV) { throw err }
     const map = _readDevMap(devFile)
     value = Object.prototype.hasOwnProperty.call(map, firmId) ? map[firmId] : null
   }
@@ -92,6 +107,7 @@ async function _load (loadFirmConfig, firmId, key, devFile) {
  * @param {string|null} firmId
  * @param {Function} loadFirmConfig - async (firmId, key) => stored value
  * @returns {Promise<Object|null>}
+ * @throws in production, when the store cannot be read (never in development)
  */
 function loadFirmDomainSupport (firmId, loadFirmConfig) {
   return _load(loadFirmConfig, firmId, CONFIG_KEYS.domainSupport, DEV_FILES.domainSupport)
@@ -102,9 +118,43 @@ function loadFirmDomainSupport (firmId, loadFirmConfig) {
  * @param {string|null} firmId
  * @param {Function} loadFirmConfig - async (firmId, key) => stored value
  * @returns {Promise<Object|null>}
+ * @throws in production, when the store cannot be read (never in development)
  */
 function loadFirmLogicTrees (firmId, loadFirmConfig) {
   return _load(loadFirmConfig, firmId, CONFIG_KEYS.logicTrees, DEV_FILES.logicTrees)
 }
 
-module.exports = { CONFIG_KEYS, mergeEntry, loadFirmDomainSupport, loadFirmLogicTrees }
+/**
+ * Session-safe wrapper around either reader above, for the ENGINES only.
+ *
+ * The readers reject in production so a storage fault cannot be mistaken for "this
+ * firm has edited nothing" — but a live advisor or course session must not die for
+ * it. This logs the fault and answers null, which the merge points already treat as
+ * "no override", so the session runs on the platform content. One wrapper rather
+ * than a try/catch copied to each call site, so the rule cannot drift between them.
+ *
+ * ROUTES MUST NOT USE THIS. A firm manager needs the error — an empty editing screen
+ * that looks like their saved work vanished is exactly the failure being removed.
+ *
+ * @param {Function} read - loadFirmDomainSupport or loadFirmLogicTrees
+ * @param {string|null} firmId
+ * @param {Function} loadFirmConfig - async (firmId, key) => stored value
+ * @param {string} label - log prefix identifying the engine ('advisor' | 'course')
+ * @returns {Promise<Object|null>} the override map, or null on any failure
+ */
+async function readForSession (read, firmId, loadFirmConfig, label) {
+  try {
+    return await read(firmId, loadFirmConfig)
+  } catch (err) {
+    console.error(`[${label}] firm content read failed — using platform content:`, err.message)
+    return null
+  }
+}
+
+module.exports = {
+  CONFIG_KEYS,
+  mergeEntry,
+  loadFirmDomainSupport,
+  loadFirmLogicTrees,
+  readForSession
+}

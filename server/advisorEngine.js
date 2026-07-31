@@ -16,7 +16,7 @@ const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesFor
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
-const { loadFirmDomainSupport, loadFirmLogicTrees } = require('../server/utils/firmContent')
+const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -32,7 +32,7 @@ const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION } = require('../server/utils/templateResolver')
 const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
 const { loadFirmDistinctionState } = require('../server/utils/firmDistinctions')
-const { loadPlatformDistinctions } = require('../server/utils/platformDistinctions')
+const { loadPlatformDistinctions, SEED_PLATFORM_ROWS } = require('../server/utils/platformDistinctions')
 // Client knowledge base (design 2026-07-14) — the engine reads a named client's
 // case history back at recommendation time.
 const clientStore = require('../server/utils/clientStore')
@@ -1451,10 +1451,16 @@ async function handleQuery (rawBody, res, identity) {
   // Firm content overlays (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
   // the firm's domain-support and logic-tree edits, loaded once per request
   // like the template/staircase overrides above and merged only at the point
-  // of use. Load failure degrades to "no override" inside the loaders, so a
-  // storage problem can never block a session.
-  const firmDomainSupport = await loadFirmDomainSupport(firmId, loadFirmConfig)
-  const firmLogicTrees = await loadFirmLogicTrees(firmId, loadFirmConfig)
+  // of use.
+  //
+  // In production the loaders REJECT on a storage fault rather than answering
+  // "this firm has edited nothing" (a stray dev file must never be served as a
+  // firm's live wording — see firmContent.js). A live advisor conversation must
+  // still not die for it, so readForSession logs the fault and the session runs on
+  // the platform content — the same shape loadBlendedStaircase uses above. The log
+  // line is the difference between a degraded session and a silent one.
+  const firmDomainSupport = await readForSession(loadFirmDomainSupport, firmId, loadFirmConfig, 'advisor')
+  const firmLogicTrees = await readForSession(loadFirmLogicTrees, firmId, loadFirmConfig, 'advisor')
 
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
@@ -2558,8 +2564,24 @@ async function handleQuery (rawBody, res, identity) {
     // resolve it into the single effective list the advisor session should see.
     // With no declines/edits stored, the effective list equals platform + firm-own
     // rows — identical to the previous concatenation, so behaviour is unchanged.
-    const _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
-    const _platformRows = await loadPlatformDistinctions(loadFirmConfig)
+    //
+    // Both reads REJECT in production on a storage fault rather than answering with
+    // an empty state or a stand-in file. This session must survive that, so the
+    // fault is logged and the run continues on the committed platform seed with no
+    // firm decisions applied — degraded, and loudly so, instead of silently.
+    let _firmState = { ownRows: [], declinedIds: [], overrides: {} }
+    let _platformRows = SEED_PLATFORM_ROWS
+    try {
+      _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
+      _platformRows = await loadPlatformDistinctions(loadFirmConfig)
+    } catch (err) {
+      console.error('[advisor] distinction read failed — using platform seed:', err.message)
+      // Both are reset, not just the one that failed. The firm read can succeed and
+      // the platform read then fail, leaving decisions that reference row ids the
+      // seed may not carry — applying half a resolved state is worse than none.
+      _firmState = { ownRows: [], declinedIds: [], overrides: {} }
+      _platformRows = SEED_PLATFORM_ROWS
+    }
     const _effectiveDistinctions = resolveEffectiveDistinctions(_platformRows, _firmState)
     const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
     // Cross-domain bridge: firm distinctions filed under OTHER domains that match this
