@@ -32,8 +32,15 @@ const page = (title, section, subSection, bindable) => ({
   bindable: bindable !== false
 })
 
-const entry = (id, question, answer, keyPoint) => ({
+/**
+ * A resolved question. `qid` is identity, `id` is the POSITION the backend
+ * reassigns, and `source` is what the screen badges — the three are separate on
+ * purpose and the screen must never confuse them.
+ */
+const entry = (id, question, answer, keyPoint, source) => ({
   id,
+  qid: 'qz-' + id,
+  source: source || 'platform',
   question: question || 'What is working capital?',
   answer: answer || 'Current assets less current liabilities.',
   keyPoint: keyPoint || 'It funds the trading cycle.'
@@ -42,13 +49,21 @@ const entry = (id, question, answer, keyPoint) => ({
 /** The payload shape GET /api/firm-manager/quizzes returns. */
 function payload (overrides) {
   return Object.assign({
-    base: {},
     firmOverride: null,
     hasOverride: false,
-    merged: {
-      'Working Capital Cycle': { origin: 'platform', entries: [entry(1), entry(2)] },
-      'Price Rise': { origin: 'firm', entries: [entry(1, 'How do you raise price?')] },
-      'Advisor Prep': { origin: 'platform', entries: [entry(1)] }
+    hasDecisions: false,
+    // Advisor-e's own banks — the only place a switched-off question's wording lives.
+    base: {
+      'Working Capital Cycle': { entries: [entry(1), entry(2)] },
+      'Price Rise': { entries: [entry(1, 'How do you raise price?')] },
+      'Advisor Prep': { entries: [entry(1)] }
+    },
+    state: { declinedIds: [], overrides: {}, ownRows: [] },
+    // What the course engine reads. The screen draws THIS, never `merged`.
+    resolved: {
+      'Working Capital Cycle': { entries: [entry(1), entry(2)] },
+      'Price Rise': { entries: [entry(1, 'How do you raise price?')] },
+      'Advisor Prep': { entries: [entry(1)] }
     },
     pages: [
       // Deliberately in the order the server sends — the rail must preserve it.
@@ -186,32 +201,66 @@ describe('opening a page', () => {
     expect(wrapper.text()).toContain('firmQuizzes.keyPoint')
   })
 
-  test('an untouched quiz is badged as the platform\'s, not the firm\'s', async () => {
+  test('an untouched question is badged as the platform\'s, not the firm\'s', async () => {
     const wrapper = await openFirstPage(await mountRail())
-    expect(wrapper.text()).toContain('firmQuizzes.originPlatform')
-    expect(wrapper.text()).not.toContain('firmQuizzes.originFirm')
+    expect(wrapper.text()).toContain('firmQuizzes.tagPlatform')
+    expect(wrapper.text()).not.toContain('firmQuizzes.tagCustomised')
+    expect(wrapper.text()).not.toContain('firmQuizzes.tagFirm')
   })
 
-  // Without this badge a firm cannot tell an edited quiz from an untouched one.
-  test('a firm-edited quiz says so', async () => {
-    const wrapper = await mountRail()
-    wrapper.setData({
-      current: {
-        title: 'Price Rise',
-        section: 'Get the Job',
-        subSection: 'Marketing',
-        bindable: true,
-        origin: 'firm',
-        entries: [entry(1)]
+  // The badge is PER QUESTION, not per quiz. Since 2026-07-31 one page can hold
+  // Advisor-e's questions and the firm's side by side, so a single badge on the
+  // whole quiz would have to be wrong about one of them.
+  test('an edited question and an untouched one are badged differently on the same page', async () => {
+    const wrapper = await mountRail({
+      resolved: {
+        'Working Capital Cycle': {
+          entries: [
+            entry(1, 'Our own wording', null, null, 'firm-override'),
+            entry(2)
+          ]
+        }
       }
     })
+    wrapper.setData({ currentTitle: 'Working Capital Cycle' })
     await wrapper.vm.$nextTick()
-    expect(wrapper.text()).toContain('firmQuizzes.originFirm')
+    expect(wrapper.text()).toContain('firmQuizzes.tagCustomised')
+    expect(wrapper.text()).toContain('firmQuizzes.tagPlatform')
   })
 
-  test('with no saved version, history explains itself rather than sitting blank', async () => {
+  test('a question the firm added is badged as the firm\'s own', async () => {
+    const wrapper = await mountRail({
+      resolved: {
+        'Working Capital Cycle': { entries: [entry(1, 'We wrote this', null, null, 'firm-own')] }
+      }
+    })
+    wrapper.setData({ currentTitle: 'Working Capital Cycle' })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('firmQuizzes.tagFirm')
+  })
+
+  // Replaced a version-history table that read storage nothing writes to any more,
+  // so it would have been empty for every firm forever — and an empty history table
+  // reads as "nothing you saved was kept".
+  test('the panel explains how to undo a change', async () => {
     const wrapper = await openFirstPage(await mountRail())
-    expect(wrapper.text()).toContain('firmQuizzes.historyEmpty')
+    expect(wrapper.text()).toContain('firmQuizzes.undoNote')
+  })
+
+  // A snapshot taken at click time goes stale the moment a question is edited, and
+  // the screen would then show the firm its own pre-edit wording as if the save had
+  // not happened.
+  test('the panel redraws from the latest load, not from a snapshot', async () => {
+    const wrapper = await openFirstPage(await mountRail())
+    expect(wrapper.text()).toContain('What is working capital?')
+
+    wrapper.setData({
+      banks: { 'Working Capital Cycle': { entries: [entry(1, 'Reworded after saving')] } }
+    })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Reworded after saving')
+    expect(wrapper.text()).not.toContain('What is working capital?')
   })
 })
 
@@ -256,34 +305,164 @@ describe('a page whose name is not unique', () => {
 
   test('explains itself when opened, before any work is done', async () => {
     const wrapper = await mountRail()
-    wrapper.setData({
-      current: {
-        title: 'Advisor Prep',
-        section: 'Get Organised',
-        subSection: 'Advisor Access',
-        bindable: false,
-        origin: 'platform',
-        entries: [entry(1)]
-      }
-    })
+    wrapper.setData({ currentTitle: 'Advisor Prep' })
     await wrapper.vm.$nextTick()
     expect(wrapper.text()).toContain(DUP_WARNING)
   })
 
   test('a normal page shows no such warning', async () => {
     const wrapper = await mountRail()
-    wrapper.setData({
-      current: {
-        title: 'Working Capital Cycle',
-        section: 'Do the Job',
-        subSection: 'Help',
-        bindable: true,
-        origin: 'platform',
-        entries: [entry(1)]
-      }
-    })
+    wrapper.setData({ currentTitle: 'Working Capital Cycle' })
     await wrapper.vm.$nextTick()
     expect(wrapper.text()).not.toContain(DUP_WARNING)
+  })
+
+  // A quiz cannot be attached to it at all, so offering the button would send the
+  // author away to write a question the save is guaranteed to reject.
+  test('offers no Add question button', async () => {
+    const wrapper = await mountRail()
+    wrapper.setData({ currentTitle: 'Advisor Prep' })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).not.toContain('firmQuizzes.addQuestion')
+  })
+})
+
+// ── Editing (Phase 3b) ────────────────────────────────────────────────────────
+//
+// What these must prove is not "a button exists" but the two things a firm can
+// get badly wrong and the one thing the mechanism depends on: that switching off
+// the last question warns what replaces it, that a new question is filed against
+// the page on screen, and that editing one of Advisor-e's questions sends only
+// what changed.
+
+describe('editing', () => {
+  /** Mount, open a page, and capture the calls made after the initial load. */
+  async function openFor (body, title) {
+    const wrapper = await mountRail(body)
+    wrapper.setData({ currentTitle: title || 'Working Capital Cycle' })
+    await wrapper.vm.$nextTick()
+    global.fetch.mockClear()
+    return wrapper
+  }
+
+  test('switching off a question when others remain does not interrupt', async () => {
+    const wrapper = await openFor()
+    const confirm = jest.fn()
+    wrapper.vm.$buefy.dialog.confirm = confirm
+
+    await wrapper.vm.switchOff({ qid: 'qz-1' })
+
+    expect(confirm).not.toHaveBeenCalled()
+    const [url, opts] = global.fetch.mock.calls[0]
+    expect(url).toBe('/api/firm-manager/quizzes/platform/qz-1/decline')
+    expect(opts.method).toBe('PUT')
+    expect(JSON.parse(opts.body)).toEqual({ declined: true })
+  })
+
+  // The case a firm gets wrong: they believe they are removing the quiz. They are
+  // not — the page still runs one and the AI writes the questions.
+  test('switching off the LAST question asks first, and says what replaces it', async () => {
+    const wrapper = await openFor({
+      resolved: { 'Working Capital Cycle': { entries: [entry(1)] } }
+    })
+    const confirm = jest.fn()
+    wrapper.vm.$buefy.dialog.confirm = confirm
+
+    await wrapper.vm.switchOff({ qid: 'qz-1' })
+
+    expect(confirm).toHaveBeenCalled()
+    expect(confirm.mock.calls[0][0].message).toBe('firmQuizzes.lastQuestionWarning')
+    // Nothing is sent until the firm confirms.
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
+
+  test('a new question is filed against the page on screen, not a typed name', async () => {
+    const wrapper = await openFor()
+    wrapper.setData({
+      showForm: true,
+      editing: null,
+      form: { question: 'Ours?', answer: 'Yes.', keyPoint: 'Because.' }
+    })
+
+    await wrapper.vm.saveQuestion()
+
+    const [url, opts] = global.fetch.mock.calls[0]
+    expect(url).toBe('/api/firm-manager/quizzes/own')
+    expect(JSON.parse(opts.body)).toEqual({
+      question: 'Ours?', answer: 'Yes.', keyPoint: 'Because.', bank: 'Working Capital Cycle'
+    })
+  })
+
+  test('editing one of Advisor-e questions sends ONLY the field that changed', async () => {
+    // The freshness guarantee. Sending all three would freeze the untouched two at
+    // today's wording, which is the defect the whole mechanism exists to close.
+    const wrapper = await openFor()
+    wrapper.setData({
+      showForm: true,
+      editing: { qid: 'qz-1', kind: 'platform' },
+      form: {
+        question: 'What is working capital?', // unchanged
+        answer: 'Our own answer.', // changed
+        keyPoint: 'It funds the trading cycle.' // unchanged
+      }
+    })
+
+    await wrapper.vm.saveQuestion()
+
+    const [url, opts] = global.fetch.mock.calls[0]
+    expect(url).toBe('/api/firm-manager/quizzes/platform/qz-1')
+    expect(opts.method).toBe('PUT')
+    expect(JSON.parse(opts.body)).toEqual({ answer: 'Our own answer.' })
+  })
+
+  test('putting every field back to Advisor-e wording resets, rather than storing a copy', async () => {
+    // A stored copy that happens to be identical would still shield the question
+    // from Advisor-e's next improvement to it.
+    const wrapper = await openFor()
+    wrapper.setData({
+      showForm: true,
+      editing: { qid: 'qz-1', kind: 'customised' },
+      form: {
+        question: 'What is working capital?',
+        answer: 'Current assets less current liabilities.',
+        keyPoint: 'It funds the trading cycle.'
+      }
+    })
+
+    await wrapper.vm.saveQuestion()
+
+    const [url, opts] = global.fetch.mock.calls[0]
+    expect(url).toBe('/api/firm-manager/quizzes/platform/qz-1')
+    expect(opts.method).toBe('DELETE')
+  })
+
+  test('a half-filled question is refused before it reaches the backend', async () => {
+    const wrapper = await openFor()
+    wrapper.setData({
+      showForm: true,
+      editing: null,
+      form: { question: 'Ours?', answer: '   ', keyPoint: 'Because.' }
+    })
+
+    await wrapper.vm.saveQuestion()
+
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
+
+  // Every question switched off is a legitimate choice, but it must not read as
+  // "this page has no quiz".
+  test('a page with nothing left says the AI will write the questions', async () => {
+    const wrapper = await mountRail({
+      resolved: {},
+      state: { declinedIds: ['qz-1', 'qz-2'], overrides: {}, ownRows: [] }
+    })
+    wrapper.setData({ currentTitle: 'Working Capital Cycle' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('firmQuizzes.noneLiveNote')
+    // …and the switched-off questions are listed, not silently gone.
+    expect(wrapper.text()).toContain('firmQuizzes.switchedOffHeading')
+    expect(wrapper.text()).toContain('firmQuizzes.switchOn')
   })
 })
 

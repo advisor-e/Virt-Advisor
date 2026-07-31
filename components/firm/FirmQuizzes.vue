@@ -39,7 +39,7 @@ section.firm-quizzes
             v-for="page in sub.visiblePages"
             :key="page.title"
             type="button"
-            :class="{ 'is-current': current && current.title === page.title, 'is-blocked': !page.bindable }"
+            :class="{ 'is-current': currentTitle === page.title, 'is-blocked': !page.bindable }"
             @click="select(page)"
           )
             span.rail-pagename {{ page.title }}
@@ -65,9 +65,15 @@ section.firm-quizzes
                 p.is-size-7.has-text-grey {{ current.section }} › {{ current.subSection }}
                 p.title.is-5.mb-2 {{ current.title }}
                 .tags.mb-0
-                  b-tag(:type="current.origin === 'firm' ? 'is-warning is-light' : 'is-light'")
-                    | {{ current.origin === 'firm' ? $t('firmQuizzes.originFirm') : $t('firmQuizzes.originPlatform') }}
-                  b-tag(type="is-light") {{ $tc('firmQuizzes.questionCount', current.entries.length) }}
+                  b-tag(type="is-light") {{ $tc('firmQuizzes.questionCount', rows.live.length) }}
+            .level-right
+              b-button(
+                v-if="!showForm && current.bindable"
+                type="is-primary"
+                size="is-small"
+                icon-left="plus"
+                @click="openForm(null)"
+              ) {{ $t('firmQuizzes.addQuestion') }}
 
           //- Said before any work is done, not after a rejected save.
           b-message.mb-4(
@@ -77,51 +83,130 @@ section.firm-quizzes
             :closable="false"
           ) {{ $t('firmQuizzes.duplicateNameWarning') }}
 
-          //- One question per card. Read-only in this pass; editing follows.
-          article.q(v-for="(entry, i) in current.entries" :key="entry.id")
-            .q-number {{ i + 1 }}
+          b-notification.mb-4(type="is-info is-light" :closable="false" style="font-size:0.85rem")
+            | {{ $t('firmQuizzes.notice') }}
+
+          //- One question per card. The number is the POSITION the AI is shown, not
+          //- an identity — it closes up when a question above is switched off.
+          article.q(v-for="row in rows.live" :key="row.qid")
+            .q-number {{ row.id }}
             .q-body
-              p.q-text {{ entry.question }}
+              .tags.mb-1
+                b-tag(:type="badge(row.kind).type" size="is-small") {{ badge(row.kind).label }}
+              p.q-text {{ row.question }}
               .q-field
                 p.q-label {{ $t('firmQuizzes.answer') }}
-                p.q-value {{ entry.answer }}
+                p.q-value {{ row.answer }}
               .q-field
                 p.q-label {{ $t('firmQuizzes.keyPoint') }}
-                p.q-value {{ entry.keyPoint }}
+                p.q-value {{ row.keyPoint }}
+              .buttons.mt-2.mb-0
+                b-button(size="is-small" :disabled="busyId === row.qid" @click="openForm(row)")
+                  | {{ $t('firmQuizzes.edit') }}
+                b-button(
+                  v-if="row.kind === 'customised'"
+                  size="is-small"
+                  :disabled="busyId === row.qid"
+                  @click="confirmReset(row)"
+                ) {{ $t('firmQuizzes.resetToPlatform') }}
+                b-button(
+                  v-if="row.kind === 'firm-own'"
+                  size="is-small"
+                  type="is-danger is-light"
+                  :disabled="busyId === row.qid"
+                  @click="confirmRemove(row)"
+                ) {{ $t('firmQuizzes.remove') }}
+                b-button(
+                  v-else
+                  size="is-small"
+                  :loading="busyId === row.qid"
+                  @click="switchOff(row)"
+                ) {{ $t('firmQuizzes.switchOff') }}
 
-        //- ── Version history ─────────────────────────────────────────────
+          //- Every question switched off. The page still gets a quiz — the AI writes
+          //- it — and saying nothing here would leave a firm believing it removed the
+          //- quiz altogether.
+          .q-none(v-if="!rows.live.length")
+            p.has-text-weight-semibold.mb-1 {{ $t('firmQuizzes.noneLiveHeading') }}
+            p.is-size-7.has-text-grey {{ $t('firmQuizzes.noneLiveNote') }}
+
+        //- ── Switched off ────────────────────────────────────────────────
+        //- Below the live list and unnumbered, deliberately: these questions hold no
+        //- position, and a question that simply vanished would read as data loss.
+        .box(v-if="rows.switchedOff.length")
+          p.has-text-weight-semibold.mb-1 {{ $t('firmQuizzes.switchedOffHeading') }}
+          p.is-size-7.has-text-grey.mb-3 {{ $t('firmQuizzes.switchedOffNote') }}
+          article.q.q-off(v-for="row in rows.switchedOff" :key="row.qid")
+            .q-body
+              p.q-text {{ row.question }}
+              .buttons.mt-2.mb-0
+                b-button(
+                  size="is-small"
+                  type="is-primary is-light"
+                  :loading="busyId === row.qid"
+                  @click="switchOn(row)"
+                ) {{ $t('firmQuizzes.switchOn') }}
+
+        //- ── Add / Edit form ─────────────────────────────────────────────
+        .box.quiz-form(v-if="showForm")
+          p.has-text-weight-semibold.mb-4
+            | {{ editing ? $t('firmQuizzes.editQuestion') : $t('firmQuizzes.newQuestion') }}
+
+          b-field(:label="$t('firmQuizzes.fieldQuestion')")
+            b-input(v-model="form.question" type="textarea" rows="2" :maxlength="String(maxChars)")
+
+          b-field(:label="$t('firmQuizzes.answer')" :message="$t('firmQuizzes.fieldAnswerHint')")
+            b-input(v-model="form.answer" type="textarea" rows="2" :maxlength="String(maxChars)")
+
+          b-field(:label="$t('firmQuizzes.keyPoint')" :message="$t('firmQuizzes.fieldKeyPointHint')")
+            b-input(v-model="form.keyPoint" type="textarea" rows="2" :maxlength="String(maxChars)")
+
+          .field.is-grouped.mt-4
+            b-button(type="is-primary" :loading="saving" @click="saveQuestion")
+              | {{ editing ? $t('firmQuizzes.save') : $t('firmQuizzes.addQuestion') }}
+            b-button.ml-2(:disabled="saving" @click="closeForm") {{ $t('firmQuizzes.cancel') }}
+
+        //- ── How to undo ─────────────────────────────────────────────────
+        //- This replaced a version-history table (2026-07-31). The table read the
+        //- old whole-quiz storage, which nothing writes to any more, so it would
+        //- have been empty for every firm forever — and an empty history table
+        //- reads as "nothing you saved was kept", which is the opposite of true.
         .box
-          p.title.is-6 {{ $t('firmQuizzes.historyHeading') }}
-          b-table(v-if="history.length" :data="history" :mobile-cards="false")
-            b-table-column(v-slot="{ row }" field="version" :label="$t('firmQuizzes.historyVersion')" width="80")
-              | v{{ row.version }}
-            b-table-column(v-slot="{ row }" field="saved_by" :label="$t('firmQuizzes.historySavedBy')")
-              | {{ row.saved_by }}
-            b-table-column(v-slot="{ row }" field="created_at" :label="$t('firmQuizzes.historyDate')")
-              | {{ formatDate(row.created_at) }}
-          p.has-text-grey.is-size-7(v-else) {{ $t('firmQuizzes.historyEmpty') }}
+          p.has-text-weight-semibold.mb-1 {{ $t('firmQuizzes.undoHeading') }}
+          p.is-size-7.has-text-grey {{ $t('firmQuizzes.undoNote') }}
 </template>
 
 <script>
 /**
- * Firm Quizzes (CB-31 Phase 3) — the firm's no-code view of its quiz material.
+ * Firm Quizzes (CB-31 Phase 3) — the firm's no-code view of its quiz material,
+ * and now its editing screen.
  *
- * Lives in its own file rather than inside FirmManagerHub.vue, which is already
- * over the decompose rule and logged as CB-23. The Hub renders it as one tab.
+ * EVERY QUESTION ON THIS SCREEN IS A DECISION, not a text box. Until 2026-07-31 a
+ * save stored a complete copy of a whole bank, which made a firm's quiz a frozen
+ * private snapshot the moment it reworded one question: Advisor-e's later
+ * improvements to the other nine could never reach them, permanently, with nothing
+ * on screen to say so. Questions now go through the one firm-editable mechanism
+ * (server/utils/resolveInheritedRows.js) — switch one off, edit one, add your own —
+ * so an untouched question stays current automatically.
  *
- * This pass is READ-ONLY: browse, search, see where quiz material is missing,
- * and see the saved version history. Editing and saving follow separately so
- * each half is reviewable on its own.
+ * IT DRAWS `resolved`, NOT `merged`. The backend returns both; `resolved` is the
+ * bank the course engine actually reads. Drawing the older whole-bank view and
+ * putting Save buttons on it would let a firm edit one thing while its advisors
+ * were given another — the defect closed on this very feature in Phase 2.
  *
  * The rail deliberately lists EVERY sub-section, including those with no quiz,
- * because seeing the gap is the point — a firm cannot fill material it cannot
- * see is missing.
+ * because seeing the gap is the point — a firm cannot fill material it cannot see
+ * is missing. The rail itself (tone bands, drop-tab accordion, open/closed state
+ * and the three-state stuck-open fix) is the shared FirmRail component.
  *
- * The rail itself (tone bands, drop-tab accordion, open/closed state and the
- * three-state stuck-open fix) is the shared FirmRail component — this screen
- * builds the data and renders the page rows through its slots.
+ * Wording mirrors the Advisory Staircase tab (Mike's consistency ruling,
+ * 2026-07-31) so the Hub reads as one screen rather than six dialects.
  */
 import FirmRail from '~/components/firm/FirmRail.vue'
+const { buildQuizRows, buildQuestionEdit, isLastLiveQuestion } = require('~/utils/quizRows')
+
+/** Matches LIMITS.textChars on the backend, which is the rule actually enforced. */
+const MAX_CHARS = 2000
 
 export default {
   name: 'FirmQuizzes',
@@ -139,22 +224,40 @@ export default {
       error: '',
       /** Page library from the resolver's own list — every selectable page. */
       pages: [],
-      /** Platform base ⊕ firm overlay, keyed by page title, each tagged origin. */
+      /**
+       * Advisor-e's own banks. The only place a switched-off question's wording
+       * lives, since by definition it is absent from the resolved list.
+       */
+      base: {},
+      /** The firm's decisions: { declinedIds, overrides, ownRows }. */
+      state: { declinedIds: [], overrides: {}, ownRows: [] },
+      /** The resolved banks — what the course engine reads, keyed by page title. */
       banks: {},
-      hasOverride: false,
-      history: [],
       query: '',
       showEmpty: true,
-      /** The page whose questions are on screen, or null. */
-      current: null
+      /**
+       * The page on screen, held as a TITLE rather than a snapshot row. A snapshot
+       * taken at click time goes stale the moment a question is edited, and the
+       * screen would then show the firm its own pre-edit wording as if the save had
+       * not happened.
+       */
+      currentTitle: null,
+      showForm: false,
+      /** The row being edited, or null when adding. */
+      editing: null,
+      form: { question: '', answer: '', keyPoint: '' },
+      saving: false,
+      /** The row with a request in flight, so one question never freezes the tab. */
+      busyId: null,
+      maxChars: MAX_CHARS
     }
   },
 
   computed: {
     /**
-     * The rail: sections → sub-sections → pages, built from the page library
-     * with quiz counts layered on. Search filters the pages, not the structure,
-     * so a firm can still see which sub-section a hit belongs to.
+     * The rail: sections → sub-sections → pages, built from the page library with
+     * quiz counts layered on. Search filters the pages, not the structure, so a
+     * firm can still see which sub-section a hit belongs to.
      */
     tree () {
       const q = this.query.trim().toLowerCase()
@@ -191,7 +294,6 @@ export default {
           // cannot be attached to it. Said up front rather than at save time.
           bindable: page.bindable !== false,
           entryCount: bank ? bank.entries.length : 0,
-          origin: bank ? bank.origin : null,
           entries: bank ? bank.entries : []
         })
       }
@@ -205,13 +307,43 @@ export default {
           // behind a closed sub-section reads as "no results", and the sub
           // holding the page on screen should present itself.
           sub.hasHits = sub.visiblePages.length > 0
-          sub.holdsCurrent = !!(this.current &&
-            this.current.section === section.name &&
-            this.current.subSection === sub.name)
+          sub.holdsCurrent = sub.pages.some(p => p.title === this.currentTitle)
         }
         section.subs = section.subs.filter(sub => this.subVisible(sub, q))
       }
       return sections.filter(section => section.subs.length)
+    },
+
+    /**
+     * The page on screen, rebuilt from the library on every render so it reflects
+     * the latest load rather than what was true when it was clicked.
+     * @returns {Object|null}
+     */
+    current () {
+      if (!this.currentTitle) { return null }
+      const page = this.pages.find(p => p.title === this.currentTitle)
+      if (!page) { return null }
+      return {
+        title: page.title,
+        section: page.section || this.$t('firmQuizzes.ungrouped'),
+        subSection: page.subSection || this.$t('firmQuizzes.ungrouped'),
+        bindable: page.bindable !== false
+      }
+    },
+
+    /**
+     * The two lists the panel draws for the page on screen.
+     * @returns {{live: Array<Object>, switchedOff: Array<Object>}}
+     */
+    rows () {
+      if (!this.currentTitle) { return { live: [], switchedOff: [] } }
+      const resolved = this.banks[this.currentTitle]
+      const platform = this.base[this.currentTitle]
+      return buildQuizRows(
+        resolved ? resolved.entries : [],
+        platform ? platform.entries : [],
+        this.state.declinedIds
+      )
     }
   },
 
@@ -220,16 +352,24 @@ export default {
   },
 
   methods: {
-    /** GET the merged banks, the page library and the saved version history. */
+    /**
+     * Read the whole picture: Advisor-e's banks, this firm's decisions, and the
+     * resolved banks the two produce.
+     * @returns {Promise<void>}
+     */
     async load () {
       this.loading = true
       this.error = ''
       try {
         const data = await this.api('GET', '/api/firm-manager/quizzes')
         this.pages = data.pages || []
-        this.banks = data.merged || {}
-        this.hasOverride = !!data.hasOverride
-        await this.loadHistory()
+        this.base = data.base || {}
+        this.banks = data.resolved || {}
+        this.state = {
+          declinedIds: (data.state && data.state.declinedIds) || [],
+          overrides: (data.state && data.state.overrides) || {},
+          ownRows: (data.state && data.state.ownRows) || []
+        }
       } catch (err) {
         this.error = this.$t('firmQuizzes.loadFailed')
       } finally {
@@ -238,17 +378,191 @@ export default {
     },
 
     /**
-     * Saved versions of the firm's overlay. A firm that has never saved has no
-     * history row, which is not an error — it is the normal starting state.
+     * The tag shown against a question.
+     * @param {string} kind - 'platform' | 'customised' | 'firm-own'
+     * @returns {{type: string, label: string}}
      */
-    async loadHistory () {
-      if (!this.hasOverride) { this.history = []; return }
-      try {
-        const data = await this.api('GET', '/api/firm-manager/framework/history?configKey=quiz-banks')
-        this.history = Array.isArray(data) ? data : (data.history || [])
-      } catch (err) {
-        this.history = []
+    badge (kind) {
+      if (kind === 'firm-own') {
+        return { type: 'is-link is-light', label: this.$t('firmQuizzes.tagFirm') }
       }
+      if (kind === 'customised') {
+        return { type: 'is-warning is-light', label: this.$t('firmQuizzes.tagCustomised') }
+      }
+      return { type: 'is-light', label: this.$t('firmQuizzes.tagPlatform') }
+    },
+
+    /** Advisor-e's version of a question, or null for one the firm owns. */
+    platformQuestion (qid) {
+      const bank = this.base[this.currentTitle]
+      if (!bank || !Array.isArray(bank.entries)) { return null }
+      return bank.entries.find(e => e && e.qid === qid) || null
+    },
+
+    /**
+     * Open the form to add a question, or to edit one.
+     * @param {Object|null} row - the row to edit, or null to add
+     */
+    openForm (row) {
+      this.editing = row || null
+      this.form = {
+        question: (row && row.question) || '',
+        answer: (row && row.answer) || '',
+        keyPoint: (row && row.keyPoint) || ''
+      }
+      this.showForm = true
+    },
+
+    closeForm () {
+      this.showForm = false
+      this.editing = null
+    },
+
+    /**
+     * Save the form. Which of four things happens is not a detail — see
+     * buildQuestionEdit: an edit to one of Advisor-e's questions sends ONLY the
+     * fields that changed, so the rest keep tracking Advisor-e's wording.
+     * @returns {Promise<void>}
+     */
+    async saveQuestion () {
+      const filled = ['question', 'answer', 'keyPoint']
+        .every(f => String(this.form[f] || '').trim())
+      if (!filled) {
+        this.$buefy.toast.open({ message: this.$t('firmQuizzes.allFieldsRequired'), type: 'is-warning' })
+        return
+      }
+
+      const row = this.editing
+      const isOwn = !row || row.kind === 'firm-own'
+      const platform = (row && !isOwn) ? this.platformQuestion(row.qid) : null
+      const { action, body } = buildQuestionEdit(this.form, platform, row && row.kind === 'customised')
+
+      this.saving = true
+      try {
+        if (!row) {
+          await this.api('POST', '/api/firm-manager/quizzes/own', { ...body, bank: this.currentTitle })
+          this.toast('firmQuizzes.questionAdded')
+        } else if (isOwn) {
+          await this.api('PUT', `/api/firm-manager/quizzes/own/${encodeURIComponent(row.qid)}`, body)
+          this.toast('firmQuizzes.questionSaved')
+        } else if (action === 'save') {
+          await this.api('PUT', `/api/firm-manager/quizzes/platform/${encodeURIComponent(row.qid)}`, body)
+          this.toast('firmQuizzes.questionSaved')
+        } else if (action === 'reset') {
+          await this.api('DELETE', `/api/firm-manager/quizzes/platform/${encodeURIComponent(row.qid)}`)
+          this.toast('firmQuizzes.wasReset')
+        }
+        this.closeForm()
+        await this.load()
+      } catch (err) {
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      } finally {
+        this.saving = false
+      }
+    },
+
+    /**
+     * Switch one of Advisor-e's questions off — asking first when it is the last
+     * one left, because that is the case a firm can get wrong. An empty bank is
+     * DROPPED, so the page still runs a quiz and the AI writes the questions.
+     * @param {Object} row
+     * @returns {Promise<void>}
+     */
+    switchOff (row) {
+      if (!isLastLiveQuestion(this.rows.live, row.qid)) {
+        return this.decide(row, true, 'firmQuizzes.switchedOff')
+      }
+      this.$buefy.dialog.confirm({
+        title: this.$t('firmQuizzes.lastQuestionTitle'),
+        message: this.$t('firmQuizzes.lastQuestionWarning'),
+        confirmText: this.$t('firmQuizzes.switchOff'),
+        cancelText: this.$t('firmQuizzes.cancel'),
+        type: 'is-warning',
+        onConfirm: () => this.decide(row, true, 'firmQuizzes.switchedOff')
+      })
+    },
+
+    /**
+     * Switch a question back on.
+     * @param {Object} row
+     * @returns {Promise<void>}
+     */
+    switchOn (row) {
+      return this.decide(row, false, 'firmQuizzes.switchedOn')
+    },
+
+    /**
+     * Record a switch-off / switch-on against one of Advisor-e's questions.
+     * @param {Object} row
+     * @param {boolean} declined
+     * @param {string} messageKey - the toast to show on success
+     * @returns {Promise<void>}
+     */
+    async decide (row, declined, messageKey) {
+      this.busyId = row.qid
+      try {
+        await this.api(
+          'PUT',
+          `/api/firm-manager/quizzes/platform/${encodeURIComponent(row.qid)}/decline`,
+          { declined }
+        )
+        this.toast(messageKey)
+        await this.load()
+      } catch (err) {
+        // The backend's message is shown as it is: a friendlier one invented here
+        // could disagree with the rule actually being enforced.
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      } finally {
+        this.busyId = null
+      }
+    },
+
+    /** Confirm, then drop this firm's version of one of Advisor-e's questions. */
+    confirmReset (row) {
+      this.$buefy.dialog.confirm({
+        message: this.$t('firmQuizzes.resetConfirm'),
+        confirmText: this.$t('firmQuizzes.resetConfirmButton'),
+        cancelText: this.$t('firmQuizzes.cancel'),
+        type: 'is-warning',
+        onConfirm: () => this.send(row, 'DELETE', `/api/firm-manager/quizzes/platform/${encodeURIComponent(row.qid)}`, 'firmQuizzes.wasReset')
+      })
+    },
+
+    /** Confirm, then remove a question this firm added. */
+    confirmRemove (row) {
+      this.$buefy.dialog.confirm({
+        message: this.$t('firmQuizzes.removeConfirm'),
+        confirmText: this.$t('firmQuizzes.remove'),
+        cancelText: this.$t('firmQuizzes.cancel'),
+        type: 'is-danger',
+        onConfirm: () => this.send(row, 'DELETE', `/api/firm-manager/quizzes/own/${encodeURIComponent(row.qid)}`, 'firmQuizzes.removed')
+      })
+    },
+
+    /**
+     * One request against one row, with the row's spinner and a reload after.
+     * @param {Object} row
+     * @param {string} method
+     * @param {string} path
+     * @param {string} messageKey
+     * @returns {Promise<void>}
+     */
+    async send (row, method, path, messageKey) {
+      this.busyId = row.qid
+      try {
+        await this.api(method, path)
+        this.toast(messageKey)
+        await this.load()
+      } catch (err) {
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      } finally {
+        this.busyId = null
+      }
+    },
+
+    /** @param {string} key i18n key for a success toast */
+    toast (key) {
+      this.$buefy.toast.open({ message: this.$t(key), type: 'is-success' })
     },
 
     /** True when a page's title or any of its question text matches the query. */
@@ -256,9 +570,9 @@ export default {
       if (!q) { return true }
       if (page.title.toLowerCase().includes(q)) { return true }
       return page.entries.some(e =>
-        e.question.toLowerCase().includes(q) ||
-        e.answer.toLowerCase().includes(q) ||
-        e.keyPoint.toLowerCase().includes(q)
+        String(e.question || '').toLowerCase().includes(q) ||
+        String(e.answer || '').toLowerCase().includes(q) ||
+        String(e.keyPoint || '').toLowerCase().includes(q)
       )
     },
 
@@ -274,13 +588,8 @@ export default {
 
     /** Open a page's questions in the panel. @param {Object} page rail page row */
     select (page) {
-      this.current = page
-    },
-
-    formatDate (value) {
-      if (!value) { return '' }
-      const d = new Date(value)
-      return isNaN(d.getTime()) ? String(value) : d.toLocaleString()
+      this.currentTitle = page.title
+      this.closeForm()
     },
 
     /**
@@ -346,4 +655,6 @@ export default {
   color: #7a7a7a;
 }
 .q-value { font-size: 0.9rem; }
+.q-off .q-text { font-weight: 400; color: #7a7a7a; }
+.q-none { padding: 1.25rem 0 0.25rem; border-top: 1px solid #f0f0f0; }
 </style>
