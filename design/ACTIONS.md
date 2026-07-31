@@ -130,6 +130,27 @@
     developer report. Recommendation: build the generated report first — it is the thing that
     keeps the answer true — and decide on a screen once we can see the real table.
 
+- <a id="staff-tree-entry-triggers"></a>☐ **P1 · WIRE — the 8 new Organisational Review branches are wired
+  correctly inside a table that never opens for the conversations they were written for.** Found by
+  measurement 2026-07-31, immediately after building them; **logged rather than fixed, because the fix
+  changes which table fires and that needs its own approval and its own measurement.**
+  - **The evidence.** A table is selected by matching the advisor's words against its `entry_triggers`
+    ([`logicTrees.js`](../server/utils/logicTrees.js) `detectLogicTree`). `staff_performance`'s list is
+    all performance language — *staff, morale, productivity, hiring, disharmony*. Run against the live
+    detector: *"nobody knows who reports to whom and the org chart is a mess"* → **no tree selected**;
+    *"our meetings go nowhere, cynical snipes and sulking"* → **none**; *"our stated values mean
+    nothing"* → **none**. *"my staff are driving me nuts"* → `staff_performance`, as before.
+  - **Why this is the P1 class above, not a detail.** The walk measurement proves the 8 rules reach
+    their pages *once the table is open* — it forces the tree id. Nothing forces it in production. So
+    the content renders, saves, passes every test, and stays unreachable: the fourth instance of
+    right-content/wrong-lane in three days, and the first one caught by measuring rather than by hand.
+  - **The fix, when approved:** add trigger words to `staff_performance` — *reporting lines, who
+    reports to whom, org chart, chain of command, organisational structure, meeting behaviour, values
+    clash, core values, accountability*. **This changes which table fires**, so it must be measured
+    across all 42 trees before and after, and what moves stated — not just the staff table checked.
+  - **Do not fix by widening the branch pattern instead.** That is the layer *below* selection and was
+    already tuned during the build; it cannot open a table the detector never chose.
+
 - <a id="new-source-docs-2026-07-30"></a>☐ **3 new source documents added 2026-07-30 (commit `e443c52`) —
   read and planned, NOT YET TRANSCRIBED.** New master export
   `Central Frameworks/search_content_20260730041439.json` adds 2 library pages (**Speak Easy**,
@@ -169,8 +190,59 @@
     domain-support/logic-table structure and fit neither. Superseded by `Sales & Marketing
     Support.pdf`. **Orphaned by the deletion:** `data/sales-marketing-slides.json` (the PDF's
     extract) — traced, nothing in the codebase reads it — a candidate for removal, not yet approved.
-  - **Blocked until 2026-07-30 by the P1 above**, now clear. **Not started:** the actual data-file
-    transcription (adding the 14 materials + 32 branches into the domain-support / logic-trees JSON).
+  - **Blocked until 2026-07-30 by the P1 above**, now clear.
+  - ✅ **TRANSCRIPTION PROGRESS 2026-07-31 (all approved by Mike, this branch).** All **14 materials**
+    are in; **8 of 32 branches** are in.
+    - `7ae8b31` **Strategic Planning** — 9 materials into `strategy` (4 → 13). Mike ruled British
+      spelling over the source PDF's US spelling; applied to every transcription since.
+    - `a557096` **Sales & Marketing** — 2 new materials into `sales-marketing` (17 → 19) plus the
+      5-stage method distributed into 9 existing rows; 7 left empty rather than invented.
+    - **Organisational Review** — 2 materials into `staff` (2 → 4). **Mike ruled the home: `staff`**
+      (client-facing org design; `people-power` is recruitment/pay, the `org-*` domains are the
+      firm's own). Both names resolve exactly against `data/templates.json`. Cost measured through
+      the live formatters: `staff` ~2,920 tokens, **10th of 29 domains**, well under `people-power`
+      (~8,260, the accepted worst case).
+    - **Mike's three-way opening question, same session** — `advisor_guidance.first_diagnostic_question`
+      was *"engagement or effectiveness?"*, which read as an absolute ("do not recommend a template
+      before…") and would have gated the two new materials behind a question that does not fit them.
+      Now: **attitude / competence / communication lines** — reporting structure, authority, values
+      and meeting behaviour. Attitude and competence still run the 5 Drivers diagnosis unchanged.
+    - ⚠ **The `staff` file's `overview` still describes the domain as underperformance diagnosis
+      only** — Mike's prose, left byte-unchanged, for his eye when he next reads the domain on screen.
+  - ✅ **SHAPE RULED 2026-07-31 (Mike) — the branch tables become `nodes`, NOT `flat_if_then`.
+    Read this before transcribing the remaining two.** `flat_if_then` is the Get-the-Job
+    advisor-development lane: never walked, never reaching a client recommendation
+    ([`logicTrees.js`](../server/utils/logicTrees.js) `formatFlatBranch` doc comment, design §2.5),
+    and all 5 trees on that shape are `get_*`. These tables are about the **client's** business, so
+    that shape would have made them inert — the near-miss that raised the content-routing P1 above.
+    The `nodes` shape maps 1:1 onto the PDFs' four columns (`condition` / `action` / `notes` /
+    `templates` = IF / THEN / Additional Context / the pages), so nothing is invented except the
+    routing question a flat table cannot contain.
+  - ✅ **Organisational Review's 8 branches BUILT 2026-07-31 (approved by Mike, this branch)** — as a
+    **third path inside `staff_performance`** (15 → 24 nodes), mirroring the three-way question
+    above, rather than a competing standalone tree (its triggers would have fought `staff_performance`
+    on the shared words *culture* and *poor communication*). The standalone
+    `Logic Tables/Organisational Review Logic.pdf` was read and confirmed **identical** to the copy
+    inside the support PDF — transcribed once, as planned.
+    - **Routing question is the one authored sentence** (a flat table has no question). Mike's own
+      wording, widened after measurement showed his five options reached only 3 of the 8 rules:
+      *"Which is blocking this organisation — messaging that is inconsistent or out of step with its
+      core purpose and values, missing feedback loops, unclear communication lines or accountability,
+      how decisions get made and debated, or the leadership style the strategy needs?"*
+    - **Templates derived only where verifiable:** `Org Chart Only` (bias, typology, meetings),
+      `Organisational Review` (values, job creep), both (alignment), plus `People vs. Process` on the
+      two leadership-style branches — the support PDF's step 3 places that fork inside that named
+      table. All pass the `logicTreeTemplateNames.test.js` build guard.
+    - **Measured old file vs new, engine run twice in separate processes, 14 conversations:
+      8 existing staff paths byte-identical; all 6 new paths reach the right pages.**
+      ⚠ **The first measurement was worthless and reported "no change" everywhere** — the old tree
+      was passed through the `firmTrees` parameter, which *merges* onto the platform bundle (and
+      rejects an array outright), so both sides read the new file. Same class as the `scoringLog`
+      trap. A real before/after needs two processes with different `cwd`.
+    - ⚠ **`staff_performance.description` still describes only the attitude/competency split** — not
+      updated, so it under-describes the tree by one path.
+  - ☐ **Still to transcribe: Strategic Planning (11 branches) and Sales & Marketing (13).** Both take
+    the `nodes` ruling above.
 
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT

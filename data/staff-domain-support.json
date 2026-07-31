@@ -47,10 +47,42 @@
         "If they realistically cannot reach the level, move to the Hiring Winners template.",
         "For poor systems — where a capable person is blocked by their environment, knowing how to trim a tube but having no lathe — review the Lite Fundamentals Process template and redesign the environment hindering the output."
       ]
+    },
+    {
+      "name": "Organisational Review",
+      "summary": "A structured session that clarifies where the business is headed and builds the organisation around it. It records the scale dynamics and performance needed for the owner's personal income, lifestyle and daily activity goals, then works down through internal efficiency, cultural alignment and accountability — defining core values, a social contract that makes employees feel safe and engaged, the hierarchy chart, divisional KPIs and cascaded objectives, so every division understands its primary output.",
+      "who_when": "Business leaders and management teams wanting to clarify organisational hierarchy, roles and reporting channels; organisations transitioning between growth stages that must balance innovation against quality, efficiency and consistency; and teams showing alignment issues, cultural friction or habit-based operational delays.",
+      "steps": [
+        "Allocate 10–15 minutes at the start of the session to review the 9 agenda items — Development Stages, Team Insights, People/Process Basics, Leadership Style, Core Values, Habit Drivers, Hierarchy Chart, Divisional KPIs and Cascaded Objectives.",
+        "Set the explicit objective of the session: improving internal efficiencies, improving team engagement, or both.",
+        "Review the Business Development Stages table to record the scale dynamics and business performance needed to reach the owner's personal income and lifestyle goals.",
+        "Analyse the pre-gathered data from the Internal Team Insights page to understand staff feedback before any organisational decision is made.",
+        "Complete the People vs. Process table to audit the existing systems and processes.",
+        "Determine which the business strategy requires — Innovation & Creativity (open-air debate, flexible hours, flat reporting, individual rewards) or Quality, Efficiency, Consistency & Precision (discipline, written best practices, closed-door debate, uniform dress codes, team rewards).",
+        "Fill out Leadership Tables (1 & 2) with an open mind to identify personal leadership improvement areas.",
+        "Establish the organisational Social Contract and map the core values across four levels — Human Needs, Immediate Team Needs, Greater Organisation Needs and Customer Needs — documenting 3 key observable behaviours for each segment in the Value Segment table.",
+        "Identify the current operational habits and their environmental triggers (for example, compliance deadlines interfering with non-chargeable advisory positioning), then draft a 5-Step Replacement Habit Plan — Reason (the global perspective for change), Trigger (a localised, self-relevant environmental prompt), Micro Habit (a small, low-risk change), Effective Practice (repetition of the micro-habit tied to the trigger environment) and Plan (the global ongoing management plan).",
+        "Define the chain of command using the Organisational Hierarchy Chart, assign divisional KPIs (for example, a Finance KPI of monthly average cash on hand and average debtor days), and document each division's operational objectives with the responsible team members using action plan reminders."
+      ]
+    },
+    {
+      "name": "Org Chart Only",
+      "summary": "Addresses the decision-making and meeting behaviour that sits behind the reporting structure. It surfaces the cognitive biases that impair planning, installs collaborative frameworks and meeting rules that make creative debate possible, and then maps the chain of command using military planning principles — discipline and consistent communication under pressure, rather than a glorified hierarchy that serves egos.",
+      "who_when": "Leadership teams struggling with unproductive meetings, personal confrontations or cynical snipes; organisations suffering planning paralysis caused by confirmation or optimism bias; and growing companies that need to formalise shareholder, board, executive and operational reporting lines.",
+      "steps": [
+        "Evaluate the decision-making team against the 5 primary planning blocks — Confirmation Bias (seeking only the information that supports a predetermined position), Optimism Bias (being overly optimistic rather than realistic), Argumentative Theory (internalised thought processes serving personal needs), Conceptual Hierarchies (information anchors causing disproportionate attention to certain elements of the problem) and Individual Typologies (personality coping styles defined by Enneagram Harmonics — Positive Outlook, Intensity, Competency).",
+        "Implement a collaborative framework such as De-Bono's 6 Hats Thinking to align focus during the problem review.",
+        "Establish a common language so all members share agreed terminology.",
+        "Appoint a chairperson/facilitator responsible for enforcing timelines, maintaining the frameworks and encouraging equal contribution regardless of rank.",
+        "Apply the principle \"Play the Ball, Not the Player\" to encourage creative debate while prohibiting physical or verbal confrontation and passive-aggressive behaviour such as sulking or cynical snipes.",
+        "Enforce the rule: \"Leave Your Baggage Outside..!\".",
+        "Apply military chain-of-command principles to build discipline and consistent communication under pressure.",
+        "Fill out the People & Their Reporting Lines chart by defining the position flows: Shareholders → Board → CEO → VPs (Marketing, Sales, Operations, Finance) → Managers/Foremen → Operational Roles such as Copywriter, Salesperson, Technician, Labourer, Apprentice and Trainer."
+      ]
     }
   ],
   "advisor_guidance": {
-    "first_diagnostic_question": "The single most important question is: engagement or effectiveness? Every other decision flows from this. Do not recommend a template before establishing which driver is failing.",
+    "first_diagnostic_question": "The single most important question is: is this an attitude problem, a competence problem, or a communication-lines problem — reporting structure, authority, values and meeting behaviour? Attitude and competence both run the 5 Drivers diagnosis (engagement versus effectiveness), and every other decision flows from that. Communication lines go straight to Organisational Review and Org Chart Only. Do not recommend a template before establishing which of the three it is.",
     "leadership_as_root_cause": "When engagement problems are widespread across a team, the instinct is to focus on the employees — but the root cause is frequently leadership style. A Leadership Review should be the first step for team-wide morale or culture issues, not an afterthought.",
     "do_not_jump_to_bonuses": "Clients frequently suggest financial bonuses as the fix for motivation problems. Redirect them: bonuses work for simple, repeatable tasks — not complex advisory, trades, or service roles. The real levers are security, autonomy, and fair base pay.",
     "normalise_the_learning_dip": "Advisors should prepare clients for the learning dip before it happens. If the client is not warned, they will pull the plug on a development plan at exactly the wrong moment — just as the employee is entering the acceptance phase."

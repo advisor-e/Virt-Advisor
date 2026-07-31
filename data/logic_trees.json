@@ -915,8 +915,8 @@
           "branch_name": "Initial Split — Performance vs People/Culture Situation",
           "type": "question",
           "condition": "Advisor detects a staff, team, leadership, or culture concern",
-          "question": "Is this a staff performance issue — attitude or competency of specific people — or a broader people, culture, or leadership situation such as owner alignment, team engagement, hiring, or incentives?",
-          "notes": "This split determines the diagnostic path. Performance issues follow the engagement/effectiveness tree. Broader situations use the People Power situation matching.",
+          "question": "Is this a staff performance issue — attitude or competency of specific people — a broader people, culture, or leadership situation such as owner alignment, team engagement, hiring, or incentives, or a communication-lines problem: reporting structure, authority, values and meeting behaviour?",
+          "notes": "This split determines the diagnostic path. Performance issues follow the engagement/effectiveness tree. Broader situations use the People Power situation matching. Communication-lines problems are organisational design rather than an individual's performance, and go to the Organisational Review branch.",
           "branches": [
             {
               "answer_pattern": "staff performance / attitude / competency / specific people driving them nuts",
@@ -925,6 +925,10 @@
             {
               "answer_pattern": "culture / leadership / owner relations / hiring / incentives / alignment / morale / disharmony / systems",
               "next_node": "sp_situation_entry"
+            },
+            {
+              "answer_pattern": "communication lines / reporting structure / org chart / chain of command / hierarchy / authority / accountability / meetings / meeting behaviour / sulking / snipes / feedback loops / debate / values clash / core purpose / confirmation bias / optimism bias / decision-making blocks / leadership style / compliance deadlines / job creep / habits",
+              "next_node": "sp_org_entry"
             }
           ]
         },
@@ -1146,6 +1150,139 @@
             "Wages Review"
           ],
           "notes": "People vs Process is a starting diagnosis, not an end deliverable. Always identify which Lite Fundamentals session to follow with based on what it reveals."
+        },
+        {
+          "id": "sp_org_entry",
+          "branch_name": "Communication Lines — Which Block?",
+          "type": "question",
+          "condition": "Advisor describes an organisational design problem — reporting structure, authority, values or meeting behaviour — rather than an individual's performance",
+          "question": "Which is blocking this organisation — messaging that is inconsistent or out of step with its core purpose and values, missing feedback loops, unclear communication lines or accountability, how decisions get made and debated, or the leadership style the strategy needs?",
+          "notes": "These branches are independent rules, not a sequence — an organisation can be blocked by more than one. Work the block the client describes; the Organisational Review session covers the rest in its own order.",
+          "branches": [
+            {
+              "answer_pattern": "decisions blocked / confirmation bias / optimism bias / planning paralysis / only hearing what they want",
+              "next_node": "sp_org_bias"
+            },
+            {
+              "answer_pattern": "people react differently to risk / personality clashes / typologies / enneagram / talking past each other",
+              "next_node": "sp_org_typology"
+            },
+            {
+              "answer_pattern": "meetings go nowhere / no feedback loops / sulking / cynical snipes / passive aggressive / confrontation",
+              "next_node": "sp_org_meetings"
+            },
+            {
+              "answer_pattern": "strategy needs innovation and creativity / new ideas / flexible ways of working",
+              "next_node": "sp_org_style_innovation"
+            },
+            {
+              "answer_pattern": "strategy needs quality, efficiency, consistency and precision / repeatable delivery / fewer errors",
+              "next_node": "sp_org_style_precision"
+            },
+            {
+              "answer_pattern": "values clash / messaging out of step with core purpose and values / stated values mean nothing",
+              "next_node": "sp_org_values"
+            },
+            {
+              "answer_pattern": "compliance deadlines crowd out advisory work / job creep / never get to the important work",
+              "next_node": "sp_org_habits"
+            },
+            {
+              "answer_pattern": "inconsistent messaging / unclear communication lines / no accountability / who reports to whom / discipline breaks down under pressure",
+              "next_node": "sp_org_alignment"
+            }
+          ]
+        },
+        {
+          "id": "sp_org_bias",
+          "branch_name": "Cognitive Bias Block",
+          "type": "recommendation",
+          "condition": "IF planning or quality decision-making is blocked by Confirmation Bias or Optimism Bias",
+          "action": "THEN adopt a structured Collaborative Framework (e.g. De-Bono's 6 Hats Thinking), establish an agreed Common Language, and assign a Chairperson/Facilitator to enforce timelines and equal contribution",
+          "templates": [
+            "Org Chart Only"
+          ],
+          "notes": "Confirmation bias causes teams to seek only supporting data, while optimism bias causes unrealistically high expectations."
+        },
+        {
+          "id": "sp_org_typology",
+          "branch_name": "Personality / Typology Risk",
+          "type": "recommendation",
+          "condition": "IF team members react to risk and adversity based on distinct Individual Typologies / Enneagram Harmonics (Positive Outlook, Intensity, or Competency)",
+          "action": "THEN adjust facilitation strategies to account for varying coping mechanisms and conceptual anchors",
+          "templates": [
+            "Org Chart Only"
+          ],
+          "notes": "Conceptual hierarchies and anchors cause different individuals to pay attention to different problem elements."
+        },
+        {
+          "id": "sp_org_meetings",
+          "branch_name": "Passive-Aggressive Meeting Behaviour",
+          "type": "recommendation",
+          "condition": "IF meeting culture deteriorates into passive-aggressive behaviour (such as sulking or cynical snipes) or confrontation",
+          "action": "THEN enforce the \"Play the Ball, Not the Player\" meeting rule, require open hearts/open minds, and demand that members \"Leave Your Baggage Outside..!\"",
+          "templates": [
+            "Org Chart Only"
+          ],
+          "notes": "Creative debate requires healthy individuals operating without verbal or physical confrontation."
+        },
+        {
+          "id": "sp_org_style_innovation",
+          "branch_name": "Strategic Leadership Style: Innovation",
+          "type": "recommendation",
+          "condition": "IF the business strategy prioritises Innovation and Creativity",
+          "action": "THEN build team practices around open-air debate, questioning decision logic, flat reporting structures, flexible hours/WFH, relaxed dress codes, and individual commercial incentives",
+          "templates": [
+            "Organisational Review",
+            "People vs. Process"
+          ],
+          "notes": "Leadership practices must reflect genuine business advantage rather than personal manipulation preferences."
+        },
+        {
+          "id": "sp_org_style_precision",
+          "branch_name": "Strategic Leadership Style: Precision",
+          "type": "recommendation",
+          "condition": "IF the business strategy prioritises Quality, Efficiency, Consistency, and Precision",
+          "action": "THEN build team practices around strict discipline, adherence to written Best Practice rules, closed-door debate, fixed hours, uniform dress codes, and team performance celebration",
+          "templates": [
+            "Organisational Review",
+            "People vs. Process"
+          ],
+          "notes": "Rewards in this model focus on team performance and salary reflecting position authority."
+        },
+        {
+          "id": "sp_org_values",
+          "branch_name": "Value Stack Conflict",
+          "type": "recommendation",
+          "condition": "IF values clash within the organisation",
+          "action": "THEN define the Cultural Core Values Hierarchy pyramid ordered by priority: Human Needs → Immediate Team Needs → Greater Organisation Needs → Customer Needs",
+          "templates": [
+            "Organisational Review"
+          ],
+          "notes": "Values function as needs; everything is important until it clashes with another value."
+        },
+        {
+          "id": "sp_org_habits",
+          "branch_name": "Operational Interference / Job Creep",
+          "type": "recommendation",
+          "condition": "IF compliance work deadlines run interference with plans to deliver non-chargeable advisory positioning work",
+          "action": "THEN deploy the 5-Step Replacement Habit Plan by identifying environmental triggers, establishing a micro-habit, practising repetition in trigger environments, and maintaining a global management plan",
+          "templates": [
+            "Organisational Review"
+          ],
+          "notes": "Negative side effects persist due to subconscious environmental triggers that require structured habit replacement."
+        },
+        {
+          "id": "sp_org_alignment",
+          "branch_name": "Organisational Alignment",
+          "type": "recommendation",
+          "condition": "IF organisational communication or discipline breaks down under operational pressure",
+          "action": "THEN restructure reporting lines using chain-of-command principles in the Organisational Hierarchy Chart",
+          "templates": [
+            "Organisational Review",
+            "Org Chart Only"
+          ],
+          "notes": "Chain-of-command structures exist to ensure consistent communication under pressure, not to support glorified hierarchies or egos."
         }
       ]
     },
