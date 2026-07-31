@@ -1746,9 +1746,11 @@ async function resetStaircaseOverride (req, res) {
 
 /**
  * @route PUT /api/firm-manager/staircase/platform/:id/decline
- * Switch an Advisor-e step off for this firm, or back on. The step is not deleted —
- * a firm that switches one back on gets Advisor-e's current wording for it, and any
- * edit it had made is still there underneath.
+ * Switch an Advisor-e step off for this firm, or back on. Only the declines key is
+ * written — the firm's override survives — so a firm that switches a step back on
+ * gets ITS OWN wording back, not Advisor-e's. Dropping an edit is the reset route
+ * (DELETE .../platform/:id); the two are separate on purpose, and a comment saying
+ * this returns Advisor-e's wording was wrong from Phase 2 until 2026-07-31.
  * @param {string} id - a platform step id (as-*)
  * @param {boolean} req.body.declined
  * @returns {{declined: boolean, id: string}}
@@ -2318,9 +2320,11 @@ async function resetQuizOverride (req, res) {
 
 /**
  * @route PUT /api/firm-manager/quizzes/platform/:qid/decline
- * Switch one of Advisor-e's questions off for this firm, or back on. The question is
- * not deleted — a firm that switches one back on gets Advisor-e's current wording,
- * and any edit it had made is still underneath.
+ * Switch one of Advisor-e's questions off for this firm, or back on. Only the declines
+ * key is written — the firm's override survives — so a firm that switches a question
+ * back on gets ITS OWN wording back, not Advisor-e's. Proven by "an edit made earlier
+ * survives switching the question off and on again" in quizCascade.routes.test.js.
+ * Dropping an edit is the reset route; the two are separate on purpose.
  *
  * There is deliberately NO last-question refusal here; see the section header.
  *

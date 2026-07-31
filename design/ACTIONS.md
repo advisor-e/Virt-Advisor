@@ -2022,14 +2022,34 @@ Two honest answers on different axes — the file used to conflate them:
       the nothing-left message, two form hints, the confirmations) rather than interrupt a fourth
       and fifth time. Named here so they can be corrected on sight; buttons and tags are the
       staircase's verbatim, per the consistency ruling.
-  - ☐ **CHECK, NOT A PROVEN DEFECT — the Advisory Staircase tab may be telling firms something
-    untrue.** Its `switchedOffNote` says a step switched back on "returns with the platform's
-    current wording". For **quizzes** that is provably false — the firm's edit survives being
-    switched off and comes back with it (`quizCascade.routes.test.js`, "an edit made earlier
-    survives switching the question off and on again"). The quizzes note was therefore written
-    **without** the claim rather than mirror it. **Whether the staircase's own behaviour matches
-    its sentence has NOT been checked** — that is the open task, and it is one sentence or one
-    behaviour, not both.
+  - ✅ **CLOSED 2026-07-31 (Session 17, laptop) — it was the SENTENCE, not the behaviour.** The
+    staircase behaves exactly as quizzes does: `setStaircaseDecline` writes the declines key and
+    nothing else, so the override survives and `resolveInheritedRows` swaps the firm's version
+    back in the moment the id leaves that list. A test had proven it all along —
+    `staircaseCascade.routes.test.js`, "an edit made earlier survives switching the step off and
+    on again" — it had simply never been read against the sentence on the screen. The note now
+    says *"Switch one back on to use it again — it returns with any wording your firm gave it."*
+    - 🔴 **THE CLAIM HAD SPREAD TO THREE DEVELOPER COMMENTS, ONE OF THEM IN QUIZZES.**
+      `FirmStaircase.vue`'s `switchOff`, the staircase decline route, and — the one that matters —
+      **the quizzes decline route** (`firmManager.js`), which asserted the opposite of what
+      `quizCascade.routes.test.js` had just proven. **The wrong sentence was copied onto the new
+      feature in the same session the correct behaviour was built and tested.** All three now
+      state that only the declines key is written and name the reset route as the thing that
+      *does* discard an edit. → **RULE: when a feature is cloned from a sibling, its prose is
+      cloned too, and prose carries no test.** A copied comment must be re-read against the
+      behaviour being built, not just the behaviour it came from.
+    - ⚠ **HONEST LIMIT: nothing stops the claim coming back.** The fix is one locale string and
+      three comments; no test ties the wording to the behaviour, because the suite cannot read
+      copy. A firm-facing sentence remains provable only by a human reading it — the same class
+      of gap as the Session 16 screen defect.
+  - ☐ **GAP FOUND WHILE CHECKING THE ABOVE — a switched-off step offers no way back to the
+    platform's version.** The switched-off list renders only a **Switch on** button
+    (`FirmStaircase.vue`), so a step the firm edited and then switched off can be returned to
+    Advisor-e's default only by switching it on first and then pressing **Reset to platform**.
+    Two steps where one would do, and while it sits switched off nothing on screen says the
+    firm's edit is still being held. **Not a defect — no state is lost and no claim is untrue** —
+    and **the same shape in Quizzes** (`FirmQuizzes.vue`), so it is one decision for both tabs,
+    not two. Not actioned: it changes a screen, which is Mike's call.
   - 🔵 **CROSS-MACHINE — a red suite is coming, and it is the safety net working, not a break.**
     The desktop (`feat/firm-quiz-builder-ui`, despite the name, is transcribing domain support and
     logic tables) has added materials to `strategy`, `sales-marketing` and `staff` domain-support

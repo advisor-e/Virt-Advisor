@@ -406,8 +406,10 @@ export default {
     },
 
     /**
-     * Switch one of Advisor-e's steps off for this firm. The step is not deleted —
-     * switching it back on returns Advisor-e's current wording for it.
+     * Switch one of Advisor-e's steps off for this firm. Neither the step NOR the
+     * firm's edit of it is deleted: only the declines list is written, so switching
+     * back on returns the firm's own wording if it had any. Discarding an edit is
+     * `resetStep` — a different button, deliberately.
      * @param {string} id - a platform step id
      * @returns {Promise<void>}
      */
