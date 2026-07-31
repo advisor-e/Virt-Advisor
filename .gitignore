@@ -70,6 +70,12 @@ data/dev-firm-coaching.json
 
 # Dev-only firm quiz overlay (created locally when MySQL is unavailable)
 data/dev-firm-quizzes.json
+# The mechanism's per-question decisions (2026-07-31). Listed WITH the config keys
+# that create them: a new storage key needs a new ignore line, and that was missed
+# twice running before the staircase near-miss made the pattern explicit.
+data/dev-firm-quiz-declines.json
+data/dev-firm-quiz-overrides.json
+data/dev-firm-quiz-own.json
 
 # Dev-only firm content overlays — domain support + logic trees (created locally when MySQL is unavailable)
 data/dev-firm-domain-support.json

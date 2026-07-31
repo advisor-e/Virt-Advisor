@@ -31,12 +31,28 @@ describe('quiz routes are guarded', () => {
 describe('firm-authored quiz text is fenced before it reaches the AI', () => {
   const engine = read('server/courseEngine.js')
 
-  test('the quiz-generate prompt fences a firm-origin bank', () => {
-    expect(engine).toContain("bank.origin === 'firm' ? fenceUntrusted(bankEntries) : bankEntries")
+  // 2026-07-31: fencing became PER QUESTION when quizzes joined the one mechanism.
+  // A bank can now hold Advisor-e's questions and the firm's side by side, so
+  // "is this bank the firm's?" is no longer a question with an answer — only
+  // "who wrote THIS question?" is. The tripwire moves with it; the property it
+  // guards is unchanged.
+  test('the quiz-generate prompt fences each firm-authored question', () => {
+    expect(engine).toContain('isFirmAuthored(e) ? fenceUntrusted(line) : line')
   })
 
-  test('the grader fences a firm-origin marking guide', () => {
-    expect(engine).toContain("bank.origin === 'firm' ? fenceUntrusted(guideBody) : guideBody")
+  test('the grader fences a firm-authored marking guide', () => {
+    expect(engine).toContain('isFirmAuthored(bankEntry) ? fenceUntrusted(guideBody) : guideBody')
+  })
+
+  test('the banks reaching the AI come from the mechanism, not straight off disk', () => {
+    // The defect this closes: the engine used to read data/course-quizzes.json
+    // directly, so a firm's saved quiz material never reached the AI while the
+    // Firm Manager screen showed it merged. Both quiz paths must resolve through
+    // loadBlendedQuizBanks, and neither may go back to the raw file.
+    const calls = engine.match(/loadBlendedQuizBanks\(req\.firmId, loadFirmConfig\)/g) || []
+    expect(calls.length).toBe(2)
+    expect(engine).not.toContain('findQuizBank(getQuizOverrides().banks')
+    expect(engine).not.toContain('findQuizBank(overrides.banks')
   })
 
   test('the fencing helper is actually imported', () => {
