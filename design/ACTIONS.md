@@ -1840,6 +1840,8 @@ Two honest answers on different axes — the file used to conflate them:
     per-feature arrangements: **Domain Support, Logic Tables, Quizzes, the coaching reference**
     (Currency stays out by design — a single setting is not a list of rows). The middle
     management tiers still land ONCE, in `resolveInheritedRows.js`, per the ruled sequencing.
+    *(Superseded in part the same day — **Quizzes** moved onto the mechanism for storage and the
+    read path in Session 15 part 2 below; its screen is Phase 3.)*
   - ✅ **FOUND IN SESSION 13, FIXED IN SESSION 15 below (`d0c1eb0`).** `firmDistinctions` fell
     back to its dev JSON stand-ins on **any** store failure, production included, while
     `firmStaircase` had been tightened in Session 13 to rethrow. The inventory taken before
@@ -1895,6 +1897,74 @@ Two honest answers on different axes — the file used to conflate them:
     been provisioned, so the failure this guards cannot be produced here — which is also the
     argument for doing it now, before a firm has content to lose. Development is untouched: the
     dev-JSON stand-ins work exactly as before.
+
+  ### Session 15 part 2 — QUIZZES JOIN THE ONE MECHANISM (Phases 1 and 2 of 4)
+
+  Two feature commits (`222a384`, `041d5f9`), pushed. Suite **3,238 → 3,269 / 204 suites**, lint
+  0 errors, tree clean, **63 ahead / 0 behind** `master`. Mike chose quizzes over the coaching
+  reference **because quizzes are collision-free** — they live in their own files, while a
+  coaching tab would touch `firmManager.js` and `components/firm/`, which is the desktop's ground.
+
+  - 🔴 **RULED 2026-07-31 (Mike) — a firm's quiz decision is about a SINGLE QUESTION, not a whole
+    quiz.** The old overlay replaced a bank **wholesale**, and that was a deliberate choice with a
+    real reason (merging two lists by position would let a firm's 3-question edit inherit the tail
+    of a 10-question bank). The price was the exact defect the mechanism exists to prevent: **a
+    firm that reworded ONE question stopped receiving Advisor-e's improvements to the other nine,
+    permanently, with nothing on screen to say so.** The mechanism dodges positions a different
+    way — it keys on identity — which is what Phase 1 exists for.
+  - 🔴 **DEFECT FOUND AND FIXED — a firm could have saved a quiz the AI would never read.** The
+    course engine read `data/course-quizzes.json` **directly** and never loaded the firm overlay,
+    while the Firm Manager screen rendered platform ⊕ firm through `mergeQuizBanks`. A firm would
+    have saved, seen it on screen *with version history beside it*, and every course would still
+    have used ours. **The same failure as the domain-support config key on 2026-07-30.** It had
+    not bitten only because no Save button reaches the route — the Phase 3 screen would have made
+    it real on day one. Closed by `server/utils/quizConfig.js`.
+  - ✅ **PHASE 1 (`222a384`) — 652 questions across 62 banks gained a stable `qid`.** Assigned once
+    in file order, never reused, opaque **on purpose**: an id derived from the question's wording
+    would change when the question is reworded, which is the very loss being prevented — and
+    rewording is the normal case Phase 4's Adopt / Keep-mine offer is built for.
+    - ⚠ **THE POSITIONAL `id` COULD NOT BE REPLACED, which is why there are two fields.** It is a
+      **live handshake with the AI**: `courseEngine` writes `Entry {id}` into the generation
+      prompt, the model returns a `bankRef` naming one, and the grader looks the entry back up by
+      that number to find the firm's model answer. Changing its type would have changed the prompt
+      and could have broken grading.
+    - **Proven, not asserted:** the AI-facing text of both surfaces hashes **identically** before
+      and after across all 62 banks, read from the committed blob rather than from memory. The
+      locking test was itself checked against what it must catch — an inserted question with
+      everything renumbered, and two ids quietly swapped, both fail it; improving a question's
+      wording does not, deliberately.
+  - ✅ **PHASE 2 (`041d5f9`) — storage becomes decisions, and the engine reads them.** Separate
+    additive keys (`quiz-declines` / `quiz-overrides` / `quiz-own`), the staircase's shape, so the
+    existing key is never rewritten. `quizConfig.js` is the engine's single read path, the
+    counterpart of `staircaseConfig.js`.
+  - 🔴 **TRAP 1 — THE SAFE DEFAULT BROKE THE COMMON CASE, and an existing test caught it.**
+    Fencing had to become **per question**, because one bank can now hold Advisor-e's questions
+    and the firm's side by side. `isFirmAuthored` fails **closed** — anything without a platform
+    tag is fenced — which is right for a security check and bit immediately: the ordinary path
+    where a firm has decided nothing returned **untagged** platform banks, so **Advisor-e's own
+    questions would have been fenced and the tuned prompt quietly changed for every firm**. Fixed
+    at the cause (no path may return an untagged bank), not at the symptom. Byte-identical prompt
+    text for a firm with no decisions is now locked by a test.
+  - 🔴 **TRAP 2 — the positional number must close its gaps.** Switch off question 2 and the rest
+    renumber, or the model is shown Entry 1, 3, 4 and the grader hunts for a number nobody
+    offered. Same reasoning as the staircase's `step`.
+  - **Two judgement calls made rather than interrupt, both deliberate.** (1) A firm that switches
+    off **every** question in a bank has **no bank** — it is dropped so the engine falls through
+    to AI generation, rather than being handed an empty bank it is told to build every question
+    from. (2) The old whole-bank shape is **read as decisions**, including the honest reading that
+    a question the stored copy does not contain was **removed on purpose**, so it stays off.
+  - ☐ **PHASE 3 — the editing screen.** The Quizzes tab is **browse-only today**: search, see
+    where quiz material is missing, view version history. No edit, add or switch-off. Needs the
+    per-question routes and Mike's wording decisions. **Ordering rule: the screen must not gain a
+    Save button before the engine reads what it saves** — which Phase 2 has now settled.
+  - ☐ **PHASE 4 — Adopt / Keep mine** when Advisor-e changes a question a firm has edited.
+  - ⚠ **NOT PROVEN BY EYE — nothing writes any of this yet**, and MySQL has never been
+    provisioned. Nothing is half-built and nothing is user-reachable.
+  - **WHERE THE ONE-MECHANISM RULING NOW STANDS.** Whole: **Advisory Staircase**, and **Quizzes**
+    for storage + the read path (its screen is Phase 3). Still on their own per-feature
+    arrangements: **Domain Support**, **Logic Tables**, **the coaching reference** — the last of
+    which has no Firm Manager screen at all, so a firm can neither see nor change its 15 entries.
+    (Currency stays out by design.)
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
