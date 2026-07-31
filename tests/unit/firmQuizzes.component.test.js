@@ -436,6 +436,75 @@ describe('editing', () => {
     expect(opts.method).toBe('DELETE')
   })
 
+  // Found by Mike on the running screen, 2026-07-31: Edit appeared to do nothing.
+  // The form was rendering at the FOOT of the page, and a Growth Curve bank is ten
+  // tall cards, so it opened about a screen and a half below the button pressed.
+  // The only visible change near the click was the Add button disappearing, which
+  // read as a fault. Editing now happens in the card itself.
+  describe('the edit form opens where the question is', () => {
+    test('clicking Edit puts the form inside that question card, not at the foot of the page', async () => {
+      const wrapper = await openFor()
+      wrapper.vm.openForm({ qid: 'qz-1', kind: 'platform', question: 'a', answer: 'b', keyPoint: 'c' })
+      await wrapper.vm.$nextTick()
+
+      const cards = wrapper.findAll('article.q').wrappers
+      expect(cards[0].find('.quiz-question-form').exists()).toBe(true)
+      // …and no separate form box at the bottom, which is what caused the confusion.
+      expect(wrapper.find('.quiz-form').exists()).toBe(false)
+    })
+
+    test('the card being edited is marked, so it is obvious which one it applies to', async () => {
+      const wrapper = await openFor()
+      wrapper.vm.openForm({ qid: 'qz-2', kind: 'platform', question: 'a', answer: 'b', keyPoint: 'c' })
+      await wrapper.vm.$nextTick()
+
+      const editing = wrapper.findAll('article.q.is-editing').wrappers
+      expect(editing.length).toBe(1)
+      expect(editing[0].find('.quiz-question-form').exists()).toBe(true)
+    })
+
+    test('only the question being edited turns into a form — the others stay readable', async () => {
+      const wrapper = await openFor()
+      wrapper.vm.openForm({ qid: 'qz-1', kind: 'platform', question: 'a', answer: 'b', keyPoint: 'c' })
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.findAll('.quiz-question-form').length).toBe(1)
+      // Question 2 is still shown as text.
+      expect(wrapper.text()).toContain('firmQuizzes.switchOff')
+    })
+
+    test('adding a NEW question still uses the form at the end, where it will appear', async () => {
+      const wrapper = await openFor()
+      wrapper.vm.openForm(null)
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.find('.quiz-form').exists()).toBe(true)
+      expect(wrapper.findAll('article.q.is-editing').length).toBe(0)
+    })
+
+    // The identity trap: `id` is a POSITION the backend reassigns when a question
+    // above is switched off, so matching on it would open the form on the wrong card.
+    test('the open card is matched by qid, never by its displayed number', async () => {
+      const wrapper = await openFor()
+      wrapper.vm.openForm({ qid: 'qz-2', id: 1, kind: 'platform', question: 'a', answer: 'b', keyPoint: 'c' })
+      await wrapper.vm.$nextTick()
+
+      const cards = wrapper.findAll('article.q').wrappers
+      expect(cards[0].classes()).not.toContain('is-editing')
+      expect(cards[1].classes()).toContain('is-editing')
+    })
+
+    // The Add button used to hide whenever a form opened, so the single visible
+    // response to clicking Edit was a button vanishing at the top of the page.
+    test('the Add question button does not disappear when a question is opened for editing', async () => {
+      const wrapper = await openFor()
+      wrapper.vm.openForm({ qid: 'qz-1', kind: 'platform', question: 'a', answer: 'b', keyPoint: 'c' })
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.text()).toContain('firmQuizzes.addQuestion')
+    })
+  })
+
   test('a half-filled question is refused before it reaches the backend', async () => {
     const wrapper = await openFor()
     wrapper.setData({

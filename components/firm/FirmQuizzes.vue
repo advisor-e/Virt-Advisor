@@ -67,8 +67,12 @@ section.firm-quizzes
                 .tags.mb-0
                   b-tag(type="is-light") {{ $tc('firmQuizzes.questionCount', rows.live.length) }}
             .level-right
+              //- Always offered while the page can take a quiz. It used to hide
+              //- whenever a form was open, which made a button vanishing at the top
+              //- the only visible response to clicking Edit — the one cue on screen,
+              //- and it read as a fault.
               b-button(
-                v-if="!showForm && current.bindable"
+                v-if="current.bindable"
                 type="is-primary"
                 size="is-small"
                 icon-left="plus"
@@ -88,9 +92,25 @@ section.firm-quizzes
 
           //- One question per card. The number is the POSITION the AI is shown, not
           //- an identity — it closes up when a question above is switched off.
-          article.q(v-for="row in rows.live" :key="row.qid")
+          article.q(v-for="row in rows.live" :key="row.qid" :class="{ 'is-editing': isEditing(row) }")
             .q-number {{ row.id }}
-            .q-body
+
+            //- Editing happens HERE, in the card, not in a form at the foot of the
+            //- page. A ten-question bank is tall enough that a form down there
+            //- opened out of sight and read as "the Edit button does nothing"
+            //- (found by Mike, 2026-07-31).
+            .q-body(v-if="isEditing(row)")
+              p.q-editing-label.mb-3 {{ $t('firmQuizzes.editQuestion') }}
+              firm-quiz-question-form(
+                v-model="form"
+                :saving="saving"
+                :submit-label="$t('firmQuizzes.save')"
+                :max-chars="maxChars"
+                @save="saveQuestion"
+                @cancel="closeForm"
+              )
+
+            .q-body(v-else)
               .tags.mb-1
                 b-tag(:type="badge(row.kind).type" size="is-small") {{ badge(row.kind).label }}
               p.q-text {{ row.question }}
@@ -147,24 +167,20 @@ section.firm-quizzes
                   @click="switchOn(row)"
                 ) {{ $t('firmQuizzes.switchOn') }}
 
-        //- ── Add / Edit form ─────────────────────────────────────────────
-        .box.quiz-form(v-if="showForm")
-          p.has-text-weight-semibold.mb-4
-            | {{ editing ? $t('firmQuizzes.editQuestion') : $t('firmQuizzes.newQuestion') }}
-
-          b-field(:label="$t('firmQuizzes.fieldQuestion')")
-            b-input(v-model="form.question" type="textarea" rows="2" :maxlength="String(maxChars)")
-
-          b-field(:label="$t('firmQuizzes.answer')" :message="$t('firmQuizzes.fieldAnswerHint')")
-            b-input(v-model="form.answer" type="textarea" rows="2" :maxlength="String(maxChars)")
-
-          b-field(:label="$t('firmQuizzes.keyPoint')" :message="$t('firmQuizzes.fieldKeyPointHint')")
-            b-input(v-model="form.keyPoint" type="textarea" rows="2" :maxlength="String(maxChars)")
-
-          .field.is-grouped.mt-4
-            b-button(type="is-primary" :loading="saving" @click="saveQuestion")
-              | {{ editing ? $t('firmQuizzes.save') : $t('firmQuizzes.addQuestion') }}
-            b-button.ml-2(:disabled="saving" @click="closeForm") {{ $t('firmQuizzes.cancel') }}
+        //- ── Add form ────────────────────────────────────────────────────
+        //- Only for a NEW question, and at the end of the list on purpose: that is
+        //- where the question itself will appear. An EDIT never renders here — it
+        //- happens in the card being edited, above.
+        .box.quiz-form(v-if="showForm && !editing")
+          p.has-text-weight-semibold.mb-4 {{ $t('firmQuizzes.newQuestion') }}
+          firm-quiz-question-form(
+            v-model="form"
+            :saving="saving"
+            :submit-label="$t('firmQuizzes.addQuestion')"
+            :max-chars="maxChars"
+            @save="saveQuestion"
+            @cancel="closeForm"
+          )
 
         //- ── How to undo ─────────────────────────────────────────────────
         //- This replaced a version-history table (2026-07-31). The table read the
@@ -203,6 +219,7 @@ section.firm-quizzes
  * 2026-07-31) so the Hub reads as one screen rather than six dialects.
  */
 import FirmRail from '~/components/firm/FirmRail.vue'
+import FirmQuizQuestionForm from '~/components/firm/FirmQuizQuestionForm.vue'
 const { buildQuizRows, buildQuestionEdit, isLastLiveQuestion } = require('~/utils/quizRows')
 
 /** Matches LIMITS.textChars on the backend, which is the rule actually enforced. */
@@ -211,7 +228,7 @@ const MAX_CHARS = 2000
 export default {
   name: 'FirmQuizzes',
 
-  components: { FirmRail },
+  components: { FirmRail, FirmQuizQuestionForm },
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
@@ -390,6 +407,20 @@ export default {
         return { type: 'is-warning is-light', label: this.$t('firmQuizzes.tagCustomised') }
       }
       return { type: 'is-light', label: this.$t('firmQuizzes.tagPlatform') }
+    },
+
+    /**
+     * True when this exact question is the one open for editing.
+     *
+     * Keyed on `qid`, never on `id`: `id` is a position the backend reassigns, so
+     * two different questions can hold the same one across two loads and the form
+     * would open on the wrong card.
+     *
+     * @param {Object} row - a live question row
+     * @returns {boolean}
+     */
+    isEditing (row) {
+      return !!(this.showForm && this.editing && row && this.editing.qid === row.qid)
     },
 
     /** Advisor-e's version of a question, or null for one the firm owns. */
@@ -655,6 +686,23 @@ export default {
   color: #7a7a7a;
 }
 .q-value { font-size: 0.9rem; }
+/* The card being edited. The tint and rule are the only thing on screen saying
+   "your change applies HERE" — without them a form that replaces a card reads as
+   the list having jumped. */
+.q.is-editing {
+  background: #f5fbff;
+  border-left: 3px solid #3298dc;
+  padding-left: 0.6rem;
+  margin-left: -0.6rem;
+  border-radius: 4px;
+}
+.q-editing-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3298dc;
+  font-weight: 600;
+}
 .q-off .q-text { font-weight: 400; color: #7a7a7a; }
 .q-none { padding: 1.25rem 0 0.25rem; border-top: 1px solid #f0f0f0; }
 </style>
