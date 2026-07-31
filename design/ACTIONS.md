@@ -130,26 +130,124 @@
     developer report. Recommendation: build the generated report first — it is the thing that
     keeps the answer true — and decide on a screen once we can see the real table.
 
-- <a id="staff-tree-entry-triggers"></a>☐ **P1 · WIRE — the 8 new Organisational Review branches are wired
-  correctly inside a table that never opens for the conversations they were written for.** Found by
-  measurement 2026-07-31, immediately after building them; **logged rather than fixed, because the fix
-  changes which table fires and that needs its own approval and its own measurement.**
+- <a id="staff-tree-entry-triggers"></a>✅ **P1 · WIRE — the 8 new Organisational Review branches were wired
+  correctly inside a table that never opened for the conversations they were written for.
+  FOUND *and* FIXED 2026-07-31 (approved by Mike, this branch, commit `9b4c65c`). Full suite 2,062
+  green / 137 suites, lint 0 errors.**
   - **The evidence.** A table is selected by matching the advisor's words against its `entry_triggers`
-    ([`logicTrees.js`](../server/utils/logicTrees.js) `detectLogicTree`). `staff_performance`'s list is
+    ([`logicTrees.js`](../server/utils/logicTrees.js) `detectLogicTree`). `staff_performance`'s list was
     all performance language — *staff, morale, productivity, hiring, disharmony*. Run against the live
     detector: *"nobody knows who reports to whom and the org chart is a mess"* → **no tree selected**;
     *"our meetings go nowhere, cynical snipes and sulking"* → **none**; *"our stated values mean
     nothing"* → **none**. *"my staff are driving me nuts"* → `staff_performance`, as before.
-  - **Why this is the P1 class above, not a detail.** The walk measurement proves the 8 rules reach
-    their pages *once the table is open* — it forces the tree id. Nothing forces it in production. So
-    the content renders, saves, passes every test, and stays unreachable: the fourth instance of
-    right-content/wrong-lane in three days, and the first one caught by measuring rather than by hand.
-  - **The fix, when approved:** add trigger words to `staff_performance` — *reporting lines, who
-    reports to whom, org chart, chain of command, organisational structure, meeting behaviour, values
-    clash, core values, accountability*. **This changes which table fires**, so it must be measured
-    across all 42 trees before and after, and what moves stated — not just the staff table checked.
-  - **Do not fix by widening the branch pattern instead.** That is the layer *below* selection and was
-    already tuned during the build; it cannot open a table the detector never chose.
+  - **Severity corrected during the fix, and worth carrying.** The original entry measured **bare
+    openers**. Production runs the detector over the **whole `collectedAnswers` block**
+    ([`advisorEngine.js`](../server/advisorEngine.js) L2383) and walks **every** tree scoring ≥1, not
+    only the winner. Rebuilding four realistic full conversations: **two did reach the table — but by
+    accident**, on the generic word *culture* appearing in an unrelated answer; the two structural ones
+    still reached nothing. Not "the door never opens" — "the door opens by luck about half the time,
+    and never for the structural conversations".
+  - **The fix: 22 phrases added (37 → 59)** — structure (*reporting lines, who reports to whom, org
+    chart, chain of command, organisational/organizational structure, organisational review*), meetings
+    (*meeting behaviour/behavior, passive-aggressive, meetings go nowhere, sulking, cynical, snipes*),
+    values (*core values, values clash, stated values, value stack*), feedback and decisions (*feedback
+    loops, how decisions get made*), typology (*typology, individual typologies*).
+  - **🔑 Six words deliberately left out — the part that took the checking.** *Confirmation bias,
+    optimism bias, decision making, leadership style, enneagram* and *job creep* all read as if they
+    belong here, but each is **already owned** by a table built for it: `governance`,
+    `org_firm_board_pack`, `org_leadership`, `conflict_meeting`, `fm_coach_culture`. Taking them would
+    move conversations that land correctly today. *Confrontation* was left out for the same reason.
+    All 22 added were checked against all 42 trees and owned by nobody.
+  - **Measured before vs after in two separate processes with different `cwd`** — never through
+    `firmTrees`, which merges onto the platform bundle and would make both sides read the new file
+    (the 2026-07-30 trap). **1,063 probes across all 42 trees: zero winners moved.** 10 conversations
+    changed, every one from no-tree to `staff_performance`.
+  - **One target deliberately not fixed:** *"people react completely differently when things get
+    tough"* still selects `conflict_meeting` — a symptom with no organisational word in it, so no
+    trigger can catch it, and that destination is defensible.
+  - **New test** [`tests/unit/staffTreeEntryTriggers.test.js`](../tests/unit/staffTreeEntryTriggers.test.js),
+    19 cases. It asserts the **outcome** — which table opens for a realistic sentence — never the
+    trigger list itself; a test that re-listed the 22 phrases would pass whatever the detector did with
+    them. **Do not fix by widening the branch pattern instead:** that is the layer *below* selection and
+    cannot open a table the detector never chose.
+
+- <a id="people-power-openers-dead"></a>☐ **P2 · WIRE — two People Power situations open NO table at all.**
+  Found 2026-07-31 while writing the test above: two control fixtures failed, and checking them against
+  the **pre-change** file proved both were already broken — nothing to do with the Organisational Review
+  work, and present since long before it.
+  - *"the owners are not aligned and it is causing friction"* → `sp_sit_owners_misaligned`, **no table**
+  - *"considering offering shares to key staff to lock them in"* → `sp_sit_remuneration`, **no table**
+  - **Left alone deliberately.** Fixing them widens which table fires, so it needs its own approval and
+    its own before/after — the same discipline the item above followed. Recorded in the test file so
+    their absence from the fixture list cannot be mistaken for an oversight.
+  - **Subsumed by the vocabulary sweep below** if that is done first; listed separately because these
+    two are named, evidenced and cheap.
+
+- <a id="trigger-vocabulary-sweep"></a>☐ **P1 · WIRE — the trigger lists match *phrasings*, not *subjects*.
+  This is the general form of the two items above, and it affects all 42 tables.** Diagnosed 2026-07-31.
+  - **The evidence.** The word `staff` is **not** a trigger. What exist are seven phrases *containing*
+    it: *my staff, the staff, staff are, staff problems, staff performance, staff not performing, staff
+    driving me*. So "key staff", "our staff", "their staff" all miss. Same for `owner` (only *owner
+    relations*) and `team`.
+  - **Measured, one realistic opener per branch: 11 of 13 reach nothing on the staff table** — and most
+    of those are its **original** branches, not the 2026-07-31 additions: *"their attitude is the
+    problem, they have checked out"*, *"they simply do not have the skills for the job"*, *"the owner is
+    beaten up by the business"*, *"they are about to take on new people"*. Across eight other tables,
+    **6 of 8** natural openers miss (valuation, governance, systems, risk management reach nothing or
+    the wrong table).
+  - **What is actually lost, stated precisely rather than alarmingly.** A missed table does **not** leave
+    the advisor empty-handed — templates still come from signals and distinctions. What is lost is (1)
+    the firm's diagnostic reasoning in the AI's context ([`advisorEngine.js`](../server/advisorEngine.js)
+    L466), (2) the weak `TREE_HINT_BOOST` (+3) toward the pages that reasoning points at, and (3) the
+    zero-candidate fallback. When the **wrong** table opens, the AI is handed irrelevant reasoning —
+    worse than none.
+  - **Scope, and why it is not one commit.** 42 tables, each needing candidate words checked against the
+    other 41 (so nothing is stolen) and a real before/after. **The words are the firm's language**, so
+    each table's list needs Mike's wording approval — this is not a bulk mechanical edit.
+  - **Do this AFTER the word-boundary fix** (`4debcfc`, below), which is done: widening trigger words
+    while short triggers still fire inside other words means measuring two moving parts at once.
+  - **Known casualty to fix here:** the Scenario Lab case `staff·high turnover` now opens no table. It
+    had been reaching `staff_performance` only because *hiring* matched inside "re**hiring**" — right
+    answer, wrong reason. Needs a *turnover* / *rehiring* trigger.
+
+- <a id="trigger-word-boundary"></a>✅ **P1 · FIX — entry triggers matched anywhere inside a word, so "HR"
+  fired on "t-HR-ee". FOUND *and* FIXED 2026-07-31 (approved by Mike, this branch, commit `4debcfc`).
+  Full suite 2,083 green / 138 suites, lint 0 errors.**
+  - **The defect.** Matching was `message.includes(trigger)` with no word boundary. `staff_performance`
+    carries the trigger **`HR`**: it matched t-**hr**-ee, t-**hr**-ough, s-**hr**-unk, c-**hr**-onic and
+    t-**hr**-eshold, and **fired in 11 of the 51 Scenario Lab cases**, opening the staff table for
+    conversations about margins, forecasting and due diligence. Clearest case: *"the owner wants to
+    retire in three years and has no plan"* — textbook succession — opened the **staff** table.
+  - **Not only `HR`.** `ratio` inside sepa-*ratio*-n / ope-*ratio*-nal / gene-*ratio*-n;
+    `DD` inside a-*dd*-ed / mi-*dd*-le; `draw` inside with-*draw*-al; `lean` inside c-*lean*-ing;
+    `ETA` inside d-*eta*-il / r-*eta*-in. **12 triggers across the 42 trees are short enough to do this.**
+  - **The rule, chosen by measurement not taste:** a trigger must **start** at a word boundary but may
+    run on into the rest of the word, so *workflow* still catches "workflows". The tidier-looking
+    whole-word rule (trailing `\b` too) is **worse**: it drops *margins, benchmarked, management
+    reports, bottlenecks, workflows, avoided, drawings* and costs one Scenario Lab case its correct
+    table. Both halves are pinned by tests, because a future tidy-up adding the trailing `\b` would pass
+    every other test in this repo.
+  - **Measured old module vs new in one process, same data** (the genuine pre-change file restored from
+    HEAD with its siblings alongside, so the matcher was the only variable): **51 Scenario Lab cases — 8
+    changed, five from the wrong table to the right one** (`systems` ×2, `sales_process`,
+    `demings_volatility`, `conflict_meeting`, all previously `staff_performance`); **1,085 self-probes —
+    9 changed, every one from an unrelated tree to its OWN** (*"withdrawal"* → `heald_matrix`;
+    *"operational risk"*, *"next generation"*, *"revenue concentration"* → away from `ratio_analysis`;
+    *"chronic debtors"* → `working_capital_cycle`). **Nothing moved the other way.**
+  - **New test** [`tests/unit/logicTreeTriggerBoundary.test.js`](../tests/unit/logicTreeTriggerBoundary.test.js),
+    21 cases. ⚠ **Its first draft silently tested a fixture** — the `fs` mock leaks across the module
+    registry, so a plain `require()` inherited the last fixture's fake `readFileSync` and the real-data
+    assertions returned `null` instead of failing loudly. The vacuous-guard trap; `requireReal()` fixes
+    it and the reason is written into the file.
+
+- <a id="over-generic-triggers"></a>☐ **P2 · RULING NEEDED (Mike) — three triggers are still too generic,
+  and the fix is wording, not code.** Surfaced once word boundaries were in (2026-07-31): these match at
+  a legitimate word start but mean something else.
+  - `draw` (`reveal_growth_curve`) catches *"**draw**ing up a new agreement"* and *"**draw**ings"*
+  - `PIP` (`fm_coach_culture`) catches *"**pip**eline"*
+  - `persona` (`reveal_growth_curve`) catches *"**person**ally"*
+  - Each needs a more specific phrase in its place (e.g. *draw the curve*), which is the firm's language
+    to choose — never guessed (CLAUDE.md — never fabricate the firm's IP).
 
 - <a id="new-source-docs-2026-07-30"></a>☐ **3 new source documents added 2026-07-30 (commit `e443c52`) —
   read and planned, NOT YET TRANSCRIBED.** New master export
