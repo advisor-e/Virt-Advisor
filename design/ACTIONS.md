@@ -1964,7 +1964,88 @@ Two honest answers on different axes — the file used to conflate them:
     for storage + the read path (its screen is Phase 3). Still on their own per-feature
     arrangements: **Domain Support**, **Logic Tables**, **the coaching reference** — the last of
     which has no Firm Manager screen at all, so a firm can neither see nor change its 15 entries.
-    (Currency stays out by design.)
+    (Currency stays out by design.) *(Updated in Session 16 below: Quizzes is now whole,
+    screen included.)*
+
+  ### Session 16 (2026-07-31, laptop) — quizzes finished, and the screen that looked broken
+
+  Three commits (`1e5ac87`, `da097f5`, `ae53c9a`), pushed. Suite **3,269 → 3,341 / 206 suites**,
+  lint 0 errors, tree clean, **67 ahead / 0 behind** `master`. Session opened with `/startup`:
+  0 behind. **PHASE 3 IS COMPLETE** — storage, the engine read path, the routes and the screen
+  are joined up. Only **Phase 4 (Adopt / Keep mine)** remains.
+
+  - ✅ **PHASE 3a (`1e5ac87`) — six per-question routes**, mirroring the staircase cascade so a
+    reader who knows one knows the other. `getQuizzes` now also returns the **resolved** banks —
+    the ones the course engine reads — because putting Save buttons on the older whole-bank
+    `merged` view would have reopened the exact defect Phase 2 closed on this feature.
+    - **ONE DELIBERATE DIFFERENCE FROM THE STAIRCASE, and it is the opposite rule.** The
+      staircase REFUSES to let a firm switch off its last step; quizzes must ALLOW it, because a
+      bank with nothing left is dropped and the course falls through to AI-generated questions.
+      Blocking it would deny a firm a decision the engine already handles. The cost is carried by
+      the screen, which has to say what replaces it.
+  - 🔴 **A GAP FOUND WHILE BUILDING 3a, AND CLOSED WITH IT.** `loadFirmQuizState` reads the three
+    new keys first and consults the old `quiz-banks` shape only while the firm has made no
+    decision. So a firm's **first** per-question decision would have switched the old shape off
+    permanently and everything saved there would have stopped reaching its advisors — silently,
+    with the screen still showing a saved state. **It was unreachable until these routes existed**,
+    which is exactly why it was closed alongside them rather than after.
+    `_carryLegacyQuizDecisionsForward` promotes the old copy into the three keys **once**, reuses
+    the proven adapter via `fromLegacy` rather than keeping a second copy of that judgement, does
+    **not** delete the old key, and writes no empty parts. Six tests, using a store that answers
+    with what was last written — a store that replayed the original would let a broken carry-over
+    pass.
+  - ✅ **PHASE 3b (`da097f5`) — the tab edits.** The badge moved **from the quiz to the question**:
+    since the per-question ruling one page can hold Advisor-e's questions and the firm's side by
+    side, so one badge on the whole quiz would necessarily be wrong about one of them. The panel
+    now rebuilds from the latest load rather than a snapshot taken at click time — harmless while
+    nothing could change, but with editing it would show a firm its own pre-edit wording as though
+    the save had not happened. Row rules live in `utils/quizRows.js`, the sibling of
+    `staircaseRows.js`.
+  - 🔴 **THE DEFECT MIKE FOUND ON THE RUNNING SCREEN (`ae53c9a`) — AND THE RULE WORTH KEEPING.**
+    Clicking Edit appeared to do nothing. The form rendered at the **foot of the panel**, and a
+    Growth Curve bank is **ten tall cards** (~3,000 characters), so it opened about a screen and a
+    half below the button pressed. The only visible change near the click was the **Add question
+    button hiding itself**, so the single cue on screen read as a fault.
+    **The layout was copied from the Advisory Staircase, where it is fine — five short steps, form
+    in view.** → **RULE: a layout borrowed from another tab must be re-checked against THIS tab's
+    content volume.** That is the reusable lesson; the fix (edit in place, tinted card, Add button
+    no longer hides) is the one-off. **The suite was green throughout** — it cannot see a screen,
+    which is why this needed a human. **LIVE-VERIFIED by Mike after the fix.**
+  - **Three wording rulings (Mike, 2026-07-31).** (1) The last-question warning **names what
+    replaces it** — "your advisors will still get a quiz here — but the AI will write the questions
+    instead of your firm" — because the failure being prevented is a firm believing it removed the
+    quiz. (2) **"Add question"**, matching the staircase's "Add step". (3) The **version-history
+    table is replaced by a note on undoing**: it read the old whole-quiz storage, which nothing
+    writes to any more, so it would have been empty for every firm forever — and an empty history
+    table reads as though nothing saved had been kept.
+    - ⚠ **Six shorter strings were written without asking** (the top notice, the switched-off note,
+      the nothing-left message, two form hints, the confirmations) rather than interrupt a fourth
+      and fifth time. Named here so they can be corrected on sight; buttons and tags are the
+      staircase's verbatim, per the consistency ruling.
+  - ☐ **CHECK, NOT A PROVEN DEFECT — the Advisory Staircase tab may be telling firms something
+    untrue.** Its `switchedOffNote` says a step switched back on "returns with the platform's
+    current wording". For **quizzes** that is provably false — the firm's edit survives being
+    switched off and comes back with it (`quizCascade.routes.test.js`, "an edit made earlier
+    survives switching the question off and on again"). The quizzes note was therefore written
+    **without** the claim rather than mirror it. **Whether the staircase's own behaviour matches
+    its sentence has NOT been checked** — that is the open task, and it is one sentence or one
+    behaviour, not both.
+  - 🔵 **CROSS-MACHINE — a red suite is coming, and it is the safety net working, not a break.**
+    The desktop (`feat/firm-quiz-builder-ui`, despite the name, is transcribing domain support and
+    logic tables) has added materials to `strategy`, `sales-marketing` and `staff` domain-support
+    files. Its branch predates our row-id commit (`79de6d9`), so a read-only trial merge
+    (`git merge-tree`) shows those three files **auto-merging with NO conflict** while **13 rows
+    arrive with no `id`** — 9 in strategy, 2 in sales-marketing, 2 in staff. `domainSupportRowIds.test.js`
+    will then fail all four of its tests. **Whoever merges second gives those 13 rows ids and adds
+    them to `LOCKED_IDS`.** Only `design/ACTIONS.md` conflicts textually; `package.json` and
+    `server/courseEngine.js` auto-merge.
+  - ⚠ **HONEST LIMITS.** No revert-to-red proof was run on the Phase 3a route tests — that means
+    editing source back to broken, and this repo's rule is no unapproved change even briefly. The
+    carry-over tests are the exception and do stand on their own (the assertions are on data only
+    the carry-over can produce). MySQL has still never been provisioned, so none of the storage
+    paths have run against a real database. `utils/quizRows.js` sits outside the coverage gate,
+    which measures `server/`, `server-middleware/` and `mixins/` only — the same position as
+    `utils/staircaseRows.js`, so a pre-existing scope choice rather than a new gap.
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
