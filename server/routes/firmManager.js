@@ -15,6 +15,13 @@ const DEV_TEMPLATES_FILE = path.resolve(__dirname, '../../data/dev-firm-template
 const DEV_LASTSEEN_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-lastseen.json')
 const DEV_OVERRIDE_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-override-baselines.json')
 const DEV_QUIZZES_FILE = path.resolve(__dirname, '../../data/dev-firm-quizzes.json')
+// The quiz cascade's three keys, added 2026-07-31 (Phase 3) when quizzes joined the
+// one firm-editable mechanism. These paths must stay identical to firmQuizzes.js's
+// own DEV_FILES: the write side lives here and the read side lives there, so a
+// mismatch would look exactly like a save that vanished.
+const DEV_QUIZ_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-declines.json')
+const DEV_QUIZ_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-overrides.json')
+const DEV_QUIZ_OWN_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-own.json')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 function _devReadDistinctions (firmId) {
@@ -141,6 +148,16 @@ function _devWriteOverrideBaselines (firmId, obj) {
  *     POST /api/firm-manager/staircase            save a validated firm override
  *     (history + restore reuse /framework/history + /framework/restore with
  *      configKey='advisory-staircase')
+ *
+ *   Quizzes (whole-bank override, plus the per-question cascade)
+ *     GET  /api/firm-manager/quizzes                       base + overlay + resolved
+ *     POST /api/firm-manager/quizzes                       save a whole-bank override
+ *     PUT  /api/firm-manager/quizzes/platform/:qid         edit one of ours
+ *     DEL  /api/firm-manager/quizzes/platform/:qid         reset it to ours
+ *     PUT  /api/firm-manager/quizzes/platform/:qid/decline switch it off / back on
+ *     POST /api/firm-manager/quizzes/own                   add a question of their own
+ *     PUT  /api/firm-manager/quizzes/own/:id               edit one they added
+ *     DEL  /api/firm-manager/quizzes/own/:id               remove one they added
  *
  *   Storage
  *     GET  /api/firm-manager/storage              get storage usage summary
@@ -1906,7 +1923,18 @@ async function saveStaircase (req, res) {
 // starting point and what the firm changed.
 
 const { CONFIG_KEY: QUIZ_KEY, validateQuizOverride, mergeQuizBanks } = require('../utils/firmQuizzes')
-const { listTemplatePages } = require('../utils/resolveTemplateName')
+// The cascade's own imports live up here rather than beside its handlers below, so
+// getQuizzes can read the resolved banks without referencing a binding declared
+// further down the file.
+const {
+  loadFirmQuizState,
+  CONFIG_KEYS: QUIZ_KEYS,
+  EDITABLE_QUESTION_FIELDS,
+  FIRM_QUESTION_PREFIX,
+  LIMITS: QUIZ_LIMITS
+} = require('../utils/firmQuizzes')
+const { loadBlendedQuizBanks } = require('../utils/quizConfig')
+const { listTemplatePages, resolveTemplateName } = require('../utils/resolveTemplateName')
 const BASE_QUIZZES = require('../../data/course-quizzes.json')
 const QUIZZABLE = require('../../data/quizzable-sections.json')
 
@@ -2004,21 +2032,37 @@ async function _saveQuizOverride (firmId, cfg, savedBy) {
  * exactly the pages a save will accept, filtered to the advisory-content areas
  * (see data/quizzable-sections.json).
  *
+ * ALSO RETURNS THE RESOLVED BANKS (Phase 3) — the very banks loadBlendedQuizBanks
+ * hands the course engine. `merged` is the OLD whole-bank view and is kept only so
+ * the current read-only screen keeps working unchanged; anything that edits must
+ * draw `resolved`, or the firm would be editing one thing while its advisors were
+ * given another. That is not hypothetical: it is the defect Phase 2 closed on this
+ * exact feature, and a Save button on top of `merged` would reopen it.
+ *
+ * `hasOverride` deliberately keeps its old, narrow meaning — "is there a whole-bank
+ * override?" — because that is the question the version-history call answers.
+ * Whether the firm has made any cascade decision is the separate `hasDecisions`.
+ *
  * @returns {{base: Object, firmOverride: Object|null, merged: Object,
- *            hasOverride: boolean, pages: Array<Object>}}
+ *            resolved: Object, state: Object, hasOverride: boolean,
+ *            hasDecisions: boolean, pages: Array<Object>}}
  */
 async function getQuizzes (req, res) {
   try {
     const firmOverride = await _loadQuizOverride(req.firmId)
-    const base = {}
-    for (const [key, bank] of Object.entries(BASE_QUIZZES.banks || {})) {
-      if (!key.startsWith('_')) { base[key] = bank }
-    }
+    const base = _platformQuizBanks()
+    const state = await loadFirmQuizState(req.firmId, overlay.loadFirmConfig, base)
+    const resolved = await loadBlendedQuizBanks(req.firmId, overlay.loadFirmConfig)
     res.send(200, {
       base,
       firmOverride,
       merged: mergeQuizBanks(base, firmOverride),
+      resolved,
+      state,
       hasOverride: firmOverride !== null,
+      hasDecisions: state.declinedIds.length > 0 ||
+        Object.keys(state.overrides).length > 0 ||
+        state.ownRows.length > 0,
       pages: quizzablePages(listTemplatePages())
     })
   } catch (err) {
@@ -2029,6 +2073,12 @@ async function getQuizzes (req, res) {
 /**
  * POST /api/firm-manager/quizzes — save the firm's overlay (never the base).
  * Body: { quizzes: { "<page title>": { entries: [{id, question, answer, keyPoint}] } } }
+ *
+ * SUPERSEDED BY THE CASCADE ROUTES BELOW, and kept only so a firm that saved under
+ * the old whole-bank shape does not lose it. Once a firm has made ANY per-question
+ * decision, the reader takes the three cascade keys and stops consulting this one —
+ * so a save here would answer `saved: true` and change nothing an advisor sees.
+ * Nothing in the app posts to it; the Phase 3 screen uses the cascade routes.
  */
 async function saveQuizzes (req, res) {
   const { quizzes } = req.body || {}
@@ -2041,6 +2091,382 @@ async function saveQuizzes (req, res) {
   try {
     const version = await _saveQuizOverride(req.firmId, check.value, req.userEmail)
     res.send(200, { saved: true, version })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+// ── Quiz cascade (CB-31 Phase 3, 2026-07-31) ─────────────────────────────────
+// One decision per request, about ONE question, keyed to its stable qid. Same
+// verbs, shapes and error codes as the staircase cascade above, deliberately, so
+// a reader who knows one knows the other.
+//
+// ONE DELIBERATE DIFFERENCE FROM THE STAIRCASE — the opposite rule, not an
+// oversight. The staircase REFUSES to let a firm switch off its last step, because
+// an advisor mid-session would be asked to choose from an empty list. Quizzes must
+// not refuse: Phase 2 ruled that a bank with every question switched off is dropped
+// entirely, so the course falls through to AI-generated questions exactly as it does
+// for a page that never had a bank. Blocking it here would deny a firm a decision
+// the engine already handles correctly. The cost is carried by the SCREEN, which has
+// to say what happens — a firm switching off the last question is choosing
+// AI-written questions, not no questions.
+
+const QUIZ_DEV_FILES = {
+  [QUIZ_KEYS.declines]: DEV_QUIZ_DECLINES_FILE,
+  [QUIZ_KEYS.overrides]: DEV_QUIZ_OVERRIDES_FILE,
+  [QUIZ_KEYS.own]: DEV_QUIZ_OWN_FILE
+}
+
+/**
+ * Every question id Advisor-e ships, across all 62 banks.
+ *
+ * Membership is what makes a platform route 404 instead of quietly storing a
+ * decision against a question that does not exist. That matters more than a tidy
+ * error: loadFirmQuizState treats an override keyed to an unknown qid as junk
+ * rather than a decision, so a stored one would sit there doing nothing while
+ * looking, on any screen that listed it, exactly like a saved edit.
+ * @type {Set<string>}
+ */
+const PLATFORM_QIDS = new Set()
+for (const [bankKey, bank] of Object.entries(BASE_QUIZZES.banks || {})) {
+  if (bankKey.startsWith('_')) { continue }
+  for (const entry of (bank && Array.isArray(bank.entries)) ? bank.entries : []) {
+    if (entry && entry.qid) { PLATFORM_QIDS.add(entry.qid) }
+  }
+}
+
+function _devReadQuizPart (file, firmId, fallback) {
+  try {
+    const all = JSON.parse(fs.readFileSync(file, 'utf8'))
+    return Object.prototype.hasOwnProperty.call(all, firmId) ? all[firmId] : fallback
+  } catch { return fallback }
+}
+
+function _devWriteQuizPart (file, firmId, value) {
+  let all = {}
+  try { all = JSON.parse(fs.readFileSync(file, 'utf8')) } catch {}
+  all[firmId] = value
+  fs.writeFileSync(file, JSON.stringify(all, null, 2))
+}
+
+async function _loadQuizPart (firmId, key, fallback) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, key)
+    return (stored === null || stored === undefined) ? fallback : stored
+  } catch (err) {
+    if (IS_DEV) { return _devReadQuizPart(QUIZ_DEV_FILES[key], firmId, fallback) }
+    throw err
+  }
+}
+
+async function _saveQuizPart (firmId, key, value, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, key, value, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteQuizPart(QUIZ_DEV_FILES[key], firmId, value); return }
+    throw err
+  }
+}
+
+/** Advisor-e's banks, minus the `_comment` documentation keys. */
+function _platformQuizBanks () {
+  const base = {}
+  for (const [key, bank] of Object.entries(BASE_QUIZZES.banks || {})) {
+    if (!key.startsWith('_')) { base[key] = bank }
+  }
+  return base
+}
+
+/**
+ * Carry a firm's OLD whole-bank overlay into the mechanism's three keys, once,
+ * before its first per-question decision is stored.
+ *
+ * THE GAP THIS CLOSES. loadFirmQuizState reads the three new keys first and only
+ * falls back to the old `quiz-banks` shape when the firm has made no decision the
+ * mechanism recognises. So a firm's FIRST decision would switch the old shape off
+ * for good, and everything it had saved there would stop reaching its advisors —
+ * silently, with its screen still showing a saved state. Until Phase 3 nothing
+ * could write a decision, so the gap was unreachable; these routes are exactly what
+ * make it reachable, so it is closed alongside them rather than afterwards.
+ *
+ * The old key is NOT deleted. It is the firm's own record, it costs nothing to
+ * leave, and removing storage to tidy up is how a rollback stops being possible.
+ *
+ * Idempotent and cheap: `fromLegacy` is true only while the old shape is the ONLY
+ * thing the firm has, so this writes at most once per firm and is a no-op on every
+ * later call. Empty parts are not written — one non-empty part is enough to make
+ * the mechanism take over, and empty rows would litter the version history of keys
+ * the firm never used.
+ *
+ * @param {string} firmId - from the verified JWT, never the request body
+ * @param {string} savedBy - the manager's email, for the version-history row
+ * @returns {Promise<void>}
+ */
+async function _carryLegacyQuizDecisionsForward (firmId, savedBy) {
+  const state = await loadFirmQuizState(firmId, overlay.loadFirmConfig, _platformQuizBanks())
+  if (!state.fromLegacy) { return }
+  if (state.declinedIds.length) {
+    await _saveQuizPart(firmId, QUIZ_KEYS.declines, state.declinedIds, savedBy)
+  }
+  if (Object.keys(state.overrides).length) {
+    await _saveQuizPart(firmId, QUIZ_KEYS.overrides, state.overrides, savedBy)
+  }
+  if (state.ownRows.length) {
+    await _saveQuizPart(firmId, QUIZ_KEYS.own, state.ownRows, savedBy)
+  }
+}
+
+/**
+ * Accept only the fields a firm may edit on a question, in the types they must be.
+ *
+ * `qid` and `id` are absent from EDITABLE_QUESTION_FIELDS on purpose: `qid` is
+ * identity and `id` is the POSITION the resolver reassigns whenever a question
+ * above is switched off. Letting either through the body would let a firm re-point
+ * an edit at a different question, or hand the AI a number the grader cannot find.
+ *
+ * Unlike the staircase, an empty value is refused for EVERY field rather than just
+ * the name. All three are read by a person or marked against by the grader — a
+ * blank answer is a marking guide with nothing in it, which fails at the moment an
+ * advisor is waiting on a grade rather than at the moment it is saved.
+ *
+ * @param {Object} body - the raw request body (untrusted)
+ * @returns {{ok: boolean, value?: Object, code?: string, message?: string}}
+ */
+function _sanitiseQuizFields (body) {
+  const src = (body && typeof body === 'object' && !Array.isArray(body)) ? body : {}
+  const value = {}
+  for (const field of EDITABLE_QUESTION_FIELDS) {
+    if (!Object.prototype.hasOwnProperty.call(src, field)) { continue }
+    if (typeof src[field] !== 'string') {
+      return { ok: false, code: 'INVALID_FIELD', message: `${field} must be a string` }
+    }
+    const trimmed = src[field].trim()
+    if (!trimmed) {
+      return { ok: false, code: 'INVALID_FIELD', message: `${field} must not be empty` }
+    }
+    if (trimmed.length > QUIZ_LIMITS.textChars) {
+      return { ok: false, code: 'FIELD_TOO_LONG', message: `${field} must be ${QUIZ_LIMITS.textChars} characters or fewer` }
+    }
+    value[field] = trimmed
+  }
+  if (Object.keys(value).length === 0) {
+    return { ok: false, code: 'NO_FIELDS', message: `Provide at least one of: ${EDITABLE_QUESTION_FIELDS.join(', ')}` }
+  }
+  return { ok: true, value }
+}
+
+/**
+ * @route PUT /api/firm-manager/quizzes/platform/:qid
+ * Edit one of Advisor-e's questions for this firm. Fields the body does not carry
+ * are NOT recorded, so they keep tracking Advisor-e's wording rather than being
+ * frozen at today's text — the whole point of the mechanism, and the exact defect
+ * the old whole-bank overlay caused.
+ *
+ * No drift baseline is stamped here. The staircase stamps one so it can later offer
+ * Adopt / Keep mine; for quizzes that is Phase 4, and stamping baselines before the
+ * screen that reads them exists would leave stored state nothing can act on.
+ *
+ * @param {string} qid - a platform question id (qz-*)
+ * @returns {{updated: true, qid: string}}
+ */
+async function setQuizOverride (req, res) {
+  const qid = String(req.params.qid || '')
+  if (!PLATFORM_QIDS.has(qid)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform quiz question with that id')
+  }
+  const sani = _sanitiseQuizFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.overrides, {})
+    const current = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+    const next = { ...current, [qid]: { ...(current[qid] || {}), ...sani.value } }
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.overrides, next, req.userEmail)
+    res.send(200, { updated: true, qid })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/quizzes/platform/:qid
+ * Reset to Advisor-e's — drop this firm's version so Advisor-e's question applies
+ * again, and keeps applying as Advisor-e improves it. Idempotent: resetting a
+ * question the firm never edited is a no-op, not an error.
+ * @param {string} qid - a platform question id (qz-*)
+ * @returns {{reset: true, qid: string}}
+ */
+async function resetQuizOverride (req, res) {
+  const qid = String(req.params.qid || '')
+  if (!PLATFORM_QIDS.has(qid)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform quiz question with that id')
+  }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.overrides, {})
+    const current = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+    if (Object.prototype.hasOwnProperty.call(current, qid)) {
+      const next = { ...current }
+      delete next[qid]
+      await _saveQuizPart(req.firmId, QUIZ_KEYS.overrides, next, req.userEmail)
+    }
+    res.send(200, { reset: true, qid })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/quizzes/platform/:qid/decline
+ * Switch one of Advisor-e's questions off for this firm, or back on. The question is
+ * not deleted — a firm that switches one back on gets Advisor-e's current wording,
+ * and any edit it had made is still underneath.
+ *
+ * There is deliberately NO last-question refusal here; see the section header.
+ *
+ * @param {string} qid - a platform question id (qz-*)
+ * @param {boolean} req.body.declined
+ * @returns {{declined: boolean, qid: string}}
+ */
+async function setQuizDecline (req, res) {
+  const qid = String(req.params.qid || '')
+  if (!PLATFORM_QIDS.has(qid)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform quiz question with that id')
+  }
+  const declined = (req.body || {}).declined
+  if (typeof declined !== 'boolean') {
+    return sendError(res, 400, 'INVALID_DECLINED', 'declined must be a boolean')
+  }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.declines, [])
+    const set = new Set(Array.isArray(stored) ? stored : [])
+    if (declined) { set.add(qid) } else { set.delete(qid) }
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.declines, [...set], req.userEmail)
+    res.send(200, { declined, qid })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/quizzes/own
+ * Add a question of the firm's own to a page. Its id is assigned here (fq-N) and
+ * never taken from the body — an id from the browser could collide with one of
+ * Advisor-e's questions and silently replace it.
+ *
+ * All three fields are required, unlike an edit: a question saved without its
+ * answer or key point would reach an advisor as an unmarkable question.
+ *
+ * The page is resolved through resolveTemplateName, which refuses a near-miss
+ * rather than guessing, so a typo can never silently attach a question to the wrong
+ * page. The screen picks the page from the rail, so a near-miss should not arise —
+ * this is the backstop for anything else calling the route.
+ *
+ * @param {string} req.body.bank - the page title the question belongs to
+ * @returns {{added: true, id: string, bank: string}}
+ */
+async function addOwnQuizQuestion (req, res) {
+  const body = (req.body && typeof req.body === 'object' && !Array.isArray(req.body)) ? req.body : {}
+  const sani = _sanitiseQuizFields(body)
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  const missing = EDITABLE_QUESTION_FIELDS.filter(f => !sani.value[f])
+  if (missing.length) {
+    return sendError(res, 400, 'INCOMPLETE_QUESTION', `A question you add needs all of: ${EDITABLE_QUESTION_FIELDS.join(', ')}`)
+  }
+  if (typeof body.bank !== 'string' || !body.bank.trim()) {
+    return sendError(res, 400, 'INVALID_BANK', 'A question needs the page it belongs to')
+  }
+  if (body.bank.length > QUIZ_LIMITS.keyChars) {
+    return sendError(res, 400, 'INVALID_BANK', 'That page name is too long')
+  }
+  let resolved
+  try {
+    resolved = resolveTemplateName(body.bank)
+  } catch (err) {
+    return sendError(res, 503, 'LIBRARY_UNAVAILABLE', 'The page library could not be read, so questions cannot be saved right now')
+  }
+  if (!resolved.ok) {
+    return sendError(res, 404, 'NO_SUCH_PAGE', `"${body.bank}" does not match a page in your library`)
+  }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    if (rows.filter(r => r && r.bank === resolved.title).length >= QUIZ_LIMITS.entriesPerBank) {
+      return sendError(res, 409, 'BANK_FULL', `A quiz can hold at most ${QUIZ_LIMITS.entriesPerBank} questions`)
+    }
+    // Highest existing number + 1, never the row count: reusing a deleted question's
+    // id would hand a new question the decisions recorded against the old one.
+    const used = rows
+      .map(r => parseInt(String((r && r.id) || '').replace(FIRM_QUESTION_PREFIX, ''), 10))
+      .filter(n => Number.isInteger(n))
+    const id = `${FIRM_QUESTION_PREFIX}${(used.length ? Math.max(...used) : 0) + 1}`
+    // Key on the RESOLVED title, not what was typed, so the stored bank is always a
+    // real page name however the caller spelled it.
+    const next = [...rows, {
+      id,
+      bank: resolved.title,
+      question: sani.value.question,
+      answer: sani.value.answer,
+      keyPoint: sani.value.keyPoint
+    }]
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.own, next, req.userEmail)
+    res.send(201, { added: true, id, bank: resolved.title })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/quizzes/own/:id
+ * Edit a question this firm added. The page it belongs to is not editable here: a
+ * question that moved page would take its id with it, and any later decision made
+ * against that id would follow it to a page nobody expected. Remove and re-add.
+ * @param {string} id - a firm question id (fq-*)
+ * @returns {{updated: true, id: string}}
+ */
+async function updateOwnQuizQuestion (req, res) {
+  const id = String(req.params.id || '')
+  const sani = _sanitiseQuizFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    const index = rows.findIndex(r => r && r.id === id)
+    if (index === -1) {
+      return sendError(res, 404, 'NOT_FOUND', 'No question of your own with that id')
+    }
+    const next = rows.map((r, i) => (i === index ? { ...r, ...sani.value, id, bank: r.bank } : r))
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.own, next, req.userEmail)
+    res.send(200, { updated: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/quizzes/own/:id
+ * Remove a question this firm added. Only the firm's own questions can be removed —
+ * one of Advisor-e's is switched off, never deleted, so it can always come back.
+ * @param {string} id - a firm question id (fq-*)
+ * @returns {{removed: true, id: string}}
+ */
+async function deleteOwnQuizQuestion (req, res) {
+  const id = String(req.params.id || '')
+  try {
+    // Carried before the removal, not after: a firm whose only questions live in the
+    // old shape must have them promoted to real rows before one of them is deleted,
+    // or the delete would 404 on a question that is plainly on screen.
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    if (!rows.some(r => r && r.id === id)) {
+      return sendError(res, 404, 'NOT_FOUND', 'No question of your own with that id')
+    }
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.own, rows.filter(r => !(r && r.id === id)), req.userEmail)
+    res.send(200, { removed: true, id })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -2845,6 +3271,12 @@ module.exports = {
   deleteOwnStaircaseStep,
   getQuizzes,
   saveQuizzes,
+  setQuizOverride,
+  resetQuizOverride,
+  setQuizDecline,
+  addOwnQuizQuestion,
+  updateOwnQuizQuestion,
+  deleteOwnQuizQuestion,
   getDomainSupport,
   getDomainSupportDetail,
   saveDomainSupport,

@@ -272,6 +272,15 @@ server.put('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.updateOwnStairc
 server.del('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.deleteOwnStaircaseStep)
 server.get('/api/firm-manager/quizzes', ...fmGuard, fm.getQuizzes)
 server.post('/api/firm-manager/quizzes', ...fmGuard, fm.saveQuizzes)
+// The quiz cascade — one decision per request about ONE question, mirroring the
+// staircase routes above (2026-07-31 Phase 3). There is no keep-mine route yet:
+// Adopt / Keep mine for quizzes is Phase 4.
+server.put('/api/firm-manager/quizzes/platform/:qid', ...fmGuard, fm.setQuizOverride)
+server.del('/api/firm-manager/quizzes/platform/:qid', ...fmGuard, fm.resetQuizOverride)
+server.put('/api/firm-manager/quizzes/platform/:qid/decline', ...fmGuard, fm.setQuizDecline)
+server.post('/api/firm-manager/quizzes/own', ...fmGuard, fm.addOwnQuizQuestion)
+server.put('/api/firm-manager/quizzes/own/:id', ...fmGuard, fm.updateOwnQuizQuestion)
+server.del('/api/firm-manager/quizzes/own/:id', ...fmGuard, fm.deleteOwnQuizQuestion)
 server.get('/api/firm-manager/domain-support', ...fmGuard, fm.getDomainSupport)
 server.get('/api/firm-manager/domain-support/:domainId', ...fmGuard, fm.getDomainSupportDetail)
 server.post('/api/firm-manager/domain-support/:domainId', ...fmGuard, fm.saveDomainSupport)

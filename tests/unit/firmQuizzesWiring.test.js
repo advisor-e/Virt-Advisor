@@ -28,6 +28,36 @@ describe('quiz routes are guarded', () => {
   })
 })
 
+describe('the quiz cascade routes are guarded too', () => {
+  // Added with Phase 3. These are the routes that WRITE a firm's decisions, so an
+  // unguarded one is worse than an unguarded read: one firm could switch off or
+  // rewrite another firm's quiz questions. Pinned at the registration line because
+  // no unit test of the handler can see which middleware it was mounted behind.
+  const server = read('server/restify-server.js')
+
+  test.each([
+    ['put', "'/api/firm-manager/quizzes/platform/:qid'", 'setQuizOverride'],
+    ['del', "'/api/firm-manager/quizzes/platform/:qid'", 'resetQuizOverride'],
+    ['put', "'/api/firm-manager/quizzes/platform/:qid/decline'", 'setQuizDecline'],
+    ['post', "'/api/firm-manager/quizzes/own'", 'addOwnQuizQuestion'],
+    ['put', "'/api/firm-manager/quizzes/own/:id'", 'updateOwnQuizQuestion'],
+    ['del', "'/api/firm-manager/quizzes/own/:id'", 'deleteOwnQuizQuestion']
+  ])('%s %s is registered behind fmGuard', (verb, route, handler) => {
+    const line = server.split('\n').find(l => l.includes(route) && l.includes(`server.${verb}(`))
+    expect(line).toBeDefined()
+    expect(line).toContain('...fmGuard')
+    expect(line).toContain(`fm.${handler}`)
+  })
+
+  test('no quiz route takes the firm id from the request body', () => {
+    // Every handler reads req.firmId, which firmAuth sets from the verified JWT. A
+    // body-supplied firm id is the standard IDOR route on exactly this surface.
+    const routes = read('server/routes/firmManager.js')
+    const quizSection = routes.slice(routes.indexOf('── Quiz cascade (CB-31 Phase 3'))
+    expect(quizSection).not.toMatch(/req\.body\.firmId|body\.firm_id/)
+  })
+})
+
 describe('firm-authored quiz text is fenced before it reaches the AI', () => {
   const engine = read('server/courseEngine.js')
 
