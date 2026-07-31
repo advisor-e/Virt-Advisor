@@ -1840,11 +1840,61 @@ Two honest answers on different axes — the file used to conflate them:
     per-feature arrangements: **Domain Support, Logic Tables, Quizzes, the coaching reference**
     (Currency stays out by design — a single setting is not a list of rows). The middle
     management tiers still land ONCE, in `resolveInheritedRows.js`, per the ruled sequencing.
-  - ☐ **FOUND, NOT FIXED (needs its own approval).** `firmDistinctions` falls back to its dev
-    JSON stand-ins on **any** store failure, including in production; `firmStaircase` was
-    deliberately tightened in Session 13 to rethrow, so an outage cannot be dressed up as "this
-    firm has no override". **The two now behave differently**, and the looser one is the
-    desktop's ground — flagged in Session 13, still true, still not this session's scope.
+  - ✅ **FOUND IN SESSION 13, FIXED IN SESSION 15 below (`d0c1eb0`).** `firmDistinctions` fell
+    back to its dev JSON stand-ins on **any** store failure, production included, while
+    `firmStaircase` had been tightened in Session 13 to rethrow. The inventory taken before
+    fixing found it was **not one path but three**, and the fix is the staircase's guard applied
+    to all of them.
+
+  ### Session 15 (2026-07-31, laptop) — a store failure that read as a firm with no settings
+
+  One feature commit (`d0c1eb0`) plus this record, pushed. Suite **3,221 → 3,230 / 201 suites**,
+  lint 0 errors, tree clean, **60 ahead / 0 behind** `master`. Session opened with `/startup`:
+  0 behind. Mike picked this off the three candidates and ruled **all three paths in one pass**
+  rather than only the flagged one.
+
+  **The whole defect in one line: the fallback answered EMPTY, and empty is exactly what a
+  healthy store says about a firm that has customised nothing.** So a database outage was
+  indistinguishable from a firm with no settings — on the advisor's session and on the
+  manager's screen alike, with nothing in the logs. The dev-file half is the more alarming
+  reading but the less likely one: those files are gitignored, so a deployment does not carry
+  them — it needs a hand-copy or a missed ignore line first, **which has now happened twice in
+  three sessions**.
+
+  - ✅ **THREE PATHS, NOT ONE — the inventory is why.** `firmDistinctions` (the flagged one),
+    **`firmContent`** — *domain support and logic tables*, the two biggest firm-editable
+    surfaces — and **`platformDistinctions`**' read path. Already correct and left alone:
+    `firmStaircase`, `coaching`, `routes/currency`, and `firmManager`'s own dev helpers, which
+    all gate on `IS_DEV` and rethrow.
+  - **THE GUARD IS THE EASY HALF; WHAT EACH CALLER DOES WITH IT IS THE DESIGN, and they
+    correctly differ.** Firm Manager routes were already wrapped and now return a 500 the
+    manager can see. The advisor and course engines **log the fault and run on platform
+    content** — a storage problem must never end a live conversation. That rule lives in ONE
+    place, `firmContent.readForSession`, rather than a try/catch copied to four call sites; its
+    JSDoc says plainly that routes must not use it, because an empty editing screen is the very
+    failure being removed.
+  - 🔴 **TRAP 1, AND IT WAS WORSE THAN THE BUG BEING FIXED.** Five Firm Manager routes check the
+    id against the platform set **before** their `try` block — deliberately, so an unknown id
+    404s before anything is written. A throw there lands **outside** the handler's catch, and
+    **an async Restify handler that rejects sends nothing at all**: the manager's browser hangs
+    until it gives up. Found by walking every caller rather than assuming the routes were
+    uniformly wrapped. `_platformRowsOr500` turns it into the same 500 the handler would have
+    sent; four tests prove each route answers.
+  - 🔴 **TRAP 2 — the platform set's SAVE path already rethrew in production; only its READ did
+    not.** That asymmetry mattered more than it looks: **every mentor edit is a
+    read-modify-write**, so answering a failed read with the committed seed would let one edit
+    **overwrite the mentor's whole authored set with the shipped defaults**. The file's own
+    write path was the argument for the change.
+  - **Tests: 8 new.** They plant a stray dev file and prove production never reads it, prove a
+    live session survives with a logged fault, and prove the four routes answer 500 instead of
+    hanging. ⚠ **Honest limit: no revert-to-red proof was run on the four route tests** — that
+    means editing the source back to broken, and this repo's rule is no unapproved change even
+    briefly. The mechanism beneath them (the reader rejecting in production) *is* proven
+    red-to-green in `platformDistinctions.test.js`.
+  - ⚠ **NOTHING BEHAVES DIFFERENTLY TODAY, AND NONE OF IT CAN BE SEEN BY EYE.** MySQL has never
+    been provisioned, so the failure this guards cannot be produced here — which is also the
+    argument for doing it now, before a firm has content to lose. Development is untouched: the
+    dev-JSON stand-ins work exactly as before.
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
