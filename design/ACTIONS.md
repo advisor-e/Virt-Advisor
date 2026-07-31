@@ -2141,6 +2141,11 @@ Two honest answers on different axes — the file used to conflate them:
     outstanding verification.** MySQL still not provisioned. The three form components sit outside
     the coverage gate (`server/`, `server-middleware/`, `mixins/` only), the same pre-existing
     scope choice as `utils/quizRows.js`.
+    - 🔴 **UPDATED 2026-08-01 — this limit was RIGHT TO STATE AND THE SCREEN WAS BROKEN.** Not in
+      its layout: the rebuild left a stray `}` in the Hub's stylesheet, and **the whole Firm
+      Manager page would not compile at all**. Found by a build before Mike looked; see Session 18.
+      **Advisory Distinctions has since been viewed and approved by Mike — that verification is
+      now CLOSED. The Advisory Staircase rebuild has still not been seen running.**
   - ☐ **NOTED, NOT ACTIONED — Advisory Distinctions is the only Firm Manager tab still written in
     hardcoded English.** Quizzes and the Staircase route every label through `$t()`. Flagged
     rather than proposed because the i18n sweep is gated behind the cleanup pass (P3 · I18N
@@ -2186,6 +2191,68 @@ Two honest answers on different axes — the file used to conflate them:
   this question", "Review update", the existing panel text).
 
   **Do Stage A, prove it, commit, then Stage B** — so nobody is ever holding a half-built feature.
+
+  ### Session 18 (2026-08-01, laptop) — the rebuilt screen would not have opened at all
+
+  One commit (`67329f8`), pushed. Suite **3,365 → 3,424 / 209 suites**, lint 0 errors, tree clean,
+  **73 ahead / 0 behind** `master`. Session opened with `/startup`: 0 behind. Quizzes Phase 4 was
+  again **not** started — it remains the next job, exactly as recorded above.
+
+  - 🔴 **THE WHOLE FIRM MANAGER PAGE WOULD NOT COMPILE, AND IT SHIPPED GREEN.** Session 17's
+    rebuild moved the template-picker styles out to `FirmDistinctionForm.vue` and deleted
+    `.template-picker-selected` — **but left its closing brace behind**, one line above
+    `</style>` in `FirmManagerHub.vue`. That single stray `}` fails `postcss`, so `css-loader`
+    could not build the component, and the Hub is imported by `pages/firm-manager.vue`:
+    **every tab was unreachable, not just Distinctions.** `nuxt build` ended `FATAL Nuxt build
+    error`.
+  - 🔴 **WHY 3,365 GREEN TESTS AND A CLEAN LINT PROVED NOTHING HERE — the rule to carry
+    forward.** **Neither gate reads a `<style>` block.** The test runner strips it; ESLint lints
+    markup and JavaScript. **Only a full build compiles CSS, and no commit runs one.** So a
+    stylesheet error is invisible to every automated gate this repo had. → **RULE: run
+    `nuxt build` before asking Mike to look at any rebuilt screen.** This is the third sighting
+    of the same family (Session 16's screen defect, Session 17's untested prose, now this):
+    **the suite cannot see a screen, and it cannot see the words or the styling on it either.**
+  - **Found because Mike asked for a proper build before looking** — *"do a proper build so i can
+    check without failing to open"*. Had he simply opened it, he would have met a broken page and
+    no explanation.
+  - **Proof method, recorded because guessing would have been faster and wrong:** brace balance
+    in the style block was **15/15 before `63cc54f`** and **12/13 after** — which dated the
+    defect to the rebuild before a single line was read. Then `postcss.parse` on the block alone
+    (`Unexpected }`, line 59), then the real build for the authoritative answer. **All 70 `.vue`
+    files were scanned: this was the only one broken.**
+  - ✅ **GUARD BUILT — `tests/unit/componentStyles.test.js` (59 checks).** It parses every screen's
+    style block with **`postcss`, the same parser `postcss-loader` uses inside the real build**, so
+    a pass here means what the build means rather than being a second opinion that can drift from
+    it. `postcss` arrives with Nuxt's build chain; **nothing was installed and no stack deviation
+    is introduced.**
+    - **It cannot pass vacuously.** A broken directory walk finding nothing would otherwise report
+      a clean sweep — the most dangerous false green, because it looks like proof. **Both the file
+      count and the style-block count are asserted.**
+    - **The proof that it bites lives IN the test file** — the exact stray-brace CSS from this
+      defect must throw. Breaking the real file and restoring it would have been a one-off no
+      future session could see; this runs on every commit. Same reasoning as the Logic Tables
+      id check (Session 2026-07-31).
+    - A block declaring a preprocessor (`lang="scss"`) is skipped rather than mis-reported. No
+      screen uses one today; this keeps a future one from failing for the wrong reason.
+  - **MUTATION-CHECKED IN MEMORY, WITH NO REPO WRITE AT ALL** — the file was read, the brace
+    re-inserted **on the string**, and both versions parsed: control passes, mutant fails at the
+    right line, and the mutation was **confirmed applied** before the verdict was believed (the
+    2026-07-28 lesson). **Use this shape whenever the thing to mutate is a file that must not be
+    touched.**
+  - ✅ **ADVISORY DISTINCTIONS VIEWED AND APPROVED BY MIKE — "all works good".** The Session 17
+    cards rebuild is confirmed on screen; that verification is **closed**.
+  - ⚠ **THE ADVISORY STAIRCASE REBUILD HAS STILL NOT BEEN SEEN RUNNING.** Smaller change than
+    Distinctions and it now has its own rendering tests — but it is an **open check, not a closed
+    one**, and Session 17 rebuilt both.
+  - **Dev-run facts worth not re-deriving:** `pages/firm-manager.vue` **auto-signs in on
+    `localhost`** as `dev-firm-001` (no login step, and that firm owns the sample overrides), and
+    the tab reads `data/advisory-distinctions.json` — **67 platform rows across 14 domains**,
+    Conflict the fullest at 9 — plus `data/dev-firm-distinctions.json`. **No MySQL is needed to
+    see real content on this tab.**
+  - ⚠ **A HANDOVER DEFECT OF MY OWN, worth the line.** The two start commands were given as one
+    block with `# comments` appended; Mike pasted both into one terminal and PowerShell hung on
+    `>>`. **The backend never exits, so the two commands need two terminals.** → **Give ONE bare
+    command per terminal, with no trailing comment that makes it read as a single paste.**
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
