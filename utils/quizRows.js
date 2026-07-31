@@ -40,11 +40,18 @@ const KIND_BY_SOURCE = {
  * @param {Array<Object>} resolvedEntries - the bank as the course engine reads it
  * @param {Array<Object>} platformEntries - Advisor-e's own questions for this page
  * @param {string[]} declinedIds - qids this firm switched off
+ * @param {string[]} [overriddenQids] - qids this firm holds an edit for. Only used for
+ *   the switched-off list: a live row already declares an edit through its `customised`
+ *   kind, but a switched-off row is built from the platform bank and would otherwise give
+ *   a firm no way to tell that its version is still being held — nor any way back to
+ *   Advisor-e's without switching the question on first.
  * @returns {{live: Array<Object>, switchedOff: Array<Object>}} each row carrying
- *   `kind` — 'platform' | 'customised' | 'firm-own'
+ *   `kind` — 'platform' | 'customised' | 'firm-own'; switched-off rows additionally
+ *   carry `hasFirmEdit`
  */
-function buildQuizRows (resolvedEntries, platformEntries, declinedIds) {
+function buildQuizRows (resolvedEntries, platformEntries, declinedIds, overriddenQids) {
   const declined = new Set(Array.isArray(declinedIds) ? declinedIds : [])
+  const overridden = new Set(Array.isArray(overriddenQids) ? overriddenQids : [])
 
   const live = (Array.isArray(resolvedEntries) ? resolvedEntries : [])
     .filter(Boolean)
@@ -52,7 +59,7 @@ function buildQuizRows (resolvedEntries, platformEntries, declinedIds) {
 
   const switchedOff = (Array.isArray(platformEntries) ? platformEntries : [])
     .filter(e => e && e.qid && declined.has(e.qid))
-    .map(e => ({ ...e, kind: 'platform' }))
+    .map(e => ({ ...e, kind: 'platform', hasFirmEdit: overridden.has(e.qid) }))
 
   return { live, switchedOff }
 }

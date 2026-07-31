@@ -159,6 +159,10 @@ section.firm-quizzes
           article.q.q-off(v-for="row in rows.switchedOff" :key="row.qid")
             .q-body
               p.q-text {{ row.question }}
+              //- The SAME Customised tag the live list uses, and it earns its place
+              //- here: this row shows Advisor-e's wording, so without it a firm has no
+              //- way to tell that its own version is still being held behind it.
+              b-tag.mt-1(v-if="row.hasFirmEdit" :type="badge('customised').type" size="is-small") {{ badge('customised').label }}
               .buttons.mt-2.mb-0
                 b-button(
                   size="is-small"
@@ -166,6 +170,16 @@ section.firm-quizzes
                   :loading="busyId === row.qid"
                   @click="switchOn(row)"
                 ) {{ $t('firmQuizzes.switchOn') }}
+                //- Reset without switching on first. The route only drops the override
+                //- and never touches the declines key, so the question stays off — it
+                //- just stops carrying the firm's version. Offered only where there IS
+                //- one: on an untouched question this button would do nothing at all.
+                b-button(
+                  v-if="row.hasFirmEdit"
+                  size="is-small"
+                  :disabled="busyId === row.qid"
+                  @click="confirmReset(row)"
+                ) {{ $t('firmQuizzes.resetToPlatform') }}
 
         //- ── Add form ────────────────────────────────────────────────────
         //- Only for a NEW question, and at the end of the list on purpose: that is
@@ -359,7 +373,8 @@ export default {
       return buildQuizRows(
         resolved ? resolved.entries : [],
         platform ? platform.entries : [],
-        this.state.declinedIds
+        this.state.declinedIds,
+        Object.keys(this.state.overrides || {})
       )
     }
   },

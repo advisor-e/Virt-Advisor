@@ -12,8 +12,10 @@ section.firm-staircase
       .level-left
         p.has-text-weight-semibold {{ $t('firmStaircase.heading') }}
       .level-right
+        //- Always offered. It used to hide whenever a form was open, which made a
+        //- button vanishing at the top the only visible response to clicking Edit —
+        //- the one cue on screen, and it read as a fault. Same fix as Quizzes.
         b-button(
-          v-if="!showForm"
           type="is-primary"
           size="is-small"
           icon-left="plus"
@@ -29,6 +31,7 @@ section.firm-staircase
     .staircase-step(
       v-for="row in rows.live"
       :key="row.id"
+      :class="{ 'is-editing': isEditing(row) }"
       :style="{ borderLeftColor: stepColour(row.step).accent, backgroundColor: stepColour(row.step).tint }"
     )
       .staircase-step-head
@@ -38,39 +41,57 @@ section.firm-staircase
         span.staircase-step-title {{ $t('firmStaircase.stepLabel', { n: row.step }) }}
         b-tag(:type="badge(row.kind).type" size="is-small") {{ badge(row.kind).label }}
         b-tag(v-if="row.hasUpdate" type="is-warning" size="is-small") {{ $t('firmStaircase.platformUpdated') }}
-      p.has-text-weight-semibold.mb-1 {{ row.name }}
-      p.is-size-7.mb-2(v-if="row.selectorDescription") {{ row.selectorDescription }}
-      p.is-size-7.has-text-grey.mb-3
-        span.has-text-weight-semibold {{ $t('firmStaircase.fieldCeiling') }}:
-        |  {{ capitalise(row.complexityCeiling) }}
-      .buttons.mb-0
-        b-button(
-          v-if="row.hasUpdate"
-          size="is-small"
-          type="is-warning"
-          icon-left="bell-ring"
-          @click="openUpdateReview(row)"
-        ) {{ $t('firmStaircase.reviewUpdate') }}
-        b-button(size="is-small" :disabled="busyId === row.id" @click="openForm(row)") {{ $t('firmStaircase.edit') }}
-        b-button(
-          v-if="row.kind === 'customised'"
-          size="is-small"
-          :disabled="busyId === row.id"
-          @click="confirmReset(row.id)"
-        ) {{ $t('firmStaircase.resetToPlatform') }}
-        b-button(
-          v-if="row.kind === 'firm-own'"
-          size="is-small"
-          type="is-danger is-light"
-          :disabled="busyId === row.id"
-          @click="confirmRemove(row.id)"
-        ) {{ $t('firmStaircase.remove') }}
-        b-button(
-          v-else
-          size="is-small"
-          :loading="busyId === row.id"
-          @click="switchOff(row.id)"
-        ) {{ $t('firmStaircase.switchOff') }}
+
+      //- Editing happens HERE, in the step, not in a form at the foot of the panel.
+      //- Ruled by Mike 2026-08-01: every tab behaves the way Quizzes does, so a
+      //- manager never has to work out what a given tab did with the button they
+      //- pressed. This panel is the worst case for a form at the bottom — the live
+      //- steps AND the switched-off list sit above it.
+      template(v-if="isEditing(row)")
+        p.staircase-editing-label.mb-3 {{ $t('firmStaircase.editStep') }}
+        firm-staircase-step-form(
+          v-model="form"
+          :saving="saving"
+          :submit-label="$t('firmStaircase.save')"
+          :ceiling-options="ceilingOptions"
+          @save="saveStep"
+          @cancel="closeForm"
+        )
+
+      template(v-else)
+        p.has-text-weight-semibold.mb-1 {{ row.name }}
+        p.is-size-7.mb-2(v-if="row.selectorDescription") {{ row.selectorDescription }}
+        p.is-size-7.has-text-grey.mb-3
+          span.has-text-weight-semibold {{ $t('firmStaircase.fieldCeiling') }}:
+          |  {{ capitalise(row.complexityCeiling) }}
+        .buttons.mb-0
+          b-button(
+            v-if="row.hasUpdate"
+            size="is-small"
+            type="is-warning"
+            icon-left="bell-ring"
+            @click="openUpdateReview(row)"
+          ) {{ $t('firmStaircase.reviewUpdate') }}
+          b-button(size="is-small" :disabled="busyId === row.id" @click="openForm(row)") {{ $t('firmStaircase.edit') }}
+          b-button(
+            v-if="row.kind === 'customised'"
+            size="is-small"
+            :disabled="busyId === row.id"
+            @click="confirmReset(row.id)"
+          ) {{ $t('firmStaircase.resetToPlatform') }}
+          b-button(
+            v-if="row.kind === 'firm-own'"
+            size="is-small"
+            type="is-danger is-light"
+            :disabled="busyId === row.id"
+            @click="confirmRemove(row.id)"
+          ) {{ $t('firmStaircase.remove') }}
+          b-button(
+            v-else
+            size="is-small"
+            :loading="busyId === row.id"
+            @click="switchOff(row.id)"
+          ) {{ $t('firmStaircase.switchOff') }}
 
     //- ── Switched off ──────────────────────────────────────────────────────
     //- Below the live list and unnumbered, deliberately: these steps hold no
@@ -82,6 +103,10 @@ section.firm-staircase
         .staircase-step-head
           span.staircase-step-title {{ row.name }}
           b-tag(:type="badge(row.kind).type" size="is-small") {{ badge(row.kind).label }}
+          //- The SAME Customised tag the live list uses, and it earns its place here:
+          //- this row shows Advisor-e's wording, so without it a firm has no way to
+          //- tell that its own version is still being held behind the step.
+          b-tag(v-if="row.hasFirmEdit" :type="badge('customised').type" size="is-small") {{ badge('customised').label }}
         p.is-size-7.has-text-grey.mb-3(v-if="row.selectorDescription") {{ row.selectorDescription }}
         .buttons.mb-0
           b-button(
@@ -90,6 +115,16 @@ section.firm-staircase
             :loading="busyId === row.id"
             @click="switchOn(row.id)"
           ) {{ $t('firmStaircase.switchOn') }}
+          //- Reset without switching on first. The route only drops the override and
+          //- never touches the declines key, so the step stays off — it just stops
+          //- carrying the firm's version. Offered only where there IS one: on an
+          //- untouched step this button would do nothing at all.
+          b-button(
+            v-if="row.hasFirmEdit"
+            size="is-small"
+            :disabled="busyId === row.id"
+            @click="confirmReset(row.id)"
+          ) {{ $t('firmStaircase.resetToPlatform') }}
 
     //- ── Platform-update review (Phase 3) ──────────────────────────────────
     //- The firm's edit shielded this step from the platform's later wording. Show
@@ -129,26 +164,20 @@ section.firm-staircase
           b-button(:loading="resolvingUpdate" @click="keepMine(updateRow.id)") {{ $t('firmStaircase.keepMine') }}
           b-button(@click="closeUpdateReview") {{ $t('firmStaircase.cancel') }}
 
-    //- ── Add / Edit form ───────────────────────────────────────────────────
-    .box.staircase-form.mt-5(v-if="showForm")
-      p.has-text-weight-semibold.mb-4 {{ editing ? $t('firmStaircase.editStep') : $t('firmStaircase.newStep') }}
-
-      b-field(:label="$t('firmStaircase.fieldName')")
-        b-input(v-model="form.name" maxlength="120")
-
-      b-field(
-        :label="$t('firmStaircase.fieldDescription')"
-        :message="$t('firmStaircase.fieldDescriptionHint')"
+    //- ── Add form ──────────────────────────────────────────────────────────
+    //- Only for a NEW step, and at the end of the list on purpose: that is where the
+    //- step itself will appear. An EDIT never renders here — it happens in the step
+    //- being edited, above.
+    .box.staircase-form.mt-5(v-if="showForm && !editing")
+      p.has-text-weight-semibold.mb-4 {{ $t('firmStaircase.newStep') }}
+      firm-staircase-step-form(
+        v-model="form"
+        :saving="saving"
+        :submit-label="$t('firmStaircase.addStep')"
+        :ceiling-options="ceilingOptions"
+        @save="saveStep"
+        @cancel="closeForm"
       )
-        b-input(v-model="form.selectorDescription" type="textarea" rows="3")
-
-      b-field(:label="$t('firmStaircase.fieldCeiling')" :message="$t('firmStaircase.fieldCeilingHint')")
-        b-select(v-model="form.complexityCeiling")
-          option(v-for="c in ceilingOptions" :key="c" :value="c") {{ capitalise(c) }}
-
-      .field.is-grouped.mt-4
-        b-button(type="is-primary" :loading="saving" @click="saveStep") {{ editing ? $t('firmStaircase.save') : $t('firmStaircase.addStep') }}
-        b-button(@click="closeForm") {{ $t('firmStaircase.cancel') }}
 
     //- ── The one setting that is not a list of rows ────────────────────────
     //- defaultCeiling stays in the whole-config key: the switch-off / edit / add
@@ -207,6 +236,7 @@ section.firm-staircase
  * Wording mirrors the Advisory Distinctions tab verbatim (ruled by Mike 2026-07-31)
  * so the Hub reads as one screen rather than six dialects.
  */
+import FirmStaircaseStepForm from '~/components/firm/FirmStaircaseStepForm.vue'
 const { buildStaircaseRows, buildStepEdit } = require('~/utils/staircaseRows')
 const { blockTone } = require('~/utils/brandTokens')
 
@@ -214,6 +244,8 @@ const STAIRCASE_CONFIG_KEY = 'advisory-staircase'
 
 export default {
   name: 'FirmStaircase',
+
+  components: { FirmStaircaseStepForm },
 
   props: {
     // The signed-in manager's token. The backend re-derives the firm from it and
@@ -263,7 +295,8 @@ export default {
         this.resolvedSteps,
         this.base ? this.base.steps : [],
         this.state.declinedIds,
-        this.driftIds
+        this.driftIds,
+        Object.keys(this.state.overrides || {})
       )
     },
 
@@ -328,6 +361,20 @@ export default {
         // ceiling are still readable and editable without it.
         this.history = []
       }
+    },
+
+    /**
+     * True when this exact step is the one open for editing.
+     *
+     * Keyed on `id`, never on `step`: `step` is a POSITION the backend renumbers, so
+     * switching a step off shifts the ones below it and the form would open on the
+     * wrong row. Same rule the Quizzes tab holds against its `id` field.
+     *
+     * @param {Object} row - a live step row
+     * @returns {boolean}
+     */
+    isEditing (row) {
+      return !!(this.showForm && this.editing && row && this.editing.id === row.id)
     },
 
     /** Advisor-e's current version of a step, or null for a step the firm owns. */
@@ -690,4 +737,21 @@ export default {
 }
 
 .staircase-form { border: 1px solid #dbdbdb; }
+
+/* The step being edited, tinted so the form is unmistakably attached to the row the
+   manager clicked. Matches .q.is-editing on the Quizzes tab — same cue, same colour,
+   per the ruling that the tabs behave identically. The inline per-step tone is
+   overridden here on purpose: while editing, "this is the one you are changing" is
+   what the colour must say. */
+.staircase-step.is-editing {
+  background: #f5fbff !important;
+  border-left-color: #3298dc !important;
+}
+.staircase-editing-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3298dc;
+  font-weight: 600;
+}
 </style>

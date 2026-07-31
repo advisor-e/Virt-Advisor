@@ -247,8 +247,10 @@ section.firm-manager-hub.section
               .level-left
                 p.has-text-weight-semibold Advisory Distinctions — {{ currentDistinctionDomainLabel }}
               .level-right
+                //- Always offered. It used to hide whenever a form was open, which
+                //- made a button vanishing at the top the only visible response to
+                //- clicking Edit — and that read as a fault. Same fix as Quizzes.
                 b-button(
-                  v-if="!showDistinctionForm"
                   type="is-primary"
                   size="is-small"
                   icon-left="plus"
@@ -277,158 +279,109 @@ section.firm-manager-hub.section
                     @click="markDistinctionsReviewed"
                   ) Mark all as reviewed
 
-            b-table.mb-4(
-              v-if="!loadingFirmDistinctions && domainDistinctions.length > 0"
-              :data="domainDistinctions"
-              :hoverable="true"
-              :row-class="distinctionRowClass"
-              size="is-small"
-            )
-              b-table-column(v-slot="{ row }" field="description" label="Description")
-                | {{ row.description }}
-                b-tag.is-block.mt-1(
-                  v-if="row.mentorUpdated"
-                  type="is-warning"
-                  size="is-small"
-                ) Updated by mentor · {{ formatMentorDate(row.mentorUpdatedAt) }}
-                b-tag.is-block.mt-1(
-                  v-if="row.mentorDrift"
-                  type="is-warning"
-                  size="is-small"
-                ) Mentor updated this distinction
-              b-table-column(v-slot="{ row }" label="Source" width="110")
-                b-tag(:type="distinctionBadge(row.kind).type" size="is-small") {{ distinctionBadge(row.kind).label }}
-              b-table-column(v-slot="{ row }" label="Trigger phrases")
-                span.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
-              b-table-column(v-slot="{ row }" label="Templates boosted")
-                b-tag.mr-1.mb-1(
-                  v-for="t in row.templates"
-                  :key="t"
-                  size="is-small"
-                  :type="row.kind === 'firm-own' || row.kind === 'customised' ? 'is-success is-light' : ''"
-                ) {{ t }}
-              b-table-column(v-slot="{ row }" label="Boost" width="60" numeric)
-                span(v-if="row.kind !== 'declined'") +{{ row.boost }}
-              b-table-column(v-slot="{ row }" label="" width="320")
-                template(v-if="row.kind === 'platform'")
-                  b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
-                  b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
-                  b-button.mb-1(size="is-small" @click="switchOffDistinction(row.id)") Switch off
-                template(v-else-if="row.kind === 'customised'")
-                  b-button.mr-1.mb-1(
-                    v-if="row.mentorDrift"
-                    size="is-small"
-                    type="is-warning"
-                    icon-left="bell-ring"
-                    @click="openMentorUpdateReview(row)"
-                  ) Review update
-                  b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
-                  b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
-                  b-button.mr-1.mb-1(size="is-small" @click="confirmResetDistinction(row.id)") Reset to platform
-                  b-button.mb-1(size="is-small" @click="switchOffDistinction(row.id)") Switch off
-                template(v-else-if="row.kind === 'declined'")
-                  b-button(size="is-small" type="is-primary is-light" @click="switchOnDistinction(row.id)") Switch on
+            //- One distinction per card, NOT a table (rebuilt 2026-08-01). The table
+            //- could not open an edit form against the row it belonged to, and Mike
+            //- ruled that every tab must behave the way Quizzes does — click Edit and
+            //- the form opens in the thing you clicked. Cards make that structural
+            //- rather than a Buefy detail-row trick, and the three tabs now read the
+            //- same to a manager moving between them.
+            template(v-if="!loadingFirmDistinctions && domainDistinctions.length > 0")
+              article.distinction(
+                v-for="row in domainDistinctions"
+                :key="row.id"
+                :class="[distinctionRowClass(row), { 'is-editing': isEditingDistinction(row) }]"
+              )
+                //- Editing happens HERE, in the card, not at the foot of the panel.
+                template(v-if="isEditingDistinction(row)")
+                  p.distinction-editing-label.mb-3 Edit distinction
+                  firm-distinction-form(
+                    v-model="distinctionForm"
+                    :domains="distinctionDomains"
+                    :domain-locked="editingPlatformRow"
+                    :all-templates="allClientTemplates"
+                    :sub-sections="templateSubSections"
+                    :group-targets="templateGroupTargets"
+                    :saving="savingDistinction"
+                    submit-label="Save changes"
+                    @save="saveDistinction"
+                    @cancel="closeDistinctionForm"
+                  )
+
                 template(v-else)
-                  b-button.mr-1.mb-1(size="is-small" @click="openDistinctionForm(row)") Edit
-                  b-button.mr-1.mb-1(size="is-small" @click="openMoveDistinction(row)") Move to…
-                  b-button.mb-1(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)") Remove
+                  .tags.mb-1
+                    b-tag(:type="distinctionBadge(row.kind).type" size="is-small") {{ distinctionBadge(row.kind).label }}
+                    b-tag(
+                      v-if="row.mentorUpdated"
+                      type="is-warning"
+                      size="is-small"
+                    ) Updated by mentor · {{ formatMentorDate(row.mentorUpdatedAt) }}
+                    b-tag(
+                      v-if="row.mentorDrift"
+                      type="is-warning"
+                      size="is-small"
+                    ) Mentor updated this distinction
+                  p.distinction-text {{ row.description }}
+                  .distinction-field
+                    p.distinction-label Trigger phrases
+                    p.distinction-value.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
+                  .distinction-field
+                    p.distinction-label Templates boosted
+                    div
+                      b-tag.mr-1.mb-1(
+                        v-for="t in row.templates"
+                        :key="t"
+                        size="is-small"
+                        :type="row.kind === 'firm-own' || row.kind === 'customised' ? 'is-success is-light' : ''"
+                      ) {{ t }}
+                  .distinction-field(v-if="row.kind !== 'declined'")
+                    p.distinction-label Boost
+                    p.distinction-value +{{ row.boost }}
+                  .buttons.mt-2.mb-0
+                    template(v-if="row.kind === 'platform'")
+                      b-button(size="is-small" @click="openDistinctionForm(row)") Edit
+                      b-button(size="is-small" @click="openMoveDistinction(row)") Move to…
+                      b-button(size="is-small" @click="switchOffDistinction(row.id)") Switch off
+                    template(v-else-if="row.kind === 'customised'")
+                      b-button(
+                        v-if="row.mentorDrift"
+                        size="is-small"
+                        type="is-warning"
+                        icon-left="bell-ring"
+                        @click="openMentorUpdateReview(row)"
+                      ) Review update
+                      b-button(size="is-small" @click="openDistinctionForm(row)") Edit
+                      b-button(size="is-small" @click="openMoveDistinction(row)") Move to…
+                      b-button(size="is-small" @click="confirmResetDistinction(row.id)") Reset to platform
+                      b-button(size="is-small" @click="switchOffDistinction(row.id)") Switch off
+                    template(v-else-if="row.kind === 'declined'")
+                      b-button(size="is-small" type="is-primary is-light" @click="switchOnDistinction(row.id)") Switch on
+                    template(v-else)
+                      b-button(size="is-small" @click="openDistinctionForm(row)") Edit
+                      b-button(size="is-small" @click="openMoveDistinction(row)") Move to…
+                      b-button(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)") Remove
 
             p.has-text-grey.is-size-7.mb-4(
               v-else-if="!loadingFirmDistinctions && domainDistinctions.length === 0 && !showDistinctionForm"
             ) No distinctions for this domain yet. Add one to boost specific templates when advisors use particular phrases.
 
-            //- Add / Edit form
-            .box.distinction-form(v-if="showDistinctionForm")
-              p.has-text-weight-semibold.mb-4 {{ editingDistinctionId ? 'Edit distinction' : 'New distinction' }}
-
-              b-field(label="Domain")
-                b-select(v-model="distinctionForm.domain" expanded :disabled="editingPlatformRow")
-                  option(v-for="d in distinctionDomains" :key="d.id" :value="d.id") {{ d.label }}
-
-              b-field(label="Description" message="Describe the client situation in a plain sentence — this is what the AI matches the advisor's words against. Capture the cause, not just the symptom.")
-                b-input(
-                  v-model="distinctionForm.description"
-                  placeholder="e.g. The owners aren't aligned on where the business is heading"
-                  maxlength="255"
-                )
-
-              b-field(label="Trigger phrases" message="Type a phrase and press Enter or comma to add. These are example ways an advisor might describe this — they guide the AI, which matches on meaning, not exact words, so 3–6 varied examples is plenty.")
-                b-taginput(
-                  v-model="distinctionForm.triggers"
-                  :confirm-key-codes="[13, 188]"
-                  placeholder="Add a phrase…"
-                  aria-close-label="Remove phrase"
-                )
-
-              b-field(label="Templates to boost")
-                .template-picker
-                  .template-picker-filters
-                    b-select(v-model="templatePickerSubSection" size="is-small" style="flex:0 0 200px")
-                      option(value="") All areas
-                      option(v-for="ss in templateSubSections" :key="ss" :value="ss") {{ ss }}
-                    b-input(
-                      v-model="templatePickerSearch"
-                      size="is-small"
-                      placeholder="Search by title…"
-                      icon="magnify"
-                      style="flex:1"
-                    )
-                  .template-picker-list
-                    //- Revenue-model GROUP targets: boost a whole group rather than one
-                    //- named model; the engine auto-picks the right one by client industry.
-                    label.template-picker-opt.template-picker-group(
-                      v-for="g in templateGroupTargets"
-                      :key="g.token"
-                      :class="{ 'is-selected': distinctionForm.templates.includes(g.token) }"
-                    )
-                      input(
-                        type="checkbox"
-                        :value="g.token"
-                        :checked="distinctionForm.templates.includes(g.token)"
-                        @change="toggleTemplateSelection(g.token)"
-                      )
-                      span.template-picker-title {{ g.label }}
-                      span.template-picker-sub {{ g.hint }}
-                    label.template-picker-opt(
-                      v-for="t in filteredTemplateOptions"
-                      :key="t.title"
-                      :class="{ 'is-selected': distinctionForm.templates.includes(t.title) }"
-                    )
-                      input(
-                        type="checkbox"
-                        :value="t.title"
-                        :checked="distinctionForm.templates.includes(t.title)"
-                        @change="toggleTemplateSelection(t.title)"
-                      )
-                      span.template-picker-title {{ t.title }}
-                      span.template-picker-sub {{ t.subSection }}
-                    p.has-text-grey.is-size-7.p-2(v-if="filteredTemplateOptions.length === 0") No templates match — try clearing the filters.
-                  .template-picker-selected(v-if="distinctionForm.templates.length > 0")
-                    span.is-size-7.has-text-grey.mr-2 Selected:
-                    b-tag.mr-1.mb-1(
-                      v-for="t in distinctionForm.templates"
-                      :key="t"
-                      closable
-                      type="is-success is-light"
-                      @close="toggleTemplateSelection(t)"
-                    ) {{ templateChipLabel(t) }}
-
-              b-field(label="Boost score" message="How many points to add to each matched template's score (1–20). Default 5.")
-                b-input(
-                  v-model.number="distinctionForm.boost"
-                  type="number"
-                  min="1"
-                  max="20"
-                  style="width:90px"
-                )
-
-              .field.is-grouped.mt-4
-                b-button(
-                  type="is-primary"
-                  :loading="savingDistinction"
-                  @click="saveDistinction"
-                ) {{ editingDistinctionId ? 'Save changes' : 'Add distinction' }}
-                b-button(@click="closeDistinctionForm") Cancel
+            //- ── Add form ──────────────────────────────────────────────────
+            //- Only for a NEW distinction, and at the end of the list on purpose:
+            //- that is where it will appear. An EDIT never renders here — it happens
+            //- in the card being edited, above.
+            .box.distinction-form.mt-4(v-if="showDistinctionForm && !editingDistinctionId")
+              p.has-text-weight-semibold.mb-4 New distinction
+              firm-distinction-form(
+                v-model="distinctionForm"
+                :domains="distinctionDomains"
+                :domain-locked="editingPlatformRow"
+                :all-templates="allClientTemplates"
+                :sub-sections="templateSubSections"
+                :group-targets="templateGroupTargets"
+                :saving="savingDistinction"
+                submit-label="Add distinction"
+                @save="saveDistinction"
+                @cancel="closeDistinctionForm"
+              )
 
       //- ── Tab: Quizzes (CB-31 Phase 3) ───────────────────────────────
       //- Body lives in its own component — the Hub is already over the
@@ -585,6 +538,7 @@ import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
+import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 
@@ -630,7 +584,7 @@ const DISTINCTION_DOMAINS = [
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm },
 
   props: {
     firmId: { type: String, required: true },
@@ -714,11 +668,9 @@ export default {
       movingDistinction: false,
       deletingDistinctionId: null,
       confirmDeleteDistinctionId: null,
-      templatePickerSearch: '',
-      // Default the picker to a single area so it opens on a short, focused list
-      // (not all ~106 templates at once). The advisor switches areas via the dropdown
-      // or types in search; the two revenue-model group options are always shown on top.
-      templatePickerSubSection: 'General Tools',
+      // The picker's own search/area filters moved into FirmDistinctionForm — they are
+      // about finding a template, not about what is saved, and a fresh child mounts with
+      // fresh filters instead of the parent having to remember to reset them.
       // Revenue-model GROUP targets — let a distinction boost a whole group of revenue
       // models instead of one named model; the engine auto-matches the specific model to
       // the client's industry. Tokens are stored in distinctionForm.templates and read by
@@ -782,17 +734,6 @@ export default {
     moveDomainOptions () {
       const current = this.moveRow ? this.moveRow.domain : null
       return this.distinctionDomains.filter(d => d.id !== current)
-    },
-    filteredTemplateOptions () {
-      let list = this.allClientTemplates
-      if (this.templatePickerSubSection) {
-        list = list.filter(t => t.subSection === this.templatePickerSubSection)
-      }
-      if (this.templatePickerSearch) {
-        const q = this.templatePickerSearch.toLowerCase()
-        list = list.filter(t => t.title.toLowerCase().includes(q))
-      }
-      return list
     }
   },
 
@@ -1063,8 +1004,6 @@ export default {
           boost: 5
         }
       }
-      this.templatePickerSearch = ''
-      this.templatePickerSubSection = 'General Tools'
       this.showDistinctionForm = true
     },
 
@@ -1073,24 +1012,20 @@ export default {
       this.editingDistinctionId = null
       this.editingDistinctionKind = null
       this.distinctionForm = { domain: '', description: '', triggers: [], templates: [], boost: 5 }
-      this.templatePickerSearch = ''
-      this.templatePickerSubSection = 'General Tools'
     },
 
-    toggleTemplateSelection (title) {
-      const idx = this.distinctionForm.templates.indexOf(title)
-      if (idx === -1) {
-        this.distinctionForm.templates.push(title)
-      } else {
-        this.distinctionForm.templates.splice(idx, 1)
-      }
-    },
-
-    // Friendly label for a selected target chip — a group token shows its label,
-    // an ordinary template shows its title.
-    templateChipLabel (value) {
-      const group = this.templateGroupTargets.find(g => g.token === value)
-      return group ? group.label : value
+    /**
+     * True when this exact distinction is the one open for editing.
+     *
+     * Keyed on `id`, the row's stable identity — the same rule the Quizzes and
+     * Staircase tabs hold, so the form can never open against the wrong card after a
+     * row above it is switched off.
+     *
+     * @param {Object} row - a distinction row
+     * @returns {boolean}
+     */
+    isEditingDistinction (row) {
+      return !!(this.showDistinctionForm && row && this.editingDistinctionId === row.id)
     },
 
     async saveDistinction () {
@@ -1462,48 +1397,41 @@ export default {
 /* Advisory Distinctions — form + template picker */
 .distinction-form { border: 1px solid #dbdbdb; }
 
+/* One distinction per card. Mirrors .q on the Quizzes tab so a manager moving between
+   the two tabs meets the same object in the same shape. */
+.distinction {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.distinction-text { font-weight: 600; color: #363636; margin-bottom: 0.5rem; }
+.distinction-field { margin-bottom: 0.4rem; }
+.distinction-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9a9a9a;
+  font-weight: 600;
+}
+.distinction-value { color: #4a4a4a; }
+
+/* The card being edited, tinted so the form is unmistakably attached to the row the
+   manager clicked. Same cue and colour as .q.is-editing on Quizzes. */
+.distinction.is-editing {
+  background: #f5fbff;
+  border-left: 3px solid #3298dc;
+  padding-left: 0.6rem;
+  margin-left: -0.6rem;
+  border-radius: 4px;
+}
+.distinction-editing-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3298dc;
+  font-weight: 600;
+}
+
 /* Switched-off (declined) rows in the unified distinctions list read as muted. */
 .distinction-off { opacity: 0.5; }
-
-.template-picker { border: 1px solid #dbdbdb; border-radius: 4px; overflow: hidden; }
-
-.template-picker-filters {
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #dbdbdb;
-}
-
-.template-picker-list {
-  max-height: 220px;
-  overflow-y: auto;
-  background: #fff;
-}
-
-.template-picker-opt {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
-  font-size: 0.85rem;
-  transition: background 0.1s;
-}
-.template-picker-opt:hover { background: #f0f7ff; }
-.template-picker-opt.is-selected { background: #ebf8ee; }
-.template-picker-opt input[type="checkbox"] { flex-shrink: 0; accent-color: #48c78e; }
-.template-picker-title { flex: 1; color: #363636; }
-.template-picker-sub { font-size: 0.75rem; color: #9a9a9a; }
-
-.template-picker-selected {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 8px 12px;
-  background: #f9fafb;
-  border-top: 1px solid #dbdbdb;
-  min-height: 38px;
 }
 </style>

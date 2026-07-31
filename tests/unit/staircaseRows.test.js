@@ -58,6 +58,46 @@ describe('buildStaircaseRows', () => {
     expect(switchedOff[0].step).toBeNull()
   })
 
+  test('a switched-off step the firm edited is flagged, so its held version is visible', () => {
+    // The row shows Advisor-e's wording by design. Without this flag the screen has no
+    // way to say the firm's own version is still stored behind it, and no way to offer
+    // Reset — which is why returning such a step to Advisor-e's default used to mean
+    // switching it back on first.
+    const { switchedOff } = buildStaircaseRows(
+      [], BASE, ['as-interpretation'], [], ['as-interpretation']
+    )
+    expect(switchedOff[0].hasFirmEdit).toBe(true)
+    // Still Advisor-e's wording, not the firm's — the flag reports storage, it does not
+    // change what is drawn.
+    expect(switchedOff[0].name).toBe('Interpretation')
+  })
+
+  test('a switched-off step the firm never edited is NOT flagged', () => {
+    // Reset on such a step would delete nothing. Offering the button anyway is how a
+    // screen teaches a manager that its buttons do not always do something.
+    const { switchedOff } = buildStaircaseRows(
+      [], BASE, ['as-interpretation'], [], ['as-compliance']
+    )
+    expect(switchedOff[0].hasFirmEdit).toBe(false)
+  })
+
+  test('an override id is only consulted for the switched-off list', () => {
+    // A live row already declares an edit through its `customised` kind. If the flag
+    // leaked onto live rows the tab would draw a second Reset button beside the one
+    // that is already there.
+    const resolved = [{ id: 'as-compliance', step: 1, name: 'Ours', source: 'firm-override' }]
+    const { live } = buildStaircaseRows(resolved, BASE, [], [], ['as-compliance'])
+    expect(live[0].kind).toBe('customised')
+    expect(live[0].hasFirmEdit).toBeUndefined()
+  })
+
+  test('omitting the override ids leaves every switched-off step unflagged', () => {
+    // The argument was added after the callers existed; a caller that has not been
+    // updated must degrade to "no edit held", never to a Reset button that guesses.
+    const { switchedOff } = buildStaircaseRows([], BASE, ['as-interpretation'])
+    expect(switchedOff[0].hasFirmEdit).toBe(false)
+  })
+
   test('a declined id that is not a platform step is ignored', () => {
     // Same rule the resolver holds: stored state can never invent a row.
     const { switchedOff } = buildStaircaseRows(BASE, BASE, ['as-gone', 'fs-9'])

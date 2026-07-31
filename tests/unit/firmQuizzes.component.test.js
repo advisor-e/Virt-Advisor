@@ -533,6 +533,67 @@ describe('editing', () => {
     expect(wrapper.text()).toContain('firmQuizzes.switchedOffHeading')
     expect(wrapper.text()).toContain('firmQuizzes.switchOn')
   })
+
+  // The gap this closes: a question the firm had edited and then switched off could
+  // only be returned to Advisor-e's default by switching it back on FIRST and then
+  // pressing Reset — and while it sat there, nothing said the firm's version was
+  // still being held.
+  test('a switched-off question the firm edited says so, and offers Reset', async () => {
+    const wrapper = await mountRail({
+      resolved: {},
+      state: { declinedIds: ['qz-1'], overrides: { 'qz-1': { question: 'Ours?' } }, ownRows: [] }
+    })
+    wrapper.setData({ currentTitle: 'Working Capital Cycle' })
+    await wrapper.vm.$nextTick()
+
+    const off = wrapper.find('.q-off')
+    expect(off.text()).toContain('firmQuizzes.tagCustomised')
+    expect(off.text()).toContain('firmQuizzes.resetToPlatform')
+  })
+
+  test('a switched-off question the firm never edited offers no Reset', async () => {
+    // Reset there would delete nothing. A button that does nothing when pressed is
+    // how a screen loses a manager's trust in every other button on it.
+    const wrapper = await mountRail({
+      resolved: {},
+      state: { declinedIds: ['qz-1'], overrides: {}, ownRows: [] }
+    })
+    wrapper.setData({ currentTitle: 'Working Capital Cycle' })
+    await wrapper.vm.$nextTick()
+
+    const off = wrapper.find('.q-off')
+    expect(off.text()).toContain('firmQuizzes.switchOn')
+    expect(off.text()).not.toContain('firmQuizzes.resetToPlatform')
+    expect(off.text()).not.toContain('firmQuizzes.tagCustomised')
+  })
+
+  test('resetting from the switched-off list drops the edit WITHOUT switching it on', async () => {
+    // The whole point of doing it from here. If this ever fired the decline route as
+    // well, a firm asking "go back to Advisor-e's wording" would silently find the
+    // question live in front of its advisors again.
+    const wrapper = await mountRail({
+      resolved: {},
+      state: { declinedIds: ['qz-1'], overrides: { 'qz-1': { question: 'Ours?' } }, ownRows: [] }
+    })
+    wrapper.setData({ currentTitle: 'Working Capital Cycle' })
+    await wrapper.vm.$nextTick()
+    global.fetch.mockClear()
+
+    const confirm = jest.fn()
+    wrapper.vm.$buefy.dialog.confirm = confirm
+    wrapper.find('.q-off').findAll('button').at(1).trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // Nothing is sent until the firm confirms — this discards their wording.
+    expect(confirm).toHaveBeenCalled()
+    expect(global.fetch).not.toHaveBeenCalled()
+
+    await confirm.mock.calls[0][0].onConfirm()
+
+    const urls = global.fetch.mock.calls.map(c => c[0])
+    expect(urls).toContain('/api/firm-manager/quizzes/platform/qz-1')
+    expect(urls.some(u => String(u).includes('/decline'))).toBe(false)
+  })
 })
 
 // The quiz-rail-stuck-open fix (design/ACTIONS.md): open-state is three-state

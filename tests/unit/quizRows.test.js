@@ -50,6 +50,32 @@ describe('buildQuizRows', () => {
     expect(switchedOff[0].question).toBe('Platform question 1')
   })
 
+  test('a switched-off question the firm edited is flagged, so its held version is visible', () => {
+    // The row shows Advisor-e's wording by design. Without this flag the screen has no
+    // way to say the firm's own version is still stored behind it, and no way to offer
+    // Reset — which is why returning such a question to Advisor-e's default used to
+    // mean switching it back on first.
+    const { switchedOff } = buildQuizRows([], [platform(1)], ['qz-1'], ['qz-1'])
+    expect(switchedOff[0].hasFirmEdit).toBe(true)
+    // Still Advisor-e's wording — the flag reports storage, it does not change what is
+    // drawn.
+    expect(switchedOff[0].question).toBe('Platform question 1')
+  })
+
+  test('a switched-off question the firm never edited is NOT flagged', () => {
+    // Reset on such a question would delete nothing. Offering the button anyway is how
+    // a screen teaches a manager that its buttons do not always do something.
+    const { switchedOff } = buildQuizRows([], [platform(1)], ['qz-1'], ['qz-2'])
+    expect(switchedOff[0].hasFirmEdit).toBe(false)
+  })
+
+  test('omitting the override qids leaves every switched-off question unflagged', () => {
+    // The argument was added after the callers existed; a caller that has not been
+    // updated must degrade to "no edit held", never to a Reset button that guesses.
+    const { switchedOff } = buildQuizRows([], [platform(1)], ['qz-1'])
+    expect(switchedOff[0].hasFirmEdit).toBe(false)
+  })
+
   test('a declined id for another page does not pull that question in', () => {
     const { switchedOff } = buildQuizRows([], [platform(1)], ['qz-99'])
     expect(switchedOff).toEqual([])

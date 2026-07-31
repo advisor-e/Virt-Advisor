@@ -38,22 +38,33 @@ const KIND_BY_SOURCE = {
  * @param {Array<Object>} resolvedSteps - `resolved` from the GET: the firm's effective
  *   steps, already renumbered 1..n and tagged with `source`. A firm that has decided
  *   nothing gets the platform steps with no `source` at all — those read as platform.
- * @param {Array<Object>} baseSteps - Advisor-e's steps, the only place a switched-off
- *   step's wording still exists (the firm's own edit of it, if any, is not shown: what
- *   comes back on is Advisor-e's current version).
+ * @param {Array<Object>} baseSteps - Advisor-e's steps. A switched-off row is drawn from
+ *   these and shows ADVISOR-E'S wording even where the firm has edited the step. That is
+ *   a display choice, not a statement about what is stored: the firm's edit survives and
+ *   does come back with the step (`staircaseCascade.routes.test.js`, "an edit made earlier
+ *   survives switching the step off and on again"). Showing a firm's private wording under
+ *   a step it has switched off would suggest that wording was doing something. It is not.
+ *   The `hasFirmEdit` flag below is what tells the reader the edit is still held.
  * @param {Array<string>} declinedIds - the platform ids this firm switched off.
  * @param {Array<string>} [driftIds] - edited steps the platform has changed since the
  *   firm last stated its version. Those rows carry `hasUpdate`, which is what puts a
  *   Review update button on them, and `platformVersion` — the platform's current
  *   wording — for the side-by-side compare.
+ * @param {Array<string>} [overriddenIds] - the platform ids this firm holds an edit for.
+ *   Only used for the switched-off list: a live row already declares an edit through its
+ *   `customised` kind, but a switched-off row is built from the platform step and would
+ *   otherwise give a firm no way to tell that its version is still being held — nor any
+ *   way back to Advisor-e's without switching the step on first.
  * @returns {{live: Array<Object>, switchedOff: Array<Object>}} each row carries a
- *   `kind` of 'platform' | 'customised' | 'firm-own' | 'declined'.
+ *   `kind` of 'platform' | 'customised' | 'firm-own' | 'declined'; switched-off rows
+ *   additionally carry `hasFirmEdit`.
  */
-function buildStaircaseRows (resolvedSteps, baseSteps, declinedIds, driftIds) {
+function buildStaircaseRows (resolvedSteps, baseSteps, declinedIds, driftIds, overriddenIds) {
   const resolved = Array.isArray(resolvedSteps) ? resolvedSteps : []
   const base = Array.isArray(baseSteps) ? baseSteps : []
   const declined = new Set(Array.isArray(declinedIds) ? declinedIds : [])
   const drifted = new Set(Array.isArray(driftIds) ? driftIds : [])
+  const overridden = new Set(Array.isArray(overriddenIds) ? overriddenIds : [])
   const byId = new Map(base.filter(s => s && s.id !== null && s.id !== undefined).map(s => [s.id, s]))
 
   const live = resolved
@@ -84,7 +95,7 @@ function buildStaircaseRows (resolvedSteps, baseSteps, declinedIds, driftIds) {
     // No `step` number is carried through: the numbers belong to the live list, and a
     // switched-off step showing "Step 3" beside a live list that runs 1, 2, 3 would
     // claim a position it does not hold.
-    .map(row => ({ ...row, step: null, kind: 'declined' }))
+    .map(row => ({ ...row, step: null, kind: 'declined', hasFirmEdit: overridden.has(row.id) }))
 
   return { live, switchedOff }
 }
