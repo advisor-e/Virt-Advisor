@@ -2042,14 +2042,12 @@ Two honest answers on different axes — the file used to conflate them:
       three comments; no test ties the wording to the behaviour, because the suite cannot read
       copy. A firm-facing sentence remains provable only by a human reading it — the same class
       of gap as the Session 16 screen defect.
-  - ☐ **GAP FOUND WHILE CHECKING THE ABOVE — a switched-off step offers no way back to the
-    platform's version.** The switched-off list renders only a **Switch on** button
-    (`FirmStaircase.vue`), so a step the firm edited and then switched off can be returned to
-    Advisor-e's default only by switching it on first and then pressing **Reset to platform**.
-    Two steps where one would do, and while it sits switched off nothing on screen says the
-    firm's edit is still being held. **Not a defect — no state is lost and no claim is untrue** —
-    and **the same shape in Quizzes** (`FirmQuizzes.vue`), so it is one decision for both tabs,
-    not two. Not actioned: it changes a screen, which is Mike's call.
+  - ✅ **GAP FOUND WHILE CHECKING THE ABOVE — CLOSED SAME DAY in Session 17 (`63cc54f`).** A
+    switched-off step offered no way back to the platform's version: the list rendered only a
+    **Switch on** button, so a step the firm edited and then switched off could be returned to
+    Advisor-e's default only by switching it on first and then pressing **Reset to platform** —
+    and while it sat there nothing said the firm's edit was still being held. Fixed in **both**
+    tabs at once (the same shape existed in Quizzes), per the whole-section rule. See Session 17.
   - 🔵 **CROSS-MACHINE — a red suite is coming, and it is the safety net working, not a break.**
     The desktop (`feat/firm-quiz-builder-ui`, despite the name, is transcribing domain support and
     logic tables) has added materials to `strategy`, `sales-marketing` and `staff` domain-support
@@ -2066,6 +2064,128 @@ Two honest answers on different axes — the file used to conflate them:
     paths have run against a real database. `utils/quizRows.js` sits outside the coverage gate,
     which measures `server/`, `server-middleware/` and `mixins/` only — the same position as
     `utils/staircaseRows.js`, so a pre-existing scope choice rather than a new gap.
+
+  ### Session 17 (2026-07-31, laptop) — the tabs stop behaving differently
+
+  Three commits (`c223695`, `63cc54f`, `025ed9c`), pushed. Suite **3,341 → 3,365 / 208 suites**,
+  lint 0 errors, tree clean, **71 ahead / 0 behind** `master`. Session opened with `/startup`:
+  0 behind. **Phase 4 (Adopt / Keep mine) was planned and approved in principle but NOT started**
+  — see the handover at the end.
+
+  - 🔴 **RULED 2026-07-31 (Mike) — EVERY FIRM MANAGER TAB OPENS THE EDIT BOX WHERE YOU CLICKED.**
+    *"I do not want users having to figure out each page is different."* This is a standing rule
+    for any tab built from here, not a fix to two screens. **Clicking Edit opens the form IN the
+    row clicked; Add opens at the END of the list, where the new row will appear.** Quizzes is
+    the reference implementation (Session 16).
+    - **Inventory taken before changing anything** — two offenders, not one. **Advisory
+      Staircase** (form below BOTH the live list and the switched-off list, so worse than the
+      quizzes case) and **Advisory Distinctions**. **Domain Support and Logic Tables already
+      comply** — they have no separate form at all, the fields are inline `b-input`s in the row,
+      which is in-place by construction. Team Case Studies, Team Progress and Documents have no
+      edit form.
+    - 🔴 **ADVISORY DISTINCTIONS WAS REBUILT FROM A `b-table` INTO CARDS.** A table cannot hold a
+      form against the row it belongs to except through a Buefy detail-row trick whose behaviour
+      could not be verified without seeing the screen. Cards make it structural. Every column's
+      content survives, under the same words the column headings used.
+    - **The Add button no longer hides on either tab** — a button vanishing at the top was the
+      only visible response to clicking Edit, and it read as a fault (the Session 16 cue).
+    - **Three form components now exist** — `FirmQuizQuestionForm`, `FirmStaircaseStepForm`,
+      `FirmDistinctionForm` — one per tab, so the form shown when editing and when adding cannot
+      drift apart. The distinctions picker's search/area filters moved INTO its form component:
+      they are about finding a template, not about what is saved, and a fresh child mounts with
+      fresh filters instead of the parent having to remember to reset both on open AND close.
+    - ⚠ **A PROCESS NOTE MIKE MADE EXPLICITLY.** He gave a clear instruction and the AI came back
+      with a technical either/or (expanding table row vs cards) dressed as a design choice.
+      *"I don't know why you asked me to try and do it differently when I already clearly gave
+      you an instruction."* **When the instruction is clear, implement it and report what was
+      done — do not re-open it as a question.**
+  - ✅ **THE RESET GAP CLOSED, BOTH TABS (`63cc54f`).** Switched-off rows the firm has edited now
+    carry the same **Customised** tag the live list uses and offer **Reset to platform** directly.
+    **No backend change was needed** — both reset routes only ever delete the stored edit and
+    never touch the declines key, so resetting from the switched-off list leaves the row switched
+    off. Asserted explicitly: if it ever also fired the decline route, a firm asking for
+    Advisor-e's wording back would silently find the question live in front of its advisors.
+    **No new strings** — both tabs already had a Customised tag and a Reset button.
+  - ✅ **THE STAIRCASE SENTENCE WAS WRONG, THE BEHAVIOUR WAS RIGHT (`c223695`).** See the closed
+    CHECK above. The claim had spread to **three developer comments**, one of them on the
+    **quizzes** decline route — asserting the opposite of what `quizCascade.routes.test.js` had
+    just proven. **The wrong sentence was copied onto the new feature in the same session the
+    correct behaviour was built and tested.** → **RULE: when a feature is cloned from a sibling,
+    its prose is cloned too, and prose carries no test.** A copied comment must be re-read
+    against the behaviour being built, not the behaviour it came from. (A fourth copy was found
+    later in `utils/staircaseRows.js` and fixed in `63cc54f`.)
+  - ✅ **TEMPLATE-PICKER DUPLICATE KEYS (`025ed9c`).** "Capacity, Capability, Opportunity" appears
+    **twice inside General Tools** in the master export, and the picker keyed its list by title —
+    Vue warned duplicate keys "may cause an update error", i.e. a tick can land on the row the
+    manager did not click. The row's `index` is now carried through the projection and used as
+    the key.
+    - ⚠ **THE FIRST ATTEMPT WAS WRONG AND ONLY THE TEST CAUGHT IT.** Keying on `index` looked
+      right against `data/templates.json`, but the picker is handed a **trimmed copy** keeping
+      only `title` and `subSection`, so every key evaluated to `undefined|<title>` and the
+      collision survived. The test now asserts against **the list the picker is actually handed**,
+      not the raw file. → **RULE: assert against the data the component RECEIVES, not the file it
+      came from.**
+    - **Scope stated honestly:** this fixes which row you CLICK. What a tick **stores** is still
+      the title, which is what `templateResolver` matches on, so two templates sharing a title
+      still boost together. That is a content question for the master export, which this repo
+      **never edits**. One visibly repeated row therefore remains in the picker. The other four
+      duplicate titles sit in areas the picker already excludes.
+  - ✅ **TWO SCREENS THAT HAD NO RENDERING TEST NOW HAVE ONE.** `firmStaircase.component.test.js`
+    (5) and `firmDistinctions.component.test.js` (9). They assert **WHERE** the form opens, not
+    that one exists — *"a form exists somewhere on the page"* was true on the day the Session 16
+    bug was reported. They also lock that a switched-off distinction is still listed with a way
+    back, and that a customised one shows the firm's wording with Reset offered.
+  - ⚠ **HONEST LIMITS.** **Neither screen has been seen running** — Mike's dev server was down all
+    session, and Advisory Distinctions is a real change to information layout, which is exactly
+    the class of thing the suite missed in Session 16. **Mike's look at Distinctions is the
+    outstanding verification.** MySQL still not provisioned. The three form components sit outside
+    the coverage gate (`server/`, `server-middleware/`, `mixins/` only), the same pre-existing
+    scope choice as `utils/quizRows.js`.
+  - ☐ **NOTED, NOT ACTIONED — Advisory Distinctions is the only Firm Manager tab still written in
+    hardcoded English.** Quizzes and the Staircase route every label through `$t()`. Flagged
+    rather than proposed because the i18n sweep is gated behind the cleanup pass (P3 · I18N
+    below, branch `chore/i18n-jsdoc-cleanup`). The cards rebuilt this session reuse the table's
+    own English headings, so the tab is no worse than it was — but it is now the odd one out on a
+    Hub that was just deliberately made consistent.
+
+  ### ☐ NEXT JOB — Quizzes Phase 4 (Adopt / Keep mine) — planned and approved, NOT started
+
+  The last piece of the quizzes workstream, and a **port of what the Advisory Staircase already
+  does** (Phase 3, `keepMineStaircaseStep` / `_staircaseDriftIds` / `_staircaseStepSignature` /
+  the review modal in `FirmStaircase.vue`) — not a design job. Verified 2026-07-31 that **nothing
+  of it exists yet**: `setQuizOverride`'s own JSDoc says so in as many words.
+
+  **What it is, in one sentence:** a firm that edits one of Advisor-e's questions is shielded from
+  our later improvements to it, deliberately — Phase 4 tells them we changed it, shows both
+  versions, and lets them **Adopt** ours or **Keep mine**.
+
+  **Stage A — the record (backend).**
+  1. New additive key `quiz-override-baselines` (+ gitignored dev file), mirroring
+     `STAIRCASE_BASELINES_KEY`. Nothing existing is rewritten.
+  2. `_quizQuestionSignature(row)` over `EDITABLE_QUESTION_FIELDS`.
+  3. Stamp the platform's current wording as the baseline **in `setQuizOverride`** — currently and
+     deliberately not stamped, because until this stage nothing could read it.
+  4. `_quizDriftQids(firmId, overrides, savedBy)`, returned from `getQuizzes` as `driftQids`.
+  5. 🔴 **A MISSING BASELINE IS BACKFILLED, NOT READ AS DRIFT.** An edit made before this feature
+     has no stamp; reading that as "the platform changed this" would greet every such firm with a
+     review prompt for an update that never happened. Same rule as the staircase.
+  6. **Adopt is the EXISTING reset route** — it must also drop the baseline, as the staircase's
+     does, so a later re-edit stamps fresh rather than inheriting a signature from a decision the
+     firm has since undone.
+  7. New route **Keep mine** (`POST /api/firm-manager/quizzes/platform/:qid/keep-mine`) —
+     re-stamps the baseline to the platform's CURRENT wording so the prompt clears until our next
+     change. **409, not a silent success, when the firm holds no edit:** nothing is being kept,
+     and stamping a baseline for a question the firm does not override would arm a prompt that can
+     never fire.
+
+  **Stage B — the screen.** Flagged questions get a tag and a **Review update** button opening a
+  side-by-side panel with Adopt / Keep mine.
+
+  **No wording decisions are outstanding** — the staircase's labels are already approved and the
+  consistency ruling says the tabs read the same, so they are mirrored verbatim ("Platform updated
+  this question", "Review update", the existing panel text).
+
+  **Do Stage A, prove it, commit, then Stage B** — so nobody is ever holding a half-built feature.
 
 - **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
   - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
