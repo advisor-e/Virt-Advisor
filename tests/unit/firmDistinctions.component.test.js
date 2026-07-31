@@ -144,6 +144,31 @@ describe('the extracted form keeps the parent in charge of the values', () => {
     expect(before).not.toContain('Cash Flow Forecast')
   })
 
+  test('every template the picker offers gets a UNIQUE key', async () => {
+    // The control, not a note. "Capacity, Capability, Opportunity" appears TWICE inside
+    // General Tools in the master export, so a title-keyed list made Vue warn about
+    // duplicate keys and could reuse one row's DOM node for the other — landing a tick
+    // on the row the manager did not click.
+    //
+    // Asserted against the list the picker is ACTUALLY handed (the projected, filtered
+    // one), not the raw file: the first version of this fix keyed on a field the
+    // projection dropped, so every key was `undefined|<title>` and the collision
+    // survived. A future master export that reintroduces the clash fails here rather
+    // than silently on screen. We never edit that file; we only have to survive it.
+    const wrapper = await mountHub()
+    wrapper.vm.openDistinctionForm({ ...PLATFORM_ROWS[0], kind: 'platform' })
+    await wrapper.vm.$nextTick()
+
+    const form = wrapper.findComponent({ name: 'FirmDistinctionForm' })
+    const offered = form.props('allTemplates')
+    const keys = offered.map(t => form.vm.pickerKey(t))
+
+    expect(offered.length).toBeGreaterThan(0)
+    expect(new Set(keys).size).toBe(offered.length)
+    // …and the titles genuinely do collide, so the assertion above is not vacuous.
+    expect(new Set(offered.map(t => t.title)).size).toBeLessThan(offered.length)
+  })
+
   test('the picker opens with fresh filters each time a form is opened', async () => {
     // The parent used to have to remember to reset these on open AND on close. A fresh
     // child mounts with fresh filters, so a stale search cannot follow the manager from

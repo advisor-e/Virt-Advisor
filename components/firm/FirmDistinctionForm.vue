@@ -52,7 +52,7 @@
           span.template-picker-sub {{ g.hint }}
         label.template-picker-opt(
           v-for="t in filteredTemplates"
-          :key="t.title"
+          :key="pickerKey(t)"
           :class="{ 'is-selected': value.templates.includes(t.title) }"
         )
           input(
@@ -164,6 +164,30 @@ export default {
   },
 
   methods: {
+    /**
+     * A render key that is unique per ROW, not per title.
+     *
+     * WHY NOT THE TITLE. Five titles appear twice in the master export — two of them
+     * inside the same area ("Capacity, Capability, Opportunity" in General Tools,
+     * "IT Services" in Revenue & Feasibility Models). Keyed on title, Vue warns of
+     * duplicate keys and may reuse one row's DOM node for the other, so a tick can
+     * land on the row the manager did not click. `index` is the row's position in the
+     * export and is unique across all 289 rows; the title is folded in so a future
+     * export that drops `index` degrades to the old behaviour rather than keying
+     * everything on `undefined`.
+     *
+     * This does NOT change what a tick STORES — that is still the title, which is what
+     * templateResolver matches on. Two templates sharing a title therefore still boost
+     * together; that is a content question for the master export, and this repo never
+     * edits that data.
+     *
+     * @param {Object} t - a template row
+     * @returns {string}
+     */
+    pickerKey (t) {
+      return `${t.index}|${t.title}`
+    },
+
     /**
      * @param {string} field one of domain | description | triggers | templates | boost
      * @param {*} val the new value

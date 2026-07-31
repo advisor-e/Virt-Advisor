@@ -559,7 +559,12 @@ const PICKER_EXCLUDED_SUBSECTIONS = new Set([
 ])
 const ALL_CLIENT_TEMPLATES = require('~/data/templates.json')
   .filter(t => t.menuSection === 'do-the-job' && !PICKER_EXCLUDED_SUBSECTIONS.has(t.subSection || ''))
-  .map(t => ({ title: t.title, subSection: t.subSection }))
+  // `index` rides along as the row's identity. Titles are NOT unique in the master
+  // export — "Capacity, Capability, Opportunity" appears twice inside General Tools —
+  // and a title-keyed picker list makes Vue reuse one row's node for the other, so a
+  // tick can land on the row the manager did not click. See FirmDistinctionForm's
+  // pickerKey(). What a tick STORES is still the title; only the render key changes.
+  .map(t => ({ title: t.title, subSection: t.subSection, index: t.index }))
   .sort((a, b) => a.title.localeCompare(b.title))
 
 const TEMPLATE_SUBSECTIONS = [...new Set(ALL_CLIENT_TEMPLATES.map(t => t.subSection))].sort()
