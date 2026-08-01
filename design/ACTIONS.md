@@ -2252,17 +2252,25 @@ Two honest answers on different axes — the file used to conflate them:
       so the pattern matched nothing. Re-run properly; it killed. **The lesson from Session 19
       earning its place again: a skipped mutant reads like "no test needed" when it means "no
       test ran".**
-  - ⚠ **HONEST LIMITS.** **Mike has not seen this running** — it is a new screen inside another
-    screen, which is exactly the class the suite cannot judge, and the outstanding verification.
-    The advisers shown come from Collaborate's **in-memory store, which resets on restart**
-    (slice 5), so nothing here is real data yet. The `firm-manager` page chunk grew 186 → 213 KiB
-    uncompressed; it is an async route chunk, not first-load, so the 300 KB gzipped budget is not
-    engaged — but it has not been measured gzipped either way.
-  - ☐ **WORDING TO CONFIRM — the tab's one new sentence** (`firmAdviserNetwork.lede`): *"Everyone
+  - ✅ **LIVE-VERIFIED BY MIKE, 2026-08-01, ON THE RUNNING APP** — *"collab firm manager page is
+    in and works great"*. That closes the one thing the suite structurally cannot judge, and it
+    proves five things at once that no test covers together: the console renders inside the Hub
+    with no second banner or page frame; its data reaches the browser through the new
+    `/api/people` proxy entry; the merged auth admits one token across both apps' routes; the
+    locale join worked (no raw `firmAdviserNetwork.*` keys on screen); and **the two former
+    servers boot as one real Restify process** — confirmed separately with `/api/health` and
+    `/api/people/firm` both answering 200 on port 4000, which the mocked-Restify wiring test by
+    definition cannot show.
+  - ✅ **WORDING CONFIRMED — the tab's one new sentence** (`firmAdviserNetwork.lede`): *"Everyone
     advising under your firm: who they are, the specialty groups they have asked to join, and
-    whether they may work with advisers outside the firm."* Every other label on the tab is
-    Collaborate's existing approved wording. Mike approved the tab NAME explicitly; this sentence
-    is written pending his read.
+    whether they may work with advisers outside the firm."* On screen when Mike approved the tab;
+    every other label is Collaborate's existing approved wording. Tab NAME (**Adviser Network**)
+    was ruled explicitly from three offered.
+  - ⚠ **HONEST LIMITS THAT REMAIN.** The advisers shown come from Collaborate's **in-memory
+    store, which resets on restart** (slice 5) — dev-firm-001 shows "Advisor-e Munich" with 3
+    advisers and 2 pending approvals, and none of it is real data. The `firm-manager` page chunk
+    grew 186 → 213 KiB uncompressed; it is an async route chunk, not first-load, so the 300 KB
+    gzipped budget is not engaged — but it has not been measured gzipped either way.
 
   ### Session 21 (2026-08-01, laptop) — COLLABORATE SLICE 2: the two back-ends became one
 

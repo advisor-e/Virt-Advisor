@@ -16,8 +16,10 @@ approval individually (CLAUDE.md → LIVE-APP rule).**
 >   `firm_framework_versions` — so the storage re-key cannot make it need rework, and the
 >   workstream stops being invisible. **View-as is deliberately withheld here** — see ACTIONS.
 >
-> Suites **212 / 3,486 green**, lint 0 errors, `nuxt build` green. **Not yet seen running by
-> Mike** — that is the outstanding verification.
+> Suites **212 / 3,486 green**, lint 0 errors, `nuxt build` green. ✅ **LIVE-VERIFIED by Mike
+> 2026-08-01 on the running app** — *"collab firm manager page is in and works great"*. The
+> backend was also confirmed answering both apps' routes from one process (`/api/health` and
+> `/api/people/firm` both 200), which is what the mocked-Restify wiring test cannot show.
 >
 > **Slices 3, 5 and 6 are unbuilt and unapproved.** Full record, including the silent
 > `~/`-alias trap from slice 1 and the translate-route fork found in slice 2, is in
