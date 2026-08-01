@@ -1,5 +1,5 @@
 <template lang="pug">
-.margin-breakeven-page
+report-shell
   margin-breakeven-report
 </template>
 
@@ -7,17 +7,14 @@
 /**
  * /margin-breakeven page — Margin, Mark-up & Break-even report (third model).
  * Launched from Advisory.com per the design (Option 1); calc runs backend-only.
+ * Wraps the screen in the shared ReportShell (which owns the frame + visual-standard
+ * tokens); the screen reads those tokens for all its colours.
  */
+import ReportShell from '~/components/base/ReportShell.vue'
 import MarginBreakevenReport from '~/components/MarginBreakevenReport.vue'
 
 export default {
   name: 'MarginBreakevenPage',
-  components: { MarginBreakevenReport }
+  components: { ReportShell, MarginBreakevenReport }
 }
 </script>
-
-<style scoped>
-.margin-breakeven-page {
-  min-height: 100vh;
-}
-</style>

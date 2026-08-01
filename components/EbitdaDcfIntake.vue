@@ -369,32 +369,38 @@ export default {
 </script>
 
 <style scoped>
+/* Palette, card and table dividers read the shared visual-standard tokens (ReportShell):
+   every swapped value equals the token it points at — a no-change consolidation. Left
+   literal on purpose: the confirm-card 16px padding (standard is 16px 18px, not a ruled number)
+   and the bespoke tints with no standard token — the cyan drop-zone dash (#7fd3f1), the
+   softer green/red state fills (#4ca52d12 / #ff00000a / #ff00001a) and the amber-text
+   (#b36b00) warning labels. */
 .drop-zone {
-  border: 2px dashed #7fd3f1; border-radius: 14px; background: #fff;
+  border: 2px dashed #7fd3f1; border-radius: var(--rs-card-radius); background: var(--rs-panel);
   padding: 26px 20px; text-align: center; transition: border-color .15s; margin-bottom: 16px;
 }
-.drop-zone:hover { border-color: #0070c0; }
-.drop-zone.loaded { border-style: solid; border-color: #4ca52d; background: #4ca52d12; }
-.drop-title { font-weight: 600; font-size: 15px; color: #002b64; }
-.drop-how, .drop-seeds { font-size: 12.5px; color: #5b6f8a; margin: 4px 0 10px; }
+.drop-zone:hover { border-color: var(--rs-accent); }
+.drop-zone.loaded { border-style: solid; border-color: var(--rs-good); background: #4ca52d12; }
+.drop-title { font-weight: 600; font-size: 15px; color: var(--rs-ink); }
+.drop-how, .drop-seeds { font-size: 12.5px; color: var(--rs-muted); margin: 4px 0 10px; }
 .staged { list-style: none; margin: 12px auto 0; padding: 0; max-width: 460px; text-align: left; }
-.staged li { font-size: 12.5px; color: #002b64; background: #f1f6fb; border: 1px solid #d5e1ee; border-radius: 7px; padding: 6px 10px; margin-top: 6px; display: flex; justify-content: space-between; gap: 10px; }
-.staged .remove { color: #ff0000; text-decoration: none; font-weight: 600; }
-.file-error { font-size: 12.5px; color: #ff0000; margin-top: 8px; }
-.drop-rules { font-size: 12.5px; color: #5b6f8a; background: #f1f6fb; border: 1px solid #d5e1ee; border-radius: 9px; padding: 12px 15px; margin-bottom: 16px; }
-.drop-rules a { color: #0070c0; font-weight: 600; }
+.staged li { font-size: 12.5px; color: var(--rs-ink); background: var(--rs-panel-2); border: 1px solid var(--rs-line); border-radius: 7px; padding: 6px 10px; margin-top: 6px; display: flex; justify-content: space-between; gap: 10px; }
+.staged .remove { color: var(--rs-crit); text-decoration: none; font-weight: 600; }
+.file-error { font-size: 12.5px; color: var(--rs-crit); margin-top: 8px; }
+.drop-rules { font-size: 12.5px; color: var(--rs-muted); background: var(--rs-panel-2); border: 1px solid var(--rs-line); border-radius: 9px; padding: 12px 15px; margin-bottom: 16px; }
+.drop-rules a { color: var(--rs-accent); font-weight: 600; }
 .drop-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.adjust-note, .note { font-size: 12px; color: #5b6f8a; }
-.confirm-card { background: #fff; border: 1px solid #d5e1ee; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
-.confirm-card h2 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #002b64; font-weight: 600; margin-bottom: 10px; }
+.adjust-note, .note { font-size: 12px; color: var(--rs-muted); }
+.confirm-card { background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: var(--rs-card-radius); padding: var(--rs-card-pad); margin-bottom: 16px; }
+.confirm-card h2 { font-size: var(--rs-card-title-size); letter-spacing: .1em; text-transform: uppercase; color: var(--rs-card-title-color); font-weight: 600; margin-bottom: 10px; }
 .tscroll { overflow-x: auto; }
 .confirm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.confirm-table th { font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: #5b6f8a; text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5e1ee; white-space: nowrap; }
-.confirm-table td { padding: 6px 8px; border-bottom: 1px solid #eef3f8; vertical-align: middle; min-width: 96px; }
+.confirm-table th { font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--rs-muted); text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rs-line); white-space: nowrap; }
+.confirm-table td { padding: 6px 8px; border-bottom: 1px solid var(--rs-bg); vertical-align: middle; min-width: 96px; }
 .confirm-table td:first-child { min-width: 220px; }
-.confirm-table tr.grp td { padding-top: 14px; font-weight: 600; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #0070c0; border-bottom: 1px solid #d5e1ee; }
+.confirm-table tr.grp td { padding-top: 14px; font-weight: 600; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--rs-accent); border-bottom: 1px solid var(--rs-line); }
 .cell-invalid { background: #ff00000a; }
-.confirm-error { font-size: 12.5px; font-weight: 600; color: #ff0000; background: #ff00001a; border-radius: 9px; padding: 10px 14px; margin-top: 14px; }
+.confirm-error { font-size: 12.5px; font-weight: 600; color: var(--rs-crit); background: #ff00001a; border-radius: 9px; padding: 10px 14px; margin-top: 14px; }
 /* Badge styling lives in components/base/ProvenanceBadge.vue (Phase 3). */
-.warn-note { font-size: 12.5px; color: #b36b00; background: #ff99001a; border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
+.warn-note { font-size: 12.5px; color: #b36b00; background: var(--rs-warn-soft); border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
 </style>

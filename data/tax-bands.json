@@ -1,0 +1,26 @@
+{
+  "_source": {
+    "note": "Central tax-band feeder table — the single source for EVERY model/report that computes income tax, in any jurisdiction (owner ruling, Mike 2026-07-23). A country appears here only when a real, verified table for it exists — visibly absent beats present-and-zero. Updates (human or AI-proposed) require explicit human approval before landing, with the original value, the suggestion and the approved value logged (CLAUDE.md → Security & data integrity); the AI-assisted update flow + firm-level overlay editing are a tracked follow-on workstream in design/ACTIONS.md.",
+    "shape": "bands are marginal-rate brackets ordered bottom-up; upTo is the band's inclusive upper income bound, null = no upper bound"
+  },
+  "countries": {
+    "NZ": {
+      "label": "New Zealand",
+      "currency": "NZD",
+      "taxYearLabel": "2026–27 (rates unchanged since 1 April 2025)",
+      "effectiveFrom": "2025-04-01",
+      "verified": {
+        "date": "2026-07-23",
+        "source": "https://www.ird.govt.nz/income-tax/income-tax-for-individuals/tax-codes-and-tax-rates-for-individuals/tax-rates-for-individuals",
+        "note": "Bands match the source workbook (The Loan Estimator.xlsx, Loan Criteria V4:Z8) exactly — the workbook was current, it just carried no date."
+      },
+      "bands": [
+        { "upTo": 15600, "rate": 0.105 },
+        { "upTo": 53500, "rate": 0.175 },
+        { "upTo": 78100, "rate": 0.3 },
+        { "upTo": 180000, "rate": 0.33 },
+        { "upTo": null, "rate": 0.39 }
+      ]
+    }
+  }
+}

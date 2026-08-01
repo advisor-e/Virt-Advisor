@@ -114,6 +114,12 @@ const advisorEngine = require('./advisorEngine')
 const courseEngine = require('./courseEngine')
 
 const PORT = process.env.BACKEND_PORT || 4000
+// Bind IPv4 loopback explicitly. With no host, Node binds `::` (IPv6-only on
+// Windows), so the Nuxt proxies — which target `http://127.0.0.1:4000` — get
+// ECONNREFUSED whenever `localhost` resolves to IPv4. This is the backend twin
+// of the nuxt.config `server.host: '127.0.0.1'` fix. Deployments that need a
+// different interface (e.g. cross-host) set BACKEND_HOST (0.0.0.0 for all IPv4).
+const HOST = process.env.BACKEND_HOST || '127.0.0.1'
 
 const server = restify.createServer({
   name: 'virt-advisor-api',
@@ -177,6 +183,9 @@ server.post('/api/report/margin-breakeven', reportRoute.marginBreakeven)
 server.post('/api/report/eight-levers', reportRoute.eightLevers)
 server.post('/api/report/quick-position', reportRoute.quickPosition)
 server.post('/api/report/ebitda-dcf', reportRoute.ebitdaDcf)
+server.post('/api/report/loan-estimator', reportRoute.loanEstimator)
+server.post('/api/report/lease-vs-buy', reportRoute.leaseVsBuy)
+server.post('/api/report/cost-of-capital', reportRoute.costOfCapital)
 // firmAuth deliberately ON for the intake (unlike the calc-only report routes): it accepts file uploads
 server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPositionIntake)
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
@@ -420,6 +429,6 @@ server.post('/api/people/marketplace/:id/purchase', ca, peopleRoute.purchaseList
 }())
 
 // ── Start ──
-server.listen(PORT, () => {
-  console.error(`[restify] virt-advisor-api listening on port ${PORT}`)
+server.listen(PORT, HOST, () => {
+  console.error(`[restify] virt-advisor-api listening on ${HOST}:${PORT}`)
 })
