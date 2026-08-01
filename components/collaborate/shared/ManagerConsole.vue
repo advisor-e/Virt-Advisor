@@ -1,7 +1,11 @@
 <template lang="pug">
-  section.section
-    .container
-      .section-banner.section-banner--firm
+  //- `embedded` drops the page frame (Bulma's .section padding and .container
+  //- max-width) and the banner, so the console can sit inside a Firm Manager Hub
+  //- tab that already provides both. The element structure is unchanged either
+  //- way — only the classes — so nothing below has to know which mode it is in.
+  section(:class="embedded ? 'mc-embedded' : 'section'")
+    div(:class="embedded ? '' : 'container'")
+      .section-banner.section-banner--firm(v-if="!embedded")
         span.ico 🧭
         h1 {{ pageTitle }}
         span.firm-chip(v-if="c") {{ scopeChip }}
@@ -80,7 +84,10 @@
                       th {{ $t('firm.colStatus') }}
                       th {{ $t('firm.colGroups') }}
                       th {{ $t('firm.colActive') }}
-                      th {{ $t('firm.colAction') }}
+                      //- View-as is withheld in the Hub tab — see the `embedded`
+                      //- prop's note. An empty Action column would read as broken,
+                      //- so the column goes with the button.
+                      th(v-if="!embedded") {{ $t('firm.colAction') }}
                   tbody
                     tr(v-for="a in filteredAdvisers" :key="a.id")
                       td.fm-check
@@ -97,7 +104,7 @@
                         span.tag(:class="a.available ? 'is-success is-light' : 'is-light'") {{ a.available ? $t('common.available') : $t('firm.unavailable') }}
                       td {{ a.groupCount }}
                       td.has-text-grey.is-size-7 {{ a.lastActive || '—' }}
-                      td.has-text-right
+                      td.has-text-right(v-if="!embedded")
                         b-button.is-small.is-light(v-if="!a.isMe && !a.blocked" :disabled="preview" :loading="viewingId === a.id" @click="viewAs(a)") {{ $t('firm.viewAs') }}
                         span.has-text-grey.is-size-7(v-else-if="a.blocked") 🔒
             .box(v-else)
@@ -133,8 +140,10 @@
               span.has-text-weight-semibold {{ e.actorName }}
               |  {{ humanize(e.action) }}
               span.fm-code {{ e.action }}
-          //- Full network audit log — platform super-admin (Mentor) only.
-          p.mt-3(v-if="isAdminTier")
+          //- Full network audit log — platform super-admin (Mentor) only. Hidden
+          //- when embedded: Collaborate's pages landed as components, so /audit is
+          //- not a route in this app and the link would 404.
+          p.mt-3(v-if="isAdminTier && !embedded")
             nuxt-link(to="/audit") {{ $t('console.viewFullAudit') }}
 
         //- Bulk-invite group picker (FEAT-BULKINVITE): invite the ticked advisers
@@ -171,6 +180,17 @@
  *   preview  — show-home mode: adds the preview ribbon + tier switcher and disables
  *              the interactive actions (view-as / approvals / posture live only on
  *              the real, logged-in page).
+ *   embedded — render inside the Firm Manager Hub tab instead of as a page of its
+ *              own: no page frame, no banner, no /audit link (not a route here).
+ *
+ * WHY VIEW-AS IS WITHHELD WHEN EMBEDDED. The button sets the view-as cookie and
+ * reloads to '/', which in this app redirects to the advisor screen. The banner
+ * that says "you are viewing as someone else" and offers the way back lives in
+ * Collaborate's own layout, which did not come across — so here a manager would
+ * land in a colleague's session with no sign of it and no exit. That is separate
+ * from the view-as exposure Mike ruled acceptable on 2026-07-30 (which was about
+ * whose CPD record a claim lands on). Restore the button in the same change that
+ * brings the banner and its exit path across, not before.
  */
 // Display names for the demo country codes (fallback: the raw code).
 const COUNTRY_NAMES = { DE: 'Germany', IE: 'Ireland', CH: 'Switzerland', IT: 'Italy', GB: 'United Kingdom', US: 'United States', FR: 'France', ES: 'Spain' }
@@ -179,7 +199,8 @@ export default {
   name: 'ManagerConsole',
   props: {
     endpoint: { type: String, default: '/api/people/firm' },
-    preview: { type: Boolean, default: false }
+    preview: { type: Boolean, default: false },
+    embedded: { type: Boolean, default: false }
   },
   data () {
     return {

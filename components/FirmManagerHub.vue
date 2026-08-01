@@ -403,6 +403,14 @@ section.firm-manager-hub.section
       b-tab-item(:label="$t('firmQuizzes.tab')" icon="help-circle-outline")
         firm-quizzes(:api-token="apiToken")
 
+      //- ── Tab: Adviser Network (Collaborate's manager console) ───────
+      //- Reads GET /api/people/*, which resolves the caller's TIER server-side
+      //- from the verified token — a firm manager sees their firm, the levels
+      //- above see a roll-up. Body is Collaborate's own component (CB-23), so
+      //- the tiers above the firm keep working rather than being designed out.
+      b-tab-item(:label="$t('firmAdviserNetwork.tab')" icon="account-network")
+        firm-adviser-network
+
       //- ── Tab: Team Progress (advisor capability overview) ───────────
       //- Reads GET /api/activity/team, which already sits behind this Hub's own
       //- guard (firmAuth + requireManagerRole) — the firm comes from the verified
@@ -553,6 +561,7 @@ import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
+import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 
@@ -603,7 +612,7 @@ const DISTINCTION_DOMAINS = [
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork },
 
   props: {
     firmId: { type: String, required: true },

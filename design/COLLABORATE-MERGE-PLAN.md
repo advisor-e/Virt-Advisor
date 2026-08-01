@@ -3,11 +3,25 @@
 **Written 2026-07-30 (laptop), branch `feat/advisor-progress`. Every slice below needs Mike's
 approval individually (CLAUDE.md → LIVE-APP rule).**
 
-> **STATUS (updated 2026-07-30): SLICE 1 IS BUILT AND PUSHED** (`8215bec`) — Collaborate's code
-> is in this repo under `*/collaborate/`, wired to nothing, suites 186 / 2,837 green. **Slices
-> 2–6 are still unbuilt and unapproved.** Full record, including the two follow-ups it left
-> open and the silent `~/`-alias trap that nearly bound Collaborate's components to *our*
-> mixins, is in [`ACTIONS.md`](ACTIONS.md) → §Collaborate.
+> **STATUS (updated 2026-08-01): SLICES 1, 2 AND 4 ARE BUILT.**
+>
+> - **Slice 1** (`8215bec`, 2026-07-30) — Collaborate's code is in this repo under
+>   `*/collaborate/`, wired to nothing.
+> - **Slice 2 — ONE BACKEND** (2026-08-01) — the two Restify servers, the two
+>   `config/integration.js` files and the two auth middlewares are now one each; Collaborate's
+>   40 routes are registered on the single server and reachable through the Nuxt proxy.
+> - **Slice 4 — THE TAB** (2026-08-01) — the manager console is the Firm Manager Hub's
+>   **Adviser Network** tab (label ruled by Mike). Taken OUT OF ORDER, ahead of slice 3, on the
+>   finding that the console reads Collaborate's own store and never touches
+>   `firm_framework_versions` — so the storage re-key cannot make it need rework, and the
+>   workstream stops being invisible. **View-as is deliberately withheld here** — see ACTIONS.
+>
+> Suites **212 / 3,486 green**, lint 0 errors, `nuxt build` green. **Not yet seen running by
+> Mike** — that is the outstanding verification.
+>
+> **Slices 3, 5 and 6 are unbuilt and unapproved.** Full record, including the silent
+> `~/`-alias trap from slice 1 and the translate-route fork found in slice 2, is in
+> [`ACTIONS.md`](ACTIONS.md) → §Collaborate.
 
 ## 0. The owner's ruling that started this
 
@@ -277,9 +291,9 @@ approvable and separately provable.
 | # | Slice | Why this order |
 |---|---|---|
 | 1 | ✅ **DONE 2026-07-30 (`8215bec`) — brought the code across, wired to nothing.** Landed under `*/collaborate/` rather than "their own names", because 8 paths collided with ours and 4 of those differ; namespacing meant **zero edits to our files** (bar one `.gitignore` exception line). Their 14 pages landed as **components**, not in `pages/`, so no URL became reachable. The `profile` locale clash never arose — their wording file landed whole at `locales/collaborate/en.json`. Scope was wider than this row assumed: getting their 431 tests green also needed their pages, both mixins, `config/integration.js`, `server-middleware/api.js` and 2 scripts. | Both suites must go green in one repo *before* any behaviour changes. If this slice is hard, everything after it is harder. |
-| 2 | **One tier vocabulary, and scope resolved at the door.** Collaborate's `roles.js` tier list becomes the app's canonical one. `firmAuth` stops resolving a bare `req.firmId` and resolves the caller's **tier + scope chain**; the two middlewares' identity shapes are reconciled in the same pass (`req.identity` vs `req.firmId`/`req.userRole`). | Everything downstream reads scope. Getting this right once is what stops firm-as-top being re-introduced by accident. |
+| 2 | ✅ **DONE 2026-08-01 — ONE BACKEND, ONE DOOR.** The identity shapes are reconciled (`attachIdentity` sets `req.identity` **and** the flat `req.firmId`/`req.userRole` from one verified token) and the two servers, configs and auth middlewares are one each; Collaborate's 40 routes are registered and proxied. **The tier-vocabulary half of this row was already withdrawn** by the ownership correction in `ACTIONS.md` — login, roles and the hierarchy are Advisory.com's, so this repo never determines a tier and must not invent role names. What remained was the plumbing, and it is done. | Everything downstream reads scope. Getting this right once is what stops firm-as-top being re-introduced by accident. |
 | 3 | **Widen the override storage to scope-keyed — while there is still no data.** `firm_framework_versions` becomes `(scope_level, scope_id, config_key)`; the `firms` FK goes; the 5 `firmOverlay` functions and `firmContent`'s loader take a scope; `mergeEntry` becomes a fold over the chain (platform → global group → group → firm). | §4.4: no override row exists anywhere, so this is a schema edit today and a live content migration later. Do it before anything authors against the old shape. |
-| 4 | **Surface the console as a Hub tab.** `ManagerConsole.vue` is currently a whole page with its own dark banner and stat tiles; it needs reframing to sit inside `b-tabs` beside Domain Support without looking like a different application. | Lands on correct foundations rather than needing rework. |
+| 4 | ✅ **DONE 2026-08-01 — the "Adviser Network" tab.** `ManagerConsole.vue` gained an `embedded` prop (drops the page frame, the banner and the dev tier-switcher); `components/firm/FirmAdviserNetwork.vue` wraps it in the Hub's own style; Collaborate's wording is joined to ours at `plugins/i18n.js` through a merge that **refuses a section-name collision** rather than letting one file silently win. **The stated reason for putting this after slice 3 does not hold** — read, not assumed: the console fetches only `/api/people/*`, served from Collaborate's own store, and never touches `firm_framework_versions`, so the storage re-key cannot make it need rework. Doing it now ends four sessions of invisible work. | ~~Lands on correct foundations rather than needing rework.~~ Superseded: there was no dependency to wait for. |
 | 5 | **Reconcile the two data layers.** Collaborate's `repository.js` is entirely in-memory and resets on restart — deliberately built as a one-file MySQL seam. This repo uses MySQL-with-a-dev-file-fallback. Neither has a real database yet. | Two half-built data layers, no working one to preserve. Best done knowingly, not by accident. |
 | 6 | **One handover story for the master team.** Collaborate's `START-HERE.md` and `HANDOVER.md` currently describe a standalone app. After the merge they describe a section of this one — including the widened scope model, so the master team builds the tiers above onto it rather than around it. | See §6. |
 

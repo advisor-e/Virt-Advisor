@@ -989,6 +989,10 @@
       "systems": "Systems"
     }
   },
+  "firmAdviserNetwork": {
+    "tab": "Adviser Network",
+    "lede": "Everyone advising under your firm: who they are, the specialty groups they have asked to join, and whether they may work with advisers outside the firm."
+  },
   "firmTeamProgress": {
     "tab": "Team Progress",
     "lede": "Your advisors' completed VA cases and course sessions, grouped by capability level. Advisors see only their own record.",

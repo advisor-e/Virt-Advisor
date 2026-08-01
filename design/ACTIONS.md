@@ -112,6 +112,10 @@
       files (`firmManager.js`, `components/firm/*`, `data/*-domain-support.json`) are untouched;
       slice 1's only shared-file edit is `.gitignore`, which the desktop has not touched.
       **Slices 2–3 remain the collision — whoever starts slice 2 says so first.**
+      - 🔴 **SLICE 2 WAS DONE 2026-08-01 (laptop) AND THE COLLISION IS NOW REAL:
+        `server/restify-server.js` and `config/integration.js` were both edited.** The desktop
+        must merge `master` before touching either. Full record: Session 21 below. Slice 3 (the
+        storage re-key) is still unstarted and still the other half of this warning.
     - ⚠ **SLICE 2 GAINED A NEW READER 2026-07-31 (`cb6d43c`) — `server/utils/staircaseConfig.js`
       reads `firm_framework_versions` via `loadFirmConfig(firmId, 'advisory-staircase')`, so it
       is one of the surfaces the `(scope_level, scope_id, config_key)` re-key must make
@@ -2196,6 +2200,143 @@ Two honest answers on different axes — the file used to conflate them:
   this question", "Review update", the existing panel text).
 
   **Do Stage A, prove it, commit, then Stage B** — so nobody is ever holding a half-built feature.
+
+  ### Session 21b (2026-08-01, laptop) — COLLABORATE SLICE 4: there is finally something to look at
+
+  Suite **3,474 → 3,486 / 212 suites** (two new), lint 0 errors, **`nuxt build` green**, 5/5
+  mutants killed, both components restored **byte-identical (SHA-256)**. Built straight after
+  slice 2, same session.
+
+  **The Firm Manager Hub has a seventh tab: "Adviser Network"** — label ruled by Mike from three
+  offered. It is Collaborate's manager console: every adviser in scope with availability and
+  group count, group-join approvals, bulk invite, the cross-firm Open/Closed control, and the
+  activity feed. Higher tiers get the roll-up tree, unchanged.
+
+  - 🔴 **THE PLAN'S ORDERING WAS WRONG AND WAS CHECKED RATHER THAN FOLLOWED.** §5 put the tab
+    *after* the storage re-key, reasoning it should "land on correct foundations rather than
+    needing rework". **Read the component: it fetches only `/api/people/*`, served from
+    Collaborate's own in-memory store, and never touches `firm_framework_versions`** — the table
+    slice 3 re-keys. There was no dependency, so the tab could not have needed rework, and
+    following the order would have kept the whole workstream invisible for another two sessions.
+    The row in the plan is corrected in place.
+  - 🔴 **VIEW-AS IS WITHHELD IN THIS TAB, AND THAT IS NOT THE RISK MIKE ALREADY RULED ON.** His
+    2026-07-30 ruling was that the *exposure* is negligible because the adviser submits their own
+    CPD report. This is a different defect: the button sets the cookie then reloads to `/`, which
+    **in this app redirects to the advisor screen**, and the "you are viewing as someone else"
+    banner lives in Collaborate's layout, which never came across. A manager would land in a
+    colleague's session with **no sign of it and no way back**. The Action column goes with the
+    button — an empty column reads as broken. Restoring it means bringing the banner and its exit
+    path across, in one change, and the reason is written in the component so nobody "fixes" the
+    omission.
+  - ✅ **ONE COMPONENT STILL SERVES ALL FOUR TIERS.** The obvious move — clone a firm-only
+    version into `components/firm/` — was rejected: it would fork the one thing Collaborate had
+    already built that this repo is under a ruling to make room for. `ManagerConsole.vue` instead
+    gained an `embedded` prop that drops the page frame, its banner and the dev tier-switcher.
+    The element structure is identical in both modes, only the classes change, so nothing below
+    has to know which mode it is in.
+  - 🔴 **THE WORDING FILES ARE JOINED BY A MERGE THAT REFUSES A COLLISION.** Collaborate's
+    `locales/collaborate/en.json` is not copied into ours — the two are merged section by section
+    in `plugins/i18n.js` via `utils/i18nMessages.js`, which **throws** if a section name exists in
+    both. Letting one file win silently would change every label under that section with no error
+    anywhere. **`profile` DOES collide in both files and is deliberately not merged**, with a test
+    that fails if someone "fixes" the omission by adding it to the list. Three sections are
+    merged (`common`, `console`, `firm`) — what the tab actually renders, checked by walking the
+    components for `$t()` keys rather than by eye.
+  - **TESTS ARE POSITIONAL, NOT PRESENCE-BASED, per the Session 16 lesson:** that the console
+    renders WITHOUT a second banner or page frame inside a tab that already has both; that
+    View-as and its column are absent; that the adviser table and cross-firm control are still
+    there (a tab that lost them would be decoration); and that it reads the **real** role-gated
+    endpoint, not one of Collaborate's dev preview endpoints — pointing the live tab at a preview
+    would show a manager fabricated demo advisers as if they were their own firm's people.
+    - ⚠ **ONE MUTANT RAN INVALID FIRST TIME** — a placeholder left unsubstituted in the harness,
+      so the pattern matched nothing. Re-run properly; it killed. **The lesson from Session 19
+      earning its place again: a skipped mutant reads like "no test needed" when it means "no
+      test ran".**
+  - ⚠ **HONEST LIMITS.** **Mike has not seen this running** — it is a new screen inside another
+    screen, which is exactly the class the suite cannot judge, and the outstanding verification.
+    The advisers shown come from Collaborate's **in-memory store, which resets on restart**
+    (slice 5), so nothing here is real data yet. The `firm-manager` page chunk grew 186 → 213 KiB
+    uncompressed; it is an async route chunk, not first-load, so the 300 KB gzipped budget is not
+    engaged — but it has not been measured gzipped either way.
+  - ☐ **WORDING TO CONFIRM — the tab's one new sentence** (`firmAdviserNetwork.lede`): *"Everyone
+    advising under your firm: who they are, the specialty groups they have asked to join, and
+    whether they may work with advisers outside the firm."* Every other label on the tab is
+    Collaborate's existing approved wording. Mike approved the tab NAME explicitly; this sentence
+    is written pending his read.
+
+  ### Session 21 (2026-08-01, laptop) — COLLABORATE SLICE 2: the two back-ends became one
+
+  Suite **3,461 → 3,474 / 210 suites** (one new suite), lint 0 errors, **`nuxt build` green**,
+  15/15 mutants killed, all three production files restored **byte-identical, proven by
+  SHA-256**. Approved by Mike as a named change list before any file was touched.
+
+  **What is now single:** one Restify server (Collaborate's 40 routes registered alongside our
+  103), one `config/integration.js`, one auth middleware, one `/api/translate/locale`, one
+  `/api/health`. **Five duplicate files deleted** — Collaborate's `restify-server.js`,
+  `middleware/auth.js`, `config/collaborate/integration.js`, `routes/translate.js`,
+  `routes/health.js` — with every reference repointed and every test kept, not dropped.
+
+  - 🔴 **THE TWO SERVERS BOTH BOUND PORT 4000, SO THEY COULD NEVER HAVE RUN TOGETHER.** Slice 1
+    landed the code and reported it green, which it was — but "both suites pass" was never the
+    same claim as "both apps run". Nothing had tried to start them at once.
+  - 🔴 **`/api/translate/locale` WAS NOT A DUPLICATE, AND PICKING EITHER COPY WOULD HAVE LOST
+    WORKING CODE.** Reported to Mike before merging, because it changed what he had approved.
+    The two had been hardened in opposite directions: **ours** carries `buildChunks`, the fix
+    for short strings piling into one oversized URL that MyMemory 414s — silently reverting a
+    whole locale to English; **Collaborate's** carries input sanitisation, a 5,000-char cap,
+    schema validation of the reply, and **`from`**, which lets a chat message be translated out
+    of its own language. Registering ours alone would have quietly broken Collaborate's chat
+    translation into a wrong-but-plausible result. Mike ruled: fold them. Done, and the folded
+    route now carries all five behaviours.
+    - ⚠ **NEITHER REPO'S TESTS COVERED `from` OR THE SANITISING** — Collaborate had both in code
+      and never asserted what went on the wire. Five tests added, all mutation-proven. **A
+      feature that only one side's code had is exactly what a merge loses silently.**
+  - 🔴 **THE ROUTE TABLE HAD NO TEST AT ALL, AND IS EXCLUDED FROM COVERAGE.** `restify-server.js`
+    is a process bootstrap, so a mistyped handler registers `undefined`, Restify throws at boot,
+    and all 3,400 other tests still pass — the Session 18 shape exactly. New
+    `tests/unit/serverWiring.test.js` mocks Restify and asserts: every handler is a function; **no
+    path is claimed twice** (Restify keeps the FIRST registration and drops the rest silently,
+    which is the specific way merging two route tables breaks a screen with no error anywhere);
+    every Collaborate route carries its auth guard; every firm-manager route still carries
+    `firmAuth`. 4/4 mutants killed.
+  - **THE DEV DOORS WERE DELIBERATELY NOT COLLAPSED, and that is the considered answer, not a
+    shortcut.** In production the two guards are identical — valid Advisory JWT or 401. They
+    differ only in dev: ours demands an explicit magic token, Collaborate's admits a request with
+    no token at all. Forcing one would either loosen every firm-manager route or break every
+    Collaborate screen in dev. So both doors stay, over **one** token reader — meaning one
+    `jwt.verify` call site for the RS256 switch, and one claim map.
+    - **Collaborate's guard gained a check it did not have:** it tested only the
+      `ALLOW_DEV_AUTH` flag and leaned on the startup guard for production. It now also requires
+      `NODE_ENV !== 'production'`, so the bypass is refused twice over. A test pins it.
+    - ⚠ **A SEMANTIC CLASH THAT WOULD HAVE READ AS A BROKEN TEST:** ours freezes the dev flag at
+      require time, Collaborate's read it per request, and its tests toggled `process.env`
+      mid-run. Freezing is the stronger property (nothing at runtime can open the bypass), so it
+      won, and those two tests were re-pointed through `jest.isolateModules` — the assertions are
+      unchanged.
+    - **`firmAuth` is still Bearer-only.** Collaborate authenticates by cookie and now shares the
+      reader, so a test locks that our routes still refuse a cookie token: **widening them is an
+      auth decision, not plumbing**, and must be Mike's call, not a side effect of a merge.
+  - **Both identity shapes now come off one verified token** — `req.identity` for Collaborate's
+    routes, the flat `req.firmId`/`req.userRole` for ours. Neither half was rewritten to read the
+    other's, and a guard that set only its own half is a killed mutant.
+  - **The startup guard is now Collaborate's tested pure function** (`productionStartupViolations`),
+    which checks the same three things ours checked inline and untested, and reports **all** of
+    them rather than the first. Our dev-only warnings are unchanged.
+  - ⚠ **HONEST LIMITS.** **Nothing is visible yet** — no menu entry, no page, no URL; the console
+    is still only reachable by an API call. That is slice 4, and this slice is provable only by
+    the suites and the build, exactly as plan §6 risk 4 said. **Collaborate's data layer is still
+    its own in-memory store that resets on restart** (slice 5), and **`config/collaborate/db-schema.sql`
+    is still a second schema file** (slice 3). Neither was touched.
+  - ⚠ **KNOWN DUPLICATES LEFT STANDING, deliberately, and where each one dies:** the two
+    `sendError` modules (firmAuth requires Collaborate's for its envelope — one cross-namespace
+    require, commented), `server/collaborate/utils/db.js` (a second MySQL pool, now orphaned) and
+    `server-middleware/collaborate/api.js` (a second proxy, unregistered — ours is used because
+    it also aborts the upstream request when the client disconnects). All three are storage/data
+    surfaces that slices 3 and 5 rewrite with tests around them; merging them ad hoc now was the
+    thing the P3 row above explicitly warned against.
+  - ⚠ **CROSS-MACHINE: THIS IS THE COLLISION THE SLICE-1 NOTE PREDICTED.** `server/restify-server.js`
+    and `config/integration.js` were both edited here. The desktop must merge `master` before
+    touching either.
 
   ### Session 20 (2026-08-01, laptop) — Phase 4 STAGE B, and the same fix carried to Distinctions
 
