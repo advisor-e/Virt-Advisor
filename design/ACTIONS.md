@@ -2271,6 +2271,84 @@ Two honest answers on different axes — the file used to conflate them:
     advisers and 2 pending approvals, and none of it is real data. The `firm-manager` page chunk
     grew 186 → 213 KiB uncompressed; it is an async route chunk, not first-load, so the 300 KB
     gzipped budget is not engaged — but it has not been measured gzipped either way.
+    - ◐ **UPDATED 2026-08-02 (slice 5 phase B) — the reset is fixed IN DEVELOPMENT ONLY, and the
+      distinction is the point.** On a developer machine the store now snapshots to a gitignored
+      `data/dev-collaborate-people.json` after each change and hydrates on boot, so the tab keeps
+      its advisers *and* the manager's own decisions across a restart. **In production nothing is
+      read or written** — deliberately: the store holds names, emails and phone numbers, and that
+      file on a live server would be personal data at rest outside the database. **So a UAT or
+      production instance still resets on restart**; only MySQL fixes that (phase C, blocked on
+      provisioning). Do not read this row as "persistence is done". The data is still mock, and
+      the chunk size above is unchanged and still unmeasured gzipped.
+
+  ### Session 22 (2026-08-02, laptop) — COLLABORATE SLICE 5 phases A and B: one pool, and a store that remembers
+
+  Suite **3,486 → 3,499 / 213 suites** (one new suite), lint 0 errors, audit gate clean.
+  Commits `e3d701c` (phase A) and `285b0eb` (phase B). **Slice 5 was taken ahead of slice 3 on
+  Mike's call**, knowing phase B may need revisiting after the storage re-key — the trade was
+  made explicitly, not by accident.
+
+  - 🔴 **THE DUPLICATE POOL WAS NOT MERELY UNTIDY — THE FILE ARGUED WITH ITSELF.**
+    `server/collaborate/utils/db.js` was byte-identical to `server/utils/db.js` bar the require
+    depth, and **after slice 2 merged the two `config/integration.js` files it read the SAME
+    settings** — so uncommenting `repository.js`'s SQL seam would have opened **two connection
+    pools onto one database**. The trap was sharper than that: `repository.js`'s docblock already
+    told the master team to use `server/utils/db.js` and `config/db-schema.sql`, while **the line
+    of code directly beneath it required Collaborate's copy**. Anyone wiring SQL follows the code,
+    not the prose. Deleted; seam repointed; `tests/collaborate/db.test.js` repointed to our pool —
+    which **had no test at all until then**, so the merge gained coverage rather than losing it.
+    (Its docblock had said `server/utils/db.js` all along while requiring the other file.)
+    - ☐ **Small follow-up, unstarted:** that test now covers OUR pool while living in
+      `tests/collaborate/`, so a future "remove Collaborate" sweep would delete the only test of
+      the app's database connection. Move it to `tests/unit/db.test.js`.
+  - **The 15 Collaborate tables moved into `config/db-schema.sql`** under their own section, with
+    **table-name collisions checked before merging rather than assumed** (there were none; 26
+    tables, no duplicates). They also inherit the `CREATE DATABASE` / `USE` that their standalone
+    file never had — it had relied on the operator selecting a database first. One comment carried
+    a path that changed when the app landed here (`server/data/ipClassification.js` →
+    `server/collaborate/data/ipClassification.js`) and was corrected in passing.
+  - 🔴 **"PERSIST THE ADVISERS" WOULD HAVE BEEN THE WRONG SCOPE, and reading the tab proved it.**
+    The Adviser Network tab is not read-only: it writes **cross-firm posture**, **approve/decline
+    on a join request** and **group invitations** — four different collections. Persisting the
+    adviser list alone would still have lost the manager's own decisions on restart.
+  - **The 22 mutating exports are wrapped from ONE list**, not a save call added at each of the 21
+    mutation sites — a missed site there is silent data loss. A naming-convention test
+    (`MUTATING_VERBS`) fails if someone adds `createSomething()` and does not list it.
+  - 🔴 **THE LIMIT THAT MUST NOT BE MISREAD: this is DEV-ONLY, and production still resets.**
+    `NODE_ENV=production` reads nothing and writes nothing, whatever else is configured, because
+    the store holds names, emails and phone numbers — that file on a live server is personal data
+    at rest outside the database. Durable storage is MySQL (phase C, blocked on provisioning).
+    **Phase C was offered and refused on honesty grounds:** 42 untestable SQL bodies with no
+    database to run them against is the fake-finished work CLAUDE.md forbids.
+  - **Two failure modes designed out rather than discovered.** (1) **The id counters travel inside
+    the snapshot** — restore the rows without them and the next created row reuses an id that is
+    already taken. (2) **The suite is sealed off from the developer's file** — hydrating from
+    whatever sits on a machine would make the 431 Collaborate tests depend on local state, the
+    trap that bit the firm-distinctions dev fallback before it was hardened. Every test names its
+    own temp file, and the full run was checked to leave `data/` untouched.
+  - ✅ **MUTATION-VERIFIED OUTSIDE THE REPO, and each mutation confirmed to have APPLIED first** —
+    the Session 21 lesson earning its place: a mutant that never ran reads exactly like a mutant
+    that was killed. Remove the production guard → production writes a file; remove the Jest guard
+    → it enables under test; remove the shape guard → a JSON array is accepted. Each kills its own
+    test and no other; the original passes all three.
+  - ✅ **THEN PROVEN IN A REAL NODE PROCESS, NOT JEST** (env-pointed at a scratchpad file, so
+    nothing was written into the repo): first run read the seeded `open` and changed it; **second
+    run booted reading `closed`**, with 9 advisers, 4 groups, postures and all five counters
+    restored. ⚠ **Not seen in a browser after a restart** — the mechanism is proven end to end,
+    the on-screen experience is not. Worth one click-through when the app is next running.
+  - ⚠ **CROSS-MACHINE — slice 3 is now MORE entangled with the desktop, not less.** Checked, not
+    assumed: the desktop's `feat/firm-quiz-builder-ui` (26 ahead, 0 behind) touches **none** of the
+    slice-3 storage files, but it has added **two new callers of `overlay.loadFirmConfig(firmId,…)`**
+    at `firmManager.js` ~L3109 and ~L3152 — the exact function slice 3 re-keys. That merges
+    **green and silently wrong**. With `staircaseConfig.js` that is three such callers added since
+    the collision list was written. **Recommendation on record: land the desktop's branch into
+    `master` BEFORE starting slice 3**, so every caller is visible in one tree.
+  - ⚠ **A STALE CLAIM OF MINE, CAUGHT THE SAME DAY.** I reported "16 blank Step-by-step rows in
+    `sales-marketing` waiting for Mike" from a prior session's note. Counted against the desktop's
+    branch: **it has already filled 9 and added 2 materials — 7 remain** (Customer Type Table,
+    Sparketing, Branding Review, Customer Loyalty Programme, Pricing, Packaging/Bundling, Sales
+    Process Review). The inherited-claim rule again: a note from the other machine is a claim to
+    check.
 
   ### Session 21 (2026-08-01, laptop) — COLLABORATE SLICE 2: the two back-ends became one
 
@@ -2338,7 +2416,9 @@ Two honest answers on different axes — the file used to conflate them:
     - ✅ **The second schema file is GONE as of 2026-08-02** (slice 5 phase A): its 15 tables were
       merged into `config/db-schema.sql` under a "COLLABORATE — people layer" section, verified
       free of table-name collisions before merging, and the file deleted. The master team now
-      applies **one** schema. The in-memory-store half of this limit is still true.
+      applies **one** schema. ◐ **The in-memory-store half was then addressed the same day by
+      phase B — but in DEVELOPMENT ONLY, and production still resets.** See the phase-B note under
+      Session 22 below before quoting this as done.
   - ⚠ **KNOWN DUPLICATES LEFT STANDING, deliberately, and where each one dies:** the two
     `sendError` modules (firmAuth requires Collaborate's for its envelope — one cross-namespace
     require, commented), `server/collaborate/utils/db.js` (a second MySQL pool, now orphaned) and
