@@ -12,6 +12,7 @@
 
   "materials": [
     {
+      "id": "forecasting-the-3-pillars-of-financial-management",
       "name": "The 3 Pillars of Financial Management",
       "summary": "The structural framework for business finance, run as a continuous cycle rather than a one-off exercise: the Scenario Model is the what-if calculator for strategic and operational planning; Financial Systems and Controls are the software platforms and administration protocols underneath it; and Reporting is the proof of what actually happened. Most business owners simply fail to do the math, and that is frequently at the heart of business failure. Quality reporting relies on quality systems, and quality systems rely on quality models.",
       "who_when": "Any client without a functioning financial management system, and any client with reporting in place that is not changing decisions. Use it as the opening map before recommending any individual tool.",
@@ -24,6 +25,7 @@
       ]
     },
     {
+      "id": "forecasting-the-client-progression-to-financial-management-services",
       "name": "The Client Progression to Financial Management Services",
       "summary": "A map of the business owner's psychological journey through financial management, in seven stages, each naming the problem the client is actually experiencing and the template that answers it. It exists because financial management is sold progressively, not in one engagement — a client is moved one stage at a time. The destination is a Test and Learn culture, where financial management is approached from a position of strength rather than avoided out of ignorance and fear.",
       "who_when": "Use at the start of any financial management conversation to locate the client's stage before recommending a template, and to plan the sequence of engagements that follows.",
@@ -38,6 +40,7 @@
       ]
     },
     {
+      "id": "forecasting-the-advisory-staircase-financial-management",
       "name": "The Advisory Staircase — Financial Management",
       "summary": "The five-step sequence that turns raw client data into a repeating cycle of action: Compilation and Verification, Assimilation, Interpretation, Application, and Observation. Applied to financial management it pairs each step with the client's emotional stage, so the tool introduced matches the readiness of the person in front of you. Each step names both the objective and the action that meets a client where they are.",
       "who_when": "Advisors planning a financial management engagement from scratch, and anyone deciding what to introduce next with a client already partway through.",
@@ -50,6 +53,7 @@
       ]
     },
     {
+      "id": "forecasting-working-capital-cycle-money-in-movement",
       "name": "Working Capital Cycle — Money in Movement",
       "summary": "Splits business capital into Fixed Capital, the cost of being in business, and Working Capital, the money that makes money, then follows the loop Cash → Stock → Sale → Debtors → Cash. Speed is the whole point: a 30-day cycle turns stock over twelve times a year, while delays stretching it to 60 days leave only six, and the business goes bust if the markup cannot cover the longer wait. Its most valuable use is the three-problem diagnostic, because owners routinely misname which problem they actually have.",
       "who_when": "Clients who describe a cash flow problem, and clients in the Knowledge Gap stage who think about money only as in versus out. Use it before any funding conversation.",
@@ -66,6 +70,7 @@
       ]
     },
     {
+      "id": "forecasting-cash-tactics-activity-ratios-and-working-capital-tactics",
       "name": "Cash Tactics — Activity Ratios and Working Capital Tactics",
       "summary": "The tactical layer beneath the cycle: working capital is money in movement, and activity ratios are what prove whether management is genuinely speeding that movement up. Poor management of the cycle creates opportunity costs, triggers overdraft fees and damages market reputation. The goal is never to chase a perfect standalone number, but to put in place business behaviours that shift the trend in the right direction.",
       "who_when": "Clients whose cash problem has already been correctly diagnosed and who need concrete actions across creditors, stock, debtors and sales. Not a substitute for the three-problem diagnostic.",

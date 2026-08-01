@@ -225,6 +225,83 @@ describe('POST /logic-trees/:treeId (save)', () => {
     expect(added.branches).toBeUndefined() // appended guidance row, no wiring
   })
 
+  // The id a firm-added row is given IS its identity — the firm-editable cascade
+  // keys a firm's decisions about a row to it. It used to be the row's POSITION
+  // in the submitted list (`firm-branch-${i}`), which is not identity: a new row
+  // landing where an earlier firm row's number was minted produced two rows with
+  // the same id, silently.
+  test('a new row never takes the id of a firm row already in the table', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === 'quickfire')
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    // Row 1 is brand new (no id); the firm row already holding `firm-branch-1`
+    // is submitted after it — exactly what re-ordering or an insert produces.
+    await saveLogicTree(makeReq({
+      params: { treeId: 'quickfire' },
+      body: {
+        branches: [
+          { id: base.nodes[0].id, branch_name: base.nodes[0].branch_name, condition: '', action: '', notes: '' },
+          { branch_name: 'Brand new row', condition: '', action: '', notes: '' },
+          { id: 'firm-branch-1', branch_name: 'Added last month', condition: '', action: '', notes: '' }
+        ]
+      }
+    }), res)
+
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].quickfire.nodes
+    const ids = saved.map(n => n.id)
+    expect(ids.length).toBe(new Set(ids).size) // no duplicates
+    expect(saved.find(n => n.branch_name === 'Added last month').id).toBe('firm-branch-1')
+    expect(saved.find(n => n.branch_name === 'Brand new row').id).not.toBe('firm-branch-1')
+  })
+
+  test('two new rows in one save get different ids', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'quickfire' },
+      body: {
+        branches: [
+          { branch_name: 'First new', condition: '', action: '', notes: '' },
+          { branch_name: 'Second new', condition: '', action: '', notes: '' }
+        ]
+      }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].quickfire.nodes
+    expect(saved[0].id).not.toBe(saved[1].id)
+  })
+
+  test('a firm row keeps its id when the table is saved again — ids never renumber', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    // The same row, now sitting at a different position than when it was created.
+    await saveLogicTree(makeReq({
+      params: { treeId: 'quickfire' },
+      body: {
+        branches: [
+          { branch_name: 'A new one above it', condition: '', action: '', notes: '' },
+          { id: 'firm-branch-0', branch_name: 'Created first', condition: '', action: '', notes: '' }
+        ]
+      }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].quickfire.nodes
+    expect(saved.find(n => n.branch_name === 'Created first').id).toBe('firm-branch-0')
+  })
+
+  test('a generated id never collides with a platform node id', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === 'quickfire')
+    const platformIds = new Set((base.nodes || []).map(n => n.id))
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'quickfire' },
+      body: { branches: [{ branch_name: 'Firm Extra', condition: '', action: '', notes: '' }] }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].quickfire.nodes
+    expect(platformIds.has(saved[0].id)).toBe(false)
+  })
+
   test('a flat_if_then branch keeps its hidden templates when reworded', async () => {
     const logicTrees = require('../../server/utils/logicTrees')
     const flat = logicTrees.loadLogicTrees()

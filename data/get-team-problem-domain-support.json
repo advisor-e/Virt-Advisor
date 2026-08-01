@@ -36,6 +36,7 @@
   },
   "materials": [
     {
+      "id": "get-team-problem-experiential-team-building-task-sheets",
       "name": "Experiential Team-Building Task Sheets",
       "summary": "Two ready-to-run exercises — the Paper Tower and the Spaghetti Tower — that test whether a team can plan and execute under pressure. Both impose hard limits: a fixed resource (paper in batches, or strictly 20 spaghetti sticks and a marshmallow) inside a rigid 30 minutes, 20 to prepare and 10 to build, with no prefabrication. The point is not the tower. It is a high-pressure microcosm of the workplace where dynamics, communication breakdowns and leadership styles surface in real time.",
       "who_when": "Business owners, departmental managers and corporate teams at off-site retreats, strategic planning days or leadership training.",
@@ -49,6 +50,7 @@
       ]
     },
     {
+      "id": "get-team-problem-paper-tower-model",
       "name": "Paper Tower Model",
       "summary": "The spreadsheet that turns the game into a financial exercise. It calculates a fictional profit or loss from materials drawn at $2,000 per batch of 20 sheets, the time taken, and the height achieved — with a $10,000 bonus above 2400mm. It shifts the goal from building the tallest tower to executing a profitable strategy, and it gives the advisor hard numbers to challenge the team with rather than impressions.",
       "who_when": "Executive teams, project managers and finance departments who need to focus on resource allocation and profitability rather than sheer output.",
@@ -61,6 +63,7 @@
       ]
     },
     {
+      "id": "get-team-problem-debrief-process-frameworks",
       "name": "Debrief & Process Frameworks",
       "summary": "What turns a game into workplace change: a scripted observational debrief and the 9-step Core Problem Solving Process. Rather than generic questions, the advisor reads back exact time-stamped observations — \"at 2:42 into the exercise, Jim said…\" — and the deck's research-backed framing carries the authority. Teams fail these exercises for one recurring reason: they jump to solutions before they share an understanding of the problem.",
       "who_when": "Any team suffering analysis paralysis, lacking structured meeting agendas, or struggling to carry ideas through to execution.",

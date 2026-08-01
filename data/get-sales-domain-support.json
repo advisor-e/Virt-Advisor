@@ -20,6 +20,7 @@
 
   "materials": [
     {
+      "id": "get-sales-decision-tree-sales-structure",
       "name": "Decision Tree & Sales Structure",
       "summary": "The strategic brain behind the whole set — a flowchart choosing between Modular/Campaign selling and Bespoke/Total Needs selling based on the client's sophistication and the advisor's own confidence. It removes the guesswork: a new advisor is directed to Free Client Content for a softer experience, a targeted prospect fitting a smaller business profile is routed to Lite Fundamentals. It also makes the approach fit the owner's processing style rather than the advisor's habit.",
       "who_when": "Advisors in the planning phase, deciding how to categorise leads and which scoping or presentation pathway will work best. Use it before making contact, not after.",
@@ -33,6 +34,7 @@
       ]
     },
     {
+      "id": "get-sales-introduction-prompts",
       "name": "Introduction Prompts",
       "summary": "A scripted, logical progression for the first meeting, moving from rapport-building into clear expectations, and using an Event, Cause and Effect storytelling model to build credibility without the meeting feeling like an interrogation. It keeps the advisor in control of the conversation through Check Time and Ask Permission scripts. For the owner it lowers anxiety, because the objective is stated and the decision-making process is visible — there is no hidden pitch coming.",
       "who_when": "Initial discovery sessions and early-stage prospect meetings where trust and mutual alignment still have to be established.",
@@ -46,6 +48,7 @@
       ]
     },
     {
+      "id": "get-sales-lite-sales-prompts-spider",
       "name": "Lite Sales Prompts (SPIDER)",
       "summary": "The modular Campaign track, run as a six-step sequence: Show your get-out-of-jail card, Pin the tail on the donkey with the Growth Curve, Investigate blockages, Determine and dangle the prize with the Revenue Model, Ensure the conditions are agreed, and Reveal the golden key. It sets the boundaries — the client's time, their action, the monthly fee — before the solution is revealed. For the owner it puts their struggle in visual context and quantifies what fixing the constraint is actually worth.",
       "who_when": "Smaller, less complex business circumstances where a pre-packaged programme is being offered. Typically one to two hours to complete the sale.",
@@ -59,6 +62,7 @@
       ]
     },
     {
+      "id": "get-sales-scoping-prompts",
       "name": "Scoping Prompts",
       "summary": "The framework for a deep-dive, fact-finding session that explores the internal drivers of the business without the pressure of proposing anything yet. Its discipline is the separation of discovery from solution — the advisor is explicitly not there to solve it in the room. It also gives a structured way to test budget early with a rough range rather than a hard quote, and reassures the client with a privacy statement that this is about challenging their thinking, not filling in a survey.",
       "who_when": "Complex engagements and bespoke Total Needs selling, where the nuances of the client's operations must be understood before any proposal exists.",
@@ -72,6 +76,7 @@
       ]
     },
     {
+      "id": "get-sales-presentation-prompts",
       "name": "Presentation Prompts",
       "summary": "The Reveal stage: a structured way to present the offer while systematically neutralising objections. Its central move is Calling out the ghosts — naming and parking the likely concerns, price or delivery, before they can derail the meeting — supported by Trial Closing to test receptiveness as you go. For the owner it takes the emotional charge out of the negotiation: agreeing that neither side has to accept an unworkable deal makes it safe to say what they actually think.",
       "who_when": "The pivotal meeting where the tailored solution or formal proposal is presented, leading into the implementation decision.",
@@ -85,6 +90,7 @@
       ]
     },
     {
+      "id": "get-sales-implementation-rationale",
       "name": "Implementation Rationale",
       "summary": "Manages the final negotiation, and centres on the Emotional Intensity Gap — the distance between what was expected and what is real, which is where negotiations turn sour. It trains the advisor to fix their boundaries in advance by separating must-have from nice-to-have: must have $10,000, would like it paid upfront. Detachment from the outcome is the point, because it is what keeps the advisor objective and lets the client co-solve rather than be argued with.",
       "who_when": "Final-stage closing meetings — finalising contracts, defining boundaries, and handling any lingering objections to reach a win-win.",

@@ -23,6 +23,248 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="collaborate-merge"></a>☐ **NEW WORKSTREAM RULED 2026-07-30 (Mike) — merge the Advisor
+  Collaborate app into this repo and surface its manager console as a Firm Manager Hub tab.**
+  Full plan: [`COLLABORATE-MERGE-PLAN.md`](COLLABORATE-MERGE-PLAN.md). Collaborate is a
+  **separate repository** (`advisor-e/Colab`, laptop path `C:\Users\mb\Projects\Advisor
+  Collaborate`) — 38 suites / 431 tests / 99.72% line coverage, same locked stack (Nuxt 2.14.0,
+  Restify 9.1.0, Node 14.15, Buefy, vue-i18n 8), same `config/integration.js → AUTH` login seam.
+  Mike's framing: Virt Advisor is the container for **three** features — performance reports,
+  the AI section, and Collaborate — pulled through by the master team as one repo.
+  - **Scope finding:** the manager page **cannot travel alone** — three of its six endpoints are
+    group routes, and it reads advisers, approvals, the activity feed and the audit log. The job
+    is *merge the app, then surface its page as a tab*, not *move one component*.
+  - 🔴 **RULED — the 5-level cascade is built in PROPERLY, now; firm-as-top is not carried
+    forward.** Mentor → global group manager → group manager → firm manager → adviser
+    (pass-through) → client; documents clone DOWN, reporting rolls UP, every tier is the same
+    screen re-scoped. *Curator and coach do not clone documents and sit outside the chain.*
+    **The half-measure of confining tiers to one tab, or logging the seams for the master team,
+    was offered, rejected, and must never be re-proposed** (one-directional rule).
+  - **Why now is the cheapest it will ever be: there is NO DATA TO MIGRATE.** MySQL has never
+    been provisioned, so no override row exists anywhere. Re-keying
+    `firm_framework_versions` from `(firm_id, config_key)` to `(scope_level, scope_id,
+    config_key)` is a schema edit today and a live migration of a firm's authored content later.
+  - **The truncation is concentrated — ~6 functions + 1 table**, read not guessed: the 5
+    `firmOverlay.js` functions, `firmContent.js`'s loader, `mergeEntry` (2-arg merge → fold over
+    the chain), `firmAuth`, and the table above. `deepMerge` already generalises.
+  - **Collaborate has ALREADY built the self-similar tier console** — one component for all four
+    manager tiers, production serving every tier from one role-gated page, roll-up tree for
+    higher tiers, per-tier stat tiles, scope re-derived server-side each request. No stubs needed
+    there; the room to make is in **this** repo's tabs.
+  - ✅ **View-as ruled NOT a significant risk (Mike)** — the adviser generates and submits their
+    own CPD report, so they are the check. Offered and still open: stamp each claim with who was
+    signed in, so a stray entry can be explained rather than argued about.
+  - **Acceptance test for the storage change: a firm-level user's behaviour must be
+    byte-identical.** The existing tabs' tests are the safety net; any passing a bare `firmId`
+    around must be READ, not just made to compile.
+  - 🔵 **ENTRY POINTS IN THE MASTER APP (Mike, 2026-07-30) — this repo surfaces at THREE
+    places inside Advisor-e, and slice 4 depends on it.** Firm manager clicks a page called
+    **"Manage AI Coach"**, and *that* is what opens the Firm Manager Hub. The adviser reaches
+    most adviser-level features from a head-banner button called **"AI help"**, and the
+    performance-reporting screens (built at client level) from a second head-banner button
+    called **"Performance Reports"**. So a Hub tab is never its own URL — it is reached through
+    "Manage AI Coach" — and the AI section and the reports are *different buttons at different
+    levels*, not one navigation surface.
+  - ✅ **SLICE 1 BUILT 2026-07-30 (approved by Mike, laptop, branch `feat/advisor-progress`) —
+    Collaborate's code is in this repo, namespaced, inert, and proven.**
+    **86 new files; exactly ONE existing file of ours modified (`.gitignore`, approved — see
+    below); this entry is the record, not part of the change.**
+    Suites: **186 / 2,837 green** — our 148 / 2,406 unchanged and their 38 / 431 intact, both
+    totals whole. Lint **0 errors** (10 warnings from the landed code, 9 of them `no-console`,
+    which this repo sets to warn). Landing map: `components/collaborate/` (8 components),
+    `components/collaborate/screens/` (14 pages), `mixins/collaborate/`, `server/collaborate/`
+    (16 files), `config|data|locales|scripts|server-middleware|tests /collaborate/`.
+    - ⚠ **THE REAL TRAP, and it would have been SILENT: the `~/` alias.** Collaborate's
+      components import `~/mixins/speechMixin`, `~/mixins/localeMixin` and `~/data/languages`
+      — and **this repo has a file at all three of those paths.** `~` resolves from the repo
+      root, so left unrewritten their components would have quietly bound to *our* mixins and
+      *our* `data/languages.json` (ours is `.json`, theirs `.js`; jest resolves `.js` first) and
+      the tests would still have gone green against the wrong code. All 15 alias references are
+      namespaced and verified — `grep` for any `~/…` in the landed tree not going via
+      `/collaborate/` must return nothing. **Anyone landing more of this app must re-run that
+      check.** By contrast the paths that *broke* (a missed `config/integration` hop in
+      `routes/people.js`) threw immediately — loud beats silent, and only the alias class is
+      dangerous.
+    - **Their 14 pages landed as COMPONENTS (`components/collaborate/screens/`), not under
+      `pages/`** — deliberate: Nuxt auto-routes everything in `pages/`, and slice 1 must add no
+      reachable URL to an app already deployed in UAT. The entry-point note above makes this
+      the permanent answer, not just a slice-1 precaution: the console is reached through
+      "Manage AI Coach", so it should never own a URL. Reversible in slice 4 by moving files.
+    - **`.gitignore` gained one exception line**, the single edit to one of our files.
+      `search_content_*.json` (line 37) has **no folder anchor**, so Collaborate's tracked
+      337 KB template snapshot — which its 17 marketplace tests cannot run without — would have
+      been **invisible to git anywhere in this repo**: green on the laptop that copied it in,
+      missing on the desktop and in CI. Same class as the gitignored-export/worktree trap
+      recorded at §PR-24 above. The JSON is byte-identical and was never edited (CLAUDE.md's
+      hard rule); only `advisoryTemplates.js`'s own `SNAPSHOT` path constant — which its header
+      documents as a seam meant to be repointed — was changed.
+    - **Nothing is wired: no Restify route registered, no menu entry, the locale file not
+      connected, no page reachable.** As designed — and therefore **none of slice 1 is provable
+      by eye, only by the suites** (plan §6 risk 4). Say so rather than implying a working
+      screen.
+    - **No npm install was needed.** Every test-relevant package is at an **identical** version
+      in both repos (jest, babel-jest, @vue/test-utils 1.3.6, @vue/vue2-jest 27.0.0, vue,
+      vue-i18n, jsonwebtoken, mysql2, restify, nuxt, buefy, pug, vuex). Collaborate's only three
+      extra dev dependencies are Playwright, markdownlint and a webpack plugin — so **its 2
+      browser end-to-end tests did NOT come across**; that is the one part of its safety net
+      still outside this repo.
+    - ✅ **Cross-machine: still no contact with the desktop's ground.** The desktop's active
+      files (`firmManager.js`, `components/firm/*`, `data/*-domain-support.json`) are untouched;
+      slice 1's only shared-file edit is `.gitignore`, which the desktop has not touched.
+      **Slices 2–3 remain the collision — whoever starts slice 2 says so first.**
+      - 🔴 **SLICE 2 WAS DONE 2026-08-01 (laptop) AND THE COLLISION IS NOW REAL:
+        `server/restify-server.js` and `config/integration.js` were both edited.** The desktop
+        must merge `master` before touching either. Full record: Session 21 below. Slice 3 (the
+        storage re-key) is still unstarted and still the other half of this warning.
+    - ⚠ **SLICE 2 GAINED A NEW READER 2026-07-31 (`cb6d43c`) — `server/utils/staircaseConfig.js`
+      reads `firm_framework_versions` via `loadFirmConfig(firmId, 'advisory-staircase')`, so it
+      is one of the surfaces the `(scope_level, scope_id, config_key)` re-key must make
+      level-aware.** It is small — a single call inside one function — but it is a *new* one,
+      added after the collision list above was written, and it has **two** callers (the engine's
+      complexity ceiling and `GET /api/advisor/staircase`), which is the whole point of it.
+  - 🔴 **RULED 2026-07-30 (Mike, laptop) — THE ADVISORY DISTINCTIONS MECHANISM IS THE SINGLE
+    FIRM-EDITABLE MECHANISM EVERYWHERE.** *"Domain support, logic tables, quizzes, everything
+    that's at firm manager level should be following the same mechanism pattern."* This
+    supersedes the per-feature approach each tab was built with.
+    - **What "the mechanism" means:** a level may **decline** a row it inherited, **override**
+      one, or **add its own**; when the level above changes a row this level had edited, it is
+      **offered** the update (*Mentor updated this → Adopt / Keep mine*) rather than having it
+      imposed; a delete above leaves the customising level keeping theirs. Version history and
+      restore already ride the same store for free.
+    - **Inventory taken before ruling — 1 rich, 6 plain.** Rich: **Advisory Distinctions**
+      (`resolveDistinctions.js`). Plain merge/overlay, all to be brought up: **Domain Support**,
+      **Logic Tables**, **Quizzes**, **Advisory Staircase**, **coaching reference**, **Currency**.
+    - ⚠ **Currency is the one deliberate exception.** The pattern is for *a list of rows
+      inherited from above*; currency is a single setting, where "switch this row off" and "add
+      your own" are meaningless. Forcing it there is cargo-cult, not consistency. Left alone.
+    - 🔴 **THIS DOCUMENT'S §4 AND §4.4 CONTRADICT EACH OTHER, AND §4.4 IS THE WRONG HALF.** §4
+      says a document *"clones down through each level"*; §4.4 says `mergeEntry` becomes *"a
+      fold over the chain"*. Those are different architectures, and a plan built off §4.4 was
+      proposed to Mike before he caught it. **The resolved model is neither pure clone nor pure
+      layer — it is what Distinctions already does:** a row nobody has touched stays current
+      with the mentor's edits automatically, and any row a level *has* edited is protected, with
+      the mentor's update offered. Clone-like protection where it matters, automatic freshness
+      where it does not. See the correction note now in the plan's §4.4.
+    - 🔴 **OWNERSHIP CORRECTED — LOGIN, ROLES AND THE HIERARCHY ARE ADVISORY.COM'S, NOT OURS**
+      (Mike, 2026-07-30): *"There is no separate login for virtual adviser… all of the
+      hierarchy, all of the authentication and login is driven via the master app."* `firmAuth.js`
+      is a **reader**, not a login — it verifies a token Advisory already issued and lifts claims
+      out of it. **Never invent role-value names here**; a constant with a TODO for the master
+      team is the correct shape, exactly as `AUTH.mentorRole` already does. This is the
+      2026-06-26 [`USER-LEVEL-CASCADE-HANDOVER.md`](USER-LEVEL-CASCADE-HANDOVER.md) position,
+      which is clearer than slice 2's wording and wins: the four middle roles *"have no distinct
+      functionality in this app"* and all operate it as a Firm Manager.
+      **Consequence: the old slice 2 all but disappears** — it collapses to stamping `groupId` /
+      `globalId` when Advisory begins sending them, which is meaningless until something consumes
+      them. It is not a slice; it is two lines inside the storage work.
+    - **SEQUENCING RULED: unify the mechanism at two levels FIRST, then add the middle levels
+      once.** This reverses the storage-first order proposed earlier the same session. Extending
+      **one** mechanism to five levels is far less work than extending seven and merging them
+      afterwards. Both the mechanism change and the scope re-key are cheap **only while no firm
+      has saved content** — which is still true today, and is the whole timing argument.
+    - ✅ **STEP 1 DONE — `79de6d9`: 181 stable ids across the 29 domain-support files.** The
+      mechanism keys a firm's decisions to a row **id**; Domain Support rows had none, so
+      identity was the `name`. Keying on a title means a retitle silently discards a firm's
+      choices and a switched-off row quietly returns — no error, no warning, and not
+      hypothetical (five titles were retitled upstream the week before). Proven byte-identical
+      to the AI: all three prompt surfaces × 29 domains, same SHA-256 before and after.
+      `tests/unit/domainSupportRowIds.test.js` locks all 181 and was **proven to fail** before
+      being trusted.
+    - ✅ **STEP 2 DONE — `51b77a5`: 15 `cr-` ids on the platform coaching reference.** The same
+      defect and the same fix as Domain Support. **The `cr-` prefix is not decoration:** a
+      firm's own PROMOTED coaching entries live under the *same* firmOverlay config key
+      (`coaching-reference`) and already carry ids — but **numbers**, assigned by
+      `appendFirmCoachingEntry`. Two id systems under one key is how a collision arrives later;
+      the prefix keeps them permanently apart. Proven byte-identical to the AI (SHA-256 of the
+      rendered coaching block, 8,483 chars, unchanged), and
+      `tests/unit/coachingReferenceRowIds.test.js` locks the id set **and the row count**, so a
+      16th entry cannot be committed without an id.
+    - ✅ **ROW-ID READINESS OF THE OTHER FIVE BLOCKS — CHECKED, NOT ASSUMED (2026-07-30).** The
+      mechanism cannot be adopted by a block whose rows have no stable identity. Read from the
+      data, not inferred:
+
+      | Block | Row identity today | Verdict |
+      |---|---|---|
+      | Advisory Distinctions | `pd-N` stable ids | ✅ the reference implementation |
+      | Domain Support | 181 ids added today (`79de6d9`) | ✅ done |
+      | **Logic Tables** | **381 rows** carry `id` — 356 graph `nodes` + **25 `flat_if_then` `branches` the first count missed** — 0 missing, unique within tree | ✅ ready, and **now ENFORCED** (`0a2534d`) |
+      | **Quizzes** | questions carry `id` (0 missing) — but a **bank** is keyed by template **title** | ⚠ ready at question level only |
+      | **Advisory Staircase** | 5 `as-` ids added 2026-07-31 (`221e18c`) | ✅ **done — the last of the four** |
+      | **Coaching reference** | 15 `cr-` ids added 2026-07-31 (`51b77a5`) | ✅ **done** |
+
+      - 🔴 **QUIZZES NEEDS A MIKE RULING, NOT A PATCH — title-as-identity is DELIBERATE there.**
+        `quizBankKeys.test.js` **fails any bank key that is not an exact template title**, and PR
+        #27 turned on exactly this: `"Board 6 Hats"` could not become its own bank because past
+        that gate both keys canonicalise to `6 Hats` and `findQuizBank` keeps only the first. So
+        a bank's identity is its title *on purpose*, locked by a test someone wrote knowingly.
+        Adding a bank id collides with that decision. **Do not "fix" it unilaterally.**
+      - ✅ **Coaching reference — DONE 2026-07-31 (`51b77a5`), see step 2 above.**
+      - ✅ **ADVISORY STAIRCASE — DONE 2026-07-31 (`221e18c`). THE LAST OF THE FOUR; the family
+        is closed** (domain support · coaching reference · firm-added logic rows · staircase).
+        5 `as-` ids + `advisoryStaircaseRowIds.test.js`, which also **refuses an id that is
+        merely a position wearing a new hat** (`3`, `step-3`, `as-3`) and locks the row count.
+        - ⚠ **BE HONEST ABOUT WHAT THE IDS DO TODAY: nothing at runtime.** The advisor's answer
+          travels as chat text ("Step 3: Interpretation — …") and carries no id, so the ids
+          exist for the cascade to hang a decline/override off, exactly as `pd-N` does. Wiring
+          an id through the answer is cascade work, not a loose end to tidy.
+        - **The safety gain came from `resolveStaircaseStep`, not the ids** — the engine used to
+          take the position number out of the answer and trust it, so a reordered staircase
+          silently re-pointed every stored answer at a different ceiling. It now resolves by
+          **name first, position second**, so a step that moves but keeps its name still
+          resolves correctly. A hardcoded `/Step ([1-5])/` went with it: a sixth step had been
+          silently unreadable.
+        - **Known limit, stated in-code:** a step both *renamed and moved* still resolves by
+          position. No rule can recover it from that text — only an id travelling with the
+          answer can, which is the cascade.
+      - ⚠ **STILL OPEN: Quizzes, unchanged.** **Not a defect to patch** — title-as-identity is
+        deliberate there and locked by `quizBankKeys.test.js`. **It needs Mike's ruling, not a
+        fix.** It is now the only one of the six blocks not ready.
+      - ✅ **FIXED 2026-07-31 (`5a3de15` + `8ec9973`) — A FIRM'S STAIRCASE OVERRIDE REPLACED THE
+        WHOLE `steps` ARRAY, so a firm that had customised it would never have seen a step the
+        platform later adds.** Logged the same morning and deliberately left for the mechanism
+        rather than bolted on ahead of it — which is exactly how it was closed: the staircase is
+        the **first block onto the shared mechanism**, so the fix and the workstream are the same
+        change. `deepMerge` is gone from the blend; a step the firm has not touched now stays
+        current with Advisor-e automatically. See Session 13 below.
+  - ☐ **NEW 2026-07-30 — THIS APP'S OWN REPORTING HAS NO ROLL-UP ABOVE THE FIRM, and it is
+    listed as a job nowhere.** Mike, same session: reporting cascades **up** — adviser actions
+    summarise to the firm manager, then group, global, mentor; *"every tier is the same screen,
+    re-scoped"*. Collaborate's **people** roll-up is built and tested (`ConsoleNode.vue`, lazy
+    per-node loading). **Ours is not:** `activity.js`'s team-overview route is firm-manager gated
+    and firm-scoped, as are Team Progress and the CPD screens. **Design note that makes this
+    cheaper than it sounds: up and down are not mirror images.** Down = clones, which must be
+    stored (hence the scope columns). **Up = summaries computed at read time — no new table, no
+    stored copies, and a summary of summaries, not a re-count of every adviser.** The one real
+    trap is performance: built naively, a mentor opening the screen pulls every adviser on the
+    platform. Collaborate already solved exactly that; copy it rather than rediscover it.
+  - ✅ **P2 · TEST — Collaborate's coverage gates DID come across. CLOSED (stale row corrected
+    2026-07-31).** This row said the landed Collaborate code was ungated and asked for
+    `collectCoverageFrom` + `coverageThreshold` to be extended to it. That was done on
+    2026-07-30 in the same rebuild that re-based the whole coverage config: `jest.config.js`
+    now collects from `server/**` (reaching `server/collaborate/**`) and carries four
+    Collaborate buckets plus the three 100% utils — see its own comment explaining that the
+    numbers are a **re-partition** of Collaborate's `global: 88/78/88/88`, not a relaxation of
+    it. **Found by reading `jest.config.js` rather than trusting this row** — the standing rule
+    at the top of this file ("trust the CODE, not these flags") earning its place again.
+  - ☐ **P3 · WIRE — repo plumbing now exists twice, deliberately.** Two `audit-gate.js`, two
+    `restify-server.js`, two `db-schema.sql`, two `config/integration.js`, and two each of
+    `sanitiseInput.js` / `sendError.js` / `validateAIResponse.js` (`health.js` and `db.js` were
+    byte-identical, so those are honest duplicates of nothing). Reconciling them means editing
+    our copies, which slice 1 was scoped to avoid — and `integration.js` + `db-schema.sql` are
+    auth/storage surfaces that slices 2–3 rewrite anyway. **Do not merge them ad hoc**; fold
+    into slice 2 (identity/scope) and slice 3 (storage) where each pair is being rewritten with
+    tests around it. Plan §6 risk 2.
+- <a id="cpd-pdf-export"></a>☐ **NEW (Mike, 2026-07-30) — the CPD record must be exportable as a
+  PDF**, because the adviser sends it to their accounting society. **Its own task, NOT part of
+  the Collaborate merge.** Groundwork already checked: this app needs **no PDF dependency** —
+  six screens (Business Performance, Debtor Drag, Margin Breakeven, EBITDA-DCF, Quick Position,
+  Course Builder) already export via `window.print()` behind a Download button plus an
+  `@media print` stylesheet, and `MarginBreakevenReport.vue` names its method `downloadPdf()`.
+  Following that pattern avoids a real PDF library, which would be a fight on locked Node 14.15
+  (most need Node 18+), and satisfies memory `mike-scope-instructions` — match the section,
+  don't invent a new look. ⚠ **Honest limit:** the browser makes the PDF and the adviser saves it, so
+  there is no server-side copy of what was sent and layout depends on their browser. If the
+  society ever needs a document the firm can vouch for independently, that is a much bigger job.
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
   firm-editable.** ✅ **PLANNED 2026-07-23 — [`FIRM-EDITABLE-TABLES-PLAN.md`](FIRM-EDITABLE-TABLES-PLAN.md)** (cascade + override model agreed with Mike; Phase 0 is the next task).
@@ -221,6 +463,15 @@
     per-browser** (restored on reopen) via a new shared `utils/textareaDirectives.js` (`autogrow` +
     `resize-persist`; client-only, localStorage — a personal display preference, deliberately never in
     the firm's saved content). Sizes persist on drag, independent of Save. Component tests still green.
+  - ☐ **OWNER REVIEW — the 18 rows still needing Mike's eye are listed in
+    [`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](DOMAIN-SUPPORT-REVIEW-CHECKLIST.md)** (laptop,
+    2026-07-30). Counted from the data files themselves, not from notes: **165 of the 181 rows
+    have all four columns filled.** The 18 are 16 blank Step-by-step cells (all in
+    `sales-marketing`, deliberately — the source carries no method) and the 2 unsourced
+    `org-board-pack` rows to keep or delete. ⚠ The desktop's claim of **four** similar rows in
+    `fm-coach-culture` **could not be confirmed** — the rows carry no field recording their
+    origin, so that count exists only in the notes; verifying it means reading that domain's
+    source PDF against its 20 rows.
   - ✅ **Domain-support content migration — COMPLETE 2026-07-29. 29 of 29 domains on the
     four-column standard; no repo file remains on the legacy `support_tools` shape.**
     Done earlier: eoy (`dfa8572`) · systems · risk · staff · succession · valuation (`bfc4b37`) ·
@@ -726,6 +977,1556 @@
 
 Two honest answers on different axes — the file used to conflate them:
 
+- **◐ ACTIVE WORKSTREAM (started 2026-07-29, laptop) — Advisor Progress.** Plan + full file map: [`ADVISOR-PROGRESS-HANDOVER.md`](ADVISOR-PROGRESS-HANDOVER.md). Records which advisory tools an advisor used, at what capability tier, and what they scored — read by "My Progress" (own record) and a team view (firm manager). **The screens render, the routes are written, the tables are designed, and nothing has ever been written to a database, because the database has never been provisioned** (`config/integration.js` still carries `password: 'REPLACE_ME'`).
+  - **Session 1 (2026-07-29, laptop):** two commits — the backend test bed and the honest-failure fix.
+  - **Session 2 (2026-07-29, laptop):** three commits — `eb0c466` the Team Progress tab, `a2b5416` My Progress reduced to one job + its first tests, `526ca6e` sessions with no capability level counted. Suite **1,950 → 1,996 / 133 suites**, lint 0 errors, branch **8 ahead / 0 behind** `master`.
+  - ✅ **BACKEND TEST BED — DONE 2026-07-29 (Mike-approved), commit `3148a1d`.** The only prior coverage (`activity.routes.test.js`, 6 tests) is a **security file**: every test proves identity comes from the verified JWT and never from the client, and **every one hands the routes an EMPTY result set**. So the ~50 lines turning rows into tier cards, average quiz scores, a recent-activity list and the team table **had never run over a single row** — a wrong average, a session filed under the wrong tier, or Recent Activity sorted oldest-first would all have shipped green. `tests/unit/activity.aggregation.test.js` **+24 tests** feeding realistic rows through `getProgression`/`getTeam`: tier counts, the 70/73 average landing on the rounding boundary (72, not 71), a skipped quiz excluded rather than counted as zero, per-tier `lastActive`, the 10-item cap, and mysql2's habit of returning COUNT/AVG as **strings** (a dropped `Number()` would concatenate '3'+'2' to "32"). Database is a stand-in throughout — **needs no MySQL**, which is the point. **Mutation-verified outside the repo** (`scratchpad/mutate-activity.js`, 7 mutants, control green, all killed).
+  - ✅ **HONEST FAILURE — DONE 2026-07-29 (Mike-approved), commit `550efc8`.** Each of the four queries ended `.catch(() => [[]])`, so a refused connection was replaced with an empty result: **a broken database and a genuinely new advisor produced the identical screen** — a tidy page of zeros and "No activity yet". That is what kept the only real fault in this feature invisible; Mike completed two course sessions on 2026-07-28 (scoring 70 and 73) and **both ends stayed silent**. All four swallows removed — a **four-line diff**, no other production change. The honest path below them already existed, and so did the screen's error state (`AdvisorProgression.vue` L12-14 — message + Try Again button); **it had simply never been reachable**. Tests re-pinned to the new behaviour, including the other half of the fix — an empty database must still read as a genuinely new advisor, or we trade a screen that hides faults for one that invents them. 8 mutants killed incl. the **regression direction** (putting the swallow back fails 3 tests). ⚠ **Visible consequence, intended:** My Progress now shows an error, because the database really is unreachable. **The WRITE path (`activityLogger`) deliberately stays fire-and-forget** — an outage must never interrupt a live advisor session.
+  - ✅ **BOTH ODDITIES FIXED 2026-07-29 (Mike ruled option B), commit `526ca6e`.** They were recorded as `CURRENT BEHAVIOUR` tests precisely so a fix would fail the suite rather than pass quietly — and that is exactly how this change got read instead of waved through. Original defects: (1) a session carrying **no capability tier** appeared in Recent Activity but counted towards nothing; (2) worse — on the **team table** a tierless row listed the advisor with all zeros and no date, because `ensureAdvisor` ran before the tier check, so **nine real sessions read to a manager as an advisor who has done nothing**.
+    - **How often this happens decided the ruling.** [`tierLookup.js`](../server/utils/tierLookup.js) returns no tier for an **empty or unrecognised** tool list, and maps the three role-based **Get Organised** subsections to `null` **by design**. A client conversation that ends without a tool recommendation produces exactly this row — routine, not exotic.
+    - **Ruling (Mike, over the alternative of leaving such advisors off the table entirely): count them and say so.** Hiding the advisor trades one false impression for another; "nine sessions, none yet at a capability level" is both true and useful.
+    - Both routes now report an `unclassifiedSessions` tally, `totalSessions` includes it, and **`lastActive` is read from any session rather than only a levelled one** — previously an advisor's most recent work was invisible if it happened to be unclassified. Team table shows *"N not yet at a level"* under Total (+ a legend line that appears only when something is); My Progress shows the count under the tier cards and labels the previously **blank** badge *"No level yet"*.
+    - **Unlevelled quiz scores stay out of every average** — an average belongs to a tier and these rows have none. Deliberate, and the one thing the fix drops rather than surfaces.
+    - Also fixed in the same pass: an advisor whose work was **entirely** unclassified was told to *"Complete a VA case… to start building your progress record"* while having done several — the same denial of real work, from the other side.
+    - **Mutation-verified outside the repo** (13 mutants across all three files, all killed, incl. restoring the original defect). **The harness was wrong twice before it was right** — CRLF-written patterns silently matched nothing, and a copied module's relative `require` could not resolve — and once fixed it exposed a **real test weakness**: a fixture whose unlevelled count and total were both 9 could not tell the two numbers apart. **Lesson to carry:** never believe a mutation verdict without a green control run AND a check that each mutant actually applied.
+  - ✅ **STEP 0 SETTLED 2026-07-29 by reading the code — the team view belongs IN the Firm Manager Hub.** The handover flagged two competing manager views. `FirmDashboard.vue` (the mock with "Sarah Chen"/"James Park", and a `generateInsights()` that is **string concatenation, not AI**) is **not a tab of the Hub on either branch** — it is an orphan reached from a Course Builder button. Its intended route `/api/firm/advisors` **does exist and is registered**, but returns `{advisors: []}` and proposes a **three-table schema (`advisors`/`courses`/`course_sessions`) that was never built** — while the real data already sits in `advisor_va_sessions`, `advisor_course_completions` and `va_courses`. So: **build a team-progress TAB in `FirmManagerHub.vue`**, next to Team Case Studies. Do not build against `firm.js`'s TODO schema.
+  - ✅ **TEAM PROGRESS TAB BUILT 2026-07-29 (Mike-approved, wording signed off first), commit `eb0c466`.** [`components/firm/FirmTeamProgress.vue`](../components/firm/FirmTeamProgress.vue) + one tab line in [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) + the `firmTeamProgress` i18n block + 14 component tests. **No backend work was needed:** `GET /api/activity/team` already sat behind `firmAuth + requireManagerRole` — the same guard the whole Hub uses — so the firm is taken from the verified token, never the browser. Uses `b-table`, the Hub's established pattern.
+    - **What made this cheap: the table already existed and nobody could reach it.** The manager half of `AdvisorProgression.vue` rendered only behind an `isFirmManager` prop that **nothing in the app ever sets** — [`pages/advisor.vue`](../pages/advisor.vue) is the only mount point and does not pass it. So this was relocation, not new construction. *(Same flag gates the Course Builder button that opens the `FirmDashboard.vue` "Sarah Chen" mock — meaning that fiction is not currently reachable by a firm either. Worth knowing before treating it as urgent.)*
+    - **Mutation-verified** (7 mutants, all killed). One initially **survived**: deleting the HTTP-status check changed nothing, because every failure fixture also tripped the success-flag guard below it. A test for a non-OK response carrying well-formed-looking data now pins it.
+  - ✅ **MY PROGRESS IS ONE ADVISOR'S OWN RECORD 2026-07-29 (Mike-approved), commit `a2b5416`.** The dead team half, the `isFirmManager` switch and ~50 lines of orphaned styling removed from `AdvisorProgression.vue`; `VirtualAdvisor.vue` stops passing the flag down (the flag stays — Course Builder uses it). Net **107 lines deleted, 33 added**. **18 tests — the first this live screen has ever had**, incl. two that fail if the team table or the manager switch ever returns here, so we cannot quietly end up with two copies again. Assertions target **structure and figures, not English**, so the pending i18n sweep will not redden them. Mutation-verified (9 mutants, all killed) — **two of the nine first "died" from a compile error rather than a real catch** (deleting a `v-if` orphaned its sibling `v-else`) and were rewritten to flip the condition instead.
+  - ✅ **ADVISOR NAMES WIRED 2026-07-29 — the link-in point exists; the master app fills it.** Mike's ruling: authentication and advisor-ID allocation already happen in Advisor-e before a user ever reaches this app, so the name arrives on the **same verified token** — our job was the stub, not a lookup. `AUTH.nameClaim` added to [`config/integration.js`](../config/integration.js) (alongside the existing firmId/advisorId/role/email claims and their confirm-with-the-auth-team TODOs); `firmAuth` sets `req.advisorName`; both write paths carry it; `advisor_name` columns added to both tables; the team table shows the name with the ID beneath it.
+    - **Why it is CAPTURED AT WRITE TIME, not looked up at read time** — the decisive constraint: a JWT carries the name of *the person holding it*. A firm manager's token tells us the manager's name, never a colleague's, and this app holds no advisors table to join against. So each advisor's name is recorded when **they** do the work, from **their** token — the same principle as the capability tier, and self-sufficient without any new master-app endpoint.
+    - Null-safe throughout: no name claim ⇒ `advisorName: null` ⇒ the screen shows the ID, which is exactly today's behaviour. Nothing breaks before the claim lands, and nothing is invented.
+    - The most recently active row's name wins, so a changed name updates; an older name is still used rather than showing none. Unclassified sessions carry a name and date like any other — the same trap that made nine sessions read as nothing.
+    - ⚠ **Privacy note (raised, not hidden):** this puts a person's name in tables that previously held only IDs, tiers and dates. Scope is the firm's own advisors within the firm's own record. Flagged for the master team's confirmation, since Advisor-e owns the advisor record.
+    - ☐ **Still to confirm with the Advisor-e auth team:** the actual claim name (`nameClaim` currently guesses `'name'`). Wrong guess = names simply do not appear; nothing else misbehaves.
+  - ☑ ~~**NEW FINDING 2026-07-29 · DECISION — the team table lists advisors by RAW ID, and nothing we hold can give it a name.**~~ **Answered by the ruling above.** Kept for the reasoning: A manager sees `dev-advisor-001`, or a platform ID string in production. Neither `advisor_va_sessions` nor `advisor_course_completions` carries a name or email, and [`db-schema.sql`](../config/db-schema.sql) L122 says why: *"advisor_id is not FK-constrained — advisors table belongs to the Advisor-e platform."* **This is the one thing between a working screen and a useful one.** The column heading was deliberately left as "Advisor" rather than "Advisor ID" so today's limitation is not baked into the design.
+  - ☐ **NOT PROVEN BY EYE (honest limit on all of today's work).** Neither screen has been opened in a browser, and **both will show their error message until MySQL exists** — which is them working correctly, not a fault. Everything today is proven by tests and fixtures only. The test suite cannot see a screen.
+  - ✅ **DEV-FILE FALLBACK BUILT 2026-07-29 — the feature works with NO database**, commit `4ac8453`. New [`activityStore.js`](../server/utils/activityStore.js): activity was the ONE store lacking the try-MySQL-then-JSON-file pattern that case studies, courses, clients, firm overlays and firm content all have. That, not MySQL provisioning, is why these screens had never shown anything. The SQL moved there verbatim so the routes' aggregation is untouched; the fallback reproduces INSERT IGNORE de-duplication, GROUP BY with NULL as its own group, AVG ignoring NULL scores, and COUNT/AVG as **strings** like mysql2's. **Honest-failure kept on both sides of the seam:** production propagates a DB failure untouched; inside the fallback a MISSING file is a new advisor and a CORRUPT one throws. 17 tests. Proven end to end against a genuinely absent database.
+  - ✅ **`.env` WAS NEVER READ 2026-07-29**, commit `37f29c1`. The backend starts with plain `node`, which does not load `.env` — so the OpenAI key, the JWT secret and the CA path sat in the file while the process reported them missing. Now loaded at the entry point (not via a `-r dotenv/config` flag, which would silently do nothing on the direct-path launch recipes), guarded so a deployment without dotenv still boots. The placeholder-MySQL warning was also corrected: it claimed the routes "will return empty data", untrue since the fallback landed. ~~**`dotenv` is undeclared — logged as its own P1**~~ — **declared and CLOSED 2026-07-30**, see [§undeclared-dotenv](#undeclared-dotenv).
+  - ✅ **i18n SWEEP DONE 2026-07-29 — `AdvisorProgression.vue` is fully translated.** 21 `$t()` calls; zero hardcoded user-facing English left. Same words as before — moved, not rewritten, so no wording needed re-approval. `DOMAIN_LABELS` (a map of English) became `KNOWN_DOMAINS` (a list of codes) with the wording in `advisorProgress.domain.*`; an unknown domain still falls back to its raw code so a new engine domain is visibly unlabelled rather than invisible. The error state now stores an i18n KEY rather than an English sentence. **Two of the screen's own tests did go red** — the ones asserting English domain names — against the claim that key-based assertions would survive the sweep; repointed at keys. *(Honest note: that claim was 16/18 right, not 18/18.)*
+  - ☐ **NEXT (each its own approval):** ~~(1) `activityLogger.js` write path still has **no direct tests**~~ — **DONE 2026-07-29 (session 4), commit `94fbc61`, 45 tests, 14/14 mutants killed**; ~~(2) `FirmDashboard.vue`~~ — **DELETED 2026-07-29 on Mike's ruling**, with its button, its `firm` panel mode and its two orphaned backend routes; (3) 🔒 **provision MySQL** — no longer blocks the screens, only real multi-machine persistence; ~~(4) per-question quiz record~~ — **BUILT 2026-07-29**, see below.
+  - ✅ **PER-QUESTION RECORD BUILT 2026-07-29 — the substantive open feature of this workstream.** `log-course` sent only a score, so the tables had never seen an individual question and a manager could see *that* an advisor got 73, never *what* they got wrong. Now each completed session stores `[{bankKey, bankRef, score, passed, ungraded}, ...]` in a `quiz_questions` JSON column, and the advisor's own progression returns it.
+    - **The standing recommendation was implemented rather than re-asked: NO free text.** Not the advisor's written answer, not the question text, not the marker's feedback. Advisors write differently once they believe a manager reads their words, which would degrade the very signal the record exists to collect — and text can be added later, but cannot be un-stored. **Proven, not asserted:** an end-to-end run submitting `answer` and `question` fields alongside the real data found **no trace of them anywhere on disk**.
+    - **Treated as hostile input.** The identity on this route comes from the JWT, but the question detail comes from the browser. New `server/utils/quizRecord.js` drops unknown fields rather than passing them through, coerces every type, refuses out-of-range values instead of clamping them into something plausible (a score of 900 becomes "no score", not 100), and caps both the array and each string so a crafted payload cannot bloat a row. **15 tests** — the 100% standard CLAUDE.md sets for functions processing untrusted input.
+    - Two shapes handled on read because both occur: mysql2 returns a JSON column already parsed, the dev-file fallback stores a string. A malformed record reads as an empty list rather than failing the whole screen.
+    - ☑ ~~**Manager-facing view NOT built, deliberately.**~~ **BUILT 2026-07-29** — see the next item. Kept for the reasoning: returning a colleague's questions is a cross-advisor read and needed the same `firmAuth`/IDOR treatment as the rest.
+  - ✅ **MANAGER VIEW OF THE PER-QUESTION RECORD BUILT 2026-07-29 (Mike-approved, wording signed off first).** New route `GET /api/activity/team/advisor/:advisorId` (`getAdvisorQuestions`) + new [`components/firm/FirmAdvisorQuestions.vue`](../components/firm/FirmAdvisorQuestions.vue), opened by a **Quiz detail** button on each row of the Team Progress tab. Mike chose **both** shapes over either alone: a **topic rollup** (per question bank — asked / correct / average, **weakest first**) and a **session-by-session** list. **43 new tests**; suite **2,083 → 2,085 / 137 suites**, lint 0 errors.
+    - **No new SQL and no new firm boundary.** It reuses `readAdvisorSessions`, which already filters on advisor AND firm together, so a manager naming an advisor in another firm gets an empty record and cannot tell that apart from "no record" — no probing for who exists. Same `firmAuth + requireManagerRole` pair as the team overview. The advisor id in the path is the only client-supplied value on the route, and it is capped like every other stored identifier.
+    - **The no-free-text guarantee is now enforced on the way OUT as well as in** — every question is put back through `normaliseQuizQuestions` on read. Even a row written by an older path, or a hand-edited dev file, could not carry an advisor's own words to a manager's screen. Pinned by a test that stores `answer`/`question`/`feedback` and proves none of them survive.
+    - **An unmarked question is never a wrong one.** It is tallied separately, kept out of every average, and a topic whose questions were ALL unmarked sinks in the ordering rather than heading it on no evidence — otherwise the screen would send a manager to coach a weakness nobody has shown.
+    - ⚠ **Privacy step-change, raised before building and approved:** this is the first screen showing one named person's question-level results to someone else. Scope is a firm's own advisors, no free text, and no advisor's record is fetched until a manager deliberately opens that row (pinned by a test).
+    - ☐ **NOT PROVEN BY EYE.** Tests, fixtures and mutation only — the suite cannot see a screen. Needs no MySQL: the dev-file fallback carries it.
+  - ✅ **P1 · FIX — a MISSING quiz score was being recorded as ZERO. Fixed 2026-07-29 (Mike-approved), `server/utils/quizRecord.js`.** `safeInt` tested `Number.isFinite(Number(value))`, and `Number(null)`, `Number('')`, `Number([])` and `Number(false)` are all **0** — which is a legitimate score. So a graded question that came back with **no mark at all** was stored as zero out of 100: **a failure the advisor never had.** The existing 15 tests pinned `900`, `-5`, `NaN` and `'abc'`, but never `null` or an empty string, so it had been live since the per-question record shipped that morning.
+    - **Why it surfaced now, and why it mattered more:** until the manager view, a fabricated zero only dragged down an average an advisor saw about themselves. It would now be shown to their manager, against a named topic, as a question they got wrong.
+    - **Found by mutation testing, not by reading** — mutant M4 survived, which is what a genuinely missing test looks like. The fix is one guard (only a number, or a string with something numeric in it, can be a score); the write path is corrected too, so nothing new is stored wrong. `bankRef` is unaffected — those values already fell outside its allowed range and came out null anyway.
+    - +7 assertions, including the two that must still hold: a genuine `0` survives, and a score arriving as the string `'73'` is still 73.
+    - ☐ **Pre-existing rows are not migrated.** Any zero already stored may be a real zero or a fabricated one, and nothing distinguishes them. Only the dev file can hold such rows today (MySQL has never been provisioned), so the exposure is one developer machine — but if MySQL is provisioned before this is considered, that stops being true.
+    - **Mutation-verified: 22 of 22 mutants killed**, on a green control run, with every mutation proven to have applied. It also caught a test of mine passing for the wrong reason (an alphabetical tie-break produced the expected order even with the ordering logic inverted). **Harness lesson, again:** the repo files are CRLF, so multi-line patterns written with `\n` matched nothing and reported as "killed" — the harness now normalises line endings rather than relying on anyone remembering.
+    - ✅ *(was item 1)* merge `master` in — **done**, commit `ce9ef42`; the branch is level with `origin/master`, not 46 behind.
+    - ✅ *(was item 2)* the team-progress tab in the Hub — **done**, see above.
+    - ◐ *(was item 3)* tests — **done for both screens** (32 new component tests); **i18n still open**, now item 2 above.
+  - ☑ ~~**P3 · DOC — `activityLogger.js` L9-11 is stale.**~~ **ALREADY FIXED — found 2026-07-29 (session 4) while writing that file's tests.** The header now states plainly that advisorId/firmId are JWT-derived and NOT taken from the request body, and says the earlier comment misdescribed the feature's security posture. The entry, not the code, was out of date. *(Third instance in one day of this file lagging the code — see the file's own "trust the CODE, not these flags" warning at the top.)*
+
+  ### Session 4 (2026-07-29, laptop) — a by-eye attempt, two defects, and the last test gap closed
+
+  Three commits (`5a6cb7c`, `086419f`, `94fbc61`), all pushed. Suite **2,085 → 2,158 / 140 suites**
+  (+73), lint 0 errors, tree clean, **20 ahead / 0 behind** `master`.
+
+  - ⚠ **THE SPINNING SCREEN WAS NEVER AN APP FAULT — record this so nobody hunts it again.**
+    My Progress span for ever with **no red in the console and NOTHING in the backend log**,
+    while identical requests from Node answered in 20 ms. Cause: **Chrome allows only SIX
+    simultaneous connections per host, and in Nuxt dev EVERY OPEN TAB permanently holds one for
+    hot-reload** (`[HMR] connected`). With all six taken, the screen's `fetch` was **queued
+    inside the browser and never sent**. A *fresh tab makes it worse*, which defeats the obvious
+    "reload and see". **Fix: close the other `localhost:3000` tabs.** Production-immune — there
+    is no hot-reload connection there.
+    - **The diagnostic that cracked it:** `Get-NetTCPConnection -RemotePort 3000 -State
+      Established` → 6, owner `chrome`. And before that, **counting the backend log against my
+      own calls** — every entry was attributable, which proved the browser had never once
+      reached the progression route while the Firm Manager tab had. **Rule of thumb: a request
+      absent from the SERVER log never left the browser — stop debugging the server.**
+    - **Also learned:** Restify has **no hot-reload**. A backend running since before a commit
+      serves the OLD code — routes 405, new fields silently absent. Compare source-file mtimes
+      against the process start time before believing any live behaviour.
+  - ✅ **FIX — a panel mode no longer opens a conversation**, commit `5a6cb7c`. `selectMode()`
+    kept a THIRD copy of "modes that are a panel, not a chat" (`noConversation`), alongside
+    `PANEL_MODES` and the template's own chain. It had drifted twice: it never gained
+    `progression`, and it carried `firm` until the FirmDashboard deletion. So opening My Progress
+    asked vue-i18n for **`opening.progression`, a key that has never existed in any locale file**,
+    and pushed the raw key into the message list as the assistant's opening line. Nothing
+    displayed it — the progression panel replaces the message area — so it surfaced only as a
+    console warning, and only once someone finally opened the screen. **Latent since the screen
+    was built.** The duplicate list is deleted and the check reads `PANEL_MODES`. +4 tests in the
+    file that already guards this exact drift.
+    - **Deliberately NOT asserted:** that a panel mode has no `opening.*` string. `course`
+      legitimately has one — CourseBuilder runs its own conversation *inside* the panel and uses
+      it four times. A panel may own a greeting; what it must not do is have `selectMode` push
+      one on its behalf. *(My first version of that test was wrong and was corrected, not the
+      code.)*
+  - ✅ **FIX — every activity screen now has a request time limit**, commit `086419f`. `fetch()`
+    has no timeout of its own, so an unanswered request stays pending for the life of the page;
+    all three screens share the `loading = true … finally { loading = false }` shape, so the
+    spinner never stops and the user is told nothing. **This is the read-path swallow defect one
+    layer up** — a failure that renders as "still working". New
+    [`utils/fetchWithTimeout.js`](../utils/fetchWithTimeout.js) wired into **all three** screens,
+    not just the one that failed (section-wide, per the standing scope rule).
+    - **It ABORTS, not merely abandons.** An abandoned request keeps holding one of the browser's
+      six connection slots, so a screen that timed out would make the next one likelier to time
+      out too. Where the browser has no `AbortController` it still stops waiting.
+    - **No new user-facing wording** — a timeout rejects, landing in the `catch` each screen
+      already has, reusing the error copy already approved. **All 66 existing component tests
+      passed UNMODIFIED**, so the wiring is behaviour-preserving; nothing was re-pinned to make
+      it green. 24 new tests, and the screens are tested individually because a correct helper
+      proves nothing about whether a screen calls it.
+  - ✅ **`activityLogger.js` TESTED — the last untested file in this workstream**, commit
+    `94fbc61`, **45 tests**. It decides *what* is written into an advisor's permanent record and
+    had never run under a test: a value truncated at the wrong length, a tier from the wrong
+    list, or a genuine 0 turned into "no score" would all be written permanently, and no
+    read-side test could tell afterwards.
+    - **Pins the deliberate asymmetry with the read path**, so it is not "corrected" by someone
+      who has read only the other half: writes **swallow** their errors (a storage outage must
+      never interrupt a live advisor session) **but still log the CAUSE**. That console line is
+      the only trace a lost write leaves — "it failed" with no reason is what made the live MySQL
+      refusal take a day to pin down.
+    - Also pinned: identity is required or nothing is written (an unattributable row inflates a
+      firm's totals and belongs to nobody); the tier is computed at WRITE time; a genuine `0`
+      survives while a skipped quiz stays `null`; a non-array list never reaches the store; a
+      missing title stores `''` rather than the four-letter word `"undefined"`; every string is
+      cut to its column width, because an oversized value refused by the database mid-session
+      would vanish into the fire-and-forget swallow.
+    - **Mutation-verified: 14 of 14 killed**, green control, every mutation proven to have
+      changed the file before its verdict was believed. No production file was modified.
+  - ☐ **NEW · DECISION for Mike — `sessionIndex` is not validated (found, deliberately NOT
+    fixed).** `Number(undefined)` is `NaN` and nothing rejects it: the dev file turns `NaN` into
+    `null` on `JSON.stringify`, while **MySQL would refuse the row outright — and because the
+    write is fire-and-forget, that refusal is swallowed and the session is lost with only a
+    console line.** It is also **half the de-duplication key** (advisor, course, index), so a
+    `NaN` cannot match an existing row and `INSERT IGNORE` cannot do its job. Every real caller
+    supplies it (CourseBuilder passes the loop index), so it is not biting today. **Pinned as a
+    `CURRENT BEHAVIOUR` test** so a future fix FAILS the suite and gets read rather than passing
+    quietly — the pattern that paid off on the two tier oddities. Changing a write path needs its
+    own ruling.
+  - ☐ **STILL NOT PROVEN BY EYE.** The servers were shut down at Mike's instruction before any
+    screen was opened. Everything this session is proven by tests, fixtures and mutation only.
+    **Before the next attempt: close every `localhost:3000` tab but one.**
+  - **Seeded for that attempt (local only):** `data/dev-activity.json` — gitignored, never in the
+    repo — now carries one course session for `sample-advisor-02` with **9 questions across 3
+    real quiz banks, one unmarked**, so Quiz detail renders a genuine weakest-first rollup
+    (Debtor Protocols 42 · Working Capital Cycle 68 · 7 Cash Drivers 85). The three older
+    sessions still show 0 questions, correctly — they predate the per-question record.
+
+  ### Session 5 (2026-07-29, laptop) — the CPD record, backend
+
+  Suite **2,158 → 2,299 / 143 suites** (+141), lint 0 errors. **Backend only — no screen
+  exists yet, so an advisor sees nothing of this.**
+
+  - ✅ **THE THREE CPD ALLOWANCES ARE NOW READ. Built 2026-07-29 (Mike-approved, wording
+    signed off first).** Every template in the master export carries three authored times in
+    `cpd`: `watchedVideo`, `reviewTemplate` and `reheasedTemplate` (video · reading ·
+    rehearsing with a colleague). **Only the first was ever used, and only to add a sentence
+    to advice — the other two, ~82 hours across the library, had never been read by anything.**
+    An advisor can now record CPD against the templates their own work used.
+    - **Mike's ruling on what a tick MEANS: it is a PLEDGE, and that is built into the row.**
+      `pledge_key` + `pledge_version` store the exact declaration shown at the moment of the
+      claim (a key, never English), so a later rewording cannot change what an advisor agreed
+      to. Nothing is ever ticked on their behalf — no pre-ticked boxes, nothing inferred from a
+      finished session. Only the token holder can claim their own.
+    - **Mike's ruling on repeats: they COUNT.** *"If an advisor watched it 3 times it should be
+      recorded — some concepts require extra effort."* So a claim is a counter, not a checkbox,
+      and there is **deliberately no unique key** on the table. A per-session cap was proposed
+      and rejected: it could not record three viewings for one session.
+    - **A withdrawal keeps the row and stamps `withdrawn_at`.** A figure may already have gone
+      into a real CPD submission; a record that vanishes is worse than one showing a claim made
+      and later withdrawn.
+    - **Minutes are FROZEN into the row at claim time**, like the capability tier.
+      `data/templates.json` is replaced wholesale on every master export (five times since May);
+      a total an advisor has already declared must not move underneath them.
+    - **Nothing that gives a claim its value comes from the browser.** The client names a
+      template and one of three activities; minutes, real title, page and pledge are all
+      resolved server-side. A request naming `minutes: 9999` is pinned by test to store 9.
+    - **An advisor may only claim against templates their OWN sessions used** — otherwise the
+      whole library is claimable by anyone who knows a title.
+    - Files: [`server/utils/cpdCatalogue.js`](../server/utils/cpdCatalogue.js) (new),
+      `advisor_cpd_claims` in [`db-schema.sql`](../config/db-schema.sql), three routes in
+      [`activity.js`](../server/routes/activity.js) (`GET /api/activity/cpd`,
+      `POST /api/activity/cpd/record`, `POST /api/activity/cpd/withdraw`), store read/write in
+      [`activityStore.js`](../server/utils/activityStore.js), registration in `restify-server.js`.
+      The two advisor-session SELECTs were widened by one column each (`recommended_templates`,
+      `session_resources`) — additive; the progression and quiz-detail aggregations are untouched.
+    - **Mutation-verified: 29 of 31 killed**, green control, every mutation proven to have
+      applied, harness outside the repo restoring by checksum. **The two survivors are
+      EQUIVALENT mutants** (a swap between two zero-minute records, neither claimable; and an
+      early allowlist guard whose real enforcement is three lines below it). Both are now
+      explained in the code so they are not re-hunted — the guard is kept deliberately.
+  - ⚠ **THREE DEFECTS IN THE MASTER EXPORT — found, handled conservatively, NOT edited here.**
+    The export is generated by the master app and is never hand-corrected in this repo.
+    - **The rehearsal field is misspelled at source: `reheasedTemplate`.** Read exactly as
+      spelled, and pinned by a test — a "tidied" field name would silently read nothing.
+    - **Neither `page` nor `title` is unique.** 21 page ids and 5 titles appear on more than one
+      record; 10 disagree about CPD time. Identity is therefore the normalised TITLE (what the
+      activity tables actually store). `cpd.isHidden` resolves nearly all collisions; where two
+      visible records still disagree **the LOWER figure wins and the disagreement is logged** —
+      never the higher, because over-claiming a regulated figure on a data defect is the one
+      outcome that cannot be undone. Exactly one template is affected today: **"Advisor Prep",
+      84 vs 120 minutes.**
+    - **One hidden record carries time** — "Business Purchase Assessment 1", 15 minutes'
+      reading, with no visible twin. The master app marked it hidden, so it is deliberately not
+      claimable. Flagged rather than quietly granted.
+    - Two allowances are fractional (15.2, 24.23) and round to whole minutes.
+  - ✅ **P2 · FIXED 2026-07-30 (Mike-approved) — the tutorial-video sentence is alive again, across
+    83 templates.** **The premise below was half wrong, and the correction is the useful part: the
+    data was never missing.** Every one of the 289 records in `data/templates.json` carries a `cpd`
+    block, and **83 hold `cpd.watchedVideo` above zero** — the injector was simply reading
+    `videoMinutes`, a hand-made *copy* of that field, which **0 of 289 records have**. Meanwhile
+    [`cpdCatalogue.js`](../server/utils/cpdCatalogue.js) L108 reads `cpd.watchedVideo` off the very
+    same list and has always worked — one file read the original, the other a stale duplicate.
+    **Fix:** [`videoInjector.js`](../server/utils/videoInjector.js) reads the authored field, with
+    cpdCatalogue's guards (finite number, rounded, 1–1440 minutes, `isHidden` skipped), and
+    **`scripts/sync-video-minutes.js` is DELETED** — its only job was to create the duplicate that
+    rots, and nothing else ever read it. Recoverable from git history.
+    - **Rounding is deliberate and follows precedent, not invention:** the export carries 15.2 and
+      24.23, and *"a 15.2-minute tutorial video"* is not English. `Math.round` matches
+      `cpdCatalogue.activityMinutes`, so the advice and the advisor's own CPD record state the
+      **same** number for the same video rather than differing by a decimal.
+    - **18 tests — the first this file has ever had**, which is the actual repair: the outage was
+      invisible for ten weeks precisely because nothing tested it. The first test pins that the
+      minutes come from the authored field, so reintroducing a synced copy goes red at once.
+    - **Mutation-verified 7/8, control green, every mutation proven to have applied.** **One
+      survivor was a REAL gap, and it is the same lesson as the CPD screen's:** widening the block
+      boundary does not move where the sentence lands — that is decided separately, by the first
+      blank line — so the ordering test could not see it. What it *does* widen is the
+      "already mentioned?" check, so **one template could be silently skipped because a LATER
+      template's prose mentioned a video**, and that advisor would never learn their video existed.
+      Now pinned. *(The 8th survivor is judged EQUIVALENT, not a gap: removing the "at least a
+      minute" bound cannot change any output, because a rounded zero is already excluded by the
+      `minutes > 0` check below it. The bound is kept as a statement of intent. Recorded as
+      judgement, not as a proven kill.)*
+    - ☐ **NOT PROVEN BY EYE.** The tests prove the sentence is produced; nobody has seen it in real
+      advice. Needs a live session recommending a template that has one — *E.O.Y Meeting* (9 min),
+      *Growth Curve* (15) and *Loan Estimator* (12) all qualify.
+    - ☐ **LOGGED, NOT FIXED — the sentence is hardcoded English on the backend**
+      ([`videoInjector.js`](../server/utils/videoInjector.js)), so a non-English advisor gets one
+      English line inside otherwise translated advice. Pre-existing and out of scope here; it needs
+      its own decision, because `vue-i18n` does not exist on the backend and the wording would have
+      to be resolved another way. *Original entry follows for the record:*
+  - ☐ **NEW · P2 · FIX — the tutorial-video sentence has been DEAD since 19 May 2026.**
+    [`videoInjector.js`](../server/utils/videoInjector.js) reads `t.videoMinutes`, and **no
+    record in `data/templates.json` has that field**, so the map is empty and the function
+    returns the text untouched at L35. *"A 9-minute tutorial video is available in Advisor-e to
+    help you prepare"* has not appeared in any advice for ten weeks. Proof, counting the field
+    at each commit that replaced the file: `672314a` 238 records/**88** → `1168e63` (2026-05-19)
+    278/**0** → every export swap since 289/**0**. Cause: `videoMinutes` is a DERIVED field that
+    [`scripts/sync-video-minutes.js`](../scripts/sync-video-minutes.js) must add by hand after
+    every export swap, and it has not been re-run. **There are no tests for `videoInjector.js`**,
+    which is why ten weeks passed. **Recommended fix (not done — needs its own approval): read
+    `cpd.watchedVideo` off the template record directly, exactly as cpdCatalogue now does, and
+    delete the manual sync step so it cannot rot again.** Nothing is broken on screen; advice
+    simply stopped mentioning the videos.
+  - ☑ ~~**NEXT — the screen (slice 2), its own approval.**~~ **BUILT 2026-07-29 (session 6) —
+    see below.** Kept for the wording, which is the signed-off source and must still not be
+    re-asked or invented: `components/CpdRecord.vue` mounted
+    inside My Progress (NOT more of `AdvisorProgression.vue`, which is 405 lines and was
+    deliberately reduced to one job), plus the approved wording into `locales/en.json`. **The
+    wording is already signed off** — do not re-ask or invent it: section **CPD Record** /
+    *Continuing Professional Development*; **CPD time recorded: 4h 20m**; *Tutorial video
+    (9 min)* · *Read the template (60 min)* · *Rehearse with a colleague (30 min)*; button
+    **Record**; *Recorded 3 times — 27 min*; **Withdraw**; empty state *"Nothing to record yet.
+    CPD activities appear here once you have used a template in a client session or a course."*
+    The three pledges: *I confirm I have watched this tutorial video in full.* / *…read this
+    template in full.* / *…rehearsed this template with a colleague.* — with *"This is your own
+    declaration. The date and time are recorded against your name."*
+  - ☐ **NO MANAGER VIEW OF CPD, deliberately.** An advisor's CPD record is their own
+    professional record, and this would be the second privacy step-change in a week. A decision
+    for Mike once the screen exists, not a code question.
+  - ☐ **NOT PROVEN BY EYE — and cannot be yet.** There is no screen. Everything in session 5 is
+    proven by tests, fixtures and mutation only.
+  - ☐ **HONEST LIMIT: a tick is a declaration, not an observation.** The app cannot see whether
+    a video was watched or a rehearsal happened — the video lives in Advisor-e and the rehearsal
+    happens in a room we cannot see. That is the design Mike chose (over a bare estimate), and
+    it is how professional CPD logs work; the mitigations are the name, the timestamp and the
+    stored wording on every row. The screen's copy must make the self-declaration plain.
+    **Met by the screen (session 6):** the pledge sentence and the declaration notice are both
+    shown before anything is recorded.
+
+  ### Session 6 (2026-07-29, laptop) — the CPD screen
+
+  Suite **2,299 → 2,334 / 144 suites** (+35), lint 0 errors. **An advisor can now see and
+  record their own CPD.** Session 5's backend had no screen at all, so none of it was
+  reachable.
+
+  - ✅ **CPD SCREEN BUILT (Mike-approved; wording was already signed off and was used
+    verbatim).** New [`components/CpdRecord.vue`](../components/CpdRecord.vue) (441 lines),
+    mounted at the foot of My Progress by an 8-line change to
+    [`AdvisorProgression.vue`](../components/AdvisorProgression.vue) — its own component, not
+    more of a screen that was deliberately cut back to one job. It shows the running total,
+    then each template the advisor's own work has used with its claimable activities, a
+    **Record** button per activity, and **Withdraw** where something is standing.
+    - **The approved wording went into `locales/en.json` as a new top-level `cpd` block —
+      top-level because the pledge key stored on every claim row is literally
+      `cpd.pledge.video`.** The wording has to live at that exact key, or a claim made today
+      could not be shown in the words the advisor agreed to after a future rewording. That is
+      the whole point of storing a key rather than a sentence, and it constrains where the
+      block may sit. English only, like `advisorProgress` and `firmTeamProgress`; the seven
+      other locales carry the core chat UI and fall back.
+    - **The screen sends only a template name and an activity** — pinned by a test asserting
+      the POST body has exactly those two fields. Minutes, the real title and the pledge are
+      resolved server-side, so this screen could not inflate a regulated figure even if the
+      browser were tampered with.
+    - **Nothing is recorded without the pledge being shown.** Record opens a modal carrying
+      that activity's declaration and the "This is your own declaration…" notice; the write
+      happens only on the second, deliberate press. Pinned by a test that the first press
+      writes nothing at all.
+    - **A failed write is said out loud and the pledge stays open** — the backend deliberately
+      does NOT swallow these (unlike the mid-session `activityLogger` write), and the screen
+      had to match: an advisor who is not told their pledge failed will believe they have
+      declared something they have not.
+    - **Success re-reads the record rather than adjusting the figures here.** The total an
+      advisor may declare is the server's, computed from the rows it actually stored — never
+      one this screen incremented.
+    - **Repeats stay claimable after a claim** (owner ruling): Record remains available beside
+      the tally, because three viewings are three records.
+    - **An activity the export no longer offers is shown as history without a Record button** —
+      recorded, visible, withdrawable, but not claimable again.
+  - ✅ **OWNER RULING — Withdraw takes back the MOST RECENT recording**, one press, rather than
+    listing every claim with its own date and button. The recordings are identical apart from
+    their timestamp, so the extra choice buys nothing; and nothing is lost either way, since
+    the server keeps the row and stamps it withdrawn. Ordering is by claim date with the higher
+    id breaking a tie — a date column with no sub-second precision can return two identical
+    stamps, and "most recent" must still resolve to exactly one row. A claim with no readable
+    date sorts oldest, so it can never be withdrawn in place of the newest.
+  - ☑ ~~**TWO GAPS LEFT OPEN DELIBERATELY — both need wording Mike has not approved, and
+    inventing copy is against CLAUDE.md.**~~ **BOTH CLOSED 2026-07-30 (session 7) — see below.**
+    Kept for the record of why they were left: the pledge box closed only with the ✕, Escape or
+    a click outside; and Withdraw acted immediately, one click on a professional record, with no
+    question sentence in existence to put in front of it.
+  - **Mutation-verified: 24 of 24 killed**, green control, every mutation proven to have applied,
+    harness outside the repo restoring by checksum. **The first run had ONE survivor and it was
+    a real gap:** deleting the HTTP-status check in the read path changed nothing, because every
+    failure fixture also tripped the success-flag guard below it — so a proxy or gateway
+    answering 502 with its own JSON would have rendered as a genuine CPD record, total included.
+    ⚠ **This is the THIRD appearance of that same blind spot in this feature** (Team Progress
+    tab, then the quiz-detail route, now here). A failure fixture that trips two guards at once
+    can only ever prove one of them. Worth a standing habit: when a screen checks both the HTTP
+    status and a success flag, one test must break them apart.
+  - **One existing test file changed:** `advisorProgression.component.test.js` asserted the
+    screen made exactly one request, and the new section makes its own. The child is stubbed
+    there so those tests stay about the parent, and a separate unstubbed test pins that the CPD
+    section really is mounted and really is handed the same login pass — a stub would pass
+    whether or not it was.
+  - ☑ ~~**NOT PROVEN BY EYE.**~~ **LIVE-PROVEN BY MIKE 2026-07-30.** He ran the screen against
+    the local dev data and signed it off. **Both predictions held exactly**, which is the useful
+    part of the record: the screen showed **Lite Planning** with all three activities
+    (11 · 40 · 20 min) and a total of 11m, and **"General Meeting Agenda" did NOT appear** — the
+    master export gives it no CPD time, so it is not claimable. Both look like bugs and are not;
+    say so before anyone hunts them. *(Still true for next time: close every other
+    `localhost:3000` tab before opening it — session 4's six-connection trap.)*
+  - ☐ **STILL OPEN — no manager view of CPD** (see above, unchanged). ~~the tutorial-video
+    sentence is still dead~~ — **FIXED 2026-07-30**, its own P2 above.
+
+  ### Session 7 (2026-07-30, laptop) — the two CPD wording gaps, closed
+
+  Suite **2,334 → 2,340 / 144 suites** (+6), lint 0 errors. Session 6 shipped the CPD screen
+  with two gaps left open *because the wording did not exist* — not because the work was hard.
+  Mike supplied both, and they were used verbatim.
+
+  - ✅ **CANCEL ON THE PLEDGE BOX + A CONFIRMATION BEFORE WITHDRAW (Mike-approved; wording
+    chosen by Mike from three options each, then used word for word).** Four new keys in the
+    top-level `cpd` block of [`locales/en.json`](../locales/en.json) — `cancel`,
+    `withdrawTitle`, `withdrawQuestion`, `withdrawNote` — and the two changes in
+    [`CpdRecord.vue`](../components/CpdRecord.vue). **The write path itself was not touched**;
+    `withdraw(act)` became `openWithdraw(act)` + `confirmWithdraw()`, with the network call
+    moved intact behind the second, deliberate press.
+    - **Approved wording, recorded so it is never re-asked or re-invented:** button **Cancel**;
+      title *Withdraw a recording*; question *"Withdraw your most recent recording of this
+      activity?"*; note *"The recording is kept and marked withdrawn. You can record it again at
+      any time."*
+    - **Why the question says "this activity" and not the activity's name:** Mike's choice of
+      three. The button pressed is already on that row, so naming it again buys little — but the
+      wording deliberately says **most recent**, because Withdraw takes back one recording and an
+      advisor with three would otherwise expect all three to go.
+    - **No minutes figure is promised in the copy**, deliberately: the screen holds the *total*
+      claimed minutes for an activity, not the minutes of the single row being taken back. A
+      number we cannot compute is worse than no number on a record that may go to a body.
+    - **Built as a second `b-modal` in the component rather than `$buefy.dialog.confirm`** — the
+      pattern used by [`FirmDocuments.vue`](../components/firm/FirmDocuments.vue) L330 and
+      [`FirmDomainSupport.vue`](../components/firm/FirmDomainSupport.vue) L423. Two reasons, both
+      recorded so this is not read as drift: the Buefy dialog takes a **single message string**
+      and the approved copy is a question *plus* a separate reassurance sentence; and it draws
+      itself outside the component, so a test could only prove a dialog was *asked for*, never
+      that pressing Withdraw wrote nothing. On a professional record the stop should be provable.
+      Both modals guard their card with `v-if`, so only one is ever in the DOM and they cannot be
+      confused for one another.
+    - **A failed withdrawal keeps the box open with the reason on it**, matching the failed
+      pledge exactly — an advisor told nothing would believe the recording had gone. A success
+      closes it and re-reads the server's record rather than adjusting the figure here.
+  - **Mutation-verified: 8 of 8 killed**, green control, every mutation proven to have applied,
+    harness outside the repo (the component is redirected to a mutated **copy** via a scratchpad
+    jest config — the repo is never written to).
+    ⚠ **The first run had ONE survivor and it was a real gap — and it is the SAME blind spot for
+    the fourth time on this feature.** Removing the guard that hides the section-level error
+    while a box is open changed nothing, because the test read the **first** matching element and
+    found the right words either way: a failed write would have printed its message **twice**,
+    once inside the box and once behind it. Now pinned by asserting there is exactly **one**.
+    The previous three were the Team Progress tab, the quiz-detail route and session 6's CPD read
+    path — each an assertion that could pass while proving only half of what it appeared to.
+    **Standing habit, now earned four times over: when two things could satisfy an assertion, one
+    test must separate them.**
+  - ☑ ~~**NOT PROVEN BY EYE.**~~ **LIVE-PROVEN BY MIKE 2026-07-30, and signed off** — the CPD
+    record, the pledge box with its new **Cancel**, and the **Withdraw** confirmation were all
+    run in the browser and behaved as designed. This feature had never been seen working before
+    today; it is now proven by eye as well as by tests.
+    - ⚠ **Worth knowing before the next report of "the Cancel button is missing":** it is **not**
+      on the activity row, which correctly shows only **Record** and **Withdraw**. Cancel lives
+      inside the pledge box, beside the confirming Record. That was the one point of confusion.
+    - **Getting there cost most of the morning, and none of it was this code** — see the
+      environment note below.
+  - **ENVIRONMENT — the servers could not be started at all, and it was never the app.**
+    `node` and `npm` were unresolvable in *every* terminal on the laptop: the Windows user `Path`
+    had been rewritten as a plain string (`REG_SZ`), so its last two entries — the literal text
+    `%NVM_HOME%;%NVM_SYMLINK%` — were never substituted and pointed nowhere. Repaired by writing
+    the two real folders as `REG_EXPAND_SZ`, original value backed up first. **Nothing in this
+    repository was changed for it.** Three findings worth keeping:
+    - **The dev server runs on the locked Node 14.15**, cleanly. (An older note claimed it needed
+      Node 20; that is wrong and has been corrected.)
+    - **A `Ctrl+C`'d Nuxt dev server may survive, and later re-claim port 3000.** Three had
+      stacked up unnoticed; one that had been pushed to a random port rebuilt itself when the
+      squatter died and took 3000, so the *next* start went to a random port and looked broken.
+      Always list the node processes and check who owns 3000 before diagnosing anything.
+    - **Grepping `.nuxt` proves nothing in dev** — it holds only ~26 scaffolding files; the
+      bundles live in memory. A string that certainly renders shows zero hits. An "it isn't in
+      the build" conclusion from that grep would have been flatly wrong.
+    - Also confirmed while there: `.env` **is** now read (`OPENAI_API_KEY present=true`, no JWT
+      placeholder warning), closing out the 2026-07-29 fix. The MySQL placeholder warning and the
+      `[activityStore] … using the dev file` lines are the fallback working as designed.
+  - ☐ **NEW FINDING 2026-07-30 — 21 page ids in the template library are shared by more than one
+    record, and some of the pairs are plainly DIFFERENT templates.** Noticed while proving the
+    video fix; **not investigated, and nothing was changed** — `data/templates.json` derives from
+    the master export, which is never edited here. Examples: `id-4277160310` → *Client pre Meeting*
+    **and** *Coping With Adversity*; `bizz360` → *Working Capital Cycle* **and** *Activity Ratios*;
+    `id-679676385` → *App Review* **and** *What's Applicable*. Others are true duplicates (the same
+    title twice) or spelling variants (*Finance & Depreciation* / *Finance and Depreciation*).
+    **Seven of the shared pages carry a tutorial video.**
+    - **Today's fix is unaffected** — the injector matches on **title**, so each template uses its
+      own record. **But it is a second reason the deleted sync script had to go:** that script
+      matched on **page**, so it would have handed *Coping With Adversity* the video length
+      belonging to *Client pre Meeting*. A page-keyed lookup is not safe on this data.
+    - **For anyone keying anything on `page`:** check for collisions first, or key on title as
+      `cpdCatalogue` and `videoInjector` do. **Raise the pairings upstream** — whether they are
+      intentional is a question for whoever authors the export, not something to resolve here.
+  - **HANDOVER TO THE DESKTOP (2026-07-30).** The desktop spent today on Domain Support and its
+    wiring to the AI engine, and at `7dd83fd` it fixed **the domain-support config-key P1** — the
+    same fault this laptop had queued as its next task. **Checked before starting anything:** the
+    two branches' file lists overlap in **exactly two files — `design/ACTIONS.md` and
+    `locales/en.json`** — and nothing else. Both are append-heavy, so expect conflicts in both when
+    the branches meet at `master`: **read the merge rather than accepting it**, especially in this
+    file, which is the project's shared memory. This branch **deliberately did NOT touch** the
+    domain-support P1 entry above, so the desktop's own record carries its closure and the two
+    machines do not both write the same entry.
+
+  ### Session 8 (2026-07-30, laptop) — the master merge, a claim that did not survive, and the Collaborate ruling
+
+  Three commits (`7b945b5`, `f7993b5`, `750f822`), all pushed. Suite **2,340 → 2,406 / 148
+  suites**, lint 0 errors, tree clean, **33 ahead / 0 behind** `master`. **No production code
+  was touched** — a merge and three documents.
+
+  - **The merge the desktop asked for is DONE** (`7b945b5`). `origin/master` merged in once PRs
+    #25/#26 landed: 25 behind → 0. The two branches' only overlapping files were
+    `design/ACTIONS.md` and `locales/en.json`, exactly as session 7 predicted — and git resolved
+    **both with no conflict**, because each side had appended to a different region.
+    **Verified rather than trusted:** both sides' entries confirmed present, `en.json` re-parsed,
+    the four approved CPD keys checked by value.
+  - ⚠ **The domain-support config-key P1 was closed by the DESKTOP (`7dd83fd`), not here** — it
+    had been sitting at the top of this laptop's list. **Lesson: read what a merge brought before
+    starting a task that was queued before it.**
+  - 🔴 **A CLAIM INHERITED FROM THE OTHER MACHINE'S NOTES WAS WRONG, AND MIKE CAUGHT IT.** The
+    desktop's session notes said *"the migrated content of 28 domains has never been read on
+    screen"*; that was relayed to Mike, who pushed back. **This very file records him editing
+    that content in the app on 2026-07-29** — the *Hide list / Show list* control exists because
+    he asked for it while doing so. **Counting from the data took one command and gave the true
+    answer: 165 of 181 rows carry all four columns.** The real gap is **16 blank Step-by-step
+    cells, ALL in `sales-marketing`** (deliberate — that source is an index table with no
+    method), plus **2 unsourced `org-board-pack` rows** to keep or delete. A further "four in
+    `fm-coach-culture`" **could NOT be confirmed** — those rows carry no field recording their
+    origin, so the count exists only in prose. Written up as
+    [`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](DOMAIN-SUPPORT-REVIEW-CHECKLIST.md) (`f7993b5`).
+    **Standing rule earned here: a claim inherited from another machine's session notes is a
+    claim to CHECK, not to pass on.** It is the same failure mode as this file's own "trust the
+    CODE, not these flags" warning, arriving from a new direction.
+  - ✅ **COLLABORATE MERGE RULED AND PLANNED** (`750f822`) — see [§Collaborate](#collaborate-merge)
+    for the substance. Recorded here only as the session's outcome: Collaborate is a **separate
+    repository**; its manager page cannot travel alone; the four-tier gap is in **this** repo,
+    not in Collaborate; and Mike ruled the five-level cascade is **built in properly now**, the
+    half-measure rejected. Nothing built — slice 1 returns for its own approval.
+  - ⚠ **CROSS-MACHINE COLLISION WARNING (the reason this block matters to the desktop).** Slices
+    2–3 of the Collaborate plan re-key the firm override storage and make `firmAuth` scope-aware,
+    which **changes the ground under Domain Support and Logic Tables — the desktop's active
+    area.** Both machines must not move that layer at once. Whoever starts slice 2 says so first.
+  - **Two mechanical traps worth not rediscovering:** the Bash tool has no `npm`/`node` on its
+    PATH (`export PATH="$NVM_SYMLINK:$PATH"` first), and PowerShell here-strings (`@'…'@`) are a
+    syntax error there — for a long commit message, write it to the scratchpad and `git commit -F`.
+
+  ### Session 9 (2026-07-30, laptop) — the coverage gate had never run, and now it does
+
+  Three commits (`0148fad`, `dac0e88`, `aa10dbe`) plus this note, all pushed. Suite
+  **2,837 → 3,050 / 191 suites**, lint 0 errors, tree clean. **No production code was
+  touched** — one config file, six test files, two documents. Full record:
+  [`COVERAGE-DEBT.md`](COVERAGE-DEBT.md).
+
+  - 🔴 **READ THIS BEFORE YOUR NEXT COMMIT, DESKTOP: `npm test` now collects coverage on every
+    run, so `.husky/pre-commit` enforces it.** Two consequences for you. The suite goes from
+    ~11s to ~18s, which is the whole price. And **a commit that drops coverage in a bucket
+    below its floor will now be REFUSED** — that is the point of the change, but it will be a
+    surprise the first time. If it blocks you, the fix is a test, or raising the floor in the
+    same commit once the number genuinely improved; never lowering one. Floors and their
+    reasoning are commented per-bucket in `jest.config.js`.
+  - **What started this:** the small ACTIONS.md task to extend the coverage gate to the landed
+    Collaborate paths. Sizing it found that **this repo had never collected coverage on any
+    automated run** — `npm test` was bare `jest`, the hook was bare `jest`, and there is no CI
+    directory. So the existing thresholds only ever fired if a human typed
+    `npm run test:coverage`, and doing the task as written would have recorded a standard that
+    still gated nothing.
+  - **Root cause, read from history not guessed:** the old `global: { lines: 80 }` dates from
+    2026-05-04 (`d793b77`), when `collectCoverageFrom` reached **9 files** in `server/utils`.
+    That folder now holds **47** and an AI engine grew inside it. **The standard did not slip;
+    the measured set grew five-fold underneath a number nobody was checking.** Two standards
+    CLAUDE.md names outright — **Restify routes ≥90% and mixins ≥80% — were not being measured
+    at all.**
+  - **Repo-wide 70.9% → 78.8% lines.** Buckets that crossed their standard today:
+    `server/utils/` 67.9→84.1%, `mixins/**` 32.4→93.4%, `server/middleware/` 89.4→**100% and
+    pinned**. `server/routes/` rose 72.1→74.1% but **stays a floor**, because it cannot reach
+    90% until `firmManager.js` is done.
+  - **The gaps closed were chosen for what they guard, not for the number.** Untested-until-now
+    and now covered: the **dev mentor bypass** and **all of `requireMentorRole`** (the one gate
+    that deliberately crosses the firm boundary — a `firm_manager` must be refused);
+    **`anonymiseCasePreview`**, the only case route that sends client content to an LLM, whose
+    contract is that the raw summary and transcript never come back; the **13 learn-mode prompt
+    formatters**, where a renamed data file silently strips an advisor's entire coaching
+    reference; **`caseMixin`**'s server-derived ownership, token race and id-only promotion;
+    and **`localeMixin`**'s prototype-pollution guards on an LLM-built reply.
+  - ⚠ **`firmManager.js` owes 264 lines and is DELIBERATELY NOT DONE HERE.** It is the file
+    Collaborate slice 2 rewrites, and the desktop's active area. Writing its tests *as part of*
+    that slice makes them the rewrite's safety net; writing them now would collide. Same
+    warning as session 8: whoever starts slice 2 says so first.
+  - ⚠ **`advisorEngine.js` (510 lines owed, 37%) is FROZEN, not forgotten.** 3,343 lines of SSE
+    streaming engine; chasing the number as it stands means mocking so heavily the tests test
+    the mocks. Decompose-then-test is its own workstream. Its real safety net today is
+    `scripts/scenario-lab.js`, which Jest cannot count — and which has known blind spots
+    recorded above, so a green lab run is not evidence for a change it does not reach.
+  - **Two of my own mistakes, recorded because they cost real time:** a blanket `/undefined/`
+    assertion is a false positive (the Heald Matrix reference legitimately reads *"do not leave
+    the next step undefined"*), and a bucket's floor **must be recomputed whenever its
+    exclusions change** — the first `./server/collaborate/` floor was measured with its 0% boot
+    file still in the bucket and read 83 over code that measures 96.
+  - **Also found, not a coverage job:** **`store/` does not exist.** CLAUDE.md names Vuex
+    modules as the only global state mechanism and lists `store/` as a directory; the repo has
+    no such directory. Documentation describing something that is not there — worth a decision,
+    not a fix.
+
+  ### Session 10 (2026-07-30, laptop) — a ruling that redirects the workstream, and step one of it
+
+  Two commits (`79de6d9` + this note) plus two merges. Suite **3,058 → 3,062 / 192 suites**,
+  lint 0 errors, tree clean. The substance is in [§Collaborate](#collaborate-merge) — recorded
+  here only as what happened and what the desktop needs.
+
+  - **PR #27 merged to `master` (`b3b6ad6`), and `master` merged back in here.** The Governance
+    quiz — 62 banks / 652 questions, counted from the data rather than taken from the PR body.
+    `ACTIONS.md` auto-merged with no conflict again, each side having appended to a different
+    region; both sides' entries were confirmed present rather than assumed. **A test-count jump
+    with no test file changed (3,050 → 3,058) was explained, not waved through:**
+    `quizBankKeys.test.js` generates two cases per bank, and 4 banks arrived.
+  - 🔴 **THE RULING — the Distinctions mechanism becomes the single firm-editable mechanism
+    everywhere.** Full record, the inventory behind it (1 rich, 6 plain), the Currency
+    exception, the corrected sequencing and the ownership correction on login/roles are all in
+    [§Collaborate](#collaborate-merge). **This redirects the Collaborate slice list** — read it
+    before picking up slice 2 or 3 from the plan, both of which it overtakes.
+  - ✅ **Step one built: 181 stable row ids** (`79de6d9`). Data and one test only; no code
+    touched; prompt output proven byte-identical.
+  - ⚠ **THREE OF MY OWN ERRORS THIS SESSION, RECORDED BECAUSE THE PATTERN MATTERS MORE THAN THE
+    SLIPS.** All three were the same failure: **reading a plan as authority instead of reading
+    the code and asking the owner.** (1) I proposed resolving tiers and inventing manager
+    role-value names at the front door — Mike: *"there is no separate login for virtual
+    adviser"*; auth is Advisory's entirely. (2) I described the cascade as layered diffs when
+    Mike's model is cloning, having followed the plan's §4.4 over its own §4. (3) I recommended
+    storage-first sequencing that the inventory then reversed. **The plan document was wrong or
+    stale in all three places** — it is now corrected in-file. Standing lesson, and a sibling of
+    session 8's "a claim inherited from another machine's notes is a claim to CHECK": *a design
+    document is a claim too. The code and the owner outrank it.*
+  - **Two mechanical traps worth not rediscovering.** The 29 domain-support files are **CRLF and
+    do not survive a PowerShell `Get-Content`/`Set-Content` round-trip** — one restore silently
+    rewrote line endings and left a 25-line phantom diff; revert with `git checkout` and re-run a
+    deterministic generator instead. And **14 of the 29 carry hand formatting**
+    (`trigger_keywords` on one line) that a JSON re-dump reflows, so edits to them must be
+    surgical text insertions or the real change drowns in a whole-file diff.
+  - **HANDOVER TO THE DESKTOP.** This session touched **`data/*-domain-support.json` — your
+    active area** — but additively only: 181 `id` keys inserted, nothing else altered, no code
+    file changed. If you have uncommitted work in those files, merge carefully. The
+    **slice 2/3 collision warning is now partly moot** (slice 2 has all but disappeared — see
+    the ownership correction), but **the storage re-key still changes the ground under Domain
+    Support and Logic Tables, and still needs whoever starts it to say so first.**
+
+  ### Session 11 (2026-07-31, laptop) — two id gaps closed, and a live defect found by closing one
+
+  Three commits (`51b77a5`, `0a2534d`, `c7bf261`) plus this note, all pushed. Suite
+  **3,062 → 3,076 / 194 suites**, lint 0 errors, tree clean, **47 ahead / 0 behind** `master`.
+  Session opened with `/startup`: 0 behind, nothing to catch up on.
+
+  - ✅ **Coaching reference: 15 `cr-` ids + a lock test** (`51b77a5`). Substance in
+    [§Collaborate](#collaborate-merge) step 2. Data file and one test; **no code touched**;
+    the AI prompt proven byte-identical by hash.
+  - ✅ **Logic Tables: the ids were right by care alone — now they are enforced** (`0a2534d`).
+    **Nothing was broken and nothing was fixed**, which is the whole point: all 381 rows
+    already carried an id and *nothing stopped the next one going without*. **The earlier
+    readiness count (356) missed the 25 `flat_if_then` `branches`** — corrected in the table
+    above. Two vacuous-pass traps closed deliberately: a tree in an unknown shape would have
+    made the id loop iterate an empty list, and an empty read would have passed every check.
+    **The check is proven permanently, not once** — a plain function run against a
+    deliberately broken tree inside the test file, rather than a one-off done by breaking the
+    real data and putting it back.
+  - 🔴 **A LIVE DEFECT FOUND WHILE WRITING THAT TEST, REPORTED BEFORE BEING TOUCHED, THEN FIXED
+    ON MIKE'S SAY-SO** (`c7bf261`). `_mergeBranchRows` gave a firm-added row the id
+    `firm-branch-${i}` — **its position in the submitted list**. An existing firm row keeps its
+    id because the client sends it back, so the moment a new row landed at the index where an
+    earlier row's number was minted, **two rows carried the same id**. Silent: no error, the
+    table still renders, and a firm's decision would land on whichever the code reached first.
+    **Proven before fixing** — the new test returned 3 rows and 2 distinct ids on the old code.
+    The generated id now dodges every id already spoken for (platform rows + whatever the
+    submitted rows arrived with), so ids never renumber and never collide. Four tests, each
+    guarding a different failure. **Safe to change today for the same reason as the storage
+    re-key: no firm has saved anything anywhere, so there is no stored duplicate to migrate.**
+  - **The pattern across all three: an id that encodes a POSITION or a TITLE is not an id.**
+    Domain Support had it (title), the coaching reference had it (title), firm-added logic rows
+    had it (position). **The Advisory Staircase still does** — `steps` keyed by `step`, a
+    position number. It is the last one of these left, and it is not fixed.
+  - ⚠ **One of my own errors, recorded because the pattern matters.** I reported "LINT CLEAN"
+    when lint had in fact failed: the shell exit code I checked belonged to the `tail` at the
+    end of the pipe, not to `eslint`. **A green from a piped command is not a green from the
+    command.** Caught it, fixed the style error, re-checked with a real exit code — but it was
+    reported to Mike wrongly first, and the pre-commit hook would have caught it anyway, which
+    is exactly why that gate exists.
+  - **HANDOVER TO THE DESKTOP.** This session touched **`server/routes/firmManager.js` — your
+    active area** — but only inside `_mergeBranchRows` (~20 lines, id assignment only). **No
+    storage, auth or overlay surface was changed**, and `data/*-domain-support.json` was not
+    touched at all. Merge before starting the Collaborate storage work, because that function
+    is one the rewrite touches. **The slice 2/3 warning stands unchanged: whoever starts the
+    storage re-key says so first.**
+
+  ### Session 12 (2026-07-31, laptop) — the Advisory Staircase, both halves
+
+  Two commits (`cb6d43c`, `221e18c`) plus this note, all pushed. Suite **3,076 → 3,129 / 197
+  suites**, lint 0 errors, tree clean, **50 ahead / 0 behind** `master`. Session opened with
+  `/startup`: 0 behind, nothing to catch up on.
+
+  - ✅ **A firm's renamed staircase steps reached the ENGINE but never the ADVISOR** (`cb6d43c`).
+    The override set the complexity ceiling, so the two ceiling dropdowns on the Firm Manager
+    tab worked — but `VirtualAdvisor.vue` built the selector's options from
+    `data/advisory-staircase.json` **baked into the bundle at build time**, so **Step name** and
+    **What this step looks like**, the two largest fields, were saved, versioned and restorable
+    while reaching nobody. The tab rendered as working. Nothing was broken for a real firm: no
+    override exists anywhere, in MySQL or the dev file. **The rule it was breaking was already
+    written down** — `resolveDistinctions.js` says in its own header that the engine and the Firm
+    Manager UI read one resolver "so the advisor session and the management screen can never
+    disagree". Fix: `utils/staircaseConfig.js` owns the blend; the engine and the new
+    `GET /api/advisor/staircase` both read it. **Worth a sweep: what other config has two
+    readers?**
+  - 🔴 **THE TRAP OF THE SESSION — 18 passing route tests sat behind a request that could not
+    reach the route.** Every test called the handler directly, so all of them passed whether or
+    not the browser could get there. It could not: `/api/advisor` is mounted to the **SSE engine
+    proxy**, which forwards only POSTs to `/query` and `next()`s everything else, so a real
+    `GET /api/advisor/staircase` fell through every handler to a **Nuxt 404** — with a fully
+    green suite behind it. **A green suite proves the handler, not the wiring.** Fixed by
+    registering the specific path to `apiProxy.js` **above** `/api/advisor` in `nuxt.config.js`,
+    and there is now a test that fails if anyone reorders those lines. **Standing check: any new
+    frontend→backend path means reading `nuxt.config.js` serverMiddleware, not just the route
+    list.**
+  - ⚠ **The dev stand-in nearly made the whole fix look broken.** With MySQL unprovisioned a
+    firm-manager save lands in `data/dev-firm-staircase.json`; a read that only knew about MySQL
+    would have reported "no override" and served Advisor-e's wording — an invisible failure in
+    the one environment the feature can currently be tried in. Raised before it shipped and the
+    fallback put in the **shared** blend, so the complexity ceiling honours it too. **Copy this
+    whenever adding a firm-config read.**
+  - ✅ **The staircase's position-as-identity closed — the LAST of the four** (`221e18c`).
+    Substance in [§Collaborate](#collaborate-merge) above, including the honest note that the
+    ids do nothing at runtime and the safety came from `resolveStaircaseStep`.
+  - ⚠ **I DEVIATED FROM THE PLAN MIKE APPROVED, AND SAID SO AT THE TIME.** The proposal said the
+    engine would **refuse** to resolve when the name contradicted the position, falling back to
+    the default ceiling. Building it revealed that would degrade every returning client of every
+    firm that had **renamed** a step — the common event, and the entire point of the tab fixed
+    that same morning. Built name-first-then-position instead, which is never worse than the old
+    behaviour. **When analysis shows the approved detail is the worse one, build the better one
+    and report the deviation plainly — do not ship a known-worse rule because it was described
+    first.**
+  - ☐ **FOUND, NOT FIXED — `staircaseStep`, `growthStage` and `finMgtTheme` are ALWAYS saved
+    null on a case record.** `submitStaircaseStep` clears `selectedStaircaseStep`
+    (`VirtualAdvisor.vue` L1719) before `createCase` reads it (L1253); the same holds for the
+    other two selectors. **First judged more serious than it is, then corrected by checking:
+    this is NOT data loss.** The live remember-this-client feature reads the staircase position
+    out of `decisionTrace.situation` (`extractSavedClientFactsFromCases`), never the column, and
+    `lastStaircaseStep` / `lastGrowthStage` in `priorEngagement.js` are computed and read by
+    nothing. So it is dead wiring plus **one test (`priorEngagement.test.js`) asserting a shape
+    reality never produces** — a small source of false confidence, not a live fault. *Source:*
+    staircase investigation 2026-07-31.
+  - **Mike asked mid-session whether the case-review promote/withdraw and the Distinctions
+    clone-down patterns were being followed across the Hub.** The straight answer was **no** —
+    this session was one hop (firm → advisor display), not a hierarchy, so neither applied.
+    They remain the two reference implementations to **read** before the cascade work rather
+    than reinvent: Distinctions for the downward direction (decline / override / add-own, id
+    pinned), case reviews for the upward one (promote only on an explicit approval, content
+    read back from the database rather than trusted from the browser, withdraw to reverse).
+
+  ### Session 13 (2026-07-31, laptop) — the one mechanism, and the staircase onto it
+
+  Three commits (`1d10a62`, `5a3de15`, `8ec9973`), all pushed. Suite **3,129 → 3,191 / 200
+  suites**, lint 0 errors throughout, tree clean, **54 ahead / 0 behind** `master`. Session
+  opened with `/startup`: 0 behind, both open PRs merged, nothing to catch up on.
+
+  **This is the ruled sequencing being executed, not a detour** — unify the mechanism at two
+  levels first, then add the middle tiers once. Mike picked the Collaborate workstream and
+  left the choice of first block to me; the staircase was chosen over Domain Support because
+  it is five rows in one file whose two readers already funnel through one resolver, so a
+  mistake is cheap to find, and because putting it on the mechanism **closes an already-logged
+  defect** rather than only building infrastructure.
+
+  - ✅ **PHASE 1 (`1d10a62`) — the mechanism lifted out whole.**
+    `server/utils/resolveInheritedRows.js` is now the block-agnostic decline / override /
+    add-your-own resolver; `resolveDistinctions.js` is a thin caller of it.
+    **The proof it changed nothing: `resolveDistinctions.test.js` and the four other
+    distinction test files passed UNTOUCHED.** Not one assertion was edited — that was the
+    acceptance condition set before starting, and an edit to any of them would have meant the
+    refactor had changed behaviour and was wrong. Four guarantees are now written down as
+    rules with their own tests rather than inherited as behaviour: identity is not editable,
+    no phantom rows, decline beats override, and the edit REPLACES the original so nothing
+    scored per row can be counted twice. Two levels only, deliberately — the middle tiers are
+    added in that one file, later, rather than guessed at now.
+  - ✅ **PHASE 2 READ HALF (`5a3de15`) — a firm's staircase was a frozen copy.** The override
+    was a complete copy of all five steps merged with `deepMerge`, which replaces an array
+    wholesale, so **the moment a firm edited one word, all five became their private snapshot
+    of that day's wording** — a step Advisor-e added later could never reach them, with nothing
+    on screen to suggest they had stopped receiving updates. Now decisions keyed to step ids,
+    resolved through the shared mechanism. Storage is **additive** (three new keys beside the
+    untouched `advisory-staircase`, which stays the home of `defaultCeiling` — a single
+    setting is not a list of rows, the same reason Currency is out of the mechanism).
+  - ✅ **PHASE 2 WRITE HALF (`8ec9973`) — six routes**, mirroring the distinction cascade
+    verb-for-verb. Four guarantees enforced server-side: the **server assigns a new step's id**
+    (a browser id could collide with an `as-*` and silently replace one of Advisor-e's), ids
+    are highest-so-far + 1 rather than the row count, **switching off is not deleting**, and a
+    firm **cannot switch off its last step** (409 `LAST_STEP`, which can explain itself where
+    the blend's silent fallback cannot).
+  - ⚠ **TWO EXISTING TESTS CHANGED IN THE READ HALF, AND THAT IS CORRECT HERE** — unlike Phase
+    1, this phase changes behaviour on purpose. Both asserted that a firm's saved list
+    *replaces* Advisor-e's, which is the defect itself. Rewritten to the new rule with their
+    original intent intact (junk never reaches an advisor mid-session; a description is never
+    `undefined`), plus a third test proving a field the firm did not write keeps Advisor-e's
+    wording rather than blanking it. **The distinction that matters: a test edited because
+    behaviour deliberately changed is legitimate; a test edited to make a refactor go green is
+    not.**
+  - **A migration promise built for data that does not exist.** `adaptLegacyWholeConfig` reads
+    a whole-config save as edits — by id first, then by **position**, because the old shape
+    replaced the array wholesale so the firm's first row WAS the platform's first row; reading
+    it any other way would re-file their wording under the wrong steps. Only fields that
+    genuinely DIFFER are carried across. No MySQL row exists and there is no dev file on this
+    laptop — but the old tab is live and **the desktop's dev files cannot be read from here**.
+  - **The dev fallback was TIGHTENED rather than copied.** `firmDistinctions` falls back to the
+    JSON stand-ins on ANY store failure; `firmStaircase` rethrows in production, and the blend
+    logs it and serves the platform base. A stray dev file on a production box must not rewrite
+    a firm's staircase, and an outage must not be dressed up as "this firm has no override".
+    **Worth considering for `firmDistinctions` too — not changed here, because it is the
+    desktop's ground and was not this session's approved scope.**
+  - ✅ **CHECKED, NOT ASSUMED — two claims verified against code rather than carried:**
+    (1) firm-authored staircase wording **never enters a prompt as configuration**; it reaches
+    the AI only inside advisor chat text, the situation summary or the prior-engagement
+    summary, all three already fenced (`advisorEngine.js` L84, L203, L2739), so no fencing was
+    added where none was needed. (2) Session 12's proxy trap does **not** apply to the new
+    routes — `/api/firm-manager` is already mounted to `apiProxy.js` and connect mounts on a
+    `/` boundary.
+  - 🔴 **MIKE'S CHALLENGE, AND THE RIGHT ANSWER TO IT.** Asked mid-session whether I had read
+    the code for BOTH cascades — upward (case-review promote/withdraw) and downward
+    (Distinctions hierarchy/permissions) — the honest answer was **partly**: the downward
+    resolver yes, the upward path and the permission layer no, they were being carried from
+    session notes. Reading them changed the work: the storage became additive rather than a
+    rewrite, and the routes gained the "server assigns identity, never the browser" rule taken
+    straight from `cases.promote` (whose own header records that the old flow appended to a
+    GLOBAL file, putting one firm's client notes into every other firm's prompts). **Carrying a
+    claim from a session note is not reading the code, and the difference showed up in the
+    design.**
+  - ✅ **Phase 2's last piece — the tab controls — BUILT in Session 14 below (`801dd4f`).**
+    Wording RULED by Mike 2026-07-31: mirror the Advisory Distinctions tab verbatim
+    (`Switch off` / `Switch on` / `Reset to platform` / `Add step`, form titles
+    `New step` / `Edit step`) rather than invent staircase-specific words, so the Hub reads
+    as one screen. **Phase 3 remains open**: the *Adopt / Keep mine* offer when Advisor-e
+    changes a step a firm has edited.
+
+  ### Session 14 (2026-07-31, laptop) — the tab caught up with its plumbing, then Phase 3
+
+  Two feature commits (`801dd4f`, `c4c2a6d`) plus this record, all pushed. Suite
+  **3,191 → 3,221 / 201 suites**, lint 0 errors, tree clean, **58 ahead / 0 behind** `master`.
+  Session opened with `/startup`: 0 behind, nothing to catch up on. **The staircase workstream
+  is now COMPLETE — Phases 1, 2 and 3 all in.**
+
+  **The screen was undoing yesterday's fix on every press of Save.** Phase 2 changed a firm's
+  staircase from a frozen copy into decisions, but the tab above it was still the whole-config
+  editor — five text boxes and one Save that posted all five steps at once, re-creating the
+  private snapshot the storage change had just removed. Each step is now a decision: Edit,
+  Switch off, Reset to platform, Add step, Remove.
+
+  - ✅ **THE DEFECT THIS ALMOST REBUILT IN THE BROWSER, and it would have been silent.** The
+    save route records exactly the fields it receives, and a recorded field stops tracking
+    Advisor-e's wording for good. Posting the whole form would therefore have frozen the two
+    fields a firm never touched at today's text — **rename one step, silently stop receiving
+    improvements to the other two**, which is the defect the whole mechanism exists to prevent,
+    rebuilt one layer up. `utils/staircaseRows.buildStepEdit` sends only what changed and is
+    the most-tested thing in the change. **Its corollary, decided rather than asked:** a firm
+    editing its version back to Advisor-e's wording in *every* field is asking for Advisor-e's
+    step again, so that is a **reset, not a save** — a save of identical text would leave the
+    row frozen at wording that merely matches today. Honest limit written into the code: the
+    routes merge, so a single field cannot be un-overridden on its own; the firm presses Reset
+    to platform and edits again. No remove-one-field verb was invented for a case no one has hit.
+  - ✅ **NO SECOND COPY OF THE MECHANISM.** The merge stays server-side in
+    `resolveInheritedRows`; the tab draws the `resolved` list the advisor's selector and the
+    engine's ceiling already read, so the management screen cannot disagree with a live session.
+    `utils/staircaseRows` adds only what the resolver deliberately leaves out — **the
+    switched-off steps**, which an advisor must never be offered but a manager must be able to
+    bring back. They sit below the live list and **unnumbered**: a step that simply vanished
+    reads as data loss, and one printing "Step 3" beside a list running 1, 2, 3 claims a
+    position it does not hold.
+  - ✅ **VERSION HISTORY WAS ABOUT TO LIE, AND WAS RULED ON RATHER THAN LEFT.** The steps moved
+    to their own keys, so a restore under `advisory-staircase` could have reported success while
+    nothing on screen moved — the silent kind of failure. **Mike ruled: relabel to "Ceiling
+    history"**, covering what it now genuinely governs, with the per-step undo (Reset to
+    platform) named in the note. The alternative of merging four keys into one restorable
+    history was offered and not taken: it needs a rule for what "restore" means across four
+    stores, which is a design, not a bolt-on.
+  - **Layout ruled by Mike: keep the brand-toned step blocks**, not a Distinctions-style table.
+    The 2026-07-22 palette instruction stands; the verbatim-wording ruling was about words, and
+    was not read as licence to restyle the screen.
+  - **Tab extracted to `components/firm/FirmStaircase.vue`** alongside the four others — the Hub
+    loses 232 lines and gains 6 — and its strings moved into `locales/en.json`, which the inline
+    version never did (the Hub and the Distinctions tab are still hardcoded English).
+  - ✅ **PHASE 3 (`c4c2a6d`) — a firm's edit was hiding our later wording from them, silently
+    and permanently. Now it offers.** An edit SHIELDS a step from the platform's later text,
+    which is right until it means that firm never sees any improvement to that step again with
+    nothing on screen to say so. `Review update` opens a side-by-side compare; the firm chooses
+    **Adopt** (drop their version, take ours, resume tracking) or **Keep mine** (their wording
+    stays, the prompt clears until our NEXT change). **Adopt needed no new route** — it is the
+    existing reset, which already drops the override and now the baseline with it; only
+    Keep-mine is new, and it **409s rather than quietly succeeding** when the firm holds no
+    version to keep, because stamping a baseline for an unedited step arms a prompt that can
+    never fire. Wording RULED by Mike 2026-07-31: **"Platform"**, matching the badge already on
+    those rows, not "mentor" (there is no mentor here) and not "Advisor-e" (which would have
+    left one screen using two names).
+  - ⚠ **TWO TRAPS, EACH OF WHICH WOULD HAVE ANNOUNCED A CHANGE THAT NEVER HAPPENED.**
+    (1) An edit made before this feature has **no baseline**; reading that as drift would greet
+    every such firm with a review prompt on first load, so it is backfilled as in-sync and
+    tracked from there. (2) The signature covers **wording only, never `step`** — that number is
+    a POSITION the resolver assigns, so switching off a step above renumbers everything below
+    it, and signing it would tell a firm we had rewritten a step nobody touched. A test declines
+    two steps above an edited one and proves silence.
+  - **THE HONEST DIFFERENCE FROM DISTINCTIONS, written into the code so it is not later read as
+    a copy that drifted.** A mentor authors distinctions in the running app, so a firm sees drift
+    within minutes; **the staircase is a committed file**, so its signature changes when a release
+    ships. Same detection, release-to-release cadence. There is **deliberately no "since your last
+    visit" half**: that notice reads `updated_at`/`created_at` timestamps the staircase file does
+    not carry, and a step a firm has not edited already updates itself silently, which is the
+    wanted behaviour. Inventing timestamps to announce it would be building a feature out of data
+    that does not exist.
+  - ✅ **NEAR-MISS CLOSED — four dev-only staircase files were not gitignored** while all fifteen
+    of their siblings were: the three cascade keys from Session 13 plus the Phase 3 baselines.
+    They hold one firm's dev configuration and were one `git add .` from the repo. **The pattern
+    worth carrying: a new storage key needs a new ignore line, and it was missed twice running.**
+  - ⚠ **NOT PROVEN BY EYE — no one has clicked ANY of it, Phase 2 or Phase 3.** The suite covers
+    the logic, the Pug templates compile, lint is clean; the button-to-route wiring is argued and
+    tested, not demonstrated in the running app. Mike's dev server is never started or restarted
+    from here. **This is the one outstanding check on the feature** — Firm Manager Hub → Advisory
+    Staircase: edit a step, switch one off, add one, and confirm the switched-off group brings it
+    back.
+  - **WHERE THIS LEAVES THE ONE-MECHANISM RULING.** The staircase is the **first block on it
+    whole** — resolver, storage, routes, screen and the update offer. Still on their own
+    per-feature arrangements: **Domain Support, Logic Tables, Quizzes, the coaching reference**
+    (Currency stays out by design — a single setting is not a list of rows). The middle
+    management tiers still land ONCE, in `resolveInheritedRows.js`, per the ruled sequencing.
+    *(Superseded in part the same day — **Quizzes** moved onto the mechanism for storage and the
+    read path in Session 15 part 2 below; its screen is Phase 3.)*
+  - ✅ **FOUND IN SESSION 13, FIXED IN SESSION 15 below (`d0c1eb0`).** `firmDistinctions` fell
+    back to its dev JSON stand-ins on **any** store failure, production included, while
+    `firmStaircase` had been tightened in Session 13 to rethrow. The inventory taken before
+    fixing found it was **not one path but three**, and the fix is the staircase's guard applied
+    to all of them.
+
+  ### Session 15 (2026-07-31, laptop) — a store failure that read as a firm with no settings
+
+  One feature commit (`d0c1eb0`) plus this record, pushed. Suite **3,221 → 3,230 / 201 suites**,
+  lint 0 errors, tree clean, **60 ahead / 0 behind** `master`. Session opened with `/startup`:
+  0 behind. Mike picked this off the three candidates and ruled **all three paths in one pass**
+  rather than only the flagged one.
+
+  **The whole defect in one line: the fallback answered EMPTY, and empty is exactly what a
+  healthy store says about a firm that has customised nothing.** So a database outage was
+  indistinguishable from a firm with no settings — on the advisor's session and on the
+  manager's screen alike, with nothing in the logs. The dev-file half is the more alarming
+  reading but the less likely one: those files are gitignored, so a deployment does not carry
+  them — it needs a hand-copy or a missed ignore line first, **which has now happened twice in
+  three sessions**.
+
+  - ✅ **THREE PATHS, NOT ONE — the inventory is why.** `firmDistinctions` (the flagged one),
+    **`firmContent`** — *domain support and logic tables*, the two biggest firm-editable
+    surfaces — and **`platformDistinctions`**' read path. Already correct and left alone:
+    `firmStaircase`, `coaching`, `routes/currency`, and `firmManager`'s own dev helpers, which
+    all gate on `IS_DEV` and rethrow.
+  - **THE GUARD IS THE EASY HALF; WHAT EACH CALLER DOES WITH IT IS THE DESIGN, and they
+    correctly differ.** Firm Manager routes were already wrapped and now return a 500 the
+    manager can see. The advisor and course engines **log the fault and run on platform
+    content** — a storage problem must never end a live conversation. That rule lives in ONE
+    place, `firmContent.readForSession`, rather than a try/catch copied to four call sites; its
+    JSDoc says plainly that routes must not use it, because an empty editing screen is the very
+    failure being removed.
+  - 🔴 **TRAP 1, AND IT WAS WORSE THAN THE BUG BEING FIXED.** Five Firm Manager routes check the
+    id against the platform set **before** their `try` block — deliberately, so an unknown id
+    404s before anything is written. A throw there lands **outside** the handler's catch, and
+    **an async Restify handler that rejects sends nothing at all**: the manager's browser hangs
+    until it gives up. Found by walking every caller rather than assuming the routes were
+    uniformly wrapped. `_platformRowsOr500` turns it into the same 500 the handler would have
+    sent; four tests prove each route answers.
+  - 🔴 **TRAP 2 — the platform set's SAVE path already rethrew in production; only its READ did
+    not.** That asymmetry mattered more than it looks: **every mentor edit is a
+    read-modify-write**, so answering a failed read with the committed seed would let one edit
+    **overwrite the mentor's whole authored set with the shipped defaults**. The file's own
+    write path was the argument for the change.
+  - **Tests: 8 new.** They plant a stray dev file and prove production never reads it, prove a
+    live session survives with a logged fault, and prove the four routes answer 500 instead of
+    hanging. ⚠ **Honest limit: no revert-to-red proof was run on the four route tests** — that
+    means editing the source back to broken, and this repo's rule is no unapproved change even
+    briefly. The mechanism beneath them (the reader rejecting in production) *is* proven
+    red-to-green in `platformDistinctions.test.js`.
+  - ⚠ **NOTHING BEHAVES DIFFERENTLY TODAY, AND NONE OF IT CAN BE SEEN BY EYE.** MySQL has never
+    been provisioned, so the failure this guards cannot be produced here — which is also the
+    argument for doing it now, before a firm has content to lose. Development is untouched: the
+    dev-JSON stand-ins work exactly as before.
+
+  ### Session 15 part 2 — QUIZZES JOIN THE ONE MECHANISM (Phases 1 and 2 of 4)
+
+  Two feature commits (`222a384`, `041d5f9`), pushed. Suite **3,238 → 3,269 / 204 suites**, lint
+  0 errors, tree clean, **63 ahead / 0 behind** `master`. Mike chose quizzes over the coaching
+  reference **because quizzes are collision-free** — they live in their own files, while a
+  coaching tab would touch `firmManager.js` and `components/firm/`, which is the desktop's ground.
+
+  - 🔴 **RULED 2026-07-31 (Mike) — a firm's quiz decision is about a SINGLE QUESTION, not a whole
+    quiz.** The old overlay replaced a bank **wholesale**, and that was a deliberate choice with a
+    real reason (merging two lists by position would let a firm's 3-question edit inherit the tail
+    of a 10-question bank). The price was the exact defect the mechanism exists to prevent: **a
+    firm that reworded ONE question stopped receiving Advisor-e's improvements to the other nine,
+    permanently, with nothing on screen to say so.** The mechanism dodges positions a different
+    way — it keys on identity — which is what Phase 1 exists for.
+  - 🔴 **DEFECT FOUND AND FIXED — a firm could have saved a quiz the AI would never read.** The
+    course engine read `data/course-quizzes.json` **directly** and never loaded the firm overlay,
+    while the Firm Manager screen rendered platform ⊕ firm through `mergeQuizBanks`. A firm would
+    have saved, seen it on screen *with version history beside it*, and every course would still
+    have used ours. **The same failure as the domain-support config key on 2026-07-30.** It had
+    not bitten only because no Save button reaches the route — the Phase 3 screen would have made
+    it real on day one. Closed by `server/utils/quizConfig.js`.
+  - ✅ **PHASE 1 (`222a384`) — 652 questions across 62 banks gained a stable `qid`.** Assigned once
+    in file order, never reused, opaque **on purpose**: an id derived from the question's wording
+    would change when the question is reworded, which is the very loss being prevented — and
+    rewording is the normal case Phase 4's Adopt / Keep-mine offer is built for.
+    - ⚠ **THE POSITIONAL `id` COULD NOT BE REPLACED, which is why there are two fields.** It is a
+      **live handshake with the AI**: `courseEngine` writes `Entry {id}` into the generation
+      prompt, the model returns a `bankRef` naming one, and the grader looks the entry back up by
+      that number to find the firm's model answer. Changing its type would have changed the prompt
+      and could have broken grading.
+    - **Proven, not asserted:** the AI-facing text of both surfaces hashes **identically** before
+      and after across all 62 banks, read from the committed blob rather than from memory. The
+      locking test was itself checked against what it must catch — an inserted question with
+      everything renumbered, and two ids quietly swapped, both fail it; improving a question's
+      wording does not, deliberately.
+  - ✅ **PHASE 2 (`041d5f9`) — storage becomes decisions, and the engine reads them.** Separate
+    additive keys (`quiz-declines` / `quiz-overrides` / `quiz-own`), the staircase's shape, so the
+    existing key is never rewritten. `quizConfig.js` is the engine's single read path, the
+    counterpart of `staircaseConfig.js`.
+  - 🔴 **TRAP 1 — THE SAFE DEFAULT BROKE THE COMMON CASE, and an existing test caught it.**
+    Fencing had to become **per question**, because one bank can now hold Advisor-e's questions
+    and the firm's side by side. `isFirmAuthored` fails **closed** — anything without a platform
+    tag is fenced — which is right for a security check and bit immediately: the ordinary path
+    where a firm has decided nothing returned **untagged** platform banks, so **Advisor-e's own
+    questions would have been fenced and the tuned prompt quietly changed for every firm**. Fixed
+    at the cause (no path may return an untagged bank), not at the symptom. Byte-identical prompt
+    text for a firm with no decisions is now locked by a test.
+  - 🔴 **TRAP 2 — the positional number must close its gaps.** Switch off question 2 and the rest
+    renumber, or the model is shown Entry 1, 3, 4 and the grader hunts for a number nobody
+    offered. Same reasoning as the staircase's `step`.
+  - **Two judgement calls made rather than interrupt, both deliberate.** (1) A firm that switches
+    off **every** question in a bank has **no bank** — it is dropped so the engine falls through
+    to AI generation, rather than being handed an empty bank it is told to build every question
+    from. (2) The old whole-bank shape is **read as decisions**, including the honest reading that
+    a question the stored copy does not contain was **removed on purpose**, so it stays off.
+  - ☐ **PHASE 3 — the editing screen.** The Quizzes tab is **browse-only today**: search, see
+    where quiz material is missing, view version history. No edit, add or switch-off. Needs the
+    per-question routes and Mike's wording decisions. **Ordering rule: the screen must not gain a
+    Save button before the engine reads what it saves** — which Phase 2 has now settled.
+  - ☐ **PHASE 4 — Adopt / Keep mine** when Advisor-e changes a question a firm has edited.
+  - ⚠ **NOT PROVEN BY EYE — nothing writes any of this yet**, and MySQL has never been
+    provisioned. Nothing is half-built and nothing is user-reachable.
+  - **WHERE THE ONE-MECHANISM RULING NOW STANDS.** Whole: **Advisory Staircase**, and **Quizzes**
+    for storage + the read path (its screen is Phase 3). Still on their own per-feature
+    arrangements: **Domain Support**, **Logic Tables**, **the coaching reference** — the last of
+    which has no Firm Manager screen at all, so a firm can neither see nor change its 15 entries.
+    (Currency stays out by design.) *(Updated in Session 16 below: Quizzes is now whole,
+    screen included.)*
+
+  ### Session 16 (2026-07-31, laptop) — quizzes finished, and the screen that looked broken
+
+  Three commits (`1e5ac87`, `da097f5`, `ae53c9a`), pushed. Suite **3,269 → 3,341 / 206 suites**,
+  lint 0 errors, tree clean, **67 ahead / 0 behind** `master`. Session opened with `/startup`:
+  0 behind. **PHASE 3 IS COMPLETE** — storage, the engine read path, the routes and the screen
+  are joined up. Only **Phase 4 (Adopt / Keep mine)** remains.
+
+  - ✅ **PHASE 3a (`1e5ac87`) — six per-question routes**, mirroring the staircase cascade so a
+    reader who knows one knows the other. `getQuizzes` now also returns the **resolved** banks —
+    the ones the course engine reads — because putting Save buttons on the older whole-bank
+    `merged` view would have reopened the exact defect Phase 2 closed on this feature.
+    - **ONE DELIBERATE DIFFERENCE FROM THE STAIRCASE, and it is the opposite rule.** The
+      staircase REFUSES to let a firm switch off its last step; quizzes must ALLOW it, because a
+      bank with nothing left is dropped and the course falls through to AI-generated questions.
+      Blocking it would deny a firm a decision the engine already handles. The cost is carried by
+      the screen, which has to say what replaces it.
+  - 🔴 **A GAP FOUND WHILE BUILDING 3a, AND CLOSED WITH IT.** `loadFirmQuizState` reads the three
+    new keys first and consults the old `quiz-banks` shape only while the firm has made no
+    decision. So a firm's **first** per-question decision would have switched the old shape off
+    permanently and everything saved there would have stopped reaching its advisors — silently,
+    with the screen still showing a saved state. **It was unreachable until these routes existed**,
+    which is exactly why it was closed alongside them rather than after.
+    `_carryLegacyQuizDecisionsForward` promotes the old copy into the three keys **once**, reuses
+    the proven adapter via `fromLegacy` rather than keeping a second copy of that judgement, does
+    **not** delete the old key, and writes no empty parts. Six tests, using a store that answers
+    with what was last written — a store that replayed the original would let a broken carry-over
+    pass.
+  - ✅ **PHASE 3b (`da097f5`) — the tab edits.** The badge moved **from the quiz to the question**:
+    since the per-question ruling one page can hold Advisor-e's questions and the firm's side by
+    side, so one badge on the whole quiz would necessarily be wrong about one of them. The panel
+    now rebuilds from the latest load rather than a snapshot taken at click time — harmless while
+    nothing could change, but with editing it would show a firm its own pre-edit wording as though
+    the save had not happened. Row rules live in `utils/quizRows.js`, the sibling of
+    `staircaseRows.js`.
+  - 🔴 **THE DEFECT MIKE FOUND ON THE RUNNING SCREEN (`ae53c9a`) — AND THE RULE WORTH KEEPING.**
+    Clicking Edit appeared to do nothing. The form rendered at the **foot of the panel**, and a
+    Growth Curve bank is **ten tall cards** (~3,000 characters), so it opened about a screen and a
+    half below the button pressed. The only visible change near the click was the **Add question
+    button hiding itself**, so the single cue on screen read as a fault.
+    **The layout was copied from the Advisory Staircase, where it is fine — five short steps, form
+    in view.** → **RULE: a layout borrowed from another tab must be re-checked against THIS tab's
+    content volume.** That is the reusable lesson; the fix (edit in place, tinted card, Add button
+    no longer hides) is the one-off. **The suite was green throughout** — it cannot see a screen,
+    which is why this needed a human. **LIVE-VERIFIED by Mike after the fix.**
+  - **Three wording rulings (Mike, 2026-07-31).** (1) The last-question warning **names what
+    replaces it** — "your advisors will still get a quiz here — but the AI will write the questions
+    instead of your firm" — because the failure being prevented is a firm believing it removed the
+    quiz. (2) **"Add question"**, matching the staircase's "Add step". (3) The **version-history
+    table is replaced by a note on undoing**: it read the old whole-quiz storage, which nothing
+    writes to any more, so it would have been empty for every firm forever — and an empty history
+    table reads as though nothing saved had been kept.
+    - ⚠ **Six shorter strings were written without asking** (the top notice, the switched-off note,
+      the nothing-left message, two form hints, the confirmations) rather than interrupt a fourth
+      and fifth time. Named here so they can be corrected on sight; buttons and tags are the
+      staircase's verbatim, per the consistency ruling.
+  - ✅ **CLOSED 2026-07-31 (Session 17, laptop) — it was the SENTENCE, not the behaviour.** The
+    staircase behaves exactly as quizzes does: `setStaircaseDecline` writes the declines key and
+    nothing else, so the override survives and `resolveInheritedRows` swaps the firm's version
+    back in the moment the id leaves that list. A test had proven it all along —
+    `staircaseCascade.routes.test.js`, "an edit made earlier survives switching the step off and
+    on again" — it had simply never been read against the sentence on the screen. The note now
+    says *"Switch one back on to use it again — it returns with any wording your firm gave it."*
+    - 🔴 **THE CLAIM HAD SPREAD TO THREE DEVELOPER COMMENTS, ONE OF THEM IN QUIZZES.**
+      `FirmStaircase.vue`'s `switchOff`, the staircase decline route, and — the one that matters —
+      **the quizzes decline route** (`firmManager.js`), which asserted the opposite of what
+      `quizCascade.routes.test.js` had just proven. **The wrong sentence was copied onto the new
+      feature in the same session the correct behaviour was built and tested.** All three now
+      state that only the declines key is written and name the reset route as the thing that
+      *does* discard an edit. → **RULE: when a feature is cloned from a sibling, its prose is
+      cloned too, and prose carries no test.** A copied comment must be re-read against the
+      behaviour being built, not just the behaviour it came from.
+    - ⚠ **HONEST LIMIT: nothing stops the claim coming back.** The fix is one locale string and
+      three comments; no test ties the wording to the behaviour, because the suite cannot read
+      copy. A firm-facing sentence remains provable only by a human reading it — the same class
+      of gap as the Session 16 screen defect.
+  - ✅ **GAP FOUND WHILE CHECKING THE ABOVE — CLOSED SAME DAY in Session 17 (`63cc54f`).** A
+    switched-off step offered no way back to the platform's version: the list rendered only a
+    **Switch on** button, so a step the firm edited and then switched off could be returned to
+    Advisor-e's default only by switching it on first and then pressing **Reset to platform** —
+    and while it sat there nothing said the firm's edit was still being held. Fixed in **both**
+    tabs at once (the same shape existed in Quizzes), per the whole-section rule. See Session 17.
+  - 🔵 **CROSS-MACHINE — a red suite is coming, and it is the safety net working, not a break.**
+    The desktop (`feat/firm-quiz-builder-ui`, despite the name, is transcribing domain support and
+    logic tables) has added materials to `strategy`, `sales-marketing` and `staff` domain-support
+    files. Its branch predates our row-id commit (`79de6d9`), so a read-only trial merge
+    (`git merge-tree`) shows those three files **auto-merging with NO conflict** while **13 rows
+    arrive with no `id`** — 9 in strategy, 2 in sales-marketing, 2 in staff. `domainSupportRowIds.test.js`
+    will then fail all four of its tests. **Whoever merges second gives those 13 rows ids and adds
+    them to `LOCKED_IDS`.** Only `design/ACTIONS.md` conflicts textually; `package.json` and
+    `server/courseEngine.js` auto-merge.
+  - ⚠ **HONEST LIMITS.** No revert-to-red proof was run on the Phase 3a route tests — that means
+    editing source back to broken, and this repo's rule is no unapproved change even briefly. The
+    carry-over tests are the exception and do stand on their own (the assertions are on data only
+    the carry-over can produce). MySQL has still never been provisioned, so none of the storage
+    paths have run against a real database. `utils/quizRows.js` sits outside the coverage gate,
+    which measures `server/`, `server-middleware/` and `mixins/` only — the same position as
+    `utils/staircaseRows.js`, so a pre-existing scope choice rather than a new gap.
+
+  ### Session 17 (2026-07-31, laptop) — the tabs stop behaving differently
+
+  Three commits (`c223695`, `63cc54f`, `025ed9c`), pushed. Suite **3,341 → 3,365 / 208 suites**,
+  lint 0 errors, tree clean, **71 ahead / 0 behind** `master`. Session opened with `/startup`:
+  0 behind. **Phase 4 (Adopt / Keep mine) was planned and approved in principle but NOT started**
+  — see the handover at the end.
+
+  - 🔴 **RULED 2026-07-31 (Mike) — EVERY FIRM MANAGER TAB OPENS THE EDIT BOX WHERE YOU CLICKED.**
+    *"I do not want users having to figure out each page is different."* This is a standing rule
+    for any tab built from here, not a fix to two screens. **Clicking Edit opens the form IN the
+    row clicked; Add opens at the END of the list, where the new row will appear.** Quizzes is
+    the reference implementation (Session 16).
+    - **Inventory taken before changing anything** — two offenders, not one. **Advisory
+      Staircase** (form below BOTH the live list and the switched-off list, so worse than the
+      quizzes case) and **Advisory Distinctions**. **Domain Support and Logic Tables already
+      comply** — they have no separate form at all, the fields are inline `b-input`s in the row,
+      which is in-place by construction. Team Case Studies, Team Progress and Documents have no
+      edit form.
+    - 🔴 **ADVISORY DISTINCTIONS WAS REBUILT FROM A `b-table` INTO CARDS.** A table cannot hold a
+      form against the row it belongs to except through a Buefy detail-row trick whose behaviour
+      could not be verified without seeing the screen. Cards make it structural. Every column's
+      content survives, under the same words the column headings used.
+    - **The Add button no longer hides on either tab** — a button vanishing at the top was the
+      only visible response to clicking Edit, and it read as a fault (the Session 16 cue).
+    - **Three form components now exist** — `FirmQuizQuestionForm`, `FirmStaircaseStepForm`,
+      `FirmDistinctionForm` — one per tab, so the form shown when editing and when adding cannot
+      drift apart. The distinctions picker's search/area filters moved INTO its form component:
+      they are about finding a template, not about what is saved, and a fresh child mounts with
+      fresh filters instead of the parent having to remember to reset both on open AND close.
+    - ⚠ **A PROCESS NOTE MIKE MADE EXPLICITLY.** He gave a clear instruction and the AI came back
+      with a technical either/or (expanding table row vs cards) dressed as a design choice.
+      *"I don't know why you asked me to try and do it differently when I already clearly gave
+      you an instruction."* **When the instruction is clear, implement it and report what was
+      done — do not re-open it as a question.**
+  - ✅ **THE RESET GAP CLOSED, BOTH TABS (`63cc54f`).** Switched-off rows the firm has edited now
+    carry the same **Customised** tag the live list uses and offer **Reset to platform** directly.
+    **No backend change was needed** — both reset routes only ever delete the stored edit and
+    never touch the declines key, so resetting from the switched-off list leaves the row switched
+    off. Asserted explicitly: if it ever also fired the decline route, a firm asking for
+    Advisor-e's wording back would silently find the question live in front of its advisors.
+    **No new strings** — both tabs already had a Customised tag and a Reset button.
+  - ✅ **THE STAIRCASE SENTENCE WAS WRONG, THE BEHAVIOUR WAS RIGHT (`c223695`).** See the closed
+    CHECK above. The claim had spread to **three developer comments**, one of them on the
+    **quizzes** decline route — asserting the opposite of what `quizCascade.routes.test.js` had
+    just proven. **The wrong sentence was copied onto the new feature in the same session the
+    correct behaviour was built and tested.** → **RULE: when a feature is cloned from a sibling,
+    its prose is cloned too, and prose carries no test.** A copied comment must be re-read
+    against the behaviour being built, not the behaviour it came from. (A fourth copy was found
+    later in `utils/staircaseRows.js` and fixed in `63cc54f`.)
+  - ✅ **TEMPLATE-PICKER DUPLICATE KEYS (`025ed9c`).** "Capacity, Capability, Opportunity" appears
+    **twice inside General Tools** in the master export, and the picker keyed its list by title —
+    Vue warned duplicate keys "may cause an update error", i.e. a tick can land on the row the
+    manager did not click. The row's `index` is now carried through the projection and used as
+    the key.
+    - ⚠ **THE FIRST ATTEMPT WAS WRONG AND ONLY THE TEST CAUGHT IT.** Keying on `index` looked
+      right against `data/templates.json`, but the picker is handed a **trimmed copy** keeping
+      only `title` and `subSection`, so every key evaluated to `undefined|<title>` and the
+      collision survived. The test now asserts against **the list the picker is actually handed**,
+      not the raw file. → **RULE: assert against the data the component RECEIVES, not the file it
+      came from.**
+    - **Scope stated honestly:** this fixes which row you CLICK. What a tick **stores** is still
+      the title, which is what `templateResolver` matches on, so two templates sharing a title
+      still boost together. That is a content question for the master export, which this repo
+      **never edits**. One visibly repeated row therefore remains in the picker. The other four
+      duplicate titles sit in areas the picker already excludes.
+  - ✅ **TWO SCREENS THAT HAD NO RENDERING TEST NOW HAVE ONE.** `firmStaircase.component.test.js`
+    (5) and `firmDistinctions.component.test.js` (9). They assert **WHERE** the form opens, not
+    that one exists — *"a form exists somewhere on the page"* was true on the day the Session 16
+    bug was reported. They also lock that a switched-off distinction is still listed with a way
+    back, and that a customised one shows the firm's wording with Reset offered.
+  - ⚠ **HONEST LIMITS.** **Neither screen has been seen running** — Mike's dev server was down all
+    session, and Advisory Distinctions is a real change to information layout, which is exactly
+    the class of thing the suite missed in Session 16. **Mike's look at Distinctions is the
+    outstanding verification.** MySQL still not provisioned. The three form components sit outside
+    the coverage gate (`server/`, `server-middleware/`, `mixins/` only), the same pre-existing
+    scope choice as `utils/quizRows.js`.
+    - 🔴 **UPDATED 2026-08-01 — this limit was RIGHT TO STATE AND THE SCREEN WAS BROKEN.** Not in
+      its layout: the rebuild left a stray `}` in the Hub's stylesheet, and **the whole Firm
+      Manager page would not compile at all**. Found by a build before Mike looked; see Session 18.
+      **Advisory Distinctions has since been viewed and approved by Mike — that verification is
+      now CLOSED. The Advisory Staircase rebuild has still not been seen running.**
+  - ☐ **NOTED, NOT ACTIONED — Advisory Distinctions is the only Firm Manager tab still written in
+    hardcoded English.** Quizzes and the Staircase route every label through `$t()`. Flagged
+    rather than proposed because the i18n sweep is gated behind the cleanup pass (P3 · I18N
+    below, branch `chore/i18n-jsdoc-cleanup`). The cards rebuilt this session reuse the table's
+    own English headings, so the tab is no worse than it was — but it is now the odd one out on a
+    Hub that was just deliberately made consistent.
+
+  ### ✅ Quizzes Phase 4 (Adopt / Keep mine) — COMPLETE 2026-08-01 (`ab31075` + `e254ff8`)
+
+  > **Closed 2026-08-01.** Stage A (the record) and Stage B (the screen) are both built, tested,
+  > mutation-proven, committed and **live-verified by Mike on the running app** — see Sessions 19
+  > and 20 below. The plan below is left verbatim as the record of what was built; every item in
+  > it is now history, not to-do. **The quizzes workstream is finished.**
+
+  The last piece of the quizzes workstream, and a **port of what the Advisory Staircase already
+  does** (Phase 3, `keepMineStaircaseStep` / `_staircaseDriftIds` / `_staircaseStepSignature` /
+  the review modal in `FirmStaircase.vue`) — not a design job. Verified 2026-07-31 that **nothing
+  of it exists yet**: `setQuizOverride`'s own JSDoc says so in as many words.
+
+  **What it is, in one sentence:** a firm that edits one of Advisor-e's questions is shielded from
+  our later improvements to it, deliberately — Phase 4 tells them we changed it, shows both
+  versions, and lets them **Adopt** ours or **Keep mine**.
+
+  **Stage A — the record (backend).**
+  1. New additive key `quiz-override-baselines` (+ gitignored dev file), mirroring
+     `STAIRCASE_BASELINES_KEY`. Nothing existing is rewritten.
+  2. `_quizQuestionSignature(row)` over `EDITABLE_QUESTION_FIELDS`.
+  3. Stamp the platform's current wording as the baseline **in `setQuizOverride`** — currently and
+     deliberately not stamped, because until this stage nothing could read it.
+  4. `_quizDriftQids(firmId, overrides, savedBy)`, returned from `getQuizzes` as `driftQids`.
+  5. 🔴 **A MISSING BASELINE IS BACKFILLED, NOT READ AS DRIFT.** An edit made before this feature
+     has no stamp; reading that as "the platform changed this" would greet every such firm with a
+     review prompt for an update that never happened. Same rule as the staircase.
+  6. **Adopt is the EXISTING reset route** — it must also drop the baseline, as the staircase's
+     does, so a later re-edit stamps fresh rather than inheriting a signature from a decision the
+     firm has since undone.
+  7. New route **Keep mine** (`POST /api/firm-manager/quizzes/platform/:qid/keep-mine`) —
+     re-stamps the baseline to the platform's CURRENT wording so the prompt clears until our next
+     change. **409, not a silent success, when the firm holds no edit:** nothing is being kept,
+     and stamping a baseline for a question the firm does not override would arm a prompt that can
+     never fire.
+
+  **Stage B — the screen.** Flagged questions get a tag and a **Review update** button opening a
+  side-by-side panel with Adopt / Keep mine.
+
+  **No wording decisions are outstanding** — the staircase's labels are already approved and the
+  consistency ruling says the tabs read the same, so they are mirrored verbatim ("Platform updated
+  this question", "Review update", the existing panel text).
+
+  **Do Stage A, prove it, commit, then Stage B** — so nobody is ever holding a half-built feature.
+
+  ### Session 21b (2026-08-01, laptop) — COLLABORATE SLICE 4: there is finally something to look at
+
+  Suite **3,474 → 3,486 / 212 suites** (two new), lint 0 errors, **`nuxt build` green**, 5/5
+  mutants killed, both components restored **byte-identical (SHA-256)**. Built straight after
+  slice 2, same session.
+
+  **The Firm Manager Hub has a seventh tab: "Adviser Network"** — label ruled by Mike from three
+  offered. It is Collaborate's manager console: every adviser in scope with availability and
+  group count, group-join approvals, bulk invite, the cross-firm Open/Closed control, and the
+  activity feed. Higher tiers get the roll-up tree, unchanged.
+
+  - 🔴 **THE PLAN'S ORDERING WAS WRONG AND WAS CHECKED RATHER THAN FOLLOWED.** §5 put the tab
+    *after* the storage re-key, reasoning it should "land on correct foundations rather than
+    needing rework". **Read the component: it fetches only `/api/people/*`, served from
+    Collaborate's own in-memory store, and never touches `firm_framework_versions`** — the table
+    slice 3 re-keys. There was no dependency, so the tab could not have needed rework, and
+    following the order would have kept the whole workstream invisible for another two sessions.
+    The row in the plan is corrected in place.
+  - 🔴 **VIEW-AS IS WITHHELD IN THIS TAB, AND THAT IS NOT THE RISK MIKE ALREADY RULED ON.** His
+    2026-07-30 ruling was that the *exposure* is negligible because the adviser submits their own
+    CPD report. This is a different defect: the button sets the cookie then reloads to `/`, which
+    **in this app redirects to the advisor screen**, and the "you are viewing as someone else"
+    banner lives in Collaborate's layout, which never came across. A manager would land in a
+    colleague's session with **no sign of it and no way back**. The Action column goes with the
+    button — an empty column reads as broken. Restoring it means bringing the banner and its exit
+    path across, in one change, and the reason is written in the component so nobody "fixes" the
+    omission.
+  - ✅ **ONE COMPONENT STILL SERVES ALL FOUR TIERS.** The obvious move — clone a firm-only
+    version into `components/firm/` — was rejected: it would fork the one thing Collaborate had
+    already built that this repo is under a ruling to make room for. `ManagerConsole.vue` instead
+    gained an `embedded` prop that drops the page frame, its banner and the dev tier-switcher.
+    The element structure is identical in both modes, only the classes change, so nothing below
+    has to know which mode it is in.
+  - 🔴 **THE WORDING FILES ARE JOINED BY A MERGE THAT REFUSES A COLLISION.** Collaborate's
+    `locales/collaborate/en.json` is not copied into ours — the two are merged section by section
+    in `plugins/i18n.js` via `utils/i18nMessages.js`, which **throws** if a section name exists in
+    both. Letting one file win silently would change every label under that section with no error
+    anywhere. **`profile` DOES collide in both files and is deliberately not merged**, with a test
+    that fails if someone "fixes" the omission by adding it to the list. Three sections are
+    merged (`common`, `console`, `firm`) — what the tab actually renders, checked by walking the
+    components for `$t()` keys rather than by eye.
+  - **TESTS ARE POSITIONAL, NOT PRESENCE-BASED, per the Session 16 lesson:** that the console
+    renders WITHOUT a second banner or page frame inside a tab that already has both; that
+    View-as and its column are absent; that the adviser table and cross-firm control are still
+    there (a tab that lost them would be decoration); and that it reads the **real** role-gated
+    endpoint, not one of Collaborate's dev preview endpoints — pointing the live tab at a preview
+    would show a manager fabricated demo advisers as if they were their own firm's people.
+    - ⚠ **ONE MUTANT RAN INVALID FIRST TIME** — a placeholder left unsubstituted in the harness,
+      so the pattern matched nothing. Re-run properly; it killed. **The lesson from Session 19
+      earning its place again: a skipped mutant reads like "no test needed" when it means "no
+      test ran".**
+  - ✅ **LIVE-VERIFIED BY MIKE, 2026-08-01, ON THE RUNNING APP** — *"collab firm manager page is
+    in and works great"*. That closes the one thing the suite structurally cannot judge, and it
+    proves five things at once that no test covers together: the console renders inside the Hub
+    with no second banner or page frame; its data reaches the browser through the new
+    `/api/people` proxy entry; the merged auth admits one token across both apps' routes; the
+    locale join worked (no raw `firmAdviserNetwork.*` keys on screen); and **the two former
+    servers boot as one real Restify process** — confirmed separately with `/api/health` and
+    `/api/people/firm` both answering 200 on port 4000, which the mocked-Restify wiring test by
+    definition cannot show.
+  - ✅ **WORDING CONFIRMED — the tab's one new sentence** (`firmAdviserNetwork.lede`): *"Everyone
+    advising under your firm: who they are, the specialty groups they have asked to join, and
+    whether they may work with advisers outside the firm."* On screen when Mike approved the tab;
+    every other label is Collaborate's existing approved wording. Tab NAME (**Adviser Network**)
+    was ruled explicitly from three offered.
+  - ⚠ **HONEST LIMITS THAT REMAIN.** The advisers shown come from Collaborate's **in-memory
+    store, which resets on restart** (slice 5) — dev-firm-001 shows "Advisor-e Munich" with 3
+    advisers and 2 pending approvals, and none of it is real data. The `firm-manager` page chunk
+    grew 186 → 213 KiB uncompressed; it is an async route chunk, not first-load, so the 300 KB
+    gzipped budget is not engaged — but it has not been measured gzipped either way.
+
+  ### Session 21 (2026-08-01, laptop) — COLLABORATE SLICE 2: the two back-ends became one
+
+  Suite **3,461 → 3,474 / 210 suites** (one new suite), lint 0 errors, **`nuxt build` green**,
+  15/15 mutants killed, all three production files restored **byte-identical, proven by
+  SHA-256**. Approved by Mike as a named change list before any file was touched.
+
+  **What is now single:** one Restify server (Collaborate's 40 routes registered alongside our
+  103), one `config/integration.js`, one auth middleware, one `/api/translate/locale`, one
+  `/api/health`. **Five duplicate files deleted** — Collaborate's `restify-server.js`,
+  `middleware/auth.js`, `config/collaborate/integration.js`, `routes/translate.js`,
+  `routes/health.js` — with every reference repointed and every test kept, not dropped.
+
+  - 🔴 **THE TWO SERVERS BOTH BOUND PORT 4000, SO THEY COULD NEVER HAVE RUN TOGETHER.** Slice 1
+    landed the code and reported it green, which it was — but "both suites pass" was never the
+    same claim as "both apps run". Nothing had tried to start them at once.
+  - 🔴 **`/api/translate/locale` WAS NOT A DUPLICATE, AND PICKING EITHER COPY WOULD HAVE LOST
+    WORKING CODE.** Reported to Mike before merging, because it changed what he had approved.
+    The two had been hardened in opposite directions: **ours** carries `buildChunks`, the fix
+    for short strings piling into one oversized URL that MyMemory 414s — silently reverting a
+    whole locale to English; **Collaborate's** carries input sanitisation, a 5,000-char cap,
+    schema validation of the reply, and **`from`**, which lets a chat message be translated out
+    of its own language. Registering ours alone would have quietly broken Collaborate's chat
+    translation into a wrong-but-plausible result. Mike ruled: fold them. Done, and the folded
+    route now carries all five behaviours.
+    - ⚠ **NEITHER REPO'S TESTS COVERED `from` OR THE SANITISING** — Collaborate had both in code
+      and never asserted what went on the wire. Five tests added, all mutation-proven. **A
+      feature that only one side's code had is exactly what a merge loses silently.**
+  - 🔴 **THE ROUTE TABLE HAD NO TEST AT ALL, AND IS EXCLUDED FROM COVERAGE.** `restify-server.js`
+    is a process bootstrap, so a mistyped handler registers `undefined`, Restify throws at boot,
+    and all 3,400 other tests still pass — the Session 18 shape exactly. New
+    `tests/unit/serverWiring.test.js` mocks Restify and asserts: every handler is a function; **no
+    path is claimed twice** (Restify keeps the FIRST registration and drops the rest silently,
+    which is the specific way merging two route tables breaks a screen with no error anywhere);
+    every Collaborate route carries its auth guard; every firm-manager route still carries
+    `firmAuth`. 4/4 mutants killed.
+  - **THE DEV DOORS WERE DELIBERATELY NOT COLLAPSED, and that is the considered answer, not a
+    shortcut.** In production the two guards are identical — valid Advisory JWT or 401. They
+    differ only in dev: ours demands an explicit magic token, Collaborate's admits a request with
+    no token at all. Forcing one would either loosen every firm-manager route or break every
+    Collaborate screen in dev. So both doors stay, over **one** token reader — meaning one
+    `jwt.verify` call site for the RS256 switch, and one claim map.
+    - **Collaborate's guard gained a check it did not have:** it tested only the
+      `ALLOW_DEV_AUTH` flag and leaned on the startup guard for production. It now also requires
+      `NODE_ENV !== 'production'`, so the bypass is refused twice over. A test pins it.
+    - ⚠ **A SEMANTIC CLASH THAT WOULD HAVE READ AS A BROKEN TEST:** ours freezes the dev flag at
+      require time, Collaborate's read it per request, and its tests toggled `process.env`
+      mid-run. Freezing is the stronger property (nothing at runtime can open the bypass), so it
+      won, and those two tests were re-pointed through `jest.isolateModules` — the assertions are
+      unchanged.
+    - **`firmAuth` is still Bearer-only.** Collaborate authenticates by cookie and now shares the
+      reader, so a test locks that our routes still refuse a cookie token: **widening them is an
+      auth decision, not plumbing**, and must be Mike's call, not a side effect of a merge.
+  - **Both identity shapes now come off one verified token** — `req.identity` for Collaborate's
+    routes, the flat `req.firmId`/`req.userRole` for ours. Neither half was rewritten to read the
+    other's, and a guard that set only its own half is a killed mutant.
+  - **The startup guard is now Collaborate's tested pure function** (`productionStartupViolations`),
+    which checks the same three things ours checked inline and untested, and reports **all** of
+    them rather than the first. Our dev-only warnings are unchanged.
+  - ⚠ **HONEST LIMITS.** **Nothing is visible yet** — no menu entry, no page, no URL; the console
+    is still only reachable by an API call. That is slice 4, and this slice is provable only by
+    the suites and the build, exactly as plan §6 risk 4 said. **Collaborate's data layer is still
+    its own in-memory store that resets on restart** (slice 5), and **`config/collaborate/db-schema.sql`
+    is still a second schema file** (slice 3). Neither was touched.
+  - ⚠ **KNOWN DUPLICATES LEFT STANDING, deliberately, and where each one dies:** the two
+    `sendError` modules (firmAuth requires Collaborate's for its envelope — one cross-namespace
+    require, commented), `server/collaborate/utils/db.js` (a second MySQL pool, now orphaned) and
+    `server-middleware/collaborate/api.js` (a second proxy, unregistered — ours is used because
+    it also aborts the upstream request when the client disconnects). All three are storage/data
+    surfaces that slices 3 and 5 rewrite with tests around them; merging them ad hoc now was the
+    thing the P3 row above explicitly warned against.
+  - ⚠ **CROSS-MACHINE: THIS IS THE COLLISION THE SLICE-1 NOTE PREDICTED.** `server/restify-server.js`
+    and `config/integration.js` were both edited here. The desktop must merge `master` before
+    touching either.
+
+  ### Session 20 (2026-08-01, laptop) — Phase 4 STAGE B, and the same fix carried to Distinctions
+
+  Two commits (`e254ff8`, + the Distinctions sidebar). Suite **3,437 → 3,459 / 209 suites**, lint
+  0 errors, `nuxt build` green, tree clean. **Both pieces were LIVE-VERIFIED by Mike on the running
+  app** — *"all looks good and works as planned"* and *"yep all good"*. Phase 4 is complete and the
+  quizzes workstream is closed.
+
+  - ✅ **STAGE B BUILT — a firm now sees what we changed to a question it had reworded.** The tag,
+    the **Review update** button, and the side-by-side panel with Adopt / Keep mine. Adopt reuses
+    the reset route (which drops the baseline too); Keep mine calls Stage A's new route. Wording
+    mirrors the Advisory Staircase's approved labels verbatim, per the consistency ruling.
+  - 🔴 **THE ONE DEPARTURE FROM THE STAIRCASE, AND IT IS THE POINT OF THE SESSION: A FLAG THAT
+    CANNOT BE FOUND IS NOT A FLAG.** The staircase's five steps are all on one screen, so a flag
+    there is impossible to miss. **A quiz question sits inside one of 62 pages behind the rail**,
+    so a tag on the card alone would have waited to be stumbled upon — a firm could hold an update
+    for months. The rail now carries the count on the page **and** on its sub-section, so a firm
+    sees something is waiting before opening anything. Ported straight from the plan, this would
+    have shipped without it.
+    - **The count runs THROUGH `buildQuizRows`, not beside it.** A second count would be free to
+      disagree, and the way that shows up is a rail promising an update on a page where nothing is
+      flagged — which teaches a manager to ignore the flag. Same rule applied to Distinctions below.
+    - `hasUpdate` also requires the platform version to still exist. The backend never reports
+      drift on a retired qid, so the guard should never fire; without it, Review update would open
+      a panel with one empty half.
+  - ✅ **THE SAME GAP EXISTED ON ADVISORY DISTINCTIONS, AND IS NOW CLOSED (Mike asked the right
+    question: "can we use what you've done elsewhere?").** That tab's banner has always said "N
+    mentor updates since your last visit" — and **its own code comment finished the sentence:
+    *"Count spans all domains; switch domains to find the badged rows."*** Fourteen domains, one on
+    screen at a time. The sidebar now carries a per-domain count.
+    - **It counts BOTH kinds** — the passive *"Updated by mentor"* notice and the *"Mentor updated
+      this distinction"* drift that needs a decision. They differ in what they ask of a manager,
+      but the question the sidebar answers — *is there anything to look at in here?* — has the same
+      answer for both.
+    - **`domainDistinctions` became `distinctionRowsFor(domain)`**, a method the computed calls.
+      That is what lets the sidebar and the cards share one rule. The tab's nine existing tests
+      passed untouched, which is the proof the refactor changed no behaviour.
+    - **The label had to move from Buefy's `label` prop into its `label` slot** — `BMenuItem`
+      renders one or the other, never both. A mutant that drops the domain name is in the suite
+      because that is exactly how this change could have silently emptied the sidebar.
+    - ⚠ **NOT the same as the other tabs, and worth knowing: only ONE of the six blocks needed
+      this.** The Staircase has five steps on one screen; Domain Support and Logic Tables carry no
+      update flags at all (they are not on the shared mechanism yet, so there would be nothing to
+      count); Document Library and Team Case Studies inherit nothing from us. Checked before
+      building rather than applied everywhere for symmetry.
+  - **Mutation-tested 11/11 killed across the two pieces** (6 for Stage B, 5 for the sidebar), all
+    files restored **byte-identical, proven by SHA-256**. The mutants are the ones that would harm
+    a firm: Keep mine firing the reset (discarding the wording it promises to keep), drift never
+    reported, the rail counting questions rather than updates, the sidebar counting every row, and
+    the dropped domain name.
+  - ⚠ **A TEST-DATA FINDING WORTH THE LINE: `firmDistinctions.component.test.js` builds its rows in
+    a domain called `growth`, WHICH IS NOT ONE OF THE FOURTEEN.** The card tests pass anyway —
+    `domainDistinctions` filters by whatever domain is selected — so it went unnoticed. It only
+    surfaced because a per-domain count has to key on a real id. The new tests use real ids; the
+    older ones are left alone, since changing them would be changing tests that are passing for
+    their own reasons.
+  - **Dev-run facts worth not re-deriving:** dev-firm-001 **already holds a genuinely drifted row**
+    — `pd-10`, in Profitability & Feasibility — so the Distinctions count is visible in dev with
+    nothing seeded. The **passive** notice, by contrast, cannot be seen in dev at all: it needs
+    `updated_at`/`created_at` on a platform row and **none of the 67 rows in
+    `data/advisory-distinctions.json` carries one**. Showing it would mean editing committed
+    platform content, which was not done.
+  - ⚠ **HONEST LIMIT — the build covers Stage B, NOT the Distinctions change.** `nuxt build` ran
+    green before Mike looked at Quizzes (the Session 18 rule). By the time the Distinctions work
+    was finished his dev server was running again, and building against a live dev server is
+    forbidden. `componentStyles.test.js` parses the Hub's style block with the same parser the real
+    build uses and passed, so the Session 18 defect class is covered — **but that is not a build,
+    and the next session should run one.**
+
+  ### Session 19 (2026-08-01, laptop) — Quizzes Phase 4 STAGE A: the record
+
+  One commit (`ab31075`). Suite **3,424 → 3,437 / 209 suites**, lint 0 errors, coverage up, tree
+  clean. Same day and same session as Session 18 below; recorded separately because it is a
+  different piece of work.
+
+  - ✅ **BUILT, exactly as the plan above set out.** New additive key `quiz-override-baselines`
+    (+ its gitignored dev file, added in the same commit as the key); `_quizQuestionSignature`
+    over `EDITABLE_QUESTION_FIELDS`; the stamp in `setQuizOverride`; `_quizDriftQids` returned
+    from `getQuizzes` as `driftQids`; the baseline dropped by the reset route (which **is** the
+    Adopt half); and `POST /api/firm-manager/quizzes/platform/:qid/keep-mine`, **409 not a silent
+    success** when the firm holds no edit.
+  - 🔴 **A MISSING BASELINE IS BACKFILLED, NOT READ AS DRIFT** — the rule the whole feature turns
+    on. An edit made before today carries no stamp; reading that as "Advisor-e changed this" would
+    greet every such firm with a review prompt **on every question it had ever edited, at once**,
+    for updates that never happened.
+  - **TWO DELIBERATE DEPARTURES FROM THE STAIRCASE, both commented in code so the next reader
+    does not "fix" them:**
+    - The baselines key is **NOT** added to the reader's `CONFIG_KEYS`. Those three keys are the
+      firm's DECISIONS, and `loadFirmQuizState` asks "has this firm decided anything?" by looking
+      at them. **A baseline is not a decision** — filed alongside the three, a firm that had only
+      ever been *stamped* would start reading as a firm with its own quiz configuration.
+    - A `PLATFORM_QUESTIONS` Map is built beside `PLATFORM_QIDS`. The staircase can
+      `steps.find(...)`; quiz questions are nested two deep across 62 banks, so a scan per lookup
+      would repeat that walk for every edited question on every load of the tab.
+  - **An override keyed to a qid Advisor-e no longer ships is NOT offered as an update** — nothing
+    to compare against and nothing to adopt, and `loadFirmQuizState` already treats such a row as
+    junk rather than a decision. Reporting it here would make this the one place that disagreed.
+  - **13 new tests**, ported case for case from the staircase's, **plus two the staircase has no
+    equivalent of**: the retired-qid case, and a **per-field** check that everything a firm may
+    edit is actually signed — carrying a **control assertion**, so the loop cannot pass by
+    comparing the signature against something else entirely.
+  - **Mutation-tested 7/7 killed**, control green, production file restored **byte-identical
+    (proven by SHA-256, not by eye)**. The mutants are the ones that would harm a firm: backfill
+    removed, drift never reported, nothing stamped on edit, a stale baseline left on reset,
+    keep-mine silently succeeding, a retired qid offered for review, a field dropped from the
+    signature.
+    - ⚠ **THE FIRST RUN REPORTED 3/7 AND THE VERDICT WAS A LIE — FIFTH SIGHTING OF THE CRLF
+      TRAP.** Four multi-line patterns silently matched nothing because this repo's source files
+      are CRLF and the patterns were written with `\n`. **A skipped mutant reads like "no test
+      needed" when it means "no test ran".** The harness now normalises to the file's own line
+      endings; the skip path also prints loudly rather than passing quietly. Extends the
+      2026-07-28 and 2026-07-29 mutation lessons.
+  - ✅ **STAGE B — THE SCREEN — BUILT AND LIVE-VERIFIED 2026-08-01 (`e254ff8`).** See Session 20
+    below. Flagged questions carry the tag and a **Review update** button opening the side-by-side
+    panel with Adopt / Keep mine, and the rail says which page holds the update.
+
+  ### Session 18 (2026-08-01, laptop) — the rebuilt screen would not have opened at all
+
+  One commit (`67329f8`), pushed. Suite **3,365 → 3,424 / 209 suites**, lint 0 errors, tree clean,
+  **73 ahead / 0 behind** `master`. Session opened with `/startup`: 0 behind. Quizzes Phase 4 was
+  again **not** started — it remains the next job, exactly as recorded above.
+
+  - 🔴 **THE WHOLE FIRM MANAGER PAGE WOULD NOT COMPILE, AND IT SHIPPED GREEN.** Session 17's
+    rebuild moved the template-picker styles out to `FirmDistinctionForm.vue` and deleted
+    `.template-picker-selected` — **but left its closing brace behind**, one line above
+    `</style>` in `FirmManagerHub.vue`. That single stray `}` fails `postcss`, so `css-loader`
+    could not build the component, and the Hub is imported by `pages/firm-manager.vue`:
+    **every tab was unreachable, not just Distinctions.** `nuxt build` ended `FATAL Nuxt build
+    error`.
+  - 🔴 **WHY 3,365 GREEN TESTS AND A CLEAN LINT PROVED NOTHING HERE — the rule to carry
+    forward.** **Neither gate reads a `<style>` block.** The test runner strips it; ESLint lints
+    markup and JavaScript. **Only a full build compiles CSS, and no commit runs one.** So a
+    stylesheet error is invisible to every automated gate this repo had. → **RULE: run
+    `nuxt build` before asking Mike to look at any rebuilt screen.** This is the third sighting
+    of the same family (Session 16's screen defect, Session 17's untested prose, now this):
+    **the suite cannot see a screen, and it cannot see the words or the styling on it either.**
+  - **Found because Mike asked for a proper build before looking** — *"do a proper build so i can
+    check without failing to open"*. Had he simply opened it, he would have met a broken page and
+    no explanation.
+  - **Proof method, recorded because guessing would have been faster and wrong:** brace balance
+    in the style block was **15/15 before `63cc54f`** and **12/13 after** — which dated the
+    defect to the rebuild before a single line was read. Then `postcss.parse` on the block alone
+    (`Unexpected }`, line 59), then the real build for the authoritative answer. **All 70 `.vue`
+    files were scanned: this was the only one broken.**
+  - ✅ **GUARD BUILT — `tests/unit/componentStyles.test.js` (59 checks).** It parses every screen's
+    style block with **`postcss`, the same parser `postcss-loader` uses inside the real build**, so
+    a pass here means what the build means rather than being a second opinion that can drift from
+    it. `postcss` arrives with Nuxt's build chain; **nothing was installed and no stack deviation
+    is introduced.**
+    - **It cannot pass vacuously.** A broken directory walk finding nothing would otherwise report
+      a clean sweep — the most dangerous false green, because it looks like proof. **Both the file
+      count and the style-block count are asserted.**
+    - **The proof that it bites lives IN the test file** — the exact stray-brace CSS from this
+      defect must throw. Breaking the real file and restoring it would have been a one-off no
+      future session could see; this runs on every commit. Same reasoning as the Logic Tables
+      id check (Session 2026-07-31).
+    - A block declaring a preprocessor (`lang="scss"`) is skipped rather than mis-reported. No
+      screen uses one today; this keeps a future one from failing for the wrong reason.
+  - **MUTATION-CHECKED IN MEMORY, WITH NO REPO WRITE AT ALL** — the file was read, the brace
+    re-inserted **on the string**, and both versions parsed: control passes, mutant fails at the
+    right line, and the mutation was **confirmed applied** before the verdict was believed (the
+    2026-07-28 lesson). **Use this shape whenever the thing to mutate is a file that must not be
+    touched.**
+  - ✅ **ADVISORY DISTINCTIONS VIEWED AND APPROVED BY MIKE — "all works good".** The Session 17
+    cards rebuild is confirmed on screen; that verification is **closed**.
+  - ✅ **THE ADVISORY STAIRCASE TAB WAS ALSO VIEWED AND APPROVED THE SAME DAY — "staircase tab
+    all good".** Session 17 rebuilt two screens and **both are now confirmed on screen**. No
+    screen verification is outstanding on the Firm Manager Hub.
+  - **Dev-run facts worth not re-deriving:** `pages/firm-manager.vue` **auto-signs in on
+    `localhost`** as `dev-firm-001` (no login step, and that firm owns the sample overrides), and
+    the tab reads `data/advisory-distinctions.json` — **67 platform rows across 14 domains**,
+    Conflict the fullest at 9 — plus `data/dev-firm-distinctions.json`. **No MySQL is needed to
+    see real content on this tab.**
+  - ⚠ **A HANDOVER DEFECT OF MY OWN, worth the line.** The two start commands were given as one
+    block with `# comments` appended; Mike pasted both into one terminal and PowerShell hung on
+    `>>`. **The backend never exits, so the two commands need two terminals.** → **Give ONE bare
+    command per terminal, with no trailing comment that makes it read as a single paste.**
+
+- **✅ FIRM MANAGER HUB RESTRUCTURE + QUIZ BUILDER — MERGED TO `master` 2026-07-29 (`a526153`, PR #24).** 45 commits, 55 files, from `feat/firm-quiz-builder-ui`. The Hub becomes **Domain Support · Logic Tables · Advisory Staircase · Advisory Distinctions · Quizzes · Team Case Studies**. Verified before merging in a **detached throwaway worktree** (neither machine's tree involved): **130 suites / 1,924 tests green, lint 0 errors**; fast-forward, so no conflict was possible.
+  - ⚠ **MERGED FROM A FROZEN SNAPSHOT BRANCH (`release/firm-manager-hub` @ `389d47d`), NOT from the live branch — and that distinction is the point.** A PR tracks its head **branch**, not a commit, so the first attempt (PR #23, since closed) would have **silently swept in the desktop's in-progress Domain Support PDF-extraction work** the moment it was pushed. Mike's ruling: that work must stay off `master`. Pointing the PR at a snapshot leaves `feat/firm-quiz-builder-ui` free to receive work-in-progress commits with **no automatic route to `master`**. *(Honest limit: sealed against accident, not against intent — someone could still push to the snapshot or raise a second PR deliberately.)*
+  - **What was read before merging, rather than assumed:** **Logic Tables is finished and live** — Save writes a firm-only override, Reset restores the platform default, version history, and **firm-authored branch text is fenced before it reaches the AI**; overrides merge into a fresh per-request copy never written back to the shared cache (cross-firm isolation). **Domain Support is a deliberate, banner-labelled PREVIEW** — Save/Reset inert, because persisting firm text and its AI fencing land together in the next slice, *so the surface is never live before its safeguard*; only EOY is migrated to the four-column shape and other domains show an honest "not yet in this format" notice. **The removed Decision Frameworks (PDF library) tab was Mike's own 2026-07-27 decision** — the AI never read those PDFs, so no engine behaviour changed; component and routes left dormant with a P3 cleanup logged.
+  - ⚠ **TRAP WORTH AN HOUR TO THE NEXT PERSON.** Verifying a branch in a fresh `git worktree` showed **2 failures in `ghostReferenceValidator.test.js`** — and they were **NOT a defect**. The master export (`Central Frameworks/search_content_*.json`) is **gitignored, and a worktree does not carry gitignored files**; without it `validateLogicTreeReferences` logs a warning and returns **no ghosts by design**, so the two tests asserting a ghost is caught fail. Copy the export in before believing any verdict. The test file is byte-identical on both branches. **A near-miss: this was one step away from being reported as a regression on someone else's clean branch.**
 - **Highest-SEVERITY open item:** the **dev-toolchain reconcile** → add 2 `overrides` + flip `engine-strict` back to `true` (P1, stack governance — the last unclosed Stack-Constitution drift). **But it is overnight-reinstall-gated** — not a now-task. → [§Dev-toolchain](#dev-toolchain)
 - **★ NEXT ACTION — open for triage (Mike to pick).** The big **cross-domain engine workstream (2026-06-25) is DONE, merged to `master`, and live-validated** — full record in ACTIONS-ARCHIVE. Strongest remaining candidates: **Firm-Manager config persistence → MySQL** (pre-production — the only thing between the validated DEV crisis distinction and a real firm authoring one), the **jest coverage-gate** item, or the **dormant-trees needs-signal bucket**.
 - **✅ Done 2026-06-29 (this session) — Distinctions cascade Stages E AND D BUILT + verified, on branch `feat/mentor-distinctions-authoring`.** **Stage E** (mentor-update review): when the mentor edits a distinction a firm OVERRODE, the firm gets a "Mentor updated this distinction" badge + Review-update compare panel → **Adopt** or **Keep mine** (per-override content-signature drift) — plus the non-overridden complement ("since your last visit" notice) and a latent-bug fix (firm screen now reads the LIVE mentor set). **Stage D** (mentor delete → "keep theirs"): customising firms keep their version as a firm-own row; cross-firm enumeration is production-real (`listFirmIdsWithConfigKey`). Test isolation hardened (dev-fallback tests no longer touch shared real files) → a clean `npm test` is deterministic. **Full suite 637 green; lint clean. Stage D + E LIVE-VERIFIED by Mike 2026-06-29** (Adopt/Keep-mine flow + delete→keep-theirs click-tested in the running app). Mentor-authoring is now A–C + **D + E**; only **Stage 3** (hierarchy/role) remains. **✅ MERGED to `master` 2026-06-30** (merge commit `db97c7b`); the feature branch plus 5 other stale merged branches were deleted (local + remote), leaving the repo `master`-only. *Detail:* plan §6, memory `design-distinctions-cascade`.
@@ -802,7 +2603,7 @@ Two honest answers on different axes — the file used to conflate them:
 
 **🟠 P1/P2 · High**
 - ✅ **FIXED 2026-07-10 — Backend URL hardcoded `http://localhost:4000`** in 7 frontend files ([`utils/cases.js`](../utils/cases.js), [`mixins/caseMixin.js`](../mixins/caseMixin.js), [`components/MentorReview.vue`](../components/MentorReview.vue), `MentorDistinctions.vue`, `AdvisorProgression.vue`, `FirmManagerHub.vue`, [`components/CourseBuilder.vue`](../components/CourseBuilder.vue)). Added a generic thin proxy [`server-middleware/apiProxy.js`](../server-middleware/apiProxy.js) registered for `/api/cases`, `/api/activity`, `/api/firm-manager`, `/api/mentor` in `nuxt.config.js`; switched all calls to relative `/api/...` paths (same-origin, no CORS change, backend never exposed). Lint clean, 707 tests green, `nuxt build` green. ⚠ Runtime round-trip PARTIALLY verified live 2026-07-16: `/api/activity` + `/api/courses` round-tripped through the Nuxt proxy in the Stage E click-through; one saved-case action + one Firm-Manager action still to click. ✔
-- ⏸ **DEFERRED (intentional while in dev, Mike 2026-07-10) — Team Dashboard renders mock advisors** — [`components/FirmDashboard.vue`](../components/FirmDashboard.vue) L244. `loadData` returns mock "Sarah Chen / James Park" data + a placeholder AI insight; the real `/api/firm/advisors` endpoint exists. Wire to the live API before production (not a bug today — a known dev stub). ✔
+- ☑ **CLOSED BY DELETION 2026-07-29 (Mike's ruling) — Team Dashboard mock removed entirely.** Was: `FirmDashboard.vue`'s `loadData` returned mock "Sarah Chen / James Park" advisors + a placeholder "AI insight" that was string concatenation, not AI. Deferred as a known dev stub on 2026-07-10; the real team view now exists as a Firm Manager Hub tab reading `/api/activity/team`, so the mock had nothing left to become. **Deleted with its whole cluster** — the component, the Course Builder "Team Dashboard" button and its `openFirmDashboard` emit, the `firm` panel mode in `VirtualAdvisor.vue`, the now-dead `isFirmManager` prop on `CourseBuilder.vue`, and `server/routes/firm.js` with its two route registrations. Those routes' ONLY caller was commented-out code inside the mock itself, and they proposed a three-table schema (`advisors`/`courses`/`course_sessions`) that was never built. Leaving them would have recreated the dormant-code problem already logged for `FirmDocuments`.
 - ✅ **FIXED 2026-07-10 — OpenAI calls have no effective timeout** — [`server/utils/openaiClient.js`](../server/utils/openaiClient.js) L131. `create(params, options)` now honours `options.timeout` and `postCompletions` sets a socket **inactivity** timeout (safe for streaming — active tokens reset it; only a genuine stall trips it), with a 60s default so all 10 advisorEngine calls are covered too, not just the 2 courseEngine calls that passed a value. +3 unit tests. 710 tests green, lint clean.
 - ✅ **FIXED 2026-07-10 — SEC: cross-firm document download (IDOR) + broken auth on download** — [`server/routes/firmManager.js`](../server/routes/firmManager.js) L287. Added an authorisation gate before streaming: a `firm` document must belong to `req.firmId` (DB check), a `platform` document must be a real base file in the named category; otherwise 404. Also fixed the linked bug (frontend `<a>`-tab download couldn't send the Bearer token) by switching `downloadDoc` to an authenticated `fetch` → blob save, passing `source`+`category`. +6 route tests (cross-firm 404, platform membership, happy paths). 716 tests green, lint clean.
 - ✅ **FIXED 2026-07-10 — SEC: `/api/course` body has no size limit** — [`server/courseEngine.js`](../server/courseEngine.js) L469. `parseBody` now caps at 256 KB (matches advisorEngine's `BODY_LIMIT`), rejects with 413 + destroys the socket. +3 unit tests. 722 tests green, lint clean.
@@ -1019,5 +2820,10 @@ Two honest answers on different axes — the file used to conflate them:
 ---
 
 ## ⛔ DO-FIRST P1 (stack governance — overnight/reinstall-gated)
+
+- <a id="undeclared-dotenv"></a>✅ **STACK DEVIATION CLOSED 2026-07-30 (Mike-approved) — `dotenv` is now declared, pinned exactly at `8.6.0` in `dependencies`.** The version already installed and proven working, so this is a declaration, **not a version bump** — and `8.6.0` declares `node >= 10`, in range for the locked 14.15. **Nothing behaves differently today;** what changed is that the backend's access to the OpenAI key, the JWT secret and the CA path no longer rides on a coincidence in the *frontend's* dependency tree. **Traced before it was fixed:** the only `require` is [`restify-server.js`](../server/restify-server.js) L50, and the package was on disk solely because **`@nuxt/config`** — a frontend build package — wants `dotenv@^8.2.0`. Had that shifted, the guarded require would have failed, the server would still have **booted**, printed one quiet NOTE, and then run with no API key at all: the exact renders-as-working failure this feature spent 2026-07-29 removing from the read path. **Method, recorded because it is the safe recipe for any future declaration:** npm 10 (from the Node 20 install) with `--package-lock-only --lockfile-version 2 --legacy-peer-deps`, so **`node_modules` is never touched** and a working dev environment cannot be damaged; lockfile backed up first and the diff proven **purely additive** — 0 packages removed, 0 added, no dependency version altered, lockfileVersion still 2, `overrides` and `engines` intact. Suite 2,340 / 144 green afterwards. *(npm also wrote the project's own `"version": "0.6.0"` into the lockfile, which the older file had omitted — not a dependency, and it would return on any future install, so it was left.)* *Original entry follows for the record:* ☐ **`dotenv` is used but not declared in `package.json`.** Logged 2026-07-29 under the binding deviation rule. The Restify entry point now calls `require('dotenv').config()` ([`restify-server.js`](../server/restify-server.js)), and three committed scripts already document `node -r dotenv/config` (`scenario-lab.js`, `discover-lab.js`, `domain-detection-check.js`). **`dotenv` is not a declared dependency** — it exists at `8.6.0` only because Nuxt pulls it in transitively, so an unrelated dependency change could remove it with a confusing failure.
+  - **Not load-bearing, deliberately.** The require is wrapped in try/catch: without dotenv the server still boots and uses the process environment as-is, which is exactly what a real deployment supplies. So this is a hygiene defect, not an outage risk — which is why it is logged rather than rushed.
+  - **Why it was not fixed on the spot:** `npm install` rewrites `node_modules` beneath a running Nuxt dev server. Same family as the "never `nuxt build` while the dev server runs" rule, and worse. **Do this with both servers stopped.**
+  - **Procedure when the window comes** (the laptop's ONLY safe install path — npm 6 must never be used, it rewrites the v2 lockfile to v1 and ignores the stack-reconciliation `overrides`): back up `package.json` + `package-lock.json`, then with npm 10 on Node 20 and `NODE_EXTRA_CA_CERTS` pointing at the Windows root bundle (Avast intercepts TLS), run `npm install --save-exact --lockfile-version 2 --legacy-peer-deps dotenv@8.6.0`. **Verify the lockfile diff is purely additive** — 0 removed, 0 version changes, `lockfileVersion` still 2, `overrides` and `engines` intact — and restore the backup if not. Pin 8.6.0: it is what is already installed, so the tree should not move at all.
 
 - <a id="dev-toolchain"></a>☐ **STACK DRIFT (dev toolchain) — flip `engine-strict` back to `true`.** The app **runtime is Node-14.15-clean** (backend + frontend install with zero engine warnings; full suite passes on 14.15); the only mismatches are dev/build tools. **Done already (archive context):** the four hard pins (`eslint 7.32.0`, `@nuxtjs/eslint-config 6.0.1`, `concurrently 7.6.0`, `cross-env 7.0.3`) + `cssnano 4.1.11` (postcss-7 line; the head-team's "5.x" is SUPERSEDED — confirmed by the master coding team 2026-06-23, Option 1) were applied and installed clean (lint 0, 319 tests, `nuxt build` green). **REMAINING:** the installed tree has **exactly two** Node-engine mismatches, both transitive over-declarers — `consola@3.4.2` (wants 14.18+) and `node-releases@2.0.47` (wants 18+). Add 2 `overrides` (`consola`→2.x, `node-releases`→older) + **one more install to verify**, then **flip `engine-strict` → `true`** in `.npmrc`. ⚠ Risk: downgrading `consola` major (v3→v2) may break whichever build tool pulls it — own task, own install window. ⚠ **Reinstall is overnight-only on this machine** (Avast cert + npm 8 per the install command in the archive). **Do NOT flip `engine-strict` to `true` until verified** — it will hard-fail the install otherwise. *Source:* engine scan 2026-06-12; pin list 2026-06-16; install 2026-06-16.

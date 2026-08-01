@@ -15,13 +15,43 @@
  * locked runtime.
  *
  * MyMemory free tier: set MYMEMORY_EMAIL env var for 10,000 words/day.
+ *
+ * ONE route serves both halves of the app. Collaborate shipped its own copy of
+ * this file, hardened in a different direction; when the two back-ends merged the
+ * two were folded together rather than one being picked, because each held
+ * something the other did not:
+ *   - from HERE: buildChunks(), which fixed a real bug — a run of short strings
+ *     piled into one oversized URL that MyMemory 414s, silently reverting a whole
+ *     locale to English.
+ *   - from COLLABORATE: input sanitisation + a length cap before untrusted text
+ *     leaves for a third party, schema validation of the reply, and `from`, which
+ *     lets a chat message be translated OUT of its own language rather than
+ *     assuming English.
  */
 
 const https = require('https')
+const { sanitiseValues } = require('../collaborate/utils/sanitiseInput')
+const { validateAIResponse } = require('../collaborate/utils/validateAIResponse')
+const { sendApiError } = require('../collaborate/utils/sendError')
 
 const SEPARATOR = '\n\n---SPLIT---\n\n'
 const CHUNK_CHARS = 900
 const REQUEST_TIMEOUT_MS = 15000
+const MAX_INPUT_CHARS = 5000
+
+// Expected shape of a usable MyMemory response. Validated before we trust it —
+// third-party output is never assumed well-formed (CLAUDE.md §Security).
+const MYMEMORY_SCHEMA = {
+  type: 'object',
+  fields: {
+    responseStatus: { type: 'number', required: true },
+    responseData: {
+      type: 'object',
+      required: true,
+      fields: { translatedText: { type: 'string', required: true } }
+    }
+  }
+}
 
 /**
  * GET a URL with the Node-14 `https` module and resolve the raw response.
@@ -79,19 +109,26 @@ function httpsGet (urlString) {
 }
 
 async function post (req, res) {
-  const { texts, langCode } = req.body || {}
+  const { texts, langCode, from } = req.body || {}
+  // Source language defaults to English (the bundled base locale). Chat
+  // translation passes `from` = the message's own language so any language can
+  // be translated into the reader's language.
+  const sourceLang = from || 'en'
 
   if (!texts || !langCode) {
-    res.send(400, { success: false, error: { code: 'PARAMS_REQUIRED', message: 'texts and langCode are required' } })
+    sendApiError(res, 400, 'PARAMS_REQUIRED', 'texts and langCode are required')
     return
   }
 
-  const keys = Object.keys(texts)
+  // Sanitise untrusted input before it leaves the backend for the third party
+  // (CLAUDE.md §Security). safeTexts is used everywhere below in place of texts.
+  const safeTexts = sanitiseValues(texts, { maxLength: MAX_INPUT_CHARS })
+  const keys = Object.keys(safeTexts)
   const email = process.env.MYMEMORY_EMAIL
 
   // Split keys into chunks that fit inside MyMemory's GET URL limit (~2 KB),
   // avoiding 414 / silent truncation on large locale payloads.
-  const chunks = buildChunks(keys, texts)
+  const chunks = buildChunks(keys, safeTexts)
 
   const translated = {}
 
@@ -99,8 +136,8 @@ async function post (req, res) {
   // text for its keys, so a partial outage degrades gracefully rather than
   // dropping strings or failing the whole request.
   for (const chunkKeys of chunks) {
-    const combined = chunkKeys.map(k => String(texts[k] || '')).join(SEPARATOR)
-    const params = new URLSearchParams({ q: combined, langpair: `en|${langCode}` })
+    const combined = chunkKeys.map(k => safeTexts[k]).join(SEPARATOR)
+    const params = new URLSearchParams({ q: combined, langpair: `${sourceLang}|${langCode}` })
     if (email) { params.set('de', email) }
 
     let mmRes
@@ -108,13 +145,13 @@ async function post (req, res) {
       mmRes = await httpsGet(`https://api.mymemory.translated.net/get?${params}`)
     } catch (netErr) {
       console.error('[translate] Network error:', netErr.message)
-      chunkKeys.forEach((k) => { translated[k] = texts[k] })
+      chunkKeys.forEach((k) => { translated[k] = safeTexts[k] })
       continue
     }
 
     if (mmRes.statusCode !== 200) {
       console.error('[translate] MyMemory HTTP error:', mmRes.statusCode)
-      chunkKeys.forEach((k) => { translated[k] = texts[k] })
+      chunkKeys.forEach((k) => { translated[k] = safeTexts[k] })
       continue
     }
 
@@ -123,19 +160,21 @@ async function post (req, res) {
       data = JSON.parse(mmRes.body)
     } catch (e) {
       console.error('[translate] MyMemory returned non-JSON')
-      chunkKeys.forEach((k) => { translated[k] = texts[k] })
+      chunkKeys.forEach((k) => { translated[k] = safeTexts[k] })
       continue
     }
 
-    if (!data || data.responseStatus !== 200 || !data.responseData || typeof data.responseData.translatedText !== 'string') {
-      console.error('[translate] MyMemory rejected:', data && data.responseDetails)
-      chunkKeys.forEach((k) => { translated[k] = texts[k] })
+    // Validate the third-party response shape before trusting it as data.
+    const shape = validateAIResponse(data, MYMEMORY_SCHEMA)
+    if (!shape.valid || data.responseStatus !== 200) {
+      console.error('[translate] MyMemory rejected:', shape.valid ? data.responseDetails : shape.errors)
+      chunkKeys.forEach((k) => { translated[k] = safeTexts[k] })
       continue
     }
 
     const parts = data.responseData.translatedText.split(/\n+---SPLIT---\n+/)
     chunkKeys.forEach((k, i) => {
-      translated[k] = parts[i] !== undefined ? parts[i] : texts[k]
+      translated[k] = parts[i] !== undefined ? parts[i] : safeTexts[k]
     })
   }
 

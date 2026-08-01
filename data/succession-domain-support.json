@@ -20,6 +20,7 @@
   },
   "materials": [
     {
+      "id": "succession-quiz-initial-discovery-questionnaire",
       "name": "Succession Quiz — Initial Discovery Questionnaire",
       "summary": "Eases the owner into succession by asking them to picture life after the business — hobbies, family time, future income, mental acuity — before any financial or legal hurdle is raised. It works against Role Identification, the loss of self-worth and community status an owner feels on exiting, by helping them build a clear and genuinely appealing vision of what comes next. For the advisor it produces a baseline readiness report before the first formal meeting.",
       "who_when": "Business owners at the very beginning of their succession journey — especially those who are hesitant, or struggling to let go of their business identity.",
@@ -32,6 +33,7 @@
       ]
     },
     {
+      "id": "succession-metaphor-dream-home-visual-frameworks",
       "name": "Succession Metaphor — Dream Home Visual Frameworks",
       "summary": "Visual slides that reframe a threatening transition as a collaborative build. An Ascension Diagram running bottom-left to top-right gives participants the felt sense of moving upward and improving, while the Dream Home metaphor engages the logical left brain and the conceptual right brain at once. It also repositions the advisor as a facilitator rather than an expert dictating terms, which is what bypasses the argumentative reflex families bring to conflict.",
       "who_when": "Multi-stakeholder families or complex transition teams where confirmation bias, conflict or stress is likely to derail planning early.",
@@ -44,6 +46,7 @@
       ]
     },
     {
+      "id": "succession-wishes-meeting-template",
       "name": "Wishes Meeting Template",
       "summary": "A structured questionnaire for gathering the qualitative material succession actually turns on — family considerations, financial needs and successor requirements. It makes sure every voice is heard on stewardship versus ownership, fair market compensation, divorce risk and sibling equity, and it lets the advisor capture the incumbents' and the successors' expectations separately so conflict is not triggered prematurely.",
       "who_when": "The formal discovery phase, where legal, estate and emotional wish lists must be documented before the transition plan is designed.",
@@ -56,6 +59,7 @@
       ]
     },
     {
+      "id": "succession-comprehensive-guide-6-step-dream-home-methodology",
       "name": "Comprehensive Guide & 6-Step Dream Home Methodology",
       "summary": "The orchestrating guide that grounds the emotional facilitation in global standards — ISO 22301 for risk mitigation, IFAC for value preservation, and OECD governance principles — so the plan is defensible as well as agreed. It supplies the 6-step implementation methodology that sequences the other materials, and the Rule of 5: a five-year lead time to pace the engagement and transfer the skills the successor needs.",
       "who_when": "Advisors actively managing a transition and structuring the long-term consulting engagement around it.",

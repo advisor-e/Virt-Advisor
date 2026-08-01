@@ -25,6 +25,7 @@
   },
   "materials": [
     {
+      "id": "org-leadership-directorship-pathway-guidelines",
       "name": "Directorship Pathway Guidelines",
       "summary": "A transparent five-year roadmap into partnership, with strict benchmarks for experience, character and competency so promotion stops being a judgement call. It protects the firm as much as it develops the candidate: proven track record, cultural alignment, and personal financial affairs in order. Pathway 2 carries the competency assessment itself, rated 1 to 5 from \"needs serious attention\" to \"competent to coach others effectively\".",
       "who_when": "Professional service firms, accounting practices and mid-sized businesses cultivating internal talent for equity partnership or directorship.",
@@ -40,6 +41,7 @@
       ]
     },
     {
+      "id": "org-leadership-enneagram-based-employment-questions",
       "name": "Enneagram-Based Employment Questions",
       "summary": "Takes interviewing past technical competence to the motivations, stress triggers and social preferences underneath, using the nine Enneagram types and the broader work styles they group into — Soloists, Initiators and Cooperators. It lets an owner build a balanced team and anticipate how someone behaves under pressure, and it gives the interviewer questions sharp enough to reveal genuine self-awareness.",
       "who_when": "Hiring managers, executive coaches and advisors doing advanced vetting for leadership, management or highly collaborative roles.",
@@ -54,6 +56,7 @@
       ]
     },
     {
+      "id": "org-leadership-partner-accountability-conduct-framework",
       "name": "Partner Accountability & Conduct Framework",
       "summary": "The governance layer: a Code of Conduct, a Conduct & Effect matrix, and a points system that ties behaviour directly to money. Demerits accumulate against profit share — 20 points inside 12 months triggers immediate resignation and forfeiture of the client base — while a bonus system rewards growth. It also names boardroom manipulation tactics so toxic behaviour can be labelled objectively instead of argued about emotionally.",
       "who_when": "Existing boards, established partnerships and executive teams needing strict governance, conflict resolution or formal performance management.",

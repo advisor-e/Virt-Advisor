@@ -5,6 +5,7 @@
   "overview": "The End of Year meeting is the primary opportunity to move a client from historical, compliance-focused reporting into forward-looking advisory work. This domain holds the materials for running that meeting well: the standard EOY agenda, a rural variant, the Basic Targets dashboard method, and the advisor's psychological delivery scripts — each with who it suits and how to run it.",
   "materials": [
     {
+      "id": "eoy-meeting-agenda",
       "name": "EOY Meeting Agenda",
       "summary": "The standard End of Year meeting structure — a timed, pie-chart agenda taking a client through an accounts review, their position on the 9-stage Growth Curve, a volatility analysis, and a Start/Stop/Keep action plan. Keeps the meeting on track and covers compliance and strategy together.",
       "who_when": "General commercial business clients attending their standard End of Year financial and strategic review.",
@@ -18,6 +19,7 @@
       ]
     },
     {
+      "id": "eoy-basic-targets",
       "name": "Basic Targets",
       "summary": "Connects the owner's personal income and leisure goals to a customised management dashboard. Educates the owner on core financial ratios and uses the 5-step Advisory staircase to verify data and select only the KPIs the owner can actually adjust, so the dashboard answers the vital monthly questions about business health.",
       "who_when": "Business owners who need to link personal lifestyle goals to measurable business performance, and those needing a structured dashboard to track ongoing progress.",
@@ -31,6 +33,7 @@
       ]
     },
     {
+      "id": "eoy-rural-meeting",
       "name": "EOY Rural Meeting",
       "summary": "An agriculture-specific version of the EOY meeting. Replaces the generic Growth Curve with the 8-tier Farmer's Growth Position and adds a 5-year Strategic Spending Plan, aligning the review with farming milestones and building rapport with rural clients.",
       "who_when": "Agricultural clients — farmers, sharemilkers, and rural enterprise operators.",
@@ -44,6 +47,7 @@
       ]
     },
     {
+      "id": "eoy-advisor-scripts-only",
       "name": "EOY Advisor Scripts Only",
       "summary": "The advisor's psychological-delivery toolkit for the EOY meeting — exact framing phrases to control the meeting, role-play directions for difficult \"Mr Prickly\" personalities, and instructions for deploying the global (Growth Curve) and local (Volatility) attention hooks through safe third-person personas.",
       "who_when": "Advisors and coaches preparing their own delivery style and psychological approach ahead of client meetings.",

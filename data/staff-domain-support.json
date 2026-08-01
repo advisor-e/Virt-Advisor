@@ -18,6 +18,7 @@
   "overview": "Staff and productivity scenarios require the advisor to move away from generalised frustrations and diagnose the specific root cause of underperformance. The framework separates performance into five primary drivers and guides the advisor through a structured diagnostic — distinguishing between engagement problems (attitude and mindset) and effectiveness problems (knowledge, skill, systems). The right template and intervention depends entirely on which driver is failing.",
   "materials": [
     {
+      "id": "staff-5-drivers-of-human-output-performance-diagnosis",
       "name": "5 Drivers of Human Output — Performance Diagnosis",
       "summary": "Moves a manager from a generalised complaint — \"my staff are driving me nuts\" — to a specific root cause. Performance breaks into five drivers: Knowledge, Skill, Resource and planning, Environment, and Mindset, shortened for speed to Know, Do, Care. Which driver is failing decides everything that follows, because an attitude problem and a competency problem need opposite responses.",
       "who_when": "Managers venting broad frustration about their team, before any performance conversation, plan or training is committed to.",
@@ -32,6 +33,7 @@
       ]
     },
     {
+      "id": "staff-performance-framework-diagnosis-and-resolution",
       "name": "Staff Performance Framework — Diagnosis and Resolution",
       "summary": "The routing framework that turns the diagnosis into action. It asks three questions in order — is this engagement or effectiveness, is it systemic or individual, and is it a skills gap or a broken system — and sends the advisor to a different template at each fork. Working the forks in order prevents the common error of training people whose real obstacle is the environment around them.",
       "who_when": "Once a specific under-performance issue is on the table and the manager is ready to act on it.",

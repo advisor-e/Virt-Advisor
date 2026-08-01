@@ -18,9 +18,10 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
-const { loadFirmDomainSupport, loadFirmLogicTrees } = require('../server/utils/firmContent')
+const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
+const { loadBlendedQuizBanks, isFirmAuthored } = require('../server/utils/quizConfig')
 const { isClarificationRequest, prefillDesignState, requestedSessionCount } = require('../server/utils/designInterview')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
@@ -160,8 +161,10 @@ function handleDesign (req, body, res) {
     const sectionDescText = formatSectionDescriptionsForPrompt()
 
     // Firm content overlay (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
-    // identity from the firmAuth-verified req, never the body.
-    const firmDomainSupport = await loadFirmDomainSupport(req.firmId, loadFirmConfig)
+    // identity from the firmAuth-verified req, never the body. A production storage
+    // fault rejects rather than reading as "no override"; readForSession logs it and
+    // designs the course from the platform content instead of failing the request.
+    const firmDomainSupport = await readForSession(loadFirmDomainSupport, req.firmId, loadFirmConfig, 'course')
     const detectedDomains = detectDomainsForDesign(allUserText, firmDomainSupport)
     const domainSummaries = detectedDomains
       .map(id => formatDomainSummaryForDesign(id, firmDomainSupport))
@@ -351,9 +354,10 @@ async function handleSession (req, body, res) {
 
   // Domain support context — match session topic to the relevant domain support JSON.
   // Firm content overlays (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
-  // identity from the firmAuth-verified req, never the body.
-  const firmDomainSupport = await loadFirmDomainSupport(req.firmId, loadFirmConfig)
-  const firmLogicTrees = await loadFirmLogicTrees(req.firmId, loadFirmConfig)
+  // identity from the firmAuth-verified req, never the body. As above, a production
+  // storage fault is logged and the session runs on the platform content.
+  const firmDomainSupport = await readForSession(loadFirmDomainSupport, req.firmId, loadFirmConfig, 'course')
+  const firmLogicTrees = await readForSession(loadFirmLogicTrees, req.firmId, loadFirmConfig, 'course')
   const domainQuery = focusQuery
   const domainId = detectDomainForSession(domainQuery, firmDomainSupport)
   const domainContext = domainId
@@ -416,7 +420,7 @@ async function handleSession (req, body, res) {
 
 // ── Quiz generation ────────────────────────────────────────────────────────
 
-async function handleQuizGenerate (body, res) {
+async function handleQuizGenerate (req, body, res) {
   const { sessionContext, sessionHistory = [] } = body
 
   // Fixed override questions take priority over AI generation — matched on
@@ -433,12 +437,23 @@ async function handleQuizGenerate (body, res) {
   // teaches from) is mandatory source material — the AI tailors the bank's
   // questions to the session, never invents its own.
   //
-  // CB-31: a bank tagged origin='firm' was typed into the Firm Manager screen
-  // at runtime, so its text is untrusted input however trusted the manager who
-  // wrote it — a "question" could be phrased as an instruction to the model.
-  // Firm-authored banks are therefore fenced; platform banks are repo data and
-  // stay unfenced, leaving the tuned CB-29/CB-30 prompt behaviour unchanged.
-  const bank = findQuizBank(overrides.banks, sessionContext)
+  // CB-31: a question typed into the Firm Manager screen at runtime is untrusted
+  // input however trusted the manager who wrote it — a "question" could be
+  // phrased as an instruction to the model. Firm-authored questions are therefore
+  // fenced; Advisor-e's are repo data and stay unfenced, leaving the tuned
+  // CB-29/CB-30 prompt behaviour unchanged.
+  //
+  // 2026-07-31: the banks now come from the MECHANISM, not straight off disk.
+  // Two things change. (1) A firm's saved quiz material finally reaches the AI —
+  // until now the engine read the shipped file directly, so a firm could save,
+  // see it on screen, and every course still used ours. (2) Fencing is PER
+  // QUESTION, because one bank can now hold Advisor-e's questions and the firm's
+  // side by side; fencing the whole block would smother ours in delimiters the
+  // prompt was never tuned for, and fencing none of it would open the standard
+  // prompt-injection route. A bank with no firm content produces byte-identical
+  // text to before — locked by a test.
+  const banks = await loadBlendedQuizBanks(req.firmId, loadFirmConfig)
+  const bank = findQuizBank(banks, sessionContext)
   // Provenance: which bank answered. `bankRef` (already on every question) is
   // only an entry NUMBER — meaningless without the bank it belongs to, so the
   // advisor's quiz review and any manager view cannot say where a question came
@@ -449,14 +464,17 @@ async function handleQuizGenerate (body, res) {
   // until after grading (see handleQuizGrade), or the browser would hold the
   // answers before the advisor writes theirs.
   const bankKey = bank
-    ? (Object.keys(overrides.banks || {}).find(k => overrides.banks[k] === bank) || null)
+    ? (Object.keys(banks).find(k => banks[k] === bank) || null)
     : null
   const bankEntries = bank
-    ? bank.entries.map(e => `Entry ${e.id}\nQuestion: ${e.question}\nKey point: ${e.keyPoint}`).join('\n')
+    ? bank.entries.map((e) => {
+      const line = `Entry ${e.id}\nQuestion: ${e.question}\nKey point: ${e.keyPoint}`
+      return isFirmAuthored(e) ? fenceUntrusted(line) : line
+    }).join('\n')
     : ''
   const bankBlock = bank
     ? '\nFirm-authored question bank for the template this session teaches from (mandatory source material):\n' +
-      (bank.origin === 'firm' ? fenceUntrusted(bankEntries) : bankEntries) + '\n'
+      bankEntries + '\n'
     : ''
   const factRequirements = bank
     ? `- Build every question from the firm-authored question bank above: choose the 3 entries most relevant to the session content covered, and tailor each to that content — adapt wording and scenario details, keep the entry's substance and key point. Never copy an entry word-for-word and never ask anything the bank does not cover.
@@ -523,7 +541,7 @@ ${jsonShape}`
 
 // ── Quiz grading ───────────────────────────────────────────────────────────
 
-async function handleQuizGrade (body, res) {
+async function handleQuizGrade (req, body, res) {
   const { question, answer, sessionContext, sessionHistory = [] } = body
   if (!question || !answer) {
     return sendError(res, 400, 'PARAMS_REQUIRED', 'question and answer are required')
@@ -543,9 +561,16 @@ async function handleQuizGrade (body, res) {
   // firm's model answer is the authoritative marking guide (extends CB-04).
   // bankRef arrives from the client but only SELECTS a server-held entry —
   // the marking-guide text itself is never client-supplied.
-  // CB-31: a bank tagged origin='firm' was typed into the Firm Manager screen,
-  // so its text is fenced here for the same reason as in quiz generation.
-  const bank = findQuizBank(getQuizOverrides().banks, sessionContext)
+  // CB-31: a question typed into the Firm Manager screen is fenced here for the
+  // same reason as in quiz generation — and, since 2026-07-31, per QUESTION: the
+  // marking guide is one entry, so what matters is who wrote THAT entry, not what
+  // else its bank contains.
+  //
+  // The bank is resolved the same way generation resolved it, so the entry
+  // numbers match. (If a manager edits the quiz between an advisor being asked
+  // and answering, the numbering can shift under them — the same exposure any
+  // mid-course config change has, and no worse than the previous behaviour.)
+  const bank = findQuizBank(await loadBlendedQuizBanks(req.firmId, loadFirmConfig), sessionContext)
   const bankRef = question && Number.isInteger(question.bankRef) ? question.bankRef : null
   const bankEntry = (bank && bankRef !== null && bank.entries.find(e => e.id === bankRef)) || null
   const guideBody = bankEntry
@@ -553,7 +578,7 @@ async function handleQuizGrade (body, res) {
     : ''
   const markingGuide = bankEntry
     ? `Firm-authored marking guide (authoritative — this defines what counts as correct):
-${bank.origin === 'firm' ? fenceUntrusted(guideBody) : guideBody}
+${isFirmAuthored(bankEntry) ? fenceUntrusted(guideBody) : guideBody}
 
 `
     : ''
@@ -689,10 +714,10 @@ module.exports = async function (req, res) {
         await handleSession(req, body, res)
         break
       case 'quiz-generate':
-        await handleQuizGenerate(body, res)
+        await handleQuizGenerate(req, body, res)
         break
       case 'quiz-grade':
-        await handleQuizGrade(body, res)
+        await handleQuizGrade(req, body, res)
         break
       case 'progress':
         handleProgress(req, body, res)

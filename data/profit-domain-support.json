@@ -6,6 +6,7 @@
 
   "materials": [
     {
+      "id": "profit-why-use-revenue-models",
       "name": "Why Use Revenue Models",
       "summary": "Explains what a revenue model does for the advisor: it shifts the burden of proof away from personal credibility and onto objective, data-driven scenarios. That matters most for newer or younger advisors, who otherwise have only their own experience to prove they can make a difference. It also prices the work, because the fee follows the financial improvement the model identifies.",
       "who_when": "Any advisor introducing the revenue model concept to a client — at the start of the advisory relationship, or when recommending a modelling tool inside a profit improvement conversation.",
@@ -19,6 +20,7 @@
       ]
     },
     {
+      "id": "profit-lite-feasibility-framework",
       "name": "Lite Feasibility Framework",
       "summary": "A three-phase conversational tool for testing whether a proposed loan, funding request or asset purchase actually pays back: understanding the why, proving the how, then preparing for the worst. By the time a client asks for help securing funding they usually carry confirmation bias — they have decided they want the asset and are focused on getting the money. The advisor's job here is devil's advocate: test the idea objectively, or show that the capital would work harder somewhere else.",
       "who_when": "Clients seeking funding, a loan or an asset purchase — particularly where the advisor can sense the decision has already been made emotionally.",
@@ -36,6 +38,7 @@
       ]
     },
     {
+      "id": "profit-cautious-reveal-method",
       "name": "Cautious Reveal Method",
       "summary": "A layered way of introducing a revenue model to a client whose awareness or motivation is low, establishing why they need one before they ever see the numbers. It exists to prevent map shock — the overwhelm of meeting a complex model in one hit, which pushes a client straight into judgement, embarrassment and rejection. The reveal ends deliberately unfinished, with a gap of time before the client sees a model of their own.",
       "who_when": "Clients with little awareness of revenue models — a standard end-of-year meeting is the typical setting. Used before the Trial Fit method, not instead of it.",
@@ -51,6 +54,7 @@
       ]
     },
     {
+      "id": "profit-trial-fit-method",
       "name": "Trial Fit Method",
       "summary": "A staged way of putting a real model in front of a motivated client, built on the tailored suit metaphor: this is an off-the-rack model that gets fitted over time, not a bespoke build. Working in best guesses rather than waiting for perfect data keeps the session moving — get it down, then get it good. The moment that changes the client is comparing their own guesses against their actual financial performance.",
       "who_when": "Clients who already have awareness or motivation — the bank wants a cash forecast, they want to test the feasibility of an idea, they are mid strategic plan, or they rang after the introductory video or quiz.",

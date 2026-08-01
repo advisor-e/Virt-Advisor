@@ -13,6 +13,7 @@
 
   "materials": [
     {
+      "id": "systems-thinking-and-circles-of-causality",
       "name": "Systems Thinking and Circles of Causality",
       "summary": "Moves the client from linear problem-solving to circular thinking, so they can see how the structure of their own business keeps producing the problem they are trying to fix. Built on Peter Senge's Circles of Causality: A affects B, which feeds back to affect A, so the effect becomes the cause. The governing principle is that structure influences behaviour — different people in the same broken structure produce the same broken results.",
       "who_when": "Use before recommending any process redesign — with clients who keep hitting the same problem, whose last process change produced unexpected consequences, or who are blaming staff for an outcome the structure is generating.",
@@ -29,6 +30,7 @@
       ]
     },
     {
+      "id": "systems-three-systems-philosophies",
       "name": "Three Systems Philosophies",
       "summary": "Selects the philosophy that should govern the client's process design, so the operating model matches what the business actually promises its customers. The choice follows the market promise, not preference or industry convention: Six Sigma removes variation, Lean thinking removes frills, and the Theory of Constraints exploits the system's weakest point.",
       "who_when": "Clients designing or redesigning their operating model — best settled before any flowcharting begins.",
@@ -41,6 +43,7 @@
       ]
     },
     {
+      "id": "systems-six-business-systems",
       "name": "Six Business Systems",
       "summary": "A map of the six interdependent systems every business runs on — Planning, Data, Marketing, Sales, People and Process — used to locate which one is actually generating the client's problem before any specific process work begins. The rule governing all six is Systems Before Scale: growth applied to a broken system amplifies the breakage.",
       "who_when": "Any client presenting an operational, efficiency or process problem, and any client considering growth — use it as the entry framework before narrowing to one process.",
@@ -53,6 +56,7 @@
       ]
     },
     {
+      "id": "systems-5-step-process-implementation-framework",
       "name": "5-Step Process Implementation Framework",
       "summary": "The method for designing, testing and rolling out a new or improved process. The two things that matter most in any system are its design and its feedback loop, and the most common failure is skipping the pilot. Because a business is a human system, the change is embedded by coaching the team through it — not by issuing a document.",
       "who_when": "Clients ready to redesign a specific process, once the philosophy is chosen and the target system identified — work all five steps in sequence.",

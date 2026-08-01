@@ -13,86 +13,103 @@
 
   "materials": [
     {
+      "id": "sales-marketing-6-marketing-questions",
       "name": "6 Marketing Questions",
       "summary": "Explores six key questions that test whether the client has considered their value from the customer's perspective rather than their own. It settles who they serve, how they add value and what makes them special. Nothing else in the review works properly until this is clear — it is the know-what-matters step.",
       "who_when": "Sales and Marketing Review page 5. Used when the client is unclear who they serve, what makes them different, or why customers choose them."
     },
     {
+      "id": "sales-marketing-product-fit",
       "name": "Product Fit",
       "summary": "Explores the trade-offs between business profitability and customer acceptance — whether the offer is genuinely aligned with what the target customer wants to buy at the price being asked. It is aimed squarely at conversion: turning the marketing leads already being generated into sales. Get it right and even a sub-standard salesperson can win the work.",
       "who_when": "Sales and Marketing Review page 7. Used when leads are arriving but not converting, or the client is discounting to win work."
     },
     {
+      "id": "sales-marketing-10-marketing-messages",
       "name": "10 Marketing Messages",
       "summary": "Explores ten marketing statements written to speak to the customer's actual purchase decision points. It converts what was defined in the 6 Marketing Questions into sticky outbound messaging. The test is whether the client can explain it to somebody else in the customer's language rather than their own.",
       "who_when": "Sales and Marketing Review page 10. Used when the client has a good product but struggles to articulate its value, or advertising is not generating leads."
     },
     {
+      "id": "sales-marketing-customer-type-table",
       "name": "Customer Type Table",
       "summary": "Summarises the client's customer types against product fit in a single table. It separates the specific messaging that speaks to one customer type from the general messaging used for wider market coverage. That distinction is usually what is missing when response rates are low.",
       "who_when": "Sales and Marketing Review page 12. Used when one generic message is going to every customer."
     },
     {
+      "id": "sales-marketing-a-i-d-c-r-a-advertisement-framework",
       "name": "A.I.D.C.R.A Advertisement Framework",
       "summary": "Explains the logical order in which an advertisement should be constructed — Attention, Interest, Desire, Conviction, Response, Action. Working to the sequence produces more effective adverts, and it doubles as a review framework so ads can be A/B tested against something other than opinion.",
       "who_when": "Sales and Marketing Review page 14. Used when the client is spending on advertising that is not performing."
     },
     {
+      "id": "sales-marketing-digital-funnel-storyboard",
       "name": "Digital Funnel Storyboard",
       "summary": "Maps the sequential offerings, messages and responses that move a target customer from their couch to the client's cash register. It puts every marketing asset — website, social, email, advertising — into one comprehensive plan rather than leaving them running separately. The output is a single sequence rather than a collection of activity.",
       "who_when": "Sales and Marketing Review page 17. Used when the client has marketing assets but no coherent strategy connecting them."
     },
     {
+      "id": "sales-marketing-outbound-messaging-plan",
       "name": "(Outbound) Messaging Plan",
       "summary": "Schedules the client's messaging activity, working through medium, platform, time and cost as planning considerations. Its purpose is executability: a campaign that survives alongside everything else the business has to do. Without it, campaigns are designed and then quietly displaced by day-to-day work.",
       "who_when": "Sales and Marketing Review page 22. Used when the client wants to run campaigns but has no structured plan for executing them."
     },
     {
+      "id": "sales-marketing-inbound-landing-page-review",
       "name": "(Inbound) Landing Page Review",
       "summary": "Defines the reader's logic and the landing page's logic, then uses both to sequence the text, graphics and widgets on the page. Matching the page to how a prospect actually reads and decides is what converts traffic into enquiry. It is the inbound counterpart to the messaging plan.",
       "who_when": "Sales and Marketing Review page 26. Used when digital traffic reaches the site but does not convert."
     },
     {
+      "id": "sales-marketing-sparketing-friction-review",
       "name": "Sparketing (Friction) Review",
       "summary": "Reviews the product from the opposite direction to a features list: what stops people from buying it? Set against profitability, it separates what the customer will happily pay for, what they could not care less about, and what they actively do not want. It is the fastest route to the friction a client cannot see from inside the business.",
       "who_when": "Sales and Marketing Review page 31. Used when there is apparent interest but the client cannot explain why people do not buy."
     },
     {
+      "id": "sales-marketing-branding-review",
       "name": "Branding Review",
       "summary": "A checklist for aligning logo, graphics, message, market promise and story so they stick in the customer's mind together rather than pulling in different directions. The aim is a powerful mental association that lasts, not a visual refresh. Consistency across all five is what creates the influence.",
       "who_when": "Sales and Marketing Review page 33. Used when the brand feels inconsistent or fails to be memorable."
     },
     {
+      "id": "sales-marketing-customer-loyalty-programme",
       "name": "Customer Loyalty Programme",
       "summary": "A checklist that clarifies what a loyalty programme is actually for and whether it translates into profit. Its blunt purpose is to stop the client giving things away where there is no measurable improvement in the bottom line. A programme that cannot show that improvement is a cost, not a strategy.",
       "who_when": "Sales and Marketing Review page 35. Used when a loyalty or rewards programme is running without a measurable return."
     },
     {
+      "id": "sales-marketing-pricing",
       "name": "Pricing",
       "summary": "A checklist that pushes the pricing conversation beyond lifting it up or dropping it down. Price should be an active reflection of the value provided to the customer — money is an exchange of value, so the value has to be clear before the price can be set sustainably. It reframes discounting as a value problem rather than a market one.",
       "who_when": "Sales and Marketing Review page 37. Used when the client is considering dropping price to win work, or margins are thin despite strong sales."
     },
     {
+      "id": "sales-marketing-packaging-bundling",
       "name": "Packaging / Bundling",
       "summary": "A checklist for reviewing how packaging supports the client's big promise and the perception the customer forms. Packaging and bundled solutions influence the purchase decision, the price point and the perceived quality of the product or service. Used well it makes the buying decision easier and lifts the average transaction.",
       "who_when": "Sales and Marketing Review page 39. Used when everything is sold individually and bundling could shift value perception."
     },
     {
+      "id": "sales-marketing-sales-channel-options",
       "name": "Sales Channel Options",
       "summary": "Explores the different sales channel options available and drives a pros and cons discussion on each. The point is to identify several ways of engaging salespeople to reach a wider market, rather than defaulting to the one channel the business has always used. Reach is weighed against what the business can actually support.",
       "who_when": "Sales and Marketing Review page 41. Used when the client relies on a single channel and wants wider market reach."
     },
     {
+      "id": "sales-marketing-sales-process-review",
       "name": "Sales Process Review",
       "summary": "Templates that review the sales process from both the customer's perspective and the salesperson's. The output is knowing what to say and when to say it, so the customer can choose to do business with the client. It reduces the dependence on individual salesperson personality that makes conversion inconsistent.",
       "who_when": "Sales and Marketing Review page 43. Used when enquiries are converting poorly or the sales team is inconsistent."
     },
     {
+      "id": "sales-marketing-drafting-tender-proposals",
       "name": "Drafting Tender Proposals",
       "summary": "Notes and ideas to incorporate into tender applications as the client sees fit. The source treats this as general reading rather than material for a focused session. It is there for firms whose revenue depends on tenders and who want to strengthen the applications they already make.",
       "who_when": "Sales and Marketing Review page 52. General reading for clients who rely on tenders or RFPs — not a facilitated session."
     },
     {
+      "id": "sales-marketing-powerful-seminars",
       "name": "Powerful Seminars",
       "summary": "The design-and-delivery system for a seminar or workshop, built to one objective: to position the speaker favourably in the mind of the audience, so that they seek — or confirm their decision to seek — that speaker's strategic services. Its central claim is that most presentations fail in the design, not the delivery: a great design makes delivery easy. It covers content structure, the six-week run-up, the four delivery styles, and the room itself.",
       "who_when": "Business owners, advisors or marketing managers using seminars, workshops or speaking engagements as a client acquisition channel — started around six weeks before the date, well before any deck is opened.",

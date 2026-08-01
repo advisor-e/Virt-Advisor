@@ -1,0 +1,322 @@
+/**
+ * @jest-environment jsdom
+ */
+'use strict'
+
+const { mountWithBuefy } = require('../helpers/mountComponent')
+const FirmTeamProgress = require('~/components/firm/FirmTeamProgress.vue').default
+
+/**
+ * Component tests for the Firm Manager Hub's Team Progress tab.
+ *
+ * The claims that matter here are mostly about what the screen says when it has
+ * NOTHING to show, because this feature's only real fault has always hidden in that
+ * gap: until 2026-07-29 an unreachable database and a firm whose advisors had done
+ * nothing produced the identical page of zeros. So the tests below pin the two apart
+ * — a read failure must say so and offer a retry, an empty result must read as a
+ * genuinely new team — and they pin the security claim (the firm is never sent from
+ * the browser) and the arithmetic in each tier cell.
+ *
+ * Assertions use i18n KEYS, not English (tests/helpers/mountComponent.js).
+ */
+
+/** One advisor row in the shape GET /api/activity/team returns. */
+function advisor (id, opts) {
+  const o = opts || {}
+  const tier = t => Object.assign(
+    { vaSessions: 0, courseSessions: 0, avgQuizScore: null },
+    o[t] || {}
+  )
+  return {
+    advisorId: id,
+    advisorName: o.advisorName === undefined ? null : o.advisorName,
+    tiers: {
+      'entry-level': tier('entryLevel'),
+      intermediate: tier('intermediate'),
+      advanced: tier('advanced')
+    },
+    unclassifiedSessions: o.unclassifiedSessions || 0,
+    lastActive: o.lastActive === undefined ? '2026-07-28T10:00:00Z' : o.lastActive,
+    totalSessions: o.totalSessions === undefined ? 0 : o.totalSessions
+  }
+}
+
+/** Serve one team payload; `ok:false` or a rejection models a failed read. */
+function stubFetch (result) {
+  global.fetch = jest.fn(() => {
+    if (result.reject) { return Promise.reject(new Error('network down')) }
+    return Promise.resolve({
+      ok: result.ok !== false,
+      statusText: result.statusText || 'Error',
+      json: () => Promise.resolve(result.body)
+    })
+  })
+}
+
+async function settle (wrapper) {
+  await new Promise(resolve => setTimeout(resolve, 0))
+  await wrapper.vm.$nextTick()
+  await new Promise(resolve => setTimeout(resolve, 0))
+  await wrapper.vm.$nextTick()
+}
+
+async function mountTab (result) {
+  stubFetch(result || { body: { success: true, advisors: [] } })
+  const wrapper = mountWithBuefy(FirmTeamProgress, { propsData: { apiToken: 'test-token' } })
+  await settle(wrapper)
+  return wrapper
+}
+
+afterEach(() => { delete global.fetch })
+
+describe('loading the team', () => {
+  test('asks the team route with the bearer token', async () => {
+    await mountTab()
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+    const [url, opts] = global.fetch.mock.calls[0]
+    expect(url).toBe('/api/activity/team')
+    expect(opts.headers.Authorization).toBe('Bearer test-token')
+  })
+
+  test('never sends a firm or advisor id — identity is the token, not the browser', async () => {
+    await mountTab()
+    const [url, opts] = global.fetch.mock.calls[0]
+    expect(url).not.toMatch(/firmId|advisorId/i)
+    expect(opts.body).toBeUndefined()
+  })
+})
+
+describe('a team with activity', () => {
+  const team = {
+    body: {
+      success: true,
+      advisors: [
+        advisor('adv-1', {
+          entryLevel: { vaSessions: 3, courseSessions: 2, avgQuizScore: 72 },
+          advanced: { vaSessions: 1, courseSessions: 0, avgQuizScore: null },
+          totalSessions: 6,
+          lastActive: '2026-07-28T10:00:00Z'
+        }),
+        advisor('adv-2', { totalSessions: 0, lastActive: null })
+      ]
+    }
+  }
+
+  test('renders one row per advisor, naming each', async () => {
+    const wrapper = await mountTab(team)
+    const rows = wrapper.findAll('tbody tr')
+    expect(rows.length).toBe(2)
+    expect(wrapper.text()).toContain('adv-1')
+    expect(wrapper.text()).toContain('adv-2')
+  })
+
+  test('a tier cell adds VA cases and course sessions into one count', async () => {
+    const wrapper = await mountTab(team)
+    // 3 VA + 2 course at entry level = 5, which is what the manager sees.
+    expect(wrapper.vm.tierSessions(team.body.advisors[0], 'entry-level')).toBe(5)
+    expect(wrapper.findAll('tbody tr').at(0).text()).toContain('5')
+  })
+
+  test('shows the average quiz score where one exists, and nothing where none does', async () => {
+    const wrapper = await mountTab(team)
+    const firstRow = wrapper.findAll('tbody tr').at(0)
+    expect(firstRow.text()).toContain('72%')
+    // The advanced tier has a session but no scored quiz — no invented 0%.
+    expect(firstRow.text()).not.toContain('0%')
+  })
+
+  test('renders an unambiguous date, and a dash when the advisor has never been active', async () => {
+    const wrapper = await mountTab(team)
+    const rows = wrapper.findAll('tbody tr')
+    expect(rows.at(0).text()).toContain('Jul 2026')
+    expect(rows.at(1).text()).toContain('—')
+  })
+
+  test('shows the legend explaining the two numbers in each cell', async () => {
+    const wrapper = await mountTab(team)
+    expect(wrapper.text()).toContain('firmTeamProgress.cellLegend')
+  })
+
+  test('shows the advisor\'s name when one was captured, with the id beneath it', async () => {
+    const wrapper = await mountTab({
+      body: {
+        success: true,
+        advisors: [advisor('adv-1', { advisorName: 'Jordan Reeve', totalSessions: 3 })]
+      }
+    })
+    const row = wrapper.findAll('tbody tr').at(0)
+    expect(row.text()).toContain('Jordan Reeve')
+    // The id stays visible so a row can still be matched to the platform record.
+    expect(row.find('.advisor-id').text()).toBe('adv-1')
+  })
+
+  test('falls back to the id when no name was captured, and shows no empty line', async () => {
+    // The state until Advisor-e's token carries a name claim. It must read as an
+    // identifier, never as a blank space where a person should be.
+    const wrapper = await mountTab({
+      body: { success: true, advisors: [advisor('adv-1', { totalSessions: 3 })] }
+    })
+    const row = wrapper.findAll('tbody tr').at(0)
+    expect(row.text()).toContain('adv-1')
+    expect(row.find('.advisor-id').exists()).toBe(false)
+  })
+
+  test('says how many of an advisor\'s sessions are not yet at a level', async () => {
+    const wrapper = await mountTab({
+      body: {
+        success: true,
+        // Deliberately different from totalSessions: mutation testing showed that with
+        // both set to 9, sending the TOTAL to this message instead of the unlevelled
+        // count was invisible to the test.
+        advisors: [advisor('adv-c', { unclassifiedSessions: 9, totalSessions: 12 })]
+      }
+    })
+    // The count is interpolated, so the assertion pins the number reaching the message
+    // rather than the English around it.
+    expect(wrapper.text()).toContain('firmTeamProgress.notLevelled {"n":9}')
+    expect(wrapper.text()).not.toContain('firmTeamProgress.notLevelled {"n":12}')
+  })
+
+  test('explains the Total column only when something is actually unlevelled', async () => {
+    const clean = await mountTab({
+      body: { success: true, advisors: [advisor('adv-1', { totalSessions: 4 })] }
+    })
+    expect(clean.text()).not.toContain('firmTeamProgress.totalLegend')
+
+    const mixed = await mountTab({
+      body: {
+        success: true,
+        advisors: [advisor('adv-1', { unclassifiedSessions: 2, totalSessions: 6 })]
+      }
+    })
+    expect(mixed.text()).toContain('firmTeamProgress.totalLegend')
+  })
+
+  test('an advisor with nothing unlevelled carries no stray note', async () => {
+    const wrapper = await mountTab(team)
+    expect(wrapper.findAll('tbody tr').at(1).text()).not.toContain('firmTeamProgress.notLevelled')
+  })
+
+  test('a payload missing a tier still renders the advisor rather than blanking the row', async () => {
+    const partial = advisor('adv-3', { totalSessions: 1 })
+    delete partial.tiers.advanced
+    const wrapper = await mountTab({ body: { success: true, advisors: [partial] } })
+    expect(wrapper.findAll('tbody tr').length).toBe(1)
+    expect(wrapper.text()).toContain('adv-3')
+    expect(wrapper.vm.tierSessions(partial, 'advanced')).toBe(0)
+    expect(wrapper.vm.tierScore(partial, 'advanced')).toBeNull()
+  })
+})
+
+describe('an empty team reads as a new team, not as a fault', () => {
+  test('shows the empty message and no error', async () => {
+    const wrapper = await mountTab({ body: { success: true, advisors: [] } })
+    expect(wrapper.text()).toContain('firmTeamProgress.empty')
+    expect(wrapper.text()).not.toContain('firmTeamProgress.loadFailed')
+    expect(wrapper.find('table').exists()).toBe(false)
+  })
+})
+
+describe('a read failure is said out loud', () => {
+  // Each of these produced a silent page of zeros before the 2026-07-29 fix.
+  const failures = [
+    ['an HTTP error', { ok: false, statusText: 'Internal Server Error', body: {} }],
+    ['no network at all', { reject: true }],
+    ['a body reporting failure', { body: { success: false, error: { code: 'DB_ERROR' } } }]
+  ]
+
+  test.each(failures)('%s shows the failure message, not the empty message', async (_label, result) => {
+    const wrapper = await mountTab(result)
+    expect(wrapper.text()).toContain('firmTeamProgress.loadFailed')
+    expect(wrapper.text()).not.toContain('firmTeamProgress.empty')
+    expect(wrapper.find('table').exists()).toBe(false)
+  })
+
+  test('a non-OK response is refused even when its body looks like real data', async () => {
+    // Mutation-driven: the three cases above all fail the success-flag guard too, so
+    // none of them proved the status check does anything. A proxy or gateway can
+    // return a well-formed-looking body with an error status — those advisors must
+    // not reach the screen.
+    const wrapper = await mountTab({
+      ok: false,
+      body: { success: true, advisors: [advisor('ghost-advisor', { totalSessions: 99 })] }
+    })
+    expect(wrapper.text()).toContain('firmTeamProgress.loadFailed')
+    expect(wrapper.text()).not.toContain('ghost-advisor')
+  })
+
+  test('offers a retry that re-reads and recovers', async () => {
+    const wrapper = await mountTab({ ok: false, body: {} })
+    expect(wrapper.text()).toContain('firmTeamProgress.retry')
+
+    stubFetch({ body: { success: true, advisors: [advisor('adv-9', { totalSessions: 2 })] } })
+    wrapper.find('button').trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.text()).not.toContain('firmTeamProgress.loadFailed')
+    expect(wrapper.text()).toContain('adv-9')
+  })
+})
+
+describe('the drill-down into one advisor', () => {
+  const twoAdvisors = {
+    success: true,
+    advisors: [
+      advisor('adv-1', { totalSessions: 6 }),
+      advisor('adv-2', { totalSessions: 4 })
+    ]
+  }
+
+  /** Answer by URL, so the team read and an advisor read can be told apart. */
+  function stubByUrl () {
+    global.fetch = jest.fn(url => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(
+        url === '/api/activity/team'
+          ? twoAdvisors
+          : { success: true, topics: [], sessions: [] }
+      )
+    }))
+  }
+
+  async function mountWithRows () {
+    stubByUrl()
+    const wrapper = mountWithBuefy(FirmTeamProgress, { propsData: { apiToken: 'test-token' } })
+    await settle(wrapper)
+    return wrapper
+  }
+
+  test('nobody\'s question record is read until a manager asks for that person', async () => {
+    // The privacy claim in the wiring rather than the prose: showing a team must not
+    // quietly pull every advisor's individual results along with it.
+    const wrapper = await mountWithRows()
+
+    expect(wrapper.findAll('tbody tr').length).toBe(2)
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+    expect(global.fetch.mock.calls[0][0]).toBe('/api/activity/team')
+  })
+
+  test('the Quiz detail button opens that advisor\'s record, and only that advisor\'s', async () => {
+    const wrapper = await mountWithRows()
+
+    await wrapper.findAll('tbody tr').at(1).find('button').trigger('click')
+    await settle(wrapper)
+
+    expect(global.fetch).toHaveBeenCalledTimes(2)
+    expect(global.fetch.mock.calls[1][0]).toBe('/api/activity/team/advisor/adv-2')
+    expect(wrapper.findAll('.advisor-questions').length).toBe(1)
+  })
+
+  test('clicking again closes it', async () => {
+    const wrapper = await mountWithRows()
+    const button = () => wrapper.findAll('tbody tr').at(0).find('button')
+
+    await button().trigger('click')
+    await settle(wrapper)
+    expect(wrapper.findAll('.advisor-questions').length).toBe(1)
+
+    await button().trigger('click')
+    await settle(wrapper)
+    expect(wrapper.findAll('.advisor-questions').length).toBe(0)
+  })
+})

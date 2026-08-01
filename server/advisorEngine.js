@@ -16,7 +16,7 @@ const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesFor
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
-const { loadFirmDomainSupport, loadFirmLogicTrees } = require('../server/utils/firmContent')
+const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -32,16 +32,17 @@ const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION } = require('../server/utils/templateResolver')
 const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
 const { loadFirmDistinctionState } = require('../server/utils/firmDistinctions')
-const { loadPlatformDistinctions } = require('../server/utils/platformDistinctions')
+const { loadPlatformDistinctions, SEED_PLATFORM_ROWS } = require('../server/utils/platformDistinctions')
 // Client knowledge base (design 2026-07-14) — the engine reads a named client's
 // case history back at recommendation time.
 const clientStore = require('../server/utils/clientStore')
 const { listForClient } = require('../server/utils/caseStore')
 const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistoryScoringInputs } = require('../server/utils/priorEngagement')
 
+const { loadBlendedStaircase, resolveStaircaseStep } = require('../server/utils/staircaseConfig')
+
 // Reference data
 const DOMAINS = require('../data/domains.json')
-const BASE_STAIRCASE = require('../data/advisory-staircase.json')
 
 // The per-domain diagnostic "question battery" — REMOVED from the intake (memory
 // design-conversational-intake). These accreted on top of the locked 14 and turned
@@ -314,12 +315,6 @@ let _loadFirmConfig = null
 function loadFirmConfig (...args) {
   if (!_loadFirmConfig) { _loadFirmConfig = require('../server/utils/firmOverlay').loadFirmConfig }
   return _loadFirmConfig(...args)
-}
-
-let _deepMerge = null
-function deepMerge (...args) {
-  if (!_deepMerge) { _deepMerge = require('../server/utils/firmOverlay').deepMerge }
-  return _deepMerge(...args)
 }
 
 // ── Startup checks ──
@@ -1070,7 +1065,7 @@ module.exports = function advisorMiddleware (req, res, next) {
   req.on('end', () => {
     if (bodyRejected) { return }
     // Identity is taken from the firmAuth-verified request, never the body.
-    handleQuery(body, res, { firmId: req.firmId, advisorId: req.advisorId }).catch((err) => {
+    handleQuery(body, res, { firmId: req.firmId, advisorId: req.advisorId, advisorName: req.advisorName }).catch((err) => {
       console.error('[advisor] Unhandled error:', err.message)
       if (!res.headersSent) {
         sendError(res, 500, 'INTERNAL_ERROR', 'Internal server error')
@@ -1423,6 +1418,9 @@ async function handleQuery (rawBody, res, identity) {
   // activity under any identity. Any firmId/advisorId in the body is ignored.
   const firmId = (identity && identity.firmId) || null
   const advisorId = (identity && identity.advisorId) || null
+  // Display name from the same verified token. Recorded WITH the session, because a
+  // firm manager's own token cannot tell them a colleague's name — see activityStore.
+  const advisorName = (identity && identity.advisorName) || null
 
   const ALLOWED_MODES = ['client', 'discover', 'plan', 'learn']
   if (!ALLOWED_MODES.includes(mode)) {
@@ -1442,24 +1440,27 @@ async function handleQuery (rawBody, res, identity) {
     ? await loadFirmCoaching(firmId).catch(() => null)
     : null
 
-  // Load the firm's Advisory Staircase override and blend it over the platform
-  // base. A firm that has not customised it falls through to the base unchanged,
-  // so behaviour is identical to before for those firms. The blended config is
-  // handed to buildCaseState so a firm's edits change the complexity ceiling.
-  const firmStaircaseOverride = firmId
-    ? await loadFirmConfig(firmId, 'advisory-staircase').catch(() => null)
-    : null
-  const staircaseConfig = firmStaircaseOverride
-    ? deepMerge(BASE_STAIRCASE, firmStaircaseOverride)
-    : BASE_STAIRCASE
+  // The firm's Advisory Staircase — platform base with the firm's override blended
+  // over it. A firm that has not customised it falls through to the base unchanged.
+  // The blend lives in utils/staircaseConfig so that GET /api/advisor/staircase —
+  // which gives the advisor's on-screen selector its wording — reads the SAME one.
+  // While it was inline here, the ceiling honoured a firm's edits and the selector
+  // did not, so a firm's renamed steps reached nobody (fixed 2026-07-31).
+  const staircaseConfig = await loadBlendedStaircase(firmId, loadFirmConfig)
 
   // Firm content overlays (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
   // the firm's domain-support and logic-tree edits, loaded once per request
   // like the template/staircase overrides above and merged only at the point
-  // of use. Load failure degrades to "no override" inside the loaders, so a
-  // storage problem can never block a session.
-  const firmDomainSupport = await loadFirmDomainSupport(firmId, loadFirmConfig)
-  const firmLogicTrees = await loadFirmLogicTrees(firmId, loadFirmConfig)
+  // of use.
+  //
+  // In production the loaders REJECT on a storage fault rather than answering
+  // "this firm has edited nothing" (a stray dev file must never be served as a
+  // firm's live wording — see firmContent.js). A live advisor conversation must
+  // still not die for it, so readForSession logs the fault and the session runs on
+  // the platform content — the same shape loadBlendedStaircase uses above. The log
+  // line is the difference between a degraded session and a silent one.
+  const firmDomainSupport = await readForSession(loadFirmDomainSupport, firmId, loadFirmConfig, 'advisor')
+  const firmLogicTrees = await readForSession(loadFirmLogicTrees, firmId, loadFirmConfig, 'advisor')
 
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
@@ -2190,7 +2191,7 @@ async function handleQuery (rawBody, res, identity) {
           state.happyConfirmed = true
           state.clientApproachAsked = true
           state.movingForwardAsked = true
-          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates).catch(() => {})
+          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates, advisorName).catch(() => {})
           const mfQuestion = await getMovingForwardQuestion(conversationHistory)
           return sendQuestion(mfQuestion, state)
         }
@@ -2205,7 +2206,7 @@ async function handleQuery (rawBody, res, identity) {
         if (confirmsAlternative.test(query)) {
           state.happyConfirmed = true
           state.movingForwardAsked = true
-          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates).catch(() => {})
+          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates, advisorName).catch(() => {})
           const mfQuestion = await getMovingForwardQuestion(conversationHistory)
           return sendQuestion(mfQuestion, state)
         }
@@ -2428,8 +2429,13 @@ async function handleQuery (rawBody, res, identity) {
     const reportsFromAdvisorFirm = state.reportsFromFirm && /\byes\b|we do|our firm|my firm|we provide|we deliver|i do|i deliver|we produce/i.test(state.reportsFromFirm)
     const reviewYes = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && /\byes\b|yeah|absolutely|definitely|would help|would benefit|good idea/i.test(state.wouldBenefitFromReview)
     const reviewNo = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && !reviewYes
-    const staircaseStep = state.advisoryStaircase ? (state.advisoryStaircase.match(/Step\s*([1-5])/i) || [])[1] : null
-    const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
+    // Resolved against the FIRM's staircase, by name first and position second.
+    // This used to be a bare /Step ([1-5])/ on the answer text, which meant the
+    // position was treated as the step's identity: reorder the staircase and every
+    // stored answer silently pointed at a different step, with a different
+    // complexity ceiling behind it. See utils/staircaseConfig.resolveStaircaseStep.
+    const _resolvedStaircaseStep = resolveStaircaseStep(state.advisoryStaircase, staircaseConfig)
+    const staircaseNum = _resolvedStaircaseStep ? _resolvedStaircaseStep.step : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated|spoke\s+to\s+(?:me|us)\s+about|called\s+(?:me|us)\s+about|phoned\s+(?:me|us)|reached\s+out|got\s+in\s+touch|contacted\s+(?:me|us)|they\s+(?:called|rang|phoned|messaged|emailed|texted)/i.test(state.clientRaisedIssue)
 
     // Parse meeting count — upper bound of a range taken so capacity covers all
@@ -2558,8 +2564,24 @@ async function handleQuery (rawBody, res, identity) {
     // resolve it into the single effective list the advisor session should see.
     // With no declines/edits stored, the effective list equals platform + firm-own
     // rows — identical to the previous concatenation, so behaviour is unchanged.
-    const _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
-    const _platformRows = await loadPlatformDistinctions(loadFirmConfig)
+    //
+    // Both reads REJECT in production on a storage fault rather than answering with
+    // an empty state or a stand-in file. This session must survive that, so the
+    // fault is logged and the run continues on the committed platform seed with no
+    // firm decisions applied — degraded, and loudly so, instead of silently.
+    let _firmState = { ownRows: [], declinedIds: [], overrides: {} }
+    let _platformRows = SEED_PLATFORM_ROWS
+    try {
+      _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
+      _platformRows = await loadPlatformDistinctions(loadFirmConfig)
+    } catch (err) {
+      console.error('[advisor] distinction read failed — using platform seed:', err.message)
+      // Both are reset, not just the one that failed. The firm read can succeed and
+      // the platform read then fail, leaving decisions that reference row ids the
+      // seed may not carry — applying half a resolved state is worse than none.
+      _firmState = { ownRows: [], declinedIds: [], overrides: {} }
+      _platformRows = SEED_PLATFORM_ROWS
+    }
     const _effectiveDistinctions = resolveEffectiveDistinctions(_platformRows, _firmState)
     const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
     // Cross-domain bridge: firm distinctions filed under OTHER domains that match this
