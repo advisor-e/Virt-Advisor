@@ -14,6 +14,7 @@
     "generate": "nuxt generate",
     "check:branch": "node scripts/check-branch-state.js --report",
     "status": "node scripts/generate-status-table.js",
+    "routing": "node scripts/generate-content-routing.js",
     "lint": "eslint --ext .js,.vue .",
     "lint:fix": "eslint --ext .js,.vue . --fix",
     "test": "jest",

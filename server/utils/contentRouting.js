@@ -180,19 +180,31 @@ function classifyTemplates () {
 function classifyQuizBanks () {
   const banks = (courseQuizzes && courseQuizzes.banks) || {}
 
-  return Object.keys(banks).sort().map((key) => {
-    const bank = banks[key] || {}
-    const questions = Array.isArray(bank.questions) ? bank.questions.length : 0
+  return Object.keys(banks)
+    // `_comment` is a documentation string sitting alongside the banks, not an
+    // asset. Counting it reported 63 banks where the firm has 62 — a wrong number
+    // in a governance report is the failure this report exists to prevent.
+    // Fixed 2026-08-01; the guard now rejects any `_`-prefixed id.
+    .filter(key => !key.startsWith('_'))
+    .sort()
+    .map((key) => {
+      const bank = banks[key] || {}
+      // `entries`, NOT `questions`. courseEngine.js L455/L550 and
+      // firmQuizzes.js L99 all read `bank.entries`; nothing anywhere reads
+      // `bank.questions`. Reading the wrong field printed "questions=0" on
+      // every one of the 62 banks while the lane stayed correct, so the row
+      // looked classified and its evidence was false. Fixed 2026-08-01.
+      const questions = Array.isArray(bank.entries) ? bank.entries.length : 0
 
-    return {
-      family: 'quiz-bank',
-      id: key,
-      name: key,
-      lane: LANES.ADVISOR_READ_ONLY,
-      decidedBy: 'required only by courseEngine.js — no path from the advisor engine or the template resolver',
-      evidence: `data/course-quizzes.json · questions=${questions}`
-    }
-  })
+      return {
+        family: 'quiz-bank',
+        id: key,
+        name: key,
+        lane: LANES.ADVISOR_READ_ONLY,
+        decidedBy: 'required only by courseEngine.js — no path from the advisor engine or the template resolver',
+        evidence: `data/course-quizzes.json · questions=${questions}`
+      }
+    })
 }
 
 /**

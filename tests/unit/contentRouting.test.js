@@ -192,6 +192,34 @@ describe('content routing — the lane guard', () => {
         expect(row.lane).toBe(LANES.ADVISOR_READ_ONLY)
       }
     })
+
+    // The two assertions below exist because the lane checks above passed while the
+    // row's EVIDENCE was wrong. Found 2026-08-01, before this module's output was
+    // published as a report: `_comment` (a documentation string sitting alongside
+    // the banks) was counted as a bank, and the reader looked for `bank.questions`
+    // when every consumer — courseEngine.js L455/L550, firmQuizzes.js L99 — reads
+    // `bank.entries`. Result: 63 banks instead of 62, and "questions=0" printed on
+    // all of them. A lane-only test cannot see either, which is the whole lesson:
+    // a governance report is believed, so its evidence needs a guard too.
+    it('counts banks, not the metadata keys sitting beside them', () => {
+      const rows = classifyQuizBanks()
+      expect(rows.filter(r => r.id.startsWith('_'))).toEqual([])
+    })
+
+    it('reports a real question count for every bank — never a silent zero', () => {
+      const rows = classifyQuizBanks()
+      const counts = rows.map(r => ({
+        id: r.id,
+        n: Number((r.evidence.match(/questions=(\d+)/) || [])[1])
+      }))
+
+      // Every bank must report at least one question. A bank with none is either
+      // genuinely empty content or the field name has moved again — both are
+      // things to be told about, not to discover in a published table.
+      expect(counts.filter(c => !(c.n > 0)).map(c => c.id)).toEqual([])
+      // Non-trivial in aggregate, so this cannot pass on a single stub bank.
+      expect(counts.reduce((a, c) => a + c.n, 0)).toBeGreaterThanOrEqual(500)
+    })
   })
 
   describe('distinctions do move recommendations, by design', () => {
