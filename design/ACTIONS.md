@@ -414,10 +414,23 @@
       runs before and **3 of 3** after — a flaky match made stable.
     - **Not counted:** the `data-systems` and `forecasting` differences did not survive repetition.
     - **Honest limit:** 51 committed test cases are not a measurement of live advisor speech, and a
-      distinction match costs an API call per sentence, so this is a **sampled** result — it will never
-      be the free, repeatable before/after the logic-table preview gives.
-  - **The measurement scripts were deliberately NOT committed** — they are one-off scratchpad runs, and a
-    committed tool that spends money per run needs its own design (see the sampled-workbench note below).
+      distinction match is an AI judgement that varies between runs, so a single run is a **sample**, not
+      the deterministic before/after the logic-table preview gives. The answer to that is repetition —
+      run it enough times to tell a real move from a flaky one — never skipping the live run.
+  - **🔴 COST IS NOT A REASON TO SKIP A LIVE AI RUN (ruling, Mike, 2026-08-02).** Where live AI is what
+    proves the thing, it runs. Token spend is never weighed against the correctness of a measurement, an
+    AI-off run is never quietly substituted for a real one, and "shall I spend the tokens?" is not a
+    question to put to Mike. An earlier version of this entry treated per-run API spend as a design
+    constraint; **Mike never set that constraint**, and it had by then undermined three pieces of work by
+    presenting a deterministic run as if it were the answer.
+    - **Measured the same day, which is why this is stated so bluntly.** With the AI layer OFF, the
+      firm-editable levers appeared to change the top recommendation in **16%** of the 51 Scenario Lab
+      cases and to supply **4.9%** of the winning template's score. With the AI layer ON — the real engine —
+      it is **59%** and **37.5%**. The cheap run was wrong by nearly a factor of four, and wrong in the
+      direction that makes the firm's own editing work look worthless. A design decision was about to be
+      taken on that number.
+    - The measurement scripts stay uncommitted because they are one-off scratchpad runs, never because a
+      run costs anything.
 
   - **── The diagnosis that led to the ruling, kept as written on the day ──**
   - Found by Mike's question *"how does this compare with the advisory distinctions page — or will they be

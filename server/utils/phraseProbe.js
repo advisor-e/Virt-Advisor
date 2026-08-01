@@ -27,8 +27,12 @@
  * reported rather than left to be inferred. A distinction's `triggers` are not
  * matched literally at all: they are passed to gpt-4o-mini as example phrases
  * and the model decides semantically (advisorEngine `_classifyMatchingRows`).
- * Measuring it therefore costs an API call per sentence and is not repeatable
- * for free, so it belongs in a sampled tool of its own, not in this one.
+ * Measuring it therefore takes a live AI call per sentence and is not
+ * deterministic, so it belongs in a sampled tool of its own — one that repeats
+ * a run enough times to tell a real move from a flaky one. COST IS NOT THE
+ * REASON it sits outside this probe (ruling, Mike, 2026-08-02): where live AI is
+ * what proves the thing, it runs, and token spend is never weighed against the
+ * correctness of a measurement. See design/ACTIONS.md, trigger-vocabulary-sweep.
  * Every result carries `notMeasured` saying so — a probe that silently omitted
  * a whole layer would read as "nothing else affects this", which is false.
  *

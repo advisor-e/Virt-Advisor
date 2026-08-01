@@ -10,8 +10,11 @@
 //   • a METRICS block — objective numbers so an engine change can be measured
 //     before vs after on the SAME 50 cases.
 //
-// RUN (deterministic, free):  node scripts/scenario-lab.js
-// RUN (with AI distinctions + distress):
+// RUN (deterministic layers only — distinctions and distress measure as ZERO, so
+//      this run UNDERSTATES the engine and is never the answer on its own):
+//   node scripts/scenario-lab.js
+// RUN (COMPLETE — the live AI layers included. This is the one to trust; cost is
+//      never a reason to prefer the run above — Mike, 2026-08-02):
 //   NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem node -r dotenv/config scripts/scenario-lab.js
 // FILTER:  node scripts/scenario-lab.js profit
 // ─────────────────────────────────────────────────────────────────────────────
