@@ -14,7 +14,7 @@
  */
 
 const mysql = require('mysql2/promise')
-const { DB } = require('../../../config/collaborate/integration')
+const { DB } = require('../../../config/integration')
 
 const pool = mysql.createPool({
   host: DB.host,

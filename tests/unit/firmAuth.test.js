@@ -41,6 +41,38 @@ describe('firmAuth', () => {
     expect(req.firmId).toBe('firm-1')
   })
 
+  test('IGNORES a token in a cookie — these routes are Bearer-only', () => {
+    // The 2026-08-01 merge folded Collaborate's login seam into this file, and
+    // Collaborate's screens DO authenticate by cookie. Sharing one token reader
+    // must not quietly widen how the firm-manager, coach and report routes admit
+    // a caller: widening those to cookies is an auth decision, not plumbing.
+    const token = makeToken({ firmId: 'firm-1', role: 'firm_manager' })
+    const req = { headers: { cookie: `token=${token}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    firmAuth(req, res, next)
+
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+    expect(JSON.parse(res._body).error.code).toBe('MISSING_TOKEN')
+    expect(req.firmId).toBeUndefined()
+  })
+
+  test('sets the identity object as well as the flat fields', () => {
+    // Both halves of the merged app read one verified identity: Collaborate's
+    // routes take req.identity, ours take the flat fields. A guard that set only
+    // its own half would break every route belonging to the other.
+    const token = makeToken({ firmId: 'firm-1', advisorId: 'adv-9', role: 'firm_manager', email: 'm@acme.com' })
+    const req = { headers: { authorization: `Bearer ${token}` } }
+
+    firmAuth(req, makeMockRes(), jest.fn())
+
+    expect(req.identity).toEqual({
+      advisorId: 'adv-9', firmId: 'firm-1', role: 'firm_manager', email: 'm@acme.com'
+    })
+  })
+
   test('sets req.userRole from JWT role claim', () => {
     const token = makeToken({ firmId: 'firm-1', role: 'platform_admin' })
     const req = { headers: { authorization: `Bearer ${token}` } }

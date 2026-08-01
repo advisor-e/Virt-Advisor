@@ -13,7 +13,10 @@
  *   3. Set DRIVE fields to point to the service account and root folder
  *   4. Review STORAGE limits and ROLES if Advisor-e uses different values
  *
- * See design/HANDOFF.md for the full integration checklist.
+ * Collaborate's settings (CROSS_ORG, ADVISOR_E, OUTREACH, INVITE) live here too:
+ * the two apps share ONE backend and one AUTH block, so a claim name or role value
+ * is changed in exactly one place. Its former config/collaborate/integration.js
+ * declared the same AUTH claims and role values and has been folded in here.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -112,4 +115,57 @@ const TEMPLATE_PAGE = {
     'https://www.advisor-e.com/secure/dashboard'
 }
 
-module.exports = { AUTH, DB, DRIVE, STORAGE, FRAMEWORK, TEMPLATE_PAGE }
+// ── Cross-organisation engagement policy (Collaborate; D1 + Q6 + the ceiling model) ─
+// D1 (2026-07-03): the default posture is CLOSED / opt-in — members are sealed to
+// their own organisation until a manager opts in to reach across. Q6 (2026-07-03):
+// the boundary is the individual office (the advisor's `firm` / branch).
+//
+// CEILING MODEL (owner, 2026-07-07): the open/closed control is a MANAGER-level
+// switch that exists at THREE stacked levels — brand (Global) → country (Group) →
+// branch (Firm). A lower level may only ever TIGHTEN; a branch's EFFECTIVE posture
+// is most-closed-wins across the three (see server/collaborate/data/repository.js).
+// Each level defaults to `defaultPosture`. Flip it to 'open' for an open-network
+// default (a config flip, not a rebuild).
+
+const CROSS_ORG = {
+  defaultPosture: 'closed' // 'closed' = opt-in (D1) · 'open' = open network · applied at every ceiling level
+}
+
+// ── Advisor-e app links (deep-link a purchased tool to its hosted page) ───────
+// SEAM (Q-PAGE-URL): the URL that opens an Advisor-e catalogue tool from its
+// `pageId`. This is a PLACEHOLDER pattern — confirm the real one with the master
+// team (and whether an SSO/token hop is needed). The link opens Advisor-e, which
+// enforces its OWN access control (see Q-ACCESS-CASCADE) — this app never bypasses it.
+//
+// Distinct from TEMPLATE_PAGE above, deliberately: that one addresses a template's
+// page inside the master dashboard, this one addresses a purchased marketplace tool.
+// Same host, different routes — confirm both with the master team before go-live.
+
+const ADVISOR_E = {
+  pageBaseUrl: process.env.ADVISOR_E_PAGE_BASE || 'https://app.advisor-e.com/p/'
+}
+
+// ── Outreach anti-spam guardrails (Collaborate plan §4) ──────────────────────
+// "One outreach per person" is enforced separately (repo.hasOutgoingOutreach).
+// These two are the remaining plan §4 guards, backend-enforced in sendOutreach:
+//   dailyCap            — the most NEW cold outreaches one advisor may start per
+//                         calendar day (owner policy, 2026-07-06).
+//   respectAvailability — refuse cold outreach to an adviser marked unavailable.
+// Both are tunable here without a rebuild.
+
+const OUTREACH = {
+  dailyCap: 20,
+  respectAvailability: true
+}
+
+// ── Group invitations (Collaborate) ──────────────────────────────────────────
+// Manager bulk-invite (FEAT-BULKINVITE): the most invitees one request may carry.
+// A guardrail against an oversized/abusive batch — tunable without a rebuild.
+
+const INVITE = {
+  bulkMax: 50
+}
+
+module.exports = {
+  AUTH, DB, DRIVE, STORAGE, FRAMEWORK, TEMPLATE_PAGE, CROSS_ORG, ADVISOR_E, OUTREACH, INVITE
+}

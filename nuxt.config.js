@@ -87,7 +87,14 @@ export default {
     { path: '/api/courses', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/activity', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/firm-manager', handler: '~/server-middleware/apiProxy.js' },
-    { path: '/api/mentor', handler: '~/server-middleware/apiProxy.js' }
+    { path: '/api/mentor', handler: '~/server-middleware/apiProxy.js' },
+    // Collaborate's people layer + its template catalogue. Same thin proxy as the
+    // groups above: the browser only ever talks to its own origin, and the single
+    // Restify backend answers. Collaborate shipped its own near-identical proxy
+    // (server-middleware/collaborate/api.js); ours is used because it also aborts
+    // the upstream request when the client disconnects.
+    { path: '/api/people', handler: '~/server-middleware/apiProxy.js' },
+    { path: '/api/templates', handler: '~/server-middleware/apiProxy.js' }
   ],
 
   // API_BASE_URL should point to the Restify backend server

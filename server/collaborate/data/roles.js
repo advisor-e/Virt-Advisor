@@ -25,7 +25,7 @@
  *     Advisory JWT role the master team still wires (Q-ROLES "still master-team").
  */
 
-const { AUTH } = require('../../../config/collaborate/integration')
+const { AUTH } = require('../../../config/integration')
 
 // Canonical tiers, highest authority first. Index 0 = top of the tree (§5).
 const TIERS = ['mentor', 'global_manager', 'group_manager', 'firm_manager', 'advisor', 'client']

@@ -4,7 +4,9 @@
  * Tests for the health route (server/routes/health.js) — the liveness probe.
  */
 
-const health = require('../../server/collaborate/routes/health')
+// Collaborate's copy of this route was byte-identical to ours and was removed when
+// the two back-ends merged; these tests now cover the surviving one.
+const health = require('../../server/routes/health')
 
 describe('health route', () => {
   test('responds 200 with ok:true and a timestamp, then calls next', () => {

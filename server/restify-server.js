@@ -57,36 +57,35 @@ const restify = require('restify')
 // ── Startup guards — fail fast on placeholder config in production ────────────
 ;(function assertConfig () {
   const { AUTH, DB } = require('../config/integration')
+  const { productionStartupViolations } = require('./collaborate/utils/productionGuard')
   const isProd = process.env.NODE_ENV === 'production'
 
-  // The dev auth bypass must never be enabled in production. This combination
-  // can only happen by mistake — refuse to boot rather than run wide open.
-  if (isProd && process.env.ALLOW_DEV_AUTH === 'true') {
-    console.error('[startup] FATAL: ALLOW_DEV_AUTH=true is set in production — refusing to start.')
+  // The three production blockers — dev-auth left on, a placeholder JWT secret, a
+  // placeholder DB password — are decided by a pure, unit-tested function rather
+  // than inline ifs, and it reports ALL of them at once instead of the first. It
+  // came across with Collaborate, which had the same three checks; one copy now
+  // guards the one server. No-op outside production, so the dev warnings below
+  // still do the talking on a developer machine.
+  const violations = productionStartupViolations(process.env, { AUTH, DB })
+  if (violations.length) {
+    console.error(
+      '[startup] FATAL: refusing to boot in production — insecure configuration:\n' +
+      violations.map(v => '  - ' + v).join('\n')
+    )
     process.exit(1)
   }
 
   // JWT secret is always required — without it, firm auth cannot verify tokens.
   if (AUTH.secret === 'REPLACE_ME_WITH_ADVISOR_E_JWT_SECRET') {
-    if (isProd) {
-      console.error('[startup] FATAL: JWT_SECRET is still set to the placeholder value.')
-      process.exit(1)
-    } else {
-      console.error('[startup] WARNING: JWT_SECRET is placeholder — firm auth will not work in dev.')
-    }
+    console.error('[startup] WARNING: JWT_SECRET is placeholder — firm auth will not work in dev.')
   }
 
-  // DB password — fatal in production, warning in dev (MySQL may not be local).
-  if (DB.password === 'REPLACE_ME') {
-    if (isProd) {
-      console.error('[startup] FATAL: MYSQL_PASSWORD is still set to the placeholder value.')
-      process.exit(1)
-    } else {
-      // Says what actually happens now. The old wording ("routes will return empty
-      // data") predates the dev-file fallback and would have a developer read a
-      // working screen as a broken one.
-      console.error('[startup] WARNING: MYSQL_PASSWORD is placeholder — no MySQL. Stores fall back to their DEV-ONLY JSON files (data/dev-*.json); this is not production persistence.')
-    }
+  // DB password — fatal in production (above), warning in dev (MySQL may not be local).
+  if (!isProd && DB.password === 'REPLACE_ME') {
+    // Says what actually happens now. The old wording ("routes will return empty
+    // data") predates the dev-file fallback and would have a developer read a
+    // working screen as a broken one.
+    console.error('[startup] WARNING: MYSQL_PASSWORD is placeholder — no MySQL. Stores fall back to their DEV-ONLY JSON files (data/dev-*.json); this is not production persistence.')
   }
 })()
 
@@ -101,7 +100,13 @@ const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
 const staircaseRoute = require('./routes/staircase')
-const { firmAuth, requireManagerRole, requireMentorRole } = require('./middleware/firmAuth')
+const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole } = require('./middleware/firmAuth')
+// Collaborate — the people layer and its template catalogue. Merged in from what
+// was a separate application with its own Restify server on this same port; see
+// design/COLLABORATE-MERGE-PLAN.md. Its routes are registered below, under
+// collaborateAuth, alongside ours.
+const peopleRoute = require('./collaborate/routes/people')
+const templatesRoute = require('./collaborate/routes/templates')
 // Advisor + course engines — migrated from Nuxt server-middleware per the
 // coding-team Req 7 ruling (OpenAI logic + key backend-only). Connect-style
 // (req, res, next) handlers that read the raw body and stream SSE themselves.
@@ -322,6 +327,90 @@ server.get('/api/mentor/distinctions', ...mentorGuard, mentorRoute.listMentorDis
 server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentorDistinction)
 server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)
 server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)
+
+// ── Collaborate: template catalogue + people layer ──
+// Merged in 2026-08-01 from the standalone Collaborate app, which ran its OWN
+// Restify server on this same port — so the two could never have run together.
+// Identity comes from collaborateAuth (the same verified token as firmAuth; see
+// server/middleware/firmAuth.js for why the two dev doors stay separate).
+//
+// SCOPE NOTE (COLLABORATE-MERGE-PLAN.md §4.4): these routes already resolve the
+// caller's TIER server-side rather than assuming a firm is the top level, which is
+// the model this repo's own Hub tabs still have to be widened to. Nothing here
+// should be narrowed to a bare firmId to match them.
+const ca = collaborateAuth
+server.get('/api/templates', ca, templatesRoute.list)
+
+server.get('/api/people/me', ca, peopleRoute.getMe)
+server.put('/api/people/me', ca, peopleRoute.updateMe)
+server.get('/api/people/advisors', ca, peopleRoute.listAdvisors)
+server.get('/api/people/advisors/:id', ca, peopleRoute.getAdvisor)
+server.get('/api/people/groups', ca, peopleRoute.listGroups)
+server.post('/api/people/groups', ca, peopleRoute.createGroup)
+server.get('/api/people/my-groups', ca, peopleRoute.listMyGroups)
+server.get('/api/people/groups/:id', ca, peopleRoute.getGroup)
+server.post('/api/people/groups/:id/join', ca, peopleRoute.joinGroup)
+server.get('/api/people/groups/:id/requests', ca, peopleRoute.listGroupRequests)
+server.post('/api/people/group-requests/:id/accept', ca, peopleRoute.acceptGroupRequest)
+server.post('/api/people/group-requests/:id/decline', ca, peopleRoute.declineGroupRequest)
+server.post('/api/people/groups/:id/shared-pages', ca, peopleRoute.addSharedPage)
+server.del('/api/people/groups/:id/shared-pages/:pageId', ca, peopleRoute.removeSharedPage)
+server.post('/api/people/groups/:id/message', ca, peopleRoute.messageGroup)
+server.post('/api/people/groups/:id/chat', ca, peopleRoute.openGroupChat)
+server.post('/api/people/groups/:id/invite', ca, peopleRoute.inviteToGroup)
+server.post('/api/people/groups/:id/invite-many', ca, peopleRoute.inviteManyToGroup)
+server.post('/api/people/invitations/:id/accept', ca, peopleRoute.acceptInvitation)
+server.post('/api/people/invitations/:id/decline', ca, peopleRoute.declineInvitation)
+server.post('/api/people/outreach', ca, peopleRoute.sendOutreach)
+server.post('/api/people/advisors/:id/thread', ca, peopleRoute.messageAdvisor)
+server.get('/api/people/messages', ca, peopleRoute.listMessages)
+server.get('/api/people/messages/:id', ca, peopleRoute.getThread)
+server.post('/api/people/messages/:id/reply', ca, peopleRoute.replyThread)
+server.post('/api/people/messages/:id/shared-pages', ca, peopleRoute.addThreadSharedPage)
+server.del('/api/people/messages/:id/shared-pages/:pageId', ca, peopleRoute.removeThreadSharedPage)
+server.get('/api/people/connections', ca, peopleRoute.listConnections)
+server.get('/api/people/connecting', ca, peopleRoute.listConnecting)
+server.post('/api/people/advisors/:id/connect', ca, peopleRoute.connect)
+server.post('/api/people/connections/:id/accept', ca, peopleRoute.acceptConnection)
+server.post('/api/people/connections/:id/decline', ca, peopleRoute.declineConnection)
+server.get('/api/people/notifications', ca, peopleRoute.listNotifications)
+server.post('/api/people/notifications/read', ca, peopleRoute.markNotificationsRead)
+// Audit trail (admin/compliance). Admin-gated (Mentor super-admin) in the route;
+// the /preview variant is dev-only (refused unless ALLOW_DEV_AUTH) for the show-home.
+server.get('/api/people/audit', ca, peopleRoute.getAuditLog)
+server.get('/api/people/audit/preview', ca, peopleRoute.getAuditLogPreview)
+// Firm Manager console (RBAC SEAM: manager-gated in the repository). This is the
+// screen that becomes a Firm Manager Hub tab in the next slice of the merge.
+server.get('/api/people/firm', ca, peopleRoute.getFirmConsole)
+server.post('/api/people/firm/posture', ca, peopleRoute.setFirmPosture)
+// View-as: a manager assumes an adviser's view (gated + re-checked server-side).
+server.post('/api/people/firm/view-as', ca, peopleRoute.startViewAs)
+server.del('/api/people/firm/view-as', ca, peopleRoute.exitViewAs)
+// Lazy per-branch adviser loader for the console tree (PERF-CONSOLE-TREE).
+server.get('/api/people/console/advisers', ca, peopleRoute.getConsoleAdvisers)
+// Console previews (show-home only; the handler refuses unless ALLOW_DEV_AUTH).
+server.get('/api/people/console/preview/:tier', ca, peopleRoute.getConsolePreview)
+server.get('/api/people/console/preview/:tier/advisers', ca, peopleRoute.getConsoleAdvisersPreview)
+server.get('/api/people/marketplace', ca, peopleRoute.listMarketplace)
+server.post('/api/people/marketplace', ca, peopleRoute.createListing)
+server.get('/api/people/marketplace/:id', ca, peopleRoute.getListing)
+server.post('/api/people/marketplace/:id/purchase', ca, peopleRoute.purchaseListing)
+
+// Dev-only demo audit trail so the show-home audit viewer (FEAT-AUDIT-UI) has
+// content on a fresh boot. Real entries accrue as the app is used; these seed a
+// realistic mix (incl. security events). Never runs outside dev (ALLOW_DEV_AUTH).
+;(function seedDemoAudit () {
+  if (process.env.ALLOW_DEV_AUTH !== 'true') { return }
+  const audit = require('./collaborate/data/auditLog')
+  ;[
+    { actorId: 'me', action: 'profile.update', targetType: 'advisor', targetId: 'me', meta: { fields: ['about'] } },
+    { actorId: 'anna-r', action: 'group.create', targetType: 'group', targetId: 'seafood-modelling' },
+    { actorId: 'sara-okafor', action: 'connection.request', targetType: 'advisor', targetId: 'me' },
+    { actorId: 'bob-lindt', action: 'outreach.blocked', targetType: 'advisor', targetId: 'me', meta: { reason: 'cross_org' } },
+    { actorId: 'sofia-marchetti', action: 'listing.create', targetType: 'listing', targetId: 'm-trucking' },
+    { actorId: 'me', action: 'purchase.record', targetType: 'listing', targetId: 'm-trucking' }
+  ].forEach(e => audit.record(e))
+}())
 
 // ── Start ──
 server.listen(PORT, () => {

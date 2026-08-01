@@ -10,7 +10,7 @@
  * jest.resetModules() and never leaks an override into the next.
  */
 
-const { AUTH } = require('../../config/collaborate/integration')
+const { AUTH } = require('../../config/integration')
 
 function fresh () {
   jest.resetModules()

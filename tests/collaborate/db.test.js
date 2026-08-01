@@ -11,7 +11,7 @@
 jest.mock('mysql2/promise', () => ({ createPool: jest.fn(() => ({ __fakePool: true })) }))
 
 const mysql = require('mysql2/promise')
-const { DB } = require('../../config/collaborate/integration')
+const { DB } = require('../../config/integration')
 
 describe('db pool', () => {
   test('creates a single mysql2 pool from the integration DB config', () => {

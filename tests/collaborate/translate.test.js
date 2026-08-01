@@ -12,7 +12,11 @@
 
 jest.mock('https')
 const https = require('https')
-const translate = require('../../server/collaborate/routes/translate')
+// Collaborate's own copy of this route was folded into server/routes/translate.js
+// when the two back-ends merged. These tests point at the surviving route and are
+// kept as they are: they pin the half of the behaviour that came FROM Collaborate
+// (graceful degradation and shape validation), so a regression in it still fails here.
+const translate = require('../../server/routes/translate')
 
 /**
  * Make https.get(url, cb) invoke `cb` with a fake response that emits the given

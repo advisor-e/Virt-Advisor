@@ -48,10 +48,10 @@ module.exports = {
     'server/**/*.js',
     'server-middleware/**/*.js',
     'mixins/**/*.js',
-    // Process bootstraps: run only by `npm run backend`, never imported by a test.
-    // Collaborate's own config excluded its equivalent for the same reason.
+    // Process bootstrap: run only by `npm run backend`, never imported by a test.
+    // There is ONE of these now — Collaborate's own server was folded into this one
+    // when the two back-ends merged (2026-08-01), so its exclusion line went with it.
     '!server/restify-server.js',
-    '!server/collaborate/restify-server.js',
     '!node_modules/**'
   ],
 

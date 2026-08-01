@@ -16,7 +16,7 @@ const repo = require('../data/repository')
 const templates = require('../data/advisoryTemplates')
 const ipClass = require('../data/ipClassification')
 const audit = require('../data/auditLog')
-const { OUTREACH, INVITE } = require('../../../config/collaborate/integration')
+const { OUTREACH, INVITE } = require('../../../config/integration')
 const { sendApiError } = require('../utils/sendError')
 
 function ok (res, data) { res.send(200, data) }

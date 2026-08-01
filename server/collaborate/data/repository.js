@@ -22,7 +22,7 @@
 
 // const pool = require('../utils/db')   // <-- uncomment when wiring SQL
 
-const { CROSS_ORG, ADVISOR_E } = require('../../../config/collaborate/integration')
+const { CROSS_ORG, ADVISOR_E } = require('../../../config/integration')
 const roles = require('./roles') // role/tier resolver (Q-ROLES) — the RBAC seam
 
 // ── In-memory dev store ──────────────────────────────────────────────────────
