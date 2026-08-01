@@ -16,6 +16,9 @@ const { computeMarginMarkup, requiredSales, whatIfPrice } = require('../report/m
 const { computeEightLevers } = require('../report/eightLeversModel')
 const { computeQuickPosition, computeExpensesReview } = require('../report/quickPositionModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
+const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
+const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
+const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
@@ -180,6 +183,27 @@ function ebitdaDcf (req, res, next) {
   return next()
 }
 
+/**
+ * POST /api/report/loan-estimator
+ * @param {object} req.body - { securityPosition, repayment, serviceability } — each block
+ *   partial Loan Estimator inputs for its Part (A+B security position, D repayment
+ *   schedule, C serviceability); an omitted block computes on the workbook sample and is
+ *   named in that part's `defaultedInputs` (R8 — defaults never substitute silently).
+ * @returns {object} { success, data: { securityPosition, repayment, serviceability },
+ *   timestamp } — serviceability carries `verdictPass` + `surplus`; wording is the screen's.
+ */
+function loanEstimator (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeLoanEstimatorReport(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] loan-estimator compute failed:', err)
+    res.send(400, { success: false, error: { code: 'LOAN_ESTIMATOR_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
 // Intake error mapping lives in server/report/intakeError.js (R6): allowlisted codes
 // pass their authored message through; anything unexpected returns the generic
 // sentence — an fs error's message carries a server path and must never reach the client.
@@ -299,4 +323,73 @@ async function ebitdaDcfIntake (req, res) {
   }
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake }
+/**
+ * POST /api/report/lease-vs-buy
+ * @param {object} req.body - partial Lease vs Buy inputs (merged over the workbook
+ *   sample): the loan block (loanType 'T'/'R', deposit, interestRate, termMonths,
+ *   purchasePrice), depreciation (depreciationMethod 'sl'/'dv', depreciationRate),
+ *   running-cost/tax "other" fields, the lease block (leaseTermMonths, annualLeaseKm,
+ *   monthlyLeasePayment, includes* 'yes'/'no', …), the resale/residual values, and
+ *   optionally buyRepairs[] (per-year); an omitted field computes on the sample and is
+ *   named in `defaultedInputs` (R8 — defaults never substitute silently).
+ * @returns {object} { success, data, timestamp } — data = { verdict {recommended,
+ *   cheaperCost, dearerCost, saving}, buy {grossTotal, totalNet, years[]}, lease
+ *   {grossTotal, totalNet, endCosts, years[]}, defaultedInputs }. The lease-end costs
+ *   are counted once (the corrected workbook double-count — see the model header).
+ */
+function leaseVsBuy (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeLeaseVsBuy(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] lease-vs-buy compute failed:', err)
+    res.send(400, { success: false, error: { code: 'LEASE_VS_BUY_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/cost-of-capital
+ * @param {object} req.body - partial Cost of Capital inputs (merged over the workbook
+ *   sample). The WACC scalars: riskFreeRate, marketRate, beta, taxRate, equity, debt,
+ *   borrowRate. There is deliberately no inflationRate or growthRate: the owner ruled
+ *   both out of the WACC on 2026-07-29 (correction (4) in the model), so sending either
+ *   would change nothing — the route accepts neither rather than appearing to. The beta
+ *   helper series: indexValues[], equityValues[], sharesIssued[], marketReturnRate —
+ *   a series slot may be `null` for a period with no data, which is NOT the same as a
+ *   supplied 0 (that distinction is the corrected source defect; see the model header).
+ *   An omitted field computes on the sample and is named in `defaultedInputs`
+ *   (R8 — defaults never substitute silently). Optionally the hurdle-rate test:
+ *   investmentCost + annualReturn — a proposed investment judged against the WACC. Both
+ *   are needed; either alone (or a cost of zero) yields `hurdle: null` rather than a
+ *   guessed figure, because an advisor mid-typing is not an advisor in error.
+ * @returns {object} { success, data, timestamp } — data = { beta {market, company,
+ *   growthRate, roiBeta, volatilityBeta, warnings[], defaultedInputs}, wacc {inputs,
+ *   costOfEquity, costOfDebtAfterTax,
+ *   equityRatio, debtRatio, equityComponent, debtComponent, wacc, defaultedInputs},
+ *   betaSuggestions {roi, volatility, inUse}, hurdle, sensitivity }.
+ *   `hurdle` is null unless testable, else {investmentCost, annualReturn, returnRate,
+ *   hurdleRate, requiredAnnualReturn, marginRate, marginAmount, verdict}. `sensitivity`
+ *   is one {key, step, wacc, change} per input, each measuring that input raised ON ITS
+ *   OWN, biggest absolute effect first — the lines do not combine. `warnings` and `verdict`
+ *   are CODES for the screen to translate — an implausible beta is reported, never
+ *   passed on quietly, and no English is ever put in the engine.
+ *
+ * Anonymous, like every other calc route: numbers in, numbers out. It reads no database,
+ * writes nothing, calls no third party, and sends nothing to an LLM — the client's equity
+ * figures are used to compute the response and are never stored or logged.
+ */
+function costOfCapital (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeCostOfCapital(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] cost-of-capital compute failed:', err)
+    res.send(400, { success: false, error: { code: 'COST_OF_CAPITAL_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital }

@@ -418,10 +418,9 @@ a.mlb-card:hover {
   text-align:center; color:var(--mlb-muted); font-size:14px; padding:40px;
 }
 
-@media (prefers-color-scheme: dark) {
-  .mlb-root {
-    --mlb-bg:#05132a; --mlb-panel:#0a1f3d; --mlb-ink:#e6f0fa; --mlb-muted:#9fb4d0;
-    --mlb-line:#1a3559; --mlb-accent:#00b1e0; --mlb-accent-bright:#7fd3f1;
-  }
-}
+/* There is deliberately NO dark-mode rule here — one light look on every screen,
+   whatever the viewer's OS theme (owner ruling 2026-07-27, extended to this page
+   2026-07-28). This grid is the way in to the report screens, which `ReportShell`
+   already forces light; a dark catalogue handing over to a light report was the
+   inconsistency. Re-adding a dark override here reopens it. */
 </style>

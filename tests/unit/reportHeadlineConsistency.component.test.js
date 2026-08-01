@@ -11,6 +11,9 @@ const BusinessPerformanceReport = require('~/components/BusinessPerformanceRepor
 const EightLeversReport = require('~/components/EightLeversReport.vue').default
 const QuickPositionReport = require('~/components/QuickPositionReport.vue').default
 const EbitdaDcfReport = require('~/components/EbitdaDcfReport.vue').default
+const LoanEstimatorReport = require('~/components/LoanEstimatorReport.vue').default
+const LeaseVsBuy = require('~/components/LeaseVsBuy.vue').default
+const CostOfCapital = require('~/components/CostOfCapital.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -18,6 +21,9 @@ const { computeMarginMarkup, requiredSales, whatIfPrice } = require('~/server/re
 const { computeEightLevers, DEFAULT_INPUTS: EL_DEFAULTS } = require('~/server/report/eightLeversModel')
 const { computeQuickPosition, DEFAULTS: QP_DEFAULTS } = require('~/server/report/quickPositionModel')
 const { computeEbitdaDcf, DEFAULTS: ED_DEFAULTS } = require('~/server/report/ebitdaDcfModel')
+const { computeLoanEstimatorReport } = require('~/server/report/loanEstimatorModel')
+const { computeLeaseVsBuy } = require('~/server/report/leaseVsBuyModel')
+const { computeCostOfCapital } = require('~/server/report/costOfCapitalModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -64,7 +70,12 @@ const SCREENS = [
   { name: 'Working Capital Cycle', component: BusinessPerformanceReport, result: () => computeWorkingCapitalCycle(Object.assign({}, WCC_DEFAULTS)) },
   { name: 'Eight Levers', component: EightLeversReport, result: () => computeEightLevers(Object.assign({}, EL_DEFAULTS)) },
   { name: 'Quick Position', component: QuickPositionReport, result: () => computeQuickPosition(Object.assign({}, QP_DEFAULTS)) },
-  { name: 'EBITDA & DCF', component: EbitdaDcfReport, result: () => computeEbitdaDcf(Object.assign({}, ED_DEFAULTS)) }
+  { name: 'EBITDA & DCF', component: EbitdaDcfReport, result: () => computeEbitdaDcf(Object.assign({}, ED_DEFAULTS)) },
+  // An empty body computes every part on the workbook sample — the assembler's own default path.
+  { name: 'Loan Estimator', component: LoanEstimatorReport, result: () => computeLoanEstimatorReport({}) },
+  { name: 'Lease vs Buy', component: LeaseVsBuy, result: () => computeLeaseVsBuy({}) },
+  // An empty body computes the workbook sample through the assembler's own default path.
+  { name: 'Cost of Capital (WACC)', component: CostOfCapital, result: () => computeCostOfCapital({}) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */
@@ -90,6 +101,24 @@ describe.each(SCREENS)('$name', ({ component, result }) => {
     expect(wrapper.findComponent({ name: 'HeroStrip' }).exists()).toBe(true)
     // At least three figures — the strip exists to hold them, not as an empty band.
     expect(wrapper.findAllComponents({ name: 'HeroFigure' }).length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('renders that headline as a FULL-WIDTH band — a direct child of the screen root, not tucked inside a column', async () => {
+    // The banner must span the page (the ~1120px content column), the same on every
+    // model. This is the regression that shipped on Lease vs Buy: its HeroStrip sat
+    // inside the 1fr results column of the two-column layout and rendered ~740px, while
+    // EBITDA-DCF and the Loan Estimator spanned full width — and nothing failed, because
+    // no guard checked banner PLACEMENT (only that it existed). The frame/shell guards
+    // check presence; this checks the banner is a top-level band.
+    //
+    // jsdom has no layout engine (offsetWidth is always 0), so pixel width can't be
+    // measured — but the DOM TREE is real, and full-width vs in-column is exactly the
+    // difference between "the HeroStrip's parent is the screen root" and "its parent is
+    // a results <section>". That ancestry is what we assert.
+    const wrapper = await mountWithResult(component, result())
+    const strip = wrapper.findComponent({ name: 'HeroStrip' })
+    expect(strip.exists()).toBe(true)
+    expect(strip.element.parentElement).toBe(wrapper.element)
   })
 
   it('greys that headline when the figures go stale, rather than each screen doing its own thing', async () => {

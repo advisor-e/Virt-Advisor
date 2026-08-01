@@ -22,7 +22,7 @@ const http = require('http')
 const https = require('https')
 const { URL } = require('url')
 
-const BACKEND = process.env.API_BASE_URL || 'http://localhost:4000'
+const BACKEND = process.env.API_BASE_URL || 'http://127.0.0.1:4000'
 
 module.exports = function apiProxy (req, res, next) {
   // connect strips the mount prefix from req.url, so req.originalUrl carries the

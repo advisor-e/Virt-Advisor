@@ -10,6 +10,18 @@
 > this section looks the same.** If a screen "needs" its own headline, banner or failure
 > style, that is a design decision for the owner — not something a new report decides for
 > itself. That exact drift is what Phase 3 had to undo across six screens.
+>
+> **Extended by owner ruling 2026-07-23 (final — this is never discussed again):**
+> the rule covers **every step of a model, entry and intake screens included**, not just
+> the result screen. A new model's look is *read off the existing live screens* — the
+> dark `HeroStrip` band on every step (entry steps carry it with live **display-only**
+> running totals), the same card language (white card, `#d5e1ee` border, 3px `#00b1e0`
+> top edge, navy uppercase titles), the same sizes, the same colours, the same failure
+> and stale behaviour. **Do not ask the owner how a model should look, and do not
+> propose a new or bolder look — open the finished models, copy their structure and
+> format exactly.** A screen that would look out of place beside Quick Position or
+> Eight Levers is wrong by definition. (Origin: the Loan Estimator's entry steps
+> shipped as bare forms without the strip and had to be redone the same day.)
 
 ---
 
@@ -86,8 +98,28 @@ are dummy data. See `design/MODEL-CLASSIFICATION.md`.
 
 ### 6. The page — `pages/my-report.vue`
 
-Thin. It renders the report component. Only reports with a **file intake** need more
-(token resolution + step chips — copy `pages/quick-position.vue`).
+Thin, and it **must wrap the screen in `<report-shell>`** — the shared frame (light canvas,
+centred 1120px column, padding) plus the `--rs-*` design tokens, both defined once in
+`components/base/ReportShell.vue`. See
+[`REPORT-VISUAL-STANDARD.md`](REPORT-VISUAL-STANDARD.md) for the tokens and the ruled
+numbers. A page that skips the shell **fails the build** (step 8's frame guard).
+
+```pug
+<template lang="pug">
+report-shell
+  my-report
+</template>
+```
+
+```js
+import ReportShell from '~/components/base/ReportShell.vue'
+import MyReport from '~/components/MyReport.vue'
+export default { name: 'MyReportPage', components: { ReportShell, MyReport } }
+```
+
+Only reports with a **file intake** need more (token resolution + step chips, with
+`report-header` and the chips living in the page *inside* the shell — copy
+`pages/quick-position.vue`).
 
 ### 7. The screen — `components/MyReport.vue`
 
@@ -95,6 +127,8 @@ Compose it. Do not hand-roll any of these:
 
 ```pug
 <template lang="pug">
+//- Root is a flex column (gap:16px) so the header, the full-width banner and the
+//- two-column layout space uniformly — see the `.my-root` style note below.
 .my-root
   report-header(
     :back-label="$t('modelLibrary.backToLibrary')"
@@ -103,6 +137,19 @@ Compose it. Do not hand-roll any of these:
     :client="$t('report.preparedFor')"
     :badge="$t('report.illustrative')"   //- Education class only — see step 5
   )
+
+  //- The headline is a FULL-WIDTH band: a direct child of the root, ABOVE the two-column
+  //- layout — never inside a results column. (RULED 2026-07-27; guarded — see step 8.)
+  template(v-if="data")
+    //- Required: a failed recompute must never sit silently behind live-looking figures
+    stale-banner(
+      v-if="error"
+      :title="$t('report.staleTitle')"
+      :message="$t('report.calcUnreachable')"
+      :retry-label="$t('report.retry')"
+      @retry="recompute")
+    hero-strip(:columns="4" :stale="!!error")
+      hero-figure(:label="$t('…')" :value="money(data.x)" :tone="data.x < 0 ? 'crit' : 'default'")
 
   .my-layout
     aside.my-card
@@ -114,17 +161,21 @@ Compose it. Do not hand-roll any of these:
         @input="v => setField(fld, v)")
 
     main(v-if="data")
-      //- Required: a failed recompute must never sit silently behind live-looking figures
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute")
-
-      hero-strip(:columns="4" :stale="!!error")
-        hero-figure(:label="$t('…')" :value="money(data.x)" :tone="data.x < 0 ? 'crit' : 'default'")
+      //- charts, tables, coaching — the rest of the results column
 </template>
+```
+
+```css
+/* Root: flex column with ONE gap value (16px) so every vertical gap — header→band,
+   band→layout, card→card — is identical. See the [A]–[D2d] section anatomy in
+   REPORT-VISUAL-STANDARD.md and the labelled REPORT-LAYOUT-REFERENCE.html. */
+.my-root { display: flex; flex-direction: column; gap: 16px; }
+/* MANDATORY when report-header is inside the screen: reset its `margin: 0 auto 22px`.
+   In a flex column that auto margin shrinks the header below full width and doubles the
+   header→band gap. Guarded by reportHeaderFullWidth.test.js. */
+.my-root ::v-deep .rs-top { margin: 0; }
+/* The results column keeps the same 16px rhythm. */
+.my-results { display: flex; flex-direction: column; gap: 16px; }
 ```
 
 ```js
@@ -146,6 +197,16 @@ methods: {
   the literal word "true" in front of advisors on Eight Levers for a day.
 - Use `provenance-badge` wherever a figure can come from a file, so the advisor can tell
   an accounting fact from a typed one.
+- **Declare no frame, palette, colour, card, button or font of your own — read the shell's
+  `--rs-*` tokens.** A card is `background: var(--rs-card-bg); border: 1px solid
+  var(--rs-card-border); border-top: 3px solid var(--rs-card-top); border-radius:
+  var(--rs-card-radius); padding: var(--rs-card-pad)`; a two-column layout is
+  `grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap)` (collapsing at
+  `@media (max-width: 860px)`); text is `var(--rs-ink)` / `var(--rs-muted)`, accents
+  `var(--rs-accent)` / `var(--rs-accent-bright)`. The full token list and the ruled numbers
+  live in [`REPORT-VISUAL-STANDARD.md`](REPORT-VISUAL-STANDARD.md). A genuinely
+  model-specific accent (a chart gradient, a verdict panel) may stay literal — nothing else.
+  There is **no dark mode**: the look is one light standard regardless of the OS theme.
 
 ### 8. Wire it into the consistency guard — **do not skip this**
 
@@ -158,6 +219,11 @@ The list is explicit rather than discovered, so a new report is only protected o
 added. That is the one manual step in this recipe — if you skip it, the guard will not
 protect the new screen and nothing will tell you.
 
+You do **not** need to add anything for the *frame* guard
+([`tests/unit/reportShellFrame.test.js`](../tests/unit/reportShellFrame.test.js)): it reads
+the catalogue's ready routes, so your report is covered the moment its row flips to `ready`
+— and it fails if step 6's page does not wrap the screen in `<report-shell>`.
+
 ---
 
 ## Checklist
@@ -167,6 +233,11 @@ protect the new screen and nothing will tell you.
 - [ ] Route returns `{ success, error: { code, message }, timestamp }` and leaks nothing
 - [ ] Route registered; `firmAuth` only if it accepts uploads
 - [ ] Catalogue row added, `modelClass` correct, badge matches the class
+- [ ] Page wraps the screen in `<report-shell>`; the screen declares no frame/palette/
+      card/font of its own — it reads the `--rs-*` tokens (see `REPORT-VISUAL-STANDARD.md`)
+- [ ] Matches the [A]–[D2d] section anatomy (`REPORT-LAYOUT-REFERENCE.html`): full-width
+      header + banner, two-column body, root a flex column with a single 16px gap, and
+      `::v-deep .rs-top { margin: 0 }` if the header is rendered inside the screen
 - [ ] Screen composes `ReportHeader` + `HeroStrip`/`HeroFigure` + `StaleBanner`
       (+ `SliderField`, `ProvenanceBadge` where they apply)
 - [ ] `currencyMixin` + `reportRecompute` mixed in; no local `money()`, no local debounce
@@ -192,9 +263,9 @@ Not everything is duplication, and forcing these together would be a redesign:
 If a new report wants something outside this list, raise it as a design decision rather
 than building a second version of an existing block.
 
-## The two guards that enforce this
+## The four guards that enforce this
 
-Two tests make the rules above unbreakable rather than merely written down. Both derive
+Four tests make the rules above unbreakable rather than merely written down. All derive
 their expectations from real sources, so they cannot drift from the thing they check:
 
 - [`tests/unit/reportBadgeClass.component.test.js`](../tests/unit/reportBadgeClass.component.test.js)
@@ -202,8 +273,21 @@ their expectations from real sources, so they cannot drift from the thing they c
   own `usesRealClientData()` helper. **A shipped report with no entry in its route map is
   a failure, not a skip**, so a new report cannot slip through unchecked.
 - [`tests/unit/reportHeadlineConsistency.component.test.js`](../tests/unit/reportHeadlineConsistency.component.test.js)
-  — mounts all six screens against real backend model output and fails if any hand-rolls
-  its headline, leaves stale figures bright, or warns with something transient.
+  — mounts every listed screen against real backend model output and fails if any
+  hand-rolls its headline, **nests the banner inside a column instead of a full-width band**
+  (its DOM parent must be the screen root), leaves stale figures bright, or warns with
+  something transient.
+- [`tests/unit/reportShellFrame.test.js`](../tests/unit/reportShellFrame.test.js)
+  — reads every ready route from the catalogue and fails if its page does not wrap the
+  screen in `<report-shell>`. This is what stops a screen shipping with its own frame, or
+  none. The list is the catalogue's ready routes, so a new report is covered **automatically**.
 
-Both are mutation-verified: badging Quick Position "Illustrative" fails the first, and
-hand-rolling a headline fails the second.
+- [`tests/unit/reportHeaderFullWidth.test.js`](../tests/unit/reportHeaderFullWidth.test.js)
+  — a screen that renders `report-header` inside itself must reset the header margin
+  (`::v-deep .rs-top { margin: 0 }`), so the header can never shrink below full width in the
+  flex-column root. Closes the 2026-07-27 regression that shipped a narrow header.
+
+All four are mutation-verified: badging Quick Position "Illustrative" fails the first,
+tucking a banner into a column (or hand-rolling a headline) fails the second, swapping a
+page's `report-shell` root for a plain div fails the third, and dropping the `.rs-top`
+margin reset fails the fourth.

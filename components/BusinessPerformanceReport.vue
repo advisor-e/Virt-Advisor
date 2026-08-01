@@ -8,6 +8,40 @@
     :badge="$t('report.illustrative')"
   )
 
+  //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
+  //- above the two-column layout on every model, never tucked inside the results column.
+  template(v-if="out")
+    //- A failure AFTER the first load must never sit silently behind stale figures (R9).
+    stale-banner(
+      v-if="error"
+      :title="$t('report.staleTitle')"
+      :message="$t('report.calcUnreachable')"
+      :retry-label="$t('report.retry')"
+      @retry="recompute"
+    )
+    hero-strip(:stale="!!error")
+      hero-figure(
+        :label="$t('report.workingCapital.hero.cycle')"
+        :value="round0(out.cycleDays)"
+        :unit="$t('report.workingCapital.hero.cycleUnit')"
+        :sub="$t('report.workingCapital.hero.cycleSub')"
+      )
+      hero-figure(
+        :label="$t('report.workingCapital.hero.factor')"
+        :value="round1(out.cycleFactorMonthly) + '×'"
+        :sub="round0(out.cycleFactorAnnual) + '× ' + $t('report.workingCapital.hero.factorSub')"
+      )
+      hero-figure(
+        :label="$t('report.workingCapital.hero.revenue')"
+        :value="money(out.annualRevenue)"
+        :sub="$t('report.workingCapital.hero.revenueSubFrom') + ' ' + money(out.workingCapital) + ' ' + $t('report.workingCapital.hero.revenueSubCapital')"
+      )
+      hero-figure(:label="$t('report.workingCapital.hero.netProfit')" :value="money(out.netProfitMonthly)")
+        template(#sub)
+          span.bpr-pill(:class="cashflowClass")
+            span.bpr-pill-dot
+            | {{ cashflowText }}
+
   .bpr-layout
     //- INPUTS
     aside.bpr-card
@@ -29,37 +63,6 @@
 
     //- RESULTS
     section.bpr-results(v-if="out")
-      //- A failure AFTER the first load must never sit silently behind stale figures:
-      //- the numbers describe the PREVIOUS inputs while looking live (R9).
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute"
-      )
-      hero-strip(:stale="!!error")
-        hero-figure(
-          :label="$t('report.workingCapital.hero.cycle')"
-          :value="round0(out.cycleDays)"
-          :unit="$t('report.workingCapital.hero.cycleUnit')"
-          :sub="$t('report.workingCapital.hero.cycleSub')"
-        )
-        hero-figure(
-          :label="$t('report.workingCapital.hero.factor')"
-          :value="round1(out.cycleFactorMonthly) + '×'"
-          :sub="round0(out.cycleFactorAnnual) + '× ' + $t('report.workingCapital.hero.factorSub')"
-        )
-        hero-figure(
-          :label="$t('report.workingCapital.hero.revenue')"
-          :value="money(out.annualRevenue)"
-          :sub="$t('report.workingCapital.hero.revenueSubFrom') + ' ' + money(out.workingCapital) + ' ' + $t('report.workingCapital.hero.revenueSubCapital')"
-        )
-        hero-figure(:label="$t('report.workingCapital.hero.netProfit')" :value="money(out.netProfitMonthly)")
-          template(#sub)
-            span.bpr-pill(:class="cashflowClass")
-              span.bpr-pill-dot
-              | {{ cashflowText }}
       .bpr-tiles
         .bpr-tile
           .bpr-k {{ $t('report.workingCapital.tile.vsStart') }}
@@ -339,27 +342,30 @@ fields: [
 
 <style scoped>
 .bpr-root {
-  --bpr-bg:#eef3f8; --bpr-panel:#ffffff; --bpr-panel-2:#f1f6fb; --bpr-ink:#002b64; --bpr-muted:#5b6f8a; --bpr-line:#d5e1ee;
-  --bpr-accent:#0070c0; --bpr-accent-bright:#00b1e0; --bpr-accent-soft:#0070c018; --bpr-accent-ink:#002b64; --bpr-accent-contrast:#ffffff;
-  --bpr-good:#4ca52d; --bpr-good-soft:#4ca52d1a; --bpr-crit:#ff0000; --bpr-crit-soft:#ff00000f; --bpr-warn:#ff9900; --bpr-warn-soft:#ff99001a;
-  --bpr-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426; --bpr-r:14px;
-  background:var(--bpr-bg); color:var(--bpr-ink);
-  font-family:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-weight:300; -webkit-font-smoothing:antialiased;
-  padding:28px 22px 64px; min-height:100vh;
+  /* Colours flow from the shared ReportShell tokens (single source): --bpr-* is a thin
+     alias layer, no colour declared here. --bpr-accent-ink (the navy accent text) maps to
+     --rs-ink. Frame + dark-mode block removed (ReportShell owns the frame; all-light
+     ruling 2026-07-27). Width now matches Lease vs Buy. */
+  --bpr-bg:var(--rs-bg); --bpr-panel:var(--rs-panel); --bpr-panel-2:var(--rs-panel-2); --bpr-ink:var(--rs-ink); --bpr-muted:var(--rs-muted); --bpr-line:var(--rs-line);
+  --bpr-accent:var(--rs-accent); --bpr-accent-bright:var(--rs-accent-bright); --bpr-accent-soft:var(--rs-accent-soft); --bpr-accent-ink:var(--rs-ink); --bpr-accent-contrast:var(--rs-accent-contrast);
+  --bpr-good:var(--rs-good); --bpr-good-soft:var(--rs-good-soft); --bpr-crit:var(--rs-crit); --bpr-crit-soft:var(--rs-crit-soft); --bpr-warn:var(--rs-warn); --bpr-warn-soft:var(--rs-warn-soft);
+  --bpr-shadow:var(--rs-shadow); --bpr-r:var(--rs-radius);
+  color:var(--bpr-ink);
+  /* Flex column with ONE gap value (16px) so every vertical gap — header→band,
+     band→layout and inside the results column — is identical (owner ruling 2026-07-27). */
+  display:flex; flex-direction:column; gap:16px;
 }
-@media (prefers-color-scheme: dark) {
-  .bpr-root {
-    --bpr-bg:#05132a; --bpr-panel:#0a1f3d; --bpr-panel-2:#07182f; --bpr-ink:#e6f0fa; --bpr-muted:#9fb4d0; --bpr-line:#1a3559;
-    --bpr-accent:#00b1e0; --bpr-accent-bright:#7fd3f1; --bpr-accent-soft:#00b1e022; --bpr-accent-ink:#7fd3f1; --bpr-accent-contrast:#002b64;
-    --bpr-good-soft:#4ca52d26; --bpr-crit-soft:#ff00001f; --bpr-warn-soft:#ff990022;
-    --bpr-shadow:0 1px 2px #0007, 0 10px 30px -14px #000a;
-  }
-}
+/* The shared ReportHeader carries `margin: 0 auto 22px`. Inside a flex column that auto
+   margin shrinks the header below full width AND its 22px stacks on top of the flex gap.
+   Reset it to 0 here (this does NOT touch the shared component) so the single 16px flex
+   gap is the only spacing between the header and the band. */
+.bpr-root ::v-deep .rs-top { margin: 0; }
 .bpr-root strong, .bpr-root b { font-weight:600; }
 .num { font-variant-numeric: tabular-nums; }
 
-.bpr-layout { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; max-width:1120px; margin:0 auto; }
+/* Width + centring now come from the ReportShell wrap; column width (340px) left for the
+   Step 3 standardisation to 360px. */
+.bpr-layout { display:grid; grid-template-columns:var(--rs-col-input) 1fr; gap:var(--rs-col-gap); align-items:start; }
 @media (max-width:860px) { .bpr-layout { grid-template-columns:1fr; } }
 
 .bpr-card { background:var(--bpr-panel); border:1px solid var(--bpr-line); border-radius:var(--bpr-r); box-shadow:var(--bpr-shadow); }
@@ -368,14 +374,14 @@ fields: [
 .bpr-group:last-child { border-bottom:0; }
 .bpr-glabel { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
 .bpr-dot { width:7px; height:7px; border-radius:50%; background:var(--bpr-accent-bright); }
-/* Sliders now live in components/base/SliderField. It reads these generic tokens, so
-   this screen keeps its own palette — including the dark-mode overrides above. */
+/* Sliders live in components/base/SliderField, reading these generic --sl-* tokens.
+   They point at the --bpr-* aliases, which now resolve to the shared ReportShell tokens. */
 .bpr-root {
   --sl-accent:var(--bpr-accent); --sl-line:var(--bpr-line); --sl-panel:var(--bpr-panel);
   --sl-ink:var(--bpr-ink); --sl-accent-soft:var(--bpr-accent-soft);
 }
 
-.bpr-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
+.bpr-results { display:flex; flex-direction:column; gap:16px; min-height:200px; }
 .bpr-tiles { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
 @media (max-width:560px) { .bpr-tiles { grid-template-columns:1fr; } }
 .bpr-tile { background:var(--bpr-panel); border:1px solid var(--bpr-line); border-radius:var(--bpr-r); padding:16px 17px; box-shadow:var(--bpr-shadow); overflow:hidden; }
@@ -426,10 +432,10 @@ fields: [
 .bpr-v{color:var(--bpr-accent)}
 .bpr-h2{color:var(--bpr-ink)}
 /* pop2 */
-.bpr-v{color:#0070c0}
-.bpr-tile{border-top:3px solid #00b1e0}
-.bpr-hero{background:#002b64;border-color:#0070c0}
-.bpr-hero .bpr-v,.bpr-hero .bpr-k,.bpr-hero .bpr-sub,.bpr-hero .bpr-unit{color:#ffffff}
+.bpr-v{color:var(--rs-accent)}
+.bpr-tile{border-top:3px solid var(--rs-accent-bright)}
+.bpr-hero{background:var(--rs-ink);border-color:var(--rs-accent)}
+.bpr-hero .bpr-v,.bpr-hero .bpr-k,.bpr-hero .bpr-sub,.bpr-hero .bpr-unit{color:var(--rs-accent-contrast)}
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure.
    The status pill is passed in through HeroFigure's `sub` slot, so it is still
    styled here — `.herostrip` is HeroStrip's root, which the slot renders inside. */
