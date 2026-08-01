@@ -2295,12 +2295,15 @@ Two honest answers on different axes — the file used to conflate them:
     pools onto one database**. The trap was sharper than that: `repository.js`'s docblock already
     told the master team to use `server/utils/db.js` and `config/db-schema.sql`, while **the line
     of code directly beneath it required Collaborate's copy**. Anyone wiring SQL follows the code,
-    not the prose. Deleted; seam repointed; `tests/collaborate/db.test.js` repointed to our pool —
-    which **had no test at all until then**, so the merge gained coverage rather than losing it.
+    not the prose. Deleted; seam repointed; the pool test (then `tests/collaborate/db.test.js`,
+    since moved — see below) repointed to our pool — which **had no test at all until then**, so
+    the merge gained coverage rather than losing it.
     (Its docblock had said `server/utils/db.js` all along while requiring the other file.)
-    - ☐ **Small follow-up, unstarted:** that test now covers OUR pool while living in
-      `tests/collaborate/`, so a future "remove Collaborate" sweep would delete the only test of
-      the app's database connection. Move it to `tests/unit/db.test.js`.
+    - ✅ **Small follow-up, DONE 2026-08-02 (session 23).** That test covered OUR pool while
+      living in `tests/collaborate/`, so a future "remove Collaborate" sweep would have deleted
+      the only test of the app's database connection. Moved to **`tests/unit/db.test.js`**.
+      A pure `git mv` with **no content change**: both folders sit two levels under the repo
+      root, so its two `require('../../…')` paths resolve to the same files as before.
   - **The 15 Collaborate tables moved into `config/db-schema.sql`** under their own section, with
     **table-name collisions checked before merging rather than assumed** (there were none; 26
     tables, no duplicates). They also inherit the `CREATE DATABASE` / `USE` that their standalone
@@ -2433,11 +2436,13 @@ Two honest answers on different axes — the file used to conflate them:
       **internally contradictory**: its docblock already named `server/utils/db.js` and
       `config/db-schema.sql` while the code beneath required Collaborate's copy, so anyone wiring SQL
       would have followed the code and got the wrong pool. Deleted; the seam repointed;
-      `tests/collaborate/db.test.js` repointed to our pool — which until then had **no test at all**,
-      so this gained coverage rather than losing it. The other two duplicates still stand as written.
-      - ☐ **Follow-up (small, unstarted):** that test now covers OUR pool while living in
-        `tests/collaborate/`, so a future "remove Collaborate" sweep would delete the only test of
-        the app's database connection. Move it to `tests/unit/db.test.js`.
+      the pool test (then `tests/collaborate/db.test.js`) repointed to our pool — which until then
+      had **no test at all**, so this gained coverage rather than losing it. The other two
+      duplicates still stand as written.
+      - ✅ **Follow-up DONE 2026-08-02 (session 23):** that test covered OUR pool while living in
+        `tests/collaborate/`, so a future "remove Collaborate" sweep would have deleted the only
+        test of the app's database connection. Moved to **`tests/unit/db.test.js`** — a pure
+        `git mv`, no content change (same folder depth, so its relative requires still resolve).
   - ⚠ **CROSS-MACHINE: THIS IS THE COLLISION THE SLICE-1 NOTE PREDICTED.** `server/restify-server.js`
     and `config/integration.js` were both edited here. The desktop must merge `master` before
     touching either.
