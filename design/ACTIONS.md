@@ -262,10 +262,41 @@
       response carries `notMeasured` naming it, so the tool can never read as "nothing else affects this".
     - **NEXT: the screen** (Step 2) — wording to be approved before any of it is written.
 
-- <a id="distinction-trigger-cap"></a>☐ **P2 · DECISION/SEC — only the FIRST FIVE trigger phrases of any Advisory
-  Distinction ever reach the AI, while the screen shows all of them and invites more.** Found 2026-08-01,
-  by Mike's question "how does this compare with the advisory distinctions page — or will they be at cross
-  purposes?" Not yet fixed; needs his ruling, so logged rather than actioned.
+- <a id="distinction-trigger-cap"></a>✅ **P2 · DECISION/SEC — only the FIRST FIVE trigger phrases of any Advisory
+  Distinction ever reached the AI, while the screen showed all of them and invited more.
+  FOUND 2026-08-01 by Mike's question, RULED and FIXED the same day (this branch, commit `96bd94e`).
+  Full suite 2,122 green / 140 suites, lint 0 errors.**
+  - **Mike's ruling: send them all.** The chosen option was (a) below. The ceiling that replaced the
+    five is `DISTINCTION_TRIGGER_EXAMPLE_CAP = 25` in [`advisorEngine.js`](../server/advisorEngine.js) —
+    a **guard against an unbounded firm edit, not a content decision**: the save routes reject an empty
+    array but set no upper bound, so a paste could otherwise push a thousand phrases into a live model
+    call. It sits ~3x clear of the largest committed row (8), and anything beyond it is **counted and
+    announced**, never trimmed in silence — the exact failure mode the old five had. The constant is
+    exported so a screen or test reads THE number, not a second copy that drifts.
+  - **The "cap it by prompt size" worry in the original write-up did not survive measurement.** The
+    prompt only ever carries **one domain's** rows, never all 67, so sending every phrase costs
+    **+247 characters (~60 tokens)** on the largest domain.
+  - **✅ MEASURED LIVE against gpt-4o-mini — Mike authorised the token spend** ("using tokens to save
+    customer dissatisfaction is not a problem for me"). 51 Scenario Lab cases, old prompt vs new.
+    - **⚠ The first pass was NOT trustworthy on its own and was not reported as a result.** 6 cases
+      differed old-vs-new — but re-running the **same** input differed on 2, so the noise floor was too
+      close to the signal. `temperature: 0` is not the same as deterministic. The 6 were re-run **three
+      times per condition**; only differences holding across every run are claimed below.
+    - **Real (every run):** `valuation·is the offer fair` **+Porter's Revenue, −Asset Review** (from the
+      6th phrase *"expectations are unrealistic"*); `staff·toxic culture` **+Remuneration & Incentives**
+      (*"weak leadership"*); `eoy·tax planning` **+Money Matters**.
+    - **Reliability gain:** `staff·hiring` matched *People Session* / *Productive Habits* on **1 of 3**
+      runs before and **3 of 3** after — a flaky match made stable.
+    - **Not counted:** the `data-systems` and `forecasting` differences did not survive repetition.
+    - **Honest limit:** 51 committed test cases are not a measurement of live advisor speech, and a
+      distinction match costs an API call per sentence, so this is a **sampled** result — it will never
+      be the free, repeatable before/after the logic-table preview gives.
+  - **The measurement scripts were deliberately NOT committed** — they are one-off scratchpad runs, and a
+    committed tool that spends money per run needs its own design (see the sampled-workbench note below).
+
+  - **── The diagnosis that led to the ruling, kept as written on the day ──**
+  - Found by Mike's question *"how does this compare with the advisory distinctions page — or will they be
+    at cross purposes?"*
   - **The evidence.** [`_classifyMatchingRows`](../server/advisorEngine.js) builds its prompt from
     `row.triggers.slice(0, 5)`. [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) renders the
     column as `row.triggers.join(', ')` — every phrase, no cap shown — and the row is firm-editable.
@@ -281,6 +312,8 @@
   - **Two honest options, both needing Mike:** (a) send all phrases and cap by prompt-size with a stated
     limit, or (b) keep the five and say so on screen ("the first five guide the AI"). Not for the AI to
     pick — (a) changes what reaches a live model, (b) changes the firm's understanding of its own controls.
+    **→ Mike chose (a) on 2026-08-01.** Note the prompt-size half of (a) proved unnecessary once measured
+    (~60 tokens on the largest domain); the ceiling that shipped guards a runaway *edit*, not prompt size.
   - **⚠ Why the new phrase probe does NOT cover this layer** (and says so in every response via
     `notMeasured`): a distinction match costs an OpenAI call per sentence, so it can never be a free,
     repeatable before/after like the logic-table preview. A distinctions workbench is possible but must be
@@ -290,6 +323,25 @@
     design (it replaced exact keyword matching deliberately — see the comment above `classifyDistinctions`),
     and the two systems using the same column heading *"Trigger phrases"* for two different mechanisms is
     itself worth a wording decision on the hub.
+
+- <a id="distinction-rows-compete"></a>☐ **P2 · DOC/DECISION — editing ONE distinction's phrases can move a
+  DIFFERENT distinction's recommendations, and nothing on screen says so.** Found 2026-08-01 while measuring
+  the fix above; **not a defect introduced by it**, and not a defect at all — a property of the design that
+  the screen does not disclose.
+  - **The evidence, from the live run.** *Asset Review* was dropped from `pd-54`, which gained **no** new
+    phrases, and the `eoy` gain came from `pd-64`, which also gained none. A domain's distinctions all go
+    into **one** prompt and are ranked against each other
+    ([`_classifyMatchingRows`](../server/advisorEngine.js)), so making one row a better fit can stop the
+    classifier picking a neighbour.
+  - **Inherent to the semantic classifier** — the direct consequence of the deliberate replacement of exact
+    keyword matching. Logged because [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) presents each
+    row as an independent control, which is how a firm manager will reasonably read it. Same family as the
+    trigger cap above: the screen's silence about how the mechanism behaves, not a loss of content.
+  - **For Mike:** whether the screen should say this, and in what words. Not for the AI to draft — it is a
+    statement about how the firm's own controls behave (CLAUDE.md — confirm wording before writing it).
+  - **Carries the wording decision left open above:** the hub uses one column heading *"Trigger phrases"*
+    for **two different mechanisms** — literal word-boundary matching on logic tables, semantic examples on
+    distinctions. Worth settling both in one pass.
 
 - <a id="trigger-word-boundary"></a>✅ **P1 · FIX — entry triggers matched anywhere inside a word, so "HR"
   fired on "t-HR-ee". FOUND *and* FIXED 2026-07-31 (approved by Mike, this branch, commit `4debcfc`).
