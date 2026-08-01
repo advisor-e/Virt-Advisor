@@ -71,11 +71,10 @@ const FAMILIES = [
  * Derived rather than listed by hand, so a new data file shows up as an
  * acknowledged gap the moment it lands, instead of being silently absent.
  *
- * @returns {{uncovered: string[], devStores: number}}
+ * @returns {{uncovered: string[]}}
  */
 function findUncoveredFiles () {
   const all = fs.readdirSync(DATA_DIR).filter(f => f.endsWith('.json')).sort()
-  const devStores = all.filter(f => f.startsWith('dev-')).length
 
   const uncovered = all.filter(f =>
     !f.startsWith('dev-') &&
@@ -83,7 +82,7 @@ function findUncoveredFiles () {
     !COVERED_FILES.includes(f)
   )
 
-  return { uncovered, devStores }
+  return { uncovered }
 }
 
 const esc = s => String(s == null ? '' : s).replace(/\|/g, '\\|')
@@ -96,7 +95,7 @@ const esc = s => String(s == null ? '' : s).replace(/\|/g, '\\|')
 function render () {
   const rows = classifyAllContent()
   const summary = summariseRouting(rows)
-  const { uncovered, devStores } = findUncoveredFiles()
+  const { uncovered } = findUncoveredFiles()
 
   const out = []
 
@@ -191,8 +190,14 @@ function render () {
   out.push('- **Only the PLATFORM layer is classified.** A firm\'s overrides and its own added rows')
   out.push('  are resolved at runtime and are not on disk to be read here, so a firm-authored asset')
   out.push('  does not appear. The lane its platform equivalent sits in still applies.')
-  out.push(`  (${devStores} \`dev-*.json\` files are the dev-mode override stores and are excluded for`)
-  out.push('  the same reason.)')
+  // DO NOT put a COUNT of the dev-* files here. They are gitignored, so the number
+  // depends on whether the app has ever been run on this machine: 11 on a working
+  // developer's box, 0 in a fresh clone, a worktree or CI. contentRoutingReport.test.js
+  // asserts this document is reproducible from the code, so a machine-derived number
+  // makes that test fail on every clean checkout — a false alarm that reads exactly
+  // like a regression. Name the files; never count them.
+  out.push('  (The `data/dev-*.json` files are the dev-mode override stores and are excluded')
+  out.push('  for the same reason.)')
   out.push('')
   out.push('- **A lane says where an asset can reach, not whether it is any good.** This report')
   out.push('  cannot tell you a logic table is well written, only that the engine walks it.')
