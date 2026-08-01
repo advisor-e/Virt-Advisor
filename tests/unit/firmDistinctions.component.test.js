@@ -189,3 +189,112 @@ describe('the extracted form keeps the parent in charge of the values', () => {
     expect(wrapper.findComponent({ name: 'FirmDistinctionForm' }).vm.pickerSearch).toBe('')
   })
 })
+
+// Finding a mentor update, added 2026-08-01 — the Quizzes rail's answer, applied here.
+//
+// The banner above the list has always said "N mentor updates since your last visit",
+// and its own comment finished the sentence: "switch domains to find the badged rows."
+// Fourteen domains, one on screen at a time. A manager was told something had changed
+// and then left to hunt for it, which is how a notice stops being read.
+describe('the sidebar says which domain holds an update', () => {
+  /**
+   * The rows above sit in a domain the sidebar does not list, which is fine for the
+   * card tests but meaningless for a per-domain count. These are the same two rows in
+   * a real domain, with a third in another, so "which one" is a genuine question.
+   */
+  const CONFLICT_ROWS = PLATFORM_ROWS.map(r => ({ ...r, domain: 'conflict' }))
+
+  /** A platform row in a second domain. */
+  const RISK_ROW = {
+    id: 'pd-9',
+    domain: 'risk',
+    description: 'No one has looked at the insurance cover in years',
+    triggers: ['insurance'],
+    templates: ['Risk Register'],
+    boost: 5
+  }
+
+  test('a passively-updated row counts against its own domain, and no other', async () => {
+    const wrapper = await mountHub({
+      livePlatformRows: [...CONFLICT_ROWS, { ...RISK_ROW, mentorUpdated: true, mentorUpdatedAt: '2026-07-30' }],
+      selectedDistinctionDomain: 'conflict'
+    })
+
+    expect(wrapper.vm.distinctionUpdateCounts.risk).toBe(1)
+    expect(wrapper.vm.distinctionUpdateCounts.conflict).toBe(0)
+    const items = wrapper.findAll('.dist-domain').wrappers
+    const flagged = items.filter(w => w.text().includes('update'))
+    expect(flagged.length).toBe(1)
+    expect(flagged[0].text()).toContain('Risk Management')
+    expect(flagged[0].text()).toContain('1 update')
+  })
+
+  test('a row the firm edited that the mentor has since changed counts too', async () => {
+    // Both flags mean "the mentor changed something in here". One needs a decision and
+    // one is a notice, but the question the sidebar answers — is there anything to look
+    // at in this domain? — has the same answer for both.
+    const wrapper = await mountHub({
+      livePlatformRows: CONFLICT_ROWS,
+      selectedDistinctionDomain: 'conflict',
+      distinctionState: { ownRows: [], declinedIds: [], overrides: { 'pd-2': { description: 'Our wording' } } },
+      distinctionDriftIds: ['pd-2']
+    })
+
+    expect(wrapper.vm.distinctionUpdateCounts.conflict).toBe(1)
+  })
+
+  test('two updates in one domain read as two, not as a dot', async () => {
+    const wrapper = await mountHub({
+      livePlatformRows: CONFLICT_ROWS.map(r => ({ ...r, mentorUpdated: true, mentorUpdatedAt: '2026-07-30' })),
+      selectedDistinctionDomain: 'conflict'
+    })
+
+    expect(wrapper.vm.distinctionUpdateCounts.conflict).toBe(2)
+    const flagged = wrapper.findAll('.dist-domain').wrappers.filter(w => w.text().includes('update'))
+    expect(flagged[0].text()).toContain('2 updates')
+  })
+
+  test('nothing is counted when the mentor has changed nothing', async () => {
+    // The control. Without it every assertion above could pass on a sidebar that
+    // badged all fourteen domains — which would send a manager into empty ones and
+    // teach them the count means nothing.
+    const wrapper = await mountHub({
+      livePlatformRows: [...CONFLICT_ROWS, RISK_ROW],
+      selectedDistinctionDomain: 'conflict'
+    })
+
+    expect(Object.values(wrapper.vm.distinctionUpdateCounts).every(n => n === 0)).toBe(true)
+    expect(wrapper.findAll('.dist-domain').wrappers.some(w => w.text().includes('update'))).toBe(false)
+  })
+
+  test('every domain still shows its name, counted or not', async () => {
+    // The count is added to the sidebar; it must not replace what was there. The label
+    // moved from a Buefy prop into a slot to make room for it, and Buefy renders one or
+    // the other — so this is the assertion that catches the label vanishing.
+    const wrapper = await mountHub({
+      livePlatformRows: [...CONFLICT_ROWS, { ...RISK_ROW, mentorUpdated: true }],
+      selectedDistinctionDomain: 'conflict'
+    })
+
+    const names = wrapper.findAll('.dist-domain-name').wrappers.map(w => w.text())
+    expect(names.length).toBe(14)
+    expect(names).toContain('Conflict & Dispute')
+    expect(names).toContain('Risk Management')
+  })
+
+  test('the count is the rows the tab will badge, not the rows the firm has touched', async () => {
+    // An override the mentor has NOT changed is not an update. Counting overrides would
+    // point at a domain where the manager finds nothing badged, and a sidebar that
+    // disagrees with the screen it points at is worse than no count at all.
+    const wrapper = await mountHub({
+      livePlatformRows: CONFLICT_ROWS,
+      selectedDistinctionDomain: 'conflict',
+      distinctionState: { ownRows: [], declinedIds: [], overrides: { 'pd-2': { description: 'Our wording' } } },
+      distinctionDriftIds: []
+    })
+
+    expect(wrapper.vm.distinctionUpdateCounts.conflict).toBe(0)
+    // …and the card really is drawn, so the zero is about the flag, not an empty domain.
+    expect(wrapper.findAll('.distinction').length).toBe(2)
+  })
+})

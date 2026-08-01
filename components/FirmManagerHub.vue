@@ -140,13 +140,27 @@ section.firm-manager-hub.section
           .column.is-3
             b-menu
               b-menu-list(label="Domain")
+                //- The label goes through the slot rather than the `label` prop so the
+                //- update count can sit beside it — Buefy renders one or the other,
+                //- never both. The count is what makes a mentor update findable: the
+                //- banner above the list says how many there are, and without this the
+                //- only way to locate them is opening all fourteen domains in turn.
                 b-menu-item(
                   v-for="d in distinctionDomains"
                   :key="d.id"
-                  :label="d.label"
                   :active="selectedDistinctionDomain === d.id"
                   @click="selectedDistinctionDomain = d.id; closeDistinctionForm()"
                 )
+                  template(v-slot:label)
+                    span.dist-domain
+                      span.dist-domain-name {{ d.label }}
+                      //- Spelled out, not left to the colour: the amber alone says
+                      //- nothing to a reader who cannot see it.
+                      b-tag(
+                        v-if="distinctionUpdateCounts[d.id]"
+                        type="is-warning"
+                        size="is-small"
+                      ) {{ distinctionUpdateCounts[d.id] }} {{ distinctionUpdateCounts[d.id] === 1 ? 'update' : 'updates' }}
 
           .column
             //- Help button — how distinction matching works (prominent, top-right)
@@ -694,42 +708,33 @@ export default {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
     },
-    // The unified, badged list for the selected domain: every platform row tagged
-    // platform / customised (firm-edited) / declined (switched off), then the firm's
-    // own rows. Built client-side from the imported platform rows + the firm state,
-    // so a declined row still shows (greyed) rather than just disappearing.
+    // The unified, badged list for the selected domain.
     domainDistinctions () {
-      const dom = this.selectedDistinctionDomain
-      const declined = new Set(this.distinctionState.declinedIds || [])
-      const overrides = this.distinctionState.overrides || {}
-      const drift = new Set(this.distinctionDriftIds || [])
-      const rows = []
-      for (const p of (this.livePlatformRows || [])) {
-        if (p.domain !== dom) { continue }
-        // p carries mentorUpdated / mentorUpdatedAt from the backend (the passive
-        // "since your last visit" notice — never set on overridden rows).
-        if (declined.has(p.id)) {
-          rows.push({ ...p, kind: 'declined' })
-        } else if (overrides[p.id]) {
-          // Customised row: the firm's version is shown; mentorVersion holds the mentor's
-          // CURRENT row (= p, before the override) for the Stage E compare panel, and
-          // mentorDrift flags that the mentor changed it since the firm last reviewed.
-          rows.push({
-            ...p,
-            ...overrides[p.id],
-            id: p.id,
-            kind: 'customised',
-            mentorDrift: drift.has(p.id),
-            mentorVersion: { description: p.description, triggers: p.triggers, templates: p.templates, boost: p.boost }
-          })
-        } else {
-          rows.push({ ...p, kind: 'platform' })
-        }
+      return this.distinctionRowsFor(this.selectedDistinctionDomain)
+    },
+    /**
+     * Which domains hold a mentor update, so the sidebar can say where to look.
+     *
+     * WHY THIS EXISTS. The banner above the list says "N mentor updates since your last
+     * visit" and its own comment admitted the rest: "switch domains to find the badged
+     * rows". Fourteen domains, one on screen at a time — a manager was being told
+     * something had changed and then left to hunt for it. Same gap the Quizzes rail
+     * closed on 2026-08-01, and the same answer.
+     *
+     * Counted THROUGH distinctionRowsFor — the same rows the tab draws — so the sidebar
+     * can never point at a domain where nothing turns out to be badged. A separate count
+     * written here would be free to disagree, and a sidebar that disagrees with the
+     * screen it points at is worse than no count at all.
+     *
+     * @returns {Object.<string, number>} domain id → badged rows in it
+     */
+    distinctionUpdateCounts () {
+      const counts = {}
+      for (const d of this.distinctionDomains) {
+        counts[d.id] = this.distinctionRowsFor(d.id)
+          .filter(r => r.mentorUpdated || r.mentorDrift).length
       }
-      for (const o of (this.distinctionState.ownRows || [])) {
-        if (o.domain === dom) { rows.push({ ...o, kind: 'firm-own' }) }
-      }
-      return rows
+      return counts
     },
     // True while the form is editing a platform-sourced row (its domain is fixed).
     editingPlatformRow () {
@@ -1140,6 +1145,51 @@ export default {
       }
     },
 
+    /**
+     * The unified, badged list for ONE domain: every platform row tagged platform /
+     * customised (firm-edited) / declined (switched off), then the firm's own rows.
+     * Built client-side from the live platform rows + the firm state, so a declined row
+     * still shows (greyed) rather than just disappearing.
+     *
+     * Takes the domain rather than reading the selected one, so the sidebar's update
+     * counts are produced by this exact code instead of a second copy of it.
+     *
+     * @param {string} dom - a distinction domain id
+     * @returns {Array<Object>} rows carrying `kind`, and `mentorDrift` where overridden
+     */
+    distinctionRowsFor (dom) {
+      const declined = new Set(this.distinctionState.declinedIds || [])
+      const overrides = this.distinctionState.overrides || {}
+      const drift = new Set(this.distinctionDriftIds || [])
+      const rows = []
+      for (const p of (this.livePlatformRows || [])) {
+        if (p.domain !== dom) { continue }
+        // p carries mentorUpdated / mentorUpdatedAt from the backend (the passive
+        // "since your last visit" notice — never set on overridden rows).
+        if (declined.has(p.id)) {
+          rows.push({ ...p, kind: 'declined' })
+        } else if (overrides[p.id]) {
+          // Customised row: the firm's version is shown; mentorVersion holds the mentor's
+          // CURRENT row (= p, before the override) for the Stage E compare panel, and
+          // mentorDrift flags that the mentor changed it since the firm last reviewed.
+          rows.push({
+            ...p,
+            ...overrides[p.id],
+            id: p.id,
+            kind: 'customised',
+            mentorDrift: drift.has(p.id),
+            mentorVersion: { description: p.description, triggers: p.triggers, templates: p.templates, boost: p.boost }
+          })
+        } else {
+          rows.push({ ...p, kind: 'platform' })
+        }
+      }
+      for (const o of (this.distinctionState.ownRows || [])) {
+        if (o.domain === dom) { rows.push({ ...o, kind: 'firm-own' }) }
+      }
+      return rows
+    },
+
     // Badge label + Buefy tag type for a unified-list row's kind.
     distinctionBadge (kind) {
       switch (kind) {
@@ -1438,4 +1488,14 @@ export default {
 
 /* Switched-off (declined) rows in the unified distinctions list read as muted. */
 .distinction-off { opacity: 0.5; }
+
+/* A domain in the sidebar: its name, and the update count pushed to the right so the
+   fourteen counts line up as a column the eye can scan in one pass. */
+.dist-domain {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+.dist-domain-name { flex: 1; }
 </style>
