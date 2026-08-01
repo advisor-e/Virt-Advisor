@@ -23,6 +23,52 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="stranded-report-programme"></a>🔴 **P1 · RESCUE — THREE FINISHED FEATURES AND THE MODEL
+  VISUAL STANDARD ARE STRANDED ON `feat/business-performance-report`, ABSENT FROM `master`.**
+  Found 2026-08-02 (laptop, Session 23) while measuring branch drift for the item below — which
+  is the point: **the blind spot found its own second instance.** Mike, told what was there:
+  *"yes, cost of capital is definately supposed to be there — bring it back."*
+  - **What is missing from `master`** (~30 files, verified by comparing the two trees, not assumed):
+    - **Cost of Capital (WACC)** — `components/CostOfCapital.vue`, `pages/cost-of-capital.vue`,
+      `server/report/costOfCapitalModel.js`, 3 tests. Its commits describe a *finished* feature:
+      the screen live in the Model Library, a hurdle-rate test, adopt-a-beta, and a correction
+      to standard practice (CAPM without the two extra adjustments).
+    - **Lease vs Buy** — screen, maths model, route, 3 tests.
+    - **Loan Estimator** — 4 components, model, page, 6 tests, `data/loan-criteria.json`,
+      `data/tax-bands.json`, `design/LOAN-ESTIMATOR-PLAN.md`.
+    - **`components/base/ReportShell.vue` — the single source of the model visual standard** —
+      plus `design/REPORT-VISUAL-STANDARD.md`, `design/REPORT-LAYOUT-REFERENCE.html`, and the
+      refactor putting **all eight existing model screens** onto it.
+    - Also `components/FirmDashboard.vue`, `server/routes/firm.js`, an `add-a-report` skill,
+      `scripts/sync-video-minutes.js`, 12 session notes.
+  - 🔴 **THE DETAIL THAT PROVES IT IS LOAD-BEARING: `design/REPORT-LAYOUT-REFERENCE.html` exists
+    ONLY on that branch.** The project's binding visual rule — every model copies that layout
+    skeleton — has had **no source in the shared code**. Any model built from `master` alone has
+    been working to a standard it cannot read.
+  - ✅ **MEASURED BEFORE ANY APPROACH WAS PROPOSED, and the measurement overturned the
+    expectation.** 185 behind / 73 ahead read like a reconstruction; a trial merge in a throwaway
+    worktree says otherwise:
+    - **Exactly ONE conflicted file — `design/ACTIONS.md`, one marker.** *No code file conflicted.*
+      295 files merge cleanly.
+    - **235/237 suites, 3,944/3,947 tests green** on the merged result.
+    - **Failure 1 — the routing map goes stale**: the Loan Estimator adds two data files, so the
+      generated count moves 30 → 32. Fix is `npm run routing` + commit. **This is
+      [`cross-branch-rule-collision`](#cross-branch-rule-collision) again** — a rule made on one
+      machine meeting rows added on the other.
+    - **Failure 2 — `ReportShell.vue`'s style block fails `componentStyles.test.js`**
+      (`CssSyntaxError: Unknown word` at 1:1). That guard did not exist when ReportShell was
+      written. **Undiagnosed: either a genuinely malformed style block the branch could never have
+      caught, or the guard misreading a valid file.** Diagnose before merging — do not assume which.
+  - **So the route is ONE MERGE, not a file-by-file port** — and porting Cost of Capital alone was
+    considered and rejected: its CSS reads ReportShell's tokens, so it would land working but
+    looking wrong. The features do not separate cleanly; the visual standard is the floor they
+    all stand on.
+  - ⚠ **The branch is 185 behind and last touched 2026-07-29.** Whatever is done, it is done by
+    merging `master` INTO it (measured above) and raising a PR from a frozen snapshot — never by
+    merging a two-week-stale tree into `master`.
+  - **NOT STARTED. Nothing has been merged, cut or pushed** — the measurement worktree was removed
+    and the repo left clean. This is the next session's work.
+
 - <a id="startup-blind-to-other-machine"></a>☐ **P1 · PROCESS — `/startup` reported "0 behind master" while this machine
   was running a two-day-stale Firm Manager hub. The check is structurally blind to the other
   machine's unmerged branch.** Found 2026-08-01 by Mike, who opened the hub and could not find work
@@ -2941,6 +2987,67 @@ Two honest answers on different axes — the file used to conflate them:
       production instance still resets on restart**; only MySQL fixes that (phase C, blocked on
       provisioning). Do not read this row as "persistence is done". The data is still mock, and
       the chunk size above is unchanged and still unmeasured gzipped.
+
+  ### Session 23 (2026-08-02, laptop) — THE TWO DIVISIONS JOINED, AND A THIRD ONE FOUND ADRIFT
+
+  Suite **3,499 → 3,665 / 222 suites**, lint 0 errors, audit gate clean. Commits `cade62e`
+  (laptop), `6b9d4d2` (on the release snapshot), **PR #29** (`9661b0b`), merge `10d9a37`.
+  **Every step was approved by Mike individually; nothing unapproved is in the tree.**
+
+  - **The db-pool test left the Collaborate folder** (`cade62e`). Session 22 logged it as a small
+    follow-up: `tests/collaborate/db.test.js` had been repointed at OUR pool, so a future "remove
+    Collaborate" sweep would have deleted the app's **only** test of its database connection.
+    Moved to `tests/unit/db.test.js` — a pure `git mv`, no content change, because both folders sit
+    two levels under the root and its `require('../../…')` paths resolve identically. Counts
+    unchanged (3,499 / 213), which is the proof rather than a coincidence.
+  - 🔴 **THE DESKTOP'S 26 COMMITS REACHED `master` (PR #29) — and one defect was found and fixed
+    on the way.** Verified **before** proposing the merge, in a detached throwaway worktree with
+    the gitignored master export copied in first (the 2026-07-29 near-miss: without it
+    `ghostReferenceValidator` reports no ghosts and two tests fail for the wrong reason).
+    - **220/221 suites on a clean checkout — one failure the desktop could not have seen.**
+      `CONTENT-ROUTING.md` carried a **count of the gitignored `data/dev-*.json` stores**, so the
+      document was reproducible only on a machine where the app had been run: `11` on the desktop,
+      `0` in a fresh clone, worktree or CI — while `contentRoutingReport.test.js` exists precisely
+      to assert it matches its generator. **Green on its author's machine, red everywhere else.**
+    - Fixed by naming the files instead of counting them, with a comment saying why a count must
+      not return — *the failure is invisible from any machine that has run the app*. **Proven by
+      regenerating with 0 dev files, then 3 planted, then 0 again: identical SHA-256 all three
+      times**, and the old code confirmed machine-dependent the same way. A measured fix, not a
+      plausible one. Then confirmed from the other direction when the merge landed here, on a
+      machine that HAS all 11.
+    - **Cut as a frozen `release/firm-quiz-builder-2026-08-02` snapshot at `2caee06`**, never
+      pointed at the live branch — the PR #23 → #24 lesson, so anything the desktop committed that
+      day could not silently join the release.
+    - ⚠ **The pre-commit hook REFUSED to run in the worktree** (`.husky/_/husky.sh` is generated by
+      `npm install` and does not travel). The helper was copied in so all three gates ran for real
+      — **not** `--no-verify`. Worth knowing before anyone reaches for the flag: **verifying in a
+      worktree needs three things carried in by hand — the gitignored master export, a
+      `node_modules` junction, and `.husky/_/husky.sh`.**
+  - **`master` merged into this branch (`10d9a37`) — clean, and the arithmetic is the proof.**
+    `master`'s 3,652 + this branch's 13 = **3,665**. Not one test dropped or duplicated, which is
+    the specific thing that fails when two branches meet (Session 21's 13 missing row ids).
+  - 🔴 **THEN THE REAL FINDING — see [`stranded-report-programme`](#stranded-report-programme) in
+    the ★ block.** Measuring which branches sit ahead of `master`, to design the fix for
+    [`startup-blind-to-other-machine`](#startup-blind-to-other-machine), surfaced
+    `feat/business-performance-report` at **73 ahead, last touched 2026-07-29**: Cost of Capital,
+    Lease vs Buy, the Loan Estimator and **ReportShell — the model visual standard** — none of it
+    in `master`. **The blind spot found its own second instance before its fix was even written.**
+    Full detail and the trial-merge measurement are in that item.
+  - **SLICE 3 HELD, deliberately, on Mike's call.** Counted rather than recalled: `loadFirmConfig`
+    has **26 call sites across 10 files**, and the desktop's last 26 commits touched **three of
+    those ten** — `server/routes/firmManager.js` (17 of the 26 calls), `advisorEngine.js`,
+    `courseEngine.js`. The danger is not the loud conflict git shows you; it is the desktop
+    **adding a new call** while the function's meaning changes — that merges green and is wrong,
+    and it has already happened three times on this exact function.
+    - **The control to build when it does start:** make a call in the old shape **throw**, so
+      anything added meanwhile fails loudly in the suite instead of merging silently. That turns
+      the dangerous class into the visible one and depends on nobody remembering anything.
+  - ⚠ **`startup-blind-to-other-machine` is PLANNED, NOT BUILT.** The design: a **report-only**
+    section in `scripts/check-branch-state.js` listing other branches ahead of `master` with how
+    far and when last touched; never blocks a push (another machine being ahead is not your fault);
+    fetches all of `origin` rather than just `master`, since stale local refs would defeat it;
+    excludes your own branch and the frozen `release/*` snapshots. Today that yields **two lines,
+    not a wall of noise**. ⚠ **The script has NO test at all** — one comes with the change.
 
   ### Session 22 (2026-08-02, laptop) — COLLABORATE SLICE 5 phases A and B: one pool, and a store that remembers
 
