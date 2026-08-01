@@ -845,5 +845,53 @@
     "historySavedBy": "Saved by",
     "historyDate": "Date",
     "historyEmpty": "No firm changes saved yet — these are the tables as provided. Once you edit and save, every version is kept here."
+  },
+  "firmTriggerWorkbench": {
+    "heading": "Trigger Workbench",
+    "lede": "See what the AI does with an advisor's words, and what would change before you change it. Nothing here is saved.",
+
+    "probeHeading": "Try a sentence",
+    "probeHint": "Type what an advisor might say.",
+    "probePlaceholder": "nobody knows who reports to whom and the org chart is a mess",
+    "probeButton": "See what happens",
+    "probeRunning": "Checking…",
+    "probeEmpty": "Type a sentence above to see which tables it opens.",
+    "labelDomain": "Domain",
+    "labelTables": "Tables opened",
+    "labelProblems": "Problems found",
+    "none": "none",
+    "noDomain": "No domain recognised from these words.",
+    "noTables": "No table opens for this sentence.",
+    "matchedOn": "matched on",
+    "truncated": "Long text — only the first {count} characters were checked.",
+    "notIncludedLabel": "Not included here:",
+
+    "previewHeading": "Try a wording change",
+    "previewHint": "Add or remove trigger phrases for the open table, and see what moves before you save anything.",
+    "previewNeedsTable": "Open a logic table on the left to try a change to its trigger phrases.",
+    "previewFor": "Changing trigger phrases for",
+    "addLabel": "Phrases to add",
+    "removeLabel": "Phrases to remove",
+    "phrasePlaceholder": "One phrase per line",
+    "previewButton": "Show me what moves",
+    "previewRunning": "Working it out…",
+    "previewNeedsPhrases": "Add or remove at least one phrase first.",
+    "phraseCount": "This table has {before} trigger phrases now, and would have {after}.",
+
+    "gainedHeading": "Would now reach this table",
+    "gainedNone": "No conversation would newly reach this table.",
+    "takenFrom": "was reaching",
+    "takenFromNothing": "no table",
+    "takenWarning": "Taken from another table — check this is what you want.",
+    "lostHeading": "Would stop reaching this table",
+    "lostNone": "Nothing would stop reaching this table.",
+    "wentTo": "would go to instead",
+    "otherHeading": "Moved between other tables",
+    "unchangedLine": "{count} sentences were unaffected.",
+    "phrasesIgnored": "{count} phrase(s) were ignored — blank, too long, repeated, or past the limit of {max}.",
+
+    "limitsHeading": "What this does not tell you",
+    "corpusLabel": "About the sentences tested:",
+    "checkFailed": "That check could not be run. Please try again, and tell us if it keeps happening."
   }
 }
