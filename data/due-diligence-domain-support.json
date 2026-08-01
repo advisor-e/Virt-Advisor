@@ -19,6 +19,7 @@
   },
   "materials": [
     {
+      "id": "due-diligence-three-pillar-due-diligence-framework",
       "name": "Three-Pillar Due Diligence Framework",
       "summary": "Frames due diligence as risk mitigation rather than paperwork: the job is to prove the target's assets, liabilities and culture are exactly as presented, and that the proposed valuation survives scrutiny. The business is stress-tested as three pillars — Financial (the truth test), Legal (the protection test) and Operational or Cultural (the fit test) — and everything found sorts into red flags, which break the deal, or price chips, which lower the valuation.",
       "who_when": "Buyers and their advisors ahead of any merger or acquisition, before a Sales & Purchase Agreement is signed.",
@@ -33,6 +34,7 @@
       ]
     },
     {
+      "id": "due-diligence-5-step-process",
       "name": "Due Diligence — 5-Step Process",
       "summary": "The phased sequence that stops critical detail slipping through the cracks, running from investment thesis to Day 1 integration. Its two disciplines are that the reason for buying dictates where the scrutiny goes, and that integration planning starts during diligence rather than after the deal closes.",
       "who_when": "Advisors running or coordinating a live transaction — typically across a 30 to 90 day exclusivity window.",
@@ -49,6 +51,7 @@
       ]
     },
     {
+      "id": "due-diligence-ford-model-cultural-due-diligence",
       "name": "FORD Model — Cultural Due Diligence",
       "summary": "A rapport framework — Family, Occupation, Recreation, Dreams — repurposed as soft due diligence on staff morale, engagement and alignment during a transition. It moves past treating people as resources and surfaces the human drivers behind a team, which is where key-person flight risk actually shows up. Best used as an informal check-in, not an interview.",
       "who_when": "Advisors and leaders auditing culture during a merger, an acquisition or a growth phase — and in team-disruption sessions where defences need lowering.",

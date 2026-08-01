@@ -37,6 +37,7 @@
   },
   "materials": [
     {
+      "id": "get-positioning-the-three-engagement-types",
       "name": "The Three Engagement Types",
       "summary": "Clarifies what kind of relationship a piece of work actually is — Advice, Facilitation or Education — so engagements are driven by doing the job properly rather than by up-selling. Each type gives the client something distinct: acceptance of advice where the consequence is clear, handling of a trigger event, or sequential comprehension that closes a knowledge gap. It also sets the advisor's own position, hierarchical for advice, professionally detached for facilitation.",
       "who_when": "Clients experiencing a specific trigger event such as a loan drawdown, clients with a knowledge gap, and situations that call for direct advice.",
@@ -48,6 +49,7 @@
       ]
     },
     {
+      "id": "get-positioning-capacity-capability-opportunity-cco",
       "name": "Capacity, Capability, Opportunity (CCO)",
       "summary": "A structured lens for judging whether a business can realistically grow. It separates the physical bottlenecks (capacity) from the skill and funding limits (capability), and forces a check against market reality (opportunity). It works as an internal diagnostic or as a formal agenda, and is a natural entry point for teasing out service offerings without solving everything on the spot.",
       "who_when": "Businesses aiming to scale, to increase transaction volumes, or to move into new premium markets.",
@@ -59,6 +61,7 @@
       ]
     },
     {
+      "id": "get-positioning-the-helicopter-story",
       "name": "The Helicopter Story",
       "summary": "A visual analogy that dismantles the logic of the once-a-year accounting meeting. The business is a helicopter, the owner is the pilot, the internal reporting is the dashboard, and the economy is wavy ground with the occasional mountain. Inaccurate or late data blindfolds the pilot — and it positions the advisor as the air control tower, which makes asking for regular meetings a natural conclusion rather than a pitch.",
       "who_when": "Clients who treat accounting as an annual compliance exercise and resist regular advisory check-ins.",
@@ -71,6 +74,7 @@
       ]
     },
     {
+      "id": "get-positioning-mastering-positioning",
       "name": "Mastering Positioning",
       "summary": "How to stop being a vendor of hours and become a trusted authority. The shift is from selling a service to selling yourself: occupying a space of trust in the client's mind before any spreadsheet is opened, and holding total congruence between the advice, the tone and the body language. Trust here is biological — a poor vibe triggers a survival response and the logic of the advice stops mattering.",
       "who_when": "Every prospect and client interaction, and especially first meetings where trust and authority are still being established.",

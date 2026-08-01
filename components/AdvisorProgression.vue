@@ -2,22 +2,27 @@
 .advisor-progression
 
   .prog-nav-bar
-    button.btn-prog-back(@click="$emit('exit')") ← Back to Menu
+    button.btn-prog-back(@click="$emit('exit')") {{ $t('advisorProgress.backToMenu') }}
 
   .prog-loading(v-if="loading")
     .prog-loading-inner
       .prog-spinner
-      p Loading progress data...
+      p {{ $t('advisorProgress.loading') }}
 
+  //- `error` holds an i18n KEY, not a sentence — see fetchData.
   .prog-error(v-else-if="error")
-    p.prog-error-msg {{ error }}
-    button.btn-prog-retry(@click="fetchData") Try again
+    p.prog-error-msg {{ $t(error) }}
+    button.btn-prog-retry(@click="fetchData") {{ $t('advisorProgress.retry') }}
 
   //- ── Advisor self-view ────────────────────────────────────────────────
-  template(v-else-if="!isFirmManager")
+  //- This screen is one advisor's own record and nothing else. The firm-wide
+  //- team table that used to share this component now lives in its own Firm
+  //- Manager Hub tab (components/firm/FirmTeamProgress.vue) — it was only ever
+  //- reachable behind an isFirmManager prop the app never set.
+  template(v-else)
     .prog-header
-      h2.prog-title My Progress
-      p.prog-sub Your advisory capability across all VA cases, courses, and sessions
+      h2.prog-title {{ $t('advisorProgress.title') }}
+      p.prog-sub {{ $t('advisorProgress.subtitle') }}
 
     .prog-tiers
       .prog-tier-card(
@@ -26,28 +31,34 @@
         :class="'tier-card-' + tier.key"
       )
         .prog-tier-top
-          span.prog-tier-label {{ tier.label }}
-          span.prog-tier-desc {{ tier.desc }}
+          span.prog-tier-label {{ $t(tier.labelKey) }}
+          span.prog-tier-desc {{ $t(tier.descKey) }}
         .prog-tier-stats
           .prog-stat
             .prog-stat-num {{ tiers[tier.key].vaSessions }}
-            .prog-stat-label VA Cases
+            .prog-stat-label {{ $t('advisorProgress.statVaCases') }}
           .prog-stat
             .prog-stat-num {{ tiers[tier.key].courseSessions }}
-            .prog-stat-label Course Sessions
+            .prog-stat-label {{ $t('advisorProgress.statCourseSessions') }}
           .prog-stat
             .prog-stat-num(v-if="tiers[tier.key].avgQuizScore !== null") {{ tiers[tier.key].avgQuizScore }}%
             .prog-stat-num(v-else) —
-            .prog-stat-label Avg Quiz
+            .prog-stat-label {{ $t('advisorProgress.statAvgQuiz') }}
         .prog-tier-footer
-          span.prog-last-active(v-if="tiers[tier.key].lastActive") Last active {{ formatDate(tiers[tier.key].lastActive) }}
-          span.prog-no-activity(v-else) No activity yet
+          span.prog-last-active(v-if="tiers[tier.key].lastActive")
+            | {{ $t('advisorProgress.lastActive', { date: formatDate(tiers[tier.key].lastActive) }) }}
+          span.prog-no-activity(v-else) {{ $t('advisorProgress.noActivityYet') }}
+
+    //- Work the tier lookup could not place. Said out loud so the three cards above
+    //- are not read as the whole record.
+    .prog-unlevelled(v-if="unclassifiedSessions")
+      p {{ $t('advisorProgress.notLevelled', { n: unclassifiedSessions }) }}
 
     .prog-empty-notice(v-if="!hasAnyActivity")
-      p Complete a VA case or course session to start building your progress record here.
+      p {{ $t('advisorProgress.emptyNotice') }}
 
     .prog-recent(v-if="recentActivity.length")
-      h3.prog-recent-heading Recent Activity
+      h3.prog-recent-heading {{ $t('advisorProgress.recentHeading') }}
       .prog-activity-list
         .prog-activity-row(v-for="(item, i) in recentActivity" :key="i")
           .prog-activity-type-icon(:class="item.type === 'va' ? 'type-va' : 'type-course'")
@@ -58,63 +69,42 @@
               path(stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z")
               path(stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422A12.083 12.083 0 0 1 21 18.5a12.083 12.083 0 0 1-9 0 12.083 12.083 0 0 1-9 0A12.083 12.083 0 0 1 3 18.5l9-4.5z")
           .prog-activity-body
-            .prog-activity-title {{ item.type === 'va' ? (item.domain ? domainLabel(item.domain) : 'Advisory Session') : item.courseTitle }}
-            .prog-activity-sub {{ item.type === 'va' ? 'VA Case' : item.sessionTitle }}
+            .prog-activity-title {{ activityTitle(item) }}
+            .prog-activity-sub {{ item.type === 'va' ? $t('advisorProgress.vaCase') : item.sessionTitle }}
           .prog-activity-meta
-            span.prog-tier-pill(:class="'pill-' + item.tier") {{ tierLabel(item.tier) }}
+            span.prog-tier-pill(:class="item.tier ? 'pill-' + item.tier : 'pill-none'") {{ tierLabel(item.tier) }}
             span.prog-activity-date {{ formatDate(item.completedAt) }}
 
-  //- ── Firm manager team view ───────────────────────────────────────────
-  template(v-else)
-    .prog-header
-      h2.prog-title Team Progress
-      p.prog-sub Advisory capability overview across your firm
-
-    .prog-team-empty(v-if="!advisors.length")
-      p No advisor activity recorded yet. This view will populate once your team starts completing VA cases and course sessions.
-
-    .prog-team-table(v-else)
-      .prog-team-header-row
-        .prog-th Advisor
-        .prog-th(v-for="tier in tierDefs" :key="tier.key" :class="'th-' + tier.key") {{ tier.shortLabel }}
-        .prog-th Total
-        .prog-th Last Active
-      .prog-team-row(v-for="a in advisors" :key="a.advisorId")
-        .prog-td.prog-td-advisor {{ a.advisorId }}
-        .prog-td(v-for="tier in tierDefs" :key="tier.key")
-          .prog-team-tier-block(:class="'block-' + tier.key")
-            span.prog-team-count {{ a.tiers[tier.key].vaSessions + a.tiers[tier.key].courseSessions }}
-            span.prog-team-score(v-if="a.tiers[tier.key].avgQuizScore !== null") {{ a.tiers[tier.key].avgQuizScore }}%
-        .prog-td {{ a.totalSessions }}
-        .prog-td {{ a.lastActive ? formatDate(a.lastActive) : '—' }}
+    //- The advisor's own CPD record — its own component, not more of this one, which
+    //- was deliberately reduced to a single job. It loads itself and carries its own
+    //- empty and error states, so a CPD outage cannot take the progress record with it.
+    cpd-record(:api-token="apiToken")
 </template>
 
 <script>
+import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
+import CpdRecord from '~/components/CpdRecord.vue'
 
-const DOMAIN_LABELS = {
-  profit: 'Profitability',
-  staff: 'Staff & Team',
-  'data-systems': 'Data & Systems',
-  'sales-marketing': 'Sales & Marketing',
-  forecasting: 'Financial Management',
-  strategy: 'Strategy & Planning',
-  governance: 'Governance & Leadership',
-  succession: 'Succession Planning',
-  valuation: 'Valuation',
-  risk: 'Risk Management',
-  conflict: 'Conflict Meetings',
-  'end-of-year': 'End of Year',
-  'due-diligence': 'Due Diligence',
-  systems: 'Systems'
-}
+/**
+ * Advisory areas this screen can name, as i18n keys under `advisorProgress.domain.*`.
+ * A LIST, not a map of English: the wording lives in the locale files. An area absent
+ * from this list falls back to its own code rather than rendering blank — a new domain
+ * added to the engine must never silently produce an unlabelled row here.
+ */
+const KNOWN_DOMAINS = [
+  'profit', 'staff', 'data-systems', 'sales-marketing', 'forecasting', 'strategy',
+  'governance', 'succession', 'valuation', 'risk', 'conflict', 'end-of-year',
+  'due-diligence', 'systems'
+]
 
 export default {
   name: 'AdvisorProgression',
 
+  components: { CpdRecord },
+
   props: {
     advisorId: { type: String, default: 'local-advisor' },
     firmId: { type: String, default: 'local-firm' },
-    isFirmManager: { type: Boolean, default: false },
     // Verified login pass (JWT). Defaults to the safe local-dev bypass token.
     apiToken: { type: String, default: 'dev-local-bypass' }
   },
@@ -129,18 +119,28 @@ export default {
         advanced: { vaSessions: 0, courseSessions: 0, avgQuizScore: null, lastActive: null }
       },
       recentActivity: [],
-      advisors: [],
+      /** Completed sessions no capability tier could hold — counted, never dropped. */
+      unclassifiedSessions: 0,
       tierDefs: [
-        { key: 'entry-level', label: 'Entry Level', shortLabel: 'Entry', desc: 'Foundational advisory tools and techniques' },
-        { key: 'intermediate', label: 'Intermediate', shortLabel: 'Inter.', desc: 'Building advisory depth and selling skills' },
-        { key: 'advanced', label: 'Advanced', shortLabel: 'Advanced', desc: 'Strategic, governance and specialist delivery' }
+        { key: 'entry-level', labelKey: 'advisorProgress.tierEntry', descKey: 'advisorProgress.tierEntryDesc' },
+        { key: 'intermediate', labelKey: 'advisorProgress.tierIntermediate', descKey: 'advisorProgress.tierIntermediateDesc' },
+        { key: 'advanced', labelKey: 'advisorProgress.tierAdvanced', descKey: 'advisorProgress.tierAdvancedDesc' }
       ]
     }
   },
 
   computed: {
+    /**
+     * Whether this advisor has done anything at all. Unclassified sessions count:
+     * without them, someone with three completed sessions that no tier could hold
+     * would be told to "start building your progress record" — the same denial of
+     * real work the team table used to make about them.
+     *
+     * @returns {boolean}
+     */
     hasAnyActivity () {
-      return Object.values(this.tiers).some(t => t.vaSessions > 0 || t.courseSessions > 0)
+      return this.unclassifiedSessions > 0 ||
+        Object.values(this.tiers).some(t => t.vaSessions > 0 || t.courseSessions > 0)
     }
   },
 
@@ -149,57 +149,92 @@ export default {
   },
 
   methods: {
+    /**
+     * Load this advisor's own progression record.
+     *
+     * Identity (advisor + firm) is derived server-side from the bearer pass and is
+     * never sent in the request, so an advisor can only ever read their own record.
+     * A failed read sets `error` rather than leaving the zeros on screen: an
+     * unreachable record and an advisor who has genuinely done nothing must not
+     * look the same (the fault that hid this feature's only real defect).
+     *
+     * `error` holds an i18n KEY, not a sentence — the template translates it. Storing
+     * the English here would put user-facing wording back in the component.
+     *
+     * @returns {Promise<void>}
+     */
     async fetchData () {
       this.loading = true
       this.error = null
       try {
-        // Identity (advisor + firm) is derived server-side from this pass — not sent in the request.
-        const authHeaders = { Authorization: `Bearer ${this.apiToken}` }
-        if (this.isFirmManager) {
-          const res = await fetch('/api/activity/team', { headers: authHeaders })
-          if (!res.ok) {
-            this.error = 'Could not load team progress. Please try again.'
-            return
-          }
-          const data = await res.json()
-          if (data.success) {
-            this.advisors = data.advisors || []
-          } else {
-            this.error = 'Could not load team progress. Please try again.'
-          }
+        const res = await fetchWithTimeout('/api/activity/progression', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) {
+          this.error = 'advisorProgress.loadFailed'
+          return
+        }
+        const data = await res.json()
+        if (data.success) {
+          this.tiers = data.tiers || this.tiers
+          this.recentActivity = data.recentActivity || []
+          this.unclassifiedSessions = data.unclassifiedSessions || 0
         } else {
-          const res = await fetch('/api/activity/progression', { headers: authHeaders })
-          if (!res.ok) {
-            this.error = 'Could not load your progress. Please try again.'
-            return
-          }
-          const data = await res.json()
-          if (data.success) {
-            this.tiers = data.tiers || this.tiers
-            this.recentActivity = data.recentActivity || []
-          } else {
-            this.error = 'Could not load your progress. Please try again.'
-          }
+          this.error = 'advisorProgress.loadFailed'
         }
       } catch (e) {
-        this.error = 'Could not connect to the activity service. Please try again.'
+        this.error = 'advisorProgress.connectFailed'
       } finally {
         this.loading = false
       }
     },
 
+    /**
+     * Day-month-year. Deliberately not the browser's short numeric default: 7/8 is a
+     * different day in two countries. Matches the team table's format.
+     *
+     * @param {string|Date} dt @returns {string}
+     */
     formatDate (dt) {
       if (!dt) { return '' }
       return new Date(dt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
     },
 
-    tierLabel (key) {
-      const found = this.tierDefs.find(t => t.key === key)
-      return found ? found.label : key
+    /**
+     * The heading on an activity row: the advisory area for a client case, the course
+     * title for a course session.
+     *
+     * @param {object} item - one recentActivity entry.
+     * @returns {string}
+     */
+    activityTitle (item) {
+      if (item.type !== 'va') { return item.courseTitle }
+      return item.domain ? this.domainLabel(item.domain) : this.$t('advisorProgress.advisorySession')
     },
 
+    /**
+     * The badge on an activity row. A session the tier lookup could not place has no
+     * key at all, and rendered as an empty pill — it now says so instead.
+     *
+     * @param {string|null} key - tier key, or null/unknown for an unplaced session.
+     * @returns {string} the label to show.
+     */
+    tierLabel (key) {
+      if (!key) { return this.$t('advisorProgress.noLevelYet') }
+      const found = this.tierDefs.find(t => t.key === key)
+      return found ? this.$t(found.labelKey) : key
+    },
+
+    /**
+     * An advisory area's name for display. An area this screen does not know falls back
+     * to its own code rather than rendering blank, so a domain added to the engine is
+     * visibly unlabelled rather than invisible.
+     *
+     * @param {string} domain - the engine's domain code, e.g. 'profit'.
+     * @returns {string}
+     */
     domainLabel (domain) {
-      return DOMAIN_LABELS[domain] || domain
+      return KNOWN_DOMAINS.includes(domain) ? this.$t(`advisorProgress.domain.${domain}`) : domain
     }
   }
 }
@@ -320,6 +355,15 @@ export default {
 .prog-last-active { font-size: 11px; color: #9ca3af; }
 .prog-no-activity { font-size: 11px; color: #d1d5db; font-style: italic; }
 
+/* ── Sessions with no capability level ── */
+.prog-unlevelled {
+  margin: 0 24px 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+.prog-unlevelled p { margin: 0; }
+.pill-none { background: #f3f4f6; color: #6b7280; }
+
 /* ── Empty notice ── */
 .prog-empty-notice {
   margin: 0 24px 16px;
@@ -366,53 +410,4 @@ export default {
 .pill-intermediate { background: #f3e8ff; color: #7c3aed; }
 .pill-advanced     { background: #fef3c7; color: #d97706; }
 .prog-activity-date { font-size: 11px; color: #9ca3af; }
-
-/* ── Firm manager team view ── */
-.prog-team-empty {
-  margin: 24px;
-  padding: 20px;
-  background: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #6b7280;
-  text-align: center;
-}
-.prog-team-empty p { margin: 0; }
-
-.prog-team-table { padding: 16px 24px 24px; overflow-x: auto; }
-.prog-team-header-row,
-.prog-team-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 80px 110px;
-  gap: 0;
-  align-items: center;
-}
-.prog-team-header-row {
-  border-bottom: 2px solid #e5e7eb;
-  margin-bottom: 4px;
-}
-.prog-th {
-  font-size: 11px; font-weight: 700; color: #9ca3af;
-  text-transform: uppercase; letter-spacing: 0.05em;
-  padding: 6px 8px;
-}
-.th-entry-level  { color: #0284c7; }
-.th-intermediate { color: #7c3aed; }
-.th-advanced     { color: #d97706; }
-
-.prog-team-row {
-  border-bottom: 1px solid #f3f4f6;
-  padding: 8px 0;
-}
-.prog-team-row:last-child { border-bottom: none; }
-.prog-td { padding: 4px 8px; font-size: 13px; color: #374151; }
-.prog-td-advisor { font-weight: 600; color: #111827; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.prog-team-tier-block { display: flex; flex-direction: column; gap: 1px; }
-.prog-team-count { font-size: 14px; font-weight: 700; color: #111827; }
-.block-entry-level  .prog-team-count { color: #0284c7; }
-.block-intermediate .prog-team-count { color: #7c3aed; }
-.block-advanced     .prog-team-count { color: #d97706; }
-.prog-team-score { font-size: 10px; color: #9ca3af; }
 </style>

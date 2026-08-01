@@ -14,6 +14,7 @@
 
   "materials": [
     {
+      "id": "fm-coach-culture-flipping-the-training-process",
       "name": "Flipping the Training Process",
       "summary": "Shifts the firm off generic learning paths and onto a technology-enabled closed feedback loop, so training is driven strictly by real client needs rather than by what the firm decided it wanted to teach. It guarantees the firm's time and resources go to solving the exact problems its clients are actually facing. For the advisor it removes ambiguity, because it states plainly who on the team needs to learn what, and by when.",
       "who_when": "Practice partners, training managers, and HR leaders responsible for mapping out the internal training curriculum and tracking progress.",
@@ -26,6 +27,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-advisor-case-study-prep",
       "name": "Advisor Case Study Prep",
       "summary": "A structured checklist and workflow for preparing and running internal client review sessions. For the client it means their issues are analysed against a consistent framework — Planning & Data, Sales & Marketing, People & Process — and that new ideas are tested in a revenue model before anything changes in the real business. For the advisor it is a definitive roadmap: what to do before the meeting in the Golden Hour, and how to capture peers' ideas and objections in the Platinum Hour.",
       "who_when": "Advisors actively preparing for a client review, or those ready to present a client case study to their internal team for feedback.",
@@ -38,6 +40,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-team-training-o-s",
       "name": "Team Training O.S",
       "summary": "Field Outcome Statements that define the responsibilities, boundaries and expected coaching for each advisory tier. For the firm it means a client is matched with an advisor working at the right level of expertise — software training at one end, facilitating complex conflict-based business solutions at the other. For the team member it sets career expectations explicitly: an Associate Advisor manages accounts proactively but is not expected to hunt prospects, while a Strategic Advisor knows what to master to become a future partnership option.",
       "who_when": "Management tracking the Professional's Journey, and team members who need to understand their own role boundaries and their upward progression path.",
@@ -49,6 +52,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-building-learning-culture",
       "name": "Building Learning Culture",
       "summary": "Establishes the rules of engagement for a transparent environment of constant improvement — a safe, non-judgmental team culture. For the client it guarantees the advice they receive is not one person's opinion but the product of a whole advisory team validating its field intelligence through structured group feedback. For the advisor it is a social contract that makes it safe to be imperfect, with scripts for sharing a vulnerability and receiving peer feedback without taking offence.",
       "who_when": "The entire organisation — a visible learning culture requires that everybody participates, no exceptions.",
@@ -61,6 +65,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-coaching-progress-plan",
       "name": "Coaching Progress Plan",
       "summary": "A spreadsheet tracking a 60-session coaching curriculum, including pricing models, hours and specific skills training. It makes the return on coaching measurable by mapping topics, planned attendees and delivery hours against specific field outcomes. For the advisor it is a predictable pathway that moves them from technical software usage through to advanced soft skills such as sales framing and COI development.",
       "who_when": "Practice managers and advisors managing long-term professional development.",
@@ -73,6 +78,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-fm-hiring-winners",
       "name": "FM Hiring Winners",
       "summary": "A strategic deck covering recruitment theory, leadership alignment, candidate screening and orientation. It exists to prevent the extreme financial cost of a bad hire, by first defining the firm's leadership style, then flushing out the right talent and testing applicants rigorously rather than hiring on impression. For the new hire it provides a structured buddy system during orientation that validates their career choice and gives them safe, immediate tasks.",
       "who_when": "Leadership teams and HR managers actively preparing to recruit and onboard new staff.",
@@ -85,6 +91,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-fm-leadership-1",
       "name": "FM Leadership 1",
       "summary": "A questionnaire testing the alignment between a leader's personality and what the business's culture actually needs. It ensures the leadership style being deployed suits the firm's industry — the strict compliance an accounting firm depends on is not what a creative design agency needs. For the leader it draws out the pros and cons of a Creativity culture against a Discipline culture, which stops them mimicking a leadership style that does not fit them.",
       "who_when": "Senior leadership teams defining the strategic operational culture of the firm.",
@@ -96,6 +103,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-fm-leadership-2",
       "name": "FM Leadership 2",
       "summary": "A self-reflection questionnaire that challenges a leader on their inclusivity and on how they handle disagreement. It exists so leadership blind spots do not quietly create an environment that stifles diversity or silences junior staff. For the leader it forces the uncomfortable question of whether they value being right more than they value the team finding the best solution.",
       "who_when": "Existing partners, practice managers, and emerging leaders.",
@@ -108,6 +116,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-fm-team-canoe-review",
       "name": "FM Team 'CANOE' Review",
       "summary": "A 360-degree review spreadsheet measuring five observable personality traits: Conscientiousness, Agreeableness, Neuroticism, Openness and Extraversion. Collating the team's averages highlights trait gaps, so future job advertisements seek complementary skills instead of cloning the personalities already in the room. For the individual it builds emotional intelligence by setting how I see myself directly against how others see me.",
       "who_when": "Whole teams undergoing a synergy audit, and managers preparing a hiring plan.",
@@ -120,6 +129,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-job-ad-associate-advisor",
       "name": "Job Ad — Associate Advisor",
       "summary": "A pre-written job advertisement for recruiting an Associate Advisor. It saves drafting time and states the firm's expectations plainly, including the starting fee base target of $135,000 and the training hours allotted. For the applicant it defines the partnership pathway, the exact size of the portfolio they would manage, and the structural support available to them.",
       "who_when": "Hiring managers actively seeking to recruit ambitious mid-level accountants.",
@@ -132,6 +142,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-paper-tower-model",
       "name": "Paper Tower Model",
       "summary": "A spreadsheet calculator that measures the profit or loss of a team construction exercise. It translates soft skills — team communication and planning — into hard financial metrics, which is what makes inefficiency visible to a business owner rather than abstract. For the participant it demonstrates first-hand how rushing into action without a plan produces material waste and a financial loss.",
       "who_when": "Workshop facilitators running team-building and conflict resolution exercises.",
@@ -144,6 +155,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-paper-tower-review-questions",
       "name": "Paper Tower Review Questions",
       "summary": "The facilitator's debrief script that breaks down the psychology and dynamics observed during the Paper Tower exercise. It turns a simple game into a business lesson by introducing the nine-step team process for managing future corporate projects. For the participant it exposes whether they default to chaotic outcome-oriented behaviour or to structured, process-driven logic.",
       "who_when": "Facilitators guiding the post-exercise reflection session.",
@@ -156,6 +168,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-paper-tower-task-sheet",
       "name": "Paper Tower Task Sheet",
       "summary": "The formal rule sheet handed to participants, setting out the constraints of the tower exercise. For the facilitator it sets indisputable boundaries, which is what creates the artificial pressure needed to test team dynamics safely. For the participant it forces the team to manage a strict 30-minute deadline against the high cost of materials.",
       "who_when": "Teams directly participating in the Paper Tower workshop.",
@@ -168,6 +181,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-spaghetti-tower-task-sheet",
       "name": "Spaghetti Tower Task Sheet",
       "summary": "An alternative team construction exercise focused strictly on structural stability and height rather than on financial profitability. For the facilitator it tests the team's ability to prototype and communicate under pressure using deliberately fragile materials. For the participant it challenges physical execution, creativity and collaborative problem solving.",
       "who_when": "Teams needing an engaging icebreaker or a physical communication test.",
@@ -180,6 +194,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-team-workshop-run-sheet",
       "name": "Team Workshop Run Sheet",
       "summary": "A minute-by-minute logistical schedule dictating the flow of a two-day team workshop. It protects the return on taking staff offline by keeping the event on time and stopping momentum leaking away between sessions. For the facilitator it removes the stress of event management by fixing the timings for content blocks, breaks and daily reviews in advance.",
       "who_when": "Event facilitators and managers organising internal firm retreats or training days.",
@@ -192,6 +207,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-advisory-pip-template",
       "name": "Advisory PIP Template",
       "summary": "Formalises a Performance Improvement Plan tailored to advisory roles and software adoption. It protects the firm against fee loss and against a toxic culture, by documenting underperformance precisely and stopping vocal resistance from undermining the visible learning culture. For the advisor it removes all ambiguity: exactly what the performance gap is, which behaviours to start and stop, and what mentorship is available. A PIP is a coaching instrument, not a termination pathway.",
       "who_when": "Team members failing to meet the minimum pre- and post-meeting portal expectations, or resisting advisory engagement. Never use a PIP as a surprise — the concerns must already have been raised in earlier conversations.",
@@ -207,6 +223,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-group-coaching-programme",
       "name": "Group Coaching Programme",
       "summary": "The structure for running advisory group coaching: a consistent cohort of four to eight advisors meeting monthly for ninety minutes. Consistency of membership is the whole point — groups that churn never develop the trust that vulnerability-based learning depends on. The coach facilitates rather than dominates, because the value comes from peer challenge and shared experience rather than from the coach supplying answers.",
       "who_when": "Firms developing a cohort of advisors together, where the aim is peer learning rather than one-to-one skills transfer. Not suitable until the group has enough trust to speak candidly — invest the first one or two sessions in building that foundation.",
@@ -220,6 +237,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-applicant-screening-and-competency-based-recruitment",
       "name": "Applicant Screening and Competency-Based Recruitment",
       "summary": "A four-stage screening process for advisory hires that tests demonstrated client outcomes rather than tenure. Cultural fit here is not personality match — it is alignment with the firm's operating standards, client service philosophy and professional values. A technically strong but culturally misaligned candidate creates more disruption than a technically adequate but highly aligned one.",
       "who_when": "Hiring managers screening applicants for client-facing advisory roles, used alongside the FM Hiring Winners deck where a more detailed competency assessment is needed.",
@@ -232,6 +250,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-fee-estimate-and-job-creep-management",
       "name": "Fee Estimate and Job Creep Management",
       "summary": "The process and behavioural framework for stopping scope creep from eroding advisory margins — standardising how new work is scoped, estimated and billed, and coaching advisors to hold fee conversations confidently. Job creep is almost always a symptom of conflict avoidance rather than generosity: advisors absorb extra work because raising the fee feels uncomfortable. The firm removes that discomfort by making the fee conversation a structured process rather than a personal initiative.",
       "who_when": "Use when margin analysis shows advisory hours being written off against engagements, when advisors complete out-of-scope work without a change order, or when fee realisation rates are declining.",
@@ -245,6 +264,7 @@
       ]
     },
     {
+      "id": "fm-coach-culture-centre-of-influence-coi-engagement-framework",
       "name": "Centre of Influence (COI) Engagement Framework",
       "summary": "Converts ad hoc relationship management into a systematic referral pipeline — identifying the right COI prospects, running structured engagement, and turning relationships into a consistent referral source. A COI is a professional whose clients overlap with the firm's target client profile. The most valuable ones already refer clients to other professionals, because they understand referral reciprocity and are predisposed to a systematic relationship.",
       "who_when": "Use when the referral pipeline is inconsistent, when the firm depends on a small number of referral sources, or when it is entering a new market segment and must build a referral network from scratch.",

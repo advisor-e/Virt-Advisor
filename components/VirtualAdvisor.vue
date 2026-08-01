@@ -156,30 +156,21 @@
     :apiToken="apiToken"
     :advisorProfile="advisorProfile"
     :orgTemplateIds="orgTemplateIds"
-    :isFirmManager="isFirmManager"
     @exit="reset"
-    @openFirmDashboard="selectMode('firm')"
   )
 
-  //- Firm dashboard
-  FirmDashboard(
-    v-else-if="mode === 'firm'"
-    :firmId="firmId"
-    :firmName="advisorProfile && advisorProfile.firmName ? advisorProfile.firmName : 'My Firm'"
-  )
-
-  //- Capability progression
+  //- Capability progression — the advisor's own record only. The firm-wide team
+  //- view is a Firm Manager Hub tab, so no manager flag is passed down here.
   AdvisorProgression(
     v-else-if="mode === 'progression'"
     :advisorId="advisorId"
     :firmId="firmId"
     :apiToken="apiToken"
-    :isFirmManager="isFirmManager"
     @exit="reset"
   )
 
   //- Conversation
-  .messages-area(v-else-if="mode && mode !== 'course' && mode !== 'firm' && mode !== 'progression'" ref="messagesArea")
+  .messages-area(v-else-if="mode && mode !== 'course' && mode !== 'progression'" ref="messagesArea")
     .messages-list
       div(
         v-for="(msg, index) in messages"
@@ -837,8 +828,8 @@ import { preprocessAIResponse } from '~/utils/markdownPreprocessor'
 import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
+import staircaseMixin from '~/mixins/staircaseMixin'
 import growthFundamentals from '~/data/growth-fundamentals.json'
-import advisoryStaircase from '~/data/advisory-staircase.json'
 import finMgtTable from '~/data/fin-mgt-table.json'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
@@ -849,14 +840,17 @@ _md.disable(['image', 'html_inline', 'html_block'])
  *
  * Each of these renders its own component in the `v-if` chain at the top of the template
  * instead of a message thread, so the chat input must not appear beneath it. Kept as one
- * named list rather than a chain of `mode !== '...'` tests, because that chain is how
- * `firm` came to be missing: the mode was added to the template and nobody updated the
- * separate condition further down.
+ * named list rather than a chain of `mode !== '...'` tests, because that chain is how the
+ * former `firm` mode came to be missing: it was added to the template and nobody updated
+ * the separate condition further down.
+ *
+ * (`firm` itself was removed 2026-07-29 with the FirmDashboard mock. The team view is now
+ * a Firm Manager Hub tab, not a mode of this component.)
  *
  * Adding a panel mode? Add it here too — `tests/unit/virtualAdvisorInput.component.test.js`
  * checks every entry, and checks the conversational modes still HAVE an input.
  */
-const PANEL_MODES = ['course', 'progression', 'firm']
+const PANEL_MODES = ['course', 'progression']
 
 // Primary issues per domain — Workshop 1 output, authored by Mike Barnes 2026-06-02
 const PRIMARY_ISSUES = {
@@ -875,7 +869,7 @@ const PRIMARY_ISSUES = {
 
 export default {
   name: 'VirtualAdvisor',
-  mixins: [speechMixin, localeMixin, caseMixin],
+  mixins: [speechMixin, localeMixin, caseMixin, staircaseMixin],
 
   props: {
     orgTemplateIds: {
@@ -975,14 +969,10 @@ export default {
       // selector uses name + problem; the file's extra solution/template fields
       // ride along, unused here). Mirrors growthStages / staircaseSteps below.
       finMgtThemes: finMgtTable.themes,
-      // Single source of truth — steps read from data/advisory-staircase.json.
-      // Label keeps the "Step N:" prefix (the server derives the step number from it);
-      // description uses the data file's selectorDescription wording.
-      staircaseSteps: advisoryStaircase.steps.map(s => ({
-        ...s,
-        name: `Step ${s.step}: ${s.name}`,
-        description: s.selectorDescription
-      })),
+      // `staircaseSteps` is NOT declared here — it comes from staircaseMixin, which
+      // starts from data/advisory-staircase.json and then swaps in the firm's own
+      // wording from GET /api/advisor/staircase. A copy here would win the Vue merge
+      // and silently restore the defect: a firm's renamed steps reaching nobody.
       // Single source of truth — the on-screen selector reads name + description
       // from data/growth-fundamentals.json (the full framework rides along, unused here).
       growthStages: growthFundamentals.stages
@@ -1300,8 +1290,12 @@ export default {
       this.catchUpOutcomes = {}
       this.catchUpBusy = false
       this.catchUpError = null
-      const noConversation = ['course', 'firm']
-      if (!noConversation.includes(selected)) {
+      // PANEL_MODES is the single list of modes that show a panel instead of a
+      // conversation. This used to be a second, local copy — it drifted when the
+      // firm dashboard was deleted and never gained 'progression', so opening My
+      // Progress asked vue-i18n for `opening.progression`, a key that has never
+      // existed, and pushed the raw key into the message list as an opening line.
+      if (!PANEL_MODES.includes(selected)) {
         if (selected === 'client') {
           // "Who is this session for?" comes before the intake (design
           // 2026-07-14) — initClientSession() runs when the step resolves.

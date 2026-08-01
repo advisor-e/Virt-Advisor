@@ -27,6 +27,7 @@
   },
   "materials": [
     {
+      "id": "org-firm-strategy-capacity-planner-target-models",
       "name": "Capacity Planner & Target Models",
       "summary": "The calculators that define the logistics of delivering advisory alongside compliance — where the growth is, and what time budget each team member has given the client base and their skills. My Fee Growth Plan gets an advisor to name their target clients, service niche and marketing statement; the Team Advisory Targets table sets fee targets, client focus and time expectations so nobody is guessing what is expected of them.",
       "who_when": "Firm leaders mapping total capacity, and individual advisors — on full or shared autonomy — tasked with growing a fee base.",
@@ -41,6 +42,7 @@
       ]
     },
     {
+      "id": "org-firm-strategy-team-training-o-s-coaching-progress-plan",
       "name": "Team Training O.S. & Coaching Progress Plan",
       "summary": "Names the functional skills each team member needs and tailors the coaching to their experience and the firm's budget. Its distinguishing idea is scheduling: learning runs in work sprints arranged around peak workflow, which is what stops training being quietly abandoned every compliance season.",
       "who_when": "Firm managers, internal coaches, and all team members.",
@@ -55,6 +57,7 @@
       ]
     },
     {
+      "id": "org-firm-strategy-growth-curve-checklist",
       "name": "Growth Curve Checklist",
       "summary": "Aligns what the firm offers with where the client's business actually is — Design, Launch, Growth, Maturity. It is the cross-selling roadmap: it tells the advisor which service genuinely belongs in this client's plan now, such as succession planning for a mature business, and just as usefully which pitches would be irrelevant today.",
       "who_when": "All client-facing advisors.",
@@ -67,6 +70,7 @@
       ]
     },
     {
+      "id": "org-firm-strategy-strategic-evaluation-frameworks",
       "name": "Strategic Evaluation Frameworks",
       "summary": "Two structured ways to make divisive firm decisions without emotion. The Technology Review evaluates software and AI through Everett Rogers' diffusion of innovation and Porter's Five Forces, which is what keeps shiny-object syndrome in check. The Offshoring Review runs the partner group through De Bono's Six Hats so facts, feelings, risks and benefits are examined separately instead of argued simultaneously.",
       "who_when": "The partner group and firm directors.",
@@ -79,6 +83,7 @@
       ]
     },
     {
+      "id": "org-firm-strategy-contrast-models-fm-expectations-and-fm-stages",
       "name": "Contrast Models — FM Expectations and FM Stages",
       "summary": "Described in the source as the best bang-for-buck planning tools in the set. The two tables map the interrelatedness between what the owners actually want and the sequential business development objectives required to get there — so an aspiration is followed to the work it implies rather than left as a statement of intent.",
       "who_when": "Partners, directors and firm managers defining their End Game.",
@@ -91,6 +96,7 @@
       ]
     },
     {
+      "id": "org-firm-strategy-tracking-accountability-global-actions-report-cpd-log",
       "name": "Tracking & Accountability — Global Actions Report & CPD Log",
       "summary": "Centralises accountability so advice becomes evidence. The Global Actions Report summarises every action promised to clients across all advisors, letting management see completion, bottlenecks and automation opportunities; the CPD Log tracks all learning. Together they answer the question a firm usually cannot: is what we advise actually getting done in the field?",
       "who_when": "Firm management tracking performance, and advisors tracking their own daily commitments.",

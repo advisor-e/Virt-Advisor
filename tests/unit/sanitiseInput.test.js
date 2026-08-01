@@ -213,6 +213,88 @@ describe('sanitiseInput — caseContext field', () => {
   })
 })
 
+describe('sanitiseInput — caseContext optional fields', () => {
+  test('absent title, mode, visibility, summary and date become empty strings', () => {
+    const result = sanitiseInput({ query: 'hello', caseSummaries: [{}] })
+    expect(result.caseContext[0]).toEqual({
+      title: '',
+      mode: '',
+      visibility: '',
+      summary: '',
+      date: '',
+      review: null
+    })
+  })
+
+  test('caps title, mode and visibility to their own limits', () => {
+    const result = sanitiseInput({
+      query: 'hello',
+      caseSummaries: [{
+        title: 'a'.repeat(300),
+        mode: 'b'.repeat(50),
+        visibility: 'c'.repeat(50)
+      }]
+    })
+    expect(result.caseContext[0].title.length).toBe(200)
+    expect(result.caseContext[0].mode.length).toBe(20)
+    expect(result.caseContext[0].visibility.length).toBe(20)
+  })
+
+  test('carries a review object through, capping each field to 500', () => {
+    const result = sanitiseInput({
+      query: 'hello',
+      caseSummaries: [{
+        title: 'Case',
+        review: { wentWell: 'w'.repeat(600), wentLess: 'less', changesRecommended: 'change' }
+      }]
+    })
+    expect(result.caseContext[0].review.wentWell.length).toBe(500)
+    expect(result.caseContext[0].review.wentLess).toBe('less')
+    expect(result.caseContext[0].review.changesRecommended).toBe('change')
+  })
+
+  test('absent review fields become empty strings, never undefined', () => {
+    const result = sanitiseInput({ query: 'hello', caseSummaries: [{ review: {} }] })
+    expect(result.caseContext[0].review).toEqual({
+      wentWell: '',
+      wentLess: '',
+      changesRecommended: ''
+    })
+  })
+
+  test('a review that is not an object is dropped to null', () => {
+    const result = sanitiseInput({ query: 'hello', caseSummaries: [{ review: 'not an object' }] })
+    expect(result.caseContext[0].review).toBeNull()
+  })
+})
+
+// These four fields carry identity into the engine — clientId and firmId are the ones
+// the engine must firm-validate before reading any history against them (see the note
+// at the clientId assignment). Capping them here is the first line of that defence.
+describe('sanitiseInput — identity fields', () => {
+  test('sessionId, clientId, advisorId and firmId default to null when absent', () => {
+    const result = sanitiseInput({ query: 'hello' })
+    expect(result.sessionId).toBeNull()
+    expect(result.clientId).toBeNull()
+    expect(result.advisorId).toBeNull()
+    expect(result.firmId).toBeNull()
+  })
+
+  test('each identity field is coerced to a string and capped to 64 characters', () => {
+    const result = sanitiseInput({
+      query: 'hello',
+      sessionId: 's'.repeat(100),
+      clientId: 12345,
+      advisorId: 'a'.repeat(100),
+      firmId: 'f'.repeat(100)
+    })
+    expect(result.sessionId.length).toBe(64)
+    expect(result.clientId).toBe('12345')
+    expect(result.advisorId.length).toBe(64)
+    expect(result.firmId.length).toBe(64)
+  })
+})
+
 describe('sanitiseInput — default field values', () => {
   test('defaults mode to "client"', () => {
     const result = sanitiseInput({ query: 'hello' })

@@ -12,6 +12,7 @@
 
   "materials": [
     {
+      "id": "data-systems-deming-s-theory-of-volatility",
       "name": "Deming's Theory of Volatility",
       "summary": "Moves the client from reacting to every movement in the numbers to reading them in context, replacing the average line — which makes each result an automatic pass or fail — with a standard deviation band showing the likely range. Volatility is expected and carries a degree of predictability; the work is to understand its nature, not fight it. It is a caravan swaying behind a car: control the sway before accelerating.",
       "who_when": "Use before any reporting framework is introduced, with any client who reacts to single results — paying a bonus for one good month, cutting staff after one bad one, or blaming the team for swings outside their control — and with any client planning to grow.",
@@ -27,6 +28,7 @@
       ]
     },
     {
+      "id": "data-systems-common-size-trend-analysis-template",
       "name": "Common Size Trend Analysis Template",
       "summary": "A multi-tab spreadsheet holding up to six years of Profit & Loss and Balance Sheet actuals, converting raw dollars into common-size percentages — P&L against Total Sales, Balance Sheet against Total Assets — and calculating trend variations plus Activity, Profitability, Liquidity and Leverage ratios. Common sizing removes the distortion of revenue growth, so a year is judged on management decisions rather than the position it inherited. It is the defence against confirmation bias.",
       "who_when": "Established businesses with several years of financial data that want to evaluate year-over-year operational trends, and advisors working the Compilation and Verification or Assimilation stages of the Advisory Staircase.",
@@ -40,6 +42,7 @@
       ]
     },
     {
+      "id": "data-systems-ratio-analysis-deck-the-advisory-staircase",
       "name": "Ratio Analysis Deck — the Advisory Staircase",
       "summary": "The educational deck behind the numbers, setting out the five steps of the Advisory Staircase — Compilation and Verification, Assimilation, Interpretation, Application, Observation — and the ground rules for when data is and is not fair to compare. Its central discipline is Know Thyself First: quantify internal assumptions and build a predictive revenue model before buying any external benchmark. It holds a review to comparing apples with apples.",
       "who_when": "Advisors running strategic planning or financial review sessions with owners who need to understand how to interpret and apply their own business data, and any client about to buy or rely on external benchmark data.",
@@ -52,6 +55,7 @@
       ]
     },
     {
+      "id": "data-systems-dashboard-discussions",
       "name": "Dashboard Discussions",
       "summary": "Runs the monthly or quarterly dashboard review as a collaborative session rather than a report handover: the advisor challenges what the client believes to be true, the client explores with an open mind, and the objective is to discover what has been missed. Every metric is read through the 3x3 framework — Cause, Event and Effect against Do the Job, Get the Job and Get Organised — because the category determines which tactical levers are available. Seek information, not judgement.",
       "who_when": "Ongoing monthly or quarterly reporting engagements, and particularly clients who already receive reports but do not act on them — the aim is to move the owner from passive recipient to active analyst. Requires data the client can already trust; fix the upstream system first if not.",

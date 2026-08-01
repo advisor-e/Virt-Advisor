@@ -187,4 +187,64 @@ describe('translate route POST /api/translate/locale', () => {
       expect(res.body).toEqual({ greeting: 'Hello' })
     })
   })
+
+  // The two behaviours this route gained when Collaborate's copy was folded into
+  // it (2026-08-01). Neither repo's tests covered them: Collaborate's route had
+  // both, but its tests only ever exercised the English default and never looked
+  // at what was actually put on the wire.
+  describe('merged in from Collaborate', () => {
+    test('translates OUT of the language given in `from`, not always English', async () => {
+      // Collaborate's chat translates a message written in any language into the
+      // reader's. Losing this would silently tell MyMemory the source is English,
+      // and it would return the message barely changed — a wrong translation that
+      // looks like a working feature.
+      queueHttpsResponses([mmSuccess('Hello')])
+      const res = makeRes()
+      await post({ body: { texts: { greeting: 'Bonjour' }, langCode: 'en', from: 'fr' } }, res)
+
+      expect(https.get.mock.calls[0][0]).toContain('langpair=fr%7Cen')
+      expect(res.body).toEqual({ greeting: 'Hello' })
+    })
+
+    test('defaults the source language to English when `from` is absent', async () => {
+      queueHttpsResponses([mmSuccess('Bonjour')])
+      await post({ body: { texts: { greeting: 'Hello' }, langCode: 'fr' } }, makeRes())
+
+      expect(https.get.mock.calls[0][0]).toContain('langpair=en%7Cfr')
+    })
+
+    test('sanitises untrusted text before it leaves for the third party', async () => {
+      // Control characters are stripped and the value is capped at 5,000 chars, so
+      // nothing hostile or unbounded is handed to an external service.
+      queueHttpsResponses([mmSuccess('ok')])
+      const res = makeRes()
+      // Built from char codes, not typed literally — a control character pasted
+      // into source is invisible to the next reader and easily 'tidied' away.
+      const hostile = 'He' + String.fromCharCode(0) + 'llo' + String.fromCharCode(7)
+      await post({ body: { texts: { a: hostile }, langCode: 'fr' } }, res)
+
+      const sentUrl = https.get.mock.calls[0][0]
+      expect(sentUrl).toContain('Hello')
+      expect(sentUrl).not.toContain('%00')
+      expect(sentUrl).not.toContain('%07')
+    })
+
+    test('caps an oversized value rather than sending it whole', async () => {
+      queueHttpsResponses([mmSuccess('ok')])
+      await post({ body: { texts: { a: 'x'.repeat(9000) }, langCode: 'fr' } }, makeRes())
+
+      const sentUrl = https.get.mock.calls[0][0]
+      expect(sentUrl).toContain('x'.repeat(5000))
+      expect(sentUrl).not.toContain('x'.repeat(5001))
+    })
+
+    test('drops prototype-polluting keys instead of forwarding them', async () => {
+      queueHttpsResponses([mmSuccess('Bonjour')])
+      const res = makeRes()
+      const hostile = JSON.parse('{"greeting":"Hello","__proto__":"evil","constructor":"evil"}')
+      await post({ body: { texts: hostile, langCode: 'fr' } }, res)
+
+      expect(Object.keys(res.body)).toEqual(['greeting'])
+    })
+  })
 })

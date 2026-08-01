@@ -25,6 +25,7 @@
   },
   "materials": [
     {
+      "id": "governance-leadership-fit-and-the-5-levels-of-team-functioning",
       "name": "Leadership Fit and the 5 Levels of Team Functioning",
       "summary": "A board cannot make quality decisions on top of a culture that is toxic or misaligned with the strategy. Leadership style has to fit the business the client actually runs, not the leader they admire — a creativity strategy and a discipline strategy demand opposite practices. Linda Hill's ten-year study of 16 leaders across 12 industries and 7 countries, Pixar among them, isolated the three behaviours that separate winning teams, and the five levels describe where a board really sits.",
       "who_when": "Boards and leadership teams reviewing their own conduct, and any client whose strategy and culture appear to be pulling in different directions.",
@@ -40,6 +41,7 @@
       ]
     },
     {
+      "id": "governance-decision-quality-psyche-errors-data-and-boardroom-manipulation",
       "name": "Decision Quality — Psyche Errors, Data and Boardroom Manipulation",
       "summary": "A facade of governance will not act as a shield: survival comes from the quality of decisions, not from structures on paper. This material covers the three things that quietly destroy that quality — psychological blind spots that vary by business stage, misread data, and the manipulation people resort to when a team lacks authentic expression — along with the frameworks that counter them.",
       "who_when": "Boards making a significant decision, and advisors reviewing why a client's past decisions went wrong despite good structures being in place.",
@@ -55,6 +57,7 @@
       ]
     },
     {
+      "id": "governance-8-step-governance-implementation-framework",
       "name": "8-Step Governance Implementation Framework",
       "summary": "How the behavioural and decision frameworks become habits in an actual boardroom rather than good intentions. It starts by making the team assess itself honestly, ends with milestones that are reviewed by somebody other than the person delivering them, and installs a shared safe word so conduct can be challenged without it becoming personal.",
       "who_when": "Boards and leadership teams putting governance practice in place, or repairing it after a decision has gone badly.",

@@ -19,6 +19,7 @@
 
   "materials": [
     {
+      "id": "get-seminar-30-to-40-presentation-template",
       "name": "30 to 40 Presentation Template",
       "summary": "A run-sheet for a concise 30-to-40-minute educational session, sequencing the whole presentation from the opening through to the agenda table. It saves the advisor preparation time because the framework fixes the running order, and it gives the audience a clear, engaging session that does not overwhelm them. Each presenter's slot is designed with the Content / Why / Remember framework, with three Principles and no more than three Details each.",
       "who_when": "Presenters, guest speakers or facilitators delivering a concise 30 to 40-minute educational session. Used at the design stage, before any slides are built.",
@@ -33,6 +34,7 @@
       ]
     },
     {
+      "id": "get-seminar-blank-platform-template",
       "name": "Blank Platform Template",
       "summary": "A stage-by-stage script outline for an interactive, principle-based workshop — connect, set the scene, deliver, then close. It gives the advisor a route through the whole session without sounding arrogant or overly sales-driven, and it makes sure the audience understands the rules of the workshop and why the material is relevant to their survival or success. The close is an invitation to a free discovery session rather than a pitch.",
       "who_when": "Facilitators or advisors stepping onto a stage to run an interactive, principle-based workshop. Used when building the session itself, once the audience and outcomes are decided.",
@@ -45,6 +47,7 @@
       ]
     },
     {
+      "id": "get-seminar-forecast-presentation",
       "name": "Forecast presentation",
       "summary": "A slide set that shifts the owner's mindset from budgets as restrictive \"diets\" to forecasts as scenario planning for safe growth. It demonstrates quantitative expertise by walking through bespoke revenue models and volatility reports, which proves value in a way a compliance conversation cannot. The through-line is probability rather than average, so the numbers stop being a pass-fail test.",
       "who_when": "Clients struggling with business limits, a negative pass-fail attitude to their numbers, or a lack of logistical foundations underneath them. Presented when forecasting is the subject of the seminar.",
@@ -56,6 +59,7 @@
       ]
     },
     {
+      "id": "get-seminar-funny-stories",
       "name": "Funny Stories",
       "summary": "A seven-step guide to constructing, practising and delivering a humorous story — selection, relatability, a straight face, pauses, intonation, rehearsal and performance. It builds immediate rapport, breaks tension and establishes the advisor as a confident, engaging speaker. For the audience it lifts attention and retention on whatever message follows.",
       "who_when": "Speakers wanting to inject humour and personality into a presentation or a networking event. Prepared and rehearsed well before the event, never improvised on the day.",
@@ -69,6 +73,7 @@
       ]
     },
     {
+      "id": "get-seminar-growth-stage-seminar",
       "name": "Growth Stage Seminar",
       "summary": "A seminar deck mapping the nine stages of business growth from Design through to Exit or Decline, including the Split point and the Devil's Toilet. For the owner it is a map of the journey that shows where they are now and which challenges are normal at that stage. For the advisor it is a diagnostic that opens the door to stage-specific advisory work — process improvement at Leverage, succession at Exit.",
       "who_when": "Prospects or clients attending an educational seminar about scaling, business maturity or exit planning. Used as the main content block of the seminar.",
@@ -82,6 +87,7 @@
       ]
     },
     {
+      "id": "get-seminar-mfs-drafting-template",
       "name": "MFS Drafting Template",
       "summary": "A worksheet for drafting a Magic Formula Story — the Draw, the Plot, the Reveal and the Close — before it is ever told. It ties the story to a named problem or opportunity and to the specific service solution it leads to, so the story does a job rather than simply entertaining. For the owner it gives the same structure for any message they need to land with staff or clients.",
       "who_when": "Presenters preparing a tailored story to introduce a complex or sensitive business concept. Filled in during preparation — one worksheet per dry or technical section of the agenda.",
@@ -94,6 +100,7 @@
       ]
     },
     {
+      "id": "get-seminar-magic-formula-stories",
       "name": "Magic Formula Stories",
       "summary": "The reasoning behind the four-part story structure and how to deliver it — Draw, Plot, Reveal, Close. It lets the advisor illustrate technical knowledge, empathy and credibility without appearing boastful, which lowers the filters a client listens through. For the owner it is a non-threatening way to communicate culture, values or corrective feedback to a team.",
       "who_when": "Coaches and facilitators dealing with business culture, personal choice or complex problem-solving. Read before drafting stories on the MFS Drafting Template.",
@@ -106,6 +113,7 @@
       ]
     },
     {
+      "id": "get-seminar-paper-tower-model",
       "name": "Paper Tower Model",
       "summary": "The scoring spreadsheet behind the Paper Tower exercise; it turns materials drawn, minutes taken and finished height into a single profit or loss. Automating the arithmetic frees the facilitator to observe behaviour rather than do maths at the front of the room. For the owner it is a simulation showing how material cost, time efficiency and quality land directly on the bottom line.",
       "who_when": "Facilitators running the Paper Tower team-building and business simulation workshop. Used live during the exercise and at the scoring that follows it.",
@@ -117,6 +125,7 @@
       ]
     },
     {
+      "id": "get-seminar-paper-tower-review-questions",
       "name": "Paper Tower Review Questions",
       "summary": "The scripted debrief that turns the Paper Tower game into insight: the profit calculation, three opening questions, then timed observations read back to the team. It moves a group from playing a game to adopting the formal nine-step problem-solving process, which is the real point of the exercise. For the owner it exposes process-driven against outcome-driven behaviour and the personalities inside the team.",
       "who_when": "Consultants reviewing the aftermath of the Paper Tower exercise, immediately after the towers are measured.",
@@ -129,6 +138,7 @@
       ]
     },
     {
+      "id": "get-seminar-paper-tower-task-sheet",
       "name": "Paper Tower Task Sheet",
       "summary": "The rules, resources and time limits handed to the building team: 20 minutes' planning, 10 minutes' build, sheets drawn in batches of 20, and no prefabrication. Clear, indisputable rules prevent arguments and make the challenge uniform across teams. The constraints of time, material and rules are what make the exercise mirror real-world project pressure.",
       "who_when": "Participants acting as the building team during the Paper Tower workshop. Handed out at the start, before the preparation timer begins.",
@@ -142,6 +152,7 @@
       ]
     },
     {
+      "id": "get-seminar-powerful-seminars",
       "name": "Powerful Seminars",
       "summary": "The end-to-end blueprint for a seminar: content design on the C.P.D hierarchy, audience psychology, a six-week marketing timeline, delivery styles and AV logistics. It is the document to work through before any deck is opened, because it decides the audience, the outcomes and the invitation schedule. For the owner it produces a professional, targeted marketing event that drives client acquisition.",
       "who_when": "Business owners, advisors or marketing managers designing and hosting a public speaking event or workshop. Started around six weeks out, before the presentation itself is built.",
@@ -154,6 +165,7 @@
       ]
     },
     {
+      "id": "get-seminar-seminar-entertainment",
       "name": "Seminar & Entertainment",
       "summary": "The protocol for firm staff at a hosted event, built on one idea: it is work, not a free booze-up. It covers approaching and joining groups, working the room rather than anchoring in a corner, staying one drink behind the client, and steering a buying conversation to a Monday call instead of selling out of bounds. It protects the firm from staff embarrassing it, and the advisor from giving advice in an environment they cannot control.",
       "who_when": "Professionals attending trade shows, corporate dinners or networking seminars. Briefed to every attending staff member before the event, not on the way in.",
@@ -168,6 +180,7 @@
       ]
     },
     {
+      "id": "get-seminar-spaghetti-tower-task-sheet",
       "name": "Spaghetti Tower Task Sheet",
       "summary": "A 30-minute team challenge — 20 sticks of spaghetti, a roll of tape, a metre of string and two marshmallows — run as 20 minutes' planning then 10 minutes' build. It is a rapid, low-cost exercise that exposes communication and planning flaws under pressure very quickly. Minimal setup makes it easy to scale to whatever size group is in the room.",
       "who_when": "Facilitators needing a short team challenge — as an ice-breaker, or as a problem-solving simulation ahead of a debrief.",
@@ -180,6 +193,7 @@
       ]
     },
     {
+      "id": "get-seminar-team-problem-solving",
       "name": "Team Problem Solving",
       "summary": "The nine-step framework a facilitated team follows from problem to execution: roles, a S.M.A.R.T objective, apportioned time, brainstorming without assessment, assessment, selection, resourcing, an action plan and an Enforcer. It stops teams jumping straight to solutions or stalling in analysis paralysis. The Enforcer is the accountability step that keeps momentum once the session ends.",
       "who_when": "Facilitators and management teams moving from identifying a problem to actually executing on it. Used in a strategy or problem-solving session, and as the process introduced after the Paper Tower debrief.",
@@ -195,6 +209,7 @@
       ]
     },
     {
+      "id": "get-seminar-team-workshop-run-sheet",
       "name": "Team Workshop Run Sheet",
       "summary": "A minute-by-minute scheduling matrix for a two-day workshop — session times, start and finish, content, purpose and the resources each block needs. It keeps presenters prepared and long days productive, with breaks and management reviews scheduled rather than improvised. Each day closes with a 30-minute review, so the team leaves with the day's decisions recorded rather than remembered.",
       "who_when": "Seminar coordinators and facilitators managing a multi-day training event. Completed during planning, then used live as the run sheet on the day.",
@@ -208,6 +223,7 @@
       ]
     },
     {
+      "id": "get-seminar-get-feedback-form",
       "name": "get.feedback form",
       "summary": "The post-event questionnaire: was the content relevant, did the stories help, did the presenters flow together, what did not appeal, and would they attend again. It gives the advisor a quality-control read on presenter flow and story effectiveness, and it captures the leads the evening produced. For the owner it answers whether the seminar delivered a return and whether their staff found the content relevant.",
       "who_when": "Attendees, filling it in at the conclusion of the seminar or workshop — distributed before guests leave.",

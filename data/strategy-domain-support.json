@@ -14,6 +14,7 @@
 
   "materials": [
     {
+      "id": "strategy-revealing-the-growth-curve",
       "name": "Revealing the Growth Curve",
       "summary": "A guided story that walks a client through the nine stages of business growth in the third person, through a persona, so the concept is understood before it is applied to them. Third person creates the dissociation that stops a client judging the idea before they have heard all of it, and gives permission for the humour that makes it stick. Its purpose is alignment and repositioning you as a strategic advisor — not selling.",
       "who_when": "Any client not yet engaged with advisory services — particularly inside the EOY meeting or a first advisory conversation, where the relationship needs to move from transactional to strategic.",
@@ -32,6 +33,7 @@
       ]
     },
     {
+      "id": "strategy-the-heald-matrix",
       "name": "The Heald Matrix",
       "summary": "A two-axis matrix — Innovation and Creativity against Methodology and Process — that shows an owner why they avoid planning, through four positions: Turtle, Shotgun, Lab-Rat and Pioneer. It works because you cannot tell an owner their coping mechanism is not serving them; it is better that they see it themselves and decide to change. Once they have felt how easily they can let it go and gain clarity of action, a planning session stops being something you have to sell.",
       "who_when": "Clients resistant to planning, claiming to be too busy, or with no idea where to start. Works in a formal meeting agenda or drawn on a napkin over coffee, which is what shifts a highly formal relationship into a collaborative one.",
@@ -52,6 +54,7 @@
       ]
     },
     {
+      "id": "strategy-capacity-capability-opportunity",
       "name": "Capacity, Capability, Opportunity",
       "summary": "A macro-level framework for identifying the legitimate constraints restricting a client's ability to grow, across three pillars: how much the model can produce, whether the client is equipped to compete, and whether the market wants what they sell. Calling them legitimate constraints gives the issues validity and removes the guilt attached to them, which is what lets an owner let go of a limiting belief. It also protects the advisor from picking up every problem-child client and suffering fee creep.",
       "who_when": "Used before recommending any strategic direction, and to judge whether a constraint is temporary and better dealt with later. Can be run visibly on the agenda, verbally anchored, or kept as the advisor's own mental checklist where a structured review would feel inappropriate.",
@@ -70,6 +73,7 @@
       ]
     },
     {
+      "id": "strategy-client-planning-framework",
       "name": "Client Planning Framework",
       "summary": "Decides which planning approach a client actually needs, based on their business maturity rather than applying one template to everyone. It splits at the first question — a startup or an owner new to planning, against a well-established business — and each branch leads to a different depth of engagement. Whatever the branch, the plan is supported by a Revenue Model, which is what keeps it financially aligned.",
       "who_when": "Whenever a client says \"I need a business plan\" — used once planning buy-in is secured and the real constraints have been validated.",
@@ -84,6 +88,7 @@
       ]
     },
     {
+      "id": "strategy-planning-outcomes-review",
       "name": "Planning Outcomes Review",
       "summary": "The broad-scope opening assessment that sets what a planning session will actually cover. It lets the owner explore issues and ideas with an open heart and mind, discover what they have been missing, record key learnings and build an actionable plan forward, giving clarity across the four core planning domains — Business Targets, Strategic Orientation, Organisational Review and Sales & Marketing Review. For the advisor it establishes the role explicitly as challenging what the client believes to be true, structuring the scope of the session and managing collaborative thinking.",
       "who_when": "Business owners and leadership teams preparing for a formal business planning session who need a broad scope assessment of their revenue goals, business model, team efficiencies and marketing strategy.",
@@ -100,6 +105,7 @@
       ]
     },
     {
+      "id": "strategy-business-targets",
       "name": "Business Targets",
       "summary": "Records what the owner actually wants out of the business — personal income goals, leisure and lifestyle expectations — and then computes the business scale dynamics required to deliver them, finishing with tactical profit lever quick wins. Its method value to the advisor is the structure it gives to parallel (collaborative) thinking during goal setting, which is what avoids time-consuming arguments and the false consensus trap.",
       "who_when": "Business owners who need to align personal lifestyle desires with quantifiable operational targets and profit driver actions.",
@@ -113,6 +119,7 @@
       ]
     },
     {
+      "id": "strategy-orientation-part-1",
       "name": "Orientation Part 1",
       "summary": "The formal planning process proper: it educates owners on planning terminology, evaluates internal and external business position, and lands on observable, time-bound operational milestones that are grounded in strategic logic rather than enthusiasm. For the advisor it is a 6-step process taking the client from positional assessment, through scenario modelling, to delegated tactical execution using Field Intelligence.",
       "who_when": "Business leaders seeking to establish a shared strategic language across their executive team, conduct SWOT/PEST assessments and build structured action plans.",
@@ -125,6 +132,7 @@
       ]
     },
     {
+      "id": "strategy-orientation-part-2",
       "name": "Orientation Part 2",
       "summary": "Goes after the reason a mature business has stopped moving. It exposes the psychological growth barriers — the Psyche Errors, such as role-identification or optimism bias — and then introduces the timing frameworks (Sigmoid Curve, Technology Points, Deming Volatility, Blue Ocean) that decide when a business decision or a price change should actually be made. For the advisor it supplies diagnostics for why clients stall, pricing matrices across problem-solving levels and delivery mediums, and a way to model system feedback loops.",
       "who_when": "Mature business owners facing growth plateaus, succession friction, product obsolescence, or complex pricing and supply-chain choices.",
@@ -137,6 +145,7 @@
       ]
     },
     {
+      "id": "strategy-profit-levers-blue-ocean",
       "name": "Profit Levers & Blue Ocean",
       "summary": "Gets an owner off a saturated competition front and turns loose brainstorming into structured quick wins. The Blue Ocean half finds where the customer's frustrations sit on the fringes of normal industry practice; the Profit Lever half sorts the resulting ideas so the incremental gains accumulate rather than scatter. For the advisor it is the fastest route from a wall of post-it notes to a TASK, WHOM, WHEN execution sheet.",
       "who_when": "Business owners competing in crowded markets who need clear differentiation, or rapid incremental profit improvements.",
@@ -149,6 +158,7 @@
       ]
     },
     {
+      "id": "strategy-swot-pest",
       "name": "SWOT / PEST",
       "summary": "The baseline position assessment, run as a dual analysis: SWOT for the internal operational factors — personnel, POS reports, efficiency — and PEST for the external macro-environment of political, economic, regulatory and tariff movement. Its value to the advisor is the prompt set, which is what challenges client assumptions and surfaces growth drag or joint venture potential the owner has not thought to mention.",
       "who_when": "Business owners conducting a baseline assessment of their current market standing, or preparing for local or international expansion.",
@@ -160,6 +170,7 @@
       ]
     },
     {
+      "id": "strategy-business-dating",
       "name": "Business Dating",
       "summary": "Protects an owner from a hasty amalgamation by making the relationship progressive rather than binary. Four stages — One Night Stand, Dating, Engaged, Married — give both parties a language for where they actually are, so commercial alignment and cultural fit are tested before anything is signed. For the advisor it supplies the narrative and the matrix to walk two entities, often family businesses, through a low-risk alliance ahead of a full merger.",
       "who_when": "Business owners considering joint ventures, strategic alliances, family business amalgamations, or business acquisitions.",
@@ -171,6 +182,7 @@
       ]
     },
     {
+      "id": "strategy-pivot",
       "name": "Pivot",
       "summary": "A rapid 5-step process for a business that has to change direction: identify what is actually forcing the change, refine the message, and test a prototype offering at minimal risk rather than committing the business to an untested bet. For the advisor it is a structured pipeline through a forced change, including a high-converting AIDCRA advertisement and strict test parameters agreed before anything is spent.",
       "who_when": "Agile business owners needing to pivot their strategy quickly, introduce new products, or overcome market resistance.",
@@ -183,6 +195,7 @@
       ]
     },
     {
+      "id": "strategy-porters-pine",
       "name": "Porters & Pine",
       "summary": "A dual-framework session that does two things at once: reads the competitive pressure on the business, and moves its offering up the economic value chain from commoditised goods towards authentic, high-margin customer experience. The engine of the second half is genuine customer connection — that is what premium pricing and retention actually rest on, rather than presentation.",
       "who_when": "Business owners operating in traditional service or commodity markets who are seeking to increase profit margins and build customer loyalty.",

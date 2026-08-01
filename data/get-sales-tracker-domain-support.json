@@ -17,6 +17,7 @@
 
   "materials": [
     {
+      "id": "get-sales-tracker-tracker-configuration-lists-calcs",
       "name": "Tracker Configuration (Lists & Calcs)",
       "summary": "The engine room. Lists holds the standardised dropdowns — relationship type, approach styles, meeting themes, prospect sources, Total Needs stages, staff names — which is what keeps the data clean enough to report on. Calcs handles the background statistics: averages, variances and standard deviations. Getting this right makes daily entry fast and uniform, and it is the reason the final numbers can be trusted for a decision.",
       "who_when": "The system administrator or operations manager responsible for setting up and maintaining internal tracking tools. Done once, before the tracker goes anywhere near the team.",
@@ -30,6 +31,7 @@
       ]
     },
     {
+      "id": "get-sales-tracker-sales-activity-log",
       "name": "Sales Activity Log",
       "summary": "A lightweight CRM: one row per prospect, holding contact details, current sales stage, proposal value and the next move. It is what stops a prospect falling through the cracks, and its Work Days Elapsed calculation is the early warning that a deal has stalled. For the firm it turns the pipeline into something visible and countable, with each lead carrying an honest status — Active, Await Research, Completed, Dead or On Hold.",
       "who_when": "Daily use by every client-facing advisor, logging activity on the day it happens rather than catching up at the end of the week.",
@@ -44,6 +46,7 @@
       ]
     },
     {
+      "id": "get-sales-tracker-coi-centres-of-influence-development",
       "name": "COI (Centres of Influence) Development",
       "summary": "Systematises the referral network by recording the relationship status with each external professional — bankers, lawyers, insurance brokers — and moving them deliberately through the trust stages: Could We, How Would We, then Will We test and review. It also quantifies what each relationship is actually worth, tying referrals, conversions and fee value to the individual COI, which is what tells an advisor where their networking time is paying and where it is not.",
       "who_when": "Senior partners, business development managers, and advisors building organic growth through strategic alliances.",
@@ -57,6 +60,7 @@
       ]
     },
     {
+      "id": "get-sales-tracker-team-report",
       "name": "Team Report",
       "summary": "Breaks the firm-wide numbers down to the individual: prospects approached, meetings secured, proposals sent, and total value of work won per person. For the advisor it gives an undeniable read on their own average proposal value and win rate. For the firm it locates the training need precisely — an advisor who is excellent at securing meetings but rarely closes needs different coaching from one who cannot get the meeting at all.",
       "who_when": "One-on-one performance reviews, team accountability meetings, and identifying top performers.",
@@ -69,6 +73,7 @@
       ]
     },
     {
+      "id": "get-sales-tracker-stats-to-date-dashboard",
       "name": "Stats to Date Dashboard",
       "summary": "The macro view of the whole firm: conversion rates by approach style — direct contact against quiz link sent — and by prospect source, referral against social media. It shows which sales style is producing the higher average fee, Campaign or Total Needs, and therefore where the firm's time is best spent. It also separates existing clients from new prospects, which is what reveals whether growth is coming from upselling or from genuinely new business.",
       "who_when": "Firm owners, managing partners and sales directors needing the firm-wide picture. Reviewed at the end of each month, alongside the Team Report.",

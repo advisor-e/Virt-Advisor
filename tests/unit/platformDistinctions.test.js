@@ -70,6 +70,22 @@ describe('loadPlatformDistinctions', () => {
     expect(rows).toBe(SEED_PLATFORM_ROWS)
   })
 
+  it('production rejects a store failure instead of answering with the seed', async () => {
+    // Two failures this prevents. (1) A stray dev file on a production box being
+    // served as the mentor's live set. (2) The serious one: every mentor edit is a
+    // read-modify-write, so answering a failed read with the seed would let one edit
+    // overwrite the mentor's whole authored set with the shipped defaults. Every
+    // caller already catches — the routes return a 500, the engine logs and degrades.
+    const prevEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    try {
+      const loader = jest.fn(() => Promise.reject(new Error('no db')))
+      await expect(loadPlatformDistinctions(loader)).rejects.toThrow('no db')
+    } finally {
+      process.env.NODE_ENV = prevEnv
+    }
+  })
+
   it('every seed row carries a stable string id (cascade prerequisite)', () => {
     for (const row of SEED_PLATFORM_ROWS) {
       expect(typeof row.id).toBe('string')
