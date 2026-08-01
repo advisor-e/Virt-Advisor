@@ -105,8 +105,50 @@
     would *worsen* the over-match — `strategy` goes 4 → 13 rows with shared first words
     (*Business* Targets / *Business* Dating, *Orientation* Part 1 / 2, *Profit* Levers).
 
-- <a id="content-routing-map"></a>☐ **P1 · BUILD — a visible routing map: which material reaches
-  CLIENT RECOMMENDATIONS, and which is ADVISOR-READ-ONLY.** Raised by Mike 2026-07-31, after the
+- <a id="content-routing-map"></a>✅ **P1 · BUILD — a visible routing map: which material reaches
+  CLIENT RECOMMENDATIONS, and which is ADVISOR-READ-ONLY. BUILT 2026-08-01 (approved by Mike, this
+  branch). Full suite 2,131 green / 141 suites, lint 0 errors.**
+  - **What shipped.** [`scripts/generate-content-routing.js`](../scripts/generate-content-routing.js)
+    → [`design/CONTENT-ROUTING.md`](CONTENT-ROUTING.md), `npm run routing`. **491 assets classified,
+    0 unknown**: 236 client-recommendation · 29 AI-briefing · 226 advisor-read-only. One row per asset
+    with the lane, the code path that decides it, and the evidence.
+  - **Half of it already existed and had not been recorded here.** The classifier
+    [`server/utils/contentRouting.js`](../server/utils/contentRouting.js) plus its build guard landed
+    on 2026-07-31 in `4622f19` — but **nothing consumed it**, so the report this item actually asked
+    for did not exist. The generator reads that module rather than re-implementing the rules, so the
+    guard and the report can never disagree.
+  - **🔴 TWO DEFECTS FOUND IN THAT CLASSIFIER while checking its numbers, before publishing anything.**
+    Both would have printed a false figure in a governance report — the exact failure this item exists
+    to prevent.
+    - `_comment`, a documentation string sitting beside the banks, was **counted as a quiz bank** — 63
+      reported where the firm has 62.
+    - It read `bank.questions`; every consumer (`courseEngine.js` L455/L550, `firmQuizzes.js` L99) reads
+      **`bank.entries`**. So all 62 banks reported **`questions=0`**. The *lane* was right — that comes
+      from the require-chain, not the count — so the row looked classified while its evidence was false.
+    - **Post-fix: 62 banks / 652 questions, independently matching the CB-30 record.**
+    - **Why the existing guard missed both:** it asserted `length >= 60` and the lane, never the evidence
+      it prints. Two assertions added — no `_`-prefixed id, and every bank reports a non-zero count with
+      a ≥500 aggregate so it cannot pass on one stub bank.
+  - **Blind spots are DERIVED, not typed.** The report subtracts what the classifier reads from what is
+    on disk, so a new data file appears in "what this map does not cover" by itself. **30 data files are
+    named as unclassified today** — including `signal-dictionary.json`, which *does* drive selection, so
+    the gap is real and now visible rather than assumed away. Only the PLATFORM layer is classified;
+    firm overrides resolve at runtime and are not on disk to read.
+  - **✅ Freshness guard — the STATUS.md lesson applied**
+    ([`tests/unit/contentRoutingReport.test.js`](../tests/unit/contentRoutingReport.test.js), 7 cases).
+    The report is regenerated in memory and compared; if content data moves, `npm run routing` must be
+    run before committing. Added because **STATUS.md was found ~260 lines stale on 2026-08-01** — a
+    generated file with no freshness test rots and is then believed. **Proved it can actually fail**
+    (changed count, changed table row, truncated file — all three detected). That proof found a flaw in
+    the guard's own failure message: `findIndex` returns −1 when one file is a truncation of the other,
+    which would have reported "line 0" and "(end of file)" for both sides; it now names the length
+    difference instead.
+  - **⚠ STILL OPEN, for Mike:** whether this also becomes a visible screen in Firm Manager or stays a
+    developer report. The recommendation in the original entry — build the generated report first and
+    decide on a screen once the real table is visible — is now actionable: the table exists to look at.
+
+  <!-- Original entry, kept for the reasoning: -->
+  - Raised by Mike 2026-07-31, after the
   `flat_if_then` finding on the three new logic tables: client-facing logic was about to be filed
   in a shape the engine never walks, which would have looked complete on screen and influenced
   nothing.
