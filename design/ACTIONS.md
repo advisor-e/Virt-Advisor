@@ -98,13 +98,27 @@
       interval** (`div()` exists so an unknown interval cannot yield Infinity), a **zero-month
       loan**, and **0% finance** (real for interest-free dealer deals — it takes a different
       formula branch entirely).
-      - ⚠ **A REAL DEFECT FOUND WHILE WRITING THEM, PINNED AND REPORTED, NOT FIXED.** A numeric
+      - ✅ **A REAL DEFECT FOUND WHILE WRITING THEM, PINNED AND REPORTED, NOT FIXED — RULED ON AND
+        FIXED 2026-08-02 (Session 25, `a76b3e2`).** A numeric
         field that is **absent** is named in `defaultedInputs` (the R8 ruling). A field that is
         **present but unusable** — `deposit: 'eight thousand'` — is silently replaced by the
         sample and named **nowhere**, so the caller is told the figure is theirs when it is ours.
         Same family as every other silent-default finding here. Pinned as a `⚠ CURRENT BEHAVIOUR`
         test so a future fix **fails that test rather than passing quietly**. Needs a Mike ruling;
         the model reaches a public route that takes raw browser JSON.
+        - ✅ **Mike's ruling: R8 extends to unusable figures.** A present-but-unusable figure is
+          now treated exactly as an absent one — it falls back to the sample **and** is named in
+          `defaultedInputs`.
+        - 🔴 **THE REPORTED DEFECT WAS THE SMALLER HALF.** `loanEstimatorModel.js` — not the model
+          that raised the flag — was **worse**: its `take()` fed `num()` with no fallback, so an
+          unusable figure became **ZERO, not the sample**. A deposit typed in words silently became
+          *no deposit*, and the loan amount moved with it. **Finding a defect in one model is a
+          reason to check its siblings, not a reason to fix one file.** `quickPositionModel`,
+          `ebitdaDcfModel` and `costOfCapitalModel` were already correct; the two outliers now
+          share the same `usable()` test.
+        - **The tests pin the opposite error too**: a numeric string (`'8500'`) and a genuine zero
+          are the client's own figures and must **not** be declared — a flag that cries wolf is its
+          own defect.
   - **So the route is ONE MERGE, not a file-by-file port** — and porting Cost of Capital alone was
     considered and rejected: its CSS reads ReportShell's tokens, so it would land working but
     looking wrong. The features do not separate cleanly; the visual standard is the floor they
@@ -153,9 +167,10 @@
   - **Resolved for today** by PR #28 (`c47e369`) and the merge into this branch (`a235a71`), but the
     blind spot is unchanged and will recur on the next divergence.
 
-- <a id="hook-tests-worktree-not-commit"></a>☐ **P1 · PROCESS — the pre-commit hook validates the
+- <a id="hook-tests-worktree-not-commit"></a>✅ **P1 · PROCESS — the pre-commit hook validates the
   WORKING TREE, not what is being committed. A half-staged change passed all three gates and was
-  committed red.** Found 2026-08-02 (laptop, Session 24) by the AI, on its own mistake, while
+  committed red. CLOSED 2026-08-02 (laptop, Session 25, `a76b3e2`) — see the DONE bullet at the
+  foot of this entry.** Found 2026-08-02 (laptop, Session 24) by the AI, on its own mistake, while
   verifying the report-programme merge commit.
   - **What happened.** `design/CONTENT-ROUTING.md` and `tests/unit/componentStyles.test.js` were
     already staged **by the merge** (as files arriving from `master`). Both were then edited to fix
@@ -174,8 +189,24 @@
     commit either, but it *forces* working tree ≡ commit contents, which makes the three gates it
     already runs actually mean what they claim. Cheap, read-only, no stashing (a stash that fails
     mid-hook can lose work, which is a worse trade).
-  - ⚠ **Until it exists, the rule is manual: `git status` before committing, and after any commit
-    that fixes a merge, diff the COMMITTED blob — not the working tree — for each file you changed.**
+  - ~~⚠ **Until it exists, the rule is manual: `git status` before committing, and after any commit
+    that fixes a merge, diff the COMMITTED blob — not the working tree — for each file you changed.**~~
+    *(Superseded 2026-08-02 — the control exists; the manual rule is no longer the only defence.)*
+  - ✅ **BUILT 2026-08-02 (laptop, Session 25, `a76b3e2`, Mike-approved).**
+    [`scripts/check-staged-tree.js`](../scripts/check-staged-tree.js) refuses a commit while a
+    tracked file has unstaged edits, wired into [`.husky/pre-commit`](../.husky/pre-commit) as
+    **gate 0**. Tests in [`checkStagedTree.test.js`](../tests/unit/checkStagedTree.test.js). Suite
+    3,984 green / 239 suites, lint 0 errors.
+    - **It does not test the commit either, and says so rather than overclaiming.** It forces
+      *working tree ≡ commit contents*, which is what makes the three gates already running mean
+      what they claim.
+    - **Runs FIRST** — a refusal costs a second rather than a full 3,984-test suite.
+    - **No stashing inside the hook**, as proposed: a stash that fails mid-hook can lose work.
+    - ⚠ **The closure itself went unrecorded for a session.** This entry read ☐ open while the fix
+      ran on every commit, until Session 26's `/startup` caught it. **A commit closes a task in the
+      code, not in this file, and nothing in the toolchain notices the difference** — the same
+      "record pointing one inch to the left of the artefact" shape as the defect above. See
+      [`SESSION-2026-08-02-B-NOTES.md`](SESSION-2026-08-02-B-NOTES.md).
 
 - <a id="cross-branch-rule-collision"></a>☐ **P2 · DOC — a rule introduced on one machine collides with
   rows added on the other, and only surfaces at merge.** Found 2026-08-01 while merging PR #28; fixed
@@ -3107,8 +3138,9 @@ Two honest answers on different axes — the file used to conflate them:
   mutants killed, both components restored **byte-identical (SHA-256)**. Built straight after
   slice 2, same session.
 
-  **The Firm Manager Hub has a seventh tab: "Adviser Network"** — label ruled by Mike from three
-  offered. It is Collaborate's manager console: every adviser in scope with availability and
+  **The Firm Manager Hub has a seventh tab: "Advisor Network"** — label ruled by Mike from three
+  offered (as *"Adviser Network"*; **respelled to "Advisor" on 2026-08-02**, see the wording bullet
+  below). It is Collaborate's manager console: every adviser in scope with availability and
   group count, group-join approvals, bulk invite, the cross-firm Open/Closed control, and the
   activity feed. Higher tiers get the roll-up tree, unchanged.
 
@@ -3166,6 +3198,16 @@ Two honest answers on different axes — the file used to conflate them:
     whether they may work with advisers outside the firm."* On screen when Mike approved the tab;
     every other label is Collaborate's existing approved wording. Tab NAME (**Adviser Network**)
     was ruled explicitly from three offered.
+    - ✅ **SUPERSEDED 2026-08-02 — the tab is "Advisor Network", and the whole page spells it
+      "Advisor"** (Session 25, `a76b3e2`; re-confirmed by Mike 2026-08-02 when this record was found
+      to contradict the shipped app). 25 strings plus 5 demo job titles, scoped from
+      [`utils/i18nMessages.js`](../utils/i18nMessages.js) — only the `common` / `console` / `firm`
+      sections are surfaced by this app, so the rest of Collaborate's wording file was correctly
+      left alone. **Internal key names are unchanged** (`firmAdviserNetwork.*`, and the `lede` text
+      above is otherwise as approved): they are not user-facing.
+    - ⚠ **The line above is kept, not overwritten.** It is the true record of the original ruling,
+      and a superseded ruling that quietly disappears leaves the next person unable to tell a
+      decision from a drift.
   - ⚠ **HONEST LIMITS THAT REMAIN.** The advisers shown come from Collaborate's **in-memory
     store, which resets on restart** (slice 5) — dev-firm-001 shows "Advisor-e Munich" with 3
     advisers and 2 pending approvals, and none of it is real data. The `firm-manager` page chunk
