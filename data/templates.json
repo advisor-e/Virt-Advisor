@@ -9751,5 +9751,61 @@
     ],
     "status": "--",
     "index": 288
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4611376603",
+    "section": "Do the Job",
+    "subSection": "Strategic Tools",
+    "topic": "Sales & Marketing",
+    "title": "Speak Easy",
+    "link": "id-4611376603",
+    "purpose": "This template provides a practical framework to help advisors guide their professional services clients through the process of  identifying pain points, packaging solutions and communicating value. ",
+    "support": "",
+    "position": 290,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leverage",
+      "fundamental": "This template provides a practical framework to help advisors guide their professional services clients through the process of  identifying pain points, packaging solutions and communicating value. "
+    },
+    "status": "--",
+    "tags": [],
+    "index": 289
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4611376603",
+    "section": "Do the Job",
+    "subSection": "Strategic Tools",
+    "topic": "Sales & Marketing",
+    "title": "Mapping the Marketing & Sales Process",
+    "link": "id-4611376603",
+    "purpose": "This is an extremely detailed template to help advisors understand the psychological complexities of marketing and selling so they can better analyse their own 'winning business' activities.",
+    "support": "",
+    "position": 291,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leverage",
+      "fundamental": "This is an extremely detailed template to help advisors understand the psychological complexities of marketing and selling so they can better analyse their own 'winning business' activities."
+    },
+    "status": "--",
+    "index": 290,
+    "tags": []
   }
 ]

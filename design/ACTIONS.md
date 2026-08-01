@@ -23,6 +23,666 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="startup-blind-to-other-machine"></a>☐ **P1 · PROCESS — `/startup` reported "0 behind master" while this machine
+  was running a two-day-stale Firm Manager hub. The check is structurally blind to the other
+  machine's unmerged branch.** Found 2026-08-01 by Mike, who opened the hub and could not find work
+  the laptop had finished.
+  - **The evidence.** `npm run check:branch` measures `HEAD` against `origin/master` only. On the
+    morning of 2026-08-01 the desktop was **0 behind `master`** — genuinely true — while
+    `origin/feat/advisor-progress` sat **82 commits ahead of `master`**, unmerged. Both branches had
+    split from `b3b6ad6` (PR #27, 2026-07-30) and had not met since. The desktop was therefore
+    up to date with the *shared* code and two days behind the *actual* work, with a green light saying
+    so.
+  - **Why this is the Agreement's own failure mode, one level up.** `WORKING-AGREEMENT.md` was written
+    because UAT ran 97 commits behind and nothing said "this version is ready, take it." The same gap
+    exists between the two machines: a branch that is pushed but not PR'd is invisible to the other
+    division, and the start-of-session check reports green throughout.
+  - **Not fixed by merging more often** — the laptop had pushed correctly and the desktop had merged
+    `master` correctly. Both followed the rules. What is missing is a *report*: at minimum,
+    `check:branch` naming any other `feat/*` branch that is ahead of `master`, and how far. That is a
+    read-only addition to an existing script, not a new mechanism.
+  - **Resolved for today** by PR #28 (`c47e369`) and the merge into this branch (`a235a71`), but the
+    blind spot is unchanged and will recur on the next divergence.
+
+- <a id="cross-branch-rule-collision"></a>☐ **P2 · DOC — a rule introduced on one machine collides with
+  rows added on the other, and only surfaces at merge.** Found 2026-08-01 while merging PR #28; fixed
+  in the same commit (`a235a71`).
+  - **What happened.** The laptop's `79de6d9` gave all 181 domain-support material rows a permanent
+    `id` and locked the list in [`domainSupportRowIds.test.js`](../tests/unit/domainSupportRowIds.test.js) —
+    correctly, because firm overrides key off the id, and keying off a title means a rename silently
+    discards a firm's saved choices. Meanwhile the desktop's `7ae8b31` and siblings transcribed 13 new
+    material rows (strategy 9, staff 2, sales-marketing 2) on a branch where that rule did not exist.
+    Neither side was wrong. The suite was green on both branches and failed only once merged.
+  - **The fix was purely additive:** 13 ids written by hand following the convention the other 168
+    rows use, added to `LOCKED_IDS`. No existing id changed, so no firm's saved choices could break —
+    and none exist yet anyway. Suite 3,652 green / 221 suites.
+  - **Why it is logged rather than closed.** The laptop deliberately did **not** commit its id
+    generator (a committed migration script was judged a hazard here — see `migrate-ghost-references.js`,
+    which deleted what it could not resolve). So the next batch of rows written on either machine will
+    hit exactly this again, and the convention lives only in the data and this note. Any future rule of
+    the form "every row of X needs a Y" carries the same trap while both machines edit X.
+
+- <a id="workbench-placement"></a>☐ **P2 · DECISION (Mike) — the trigger workbench is on the screen but
+  could not be found.** Found 2026-08-01 by Mike, who went looking for the phrase work after the merge
+  and reported seeing only the laptop's changes.
+  - **Not a defect — a placement question.** The component is present and unconditionally rendered:
+    [`FirmLogicTables.vue`](../components/firm/FirmLogicTables.vue) L218 renders `firm-trigger-workbench`
+    outside the `v-if`/`v-else`, and [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) L27 renders
+    the Logic Tables tab. Nothing was lost in the merge.
+  - **Where it sits:** the bottom of the Logic Tables tab, below the table list, the branch editor and
+    the "Earlier versions" history — a long scroll past content most sessions will not touch.
+  - **The placement was deliberate** (§0.6 rules the hub to two content tabs, and the workbench is about
+    those tables' trigger phrases), so this is not a matter of correcting an oversight. But a feature the
+    owner cannot locate on the screen it lives on fails the standard in memory
+    `feedback-avoid-map-shock`: functional, logical *and* findable.
+  - **For Mike:** whether it moves above the version history, gets its own tab despite §0.6, or is
+    reached some other way. Placement and any new label are the firm's decision, not the AI's
+    (CLAUDE.md — confirm wording before writing it).
+
+- <a id="course-session-domain-briefing"></a>✅ **P1 · FIX — Course Builder's session briefing reached the WRONG domain materials.
+  FOUND *and* FIXED 2026-07-30 (approved by Mike, this branch, commit `dd0b031`). Full suite 2,016
+  green / 134 suites, lint 0 errors. Measured effect: across the 29 domains, materials reaching the
+  session prompt go 51 → 181 — and 51 was the *best case* for the old code (`people-power` 3 → 26,
+  `sales-marketing` 2 → 17, `get-seminar` 3 → 16). No longer blocks the 3 new source documents.**
+  - **The fix (3 files, no selection logic touched):** the name-match filter and the
+    `materials.slice(0, 1)` fallback are gone from
+    [`formatDomainContextForSession`](../server/utils/domainSupport.js); it now sends the detected
+    domain's full material set in file order, mirroring `formatDomainSupportForPrompt` on the advisor
+    path. The dead `resourceNames` parameter was removed and its single caller updated
+    ([`courseEngine.js`](../server/courseEngine.js) L360) — the session's own resources are still
+    injected separately by `sessionInject`, so nothing was lost. The legacy `support_tools` branch got
+    the identical fix: no repo file is on that shape, but a firm override can be, so it is live code
+    that carried the same defect. **No cap added, deliberately** — worst case ~7.4k tokens
+    (`people-power`), median ~1.7k, volume the advisor path already carries; if one is ever needed it
+    must say that it capped (no-silent-caps rule).
+  - **Tests — new [`tests/unit/domainSupportSessionReach.test.js`](../tests/unit/domainSupportSessionReach.test.js),
+    36 cases.** The one that earns its keep is the **sweep over all 29 domains** asserting every row
+    reaches the prompt: a spot-check would have passed throughout the defect's life, because `eoy`'s
+    first material was always the row the fallback happened to show. It also guards itself against
+    passing vacuously (asserts ≥29 domains, all carrying materials — the trap the entry-node work
+    recorded). Plus: the 16 formerly unreachable `get-seminar` rows now appear; output is byte-identical
+    whatever second argument is passed (direct proof the coupling is gone); the legacy branch is
+    unfiltered; **every** firm-authored row is still fenced, not just the first (more rows reaching the
+    prompt means more untrusted text, so the security control is proven per row); and both engine paths
+    agree on the material set, so a filter re-added to one and not the other fails here.
+    Two earlier tests that *pinned the defect* ("renders a material matched by resource name",
+    "falls back to the first material") were replaced, not deleted quietly — noted in place.
+  - **Root cause, worth keeping:** the premise was wrong, not the predicate. **CB-33 already
+    established that material names are teaching concepts, NOT template names** (comment at
+    `formatDomainSummaryForDesign`; CB-02 grounding strips them from `resources`), so matching them
+    against template names compared two namespaces the codebase had already ruled distinct. Measured
+    before the fix: 66 of 181 rows unmatchable by ANY library page, 22 of 29 domains with no exactly
+    matching row, 12 rows matching >8 pages each. Two failure modes — under-match → silent row 1;
+    over-match → first-word collision (`Business Dating` matched `Business Targets`).
+    Adding a `page` field per row was considered and rejected: only 14 of 181 rows are named for a
+    library title and 42 more name one in prose, leaving **125 rows needing a human ruling**.
+  - **Scope, verified not assumed:** `formatDomainContextForSession` had exactly ONE caller in the
+    codebase. The four advisor-facing modes ("I have a client situation", "find something specific",
+    "plan ahead", "learning more") use `formatDomainSupportForPrompt`
+    ([`advisorEngine.js`](../server/advisorEngine.js) L2248/L2787/L3145) and are untouched; course
+    *design* uses `formatDomainSummaryForDesign` and is untouched. **Template selection is unaffected** —
+    that is `resolveTemplatesWithOutlier` + `walkLogicTree` + distinctions, which never read domain
+    support (§0.6 ruling: the support doc briefs the AI, it does not pick templates).
+  - **⚠ NOT PROVEN BY EYE — needs Mike.** Session content generated by Course Builder **will differ**;
+    that is the point of the fix, not a side effect. The Scenario Lab drives the template resolver and
+    never reaches `courseEngine`, so it is **structurally blind here — no lab delta is claimed.** The
+    tests prove what the prompt now contains; whether the generated sessions read better is only
+    provable by generating some (needs `OPENAI_API_KEY`) and reading them.
+  [`formatDomainContextForSession`](../server/utils/domainSupport.js) (L277–286) name-matches each
+  material against the session's `resources`, then falls back to `materials.slice(0, 1)`. It is live
+  on **every** session generation ([`courseEngine.js`](../server/courseEngine.js) L359–361) —
+  unconditional, straight into the system prompt, with no error and no empty section.
+  - **Measured across all 29 domains / 181 rows using the engine's own predicate:** **66 rows (36%)
+    cannot be matched by ANY library page**; 22 of 29 domains have no row matching a page title
+    exactly; 12 rows match more than 8 pages each. Two failure modes — **under-match:** the AI
+    silently gets row 1 whatever the session is about; **over-match:** unrelated materials pulled in
+    on a first-word collision (`Business Dating` matches 6 pages incl. *Business Targets*;
+    `Sales & Marketing Review` matches 19).
+  - **Same failure shape as the storage-key P1 fixed earlier today** — firm-authored content
+    silently never reaching the AI — except that one was latent until MySQL and **this one is live in
+    a shipped feature Mike has proven end-to-end.**
+  - **🔑 The premise is wrong, not the predicate.** CB-33 already established that material names are
+    **teaching concepts, NOT template names** (comment at `formatDomainSummaryForDesign` L349–351;
+    CB-02 grounding strips them from `resources`). This formatter matches those same names *against*
+    template names — two namespaces CB-33 ruled distinct. So "add a `page` field and match better" is
+    the wrong direction, and unaffordable regardless: only **14 of 181** rows carry a name that is a
+    library title, 42 more name one in prose, leaving **125 rows needing a human ruling**.
+  - **Proposed fix (needs its own approval):** drop the name-match and the `slice(0,1)` fallback; send
+    the detected domain's **full** material set, exactly as the advisor path
+    (`formatDomainSupportForPrompt`) already does. Cost measured: worst case `people-power`
+    ~7.4k tokens, median ~1.7k — the advisor path already carries that same volume, so no new
+    token-limit risk (contrast the 52k all-summaries case that *did* blow the limit, L156). Any cap
+    added later must **state** that it capped (no-silent-caps rule).
+  - **Honest limit on proof:** the Scenario Lab drives the template resolver and never reaches
+    `courseEngine`, so it is **structurally blind here — no lab delta may be claimed.** Unit tests can
+    prove every row now reaches the prompt; whether the generated sessions read better is only
+    provable by generating them (needs `OPENAI_API_KEY`) and reading them by eye.
+  - **Blocks:** transcription of the 3 new source documents (2026-07-30). 14 new rows into this path
+    would *worsen* the over-match — `strategy` goes 4 → 13 rows with shared first words
+    (*Business* Targets / *Business* Dating, *Orientation* Part 1 / 2, *Profit* Levers).
+
+- <a id="content-routing-map"></a>✅ **P1 · BUILD — a visible routing map: which material reaches
+  CLIENT RECOMMENDATIONS, and which is ADVISOR-READ-ONLY. BUILT 2026-08-01 (approved by Mike, this
+  branch). Full suite 2,131 green / 141 suites, lint 0 errors.**
+  - **What shipped.** [`scripts/generate-content-routing.js`](../scripts/generate-content-routing.js)
+    → [`design/CONTENT-ROUTING.md`](CONTENT-ROUTING.md), `npm run routing`. **491 assets classified,
+    0 unknown**: 236 client-recommendation · 29 AI-briefing · 226 advisor-read-only. One row per asset
+    with the lane, the code path that decides it, and the evidence.
+  - **Half of it already existed and had not been recorded here.** The classifier
+    [`server/utils/contentRouting.js`](../server/utils/contentRouting.js) plus its build guard landed
+    on 2026-07-31 in `4622f19` — but **nothing consumed it**, so the report this item actually asked
+    for did not exist. The generator reads that module rather than re-implementing the rules, so the
+    guard and the report can never disagree.
+  - **🔴 TWO DEFECTS FOUND IN THAT CLASSIFIER while checking its numbers, before publishing anything.**
+    Both would have printed a false figure in a governance report — the exact failure this item exists
+    to prevent.
+    - `_comment`, a documentation string sitting beside the banks, was **counted as a quiz bank** — 63
+      reported where the firm has 62.
+    - It read `bank.questions`; every consumer (`courseEngine.js` L455/L550, `firmQuizzes.js` L99) reads
+      **`bank.entries`**. So all 62 banks reported **`questions=0`**. The *lane* was right — that comes
+      from the require-chain, not the count — so the row looked classified while its evidence was false.
+    - **Post-fix: 62 banks / 652 questions, independently matching the CB-30 record.**
+    - **Why the existing guard missed both:** it asserted `length >= 60` and the lane, never the evidence
+      it prints. Two assertions added — no `_`-prefixed id, and every bank reports a non-zero count with
+      a ≥500 aggregate so it cannot pass on one stub bank.
+  - **Blind spots are DERIVED, not typed.** The report subtracts what the classifier reads from what is
+    on disk, so a new data file appears in "what this map does not cover" by itself. **30 data files are
+    named as unclassified today** — including `signal-dictionary.json`, which *does* drive selection, so
+    the gap is real and now visible rather than assumed away. Only the PLATFORM layer is classified;
+    firm overrides resolve at runtime and are not on disk to read.
+  - **✅ Freshness guard — the STATUS.md lesson applied**
+    ([`tests/unit/contentRoutingReport.test.js`](../tests/unit/contentRoutingReport.test.js), 7 cases).
+    The report is regenerated in memory and compared; if content data moves, `npm run routing` must be
+    run before committing. Added because **STATUS.md was found ~260 lines stale on 2026-08-01** — a
+    generated file with no freshness test rots and is then believed. **Proved it can actually fail**
+    (changed count, changed table row, truncated file — all three detected). That proof found a flaw in
+    the guard's own failure message: `findIndex` returns −1 when one file is a truncation of the other,
+    which would have reported "line 0" and "(end of file)" for both sides; it now names the length
+    difference instead.
+  - **⚠ STILL OPEN, for Mike:** whether this also becomes a visible screen in Firm Manager or stays a
+    developer report. The recommendation in the original entry — build the generated report first and
+    decide on a screen once the real table is visible — is now actionable: the table exists to look at.
+
+  <!-- Original entry, kept for the reasoning: -->
+  - Raised by Mike 2026-07-31, after the
+  `flat_if_then` finding on the three new logic tables: client-facing logic was about to be filed
+  in a shape the engine never walks, which would have looked complete on screen and influenced
+  nothing.
+  - **The failure class this guards.** Content filed in the wrong lane is invisible — it renders,
+    it saves, it passes tests, and it silently never reaches the AI. That has now happened three
+    times: the domain-support storage-key P1 (2026-07-30), the Course Builder session-briefing P1
+    (2026-07-30), and this near-miss. All three were found by hand. Nothing in the app shows the
+    routing, so there is no way to notice the next one.
+  - **What to build:** a GENERATED table — a script plus a committed report, never hand-maintained,
+    because a hand-written copy is wrong the day an asset moves. One row per content asset:
+    asset · type · lane (client-recommendation / advisor-learn-only / both) · the code path that
+    decides the lane · evidence.
+  - **Must cover at least:** the 42 logic trees (`nodes` = walked, its `templates` become client
+    recommendations; `flat_if_then` = Learn-mode reference, never walked —
+    [`logicTrees.js`](../server/utils/logicTrees.js) L257–261); the 29 domain-support files (they
+    brief the AI, they do NOT pick templates — §0.6 ruling); `data/templates.json`
+    (`includedInClient`); the 62 quiz banks; the distinctions cascade.
+  - **Must state its own blind spots** (no-silent-caps rule): any asset it cannot classify is
+    listed as UNKNOWN — never omitted, and never defaulted into a lane.
+  - **Open, for Mike:** whether this also becomes a visible screen in Firm Manager, or stays a
+    developer report. Recommendation: build the generated report first — it is the thing that
+    keeps the answer true — and decide on a screen once we can see the real table.
+
+- <a id="staff-tree-entry-triggers"></a>✅ **P1 · WIRE — the 8 new Organisational Review branches were wired
+  correctly inside a table that never opened for the conversations they were written for.
+  FOUND *and* FIXED 2026-07-31 (approved by Mike, this branch, commit `9b4c65c`). Full suite 2,062
+  green / 137 suites, lint 0 errors.**
+  - **The evidence.** A table is selected by matching the advisor's words against its `entry_triggers`
+    ([`logicTrees.js`](../server/utils/logicTrees.js) `detectLogicTree`). `staff_performance`'s list was
+    all performance language — *staff, morale, productivity, hiring, disharmony*. Run against the live
+    detector: *"nobody knows who reports to whom and the org chart is a mess"* → **no tree selected**;
+    *"our meetings go nowhere, cynical snipes and sulking"* → **none**; *"our stated values mean
+    nothing"* → **none**. *"my staff are driving me nuts"* → `staff_performance`, as before.
+  - **Severity corrected during the fix, and worth carrying.** The original entry measured **bare
+    openers**. Production runs the detector over the **whole `collectedAnswers` block**
+    ([`advisorEngine.js`](../server/advisorEngine.js) L2383) and walks **every** tree scoring ≥1, not
+    only the winner. Rebuilding four realistic full conversations: **two did reach the table — but by
+    accident**, on the generic word *culture* appearing in an unrelated answer; the two structural ones
+    still reached nothing. Not "the door never opens" — "the door opens by luck about half the time,
+    and never for the structural conversations".
+  - **The fix: 22 phrases added (37 → 59)** — structure (*reporting lines, who reports to whom, org
+    chart, chain of command, organisational/organizational structure, organisational review*), meetings
+    (*meeting behaviour/behavior, passive-aggressive, meetings go nowhere, sulking, cynical, snipes*),
+    values (*core values, values clash, stated values, value stack*), feedback and decisions (*feedback
+    loops, how decisions get made*), typology (*typology, individual typologies*).
+  - **🔑 Six words deliberately left out — the part that took the checking.** *Confirmation bias,
+    optimism bias, decision making, leadership style, enneagram* and *job creep* all read as if they
+    belong here, but each is **already owned** by a table built for it: `governance`,
+    `org_firm_board_pack`, `org_leadership`, `conflict_meeting`, `fm_coach_culture`. Taking them would
+    move conversations that land correctly today. *Confrontation* was left out for the same reason.
+    All 22 added were checked against all 42 trees and owned by nobody.
+  - **Measured before vs after in two separate processes with different `cwd`** — never through
+    `firmTrees`, which merges onto the platform bundle and would make both sides read the new file
+    (the 2026-07-30 trap). **1,063 probes across all 42 trees: zero winners moved.** 10 conversations
+    changed, every one from no-tree to `staff_performance`.
+  - **One target deliberately not fixed:** *"people react completely differently when things get
+    tough"* still selects `conflict_meeting` — a symptom with no organisational word in it, so no
+    trigger can catch it, and that destination is defensible.
+  - **New test** [`tests/unit/staffTreeEntryTriggers.test.js`](../tests/unit/staffTreeEntryTriggers.test.js),
+    19 cases. It asserts the **outcome** — which table opens for a realistic sentence — never the
+    trigger list itself; a test that re-listed the 22 phrases would pass whatever the detector did with
+    them. **Do not fix by widening the branch pattern instead:** that is the layer *below* selection and
+    cannot open a table the detector never chose.
+
+- <a id="people-power-openers-dead"></a>☐ **P2 · WIRE — two People Power situations open NO table at all.**
+  Found 2026-07-31 while writing the test above: two control fixtures failed, and checking them against
+  the **pre-change** file proved both were already broken — nothing to do with the Organisational Review
+  work, and present since long before it.
+  - *"the owners are not aligned and it is causing friction"* → `sp_sit_owners_misaligned`, **no table**
+  - *"considering offering shares to key staff to lock them in"* → `sp_sit_remuneration`, **no table**
+  - **Left alone deliberately.** Fixing them widens which table fires, so it needs its own approval and
+    its own before/after — the same discipline the item above followed. Recorded in the test file so
+    their absence from the fixture list cannot be mistaken for an oversight.
+  - **Subsumed by the vocabulary sweep below** if that is done first; listed separately because these
+    two are named, evidenced and cheap.
+
+- <a id="trigger-vocabulary-sweep"></a>☐ **P1 · WIRE — the trigger lists match *phrasings*, not *subjects*.
+  This is the general form of the two items above, and it affects all 42 tables.** Diagnosed 2026-07-31.
+  - **The evidence.** The word `staff` is **not** a trigger. What exist are seven phrases *containing*
+    it: *my staff, the staff, staff are, staff problems, staff performance, staff not performing, staff
+    driving me*. So "key staff", "our staff", "their staff" all miss. Same for `owner` (only *owner
+    relations*) and `team`.
+  - **Measured, one realistic opener per branch: 11 of 13 reach nothing on the staff table** — and most
+    of those are its **original** branches, not the 2026-07-31 additions: *"their attitude is the
+    problem, they have checked out"*, *"they simply do not have the skills for the job"*, *"the owner is
+    beaten up by the business"*, *"they are about to take on new people"*. Across eight other tables,
+    **6 of 8** natural openers miss (valuation, governance, systems, risk management reach nothing or
+    the wrong table).
+  - **What is actually lost, stated precisely rather than alarmingly.** A missed table does **not** leave
+    the advisor empty-handed — templates still come from signals and distinctions. What is lost is (1)
+    the firm's diagnostic reasoning in the AI's context ([`advisorEngine.js`](../server/advisorEngine.js)
+    L466), (2) the weak `TREE_HINT_BOOST` (+3) toward the pages that reasoning points at, and (3) the
+    zero-candidate fallback. When the **wrong** table opens, the AI is handed irrelevant reasoning —
+    worse than none.
+  - **⚠ CORRECTION 2026-08-01 — the reassurance above is thinner than it reads, measured through the
+    new probe.** Run through all three deterministic layers, the named openers *"their attitude is the
+    problem, they have checked out"*, *"they simply do not have the skills for the job"* and *"we have
+    had high turnover and are rehiring constantly"* return **no table, no domain and ZERO signals**. So
+    "templates still come from signals" does not hold for these three: the signal layer is as blind to
+    them as the trigger layer. The domain **is** recoverable — the AI backstop picks it up — and the
+    distinctions layer is AI-judged so the probe cannot see whether it would have caught them. Two
+    caveats kept deliberately: production matches over the whole `collectedAnswers` block rather than a
+    bare opener (the 2026-07-31 severity correction stands, and is not being walked back), and three
+    sentences are not a measurement of all 42 tables. Recorded because the original wording would let
+    someone conclude the gap is cushioned when for these cases it is not.
+  - **Scope, and why it is not one commit.** 42 tables, each needing candidate words checked against the
+    other 41 (so nothing is stolen) and a real before/after. **The words are the firm's language**, so
+    each table's list needs Mike's wording approval — this is not a bulk mechanical edit.
+  - **Do this AFTER the word-boundary fix** (`4debcfc`, below), which is done: widening trigger words
+    while short triggers still fire inside other words means measuring two moving parts at once.
+  - **Known casualty to fix here:** the Scenario Lab case `staff·high turnover` now opens no table. It
+    had been reaching `staff_performance` only because *hiring* matched inside "re**hiring**" — right
+    answer, wrong reason. Needs a *turnover* / *rehiring* trigger.
+  - **✅ TOOLING FOR THIS SWEEP — BUILT 2026-08-01 (approved by Mike, this branch, commit `754d204`).
+    Suite 2,111 green / 139 suites, lint 0 errors.** Raised by Mike: a read-only view of what affects
+    what, aligned with the tests, that warns of effects *before* a change. **Step 1 of two — backend
+    only, NO SCREEN YET, nothing eyeballed.**
+    - **What exists now.** [`server/utils/phraseProbe.js`](../server/utils/phraseProbe.js) +
+      `logicTrees.explainDetection` answer two questions: *what does the engine do with this sentence*
+      (domain detected · tables opened **and the exact phrases that opened them** · signals extracted),
+      and *if I add these words, what moves* — the corpus run twice, reporting GAINED (with the table it
+      was **taken from**), LOST, otherMoves and unchanged. Two read-only routes behind the existing
+      `fmGuard`; **neither writes anything**, the proposal is merged in memory and discarded.
+    - **It replaces a day of hand-measurement with about a second.** Proposing the four phrases this
+      item recommends: **1 gained** (exactly the `staff·high turnover` casualty above, on *rehiring*),
+      **0 taken from another table**, 0 lost, 469 unchanged — the "nothing is stolen" check this item
+      says each of the 42 tables needs.
+    - **The measurement trap is designed out, not avoided by care.** Both runs happen in ONE call with
+      explicit inputs, so neither can read the other's edit as its own baseline (the 2026-07-30 trap).
+      The proposal merges exactly as a save would (`firmContent.mergeEntry`, arrays replace wholesale)
+      and drives the REAL detector — no second scoring implementation exists.
+    - **Single source, not a third copy.** `advisorEngine` gained ONE line exporting `DOMAIN_PATTERNS`
+      (no existing line changed, no behaviour moved) so the probe scores domains with the engine's own
+      compiled patterns. `scripts/domain-detection-check.js` already keeps one copy; a third would be
+      exactly the drift this week's routing defects were made of.
+    - **The test that earns its keep** ([`tests/unit/phraseProbe.test.js`](../tests/unit/phraseProbe.test.js),
+      28 cases): across all 470 corpus sentences, `explainDetection` must agree with the real
+      `detectLogicTrees` on ordering and `detectLogicTree` on the winner. A spot-check would pass for
+      years while the two diverged, after which the screen would explain a decision the engine never
+      made — worse than no screen, because it would be believed. The corpus is asserted non-trivial so
+      the guard cannot pass vacuously.
+    - **Found by those tests and fixed in the same commit:** the phrase cap was 50 while
+      `staff_performance` carries **59** triggers, so a firm rewriting the biggest table would have had
+      9 phrases silently ignored. Raised to 200 (sized against the data), and anything beyond the cap is
+      counted into `phrasesIgnored` — never dropped in silence.
+    - **⚠ CORPUS LIMIT, reported in the payload itself.** The 470 sentences are branch conditions (419)
+      and Scenario Lab cases (51) — the firm's own words, nothing invented, nothing to hand-maintain.
+      They are **NOT** recordings of advisor speech, so they show what a change would take from other
+      tables but do **not** prove a table opens for natural language. The typed probe covers that. Two
+      of the four phrases tried above moved nothing precisely because advisors' wording is not in the
+      corpus — the limit is real, not theoretical.
+    - **⚠ The 4th phrase layer is NOT covered, by design** — see the distinctions-cap item below. Every
+      response carries `notMeasured` naming it, so the tool can never read as "nothing else affects this".
+  - **✅ STEP 2 — THE SCREEN. BUILT 2026-08-01 (wording approved by Mike first, this branch, commit
+    `c440101`). Full suite 2,145 green / 142 suites, lint 0 errors.**
+    - [`components/firm/FirmTriggerWorkbench.vue`](../components/firm/FirmTriggerWorkbench.vue) —
+      *"Try a sentence"* and *"Try a wording change"*, mounted **inside the Logic Tables tab, not a
+      third tab** (§0.6 rules the hub to two). The sentence half renders with no table open, because
+      it asks about the whole engine; the change half needs one, because a proposal is always about a
+      single table. 34 locale keys, en-only with `fallbackLocale: 'en'`, matching every sibling tab.
+    - **No table id ever reaches the screen.** The preview route names the table a conversation was
+      TAKEN FROM by its internal id (`succession_planning`); `nameFor()` resolves it against the
+      parent's list, and a test fails if the raw key leaks.
+    - **`notMeasured` and `corpusLimit` print the SERVER's wording**, not a locale copy — the API owns
+      those strings so every surface states the same limit. A preview is discarded when the parent
+      opens a different table, so one table's consequences can never be read against another. One test
+      pins that the component issues **only** the two read-only routes.
+    - **⚠ NOT VERIFIED BY EYE.** The suite proves what renders and which calls are made; it cannot see
+      a screen, and nobody has looked at this. To check: **Firm Manager → Logic Tables**, both with no
+      table selected and with one open.
+
+- <a id="workbench-winner-wording"></a>☐ **P3 · DECISION (Mike) — the workbench lists every table a
+  sentence opens, but does not say which one the engine acts on.** Raised and deliberately left unbuilt
+  2026-08-01 while building the screen above.
+  - **The fact it needs to convey.** Production walks **every** table scoring ≥1
+    ([`advisorEngine.js`](../server/advisorEngine.js) L2383) but one is the winner (`topTable`). The
+    screen lists them strongest-first, which is true but not self-explanatory — a reader cannot tell
+    the first row is different in kind.
+  - **Not guessed.** The approved mockup carried no wording for this distinction, and a label naming how
+    the firm's own engine chooses is the firm's language (CLAUDE.md — confirm wording, never invent).
+    The payload already carries `topTable`, so this is wording only, not new measurement.
+
+- <a id="distinction-trigger-cap"></a>✅ **P2 · DECISION/SEC — only the FIRST FIVE trigger phrases of any Advisory
+  Distinction ever reached the AI, while the screen showed all of them and invited more.
+  FOUND 2026-08-01 by Mike's question, RULED and FIXED the same day (this branch, commit `96bd94e`).
+  Full suite 2,122 green / 140 suites, lint 0 errors.**
+  - **Mike's ruling: send them all.** The chosen option was (a) below. The ceiling that replaced the
+    five is `DISTINCTION_TRIGGER_EXAMPLE_CAP = 25` in [`advisorEngine.js`](../server/advisorEngine.js) —
+    a **guard against an unbounded firm edit, not a content decision**: the save routes reject an empty
+    array but set no upper bound, so a paste could otherwise push a thousand phrases into a live model
+    call. It sits ~3x clear of the largest committed row (8), and anything beyond it is **counted and
+    announced**, never trimmed in silence — the exact failure mode the old five had. The constant is
+    exported so a screen or test reads THE number, not a second copy that drifts.
+  - **The "cap it by prompt size" worry in the original write-up did not survive measurement.** The
+    prompt only ever carries **one domain's** rows, never all 67, so sending every phrase costs
+    **+247 characters (~60 tokens)** on the largest domain.
+  - **✅ MEASURED LIVE against gpt-4o-mini — Mike authorised the token spend** ("using tokens to save
+    customer dissatisfaction is not a problem for me"). 51 Scenario Lab cases, old prompt vs new.
+    - **⚠ The first pass was NOT trustworthy on its own and was not reported as a result.** 6 cases
+      differed old-vs-new — but re-running the **same** input differed on 2, so the noise floor was too
+      close to the signal. `temperature: 0` is not the same as deterministic. The 6 were re-run **three
+      times per condition**; only differences holding across every run are claimed below.
+    - **Real (every run):** `valuation·is the offer fair` **+Porter's Revenue, −Asset Review** (from the
+      6th phrase *"expectations are unrealistic"*); `staff·toxic culture` **+Remuneration & Incentives**
+      (*"weak leadership"*); `eoy·tax planning` **+Money Matters**.
+    - **Reliability gain:** `staff·hiring` matched *People Session* / *Productive Habits* on **1 of 3**
+      runs before and **3 of 3** after — a flaky match made stable.
+    - **Not counted:** the `data-systems` and `forecasting` differences did not survive repetition.
+    - **Honest limit:** 51 committed test cases are not a measurement of live advisor speech, and a
+      distinction match costs an API call per sentence, so this is a **sampled** result — it will never
+      be the free, repeatable before/after the logic-table preview gives.
+  - **The measurement scripts were deliberately NOT committed** — they are one-off scratchpad runs, and a
+    committed tool that spends money per run needs its own design (see the sampled-workbench note below).
+
+  - **── The diagnosis that led to the ruling, kept as written on the day ──**
+  - Found by Mike's question *"how does this compare with the advisory distinctions page — or will they be
+    at cross purposes?"*
+  - **The evidence.** [`_classifyMatchingRows`](../server/advisorEngine.js) builds its prompt from
+    `row.triggers.slice(0, 5)`. [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) renders the
+    column as `row.triggers.join(', ')` — every phrase, no cap shown — and the row is firm-editable.
+  - **Measured on today's committed platform content: 56 of the 67 distinctions carry more than five
+    phrases; 67 phrases in total never reach the engine.** Which five survive is array order, not a
+    choice anyone made.
+  - **Severity stated fairly, not alarmingly.** Distinction triggers are **not literal matches** — they
+    are *examples* shown to gpt-4o-mini, which decides semantically against the row's `description`. So
+    examples six onward are guidance, not gates, and the engine may well behave identically without
+    them. This is **nothing like** the domain-support storage-key defect, where content genuinely never
+    arrived. **The defect is the SILENCE, not the loss:** the screen invites work that provably has no
+    effect. Same family as the three routing defects of 2026-07-30/31, which is why the question found it.
+  - **Two honest options, both needing Mike:** (a) send all phrases and cap by prompt-size with a stated
+    limit, or (b) keep the five and say so on screen ("the first five guide the AI"). Not for the AI to
+    pick — (a) changes what reaches a live model, (b) changes the firm's understanding of its own controls.
+    **→ Mike chose (a) on 2026-08-01.** Note the prompt-size half of (a) proved unnecessary once measured
+    (~60 tokens on the largest domain); the ceiling that shipped guards a runaway *edit*, not prompt size.
+  - **⚠ Why the new phrase probe does NOT cover this layer** (and says so in every response via
+    `notMeasured`): a distinction match costs an OpenAI call per sentence, so it can never be a free,
+    repeatable before/after like the logic-table preview. A distinctions workbench is possible but must be
+    a **sampled** tool that declares its cost and its sample — a separate build, not an extension of
+    [the trigger workbench above](#trigger-vocabulary-sweep).
+  - **Do NOT "fix" this by adding literal matching to distinctions.** The semantic classifier is the
+    design (it replaced exact keyword matching deliberately — see the comment above `classifyDistinctions`),
+    and the two systems using the same column heading *"Trigger phrases"* for two different mechanisms is
+    itself worth a wording decision on the hub.
+
+- <a id="distinction-rows-compete"></a>☐ **P2 · DOC/DECISION — editing ONE distinction's phrases can move a
+  DIFFERENT distinction's recommendations, and nothing on screen says so.** Found 2026-08-01 while measuring
+  the fix above; **not a defect introduced by it**, and not a defect at all — a property of the design that
+  the screen does not disclose.
+  - **The evidence, from the live run.** *Asset Review* was dropped from `pd-54`, which gained **no** new
+    phrases, and the `eoy` gain came from `pd-64`, which also gained none. A domain's distinctions all go
+    into **one** prompt and are ranked against each other
+    ([`_classifyMatchingRows`](../server/advisorEngine.js)), so making one row a better fit can stop the
+    classifier picking a neighbour.
+  - **Inherent to the semantic classifier** — the direct consequence of the deliberate replacement of exact
+    keyword matching. Logged because [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) presents each
+    row as an independent control, which is how a firm manager will reasonably read it. Same family as the
+    trigger cap above: the screen's silence about how the mechanism behaves, not a loss of content.
+  - **For Mike:** whether the screen should say this, and in what words. Not for the AI to draft — it is a
+    statement about how the firm's own controls behave (CLAUDE.md — confirm wording before writing it).
+  - **Carries the wording decision left open above:** the hub uses one column heading *"Trigger phrases"*
+    for **two different mechanisms** — literal word-boundary matching on logic tables, semantic examples on
+    distinctions. Worth settling both in one pass.
+
+- <a id="trigger-word-boundary"></a>✅ **P1 · FIX — entry triggers matched anywhere inside a word, so "HR"
+  fired on "t-HR-ee". FOUND *and* FIXED 2026-07-31 (approved by Mike, this branch, commit `4debcfc`).
+  Full suite 2,083 green / 138 suites, lint 0 errors.**
+  - **The defect.** Matching was `message.includes(trigger)` with no word boundary. `staff_performance`
+    carries the trigger **`HR`**: it matched t-**hr**-ee, t-**hr**-ough, s-**hr**-unk, c-**hr**-onic and
+    t-**hr**-eshold, and **fired in 11 of the 51 Scenario Lab cases**, opening the staff table for
+    conversations about margins, forecasting and due diligence. Clearest case: *"the owner wants to
+    retire in three years and has no plan"* — textbook succession — opened the **staff** table.
+  - **Not only `HR`.** `ratio` inside sepa-*ratio*-n / ope-*ratio*-nal / gene-*ratio*-n;
+    `DD` inside a-*dd*-ed / mi-*dd*-le; `draw` inside with-*draw*-al; `lean` inside c-*lean*-ing;
+    `ETA` inside d-*eta*-il / r-*eta*-in. **12 triggers across the 42 trees are short enough to do this.**
+  - **The rule, chosen by measurement not taste:** a trigger must **start** at a word boundary but may
+    run on into the rest of the word, so *workflow* still catches "workflows". The tidier-looking
+    whole-word rule (trailing `\b` too) is **worse**: it drops *margins, benchmarked, management
+    reports, bottlenecks, workflows, avoided, drawings* and costs one Scenario Lab case its correct
+    table. Both halves are pinned by tests, because a future tidy-up adding the trailing `\b` would pass
+    every other test in this repo.
+  - **Measured old module vs new in one process, same data** (the genuine pre-change file restored from
+    HEAD with its siblings alongside, so the matcher was the only variable): **51 Scenario Lab cases — 8
+    changed, five from the wrong table to the right one** (`systems` ×2, `sales_process`,
+    `demings_volatility`, `conflict_meeting`, all previously `staff_performance`); **1,085 self-probes —
+    9 changed, every one from an unrelated tree to its OWN** (*"withdrawal"* → `heald_matrix`;
+    *"operational risk"*, *"next generation"*, *"revenue concentration"* → away from `ratio_analysis`;
+    *"chronic debtors"* → `working_capital_cycle`). **Nothing moved the other way.**
+  - **New test** [`tests/unit/logicTreeTriggerBoundary.test.js`](../tests/unit/logicTreeTriggerBoundary.test.js),
+    21 cases. ⚠ **Its first draft silently tested a fixture** — the `fs` mock leaks across the module
+    registry, so a plain `require()` inherited the last fixture's fake `readFileSync` and the real-data
+    assertions returned `null` instead of failing loudly. The vacuous-guard trap; `requireReal()` fixes
+    it and the reason is written into the file.
+
+- <a id="over-generic-triggers"></a>☐ **P2 · RULING NEEDED (Mike) — three triggers are still too generic,
+  and the fix is wording, not code.** Surfaced once word boundaries were in (2026-07-31): these match at
+  a legitimate word start but mean something else.
+  - `draw` (`reveal_growth_curve`) catches *"**draw**ing up a new agreement"* and *"**draw**ings"*
+  - `PIP` (`fm_coach_culture`) catches *"**pip**eline"*
+  - `persona` (`reveal_growth_curve`) catches *"**person**ally"*
+  - Each needs a more specific phrase in its place (e.g. *draw the curve*), which is the firm's language
+    to choose — never guessed (CLAUDE.md — never fabricate the firm's IP).
+
+- <a id="new-source-docs-2026-07-30"></a>☐ **3 new source documents added 2026-07-30 (commit `e443c52`) —
+  read and planned, NOT YET TRANSCRIBED.** New master export
+  `Central Frameworks/search_content_20260730041439.json` adds 2 library pages (**Speak Easy**,
+  **Mapping the Marketing & Sales Process**, both Do the Job / Strategic Tools) — diffed title-by-title
+  against the committed `data/templates.json`: 0 removed, no retitles.
+  - **Strategic Planning Support.pdf** — 9 materials (Planning Outcomes Review · Business Targets ·
+    Orientation Part 1 · Orientation Part 2 · Profit Levers & Blue Ocean · SWOT / PEST · Business
+    Dating · Pivot · Porters & Pine). Proposed home: **`strategy`** domain (4 → 13 rows).
+  - **Organisational Review Support.pdf** — 2 materials (Organisational Review · Org Chart Only).
+    Proposed home: **`staff`** domain (2 → 4 rows). Judgement call, flagged to Mike: client-facing
+    org design rather than firm-facing, so `staff` fits its keywords better than the `org-*` (firm)
+    domains or `people-power`, but not decided.
+  - **Sales & Marketing Support.pdf** — 3 materials (Mapping the Marketing & Sales Process · Sales &
+    Mktg Review · Speak Easy). Home: existing **`sales-marketing`** domain. The Sales & Mktg Review
+    material groups the existing 16-row menu into **5 stages** (offer → message → funnel → outreach/
+    channel → proposal) covering **9 of the 16** rows; **7 get no method** (Customer Type Table,
+    Sparketing, Branding Review, Customer Loyalty Programme, Pricing, Packaging/Bundling, Sales
+    Process Review) — named in the doc's benefits paragraph but given no step anywhere in it. Ruled:
+    keep all 16 rows, distribute the 5-stage detail into the 9 it covers, leave the 7 empty rather
+    than invent a method (CLAUDE.md — never fabricate the firm's IP).
+  - **3 new logic tables** (Branch Chain IF/THEN, the existing `flat_if_then` shape) — Strategic
+    Planning (11 branches), Organisational Review (8), Sales & Marketing (13). **Found:** the
+    Organisational Review branch table is duplicated verbatim inside its own support PDF
+    (lines 170–307) — transcribes ONCE, into Logic Tables only, per the §0.6 tab split. **Found:**
+    none of the 3 carry a `templates[]` column; a branch's THEN text names a real material in several
+    cases (e.g. "Execute Blue Ocean Strategy", "Apply the Sigmoid Curve model") but `templates[]`
+    must be derived only where the name is verifiable against the library — left empty and flagged
+    to Mike otherwise, never guessed. The existing `logicTreeTemplateNames.test.js` build guard would
+    catch a wrong name regardless.
+  - **8 of the 14 material names are working names, not exact library titles** — resolved against
+    the new export and will need the swap on transcription: Planning Outcomes → Planning Outcomes
+    Review · Bizz Targets → Business Targets · Strategic Orientation.1/.2 → Orientation Part 1/2 ·
+    S.W.O.T PEST → SWOT / PEST · Porter's & Pine → Porters & Pine · Org Chart → Org Chart Only ·
+    Sales & Mktg Review → Sales & Marketing Review.
+  - **Deleted by Mike, same commit:** `Sales & Marketing Slides table.pdf` — a one-page contents
+    index for a *Sales & Marketing Review* deck never held in this repo; predates the refined
+    domain-support/logic-table structure and fit neither. Superseded by `Sales & Marketing
+    Support.pdf`. **Orphaned by the deletion:** `data/sales-marketing-slides.json` (the PDF's
+    extract) — traced, nothing in the codebase reads it — a candidate for removal, not yet approved.
+  - **Blocked until 2026-07-30 by the P1 above**, now clear.
+  - ✅ **TRANSCRIPTION PROGRESS 2026-07-31 (all approved by Mike, this branch).** All **14 materials**
+    are in; **8 of 32 branches** are in.
+    - `7ae8b31` **Strategic Planning** — 9 materials into `strategy` (4 → 13). Mike ruled British
+      spelling over the source PDF's US spelling; applied to every transcription since.
+    - `a557096` **Sales & Marketing** — 2 new materials into `sales-marketing` (17 → 19) plus the
+      5-stage method distributed into 9 existing rows; 7 left empty rather than invented.
+    - **Organisational Review** — 2 materials into `staff` (2 → 4). **Mike ruled the home: `staff`**
+      (client-facing org design; `people-power` is recruitment/pay, the `org-*` domains are the
+      firm's own). Both names resolve exactly against `data/templates.json`. Cost measured through
+      the live formatters: `staff` ~2,920 tokens, **10th of 29 domains**, well under `people-power`
+      (~8,260, the accepted worst case).
+    - **Mike's three-way opening question, same session** — `advisor_guidance.first_diagnostic_question`
+      was *"engagement or effectiveness?"*, which read as an absolute ("do not recommend a template
+      before…") and would have gated the two new materials behind a question that does not fit them.
+      Now: **attitude / competence / communication lines** — reporting structure, authority, values
+      and meeting behaviour. Attitude and competence still run the 5 Drivers diagnosis unchanged.
+    - ⚠ **The `staff` file's `overview` still describes the domain as underperformance diagnosis
+      only** — Mike's prose, left byte-unchanged, for his eye when he next reads the domain on screen.
+  - ✅ **SHAPE RULED 2026-07-31 (Mike) — the branch tables become `nodes`, NOT `flat_if_then`.
+    Read this before transcribing the remaining two.** `flat_if_then` is the Get-the-Job
+    advisor-development lane: never walked, never reaching a client recommendation
+    ([`logicTrees.js`](../server/utils/logicTrees.js) `formatFlatBranch` doc comment, design §2.5),
+    and all 5 trees on that shape are `get_*`. These tables are about the **client's** business, so
+    that shape would have made them inert — the near-miss that raised the content-routing P1 above.
+    The `nodes` shape maps 1:1 onto the PDFs' four columns (`condition` / `action` / `notes` /
+    `templates` = IF / THEN / Additional Context / the pages), so nothing is invented except the
+    routing question a flat table cannot contain.
+  - ✅ **Organisational Review's 8 branches BUILT 2026-07-31 (approved by Mike, this branch)** — as a
+    **third path inside `staff_performance`** (15 → 24 nodes), mirroring the three-way question
+    above, rather than a competing standalone tree (its triggers would have fought `staff_performance`
+    on the shared words *culture* and *poor communication*). The standalone
+    `Logic Tables/Organisational Review Logic.pdf` was read and confirmed **identical** to the copy
+    inside the support PDF — transcribed once, as planned.
+    - **Routing question is the one authored sentence** (a flat table has no question). Mike's own
+      wording, widened after measurement showed his five options reached only 3 of the 8 rules:
+      *"Which is blocking this organisation — messaging that is inconsistent or out of step with its
+      core purpose and values, missing feedback loops, unclear communication lines or accountability,
+      how decisions get made and debated, or the leadership style the strategy needs?"*
+    - **Templates derived only where verifiable:** `Org Chart Only` (bias, typology, meetings),
+      `Organisational Review` (values, job creep), both (alignment), plus `People vs. Process` on the
+      two leadership-style branches — the support PDF's step 3 places that fork inside that named
+      table. All pass the `logicTreeTemplateNames.test.js` build guard.
+    - **Measured old file vs new, engine run twice in separate processes, 14 conversations:
+      8 existing staff paths byte-identical; all 6 new paths reach the right pages.**
+      ⚠ **The first measurement was worthless and reported "no change" everywhere** — the old tree
+      was passed through the `firmTrees` parameter, which *merges* onto the platform bundle (and
+      rejects an array outright), so both sides read the new file. Same class as the `scoringLog`
+      trap. A real before/after needs two processes with different `cwd`.
+    - ⚠ **`staff_performance.description` still describes only the attitude/competency split** — not
+      updated, so it under-describes the tree by one path.
+  - ✅ **Strategic Planning's 11 branches BUILT 2026-07-31 (approved by Mike, this branch)** — as a
+    **third path inside `client_planning`** (7 → 19 nodes), following the `staff_performance`
+    precedent above rather than a standalone tree. A standalone tree would have to carry the words
+    `client_planning` already owns (*strategy*, *strategic planning*, *business plan*), and
+    `detectLogicTree` simply picks whichever tree matches most triggers — so the two would fight.
+    - **`cp_initial` widened from two ways to three**, the third being "or is something blocking the
+      strategy work itself?". The startup and established paths are otherwise untouched.
+    - **Routing question is the one authored sentence** (a flat table has no question), Mike's chosen
+      wording: *"Which is blocking this plan — the owner only seeing what they want to see, running
+      out of steam after a long effort, unable to separate themselves from the business, or set on
+      how it has always been done; or is it the business itself — leads that do not convert, the fees
+      they can charge, merging with another business, results that swing about, a product past its
+      peak, or head-to-head competition on price?"* It does not enumerate the eleventh rule (the
+      out-voted meeting participant); measurement confirmed the answer patterns reach it anyway.
+    - **Templates derived only where verifiable** — the PDF carries no templates column.
+      `SWOT / PEST` and `Porters & Pine` (over-exposure, the row names both), `Business Dating` (merger),
+      `Demings Volatility`, `Profit Levers & Blue Ocean` (red water), `Succession Planning` (role
+      identification). All pass the `logicTreeTemplateNames.test.js` build guard.
+    - **Measured before vs after, snapshot taken before the file was edited** (avoiding the `firmTrees`
+      merge trap recorded above): **6 existing paths byte-identical** — templates *and* node paths;
+      at prompt level 6 of 8 text blocks byte-identical, Branch 2b differing only by a trailing
+      newline, and only the opening question genuinely changed. **All 11 new rules reach their own
+      node.** Cost: the tree's prompt goes ~1,483 → ~3,639 tokens, **9th of 42 trees** (`succession`
+      ~9,312, `staff_performance` ~4,900). Full suite 2,043 green / 136 suites, lint 0 errors.
+    - **Found by that measurement and fixed here:** the merger row lost `cp_initial` to the
+      established-business branch, whose pattern contains *business* **twice** — `scorePattern` counts
+      each occurrence, so it scored 2 against the merger row's 1. Adding *merge* and *combine* to the
+      new branch corrected it; the 6 existing paths were re-measured afterwards and stayed identical.
+      **Worth carrying: a repeated word in an `answer_pattern` silently doubles that branch's score.**
+  - ☐ **P2 · RULING NEEDED (Mike) — six of the eleven branches have an empty `templates[]`**, left
+    empty rather than guessed (CLAUDE.md — never fabricate the firm's IP). They give the advisor the
+    reasoning but no page. Four name a *method* where a library page plausibly fits: Parallel Thinking
+    (`cp_block_bias` and `cp_block_consensus_trap`) → **6 Hats**?; the Leverage/Intelligence-stage row
+    (`cp_block_complacency`) and the Sigmoid Curve row (`cp_block_life_cycle`) → **Growth Curve**?
+    Two name something with no library page at all: "Product (Fit) Review"
+    (`cp_block_conversion_deficit`) and "For Them / Sorted for Maximum Fee"
+    (`cp_block_premium_pricing`).
+  - ⚠ **Same entry-trigger caveat as the staff table** ([P1 above](#staff-tree-entry-triggers)), not
+    introduced by this change and not fixed by it. The 11 rules are reachable once the planning table
+    is open, and realistic openers do open it (*"we are doing strategic planning but the owner only
+    hears what they want to hear"* → `client_planning`). A symptom stated alone — *"they are stuck
+    competing head to head on price"* — still selects **no tree at all**.
+  - ✅ **Sales & Marketing's 13 branches BUILT 2026-07-31 (approved by Mike, this branch) — the
+    workstream's last piece. All 14 materials and all 32 branches are now in.** Home measured, not
+    assumed: `client_sales` (8 → 25 nodes). A realistic opener — *"my client needs more sales, their
+    customers keep objecting that it costs too much"* — selects it, and the three sales-related
+    `get_*` trees never compete because those are the **advisor** selling advisory services, whereas
+    these 13 are the **client's** business selling to its customers.
+    - **Shape ruled by Mike: three families, mirroring the source table's own Notes column** —
+      Honey & Mumford processing styles (4), Flushing Out Real Concerns objections (5), sales
+      distribution + pricing (4) — rather than a flat 13-way. A flat list would have asked the AI to
+      choose between three different *questions* (who is this buyer / what did they object to / how
+      is the team built) instead of between answers.
+    - **Measured before vs after, snapshot taken before the file was edited: 6 existing paths
+      byte-identical** (templates and node paths), only the opening question's prompt block changed,
+      and **13 of 13 new rules reach their own node.** Prompt ~1,282 → ~3,499 tokens. Full suite
+      2,043 green / 136 suites, lint 0 errors.
+    - **All 13 keep an empty `templates[]`** — see the ruling item below.
+    - ⚠ **A REGRESSION WAS INTRODUCED AND CAUGHT BY THE MEASUREMENT, not by the tests.** The first
+      draft of the new `cs_initial` branch used the ordinary words *needs / sales / selling / value*,
+      which out-scored the two branches that own them: the "selling" path and plain *"my client needs
+      more sales"* both stopped recommending anything. Rewritten to distinctive vocabulary only
+      (*buyer, impulsive, objection, salaried, distributor, overheads…*) and re-measured to
+      byte-identical. **The whole 2,043-test suite passed while that regression was live** — routing
+      behaviour is not covered by any test, which is why the before/after walk is the control here.
+  - ☐ **P2 · RULING NEEDED (Mike) — all 13 Sales & Marketing branches have an empty `templates[]`.**
+    The library has no page for Honey & Mumford processing styles, for "Flushing Out Real Concerns",
+    or for the three sales-distribution models, so nothing was verifiable and nothing was guessed
+    (CLAUDE.md — never fabricate the firm's IP). The single near-match is **Sales Teams**, a Revenue &
+    Feasibility Model that is *not* `includedInClient` — a derivation for Mike, not a lookup. Until
+    ruled, this table gives the advisor the reasoning with no page attached. *(Companion to the
+    six-branch ruling on Strategic Planning above.)*
+  - ☐ **P3 · SCORING — a repeated word in an `answer_pattern` silently doubles that branch's score.**
+    `scorePattern` ([`logicTrees.js`](../server/utils/logicTrees.js) L1205–1213) counts every
+    occurrence of a matched word, so a pattern naming *wants* twice scores 2 on that word alone.
+    **Found by measurement twice in one day** — it mis-routed the merger row on Strategic Planning and
+    the licensed-distributor row on Sales & Marketing; both were fixed in place. A sweep of all 42
+    trees found **34 of 333 branches carry a duplicated scoring word**, most of them pre-existing
+    (`governance`: *leadership, style, team, conduct, decision, governance, culture*;
+    `risk_management`: *high*; `systems`: *planning, capacity*), and several introduced by this
+    session's own Strategic Planning commit (`cp_block_merger`: *business*; `cp_block_life_cycle`:
+    *product, peak, curve, decline*). **No harm is proven** — every affected path measured correct —
+    so this is logged rather than swept. The fix is either de-duplicating the patterns or making
+    `scorePattern` count distinct words; the second changes scoring for all 42 trees at once and would
+    need a full before/after.
+
 - <a id="collaborate-merge"></a>☐ **NEW WORKSTREAM RULED 2026-07-30 (Mike) — merge the Advisor
   Collaborate app into this repo and surface its manager console as a Firm Manager Hub tab.**
   Full plan: [`COLLABORATE-MERGE-PLAN.md`](COLLABORATE-MERGE-PLAN.md). Collaborate is a
@@ -265,6 +925,7 @@
   don't invent a new look. ⚠ **Honest limit:** the browser makes the PDF and the adviser saves it, so
   there is no server-side copy of what was sent and layout depends on their browser. If the
   society ever needs a document the firm can vouch for independently, that is a much bigger job.
+
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
   firm-editable.** ✅ **PLANNED 2026-07-23 — [`FIRM-EDITABLE-TABLES-PLAN.md`](FIRM-EDITABLE-TABLES-PLAN.md)** (cascade + override model agreed with Mike; Phase 0 is the next task).
@@ -2693,6 +3354,70 @@ Two honest answers on different axes — the file used to conflate them:
 ---
 
 ## OPEN — actionable now (build / decide this session)
+
+- <a id="status-table-deferred-glyph"></a>☐ **P3 · FIX — a real backlog item is invisible in `STATUS.md` because the parser
+  does not recognise its `⏸` status glyph.** Found 2026-08-01 while re-pointing the status guard;
+  logged rather than folded into that change.
+  - **The instance.** The `⏸ DEFERRED (intentional while in dev, Mike 2026-07-10) — Team Dashboard
+    renders mock advisors` entry is a top-level item with a genuine status, but `parseItem`
+    ([`scripts/generate-status-table.js`](../scripts/generate-status-table.js)) reads no `⏸`, so the
+    row is absent from the generated table. It is one of the 3 `topLevelUnparsed` lines; the other
+    two are summary pointers that are correctly not tasks.
+  - **Why it matters more than one row.** `⏸` is exactly the status a reader most needs to see —
+    deliberately paused work is the kind that gets forgotten. A table that silently omits it reads
+    as "not a thing", which is the no-silent-parking rule failing at the display layer.
+  - **Fix:** teach `parseItem` the `⏸` marker (mapping to a "Deferred" label alongside the existing
+    in-progress / open / blocked set), and add a case to
+    [`tests/unit/statusTable.test.js`](../tests/unit/statusTable.test.js) pinning it. Cheap, but it
+    changes what the generated table claims, so it takes its own approval.
+
+- <a id="status-md-silent-staleness"></a>☐ **P3 · DECISION — `STATUS.md` goes stale silently, and nothing says so on
+  the page.** Found 2026-08-01: regenerating it moved **57 → 62 outstanding** and **108 → 113
+  completed**, and its links were pointing roughly **260 lines** off (an item linked at `#L1156` had
+  moved to `#L1418`). Today's edits account for about two of those ten items — the rest of the drift
+  predates this session.
+  - **The mechanism.** It only updates when a person runs `npm run status`. Nothing in the commit
+    hooks or CI regenerates it, and the file carries no "generated on" stamp, so a stale copy is
+    indistinguishable from a current one. **A wrong line link is worse than no link** — it silently
+    lands the reader on an unrelated item.
+  - **Same failure class as the routing defects of 2026-07-30/31:** a surface that renders
+    confidently, is believed, and is wrong. That is why it is logged rather than left as housekeeping.
+  - **Three options, needing Mike's call rather than a default:** (a) regenerate in the pre-commit
+    hook whenever `ACTIONS.md` is staged — always true, at the cost of touching a second file in
+    every backlog commit; (b) a test that fails when `STATUS.md` does not match a fresh generation —
+    same guarantee, but it blocks the commit instead of fixing it; (c) stamp the file with the
+    `ACTIONS.md` commit it was generated from, so a reader can see it is stale without preventing it.
+    Recommendation: (a), because the only thing worse than a stale view is one that needs a human to
+    remember it exists.
+
+- <a id="fabricated-detail-in-summaries"></a>☐ **P1 · CONTENT/VERIFY — a FABRICATED detail was found living in the domain-support
+  data, presented as the firm's own material. One confirmed instance; the blast radius is unknown.**
+  **Deferred by Mike on 2026-07-31 — logged deliberately, NOT to be picked up next**, so the
+  three-document transcription is finished first. Not started.
+  - **The confirmed instance.** The `A.I.D.C.R.A Advertisement Framework` row in
+    [`sales-marketing-domain-support.json`](../data/sales-marketing-domain-support.json) expanded
+    the acronym as *"Attention, Interest, Desire, **Conviction, Response**, Action"*. Mike's ruling,
+    2026-07-31: **that was AI-generated when the summary was drafted — none of his templates use it.**
+    The correct expansion, in both new source PDFs, is *Credibility, Risk Removal*. Mike corrected
+    the row himself the same day.
+  - **Why this one mattered more than a typo.** It was specific, plausible and authoritative — a
+    six-part expansion of the firm's own acronym — and it reached the AI on **every** sales-marketing
+    conversation. It was found only because a new source document happened to contradict it.
+  - **Why the blast radius is unknown.** The domain-support summaries across all 29 domains were
+    drafted the same way. Swept `data/` for this specific wording on 2026-07-31: **no other
+    occurrence** (the two `conviction` hits in `cautious-reveal-reference.json` and
+    `trial-fit-reference.json` are the ordinary English word, verified in context, not the acronym).
+    That clears THIS fabrication and says nothing about any other.
+  - **Why no existing test catches it.** Every domain-support test checks structure, reach, fencing
+    and counts — that a row renders, saves and gets to the prompt. **Nothing compares a summary
+    against its source PDF**, so an invented specific passes every gate we have. Same class as the
+    content-routing problem: it looks right, reads authoritatively, and is wrong.
+  - **Do NOT bulk-regenerate the summaries** — that would replace one set of unverified AI text with
+    another. The check has to be against the source documents.
+  - **Open question for whoever picks it up:** whether a sample of high-risk rows is enough (rows
+    naming an acronym, a numbered model, or a named framework — the shape that carries inventable
+    specifics), or whether all 29 domains need reading against their PDFs. Sample first, and report
+    the hit rate before deciding — the hit rate is the evidence for how far to go.
 
 - ☐ **P2 · VERIFY — the advisor-chat recommendation change has NOT been exercised live.** Merged 2026-07-22 (PR #21, `d791a9a`): the AI now declares its recommendations in a trailing `[[TEMPLATES: …]]` marker, which the engine holds back from the SSE stream so it never reaches the advisor. Covered by 22 tests — parsing, catalogue validation, the stream hold-back across awkward chunk splits, a truncated marker — but **no real conversation has been run against it**, because this machine has no `OPENAI_API_KEY` and every advisor request fails at startup. What tests cannot answer: whether the answer still streams smoothly and nothing odd appears at the end. **Do one real Virtual Advisor conversation wherever a key exists before this reaches UAT**, and check (a) the reply streams normally, (b) no `[[TEMPLATES` text is ever visible, (c) the session's recommended templates look right on the Team Dashboard. *Source: session 2026-07-22.*
 

@@ -2,7 +2,7 @@
   "domain": "strategy",
   "label": "strategy and planning",
   "trigger_keywords": ["strategy", "strategic planning", "business plan", "growth plan", "long-term", "vision", "mission", "goals", "objectives", "direction", "pivot", "restructure", "business model", "pitch", "scale", "scaling", "milestones", "ethos", "focus"],
-  "overview": "Strategy and planning scenarios require the advisor to first diagnose where the client sits — in terms of both their planning maturity and their mindset toward planning — before selecting any template. The four tools in this domain work as a natural progression: the Growth Curve Reveal repositions the advisor as a strategic partner; the Heald Matrix surfaces the client's relationship with planning and secures buy-in; the Capacity Capability Opportunity framework diagnoses the real macro constraints; and the Client Planning Framework selects the right planning approach based on business maturity. All planning paths must be supported by a Revenue Model to ensure financial alignment.",
+  "overview": "Strategy and planning scenarios require the advisor to first diagnose where the client sits — in terms of both their planning maturity and their mindset toward planning — before selecting any template. Four of the tools in this domain work as a natural progression: the Growth Curve Reveal repositions the advisor as a strategic partner; the Heald Matrix surfaces the client's relationship with planning and secures buy-in; the Capacity Capability Opportunity framework diagnoses the real macro constraints; and the Client Planning Framework selects the right planning approach based on business maturity. All planning paths must be supported by a Revenue Model to ensure financial alignment.",
 
   "diagnostic_entry": {
     "primary_question": "Is the client coming to planning fresh — a startup, new to the concept, or newly motivated — or are they an established business owner who needs a structured strategic review?",
@@ -85,6 +85,126 @@
         "Use the Planning Outcomes Review to choose the focus: for Business Targets or Strategic Orientation 1 & 2, use Powerful Goal Setting or the Profit Levers & Blue Ocean templates; for an Organisational Review or a Sales & Marketing Review, use Alignment Statements or the Porter's & Pine templates.",
         "Treat Profit Levers & Blue Ocean and Porter's & Pine as what they are — short-form templates extracted from the advanced strategic templates. Use them to explore deeper issues in their own right and to create client demand for structured, sequential review services such as Management Reporting or Governance Services.",
         "Support every path with a Revenue Model, without exception — startup, new to planning, or well established."
+      ]
+    },
+    {
+      "id": "strategy-planning-outcomes-review",
+      "name": "Planning Outcomes Review",
+      "summary": "The broad-scope opening assessment that sets what a planning session will actually cover. It lets the owner explore issues and ideas with an open heart and mind, discover what they have been missing, record key learnings and build an actionable plan forward, giving clarity across the four core planning domains — Business Targets, Strategic Orientation, Organisational Review and Sales & Marketing Review. For the advisor it establishes the role explicitly as challenging what the client believes to be true, structuring the scope of the session and managing collaborative thinking.",
+      "who_when": "Business owners and leadership teams preparing for a formal business planning session who need a broad scope assessment of their revenue goals, business model, team efficiencies and marketing strategy.",
+      "steps": [
+        "Pre-session preparation: define clear \"walk-away\" expectations before starting the meeting. Gather past planning documents, financial reports and software models, then select which specific frameworks across the 4 planning domains will be included in the session scope.",
+        "Set session roles and mindset: establish that the advisor's role is to challenge existing beliefs, while the client's role is to explore ideas openly. Use De Bono's 6 hats / parallel thinking to manage dominant personalities and maintain collaborative problem-solving.",
+        "Execute the domain reviews, walking through the selected planning domains sequentially rather than jumping between them.",
+        "Business Targets: define revenue, profit, personal income goals, risk tolerance and work hour expectations.",
+        "Strategic Orientation: conduct a challenging review of revenue streams, asset application, target markets and scenario modelling.",
+        "Organisational Review: analyse communication channels, divisional roles and individual responsibilities to enhance team engagement.",
+        "Sales & Marketing Review: assess customer attention, conversion mechanisms, packaging, pricing and loyalty programmes.",
+        "Capture and reflect: employ contrast models (Before–Present–Future). Assign a note-taker to stop every 30 minutes and read back significant points and decisions.",
+        "Allow time to \"retire and reflect\" if core business beliefs are challenged — a belief that has just been dismantled needs space before the next domain is opened."
+      ]
+    },
+    {
+      "id": "strategy-business-targets",
+      "name": "Business Targets",
+      "summary": "Records what the owner actually wants out of the business — personal income goals, leisure and lifestyle expectations — and then computes the business scale dynamics required to deliver them, finishing with tactical profit lever quick wins. Its method value to the advisor is the structure it gives to parallel (collaborative) thinking during goal setting, which is what avoids time-consuming arguments and the false consensus trap.",
+      "who_when": "Business owners who need to align personal lifestyle desires with quantifiable operational targets and profit driver actions.",
+      "steps": [
+        "Align the collaborative mindset first: introduce parallel thinking using the 4-sided building analogy, so all participants inspect the same operational aspect together rather than arguing from opposing views.",
+        "Log owner expectations: complete the Business Owner Expectations table to record desired personal income, leisure time and leave goals, and effective work habits.",
+        "Calculate scale dynamics: complete the Business Development Stages table to compute the required business performance and scale dynamics needed to achieve those personal goals — the dark bands calculate automatically.",
+        "Formulate operational objectives: establish clear operational goals that define specific tactical objectives.",
+        "Analyse the 8 Profit Levers: review the mathematical formulas for Total Revenue (Foot-traffic × Prospects × Customers × Avg Spend × Frequency) and Total Expenses (Sales Margin + Activity Driven Costs + Fixed Overhead Costs).",
+        "Identify quick wins: populate Profit Lever tables 1 and 2 with actionable tasks — if short on time, identify at least 1 task per lever."
+      ]
+    },
+    {
+      "id": "strategy-orientation-part-1",
+      "name": "Orientation Part 1",
+      "summary": "The formal planning process proper: it educates owners on planning terminology, evaluates internal and external business position, and lands on observable, time-bound operational milestones that are grounded in strategic logic rather than enthusiasm. For the advisor it is a 6-step process taking the client from positional assessment, through scenario modelling, to delegated tactical execution using Field Intelligence.",
+      "who_when": "Business leaders seeking to establish a shared strategic language across their executive team, conduct SWOT/PEST assessments and build structured action plans.",
+      "steps": [
+        "Assess current position: review pre-gathered team insights, customer insights, financial reports and asset performance, then complete the SWOT analysis table.",
+        "Develop strategic scenarios: use the P.E.S.T prompts to identify external drivers, and construct a Scenario Matrix from the two greatest impact drivers.",
+        "Determine the Strategic Objective and the Strategy: define a singular, desired end result, then agree the underlying ethos or philosophy that will get them there, using 4-Box Strategic Language.",
+        "Set operational objectives: filter every proposed operational goal against three mandatory tests — Observable/Measurable, Time-bound, and Direct support of the Strategic Objective. A goal that fails any one of the three is not an operational objective.",
+        "Assign tactics and automated reminders: detail the specific tactical actions (Task, Whom, When) and log them into the Automated Action Plan Reminder."
+      ]
+    },
+    {
+      "id": "strategy-orientation-part-2",
+      "name": "Orientation Part 2",
+      "summary": "Goes after the reason a mature business has stopped moving. It exposes the psychological growth barriers — the Psyche Errors, such as role-identification or optimism bias — and then introduces the timing frameworks (Sigmoid Curve, Technology Points, Deming Volatility, Blue Ocean) that decide when a business decision or a price change should actually be made. For the advisor it supplies diagnostics for why clients stall, pricing matrices across problem-solving levels and delivery mediums, and a way to model system feedback loops.",
+      "who_when": "Mature business owners facing growth plateaus, succession friction, product obsolescence, or complex pricing and supply-chain choices.",
+      "steps": [
+        "Identify business stage and Psyche Error: locate the current position on the 7 Growth Focus Tactics curve and diagnose the matching Psyche Errors — Role-Identification, Over-Exposure, Optimism Bias, Complacency, Confirmation Bias.",
+        "Apply the market and life cycle frameworks: assess market pressure via Porter's 5 Forces, map product decay on the Product Life Cycle, identify critical price points on Technology Points, and locate point X/Y on the Sigmoid Curve to time new product launches.",
+        "Structure pricing and delivery tiers: fill out the Price For Problem Solving table (Free / Tell, Fee / Show, Premium Fee / With, Maximum Fee / For) and the Delivery Medium table (Once to Many, One to Many, One to One).",
+        "Analyse integration and revenue options: review Vertical Integration (securing margin vs. quality), Horizontal Integration (consumable/perishable offerings), the Boston Model, the Risk Reward Matrix — testing one unknown at a time — and Upstream/Downstream Revenue Streams.",
+        "Map systems and volatility: diagram the system feedback loops using Senge's Circles of Causality, and categorise operational variance into Deming's 4 Volatility Causes — Common, Special, Seasonal and Tampering."
+      ]
+    },
+    {
+      "id": "strategy-profit-levers-blue-ocean",
+      "name": "Profit Levers & Blue Ocean",
+      "summary": "Gets an owner off a saturated competition front and turns loose brainstorming into structured quick wins. The Blue Ocean half finds where the customer's frustrations sit on the fringes of normal industry practice; the Profit Lever half sorts the resulting ideas so the incremental gains accumulate rather than scatter. For the advisor it is the fastest route from a wall of post-it notes to a TASK, WHOM, WHEN execution sheet.",
+      "who_when": "Business owners competing in crowded markets who need clear differentiation, or rapid incremental profit improvements.",
+      "steps": [
+        "Review competition fronts: examine the standard industry competition fronts in the \"Red Water Zone\" — price, quality, location, consistency.",
+        "Map Blue Ocean differentiation: brainstorm the key customer frustrations and frictions, tick the fronts currently focused on, and circle the fronts planned for future competition, so purchasing blockages are removed rather than competed against.",
+        "Brainstorm operational activities: write potential activities — pricing, packaging, bundling, brand awareness, inventory, sales messaging — onto post-it notes.",
+        "Sort against the 8 Profit Levers: place the post-it notes under the corresponding lever, which is what captures accumulative incremental growth rather than one large bet.",
+        "Create the action plan: convert the selected lever tasks into a simple TASK, WHOM, WHEN prioritisation table."
+      ]
+    },
+    {
+      "id": "strategy-swot-pest",
+      "name": "SWOT / PEST",
+      "summary": "The baseline position assessment, run as a dual analysis: SWOT for the internal operational factors — personnel, POS reports, efficiency — and PEST for the external macro-environment of political, economic, regulatory and tariff movement. Its value to the advisor is the prompt set, which is what challenges client assumptions and surfaces growth drag or joint venture potential the owner has not thought to mention.",
+      "who_when": "Business owners conducting a baseline assessment of their current market standing, or preparing for local or international expansion.",
+      "steps": [
+        "Examine internal position (Strengths and Weaknesses): review internal personnel roles, communication lines, POS report accuracy, profit lines, technology usage, and the financial instruments used to reduce risk or 'growth drag'.",
+        "Examine the external environment using the PEST prompts: evaluate the Opportunities and Threats triggered by political, economic, interest rate, consumer confidence, and regulatory or tariff changes.",
+        "Assess market capabilities: explore joint venture opportunities, cross-selling potential, customer 'ring fencing' strategies, and technological or environmental industry factors.",
+        "Log inputs as they arise, straight into the designated 4-quadrant SWOT/PEST table — recording in the moment rather than reconstructing afterwards."
+      ]
+    },
+    {
+      "id": "strategy-business-dating",
+      "name": "Business Dating",
+      "summary": "Protects an owner from a hasty amalgamation by making the relationship progressive rather than binary. Four stages — One Night Stand, Dating, Engaged, Married — give both parties a language for where they actually are, so commercial alignment and cultural fit are tested before anything is signed. For the advisor it supplies the narrative and the matrix to walk two entities, often family businesses, through a low-risk alliance ahead of a full merger.",
+      "who_when": "Business owners considering joint ventures, strategic alliances, family business amalgamations, or business acquisitions.",
+      "steps": [
+        "Classify the relationship stage: categorise the potential relationship into one of the 4 stages — One Night Stand (a singular contract or project), Dating (an ongoing working partnership), Engaged (preparing mentally and financially for merger), or Married (a fully merged entity).",
+        "Plot security against commitment: map the prospective alliance onto the 2x2 grid charting Attraction/Security against Attraction/Commitment.",
+        "Structure a \"business date\" instead of an immediate acquisition: a 12-month trial period, with purchase valuations set at the outset and a 12-month right of fulfilment allowing a clean withdrawal. Setting the valuation at the start is what stops the trial itself becoming the negotiation.",
+        "Test cultural fit: use the dating period to let teams and stakeholders test the working relationship and integrate cultures under low-strain conditions."
+      ]
+    },
+    {
+      "id": "strategy-pivot",
+      "name": "Pivot",
+      "summary": "A rapid 5-step process for a business that has to change direction: identify what is actually forcing the change, refine the message, and test a prototype offering at minimal risk rather than committing the business to an untested bet. For the advisor it is a structured pipeline through a forced change, including a high-converting AIDCRA advertisement and strict test parameters agreed before anything is spent.",
+      "who_when": "Agile business owners needing to pivot their strategy quickly, introduce new products, or overcome market resistance.",
+      "steps": [
+        "Identify the resistance: analyse market pressure using Porter's 5 Forces, Market Diffusion Theory (the 15% tipping point), the Product Life Cycle, Technology Points and the Sigmoid Curve, to answer \"What's forcing the change?\".",
+        "Choose competition fronts: select fronts across the Blue Ocean, Vertical or Horizontal Integration models, and log the initial observations and responses.",
+        "Rehearse the message: answer the 6 Critical Marketing Questions — target profile, concerns, constraints, special factors, value added, messaging channels — then build the ad using the AIDCRA framework (Attention, Interest, Desire, Credibility, Risk Removal, Action).",
+        "Trial the prototype: define budget and timeline test parameters for product development, market research, competitor analysis, team learning, prototype solution and messaging appeal — set before the trial starts, not judged after it.",
+        "Do it and review it: execute the prototype trial within the set parameters and evaluate the performance metrics against them."
+      ]
+    },
+    {
+      "id": "strategy-porters-pine",
+      "name": "Porters & Pine",
+      "summary": "A dual-framework session that does two things at once: reads the competitive pressure on the business, and moves its offering up the economic value chain from commoditised goods towards authentic, high-margin customer experience. The engine of the second half is genuine customer connection — that is what premium pricing and retention actually rest on, rather than presentation.",
+      "who_when": "Business owners operating in traditional service or commodity markets who are seeking to increase profit margins and build customer loyalty.",
+      "steps": [
+        "Assess the 5 Forces pressure: evaluate Customers, Suppliers, Substitutes, New Entrants and Existing Rivals to determine the expected threats, opportunities and financial returns.",
+        "Map the economic value progression: trace the product or service offering along Pine's Progression of Economic Value — Commodity → Goods → Services → Experience → Authenticity.",
+        "Align imperatives and sensitivities: pair each economic output with its corresponding business imperative and consumer sensitivity — Commodity/Supply/Availability, Goods/Quality Control/Costs, Services/Improve/Quality, Experience/Render/Authenticity.",
+        "Establish customer connection: implement the mechanisms that bring owner and customer onto the same emotional level, through sincere efforts to 'connect' rather than staged ones.",
+        "Document the strategy: fill out the Progression of Economic Development table to record the observations and the strategic responses."
       ]
     }
   ],
