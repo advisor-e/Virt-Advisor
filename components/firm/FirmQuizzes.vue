@@ -31,6 +31,10 @@ section.firm-quizzes
         :empty-text="query ? $t('firmQuizzes.noMatchHere') : $t('firmQuizzes.emptyLibrary')"
       )
         template(v-slot:sub-badge="{ sub }")
+          //- The update count sits on the CLOSED sub-section too, so a firm sees that
+          //- something is waiting without opening all 26 of them one at a time.
+          b-tag.mr-1(v-if="sub.updateCount" type="is-warning" size="is-small")
+            | {{ $tc('firmQuizzes.updateCount', sub.updateCount) }}
           b-tag(:type="sub.quizPageCount ? 'is-info is-light' : 'is-light'" size="is-small")
             | {{ sub.quizPageCount ? $tc('firmQuizzes.quizCount', sub.quizPageCount) : $t('firmQuizzes.none') }}
 
@@ -43,6 +47,13 @@ section.firm-quizzes
             @click="select(page)"
           )
             span.rail-pagename {{ page.title }}
+            //- Where the updates ARE. The staircase can flag a step on the one screen
+            //- it lives on; a quiz question sits inside one of 62 pages behind this
+            //- rail, so a flag on the card alone would wait to be stumbled upon. The
+            //- count is spelled out rather than left to the colour, which a
+            //- colour-blind reader loses.
+            b-tag(v-if="page.updateCount" type="is-warning" size="is-small")
+              | {{ $tc('firmQuizzes.updateCount', page.updateCount) }}
             b-tag(v-if="!page.bindable" type="is-warning is-light" size="is-small")
               | {{ $t('firmQuizzes.duplicateNameTag') }}
             b-tag(size="is-small" rounded) {{ page.entryCount }}
@@ -113,6 +124,7 @@ section.firm-quizzes
             .q-body(v-else)
               .tags.mb-1
                 b-tag(:type="badge(row.kind).type" size="is-small") {{ badge(row.kind).label }}
+                b-tag(v-if="row.hasUpdate" type="is-warning" size="is-small") {{ $t('firmQuizzes.platformUpdated') }}
               p.q-text {{ row.question }}
               .q-field
                 p.q-label {{ $t('firmQuizzes.answer') }}
@@ -121,6 +133,12 @@ section.firm-quizzes
                 p.q-label {{ $t('firmQuizzes.keyPoint') }}
                 p.q-value {{ row.keyPoint }}
               .buttons.mt-2.mb-0
+                b-button(
+                  v-if="row.hasUpdate"
+                  size="is-small"
+                  type="is-warning"
+                  @click="openUpdateReview(row)"
+                ) {{ $t('firmQuizzes.reviewUpdate') }}
                 b-button(size="is-small" :disabled="busyId === row.qid" @click="openForm(row)")
                   | {{ $t('firmQuizzes.edit') }}
                 b-button(
@@ -180,6 +198,44 @@ section.firm-quizzes
                   :disabled="busyId === row.qid"
                   @click="confirmReset(row)"
                 ) {{ $t('firmQuizzes.resetToPlatform') }}
+
+        //- ── Platform-update review (Phase 4) ────────────────────────────
+        //- The firm's edit shielded this question from Advisor-e's later wording. Show
+        //- both versions side by side and let them choose, rather than either imposing
+        //- the change or leaving them shielded from it forever without knowing.
+        b-modal(v-model="showUpdateModal" has-modal-card trap-focus)
+          .modal-card(style="max-width:720px" v-if="updateRow")
+            header.modal-card-head
+              p.modal-card-title {{ $t('firmQuizzes.updateModalTitle') }}
+            section.modal-card-body
+              p.mb-4.has-text-grey {{ $t('firmQuizzes.updateModalLede') }}
+              .columns
+                .column
+                  p.has-text-weight-semibold.mb-2 {{ $t('firmQuizzes.platformCurrent') }}
+                  .box.is-shadowless(style="background:#fffbeb")
+                    p.is-size-7.has-text-grey.mb-1 {{ $t('firmQuizzes.fieldQuestion') }}
+                    p.mb-2 {{ updateRow.platformVersion.question }}
+                    p.is-size-7.has-text-grey.mb-1 {{ $t('firmQuizzes.answer') }}
+                    p.is-size-7.mb-2 {{ updateRow.platformVersion.answer }}
+                    p.is-size-7.has-text-grey.mb-1 {{ $t('firmQuizzes.keyPoint') }}
+                    p.is-size-7 {{ updateRow.platformVersion.keyPoint }}
+                .column
+                  p.has-text-weight-semibold.mb-2 {{ $t('firmQuizzes.yourVersion') }}
+                  .box.is-shadowless(style="background:#f0fff4")
+                    p.is-size-7.has-text-grey.mb-1 {{ $t('firmQuizzes.fieldQuestion') }}
+                    p.mb-2 {{ updateRow.question }}
+                    p.is-size-7.has-text-grey.mb-1 {{ $t('firmQuizzes.answer') }}
+                    p.is-size-7.mb-2 {{ updateRow.answer }}
+                    p.is-size-7.has-text-grey.mb-1 {{ $t('firmQuizzes.keyPoint') }}
+                    p.is-size-7 {{ updateRow.keyPoint }}
+            footer.modal-card-foot
+              b-button(
+                type="is-primary"
+                :loading="resolvingUpdate"
+                @click="adoptUpdate(updateRow.qid)"
+              ) {{ $t('firmQuizzes.adoptPlatform') }}
+              b-button(:loading="resolvingUpdate" @click="keepMine(updateRow.qid)") {{ $t('firmQuizzes.keepMine') }}
+              b-button(@click="closeUpdateReview") {{ $t('firmQuizzes.cancel') }}
 
         //- ── Add form ────────────────────────────────────────────────────
         //- Only for a NEW question, and at the end of the list on purpose: that is
@@ -264,6 +320,14 @@ export default {
       state: { declinedIds: [], overrides: {}, ownRows: [] },
       /** The resolved banks — what the course engine reads, keyed by page title. */
       banks: {},
+      /**
+       * Questions this firm edited that Advisor-e has changed since — each gets a
+       * Review update button offering Adopt / Keep mine (Phase 4).
+       */
+      driftQids: [],
+      showUpdateModal: false,
+      updateRow: null,
+      resolvingUpdate: false,
       query: '',
       showEmpty: true,
       /**
@@ -325,13 +389,20 @@ export default {
           // cannot be attached to it. Said up front rather than at save time.
           bindable: page.bindable !== false,
           entryCount: bank ? bank.entries.length : 0,
-          entries: bank ? bank.entries : []
+          entries: bank ? bank.entries : [],
+          // Where the flagged questions are. Counted through the same rule that draws
+          // the cards — see updateCountFor.
+          updateCount: this.updateCountFor(page.title)
         })
       }
 
       for (const section of sections) {
         for (const sub of section.subs) {
           sub.quizPageCount = sub.pages.filter(p => p.entryCount > 0).length
+          // Deliberately counted across ALL the sub-section's pages, not just the ones
+          // a search leaves visible: the badge answers "is anything waiting in here?",
+          // and a search narrowing it to zero would say no when the answer is yes.
+          sub.updateCount = sub.pages.reduce((n, p) => n + p.updateCount, 0)
           sub.visiblePages = sub.pages.filter(p => p.entryCount > 0 && this.pageMatches(p, q))
           // Open/closed state lives in FirmRail (three-state, explicit close
           // wins). These two flags feed its auto-expand: a search hit hidden
@@ -374,7 +445,8 @@ export default {
         resolved ? resolved.entries : [],
         platform ? platform.entries : [],
         this.state.declinedIds,
-        Object.keys(this.state.overrides || {})
+        Object.keys(this.state.overrides || {}),
+        this.driftQids
       )
     }
   },
@@ -397,6 +469,7 @@ export default {
         this.pages = data.pages || []
         this.base = data.base || {}
         this.banks = data.resolved || {}
+        this.driftQids = data.driftQids || []
         this.state = {
           declinedIds: (data.state && data.state.declinedIds) || [],
           overrides: (data.state && data.state.overrides) || {},
@@ -436,6 +509,33 @@ export default {
      */
     isEditing (row) {
       return !!(this.showForm && this.editing && row && this.editing.qid === row.qid)
+    },
+
+    /**
+     * How many of a page's questions are flagged for review.
+     *
+     * Counted THROUGH buildQuizRows, the same rule that draws the cards. A second
+     * count written here would be free to disagree with it, and the way that shows up
+     * is a rail promising an update on a page where nothing is flagged — which teaches
+     * a manager to ignore the flag.
+     *
+     * @param {string} title - the page title
+     * @returns {number}
+     */
+    updateCountFor (title) {
+      // The common case by far: no firm has anything waiting, and this runs for every
+      // page in the library on every render of the rail.
+      if (!this.driftQids.length) { return 0 }
+      const resolved = this.banks[title]
+      const platform = this.base[title]
+      const { live } = buildQuizRows(
+        resolved ? resolved.entries : [],
+        platform ? platform.entries : [],
+        this.state.declinedIds,
+        Object.keys(this.state.overrides || {}),
+        this.driftQids
+      )
+      return live.filter(r => r.hasUpdate).length
     },
 
     /** Advisor-e's version of a question, or null for one the firm owns. */
@@ -560,6 +660,61 @@ export default {
         this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
       } finally {
         this.busyId = null
+      }
+    },
+
+    // ── Phase 4 — review an Advisor-e update to a question this firm edited ──
+    /** @param {Object} row - a live question row carrying hasUpdate */
+    openUpdateReview (row) {
+      this.updateRow = row
+      this.showUpdateModal = true
+    },
+
+    closeUpdateReview () {
+      this.showUpdateModal = false
+      this.updateRow = null
+    },
+
+    /**
+     * Adopt — drop the firm's version and take Advisor-e's current question, which then
+     * keeps tracking Advisor-e as it changes again. Reuses the reset route, which also
+     * clears the drift baseline, so there is no second endpoint doing the same write
+     * under a different name.
+     * @param {string} qid - a platform question id
+     * @returns {Promise<void>}
+     */
+    async adoptUpdate (qid) {
+      this.resolvingUpdate = true
+      try {
+        await this.api('DELETE', `/api/firm-manager/quizzes/platform/${encodeURIComponent(qid)}`)
+        this.closeUpdateReview()
+        await this.load()
+        this.toast('firmQuizzes.adopted')
+      } catch (err) {
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      } finally {
+        this.resolvingUpdate = false
+      }
+    },
+
+    /**
+     * Keep mine — the firm's version stays. The baseline is re-stamped to Advisor-e's
+     * current wording, so this prompt clears until we change the question again rather
+     * than reappearing on every visit.
+     * @param {string} qid - a platform question id
+     * @returns {Promise<void>}
+     */
+    async keepMine (qid) {
+      this.resolvingUpdate = true
+      try {
+        await this.api('POST', `/api/firm-manager/quizzes/platform/${encodeURIComponent(qid)}/keep-mine`)
+        this.closeUpdateReview()
+        await this.load()
+        this.toast('firmQuizzes.keptMine')
+      } catch (err) {
+        this.$buefy.toast.open({ message: err.message, type: 'is-danger' })
+      } finally {
+        this.resolvingUpdate = false
       }
     },
 

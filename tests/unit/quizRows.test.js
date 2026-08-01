@@ -81,6 +81,80 @@ describe('buildQuizRows', () => {
     expect(switchedOff).toEqual([])
   })
 
+  // Phase 4 — the questions Advisor-e has improved since the firm reworded them.
+  test('an edited question Advisor-e has changed since is flagged, and carries our version to compare', () => {
+    const { live } = buildQuizRows(
+      [{ ...platform(1), question: 'Our wording', source: 'firm-override' }],
+      [platform(1)],
+      [],
+      ['qz-1'],
+      ['qz-1']
+    )
+
+    expect(live[0].hasUpdate).toBe(true)
+    // The row keeps the firm's wording — the platform's rides alongside it, so the
+    // panel can never end up showing one question's text beside another's.
+    expect(live[0].question).toBe('Our wording')
+    expect(live[0].platformVersion.question).toBe('Platform question 1')
+  })
+
+  test('an edited question Advisor-e has NOT changed is not flagged', () => {
+    const { live } = buildQuizRows(
+      [{ ...platform(1), question: 'Our wording', source: 'firm-override' }],
+      [platform(1)],
+      [],
+      ['qz-1'],
+      []
+    )
+
+    expect(live[0].hasUpdate).toBe(false)
+    expect(live[0].platformVersion).toBeNull()
+  })
+
+  test('an UNTOUCHED question is never flagged, even if its qid is in the drift list', () => {
+    // There is nothing to choose between: a question the firm has not edited already
+    // takes Advisor-e's new wording. Offering Adopt / Keep mine there would ask a firm
+    // to decide something that has already happened.
+    const { live } = buildQuizRows(
+      [{ ...platform(1), source: 'platform' }],
+      [platform(1)],
+      [],
+      [],
+      ['qz-1']
+    )
+
+    expect(live[0].hasUpdate).toBe(false)
+  })
+
+  test('a question Advisor-e no longer ships is not flagged — there would be nothing to show', () => {
+    // The backend does not report drift on a retired qid, so this is belt and braces.
+    // Without it the card would offer Review update and open a panel with one empty
+    // half, which is worse than not offering it at all.
+    const { live } = buildQuizRows(
+      [{ ...platform(1), question: 'Our wording', source: 'firm-override' }],
+      [],
+      [],
+      ['qz-1'],
+      ['qz-1']
+    )
+
+    expect(live[0].hasUpdate).toBe(false)
+    expect(live[0].platformVersion).toBeNull()
+  })
+
+  test('omitting the drift list leaves every question unflagged', () => {
+    // The argument was added after the callers existed; one that has not been updated
+    // must degrade to "nothing waiting", never to a review prompt it cannot fulfil.
+    const { live } = buildQuizRows(
+      [{ ...platform(1), source: 'firm-override' }],
+      [platform(1)],
+      [],
+      ['qz-1']
+    )
+
+    expect(live[0].hasUpdate).toBe(false)
+  })
+
   test('missing or malformed input produces empty lists rather than throwing', () => {
     expect(buildQuizRows(null, undefined, null)).toEqual({ live: [], switchedOff: [] })
     expect(buildQuizRows([null], [null], [])).toEqual({ live: [], switchedOff: [] })

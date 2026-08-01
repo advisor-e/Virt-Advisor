@@ -45,17 +45,49 @@ const KIND_BY_SOURCE = {
  *   kind, but a switched-off row is built from the platform bank and would otherwise give
  *   a firm no way to tell that its version is still being held — nor any way back to
  *   Advisor-e's without switching the question on first.
+ * @param {string[]} [driftQids] - edited questions Advisor-e has changed since the firm
+ *   last stated its version (`driftQids` from the GET). Those rows carry `hasUpdate`,
+ *   which is what puts a Review update button on them, and `platformVersion` —
+ *   Advisor-e's current wording — for the side-by-side compare.
  * @returns {{live: Array<Object>, switchedOff: Array<Object>}} each row carrying
- *   `kind` — 'platform' | 'customised' | 'firm-own'; switched-off rows additionally
- *   carry `hasFirmEdit`
+ *   `kind` — 'platform' | 'customised' | 'firm-own'; live rows additionally carry
+ *   `hasUpdate` and `platformVersion`; switched-off rows carry `hasFirmEdit`
  */
-function buildQuizRows (resolvedEntries, platformEntries, declinedIds, overriddenQids) {
+function buildQuizRows (resolvedEntries, platformEntries, declinedIds, overriddenQids, driftQids) {
   const declined = new Set(Array.isArray(declinedIds) ? declinedIds : [])
   const overridden = new Set(Array.isArray(overriddenQids) ? overriddenQids : [])
+  const drifted = new Set(Array.isArray(driftQids) ? driftQids : [])
+  const platformByQid = new Map(
+    (Array.isArray(platformEntries) ? platformEntries : [])
+      .filter(e => e && e.qid)
+      .map(e => [e.qid, e])
+  )
 
   const live = (Array.isArray(resolvedEntries) ? resolvedEntries : [])
     .filter(Boolean)
-    .map(e => ({ ...e, kind: KIND_BY_SOURCE[e.source] || 'platform' }))
+    .map((e) => {
+      const kind = KIND_BY_SOURCE[e.source] || 'platform'
+      // Advisor-e's CURRENT version, for the side-by-side compare. Carried on the row
+      // so the panel never has to re-look-up a qid and risk showing one question's
+      // wording beside another's.
+      const platformVersion = platformByQid.get(e.qid) || null
+      // Only an EDITED question can have an update to review: one the firm has not
+      // touched already takes Advisor-e's new wording, so there is nothing to choose
+      // between. Flagging it would offer a decision that has been made.
+      //
+      // And only one we can still SHOW. There is no compare to draw without Advisor-e's
+      // version, so a flag without it would be a button that opens an empty panel. The
+      // backend does not report drift on a question it no longer ships, so this guard
+      // should never fire — it is here because the alternative to it firing is a
+      // rendering error on the firm's screen.
+      const hasUpdate = kind === 'customised' && drifted.has(e.qid) && platformVersion !== null
+      return {
+        ...e,
+        kind,
+        hasUpdate,
+        platformVersion: hasUpdate ? platformVersion : null
+      }
+    })
 
   const switchedOff = (Array.isArray(platformEntries) ? platformEntries : [])
     .filter(e => e && e.qid && declined.has(e.qid))

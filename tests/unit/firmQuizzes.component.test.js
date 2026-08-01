@@ -596,6 +596,195 @@ describe('editing', () => {
   })
 })
 
+// Phase 4 — Advisor-e improves a question a firm had reworded. The firm's edit shields
+// it, deliberately; this is the screen that says so and offers the choice. Stage A (the
+// record) is proven on the backend; what only a mounted screen can prove is that the
+// flag lands on the RIGHT question, that it can be FOUND, and that each button sends the
+// call it names.
+describe('an update to a question the firm edited', () => {
+  /** A firm holding its own wording of question 1, which Advisor-e has since changed. */
+  const DRIFTED = {
+    resolved: {
+      'Working Capital Cycle': {
+        entries: [
+          entry(1, 'Our own wording', 'Our own answer', 'Our own point', 'firm-override'),
+          entry(2)
+        ]
+      }
+    },
+    state: { declinedIds: [], overrides: { 'qz-1': { question: 'Our own wording' } }, ownRows: [] },
+    driftQids: ['qz-1']
+  }
+
+  /** Mount with that state and nothing opened — the tab as a firm first meets it. */
+  const mountDrifted = body => mountRail(Object.assign({}, DRIFTED, body))
+
+  /** Mount with that state, open the page, and capture only the calls made after. */
+  async function openDrifted (body) {
+    const wrapper = await mountDrifted(body)
+    wrapper.setData({ currentTitle: 'Working Capital Cycle' })
+    await wrapper.vm.$nextTick()
+    global.fetch.mockClear()
+    return wrapper
+  }
+
+  test('the flagged question says so and offers Review update', async () => {
+    const wrapper = await openDrifted()
+    const first = wrapper.findAll('article.q').at(0)
+
+    expect(first.text()).toContain('firmQuizzes.platformUpdated')
+    expect(first.text()).toContain('firmQuizzes.reviewUpdate')
+  })
+
+  test('the untouched question beside it is left alone', async () => {
+    // The flag has to be per question. A page-level notice would be wrong about one of
+    // them, and a manager cannot act on "something on this page changed".
+    const wrapper = await openDrifted()
+    const second = wrapper.findAll('article.q').at(1)
+
+    expect(second.text()).not.toContain('firmQuizzes.platformUpdated')
+    expect(second.text()).not.toContain('firmQuizzes.reviewUpdate')
+  })
+
+  test('nothing is flagged when Advisor-e has changed nothing', async () => {
+    // The control. Without it every assertion above could pass on a screen that simply
+    // flags every edited question — which would send a firm to compare two identical
+    // versions and teach them to ignore the flag.
+    const wrapper = await openDrifted({ driftQids: [] })
+
+    expect(wrapper.text()).not.toContain('firmQuizzes.platformUpdated')
+    expect(wrapper.text()).not.toContain('firmQuizzes.reviewUpdate')
+    expect(wrapper.text()).not.toContain('firmQuizzes.updateCount')
+  })
+
+  // The difference from the Advisory Staircase, and the reason this screen needs more
+  // than a tag on the card: the staircase's five steps are all on one screen, whereas a
+  // quiz question sits inside one of 62 pages behind the rail. A flag only visible after
+  // clicking into the right page waits to be stumbled upon.
+  describe('finding it', () => {
+    test('the rail says which page holds the update', async () => {
+      const wrapper = await mountDrifted()
+      wrapper.findAll('.rail-sub').at(0).trigger('click')
+      await wrapper.vm.$nextTick()
+
+      const pages = wrapper.findAll('.rail-page').wrappers
+      const wc = pages.find(w => w.text().includes('Working Capital Cycle'))
+      expect(wc.text()).toContain('firmQuizzes.updateCount 1')
+      // …and it is the only page claiming one, in the rail and in its headers alike.
+      expect(pages.filter(w => w.text().includes('firmQuizzes.updateCount')).length).toBe(1)
+      expect(wrapper.findAll('.rail-sub').filter(w => w.text().includes('firmQuizzes.updateCount')).length).toBe(1)
+    })
+
+    test('a sub-section that has never been opened still shows something is waiting inside', async () => {
+      // Otherwise the answer to "is there anything to look at?" is opening all 26 in
+      // turn — and a firm that does not know an update exists has no reason to try.
+      const wrapper = await mountDrifted()
+      const sub = wrapper.findAll('.rail-sub').at(0)
+
+      expect(sub.attributes('aria-expanded')).toBe('false')
+      expect(sub.text()).toContain('firmQuizzes.updateCount 1')
+    })
+
+    test('the count is what the panel will actually flag, not a count of edits', async () => {
+      // Two edited questions, one of them changed by Advisor-e. A rail that counted
+      // overrides would say 2 and the panel would show one flag — and a rail that
+      // disagrees with the screen it points at is worse than no rail badge.
+      const wrapper = await openDrifted({
+        resolved: {
+          'Working Capital Cycle': {
+            entries: [
+              entry(1, 'Our own wording', null, null, 'firm-override'),
+              entry(2, 'Also ours', null, null, 'firm-override')
+            ]
+          }
+        },
+        state: {
+          declinedIds: [],
+          overrides: { 'qz-1': { question: 'Our own wording' }, 'qz-2': { question: 'Also ours' } },
+          ownRows: []
+        },
+        driftQids: ['qz-1']
+      })
+
+      expect(wrapper.findAll('.rail-sub').at(0).text()).toContain('firmQuizzes.updateCount 1')
+      expect(wrapper.findAll('article.q').filter(w => w.text().includes('firmQuizzes.reviewUpdate')).length).toBe(1)
+    })
+  })
+
+  describe('choosing', () => {
+    test('Adopt drops the firm version, which is what lets it track Advisor-e again', async () => {
+      const wrapper = await openDrifted()
+
+      await wrapper.vm.adoptUpdate('qz-1')
+
+      const [url, opts] = global.fetch.mock.calls[0]
+      expect(url).toBe('/api/firm-manager/quizzes/platform/qz-1')
+      expect(opts.method).toBe('DELETE')
+    })
+
+    test('Keep mine re-stamps the baseline and does NOT touch the firm wording', async () => {
+      // The assertion that matters is the second one: a Keep mine that also fired the
+      // reset would discard the firm's version while telling them it had been kept.
+      const wrapper = await openDrifted()
+
+      await wrapper.vm.keepMine('qz-1')
+
+      const [url, opts] = global.fetch.mock.calls[0]
+      expect(url).toBe('/api/firm-manager/quizzes/platform/qz-1/keep-mine')
+      expect(opts.method).toBe('POST')
+      expect(global.fetch.mock.calls.some(c => c[1] && c[1].method === 'DELETE')).toBe(false)
+    })
+
+    test('either choice closes the panel and re-reads the screen', async () => {
+      // The prompt clears because the state changed, not because the button was pressed.
+      const wrapper = await openDrifted()
+      wrapper.vm.openUpdateReview(wrapper.vm.rows.live[0])
+      expect(wrapper.vm.showUpdateModal).toBe(true)
+
+      await wrapper.vm.keepMine('qz-1')
+
+      expect(wrapper.vm.showUpdateModal).toBe(false)
+      expect(wrapper.vm.updateRow).toBeNull()
+      expect(global.fetch.mock.calls.map(c => c[0])).toContain('/api/firm-manager/quizzes')
+    })
+
+    test('a rejected call leaves the firm version alone and says so', async () => {
+      const wrapper = await openDrifted()
+      global.fetch = jest.fn(() => Promise.resolve({
+        ok: false, statusText: 'Conflict', json: () => Promise.resolve({ error: { message: 'no custom version' } })
+      }))
+      const toast = jest.fn()
+      wrapper.vm.$buefy.toast.open = toast
+
+      await wrapper.vm.keepMine('qz-1')
+
+      expect(toast).toHaveBeenCalledWith(expect.objectContaining({ type: 'is-danger' }))
+      // The panel stays open: the choice has not been made, and closing it would read
+      // as though it had.
+      expect(wrapper.vm.resolvingUpdate).toBe(false)
+    })
+  })
+
+  test('the compare panel shows both versions, ours beside theirs', async () => {
+    const wrapper = await openDrifted()
+    const row = wrapper.vm.rows.live[0]
+    wrapper.vm.openUpdateReview(row)
+    await wrapper.vm.$nextTick()
+
+    // The row carries Advisor-e's current wording alongside the firm's, so the two
+    // halves of the panel can never be drawn from different questions.
+    expect(row.question).toBe('Our own wording')
+    expect(row.platformVersion.question).toBe('What is working capital?')
+
+    const modal = wrapper.find('.modal-card')
+    expect(modal.exists()).toBe(true)
+    expect(modal.text()).toContain('Our own wording')
+    expect(modal.text()).toContain('What is working capital?')
+    expect(modal.text()).toContain('firmQuizzes.adoptPlatform')
+    expect(modal.text()).toContain('firmQuizzes.keepMine')
+  })
+})
+
 // The quiz-rail-stuck-open fix (design/ACTIONS.md): open-state is three-state
 // (unset / opened / closed) inside the shared FirmRail, so an explicit close
 // always wins over auto-expand. The old two-state flag let "holds the current
