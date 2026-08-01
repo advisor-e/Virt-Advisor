@@ -2335,6 +2335,10 @@ Two honest answers on different axes — the file used to conflate them:
     the suites and the build, exactly as plan §6 risk 4 said. **Collaborate's data layer is still
     its own in-memory store that resets on restart** (slice 5), and **`config/collaborate/db-schema.sql`
     is still a second schema file** (slice 3). Neither was touched.
+    - ✅ **The second schema file is GONE as of 2026-08-02** (slice 5 phase A): its 15 tables were
+      merged into `config/db-schema.sql` under a "COLLABORATE — people layer" section, verified
+      free of table-name collisions before merging, and the file deleted. The master team now
+      applies **one** schema. The in-memory-store half of this limit is still true.
   - ⚠ **KNOWN DUPLICATES LEFT STANDING, deliberately, and where each one dies:** the two
     `sendError` modules (firmAuth requires Collaborate's for its envelope — one cross-namespace
     require, commented), `server/collaborate/utils/db.js` (a second MySQL pool, now orphaned) and
@@ -2342,6 +2346,18 @@ Two honest answers on different axes — the file used to conflate them:
     it also aborts the upstream request when the client disconnects). All three are storage/data
     surfaces that slices 3 and 5 rewrite with tests around them; merging them ad hoc now was the
     thing the P3 row above explicitly warned against.
+    - ✅ **The duplicate MySQL pool DIED 2026-08-02** (slice 5 phase A). `server/collaborate/utils/db.js`
+      was byte-identical to `server/utils/db.js` bar the require depth, and after slice 2 merged the
+      two `config/integration.js` files it read the **same** DB settings — so uncommenting
+      `repository.js`'s seam would have opened **two pools onto one database**. Worse, that file was
+      **internally contradictory**: its docblock already named `server/utils/db.js` and
+      `config/db-schema.sql` while the code beneath required Collaborate's copy, so anyone wiring SQL
+      would have followed the code and got the wrong pool. Deleted; the seam repointed;
+      `tests/collaborate/db.test.js` repointed to our pool — which until then had **no test at all**,
+      so this gained coverage rather than losing it. The other two duplicates still stand as written.
+      - ☐ **Follow-up (small, unstarted):** that test now covers OUR pool while living in
+        `tests/collaborate/`, so a future "remove Collaborate" sweep would delete the only test of
+        the app's database connection. Move it to `tests/unit/db.test.js`.
   - ⚠ **CROSS-MACHINE: THIS IS THE COLLISION THE SLICE-1 NOTE PREDICTED.** `server/restify-server.js`
     and `config/integration.js` were both edited here. The desktop must merge `master` before
     touching either.

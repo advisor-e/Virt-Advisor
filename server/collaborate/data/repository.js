@@ -20,7 +20,10 @@
  * industries, topics).
  */
 
-// const pool = require('../utils/db')   // <-- uncomment when wiring SQL
+// const pool = require('../../utils/db')   // <-- uncomment when wiring SQL
+// (There is ONE pool for the whole app: server/utils/db.js. Collaborate's
+//  identical copy was deleted 2026-08-02 — two pools onto the same database was
+//  a latent bug waiting for whoever uncommented this line.)
 
 const { CROSS_ORG, ADVISOR_E } = require('../../../config/integration')
 const roles = require('./roles') // role/tier resolver (Q-ROLES) — the RBAC seam
