@@ -626,8 +626,8 @@ no audit, because it reads as complete.
 - **Only the PLATFORM layer is classified.** A firm's overrides and its own added rows
   are resolved at runtime and are not on disk to be read here, so a firm-authored asset
   does not appear. The lane its platform equivalent sits in still applies.
-  (11 `dev-*.json` files are the dev-mode override stores and are excluded for
-  the same reason.)
+  (The `data/dev-*.json` files are the dev-mode override stores and are excluded
+  for the same reason.)
 
 - **A lane says where an asset can reach, not whether it is any good.** This report
   cannot tell you a logic table is well written, only that the engine walks it.
