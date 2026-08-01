@@ -4,7 +4,6 @@
   //- ── Course builder nav bar ──────────────────────────────────────────────
   .cb-nav-bar
     button.btn-my-courses(@click="goToCourses") ← My Courses
-    button.btn-team-dashboard(v-if="isFirmManager" @click="$emit('openFirmDashboard')") Team Dashboard
 
   //- ── AI processing bar — visible whenever any AI call is in-flight ────────
   .ai-loading-bar(v-if="isDesignStreaming || isSessionStreaming || isGeneratingQuiz")
@@ -362,6 +361,14 @@
             span.review-q-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : r.score + '%' }}
             span.review-badge(:class="r.ungraded ? 'badge-ungraded' : (r.passed ? 'badge-pass' : 'badge-fail')") {{ r.ungraded ? '— Not graded' : (r.passed ? '✓ Good understanding' : '✗ Review this one') }}
           p.review-q-text {{ r.question }}
+          //- Where the question came from. Older saved results carry no
+          //- provenance, so both lines stay hidden rather than guessing.
+          p.review-q-source(v-if="r.bankKey")
+            | from {{ r.bankKey }} · question {{ r.bankRef }}{{ r.bankSource ? ' · ' + r.bankSource : '' }}
+          //- Explicit null = this page has no bank. Undefined = a result saved
+          //- before provenance existed, which says nothing rather than guessing.
+          p.review-q-source(v-else-if="r.bankKey === null")
+            | AI-written from the session content
           .review-answer-block
             p.review-answer-label Your answer
             p.review-answer-text {{ r.answer }}
@@ -453,7 +460,6 @@ export default {
     firmId: { type: String, default: 'local-firm' },
     advisorProfile: { type: Object, default: null },
     orgTemplateIds: { type: Array, default: null },
-    isFirmManager: { type: Boolean, default: false },
     // Verified login pass (JWT). Defaults to the safe local-dev bypass token.
     apiToken: { type: String, default: 'dev-local-bypass' }
   },
@@ -500,6 +506,9 @@ export default {
 
       // Quiz phase
       quizQuestions: [],
+      // Which authored bank fed this quiz — { key, source, origin }, or null
+      // when the page has no bank and the questions came from session content.
+      quizBank: null,
       quizCurrentIndex: 0,
       quizAnswer: '',
       quizResults: [],
@@ -1004,6 +1013,7 @@ export default {
       this.sessionStreamingText = ''
       this.isSessionStreaming = false
       this.quizQuestions = []
+      this.quizBank = null
       this.quizCurrentIndex = 0
       this.quizResults = []
       this.currentResult = null
@@ -1193,6 +1203,7 @@ export default {
 
       // Reset quiz state
       this.quizQuestions = []
+      this.quizBank = null
       this.quizCurrentIndex = 0
       this.quizResults = []
       this.currentResult = null
@@ -1211,6 +1222,9 @@ export default {
         const data = await response.json()
         if (data.success && data.questions && data.questions.length > 0) {
           this.quizQuestions = data.questions
+          // Identity of the bank behind these questions, kept so each graded
+          // result can record where it came from (null = no bank for this page).
+          this.quizBank = data.bank || null
           this.phase = 'quiz'
         } else {
           console.warn('[course] Quiz generation returned no questions:', data)
@@ -1406,6 +1420,24 @@ export default {
 
     // ── Quiz phase ───────────────────────────────────────────────────────
 
+    /**
+     * Where the current question came from, recorded on its result so the quiz
+     * review can name the source. Kept on the RESULT (not just the question)
+     * because the result is what persists with the course and is what a manager
+     * view would later read. An ungraded result carries it too — a question that
+     * failed to mark still needs an address if the advisor queries it.
+     *
+     * @returns {{bankKey: string|null, bankSource: string|null, bankRef: number|null}}
+     */
+    _questionProvenance () {
+      const q = this.currentQuestion
+      return {
+        bankKey: this.quizBank ? this.quizBank.key : null,
+        bankSource: this.quizBank ? this.quizBank.source : null,
+        bankRef: (q && Number.isInteger(q.bankRef)) ? q.bankRef : null
+      }
+    },
+
     async submitAnswer () {
       const answer = this.quizAnswer.trim()
       if (!answer || this.isGrading || !this.currentQuestion) { return }
@@ -1430,12 +1462,12 @@ export default {
         })
         const data = await response.json()
         if (data.success) {
-          this.currentResult = { passed: data.passed, score: data.score, feedback: data.feedback, question: this.currentQuestion.question, answer, modelAnswer: data.modelAnswer || null, modelKeyPoint: data.modelKeyPoint || null }
+          this.currentResult = { ...this._questionProvenance(), passed: data.passed, score: data.score, feedback: data.feedback, question: this.currentQuestion.question, answer, modelAnswer: data.modelAnswer || null, modelKeyPoint: data.modelKeyPoint || null }
         } else {
-          this.currentResult = ungradedResult(this.currentQuestion.question, answer)
+          this.currentResult = { ...this._questionProvenance(), ...ungradedResult(this.currentQuestion.question, answer) }
         }
       } catch (e) {
-        this.currentResult = ungradedResult(this.currentQuestion.question, answer)
+        this.currentResult = { ...this._questionProvenance(), ...ungradedResult(this.currentQuestion.question, answer) }
       }
 
       this.isGrading = false
@@ -1527,7 +1559,19 @@ export default {
             sessionIndex: this.activeSessionIndex,
             sessionTitle: session.title,
             sessionResources: session.resources || [],
-            quizScore: (score !== null && score !== undefined) ? score : null
+            quizScore: (score !== null && score !== undefined) ? score : null,
+            // Per-question record: which bank fed each question and how it went.
+            // Only the address and the verdict — never the advisor's own answer,
+            // the question text, or the marker's feedback. The backend normalises
+            // this again on arrival; sending less here is the first line, not the
+            // only one.
+            quizQuestions: (this.quizResults || []).map(r => ({
+              bankKey: r.bankKey || null,
+              bankRef: r.bankRef || null,
+              score: r.ungraded ? null : r.score,
+              passed: r.passed === true,
+              ungraded: r.ungraded === true
+            }))
           })
         })
       } catch (e) {
@@ -1589,13 +1633,6 @@ export default {
   padding: 4px 0; transition: color 0.15s;
 }
 .btn-my-courses:hover { color: #1e40af; }
-.btn-team-dashboard {
-  background: #0f766e; color: #fff;
-  border: none; border-radius: 6px;
-  padding: 5px 14px; font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: background 0.15s;
-}
-.btn-team-dashboard:hover { background: #0d6560; }
 
 /* ── Server-storage error banner (CB-16/17) ─────────────── */
 .course-error-banner {
@@ -2429,6 +2466,9 @@ export default {
   border-radius: 20px; padding: 3px 10px;
 }
 .review-q-text { font-size: 14px; font-weight: 600; color: #111827; margin: 0; line-height: 1.5; }
+/* Provenance note — deliberately quiet: it is a reference for whoever needs to
+   trace a question back to its source, not part of the advisor's result. */
+.review-q-source { font-size: 11px; color: #9ca3af; margin: 2px 0 0; line-height: 1.4; }
 .review-answer-block {
   background: #fff; border: 1px solid #e5e7eb;
   border-radius: 8px; padding: 10px 14px;

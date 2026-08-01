@@ -1,0 +1,459 @@
+{
+  "app": {
+    "name": "Advisor-e Collaborate"
+  },
+  "nav": {
+    "discover": "Discover",
+    "connections": "Connections",
+    "marketplace": "Marketplace",
+    "profile": "My Profile",
+    "messages": "Messages",
+    "connecting": "Connecting",
+    "firm": "Firm"
+  },
+  "firm": {
+    "title": "Firm Manager",
+    "subtitle": "Manage your firm's advisers, collaboration and approvals.",
+    "advisers": "Advisers",
+    "activeThisWeek": "active recently",
+    "groups": "Firm groups",
+    "groupsSub": "with a firm member",
+    "pendingApprovals": "Pending approvals",
+    "approvalsWaiting": "join requests waiting",
+    "crossFirm": "Cross-firm reach",
+    "collabTitle": "Cross-firm collaboration",
+    "collabSub": "Controls whether your advisers can discover, connect with and co-create alongside people at other firms.",
+    "open": "Open",
+    "closed": "Closed",
+    "openHint": "Your firm is open — advisers can reach across firms (both sides must be open).",
+    "closedHint": "Your firm is closed — advisers are sealed to your own firm.",
+    "advisersTitle": "Your advisers",
+    "advisersSub": "Everyone in {firm}.",
+    "searchAdvisers": "Search advisers by name or role…",
+    "showing": "Showing {shown} of {total}",
+    "noAdviserMatch": "No advisers match your search.",
+    "colAdviser": "Adviser",
+    "colStatus": "Status",
+    "colGroups": "Groups",
+    "colActive": "Last active",
+    "colAction": "",
+    "viewAs": "View as",
+    "viewingAs": "Viewing as {name}",
+    "exitView": "Exit",
+    "away": "Away",
+    "unavailable": "Unavailable",
+    "blockedTag": "View blocked",
+    "you": "You",
+    "approvalsTitle": "Pending approvals",
+    "approvalsSub": "Join requests to your firm's groups.",
+    "noApprovals": "No requests waiting.",
+    "wantsToJoin": "wants to join",
+    "approve": "Approve",
+    "decline": "Decline",
+    "approvedToast": "Request approved.",
+    "declinedToast": "Request declined.",
+    "activityTitle": "Firm activity & audit trail",
+    "activitySub": "What your advisers do — for oversight and compliance.",
+    "noActivity": "No recent activity yet — it appears here as your advisers use the app.",
+    "postureUpdated": "Firm collaboration updated.",
+    "loadFailed": "Couldn't load the firm console.",
+    "actionFailed": "That didn't work — please try again.",
+    "selectedCount": "{n} selected",
+    "inviteSelected": "Invite selected",
+    "bulkInviteTitle": "Invite {n} advisers to a group",
+    "bulkInvitePick": "Choose a group",
+    "bulkInviteNote": "Each person gets an invitation they must accept.",
+    "bulkNoGroups": "You don't manage any groups yet.",
+    "sendInvitations": "Send invitations",
+    "bulkInvited": "Invited {n} — each must accept.",
+    "bulkSomeSkipped": "Invited {n}; {s} were already members."
+  },
+  "console": {
+    "titles": {
+      "firm_manager": "Firm Manager",
+      "group_manager": "Group Manager",
+      "global_manager": "Global Manager",
+      "mentor": "Mentor"
+    },
+    "subtitles": {
+      "firm_manager": "Manage your firm's advisers, collaboration and approvals.",
+      "group_manager": "Manage advisers, collaboration and approvals across your country.",
+      "global_manager": "Oversee advisers and approvals across every country.",
+      "mentor": "The top of the tree — oversight of the entire network."
+    },
+    "allCountries": "All countries",
+    "wholeNetwork": "Whole network",
+    "advisersScopeCountry": "Everyone in {country}.",
+    "advisersScopeAll": "Everyone across the network.",
+    "previewRibbon": "Preview — demo data. In the live app this is one page, shown to the right person based on their Advisor-e login.",
+    "previewNav": "Preview a tier:",
+    "tiles": {
+      "globalGroups": "Global groups",
+      "groups": "Groups",
+      "specialtyGroups": "Specialty groups",
+      "firms": "Firms",
+      "advisers": "Advisers",
+      "pendingApprovals": "Pending approvals",
+      "crossFirm": "Cross-firm reach"
+    },
+    "levelPlural": {
+      "globalGroup": "global groups",
+      "country": "groups",
+      "firm": "firms",
+      "advisor": "advisers"
+    },
+    "levelSingular": {
+      "globalGroup": "global group",
+      "country": "group",
+      "firm": "firm",
+      "advisor": "adviser"
+    },
+    "breakdownTitle": "Breakdown",
+    "breakdownSub": "Roll-up by {level} — click a row to drill down.",
+    "unavailable": "Unavailable",
+    "loadingAdvisers": "Loading advisers…",
+    "loadFailed": "Couldn't load advisers.",
+    "noAdvisers": "No advisers here.",
+    "viewFullAudit": "View the full network audit log →",
+    "crossOrg": {
+      "ceilingLabel": "Set by the level above you:",
+      "hintOpen": "Open — advisers here can reach across organisations (both sides must be open).",
+      "hintClosed": "Closed — advisers here are sealed to their own organisation.",
+      "capped": "{scope} is set to Open, but {above} is currently Closed — cross-organisation contact stays off until that level opens.",
+      "scopeName": {
+        "firm": "Your firm",
+        "country": "Your country",
+        "global": "Your brand"
+      },
+      "aboveName": {
+        "country": "the country level above it",
+        "global": "the brand level above it"
+      }
+    }
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Every recorded action across the network — for compliance and oversight. Newest first.",
+    "previewRibbon": "Preview — demo data. In the live app the audit log is shown to platform administrators only.",
+    "search": "Search by person, action or item…",
+    "allActions": "All actions",
+    "colWhen": "When",
+    "colPerson": "Person",
+    "colAction": "Action",
+    "colDetail": "Item",
+    "showing": "Showing {shown} of {total}",
+    "empty": "No audit entries yet — actions appear here as advisers use the app.",
+    "noMatch": "No entries match your filters.",
+    "loadFailed": "Couldn't load the audit log."
+  },
+  "home": {
+    "title": "Find your people. Build together.",
+    "subtitle": "The collaboration network for advisers — discover specialists, form specialty groups, and co-create the tools you use with clients.",
+    "profileDesc": "Advertise your strengths and what you're open to.",
+    "discoverDesc": "Find advisers and specialty groups across the network.",
+    "messagesDesc": "Reach out, get replies, and start collaborating.",
+    "connectionsDesc": "Your network and the groups you're in.",
+    "connectingDesc": "Your connections and conversations, together in one place.",
+    "groups": "Groups",
+    "groupsDesc": "Form and join specialty groups.",
+    "marketDesc": "Buy and license tools other groups have built."
+  },
+  "common": {
+    "search": "Search",
+    "save": "Save",
+    "cancel": "Cancel",
+    "available": "Available",
+    "view": "View",
+    "reachOut": "Reach out",
+    "requestToJoin": "Request to join",
+    "back": "Back",
+    "connect": "Connect",
+    "connected": "Connected",
+    "requested": "Requested",
+    "respond": "Respond",
+    "inviteToGroup": "Invite to group",
+    "message": "Message"
+  },
+  "profile": {
+    "title": "My Profile",
+    "fromAdvisory": "From Advisory (read-only)",
+    "availability": "Availability",
+    "availableToggle": "Open to collaborate",
+    "strengths": "My strengths",
+    "industries": "Industries I know",
+    "topics": "Topics / projects",
+    "about": "About me (advertised to the network)",
+    "save": "Save profile",
+    "addTag": "Add",
+    "crossOrg": "Cross-firm collaboration",
+    "crossOrgOpen": "Open — you can discover and collaborate with advisers at other firms",
+    "crossOrgClosed": "Closed — limited to advisers within your own firm",
+    "crossOrgNote": "Set by your firm manager.",
+    "firmManagerHeading": "Firm manager access",
+    "blockFirmManagerView": "Block firm manager view",
+    "blockFirmManagerNote": "When on, your firm manager can't open your account and view it as you. Off (the default) means they can — the standard practice within your firm."
+  },
+  "discover": {
+    "title": "Discover",
+    "people": "People",
+    "groups": "Groups",
+    "availableOnly": "Available only",
+    "placeholder": "Search by specialty, industry, or name…",
+    "noResults": "No matches yet — try a broader search.",
+    "firms": "firms",
+    "members": "members"
+  },
+  "outreach": {
+    "title": "Reach out",
+    "hint": "A good first message explains WHY you are reaching out.",
+    "context": "Why them / context",
+    "ask": "The ask",
+    "attach": "Attach group",
+    "send": "Send invitation",
+    "onePerPerson": "One outreach per person — make it genuine.",
+    "needReason": "Please say why you are reaching out.",
+    "sent": "Invitation sent."
+  },
+  "messages": {
+    "title": "Messages",
+    "requests": "Requests",
+    "chats": "Chats",
+    "type": "Type a message…",
+    "autoTranslate": "Auto-translate",
+    "accept": "Accept",
+    "skip": "Skip",
+    "empty": "Select a conversation.",
+    "sendBtn": "Send",
+    "noMessages": "No messages yet — say hello.",
+    "groupTag": "Group",
+    "translate": "Translate",
+    "addToolHint": "Search the Advisor-e catalogue and pick a tool for the two of you to work on together. (This is for collaboration — selling it on the marketplace is separate.)",
+    "removeToolConfirm": "Remove ‘{title}’ from this shared workspace? This detaches the link only — it doesn't delete anything in Advisor-e."
+  },
+  "invite": {
+    "title": "Invite to group",
+    "whichGroup": "Which group?",
+    "note": "Add a note (why you'd like them to join)",
+    "send": "Send invite",
+    "sent": "Invitation sent",
+    "noGroups": "You don't manage any groups yet — create one first.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "joined": "You've joined the group",
+    "declined": "Invitation declined",
+    "handled": "This invitation has been handled."
+  },
+  "group": {
+    "createTitle": "Create a group",
+    "create": "Create group",
+    "createdBy": "Created by",
+    "about": "What we're doing",
+    "members": "Members",
+    "openGroupChat": "Open group chat",
+    "name": "Group name",
+    "namePlaceholder": "e.g. Seafood Financial Modelling",
+    "icon": "Icon",
+    "iconHint": "Pick one emoji to represent the group.",
+    "summaryLabel": "What's it about?",
+    "summaryPlaceholder": "Describe the project and who you're looking for…",
+    "tags": "Specialty tags",
+    "visibility": "Visibility",
+    "listed": "Listed — anyone can find it",
+    "unlisted": "Unlisted — invite only",
+    "requested": "Request sent — the group owner will review it.",
+    "requestPending": "Request Pending",
+    "member": "Member",
+    "joinRequests": "Requests to join",
+    "sharedWorkspace": "Shared workspace",
+    "noSharedPages": "No shared documents yet.",
+    "openInAdvisorE": "Open in Advisor-e",
+    "addTool": "Add a tool",
+    "addToolHint": "Search the Advisor-e catalogue and pick a tool for the group to work on together. (This is for collaboration — selling it on the marketplace is separate.)",
+    "toolAdded": "Tool added to the workspace.",
+    "removeTool": "Remove",
+    "removeToolConfirm": "Remove ‘{title}’ from this group's shared workspace? This detaches the link only — it doesn't delete anything in Advisor-e.",
+    "toolRemoved": "Tool removed from the workspace.",
+    "approve": "Approve",
+    "decline": "Decline",
+    "approvedToast": "Added to the group.",
+    "declinedToast": "Request declined.",
+    "noRequests": "No pending requests to join.",
+    "notFound": "Group not found."
+  },
+  "connections": {
+    "title": "Connections",
+    "incoming": "Requests to connect",
+    "yourConnections": "Your connections",
+    "pending": "Requests you've sent",
+    "accept": "Accept",
+    "decline": "Decline",
+    "noIncoming": "No pending requests.",
+    "noConnections": "No connections yet — find people in Discover.",
+    "requestedLabel": "Awaiting their response",
+    "acceptedToast": "Connected!",
+    "declinedToast": "Request declined.",
+    "myGroups": "Your groups",
+    "searchPlaceholder": "Search your connections by name or firm…",
+    "noMatches": "No connections match your search."
+  },
+  "connecting": {
+    "title": "Connecting",
+    "loading": "Loading…",
+    "searchPlaceholder": "Search by name, firm or message…",
+    "sortBy": "Sort",
+    "sortRecent": "Recent",
+    "sortName": "Name",
+    "empty": "Nothing here yet — find people and groups in Discover.",
+    "tab": {
+      "all": "All",
+      "chats": "Chats",
+      "groups": "Groups",
+      "connections": "Connections",
+      "requests": "Requests"
+    },
+    "type": {
+      "chat": "Chat",
+      "group": "Group",
+      "invitation": "Group invite",
+      "connection": "Connection",
+      "request-incoming": "Wants to connect",
+      "request-outgoing": "Request sent",
+      "group-request": "Group request"
+    },
+    "requestPending": "Request Pending"
+  },
+  "market": {
+    "title": "Marketplace",
+    "intro": "Tools and models built by groups — get them for your own clients.",
+    "list": "List a tool",
+    "get": "Get it",
+    "owned": "Owned",
+    "by": "By",
+    "licence": "Unlimited-client licence · ongoing updates · owned by the group",
+    "gotIt": "Added — you now have an unlimited-client licence.",
+    "listed": "Listed on the marketplace.",
+    "fTool": "Choose the Advisor-e tool",
+    "toolPlaceholder": "Type to search Advisor-e tools…",
+    "toolHint": "Every listing links to an Advisor-e tool. Pick one — the details below fill in and stay editable.",
+    "noTool": "No matching tool",
+    "fToolId": "Linked Advisor-e page",
+    "readOnly": "read-only",
+    "toolRequired": "Choose the Advisor-e tool this listing is for.",
+    "fTitle": "Title",
+    "fSummary": "What is it?",
+    "fTags": "Tags",
+    "fPrice": "Price",
+    "priceHint": "Members transact directly — Advisory takes no fee. Use 'Free' or any amount.",
+    "groupOwned": "Group-owned IP",
+    "locked": "Locked framework",
+    "lockedTool": "This is a locked Advisor-e framework — it can't be listed or derived.",
+    "allTools": "All tools",
+    "myTools": "My tools",
+    "openTool": "Open tool",
+    "noPurchases": "You haven't bought any tools yet — browse All tools to get started."
+  },
+  "notif": {
+    "title": "Notifications",
+    "empty": "You're all caught up",
+    "markAllRead": "Mark all as read",
+    "connection_request": "{name} wants to connect",
+    "group_invitation": "{inviter} invited you to {group}",
+    "group_join_request": "{name} asked to join {group}",
+    "group_join_accepted": "You're now in {group}",
+    "message": "New message from {name}",
+    "purchase": "{buyer} bought {tool}"
+  },
+  "toast": {
+    "loadConnections": "Could not load your connections — is the backend running?",
+    "loadProfile": "Could not load profile — is the backend running?",
+    "loadMarketplace": "Could not load the marketplace — is the backend running?",
+    "updateNotifications": "Could not update notifications — is the backend running?",
+    "searchFailed": "Search failed — is the backend running?",
+    "saveFailed": "Save failed",
+    "requestFailed": "Request failed",
+    "sendFailed": "Send failed",
+    "inviteFailed": "Invite failed",
+    "actionFailed": "Action failed",
+    "translationFailed": "Translation failed",
+    "failed": "Something went wrong",
+    "groupCreated": "Group created",
+    "createGroupFailed": "Could not create group"
+  },
+  "help": {
+    "button": "How to use this page",
+    "modalTitle": "How to use this page",
+    "close": "Got it",
+    "discover": {
+      "title": "Search the network two ways — find people and groups, and let them find you.",
+      "body": [
+        "Discovery is two-sided: you advertise your strengths on your Profile so others find you, and you search outward here.",
+        "Switch between People and Groups with the tabs, and narrow results by country, service line, specialty, or ‘Available only’.",
+        "Type a specialty, industry, or name and press Search — or tap 🎤 to speak instead of type.",
+        "On a group: View it or Request to join. On a person: Reach out with a purposeful first message (say why you're contacting them and what you're asking)."
+      ]
+    },
+    "connections": {
+      "title": "Your 1:1 connections and group memberships, all in one place.",
+      "body": [
+        "Connecting is mutual — a request becomes a connection only once both people accept.",
+        "‘Requests to connect’ — people who want to connect with you; Accept or Decline.",
+        "‘Your connections’ — advisers you're already linked with. ‘Requests you've sent’ — awaiting their reply.",
+        "‘Your groups’ — the specialty groups you belong to."
+      ]
+    },
+    "connecting": {
+      "title": "Your connections and conversations, together in one place.",
+      "body": [
+        "‘Connecting’ brings your people and your chats into a single list — the noun (who you know) and the verb (staying in touch).",
+        "Filter with the tabs — All, Chats, Groups, Connections, Requests — and search to find anyone in a large network.",
+        "‘Requests’ holds both connection requests and group invitations — anything waiting for your decision.",
+        "Open any row to view or start the conversation."
+      ]
+    },
+    "marketplace": {
+      "title": "License tools and models other groups have built — deal direct, no Advisory fee.",
+      "body": [
+        "Browse tools groups have created; ‘Get it’ to license one for use with your own clients.",
+        "Your licence is unlimited-client usage — use it with as many of your own clients as you like, but you can't resell or redistribute it.",
+        "Ownership stays with the group that built it: you're buying usage, not ownership.",
+        "Purchases include ongoing updates — when the group improves a tool, you get the new version.",
+        "Members pay each other directly; Advisory takes no fee and only records that a deal happened."
+      ]
+    },
+    "profile": {
+      "title": "Your advertised identity — this is what makes you findable on the network.",
+      "body": [
+        "Your name, title, firm and contact details come from Advisory and are read-only here.",
+        "Everything else is what you advertise — turn on ‘Open to collaborate’ so groups may approach you.",
+        "Add your strengths, the industries you know, and your topics/projects; these power the searches that find you.",
+        "Write a short ‘About me’, then Save profile. Tap 🎤 to dictate any field instead of typing."
+      ]
+    },
+    "messages": {
+      "title": "Requests and chats — with built-in translation across languages.",
+      "body": [
+        "New purposeful outreaches land under ‘Requests’ — Accept to open a thread, or Skip to dismiss.",
+        "‘Chats’ are your ongoing conversations with people and groups.",
+        "You stay in control — accept, ignore, or block; a sender gets just one outreach until you reply.",
+        "Each message keeps its original language; turn on Auto-translate to read and reply in yours."
+      ]
+    },
+    "groupNew": {
+      "title": "Create a specialty group — your advert to recruit collaborators.",
+      "body": [
+        "A group advertises itself and recruits members; the actual work happens in its space once it's formed.",
+        "Give it a clear name, pick one emoji icon, and describe what you're doing and who you're looking for.",
+        "Add specialty tags so the right people can find it in Discover.",
+        "Choose Listed (anyone can find it) or Unlisted (invite only), then Create group. Anyone except clients can create one."
+      ]
+    },
+    "groupDetail": {
+      "title": "A group's advert — what it's doing and how to join.",
+      "body": [
+        "See who created it, its firms and members, what they're building, and its specialty tags.",
+        "‘Request to join’ — membership is always opt-in, so the group owner reviews your request.",
+        "‘Open group chat’ to jump straight into the group's shared conversation with its members."
+      ]
+    }
+  }
+}

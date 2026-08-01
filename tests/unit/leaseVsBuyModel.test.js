@@ -4,7 +4,8 @@ const {
   DEFAULT_INPUTS,
   computeLeaseVsBuy,
   amortise,
-  depreciate
+  depreciate,
+  annuityPayment
 } = require('../../server/report/leaseVsBuyModel')
 
 /**
@@ -172,6 +173,61 @@ describe('Lease vs Buy — golden values from CM.Lease vs. Buy.xlsx', () => {
       delete partial.deposit
       const out = computeLeaseVsBuy(partial)
       expect(out.defaultedInputs).toContain('deposit')
+    })
+  })
+
+  /**
+   * THE GUARDS, EXERCISED. Each block below has a guard in the model and, until now,
+   * nothing that ran it. They are not hypothetical: the route hands this model raw JSON
+   * straight off the browser, so a number arriving as text, or an unknown interval
+   * arriving as zero, is ordinary input rather than an exotic case.
+   */
+  describe('hostile and edge-case inputs', () => {
+    const sample = () => Object.assign({}, DEFAULT_INPUTS)
+
+    it('a number arriving as unparseable TEXT falls back instead of concatenating', () => {
+      // The `num()` comment names this exactly: raw JSON must not string-concatenate.
+      // 'eight thousand' cannot become a deposit; the sample deposit is used instead.
+      const out = computeLeaseVsBuy(Object.assign(sample(), { deposit: 'eight thousand' }))
+      expect(out.buy.totalNet).toBeCloseTo(r.buy.totalNet, 6)
+      expect(Number.isFinite(out.buy.totalNet)).toBe(true)
+    })
+
+    it('a numeric field arriving as NaN or Infinity falls back', () => {
+      // typeof is 'number' here, so only the finiteness check catches these.
+      const nan = computeLeaseVsBuy(Object.assign(sample(), { deposit: NaN }))
+      const inf = computeLeaseVsBuy(Object.assign(sample(), { deposit: Infinity }))
+      expect(nan.buy.totalNet).toBeCloseTo(r.buy.totalNet, 6)
+      expect(inf.buy.totalNet).toBeCloseTo(r.buy.totalNet, 6)
+    })
+
+    it('⚠ CURRENT BEHAVIOUR — a text value is substituted WITHOUT being declared', () => {
+      // Pinned deliberately, not endorsed. A field that is absent is named in
+      // `defaultedInputs` (the R8 ruling, tested above); a field present but unusable is
+      // silently replaced by the sample and named nowhere, so the caller is told the
+      // figure is theirs. Raised with the owner 2026-08-02. If this is later ruled a
+      // defect, the fix will fail THIS test rather than pass quietly.
+      const out = computeLeaseVsBuy(Object.assign(sample(), { deposit: 'eight thousand' }))
+      expect(out.defaultedInputs).not.toContain('deposit')
+    })
+
+    it('a zero servicing interval yields no servicing cost, never Infinity', () => {
+      // `div()` exists so an unknown "km between services" cannot produce Infinity and
+      // poison every downstream total. Zero is what an unanswered interval looks like.
+      const out = computeLeaseVsBuy(Object.assign(sample(), { servicePeriodKm: 0 }))
+      expect(Number.isFinite(out.buy.totalNet)).toBe(true)
+      expect(out.buy.totalNet).toBeLessThan(r.buy.totalNet) // servicing drops out entirely
+    })
+
+    it('a loan over zero months has no instalment', () => {
+      expect(annuityPayment(0.095 / 12, 0, 46500)).toBe(0)
+    })
+
+    it('an interest-free loan repays straight-line — the annuity formula cannot', () => {
+      // Real for interest-free dealer finance. At 0% the standard annuity formula
+      // divides by zero, so the model takes a separate branch: principal ÷ periods.
+      expect(annuityPayment(0, 48, 48000)).toBeCloseTo(1000, 10)
+      expect(Number.isFinite(annuityPayment(0, 48, 48000))).toBe(true)
     })
   })
 })

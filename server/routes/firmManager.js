@@ -5,10 +5,24 @@ const DEV_DISTINCTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-disti
 const DEV_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-declines.json')
 const DEV_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-overrides.json')
 const DEV_STAIRCASE_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase.json')
+// The staircase's three cascade keys, added 2026-07-31 when it joined the one
+// firm-editable mechanism. Same TEST-ONLY convention as the distinction files above.
+const DEV_STAIRCASE_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-declines.json')
+const DEV_STAIRCASE_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-overrides.json')
+const DEV_STAIRCASE_OWN_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-own.json')
+const DEV_STAIRCASE_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-staircase-override-baselines.json')
 const DEV_TEMPLATES_FILE = path.resolve(__dirname, '../../data/dev-firm-templates.json')
 const DEV_LASTSEEN_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-lastseen.json')
 const DEV_OVERRIDE_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-distinction-override-baselines.json')
 const DEV_QUIZZES_FILE = path.resolve(__dirname, '../../data/dev-firm-quizzes.json')
+// The quiz cascade's three keys, added 2026-07-31 (Phase 3) when quizzes joined the
+// one firm-editable mechanism. These paths must stay identical to firmQuizzes.js's
+// own DEV_FILES: the write side lives here and the read side lives there, so a
+// mismatch would look exactly like a save that vanished.
+const DEV_QUIZ_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-declines.json')
+const DEV_QUIZ_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-overrides.json')
+const DEV_QUIZ_OWN_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-own.json')
+const DEV_QUIZ_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-override-baselines.json')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 function _devReadDistinctions (firmId) {
@@ -136,9 +150,15 @@ function _devWriteOverrideBaselines (firmId, obj) {
  *     (history + restore reuse /framework/history + /framework/restore with
  *      configKey='advisory-staircase')
  *
- *   Firm Profile
- *     GET  /api/firm-manager/profile              get firm profile
- *     PUT  /api/firm-manager/profile              update firm profile
+ *   Quizzes (whole-bank override, plus the per-question cascade)
+ *     GET  /api/firm-manager/quizzes                       base + overlay + resolved
+ *     POST /api/firm-manager/quizzes                       save a whole-bank override
+ *     PUT  /api/firm-manager/quizzes/platform/:qid         edit one of ours
+ *     DEL  /api/firm-manager/quizzes/platform/:qid         reset it to ours
+ *     PUT  /api/firm-manager/quizzes/platform/:qid/decline switch it off / back on
+ *     POST /api/firm-manager/quizzes/own                   add a question of their own
+ *     PUT  /api/firm-manager/quizzes/own/:id               edit one they added
+ *     DEL  /api/firm-manager/quizzes/own/:id               remove one they added
  *
  *   Storage
  *     GET  /api/firm-manager/storage              get storage usage summary
@@ -478,55 +498,6 @@ async function deleteVideo (req, res) {
   }
 }
 
-// ── Firm Profile ──────────────────────────────────────────────────────────────
-
-async function getProfile (req, res) {
-  try {
-    const [rows] = await db.execute(
-      `SELECT id, name, slug, logo_url, primary_colour, persona_name, created_at
-       FROM firms WHERE id = ?`,
-      [req.firmId]
-    )
-    if (rows.length === 0) { return sendError(res, 404, 'NOT_FOUND', 'Firm not found') }
-    res.send(200, { firm: rows[0] })
-  } catch (err) {
-    if (IS_DEV) {
-      res.send(200, { firm: { id: req.firmId, name: 'Dev Firm', slug: 'dev', logo_url: null, primary_colour: '#000000', persona_name: null } }); return
-    }
-    return serverError(res, 500, 'DB_ERROR', err)
-  }
-}
-
-async function updateProfile (req, res) {
-  const allowed = ['name', 'logo_url', 'primary_colour', 'persona_name']
-  const body = req.body || {}
-  const setClauses = []
-  const values = []
-
-  for (const field of allowed) {
-    if (body[field] !== undefined) {
-      setClauses.push(`\`${field}\` = ?`)
-      values.push(body[field])
-    }
-  }
-
-  if (setClauses.length === 0) {
-    return sendError(res, 400, 'NO_FIELDS',
-      `At least one of these fields is required: ${allowed.join(', ')}`)
-  }
-
-  values.push(req.firmId)
-  try {
-    await db.execute(
-      `UPDATE firms SET ${setClauses.join(', ')} WHERE id = ?`,
-      values
-    )
-    res.send(200, { updated: true })
-  } catch (err) {
-    return serverError(res, 500, 'DB_ERROR', err)
-  }
-}
-
 // ── Storage usage ─────────────────────────────────────────────────────────────
 
 async function getStorageUsage (req, res) {
@@ -824,11 +795,25 @@ async function deleteDistinction (req, res) {
 // req.firmId — a client-supplied firmId is never trusted (IDOR).
 
 // The platform (mentor) set is now dynamic — the mentor can author it (the cascade
-// origin, DISTINCTIONS-CASCADE-PLAN.md §6) — so its ids are loaded per request via
+// origin, DISTINCTIONS-CASCADE-PLAN.md §6) — so its rows are loaded per request via
 // the single platform loader (falls back to the committed seed when nothing stored).
-async function _loadPlatformIds () {
-  const rows = await loadPlatformDistinctions(overlay.loadFirmConfig)
-  return new Set(rows.map(r => r.id))
+//
+// WHY THIS ANSWERS THE RESPONSE ITSELF. Every route below checks the id against the
+// platform set BEFORE its try block, because a 404 for an unknown id must come before
+// any store write. In production loadPlatformDistinctions REJECTS on a storage fault
+// rather than quietly serving the seed, and an async Restify handler that rejects
+// answers NOTHING AT ALL — the manager's browser would sit there until it gave up.
+// So the fault is turned into the same 500 the handler's own catch would have sent.
+//
+// @param {Object} res - restify response; answered with a 500 when the read fails
+// @returns {Promise<Array|null>} the platform rows, or null once `res` is answered
+async function _platformRowsOr500 (res) {
+  try {
+    return await loadPlatformDistinctions(overlay.loadFirmConfig)
+  } catch (err) {
+    serverError(res, 500, 'DB_ERROR', err)
+    return null
+  }
 }
 
 async function _loadDeclines (firmId) {
@@ -1167,7 +1152,8 @@ async function markDistinctionsReviewed (req, res) {
  */
 async function setDistinctionOverride (req, res) {
   const id = String(req.params.id || '')
-  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
   const platformRow = platformRows.find(r => r.id === id)
   if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
@@ -1198,7 +1184,9 @@ async function setDistinctionOverride (req, res) {
  */
 async function resetDistinctionOverride (req, res) {
   const id = String(req.params.id || '')
-  if (!(await _loadPlatformIds()).has(id)) {
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
+  if (!platformRows.some(r => r.id === id)) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   try {
@@ -1234,7 +1222,8 @@ async function resetDistinctionOverride (req, res) {
  */
 async function keepMineDistinction (req, res) {
   const id = String(req.params.id || '')
-  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
   const platformRow = platformRows.find(r => r.id === id)
   if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
@@ -1262,7 +1251,9 @@ async function keepMineDistinction (req, res) {
  */
 async function setDistinctionDecline (req, res) {
   const id = String(req.params.id || '')
-  if (!(await _loadPlatformIds()).has(id)) {
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
+  if (!platformRows.some(r => r.id === id)) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
   }
   const declined = (req.body || {}).declined
@@ -1293,7 +1284,8 @@ async function setDistinctionDecline (req, res) {
  */
 async function moveDistinction (req, res) {
   const id = String(req.params.id || '')
-  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  const platformRows = await _platformRowsOr500(res)
+  if (!platformRows) { return }
   const platformRow = platformRows.find(r => r.id === id)
   if (!platformRow) {
     return sendError(res, 404, 'NOT_FOUND', 'No platform distinction with that id')
@@ -1403,12 +1395,22 @@ async function _saveStaircaseOverride (firmId, cfg, savedBy) {
 }
 
 // Returns an error string if the override is invalid, or null if it is well-formed.
+//
+// `steps` became OPTIONAL on 2026-07-31. Per-step wording is no longer saved as a
+// whole copy — it goes through the cascade routes below, one decision at a time — so
+// this route's remaining job is the ceiling settings. A body that still carries steps
+// is validated exactly as before, which is why no existing caller changed.
 function _validateStaircase (cfg) {
   if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) {
     return 'staircase must be a non-array JSON object'
   }
-  if (!Array.isArray(cfg.steps) || cfg.steps.length === 0) {
+  if (cfg.steps !== undefined && (!Array.isArray(cfg.steps) || cfg.steps.length === 0)) {
     return 'steps must be a non-empty array'
+  }
+  if (cfg.steps === undefined) {
+    return STAIRCASE_CEILINGS.has(cfg.defaultCeiling)
+      ? null
+      : `defaultCeiling must be one of: ${[...STAIRCASE_CEILINGS].join(', ')}`
   }
   const allowed = [...STAIRCASE_CEILINGS].join(', ')
   const seen = new Set()
@@ -1436,10 +1438,467 @@ function _validateStaircase (cfg) {
   return null
 }
 
+// ── Staircase cascade (the one firm-editable mechanism, 2026-07-31) ────────────
+// Switch a platform step off, edit one, or add your own — each a single decision
+// keyed to a step id, stored in its own key. Mirrors the distinction routes above,
+// deliberately: same shapes, same verbs, same error codes, so a reader who knows one
+// knows the other.
+
+const {
+  loadFirmStaircaseState, CONFIG_KEYS: STAIRCASE_KEYS, EDITABLE_STEP_FIELDS, FIRM_STEP_PREFIX
+} = require('../utils/firmStaircase')
+const { loadBlendedStaircase } = require('../utils/staircaseConfig')
+
+const STAIRCASE_DEV_FILES = {
+  [STAIRCASE_KEYS.declines]: DEV_STAIRCASE_DECLINES_FILE,
+  [STAIRCASE_KEYS.overrides]: DEV_STAIRCASE_OVERRIDES_FILE,
+  [STAIRCASE_KEYS.own]: DEV_STAIRCASE_OWN_FILE
+}
+
+const PLATFORM_STEP_IDS = new Set(BASE_STAIRCASE.steps.map(s => s.id))
+
+function _devReadStaircasePart (file, firmId, fallback) {
+  try {
+    const all = JSON.parse(fs.readFileSync(file, 'utf8'))
+    return Object.prototype.hasOwnProperty.call(all, firmId) ? all[firmId] : fallback
+  } catch { return fallback }
+}
+
+function _devWriteStaircasePart (file, firmId, value) {
+  let all = {}
+  try { all = JSON.parse(fs.readFileSync(file, 'utf8')) } catch {}
+  all[firmId] = value
+  fs.writeFileSync(file, JSON.stringify(all, null, 2))
+}
+
+async function _loadStaircasePart (firmId, key, fallback) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, key)
+    return (stored === null || stored === undefined) ? fallback : stored
+  } catch (err) {
+    if (IS_DEV) { return _devReadStaircasePart(STAIRCASE_DEV_FILES[key], firmId, fallback) }
+    throw err
+  }
+}
+
+async function _saveStaircasePart (firmId, key, value, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, key, value, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteStaircasePart(STAIRCASE_DEV_FILES[key], firmId, value); return }
+    throw err
+  }
+}
+
+/**
+ * Accept only the fields a firm may edit on a step, in the types they must be.
+ *
+ * `id` and `step` are absent from EDITABLE_STEP_FIELDS on purpose: the id is identity
+ * and the number is a position the resolver assigns. Neither is the firm's to set, and
+ * letting either through the body would let a firm re-point an edit at another step.
+ *
+ * @param {Object} body
+ * @returns {{ok: boolean, value?: Object, code?: string, message?: string}}
+ */
+function _sanitiseStaircaseFields (body) {
+  const src = (body && typeof body === 'object' && !Array.isArray(body)) ? body : {}
+  const value = {}
+  for (const field of EDITABLE_STEP_FIELDS) {
+    if (!Object.prototype.hasOwnProperty.call(src, field)) { continue }
+    if (field === 'complexityCeiling') {
+      if (!STAIRCASE_CEILINGS.has(src[field])) {
+        return { ok: false, code: 'INVALID_CEILING', message: `complexityCeiling must be one of: ${[...STAIRCASE_CEILINGS].join(', ')}` }
+      }
+      value[field] = src[field]
+      continue
+    }
+    if (typeof src[field] !== 'string') {
+      return { ok: false, code: 'INVALID_FIELD', message: `${field} must be a string` }
+    }
+    value[field] = src[field].trim()
+  }
+  if (Object.keys(value).length === 0) {
+    return { ok: false, code: 'NO_FIELDS', message: `Provide at least one of: ${EDITABLE_STEP_FIELDS.join(', ')}` }
+  }
+  if (Object.prototype.hasOwnProperty.call(value, 'name') && !value.name) {
+    return { ok: false, code: 'INVALID_FIELD', message: 'name must not be empty' }
+  }
+  return { ok: true, value }
+}
+
+// ── Phase 3 — platform-update review on steps a firm has edited ───────────────
+// A firm's edit SHIELDS a step from later platform wording (firm-wins-and-sticks),
+// which is right until the platform improves that step: the firm then never sees the
+// improvement, permanently, with nothing on screen to say so. This is the same
+// mechanism Stage E gives Advisory Distinctions — stamp the platform row's content
+// signature when the firm edits, and when the live signature later differs, offer
+// Adopt (drop the edit, take the platform's step) or Keep mine (re-stamp, so the
+// prompt clears until the platform's NEXT change).
+//
+// ONE HONEST DIFFERENCE FROM DISTINCTIONS, worth knowing before reading this as an
+// exact copy. A mentor authors distinctions in the running app, so a firm sees drift
+// within minutes. The staircase is a COMMITTED FILE (data/advisory-staircase.json),
+// so its signature changes when a release ships, not while anyone is looking. The
+// detection is identical; the cadence is release-to-release.
+//
+// There is deliberately NO "since your last visit" half here. That notice covers rows
+// a firm has NOT edited, and reads the mentor row's updated_at/created_at — timestamps
+// the staircase file does not carry. A step a firm has not touched already updates
+// itself silently, which is the wanted behaviour; inventing timestamps to announce it
+// would be building a feature nobody asked for out of data that does not exist.
+const STAIRCASE_BASELINES_KEY = 'staircase-override-baselines'
+
+function _devReadStaircaseBaselines (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_STAIRCASE_BASELINES_FILE, 'utf8'))
+    const v = all[firmId]
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch { return {} }
+}
+
+function _devWriteStaircaseBaselines (firmId, obj) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_STAIRCASE_BASELINES_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = obj
+  fs.writeFileSync(DEV_STAIRCASE_BASELINES_FILE, JSON.stringify(all, null, 2))
+}
+
+/**
+ * A stable content signature of a platform step's meaningful fields.
+ *
+ * Deterministic (fixed field order) so the same content always signs identically, and
+ * limited to EDITABLE_STEP_FIELDS: `id` is identity and `step` is a POSITION the
+ * resolver assigns, so including either would report a firm's step as "updated"
+ * because a step above it was declined — an update prompt for a change that never
+ * touched this step's wording.
+ *
+ * @param {Object} row - a platform step
+ * @returns {string} the signature, or '' for a missing row
+ */
+function _staircaseStepSignature (row) {
+  if (!row || typeof row !== 'object') { return '' }
+  const norm = {}
+  for (const field of EDITABLE_STEP_FIELDS) {
+    norm[field] = String(row[field] === null || row[field] === undefined ? '' : row[field]).trim()
+  }
+  return JSON.stringify(norm)
+}
+
+async function _loadStaircaseBaselines (firmId) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, STAIRCASE_BASELINES_KEY)
+    return (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+  } catch (err) {
+    if (IS_DEV) { return _devReadStaircaseBaselines(firmId) }
+    throw err
+  }
+}
+
+async function _saveStaircaseBaselines (firmId, obj, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, STAIRCASE_BASELINES_KEY, obj, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteStaircaseBaselines(firmId, obj); return }
+    throw err
+  }
+}
+
+/**
+ * Which of this firm's edited steps the platform has changed since the firm last
+ * stated its version.
+ *
+ * A MISSING BASELINE IS BACKFILLED, NOT TREATED AS DRIFT. An edit made before this
+ * feature existed has no stamp, and reading that as "the platform changed this" would
+ * greet every such firm with a review prompt for an update that never happened. The
+ * honest reading is "assume in sync now, track from here".
+ *
+ * @param {string} firmId
+ * @param {Object} overrides - the firm's edits, keyed by platform step id
+ * @param {string} savedBy - audit attribution for a backfill write
+ * @returns {Promise<string[]>} platform step ids to offer Adopt / Keep mine on
+ */
+async function _staircaseDriftIds (firmId, overrides, savedBy) {
+  const edited = Object.keys(overrides || {})
+  if (edited.length === 0) { return [] }
+
+  const baselines = await _loadStaircaseBaselines(firmId)
+  const driftIds = []
+  let backfilled = false
+
+  for (const step of BASE_STAIRCASE.steps) {
+    if (!step || !edited.includes(step.id)) { continue }
+    const sig = _staircaseStepSignature(step)
+    if (!Object.prototype.hasOwnProperty.call(baselines, step.id)) {
+      baselines[step.id] = sig
+      backfilled = true
+    } else if (baselines[step.id] !== sig) {
+      driftIds.push(step.id)
+    }
+  }
+
+  if (backfilled) { await _saveStaircaseBaselines(firmId, baselines, savedBy) }
+  return driftIds
+}
+
+/**
+ * @route GET /api/firm-manager/staircase
+ * The tab's whole picture: Advisor-e's steps, this firm's decisions, and the resolved
+ * list those two produce — the SAME resolved list the advisor's selector and the
+ * engine's ceiling read, so the screen can never show a firm something different from
+ * what its advisors get.
+ * @returns {{base: Object, state: Object, resolved: Array, driftIds: string[],
+ *   hasOverride: boolean}} `driftIds` are the firm's edited steps the platform has
+ *   changed since — the tab offers Adopt / Keep mine on those.
+ */
 async function getStaircase (req, res) {
   try {
     const firmOverride = await _loadStaircase(req.firmId)
-    res.send(200, { base: BASE_STAIRCASE, firmOverride, hasOverride: firmOverride !== null })
+    const state = await loadFirmStaircaseState(req.firmId, overlay.loadFirmConfig, BASE_STAIRCASE.steps)
+    const resolved = await loadBlendedStaircase(req.firmId, overlay.loadFirmConfig)
+    const driftIds = await _staircaseDriftIds(req.firmId, state.overrides, req.userEmail)
+    res.send(200, {
+      base: BASE_STAIRCASE,
+      firmOverride,
+      state,
+      resolved: resolved.steps,
+      defaultCeiling: resolved.defaultCeiling,
+      driftIds,
+      hasOverride: firmOverride !== null ||
+        state.declinedIds.length > 0 ||
+        Object.keys(state.overrides).length > 0 ||
+        state.ownRows.length > 0
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/staircase/platform/:id
+ * Edit an Advisor-e step for this firm. Fields the body does not carry are NOT
+ * recorded, so they keep tracking Advisor-e's wording rather than being frozen at
+ * today's text — the whole point of the mechanism.
+ * @param {string} id - a platform step id (as-*)
+ * @returns {{updated: true, id: string}}
+ */
+async function setStaircaseOverride (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_STEP_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform staircase step with that id')
+  }
+  const sani = _sanitiseStaircaseFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    const overrides = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, {})
+    const current = (overrides && typeof overrides === 'object' && !Array.isArray(overrides)) ? overrides : {}
+    const next = { ...current, [id]: { ...(current[id] || {}), ...sani.value } }
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, next, req.userEmail)
+    // Stamp the platform step's current wording as the drift baseline: the firm has
+    // just stated its version against THIS text, so a later platform change to it is
+    // what the firm should be offered (Phase 3).
+    const baselines = await _loadStaircaseBaselines(req.firmId)
+    const platformRow = BASE_STAIRCASE.steps.find(s => s && s.id === id)
+    await _saveStaircaseBaselines(
+      req.firmId, { ...baselines, [id]: _staircaseStepSignature(platformRow) }, req.userEmail
+    )
+    res.send(200, { updated: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/staircase/platform/:id
+ * Reset to platform — drop this firm's version so Advisor-e's step applies again, and
+ * keeps applying as Advisor-e changes it. Idempotent.
+ * @param {string} id - a platform step id (as-*)
+ * @returns {{reset: true, id: string}}
+ */
+async function resetStaircaseOverride (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_STEP_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform staircase step with that id')
+  }
+  try {
+    const overrides = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, {})
+    const current = (overrides && typeof overrides === 'object' && !Array.isArray(overrides)) ? overrides : {}
+    if (Object.prototype.hasOwnProperty.call(current, id)) {
+      const next = { ...current }
+      delete next[id]
+      await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, next, req.userEmail)
+    }
+    // Also the Adopt path (Phase 3): the firm no longer holds its own version, so the
+    // drift baseline goes with it. A stale baseline is inert — it is dropped to keep
+    // the store honest, and so a later re-edit stamps fresh rather than inheriting a
+    // signature from a decision the firm has since undone.
+    const baselines = await _loadStaircaseBaselines(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(baselines, id)) {
+      const nextB = { ...baselines }
+      delete nextB[id]
+      await _saveStaircaseBaselines(req.firmId, nextB, req.userEmail)
+    }
+    res.send(200, { reset: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/staircase/platform/:id/decline
+ * Switch an Advisor-e step off for this firm, or back on. Only the declines key is
+ * written — the firm's override survives — so a firm that switches a step back on
+ * gets ITS OWN wording back, not Advisor-e's. Dropping an edit is the reset route
+ * (DELETE .../platform/:id); the two are separate on purpose, and a comment saying
+ * this returns Advisor-e's wording was wrong from Phase 2 until 2026-07-31.
+ * @param {string} id - a platform step id (as-*)
+ * @param {boolean} req.body.declined
+ * @returns {{declined: boolean, id: string}}
+ */
+async function setStaircaseDecline (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_STEP_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform staircase step with that id')
+  }
+  const declined = (req.body || {}).declined
+  if (typeof declined !== 'boolean') {
+    return sendError(res, 400, 'INVALID_DECLINED', 'declined must be a boolean')
+  }
+  try {
+    const stored = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.declines, [])
+    const set = new Set(Array.isArray(stored) ? stored : [])
+    if (declined) { set.add(id) } else { set.delete(id) }
+    // Switching every step off would leave an advisor mid-session with nothing to
+    // choose from. The blend has a second lock for this; refusing here is the first,
+    // and the only one that can explain itself to the person who asked for it.
+    if (declined && set.size >= PLATFORM_STEP_IDS.size) {
+      const ownRows = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.own, [])
+      if (!Array.isArray(ownRows) || ownRows.length === 0) {
+        return sendError(res, 409, 'LAST_STEP', 'At least one step must stay switched on — add your own step first, or switch another back on')
+      }
+    }
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.declines, [...set], req.userEmail)
+    res.send(200, { declined, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/staircase/platform/:id/keep-mine
+ * Phase 3 "Keep mine" — the firm has seen the platform's update to a step it edited
+ * and is keeping its own version. Re-stamps the drift baseline to the platform's
+ * CURRENT wording, so the review prompt clears until the platform's NEXT change. The
+ * firm's edit is left untouched; the Adopt half of the choice is the existing
+ * reset route, which drops the edit and takes the platform's step.
+ *
+ * 409 rather than a silent success when the firm holds no edit: nothing is being
+ * kept, and stamping a baseline for a step the firm does not override would arm a
+ * prompt that can never fire.
+ *
+ * @param {string} id - a platform step id (as-*)
+ * @returns {{keptMine: true, id: string}}
+ */
+async function keepMineStaircaseStep (req, res) {
+  const id = String(req.params.id || '')
+  const platformRow = BASE_STAIRCASE.steps.find(s => s && s.id === id)
+  if (!platformRow) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform staircase step with that id')
+  }
+  try {
+    const overrides = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.overrides, {})
+    const current = (overrides && typeof overrides === 'object' && !Array.isArray(overrides)) ? overrides : {}
+    if (!Object.prototype.hasOwnProperty.call(current, id)) {
+      return sendError(res, 409, 'NOT_OVERRIDDEN', 'Your firm has no custom version of that step')
+    }
+    const baselines = await _loadStaircaseBaselines(req.firmId)
+    await _saveStaircaseBaselines(
+      req.firmId, { ...baselines, [id]: _staircaseStepSignature(platformRow) }, req.userEmail
+    )
+    res.send(200, { keptMine: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/staircase/own
+ * Add a step of the firm's own, after Advisor-e's. Its id is assigned here (fs-N) and
+ * never taken from the body — an id from the browser could collide with a platform
+ * step and silently replace it.
+ * @returns {{added: true, id: string}}
+ */
+async function addOwnStaircaseStep (req, res) {
+  const sani = _sanitiseStaircaseFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  if (!sani.value.name) {
+    return sendError(res, 400, 'INVALID_FIELD', 'A step needs a name')
+  }
+  try {
+    const stored = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    // Highest existing number + 1, never the row count: reusing a deleted step's id
+    // would hand a new step the decisions recorded against the old one.
+    const used = rows
+      .map(r => parseInt(String((r && r.id) || '').replace(FIRM_STEP_PREFIX, ''), 10))
+      .filter(n => Number.isInteger(n))
+    const id = `${FIRM_STEP_PREFIX}${(used.length ? Math.max(...used) : 0) + 1}`
+    const next = [...rows, {
+      id,
+      name: sani.value.name,
+      selectorDescription: sani.value.selectorDescription || '',
+      complexityCeiling: sani.value.complexityCeiling || BASE_STAIRCASE.defaultCeiling
+    }]
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.own, next, req.userEmail)
+    res.send(201, { added: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/staircase/own/:id
+ * Edit a step this firm added.
+ * @param {string} id - a firm step id (fs-*)
+ * @returns {{updated: true, id: string}}
+ */
+async function updateOwnStaircaseStep (req, res) {
+  const id = String(req.params.id || '')
+  const sani = _sanitiseStaircaseFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    const stored = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    const index = rows.findIndex(r => r && r.id === id)
+    if (index === -1) {
+      return sendError(res, 404, 'NOT_FOUND', 'No step of your own with that id')
+    }
+    const next = rows.map((r, i) => (i === index ? { ...r, ...sani.value, id } : r))
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.own, next, req.userEmail)
+    res.send(200, { updated: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/staircase/own/:id
+ * Remove a step this firm added. Only the firm's own steps can be removed — an
+ * Advisor-e step is switched off, never deleted, so it can come back.
+ * @param {string} id - a firm step id (fs-*)
+ * @returns {{removed: true, id: string}}
+ */
+async function deleteOwnStaircaseStep (req, res) {
+  const id = String(req.params.id || '')
+  try {
+    const stored = await _loadStaircasePart(req.firmId, STAIRCASE_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    if (!rows.some(r => r && r.id === id)) {
+      return sendError(res, 404, 'NOT_FOUND', 'No step of your own with that id')
+    }
+    await _saveStaircasePart(req.firmId, STAIRCASE_KEYS.own, rows.filter(r => !(r && r.id === id)), req.userEmail)
+    res.send(200, { removed: true, id })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -1467,7 +1926,70 @@ async function saveStaircase (req, res) {
 // starting point and what the firm changed.
 
 const { CONFIG_KEY: QUIZ_KEY, validateQuizOverride, mergeQuizBanks } = require('../utils/firmQuizzes')
+// The cascade's own imports live up here rather than beside its handlers below, so
+// getQuizzes can read the resolved banks without referencing a binding declared
+// further down the file.
+const {
+  loadFirmQuizState,
+  CONFIG_KEYS: QUIZ_KEYS,
+  EDITABLE_QUESTION_FIELDS,
+  FIRM_QUESTION_PREFIX,
+  LIMITS: QUIZ_LIMITS
+} = require('../utils/firmQuizzes')
+const { loadBlendedQuizBanks } = require('../utils/quizConfig')
+const { listTemplatePages, resolveTemplateName } = require('../utils/resolveTemplateName')
 const BASE_QUIZZES = require('../../data/course-quizzes.json')
+const QUIZZABLE = require('../../data/quizzable-sections.json')
+
+/**
+ * Keep only pages in sub-sections that can hold quiz material.
+ *
+ * Mike's ruling 2026-07-22: the editor lists genuine advisory-content areas
+ * only. Two of the excluded Do-the-Job pages carry no sub-section at all, so
+ * before this rule they appeared under a heading the app invented — showing a
+ * group that exists nowhere in the firm's library.
+ *
+ * A section absent from `restrictions` is unrestricted, so a section added
+ * upstream stays visible rather than silently disappearing.
+ *
+ * @param {Array<Object>} pages - rows from listTemplatePages()
+ * @returns {Array<Object>} the subset that may hold a quiz
+ */
+function quizzablePages (pages) {
+  const limits = (QUIZZABLE && QUIZZABLE.restrictions) || {}
+  const sectionOrder = (QUIZZABLE && QUIZZABLE.sectionOrder) || []
+  const subOrder = (QUIZZABLE && QUIZZABLE.subSectionOrder) || {}
+
+  const kept = pages.filter((p) => {
+    const allowed = limits[p.section]
+    return Array.isArray(allowed) ? allowed.includes(p.subSection) : true
+  })
+
+  // Anything unnamed ranks last rather than first, so a sub-section added
+  // upstream appears at the end of its section instead of jumping to the top.
+  const LAST = Number.MAX_SAFE_INTEGER
+  const rankOf = (list, value) => {
+    if (!Array.isArray(list)) { return LAST }
+    const i = list.indexOf(value)
+    return i === -1 ? LAST : i
+  }
+  // Where a section is restricted, the allow-list doubles as its running order,
+  // so the two can never disagree.
+  const subList = section => (Array.isArray(limits[section]) ? limits[section] : subOrder[section])
+
+  return kept
+    .map((page, i) => ({ page, i }))
+    .sort((a, b) => {
+      const sa = rankOf(sectionOrder, a.page.section)
+      const sb = rankOf(sectionOrder, b.page.section)
+      if (sa !== sb) { return sa - sb }
+      const ta = rankOf(subList(a.page.section), a.page.subSection)
+      const tb = rankOf(subList(b.page.section), b.page.subSection)
+      if (ta !== tb) { return ta - tb }
+      return a.i - b.i // keep the export's own order within a sub-section
+    })
+    .map(entry => entry.page)
+}
 
 function _devReadQuizzes (firmId) {
   try {
@@ -1505,20 +2027,50 @@ async function _saveQuizOverride (firmId, cfg, savedBy) {
 
 /**
  * GET /api/firm-manager/quizzes — the firm's quiz material.
- * @returns {{base: Object, firmOverride: Object|null, merged: Object, hasOverride: boolean}}
+ *
+ * `pages` is every page that can hold quiz material — not just the pages that
+ * already have one. The editor lists every such sub-section including the empty
+ * ones, so a firm can SEE where it has no quiz material; hiding those would
+ * hide the gap. It comes from the resolver's own list, so the pages offered are
+ * exactly the pages a save will accept, filtered to the advisory-content areas
+ * (see data/quizzable-sections.json).
+ *
+ * ALSO RETURNS THE RESOLVED BANKS (Phase 3) — the very banks loadBlendedQuizBanks
+ * hands the course engine. `merged` is the OLD whole-bank view and is kept only so
+ * the current read-only screen keeps working unchanged; anything that edits must
+ * draw `resolved`, or the firm would be editing one thing while its advisors were
+ * given another. That is not hypothetical: it is the defect Phase 2 closed on this
+ * exact feature, and a Save button on top of `merged` would reopen it.
+ *
+ * `hasOverride` deliberately keeps its old, narrow meaning — "is there a whole-bank
+ * override?" — because that is the question the version-history call answers.
+ * Whether the firm has made any cascade decision is the separate `hasDecisions`.
+ *
+ * @returns {{base: Object, firmOverride: Object|null, merged: Object,
+ *            resolved: Object, state: Object, hasOverride: boolean,
+ *            hasDecisions: boolean, pages: Array<Object>, driftQids: string[]}}
+ *   `driftQids` are the firm's edited questions Advisor-e has changed since — the tab
+ *   offers Adopt / Keep mine on those (Phase 4).
  */
 async function getQuizzes (req, res) {
   try {
     const firmOverride = await _loadQuizOverride(req.firmId)
-    const base = {}
-    for (const [key, bank] of Object.entries(BASE_QUIZZES.banks || {})) {
-      if (!key.startsWith('_')) { base[key] = bank }
-    }
+    const base = _platformQuizBanks()
+    const state = await loadFirmQuizState(req.firmId, overlay.loadFirmConfig, base)
+    const resolved = await loadBlendedQuizBanks(req.firmId, overlay.loadFirmConfig)
+    const driftQids = await _quizDriftQids(req.firmId, state.overrides, req.userEmail)
     res.send(200, {
       base,
       firmOverride,
       merged: mergeQuizBanks(base, firmOverride),
-      hasOverride: firmOverride !== null
+      resolved,
+      state,
+      driftQids,
+      hasOverride: firmOverride !== null,
+      hasDecisions: state.declinedIds.length > 0 ||
+        Object.keys(state.overrides).length > 0 ||
+        state.ownRows.length > 0,
+      pages: quizzablePages(listTemplatePages())
     })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -1528,6 +2080,12 @@ async function getQuizzes (req, res) {
 /**
  * POST /api/firm-manager/quizzes — save the firm's overlay (never the base).
  * Body: { quizzes: { "<page title>": { entries: [{id, question, answer, keyPoint}] } } }
+ *
+ * SUPERSEDED BY THE CASCADE ROUTES BELOW, and kept only so a firm that saved under
+ * the old whole-bank shape does not lose it. Once a firm has made ANY per-question
+ * decision, the reader takes the three cascade keys and stops consulting this one —
+ * so a save here would answer `saved: true` and change nothing an advisor sees.
+ * Nothing in the app posts to it; the Phase 3 screen uses the cascade routes.
  */
 async function saveQuizzes (req, res) {
   const { quizzes } = req.body || {}
@@ -1545,7 +2103,1374 @@ async function saveQuizzes (req, res) {
   }
 }
 
+// ── Quiz cascade (CB-31 Phase 3, 2026-07-31) ─────────────────────────────────
+// One decision per request, about ONE question, keyed to its stable qid. Same
+// verbs, shapes and error codes as the staircase cascade above, deliberately, so
+// a reader who knows one knows the other.
+//
+// ONE DELIBERATE DIFFERENCE FROM THE STAIRCASE — the opposite rule, not an
+// oversight. The staircase REFUSES to let a firm switch off its last step, because
+// an advisor mid-session would be asked to choose from an empty list. Quizzes must
+// not refuse: Phase 2 ruled that a bank with every question switched off is dropped
+// entirely, so the course falls through to AI-generated questions exactly as it does
+// for a page that never had a bank. Blocking it here would deny a firm a decision
+// the engine already handles correctly. The cost is carried by the SCREEN, which has
+// to say what happens — a firm switching off the last question is choosing
+// AI-written questions, not no questions.
+
+/**
+ * Where a firm's drift baselines live (Phase 4) — mirroring STAIRCASE_BASELINES_KEY.
+ *
+ * DELIBERATELY NOT ADDED TO THE READER'S `CONFIG_KEYS`. Those three keys are the
+ * firm's DECISIONS, and `loadFirmQuizState` asks "has this firm decided anything?"
+ * by looking at them. A baseline is not a decision — it is our record of the wording
+ * a decision was made against. Filed alongside the three, a firm that had only ever
+ * been stamped would start reading as a firm with its own quiz configuration.
+ */
+const QUIZ_BASELINES_KEY = 'quiz-override-baselines'
+
+const QUIZ_DEV_FILES = {
+  [QUIZ_KEYS.declines]: DEV_QUIZ_DECLINES_FILE,
+  [QUIZ_KEYS.overrides]: DEV_QUIZ_OVERRIDES_FILE,
+  [QUIZ_KEYS.own]: DEV_QUIZ_OWN_FILE,
+  // Listed here so _loadQuizPart/_saveQuizPart carry baselines with no second pair of
+  // dev-file helpers. The staircase grew its own because it had no such map to join.
+  [QUIZ_BASELINES_KEY]: DEV_QUIZ_BASELINES_FILE
+}
+
+/**
+ * Every question id Advisor-e ships, across all 62 banks.
+ *
+ * Membership is what makes a platform route 404 instead of quietly storing a
+ * decision against a question that does not exist. That matters more than a tidy
+ * error: loadFirmQuizState treats an override keyed to an unknown qid as junk
+ * rather than a decision, so a stored one would sit there doing nothing while
+ * looking, on any screen that listed it, exactly like a saved edit.
+ * @type {Set<string>}
+ */
+const PLATFORM_QIDS = new Set()
+
+/**
+ * The platform question behind each qid.
+ *
+ * Built in the same pass as PLATFORM_QIDS because Phase 4 needs the question's
+ * CONTENT, not just its existence, and the staircase's `steps.find(...)` has no cheap
+ * equivalent here — the questions are nested two deep across 62 banks, so a scan per
+ * lookup would repeat that walk for every edited question on every load of the tab.
+ * @type {Map<string, Object>}
+ */
+const PLATFORM_QUESTIONS = new Map()
+
+for (const [bankKey, bank] of Object.entries(BASE_QUIZZES.banks || {})) {
+  if (bankKey.startsWith('_')) { continue }
+  for (const entry of (bank && Array.isArray(bank.entries)) ? bank.entries : []) {
+    if (entry && entry.qid) {
+      PLATFORM_QIDS.add(entry.qid)
+      PLATFORM_QUESTIONS.set(entry.qid, entry)
+    }
+  }
+}
+
+function _devReadQuizPart (file, firmId, fallback) {
+  try {
+    const all = JSON.parse(fs.readFileSync(file, 'utf8'))
+    return Object.prototype.hasOwnProperty.call(all, firmId) ? all[firmId] : fallback
+  } catch { return fallback }
+}
+
+function _devWriteQuizPart (file, firmId, value) {
+  let all = {}
+  try { all = JSON.parse(fs.readFileSync(file, 'utf8')) } catch {}
+  all[firmId] = value
+  fs.writeFileSync(file, JSON.stringify(all, null, 2))
+}
+
+async function _loadQuizPart (firmId, key, fallback) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, key)
+    return (stored === null || stored === undefined) ? fallback : stored
+  } catch (err) {
+    if (IS_DEV) { return _devReadQuizPart(QUIZ_DEV_FILES[key], firmId, fallback) }
+    throw err
+  }
+}
+
+async function _saveQuizPart (firmId, key, value, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, key, value, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteQuizPart(QUIZ_DEV_FILES[key], firmId, value); return }
+    throw err
+  }
+}
+
+/** Advisor-e's banks, minus the `_comment` documentation keys. */
+function _platformQuizBanks () {
+  const base = {}
+  for (const [key, bank] of Object.entries(BASE_QUIZZES.banks || {})) {
+    if (!key.startsWith('_')) { base[key] = bank }
+  }
+  return base
+}
+
+/**
+ * Carry a firm's OLD whole-bank overlay into the mechanism's three keys, once,
+ * before its first per-question decision is stored.
+ *
+ * THE GAP THIS CLOSES. loadFirmQuizState reads the three new keys first and only
+ * falls back to the old `quiz-banks` shape when the firm has made no decision the
+ * mechanism recognises. So a firm's FIRST decision would switch the old shape off
+ * for good, and everything it had saved there would stop reaching its advisors —
+ * silently, with its screen still showing a saved state. Until Phase 3 nothing
+ * could write a decision, so the gap was unreachable; these routes are exactly what
+ * make it reachable, so it is closed alongside them rather than afterwards.
+ *
+ * The old key is NOT deleted. It is the firm's own record, it costs nothing to
+ * leave, and removing storage to tidy up is how a rollback stops being possible.
+ *
+ * Idempotent and cheap: `fromLegacy` is true only while the old shape is the ONLY
+ * thing the firm has, so this writes at most once per firm and is a no-op on every
+ * later call. Empty parts are not written — one non-empty part is enough to make
+ * the mechanism take over, and empty rows would litter the version history of keys
+ * the firm never used.
+ *
+ * @param {string} firmId - from the verified JWT, never the request body
+ * @param {string} savedBy - the manager's email, for the version-history row
+ * @returns {Promise<void>}
+ */
+async function _carryLegacyQuizDecisionsForward (firmId, savedBy) {
+  const state = await loadFirmQuizState(firmId, overlay.loadFirmConfig, _platformQuizBanks())
+  if (!state.fromLegacy) { return }
+  if (state.declinedIds.length) {
+    await _saveQuizPart(firmId, QUIZ_KEYS.declines, state.declinedIds, savedBy)
+  }
+  if (Object.keys(state.overrides).length) {
+    await _saveQuizPart(firmId, QUIZ_KEYS.overrides, state.overrides, savedBy)
+  }
+  if (state.ownRows.length) {
+    await _saveQuizPart(firmId, QUIZ_KEYS.own, state.ownRows, savedBy)
+  }
+}
+
+// ── Phase 4: Adopt / Keep mine ────────────────────────────────────────────────
+//
+// A firm that edits one of Advisor-e's questions is deliberately shielded from our
+// later improvements to it — that is the whole point of an override. Phase 4 is how
+// the firm finds out we changed it anyway: we record the wording its edit was made
+// against, notice when ours moves away from that, and offer the choice.
+//
+// This is a PORT of the staircase's Phase 3, not a new design. Same key shape, same
+// backfill rule, same 409. Where the two must differ it is said so out loud, so a
+// reader who knows one knows the other — the standing rule on this feature.
+
+/**
+ * A stable content signature of a platform question's meaningful fields.
+ *
+ * Deterministic (fixed field order) and limited to EDITABLE_QUESTION_FIELDS, for the
+ * same reason the staircase excludes `step`: `id` is the POSITION the resolver
+ * reassigns whenever a question above it is switched off, so signing it would report a
+ * firm's question as "updated by Advisor-e" because the firm itself switched off a
+ * different question. `qid` is identity and never changes.
+ *
+ * @param {Object} row - a platform question
+ * @returns {string} the signature, or '' for a missing row
+ */
+function _quizQuestionSignature (row) {
+  if (!row || typeof row !== 'object') { return '' }
+  const norm = {}
+  for (const field of EDITABLE_QUESTION_FIELDS) {
+    norm[field] = String(row[field] === null || row[field] === undefined ? '' : row[field]).trim()
+  }
+  return JSON.stringify(norm)
+}
+
+/**
+ * Which of this firm's edited questions Advisor-e has changed since the firm last
+ * stated its version.
+ *
+ * A MISSING BASELINE IS BACKFILLED, NOT TREATED AS DRIFT. An edit made before this
+ * feature existed carries no stamp, and reading that as "Advisor-e changed this" would
+ * greet every such firm with a review prompt for an update that never happened — on
+ * every question it had ever edited, at once. The honest reading is "assume in sync
+ * now, track from here". Same rule as the staircase.
+ *
+ * @param {string} firmId - from the verified JWT, never the request body
+ * @param {Object} overrides - the firm's edits, keyed by platform question id
+ * @param {string} savedBy - audit attribution for a backfill write
+ * @returns {Promise<string[]>} platform qids to offer Adopt / Keep mine on
+ */
+async function _quizDriftQids (firmId, overrides, savedBy) {
+  const edited = Object.keys(overrides || {})
+  if (edited.length === 0) { return [] }
+
+  const stored = await _loadQuizPart(firmId, QUIZ_BASELINES_KEY, {})
+  const baselines = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? { ...stored } : {}
+  const driftQids = []
+  let backfilled = false
+
+  for (const qid of edited) {
+    const platformRow = PLATFORM_QUESTIONS.get(qid)
+    // An override keyed to a qid Advisor-e no longer ships is not drift — there is
+    // nothing to compare against and nothing to adopt. loadFirmQuizState already
+    // treats it as junk rather than a decision; offering a review of it here would
+    // be the one place in the app that disagreed.
+    if (!platformRow) { continue }
+    const sig = _quizQuestionSignature(platformRow)
+    if (!Object.prototype.hasOwnProperty.call(baselines, qid)) {
+      baselines[qid] = sig
+      backfilled = true
+    } else if (baselines[qid] !== sig) {
+      driftQids.push(qid)
+    }
+  }
+
+  if (backfilled) { await _saveQuizPart(firmId, QUIZ_BASELINES_KEY, baselines, savedBy) }
+  return driftQids
+}
+
+/**
+ * Accept only the fields a firm may edit on a question, in the types they must be.
+ *
+ * `qid` and `id` are absent from EDITABLE_QUESTION_FIELDS on purpose: `qid` is
+ * identity and `id` is the POSITION the resolver reassigns whenever a question
+ * above is switched off. Letting either through the body would let a firm re-point
+ * an edit at a different question, or hand the AI a number the grader cannot find.
+ *
+ * Unlike the staircase, an empty value is refused for EVERY field rather than just
+ * the name. All three are read by a person or marked against by the grader — a
+ * blank answer is a marking guide with nothing in it, which fails at the moment an
+ * advisor is waiting on a grade rather than at the moment it is saved.
+ *
+ * @param {Object} body - the raw request body (untrusted)
+ * @returns {{ok: boolean, value?: Object, code?: string, message?: string}}
+ */
+function _sanitiseQuizFields (body) {
+  const src = (body && typeof body === 'object' && !Array.isArray(body)) ? body : {}
+  const value = {}
+  for (const field of EDITABLE_QUESTION_FIELDS) {
+    if (!Object.prototype.hasOwnProperty.call(src, field)) { continue }
+    if (typeof src[field] !== 'string') {
+      return { ok: false, code: 'INVALID_FIELD', message: `${field} must be a string` }
+    }
+    const trimmed = src[field].trim()
+    if (!trimmed) {
+      return { ok: false, code: 'INVALID_FIELD', message: `${field} must not be empty` }
+    }
+    if (trimmed.length > QUIZ_LIMITS.textChars) {
+      return { ok: false, code: 'FIELD_TOO_LONG', message: `${field} must be ${QUIZ_LIMITS.textChars} characters or fewer` }
+    }
+    value[field] = trimmed
+  }
+  if (Object.keys(value).length === 0) {
+    return { ok: false, code: 'NO_FIELDS', message: `Provide at least one of: ${EDITABLE_QUESTION_FIELDS.join(', ')}` }
+  }
+  return { ok: true, value }
+}
+
+/**
+ * @route PUT /api/firm-manager/quizzes/platform/:qid
+ * Edit one of Advisor-e's questions for this firm. Fields the body does not carry
+ * are NOT recorded, so they keep tracking Advisor-e's wording rather than being
+ * frozen at today's text — the whole point of the mechanism, and the exact defect
+ * the old whole-bank overlay caused.
+ *
+ * Stamps Advisor-e's CURRENT wording as the drift baseline (Phase 4): the firm has
+ * just stated its version against THIS text, so a later change by us to it is what the
+ * firm should be offered. Before Phase 4 this deliberately stamped nothing, because
+ * baselines written ahead of the screen that reads them would be state nothing could
+ * act on.
+ *
+ * @param {string} qid - a platform question id (qz-*)
+ * @returns {{updated: true, qid: string}}
+ */
+async function setQuizOverride (req, res) {
+  const qid = String(req.params.qid || '')
+  if (!PLATFORM_QIDS.has(qid)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform quiz question with that id')
+  }
+  const sani = _sanitiseQuizFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.overrides, {})
+    const current = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+    const next = { ...current, [qid]: { ...(current[qid] || {}), ...sani.value } }
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.overrides, next, req.userEmail)
+    const storedB = await _loadQuizPart(req.firmId, QUIZ_BASELINES_KEY, {})
+    const baselines = (storedB && typeof storedB === 'object' && !Array.isArray(storedB)) ? storedB : {}
+    await _saveQuizPart(
+      req.firmId,
+      QUIZ_BASELINES_KEY,
+      { ...baselines, [qid]: _quizQuestionSignature(PLATFORM_QUESTIONS.get(qid)) },
+      req.userEmail
+    )
+    res.send(200, { updated: true, qid })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/quizzes/platform/:qid
+ * Reset to Advisor-e's — drop this firm's version so Advisor-e's question applies
+ * again, and keeps applying as Advisor-e improves it. Idempotent: resetting a
+ * question the firm never edited is a no-op, not an error.
+ *
+ * THIS IS ALSO THE ADOPT HALF of Phase 4's choice — adopting our update means taking
+ * our question, which is exactly a reset. The drift baseline is dropped with the edit:
+ * a stale baseline is inert, but dropping it keeps the store honest and makes a later
+ * re-edit stamp fresh rather than inherit a signature from a decision the firm has
+ * since undone. Same reasoning as the staircase's reset.
+ *
+ * @param {string} qid - a platform question id (qz-*)
+ * @returns {{reset: true, qid: string}}
+ */
+async function resetQuizOverride (req, res) {
+  const qid = String(req.params.qid || '')
+  if (!PLATFORM_QIDS.has(qid)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform quiz question with that id')
+  }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.overrides, {})
+    const current = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+    if (Object.prototype.hasOwnProperty.call(current, qid)) {
+      const next = { ...current }
+      delete next[qid]
+      await _saveQuizPart(req.firmId, QUIZ_KEYS.overrides, next, req.userEmail)
+    }
+    const storedB = await _loadQuizPart(req.firmId, QUIZ_BASELINES_KEY, {})
+    const baselines = (storedB && typeof storedB === 'object' && !Array.isArray(storedB)) ? storedB : {}
+    if (Object.prototype.hasOwnProperty.call(baselines, qid)) {
+      const nextB = { ...baselines }
+      delete nextB[qid]
+      await _saveQuizPart(req.firmId, QUIZ_BASELINES_KEY, nextB, req.userEmail)
+    }
+    res.send(200, { reset: true, qid })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/quizzes/platform/:qid/keep-mine
+ * Phase 4 "Keep mine" — the firm has seen Advisor-e's update to a question it edited
+ * and is keeping its own version. Re-stamps the drift baseline to Advisor-e's CURRENT
+ * wording, so the review prompt clears until our NEXT change. The firm's edit is left
+ * untouched; the Adopt half of the choice is the existing reset route, which drops the
+ * edit and takes Advisor-e's question.
+ *
+ * 409 rather than a silent success when the firm holds no edit: nothing is being kept,
+ * and stamping a baseline for a question the firm does not override would arm a prompt
+ * that can never fire — it would sit in storage waiting for a change to a question this
+ * firm reads from us anyway.
+ *
+ * @param {string} qid - a platform question id (qz-*)
+ * @returns {{keptMine: true, qid: string}}
+ */
+async function keepMineQuizQuestion (req, res) {
+  const qid = String(req.params.qid || '')
+  const platformRow = PLATFORM_QUESTIONS.get(qid)
+  if (!platformRow) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform quiz question with that id')
+  }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.overrides, {})
+    const current = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+    if (!Object.prototype.hasOwnProperty.call(current, qid)) {
+      return sendError(res, 409, 'NOT_OVERRIDDEN', 'Your firm has no custom version of that question')
+    }
+    const storedB = await _loadQuizPart(req.firmId, QUIZ_BASELINES_KEY, {})
+    const baselines = (storedB && typeof storedB === 'object' && !Array.isArray(storedB)) ? storedB : {}
+    await _saveQuizPart(
+      req.firmId,
+      QUIZ_BASELINES_KEY,
+      { ...baselines, [qid]: _quizQuestionSignature(platformRow) },
+      req.userEmail
+    )
+    res.send(200, { keptMine: true, qid })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/quizzes/platform/:qid/decline
+ * Switch one of Advisor-e's questions off for this firm, or back on. Only the declines
+ * key is written — the firm's override survives — so a firm that switches a question
+ * back on gets ITS OWN wording back, not Advisor-e's. Proven by "an edit made earlier
+ * survives switching the question off and on again" in quizCascade.routes.test.js.
+ * Dropping an edit is the reset route; the two are separate on purpose.
+ *
+ * There is deliberately NO last-question refusal here; see the section header.
+ *
+ * @param {string} qid - a platform question id (qz-*)
+ * @param {boolean} req.body.declined
+ * @returns {{declined: boolean, qid: string}}
+ */
+async function setQuizDecline (req, res) {
+  const qid = String(req.params.qid || '')
+  if (!PLATFORM_QIDS.has(qid)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform quiz question with that id')
+  }
+  const declined = (req.body || {}).declined
+  if (typeof declined !== 'boolean') {
+    return sendError(res, 400, 'INVALID_DECLINED', 'declined must be a boolean')
+  }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.declines, [])
+    const set = new Set(Array.isArray(stored) ? stored : [])
+    if (declined) { set.add(qid) } else { set.delete(qid) }
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.declines, [...set], req.userEmail)
+    res.send(200, { declined, qid })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/quizzes/own
+ * Add a question of the firm's own to a page. Its id is assigned here (fq-N) and
+ * never taken from the body — an id from the browser could collide with one of
+ * Advisor-e's questions and silently replace it.
+ *
+ * All three fields are required, unlike an edit: a question saved without its
+ * answer or key point would reach an advisor as an unmarkable question.
+ *
+ * The page is resolved through resolveTemplateName, which refuses a near-miss
+ * rather than guessing, so a typo can never silently attach a question to the wrong
+ * page. The screen picks the page from the rail, so a near-miss should not arise —
+ * this is the backstop for anything else calling the route.
+ *
+ * @param {string} req.body.bank - the page title the question belongs to
+ * @returns {{added: true, id: string, bank: string}}
+ */
+async function addOwnQuizQuestion (req, res) {
+  const body = (req.body && typeof req.body === 'object' && !Array.isArray(req.body)) ? req.body : {}
+  const sani = _sanitiseQuizFields(body)
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  const missing = EDITABLE_QUESTION_FIELDS.filter(f => !sani.value[f])
+  if (missing.length) {
+    return sendError(res, 400, 'INCOMPLETE_QUESTION', `A question you add needs all of: ${EDITABLE_QUESTION_FIELDS.join(', ')}`)
+  }
+  if (typeof body.bank !== 'string' || !body.bank.trim()) {
+    return sendError(res, 400, 'INVALID_BANK', 'A question needs the page it belongs to')
+  }
+  if (body.bank.length > QUIZ_LIMITS.keyChars) {
+    return sendError(res, 400, 'INVALID_BANK', 'That page name is too long')
+  }
+  let resolved
+  try {
+    resolved = resolveTemplateName(body.bank)
+  } catch (err) {
+    return sendError(res, 503, 'LIBRARY_UNAVAILABLE', 'The page library could not be read, so questions cannot be saved right now')
+  }
+  if (!resolved.ok) {
+    return sendError(res, 404, 'NO_SUCH_PAGE', `"${body.bank}" does not match a page in your library`)
+  }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    if (rows.filter(r => r && r.bank === resolved.title).length >= QUIZ_LIMITS.entriesPerBank) {
+      return sendError(res, 409, 'BANK_FULL', `A quiz can hold at most ${QUIZ_LIMITS.entriesPerBank} questions`)
+    }
+    // Highest existing number + 1, never the row count: reusing a deleted question's
+    // id would hand a new question the decisions recorded against the old one.
+    const used = rows
+      .map(r => parseInt(String((r && r.id) || '').replace(FIRM_QUESTION_PREFIX, ''), 10))
+      .filter(n => Number.isInteger(n))
+    const id = `${FIRM_QUESTION_PREFIX}${(used.length ? Math.max(...used) : 0) + 1}`
+    // Key on the RESOLVED title, not what was typed, so the stored bank is always a
+    // real page name however the caller spelled it.
+    const next = [...rows, {
+      id,
+      bank: resolved.title,
+      question: sani.value.question,
+      answer: sani.value.answer,
+      keyPoint: sani.value.keyPoint
+    }]
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.own, next, req.userEmail)
+    res.send(201, { added: true, id, bank: resolved.title })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/quizzes/own/:id
+ * Edit a question this firm added. The page it belongs to is not editable here: a
+ * question that moved page would take its id with it, and any later decision made
+ * against that id would follow it to a page nobody expected. Remove and re-add.
+ * @param {string} id - a firm question id (fq-*)
+ * @returns {{updated: true, id: string}}
+ */
+async function updateOwnQuizQuestion (req, res) {
+  const id = String(req.params.id || '')
+  const sani = _sanitiseQuizFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    const index = rows.findIndex(r => r && r.id === id)
+    if (index === -1) {
+      return sendError(res, 404, 'NOT_FOUND', 'No question of your own with that id')
+    }
+    const next = rows.map((r, i) => (i === index ? { ...r, ...sani.value, id, bank: r.bank } : r))
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.own, next, req.userEmail)
+    res.send(200, { updated: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/quizzes/own/:id
+ * Remove a question this firm added. Only the firm's own questions can be removed —
+ * one of Advisor-e's is switched off, never deleted, so it can always come back.
+ * @param {string} id - a firm question id (fq-*)
+ * @returns {{removed: true, id: string}}
+ */
+async function deleteOwnQuizQuestion (req, res) {
+  const id = String(req.params.id || '')
+  try {
+    // Carried before the removal, not after: a firm whose only questions live in the
+    // old shape must have them promoted to real rows before one of them is deleted,
+    // or the delete would 404 on a question that is plainly on screen.
+    await _carryLegacyQuizDecisionsForward(req.firmId, req.userEmail)
+    const stored = await _loadQuizPart(req.firmId, QUIZ_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    if (!rows.some(r => r && r.id === id)) {
+      return sendError(res, 404, 'NOT_FOUND', 'No question of your own with that id')
+    }
+    await _saveQuizPart(req.firmId, QUIZ_KEYS.own, rows.filter(r => !(r && r.id === id)), req.userEmail)
+    res.send(200, { removed: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+// ── Domain Support ──────────────────────────────────────────────────────────
+// Built on the SINGLE `domain-support` overlay bundle the advisor and course
+// engines actually read (firmContent.loadFirmDomainSupport → CONFIG_KEYS
+// .domainSupport), keyed by domain id — the same arrangement as Logic Tables
+// below.
+//
+// It was per-key ('domain-support-<id>') until 2026-07-30. Saves landed under a
+// key no reader ever selects, and the shared dev-file fallback hid it entirely:
+// with no MySQL both sides fall back to data/dev-firm-domain-support.json in the
+// same { firmId: { domainId: override } } shape, so a saved edit DID reach the
+// AI in development. On MySQL the two keys would never reconcile — Firm Manager
+// would report "saved" and the firm's content would silently never reach the
+// AI. Reconciled while nothing was stored yet; see ACTIONS.md.
+
+const { loadFirmLogicTrees, CONFIG_KEYS: CONTENT_CONFIG_KEYS } = require('../utils/firmContent')
+
+const DEV_DOMAIN_SUPPORT_FILE = path.resolve(__dirname, '../../data/dev-firm-domain-support.json')
+
+// The seller-facing support files, which have no row in domains.json.
+const DOMAIN_SUPPORT_GET_FILES = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
+
+/**
+ * Is this a real domain-support id? The override bundle is a plain object keyed
+ * by domain id, and `domainId` arrives from the URL, so an id is checked against
+ * the known set before it is ever used as a key — an unchecked `__proto__` or
+ * `constructor` would be an assignment to the object's prototype rather than a
+ * stored override. (Under the old per-key storage the id was only ever part of a
+ * config_key string, so this could not arise.) Refusing unknown ids also stops a
+ * firm accumulating overrides for domains that do not exist.
+ * @param {string} id - the domain or seller-file id from the request
+ * @returns {boolean}
+ */
+function _isKnownDomainSupportId (id) {
+  if (typeof id !== 'string' || !id) { return false }
+  if (DOMAIN_SUPPORT_GET_FILES.includes(id)) { return true }
+  const domains = require('../../data/domains.json') || []
+  return domains.some(d => d && d.id === id)
+}
+
+/**
+ * Load the firm's raw domain-support override map ({ domainId: sparse override })
+ * for reading and writing — the same store and dev file the engines read, but
+ * returned raw so one key can be mutated. Missing / malformed → {} (a firm with
+ * no edits yet).
+ * @param {string} firmId - authenticated firm id (never client-supplied)
+ * @returns {Promise<Object>}
+ */
+async function _loadFirmDomainSupportMapRaw (firmId) {
+  try {
+    const v = await overlay.loadFirmConfig(firmId, CONTENT_CONFIG_KEYS.domainSupport)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch (err) {
+    if (IS_DEV) {
+      try {
+        const all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
+        return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
+      } catch { return {} }
+    }
+    throw err
+  }
+}
+
+/**
+ * Persist the firm's whole domain-support override map. Prod goes through the
+ * overlay store (version history + restore for free); dev writes the gitignored
+ * JSON the engines fall back to.
+ * @param {string} firmId
+ * @param {Object} map - { domainId: sparse override }
+ * @param {string} savedBy - userEmail
+ * @returns {Promise<number|null>} the new version, or null in dev
+ */
+async function _saveFirmDomainSupportMap (firmId, map, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(firmId, CONTENT_CONFIG_KEYS.domainSupport, map, savedBy)
+  } catch (err) {
+    if (IS_DEV) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8')) } catch {}
+      all[firmId] = map
+      fs.writeFileSync(DEV_DOMAIN_SUPPORT_FILE, JSON.stringify(all, null, 2))
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * The saved versions of the firm's domain-support bundle. NOTE: every domain
+ * shares ONE stored bundle, so this history is bundle-level (all domains' saves
+ * interleaved), not per-domain — the same caveat as Logic Tables. Restore is
+ * still per-domain; see _restoreDomainSupportVersion.
+ * @param {string} firmId
+ * @returns {Promise<Array<Object>>}
+ */
+async function _getDomainSupportHistory (firmId) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT version, saved_by, created_at
+       FROM firm_framework_versions
+       WHERE firm_id = ? AND config_key = ?
+       ORDER BY version DESC`,
+      [firmId, CONTENT_CONFIG_KEYS.domainSupport]
+    )
+    return rows
+  } catch (err) {
+    if (IS_DEV) { return [] }
+    throw err
+  }
+}
+
+/**
+ * Restore ONE domain to how it stood at a saved version, leaving every other
+ * domain as it is today. The bundle is shared, so restoring it wholesale would
+ * roll all 29 domains back — instead this reads that version's bundle, lifts out
+ * just this domain's entry, and writes it into the CURRENT map. A domain absent
+ * from that version had no override at the time, so restoring it clears today's
+ * override rather than inventing one.
+ * @param {string} firmId
+ * @param {string} domainId
+ * @param {number} version
+ * @param {string} restoredBy - userEmail
+ * @returns {Promise<boolean>}
+ */
+async function _restoreDomainSupportVersion (firmId, domainId, version, restoredBy) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT config_json FROM firm_framework_versions
+       WHERE firm_id = ? AND config_key = ? AND version = ?`,
+      [firmId, CONTENT_CONFIG_KEYS.domainSupport, version]
+    )
+    if (rows.length === 0) { throw new Error('Version not found') }
+    const bundle = JSON.parse(rows[0].config_json)
+    const past = (bundle && typeof bundle === 'object' && !Array.isArray(bundle))
+      ? Object.prototype.hasOwnProperty.call(bundle, domainId) ? bundle[domainId] : undefined
+      : undefined
+    const map = await _loadFirmDomainSupportMapRaw(firmId)
+    if (past === undefined) { delete map[domainId] } else { map[domainId] = past }
+    await _saveFirmDomainSupportMap(firmId, map, restoredBy)
+    return true
+  } catch (err) {
+    if (IS_DEV) { return false }
+    throw err
+  }
+}
+
+/**
+ * How many editable items a domain's support holds, for the rail count. The
+ * four-column `materials` shape (§0.5) is counted first; a domain still on the
+ * legacy `support_tools` shape falls back to that. Without this, a migrated
+ * domain (e.g. EOY) reported 0 because only support_tools was counted.
+ * @param {Object|null} support - the merged domain-support entry
+ * @returns {number}
+ */
+function _countSupportItems (support) {
+  // Count the EDITABLE four-column materials only. A domain still on the legacy
+  // support_tools shape has no four-column content to edit here, so it honestly
+  // reports 0 — matching the "not authored yet" state the panel shows when the
+  // domain is opened (a non-zero rail count that the panel then contradicts was
+  // the legibility bug the owner hit 2026-07-27).
+  return (support && Array.isArray(support.materials)) ? support.materials.length : 0
+}
+
+/**
+ * GET /api/firm-manager/domain-support — list all domain support + firm overrides
+ */
+/**
+ * Which master section a domain-support item belongs to, for the three-way rail
+ * (FIRM-EDITABLE-TABLES-PLAN.md — matches the master export's do-the-job /
+ * get-the-job / get-organised sections). The `get-*` seller files are
+ * get-the-job; the firm-management domains (org-*, fm-coach-culture,
+ * people-power) are get-organised; everything else is client-delivery advisory
+ * = do-the-job. Kept here, not in the data, because domains.json carries no
+ * section field. A future firm re-file (drag) will override this default.
+ * @param {string} id - domain or seller id
+ * @returns {'doTheJob'|'getTheJob'|'getOrganised'}
+ */
+function _domainSupportSection (id) {
+  const s = String(id || '')
+  if (s.startsWith('get-')) { return 'getTheJob' }
+  if (s.startsWith('org-') || s === 'fm-coach-culture' || s === 'people-power') { return 'getOrganised' }
+  return 'doTheJob'
+}
+
+async function getDomainSupport (req, res) {
+  try {
+    const domains = require('../../data/domains.json') || []
+
+    const result = { doTheJob: [], getTheJob: [], getOrganised: [] }
+    const firmSections = await _loadSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE)
+    // ONE store read for the whole screen. Every domain's override lives in the
+    // same bundle, so loading per domain inside the loop meant ~36 round-trips
+    // to render one page.
+    const overrides = await _loadFirmDomainSupportMapRaw(req.firmId)
+
+    const addRow = (id, label) => {
+      const override = overrides[id] || null
+      const support = require('../utils/domainSupport').resolveDomainSupport(id, override ? { [id]: override } : null)
+      const moved = firmSections[id]
+      const section = VALID_SECTIONS.includes(moved) ? moved : _domainSupportSection(id)
+      result[section].push({
+        id,
+        label,
+        hasOverride: override !== null,
+        supportTools: _countSupportItems(support),
+        origin: override ? 'firm' : 'platform'
+      })
+    }
+
+    for (const domain of domains) { addRow(domain.id, domain.label) }
+    for (const fileId of DOMAIN_SUPPORT_GET_FILES) { addRow(fileId, fileId.replace('get-', '').replace(/-/g, ' ')) }
+
+    res.send(200, result)
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/domain-support/:domainId — get domain support detail with firm override
+ */
+async function getDomainSupportDetail (req, res) {
+  const { domainId } = req.params
+  try {
+    const domainSupport = require('../utils/domainSupport')
+    const overrides = await _loadFirmDomainSupportMapRaw(req.firmId)
+    const override = overrides[domainId] || null
+    const merged = domainSupport.resolveDomainSupport(domainId, override ? { [domainId]: override } : null)
+    res.send(200, merged || {})
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/domain-support/:domainId — save one domain's override
+ * into the SINGLE `domain-support` bundle the advisor and course engines read,
+ * so a save reaches the AI (fenced — see domainSupport.js's three formatters).
+ * The whole map is written back because one bundle holds every domain.
+ */
+async function saveDomainSupport (req, res) {
+  const { domainId } = req.params
+  const override = req.body || {}
+
+  if (!_isKnownDomainSupportId(domainId)) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Domain support not found' } })
+  }
+
+  try {
+    const map = await _loadFirmDomainSupportMapRaw(req.firmId)
+    map[domainId] = override
+    const version = await _saveFirmDomainSupportMap(req.firmId, map, req.userEmail)
+    res.send(200, { saved: true, version, domainId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * DELETE /api/firm-manager/domain-support/:domainId — reset one domain to the
+ * platform default by dropping its key from the firm's override bundle. Every
+ * other domain's edits are left untouched.
+ */
+async function resetDomainSupport (req, res) {
+  const { domainId } = req.params
+
+  try {
+    const map = await _loadFirmDomainSupportMapRaw(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(map, domainId)) {
+      delete map[domainId]
+      await _saveFirmDomainSupportMap(req.firmId, map, req.userEmail)
+    }
+    res.send(200, { reset: true, domainId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/domain-support/:domainId/history — the saved versions of
+ * the firm's domain-support bundle. Bundle-level, not per-domain (see
+ * _getDomainSupportHistory); `domainId` is echoed back for the caller's benefit.
+ */
+async function getDomainSupportHistory (req, res) {
+  const { domainId } = req.params
+  try {
+    const history = await _getDomainSupportHistory(req.firmId)
+    res.send(200, { history, domainId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/domain-support/:domainId/restore — restore this one
+ * domain to a saved version, leaving the others as they are.
+ */
+async function restoreDomainSupport (req, res) {
+  const { domainId } = req.params
+  const { version } = req.body || {}
+
+  if (typeof version !== 'number') {
+    return res.send(400, { success: false, error: { code: 'INVALID_VERSION', message: 'version must be a number' } })
+  }
+
+  if (!_isKnownDomainSupportId(domainId)) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Domain support not found' } })
+  }
+
+  try {
+    await _restoreDomainSupportVersion(req.firmId, domainId, version, req.userEmail)
+    res.send(200, { restored: true, domainId, version })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+// ── Logic Tables ─────────────────────────────────────────────────────────────
+// The firm-editable IF→THEN branch tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3,
+// §0.6). Deliberately built on the SINGLE `logic-trees` overlay bundle the
+// advisor engine actually reads (firmContent.loadFirmLogicTrees, keyed by tree
+// id) — so a firm's save reaches the AI in production, not only the dev-file
+// fallback. Domain support was reconciled onto the same arrangement on
+// 2026-07-30 (see the P1 note above its own block); both pages now store the way
+// the engines read. Slice A is READ-ONLY (list + detail); save/reset/history
+// land in Slice B alongside the prompt-fencing safeguard.
+//
+// `loadFirmLogicTrees` / `CONTENT_CONFIG_KEYS` are required at the top of the
+// Domain Support block above — both features read the same module.
+
+// The firm's whole logic-tree override bundle is stored under ONE config key
+// ('logic-trees') as a map { treeId: override } — not per-key like domain
+// support. Saving one table therefore loads the whole map, sets one key, and
+// writes the whole map back. Dev falls back to the same gitignored JSON the
+// reader uses (firmContent.DEV_FILES.logicTrees), keyed by firmId.
+const DEV_LOGIC_TREES_FILE = path.resolve(__dirname, '../../data/dev-firm-logic-trees.json')
+
+// ── Section placement (display-only, firm-scoped) ────────────────────────────
+// A firm can re-file a domain-support item or logic table into a different
+// master section (Do the Job / Get the Job / Get Organised) for THEIR firm.
+// Stored as a sparse { itemId: section } map, SEPARATE from content edits, and
+// read ONLY by the two list routes below — never by the advisor/course engines
+// (owner ruling 2026-07-27: re-filing changes the Firm Manager shelf, not the
+// AI's behaviour). Dragging an item back to its platform-default section clears
+// its override, so the map stays sparse.
+const VALID_SECTIONS = ['doTheJob', 'getTheJob', 'getOrganised']
+const LOGIC_TREE_SECTIONS_KEY = 'logic-tree-sections'
+const DOMAIN_SUPPORT_SECTIONS_KEY = 'domain-support-sections'
+const DEV_LOGIC_TREE_SECTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-logic-tree-sections.json')
+const DEV_DOMAIN_SUPPORT_SECTIONS_FILE = path.resolve(__dirname, '../../data/dev-firm-domain-support-sections.json')
+
+/**
+ * The firm's { itemId: section } placement overrides for one page, or {}.
+ * @param {string} firmId @param {string} configKey @param {string} devFile
+ * @returns {Promise<Object>}
+ */
+async function _loadSectionMap (firmId, configKey, devFile) {
+  try {
+    const v = await overlay.loadFirmConfig(firmId, configKey)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch (err) {
+    if (IS_DEV) {
+      try {
+        const all = JSON.parse(fs.readFileSync(devFile, 'utf8'))
+        return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
+      } catch { return {} }
+    }
+    throw err
+  }
+}
+
+/**
+ * Persist a firm's section-placement map (prod overlay store, dev-JSON fallback).
+ * @param {string} firmId @param {string} configKey @param {string} devFile
+ * @param {Object} map @param {string} savedBy
+ * @returns {Promise<number|null>}
+ */
+async function _saveSectionMap (firmId, configKey, devFile, map, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(firmId, configKey, map, savedBy)
+  } catch (err) {
+    if (IS_DEV) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(devFile, 'utf8')) } catch {}
+      all[firmId] = map
+      fs.writeFileSync(devFile, JSON.stringify(all, null, 2))
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * The firm's logic-tree override map ({ treeId: sparse override }) or null —
+ * the exact bundle the advisor engine loads, so Firm Manager shows what the AI
+ * sees. Threads overlay.loadFirmConfig, with the dev-file fallback inside
+ * firmContent (mirrors how the engines load it).
+ * @param {string} firmId
+ * @returns {Promise<Object|null>}
+ */
+function _loadFirmLogicTreeMap (firmId) {
+  return loadFirmLogicTrees(firmId, overlay.loadFirmConfig)
+}
+
+/**
+ * Which master section a logic table belongs to, for the three-way rail (matches
+ * the master export's do-the-job / get-the-job / get-organised sections). The
+ * tree's own `section` tag wins where present; otherwise the id prefix decides —
+ * `org_`/`fm_` = get-organised (firm-management), `get_` = get-the-job
+ * (advisor-facing selling material, memory feedback_get_vs_client_logic), and
+ * everything else is client-delivery logic = do-the-job. `section` is only
+ * partly populated in the data, so the prefix is the reliable fallback. A future
+ * firm re-file (drag) will override this default.
+ * @param {Object} tree
+ * @returns {'doTheJob'|'getTheJob'|'getOrganised'}
+ */
+function _treeSection (tree) {
+  const id = String(tree.id || '')
+  if (tree.section === 'get-organised' || id.startsWith('org_') || id.startsWith('fm_')) { return 'getOrganised' }
+  if (tree.section === 'get-the-job' || id.startsWith('get_')) { return 'getTheJob' }
+  return 'doTheJob'
+}
+
+/**
+ * Normalise a tree's branches to the four display columns, whichever shape the
+ * tree uses: a branching `nodes` graph or a `flat_if_then` `branches` list. Each
+ * node's `id` rides along so a later save can merge edits back by id and
+ * preserve the node's hidden flow wiring (Slice B).
+ * @param {Object} tree
+ * @returns {Array<{id:string,branch_name:string,condition:string,action:string,notes:string}>}
+ */
+function _treeBranchRows (tree) {
+  const src = Array.isArray(tree.nodes)
+    ? tree.nodes
+    : (Array.isArray(tree.branches) ? tree.branches : [])
+  return src.map((n, i) => ({
+    id: n.id || `row-${i}`,
+    branch_name: n.branch_name || '',
+    condition: n.condition || '',
+    // A pure-question node has no `action`; show its question so the row isn't
+    // blank. Slice B decides how such a node round-trips on save.
+    action: n.action || n.question || '',
+    notes: n.notes || ''
+  }))
+}
+
+/**
+ * GET /api/firm-manager/logic-trees — list every logic table, grouped
+ * advisory / get-the-job, with branch counts and Platform/Your-firm origin.
+ */
+async function getLogicTrees (req, res) {
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const base = logicTrees.loadLogicTrees()
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    const firmSections = await _loadSectionMap(req.firmId, LOGIC_TREE_SECTIONS_KEY, DEV_LOGIC_TREE_SECTIONS_FILE)
+    const result = { doTheJob: [], getTheJob: [], getOrganised: [] }
+    for (const tree of base) {
+      // The firm's re-file wins over the platform default; an unknown stored
+      // value falls back so a bad override can never lose a row.
+      const moved = firmSections[tree.id]
+      const section = VALID_SECTIONS.includes(moved) ? moved : _treeSection(tree)
+      result[section].push({
+        id: tree.id,
+        label: tree.name || tree.id,
+        count: _treeBranchRows(tree).length,
+        origin: (firmMap && firmMap[tree.id]) ? 'firm' : 'platform'
+      })
+    }
+    res.send(200, result)
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/logic-trees/:treeId — one logic table's branches as the
+ * four display columns, with the firm's override merged in for display.
+ *
+ * `reorderable` tells the editor whether the firm may move rows up and down.
+ *
+ * A `flat_if_then` tree is always reorderable — its branches are self-contained
+ * rules with no entry semantics. A `nodes`-shaped tree is reorderable only once
+ * it records its entry point in `entry_node`, because the walk used to start at
+ * whatever sat first (`tree.nodes[0].id`) and moving rows would have repointed
+ * where the engine begins reasoning — a FLOW change, which firm editing
+ * excludes (Mike's scope ruling 2026-07-24: reword + add/remove, flow intact).
+ * With the entry recorded, order is presentation alone.
+ *
+ * The check is deliberately per-tree rather than a blanket `true`: a tree added
+ * later without `entry_node`, or carrying a dangling one, falls back to the
+ * positional start, so it must not be offered for reordering.
+ */
+async function getLogicTreeDetail (req, res) {
+  const { treeId } = req.params
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    const merged = logicTrees.effectiveTrees(firmMap).find(t => t.id === treeId)
+    if (!merged) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    res.send(200, {
+      id: merged.id,
+      label: merged.name || merged.id,
+      origin: (firmMap && firmMap[treeId]) ? 'firm' : 'platform',
+      reorderable: !Array.isArray(merged.nodes) ||
+        !!(merged.entry_node && merged.nodes.some(n => n.id === merged.entry_node)),
+      branches: _treeBranchRows(merged)
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * Load the firm's raw logic-tree override map ({ treeId: override }) for
+ * WRITING — the same store + dev-file the reader uses, but returned raw so one
+ * key can be mutated. Missing / malformed → {} (a firm with no edits yet).
+ * @param {string} firmId - authenticated firm id (never client-supplied)
+ * @returns {Promise<Object>}
+ */
+async function _loadFirmLogicTreesMapRaw (firmId) {
+  try {
+    const v = await overlay.loadFirmConfig(firmId, CONTENT_CONFIG_KEYS.logicTrees)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch (err) {
+    if (IS_DEV) {
+      try {
+        const all = JSON.parse(fs.readFileSync(DEV_LOGIC_TREES_FILE, 'utf8'))
+        return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
+      } catch { return {} }
+    }
+    throw err
+  }
+}
+
+/**
+ * Persist the firm's whole logic-tree override map. Prod goes through the
+ * overlay store (version history + restore for free); dev writes the gitignored
+ * JSON the reader falls back to.
+ * @param {string} firmId
+ * @param {Object} map - { treeId: override }
+ * @param {string} savedBy - userEmail
+ * @returns {Promise<number|null>} the new version, or null in dev
+ */
+async function _saveFirmLogicTreesMap (firmId, map, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(firmId, CONTENT_CONFIG_KEYS.logicTrees, map, savedBy)
+  } catch (err) {
+    if (IS_DEV) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(DEV_LOGIC_TREES_FILE, 'utf8')) } catch {}
+      all[firmId] = map
+      fs.writeFileSync(DEV_LOGIC_TREES_FILE, JSON.stringify(all, null, 2))
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * Build a tree's full override branch-list from the edited display rows,
+ * PRESERVING each existing node's hidden flow wiring (branches / next_node /
+ * templates / type / stage …) and appending firm-added rows as new guidance
+ * branches with no wiring. Scope: reword + add/remove, flow intact
+ * (Mike 2026-07-24). deepMerge replaces arrays wholesale, so the override must
+ * carry the COMPLETE list — a sparse list would drop the untouched branches.
+ *
+ * @param {Object} baseTree - the platform tree (nodes- or flat_if_then-shaped)
+ * @param {Array<{id?:string,branch_name?:string,condition?:string,action?:string,notes?:string}>} rows
+ * @returns {{ key: 'nodes'|'branches', list: Array<Object> }}
+ */
+function _mergeBranchRows (baseTree, rows) {
+  const usesNodes = Array.isArray(baseTree.nodes)
+  const key = usesNodes ? 'nodes' : 'branches'
+  const baseList = usesNodes ? baseTree.nodes : (baseTree.branches || [])
+  // Key by the SAME display id the detail route assigns (_treeBranchRows:
+  // n.id || `row-${i}`), so both graph `nodes` (real ids) and flat_if_then
+  // branches (often id-less) round-trip and keep their hidden fields —
+  // templates included — instead of degrading to a text-only re-add.
+  const byId = new Map(baseList.map((n, i) => [n.id || `row-${i}`, n]))
+  const str = v => (typeof v === 'string' ? v : '')
+
+  // A firm-added row's id IS its identity — the firm-editable cascade keys the
+  // firm's decisions about a row to it. It must therefore be unique and it must
+  // never change. It used to be the row's POSITION in the submitted list
+  // (`firm-branch-${i}`), which is neither: a new row landing at the index where
+  // an existing firm row's number was minted produced TWO rows carrying that id,
+  // with no error. So a generated id now dodges every id already spoken for —
+  // every platform row, and every id the submitted rows arrived with (which is
+  // how previously-saved firm rows keep theirs).
+  const taken = new Set(byId.keys())
+  for (const row of (rows || [])) {
+    if (row && typeof row.id === 'string' && row.id) { taken.add(row.id) }
+  }
+  let firmSeq = 0
+  const nextFirmBranchId = () => {
+    while (taken.has(`firm-branch-${firmSeq}`)) { firmSeq++ }
+    const id = `firm-branch-${firmSeq}`
+    taken.add(id)
+    return id
+  }
+
+  const list = (rows || []).map((row) => {
+    const existing = row && row.id ? byId.get(row.id) : null
+    if (existing) {
+      // Reword in place: overwrite only the four editable fields, keep the rest
+      // (flow wiring, templates, type) exactly as the platform authored them.
+      const next = { ...existing, branch_name: str(row.branch_name), condition: str(row.condition), notes: str(row.notes) }
+      // A pure-question node has no `action` — its display `action` was really
+      // its `question` (_treeBranchRows), so the edit round-trips back there.
+      if (existing.question !== undefined && (existing.action === undefined || existing.action === '')) {
+        next.question = str(row.action)
+      } else {
+        next.action = str(row.action)
+      }
+      return next
+    }
+    // Firm-added branch: a new guidance row, appended, with no flow wiring.
+    return {
+      id: (row && typeof row.id === 'string' && row.id) ? row.id : nextFirmBranchId(),
+      branch_name: str(row && row.branch_name),
+      condition: str(row && row.condition),
+      action: str(row && row.action),
+      notes: str(row && row.notes)
+    }
+  })
+  return { key, list }
+}
+
+/**
+ * POST /api/firm-manager/logic-trees/:treeId — save the firm's edits to one
+ * logic table. Body: { branches: [{id,branch_name,condition,action,notes}] }.
+ * The edits merge onto the SINGLE `logic-trees` bundle the advisor engine reads,
+ * so a save reaches the AI (fenced — see logicTrees.formatLogicTreeForPrompt).
+ */
+async function saveLogicTree (req, res) {
+  const { treeId } = req.params
+  const rows = req.body && Array.isArray(req.body.branches) ? req.body.branches : null
+  if (!rows) {
+    return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'branches array required' } })
+  }
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === treeId)
+    if (!base) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    const { key, list } = _mergeBranchRows(base, rows)
+    const map = await _loadFirmLogicTreesMapRaw(req.firmId)
+    map[treeId] = { [key]: list }
+    const version = await _saveFirmLogicTreesMap(req.firmId, map, req.userEmail)
+    res.send(200, { saved: true, version, treeId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * DELETE /api/firm-manager/logic-trees/:treeId — reset one table to the platform
+ * default by dropping its key from the firm's override bundle.
+ */
+async function resetLogicTree (req, res) {
+  const { treeId } = req.params
+  try {
+    const map = await _loadFirmLogicTreesMapRaw(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(map, treeId)) {
+      delete map[treeId]
+      await _saveFirmLogicTreesMap(req.firmId, map, req.userEmail)
+    }
+    res.send(200, { reset: true, treeId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/logic-trees/:treeId/history — the saved versions of the
+ * firm's logic-tree bundle. NOTE: logic tables share ONE stored bundle, so this
+ * history is bundle-level (every table's saves interleaved), not per-table. It
+ * is read-only in Slice B; a per-table restore is deferred because restoring the
+ * shared bundle would roll back every table at once (needs its own design).
+ * `treeId` is accepted for URL symmetry with domain-support but not used.
+ */
+async function getLogicTreeHistory (req, res) {
+  try {
+    let history = []
+    try {
+      const [rows] = await db.execute(
+        `SELECT version, saved_by, created_at
+         FROM firm_framework_versions
+         WHERE firm_id = ? AND config_key = ?
+         ORDER BY version DESC`,
+        [req.firmId, CONTENT_CONFIG_KEYS.logicTrees]
+      )
+      history = rows
+    } catch (err) {
+      if (!IS_DEV) { throw err }
+    }
+    res.send(200, { history })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/logic-trees/probe — run one sentence through every
+ * DETERMINISTIC layer of the engine and report what it did: which domain was
+ * detected, which logic tables opened and on exactly which phrases, and which
+ * problem signals fired. Body: { text }.
+ *
+ * A POST because the payload is free text, not an identifier — it must not land
+ * in a URL, a server log or a browser history. Nothing is written: this is a
+ * read of the engine's behaviour, not a change to it.
+ *
+ * The advisory-distinctions layer is absent by design and says so in
+ * `notMeasured` — its phrases are AI-judged, not literal (see phraseProbe).
+ */
+async function probeLogicTreePhrase (req, res) {
+  const text = req.body && typeof req.body.text === 'string' ? req.body.text : null
+  if (!text || !text.trim()) {
+    return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'text required' } })
+  }
+  try {
+    const phraseProbe = require('../utils/phraseProbe')
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    res.send(200, phraseProbe.probeText(text, firmMap))
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/logic-trees/:treeId/preview-triggers — what WOULD change
+ * if this table's trigger phrases were edited. Body: { add: [], remove: [] }.
+ *
+ * ⚠ NOTHING IS SAVED. The proposal is merged in memory for the length of the
+ * request. It exists so a firm can see, before committing, whether a new word
+ * would take conversations away from another table — the check that was done by
+ * hand on 2026-07-31 and survived nowhere.
+ */
+async function previewLogicTreeTriggers (req, res) {
+  const { treeId } = req.params
+  const body = req.body || {}
+  const add = Array.isArray(body.add) ? body.add : []
+  const remove = Array.isArray(body.remove) ? body.remove : []
+  if (add.length === 0 && remove.length === 0) {
+    return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'add or remove required' } })
+  }
+  try {
+    const phraseProbe = require('../utils/phraseProbe')
+    const firmMap = await _loadFirmLogicTreeMap(req.firmId)
+    const result = phraseProbe.previewTriggerChange({ treeId, add, remove, firmTrees: firmMap })
+    if (!result) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    res.send(200, result)
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/logic-trees/:treeId/section — re-file a logic table into
+ * a different master section for this firm (display-only; the AI is unaffected).
+ * Body: { section: 'doTheJob' | 'getTheJob' | 'getOrganised' }. Moving an item
+ * back to its platform-default section clears the override.
+ */
+async function setLogicTreeSection (req, res) {
+  const { treeId } = req.params
+  const section = req.body && req.body.section
+  if (!VALID_SECTIONS.includes(section)) {
+    return res.send(400, { success: false, error: { code: 'INVALID_SECTION', message: 'section must be one of: ' + VALID_SECTIONS.join(', ') } })
+  }
+  try {
+    const logicTrees = require('../utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === treeId)
+    if (!base) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
+    }
+    const map = await _loadSectionMap(req.firmId, LOGIC_TREE_SECTIONS_KEY, DEV_LOGIC_TREE_SECTIONS_FILE)
+    if (section === _treeSection(base)) { delete map[treeId] } else { map[treeId] = section }
+    await _saveSectionMap(req.firmId, LOGIC_TREE_SECTIONS_KEY, DEV_LOGIC_TREE_SECTIONS_FILE, map, req.userEmail)
+    res.send(200, { moved: true, treeId, section })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/domain-support/:domainId/section — re-file a
+ * domain-support item into a different master section for this firm
+ * (display-only). Body: { section }. Back-to-default clears the override.
+ */
+async function setDomainSupportSection (req, res) {
+  const { domainId } = req.params
+  const section = req.body && req.body.section
+  if (!VALID_SECTIONS.includes(section)) {
+    return res.send(400, { success: false, error: { code: 'INVALID_SECTION', message: 'section must be one of: ' + VALID_SECTIONS.join(', ') } })
+  }
+  const domains = require('../../data/domains.json') || []
+  const getFiles = ['get-marketing', 'get-positioning', 'get-pricing-proposals', 'get-sales', 'get-sales-tracker', 'get-seminar', 'get-team-problem']
+  const known = new Set([...domains.map(d => d.id), ...getFiles])
+  if (!known.has(domainId)) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Domain support item not found' } })
+  }
+  try {
+    const map = await _loadSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE)
+    if (section === _domainSupportSection(domainId)) { delete map[domainId] } else { map[domainId] = section }
+    await _saveSectionMap(req.firmId, DOMAIN_SUPPORT_SECTIONS_KEY, DEV_DOMAIN_SUPPORT_SECTIONS_FILE, map, req.userEmail)
+    res.send(200, { moved: true, domainId, section })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
+  quizzablePages,
   listDocuments,
   uploadDocument,
   downloadDocument,
@@ -1557,8 +3482,6 @@ module.exports = {
   listVideos,
   addVideo,
   deleteVideo,
-  getProfile,
-  updateProfile,
   getStorageUsage,
   getTemplateImport,
   importTemplates,
@@ -1577,6 +3500,35 @@ module.exports = {
   promoteOverridesForDeletedRow,
   getStaircase,
   saveStaircase,
+  setStaircaseOverride,
+  resetStaircaseOverride,
+  setStaircaseDecline,
+  keepMineStaircaseStep,
+  addOwnStaircaseStep,
+  updateOwnStaircaseStep,
+  deleteOwnStaircaseStep,
   getQuizzes,
-  saveQuizzes
+  saveQuizzes,
+  setQuizOverride,
+  resetQuizOverride,
+  keepMineQuizQuestion,
+  setQuizDecline,
+  addOwnQuizQuestion,
+  updateOwnQuizQuestion,
+  deleteOwnQuizQuestion,
+  getDomainSupport,
+  getDomainSupportDetail,
+  saveDomainSupport,
+  resetDomainSupport,
+  getDomainSupportHistory,
+  restoreDomainSupport,
+  getLogicTrees,
+  getLogicTreeDetail,
+  saveLogicTree,
+  resetLogicTree,
+  getLogicTreeHistory,
+  setLogicTreeSection,
+  probeLogicTreePhrase,
+  previewLogicTreeTriggers,
+  setDomainSupportSection
 }

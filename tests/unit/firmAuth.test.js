@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken')
 const TEST_SECRET = 'test-secret-for-auth-tests'
 const WRONG_SECRET = 'wrong-secret'
 
-const { firmAuth, requireManagerRole } = require('../../server/middleware/firmAuth')
+const { firmAuth, requireManagerRole, requireMentorRole } = require('../../server/middleware/firmAuth')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -39,6 +39,38 @@ describe('firmAuth', () => {
 
     expect(next).toHaveBeenCalledTimes(1)
     expect(req.firmId).toBe('firm-1')
+  })
+
+  test('IGNORES a token in a cookie — these routes are Bearer-only', () => {
+    // The 2026-08-01 merge folded Collaborate's login seam into this file, and
+    // Collaborate's screens DO authenticate by cookie. Sharing one token reader
+    // must not quietly widen how the firm-manager, coach and report routes admit
+    // a caller: widening those to cookies is an auth decision, not plumbing.
+    const token = makeToken({ firmId: 'firm-1', role: 'firm_manager' })
+    const req = { headers: { cookie: `token=${token}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    firmAuth(req, res, next)
+
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+    expect(JSON.parse(res._body).error.code).toBe('MISSING_TOKEN')
+    expect(req.firmId).toBeUndefined()
+  })
+
+  test('sets the identity object as well as the flat fields', () => {
+    // Both halves of the merged app read one verified identity: Collaborate's
+    // routes take req.identity, ours take the flat fields. A guard that set only
+    // its own half would break every route belonging to the other.
+    const token = makeToken({ firmId: 'firm-1', advisorId: 'adv-9', role: 'firm_manager', email: 'm@acme.com' })
+    const req = { headers: { authorization: `Bearer ${token}` } }
+
+    firmAuth(req, makeMockRes(), jest.fn())
+
+    expect(req.identity).toEqual({
+      advisorId: 'adv-9', firmId: 'firm-1', role: 'firm_manager', email: 'm@acme.com'
+    })
   })
 
   test('sets req.userRole from JWT role claim', () => {
@@ -224,6 +256,51 @@ describe('dev auth bypass', () => {
     expect(next).not.toHaveBeenCalled()
     expect(res._status).toBe(401)
   })
+
+  // The SECOND dev bypass — authenticating as the cross-firm mentor (platform_admin) —
+  // had no test at all, though it grants a strictly wider identity than the one above:
+  // the mentor view is not firm-scoped. It must fail closed on exactly the same terms.
+  const DEV_MENTOR_TOKEN = 'dev-local-mentor'
+
+  test('rejects the dev MENTOR token by default (ALLOW_DEV_AUTH unset)', () => {
+    const fn = firmAuthWithEnv({ allowDevAuth: undefined, nodeEnv: 'development' })
+    const req = { headers: { authorization: `Bearer ${DEV_MENTOR_TOKEN}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    fn(req, res, next)
+
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+  })
+
+  test('rejects the dev MENTOR token in production even when ALLOW_DEV_AUTH=true', () => {
+    const fn = firmAuthWithEnv({ allowDevAuth: 'true', nodeEnv: 'production' })
+    const req = { headers: { authorization: `Bearer ${DEV_MENTOR_TOKEN}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    fn(req, res, next)
+
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+  })
+
+  test('accepts the dev MENTOR token in dev, as the mentor rather than a firm advisor', () => {
+    const fn = firmAuthWithEnv({ allowDevAuth: 'true', nodeEnv: 'development' })
+    const req = { headers: { authorization: `Bearer ${DEV_MENTOR_TOKEN}` } }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    fn(req, res, next)
+
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(req.userRole).toBe('platform_admin')
+    expect(req.userEmail).toBe('dev-mentor@local')
+    // advisorId must be null — the mentor is not an advisor, and anything that reads
+    // advisorId to scope a query must see the absence rather than a borrowed id.
+    expect(req.advisorId).toBeNull()
+  })
 })
 
 // ── requireManagerRole ────────────────────────────────────────────────────────
@@ -285,5 +362,69 @@ describe('requireManagerRole', () => {
     requireManagerRole(req, res, jest.fn())
 
     expect(res._status).toBe(403)
+  })
+})
+
+// ── requireMentorRole ─────────────────────────────────────────────────────────
+// This gate had NO tests, and it guards the one path that deliberately crosses the
+// firm boundary: the mentor reads anonymised cases shared from every firm. Where
+// requireManagerRole admits two roles, this one admits exactly one — a firm_manager
+// must NOT pass, or a firm's own manager could read across firms.
+
+describe('requireMentorRole', () => {
+  test('calls next() when role is the mentor role (platform_admin)', () => {
+    const req = { userRole: 'platform_admin' }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    requireMentorRole(req, res, next)
+
+    expect(next).toHaveBeenCalledTimes(1)
+  })
+
+  test('returns 403 for a firm_manager — manager rights do not cross firms', () => {
+    const req = { userRole: 'firm_manager' }
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    requireMentorRole(req, res, next)
+
+    expect(res._status).toBe(403)
+    expect(next).not.toHaveBeenCalled()
+  })
+
+  test('returns 403 for an advisor', () => {
+    const res = makeMockRes()
+
+    requireMentorRole({ userRole: 'advisor' }, res, jest.fn())
+
+    expect(res._status).toBe(403)
+  })
+
+  test.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['an empty string', ''],
+    ['an unknown string', 'super_user']
+  ])('returns 403 when role is %s', (_label, userRole) => {
+    const res = makeMockRes()
+    const next = jest.fn()
+
+    requireMentorRole({ userRole }, res, next)
+
+    expect(res._status).toBe(403)
+    expect(next).not.toHaveBeenCalled()
+  })
+
+  test('names the required role in the error envelope', () => {
+    const res = makeMockRes()
+
+    requireMentorRole({ userRole: 'advisor' }, res, jest.fn())
+
+    // This file's mock keeps the raw body written by sendError, so parse it here.
+    const body = JSON.parse(res._body)
+    expect(body.success).toBe(false)
+    expect(body.error.code).toBe('FORBIDDEN')
+    expect(body.error.message).toContain('platform_admin')
   })
 })

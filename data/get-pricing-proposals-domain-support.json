@@ -2,102 +2,84 @@
   "domain": "get-pricing-proposals",
   "label": "Get the Job — Advisory Pricing & Proposals",
   "trigger_keywords": [
-    "pricing", "proposal", "fees", "scope", "fee structure", "advisory pricing",
-    "how much to charge", "quote", "engagement letter", "variation to scope",
-    "due diligence scoping", "lite fundamentals proposal", "general advisory proposal",
-    "pricing model", "blank team matrix", "scoping model", "price advisory",
-    "write a proposal", "proposal template", "advisory fee"
+    "pricing",
+    "proposal",
+    "fees",
+    "scope",
+    "fee structure",
+    "advisory pricing",
+    "how much to charge",
+    "quote",
+    "engagement letter",
+    "variation to scope",
+    "due diligence scoping",
+    "lite fundamentals proposal",
+    "general advisory proposal",
+    "pricing model",
+    "blank team matrix",
+    "scoping model",
+    "price advisory",
+    "write a proposal",
+    "proposal template",
+    "advisory fee"
   ],
   "overview": "The advisory pricing and proposal templates give the advisor a professional, defensible way to scope, price, and present advisory engagements. Three core tools cover the full spectrum: the Advisory Pricing Model for complex or team-based engagements, the General Advisory Proposal for bespoke consulting, and the Lite Fundamentals Proposal for foundational coaching programs. The Variation to Scope of Works document protects the advisor against scope creep once the engagement is underway.",
   "diagnostic_entry": {
     "primary_question": "What type of engagement are you pricing — is it a bespoke, custom consulting job, a foundational coaching program, a due diligence review, or has the client requested something outside the original scope?"
   },
-  "support_tools": [
+  "materials": [
     {
+      "id": "get-pricing-proposals-advisory-pricing-model",
       "name": "Advisory Pricing Model",
-      "purpose": "A comprehensive spreadsheet for calculating advisory fees across complex, multi-team engagements. Breaks the job into components (scoping, research, presentation, implementation) and applies staff-specific hourly rates to each. Includes a Due Diligence Scoping Model for mergers and acquisitions.",
-      "core_principle": "Every hour must be accounted for before the engagement begins. The model prevents scope creep by forcing the advisor to define what is chargeable upfront — not after the work is done.",
-      "when_to_use": "When the engagement involves multiple team members, a complex bespoke project, or a due diligence review. Not needed for simple foundational coaching programs.",
-      "key_benefits": [
-        "Removes guesswork from pricing — pre-calculated bundled options and a Blank Team matrix speed up scoping",
-        "Protects firm profitability by separating chargeable discovery and research from non-chargeable proposal presentation time",
-        "Provides the client with complete transparency — they see exactly what they are paying for and why",
-        "The Due Diligence Scoping Model systematically covers structural, asset, and staff reviews for M&A work"
-      ],
-      "advisor_confidence_note": "Enter staff names and their travel, prep, and advisory hourly rates into the Blank Team Pricing Matrix tab before using the calculation sheets. This is a one-time setup step — do it once, then reuse across engagements.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Setup",
-          "steps": [
-            { "name": "Enter team rates", "guidance": "Navigate to the Blank Team Pricing Matrix tab. Input each team member's name and their respective rates for travel, preparation, and advisory time." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Scope the Project",
-          "steps": [
-            { "name": "Break into components", "guidance": "Divide the project into phases: Introduction, Scoping, Research, Presentation, Implementation, Review. Assign the appropriate team member to each phase and estimate the hours required." },
-            { "name": "Flag chargeability", "guidance": "Mark which phases are chargeable (typically discovery, research, and implementation) and which are not (typically proposal presentation). This distinction must be made before the engagement is priced." }
-          ]
-        }
+      "summary": "A spreadsheet that takes the guesswork out of pricing — bundled options, content suggestions and a Blank Team matrix that lets fees be built from the actual people assigned to each task. It breaks a complex job into scoping, research, presentation and implementation, and includes a detailed Due Diligence Scoping Model for mergers and acquisitions. For the owner it makes the fee transparent; for the firm it protects profitability and stops scope creep.",
+      "who_when": "Firms putting several team members on one project, and complex bespoke engagements — especially due diligence or structural reviews.",
+      "steps": [
+        "Hold the discovery session first and understand what the client actually needs before any number is written down.",
+        "Enter your staff names and their travel, prep and advisory rates into the Blank Team Pricing Matrix tab — this has to be done before the calculation sheets will work.",
+        "Break the project into its components: Introduction, Scoping, Research, Presentation, Implementation, Review.",
+        "Assign the appropriate team member to each task and allocate the hours against them.",
+        "Keep the chargeable line clear — discovery, scoping and research analysis may be charged; presenting the proposal generally is not.",
+        "For a merger or acquisition, use the Due Diligence Scoping Model inside the same spreadsheet to price structural, asset and staff review tasks such as asset utilisation, staff contracts and supplier risk."
       ]
     },
     {
+      "id": "get-pricing-proposals-general-advisory-proposal",
       "name": "General Advisory Proposal",
-      "purpose": "A slide deck for converting discovery meeting findings into a compelling, structured pitch for bespoke advisory services. Connects the client's End Game to the specific actions required to get there.",
-      "core_principle": "The proposal must show the client not just what the advisor will do, but how many hours the client themselves must commit. Shared ownership of the process is established from day one.",
-      "when_to_use": "When the engagement is highly customised and tailored to the client's specific, unique business problems — typically after a Total Needs scoping session.",
-      "key_benefits": [
-        "Structures the narrative around the client's own stated objectives and constraints — not a generic pitch",
-        "Lists the exact hours the client and their staff must commit, setting clear expectations upfront",
-        "Built-in Variation to Scope of Works template handles future out-of-scope requests professionally",
-        "Justifies the financial investment through a logical, evidence-based narrative"
-      ],
-      "advisor_confidence_note": "In the Recommendations section, the hours listed are strictly the client's time commitment — not the advisor's. Make this distinction explicit when presenting. Clients are often surprised by how much of their own time is required.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Draft the Proposal",
-          "steps": [
-            { "name": "List business objectives", "guidance": "Document the client's stated End Game — what they want the business to achieve. Use their exact words from the discovery session." },
-            { "name": "Identify legitimate constraints", "guidance": "List what is currently holding them back from achieving those objectives. These are the problems the engagement will solve." },
-            { "name": "Detail recommendations", "guidance": "Outline the specific steps to address the constraints. Crucially, include the hours the client must commit to each step — not the advisor's hours." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Present and Manage",
-          "steps": [
-            { "name": "Set the financial investment", "guidance": "Clearly state the monthly investment and total fee using the pricing model outputs." },
-            { "name": "Handle out-of-scope requests", "guidance": "Once signed, any new work requested must be documented in the Variation to Scope of Works — state the new issue, timeline, and additional estimated fee, and obtain signature before commencing." }
-          ]
-        }
+      "summary": "A slide deck that turns discovery findings into a logical pitch, visually connecting the client's End Game to the actions needed to reach it. It names their objectives and the Legitimate Constraints holding them back, and — unusually — states how many hours of the client's own time the work will demand, so expectations are set from day one rather than argued about later.",
+      "who_when": "Clients needing bespoke, customised consulting built around their own specific business problems.",
+      "steps": [
+        "Open the proposal once the pricing model has mapped the bespoke tasks.",
+        "List the client's business objectives in their own terms.",
+        "List the Legitimate Constraints — what is genuinely holding them back today.",
+        "In Recommendations, detail the steps to win, and state the hours the CLIENT or their staff must commit; those hours are theirs, not the advisor's.",
+        "Present the monthly investment and the total fee together, so the commitment is clear in both forms."
       ]
     },
     {
+      "id": "get-pricing-proposals-lite-fundamentals-proposal",
       "name": "Lite Fundamentals Proposal",
-      "purpose": "A pre-packaged, auto-populated slide deck proposal for the foundational Lite Fundamentals advisory program. Positions the engagement around three pillars: Getting More Organised, Getting More Work, and Doing More Profitable Work.",
-      "core_principle": "Scalable and efficient. The merge table in the advisor portal auto-populates all proposal fields — the advisor enters data once and the document is generated. No writing from scratch.",
-      "when_to_use": "When the client is a smaller business needing foundational coaching and structured systems — not complex or bespoke. This is the standard entry point for most new Lite advisory engagements.",
-      "key_benefits": [
-        "Out-of-the-box advisory program — ready to present without custom drafting",
-        "Merge table tool in the portal auto-populates all fields from a single data entry",
-        "Demystifies business growth for the client by framing it around three simple, digestible pillars",
-        "Appropriate for a wide range of client types — reduces the barrier to entry for newer advisors"
-      ],
-      "advisor_confidence_note": "Navigate to the merge table in the advisor portal and enter the required data fields. The document populates automatically. When presenting, lead with the three pillars — Organised, More Work, Profitable Work — as the client's learning journey, not as a product."
+      "summary": "A pre-campaigned, out-of-the-box advisory programme built on three digestible pillars — Getting More Organised, Getting More Work, and Doing More Profitable Work. It demystifies growth by teaching fundamentals such as the working capital cycle, the four levels of consumer awareness and process improvement cycles, and it is generated from a merge table rather than written from scratch, which makes it scalable across many clients.",
+      "who_when": "Smaller businesses and clients who need foundational coaching and structured systems rather than a complex customised intervention.",
+      "steps": [
+        "Confirm the client needs foundational help — general business education, better systems, or basic marketing and sales planning — rather than bespoke consulting.",
+        "Open the merge table tool in the advisor portal.",
+        "Enter the client's data into the tool and let it populate the proposal fields automatically.",
+        "Pitch the three pillars in order: Getting More Organised, Getting More Work, Doing More Profitable Work.",
+        "Present the monthly investment and total fee as with any other proposal."
+      ]
     },
     {
+      "id": "get-pricing-proposals-variation-to-scope-of-works",
       "name": "Variation to Scope of Works",
-      "purpose": "A formal document for capturing and agreeing new work that falls outside the original proposal. Prevents scope creep and protects the advisor's fee once the engagement is underway.",
-      "when_to_use": "Any time the client requests assistance with something not covered in the original proposal — including informal requests. Use immediately, before commencing the extra work.",
-      "key_benefits": [
-        "Protects the firm's profitability by formalising all additional work before it begins",
-        "Prevents misunderstandings about what is and is not included in the original engagement",
-        "Maintains the professional standard of the engagement — clients respect clear boundaries"
-      ],
-      "advisor_confidence_note": "Document the new issue, the timeline, and the estimated additional fee. Obtain the client's signature before starting. Never begin additional work on the basis of a verbal agreement, however casual the request appears."
+      "summary": "The document that keeps a signed engagement honest when the client asks for something that was never quoted — financing new equipment, a bank finance application, any new project appearing after the agreement. It records the new issue, the timeline and the additional fee, and is signed before the extra work starts rather than invoiced afterwards.",
+      "who_when": "Any signed engagement where the client raises an out-of-scope request — used immediately, not at the end.",
+      "steps": [
+        "Recognise the request as out of scope the moment it arrives, rather than absorbing it.",
+        "Open the Variation to Scope of Works document included at the end of both proposal templates.",
+        "Document the newly identified issue or opportunity in plain terms.",
+        "State the timeline and the additional estimated fee — for example 14 hours at $3,700.",
+        "Obtain the client's signature before commencing any of the extra work."
+      ]
     }
   ],
   "advisor_guidance": {

@@ -22,10 +22,14 @@
  * gitignored dev-JSON maps (keyed by firmId), mirroring the existing own-rows dev
  * fallback. These dev files are TEST-ONLY (no version history) and are replaced by
  * real MySQL persistence before production — see the shared ACTIONS.md P2 item.
+ * THE FALLBACK IS DEV-ONLY: in production an unreachable store is thrown to the
+ * caller. See `_load` below for why.
  */
 
 const fs = require('fs')
 const path = require('path')
+
+const IS_DEV = process.env.NODE_ENV !== 'production'
 
 const CONFIG_KEYS = {
   own: 'advisory-distinctions',
@@ -50,18 +54,29 @@ function _readDevMap (file) {
 /**
  * Load one config value, preferring the injected (production) loader and falling
  * back to the dev-JSON map keyed by firmId.
+ *
+ * THE FALLBACK IS DEV-ONLY, DELIBERATELY — matching firmStaircase.js, which was
+ * tightened first. In production an unreachable store is a real fault and is thrown
+ * to the caller: the Firm Manager route turns it into a 500 the manager can see, and
+ * the advisor engine logs it and runs on the platform set. Returning "this firm has
+ * declined nothing and edited nothing" instead would hide an outage behind an answer
+ * that looks deliberate, and a stray dev file on a production box would be served as
+ * that firm's live configuration.
+ *
  * @param {Function} loadFirmConfig - async (firmId, key) => stored value
  * @param {string} firmId
  * @param {string} key - firmOverlay config key
  * @param {string} devFile - dev-JSON fallback path
  * @param {*} fallback - default when nothing is stored
  * @returns {Promise<*>}
+ * @throws in production, when the store cannot be read
  */
 async function _load (loadFirmConfig, firmId, key, devFile, fallback) {
   try {
     const value = await loadFirmConfig(firmId, key)
     return (value === null || value === undefined) ? fallback : value
-  } catch (_e) {
+  } catch (err) {
+    if (!IS_DEV) { throw err }
     const map = _readDevMap(devFile)
     return Object.prototype.hasOwnProperty.call(map, firmId) ? map[firmId] : fallback
   }
@@ -72,6 +87,7 @@ async function _load (loadFirmConfig, firmId, key, devFile, fallback) {
  * @param {string|null} firmId - the authenticated firm id (never client-supplied)
  * @param {Function} loadFirmConfig - async (firmId, key) => stored value
  * @returns {Promise<{ownRows: Array, declinedIds: string[], overrides: Object}>}
+ * @throws in production, when the store cannot be read (never in development)
  */
 async function loadFirmDistinctionState (firmId, loadFirmConfig) {
   if (!firmId) { return { ownRows: [], declinedIds: [], overrides: {} } }

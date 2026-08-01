@@ -128,11 +128,17 @@ describe('courseEngine quiz-grade — CB-04 marker sees the session content', ()
 })
 
 describe('courseEngine quiz-grade — CB-30 firm model answers are the marking guide', () => {
+  // Every question carries `source` because that is what the engine really
+  // receives: banks now arrive from quizConfig.loadBlendedQuizBanks, which tags
+  // each question with who wrote it. Fencing is decided per question from that
+  // tag, so a fixture without it would be testing a shape production cannot
+  // produce — and would fence Advisor-e's own material, since the check on
+  // purpose fails closed.
   const THE_BANK = {
     source: 'Course Builder Quiz/Working Capital Cycle quiz.pdf',
     entries: [
-      { id: 1, question: 'BQ1?', answer: 'FIRM-MODEL-ANSWER-ONE', keyPoint: 'FIRM-KEYPOINT-ONE' },
-      { id: 2, question: 'BQ2?', answer: 'FIRM-MODEL-ANSWER-TWO', keyPoint: 'FIRM-KEYPOINT-TWO' }
+      { id: 1, qid: 'qz-1', source: 'platform', question: 'BQ1?', answer: 'FIRM-MODEL-ANSWER-ONE', keyPoint: 'FIRM-KEYPOINT-ONE' },
+      { id: 2, qid: 'qz-2', source: 'platform', question: 'BQ2?', answer: 'FIRM-MODEL-ANSWER-TWO', keyPoint: 'FIRM-KEYPOINT-TWO' }
     ]
   }
 
@@ -175,6 +181,35 @@ describe('courseEngine quiz-grade — CB-30 firm model answers are the marking g
     expect(secondRealOpen).toBeGreaterThan(-1)
     expect(guideAt).toBeGreaterThan(firstRealClose)
     expect(guideAt).toBeLessThan(secondRealOpen)
+  })
+
+  test('a question the FIRM wrote is fenced, in the same bank as ours that is not', async () => {
+    // The per-question half of the 2026-07-31 change. One bank, two questions,
+    // different authors: Advisor-e's marking guide must stay outside the fences
+    // (repo data, and the prompt is tuned for it) while the firm's must sit
+    // inside them (typed into a browser, so it is data to weigh, never an
+    // instruction to follow).
+    const { OPEN, CLOSE } = require('../../server/utils/promptSafety')
+    mockBank = {
+      source: 'Course Builder Quiz/Working Capital Cycle quiz.pdf',
+      entries: [
+        { id: 1, qid: 'qz-1', source: 'platform', question: 'BQ1?', answer: 'FIRM-MODEL-ANSWER-ONE', keyPoint: 'KP1' },
+        { id: 2, qid: 'fq-1', source: 'firm-own', question: 'BQ2?', answer: 'FIRM-MODEL-ANSWER-TWO', keyPoint: 'KP2' }
+      ]
+    }
+    stub(VALID_GRADE)
+    await courseEngine(makeReq(bankGradeBody(2)), makeRes())
+
+    const prompt = mockCreate.mock.calls[0][0].messages[0].content
+    const guideAt = prompt.indexOf('FIRM-MODEL-ANSWER-TWO')
+    expect(guideAt).toBeGreaterThan(-1)
+    // The firm's guide is wrapped: an OPEN marker before it and a CLOSE after,
+    // with no intervening CLOSE that would leave it outside the fence.
+    const openBefore = prompt.lastIndexOf(OPEN, guideAt)
+    const closeBefore = prompt.lastIndexOf(CLOSE, guideAt)
+    expect(openBefore).toBeGreaterThan(-1)
+    expect(openBefore).toBeGreaterThan(closeBefore)
+    expect(prompt.indexOf(CLOSE, guideAt)).toBeGreaterThan(guideAt)
   })
 
   test('a bankRef with no matching entry grades without a marking guide', async () => {

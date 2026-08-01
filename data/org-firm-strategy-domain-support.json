@@ -1,9 +1,23 @@
 {
   "domain": "org-firm-strategy",
   "label": "CA firm strategy and partner management",
-  "trigger_keywords": ["firm strategy", "partner admission", "partner retirement", "CA firm", "accounting firm", "practice strategy", "AI adoption", "software adoption", "capacity management", "fee growth", "partner equity", "practice management", "firm direction", "practice direction"],
+  "trigger_keywords": [
+    "firm strategy",
+    "partner admission",
+    "partner retirement",
+    "CA firm",
+    "accounting firm",
+    "practice strategy",
+    "AI adoption",
+    "software adoption",
+    "capacity management",
+    "fee growth",
+    "partner equity",
+    "practice management",
+    "firm direction",
+    "practice direction"
+  ],
   "overview": "CA firm strategy engagements address the high-stakes decisions that determine the long-term shape of an accounting or advisory practice — partner admission and retirement, technology and AI adoption, capacity management, and pricing strategy. These decisions are uniquely complex because they involve both the commercial interests of the firm and the personal financial interests of individual partners. The advisor's role is to provide a structured decision framework that separates the strategic logic (what is right for the firm) from the financial negotiation (what each partner receives), ensuring both are addressed transparently and in the correct sequence.",
-
   "diagnostic_entry": {
     "primary_question": "Is the firm strategy challenge primarily a partner structure decision (admission, retirement, or exit), a technology and AI adoption question, a capacity and workload management problem, or a fee growth and pricing strategy issue?",
     "partner_structure": "Partner decisions are among the most consequential and relationship-sensitive decisions in a professional services firm. The diagnostic must distinguish between planned transitions (retirement with adequate lead time), performance-driven exits (partner not meeting agreed standards), and structural changes (merger, acquisition, or partner count reduction). Each requires a different framework.",
@@ -11,159 +25,91 @@
     "capacity_management": "Most CA firms have a utilisation problem that masquerades as a staffing problem. Before recommending a hire, the advisor must establish baseline capacity, identify where hours are being lost to low-value work, and determine whether redeployment is more efficient than recruitment.",
     "fee_growth": "Fee growth in CA firms is often constrained by the absence of a systematic pricing review, not by market resistance. The diagnostic must identify whether the firm is pricing on time (hourly billing), value (outcome-based pricing), or a hybrid — and whether the pricing model is aligned to the segments of work being delivered."
   },
-
-  "support_tools": [
-
+  "materials": [
     {
-      "name": "Partner Admission Framework",
-      "purpose": "Provides a structured, transparent, and financially defensible process for admitting a new partner — covering readiness assessment, equity structure, buy-in mechanics, and expectations alignment.",
-      "core_principle": "Partner admission is a long-term financial and cultural commitment by the firm. The admission decision must be based on evidence of partner-level capability across three dimensions: technical excellence, client relationship ownership, and business development contribution. Admitting a partner who meets only one or two dimensions creates expectations misalignment that is very difficult to manage once equity has changed hands.",
-      "when_to_use": "Use when the firm is considering promoting an internal candidate to partner or bringing in an external partner hire.",
-
-      "readiness_criteria": {
-        "technical_excellence": "Demonstrates consistent expert-level judgement in their technical domain. Can independently handle the most complex client scenarios without escalation. Is recognised internally and externally as a technical authority.",
-        "client_relationship_ownership": "Has a defined, measurable client base that is genuinely relationship-owned — clients who would follow the individual, not just the firm brand. Can demonstrate client retention metrics and NPS for their portfolio.",
-        "business_development": "Has a track record of generating new client revenue, not just servicing existing clients. Can articulate a credible pipeline of future business development opportunities. Understands and accepts that partnership requires contribution to firm growth."
-      },
-
-      "equity_and_buy_in": {
-        "equity_valuation": "The equity purchase price must be based on an independent valuation of the practice — not on an internal formula that benefits existing partners. A commonly used method is a multiple of recurring revenue or EBITDA, adjusted for the new partner's contribution to the portfolio being transferred.",
-        "buy_in_structures": [
-          { "structure": "Funded from profit distributions", "description": "Partner's buy-in is funded by withholding a portion of their profit distributions over an agreed period. Lower upfront cash requirement but slower equity transfer." },
-          { "structure": "External financing", "description": "Partner obtains a professional finance facility to fund the buy-in. Immediate full equity ownership but requires the partner to have financeable personal circumstances." },
-          { "structure": "Vendor finance", "description": "Existing partners lend the buy-in amount to the incoming partner, repaid over time with interest. Creates interdependency but avoids the need for external financing." }
-        ]
-      }
-    },
-
-    {
-      "name": "Partner Retirement and Exit Management",
-      "purpose": "Provides the structured process for managing a partner's exit from the firm — whether planned retirement, performance-driven exit, or departure to a competitor — protecting the firm's client relationships, intellectual property, and cultural stability.",
-      "core_principle": "The most damaging partner exits are those where the process is reactive. A planned partner retirement with a 3-5 year transition timeline creates the conditions for client relationship transfer, successor development, and equity buyout structuring. An unplanned exit compresses all of these workstreams into a crisis timeline.",
-      "when_to_use": "Use when a partner has indicated retirement intent, when a performance issue has reached the point where exit is the likely outcome, or when the partnership is considering a merger or acquisition that will affect partner composition.",
-
-      "planned_retirement_pathway": {
-        "timeline": "Global best practice for partner succession is a 3-5 year transition period. At minimum, 18 months is required to transfer client relationships without significant attrition.",
-        "key_milestones": [
-          "Year 1-2: Identify and develop successor. Begin structured introduction of successor to key clients.",
-          "Year 2-3: Transition client relationship management responsibility progressively. Retiring partner moves from primary to secondary relationship role.",
-          "Year 3-4: Complete equity buyout documentation, valuation, and payment structure.",
-          "Final year: Finalise non-compete and restraint of trade terms. Confirm client transition is complete. Execute equity transfer."
-        ]
-      },
-
-      "equity_buyout_mechanics": {
-        "valuation_basis": "Same methodology as partner admission — independent valuation based on recurring revenue or EBITDA multiple, adjusted for the portfolio being transferred and any client attrition risk during the transition.",
-        "payment_structures": [
-          "Lump sum on exit — simplest but creates the largest cash flow impact on the remaining firm",
-          "Structured deferred payments over 2-3 years — common in smaller firms where the lump sum is not feasible",
-          "Earn-out linked to client retention — retiring partner's final payments tied to the percentage of their client portfolio retained post-transition (aligns incentives during the transition period)"
-        ]
-      }
-    },
-
-    {
-      "name": "AI and Software Adoption Assessment",
-      "purpose": "Provides a structured evaluation framework for CA firms assessing AI tools and practice management software — ensuring adoption decisions are based on measurable ROI rather than market pressure, and that change management plans are proportionate to the disruption involved.",
-      "core_principle": "Technology adoption in professional services firms fails most often not because the technology is wrong, but because the change management plan is inadequate. A rigorous technology evaluation must be matched by an equally rigorous implementation and behaviour change plan.",
-      "when_to_use": "Use when the firm is considering adopting AI-assisted tools for tax, audit, advisory, or practice management functions — or when existing technology investments are underdelivering against expectations.",
-
-      "evaluation_framework": {
-        "roi_assessment": {
-          "time_saved": "Quantify the hours per workflow that the technology is expected to save. Multiply by the average billing rate for those hours to establish the annual financial benefit.",
-          "error_reduction": "Quantify the cost of rework, write-offs, and compliance risk associated with the current error rate. Technology that reduces error rates has a compounding financial benefit.",
-          "capability_uplift": "Identify services the firm currently cannot offer that the technology would enable — new advisory capabilities, faster turnaround times, or deeper analytical outputs that justify premium pricing.",
-          "total_cost_of_ownership": "Include licensing fees, implementation costs, training time, and the productivity dip during the transition period. Technology that appears cheap on licensing often has a high total cost when implementation is properly scoped."
-        },
-        "change_management_requirements": [
-          "Sponsor — a named partner who is visibly committed to the adoption and prepared to model the new behaviour",
-          "Training plan — structured, role-specific training before go-live, not generic vendor training",
-          "Transition period — a defined period where both old and new systems run in parallel to prevent operational disruption",
-          "Success metrics — measurable KPIs at 30, 60, and 90 days post-adoption to identify whether the technology is delivering against the ROI case"
-        ]
-      }
-    },
-
-    {
-      "name": "Capacity Management and Utilisation Analysis",
-      "purpose": "Provides the analytical framework for understanding a CA firm's true capacity position — distinguishing between available hours, billable hours, and written-off hours — and identifying the highest-leverage interventions before resorting to recruitment.",
-      "core_principle": "Most CA firms have a hidden capacity problem: significant hours are being consumed by low-value work, non-billable administration, and inefficient processes that could be automated or delegated. A capacity analysis almost always reveals that the firm has more available capacity than it believes — the constraint is how that capacity is deployed, not the total quantum.",
-      "when_to_use": "Use before any decision to hire additional staff. Establish the baseline capacity position first. If available billable capacity already exists within the current team, the solution is redeployment and workflow redesign, not recruitment.",
-
-      "capacity_analysis_framework": {
-        "step_1_baseline": "Calculate total available hours per fee earner per year (standard working days × hours per day × utilisation target). This is the theoretical maximum.",
-        "step_2_actual_utilisation": "Measure actual billed and billable hours per fee earner. Calculate utilisation rate (actual billable hours ÷ available hours). A well-run CA firm typically targets 70-80% utilisation for senior staff.",
-        "step_3_wip_analysis": "Map WIP (work in progress) by client, service line, and staff level. Identify bottlenecks where work is queuing against specific individuals — common in firms that have not delegated work down appropriately.",
-        "step_4_write_off_analysis": "Calculate write-off rates by client, service line, and partner. High write-off rates against specific clients indicate scope creep or under-pricing. High write-off rates against specific service lines indicate process inefficiency or pricing misalignment.",
-        "step_5_redeployment_or_recruitment": "If utilisation is below 70% on average, the capacity constraint is a deployment and workflow problem. If utilisation is consistently above 85% across the fee earner group, recruitment is justified."
-      }
-    },
-
-    {
-      "name": "Fee Growth and Pricing Strategy",
-      "purpose": "Provides a structured approach to increasing fee revenue without increasing headcount — through pricing model evaluation, segment-based pricing review, and the introduction of value-based pricing for appropriate service lines.",
-      "core_principle": "The most common constraint on fee growth in CA firms is not market resistance to higher fees — it is the firm's own reluctance to have a pricing conversation. Most clients will accept a well-justified fee increase more readily than advisors expect, particularly where the service quality is demonstrably high.",
-      "when_to_use": "Use when the firm's revenue growth is lagging behind WIP growth, when fee realisation rates are declining, or when the firm is seeking to grow revenue without proportionate headcount growth.",
-
-      "pricing_model_options": [
-        {
-          "model": "Hourly billing",
-          "description": "Fee is based on time spent at agreed hourly rates. Simple to administer but creates a misalignment between value delivered and fee charged — the client bears all the timing risk and the firm is incentivised to be slow.",
-          "appropriate_for": "Non-routine, variable-scope work where time cannot be reliably estimated in advance."
-        },
-        {
-          "model": "Fixed fee",
-          "description": "A predetermined fee for a defined scope of work. Transparent for the client and provides revenue certainty for the firm. Requires disciplined scope management (see change order protocol) to prevent margin erosion.",
-          "appropriate_for": "Recurring, well-defined services where the scope is consistent year-on-year — compliance, tax returns, standard reporting."
-        },
-        {
-          "model": "Value-based pricing",
-          "description": "Fee is based on the value of the outcome delivered to the client, not the time invested. Appropriate for advisory work where the financial benefit to the client is measurable — restructuring, due diligence, capital raising support.",
-          "appropriate_for": "High-complexity, high-impact advisory engagements where the fee can be anchored to the client's financial benefit."
-        }
-      ],
-
-      "annual_pricing_review": {
-        "process": "Conduct an annual client and service line pricing review. For each service line, compare the current fee to: (1) the firm's internal cost plus target margin, (2) comparable market rates, and (3) the value being delivered to the client. Identify clients where fees have not been reviewed in more than two years — these are almost always under-priced relative to current service complexity."
-      }
-    },
-
-    {
-      "name": "Tracking and Accountability — Global Actions Report and CPD Log",
-      "purpose": "Centralises accountability so advice converts into action and learning is evidenced. The Global Actions Report summarises every action promised to clients; the CPD Log (CPD Table) tracks all learning and hours.",
-      "core_principle": "Advice only creates value when it is acted on and when the advisor keeps developing. Automating reminders means nothing is forgotten post-meeting, and tracking CPD provides evidence of progress and effectiveness 'in the field'.",
-      "when_to_use": "Use to embed post-meeting follow-through across the firm and to schedule structured learning. Pair the CPD Table with a protected 'Weekly Golden Hr' for strategic learning, kept above routine compliance deliveries.",
-      "components": [
-        { "name": "Global Actions Report", "guidance": "Summarises all actions promised to clients and automates reminders so nothing is forgotten after a meeting." },
-        { "name": "CPD Log (CPD Table)", "guidance": "Tracks all learning and hours. Schedule learning in 'work sprints' that respect peak workflow, and prioritise the Weekly Golden Hr for strategic learning above compliance deliveries." }
+      "id": "org-firm-strategy-capacity-planner-target-models",
+      "name": "Capacity Planner & Target Models",
+      "summary": "The calculators that define the logistics of delivering advisory alongside compliance — where the growth is, and what time budget each team member has given the client base and their skills. My Fee Growth Plan gets an advisor to name their target clients, service niche and marketing statement; the Team Advisory Targets table sets fee targets, client focus and time expectations so nobody is guessing what is expected of them.",
+      "who_when": "Firm leaders mapping total capacity, and individual advisors — on full or shared autonomy — tasked with growing a fee base.",
+      "steps": [
+        "Compile the family-grouped accounts into the Capacity Planner.",
+        "Categorise every client into Growth, Maintain or Service on fee potential and importance, so time follows value rather than noise.",
+        "Have each fee-growing advisor complete the My Fee Growth Model to set their own sales activity and conversion assumptions.",
+        "Have them complete My Fee Growth Plan to define target clients, service niches and their marketing statement in their own words.",
+        "Let them finish both independently before partner review — the buy-in comes from having set the numbers themselves.",
+        "Summarise the outcome in the Team Advisory Targets table: fee target, new versus existing client focus, autonomy level, time expectation.",
+        "Use My Improvement Plan instead for internal staff who are not required to grow fees — the same plan for everyone is the wrong tool for half the team."
       ]
     },
-
     {
-      "name": "CA Firm Strategy — If-Then Guidance",
-      "purpose": "Decision logic for the most common firm strategy complications — partner admission disputes, technology adoption failures, capacity crises, and fee growth resistance.",
-      "if_then_logic": [
-        {
-          "condition": "Existing partners disagree on whether a candidate is ready for admission",
-          "action": "Return to the three-dimension readiness criteria (technical, client, business development) and score the candidate against each dimension independently. Present the evidence-based scorecard before allowing the debate to proceed. Partners who oppose an admission on subjective grounds rather than the criteria framework should be asked to specify which criterion is not met and why."
-        },
-        {
-          "condition": "Technology adoption has stalled — staff are reverting to old processes",
-          "action": "Diagnose whether the stall is a training gap (staff don't know how to use the new system), a trust gap (staff don't believe the system is reliable), or a sponsorship gap (the partner-sponsor is not visibly using the new system). Each requires a different intervention. Reverting to the old system is not a neutral position — it has a compounding cost in write-offs and adoption capital."
-        },
-        {
-          "condition": "The firm is at capacity but cannot justify a new hire on current billings",
-          "action": "Run the full capacity analysis before declining the hire. Identify whether write-off rates or below-target utilisation in one part of the firm are concealing available capacity elsewhere. Often, a targeted workflow redesign or client re-segmentation releases enough capacity to absorb the growth without a new hire."
-        },
-        {
-          "condition": "Clients are resisting a fee increase despite strong service delivery",
-          "action": "Prepare a value summary for the client — a documented account of the outcomes delivered in the past 12 months, the issues resolved, and the financial benefit of the advisory relationship. Present the fee review in the context of this value summary, not as an isolated price discussion. Clients who see the documented value of the relationship accept fee increases significantly more readily than clients who receive a letter announcing an increase without context."
-        }
+      "id": "org-firm-strategy-team-training-o-s-coaching-progress-plan",
+      "name": "Team Training O.S. & Coaching Progress Plan",
+      "summary": "Names the functional skills each team member needs and tailors the coaching to their experience and the firm's budget. Its distinguishing idea is scheduling: learning runs in work sprints arranged around peak workflow, which is what stops training being quietly abandoned every compliance season.",
+      "who_when": "Firm managers, internal coaches, and all team members.",
+      "steps": [
+        "Define, per person, the functional skills that need to improve — the Team Training O.S. is a coaching outcome statement, not a wish list.",
+        "Tailor the coaching content to the individual's experience and the budget available.",
+        "Schedule the learning in work sprints built around peak workflow commitments rather than in spite of them.",
+        "Run internal training on Team AI familiarity tasks so the team can prompt AI and use basic automation.",
+        "Have people test the same input across more than one AI model and compare the outputs for bias and accuracy.",
+        "Track every hour in the CPD Table, which feeds the firm-wide learning matrix and generates association points.",
+        "Protect the Weekly Golden Hour for strategic learning, ahead of compliance delivery."
+      ]
+    },
+    {
+      "id": "org-firm-strategy-growth-curve-checklist",
+      "name": "Growth Curve Checklist",
+      "summary": "Aligns what the firm offers with where the client's business actually is — Design, Launch, Growth, Maturity. It is the cross-selling roadmap: it tells the advisor which service genuinely belongs in this client's plan now, such as succession planning for a mature business, and just as usefully which pitches would be irrelevant today.",
+      "who_when": "All client-facing advisors.",
+      "steps": [
+        "Review the checklist when brainstorming which service offers to align to which client lifecycle stages.",
+        "Record the client's current position on the Growth Curve during the meeting itself.",
+        "Use that position to flush out both the long-term vision and the short-term concerns.",
+        "Match the service suggestion to the stage rather than to the firm's capability — the point is relevance, not coverage.",
+        "Link the outcome into the client's action plan so the identified potential turns into scheduled work."
+      ]
+    },
+    {
+      "id": "org-firm-strategy-strategic-evaluation-frameworks",
+      "name": "Strategic Evaluation Frameworks",
+      "summary": "Two structured ways to make divisive firm decisions without emotion. The Technology Review evaluates software and AI through Everett Rogers' diffusion of innovation and Porter's Five Forces, which is what keeps shiny-object syndrome in check. The Offshoring Review runs the partner group through De Bono's Six Hats so facts, feelings, risks and benefits are examined separately instead of argued simultaneously.",
+      "who_when": "The partner group and firm directors.",
+      "steps": [
+        "For a technology or AI decision, start with the diffusion curve to establish the firm's genuine adoption appetite rather than its self-image.",
+        "Apply Porter's Five Forces to the same decision to read the market pressure and the expectations that come with adopting.",
+        "For a divisive operational question such as offshoring, deploy the Six Hats framework instead.",
+        "Have the chairperson force every member to wear the same hat at the same time — white for facts, red for emotions, black for risks, yellow for benefits.",
+        "That simultaneity is the mechanism: it is what removes confirmation bias and stops the discussion becoming an argument."
+      ]
+    },
+    {
+      "id": "org-firm-strategy-contrast-models-fm-expectations-and-fm-stages",
+      "name": "Contrast Models — FM Expectations and FM Stages",
+      "summary": "Described in the source as the best bang-for-buck planning tools in the set. The two tables map the interrelatedness between what the owners actually want and the sequential business development objectives required to get there — so an aspiration is followed to the work it implies rather than left as a statement of intent.",
+      "who_when": "Partners, directors and firm managers defining their End Game.",
+      "steps": [
+        "Capture the owners' aspirations plainly, in their words, before any objective is written.",
+        "Map those aspirations against the sequential development objectives that would deliver them.",
+        "Read the interrelatedness — which objectives serve more than one aspiration, and which aspiration currently has nothing beneath it.",
+        "Use the Strategic Services Summary to decide which services to develop and which to avoid, assigning a firm champion to each.",
+        "Use the Vital Internal Functions Summary to decide which internal tasks — workflow, IT, database management — are in-house or outsourced, each with a named champion."
+      ]
+    },
+    {
+      "id": "org-firm-strategy-tracking-accountability-global-actions-report-cpd-log",
+      "name": "Tracking & Accountability — Global Actions Report & CPD Log",
+      "summary": "Centralises accountability so advice becomes evidence. The Global Actions Report summarises every action promised to clients across all advisors, letting management see completion, bottlenecks and automation opportunities; the CPD Log tracks all learning. Together they answer the question a firm usually cannot: is what we advise actually getting done in the field?",
+      "who_when": "Firm management tracking performance, and advisors tracking their own daily commitments.",
+      "steps": [
+        "Record targets, objectives and specific actions per client account in the Advisor Action Plan.",
+        "Let it set the automated reminders so nothing promised in a meeting is lost afterwards.",
+        "Run the Global Actions Report when management needs to verify that advice is turning into completed tasks.",
+        "Read it for the three things it shows: failures, automation opportunities, and genuine field effectiveness.",
+        "Use the Dashboard and Volatility Report alongside it in delivery, so financial performance can be explained to the client simply.",
+        "Keep the CPD Log current so learning is evidenced rather than asserted."
       ]
     }
-
   ],
-
   "advisor_guidance": {
     "separate_strategic_and_financial_conversations": "Partner structure decisions always involve both a strategic logic (what is right for the firm) and a financial negotiation (what each partner receives). These conversations must be run in sequence, not simultaneously. Conflating the strategic question with the financial negotiation creates conditions where partners vote on strategy based on their financial position — undermining the quality of the decision.",
     "technology_change_management_is_not_optional": "The majority of technology adoption failures in professional services firms are change management failures, not technology failures. A rigorous selection process that is not matched by an equally rigorous implementation and behaviour change plan will produce a technology investment that is underutilised within 6-12 months.",

@@ -1,145 +1,44 @@
 {
   "domain": "stock-purchasing",
   "label": "stock purchasing and inventory management",
-  "trigger_keywords": ["stock purchasing", "inventory", "reorder", "bulk buy", "exotic stock", "days on hand", "stock levels", "unit cost", "quick ratio", "purchase assessment"],
+  "trigger_keywords": [
+    "stock purchasing",
+    "inventory",
+    "reorder",
+    "bulk buy",
+    "exotic stock",
+    "days on hand",
+    "stock levels",
+    "unit cost",
+    "quick ratio",
+    "purchase assessment"
+  ],
   "overview": "Stock purchasing decisions sit at the intersection of cash flow management and operational continuity. The core tension is between the financial risk of holding too much stock and the operational risk of holding too little. The advisor's role is to introduce a structured assessment framework that separates buying decisions from gut instinct — particularly the distinction between bulk purchasing (volume discount economics) and exotic purchasing (single-supplier, long lead time, high unit cost risk). Every purchase approval should be subject to a quick ratio test before commitment, ensuring the business is not buying its way into a cash flow crisis.",
-
   "diagnostic_entry": {
     "primary_question": "Is the purchasing challenge primarily about the financial viability of a specific purchase, the structural approach to stock management (bulk vs. exotic), or the reorder trigger system that governs day-to-day inventory decisions?",
     "financial_viability": "Run the quick ratio test before any other analysis. If current ratio is below 1.0, the purchase should not proceed without first identifying an alternative funding mechanism or renegotiating supplier terms. Approval and rejection pathways must be clear before the purchase discussion begins.",
     "bulk_vs_exotic": "Clarify the nature of the stock first. Bulk purchasing decisions are driven by volume discount analysis and cash flow capacity — the question is whether the unit cost saving justifies the holding cost and cash tied up. Exotic purchasing (specialty items, single-supplier risk, long lead times) requires a different framework: supplier dependency risk, alternative sourcing, and emergency stock levels.",
     "reorder_trigger_system": "If the business lacks a defined reorder point, every purchase is reactive and ad hoc. Establish the reorder formula (daily usage × lead time + safety stock buffer) and build it into their stock management system or simple spreadsheet tracker before addressing any specific purchase decision."
   },
-
-  "support_tools": [
-
+  "materials": [
     {
-      "name": "Bulk vs. Exotic Stock Assessment",
-      "purpose": "Provides a clear decision framework for distinguishing between bulk purchasing opportunities (volume discount economics) and exotic purchasing risks (single-supplier, specialty, long lead time stock) — ensuring the right analysis is applied to each category.",
-      "core_principle": "Not all stock carries the same risk profile. Applying bulk purchasing economics to exotic stock — or vice versa — leads to either unnecessary over-investment or dangerous supply chain exposure.",
-      "when_to_use": "Use at the start of any stock purchasing engagement to classify the type of stock under review before moving to financial or operational analysis.",
-
-      "bulk_purchasing": {
-        "definition": "Standard, commoditised stock items available from multiple suppliers where volume discount pricing creates a financial case for purchasing above immediate demand.",
-        "approval_criteria": [
-          "Quick ratio ≥ 1.0 after the purchase commitment — cash position must be verified first",
-          "Volume discount saves more than the holding cost (storage, insurance, obsolescence risk) over the holding period",
-          "Multiple supplier alternatives exist — no single-supplier dependency created by bulk commitment",
-          "Stock has a clearly defined shelf life or consumption rate that limits obsolescence risk"
-        ],
-        "rejection_criteria": [
-          "Quick ratio falls below 1.0 if the purchase proceeds — cash flow risk outweighs the unit cost saving",
-          "Holding costs (storage, insurance, capital cost of money) exceed the unit cost saving",
-          "Demand variability is high — buying in bulk locks the business into stock it may not need"
-        ]
-      },
-
-      "exotic_purchasing": {
-        "definition": "Specialty, custom, or low-volume stock items with limited supplier alternatives, long lead times, or high unit costs where supply continuity is the primary risk to manage.",
-        "key_risks": [
-          "Single-supplier dependency — if the supplier fails or delays, operations are exposed",
-          "Long lead times — demand must be forecast well in advance with higher safety stock buffers",
-          "High unit cost — obsolescence or over-ordering creates significant write-off exposure",
-          "Import or currency risk — for internationally sourced exotic stock, exchange rate movements affect true unit cost"
-        ],
-        "advisory_guidance": "Exotic stock decisions require a supplier risk assessment alongside the financial approval test. Always ask: what is the backup plan if this supplier cannot deliver? If no answer exists, the business has unacknowledged supply chain risk that must be addressed before the purchasing strategy is finalised."
-      }
-    },
-
-    {
-      "name": "Reorder Point and Safety Stock Framework",
-      "purpose": "Establishes a systematic, formula-based reorder trigger system that removes guesswork from day-to-day stock replenishment decisions — preventing both stockouts and unnecessary over-investment.",
-      "core_principle": "Every reorder decision should be driven by a defined trigger point, not by someone noticing the shelf is empty. The reorder point formula converts demand and lead time data into an actionable number that can be built into any stock management system.",
-      "when_to_use": "Use when the client lacks a formal reorder system or is making purchasing decisions reactively. Establish this framework before addressing any specific purchase approval.",
-
-      "reorder_formula": {
-        "formula": "Reorder Point = (Average Daily Usage × Supplier Lead Time in Days) + Safety Stock Buffer",
-        "components": [
-          {
-            "component": "Average Daily Usage",
-            "description": "Total units consumed in the period divided by the number of days in the period. Use a rolling 90-day average where demand is seasonal or variable."
-          },
-          {
-            "component": "Supplier Lead Time",
-            "description": "The number of days from placing a purchase order to receiving usable stock. For exotic or imported stock, include customs clearance and internal processing time."
-          },
-          {
-            "component": "Safety Stock Buffer",
-            "description": "Additional stock held to absorb demand spikes or supplier delays. A standard formula is: (Maximum Daily Usage − Average Daily Usage) × Maximum Lead Time. For critical or exotic stock, increase the multiplier."
-          }
-        ],
-        "days_on_hand_check": "Days on Hand = Current Stock Quantity ÷ Average Daily Usage. If Days on Hand falls below the reorder point, purchase is triggered. This metric should be reviewed on a fixed cadence — weekly for fast-moving stock, monthly for slow-moving."
-      }
-    },
-
-    {
-      "name": "Quick Ratio Purchase Approval Test",
-      "purpose": "Provides a financially defensible approval or rejection decision for any significant stock purchase — ensuring the business does not fund inventory at the cost of its short-term liquidity.",
-      "core_principle": "The quick ratio (liquid assets ÷ current liabilities, excluding stock) is the most reliable indicator of whether a business can safely commit cash to a stock purchase without creating a cash flow crisis.",
-      "when_to_use": "Apply before approving any material stock purchase. For recurring bulk purchases, build the ratio test into the standard purchase approval workflow.",
-
-      "approval_pathway": {
-        "threshold": "Quick ratio ≥ 1.0 after the proposed purchase is committed",
-        "steps": [
-          "Calculate current quick ratio: (Cash + Receivables) ÷ Current Liabilities",
-          "Model the post-purchase quick ratio: subtract the purchase commitment from cash",
-          "If post-purchase ratio ≥ 1.0, the purchase is financially approved — proceed to operational justification",
-          "Document the approval with the ratio calculation for audit trail"
-        ]
-      },
-
-      "rejection_pathway": {
-        "threshold": "Quick ratio falls below 1.0 if the purchase proceeds",
-        "options": [
-          {
-            "option": "Negotiate extended supplier payment terms",
-            "description": "Request 30–60 day payment terms to avoid the immediate cash impact — the stock arrives but the cash commitment is deferred until receivables convert."
-          },
-          {
-            "option": "Reduce order quantity",
-            "description": "Purchase only the immediate demand requirement rather than the full bulk quantity. Accept the higher unit cost in exchange for preserving cash position."
-          },
-          {
-            "option": "Stage the purchase",
-            "description": "Split the order into two or three tranches aligned with expected cash inflows — matching the purchase commitment to receivable collection cycles."
-          },
-          {
-            "option": "Secure a short-term facility",
-            "description": "Use a trade finance or overdraft facility to fund the purchase — only appropriate where the stock turns over quickly enough to service the facility cost."
-          }
-        ]
-      }
-    },
-
-    {
-      "name": "Stock Purchasing — If-Then Guidance",
-      "purpose": "Decision logic for the most common stock purchasing complications — cash flow constraints, supplier risks, demand variability, and over-investment in slow-moving stock.",
-      "if_then_logic": [
-        {
-          "condition": "Client wants to take advantage of a bulk discount but quick ratio falls below 1.0",
-          "action": "Do not approve the bulk purchase. Present the four rejection pathway options and model the cash flow impact of each. The unit cost saving is irrelevant if the business cannot meet its current liabilities during the holding period."
-        },
-        {
-          "condition": "Business is running out of a critical exotic stock item and no safety buffer exists",
-          "action": "Place an emergency order immediately to prevent operational disruption, then build the reorder point formula retrospectively to prevent recurrence. Identify alternative suppliers as a parallel risk mitigation step."
-        },
-        {
-          "condition": "Stock levels are consistently high but cash flow is tight",
-          "action": "Run a Days on Hand analysis across all stock lines. Identify items where Days on Hand exceeds 90 days — these are candidates for immediate order suspension. Calculate the cash that would be released by drawing down to a 30-day position and compare it to the cost of potential stockouts."
-        },
-        {
-          "condition": "Business is dependent on a single supplier for a critical stock item",
-          "action": "Immediately identify and qualify a secondary supplier. Accept a higher unit cost for the secondary source if necessary — the cost of a supplier failure is almost always greater than the unit cost premium for supply chain redundancy."
-        },
-        {
-          "condition": "Demand is highly seasonal and bulk purchasing decisions are made at peak demand",
-          "action": "Shift to a seasonally adjusted rolling average for the daily usage calculation. Model the Days on Hand figure at both peak and trough demand to ensure safety stock levels are calibrated for the full demand cycle."
-        }
+      "id": "stock-purchasing-inventory-framework",
+      "name": "Inventory Framework",
+      "summary": "The Weighted Average Inventory model — a data-driven way to decide what to reorder and when, balancing product velocity, profit margin and cash liquidity so capital is not trapped in poor performers while the high-volume favourites never run out. Its distinguishing feature is a mandatory financial check before any order is placed, which is what lifts the conversation from supply-chain management to business liquidity and seasonal capital planning.",
+      "who_when": "Retailers, wholesalers, e-commerce brands and any inventory-heavy business — particularly one carrying a mix of high-volume commodities and unique, singular or exotic items, since the framework has explicit exceptions for both.",
+      "steps": [
+        "Review past sales reports and collate them into a matrix — which units yield the best margin, sell in the highest volumes, move the quickest, and carry the least unit cost risk.",
+        "Assign a point weighting to each of those categories to produce a priority ranking, the Weighted Average, across the product range.",
+        "Apply the exception for imported, exotic or singular items — ignore the Volume weighting entirely and put the emphasis on Days on Hand, because these items are singular by nature and will never show volume.",
+        "Apply the exception for bulk and high-quantity items — ignore Days on Hand and weight Volume sold (or sales as a percentage of stock units purchased) alongside Margin and Unit Cost Risk.",
+        "Run the stock check — compare the highest-ranking products against actual physical holdings, and include the units already in transit from suppliers.",
+        "Calculate the re-order minimum as daily average sales multiplied by the supplier's days to arrive — selling 3 a day with a 5-day lead time makes 15 units the absolute minimum.",
+        "Run the financial check before the chequebook comes out — calculate the Quick Ratio to see the true liquidity exposure.",
+        "Cross-reference the purchase against operational needs, upcoming capital expenditure, and a seasonally adjusted sales and expenses forecast, so a peak-season daily average never drives a slow-season order.",
+        "Order the stock once it is both mathematically required and financially viable — and if liquidity is tight or capex needs the cash, hold the order or cut it back to the strict daily minimum."
       ]
     }
-
   ],
-
   "advisor_guidance": {
     "cash_first": "Every stock purchasing decision is a cash flow decision first. Unit cost savings, bulk discounts, and supplier relationships are secondary to the question of whether the business can safely commit the cash. Run the quick ratio test before any other analysis and do not approve purchases that compromise short-term liquidity.",
     "exotic_stock_requires_supplier_risk_assessment": "Exotic stock decisions cannot be assessed on price alone. Single-supplier dependency, long lead times, and high unit costs create operational exposure that must be mapped and mitigated. Always ask for the backup plan before approving an exotic stock commitment.",

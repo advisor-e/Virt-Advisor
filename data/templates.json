@@ -171,8 +171,8 @@
     "page": "id-6607114703",
     "section": "Do the Job",
     "subSection": "Growth Framework",
-    "topic": "Consultancy Framework",
-    "title": "Growth Framework",
+    "topic": "Growth Fundamentals Framework",
+    "title": "Growth Curve",
     "link": "id-6607114703",
     "purpose": "The Growth Fundamentals Curve is a superb way to create 'self relevance' for your clients. In a nutshell, it's the fastest (& easiest) way to capture your clients attention, align your mutual understanding of their contextual position and assess their desire for change.",
     "support": "Devil's Toilet; Growth Curve; Growth Stages; Split Point; Design; Launch; Break-even; Lifestyle; Leverage; Reach; Leapfrog; Maturity; Exit/Decline; 7 Growth Tactics; 9 Growth Stages; 5 Psyche Errors; 9 Growth Aspects; video",
@@ -1191,7 +1191,7 @@
     "section": "Do the Job",
     "subSection": "Lite Fundamentals",
     "topic": "Planning / Orientation",
-    "title": "Planning Session",
+    "title": "Lite Planning",
     "link": "planning-session",
     "purpose": "This section seeks to help your client align their income, risk and work hours expectations to their business model and lay a foundation of understanding between you both. The supporting document explains strategic language for those new to business planning.",
     "support": "Owners income expectations; Business development stages; How to make money; capital gain; subscription model; product margin; sellinghours; Operational objective; Tactical action plans; Vision; Mission; Goals",
@@ -1232,7 +1232,7 @@
     "section": "Do the Job",
     "subSection": "Lite Fundamentals",
     "topic": "Developing KPI's",
-    "title": "Data Session",
+    "title": "Lite Data",
     "link": "data-session",
     "purpose": "This section seeks to educate your client on the interpretation of data (Causation vs. Correlation) and provides foundation knowledge of accounting terminology, which allows you to expand the topic to meet the comprehension of your client and the complexity of their business. (You match the detail to the client) This template also helps you clarify the KPI's to use when working with this client going forward.",
     "support": "Financial principles Reading Financials; Financial Ratios; Key Performance Indicators; KPI's; EBIT; Balance Sheet; Profit & Loss; Retained Earnings; Current Ratio; Quick Ratio; ROI; ROA; Return on Ivestment; Return on Assets; Current Assets; Current Liabilities; Owners Equity; Over Trading Sweetspot; video",
@@ -1326,7 +1326,7 @@
     "section": "Do the Job",
     "subSection": "Lite Fundamentals",
     "topic": "Increasing Sales",
-    "title": "Sales Session",
+    "title": "Lite Sales",
     "link": "sales-session",
     "purpose": "This section guides your client to break down the customer's journey, identify the logical decision points and to ensure that the sales process matches their industry or product. Whilst sales training basics are covered, you are not expected to be the next 'sales guru' but rather, provide the frameworks that let your client modify their sales tactics over time.",
     "support": "Correct Sales Arena; Achieving Congruence; 4 stages in psychology of the sale; 4 Processing Styles; Logical Decision Points; flowchart sales process; Tender notes; Sales Tension Points; video",
@@ -1364,7 +1364,7 @@
     "section": "Do the Job",
     "subSection": "Lite Fundamentals",
     "topic": "Staff Engagement/ Delegation",
-    "title": "People Session",
+    "title": "Lite People",
     "link": "people-session",
     "purpose": "This section explores the underlying drivers of employee satisfaction; how people naturally respond to learning new material, a proven model to assist with giving staff feedback correctly and, a challenging review of the leadership style that best meets the temperament of your client AND the industry/business requirements.",
     "support": "5 Drivers of Human performance; Emotional Reaction to Learning; Feedback Model; Sociology Lessons; 80/20 of Employee Motivation; Testing Leadership Style; Delegate; Delegation; Performance Review; video",
@@ -1403,7 +1403,7 @@
     "section": "Do the Job",
     "subSection": "Lite Fundamentals",
     "topic": "Process Improvement",
-    "title": "Process Session",
+    "title": "Lite Process",
     "link": "process-session",
     "purpose": "This section explores the 'philosophy' of process improvement that may best serve your client and reminds them that 'just because it's tending, doesn't make it the best approach for you'. The section also explores practical ways to develop flowcharts to help clarify the system component that needs prioritised attention.",
     "support": "Dave Nave systems review; Improving Process; Systems Thinking; video",
@@ -6324,8 +6324,8 @@
     "page": "id-9763482347",
     "section": "Do the Job",
     "subSection": "Growth Framework",
-    "topic": "Revealing Growth Framework",
-    "title": "Free Draw 3x3",
+    "topic": "Reveal the Curve",
+    "title": "Revealing the Growth Curve Freehand",
     "link": "id-9763482347",
     "purpose": "This template and the tutorial video (underneath) will make it easy for you to reveal the growth (fundamentals) framework to your clients in a low pressure manner. (Especially useful for you to draw on a napkin at a coffee shop!)",
     "support": "Freedraw; free draw; reveal growth curve; freedraw",
@@ -6338,9 +6338,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This template and the tutorial video (underneath) will make it easy for you to reveal the growth (fundamentals) framework to your clients in a low pressure manner."
     },
     "tags": [
       "Freedraw",
@@ -9505,5 +9505,307 @@
       "Financial Literacy"
     ],
     "index": 280
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-2956086585",
+    "section": "Do the Job",
+    "subSection": "Growth Framework",
+    "topic": "Growth Fundamentals Framework",
+    "title": "The 9 Growth Stages",
+    "link": "id-2956086585",
+    "purpose": "This template is primarily a visual aid to explain the growth stages in the Advisor-e Growth Fundamentals Framework. It's an easy way to introduce the framework to your clients as it describes the 'business journey; and lets them 'see themselves' on the curve.",
+    "support": "",
+    "position": 282,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "It's an easy way to introduce the framework to your clients as it describes the 'business journey; and lets them 'see themselves' on the curve."
+    },
+    "status": "--",
+    "tags": [],
+    "index": 281
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-8926057452",
+    "section": "Do the Job",
+    "subSection": "Growth Framework",
+    "topic": "Growth Fundamentals Framework",
+    "title": "Lite Fundamentals Components",
+    "link": "id-8926057452",
+    "purpose": "This template is a 'short and sweet' visual summary of the Lite Fundamentals programme. It's placed here to encourage your clients to explore the concept of working regularly with you to develop their business accumen.",
+    "support": "",
+    "position": 283,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This template is a 'short and sweet' visual summary of the Lite Fundamentals programme. It's here to encourage your clients to work regularly with you to develop their business accumen."
+    },
+    "status": "--",
+    "tags": [],
+    "index": 282
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-9763482347",
+    "section": "Do the Job",
+    "subSection": "Growth Framework",
+    "topic": "Growth Fundamentals Framework",
+    "title": "Growth Fundamentals Framework Philosophy",
+    "link": "id-9763482347",
+    "purpose": "This is the 'Full Monty' version of the Growth Fundamentals Framework; giving you all the information you need to truly understand the framework design and user purpose.",
+    "support": "",
+    "position": 284,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This is the 'Full Monty' version of the Growth Fundamentals Framework; giving you all the information you need to truly understand the framework design and user purpose."
+    },
+    "status": "--",
+    "tags": [],
+    "index": 283
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-1283439703",
+    "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
+    "topic": "Financial Modelling",
+    "title": "Working With Revenue Models",
+    "link": "id-1283439703",
+    "purpose": "This template explains the two 'reveal' methods when working with your clients and their revenue model. The  template explores the level of client awareness and desire to learn as critical selection drivers for your reveal method, as well as the need to avoid 'map-shock'.",
+    "support": "coaching; training; learning and development; facilitation",
+    "position": 285,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This template explains the two 'reveal' methods when working with your clients and their revenue model."
+    },
+    "tags": [
+      "coaching",
+      "training",
+      "learning and development",
+      "facilitation"
+    ],
+    "status": "--",
+    "index": 284
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-2379251051",
+    "section": "Do the Job",
+    "subSection": "Revenue & Feasibility Models",
+    "topic": "Financial Modelling",
+    "title": "Revenue Model Support",
+    "link": "id-2379251051",
+    "purpose": "This template provides visual aids to support your presentation (of the reasons for having their own revenue model) to your clients. This is designed to be used 'in the field' so take time to get familar and rehearse with a team mate.",
+    "support": "Coaching; training; learning and development; facilitation",
+    "position": 286,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This visual aid template is designed to be used 'in the field' so take time to get familar and rehearse with a team mate."
+    },
+    "tags": [
+      "Coaching",
+      "training",
+      "learning and development",
+      "facilitation"
+    ],
+    "status": "--",
+    "index": 285
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-9724952675",
+    "section": "Do the Job",
+    "subSection": "Specialist Tools",
+    "topic": "Due Diligence",
+    "title": "Due Diligence Support",
+    "link": "id-9724952675",
+    "purpose": "This template provides an easy to understand introduction to Due Diligence. When combined with the 'common sense' templates such as Customer or Client Interviews, you'll quickly find your feet with this topic. The step by step section provdes practical insight on how to get started!",
+    "support": "Merger; Acquisition; Business Purchase; Valuation",
+    "position": 287,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leapfrog",
+      "fundamental": "This template provides an easy to understand introduction to Due Diligence and the step by step section provdes practical insight on how to get started!"
+    },
+    "tags": [
+      "Merger",
+      "Acquisition",
+      "Business Purchase",
+      "Valuation"
+    ],
+    "status": "--",
+    "index": 286
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-568032896",
+    "section": "Do the Job",
+    "subSection": "Specialist Tools",
+    "topic": "Financial Systems",
+    "title": "Systems B4 Scale",
+    "link": "id-568032896",
+    "purpose": "This template is an easy way to introduce the concept of improving systems for your clients. It ALSO serves as a way to introduce a systems review to uncover 'improper transactions' discreetly.",
+    "support": "governance; financial management",
+    "position": 288,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leverage",
+      "fundamental": "This template is an easy way to introduce the concept of improving systems for your clients. It ALSO serves as a way to introduce a systems review to uncover 'improper transactions' discreetly."
+    },
+    "tags": [
+      "governance",
+      "financial management"
+    ],
+    "status": "--",
+    "index": 287
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4277160310",
+    "section": "Do the Job",
+    "subSection": "Specialist Tools",
+    "topic": "HR",
+    "title": "Coping With Adversity",
+    "link": "id-4277160310",
+    "purpose": "This template provides insight into the different ways people cope with frustration or failure. It serves to enable business partners to be more supportive of each other & reduce stress. You can use when dealing with business owners relations issues.",
+    "support": "Stress; Dispute; Conflict",
+    "position": 289,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leverage",
+      "fundamental": "This template provides insight into the different ways people cope with frustration or failure. It serves to enable business partners to be more supportive of each other & reduce stress."
+    },
+    "tags": [
+      "Stress",
+      "Dispute",
+      "Conflict"
+    ],
+    "status": "--",
+    "index": 288
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4611376603",
+    "section": "Do the Job",
+    "subSection": "Strategic Tools",
+    "topic": "Sales & Marketing",
+    "title": "Speak Easy",
+    "link": "id-4611376603",
+    "purpose": "This template provides a practical framework to help advisors guide their professional services clients through the process of  identifying pain points, packaging solutions and communicating value. ",
+    "support": "",
+    "position": 290,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leverage",
+      "fundamental": "This template provides a practical framework to help advisors guide their professional services clients through the process of  identifying pain points, packaging solutions and communicating value. "
+    },
+    "status": "--",
+    "tags": [],
+    "index": 289
+  },
+  {
+    "includedInClient": false,
+    "menuSection": "do-the-job",
+    "page": "id-4611376603",
+    "section": "Do the Job",
+    "subSection": "Strategic Tools",
+    "topic": "Sales & Marketing",
+    "title": "Mapping the Marketing & Sales Process",
+    "link": "id-4611376603",
+    "purpose": "This is an extremely detailed template to help advisors understand the psychological complexities of marketing and selling so they can better analyse their own 'winning business' activities.",
+    "support": "",
+    "position": 291,
+    "cpd": {
+      "isHidden": true,
+      "objective": "",
+      "watchedVideo": 0,
+      "reviewTemplate": 0,
+      "reheasedTemplate": 0
+    },
+    "growth": {
+      "isHidden": false,
+      "stage": "Leverage",
+      "fundamental": "This is an extremely detailed template to help advisors understand the psychological complexities of marketing and selling so they can better analyse their own 'winning business' activities."
+    },
+    "status": "--",
+    "index": 290,
+    "tags": []
   }
 ]

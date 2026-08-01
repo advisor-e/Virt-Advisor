@@ -14,11 +14,22 @@ jest.mock('../../server/utils/coaching', () => ({
   appendFirmCoachingEntry: jest.fn()
 }))
 
+// The anonymise-preview route calls an LLM. Mock the client factory and the
+// anonymiser so the route's own contract can be tested without a network call —
+// anonymiseCase's own behaviour is covered in anonymiseCase.test.js.
+jest.mock('../../server/utils/openaiClient', () => ({
+  createOpenAIClient: jest.fn(() => ({ mock: 'client' }))
+}))
+jest.mock('../../server/utils/anonymiseCase', () => ({
+  anonymiseCaseContent: jest.fn()
+}))
+
 const db = require('../../server/utils/db')
 const coaching = require('../../server/utils/coaching')
+const { anonymiseCaseContent } = require('../../server/utils/anonymiseCase')
 const {
   listCases, listFirmCases, createCase, reviewCase, setCaseVisibility, deleteCase,
-  shareCaseWithMentor, withdrawCaseFromMentor, promote
+  shareCaseWithMentor, withdrawCaseFromMentor, promote, anonymiseCasePreview
 } = require('../../server/routes/cases')
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -584,5 +595,197 @@ describe('promote', () => {
     expect(res._status).toBe(500)
     expect(res._body.error.code).toBe('PROMOTE_FAILED')
     expect(JSON.stringify(res._body)).not.toContain('/secret/path')
+  })
+})
+
+// ── anonymiseCasePreview ─────────────────────────────────────────────────────
+// This handler was exported and mounted but had no test at all, and it is the one
+// case route that sends client content to an LLM. Its contract is a privacy
+// boundary: manager-gated, firm-scoped, shared-only — and the RAW summary and
+// transcript must never appear in the response, only the scrubbed copy.
+
+describe('anonymiseCasePreview', () => {
+  const RAW_SUMMARY = 'Vanoss Scaffolding is behind on VAT and Bob is threatening to quit'
+  const RAW_TRANSCRIPT = [{ role: 'user', content: 'Bob at Vanoss called about the VAT bill' }]
+
+  const sharedRow = {
+    id: 'case-1',
+    advisor_id: 'advisor-from-jwt',
+    firm_id: 'firm-from-jwt',
+    title: 'VAT crunch',
+    mode: 'client',
+    visibility: 'shared',
+    summary: RAW_SUMMARY,
+    transcript: JSON.stringify(RAW_TRANSCRIPT)
+  }
+
+  test('returns 403 when the verified pass carries no firm identity', async () => {
+    const res = makeMockRes()
+
+    await anonymiseCasePreview(makeReq({ firmId: null, params: { id: 'case-1' } }), res)
+
+    expect(res._status).toBe(403)
+    expect(res._body.error.code).toBe('NO_FIRM_IDENTITY')
+    expect(db.execute).not.toHaveBeenCalled()
+    expect(anonymiseCaseContent).not.toHaveBeenCalled()
+  })
+
+  test('is scoped to the JWT firm and to shared cases only', async () => {
+    db.execute.mockResolvedValueOnce([[sharedRow]])
+    anonymiseCaseContent.mockResolvedValueOnce({ summary: 'A client', transcript: [] })
+    const res = makeMockRes()
+
+    await anonymiseCasePreview(makeReq({ params: { id: 'case-1' } }), res)
+
+    // firmId comes from the verified pass, never the request.
+    expect(db.execute.mock.calls[0][1]).toEqual(['case-1', 'firm-from-jwt'])
+    expect(db.execute.mock.calls[0][0]).toMatch(/visibility = 'shared'/)
+  })
+
+  test("404s for a case that is not this firm's, or not shared", async () => {
+    db.execute.mockResolvedValueOnce([[]])
+    const res = makeMockRes()
+
+    await anonymiseCasePreview(makeReq({ params: { id: 'someone-elses' } }), res)
+
+    expect(res._status).toBe(404)
+    // No content reached the LLM.
+    expect(anonymiseCaseContent).not.toHaveBeenCalled()
+  })
+
+  test('returns ONLY the scrubbed copy — never the raw summary or transcript', async () => {
+    db.execute.mockResolvedValueOnce([[sharedRow]])
+    anonymiseCaseContent.mockResolvedValueOnce({
+      summary: 'A construction client was behind on tax and had a staffing risk',
+      transcript: [{ role: 'user', content: 'A client called about a tax bill' }],
+      usage: { total_tokens: 411 }
+    })
+    const res = makeMockRes()
+
+    await anonymiseCasePreview(makeReq({ params: { id: 'case-1' } }), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.anonymised.summary).toContain('A construction client')
+
+    const sent = JSON.stringify(res._body)
+    expect(sent).not.toContain('Vanoss')
+    expect(sent).not.toContain('Bob')
+    expect(sent).not.toContain(RAW_SUMMARY)
+    // The response carries the scrubbed pair and nothing else from the record.
+    expect(Object.keys(res._body.anonymised).sort()).toEqual(['summary', 'transcript'])
+  })
+
+  test('passes the RAW content to the anonymiser — scrubbing is its job, not the route’s', async () => {
+    db.execute.mockResolvedValueOnce([[sharedRow]])
+    anonymiseCaseContent.mockResolvedValueOnce({ summary: 'x', transcript: [] })
+
+    await anonymiseCasePreview(makeReq({ params: { id: 'case-1' } }), makeMockRes())
+
+    expect(anonymiseCaseContent).toHaveBeenCalledWith(
+      { summary: RAW_SUMMARY, transcript: RAW_TRANSCRIPT },
+      expect.anything()
+    )
+  })
+
+  test('502s with a safe message when the LLM call fails, leaking no internals', async () => {
+    db.execute.mockResolvedValueOnce([[sharedRow]])
+    anonymiseCaseContent.mockRejectedValueOnce(new Error('openai 429 at /home/deploy/key.pem'))
+    const res = makeMockRes()
+
+    await anonymiseCasePreview(makeReq({ params: { id: 'case-1' } }), res)
+
+    expect(res._status).toBe(502)
+    expect(res._body.error.code).toBe('ANONYMISE_FAILED')
+    expect(JSON.stringify(res._body)).not.toContain('key.pem')
+    expect(JSON.stringify(res._body)).not.toContain('429')
+  })
+
+  // In production a failed read must surface, not be papered over. Outside production
+  // caseStore deliberately falls back to the dev file (see the listCases DB-error test
+  // above), so NODE_ENV must be pinned here or this asserts the fallback instead.
+  test('502s when the case read itself fails in production', async () => {
+    const prev = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    db.execute.mockRejectedValueOnce(new Error('ER_NO_SUCH_TABLE: va_case_studies'))
+    const res = makeMockRes()
+
+    await anonymiseCasePreview(makeReq({ params: { id: 'case-1' } }), res)
+
+    expect(res._status).toBe(502)
+    expect(JSON.stringify(res._body)).not.toContain('ER_NO_SUCH_TABLE')
+    expect(anonymiseCaseContent).not.toHaveBeenCalled()
+    process.env.NODE_ENV = prev
+  })
+
+  test('outside production a failed read falls back to the dev file, and 404s rather than 502', async () => {
+    db.execute.mockRejectedValueOnce(new Error('connection refused'))
+    const res = makeMockRes()
+
+    await anonymiseCasePreview(makeReq({ params: { id: 'no-such-case' } }), res)
+
+    // The dev fallback holds no such case, so the honest answer is "not found".
+    expect(res._status).toBe(404)
+    expect(anonymiseCaseContent).not.toHaveBeenCalled()
+  })
+})
+
+// ── The guards every handler shares ──────────────────────────────────────────
+// Each handler opens with an identity check and closes with a catch that must return
+// a safe envelope. Several were individually untested; a table keeps them honest as
+// handlers are added, rather than relying on whoever writes the next one to remember.
+
+describe('every case handler fails closed', () => {
+  const ADVISOR_SCOPED = [
+    ['createCase', createCase, { body: { title: 'T' } }],
+    ['reviewCase', reviewCase, { params: { id: 'c1' } }],
+    ['setCaseVisibility', setCaseVisibility, { body: { visibility: 'shared' }, params: { id: 'c1' } }],
+    ['deleteCase', deleteCase, { params: { id: 'c1' } }]
+  ]
+
+  const FIRM_SCOPED = [
+    // The approved copy arrives nested under `anonymised` — a flat body is rejected 400
+    // before any DB call, which is why this fixture nests it.
+    ['shareCaseWithMentor', shareCaseWithMentor, { params: { id: 'c1' }, body: { anonymised: { summary: 'A construction client', transcript: [] } } }],
+    ['withdrawCaseFromMentor', withdrawCaseFromMentor, { params: { id: 'c1' } }],
+    ['anonymiseCasePreview', anonymiseCasePreview, { params: { id: 'c1' } }]
+  ]
+
+  test.each(ADVISOR_SCOPED)('%s returns 403 with no advisor identity, and never touches the DB', async (_n, handler, req) => {
+    const res = makeMockRes()
+
+    await handler(makeReq({ ...req, advisorId: null }), res)
+
+    expect(res._status).toBe(403)
+    expect(res._body.error.code).toBe('NO_ADVISOR_IDENTITY')
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  test.each(FIRM_SCOPED)('%s returns 403 with no firm identity, and never touches the DB', async (_n, handler, req) => {
+    const res = makeMockRes()
+
+    await handler(makeReq({ ...req, firmId: null }), res)
+
+    expect(res._status).toBe(403)
+    expect(res._body.error.code).toBe('NO_FIRM_IDENTITY')
+    expect(db.execute).not.toHaveBeenCalled()
+  })
+
+  // In production a DB failure must produce a safe envelope — never a stack trace,
+  // file path or raw SQL error (CLAUDE.md §Error handling).
+  test.each([...ADVISOR_SCOPED, ...FIRM_SCOPED])('%s returns a safe envelope when the DB fails in production', async (_n, handler, req) => {
+    const prev = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    db.execute.mockRejectedValue(new Error('ER_PARSE_ERROR: SELECT * FROM va_case_studies at /srv/app/server/utils/caseStore.js:241'))
+    const res = makeMockRes()
+
+    await handler(makeReq(req), res)
+
+    expect(res._status).toBeGreaterThanOrEqual(500)
+    expect(res._body.success).toBe(false)
+    const sent = JSON.stringify(res._body)
+    expect(sent).not.toContain('ER_PARSE_ERROR')
+    expect(sent).not.toContain('SELECT')
+    expect(sent).not.toContain('/srv/app')
+    process.env.NODE_ENV = prev
   })
 })

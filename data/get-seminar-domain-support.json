@@ -11,116 +11,232 @@
     "present to clients", "boot camp", "networking event", "call to action",
     "seminar design", "client seminar", "prospect seminar"
   ],
-  "overview": "The Get the Job — Seminar Delivery content gives advisors a complete system for designing, delivering, and following up on professional seminars and group presentations. It covers four areas: structured seminar design using the CPD Hierarchy (Concept, Principle, Detail), educational slide decks for client presentations, storytelling frameworks for credibility and engagement, and event protocols for professional networking. Advanced content suited to experienced advisors ready to build their platform presence.",
+  "overview": "The Get the Job — Seminar Delivery content gives advisors a complete system for designing, delivering and following up on professional seminars and group presentations. Sixteen materials cover four areas: seminar design and run-sheets built on the CPD Hierarchy (Concept, Principle, Detail); educational slide decks for client presentations; storytelling frameworks for credibility and engagement; and the facilitation exercises, event protocols and feedback form that surround the day itself. Advanced content suited to experienced advisors ready to build their platform presence.",
+
   "diagnostic_entry": {
     "primary_question": "Which aspect of seminar delivery are you working on — designing the presentation structure, building educational content, developing your storytelling, or managing event protocols and post-event follow-up?"
   },
-  "support_tools": [
+
+  "materials": [
     {
-      "name": "Seminar Design & Delivery Templates",
-      "purpose": "A complete architecture for designing and delivering professional public presentations — covering the CPD Hierarchy (Concept, Principle, Detail), structured run-sheets (Blank Platform Template, 30 to 40 Presentation Template), and pre-planned connection and call-to-action strategies.",
-      "core_principle": "Poor delivery is caused by poor design. The CPD Hierarchy forces the presenter to limit details to three per principle, pre-plan their WIIFM (What's In It For Me) statements for the audience, and structure every presentation so the call to action feels like a natural invitation — not a hard sell.",
-      "when_to_use": "When designing any client boot-camp, team workshop, or lead-generation seminar. Use the Powerful Seminars guide first to define the target audience and desired outcomes, then build the deck using the Blank Platform or 30 to 40 Template.",
-      "key_benefits": [
-        "CPD Hierarchy prevents information overload — the brain can only absorb what the backside can endure",
-        "WIIFM statements pre-planned for each concept connect the content to the audience's core values (survival, recognition, belonging)",
-        "Blank Platform Template provides a slide-by-slide structure: connect → frame relevance → deliver → call to action",
-        "30 to 40 Presentation Template is an operational run-sheet with agenda timings, chunking layout, and a Design Summary Table"
-      ],
-      "advisor_confidence_note": "Start with the Powerful Seminars guide before touching the slide deck. Define your target audience and desired outcomes in writing first — then build the presentation to serve those outcomes. Limit yourself to a maximum of 3 details per principle. If you have more, cut them.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Design the Seminar",
-          "steps": [
-            { "name": "Define audience and outcomes", "guidance": "Use the Powerful Seminars guide to write down exactly who you are presenting to and what you want them to think, feel, and do by the end. Do not open a slide deck until this is clear." },
-            { "name": "Apply the CPD Hierarchy", "guidance": "Structure each section: Concept (the big idea) → Principle (the rule or framework) → Detail (maximum 3 supporting points per principle). Cut anything beyond 3 details per principle — it will overwhelm the audience." },
-            { "name": "Assign presenter slots (Content / Why / Remember)", "guidance": "In a multi-presenter seminar, structure each presenter's content slot using the Content / Why / Remember framework, with the M.O.C (Master of Ceremonies) coordinating the run order. The 30 to 40 Presentation Template provides space for three details per principle — no more." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Build and Rehearse",
-          "steps": [
-            { "name": "Build the deck using a platform template", "guidance": "Open the Blank Platform Template or 30 to 40 Presentation Template. Map out timings for each section. Insert educational content (Growth Stage Seminar or Forecast Presentation slides) into the Deliver stage." },
-            { "name": "Pre-plan WIIFM statements", "guidance": "For each major concept, write the WIIFM statement: why does this matter to this specific audience? Connect it to their core values — survival, financial security, recognition, or status — before presenting." }
-          ]
-        }
+      "id": "get-seminar-30-to-40-presentation-template",
+      "name": "30 to 40 Presentation Template",
+      "summary": "A run-sheet for a concise 30-to-40-minute educational session, sequencing the whole presentation from the opening through to the agenda table. It saves the advisor preparation time because the framework fixes the running order, and it gives the audience a clear, engaging session that does not overwhelm them. Each presenter's slot is designed with the Content / Why / Remember framework, with three Principles and no more than three Details each.",
+      "who_when": "Presenters, guest speakers or facilitators delivering a concise 30 to 40-minute educational session. Used at the design stage, before any slides are built.",
+      "steps": [
+        "Define your Target Audience and Desired Outcomes at the top of your design summary.",
+        "Assign each presenter their specific slot using the Content / Why / Remember framework.",
+        "Draft your opening by establishing a \"Connecting story\", or preemptively \"calling out the ghosts\", to build rapport.",
+        "Formulate your \"Why this\" and \"Why now\" statements to justify the presentation's relevance.",
+        "Detail your Concept and rules of engagement — for example, how the audience should ask questions.",
+        "Break down your Content Design into three core Principles, providing three specific Details for each.",
+        "Transfer this structure into the Agenda Table / Run Sheet, plotting precise times for elements like \"Meet & Greet\", \"Spkr 1\" and \"Morning tea\" to ensure you stay within the 40-minute window."
       ]
     },
     {
-      "name": "Strategic Education Presentations",
-      "purpose": "Pre-built visual slide decks for educating clients on high-level business concepts — including the Growth Stage Seminar (9 stages of a business lifecycle) and the Forecast Presentation (reframing cash flow forecasting as scenario planning rather than a 'diet').",
-      "core_principle": "Elevate the advisor from transactional accountant to strategic partner by showing clients the big picture. Replace the 'pass-fail' mentality of standard budgeting with probability thinking and bespoke revenue models.",
-      "when_to_use": "When presenting to existing clients looking to scale, or prospects attending a business growth seminar. Inserted into the 'Deliver' stage of the Blank Platform Template during the seminar build.",
-      "key_benefits": [
-        "Growth Stage Seminar maps the business through 9 chronological lifecycle stages (Design to Exit) — clients see exactly where they are and what comes next",
-        "Forecast Presentation removes the negative stigma of budgeting by reframing it as scenario planning for 'Best Probable' outcomes",
-        "Both decks elevate the advisory conversation from compliance and tax to strategy and growth",
-        "Visual format reduces the need for technical explanations — the slides do the heavy lifting"
-      ],
-      "advisor_confidence_note": "Use Growth Stage Seminar to position the client on their lifecycle — this creates the 'aha moment' that opens the door to deeper advisory work. Use the Forecast Presentation when the client associates budgeting with restriction — reframe it as a tool for building the 'Best Probable' scenario for their business."
-    },
-    {
-      "name": "Storytelling Frameworks",
-      "purpose": "A mechanical approach to crafting and delivering engaging narratives — the Magic Formula Story (four-part structure: The Draw, The Plot, The Reveal, The Close) and Funny Stories (7-step guide for timing, pacing, and punchline delivery).",
-      "core_principle": "Stories create a 'theatre in the mind' — a non-threatening environment where the audience internalises business lessons without feeling lectured at. The Magic Formula structure ensures credibility is established through empathy, not by bragging about experience.",
-      "when_to_use": "To break the ice at the start of a presentation, explain complex technical or cultural concepts without jargon, or re-engage an audience that has become passive. Use the MFS Drafting Template to script any dry or technical section of the agenda into a story.",
-      "key_benefits": [
-        "Magic Formula structure (Draw → Plot → Reveal → Close) builds the story to a clear business point without grandstanding",
-        "Third-party storytelling and metaphor establish credibility without triggering the audience's defensiveness",
-        "Funny Stories guide covers the 7 steps to mastering timing, pacing, and punchline delivery — turns anecdotes into effective presentation tools",
-        "MFS Drafting Template provides a worksheet for scripting any concept into a Magic Formula Story before the seminar"
-      ],
-      "advisor_confidence_note": "Review the dry or technical sections of your seminar agenda and build a Magic Formula Story for each one. Script your 'Draw' to capture attention (a connecting story, or calling out the ghosts in the room). List your Story Anchors (the 'Plot' points) in logical, sequential order. Make sure your 'Reveal' cleanly makes the business point before the 'Close'. Practice your pacing and pauses using the Funny Stories guide.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Draft the Story",
-          "steps": [
-            { "name": "Use the MFS Drafting Template", "guidance": "For each dry or technical section of your agenda, use the template to build a Magic Formula Story. Define the Draw (attention hook), Plot (sequential anchor points), Reveal (the business point), and Close (the takeaway)." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Rehearse Delivery",
-          "steps": [
-            { "name": "Practice pacing and pauses", "guidance": "Review Funny Stories for the 7-step guide to timing, intonation, and punchline delivery. Rehearse the story out loud — the difference between a story that lands and one that falls flat is almost always in the delivery, not the content." }
-          ]
-        }
+      "id": "get-seminar-blank-platform-template",
+      "name": "Blank Platform Template",
+      "summary": "A stage-by-stage script outline for an interactive, principle-based workshop — connect, set the scene, deliver, then close. It gives the advisor a route through the whole session without sounding arrogant or overly sales-driven, and it makes sure the audience understands the rules of the workshop and why the material is relevant to their survival or success. The close is an invitation to a free discovery session rather than a pitch.",
+      "who_when": "Facilitators or advisors stepping onto a stage to run an interactive, principle-based workshop. Used when building the session itself, once the audience and outcomes are decided.",
+      "steps": [
+        "Stage 1 (Connect): start strong using Universals (shared experiences) or Truisms (indisputable facts). Put yourself in \"that moment\" using a metaphorical story to build a theatre in their mind.",
+        "Stage 1 (Ghosts & Relevance): call out the negative preemptive thoughts in the room, then frame relevance by linking your concept to their key values — Survival, Security, Acceptance, Recognition or Contribution (W.I.I.F.M).",
+        "Stage 2 (Intro & Scene): keep your self-introduction under 1 minute. Set the scene by explaining this is an interactive workshop, introduce the 'park' board for off-topic questions, and encourage participation.",
+        "Stage 3 (Deliver): deliver the principles using stories, visual aids and humour. Force engagement by getting attendees to talk to each other, which lifts the emotional connection in the room.",
+        "Stage 4 (Call to Action & Close): close the cycle by inviting attendees to a free discovery session. Avoid heavy pitches so you don't slam their minds shut."
       ]
     },
     {
-      "name": "Event Protocol & Evaluation",
-      "purpose": "Rules of engagement for firm staff at hosted networking events (Seminar & Entertainment protocol guide) and a post-event feedback mechanism (get.feedback form) for measuring success, capturing leads, and improving future events.",
-      "core_principle": "The seminar is not over when the presentation ends. Post-seminar drinks are a relationship-building exercise — not a sales floor. Specific service questions from prospects must be deferred to a follow-up call, not answered in an uncontrolled social environment.",
-      "when_to_use": "Before any hosted client or prospect event — brief all attending staff using the protocol guide. After the presentation concludes, distribute the feedback form before guests leave.",
-      "key_benefits": [
-        "Trains introverted or junior staff on how to 'work the room' without becoming an 'anchor in the corner'",
-        "The 'one drink behind' rule and body positioning guidelines ensure professional, welcoming behaviour throughout the event",
-        "The feedback form captures leads, content preferences, and willingness to attend future events — converting the evening into a pipeline asset",
-        "The 'Selling out of bounds' protocol protects both the advisor (from giving uncontrolled advice) and the firm (from buyer's remorse claims)"
-      ],
-      "advisor_confidence_note": "Brief all attending staff before the event — not on the way in. Cover body positioning (how to approach and leave group circles without excluding others), the 'one drink behind' rule, and the protocol for handling specific service questions: acknowledge the interest and promise to call on Monday. Never give specific advice over drinks — you cannot control the environment, and it makes your hospitality seem transactional.",
-      "if_then_logic": [
-        {
-          "condition": "A prospect asks for specific advice about their business during post-seminar drinks",
-          "action": "Do not answer. Acknowledge the question positively and defer: 'That's great, I'd love to talk about that more — I'll give you a call Monday and we can go through it properly.'",
-          "context": "This is called 'Selling out of bounds.' The environment is uncontrolled, the advice can be misunderstood, and it makes the hospitality feel insincere. Always defer to a formal follow-up."
-        },
-        {
-          "condition": "Staff member is uncertain how to approach or leave a group conversation at a networking event",
-          "action": "Use the body positioning guidelines from the Seminar & Entertainment protocol — open body language to invite others into the circle; clear exit signals to leave without abruptly cutting off.",
-          "context": "Networking confidence is a trainable skill. The protocol guide covers these micro-behaviours explicitly."
-        },
-        {
-          "condition": "Presentation contains dense technical material that risks losing audience engagement",
-          "action": "Insert a CPD chunk break — instruct the audience to 'turn to the person next to you and discuss this for 45 seconds' to reset their energy.",
-          "context": "The brain can only absorb what the backside can endure. Audience interaction resets attention and embeds the content more effectively."
-        }
+      "id": "get-seminar-forecast-presentation",
+      "name": "Forecast presentation",
+      "summary": "A slide set that shifts the owner's mindset from budgets as restrictive \"diets\" to forecasts as scenario planning for safe growth. It demonstrates quantitative expertise by walking through bespoke revenue models and volatility reports, which proves value in a way a compliance conversation cannot. The through-line is probability rather than average, so the numbers stop being a pass-fail test.",
+      "who_when": "Clients struggling with business limits, a negative pass-fail attitude to their numbers, or a lack of logistical foundations underneath them. Presented when forecasting is the subject of the seminar.",
+      "steps": [
+        "Open by addressing the \"3 Reasons People Don't Use Cash Forecasts\": the maths is perceived as too hard, revenue is viewed as pass/fail, and budgets feel like restrictive diets.",
+        "Explain the difference between using Average and using Probability.",
+        "Present the \"3 Things We Do Different\": quantifying expectations via bespoke models, using Volatility reports to find probability ranges, and building action plans to test and measure.",
+        "Outline the \"3 Advantages For Your Business\": identifying the Profit Sweet-spot to avoid over-trading, using Scenario Planning (Plans A, B and C), and knowing when to change direction to limit losses."
+      ]
+    },
+    {
+      "id": "get-seminar-funny-stories",
+      "name": "Funny Stories",
+      "summary": "A seven-step guide to constructing, practising and delivering a humorous story — selection, relatability, a straight face, pauses, intonation, rehearsal and performance. It builds immediate rapport, breaks tension and establishes the advisor as a confident, engaging speaker. For the audience it lifts attention and retention on whatever message follows.",
+      "who_when": "Speakers wanting to inject humour and personality into a presentation or a networking event. Prepared and rehearsed well before the event, never improvised on the day.",
+      "steps": [
+        "Select a story you genuinely enjoy — personal experience mixed with slight fiction, or a standard or controversial topic handled absurdly.",
+        "Ensure the audience can relate to the characters or the topic.",
+        "Start telling the story with a serious or innocent expression. Do not telegraph that a joke is coming.",
+        "Take your time. Use pauses for dramatic effect and employ different voices to create theatre in their mind.",
+        "Project your voice with intonation: be excited, calm down before a pause, then deliver the punch line.",
+        "Practise in front of small audiences to test reactions, then perform it once you are confident."
+      ]
+    },
+    {
+      "id": "get-seminar-growth-stage-seminar",
+      "name": "Growth Stage Seminar",
+      "summary": "A seminar deck mapping the nine stages of business growth from Design through to Exit or Decline, including the Split point and the Devil's Toilet. For the owner it is a map of the journey that shows where they are now and which challenges are normal at that stage. For the advisor it is a diagnostic that opens the door to stage-specific advisory work — process improvement at Leverage, succession at Exit.",
+      "who_when": "Prospects or clients attending an educational seminar about scaling, business maturity or exit planning. Used as the main content block of the seminar.",
+      "steps": [
+        "Introduce the Growth Fundamentals Framework graphic, showing the journey from Launch to Exit/Decline, including the Split point and the Devil's Toilet.",
+        "Walk through the early stages: Stage 1 Design (getting ready to leave your job) to Stage 3 Break-Even (covering costs).",
+        "Explain the mid-stages: Stage 5 Leverage (delegation and replication) and Stage 6 Reach (multiple locations, brand spread).",
+        "Detail the late stages: Stage 7 Leapfrog (acquisitions) and Stage 8 Maturity (commanding market share, governance).",
+        "Discuss Stage 9 Exit/Decline, showing the paths of succession or sale against dwindling into retirement.",
+        "Conclude by explaining the 9 Growth Aspects — Governance, Innovation, Sales and the rest — that must be kept balanced at every stage."
+      ]
+    },
+    {
+      "id": "get-seminar-mfs-drafting-template",
+      "name": "MFS Drafting Template",
+      "summary": "A worksheet for drafting a Magic Formula Story — the Draw, the Plot, the Reveal and the Close — before it is ever told. It ties the story to a named problem or opportunity and to the specific service solution it leads to, so the story does a job rather than simply entertaining. For the owner it gives the same structure for any message they need to land with staff or clients.",
+      "who_when": "Presenters preparing a tailored story to introduce a complex or sensitive business concept. Filled in during preparation — one worksheet per dry or technical section of the agenda.",
+      "steps": [
+        "Define the foundational elements: Story Name, the 'Point' of the story, the problem or opportunity it relates to, and the specific service solution you are leading to.",
+        "Draft \"The Draw\" by filling out three prompts: Capture (for example a guessing question), Describe (setting the scene) and Permission (warning the audience they might be shocked or amused).",
+        "Draft \"The Plot\" by listing your Story Anchors in logical, sequential order. Try to limit anchors to 5 or less.",
+        "Write \"The Reveal\", where you state the explicit Story Point.",
+        "Draft \"The Close\", summarising what you want to stick. Keep this to 3 points or less."
+      ]
+    },
+    {
+      "id": "get-seminar-magic-formula-stories",
+      "name": "Magic Formula Stories",
+      "summary": "The reasoning behind the four-part story structure and how to deliver it — Draw, Plot, Reveal, Close. It lets the advisor illustrate technical knowledge, empathy and credibility without appearing boastful, which lowers the filters a client listens through. For the owner it is a non-threatening way to communicate culture, values or corrective feedback to a team.",
+      "who_when": "Coaches and facilitators dealing with business culture, personal choice or complex problem-solving. Read before drafting stories on the MFS Drafting Template.",
+      "steps": [
+        "Identify the purpose of your story: to Frame (provide context and parallel thinking), Connect (create theatre in their mind), or Position (illustrate credibility without grandstanding).",
+        "Construct \"The Draw\": capture attention via a shocking statement, an open loop or physical movement. Describe the setting, and give permission for how the audience can engage.",
+        "Build \"The Plot\": relate characters and motives using logical anchor statements.",
+        "Execute \"The Reveal\": facilitate the story to provide multiple meanings, or direct their thinking using metaphor.",
+        "Deliver \"The Close\": bring it to a definitive end with impact, letting the king phrase hang without adding fluffy explanations."
+      ]
+    },
+    {
+      "id": "get-seminar-paper-tower-model",
+      "name": "Paper Tower Model",
+      "summary": "The scoring spreadsheet behind the Paper Tower exercise; it turns materials drawn, minutes taken and finished height into a single profit or loss. Automating the arithmetic frees the facilitator to observe behaviour rather than do maths at the front of the room. For the owner it is a simulation showing how material cost, time efficiency and quality land directly on the bottom line.",
+      "who_when": "Facilitators running the Paper Tower team-building and business simulation workshop. Used live during the exercise and at the scoring that follows it.",
+      "steps": [
+        "Enter the cost of materials used by tracking the number of sheets drawn — each batch of 20 sheets costs $2,000.",
+        "Track the time taken in minutes, and calculate the profit or loss against the time scale provided (0 to 10 minutes).",
+        "Measure the height in millimetres and apply the financial metrics: height adds to profit (1200mm = $1,000 profit) and triggers penalties or bonuses (under 300mm = a loss of $6,000; over 2400mm = a $10,000 bonus).",
+        "Combine the three metrics — materials, time and height — to finalise the total profit or loss."
+      ]
+    },
+    {
+      "id": "get-seminar-paper-tower-review-questions",
+      "name": "Paper Tower Review Questions",
+      "summary": "The scripted debrief that turns the Paper Tower game into insight: the profit calculation, three opening questions, then timed observations read back to the team. It moves a group from playing a game to adopting the formal nine-step problem-solving process, which is the real point of the exercise. For the owner it exposes process-driven against outcome-driven behaviour and the personalities inside the team.",
+      "who_when": "Consultants reviewing the aftermath of the Paper Tower exercise, immediately after the towers are measured.",
+      "steps": [
+        "Have teams calculate their profit or loss based on minutes taken, value of materials used and height achieved.",
+        "Ask the initial review questions: \"Did you have fun?\", \"Did you make a profit?\", \"Where did you go wrong?\".",
+        "Provide specific feedback using exact times — \"At 2.42 into the exercise, Jim said…\" — and ask about team effectiveness and personalities.",
+        "Introduce the 9-step process: appoint a Chairperson, appoint a Timekeeper, determine the objective (SMART), apportion time, brainstorm without assessment, assess options, eliminate and select, allocate resource, then prepare and implement the action plan.",
+        "Facilitate a discussion to brainstorm workplace applications for the process, and assign an enforcer."
+      ]
+    },
+    {
+      "id": "get-seminar-paper-tower-task-sheet",
+      "name": "Paper Tower Task Sheet",
+      "summary": "The rules, resources and time limits handed to the building team: 20 minutes' planning, 10 minutes' build, sheets drawn in batches of 20, and no prefabrication. Clear, indisputable rules prevent arguments and make the challenge uniform across teams. The constraints of time, material and rules are what make the exercise mirror real-world project pressure.",
+      "who_when": "Participants acting as the building team during the Paper Tower workshop. Handed out at the start, before the preparation timer begins.",
+      "steps": [
+        "Hand out the task sheet and explain the objective: build a tower profitably, judged on materials, height and time.",
+        "Set the timer and allow exactly 20 minutes for preparation and planning.",
+        "Issue an initial 100 sheets, and allow teams to draw up to 500 sheets in total, in batches of 20.",
+        "Enforce the constraints: unused drawn materials still count toward the cost, no prefabrication is allowed (sheets must be flat when construction starts), and only the provided materials may be used.",
+        "Set the build timer for a maximum of 10 minutes.",
+        "Ensure the tower is self-supporting and remains intact for at least 1 minute after completion before measuring the height."
+      ]
+    },
+    {
+      "id": "get-seminar-powerful-seminars",
+      "name": "Powerful Seminars",
+      "summary": "The end-to-end blueprint for a seminar: content design on the C.P.D hierarchy, audience psychology, a six-week marketing timeline, delivery styles and AV logistics. It is the document to work through before any deck is opened, because it decides the audience, the outcomes and the invitation schedule. For the owner it produces a professional, targeted marketing event that drives client acquisition.",
+      "who_when": "Business owners, advisors or marketing managers designing and hosting a public speaking event or workshop. Started around six weeks out, before the presentation itself is built.",
+      "steps": [
+        "Design: identify the target audience, define the outcomes, and build the content using the C.P.D hierarchy (Concept, Principles, Detail). Ensure the content speaks to Pragmatists, Reflectors, Theorists and Activists.",
+        "Plan: follow the six-week timeline — sending invitations, confirming RSVPs, running rehearsals and sorting handouts.",
+        "Delivery style: choose the appropriate style (Educator, Motivator, Coach or Collegiate) based on whether you are coaching, presenting or facilitating.",
+        "Execute the delivery: prepare psychologically, connect with the audience via universals and ghosts, use Honey & Mumford relevance statements, describe the theme, introduce yourself, set the scene, lay out the agenda, and go to work.",
+        "Logistics: test all light and sound equipment beforehand, check microphone directionality, and make sure the overhead lights don't blind the audience."
+      ]
+    },
+    {
+      "id": "get-seminar-seminar-entertainment",
+      "name": "Seminar & Entertainment",
+      "summary": "The protocol for firm staff at a hosted event, built on one idea: it is work, not a free booze-up. It covers approaching and joining groups, working the room rather than anchoring in a corner, staying one drink behind the client, and steering a buying conversation to a Monday call instead of selling out of bounds. It protects the firm from staff embarrassing it, and the advisor from giving advice in an environment they cannot control.",
+      "who_when": "Professionals attending trade shows, corporate dinners or networking seminars. Briefed to every attending staff member before the event, not on the way in.",
+      "steps": [
+        "Adopt the mindset that this is work, not a free booze-up, and do not overestimate the level of relationship you have with current clients.",
+        "Approach with a smile and eye contact, and offer a handshake, waiting 2-3 seconds for a response. Use prepared open-ended one-liners.",
+        "Work the room: be a comfortable butterfly, not an anchor in the corner. Rotate so you meet everyone.",
+        "When joining a group, check body positions and ask permission — \"hey guys, would it be o-k if I asked those people over…\" — to avoid invoking exclusionary tribal instincts.",
+        "Offer hospitality, keep things safe, and always stay one drink behind the client.",
+        "If a client tries to buy, avoid selling out of bounds by steering the conversation to a call on Monday.",
+        "Get into state before the event by visualising a confident posture and voice tone."
+      ]
+    },
+    {
+      "id": "get-seminar-spaghetti-tower-task-sheet",
+      "name": "Spaghetti Tower Task Sheet",
+      "summary": "A 30-minute team challenge — 20 sticks of spaghetti, a roll of tape, a metre of string and two marshmallows — run as 20 minutes' planning then 10 minutes' build. It is a rapid, low-cost exercise that exposes communication and planning flaws under pressure very quickly. Minimal setup makes it easy to scale to whatever size group is in the room.",
+      "who_when": "Facilitators needing a short team challenge — as an ice-breaker, or as a problem-solving simulation ahead of a debrief.",
+      "steps": [
+        "Hand out the task sheet and explain the goal: build a tower taller than the competing teams.",
+        "Issue the exact resources: 20 sticks of uncooked spaghetti, 1 roll of tape, 1m of string and 2 marshmallows.",
+        "Start a 20-minute timer for preparation. Allow testing, but strictly forbid prefabrication — components must be flat when building starts.",
+        "Start a 10-minute timer for construction.",
+        "Enforce the final rules: the tower must be self-supporting, hold 1 complete marshmallow at the top, and remain intact for 1 minute before the height is measured from the surface."
+      ]
+    },
+    {
+      "id": "get-seminar-team-problem-solving",
+      "name": "Team Problem Solving",
+      "summary": "The nine-step framework a facilitated team follows from problem to execution: roles, a S.M.A.R.T objective, apportioned time, brainstorming without assessment, assessment, selection, resourcing, an action plan and an Enforcer. It stops teams jumping straight to solutions or stalling in analysis paralysis. The Enforcer is the accountability step that keeps momentum once the session ends.",
+      "who_when": "Facilitators and management teams moving from identifying a problem to actually executing on it. Used in a strategy or problem-solving session, and as the process introduced after the Paper Tower debrief.",
+      "steps": [
+        "Appoint a Chairperson, a Timekeeper and a Scribe.",
+        "Determine the objective in writing using the S.M.A.R.T format, making sure it states why achieving it is critical.",
+        "Apportion time to each stage to prevent analysis paralysis.",
+        "Brainstorm without assessment: enforce a strict separation of judgement, and use mind mapping to foster divergent thinking.",
+        "Assess the options and apply critical filters.",
+        "Eliminate and select the best option using tools such as the Impact vs Effort Matrix.",
+        "Allocate the resources — budget, team and time.",
+        "Prepare an action plan and assign an Enforcer to manage the implementation loop."
+      ]
+    },
+    {
+      "id": "get-seminar-team-workshop-run-sheet",
+      "name": "Team Workshop Run Sheet",
+      "summary": "A minute-by-minute scheduling matrix for a two-day workshop — session times, start and finish, content, purpose and the resources each block needs. It keeps presenters prepared and long days productive, with breaks and management reviews scheduled rather than improvised. Each day closes with a 30-minute review, so the team leaves with the day's decisions recorded rather than remembered.",
+      "who_when": "Seminar coordinators and facilitators managing a multi-day training event. Completed during planning, then used live as the run sheet on the day.",
+      "steps": [
+        "Fill out the run sheet for Day 1 and Day 2, using the table columns provided.",
+        "Allocate the exact session time in minutes for each block.",
+        "Set strict start and finish times — for example Session 1 from 8:30 AM to 10:00 AM.",
+        "Detail the content, purpose and resource required for each specific block, so presenters arrive prepared.",
+        "Schedule appropriate breaks (20 minutes for morning tea, 45 minutes for lunch) and the mandatory 10-minute management reviews between main sessions.",
+        "Conclude each day with a 30-minute day review."
+      ]
+    },
+    {
+      "id": "get-seminar-get-feedback-form",
+      "name": "get.feedback form",
+      "summary": "The post-event questionnaire: was the content relevant, did the stories help, did the presenters flow together, what did not appeal, and would they attend again. It gives the advisor a quality-control read on presenter flow and story effectiveness, and it captures the leads the evening produced. For the owner it answers whether the seminar delivered a return and whether their staff found the content relevant.",
+      "who_when": "Attendees, filling it in at the conclusion of the seminar or workshop — distributed before guests leave.",
+      "steps": [
+        "Distribute the form to attendees at the end of the presentation.",
+        "Ask attendees to evaluate whether the content was relevant to their business.",
+        "Ask attendees to assess the instructional methods — for example, did the stories make the content easier to relate to?",
+        "Ask for constructive criticism on content that did not appeal, and whether the presenters felt mismatched.",
+        "Gather operational feedback on the environment and atmosphere, and secure a yes/no answer on whether they would attend a future seminar."
       ]
     }
   ],
+
   "advisor_guidance": {
     "design_before_build": "Always complete the Powerful Seminars design phase before building the slide deck. Advisors who build slides first produce presentations that are technically full but strategically empty — they cover a lot, but achieve nothing specific.",
     "cpd_discipline": "The CPD Hierarchy is a constraint, not a suggestion. Maximum 3 details per principle. If you have 5 details you feel are essential, you need to redesign the principle — not expand the limit.",

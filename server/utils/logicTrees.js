@@ -12,6 +12,8 @@
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
 const masterExport = require('./masterExport')
+const { mergeEntry } = require('./firmContent')
+const { fenceUntrusted } = require('./promptSafety')
 
 let _trees = null
 const _refCache = new Map()
@@ -108,21 +110,106 @@ function loadLogicTrees () {
 }
 
 /**
+ * The tree list the CURRENT REQUEST should see: the cached platform base with
+ * the firm's per-tree overrides (if any) merged in — Phase 0 of
+ * design/FIRM-EDITABLE-TABLES-PLAN.md §3. Overrides apply to EXISTING tree ids
+ * only; adding whole new trees is the Phase 3 scope decision. With no override
+ * the base array is returned as-is (zero cost, zero behaviour change). Merged
+ * copies are built fresh per call and never written back into _trees — that is
+ * the cross-firm isolation guarantee.
+ * @param {Object|null} firmTrees - the firm's override map, keyed by tree id
+ *   (loadFirmLogicTrees), or null
+ * @returns {Array<Object>}
+ */
+function effectiveTrees (firmTrees) {
+  const base = loadLogicTrees()
+  if (!firmTrees || typeof firmTrees !== 'object' || Array.isArray(firmTrees)) { return base }
+  return base.map((tree) => {
+    const override = firmTrees[tree.id]
+    if (override && typeof override === 'object' && !Array.isArray(override)) {
+      const merged = mergeEntry(tree, override)
+      // Mark this per-request merged copy as carrying firm-authored branch text
+      // so the prompt formatter fences it (formatLogicTreeForPrompt). Set on the
+      // fresh merged object only — never on the shared base — and non-enumerable
+      // so it can never leak into an API response or JSON. This is the single
+      // point a tree becomes firm-authored, so the whole engine sees the flag
+      // for free without threading it through every call site.
+      Object.defineProperty(merged, '__firmAuthored', { value: true, enumerable: false, configurable: true })
+      return merged
+    }
+    return tree
+  })
+}
+
+// ── Trigger matching ───────────────────────────────────────────────────────
+// A trigger must start at a WORD BOUNDARY. It may still run on into the rest of
+// the word, so "workflow" catches "workflows" and "margin" catches "margins".
+//
+// Why this exists (2026-07-31). Matching was a raw substring test, so a short
+// trigger fired inside unrelated words. `staff_performance` carries the trigger
+// "HR", which matched t-HR-ee, t-HR-ough, s-HR-unk, c-HR-onic and t-HR-eshold:
+// across the 51 Scenario Lab cases it fired in ELEVEN, opening the staff table
+// for conversations about margins, forecasting and due diligence. "ratio" fired
+// inside sepa-RATIO-n, "DD" inside a-DD-ed, "hiring" inside re-HIRING. Measured
+// on the same 51 cases, the boundary rule moves 8: four from the wrong table to
+// the right one (systems, sales_process, demings_volatility, conflict_meeting)
+// and three from a wrong table to none.
+//
+// The boundary is LEADING ONLY, chosen by measurement rather than taste. A
+// trailing \b as well — the "whole word" rule — reads as the tidier choice and
+// is worse: it drops "margins", "benchmarked", "management reports",
+// "bottlenecks", "workflows", "avoided" and "drawings", and costs one Scenario
+// Lab case its correct table (systems·no documentation, matched via workflows).
+//
+// Node 14: no lookbehind, no named groups. All 1,005 committed triggers were
+// checked for regex metacharacters (zero) and none begins with punctuation, but
+// the source is firm-editable, so the pattern is escaped regardless — a firm
+// typing "(" into a trigger must not throw at request time.
+const _triggerRe = new Map()
+
+/**
+ * Does `trigger` appear in `lower` starting at a word boundary?
+ * @param {string} lower - the message, already lowercased
+ * @param {string} trigger - a single entry_trigger, any case
+ * @returns {boolean}
+ */
+function triggerMatches (lower, trigger) {
+  let re = _triggerRe.get(trigger)
+  if (!re) {
+    const escaped = String(trigger).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    re = new RegExp('\\b' + escaped)
+    _triggerRe.set(trigger, re)
+  }
+  return re.test(lower)
+}
+
+/**
+ * Counts how many of a tree's entry_triggers the message matches.
+ * @param {Object} tree
+ * @param {string} lower - the message, already lowercased
+ * @returns {number}
+ */
+function scoreTriggers (tree, lower) {
+  return (tree.entry_triggers || []).filter(trigger => triggerMatches(lower, trigger)).length
+}
+
+/**
  * Detects which logic tree (if any) best matches the advisor's opening message.
  * Scores each tree by counting how many of its entry_triggers appear in the message.
- * Returns the highest-scoring tree, or null if nothing matches.
+ * Returns the highest-scoring tree, or null if nothing matches. A firm override
+ * that edits entry_triggers changes which tree fires FOR THAT FIRM.
+ * @param {string} message
+ * @param {Object|null} [firmTrees] - the firm's override map (loadFirmLogicTrees)
  */
-function detectLogicTree (message) {
-  const trees = loadLogicTrees()
+function detectLogicTree (message, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
   const lower = message.toLowerCase()
 
   let bestMatch = null
   let bestScore = 0
 
   for (const tree of trees) {
-    const score = (tree.entry_triggers || []).filter(trigger =>
-      lower.includes(trigger.toLowerCase())
-    ).length
+    const score = scoreTriggers(tree, lower)
 
     if (score > bestScore) {
       bestScore = score
@@ -136,15 +223,17 @@ function detectLogicTree (message) {
 /**
  * Returns all logic trees that match the message, sorted by score descending.
  * Every tree scoring at least one trigger is returned — no arbitrary cap.
+ * @param {string} message
+ * @param {Object|null} [firmTrees] - the firm's override map (loadFirmLogicTrees)
  */
-function detectLogicTrees (message) {
-  const trees = loadLogicTrees()
+function detectLogicTrees (message, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
   const lower = message.toLowerCase()
 
   return trees
     .map(tree => ({
       tree,
-      score: (tree.entry_triggers || []).filter(t => lower.includes(t.toLowerCase())).length
+      score: scoreTriggers(tree, lower)
     }))
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score)
@@ -152,24 +241,78 @@ function detectLogicTrees (message) {
 }
 
 /**
- * Formats a single tree node into a readable text block for the AI.
+ * Explains WHY the detector opened what it opened: the same scoring as
+ * `detectLogicTrees`, but returning each tree's score and the exact trigger
+ * phrases that matched.
+ *
+ * Read-only — nothing here feeds a request. It exists because the trigger lists
+ * are firm-editable and, until now, invisible: a firm could change which table
+ * opens with no way to see the phrase that did it (design/ACTIONS.md →
+ * trigger-vocabulary-sweep).
+ *
+ * ⚠ Its ORDERING MUST stay identical to `detectLogicTrees`, and its top row
+ * identical to `detectLogicTree`'s single winner — otherwise the screen would
+ * confidently explain a decision production never made. Both are locked by
+ * tests/unit/phraseProbe.test.js over the whole corpus, not by spot-checks.
+ * The `.sort` below relies on the same stable-sort tie behaviour as
+ * `detectLogicTrees` (Array.prototype.sort is stable in Node 11+), so an
+ * equal-scoring pair keeps platform file order in both.
+ *
+ * @param {string} message - the advisor's words
+ * @param {Object|null} [firmTrees] - the firm's override map (loadFirmLogicTrees)
+ * @returns {Array<{id:string,name:string,shape:string,score:number,matched:string[]}>}
+ *   every tree scoring at least one trigger, highest first
  */
-function formatNodeForPrompt (node, allNodes) {
+function explainDetection (message, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
+  const lower = (typeof message === 'string' ? message : '').toLowerCase()
+
+  const rows = []
+  for (const tree of trees) {
+    const matched = (tree.entry_triggers || []).filter(trigger => triggerMatches(lower, trigger))
+    if (matched.length === 0) { continue }
+    rows.push({
+      id: tree.id,
+      name: tree.name || tree.id,
+      // Which lane the table's content reaches: a `nodes` tree is walked and its
+      // templates become client recommendations; `flat_if_then` is Learn-mode
+      // reference and is never walked (see formatLogicTreeForPrompt).
+      shape: Array.isArray(tree.nodes) ? 'nodes' : 'flat_if_then',
+      score: matched.length,
+      matched
+    })
+  }
+  rows.sort((a, b) => b.score - a.score)
+  return rows
+}
+
+/**
+ * Formats a single tree node into a readable text block for the AI.
+ * @param {Object} node
+ * @param {Array<Object>} allNodes
+ * @param {boolean} [fence=false] - when true, the firm-editable free-text fields
+ *   (condition, action, question, notes) are wrapped with fenceUntrusted so the
+ *   model reads firm-authored text as data, not instructions. Short structural
+ *   labels (branch_name) are left as-is, mirroring how domain-support fences
+ *   prose but not labels. Off by default → platform output is byte-identical.
+ */
+function formatNodeForPrompt (node, allNodes, fence = false) {
   const lines = []
+  const fx = v => (fence ? fenceUntrusted(v) : v)
 
   lines.push(`**[${node.branch_name}]** (${node.type})`)
-  lines.push(`Condition: ${node.condition}`)
+  lines.push(`Condition: ${fx(node.condition)}`)
 
   if (node.type === 'assessment' && node.gate_question) {
     lines.push(`Gate check: ${node.gate_question}`)
   }
 
   if (node.action) {
-    lines.push(`Action: ${node.action}`)
+    lines.push(`Action: ${fx(node.action)}`)
   }
 
   if (node.question) {
-    lines.push(`Ask: "${node.question}"`)
+    lines.push(fence ? `Ask: ${fenceUntrusted(node.question)}` : `Ask: "${node.question}"`)
   }
 
   if (node.sales_process) {
@@ -189,7 +332,7 @@ function formatNodeForPrompt (node, allNodes) {
   }
 
   if (node.notes) {
-    lines.push(`Notes: ${node.notes}`)
+    lines.push(`Notes: ${fx(node.notes)}`)
   }
 
   if (node.branches && node.branches.length > 0) {
@@ -213,14 +356,15 @@ function formatNodeForPrompt (node, allNodes) {
  * Learn-mode coaching — never walked, and never fed into the client recommendation path
  * (Get-the-Job content must not reach client templates — design §2.5).
  */
-function formatFlatBranch (branch) {
+function formatFlatBranch (branch, fence = false) {
+  const fx = v => (fence ? fenceUntrusted(v) : v)
   const lines = [`**[${branch.branch_name}]**`]
-  if (branch.condition) { lines.push(`Condition: ${branch.condition}`) }
-  if (branch.action) { lines.push(`Action: ${branch.action}`) }
+  if (branch.condition) { lines.push(`Condition: ${fx(branch.condition)}`) }
+  if (branch.action) { lines.push(`Action: ${fx(branch.action)}`) }
   if (branch.templates && branch.templates.length > 0) {
     lines.push(`Templates: ${branch.templates.join(', ')}`)
   }
-  if (branch.notes) { lines.push(`Notes: ${branch.notes}`) }
+  if (branch.notes) { lines.push(`Notes: ${fx(branch.notes)}`) }
   return lines.join('\n')
 }
 
@@ -250,13 +394,17 @@ function formatLogicTreeForPrompt (tree) {
     ''
   ].join('\n')
 
+  // A firm-overridden tree carries firm-authored branch text (tagged in
+  // effectiveTrees); fence it so the model treats it as data, not instructions.
+  const fence = !!(tree && tree.__firmAuthored)
+
   const nodeBlocks = (tree.nodes || [])
-    .map(node => formatNodeForPrompt(node, tree.nodes))
+    .map(node => formatNodeForPrompt(node, tree.nodes, fence))
     .join('\n\n')
 
   // flat_if_then trees keep their rules at the tree level (`tree.branches`), not in nodes.
   const flatBlocks = (tree.branches || [])
-    .map(formatFlatBranch)
+    .map(branch => formatFlatBranch(branch, fence))
     .join('\n\n')
 
   const approachBlock = tree.approach_guidance
@@ -1160,8 +1308,8 @@ function scorePattern (signalText, pattern) {
   return words.filter(w => signalText.includes(w)).length
 }
 
-function walkLogicTree (state, treeId) {
-  const trees = loadLogicTrees()
+function walkLogicTree (state, treeId, firmTrees) {
+  const trees = effectiveTrees(firmTrees)
   const tree = trees.find(t => t.id === treeId)
   if (!tree || !tree.nodes || !tree.nodes.length) { return [] }
   const signalText = buildSignalText(state)
@@ -1195,8 +1343,16 @@ function walkLogicTree (state, treeId) {
     if (bestBranch && bestScore > 0) { walkNode(bestBranch.next_node, depth + 1) }
   }
 
-  walkNode(tree.nodes[0].id, 0)
+  // Start where the tree SAYS to start, not wherever a node happens to sit.
+  // `entry_node` was added so a firm can reorder rows for readability without
+  // silently repointing the engine (array position used to be the entry point).
+  // The positional fallback keeps any tree without the field behaving exactly
+  // as it always did.
+  const entryId = (tree.entry_node && tree.nodes.some(n => n.id === tree.entry_node))
+    ? tree.entry_node
+    : tree.nodes[0].id
+  walkNode(entryId, 0)
   return [...templates]
 }
 
-module.exports = { loadLogicTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }

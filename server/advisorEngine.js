@@ -14,8 +14,9 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { formatCoachingForPrompt, loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
-const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, loadLogicTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
+const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -31,16 +32,17 @@ const { resolveStrategy } = require('../server/utils/strategyResolver')
 const { resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION } = require('../server/utils/templateResolver')
 const { resolveEffectiveDistinctions } = require('../server/utils/resolveDistinctions')
 const { loadFirmDistinctionState } = require('../server/utils/firmDistinctions')
-const { loadPlatformDistinctions } = require('../server/utils/platformDistinctions')
+const { loadPlatformDistinctions, SEED_PLATFORM_ROWS } = require('../server/utils/platformDistinctions')
 // Client knowledge base (design 2026-07-14) — the engine reads a named client's
 // case history back at recommendation time.
 const clientStore = require('../server/utils/clientStore')
 const { listForClient } = require('../server/utils/caseStore')
 const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistoryScoringInputs } = require('../server/utils/priorEngagement')
 
+const { loadBlendedStaircase, resolveStaircaseStep } = require('../server/utils/staircaseConfig')
+
 // Reference data
 const DOMAINS = require('../data/domains.json')
-const BASE_STAIRCASE = require('../data/advisory-staircase.json')
 
 // The per-domain diagnostic "question battery" — REMOVED from the intake (memory
 // design-conversational-intake). These accreted on top of the locked 14 and turned
@@ -60,18 +62,43 @@ const BATTERY_FIELDS = new Set([
 // The AI reads all distinction descriptions against the advisor's text and returns
 // which ones apply semantically — regardless of exact wording used.
 // Triggers (if present) are included as examples to guide the AI, not as exact matches.
+//
+// EVERY phrase a row carries is sent. Ruled 2026-08-01 (Mike), after this code was found
+// sending only `triggers.slice(0, 5)` while FirmManagerHub renders the whole list and
+// invites more — 56 of 67 committed rows carried more than five, so 67 firm-authored
+// phrases provably never reached the model. The defect was the silence, not the loss:
+// these are examples the classifier reads semantically, not gates. Cost of removing the
+// slice, measured before the change: +247 characters (~60 tokens) on the largest domain,
+// because the prompt only ever carries ONE domain's rows, never all 67.
+//
+// The ceiling below is a GUARD against an unbounded firm edit, not a content decision —
+// the save routes (routes/firmManager.js, routes/mentor.js) reject an empty triggers
+// array but set no upper bound, so a paste could otherwise send a thousand phrases into
+// a live model call. It sits ~3x clear of the largest committed row (8 phrases), and
+// anything beyond it is COUNTED AND ANNOUNCED, never trimmed in silence (no-silent-caps
+// rule). tests/unit/distinctionTriggerExamples.test.js fails if real content nears it.
+const DISTINCTION_TRIGGER_EXAMPLE_CAP = 25
+
 // Core AI matcher: given distinction rows + the advisor's text, returns the rows that
 // semantically match. Shared by in-domain boosting (classifyDistinctions) and the
 // cross-domain near-miss bridge (findNearMissDistinctions).
 async function _classifyMatchingRows (rows, advisorText, label) {
   if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return [] }
 
+  let phrasesIgnored = 0
   const patternList = rows.map((row, i) => {
-    const examples = (row.triggers || []).length > 0
-      ? ` (example phrases: ${row.triggers.slice(0, 5).join(', ')})`
+    const all = Array.isArray(row.triggers) ? row.triggers : []
+    if (all.length > DISTINCTION_TRIGGER_EXAMPLE_CAP) {
+      phrasesIgnored += all.length - DISTINCTION_TRIGGER_EXAMPLE_CAP
+    }
+    const examples = all.length > 0
+      ? ` (example phrases: ${all.slice(0, DISTINCTION_TRIGGER_EXAMPLE_CAP).join(', ')})`
       : ''
     return `${i + 1}. ${row.description}${examples}`
   }).join('\n')
+  if (phrasesIgnored > 0) {
+    console.warn(`[advisor] ${label || 'distinction-classify'}: ${phrasesIgnored} trigger phrase(s) exceeded the ${DISTINCTION_TRIGGER_EXAMPLE_CAP}-per-row example cap and were NOT sent to the classifier`)
+  }
 
   const prompt = `You are evaluating whether an advisor's description of a client situation matches any of the following advisory patterns. A match means the advisor's text meaningfully suggests that situation — it does not need to use the exact words.
 
@@ -315,12 +342,6 @@ function loadFirmConfig (...args) {
   return _loadFirmConfig(...args)
 }
 
-let _deepMerge = null
-function deepMerge (...args) {
-  if (!_deepMerge) { _deepMerge = require('../server/utils/firmOverlay').deepMerge }
-  return _deepMerge(...args)
-}
-
 // ── Startup checks ──
 // Validate critical env vars and required files before any request arrives.
 ;(function startupCheck () {
@@ -501,9 +522,9 @@ function getOpenAI () {
  *   newestFirstUserText) so a mid-conversation pivot is always inside the cap
  * @returns {Promise<object|null>}
  */
-async function pickLearnTreeAI (advisorText) {
+async function pickLearnTreeAI (advisorText, firmTrees) {
   if (!advisorText || !advisorText.trim()) { return null }
-  const learnTrees = loadLogicTrees().filter(t => t && t.mode === 'learn')
+  const learnTrees = effectiveTrees(firmTrees).filter(t => t && t.mode === 'learn')
   if (learnTrees.length === 0) { return null }
 
   const menu = learnTrees
@@ -1069,7 +1090,7 @@ module.exports = function advisorMiddleware (req, res, next) {
   req.on('end', () => {
     if (bodyRejected) { return }
     // Identity is taken from the firmAuth-verified request, never the body.
-    handleQuery(body, res, { firmId: req.firmId, advisorId: req.advisorId }).catch((err) => {
+    handleQuery(body, res, { firmId: req.firmId, advisorId: req.advisorId, advisorName: req.advisorName }).catch((err) => {
       console.error('[advisor] Unhandled error:', err.message)
       if (!res.headersSent) {
         sendError(res, 500, 'INTERNAL_ERROR', 'Internal server error')
@@ -1102,6 +1123,276 @@ function formatCaseSummaries (cases) {
     lines.push('')
   })
   return lines.join('\n')
+}
+
+// ── Saved-client intake context (Phase A) ───────────────────────────────────
+// Backend-only resolver for trusted client context. Phase A is metadata only:
+// it does NOT change the intake question sequence yet. This avoids coupling UX
+// behavior to an unverified context source while we establish a reliable,
+// firm-scoped resolution contract first.
+
+function isMeaningfulContextValue (value) {
+  if (typeof value !== 'string') { return false }
+  const t = value.trim()
+  if (!t) { return false }
+  return !/^(pending|skipped|unknown|n\/?a|na|null)$/i.test(t)
+}
+
+function extractLabeledLine (text, label) {
+  if (typeof text !== 'string' || !text) { return null }
+  const escaped = String(label).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const m = text.match(new RegExp('(?:^|\\n)' + escaped + ':\\s*(.+?)(?:\\n|$)', 'i'))
+  if (!m || !m[1]) { return null }
+  const value = m[1].trim()
+  return isMeaningfulContextValue(value) ? value : null
+}
+
+function extractSavedClientFactsFromCases (cases) {
+  const none = {
+    industry: null,
+    ownership: null,
+    advisoryStaircase: null,
+    industrySource: null,
+    ownershipSource: null,
+    advisoryStaircaseSource: null
+  }
+  if (!Array.isArray(cases) || cases.length === 0) { return none }
+
+  // listForClient is newest-first. Use the first case that yields each fact so
+  // we favour recency while still filling gaps from slightly older sessions.
+  let industry = null
+  let ownership = null
+  let advisoryStaircase = null
+  let industrySource = null
+  let ownershipSource = null
+  let advisoryStaircaseSource = null
+
+  for (const c of cases) {
+    const situation = c && c.decisionTrace ? c.decisionTrace.situation : null
+    if (!industry) {
+      industry = extractLabeledLine(situation, 'Industry')
+      if (industry) { industrySource = 'decisionTrace.situation:Industry' }
+    }
+    if (!ownership) {
+      ownership = extractLabeledLine(situation, 'Business ownership') || extractLabeledLine(situation, 'Ownership')
+      if (ownership) { ownershipSource = 'decisionTrace.situation:Business ownership' }
+    }
+    if (!advisoryStaircase) {
+      advisoryStaircase = extractLabeledLine(situation, 'Advisory Staircase position')
+      if (advisoryStaircase) { advisoryStaircaseSource = 'decisionTrace.situation:Advisory Staircase position' }
+    }
+    if (industry && ownership && advisoryStaircase) { break }
+  }
+
+  return { industry, ownership, advisoryStaircase, industrySource, ownershipSource, advisoryStaircaseSource }
+}
+
+function normaliseOwnershipValue (value) {
+  if (!isMeaningfulContextValue(value)) { return null }
+  const t = String(value).trim()
+  const l = t.toLowerCase()
+  if (/private|privately owned|owner[-\s]?operated/i.test(l)) { return 'privately owned' }
+  if (/not[-\s]?for[-\s]?profit|non[-\s]?profit|\bnfp\b|charity/i.test(l)) { return 'not-for-profit' }
+  if (/public|publicly listed|listed|asx|nzx|stock exchange/i.test(l)) { return 'publicly listed' }
+  return t.slice(0, 120)
+}
+
+function cleanIndustryValue (value) {
+  if (!isMeaningfulContextValue(value)) { return null }
+  let t = String(value).trim()
+  t = t.replace(/^((it|this)\s+is\s+|it'?s\s+|they\s+are\s+in\s+|they'?re\s+in\s+|industry\s+is\s+)/i, '')
+  t = t.replace(/[.]+$/, '').trim()
+  return isMeaningfulContextValue(t) ? t.slice(0, 120) : null
+}
+
+function parseSavedFactAnswer (field, savedValue, answer) {
+  const a = typeof answer === 'string' ? answer.trim() : ''
+  const al = a.toLowerCase().replace(/’/g, "'")
+  const keepPattern = /\b(yes|yeah|yep|correct|right|keep|use that|that'?s right|that is right|exactly|spot on|sounds right|works)\b/i
+  const changePattern = /\b(no|change|update|different|not right|not correct|wrong|edit)\b/i
+  const challengePattern = /\b(you should know|saved client|already know|you know this|we already have this|this is a saved client)\b/i
+
+  if (!isMeaningfulContextValue(savedValue)) {
+    // No trusted saved value for this field — take the advisor's answer.
+    if (field === 'ownership') {
+      return { action: 'use-answer', value: normaliseOwnershipValue(a) || a.slice(0, 120) }
+    }
+    return { action: 'use-answer', value: cleanIndustryValue(a) || a.slice(0, 120) }
+  }
+
+  const saved = String(savedValue).trim()
+  if (!a) { return { action: 'keep', value: saved, source: 'empty-keeps-saved' } }
+  if (challengePattern.test(al)) { return { action: 'keep', value: saved, source: 'challenge-keeps-saved' } }
+  if (keepPattern.test(al) || al === saved.toLowerCase()) {
+    return { action: 'keep', value: saved, source: 'explicit-keep' }
+  }
+
+  const _tokens = al.split(/[^a-z0-9']+/).filter(Boolean)
+  const _controlOrFiller = new Set([
+    'no', 'change', 'update', 'different', 'not', 'right', 'correct', 'wrong', 'edit',
+    'it', 'this', 'that', 'one', 'please', 'now', 'thanks', 'thank'
+  ])
+  const _substantive = _tokens.filter(t => !_controlOrFiller.has(t))
+  if (changePattern.test(al) && _substantive.length === 0) {
+    // Explicit change request but no replacement value yet.
+    return { action: 'ask-manual' }
+  }
+
+  if (field === 'ownership') {
+    const ownership = normaliseOwnershipValue(a)
+    return ownership ? { action: 'update', value: ownership, source: 'updated-answer' } : { action: 'ask-manual' }
+  }
+
+  const industry = cleanIndustryValue(a)
+  return industry ? { action: 'update', value: industry, source: 'updated-answer' } : { action: 'ask-manual' }
+}
+
+async function resolveSavedClientContext (params, deps) {
+  const empty = {
+    hasTrustedContext: false,
+    resolutionState: 'unresolved',
+    reason: 'missing_identity_or_client',
+    clientName: null,
+    hasCaseHistory: false,
+    caseCount: 0,
+    resolvedFacts: {
+      industry: null,
+      ownership: null,
+      advisoryStaircase: null
+    },
+    sources: {
+      industry: null,
+      ownership: null,
+      advisoryStaircase: null
+    }
+  }
+
+  const clientId = params && params.clientId ? String(params.clientId) : ''
+  const advisorId = params && params.advisorId ? String(params.advisorId) : ''
+  const firmId = params && params.firmId ? String(params.firmId) : ''
+  if (!clientId || !advisorId || !firmId) { return empty }
+
+  const _deps = Object.assign({
+    getClientById: clientStore.getById,
+    listCasesForClient: listForClient
+  }, deps || {})
+
+  let client
+  try {
+    client = await _deps.getClientById(clientId, firmId)
+  } catch (_e) {
+    return Object.assign({}, empty, { reason: 'lookup_error' })
+  }
+  if (!client) {
+    // Firm boundary guard: unknown/foreign client ids are treated as absent.
+    return Object.assign({}, empty, { reason: 'client_not_found_or_out_of_scope' })
+  }
+
+  let cases
+  try {
+    cases = await _deps.listCasesForClient(advisorId, firmId, clientId)
+  } catch (_e) {
+    return {
+      hasTrustedContext: true,
+      resolutionState: 'unresolved',
+      reason: 'history_lookup_error',
+      clientName: client.name || null,
+      hasCaseHistory: false,
+      caseCount: 0,
+      resolvedFacts: { industry: null, ownership: null, advisoryStaircase: null },
+      sources: { industry: null, ownership: null, advisoryStaircase: null }
+    }
+  }
+
+  const facts = extractSavedClientFactsFromCases(cases)
+  const hasIndustry = !!facts.industry
+  const hasOwnership = !!facts.ownership
+  const hasAdvisoryStage = !!facts.advisoryStaircase
+  const factCount = [hasIndustry, hasOwnership, hasAdvisoryStage].filter(Boolean).length
+  const resolutionState = factCount === 3
+    ? 'resolved'
+    : (factCount > 0 ? 'partial' : 'unresolved')
+
+  return {
+    hasTrustedContext: true,
+    resolutionState,
+    reason: resolutionState === 'unresolved' ? 'no_reusable_facts_found' : 'ok',
+    clientName: client.name || null,
+    hasCaseHistory: Array.isArray(cases) && cases.length > 0,
+    caseCount: Array.isArray(cases) ? cases.length : 0,
+    resolvedFacts: {
+      industry: facts.industry || null,
+      ownership: facts.ownership || null,
+      advisoryStaircase: facts.advisoryStaircase || null
+    },
+    sources: {
+      industry: facts.industrySource || null,
+      ownership: facts.ownershipSource || null,
+      advisoryStaircase: facts.advisoryStaircaseSource || null
+    }
+  }
+}
+
+function buildSavedFactConfirmPrompt (field, savedValue, clientName) {
+  if (!isMeaningfulContextValue(savedValue)) {
+    if (field === 'industry') {
+      return 'What industry is the client in?'
+    }
+    if (field === 'ownership') {
+      return 'Is the business privately owned, a not-for-profit, or publicly listed?'
+    }
+    if (field === 'advisoryStaircase') {
+      return 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+    }
+  }
+  if (field === 'industry') {
+    return `Is the industry still ${savedValue}?`
+  }
+  if (field === 'ownership') {
+    return `Are they still ${savedValue}?`
+  }
+  if (field === 'advisoryStaircase') {
+    return `Is the advisory stage still ${savedValue}?`
+  }
+}
+
+function continuityClaimAllowed (priorSummary) {
+  if (!priorSummary || typeof priorSummary !== 'object') { return false }
+  const sessions = Number(priorSummary.sessions || 0)
+  const engagements = Array.isArray(priorSummary.engagements) ? priorSummary.engagements.length : 0
+  return sessions > 0 && engagements > 0
+}
+
+function buildContinuityDirective (isAllowed) {
+  if (isAllowed) {
+    return 'Continuity evidence is present for this client. You may reference prior sessions and build on them where relevant.'
+  }
+  return 'No prior-session evidence is available for this client. Do not claim or imply prior discussions, prior delivery, or historical continuity.'
+}
+
+function buildSavedClientTraceAudit (savedClientContext, savedClientContextUsage) {
+  const facts = savedClientContext && savedClientContext.resolvedFacts
+    ? savedClientContext.resolvedFacts
+    : { industry: null, ownership: null, advisoryStaircase: null }
+  const usage = savedClientContextUsage || { industry: null, ownership: null, advisoryStaircase: null }
+
+  const prefilledFields = ['industry', 'ownership', 'advisoryStaircase'].filter(field => isMeaningfulContextValue(facts[field]))
+  const confirmedFields = ['industry', 'ownership', 'advisoryStaircase'].filter(field => usage[field] === 'kept')
+  const editedFields = ['industry', 'ownership', 'advisoryStaircase'].filter(field => usage[field] === 'edited')
+  const savedClientContextUsed = prefilledFields.length > 0 || confirmedFields.length > 0 || editedFields.length > 0
+
+  return {
+    savedClientContextUsed,
+    prefilledFields,
+    confirmedFields,
+    editedFields
+  }
+}
+
+function buildContinuityTraceAudit (isAllowed, priorSummary) {
+  const continuityClaimed = !!isAllowed
+  const continuitySource = continuityClaimed && priorSummary ? 'priorEngagementSummary' : 'none'
+  return { continuityClaimed, continuitySource }
 }
 
 async function handleQuery (rawBody, res, identity) {
@@ -1152,6 +1443,9 @@ async function handleQuery (rawBody, res, identity) {
   // activity under any identity. Any firmId/advisorId in the body is ignored.
   const firmId = (identity && identity.firmId) || null
   const advisorId = (identity && identity.advisorId) || null
+  // Display name from the same verified token. Recorded WITH the session, because a
+  // firm manager's own token cannot tell them a colleague's name — see activityStore.
+  const advisorName = (identity && identity.advisorName) || null
 
   const ALLOWED_MODES = ['client', 'discover', 'plan', 'learn']
   if (!ALLOWED_MODES.includes(mode)) {
@@ -1171,16 +1465,27 @@ async function handleQuery (rawBody, res, identity) {
     ? await loadFirmCoaching(firmId).catch(() => null)
     : null
 
-  // Load the firm's Advisory Staircase override and blend it over the platform
-  // base. A firm that has not customised it falls through to the base unchanged,
-  // so behaviour is identical to before for those firms. The blended config is
-  // handed to buildCaseState so a firm's edits change the complexity ceiling.
-  const firmStaircaseOverride = firmId
-    ? await loadFirmConfig(firmId, 'advisory-staircase').catch(() => null)
-    : null
-  const staircaseConfig = firmStaircaseOverride
-    ? deepMerge(BASE_STAIRCASE, firmStaircaseOverride)
-    : BASE_STAIRCASE
+  // The firm's Advisory Staircase — platform base with the firm's override blended
+  // over it. A firm that has not customised it falls through to the base unchanged.
+  // The blend lives in utils/staircaseConfig so that GET /api/advisor/staircase —
+  // which gives the advisor's on-screen selector its wording — reads the SAME one.
+  // While it was inline here, the ceiling honoured a firm's edits and the selector
+  // did not, so a firm's renamed steps reached nobody (fixed 2026-07-31).
+  const staircaseConfig = await loadBlendedStaircase(firmId, loadFirmConfig)
+
+  // Firm content overlays (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
+  // the firm's domain-support and logic-tree edits, loaded once per request
+  // like the template/staircase overrides above and merged only at the point
+  // of use.
+  //
+  // In production the loaders REJECT on a storage fault rather than answering
+  // "this firm has edited nothing" (a stray dev file must never be served as a
+  // firm's live wording — see firmContent.js). A live advisor conversation must
+  // still not die for it, so readForSession logs the fault and the session runs on
+  // the platform content — the same shape loadBlendedStaircase uses above. The log
+  // line is the difference between a degraded session and a silent one.
+  const firmDomainSupport = await readForSession(loadFirmDomainSupport, firmId, loadFirmConfig, 'advisor')
+  const firmLogicTrees = await readForSession(loadFirmLogicTrees, firmId, loadFirmConfig, 'advisor')
 
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
@@ -1265,8 +1570,24 @@ async function handleQuery (rawBody, res, identity) {
       // Win-work switch (offer to move to Learn / how-to-sell) — offered once.
       salesSwitchOffered: false,
       awaitingSalesSwitchChoice: false,
-      domainConfirmed: null
+      domainConfirmed: null,
+      savedClientContextUsage: {
+        industry: null,
+        ownership: null
+      }
     }, storedState || {})
+
+    // Phase A: resolve saved-client context once per (session, clientId). This
+    // is observability-only for now — no question skip/prefill behavior change.
+    const _requestedClientId = clientId || null
+    if (state._savedClientContextClientId !== _requestedClientId) {
+      state._savedClientContextClientId = _requestedClientId
+      state.savedClientContext = await resolveSavedClientContext({
+        clientId: _requestedClientId,
+        advisorId,
+        firmId
+      })
+    }
 
     // Always re-detect domain from the first user message.
     // Score all 14 domains by keyword match count. Most matches wins.
@@ -1499,7 +1820,34 @@ async function handleQuery (rawBody, res, identity) {
       // ── Universal: Industry ──
       {
         field: 'industry',
-        text: 'What industry is the client in?'
+        textFn: s => buildSavedFactConfirmPrompt(
+          'industry',
+          s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.industry
+            : null,
+          s.savedClientContext ? s.savedClientContext.clientName : null
+        ),
+        onAnswer: (answer, s) => {
+          const saved = s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.industry
+            : null
+          const parsed = parseSavedFactAnswer('industry', saved, answer)
+          if (parsed.action === 'keep') {
+            s.industry = parsed.value
+            s.savedClientContextUsage.industry = 'kept'
+            return
+          }
+          if (parsed.action === 'update' || parsed.action === 'use-answer') {
+            s.industry = parsed.value
+            s.savedClientContextUsage.industry = saved ? 'edited' : 'provided'
+            return
+          }
+          // Explicit change with no replacement: ask immediately for the value.
+          s.industry = null
+          s._forceAskField = 'industry'
+          s._forceAskPrompt = 'No problem — what industry is the client in?'
+          s.savedClientContextUsage.industry = 'manual-followup'
+        }
       },
       // ── Domain 1: Profitability / Feasibility ──
       {
@@ -1582,7 +1930,33 @@ async function handleQuery (rawBody, res, identity) {
       ),
       {
         field: 'ownership',
-        text: 'Is the business privately owned, a not-for-profit, or publicly listed?'
+        textFn: s => buildSavedFactConfirmPrompt(
+          'ownership',
+          s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.ownership
+            : null,
+          s.savedClientContext ? s.savedClientContext.clientName : null
+        ),
+        onAnswer: (answer, s) => {
+          const saved = s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.ownership
+            : null
+          const parsed = parseSavedFactAnswer('ownership', saved, answer)
+          if (parsed.action === 'keep') {
+            s.ownership = parsed.value
+            s.savedClientContextUsage.ownership = 'kept'
+            return
+          }
+          if (parsed.action === 'update' || parsed.action === 'use-answer') {
+            s.ownership = parsed.value
+            s.savedClientContextUsage.ownership = saved ? 'edited' : 'provided'
+            return
+          }
+          s.ownership = null
+          s._forceAskField = 'ownership'
+          s._forceAskPrompt = 'No problem — is the business privately owned, not-for-profit, or publicly listed?'
+          s.savedClientContextUsage.ownership = 'manual-followup'
+        }
       },
       {
         field: 'growthStage',
@@ -1591,7 +1965,33 @@ async function handleQuery (rawBody, res, identity) {
       },
       {
         field: 'advisoryStaircase',
-        text: 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+        textFn: s => buildSavedFactConfirmPrompt(
+          'advisoryStaircase',
+          s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.advisoryStaircase
+            : null,
+          s.savedClientContext ? s.savedClientContext.clientName : null
+        ),
+        onAnswer: (answer, s) => {
+          const saved = s.savedClientContext && s.savedClientContext.resolvedFacts
+            ? s.savedClientContext.resolvedFacts.advisoryStaircase
+            : null
+          const parsed = parseSavedFactAnswer('advisoryStaircase', saved, answer)
+          if (parsed.action === 'keep') {
+            s.advisoryStaircase = parsed.value
+            s.savedClientContextUsage.advisoryStaircase = 'kept'
+            return
+          }
+          if (parsed.action === 'update' || parsed.action === 'use-answer') {
+            s.advisoryStaircase = parsed.value
+            s.savedClientContextUsage.advisoryStaircase = saved ? 'edited' : 'provided'
+            return
+          }
+          s.advisoryStaircase = null
+          s._forceAskField = 'advisoryStaircase'
+          s._forceAskPrompt = 'No problem — where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+          s.savedClientContextUsage.advisoryStaircase = 'manual-followup'
+        }
       },
       {
         field: 'clientPersonality',
@@ -1750,6 +2150,15 @@ async function handleQuery (rawBody, res, identity) {
           }
           // Allow the question to react to its answer (e.g. disambiguation resolving a scenario)
           if (q.onAnswer) { q.onAnswer(query, state) }
+          // Phase B follow-up: if a saved-field confirmation asked to capture the
+          // value explicitly ("change" with no replacement), ask it immediately.
+          if (state._forceAskField === q.field && state._forceAskPrompt) {
+            const prompt = state._forceAskPrompt
+            state._forceAskField = null
+            state._forceAskPrompt = null
+            state[q.field] = 'pending'
+            return sendQuestion(prompt, state)
+          }
           // Contradiction check: if the answer signals the conversation has gone wrong, pause and verify
           if (
             state.detectedDomain &&
@@ -1807,7 +2216,7 @@ async function handleQuery (rawBody, res, identity) {
           state.happyConfirmed = true
           state.clientApproachAsked = true
           state.movingForwardAsked = true
-          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates).catch(() => {})
+          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates, advisorName).catch(() => {})
           const mfQuestion = await getMovingForwardQuestion(conversationHistory)
           return sendQuestion(mfQuestion, state)
         }
@@ -1822,7 +2231,7 @@ async function handleQuery (rawBody, res, identity) {
         if (confirmsAlternative.test(query)) {
           state.happyConfirmed = true
           state.movingForwardAsked = true
-          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates).catch(() => {})
+          logVASession(advisorId, firmId, state.detectedDomain, state.recommendedTemplates, advisorName).catch(() => {})
           const mfQuestion = await getMovingForwardQuestion(conversationHistory)
           return sendQuestion(mfQuestion, state)
         }
@@ -1862,7 +2271,7 @@ async function handleQuery (rawBody, res, identity) {
       }
 
       // AI handles: either alternatives exploration or client approach guidance
-      const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
+      const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
       const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching }) +
@@ -2045,8 +2454,13 @@ async function handleQuery (rawBody, res, identity) {
     const reportsFromAdvisorFirm = state.reportsFromFirm && /\byes\b|we do|our firm|my firm|we provide|we deliver|i do|i deliver|we produce/i.test(state.reportsFromFirm)
     const reviewYes = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && /\byes\b|yeah|absolutely|definitely|would help|would benefit|good idea/i.test(state.wouldBenefitFromReview)
     const reviewNo = state.wouldBenefitFromReview && state.wouldBenefitFromReview !== 'pending' && !reviewYes
-    const staircaseStep = state.advisoryStaircase ? (state.advisoryStaircase.match(/Step\s*([1-5])/i) || [])[1] : null
-    const staircaseNum = staircaseStep ? parseInt(staircaseStep) : null
+    // Resolved against the FIRM's staircase, by name first and position second.
+    // This used to be a bare /Step ([1-5])/ on the answer text, which meant the
+    // position was treated as the step's identity: reorder the staircase and every
+    // stored answer silently pointed at a different step, with a different
+    // complexity ceiling behind it. See utils/staircaseConfig.resolveStaircaseStep.
+    const _resolvedStaircaseStep = resolveStaircaseStep(state.advisoryStaircase, staircaseConfig)
+    const staircaseNum = _resolvedStaircaseStep ? _resolvedStaircaseStep.step : null
     const clientRaisedIssue = state.clientRaisedIssue && /\byes\b|\byeah\b|\byep\b|they\s*(?:have\s+|'ve\s+)?(raised|brought|flagged|mentioned|came|approached|asked|wanted)\b|client\s+(?:has\s+|have\s+)?raised|came to me|brought it up|raised\s+(?:the\s+)?(?:issue|it\b)|flagged it|their idea|they initiated|spoke\s+to\s+(?:me|us)\s+about|called\s+(?:me|us)\s+about|phoned\s+(?:me|us)|reached\s+out|got\s+in\s+touch|contacted\s+(?:me|us)|they\s+(?:called|rang|phoned|messaged|emailed|texted)/i.test(state.clientRaisedIssue)
 
     // Parse meeting count — upper bound of a range taken so capacity covers all
@@ -2175,8 +2589,24 @@ async function handleQuery (rawBody, res, identity) {
     // resolve it into the single effective list the advisor session should see.
     // With no declines/edits stored, the effective list equals platform + firm-own
     // rows — identical to the previous concatenation, so behaviour is unchanged.
-    const _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
-    const _platformRows = await loadPlatformDistinctions(loadFirmConfig)
+    //
+    // Both reads REJECT in production on a storage fault rather than answering with
+    // an empty state or a stand-in file. This session must survive that, so the
+    // fault is logged and the run continues on the committed platform seed with no
+    // firm decisions applied — degraded, and loudly so, instead of silently.
+    let _firmState = { ownRows: [], declinedIds: [], overrides: {} }
+    let _platformRows = SEED_PLATFORM_ROWS
+    try {
+      _firmState = await loadFirmDistinctionState(firmId, loadFirmConfig)
+      _platformRows = await loadPlatformDistinctions(loadFirmConfig)
+    } catch (err) {
+      console.error('[advisor] distinction read failed — using platform seed:', err.message)
+      // Both are reset, not just the one that failed. The firm read can succeed and
+      // the platform read then fail, leaving decisions that reference row ids the
+      // seed may not carry — applying half a resolved state is worse than none.
+      _firmState = { ownRows: [], declinedIds: [], overrides: {} }
+      _platformRows = SEED_PLATFORM_ROWS
+    }
     const _effectiveDistinctions = resolveEffectiveDistinctions(_platformRows, _firmState)
     const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
     // Cross-domain bridge: firm distinctions filed under OTHER domains that match this
@@ -2192,9 +2622,9 @@ async function handleQuery (rawBody, res, identity) {
     // drive the Learn path, not client recommendation. Uses the same detect+walk the
     // zero-candidate fallback below relies on, so it adds no new tree machinery.
     const _treeHintNames = []
-    for (const _tree of detectLogicTrees(collectedAnswers)) {
+    for (const _tree of detectLogicTrees(collectedAnswers, firmLogicTrees)) {
       if (_tree.mode === 'learn') { continue }
-      for (const _name of walkLogicTree(state, _tree.id)) { _treeHintNames.push(_name) }
+      for (const _name of walkLogicTree(state, _tree.id, firmLogicTrees)) { _treeHintNames.push(_name) }
     }
 
     // Phase D — deterministic template resolver (two-pass: unrestricted + within-range)
@@ -2320,10 +2750,10 @@ async function handleQuery (rawBody, res, identity) {
     if (_displayTemplates.length > 0) {
       preFilteredNames = _displayTemplates.map(t => t.title)
     } else {
-      const matchedTrees = detectLogicTrees(collectedAnswers)
+      const matchedTrees = detectLogicTrees(collectedAnswers, firmLogicTrees)
       const walkedNames = new Set()
       for (const tree of matchedTrees) {
-        for (const name of walkLogicTree(state, tree.id)) { walkedNames.add(name) }
+        for (const name of walkLogicTree(state, tree.id, firmLogicTrees)) { walkedNames.add(name) }
       }
       if (walkedNames.size > 0) { preFilteredNames = [...walkedNames] }
     }
@@ -2346,7 +2776,9 @@ async function handleQuery (rawBody, res, identity) {
     // words about a real client — treated as hostile prompt input like all
     // user content, never concatenated raw. (_priorSummary/_priorClient are
     // loaded further up, BEFORE the resolver, so history informs scoring too.)
-    const _priorContext = _priorSummary
+    const _continuityAllowed = continuityClaimAllowed(_priorSummary)
+    const _continuityDirective = buildContinuityDirective(_continuityAllowed)
+    const _priorContext = _continuityAllowed
       ? [
         '',
         'PRIOR ENGAGEMENT WITH THIS CLIENT',
@@ -2361,6 +2793,7 @@ async function handleQuery (rawBody, res, identity) {
       'SITUATION BRIEF',
       state.prepMode ? 'PRE-MEETING PREP: The advisor has NOT yet met this client, so client-specific questions were intentionally skipped. Frame this as preparation for an upcoming first meeting — what the advisor should focus on and confirm with the client when they meet — not as firm conclusions about a client you have full detail on.' : null,
       _urgencyDirective || null,
+      _continuityDirective,
       `Domain: ${_domainLabel}`,
       `Engagement type: ${_strategyDecision.engagementType} — ${_engagementContext}`,
       `Template budget: ${_budgetLabel}`,
@@ -2398,7 +2831,7 @@ async function handleQuery (rawBody, res, identity) {
       ? `\n\nIMPORTANT: Always respond entirely in ${languageName}.`
       : ''
 
-    const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain) : null
+    const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
 
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: false,
@@ -2477,6 +2910,9 @@ async function handleQuery (rawBody, res, identity) {
     // and act on it (e.g. move a distinction to a better domain). Assembled from the
     // SAME data the engine just used — no new inference. Emitted with the
     // recommendation below and intended to be stored on a saved case study.
+    const _savedClientAudit = buildSavedClientTraceAudit(state.savedClientContext, state.savedClientContextUsage)
+    const _continuityAudit = buildContinuityTraceAudit(_continuityAllowed, _priorSummary)
+
     const _decisionTrace = {
       session: sessionId || null,
       generatedAt: _sessionSummary.t,
@@ -2539,6 +2975,25 @@ async function handleQuery (rawBody, res, identity) {
               .some(t => (t.matchReasons || []).some(r => r.indexOf('history:') === 0))
           }
         : null,
+      // Phase A context contract (saved-client intake): trusted context
+      // resolution metadata only — consumed for UX behavior in Phase B.
+      savedClientContext: {
+        hasTrustedContext: !!(state.savedClientContext && state.savedClientContext.hasTrustedContext),
+        resolutionState: state.savedClientContext ? state.savedClientContext.resolutionState : 'unresolved',
+        reason: state.savedClientContext ? state.savedClientContext.reason : 'missing_identity_or_client',
+        clientName: state.savedClientContext ? state.savedClientContext.clientName : null,
+        hasCaseHistory: !!(state.savedClientContext && state.savedClientContext.hasCaseHistory),
+        caseCount: state.savedClientContext ? state.savedClientContext.caseCount : 0,
+        resolvedFacts: state.savedClientContext ? state.savedClientContext.resolvedFacts : { industry: null, ownership: null },
+        sources: state.savedClientContext ? state.savedClientContext.sources : { industry: null, ownership: null },
+        usage: state.savedClientContextUsage || { industry: null, ownership: null }
+      },
+      savedClientContextUsed: _savedClientAudit.savedClientContextUsed,
+      prefilledFields: _savedClientAudit.prefilledFields,
+      confirmedFields: _savedClientAudit.confirmedFields,
+      editedFields: _savedClientAudit.editedFields,
+      continuityClaimed: _continuityAudit.continuityClaimed,
+      continuitySource: _continuityAudit.continuitySource,
       templateScores: (_obsPayload.templateScores || []).map(t => ({
         rank: t.rank,
         title: t.title,
@@ -2722,11 +3177,11 @@ async function handleQuery (rawBody, res, identity) {
     // survives dictation garbles + red-herring keyword ties); fall back to the
     // deterministic keyword matcher if the AI is unavailable. Newest-first +
     // recent-window-first so a mid-conversation pivot re-routes (P1 2026-07-16).
-    let learnTree = await pickLearnTreeAI(newestFirstUserText(trimmedHistory, query))
+    let learnTree = await pickLearnTreeAI(newestFirstUserText(trimmedHistory, query), firmLogicTrees)
     if (!learnTree) {
       const userMsgs = trimmedHistory.filter(m => m.role === 'user').map(m => m.content)
-      learnTree = detectLogicTree([...userMsgs.slice(-2), query].join(' ')) ||
-        detectLogicTree([...userMsgs, query].join(' '))
+      learnTree = detectLogicTree([...userMsgs.slice(-2), query].join(' '), firmLogicTrees) ||
+        detectLogicTree([...userMsgs, query].join(' '), firmLogicTrees)
     }
     if (learnTree && learnTree.mode === 'learn') {
       learnSalesTreeText = buildLearnReferenceText(learnTree)
@@ -2734,7 +3189,7 @@ async function handleQuery (rawBody, res, identity) {
       // tree has a VERIFIED domain-support file (explicit data mapping or
       // exact name match — never guessed), inject that richer coaching too.
       const supportId = supportIdForLearnTree(learnTree)
-      if (supportId) { learnDomainSupportText = formatDomainSupportForPrompt(supportId) }
+      if (supportId) { learnDomainSupportText = formatDomainSupportForPrompt(supportId, firmDomainSupport) }
     }
   }
 
@@ -2744,7 +3199,7 @@ async function handleQuery (rawBody, res, identity) {
   let deepDiveText = null
   if ((mode === 'client' || mode === 'discover') && trimmedHistory.length >= 2) {
     const allConversationText = [...trimmedHistory.map(m => m.content), query].join(' ')
-    const deepDiveTree = detectLogicTree(allConversationText)
+    const deepDiveTree = detectLogicTree(allConversationText, firmLogicTrees)
     // Only CLIENT-DELIVERY learn trees may deep-dive inside a client session. Advisor
     // business-development ('get-the-job') and firm ('get-organised') trees are excluded —
     // their "sales/marketing/pricing" means the advisor selling THEIR services, the opposite
@@ -2922,3 +3377,21 @@ module.exports.MEETING_MAX = MEETING_MAX
 module.exports.buildIntakeMessages = buildIntakeMessages
 module.exports.classifyDistinctions = classifyDistinctions
 module.exports.findNearMissDistinctions = findNearMissDistinctions
+// Exported so a screen or test reads THE number rather than hard-coding a second copy
+// that drifts from the engine — the failure this week's routing defects were made of.
+module.exports.DISTINCTION_TRIGGER_EXAMPLE_CAP = DISTINCTION_TRIGGER_EXAMPLE_CAP
+module.exports.extractSavedClientFactsFromCases = extractSavedClientFactsFromCases
+module.exports.resolveSavedClientContext = resolveSavedClientContext
+module.exports.parseSavedFactAnswer = parseSavedFactAnswer
+// Exported for the read-only Firm Manager phrase probe (server/utils/phraseProbe.js)
+// so it scores domains with the ENGINE'S OWN compiled patterns rather than a second
+// copy built from domains.json. scripts/domain-detection-check.js already keeps such
+// a copy; a third would be the drift this week's routing defects were made of.
+// Read-only by contract: the patterns carry the /g flag, so consumers must use
+// String.match (stateless) and never RegExp.test (stateful via lastIndex).
+module.exports.DOMAIN_PATTERNS = DOMAIN_PATTERNS
+module.exports.buildSavedFactConfirmPrompt = buildSavedFactConfirmPrompt
+module.exports.continuityClaimAllowed = continuityClaimAllowed
+module.exports.buildContinuityDirective = buildContinuityDirective
+module.exports.buildSavedClientTraceAudit = buildSavedClientTraceAudit
+module.exports.buildContinuityTraceAudit = buildContinuityTraceAudit

@@ -9,146 +9,88 @@
     "follow up", "active pipeline", "sales performance", "fee growth tracking",
     "track my sales", "measure my sales", "advisor sales metrics", "business development"
   ],
-  "overview": "The Get the Job — Sales Tracker is a spreadsheet-based sales pipeline and performance management system (Get.1a.Sales Tracker). It creates a transparent record of sales activities, pipeline velocity, referral networks, and team performance. Five primary worksheets cover the full tracking lifecycle: firm-wide macro metrics, individual team performance, prospect-level CRM activity, centre of influence development, and system configuration. Entry-level and suitable for any advisor focused on fee growth.",
+  "overview": "The Get the Job — Sales Tracker is a spreadsheet-based sales pipeline and performance management system (Get.1a.Sales Tracker). It creates a transparent record of sales activities, pipeline velocity, referral networks, and team performance. Five primary worksheets cover the full tracking lifecycle: firm-wide macro metrics, individual team performance, prospect-level CRM activity, centre of influence development, and system configuration. Entry-level and suitable for any advisor focused on fee growth. Each worksheet is treated here as its own material, because each is used by a different person at a different moment.",
+
   "diagnostic_entry": {
     "primary_question": "Which area of your sales pipeline do you need to work on — tracking individual prospects, measuring team performance, managing your referral network, or reviewing your overall firm-wide conversion metrics?"
   },
-  "support_tools": [
+
+  "materials": [
     {
-      "name": "Stats to Date Dashboard",
-      "purpose": "A macro-level firm-wide dashboard tracking approach volumes, quiz completions, meeting conversions, proposal values, and average fee yields — segmented by approach style (Campaign vs. Total Needs) and prospect source (Referrals vs. Social Media vs. Direct Contact).",
-      "core_principle": "What gets measured gets managed. The Stats to Date dashboard makes firm-wide sales performance undeniable and objective — revealing which approach styles and lead sources are generating the highest return on time investment.",
-      "when_to_use": "At the end of each month for management review. Also used during sales strategy meetings to assess firm-wide conversion metrics and redirect effort toward the highest-yielding approach styles.",
-      "key_benefits": [
-        "Reveals which sales styles (Campaign vs. Total Needs) are yielding the highest average fee values",
-        "Tracks the exact number of meetings required to generate a proposal — surfaces pipeline velocity",
-        "Distinguishes between new prospects and existing client upsells, showing whether growth is organic or external",
-        "Identifies which lead generation channels (Referrals, Social Media, Direct Contact) are producing the most agreeable prospects"
-      ],
-      "advisor_confidence_note": "Review Stats to Date at the end of every month without exception. If the data shows that Total Needs campaigns yield $0 average fee, that is a signal to investigate the conversion gap — not to abandon the approach. Let the data guide your strategy, not your gut feel."
-    },
-    {
-      "name": "Team Report",
-      "purpose": "An individual performance breakdown for each team member — tracking prospects approached, meetings secured, proposals sent, engagements won, total value secured, and win rate percentage.",
-      "core_principle": "Clear, undeniable personal metrics remove subjectivity from performance conversations. The Team Report makes it possible to identify exactly where in the sales process each advisor is losing momentum — and to intervene with targeted coaching.",
-      "when_to_use": "For one-on-one performance reviews, team accountability meetings, and identifying top performers and training needs. Also used to assign a senior 'buddy' when an advisor's conversion rate drops below expectations.",
-      "key_benefits": [
-        "Individual conversion metrics make performance coaching specific and objective — not based on perception",
-        "Identifies advisors who are strong at securing meetings but weak at closing — enables targeted intervention",
-        "Benchmarks win rates across the team, revealing the performance gap between top and lower performers",
-        "Supports the decision to assign a senior partner as a 'buddy' on active prospects when conversion is low"
-      ],
-      "advisor_confidence_note": "Do not wait for an annual review to surface performance gaps. Review the Team Report monthly and act on it immediately. If an advisor has a high number of approaches but a low secured conversion rate, assign a senior partner to accompany them on their next active prospect — this is peer mentoring, not criticism."
-    },
-    {
-      "name": "Sales Activity Log",
-      "purpose": "A row-by-row CRM database for tracking individual prospect details — contact information, lead source, current sales stage, proposal value, work days elapsed, prospect status, and next follow-up actions.",
-      "core_principle": "No prospect should ever fall through the cracks. The Sales Activity Log is a daily operational tool — it is updated at the point of every approach, meeting, and follow-up. Work Days Elapsed is the key alert metric: high numbers signal a stalled deal that needs intervention.",
-      "when_to_use": "Daily, by all client-facing advisors. Every approach is logged immediately. Status is updated as the relationship progresses. Never rely on memory to manage an active pipeline.",
-      "key_benefits": [
-        "Tracks follow-up dates and calculates Work Days Elapsed — gives a clear signal when a deal has stalled",
-        "Categorises leads by status (Active, Await Research, Completed, Dead, On Hold) for accurate pipeline forecasting",
-        "Provides a concrete visualisation of pending revenue — connects the sales pipeline to cash flow forecasting",
-        "Lightweight CRM function without the complexity of a standalone system — accessible to all advisors"
-      ],
-      "advisor_confidence_note": "Log every approach on the same day it happens — not at the end of the week. If Work Days Elapsed exceeds 90 days without a job secured, update the status to 'On Hold' or 'Dead' and move on. Keeping stalled prospects marked as 'Active' artificially inflates your pipeline projection and distorts your strategy.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Log the Approach",
-          "steps": [
-            { "name": "Create a new row immediately", "guidance": "Whenever an approach is made, log a new row in the Sales Activity Log. Fill in: prospect name, business name, lead staff member, prospect source, and approach style used." }
-          ]
-        },
-        {
-          "phase": 2,
-          "name": "Manage the Pipeline",
-          "steps": [
-            { "name": "Update status as the relationship progresses", "guidance": "Update Prospect Status (Active, Dead, Completed, On Hold, Await Research) after every meaningful interaction. If a proposal is requested, enter the value in the Proposal Value column." },
-            { "name": "Monitor Work Days Elapsed", "guidance": "Check Work Days Elapsed regularly. Deals exceeding 90 days without progress need immediate follow-up or reclassification to 'Dead' to keep the pipeline realistic." }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "COI (Centres of Influence) Development",
-      "purpose": "A networking tracker for systematically developing referral relationships with external professionals — bankers, lawyers, insurance brokers, farm consultants — tracking relationship progression stages, referral volumes, and fee value generated.",
-      "core_principle": "Referral relationships must be nurtured systematically through trust stages before referrals can be expected. Track the fee value generated by each COI — relationships that do not progress past 'Could We' after months of effort should be deprioritised.",
-      "when_to_use": "After any networking event or coffee meeting with a potential referral partner. Updated continuously as the relationship progresses through trust stages. Reviewed monthly alongside the Stats to Date dashboard.",
-      "key_benefits": [
-        "Moves COI development from informal networking to a structured, measurable process",
-        "Trust progression stages ('Could We' → 'How Would We' → 'Will We' → Test/Review) give the advisor a clear map for each relationship",
-        "Ties specific fee value to each COI relationship — makes the ROI of networking quantifiable",
-        "Prevents effort from being wasted on COIs who are cordial but never generate referrals"
-      ],
-      "advisor_confidence_note": "After every networking meeting, add the contact to the COI Development tab and record the current trust stage. Update the progress indicator (1 = yes, 0 = no) as the relationship advances. If a COI has been at the 'Could We' stage for several months without movement, redirect your networking effort — not every relationship will become a referral source.",
-      "if_then_logic": [
-        {
-          "condition": "A new meeting is held with a commercial lender or professional and they agree to explore a mutual alliance",
-          "action": "Update the COI Development tab: change the relationship progress indicator from 'Could We' (1) to 'How Would We' (1).",
-          "context": "Relationships must move through defined trust stages. Recording each progression ensures the advisor knows exactly where every COI relationship stands."
-        },
-        {
-          "condition": "A COI remains at the 'Could We' relationship stage for multiple months without generating a referral or progressing",
-          "action": "Redirect networking time and energy to other COIs or new referral sources.",
-          "context": "The COI tab ties fee value to each relationship. A COI that generates no fee value over time is not a productive referral partner."
-        }
-      ]
-    },
-    {
+      "id": "get-sales-tracker-tracker-configuration-lists-calcs",
       "name": "Tracker Configuration (Lists & Calcs)",
-      "purpose": "The engine room of the tracker — 'Lists' provides standardised dropdown menus ensuring data integrity across all worksheets; 'Calcs' handles background statistical calculations (Standard Deviations, Variance, Averages) that power the Stats to Date dashboard.",
-      "core_principle": "The quality of the tracker's reports depends entirely on the consistency of the data entered. Dropdown menus prevent freehand variations that corrupt statistics. Configure Lists before deploying the tracker to the team — this is a one-time setup step.",
-      "when_to_use": "Before deploying the tracker to the team for the first time. Also revisited when team members change or new meeting themes and approach styles are adopted.",
-      "key_benefits": [
-        "Standardised dropdowns (Relationship Type, Approach Styles, Meeting Themes, Total Needs Stages) prevent data entry errors",
-        "Consistent categorisation ensures statistical reports are reliable enough to inform strategic decisions",
-        "Background Calcs automatically compute variance and averages without manual input from the team",
-        "One-time setup investment that protects the integrity of all future reporting"
-      ],
-      "advisor_confidence_note": "Configure the Lists tab before anyone starts logging prospects. Enter the exact team members (partners and staff support), standard meeting themes, and approach styles your firm actually uses. If new themes or staff are added later, update Lists immediately — do not allow freehand entries to build up in the Activity Log.",
-      "phases": [
-        {
-          "phase": 1,
-          "name": "Initial Configuration",
-          "steps": [
-            { "name": "Populate team members", "guidance": "Navigate to the Lists tab. Enter all partners and staff support who will be logging prospects. These names will populate the dropdown in the Sales Activity Log." },
-            { "name": "Set meeting themes and approach styles", "guidance": "Enter the standard meeting themes (e.g., Lite Funda' Sales, Planning Review, Formal Risk Management) and approach styles (Direct Contact, Pre-Approach Sequence, Quiz Link Sent, Gift) your firm uses." }
-          ]
-        }
+      "summary": "The engine room. Lists holds the standardised dropdowns — relationship type, approach styles, meeting themes, prospect sources, Total Needs stages, staff names — which is what keeps the data clean enough to report on. Calcs handles the background statistics: averages, variances and standard deviations. Getting this right makes daily entry fast and uniform, and it is the reason the final numbers can be trusted for a decision.",
+      "who_when": "The system administrator or operations manager responsible for setting up and maintaining internal tracking tools. Done once, before the tracker goes anywhere near the team.",
+      "steps": [
+        "Open the Lists tab before deploying the tracker to anyone.",
+        "Populate the exact team members, split into Partners and Staff Support.",
+        "Enter the standard meeting themes your firm actually uses — Lite Funda' Sales, Formal Risk Mgt, Planning Review and so on.",
+        "Enter the approach styles the firm uses, so conversion can later be compared style by style.",
+        "Leave the Calcs tab alone in normal use — it is what produces the averages, variances and standard deviations behind the reports.",
+        "Deploy only once the dropdowns are complete; free-typed entries are what destroy the reporting later."
+      ]
+    },
+    {
+      "id": "get-sales-tracker-sales-activity-log",
+      "name": "Sales Activity Log",
+      "summary": "A lightweight CRM: one row per prospect, holding contact details, current sales stage, proposal value and the next move. It is what stops a prospect falling through the cracks, and its Work Days Elapsed calculation is the early warning that a deal has stalled. For the firm it turns the pipeline into something visible and countable, with each lead carrying an honest status — Active, Await Research, Completed, Dead or On Hold.",
+      "who_when": "Daily use by every client-facing advisor, logging activity on the day it happens rather than catching up at the end of the week.",
+      "steps": [
+        "Log a new row the moment an approach is made — prospect name, business name, lead staff member, prospect source, and the approach style used.",
+        "Update Prospect Status as the relationship moves: Active, Dead, Completed, and record whether a meeting was secured.",
+        "Enter the value in the Proposal Value column as soon as a proposal is requested, so pending revenue is visible rather than remembered.",
+        "Watch Work Days Elapsed — a deal sitting at 119 or 145 days is stalling and needs either intervention or an honest reclassification.",
+        "Where the prospect is simply not ready, set the status to On Hold or Await Research: they stay in the system for follow-up without inflating the active pipeline.",
+        "Where Work Days Elapsed passes 90 days with nothing secured, move the status to On Hold or Dead and move on. Keeping stalled prospects active artificially inflates the projection.",
+        "Record the specific follow-up note and date every time, so the next move is written down rather than carried in someone's head."
+      ]
+    },
+    {
+      "id": "get-sales-tracker-coi-centres-of-influence-development",
+      "name": "COI (Centres of Influence) Development",
+      "summary": "Systematises the referral network by recording the relationship status with each external professional — bankers, lawyers, insurance brokers — and moving them deliberately through the trust stages: Could We, How Would We, then Will We test and review. It also quantifies what each relationship is actually worth, tying referrals, conversions and fee value to the individual COI, which is what tells an advisor where their networking time is paying and where it is not.",
+      "who_when": "Senior partners, business development managers, and advisors building organic growth through strategic alliances.",
+      "steps": [
+        "After a networking event or coffee meeting with a professional such as a commercial lender or lawyer, add their details to the COI Development tab straight away.",
+        "Record the relationship stage and update the progress column (1 for yes, 0 for no) as trust builds.",
+        "Move the indicator from Could We to How Would We once they agree to explore a mutual alliance — relationships have to be nurtured through the stages before referrals can be expected.",
+        "Track the number of referrals given by each COI, and how many converted.",
+        "Record the closed fee value that originated from each relationship, so the return on the networking is a number rather than a feeling.",
+        "Review the ones that are not moving: a COI sitting at Could We for months with no fee value is a signal to redirect the networking effort elsewhere."
+      ]
+    },
+    {
+      "id": "get-sales-tracker-team-report",
+      "name": "Team Report",
+      "summary": "Breaks the firm-wide numbers down to the individual: prospects approached, meetings secured, proposals sent, and total value of work won per person. For the advisor it gives an undeniable read on their own average proposal value and win rate. For the firm it locates the training need precisely — an advisor who is excellent at securing meetings but rarely closes needs different coaching from one who cannot get the meeting at all.",
+      "who_when": "One-on-one performance reviews, team accountability meetings, and identifying top performers.",
+      "steps": [
+        "Review each team member's approaches, meetings secured, proposals sent and value secured together — a single metric on its own misleads.",
+        "Compare average proposal value and win rate across the team to see who is strong at which part of the process.",
+        "Where an advisor shows a high number of approaches but an exceptionally low secured conversion, assign a senior partner as Support Staff (Buddy) on their next active prospect.",
+        "Use the pattern rather than the total to choose the coaching — meeting-getting and closing are different skills and need different help.",
+        "Run it monthly alongside the Stats to Date review."
+      ]
+    },
+    {
+      "id": "get-sales-tracker-stats-to-date-dashboard",
+      "name": "Stats to Date Dashboard",
+      "summary": "The macro view of the whole firm: conversion rates by approach style — direct contact against quiz link sent — and by prospect source, referral against social media. It shows which sales style is producing the higher average fee, Campaign or Total Needs, and therefore where the firm's time is best spent. It also separates existing clients from new prospects, which is what reveals whether growth is coming from upselling or from genuinely new business.",
+      "who_when": "Firm owners, managing partners and sales directors needing the firm-wide picture. Reviewed at the end of each month, alongside the Team Report.",
+      "steps": [
+        "At month end, review the total value of work proposed against the value actually secured, and read the win rate from that.",
+        "Compare conversion by approach style — direct contact, pre-approach sequences, gifts, quiz links — and double down on whichever produces the highest percentage of agreeable prospects.",
+        "Compare Campaign against Total Needs on average fee value, to see which style is returning most for the time invested.",
+        "Read the relationship-type split: existing clients against new prospects tells you whether growth is organic upselling or successful lead generation.",
+        "Note how many meetings are actually required to produce one proposal, and use that ratio when planning activity levels.",
+        "Adjust the firm's sales strategy on what the tab shows, then re-read it next month to see whether the change worked."
       ]
     }
   ],
+
   "advisor_guidance": {
     "daily_discipline": "The tracker only works if it is updated daily at the point of activity. End-of-week catch-up entries are less reliable and miss nuance. Make it a non-negotiable habit: every approach is logged on the day it happens.",
     "pipeline_hygiene": "A pipeline full of stalled prospects is not an asset — it is noise. Review Work Days Elapsed weekly and reclassify stalled deals as 'On Hold' or 'Dead' promptly. A clean, realistic pipeline is more useful than an inflated one.",
     "coi_vs_direct": "Track both COI-sourced and directly-sourced leads. The Stats to Date dashboard will show you over time whether your referral network or your direct outreach is generating better quality prospects — and where to invest your BD time accordingly."
-  },
-  "if_then_logic": [
-    {
-      "condition": "The prospect is generated via a 'Cold Target' or 'Social Media' source",
-      "action": "Start with the 'Quiz Link Sent' approach style to qualify their interest before making direct contact.",
-      "context": "Quizzes act as a low-friction barrier — if completed favourably, the prospect is much warmer for a follow-up call than a cold outreach alone would achieve."
-    },
-    {
-      "condition": "The initial engagement is categorised under 'Lite Funda' Sales' or 'Planning Review' meeting theme",
-      "action": "Log the sale under the 'Campaign' sales style track.",
-      "context": "Campaigns are generally faster to close and require less bespoke discovery. Correct categorisation keeps the Stats to Date dashboard accurate."
-    },
-    {
-      "condition": "The prospect requires a 'Full Discovery' or 'Issue Response' engagement",
-      "action": "Utilise the 'Total Needs' tracker and update their progress through 'Scope', 'Analyse Data', and 'Presentation' stages.",
-      "context": "Total Needs selling is bespoke and requires careful staging — no steps should be skipped."
-    },
-    {
-      "condition": "Work Days Elapsed in the Sales Activity Log exceeds 90 days without a job being secured",
-      "action": "Change Prospect Status to 'On Hold' or 'Dead' and move on.",
-      "context": "Keeping stalled prospects marked as Active artificially inflates the pipeline projection and distorts the firm's revenue forecasting."
-    },
-    {
-      "condition": "The Team Report shows an advisor has an exceptionally low Secured Conversion % despite a high number of approaches",
-      "action": "Assign a senior partner as 'Support Staff (Buddy)' on their next Active prospect.",
-      "context": "Tracking allows owners to spot conversion weaknesses and implement peer mentoring to save active deals — without waiting for an annual review."
-    }
-  ]
+  }
 }

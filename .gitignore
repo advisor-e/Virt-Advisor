@@ -36,6 +36,13 @@ logs
 # Generated search exports (not for version control)
 search_content_*.json
 
+# EXCEPTION — Collaborate's template-catalogue snapshot IS version-controlled.
+# It arrived tracked in the Collaborate repo (advisor-e/Colab) and its 17 marketplace
+# tests cannot run without it. The pattern above has no folder anchor, so without this
+# line the file would be invisible to git anywhere in the repo: green on the machine
+# that copied it in, missing on the other machine and in CI.
+!data/collaborate/search_content_20260625201604.json
+
 # Dev-only firm distinctions (created locally when MySQL is unavailable)
 data/dev-firm-distinctions.json
 data/dev-firm-distinction-declines.json
@@ -49,6 +56,13 @@ data/dev-platform-distinctions.json
 
 # Dev-only firm staircase override (created locally when MySQL is unavailable)
 data/dev-firm-staircase.json
+# The four cascade keys, added when the staircase joined the one firm-editable
+# mechanism (2026-07-31). Every sibling above is ignored for the same reason:
+# these hold one firm's dev configuration and must never reach the repo.
+data/dev-firm-staircase-declines.json
+data/dev-firm-staircase-overrides.json
+data/dev-firm-staircase-own.json
+data/dev-firm-staircase-override-baselines.json
 
 # Dev-only firm template import (created locally when MySQL is unavailable)
 data/dev-firm-templates.json
@@ -56,6 +70,21 @@ data/dev-firm-coaching.json
 
 # Dev-only firm quiz overlay (created locally when MySQL is unavailable)
 data/dev-firm-quizzes.json
+# The mechanism's per-question decisions (2026-07-31). Listed WITH the config keys
+# that create them: a new storage key needs a new ignore line, and that was missed
+# twice running before the staircase near-miss made the pattern explicit.
+data/dev-firm-quiz-declines.json
+data/dev-firm-quiz-overrides.json
+data/dev-firm-quiz-own.json
+# Phase 4 drift baselines (2026-08-01) — added with the key, per the rule above.
+data/dev-firm-quiz-override-baselines.json
+
+# Dev-only firm content overlays — domain support + logic trees (created locally when MySQL is unavailable)
+data/dev-firm-domain-support.json
+data/dev-firm-logic-trees.json
+# Dev-only firm section placement overlays (firm re-filing, display-only)
+data/dev-firm-logic-tree-sections.json
+data/dev-firm-domain-support-sections.json
 
 # Dev-only case studies (created locally when MySQL is unavailable)
 data/dev-cases.json
@@ -65,6 +94,10 @@ data/dev-clients.json
 
 # Dev-only courses (created locally when MySQL is unavailable)
 data/dev-courses.json
+
+# Dev-only advisor activity — VA sessions and course completions
+# (created locally when MySQL is unavailable)
+data/dev-activity.json
 
 # Local CA cert bundle (machine-specific export from Windows cert store)
 certs/

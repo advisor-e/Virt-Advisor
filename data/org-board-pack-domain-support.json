@@ -2,7 +2,7 @@
   "domain": "org-board-pack",
   "label": "firm board governance and reporting",
   "trigger_keywords": ["board pack", "board governance", "annual board plan", "risk matrix", "white paper", "board meeting", "quality decisions", "Deming", "governance calendar", "firm reporting", "partner meeting", "strategic review", "board reporting"],
-  "overview": "Board governance in a CA or advisory firm transforms partner meetings from reactive financial discussions into structured, forward-looking governance forums. The board pack is the instrument through which leadership creates accountability, surfaces risk early, and ensures that strategic decisions are made with adequate information and deliberation. The advisory challenge in this domain is twofold: designing the content and structure of the board pack so it enables genuinely useful governance conversations, and developing the decision-making quality of the leadership group so that the governance forum produces consistently good outcomes. W. Edwards Deming's volatility principles and the Quality Decisions framework both address this second challenge — the behavioural and analytical dimensions of high-quality governance.",
+  "overview": "Board governance in a CA or advisory firm transforms partner meetings from reactive financial discussions into structured, forward-looking governance forums. The board pack is the instrument through which leadership creates accountability, surfaces risk early, and ensures that strategic decisions are made with adequate information and deliberation. The advisory challenge in this domain is twofold: designing the content and structure of the board pack so it enables genuinely useful governance conversations, and developing the decision-making quality of the leadership group so that the governance forum produces consistently good outcomes. The table below holds the firm's governance templates — the board agendas and meeting minutes, the annual board plan and document tracker, the board white paper, the quality-decisions material, the risk management cover and the resolution templates — alongside the white paper programme and the Deming volatility material already carried in this domain.",
 
   "diagnostic_entry": {
     "primary_question": "Is the board governance challenge primarily about establishing or restructuring the board pack and reporting framework, managing and communicating firm risks, developing thought leadership through white papers and external content, or improving the quality of decisions made in the governance forum?",
@@ -12,191 +12,160 @@
     "decision_quality": "If the leadership group consistently makes decisions that seem reasonable at the time but produce poor outcomes, the problem is not the information available — it is the decision-making process. The Quality Decisions framework and Deming's volatility principles provide the analytical tools to identify and correct systematic biases in how the governance forum processes information and reaches conclusions."
   },
 
-  "support_tools": [
-
+  "materials": [
     {
-      "name": "Annual Board Plan and Governance Calendar",
-      "purpose": "Provides the structural framework for a year-long board governance program — defining what is reviewed at each meeting, how frequently, and with what preparation requirements — converting ad hoc partner meetings into a disciplined, forward-looking governance cycle.",
-      "core_principle": "Good governance is predictable governance. A board that knows in advance what will be reviewed at each meeting, and receives the materials in sufficient time to prepare, makes better decisions than one that receives information at the meeting and is expected to react immediately.",
-      "when_to_use": "Use at the start of a new financial year when designing or refreshing the firm's governance framework, or when the current partner meeting structure lacks discipline and forward-planning.",
-
-      "governance_calendar_framework": {
-        "meeting_frequency": "At minimum, quarterly partner meetings for strategic governance review. Monthly financial review meetings (which can be shorter and more focused) for WIP, billing, and cash flow management.",
-        "annual_governance_cycle": [
-          {
-            "quarter": "Q1 (July-September)",
-            "agenda_focus": "Annual strategic review — assess progress against prior year objectives, set strategic priorities for the year ahead, review partner performance against agreed metrics, confirm partnership agreements and equity positions are current."
-          },
-          {
-            "quarter": "Q2 (October-December)",
-            "agenda_focus": "Mid-year performance review — WIP and capacity against target, pipeline quality review, risk matrix update, HR and team development review, technology and systems status."
-          },
-          {
-            "quarter": "Q3 (January-March)",
-            "agenda_focus": "Annual planning and budgeting — financial year budget and targets, headcount plan, pricing review, major investment decisions for the year ahead, external environment review."
-          },
-          {
-            "quarter": "Q4 (April-June)",
-            "agenda_focus": "Year-end governance — financial year performance against targets, client portfolio review (including trimming analysis), succession planning status, partner promotion consideration, board pack and governance process review."
-          }
-        ],
-
-        "board_pack_standard_contents": [
-          { "section": "Chair's report", "description": "Brief narrative from the managing partner on the key issues and decisions required at the meeting. Sets the tone and focus before the financial data." },
-          { "section": "Financial summary", "description": "Revenue, WIP, collections, and profit against budget for the period. Exception reporting only — highlight variances above a defined threshold rather than presenting all data." },
-          { "section": "Operational scorecard", "description": "Key operational metrics: utilisation rates, write-off rates, staff turnover, client retention. Trends are more important than point-in-time figures." },
-          { "section": "Risk register update", "description": "Status update on all active risks and any new risks identified since the last meeting. The risk owner reports on the current status and any changes to the likelihood or impact assessment." },
-          { "section": "Strategic initiative status", "description": "Progress update on each active strategic initiative — on track, at risk, or blocked. Brief enough for review but specific enough to support a genuine conversation." },
-          { "section": "Decision log", "description": "Decisions made at the last meeting and status of implementation. Closing the loop on decisions is the mechanism by which governance creates accountability." }
-        ]
-      }
+      "id": "org-board-pack-master-agenda-notes",
+      "name": "Master Agenda & Notes",
+      "summary": "A streamlined meeting template that tracks time allocations, reviews progress against the financial KPIs, captures what has gone well and less well, and records the key takeaways. It is what turns a casual business chat into a structured, accountable meeting, because every item carries a time and an owner. Used alongside the Meeting Minutes, it holds directors to the actions they were assigned last time.",
+      "who_when": "Any firm size running monthly or quarterly board or advisory board meetings — the shorter working-meeting alternative to the full BoardPack Agenda.",
+      "steps": [
+        "Set the time allocation against each agenda item before the meeting, and hold to it on the day.",
+        "Open by reviewing progress since the last meeting — the financial KPIs first, then the action items previously assigned.",
+        "Capture what has gone well and what has gone less well for the period, rather than only reporting the numbers.",
+        "Declare any conflicts of interest before the items they relate to are discussed.",
+        "Close each item with a clear takeaway: what was decided, who owns it, and by when.",
+        "Carry anything unresolved forward onto the next agenda rather than leaving it in the discussion."
+      ]
     },
-
     {
-      "name": "Risk Matrix and Governance",
-      "purpose": "Provides a structured framework for identifying, quantifying, and managing the material risks facing the firm — converting risk awareness from a passive concern into an active governance discipline.",
-      "core_principle": "Risk governance is a forward-looking activity. Its value is not in documenting risks that have already materialised but in systematically identifying what could go wrong before it does — and assigning ownership and mitigation actions while there is still time to act.",
-      "when_to_use": "Use to establish or refresh the firm's risk governance framework, to prepare for an external quality audit or regulatory review, or when a material adverse event has revealed a gap in the firm's risk identification process.",
-
-      "risk_identification_categories": [
-        { "category": "Operational Risk", "examples": ["Key person dependency — the firm is critically dependent on one or two individuals for client relationships", "Technology failure — core practice management systems without adequate backup or redundancy", "Data security breach — client data inadequately protected against external or internal breach"] },
-        { "category": "Financial Risk", "examples": ["Client concentration — more than 20% of revenue from a single client", "Debtor quality — ageing receivables indicating collection risk", "Cash flow timing — seasonal revenue patterns creating short-term liquidity exposure"] },
-        { "category": "People Risk", "examples": ["Staff attrition — loss of key fee earners to competitors", "Succession gap — no credible internal candidates for partner or management roles", "Conduct risk — behaviour or ethics breach creating firm liability"] },
-        { "category": "Professional Risk", "examples": ["Professional indemnity exposure — complex or high-value engagements not adequately scoped and documented", "Compliance risk — regulatory changes not tracked or implemented", "Conflict of interest — inadequate disclosure or management of conflicts"] },
-        { "category": "Strategic Risk", "examples": ["Market disruption — technology or competitive change reducing demand for core service lines", "Partnership fragmentation — material disagreement between partners on firm direction", "Reputation risk — public adverse event or social media exposure"] }
-      ],
-
-      "risk_matrix_methodology": {
-        "likelihood_scale": "1 (Remote — unlikely to occur in the next 3 years), 2 (Possible — may occur in the next 1-3 years), 3 (Likely — expected to occur within 12 months), 4 (Almost Certain — occurring or about to occur)",
-        "impact_scale": "1 (Negligible — no material impact), 2 (Minor — manageable with normal operations), 3 (Moderate — significant disruption or cost), 4 (Severe — existential threat to the firm or a major client relationship)",
-        "risk_score": "Likelihood × Impact. Scores of 9+ are critical risks requiring immediate mitigation. Scores of 6-8 are high risks requiring active management. Scores of 3-5 are medium risks requiring monitoring. Scores below 3 are low risks requiring documentation only.",
-        "risk_ownership": "Every risk on the register must have a named owner who is accountable for the mitigation actions and reports on status at each quarterly board meeting."
-      },
-
-      "risk_treatment_strategies": {
-        "principle": "Once a risk is scored by Probability and Consequence, select a treatment strategy for it. The four strategies are Accept, Avoid, Reduce, and Transfer.",
-        "strategies": [
-          { "name": "Accept", "guidance": "Tolerate the risk where it sits within the firm's risk appetite and the cost of action outweighs the benefit." },
-          { "name": "Avoid", "guidance": "Eliminate the activity or exposure that creates the risk." },
-          { "name": "Reduce", "guidance": "Take action to lower the likelihood or the impact of the risk." },
-          { "name": "Transfer", "guidance": "Shift the risk to another party — for example through insurance or contractual terms." }
-        ]
-      },
-
-      "board_accountability_signoff": {
-        "boardpack_table": "Where directors arrive at meetings unprepared, implement the Boardpack Table tracker: each director signs off that they have 'Read and Understood' the required documents (financials, legal, and board papers) before the meeting.",
-        "purpose": "Converts a casual business chat into a structured, accountable board meeting and creates an evidence trail that each director engaged with the material."
-      }
+      "id": "org-board-pack-risk-mgt-cover",
+      "name": "Risk Mgt Cover",
+      "summary": "A formal risk management process built on the Risk Tactics Matrix, which evaluates every threat by probability and consequence. Where a risk lands on the matrix decides the strategy: Accept it as it stands, Avoid the activity, Reduce the exposure, or Transfer it to a third party by insurance or contract. Treated as a living document rather than an annual compliance exercise, it is what moves risk from something discovered in hindsight to something managed in advance.",
+      "who_when": "Firms exposed to market volatility or operational threats, and any board preparing for an external quality audit or regulatory review. Reviewed at every board meeting, with a named owner reporting on each risk.",
+      "steps": [
+        "Brainstorm the risks facing the firm across the categories that matter: operational, financial, people, professional and strategic.",
+        "Score each risk on the matrix by Probability (how likely it is) and Consequence (how severe the loss would be).",
+        "Choose one of the four strategies for each risk: Accept (undertake it as is), Avoid (cease the activity), Reduce (limit the exposure) or Transfer (insure it, or share it with a third party).",
+        "Give every risk on the register a named owner who is accountable for the mitigation actions.",
+        "Have each risk owner report status at the board meeting — a register reviewed quarterly with named owners will be maintained; one treated as an annual compliance exercise will be neglected.",
+        "Keep it a living document: continually brainstorm new risks, re-evaluate the existing ones on the matrix, and update the mitigation plan."
+      ]
     },
-
     {
+      "id": "org-board-pack-annual-board-plan",
+      "name": "Annual Board Plan",
+      "summary": "A 12-month calendar mapping the scheduled strategic board items — budgets, the CEO performance review, annual financials, technology policy, the culture review — one core theme to each month. It stops the board being bogged down in reactive, day-to-day issues by guaranteeing the high-level topics are addressed systematically across the year. For the advisor it means thematic advisory sessions can be prepared well in advance.",
+      "who_when": "Maturing firms moving from ad-hoc planning to an institutionalised annual governance rhythm. Set at the start of the financial year, then reviewed as part of year-end governance.",
+      "steps": [
+        "Start the governance year with the Annual Board Plan and plot out the next 12 months.",
+        "Assign one core strategic theme to each month — for example Strategic Scenario Planning in February, Budgets in April, the CEO Performance Review in May, the Internal Business Culture Review in July, Technology Policy in September.",
+        "Schedule the recurring governance items alongside the themes: annual financials, director succession, and the board's own performance review.",
+        "Confirm the meeting rhythm the plan assumes — at minimum quarterly strategic meetings, with shorter monthly financial reviews covering WIP, billing and cash flow.",
+        "Publish the plan so directors know what is coming and can prepare for it rather than react to it.",
+        "Review the plan at year end and reset the themes for the year ahead."
+      ]
+    },
+    {
+      "id": "org-board-pack-board-white-paper",
+      "name": "Board White Paper",
+      "summary": "The standard format for pitching a new idea or a major purchase to the board: an executive summary, the historical context, the suggested solution, the measurable benefits, and an analysis of the alternatives. It removes gut-feeling pitches from the boardroom by forcing research and a written business case before capital is committed. It also gives the advisor a clear frame for drafting or reviewing a strategic expansion plan.",
+      "who_when": "Firms evaluating a major expenditure, a merger, a new market entry or a significant internal change. Circulated with the board pack, ahead of the meeting at which the decision will be taken.",
+      "steps": [
+        "Require a white paper for any major new initiative before it reaches a vote.",
+        "Open with an executive summary of what is being proposed and what it will cost.",
+        "Set out the historical context — how the firm arrived at this point and what has already been tried.",
+        "State the suggested solution and the measurable benefits expected from it.",
+        "Analyse the alternative solutions honestly, including doing nothing, and say why each was not chosen.",
+        "Present the feasibility data and the risk of failure, then circulate the paper with the board pack for reading before the meeting."
+      ]
+    },
+    {
+      "id": "org-board-pack-boardpack-agenda",
+      "name": "BoardPack Agenda",
+      "summary": "The full board meeting agenda, allocating specific timeframes to board-only time, conflict of interest declarations, reports, scheduled items and resolutions. Ring-fencing time for general business is what stops the meeting collapsing into an operational status update, because the scheduled strategic items keep their slot. It is distributed ahead of the meeting together with the papers directors are expected to have read.",
+      "who_when": "Firms running a formal board or advisory board, at each scheduled meeting. Distributed roughly two weeks beforehand.",
+      "steps": [
+        "Two weeks before the meeting, distribute the agenda together with the previous Meeting Minutes and any Board White Papers for upcoming decisions.",
+        "Allocate a specific timeframe to each section: board-only time, conflict declarations, reports, scheduled items and resolutions.",
+        "Put the scheduled strategic items from the Annual Board Plan on the agenda first, and ring-fence general business so it cannot expand into the whole meeting.",
+        "Include the standing items: the chair's report, the financial summary against budget, the operational scorecard, the risk register update, strategic initiative status, and the decision log from the last meeting.",
+        "Report the financials by exception — highlight variances above a defined threshold rather than presenting every figure.",
+        "Follow the agenda strictly on the day."
+      ]
+    },
+    {
+      "id": "org-board-pack-meeting-minutes",
+      "name": "Meeting Minutes",
+      "summary": "The formal record of the meeting: attendance, apologies, guests, the scribe, and the matters discussed and approved. Minutes are what legally record decisions and hold directors accountable for what they were assigned, so they are filled in during the meeting rather than reconstructed afterwards. They are circulated with the next agenda, which is what closes the loop on every action.",
+      "who_when": "Every board or advisory board meeting, in any size of firm. Written live by a named scribe.",
+      "steps": [
+        "Appoint a scribe before the meeting starts, and record attendance, apologies and guests.",
+        "Fill the minutes out actively during the meeting rather than writing them up from memory later.",
+        "Record each matter discussed, the decision reached, and who is accountable for the follow-up.",
+        "Note any declared conflicts of interest against the items they relate to.",
+        "Circulate the minutes with the next BoardPack Agenda so the previous meeting's actions are reviewed."
+      ]
+    },
+    {
+      "id": "org-board-pack-boardpack-table",
+      "name": "Boardpack Table",
+      "summary": "A compliance tracking sheet listing every document issued for the meeting — agendas, CEO reports, financials, major correspondence — with a checkbox for each director to confirm they have read and understood it. It prevents time being wasted in the room bringing people up to speed, and means every director debates from the same factual baseline. It also creates the evidence trail that each director engaged with the material.",
+      "who_when": "Boards where directors are arriving unprepared or unread. Completed by each director before the meeting begins.",
+      "steps": [
+        "List every document issued for the meeting on the tracker: agenda, CEO report, financials, legal and major correspondence.",
+        "Send the tracker out with the board pack, not at the meeting.",
+        "Require each director to tick 'Read and Understood' against each document before they are allowed to debate.",
+        "Where a director has not read a paper, hold the item over rather than briefing the room verbally.",
+        "Keep the completed tracker with the meeting minutes as the record that directors engaged with the material."
+      ]
+    },
+    {
+      "id": "org-board-pack-quality-decisions",
+      "name": "Quality Decisions",
+      "summary": "Educational material on why capable boards still make poor decisions: the Psyche Errors — optimism bias, confirmation bias, complacency — and the rules for telling causation from correlation or coincidence. It introduces the Decision Workpaper, which records the problem, the options considered, the logic behind the route chosen, the counter-arguments and the early failure indicators. The frameworks behind it — the 5 Whys, Deming's Theory of Volatility, double-blind testing — let an advisor challenge an owner's assumptions safely.",
+      "who_when": "High-growth firms, firms in transition or succession, and boards prone to emotional or heavily biased decision-making. Used in the meeting itself, whenever a complex problem arises.",
+      "steps": [
+        "When a complex problem arises in the meeting, stop and state the decision to be made in a single sentence before any discussion begins.",
+        "Ask explicitly whether the board has the information it needs — a decision made without it is a guess, and the board should know when it is guessing.",
+        "Document the problem and the alternative solutions on a Decision Workpaper, with the logic supporting the route chosen and the counter-arguments against it.",
+        "Test the reasoning for Psyche Errors — optimism bias, where the reward is wanted badly enough to ignore negative information; confirmation bias; and complacency.",
+        "Where the decision rests on a movement in the numbers, apply the data rules: establish whether the relationship is causation, correlation or coincidence, and whether the cause is common, special or seasonal.",
+        "Assume the decision has failed twelve months from now, name the most likely reasons, and convert those into the early failure indicators recorded on the workpaper.",
+        "Assign someone to argue the strongest case against the decision before it is taken, so the counter-argument is heard regardless of the social dynamics in the room.",
+        "Record what was decided, who was present, the key considerations, and when the decision will be reviewed."
+      ]
+    },
+    {
+      "id": "org-board-pack-resolutions",
+      "name": "Resolutions",
+      "summary": "The legal templates that formally authorise a major financial or structural move — raising capital, paying dividends, buying a major asset, launching a new company. Signing one creates a legally binding, auditable trail of the directors' unanimous or majority vote, which is what protects the corporate veil. It is drafted at the meeting where the decision is made, not weeks afterwards.",
+      "who_when": "Incorporated firms executing binding financial commitments or structural changes. Drafted and signed at the meeting itself, immediately after the decision.",
+      "steps": [
+        "Identify the decisions that require a formal resolution: raising capital, paying dividends, major asset purchases, and structural or company changes.",
+        "Select the matching resolution template rather than drafting from scratch.",
+        "Draft it during the meeting, while the decision and its terms are fresh.",
+        "Capture the date, the location, and whether the vote was unanimous or by majority.",
+        "Have all directors sign, and file the signed resolution with the meeting minutes."
+      ]
+    },
+    {
+      "id": "org-board-pack-white-paper-program",
       "name": "White Paper Program",
-      "purpose": "Provides a structured framework for producing firm-branded thought leadership content — white papers, technical updates, and market commentary — that positions the firm as an authority in its chosen market segments and generates inbound client and referral engagement.",
-      "core_principle": "A white paper program serves multiple strategic objectives simultaneously: it creates content for COI and client engagement, it develops the technical and communication capabilities of the advisors who produce them, and it generates a compounding asset of intellectual property that represents the firm's knowledge base in tangible form.",
-      "when_to_use": "Use when the firm is seeking to build market profile in a specific industry or service niche, when the BD pipeline relies too heavily on reactive referrals and not enough on inbound enquiries, or when developing the advisory and communication capabilities of senior staff.",
-
-      "white_paper_development_process": {
-        "topic_selection": "Choose topics that sit at the intersection of the firm's deepest expertise and the client's most pressing concerns. The best white paper topics are those where the firm has a genuinely differentiated perspective — not a summary of publicly available information.",
-        "structure": [
-          { "section": "Executive Summary", "description": "2-3 paragraph summary of the key insight and implications. Written last but positioned first. Must be compelling enough to make a time-pressured reader continue." },
-          { "section": "Problem or Opportunity Definition", "description": "Define the specific challenge or opportunity being addressed. Quantify it where possible — the more concrete the problem definition, the more the reader will recognise their own situation." },
-          { "section": "Analysis", "description": "The firm's expert analysis of the problem — data, frameworks, case evidence. This is where the firm's unique perspective must be most visible." },
-          { "section": "Implications", "description": "What the analysis means for the reader's specific context. Generic implications are of no value — connect the analysis directly to the decisions the reader needs to make." },
-          { "section": "Recommended Actions", "description": "Specific, actionable next steps. White papers that end with 'more research is needed' or 'the answer depends on your circumstances' fail to create the engagement they are designed to generate." }
-        ],
-        "distribution_strategy": [
-          "Direct email to existing clients — frame as a value-add resource, not a sales document",
-          "COI distribution — share with referral partners as a conversation starter",
-          "LinkedIn publication — drives inbound enquiries from prospects in the target segment",
-          "Seminar or webinar anchor — use the white paper as the basis for a client education event",
-          "Regulatory or industry submission — where the topic is policy-relevant, submission to regulators or industry bodies creates external credibility"
-        ]
-      }
-    },
-
-    {
-      "name": "Quality Decisions Framework",
-      "purpose": "Provides a structured process for improving the quality of decisions made in the governance forum — reducing the influence of cognitive biases, ensuring adequate information is available before decisions are made, and creating accountability for decision outcomes.",
-      "core_principle": "Most governance failures are not information failures — the information was available. They are decision process failures — the governance forum did not engage with the information rigorously enough, or was subject to group dynamics (dominant voices, conflict avoidance, social proof) that substituted for independent analysis.",
-      "when_to_use": "Use when the leadership group is consistently making decisions that produce poor outcomes, when one or two voices consistently dominate the governance forum, or when the firm is facing a material decision that requires structured deliberation.",
-
-      "decision_quality_standards": [
-        {
-          "standard": "Decision framing",
-          "description": "State the decision to be made in a single sentence before any discussion begins. Many governance discussions fail because different participants believe they are deciding different things. The discipline of framing the decision precisely before discussion starts prevents this failure."
-        },
-        {
-          "standard": "Information sufficiency test",
-          "description": "Before deciding, explicitly ask: do we have the information we need to make this decision well? If not, what is missing and what is the cost of delay? A decision made without sufficient information is a guess — the governance forum should know when it is guessing."
-        },
-        {
-          "standard": "Pre-mortem analysis",
-          "description": "Before committing to a decision, conduct a brief pre-mortem: assume the decision has failed in 12 months and identify the most likely causes. This technique surfaces concerns that participants are reluctant to raise in a forward-looking discussion but are willing to raise in a hypothetical failure analysis."
-        },
-        {
-          "standard": "Devil's advocate assignment",
-          "description": "For significant decisions, formally assign one participant the role of Devil's Advocate — tasked with articulating the strongest case against the proposed decision. This role protects the forum from groupthink and ensures that counter-arguments are heard regardless of the social dynamics in the room."
-        },
-        {
-          "standard": "Decision record",
-          "description": "Document every governance decision: what was decided, who was present, what the key considerations were, and when the decision will be reviewed. The decision record creates accountability and enables the governance forum to learn from its decisions over time."
-        }
+      "summary": "A programme for producing firm-branded thought leadership — white papers, technical updates and market commentary — that positions the firm as an authority in its chosen segments. It creates conversation starters for clients and referral partners, drives inbound enquiries, and develops the technical and writing capability of the advisors who produce them. The best topics sit where the firm's deepest expertise meets the client's most pressing concern.",
+      "who_when": "Firms building market profile in a specific industry or service niche, or whose pipeline relies too heavily on reactive referrals. Run as an ongoing programme with a named author per paper.",
+      "steps": [
+        "Choose a topic where the firm has a genuinely differentiated perspective, not a summary of publicly available information.",
+        "Assign one named author per paper, with a deadline and a first-draft review date — white papers are never urgent, and without one they are always displaced by billable work.",
+        "Structure the paper: executive summary, the problem or opportunity defined and quantified, the firm's analysis, the implications for the reader, then specific recommended actions.",
+        "Write the executive summary last and position it first; it has to be compelling enough for a time-pressured reader to continue.",
+        "End with actionable next steps — a paper that closes with 'it depends on your circumstances' creates none of the engagement it was written for.",
+        "Distribute deliberately: direct to clients as a value-add resource, to COIs as a conversation starter, on LinkedIn for inbound enquiries, and as the anchor for a seminar or webinar.",
+        "Hold a short check-in with each author midway between assignment and deadline."
       ]
     },
-
     {
+      "id": "org-board-pack-deming-s-volatility-principles-in-governance",
       "name": "Deming's Volatility Principles in Governance",
-      "purpose": "Applies W. Edwards Deming's principles of statistical variation and process management to the governance forum — helping leadership teams distinguish between random variation in performance metrics and genuine signals that require a management response.",
-      "core_principle": "Deming's central insight for governance contexts is that most management interventions are responses to random variation, not genuine signals. A month of below-budget revenue is usually the result of normal process variation, not a fundamental problem requiring intervention. Leaders who react to random variation create instability and destroy the trust of their teams. Learning to separate signal from noise is one of the highest-leverage governance skills.",
-      "when_to_use": "Use when the governance forum is consistently making reactive decisions in response to short-term performance fluctuations, when leadership is micromanaging operational staff based on month-to-month variance, or when introducing a new performance metric to the board reporting framework.",
-
-      "deming_concepts_for_governance": [
-        {
-          "concept": "Common Cause Variation",
-          "description": "Variation that is inherent in the process — the natural fluctuation that occurs in any complex system operating normally. Revenue that varies by 5-10% month-to-month in a professional services firm is almost always common cause variation. Intervening in common cause variation makes the system less stable, not more.",
-          "governance_application": "Before reacting to a performance metric, establish the normal variation range (upper and lower control limits). Only intervene when the metric is outside the control limits — not when it is simply below the budget figure for one period."
-        },
-        {
-          "concept": "Special Cause Variation",
-          "description": "Variation caused by a specific, identifiable factor outside the normal system — a key client loss, a market event, a new competitor, a process failure. Special cause variation requires investigation and targeted intervention.",
-          "governance_application": "When a metric is outside the established control limits, the governance response is to identify the special cause before deciding on any intervention. Acting on special cause variation without identifying the cause creates a second failure: the wrong intervention."
-        },
-        {
-          "concept": "Tampering",
-          "description": "Deming's term for management interventions that respond to common cause variation as if it were special cause — making adjustments to a system that is operating normally, which increases total variation rather than reducing it.",
-          "governance_application": "The most common form of tampering in governance forums is changing strategy or process in response to one or two bad months. If the system is in control — operating within its normal variation range — the correct governance response is observation and understanding, not intervention."
-        },
-        {
-          "concept": "PDCA Cycle",
-          "description": "Plan-Do-Check-Act: Deming's continuous improvement cycle. Plan the change, implement it at a small scale, check the results against the plan, act by standardising what worked or returning to the Plan step if it did not.",
-          "governance_application": "Any significant operational change — new technology, new process, new service line — should be piloted using the PDCA cycle before full implementation. This prevents the firm from investing fully in a change before the evidence of its effectiveness is available."
-        }
-      ]
-    },
-
-    {
-      "name": "Board Governance — If-Then Guidance",
-      "purpose": "Decision logic for the most common board governance complications — meeting dominance, risk register neglect, white paper stall, and decision outcome accountability.",
-      "if_then_logic": [
-        {
-          "condition": "One or two partners consistently dominate the governance forum and others are not contributing",
-          "action": "Restructure the meeting format to require written pre-read positions from all partners before the meeting. This forces independent thinking before the dominant voice is heard. At the meeting, go around the table for initial positions before open discussion — once everyone has stated a position on the record, the social dynamics that enable dominance are significantly reduced."
-        },
-        {
-          "condition": "The risk register is not being updated and risk owners are not reporting to the board",
-          "action": "Risk governance will not be self-sustaining without explicit accountability. Add risk register updates as a standing agenda item — each risk owner is required to provide a brief written update before the meeting and speak to it in the session. A risk register that is reviewed quarterly in the board meeting, with named owners reporting, will be maintained. One that is treated as an annual compliance exercise will be neglected."
-        },
-        {
-          "condition": "The white paper program has produced no content despite initial enthusiasm",
-          "action": "The most common cause of white paper stall is that the responsibility is not specific enough. Assign one named author per paper with a defined deadline and a first draft review date. The managing partner should schedule a brief (20-minute) check-in with each author at the midpoint between assignment and deadline. White papers are never urgent — without a specific deadline and accountability, they will always be displaced by billable work."
-        },
-        {
-          "condition": "The governance forum is revisiting decisions that were already made because the outcomes have been disappointing",
-          "action": "Distinguish between revisiting a decision because new information has emerged (appropriate) and revisiting a decision because the outcome was uncomfortable (governance failure). Review the decision record — if the decision was made on adequate information with appropriate deliberation, the governance response is to manage the outcome, not to relitigate the decision. If the decision was made without adequate process, use the failure as the impetus to implement the Quality Decisions framework."
-        }
+      "summary": "Applies W. Edwards Deming's work on variation to the board table: most management interventions are responses to random noise rather than to a genuine signal. Common cause variation is the normal fluctuation of a system that is working properly; special cause variation comes from an identifiable event and warrants investigation. Reacting to the first — what Deming called tampering — makes the firm less stable, not more.",
+      "who_when": "Boards making reactive decisions off short-term performance swings, or introducing a new metric into the reporting pack.",
+      "steps": [
+        "Establish the normal variation range for each board metric — its upper and lower limits — before reacting to any single period.",
+        "Ask of every movement: is this signal, or is it noise?",
+        "Where the metric sits inside its normal range, observe and seek to understand it; do not change strategy or process off one or two bad months.",
+        "Where it sits outside the range, identify the special cause before choosing any intervention — acting without identifying the cause creates a second failure.",
+        "Pilot any significant operational change through Plan-Do-Check-Act before implementing it fully: plan the change, run it small, check the results against the plan, then standardise what worked or return to planning."
       ]
     }
-
   ],
 
   "advisor_guidance": {
