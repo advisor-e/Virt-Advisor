@@ -61,18 +61,43 @@ const BATTERY_FIELDS = new Set([
 // The AI reads all distinction descriptions against the advisor's text and returns
 // which ones apply semantically — regardless of exact wording used.
 // Triggers (if present) are included as examples to guide the AI, not as exact matches.
+//
+// EVERY phrase a row carries is sent. Ruled 2026-08-01 (Mike), after this code was found
+// sending only `triggers.slice(0, 5)` while FirmManagerHub renders the whole list and
+// invites more — 56 of 67 committed rows carried more than five, so 67 firm-authored
+// phrases provably never reached the model. The defect was the silence, not the loss:
+// these are examples the classifier reads semantically, not gates. Cost of removing the
+// slice, measured before the change: +247 characters (~60 tokens) on the largest domain,
+// because the prompt only ever carries ONE domain's rows, never all 67.
+//
+// The ceiling below is a GUARD against an unbounded firm edit, not a content decision —
+// the save routes (routes/firmManager.js, routes/mentor.js) reject an empty triggers
+// array but set no upper bound, so a paste could otherwise send a thousand phrases into
+// a live model call. It sits ~3x clear of the largest committed row (8 phrases), and
+// anything beyond it is COUNTED AND ANNOUNCED, never trimmed in silence (no-silent-caps
+// rule). tests/unit/distinctionTriggerExamples.test.js fails if real content nears it.
+const DISTINCTION_TRIGGER_EXAMPLE_CAP = 25
+
 // Core AI matcher: given distinction rows + the advisor's text, returns the rows that
 // semantically match. Shared by in-domain boosting (classifyDistinctions) and the
 // cross-domain near-miss bridge (findNearMissDistinctions).
 async function _classifyMatchingRows (rows, advisorText, label) {
   if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return [] }
 
+  let phrasesIgnored = 0
   const patternList = rows.map((row, i) => {
-    const examples = (row.triggers || []).length > 0
-      ? ` (example phrases: ${row.triggers.slice(0, 5).join(', ')})`
+    const all = Array.isArray(row.triggers) ? row.triggers : []
+    if (all.length > DISTINCTION_TRIGGER_EXAMPLE_CAP) {
+      phrasesIgnored += all.length - DISTINCTION_TRIGGER_EXAMPLE_CAP
+    }
+    const examples = all.length > 0
+      ? ` (example phrases: ${all.slice(0, DISTINCTION_TRIGGER_EXAMPLE_CAP).join(', ')})`
       : ''
     return `${i + 1}. ${row.description}${examples}`
   }).join('\n')
+  if (phrasesIgnored > 0) {
+    console.warn(`[advisor] ${label || 'distinction-classify'}: ${phrasesIgnored} trigger phrase(s) exceeded the ${DISTINCTION_TRIGGER_EXAMPLE_CAP}-per-row example cap and were NOT sent to the classifier`)
+  }
 
   const prompt = `You are evaluating whether an advisor's description of a client situation matches any of the following advisory patterns. A match means the advisor's text meaningfully suggests that situation — it does not need to use the exact words.
 
@@ -3330,6 +3355,9 @@ module.exports.MEETING_MAX = MEETING_MAX
 module.exports.buildIntakeMessages = buildIntakeMessages
 module.exports.classifyDistinctions = classifyDistinctions
 module.exports.findNearMissDistinctions = findNearMissDistinctions
+// Exported so a screen or test reads THE number rather than hard-coding a second copy
+// that drifts from the engine — the failure this week's routing defects were made of.
+module.exports.DISTINCTION_TRIGGER_EXAMPLE_CAP = DISTINCTION_TRIGGER_EXAMPLE_CAP
 module.exports.extractSavedClientFactsFromCases = extractSavedClientFactsFromCases
 module.exports.resolveSavedClientContext = resolveSavedClientContext
 module.exports.parseSavedFactAnswer = parseSavedFactAnswer
