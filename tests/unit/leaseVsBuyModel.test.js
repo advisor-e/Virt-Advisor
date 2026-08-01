@@ -201,14 +201,39 @@ describe('Lease vs Buy — golden values from CM.Lease vs. Buy.xlsx', () => {
       expect(inf.buy.totalNet).toBeCloseTo(r.buy.totalNet, 6)
     })
 
-    it('⚠ CURRENT BEHAVIOUR — a text value is substituted WITHOUT being declared', () => {
-      // Pinned deliberately, not endorsed. A field that is absent is named in
-      // `defaultedInputs` (the R8 ruling, tested above); a field present but unusable is
-      // silently replaced by the sample and named nowhere, so the caller is told the
-      // figure is theirs. Raised with the owner 2026-08-02. If this is later ruled a
-      // defect, the fix will fail THIS test rather than pass quietly.
+    it('a text value is substituted AND declared (R8, ruled 2026-08-02)', () => {
+      // Was pinned as "⚠ CURRENT BEHAVIOUR — substituted WITHOUT being declared" until
+      // Mike ruled it a defect on 2026-08-02. A field that is absent is named in
+      // `defaultedInputs`; a field present but unusable was silently replaced by the
+      // sample and named nowhere, so the caller was told the figure was the client's
+      // when it was the workbook's. Absent and unusable are now the same case.
       const out = computeLeaseVsBuy(Object.assign(sample(), { deposit: 'eight thousand' }))
+      expect(out.defaultedInputs).toContain('deposit')
+    })
+
+    it('NaN and Infinity are declared too, not just unparseable text', () => {
+      // typeof is 'number' for both, so only the finiteness half of `usable()` catches
+      // them — the half a "is it a string?" check would have missed.
+      const nan = computeLeaseVsBuy(Object.assign(sample(), { deposit: NaN }))
+      const inf = computeLeaseVsBuy(Object.assign(sample(), { deposit: Infinity }))
+      expect(nan.defaultedInputs).toContain('deposit')
+      expect(inf.defaultedInputs).toContain('deposit')
+    })
+
+    it('a numeric string is the client\'s own figure and is NOT declared', () => {
+      // The opposite error would be as bad: raw JSON legitimately carries '8500' from a
+      // text input, and calling that a default would cry wolf on every real run.
+      const out = computeLeaseVsBuy(Object.assign(sample(), { deposit: '8500' }))
       expect(out.defaultedInputs).not.toContain('deposit')
+      expect(out.buy.totalNet).toBeCloseTo(r.buy.totalNet, 6) // '8500' IS the sample deposit
+    })
+
+    it('a zero is a real figure, not a missing one', () => {
+      // The trap in every "is it filled?" test: 0 is falsy but perfectly valid — a
+      // client with no deposit must not be told we invented the number.
+      const out = computeLeaseVsBuy(Object.assign(sample(), { deposit: 0 }))
+      expect(out.defaultedInputs).not.toContain('deposit')
+      expect(out.buy.totalNet).toBeGreaterThan(r.buy.totalNet) // more financed, more cost
     })
 
     it('a zero servicing interval yields no servicing cost, never Infinity', () => {

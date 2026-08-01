@@ -51,7 +51,7 @@ const advisors = [
     firmManager: true
   },
   {
-    id: 'priya-nair', name: 'Priya Nair', title: 'Senior Adviser',
+    id: 'priya-nair', name: 'Priya Nair', title: 'Senior Advisor',
     globalGroup: 'Advisor-e', country: 'DE', firm: 'Advisor-e Munich',
     city: 'Munich', timezone: 'CET', linkedin: '',
     available: true, strengths: ['restructuring', 'cashflow'], industries: ['retail', 'manufacturing'],
@@ -68,7 +68,7 @@ const advisors = [
     blockFirmManagerView: true, lastActive: '1 week ago'
   },
   {
-    id: 'tom-fischer', name: 'Tom Fischer', title: 'Adviser',
+    id: 'tom-fischer', name: 'Tom Fischer', title: 'Advisor',
     globalGroup: 'Advisor-e', country: 'DE', firm: 'Advisor-e Berlin',
     city: 'Berlin', timezone: 'CET', linkedin: '',
     available: false, strengths: ['tax', 'compliance'], industries: ['professional services'],
@@ -76,7 +76,7 @@ const advisors = [
     blockFirmManagerView: false, lastActive: '2 days ago'
   },
   {
-    id: 'lena-vogel', name: 'Lena Vogel', title: 'Adviser',
+    id: 'lena-vogel', name: 'Lena Vogel', title: 'Advisor',
     globalGroup: 'Advisor-e', country: 'DE', firm: 'Advisor-e Hamburg',
     city: 'Hamburg', timezone: 'CET', linkedin: '',
     available: true, strengths: ['forecasting', 'reporting'], industries: ['seafood', 'logistics'],
@@ -84,7 +84,7 @@ const advisors = [
     blockFirmManagerView: false, lastActive: 'Yesterday'
   },
   {
-    id: 'sofia-marchetti', name: 'Sofia Marchetti', title: 'Adviser',
+    id: 'sofia-marchetti', name: 'Sofia Marchetti', title: 'Advisor',
     globalGroup: 'Advisor-e', country: 'IT', firm: 'Advisor-e Milan',
     city: 'Milan', timezone: 'CET', linkedin: '',
     available: true, strengths: ['valuation', 'M&A'], industries: ['food production', 'hospitality'],
@@ -92,7 +92,7 @@ const advisors = [
     blockFirmManagerView: false, lastActive: 'Today'
   },
   {
-    id: 'sara-okafor', name: 'Sara Okafor', title: 'Senior Adviser',
+    id: 'sara-okafor', name: 'Sara Okafor', title: 'Senior Advisor',
     globalGroup: 'Advisor-e', country: 'IE', firm: 'Advisor-e Dublin',
     city: 'Dublin', timezone: 'GMT', linkedin: '',
     available: true, strengths: ['business coaching', 'succession'], industries: ['hospitality', 'retail'],

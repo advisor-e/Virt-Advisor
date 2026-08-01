@@ -43,7 +43,8 @@
  *     zero-out past the loan / lease term, so the caps never bind. Kept.
  *
  * Defaults NEVER substitute silently (the R8 ruling, 2026-07-19): any input that
- * fell back to the workbook's sample value is named in the result's `defaultedInputs`.
+ * fell back to the workbook's sample value is named in the result's `defaultedInputs` —
+ * whether it was absent or present-but-unusable (see `usable()`).
  *
  * Class: **Decision** (see `design/MODEL-CLASSIFICATION.md`) — the client's real
  * figures, typed in. No file intake, nothing goes to an LLM.
@@ -68,6 +69,24 @@ function num (v, fallback) {
   if (typeof v === 'number') { return Number.isFinite(v) ? v : fallback }
   const n = parseFloat(v)
   return Number.isFinite(n) ? n : fallback
+}
+
+/**
+ * The R8 test for "the caller actually supplied this figure".
+ *
+ * A value that is PRESENT but unusable — `'eight thousand'`, `NaN`, `Infinity`, `''` —
+ * is not a supplied figure; it falls back to the sample exactly as an absent one does,
+ * so it must be named in `defaultedInputs` exactly as an absent one is. Before
+ * 2026-08-02 only absence was tested, so a mistyped figure was replaced in silence and
+ * the caller was told the number was the client's when it was the workbook's.
+ *
+ * @param {*} v
+ * @returns {boolean}
+ */
+function usable (v) {
+  if (typeof v === 'number') { return Number.isFinite(v) }
+  if (v === null || v === undefined || v === '') { return false }
+  return Number.isFinite(parseFloat(v))
 }
 
 /** Guard every division: a zero denominator yields 0, never NaN/Infinity. */
@@ -225,17 +244,18 @@ function depreciate (isDiminishing, cost, rate, years) {
 /**
  * Compute the full Lease vs Buy comparison from a flat inputs object.
  *
- * @param {object} inputs  any subset of DEFAULT_INPUTS' keys; missing keys fall back
- *                         to the workbook sample and are named in `defaultedInputs`.
+ * @param {object} inputs  any subset of DEFAULT_INPUTS' keys; a key that is missing —
+ *                         or present but unusable as a number — falls back to the
+ *                         workbook sample and is named in `defaultedInputs`.
  * @returns {object} the assembled payload (see the return statement).
  */
 function computeLeaseVsBuy (inputs) {
   const src = (inputs && typeof inputs === 'object') ? inputs : {}
   const defaultedInputs = []
 
-  /** Pick a numeric field, recording a fallback in `defaultedInputs`. */
+  /** Pick a numeric field, recording a fallback in `defaultedInputs` — see `usable()`. */
   const n = (key) => {
-    if (src[key] === undefined || src[key] === null || src[key] === '') {
+    if (!usable(src[key])) {
       defaultedInputs.push(key)
       return DEFAULT_INPUTS[key]
     }
