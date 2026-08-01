@@ -25,7 +25,22 @@ Getting the repo running on a developer machine. The runtime is **locked to Node
 
 - **Node.js 14.15** as the active runtime (via nvm). If a system-wide Node install shadows nvm on `PATH`, invoke the 14.15 binary by its **exact path** for every command rather than relying on `nvm use`.
 - **npm 8** for installs — the `overrides` block in `package.json` (`shell-quote`, `@nuxt/friendly-errors-webpack-plugin`) is **silently ignored by the bundled npm 6**.
-- **`NODE_EXTRA_CA_CERTS`** on any network doing TLS interception (corporate proxy / AV that re-signs HTTPS). Without it, `npm install` fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` and the backend's OpenAI TLS call fails. The committed dev bundle is `certs/digicert-bundle.pem`, and the `dev`/`start` npm scripts already point `NODE_EXTRA_CA_CERTS` at it; substitute your own trusted root CA in your environment.
+- **`NODE_EXTRA_CA_CERTS`** on any network doing TLS interception (corporate proxy / AV that re-signs HTTPS). Without it, `npm install` fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` and the backend's OpenAI TLS call fails. The committed bundle is `certs/digicert-bundle.pem`, and the `dev`/`start` npm scripts point at it.
+
+  > **⚠ The committed bundle is NOT enough for the OpenAI call on a machine running antivirus HTTPS scanning.** Verified on the desktop, 2026-08-02: `certs/digicert-bundle.pem` holds DigiCert roots and satisfies the **npm registry** chain (the audit gate passes with it), but `api.openai.com` is re-signed by `CN=Avast Web/Mail Shield Root`, which is not in that bundle. Every OpenAI call then fails `UNABLE_TO_VERIFY_LEAF_SIGNATURE` **in about 20 ms** — fast enough to look like a network outage rather than a certificate problem, which is exactly how it was misdiagnosed.
+  >
+  > **Fix — trust only what the machine already trusts.** Export the interceptor's root from the OS trust store and point `NODE_EXTRA_CA_CERTS` at that file (keep it OUTSIDE the repo — it is specific to one machine and does not belong in version control):
+  >
+  > ```powershell
+  > # Windows: find the interceptor, then write it out as PEM
+  > Get-ChildItem Cert:\LocalMachine\Root | Where-Object { $_.Subject -like "*Avast*" }
+  > # wrap [System.Convert]::ToBase64String($cert.RawData,'InsertLineBreaks')
+  > # in -----BEGIN CERTIFICATE----- / -----END CERTIFICATE-----
+  > ```
+  >
+  > Confirm the chain first with `tls.connect` and `getPeerCertificate(true)` — the issuer CN names the interceptor, so you fix the right one instead of guessing.
+  >
+  > **Never set `NODE_TLS_REJECT_UNAUTHORIZED=0`.** It disables verification process-wide on calls that carry the OpenAI API key. That is faking a fix, not making one.
 
 **Install**
 
