@@ -1,17 +1,21 @@
 # Session Notes — 2026-08-02 · Laptop, Session 24 (the stranded programme comes home)
 
-> **Nothing is unsaved.** `feat/advisor-progress` = `origin` at `08cdf75`, **7 ahead / 0
-> behind `master`**, working tree clean. Suite **3,665 green / 222 suites**, lint 0 errors,
+> **Nothing is unsaved.** `feat/advisor-progress` = `origin` at `dfff97e`, **9 ahead / 0
+> behind `master`**, working tree clean. Suite **3,968 green / 238 suites**, lint 0 errors,
 > audit gate PASS.
 >
-> **🔴 DESKTOP: [PR #30](https://github.com/advisor-e/Virt-Advisor/pull/30) is OPEN against
-> `master` and not yours to merge blind — read the two rulings it is waiting on below.**
-> It brings ~80 files including **`ReportShell.vue` and `REPORT-LAYOUT-REFERENCE.html`**,
-> which change what "a model screen looks right" *means*. If you are building anything in
-> the Model Library, wait for it or you will build to a standard that is about to move.
+> **✅ [PR #30](https://github.com/advisor-e/Virt-Advisor/pull/30) MERGED to `master`
+> (`02c22ca`) later the same day, on Mike's explicit instruction, and merged back into this
+> branch (`dfff97e`).** It brought ~80 files including **`ReportShell.vue` and
+> `REPORT-LAYOUT-REFERENCE.html`** — which change what "a model screen looks right" *means*.
+> **Anything built in the Model Library from now on must read that skeleton**; before today
+> it did not exist in the shared code at all.
 >
-> **Your `feat/firm-quiz-builder-ui` is 3 ahead of `master` and unmerged.** Same blind spot
-> as 2026-08-01 — logged, still unfixed.
+> **🔴 DESKTOP: your `feat/firm-quiz-builder-ui` went from 0 behind to 75 BEHIND `master`
+> the moment #30 landed**, with 4 unmerged commits of its own. **Merge `master` in before
+> touching anything.** It is also a live instance of
+> [`startup-blind-to-other-machine`](ACTIONS.md#startup-blind-to-other-machine): the branch
+> read green right up to the moment the ground moved under it.
 
 ---
 
@@ -141,10 +145,19 @@ resurrects deleted code is worse than one that drops it.
 
 Nothing is half-finished. The session ends on a clean tree with everything pushed.
 
+~~1. Mike reviews and merges PR #30. 2. Then `feat/advisor-progress` merges `master` back
+in — expect the same `ACTIONS.md` conflict.~~ **✅ BOTH DONE the same day.** Mike instructed
+the merge; `master` = `02c22ca`, back-merged here as `dfff97e`, pushed. **The predicted
+`ACTIONS.md` conflict did NOT recur** — both sides had already been reconciled inside #30,
+so git had nothing left to disagree about. Worth knowing: the append-vs-append conflict is
+paid **once per divergence**, not once per merge.
+
 **Next, in order of consequence:**
 
-1. **Mike reviews and merges PR #30.** Nothing reaches `master` until he does, and it gets
-   harder the longer it waits.
-2. **Then `feat/advisor-progress` merges `master` back in** — expect the same
-   `ACTIONS.md` append-vs-append conflict, resolved the same way: keep both sides.
-3. The two rulings above.
+1. **The desktop merges `master`** into `feat/firm-quiz-builder-ui` (75 behind) before any
+   further work there.
+2. **The two rulings above** — the silent default in `leaseVsBuyModel`, and the pre-commit
+   control.
+3. Then the open backlog: the trigger-vocabulary P1, and building
+   [`startup-blind-to-other-machine`](ACTIONS.md#startup-blind-to-other-machine) — which
+   this session gave a third worked example of.

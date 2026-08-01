@@ -25,8 +25,9 @@
 
 - <a id="stranded-report-programme"></a>◐ **P1 · RESCUE — THREE FINISHED FEATURES AND THE MODEL
   VISUAL STANDARD WERE STRANDED ON `feat/business-performance-report`, ABSENT FROM `master`.
-  ✅ MERGED AND RAISED AS [PR #30](https://github.com/advisor-e/Virt-Advisor/pull/30) 2026-08-02
-  (laptop, Session 24, Mike-approved per phase) — open, `MERGEABLE`, awaiting Mike's review.**
+  ✅ CLOSED 2026-08-02 — [PR #30](https://github.com/advisor-e/Virt-Advisor/pull/30) IS MERGED
+  TO `master` (`02c22ca`) and merged back into `feat/advisor-progress` (`dfff97e`), pushed.
+  Suite **3,968 green / 238 suites**, lint 0 errors, audit gate PASS.**
   Found 2026-08-02 (laptop, Session 23) while measuring branch drift for the item below — which
   is the point: **the blind spot found its own second instance.** Mike, told what was there:
   *"yes, cost of capital is definately supposed to be there — bring it back."*
@@ -114,11 +115,22 @@
   - ~~**NOT STARTED. Nothing has been merged, cut or pushed.**~~ *(Superseded 2026-08-02 — see the
     DONE bullet at the top of this entry. Left visible rather than deleted so the gap between
     "measured" and "merged" stays legible: it was one session.)*
-  - ☐ **REMAINING: PR #30 is Mike's to review and merge**, then `feat/advisor-progress` merges
-    `master` back in (expect the same `ACTIONS.md` append-vs-append conflict, resolved the same
-    way — keep both). `feat/business-performance-report` itself is **186 ahead of its own remote
-    and deliberately unpushed**; the frozen snapshot carries the identical commit, so nothing is
-    at risk, but the branch name is not backed up until someone pushes it.
+  - ✅ **BOTH REMAINING STEPS DONE THE SAME DAY (Mike instructed the merge).** `master` =
+    `02c22ca`; back-merged into `feat/advisor-progress` as `dfff97e`, pushed, **9 ahead / 0
+    behind**. **The predicted `ACTIONS.md` conflict did NOT recur** — both sides had already
+    been reconciled inside PR #30, so git had nothing left to disagree about. **Worth carrying:
+    the append-vs-append conflict is paid ONCE PER DIVERGENCE, not once per merge.**
+  - 🔴 **CONSEQUENCE THE DESKTOP MUST ACT ON: `feat/firm-quiz-builder-ui` went from 0 behind to
+    75 BEHIND `master`** the instant #30 landed, with 4 unmerged commits of its own. Merge
+    `master` in before touching anything there. **This is a third worked example of
+    [`startup-blind-to-other-machine`](#startup-blind-to-other-machine)** — the branch read
+    green right up to the moment the ground moved under it, and nothing on either machine said
+    so. The pattern is no longer arguable: it has now happened on 2026-08-01, on this rescue,
+    and again within an hour of merging it.
+  - ⚠ **`feat/business-performance-report` is 187 behind / 0 ahead and now fully superseded** —
+    everything it held is in `master`. Its local copy is 186 ahead of its own remote and
+    deliberately unpushed; the merged snapshot carries the identical commit, so nothing is at
+    risk. **It is a candidate for deletion**, but that is Mike's call and needs its own approval.
 
 - <a id="startup-blind-to-other-machine"></a>☐ **P1 · PROCESS — `/startup` reported "0 behind master" while this machine
   was running a two-day-stale Firm Manager hub. The check is structurally blind to the other
