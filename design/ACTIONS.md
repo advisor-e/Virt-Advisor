@@ -302,7 +302,34 @@
       corpus — the limit is real, not theoretical.
     - **⚠ The 4th phrase layer is NOT covered, by design** — see the distinctions-cap item below. Every
       response carries `notMeasured` naming it, so the tool can never read as "nothing else affects this".
-    - **NEXT: the screen** (Step 2) — wording to be approved before any of it is written.
+  - **✅ STEP 2 — THE SCREEN. BUILT 2026-08-01 (wording approved by Mike first, this branch, commit
+    `c440101`). Full suite 2,145 green / 142 suites, lint 0 errors.**
+    - [`components/firm/FirmTriggerWorkbench.vue`](../components/firm/FirmTriggerWorkbench.vue) —
+      *"Try a sentence"* and *"Try a wording change"*, mounted **inside the Logic Tables tab, not a
+      third tab** (§0.6 rules the hub to two). The sentence half renders with no table open, because
+      it asks about the whole engine; the change half needs one, because a proposal is always about a
+      single table. 34 locale keys, en-only with `fallbackLocale: 'en'`, matching every sibling tab.
+    - **No table id ever reaches the screen.** The preview route names the table a conversation was
+      TAKEN FROM by its internal id (`succession_planning`); `nameFor()` resolves it against the
+      parent's list, and a test fails if the raw key leaks.
+    - **`notMeasured` and `corpusLimit` print the SERVER's wording**, not a locale copy — the API owns
+      those strings so every surface states the same limit. A preview is discarded when the parent
+      opens a different table, so one table's consequences can never be read against another. One test
+      pins that the component issues **only** the two read-only routes.
+    - **⚠ NOT VERIFIED BY EYE.** The suite proves what renders and which calls are made; it cannot see
+      a screen, and nobody has looked at this. To check: **Firm Manager → Logic Tables**, both with no
+      table selected and with one open.
+
+- <a id="workbench-winner-wording"></a>☐ **P3 · DECISION (Mike) — the workbench lists every table a
+  sentence opens, but does not say which one the engine acts on.** Raised and deliberately left unbuilt
+  2026-08-01 while building the screen above.
+  - **The fact it needs to convey.** Production walks **every** table scoring ≥1
+    ([`advisorEngine.js`](../server/advisorEngine.js) L2383) but one is the winner (`topTable`). The
+    screen lists them strongest-first, which is true but not self-explanatory — a reader cannot tell
+    the first row is different in kind.
+  - **Not guessed.** The approved mockup carried no wording for this distinction, and a label naming how
+    the firm's own engine chooses is the firm's language (CLAUDE.md — confirm wording, never invent).
+    The payload already carries `topTable`, so this is wording only, not new measurement.
 
 - <a id="distinction-trigger-cap"></a>✅ **P2 · DECISION/SEC — only the FIRST FIVE trigger phrases of any Advisory
   Distinction ever reached the AI, while the screen showed all of them and invited more.
