@@ -2153,12 +2153,12 @@ Two honest answers on different axes — the file used to conflate them:
     own English headings, so the tab is no worse than it was — but it is now the odd one out on a
     Hub that was just deliberately made consistent.
 
-  ### ◐ Quizzes Phase 4 (Adopt / Keep mine) — STAGE A DONE 2026-08-01 (`ab31075`), STAGE B NEXT
+  ### ✅ Quizzes Phase 4 (Adopt / Keep mine) — COMPLETE 2026-08-01 (`ab31075` + `e254ff8`)
 
-  > **Status corrected 2026-08-01.** Stage A (the record) is built, tested, mutation-proven and
-  > committed — see Session 19 below. **Stage B (the screen) is the next job.** The plan below is
-  > left verbatim because Stage B still follows it; the Stage A items in it are now history, not
-  > to-do. Nothing of Phase 4 is visible to a firm yet.
+  > **Closed 2026-08-01.** Stage A (the record) and Stage B (the screen) are both built, tested,
+  > mutation-proven, committed and **live-verified by Mike on the running app** — see Sessions 19
+  > and 20 below. The plan below is left verbatim as the record of what was built; every item in
+  > it is now history, not to-do. **The quizzes workstream is finished.**
 
   The last piece of the quizzes workstream, and a **port of what the Advisory Staircase already
   does** (Phase 3, `keepMineStaircaseStep` / `_staircaseDriftIds` / `_staircaseStepSignature` /
@@ -2196,6 +2196,74 @@ Two honest answers on different axes — the file used to conflate them:
   this question", "Review update", the existing panel text).
 
   **Do Stage A, prove it, commit, then Stage B** — so nobody is ever holding a half-built feature.
+
+  ### Session 20 (2026-08-01, laptop) — Phase 4 STAGE B, and the same fix carried to Distinctions
+
+  Two commits (`e254ff8`, + the Distinctions sidebar). Suite **3,437 → 3,459 / 209 suites**, lint
+  0 errors, `nuxt build` green, tree clean. **Both pieces were LIVE-VERIFIED by Mike on the running
+  app** — *"all looks good and works as planned"* and *"yep all good"*. Phase 4 is complete and the
+  quizzes workstream is closed.
+
+  - ✅ **STAGE B BUILT — a firm now sees what we changed to a question it had reworded.** The tag,
+    the **Review update** button, and the side-by-side panel with Adopt / Keep mine. Adopt reuses
+    the reset route (which drops the baseline too); Keep mine calls Stage A's new route. Wording
+    mirrors the Advisory Staircase's approved labels verbatim, per the consistency ruling.
+  - 🔴 **THE ONE DEPARTURE FROM THE STAIRCASE, AND IT IS THE POINT OF THE SESSION: A FLAG THAT
+    CANNOT BE FOUND IS NOT A FLAG.** The staircase's five steps are all on one screen, so a flag
+    there is impossible to miss. **A quiz question sits inside one of 62 pages behind the rail**,
+    so a tag on the card alone would have waited to be stumbled upon — a firm could hold an update
+    for months. The rail now carries the count on the page **and** on its sub-section, so a firm
+    sees something is waiting before opening anything. Ported straight from the plan, this would
+    have shipped without it.
+    - **The count runs THROUGH `buildQuizRows`, not beside it.** A second count would be free to
+      disagree, and the way that shows up is a rail promising an update on a page where nothing is
+      flagged — which teaches a manager to ignore the flag. Same rule applied to Distinctions below.
+    - `hasUpdate` also requires the platform version to still exist. The backend never reports
+      drift on a retired qid, so the guard should never fire; without it, Review update would open
+      a panel with one empty half.
+  - ✅ **THE SAME GAP EXISTED ON ADVISORY DISTINCTIONS, AND IS NOW CLOSED (Mike asked the right
+    question: "can we use what you've done elsewhere?").** That tab's banner has always said "N
+    mentor updates since your last visit" — and **its own code comment finished the sentence:
+    *"Count spans all domains; switch domains to find the badged rows."*** Fourteen domains, one on
+    screen at a time. The sidebar now carries a per-domain count.
+    - **It counts BOTH kinds** — the passive *"Updated by mentor"* notice and the *"Mentor updated
+      this distinction"* drift that needs a decision. They differ in what they ask of a manager,
+      but the question the sidebar answers — *is there anything to look at in here?* — has the same
+      answer for both.
+    - **`domainDistinctions` became `distinctionRowsFor(domain)`**, a method the computed calls.
+      That is what lets the sidebar and the cards share one rule. The tab's nine existing tests
+      passed untouched, which is the proof the refactor changed no behaviour.
+    - **The label had to move from Buefy's `label` prop into its `label` slot** — `BMenuItem`
+      renders one or the other, never both. A mutant that drops the domain name is in the suite
+      because that is exactly how this change could have silently emptied the sidebar.
+    - ⚠ **NOT the same as the other tabs, and worth knowing: only ONE of the six blocks needed
+      this.** The Staircase has five steps on one screen; Domain Support and Logic Tables carry no
+      update flags at all (they are not on the shared mechanism yet, so there would be nothing to
+      count); Document Library and Team Case Studies inherit nothing from us. Checked before
+      building rather than applied everywhere for symmetry.
+  - **Mutation-tested 11/11 killed across the two pieces** (6 for Stage B, 5 for the sidebar), all
+    files restored **byte-identical, proven by SHA-256**. The mutants are the ones that would harm
+    a firm: Keep mine firing the reset (discarding the wording it promises to keep), drift never
+    reported, the rail counting questions rather than updates, the sidebar counting every row, and
+    the dropped domain name.
+  - ⚠ **A TEST-DATA FINDING WORTH THE LINE: `firmDistinctions.component.test.js` builds its rows in
+    a domain called `growth`, WHICH IS NOT ONE OF THE FOURTEEN.** The card tests pass anyway —
+    `domainDistinctions` filters by whatever domain is selected — so it went unnoticed. It only
+    surfaced because a per-domain count has to key on a real id. The new tests use real ids; the
+    older ones are left alone, since changing them would be changing tests that are passing for
+    their own reasons.
+  - **Dev-run facts worth not re-deriving:** dev-firm-001 **already holds a genuinely drifted row**
+    — `pd-10`, in Profitability & Feasibility — so the Distinctions count is visible in dev with
+    nothing seeded. The **passive** notice, by contrast, cannot be seen in dev at all: it needs
+    `updated_at`/`created_at` on a platform row and **none of the 67 rows in
+    `data/advisory-distinctions.json` carries one**. Showing it would mean editing committed
+    platform content, which was not done.
+  - ⚠ **HONEST LIMIT — the build covers Stage B, NOT the Distinctions change.** `nuxt build` ran
+    green before Mike looked at Quizzes (the Session 18 rule). By the time the Distinctions work
+    was finished his dev server was running again, and building against a live dev server is
+    forbidden. `componentStyles.test.js` parses the Hub's style block with the same parser the real
+    build uses and passed, so the Session 18 defect class is covered — **but that is not a build,
+    and the next session should run one.**
 
   ### Session 19 (2026-08-01, laptop) — Quizzes Phase 4 STAGE A: the record
 
@@ -2240,11 +2308,9 @@ Two honest answers on different axes — the file used to conflate them:
       needed" when it means "no test ran".** The harness now normalises to the file's own line
       endings; the skip path also prints loudly rather than passing quietly. Extends the
       2026-07-28 and 2026-07-29 mutation lessons.
-  - ☐ **STAGE B — THE SCREEN — IS THE NEXT JOB AND IS NOT STARTED.** Flagged questions get a tag
-    and a **Review update** button opening a side-by-side panel with Adopt / Keep mine.
-    **No wording decisions are outstanding** — the staircase's labels are approved and the
-    consistency ruling says the tabs read the same, so they are mirrored verbatim. Nothing of
-    Phase 4 is visible to a firm until this lands.
+  - ✅ **STAGE B — THE SCREEN — BUILT AND LIVE-VERIFIED 2026-08-01 (`e254ff8`).** See Session 20
+    below. Flagged questions carry the tag and a **Review update** button opening the side-by-side
+    panel with Adopt / Keep mine, and the rail says which page holds the update.
 
   ### Session 18 (2026-08-01, laptop) — the rebuilt screen would not have opened at all
 
