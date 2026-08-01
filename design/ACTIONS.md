@@ -1376,6 +1376,41 @@ Two honest answers on different axes — the file used to conflate them:
 
 ## OPEN — actionable now (build / decide this session)
 
+- <a id="status-table-deferred-glyph"></a>☐ **P3 · FIX — a real backlog item is invisible in `STATUS.md` because the parser
+  does not recognise its `⏸` status glyph.** Found 2026-08-01 while re-pointing the status guard;
+  logged rather than folded into that change.
+  - **The instance.** The `⏸ DEFERRED (intentional while in dev, Mike 2026-07-10) — Team Dashboard
+    renders mock advisors` entry is a top-level item with a genuine status, but `parseItem`
+    ([`scripts/generate-status-table.js`](../scripts/generate-status-table.js)) reads no `⏸`, so the
+    row is absent from the generated table. It is one of the 3 `topLevelUnparsed` lines; the other
+    two are summary pointers that are correctly not tasks.
+  - **Why it matters more than one row.** `⏸` is exactly the status a reader most needs to see —
+    deliberately paused work is the kind that gets forgotten. A table that silently omits it reads
+    as "not a thing", which is the no-silent-parking rule failing at the display layer.
+  - **Fix:** teach `parseItem` the `⏸` marker (mapping to a "Deferred" label alongside the existing
+    in-progress / open / blocked set), and add a case to
+    [`tests/unit/statusTable.test.js`](../tests/unit/statusTable.test.js) pinning it. Cheap, but it
+    changes what the generated table claims, so it takes its own approval.
+
+- <a id="status-md-silent-staleness"></a>☐ **P3 · DECISION — `STATUS.md` goes stale silently, and nothing says so on
+  the page.** Found 2026-08-01: regenerating it moved **57 → 62 outstanding** and **108 → 113
+  completed**, and its links were pointing roughly **260 lines** off (an item linked at `#L1156` had
+  moved to `#L1418`). Today's edits account for about two of those ten items — the rest of the drift
+  predates this session.
+  - **The mechanism.** It only updates when a person runs `npm run status`. Nothing in the commit
+    hooks or CI regenerates it, and the file carries no "generated on" stamp, so a stale copy is
+    indistinguishable from a current one. **A wrong line link is worse than no link** — it silently
+    lands the reader on an unrelated item.
+  - **Same failure class as the routing defects of 2026-07-30/31:** a surface that renders
+    confidently, is believed, and is wrong. That is why it is logged rather than left as housekeeping.
+  - **Three options, needing Mike's call rather than a default:** (a) regenerate in the pre-commit
+    hook whenever `ACTIONS.md` is staged — always true, at the cost of touching a second file in
+    every backlog commit; (b) a test that fails when `STATUS.md` does not match a fresh generation —
+    same guarantee, but it blocks the commit instead of fixing it; (c) stamp the file with the
+    `ACTIONS.md` commit it was generated from, so a reader can see it is stale without preventing it.
+    Recommendation: (a), because the only thing worse than a stale view is one that needs a human to
+    remember it exists.
+
 - <a id="fabricated-detail-in-summaries"></a>☐ **P1 · CONTENT/VERIFY — a FABRICATED detail was found living in the domain-support
   data, presented as the firm's own material. One confirmed instance; the blast radius is unknown.**
   **Deferred by Mike on 2026-07-31 — logged deliberately, NOT to be picked up next**, so the
