@@ -23,11 +23,18 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
-- <a id="stranded-report-programme"></a>🔴 **P1 · RESCUE — THREE FINISHED FEATURES AND THE MODEL
-  VISUAL STANDARD ARE STRANDED ON `feat/business-performance-report`, ABSENT FROM `master`.**
+- <a id="stranded-report-programme"></a>◐ **P1 · RESCUE — THREE FINISHED FEATURES AND THE MODEL
+  VISUAL STANDARD WERE STRANDED ON `feat/business-performance-report`, ABSENT FROM `master`.
+  ✅ MERGED AND RAISED AS [PR #30](https://github.com/advisor-e/Virt-Advisor/pull/30) 2026-08-02
+  (laptop, Session 24, Mike-approved per phase) — open, `MERGEABLE`, awaiting Mike's review.**
   Found 2026-08-02 (laptop, Session 23) while measuring branch drift for the item below — which
   is the point: **the blind spot found its own second instance.** Mike, told what was there:
   *"yes, cost of capital is definately supposed to be there — bring it back."*
+  - ✅ **DONE 2026-08-02 — `master` merged INTO the stale branch (`033657d`, 185 commits), PR
+    raised from the frozen snapshot `release/report-programme-2026-08-02`, never from the live
+    branch (the PR #23 → #24 lesson).** The trial measurement held exactly: **one conflicted file,
+    `design/ACTIONS.md`, one marker, both sides kept in full; no code file conflicted.** Final
+    state **237/237 suites, 3,955 tests, lint 0 errors, audit gate PASS**. 80 files, +11,675/−457.
   - **What is missing from `master`** (~30 files, verified by comparing the two trees, not assumed):
     - **Cost of Capital (WACC)** — `components/CostOfCapital.vue`, `pages/cost-of-capital.vue`,
       `server/report/costOfCapitalModel.js`, 3 tests. Its commits describe a *finished* feature:
@@ -39,8 +46,16 @@
     - **`components/base/ReportShell.vue` — the single source of the model visual standard** —
       plus `design/REPORT-VISUAL-STANDARD.md`, `design/REPORT-LAYOUT-REFERENCE.html`, and the
       refactor putting **all eight existing model screens** onto it.
-    - Also `components/FirmDashboard.vue`, `server/routes/firm.js`, an `add-a-report` skill,
-      `scripts/sync-video-minutes.js`, 12 session notes.
+    - Also an `add-a-report` skill and 12 session notes.
+    - ⚠ **CORRECTED 2026-08-02 — this line also listed `components/FirmDashboard.vue`,
+      `server/routes/firm.js` and `scripts/sync-video-minutes.js`, and that was WRONG.** They are
+      absent from `master` because `master` **deleted them on purpose** (`d3c4e5c` "delete the
+      FirmDashboard mock and its whole cluster"; `b1b4432`, the stale video-minutes copy) — not
+      because they were stranded. The merge honours those deletions. **Measuring absence and
+      reading it as loss** is the trap: a file missing from `master` is either work that never
+      arrived or work deliberately removed, and only the deleting commit can tell you which.
+      Checked before committing precisely because a merge that silently resurrects deleted code
+      is worse than one that drops it.
   - 🔴 **THE DETAIL THAT PROVES IT IS LOAD-BEARING: `design/REPORT-LAYOUT-REFERENCE.html` exists
     ONLY on that branch.** The project's binding visual rule — every model copies that layout
     skeleton — has had **no source in the shared code**. Any model built from `master` alone has
@@ -59,6 +74,36 @@
       (`CssSyntaxError: Unknown word` at 1:1). That guard did not exist when ReportShell was
       written. **Undiagnosed: either a genuinely malformed style block the branch could never have
       caught, or the guard misreading a valid file.** Diagnose before merging — do not assume which.
+      - ✅ **DIAGNOSED AND FIXED 2026-08-02 — it was THE GUARD, and the stylesheet was always
+        fine.** `ReportShell.vue` **quotes** `` `<style scoped>` `` inside its own documentation
+        (L17 — it is the component whose entire purpose is to stop each screen hand-writing one).
+        The extractor's unanchored `/<style…>/` matched that **sentence**, then ran on to the real
+        `</style>` 98 lines below, so postcss was handed a paragraph of English. **The real
+        stylesheet was never parsed at all** — a false failure concealing a genuine blind spot,
+        which is the worse half. Fixed by anchoring both tags to the start of a line (`^…^`, `m`
+        flag): a Vue block always opens at column 0, a mention in a comment never does.
+        **Verified it does not blind the guard** — across all 82 `.vue` files both versions find
+        blocks in the same **60** files, disagreeing on exactly the one file intended. Two
+        permanent tests added in the file's own "the check itself works" block, per its stated
+        design that the proof lives in the suite rather than in a session someone must remember.
+    - **Failure 3, NOT predicted — `server/report/` fell ONE branch under its 85% coverage gate**
+      (790/930 = 84.94%) the moment three models joined the folder. **Third instance of
+      [`cross-branch-rule-collision`](#cross-branch-rule-collision) in a single merge.**
+      🔴 **Closed with tests, NOT by moving the gate** — lowering a threshold to fit the code is
+      the "ratify the drift" move this project does not make, and it would have been over a single
+      branch. Six real tests on genuinely unexercised guards in `leaseVsBuyModel.js`, all of them
+      route-facing input the model already has a guard for and nothing ran: a number arriving as
+      **text** (the code's own comment names this), as **NaN/Infinity**, a **zero servicing
+      interval** (`div()` exists so an unknown interval cannot yield Infinity), a **zero-month
+      loan**, and **0% finance** (real for interest-free dealer deals — it takes a different
+      formula branch entirely).
+      - ⚠ **A REAL DEFECT FOUND WHILE WRITING THEM, PINNED AND REPORTED, NOT FIXED.** A numeric
+        field that is **absent** is named in `defaultedInputs` (the R8 ruling). A field that is
+        **present but unusable** — `deposit: 'eight thousand'` — is silently replaced by the
+        sample and named **nowhere**, so the caller is told the figure is theirs when it is ours.
+        Same family as every other silent-default finding here. Pinned as a `⚠ CURRENT BEHAVIOUR`
+        test so a future fix **fails that test rather than passing quietly**. Needs a Mike ruling;
+        the model reaches a public route that takes raw browser JSON.
   - **So the route is ONE MERGE, not a file-by-file port** — and porting Cost of Capital alone was
     considered and rejected: its CSS reads ReportShell's tokens, so it would land working but
     looking wrong. The features do not separate cleanly; the visual standard is the floor they
@@ -66,8 +111,14 @@
   - ⚠ **The branch is 185 behind and last touched 2026-07-29.** Whatever is done, it is done by
     merging `master` INTO it (measured above) and raising a PR from a frozen snapshot — never by
     merging a two-week-stale tree into `master`.
-  - **NOT STARTED. Nothing has been merged, cut or pushed** — the measurement worktree was removed
-    and the repo left clean. This is the next session's work.
+  - ~~**NOT STARTED. Nothing has been merged, cut or pushed.**~~ *(Superseded 2026-08-02 — see the
+    DONE bullet at the top of this entry. Left visible rather than deleted so the gap between
+    "measured" and "merged" stays legible: it was one session.)*
+  - ☐ **REMAINING: PR #30 is Mike's to review and merge**, then `feat/advisor-progress` merges
+    `master` back in (expect the same `ACTIONS.md` append-vs-append conflict, resolved the same
+    way — keep both). `feat/business-performance-report` itself is **186 ahead of its own remote
+    and deliberately unpushed**; the frozen snapshot carries the identical commit, so nothing is
+    at risk, but the branch name is not backed up until someone pushes it.
 
 - <a id="startup-blind-to-other-machine"></a>☐ **P1 · PROCESS — `/startup` reported "0 behind master" while this machine
   was running a two-day-stale Firm Manager hub. The check is structurally blind to the other
@@ -90,9 +141,40 @@
   - **Resolved for today** by PR #28 (`c47e369`) and the merge into this branch (`a235a71`), but the
     blind spot is unchanged and will recur on the next divergence.
 
+- <a id="hook-tests-worktree-not-commit"></a>☐ **P1 · PROCESS — the pre-commit hook validates the
+  WORKING TREE, not what is being committed. A half-staged change passed all three gates and was
+  committed red.** Found 2026-08-02 (laptop, Session 24) by the AI, on its own mistake, while
+  verifying the report-programme merge commit.
+  - **What happened.** `design/CONTENT-ROUTING.md` and `tests/unit/componentStyles.test.js` were
+    already staged **by the merge** (as files arriving from `master`). Both were then edited to fix
+    the merge's failures, and only a third file was `git add`-ed. `.husky/pre-commit` ran ESLint,
+    the full 3,955-test suite and the audit gate — **all genuinely green, none of them testing the
+    commit.** Commit `741eb5c` therefore shipped with the OLD regex and the STALE routing map while
+    reporting a clean run. Caught by diffing the committed blob against the working tree; fixed by
+    amending (nothing had been pushed) to `033657d`.
+  - **Why this is the project's own recurring shape, one level down.** It is the same defect as the
+    CSS guard found the same hour, and as the 2026-07-31 `nuxt build` failure that "shipped green":
+    **a check that reports on something adjacent to the thing you care about.** Three gates, all
+    honest, all pointed one inch to the left of the artefact.
+  - **Not fixed by being more careful.** The hook is silent about the gap and there is no signal at
+    the moment of commit. **The proposed control (needs its own approval, NOT built):** have
+    `pre-commit` refuse when a tracked file has unstaged modifications — that does not test the
+    commit either, but it *forces* working tree ≡ commit contents, which makes the three gates it
+    already runs actually mean what they claim. Cheap, read-only, no stashing (a stash that fails
+    mid-hook can lose work, which is a worse trade).
+  - ⚠ **Until it exists, the rule is manual: `git status` before committing, and after any commit
+    that fixes a merge, diff the COMMITTED blob — not the working tree — for each file you changed.**
+
 - <a id="cross-branch-rule-collision"></a>☐ **P2 · DOC — a rule introduced on one machine collides with
   rows added on the other, and only surfaces at merge.** Found 2026-08-01 while merging PR #28; fixed
   in the same commit (`a235a71`).
+  - 🔴 **THREE MORE INSTANCES 2026-08-02, all in ONE merge — this is now a pattern, not an
+    anecdote.** The report-programme merge hit the routing-map count, the CSS style-block guard, and
+    the `server/report/` coverage threshold ([`stranded-report-programme`](#stranded-report-programme)).
+    Every one was a rule written on `master` meeting files written on the stale branch; every one was
+    green on both branches alone and failed only once merged. **The cost scales with how long the
+    branches stay apart** — this branch had been separated for two weeks and produced three; the
+    2026-08-01 merge had been separated two days and produced one.
   - **What happened.** The laptop's `79de6d9` gave all 181 domain-support material rows a permanent
     `id` and locked the list in [`domainSupportRowIds.test.js`](../tests/unit/domainSupportRowIds.test.js) —
     correctly, because firm overrides key off the id, and keying off a title means a rename silently
