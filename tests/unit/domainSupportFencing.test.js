@@ -89,12 +89,12 @@ describe('formatDomainSupportForPrompt', () => {
 
 describe('formatDomainContextForSession', () => {
   test('platform material is NOT fenced', () => {
-    const out = formatDomainContextForSession(DOMAIN, [], null)
+    const out = formatDomainContextForSession(DOMAIN, null)
     expect(out).not.toContain(OPEN)
   })
 
   test('firm-authored material IS fenced', () => {
-    const out = formatDomainContextForSession(DOMAIN, [], firmOverride([FIRM_MATERIAL]))
+    const out = formatDomainContextForSession(DOMAIN, firmOverride([FIRM_MATERIAL]))
     expect(out).toContain(OPEN)
     expect(fencedPayloads(out).join('\n')).toContain('Firm Custom Tool')
   })

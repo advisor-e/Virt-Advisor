@@ -13,6 +13,8 @@
     "start": "cross-env NODE_OPTIONS=--max-old-space-size=12288 NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem nuxt start",
     "generate": "nuxt generate",
     "check:branch": "node scripts/check-branch-state.js --report",
+    "status": "node scripts/generate-status-table.js",
+    "routing": "node scripts/generate-content-routing.js",
     "lint": "eslint --ext .js,.vue .",
     "lint:fix": "eslint --ext .js,.vue . --fix",
     "test": "jest",

@@ -208,9 +208,22 @@ section.firm-logic-tables
             b-table-column(v-slot="{ row }" field="created_at" :label="$t('firmLogicTables.historyDate')")
               | {{ formatDate(row.created_at) }}
           p.has-text-grey.is-size-7(v-else) {{ $t('firmLogicTables.historyEmpty') }}
+
+      //- ── Trigger workbench (read-only; saves nothing) ────────────────────
+      //- Sits INSIDE this tab rather than becoming a third one — §0.6 rules the
+      //- hub to two tabs, and this is about these tables' trigger phrases.
+      //- Rendered outside the v-if/v-else above so the "Try a sentence" half is
+      //- usable with no table open: it asks a question about the whole engine,
+      //- not about one table.
+      firm-trigger-workbench(
+        :api-token="apiToken"
+        :table="current"
+        :table-names="tableNames"
+      )
 </template>
 
 <script>
+import FirmTriggerWorkbench from '~/components/firm/FirmTriggerWorkbench'
 import { autogrow, resizePersist } from '~/utils/textareaDirectives'
 
 /** Where this browser remembers whether the table list is hidden. */
@@ -243,6 +256,8 @@ const RAIL_STATE_KEY = 'lt:railHidden'
  */
 export default {
   name: 'FirmLogicTables',
+
+  components: { FirmTriggerWorkbench },
 
   directives: { autogrow, resizePersist },
 
@@ -282,6 +297,25 @@ export default {
   },
 
   computed: {
+    /**
+     * id -> readable name for every logic table, for the workbench.
+     *
+     * The preview route names the table a conversation was taken FROM by its
+     * internal id; the workbench needs this to show a firm manager a table name
+     * instead of a database key. Built from the SEARCH-UNFILTERED lists, not
+     * from `groups` — a name must resolve whether or not the search box happens
+     * to be hiding that table.
+     *
+     * @returns {Object<string,string>}
+     */
+    tableNames () {
+      const map = {}
+      for (const row of [...this.doTheJob, ...this.getTheJob, ...this.getOrganised]) {
+        if (row && row.id) { map[row.id] = row.label || row.id }
+      }
+      return map
+    },
+
     /**
      * The rail: the three master-section groups (Do the Job / Get the Job / Get
      * Organised), each a flat list filtered by the search box. An empty group is

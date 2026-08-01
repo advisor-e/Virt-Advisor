@@ -361,7 +361,7 @@ async function handleSession (req, body, res) {
   const domainQuery = focusQuery
   const domainId = detectDomainForSession(domainQuery, firmDomainSupport)
   const domainContext = domainId
-    ? '\n\n' + formatDomainContextForSession(domainId, sessionContext?.resources || [], firmDomainSupport)
+    ? '\n\n' + formatDomainContextForSession(domainId, firmDomainSupport)
     : ''
 
   // Logic tree reference — match session topic to a learn-mode logic tree

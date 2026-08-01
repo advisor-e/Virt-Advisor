@@ -300,7 +300,14 @@ server.post('/api/firm-manager/domain-support/:domainId/section', ...fmGuard, fm
 // save/reset/history on the single `logic-trees` bundle the advisor engine reads
 // (firm-authored branch text is fenced in logicTrees.formatLogicTreeForPrompt).
 server.get('/api/firm-manager/logic-trees', ...fmGuard, fm.getLogicTrees)
+// Read-only phrase probe + trigger-change preview (design/ACTIONS.md →
+// trigger-vocabulary-sweep). Neither writes anything. `probe` is registered
+// BEFORE the `:treeId` routes deliberately: it is a literal segment sitting in
+// the same position as a tree id, so a firm can never own a table called
+// "probe" that shadows it.
+server.post('/api/firm-manager/logic-trees/probe', ...fmGuard, fm.probeLogicTreePhrase)
 server.get('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.getLogicTreeDetail)
+server.post('/api/firm-manager/logic-trees/:treeId/preview-triggers', ...fmGuard, fm.previewLogicTreeTriggers)
 server.post('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.saveLogicTree)
 server.del('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.resetLogicTree)
 server.get('/api/firm-manager/logic-trees/:treeId/history', ...fmGuard, fm.getLogicTreeHistory)

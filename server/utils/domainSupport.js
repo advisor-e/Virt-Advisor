@@ -246,11 +246,17 @@ function detectDomainForSession (query, firmSupport) {
 }
 
 /**
- * Formats a compact but useful domain context block for course session injection.
- * Includes: domain overview, advisor guidance, and any tools matching the session resource names.
- * Falls back to the first tool if no resource name matches.
+ * Formats a domain context block for course session injection: overview,
+ * diagnostic entry point, every material for the domain, and advisor guidance.
+ *
+ * Deliberately UNFILTERED — see the comment at the materials loop below. The
+ * session's own template resources are already injected separately by the caller
+ * (courseEngine.js `sessionInject`); this block is domain background knowledge.
+ * @param {string} domainId
+ * @param {Object|null} firmSupport - firm overlay bundle, or null for platform content
+ * @returns {string|null} prompt block, or null when the domain has no support file
  */
-function formatDomainContextForSession (domainId, resourceNames, firmSupport) {
+function formatDomainContextForSession (domainId, firmSupport) {
   const ref = resolveDomainSupport(domainId, firmSupport)
   if (!ref) { return null }
 
@@ -269,29 +275,31 @@ function formatDomainContextForSession (domainId, resourceNames, firmSupport) {
     if (de.primary_question) { lines.push(`**Diagnostic entry point:** ${de.primary_question}`); lines.push('') }
   }
 
-  // Find materials/tools that match the session resource names
-  const resources = (resourceNames || []).map(r => r.toLowerCase())
-
-  // Four-column shape (§0.5): match materials by session resource name, else
-  // show the first. Legacy support_tools files use the original branch.
+  // EVERY material for the detected domain reaches the prompt — there is no
+  // name-matching filter, deliberately.
+  //
+  // This used to filter materials by the session's template resource names and
+  // fall back to `materials.slice(0, 1)`. That compared two different namespaces:
+  // CB-33 established that material names are *teaching concepts*, NOT template
+  // names (see formatDomainSummaryForDesign below, where CB-02 grounding strips
+  // them from `resources`) — so there was no correct match to find. Measured over
+  // all 29 domains / 181 rows: 66 rows could not be matched by ANY library page,
+  // 22 of 29 domains had no exactly-matching row, and the silent `slice(0, 1)`
+  // fallback briefed the AI on row 1 whatever the session was about, while a
+  // shared first word pulled in unrelated rows ("Business Dating" matched
+  // "Business Targets"). Sending the full set mirrors the advisor path
+  // (formatDomainSupportForPrompt), which has always done this and never had the
+  // defect. Cost measured: worst case ~7.4k tokens (people-power), median ~1.7k —
+  // volume the advisor path already carries. If a cap is ever needed it must say
+  // that it capped (no-silent-caps rule); there is none today.
   if (Array.isArray(ref.materials) && ref.materials.length > 0) {
-    const matchedMaterials = ref.materials.filter(m =>
-      resources.some(r => m.name.toLowerCase().includes(r) || r.includes(m.name.toLowerCase().split(' ')[0]))
-    )
-    const materialsToShow = matchedMaterials.length > 0 ? matchedMaterials : ref.materials.slice(0, 1)
-    for (const material of materialsToShow) {
+    for (const material of ref.materials) {
       const body = formatMaterialLines(material).join('\n')
       lines.push(materialsFirm ? fenceUntrusted(body) : body)
       lines.push('')
     }
   } else {
-    const tools = ref.support_tools || []
-    const matched = tools.filter(t =>
-      resources.some(r => t.name.toLowerCase().includes(r) || r.includes(t.name.toLowerCase().split(' ')[0]))
-    )
-    const toolsToShow = matched.length > 0 ? matched : tools.slice(0, 1)
-
-    for (const tool of toolsToShow) {
+    for (const tool of (ref.support_tools || [])) {
       lines.push(`### ${tool.name}`)
       if (tool.purpose) { lines.push(`**Purpose:** ${tool.purpose}`) }
       if (tool.core_principle) { lines.push(`**Core principle:** ${tool.core_principle}`) }
