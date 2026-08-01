@@ -23,6 +23,62 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="startup-blind-to-other-machine"></a>☐ **P1 · PROCESS — `/startup` reported "0 behind master" while this machine
+  was running a two-day-stale Firm Manager hub. The check is structurally blind to the other
+  machine's unmerged branch.** Found 2026-08-01 by Mike, who opened the hub and could not find work
+  the laptop had finished.
+  - **The evidence.** `npm run check:branch` measures `HEAD` against `origin/master` only. On the
+    morning of 2026-08-01 the desktop was **0 behind `master`** — genuinely true — while
+    `origin/feat/advisor-progress` sat **82 commits ahead of `master`**, unmerged. Both branches had
+    split from `b3b6ad6` (PR #27, 2026-07-30) and had not met since. The desktop was therefore
+    up to date with the *shared* code and two days behind the *actual* work, with a green light saying
+    so.
+  - **Why this is the Agreement's own failure mode, one level up.** `WORKING-AGREEMENT.md` was written
+    because UAT ran 97 commits behind and nothing said "this version is ready, take it." The same gap
+    exists between the two machines: a branch that is pushed but not PR'd is invisible to the other
+    division, and the start-of-session check reports green throughout.
+  - **Not fixed by merging more often** — the laptop had pushed correctly and the desktop had merged
+    `master` correctly. Both followed the rules. What is missing is a *report*: at minimum,
+    `check:branch` naming any other `feat/*` branch that is ahead of `master`, and how far. That is a
+    read-only addition to an existing script, not a new mechanism.
+  - **Resolved for today** by PR #28 (`c47e369`) and the merge into this branch (`a235a71`), but the
+    blind spot is unchanged and will recur on the next divergence.
+
+- <a id="cross-branch-rule-collision"></a>☐ **P2 · DOC — a rule introduced on one machine collides with
+  rows added on the other, and only surfaces at merge.** Found 2026-08-01 while merging PR #28; fixed
+  in the same commit (`a235a71`).
+  - **What happened.** The laptop's `79de6d9` gave all 181 domain-support material rows a permanent
+    `id` and locked the list in [`domainSupportRowIds.test.js`](../tests/unit/domainSupportRowIds.test.js) —
+    correctly, because firm overrides key off the id, and keying off a title means a rename silently
+    discards a firm's saved choices. Meanwhile the desktop's `7ae8b31` and siblings transcribed 13 new
+    material rows (strategy 9, staff 2, sales-marketing 2) on a branch where that rule did not exist.
+    Neither side was wrong. The suite was green on both branches and failed only once merged.
+  - **The fix was purely additive:** 13 ids written by hand following the convention the other 168
+    rows use, added to `LOCKED_IDS`. No existing id changed, so no firm's saved choices could break —
+    and none exist yet anyway. Suite 3,652 green / 221 suites.
+  - **Why it is logged rather than closed.** The laptop deliberately did **not** commit its id
+    generator (a committed migration script was judged a hazard here — see `migrate-ghost-references.js`,
+    which deleted what it could not resolve). So the next batch of rows written on either machine will
+    hit exactly this again, and the convention lives only in the data and this note. Any future rule of
+    the form "every row of X needs a Y" carries the same trap while both machines edit X.
+
+- <a id="workbench-placement"></a>☐ **P2 · DECISION (Mike) — the trigger workbench is on the screen but
+  could not be found.** Found 2026-08-01 by Mike, who went looking for the phrase work after the merge
+  and reported seeing only the laptop's changes.
+  - **Not a defect — a placement question.** The component is present and unconditionally rendered:
+    [`FirmLogicTables.vue`](../components/firm/FirmLogicTables.vue) L218 renders `firm-trigger-workbench`
+    outside the `v-if`/`v-else`, and [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) L27 renders
+    the Logic Tables tab. Nothing was lost in the merge.
+  - **Where it sits:** the bottom of the Logic Tables tab, below the table list, the branch editor and
+    the "Earlier versions" history — a long scroll past content most sessions will not touch.
+  - **The placement was deliberate** (§0.6 rules the hub to two content tabs, and the workbench is about
+    those tables' trigger phrases), so this is not a matter of correcting an oversight. But a feature the
+    owner cannot locate on the screen it lives on fails the standard in memory
+    `feedback-avoid-map-shock`: functional, logical *and* findable.
+  - **For Mike:** whether it moves above the version history, gets its own tab despite §0.6, or is
+    reached some other way. Placement and any new label are the firm's decision, not the AI's
+    (CLAUDE.md — confirm wording before writing it).
+
 - <a id="course-session-domain-briefing"></a>✅ **P1 · FIX — Course Builder's session briefing reached the WRONG domain materials.
   FOUND *and* FIXED 2026-07-30 (approved by Mike, this branch, commit `dd0b031`). Full suite 2,016
   green / 134 suites, lint 0 errors. Measured effect: across the 29 domains, materials reaching the
