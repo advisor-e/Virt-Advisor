@@ -66,7 +66,8 @@
  *
  * Defaults NEVER substitute silently (the R8 ruling, 2026-07-19): any input
  * block that fell back to the workbook's sample scenario is named in the
- * result's `defaultedInputs`.
+ * result's `defaultedInputs` — and, since 2026-08-02, so is any single figure
+ * that arrived present but unusable (see `usable()` / `numPicker()`).
  *
  * Class: **Decision** (see `design/MODEL-CLASSIFICATION.md`) — the client's
  * real figures, typed in. No file intake in this phase, nothing goes to an LLM.
@@ -93,6 +94,45 @@ function num (v, fallback) {
   if (typeof v === 'number') { return Number.isFinite(v) ? v : fallback }
   const n = parseFloat(v)
   return Number.isFinite(n) ? n : fallback
+}
+
+/**
+ * The R8 test for "the caller actually supplied this figure".
+ *
+ * A value that is PRESENT but unusable — `'eight thousand'`, `NaN`, `Infinity`, `''` —
+ * is not a supplied figure and must be treated exactly as an absent one.
+ *
+ * @param {*} v
+ * @returns {boolean}
+ */
+function usable (v) {
+  if (typeof v === 'number') { return Number.isFinite(v) }
+  if (v === null || v === undefined || v === '') { return false }
+  return Number.isFinite(parseFloat(v))
+}
+
+/**
+ * Build a numeric input picker that honours R8 for a block of inputs.
+ *
+ * Before 2026-08-02 each block tested only for absence, then ran the raw value through
+ * `num()` with no fallback — so a mistyped figure became **zero**, not the sample, and
+ * was named nowhere. A deposit typed as words silently became a deposit of nothing and
+ * the loan amount moved with it. Unusable now falls back to the sample AND is declared,
+ * matching `quickPositionModel`, `ebitdaDcfModel` and `costOfCapitalModel`.
+ *
+ * @param {Object} src              the caller's raw inputs
+ * @param {Object} defaults         that block's DEFAULT_* sample figures
+ * @param {string[]} defaultedInputs the block's R8 list, appended in place
+ * @returns {function(string): number}
+ */
+function numPicker (src, defaults, defaultedInputs) {
+  return (name) => {
+    if (!usable(src[name])) {
+      defaultedInputs.push(name)
+      return num(defaults[name])
+    }
+    return num(src[name])
+  }
 }
 
 /** Guard every division in the model: a zero denominator yields 0, never NaN/Infinity. */
@@ -381,7 +421,8 @@ const SCHEDULE_YEARS = 10
  *
  * @param {Object} inputs { purchasePrice, deposit, annualRate, term,
  *   termUnit ("Years"|"Months"), basis ("Table"|"Reducing"|"Interest Only") } —
- *   any omitted field falls back to the sample AND is named in `defaultedInputs`.
+ *   any field that is omitted, or present but unusable as a number, falls back to
+ *   the sample AND is named in `defaultedInputs`.
  * @returns {Object} { loanAmount, termMonths, basis, monthlyRepayment,
  *   payments: { table, reducingFirstMonth, interestOnly },
  *   years: [{year, interest, principal, closingBalance}] | null,
@@ -394,10 +435,11 @@ function computeRepaymentSchedule (inputs) {
     if (src[name] === undefined || src[name] === null) { defaultedInputs.push(name); return DEFAULT_LOAN_INPUTS[name] }
     return src[name]
   }
-  const purchasePrice = num(take('purchasePrice'))
-  const deposit = num(take('deposit'))
-  const annualRate = num(take('annualRate'))
-  const term = num(take('term'))
+  const takeNum = numPicker(src, DEFAULT_LOAN_INPUTS, defaultedInputs)
+  const purchasePrice = takeNum('purchasePrice')
+  const deposit = takeNum('deposit')
+  const annualRate = takeNum('annualRate')
+  const term = takeNum('term')
   const termUnit = take('termUnit')
   const basis = take('basis')
   if (basis !== 'Table' && basis !== 'Reducing' && basis !== 'Interest Only') {
@@ -636,8 +678,9 @@ const DEFAULT_SERVICEABILITY_INPUTS = {
  *     Phase 4 decision; this model returns `verdictPass` (surplus > the
  *     configured threshold) and no words.
  *
- * @param {Object} inputs see DEFAULT_SERVICEABILITY_INPUTS — any omitted field
- *   falls back to the sample AND is named in `defaultedInputs`.
+ * @param {Object} inputs see DEFAULT_SERVICEABILITY_INPUTS — any field that is
+ *   omitted, or present but unusable as a number, falls back to the sample AND
+ *   is named in `defaultedInputs`.
  * @returns {Object} { income, loanMinimums, expenses, allowances, surplus,
  *   verdictPass, stressMargin, maxAffordableNewLoan,
  *   taxTable: {country, taxYearLabel}, defaultedInputs }
@@ -649,6 +692,7 @@ function computeServiceability (inputs) {
     if (src[name] === undefined || src[name] === null) { defaultedInputs.push(name); return DEFAULT_SERVICEABILITY_INPUTS[name] }
     return src[name]
   }
+  const takeNum = numPicker(src, DEFAULT_SERVICEABILITY_INPUTS, defaultedInputs)
 
   const country = take('country')
   const taxTable = getTaxBands(country)
@@ -656,23 +700,23 @@ function computeServiceability (inputs) {
   const svc = LOAN_CRITERIA.serviceability
 
   const jointApplication = take('jointApplication') === true || take2Bool(src.jointApplication)
-  const dependantsUnder18 = num(take('dependantsUnder18'))
-  const dependantsOver18 = num(take('dependantsOver18'))
-  const numberOfVehicles = num(take('numberOfVehicles'))
-  const customer1Gross = num(take('customer1GrossIncome'))
-  const customer2Gross = num(take('customer2GrossIncome'))
-  const otherMonthly = num(take('otherMonthlyTaxPaidIncome'))
-  const rental1Weekly = num(take('currentRentalWeekly'))
-  const rental2Weekly = num(take('newRentalWeekly'))
+  const dependantsUnder18 = takeNum('dependantsUnder18')
+  const dependantsOver18 = takeNum('dependantsOver18')
+  const numberOfVehicles = takeNum('numberOfVehicles')
+  const customer1Gross = takeNum('customer1GrossIncome')
+  const customer2Gross = takeNum('customer2GrossIncome')
+  const otherMonthly = takeNum('otherMonthlyTaxPaidIncome')
+  const rental1Weekly = takeNum('currentRentalWeekly')
+  const rental2Weekly = takeNum('newRentalWeekly')
   const boarders = take('boarders')
   const loans = take('loans')
-  const studentLoan1 = num(take('studentLoan1Monthly'))
-  const studentLoan2 = num(take('studentLoan2Monthly'))
-  const overdraftLimits = num(take('overdraftLimits'))
-  const creditCardLimits = num(take('creditCardLimits'))
-  const rentWeekly = num(take('rentPaidWeekly'))
-  const generalWeekly = num(take('generalLivingWeekly'))
-  const additionalWeekly = num(take('additionalLivingWeekly'))
+  const studentLoan1 = takeNum('studentLoan1Monthly')
+  const studentLoan2 = takeNum('studentLoan2Monthly')
+  const overdraftLimits = takeNum('overdraftLimits')
+  const creditCardLimits = takeNum('creditCardLimits')
+  const rentWeekly = takeNum('rentPaidWeekly')
+  const generalWeekly = takeNum('generalLivingWeekly')
+  const additionalWeekly = takeNum('additionalLivingWeekly')
 
   // Income (N23 block). Rentals stack on the combined gross in sheet order:
   // current rental first (AJ13), then the new rental on top (AJ16).
@@ -707,7 +751,7 @@ function computeServiceability (inputs) {
   // workbook took a shortcut. Term is unchanged: min(assessment, actual).
   // Personal Term Loans keep the workbook behaviour EXACTLY — their entered rate
   // alone, no margin (the sheet's row 20 has no assessment column, AI29).
-  const stressMargin = num(take('stressMargin'))
+  const stressMargin = takeNum('stressMargin')
   const minPayment = (row, marginAdded) => {
     const r = row || {}
     const rate = num(r.actualRate) + marginAdded //                                  client rate + stress margin
@@ -843,8 +887,9 @@ const DEFAULT_BUSINESS_INPUTS = {
  *     −265,478 on the sample) even though that class's Year-1 interest is gated
  *     to 0 — the sheet's H96 does exactly this, so it is reproduced.
  *
- * @param {Object} inputs see DEFAULT_BUSINESS_INPUTS — any omitted field falls
- *   back to the sample AND is named in `defaultedInputs` (R8).
+ * @param {Object} inputs see DEFAULT_BUSINESS_INPUTS — any field that is omitted,
+ *   or present but unusable as a number, falls back to the sample AND is named in
+ *   `defaultedInputs` (R8).
  * @returns {Object} { items, totals, ebit, businessType, fullTimeStaff,
  *   partTimeStaff, currentTaxDue, ebitToInterestRatio, securityAdjustment,
  *   bankAdjustedMaxSecurity, coverageDivisor, ebitServiceableAnnual,
@@ -858,11 +903,12 @@ function computeBusinessBlock (inputs) {
     if (src[name] === undefined || src[name] === null) { defaultedInputs.push(name); return DEFAULT_BUSINESS_INPUTS[name] }
     return src[name]
   }
-  const ebit = num(take('ebit'))
+  const takeNum = numPicker(src, DEFAULT_BUSINESS_INPUTS, defaultedInputs)
+  const ebit = takeNum('ebit')
   const businessType = take('businessType')
-  const fullTimeStaff = num(take('fullTimeStaff'))
-  const partTimeStaff = num(take('partTimeStaff'))
-  const currentTaxDue = num(take('currentTaxDue'))
+  const fullTimeStaff = takeNum('fullTimeStaff')
+  const partTimeStaff = takeNum('partTimeStaff')
+  const currentTaxDue = takeNum('currentTaxDue')
   let securities = take('securities')
   if (!Array.isArray(securities)) { securities = DEFAULT_BUSINESS_INPUTS.securities }
   const cfg = LOAN_CRITERIA.business

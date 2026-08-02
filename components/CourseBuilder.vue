@@ -1311,8 +1311,23 @@ export default {
       this._noteSaveTimer = setTimeout(() => { this._saveCourse(this.activeCourse) }, 800)
     },
 
+    /**
+     * Print the completion certificate on its own.
+     *
+     * The body class is what isolates it from the rest of the screen — see the
+     * unscoped print block at the foot of this file. Without it the whole Course
+     * Builder screen printed, which is what this did until 2026-08-02.
+     */
     printCertificate () {
-      window.print()
+      if (typeof window === 'undefined') { return }
+      document.body.classList.add('cert-printing')
+      try {
+        window.print()
+      } finally {
+        // Always removed, including if print() throws: a page left in printing mode
+        // renders blank to the advisor still looking at it.
+        document.body.classList.remove('cert-printing')
+      }
     },
 
     goToCourses () {
@@ -2541,12 +2556,53 @@ export default {
 }
 .btn-cert-close:hover { color: #374151; border-color: #9ca3af; }
 
-/* ── Print: show certificate only ────────────────────── */
+/* The print rules used to live here, and did nothing at all — see the unscoped block
+   below for what was wrong and why they cannot be scoped. */
+</style>
+
+<!--
+  UNSCOPED, DELIBERATELY — the only rules in this component that are.
+
+  WHAT WAS BROKEN (found 2026-08-02). These rules were inside the `scoped` block above,
+  which meant Vue rewrote `body > *` to `body > *[data-v-hash]`. Nuxt's own page wrapper
+  carries no such attribute, so the rule matched nothing and hid nothing: pressing
+  "Print / Save as PDF" printed the ENTIRE Course Builder screen, with the certificate
+  somewhere inside it. Verified by compiling the rule, not by reading it.
+
+  Scoping cannot be kept here. Printing one element means hiding everything around it,
+  and everything around it belongs to other components by definition.
+
+  `visibility`, not `display`, for the general sweep: display:none on an ancestor cannot
+  be undone further down, so the certificate — nested several levels deep — could never
+  be shown again. visibility can be turned back on, which is what makes this work.
+
+  Three rules, three different jobs, none of them redundant:
+    1. the visibility sweep hides page furniture this component knows nothing about;
+    2. the sibling collapse removes the screen's own height, because a
+       visibility:hidden element still occupies space and would otherwise push out
+       pages of blank paper behind the certificate;
+    3. absolute positioning guarantees the certificate lands on page one.
+
+  Gated behind `body.cert-printing`, which exists only for the duration of the press,
+  so an ordinary Ctrl+P anywhere in the app behaves exactly as it did before.
+-->
+<style>
 @media print {
-  body > * { display: none !important; }
-  .certificate-modal { display: flex !important; position: static !important; }
-  .cert-backdrop { display: none !important; }
-  .cert-actions { display: none !important; }
-  .certificate-card { box-shadow: none !important; border-color: #ccc !important; }
+  body.cert-printing * { visibility: hidden !important; }
+  body.cert-printing .certificate-card,
+  body.cert-printing .certificate-card * { visibility: visible !important; }
+  body.cert-printing .course-builder > *:not(.certificate-modal) { display: none !important; }
+  body.cert-printing .certificate-modal { position: static !important; display: block !important; }
+  body.cert-printing .certificate-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none;
+    box-shadow: none !important;
+    border-color: #ccc !important;
+  }
+  /* The buttons are inside the card, so the sweep above leaves them visible. */
+  body.cert-printing .cert-actions { display: none !important; }
 }
 </style>

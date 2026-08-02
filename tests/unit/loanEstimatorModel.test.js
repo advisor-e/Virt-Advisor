@@ -297,6 +297,51 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       expect(demo.monthlyRepayment).toBeCloseTo(5747.094633, 5) // and still computes the sample
       expect(() => computeRepaymentSchedule({ basis: 'Balloon' })).toThrow(/Unknown repayment basis/)
     })
+
+    /**
+     * R8, extended by Mike's ruling of 2026-08-02. Before it, `take()` tested only for
+     * absence: a figure that arrived PRESENT but unusable ran through `num()` with no
+     * fallback and became **zero** — not the sample — and was named nowhere. A deposit
+     * typed as words silently became a deposit of nothing and the loan amount moved
+     * with it, while the response said the figure was the client's.
+     */
+    describe('a present-but-unusable figure is treated exactly as an absent one', () => {
+      it('text where a deposit belongs falls back to the sample AND is declared', () => {
+        const out = computeRepaymentSchedule(
+          Object.assign({}, DEFAULT_LOAN_INPUTS, { deposit: 'two hundred and seventy thousand' })
+        )
+        expect(out.defaultedInputs).toContain('deposit')
+        expect(out.loanAmount).toBeCloseTo(t.loanAmount, 6) // the sample deposit, NOT zero
+      })
+
+      it('the old behaviour is gone — an unusable deposit no longer means no deposit', () => {
+        // The regression this guards: loanAmount = purchasePrice − 0 = the whole price.
+        const out = computeRepaymentSchedule(
+          Object.assign({}, DEFAULT_LOAN_INPUTS, { deposit: 'lots' })
+        )
+        expect(out.loanAmount).not.toBeCloseTo(DEFAULT_LOAN_INPUTS.purchasePrice, 6)
+      })
+
+      it('NaN, Infinity and an empty string are all declared', () => {
+        const cases = { annualRate: NaN, term: Infinity, purchasePrice: '' }
+        Object.keys(cases).forEach((key) => {
+          const one = {}
+          one[key] = cases[key]
+          const out = computeRepaymentSchedule(Object.assign({}, DEFAULT_LOAN_INPUTS, one))
+          expect(out.defaultedInputs).toContain(key)
+        })
+      })
+
+      it('a numeric string and a zero are the client\'s own figures, not defaults', () => {
+        const str = computeRepaymentSchedule(Object.assign({}, DEFAULT_LOAN_INPUTS, { deposit: '270000' }))
+        expect(str.defaultedInputs).not.toContain('deposit')
+        expect(str.loanAmount).toBeCloseTo(t.loanAmount, 6)
+
+        const zero = computeRepaymentSchedule(Object.assign({}, DEFAULT_LOAN_INPUTS, { deposit: 0 }))
+        expect(zero.defaultedInputs).not.toContain('deposit') // no deposit is a real answer
+        expect(zero.loanAmount).toBeCloseTo(DEFAULT_LOAN_INPUTS.purchasePrice, 6)
+      })
+    })
   })
 
   describe('serviceability (Serviceability Input — Part C, Phase 3)', () => {
@@ -417,6 +462,14 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       expect(demo.surplus).toBeCloseTo(345.331941653, 5) //     and still computes the sample
     })
 
+    it('an unusable income is declared, and computes on the sample not on zero', () => {
+      // Ruled 2026-08-02. An income typed as words used to become $0 in silence — the
+      // one figure a serviceability verdict turns on.
+      const out = computeServiceability(Object.assign({}, DEFAULT_SERVICEABILITY_INPUTS, { customer1GrossIncome: 'ninety thousand' }))
+      expect(out.defaultedInputs).toContain('customer1GrossIncome')
+      expect(out.income.customer1.gross).toBeCloseTo(DEFAULT_SERVICEABILITY_INPUTS.customer1GrossIncome, 6)
+    })
+
     // APP-ORIGINAL formula (Mike, 2026-07-23) — no workbook cell to anchor to,
     // so it is proven by ROUND TRIP: the reported maximum, fed back in as the
     // New Property Loans balance, must land the surplus exactly on the
@@ -531,6 +584,14 @@ describe('Loan Estimator — golden values from The Loan Estimator.xlsx', () => 
       expect(demo.defaultedInputs).toContain('ebit')
       expect(demo.defaultedInputs).toContain('securities')
       expect(demo.bankAdjustedMaxSecurity).toBeCloseTo(1947001.5, 4) // still computes the (corrected) sample
+    })
+
+    it('an unusable EBIT is declared, and computes on the sample not on zero', () => {
+      // Ruled 2026-08-02. EBIT drives the whole serviceable-loan figure, so a silent
+      // zero here reported a business that can borrow nothing.
+      const out = computeBusinessBlock(Object.assign({}, DEFAULT_BUSINESS_INPUTS, { ebit: 'n/a' }))
+      expect(out.defaultedInputs).toContain('ebit')
+      expect(out.ebit).toBeCloseTo(DEFAULT_BUSINESS_INPUTS.ebit, 6)
     })
   })
 

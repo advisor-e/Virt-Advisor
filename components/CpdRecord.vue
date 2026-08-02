@@ -1,8 +1,16 @@
 <template lang="pug">
 section.cpd-record
-  .cpd-head
-    h3.cpd-title {{ $t('cpd.title') }}
-    p.cpd-sub {{ $t('cpd.subtitle') }}
+  .cpd-head.cpd-no-print
+    .cpd-head-text
+      h3.cpd-title {{ $t('cpd.title') }}
+      p.cpd-sub {{ $t('cpd.subtitle') }}
+    //- Offered only once something has actually been recorded. A statement with no
+    //- entries on it is not a document anyone should be sending to their society.
+    button.btn-cpd-pdf(
+      v-if="!loading && !error && hasStandingClaims"
+      type="button"
+      @click="downloadPdf"
+    ) {{ $t('cpd.downloadPdf') }}
 
   .cpd-loading(v-if="loading")
     .cpd-spinner
@@ -13,6 +21,13 @@ section.cpd-record
     button.btn-cpd-retry(type="button" @click="load()") {{ $t('advisorProgress.retry') }}
 
   template(v-else)
+    //- The printed statement's own heading — hidden on screen, where the section
+    //- already has one. It carries the two things a professional body needs and the
+    //- screen never showed: WHOSE record this is, and WHEN it was produced.
+    .cpd-statement.cpd-print-only
+      h1.cpd-statement-title {{ $t('cpd.statementTitle') }}
+      p.cpd-statement-who {{ $t('cpd.statementWho', { name: advisorLabel, date: producedOn }) }}
+
     p.cpd-total {{ $t('cpd.totalRecorded', { time: formatMinutes(totalMinutes) }) }}
 
     //- A write that failed is said out loud. An advisor who is not told their pledge
@@ -32,7 +47,13 @@ section.cpd-record
           //- has done the work three times, so this is a tally, never a tick.
           span.cpd-activity-claimed(v-if="act.claimedCount")
             | {{ $tc('cpd.recorded', act.claimedCount, { n: act.claimedCount, minutes: act.claimedMinutes }) }}
-        .cpd-activity-actions
+          //- Every standing claim with the date it was made — print only. A tally is
+          //- enough on screen; a submission has to be dated entry by entry, and a
+          //- withdrawn claim is deliberately absent from it (see standingClaims).
+          .cpd-claim-dates.cpd-print-only(v-if="standingClaims(act).length")
+            span.cpd-claim-date(v-for="c in standingClaims(act)" :key="c.id")
+              | {{ $t('cpd.recordedOn', { date: formatDate(c.claimedAt) }) }}
+        .cpd-activity-actions.cpd-no-print
           //- No Record button where the export no longer offers the activity: it can
           //- still be shown as history, but it cannot be claimed again.
           button.btn-cpd-record(
@@ -121,12 +142,49 @@ export default {
       busy: false,
       totalMinutes: 0,
       templates: [],
+      /** Identity as the server reported it, for the printed statement only. The
+       *  name may be null — the token need not carry one — and is never invented. */
+      advisorId: null,
+      advisorName: null,
+      /** The date printed on the statement, stamped when Download is pressed rather
+       *  than when the screen loaded. A record left open overnight must not print
+       *  yesterday's date on a document submitted today. */
+      producedOn: '',
       /** The claim awaiting the advisor's pledge: { templateTitle, activity }. */
       pledge: null,
       pledgeOpen: false,
       /** The activity whose most recent recording is awaiting confirmation. */
       withdrawTarget: null,
       withdrawOpen: false
+    }
+  },
+
+  computed: {
+    /**
+     * Who the printed statement is for.
+     *
+     * Falls back to the advisor id when the login token carries no display name —
+     * the house rule for this field (see server/middleware/firmAuth.js): a name is
+     * never guessed or assembled from anything else. An id on a document going to a
+     * professional body is poor, but it is honest, and inventing one would not be.
+     *
+     * @returns {string}
+     */
+    advisorLabel () {
+      return this.advisorName || this.advisorId || ''
+    },
+
+    /**
+     * Whether anything at all is standing on this record.
+     *
+     * Gates the Download button: a statement listing nothing would still carry a
+     * heading, a name and a total of zero, which reads like a claim of no CPD rather
+     * than the blank page it is.
+     *
+     * @returns {boolean}
+     */
+    hasStandingClaims () {
+      return this.templates.some(t => (t.activities || []).some(a => a.claimedCount > 0))
     }
   },
 
@@ -196,6 +254,8 @@ export default {
         if (data.success) {
           this.totalMinutes = data.totalMinutes || 0
           this.templates = data.templates || []
+          this.advisorId = data.advisorId || null
+          this.advisorName = data.advisorName || null
         } else {
           this.error = 'cpd.loadFailed'
         }
@@ -396,6 +456,72 @@ export default {
     claimTime (claim) {
       const t = claim && claim.claimedAt ? new Date(claim.claimedAt).getTime() : NaN
       return Number.isFinite(t) ? t : -Infinity
+    },
+
+    /**
+     * One activity's claims that still stand, oldest first — the lines that appear on
+     * the printed statement.
+     *
+     * Withdrawn claims are excluded on purpose. They stay on screen as history, but a
+     * withdrawn claim is one the advisor has taken back, and the totals already count
+     * standing claims only; listing it on a submission would contradict the figure
+     * printed above it.
+     *
+     * @param {object} act - one activity from the backend's record.
+     * @returns {object[]}
+     */
+    standingClaims (act) {
+      return (act.claims || [])
+        .filter(c => c && !c.withdrawnAt)
+        .sort((a, b) => this.claimTime(a) - this.claimTime(b))
+    },
+
+    /**
+     * A date as it should read on a document: "12 Jul 2026".
+     *
+     * Matches the parent My Progress screen's format so the two never disagree about
+     * what a date looks like. An unreadable date renders as nothing rather than
+     * "Invalid Date" — this text is printed and sent to a professional body, where a
+     * blank is recoverable and a nonsense string is not.
+     *
+     * @param {string|Date} dt @returns {string}
+     */
+    formatDate (dt) {
+      if (!dt) { return '' }
+      const d = new Date(dt)
+      if (!Number.isFinite(d.getTime())) { return '' }
+      return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+    },
+
+    /**
+     * Produce the printed CPD statement.
+     *
+     * The browser makes the PDF (the same `window.print()` the six report screens
+     * use), so no PDF library is pulled in — none of the usual ones run on the locked
+     * Node 14.15. HONEST LIMIT: the advisor saves the file themselves, so there is no
+     * server-side copy of what was actually sent, and the layout depends on their
+     * browser's print settings.
+     *
+     * The body class is what isolates this section from the rest of the My Progress
+     * screen — see the unscoped print block at the foot of this file. It is added for
+     * the duration of this press only, so an ordinary Ctrl+P elsewhere is unaffected.
+     *
+     * @returns {Promise<void>}
+     */
+    async downloadPdf () {
+      if (typeof window === 'undefined') { return }
+      this.producedOn = this.formatDate(new Date())
+      // The stamped date has to reach the DOM before the print dialog reads it,
+      // otherwise the statement prints with an empty "Produced" line.
+      await this.$nextTick()
+      document.body.classList.add('cpd-printing')
+      try {
+        window.print()
+      } finally {
+        // Always removed, including if print() throws: a page left in printing mode
+        // renders blank to the advisor still sitting in front of it.
+        document.body.classList.remove('cpd-printing')
+      }
     }
   }
 }
@@ -406,9 +532,31 @@ export default {
    tables of the Firm Manager Hub — this section sits inside that screen. */
 .cpd-record { padding: 0 24px 24px; }
 
-.cpd-head { margin-bottom: 10px; }
+.cpd-head {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cpd-head-text { min-width: 0; }
 .cpd-title { font-size: 14px; font-weight: 600; color: #374151; margin: 0 0 2px; }
 .cpd-sub { font-size: 11px; color: #9ca3af; margin: 0; }
+
+.btn-cpd-pdf {
+  flex-shrink: 0;
+  background: #fff; border: 1px solid #d1d5db;
+  border-radius: 6px; padding: 5px 12px;
+  font-size: 12px; cursor: pointer; color: #374151;
+}
+.btn-cpd-pdf:hover { background: #f9fafb; color: #111827; }
+
+/* ── The printed statement ──
+   Off the screen entirely; the print block at the foot of this file reveals it. */
+.cpd-print-only { display: none; }
+.cpd-statement-title { font-size: 18px; font-weight: 700; color: #111827; margin: 0 0 4px; }
+.cpd-statement-who { font-size: 12px; color: #374151; margin: 0 0 12px; }
+.cpd-claim-date { display: block; font-size: 11px; color: #374151; margin-top: 2px; }
 
 /* ── Loading / error ── */
 .cpd-loading { padding: 20px 0; text-align: center; }
@@ -494,4 +642,52 @@ export default {
 .cpd-modal-activity { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
 .cpd-modal-pledge { font-size: 15px; color: #111827; font-weight: 600; margin-bottom: 10px; }
 .cpd-modal-declaration { font-size: 12px; color: #6b7280; }
+</style>
+
+<!--
+  UNSCOPED, DELIBERATELY — the only rules in this component that are, and the reason
+  is structural rather than a shortcut.
+
+  Printing ONE section of a bigger screen means hiding everything around it, and
+  everything around it belongs to other components. A scoped rule cannot reach them:
+  Vue rewrites a scoped selector to match only this component's own elements, so
+  `body > *` compiles to `body > *[data-v-hash]` — and Nuxt's own `<div id="__nuxt">`
+  carries no such attribute, so it matches nothing at all.
+
+  That is verified, not assumed (compiled with @vue/component-compiler-utils on
+  2026-08-02), and it is why the scoped print rule in components/CourseBuilder.vue has
+  no effect: a course certificate prints the entire screen instead of the certificate.
+  That defect is NOT fixed here — it is a separate screen and a separate approval.
+
+  `visibility`, not `display`: display:none on an ancestor cannot be undone by a
+  descendant, so a nested section could never be printed on its own. visibility can be
+  turned back on further down, which is what makes this work wherever the section sits.
+
+  Everything is gated behind `body.cpd-printing`, which exists only for the duration of
+  the advisor's own Download press — so an ordinary Ctrl+P anywhere in the app behaves
+  exactly as it did before.
+-->
+<style>
+@media print {
+  body.cpd-printing * { visibility: hidden !important; }
+  body.cpd-printing .cpd-record,
+  body.cpd-printing .cpd-record * { visibility: visible !important; }
+  /* A visibility:hidden element still occupies its space, so the My Progress screen
+     above this section would otherwise push out pages of blank paper behind the
+     statement. Its own siblings are collapsed outright — they are not ancestors of
+     this section, so removing them cannot take the statement with them. */
+  body.cpd-printing .advisor-progression > *:not(.cpd-record) { display: none !important; }
+  body.cpd-printing .cpd-record {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+  }
+  body.cpd-printing .cpd-no-print { display: none !important; }
+  body.cpd-printing .cpd-print-only { display: block !important; }
+  /* A template's entries must not be split across a page break — a claim whose date
+     landed on the next sheet reads as an entry with no date. */
+  body.cpd-printing .cpd-template { break-inside: avoid; page-break-inside: avoid; }
+}
 </style>

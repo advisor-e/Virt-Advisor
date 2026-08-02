@@ -21,6 +21,7 @@
 'use strict'
 
 var execFileSync = require('child_process').execFileSync
+var branchSurvey = require('./branch-survey')
 
 var REPORT_ONLY = process.argv.indexOf('--report') !== -1
 var PROTECTED_BRANCH = 'master'
@@ -73,6 +74,35 @@ function fail (messages) {
     bar()
     process.exit(1)
   }
+}
+
+/**
+ * Rule 3 (report only) — name the work sitting on other branches.
+ *
+ * The two rules above compare this branch against `master` and nothing else, which is
+ * true and, on its own, misleading: a branch that is pushed but not yet merged is
+ * invisible to both. See `startup-blind-to-other-machine` in design/ACTIONS.md.
+ *
+ * Wrapped in its own try/catch and given no exit code deliberately. This is a report
+ * about somebody else's branch; it must never be able to block this machine's push,
+ * including by throwing.
+ *
+ * @param {string} currentBranch the branch we are standing on
+ */
+function survey (currentBranch) {
+  var lines = null
+  try {
+    lines = branchSurvey.surveyLines(gitSafe, currentBranch)
+  } catch (err) {
+    return
+  }
+  if (!lines) { return }
+
+  bar()
+  line('⚠  OTHER BRANCHES — work this check cannot see')
+  bar()
+  lines.forEach(line)
+  bar()
 }
 
 var branch = gitSafe(['rev-parse', '--abbrev-ref', 'HEAD'])
@@ -146,9 +176,14 @@ if (behind > 0) {
     '',
     'See design/WORKING-AGREEMENT.md.'
   ])
+  // Report mode reaches here (enforce mode has already exited inside `fail`). Being
+  // behind master does not make the other machine's work less relevant — at session
+  // start it is exactly when you want the whole picture, not half of it.
+  survey(branch)
   process.exit(0)
 }
 
 // Clean.
 line('✔ Branch `' + branch + '`: ' + ahead + ' ahead, 0 behind origin/' + PROTECTED_BRANCH + '.')
+survey(branch)
 process.exit(0)
