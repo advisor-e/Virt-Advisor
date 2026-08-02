@@ -23,6 +23,30 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="pr-firm-quiz-builder-to-master"></a>☐ **P1 · PROCESS — raise a pull request from
+  `feat/firm-quiz-builder-ui` to `master`. The branch is green and ready; nothing is blocking it but
+  the asking.** Logged 2026-08-02 by Mike's question — it had been said in conversation and written
+  nowhere, which is the exact failure the Save-the-Artefact rule was written about the same evening.
+  - **State at the time of logging (`237ef00`):** 9 ahead, **0 behind** `origin/master`, working tree
+    clean, pushed. Full suite **3,965 green / 237 suites** *after* merging the 75 commits that came in
+    with PR #30 (the Business Performance Report programme) — a clean merge, no conflicts. The
+    pre-push and audit gates passed on every commit.
+  - **What is sitting on it:** the Logic-Lab correction (distinctions measured live through the
+    engine's own classifier; the phrase screen removed from the hub but kept in the repo), the
+    `npm run serve` / `npm run go` start commands, **both approved mockups**, and the **CLAUDE.md
+    "Save the Artefact" rule**.
+  - **Why it should not wait.** That rule binds *both* machines and the laptop cannot follow a rule it
+    does not have — every day it stays on this branch is a day the other division can approve a design
+    in chat and lose it, which is the thing that cost this session a day. Same shape as the
+    [`startup-blind-to-other-machine`](#startup-blind-to-other-machine) P1: work that is pushed but not
+    PR'd is invisible to the other division, and every check reports green throughout.
+  - **`master` means releasable** (WORKING-AGREEMENT), and this branch is: green, merged up to date,
+    and carrying no half-finished screen — the Decision Logic page has not been started, so nothing is
+    mid-build. Reached by pull request only; `.husky/pre-push` refuses a direct push.
+  - **Not a blocker for tomorrow's build.** It can be raised before starting, or after the page lands
+    — Mike's call. Raising it first is the safer order: it gets the rule to the laptop today and keeps
+    the PR small enough to actually review.
+
 - <a id="logic-lab-decision-logic-build"></a>☐ **P1 · BUILD — TOMORROW'S FIRST TASK. The DECISION LOGIC page,
   approved by Mike 2026-08-02 from a working mockup, goes into Firm Manager Hub as the tab named
   "Logic-Lab". THE MOCKUP IS THE SPEC — do not design from this entry.**
