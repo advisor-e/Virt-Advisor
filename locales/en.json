@@ -1459,6 +1459,10 @@
     },
     "loadFailed": "Could not load your CPD record",
     "recordFailed": "Could not record your CPD claim",
-    "withdrawFailed": "Could not withdraw your CPD claim"
+    "withdrawFailed": "Could not withdraw your CPD claim",
+    "downloadPdf": "Download PDF",
+    "statementTitle": "Continuing Professional Development Record",
+    "statementWho": "{name} · Produced {date}",
+    "recordedOn": "Recorded {date}"
   }
 }
