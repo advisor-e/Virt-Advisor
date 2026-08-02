@@ -1,10 +1,21 @@
 # Sliced course sessions — the wording
 
-**Status: PROPOSED. Nothing here is built, and nothing here is approved.** This file exists
-so Mike has something to rule on that survives the conversation, per
-[Save the Artefact](../CLAUDE.md). The screen it describes is
-[`mockups/sliced-course-outline.html`](mockups/sliced-course-outline.html) — open that
-first; this file is the reasoning behind it.
+**Status: BUILT 2026-08-03**, on Mike's instruction to finish the slicer ("fix everything …
+make sure you don't delete options or ignore plans that have been agreed"). The
+recommendation under each decision below is what now ships; nothing was dropped, and every
+place a recommendation was changed after the first draft says so.
+
+The screen is [`mockups/sliced-course-outline.html`](mockups/sliced-course-outline.html) —
+open that first; this file is the reasoning behind it. Any later change to the wording
+changes **both files and the code together**, or the three stop agreeing.
+
+> **⚠ One correction to the first draft of this file.** It showed the two options as text the
+> advisor had to answer by typing. They are a **drop-tab** — the advisor picks. Mike said he
+> had asked for this before; there is no written trace of that request anywhere in the repo,
+> which is a failure of the record, not of his memory. It is also what this app's own rule
+> already required: [`virt-advisor-system-design.md`](virt-advisor-system-design.md) puts a
+> choice between defined options on a constrained selector, "no interpretation needed", and
+> names Session Length as one of them.
 
 - **The model:** [`COURSE-SESSION-PLANNING.md`](COURSE-SESSION-PLANNING.md), approved
   2026-08-03. A session is a time-boxed slice of ONE activity.
@@ -51,12 +62,16 @@ Left as it is, an advisor picks the second option and gets 7 sessions after bein
 That is the same failure the whole session-length exercise was written to stop: **a number
 shown to the advisor that nothing checked.**
 
-### D6 — how the second option should read *(needs Mike)*
+### D6 — how the second option reads *(built)*
 
-**Recommendation.** Compute the second option by *actually running the slicer* rather than
-dividing: find the shortest session length whose plan comes in at or under the count they
-asked for, and offer the plan it produces. When their count is below the floor, say so
-plainly and offer the fewest sessions the material allows.
+Both options are now computed by *actually running the slicer* rather than dividing:
+`planForCount` sweeps every session length in five-minute steps and returns the plan closest
+to the count the advisor asked for, along with the length that builds it. When their count is
+below the floor, the app says so plainly and offers the fewest sessions the material allows.
+
+Each option carries the length that rebuilds it, so answering re-slices at a length already
+proven to produce the plan named on the label — **the figures on screen and the course the
+advisor gets cannot disagree.**
 
 For Mike's live case that reads:
 
@@ -67,15 +82,30 @@ reading and rehearsing.
 That doesn't fit 4 sessions of 15–20 minutes. Each piece of work has to finish
 before the next one starts, so the fewest this material can be is 6 sessions.
 
-• Keep your session length — 15–20 minutes each, and the course becomes 11 sessions
-• Keep the course as short as possible — 6 sessions, the longest about 1 hour
-
 Which would you rather?
 ```
 
-The first bullet is **unchanged** from the wording Mike approved. Only the second is
+…followed by the **drop-tab**, holding the two options and nothing else:
+
+```text
+[ Choose one…                                                            ▾ ]
+  Keep your session length — 15–20 minutes each, and the course becomes 11 sessions
+  Keep the course as short as possible — 6 sessions, the longest 1 hour
+
+                                                          [ Build my course → ]
+```
+
+The first option is **unchanged** from the wording Mike approved. Only the second is
 corrected, plus one sentence explaining why 4 is not on offer. **"Cover less material" is
-still not an option** — proposed and rejected 2026-08-03.
+still not an option** — proposed and rejected 2026-08-03. Nothing is preselected: a
+preselected answer is the app choosing for the advisor.
+
+**Where the count they asked for CAN be built** the second option is their own number:
+*"Keep your 7 sessions — each one up to 30 minutes"*, and the "fewest this material can be"
+sentence does not appear.
+
+**Two labels written for this screen**, neither of them from an earlier approval: the
+placeholder **"Choose one…"** and the button **"Build my course →"**.
 
 **The alternative, for completeness:** allow two short activities to share a session, which
 would make 4 sessions reachable. That means dropping rule 4 of the approved model, so it is
@@ -86,8 +116,8 @@ one video plus the first half of a reading" is exactly the muddle the slicer exi
 
 ## The decisions
 
-Each has a recommendation. Approving the mockup as it stands adopts all of them; disagreeing
-with any single row is easier than approving nine things separately.
+Each says what was built and why, with the alternatives that were considered kept beside it —
+so a later session can see what was weighed rather than only what won.
 
 ### D1 — What the three activities are called
 
@@ -160,38 +190,52 @@ generated, so no session's stated purpose can be a fabrication.
 The advisor might reply "whatever you think" or "the second one sounds fine". The approved
 model says it must not be guessed at.
 
-**Recommendation:** read the reply in code for a clear signal one way or the other. If there
-is none, re-ask **once** in plainer words — the existing CB-06 pattern used everywhere else
-in this interview:
+**The drop-tab removes this problem rather than handling it** — an advisor who picks cannot be
+unclear. What follows is the fallback for one who types anyway.
 
-```
-Sorry — which would you prefer: shorter sessions and more of them, or fewer
-sessions that each run longer?
+The reply is read in code for a clear signal one way or the other, deliberately narrowly:
+"keep the length", "shorter sessions", "fewer sessions", "the second one". Anything else —
+including "keep the length but fewer sessions" — is treated as unclear. A wrong guess builds
+the wrong course silently, which is worse than asking again. It is then re-asked **once**, the
+CB-06 pattern used everywhere else in this interview:
+
+```text
+Sorry — I couldn't tell which of those you'd prefer. Pick one from the list
+above and I'll build it.
 ```
 
-If the second reply is still unclear, **build the shorter-sessions plan and say so out loud**
-rather than pick in silence:
+If the second reply is still unclear, it **builds the shorter-sessions plan and says so out
+loud** rather than picking in silence:
 
-```
+```text
 I'll go with keeping your sessions at 15–20 minutes — that makes it 11 sessions.
 Use 'Request changes' if you'd rather have fewer, longer ones.
 ```
+
+**And the choice is honoured by code, never by the AI.** The material travels with the
+question, so answering re-slices what the advisor was told about; the reply never becomes an
+instruction to the model. This also had to be kept clear of the outline-revision flow, which
+treats any message arriving with a pending outline as "rewrite the course" — the fit answer is
+checked first, and pinned by a test.
 
 ### D8 — Material that has no published time
 
 Material the export never timed cannot be placed in a timetable at all. It is already
 collected by `planSessions` and must be named, never dropped in silence and never counted as
-zero work. **Recommended line, under the sessions:**
+zero work. **The line under the sessions:**
 
-```
+```text
 1 resource has no published time, so it isn't timetabled: Dashboard Report.
-You can still open it from the course.
 ```
 
-⚠ **Open sub-question:** the second sentence is only true if a template that never became a
-session is still reachable from the course screen. If Mike wants it timetabled anyway, the
-only honest way is to ask him for a default allowance, exactly as the 30 minutes for revenue
-models was set.
+The draft of this file added *"You can still open it from the course."* **That was cut before
+building, because it is not true**: a template that never became a session has no session to
+be opened from. Saying it would have been a small, confident falsehood on a screen whose whole
+purpose is that its figures can be trusted.
+
+⚠ **Open for Mike, not blocking:** if he wants such material timetabled anyway, the only
+honest way is a default allowance he sets, exactly as the 30 minutes for revenue models was
+set. Nothing is assumed in the meantime.
 
 ### D9 — Not blocking: does the conversation with the AI carry time?
 
@@ -227,16 +271,42 @@ only the cutting does.
 
 ---
 
-## What gets built once this is ruled on
+## What was built, and where it lives
 
-Recorded here so the build can be checked against it afterwards.
+1. **The fit question** is its own state (`pendingFit`) in
+   [`courseEngine.js`](../server/courseEngine.js), checked **before** the outline-revision
+   flow — which treats any message arriving with a pending outline as "rewrite the course",
+   and would have sent the advisor's choice to the AI as an instruction. The material travels
+   with the question and is re-validated and re-grounded on the way back in; answering makes
+   no AI call at all.
+2. **`planSessions` replaces the AI's grouping** whenever a session length was named. With no
+   length named, nothing has changed: the AI's grouping is timed and checked exactly as
+   before, and the CB-26 session-count notice still applies on both paths.
+3. **The wording lives in one place** — [`courseSliceCopy.js`](../server/utils/courseSliceCopy.js)
+   — because a sliced outline is saved, re-read months later, copied to a teammate with a
+   shared course, and used to brief the tutor. Composing the titles in the screen would leave
+   the stored course with none.
+4. **The outline card renders the slices**, and the session prompt is told the activity and
+   the part, so the tutor teaches the twenty minutes in front of the advisor rather than the
+   whole template.
+5. **Tests**: `courseSliceCopy.test.js` (every generated word), `courseFitQuestion.test.js`
+   (the question, both answers, the unclear path, and that the answer never reaches the AI),
+   `courseSlicedOutline.component.test.js` (the drop-tab, the card, and the Request-changes
+   bug), plus the corrected `fitOptions` block in `courseEffort.test.js`.
 
-1. **The fit question** joins the design interview as its own state. ⚠ It must not collide
-   with the outline-revision flow, which today treats *any* message arriving while an
-   outline is pending as a request to rewrite the course.
-2. **`planSessions` replaces the AI's grouping** in `courseEngine.js`, and the sliced
-   sessions carry the titles, focus lines and objectives ruled on above.
-3. **The outline card renders them**, and the session-delivery prompt is told the activity,
-   the template and the part — so the tutor knows it is running part 2 of 3 of a reading.
-4. **Tests**: the fit question's routing, the unclear-answer path, and the wording of every
-   generated title — the last of these is what a future session would otherwise drift from.
+### What the length notice became
+
+The session-length **warning** built earlier the same day is now unreachable on a sliced
+course, because the slicer cannot produce a session longer than the budget. It is kept as an
+**invariant guard**: if a plan ever did exceed the length asked for, that is logged as an
+error and still shown. The tests that used to pin the warning now pin the stronger fact —
+**the over-long session cannot be built at all** — and say so in the file, rather than being
+deleted for going green.
+
+### Also fixed in the same change
+
+**'Request changes' destroyed the outline.** One click cleared it from the screen, and nothing
+could bring it back: a course is not saved until "Start this course", and the outline JSON is
+stripped out of the chat transcript. Mike lost a course this way on 2026-08-03. The button now
+only moves the cursor into the message box; the card survives until a replacement arrives, and
+a failed send or a reply with no course puts the old one back.

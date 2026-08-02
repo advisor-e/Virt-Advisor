@@ -74,6 +74,22 @@
       //- Streaming indicator
       course-message(v-if="isDesignStreaming" streaming)
 
+      //- The session-length question — a DROP-TAB, not a typed answer.
+      //- design/COURSE-SLICED-SESSION-WORDING.md (D6/D7) and the app's own rule
+      //- for a choice between defined options (virt-advisor-system-design.md):
+      //- the advisor picks, so there is nothing to parse and nothing to guess.
+      //- Both options are always offered; "cover less material" is deliberately
+      //- not one of them (proposed and rejected by Mike, 2026-08-03).
+      .fit-card(v-if="fitChoices.length && !isDesignStreaming")
+        b-select.fit-select(
+          v-model="fitChoice"
+          expanded
+          aria-label="Choose how this course is split into sessions"
+        )
+          option(value="" disabled) Choose one…
+          option(v-for="o in fitChoices" :key="o.id" :value="o.id") {{ o.label }}
+        button.btn-build-course(@click="sendFitChoice" :disabled="!fitChoice") Build my course →
+
       //- Course outline confirmation card
       .outline-card(v-if="pendingOutline && !isDesignStreaming")
         .outline-card-header
@@ -85,11 +101,15 @@
             //- resources rather than restated from the request.
             span.outline-tag(v-if="outlineTotalLabel(pendingOutline)") {{ outlineTotalLabel(pendingOutline) }}
         .outline-sessions
-          .outline-session(v-for="s in pendingOutline.sessions" :key="s.id")
+          .outline-session(v-for="(s, i) in pendingOutline.sessions" :key="s.id")
             .session-num {{ s.id }}
             .session-info
               strong.session-title {{ s.title }}
               p.session-focus {{ s.focus }}
+              //- The template's own authored objective, from the master export.
+              //- Shown once per template — under all six of its sessions it is
+              //- noise — and never on a course the AI grouped itself.
+              p.session-objective(v-if="sliceObjective(i)") {{ sliceObjective(i) }}
               //- Watching, reading and rehearsing, added up (Mike 2026-08-03).
               //- Absent rather than zero when nothing has been published.
               p.session-time(v-if="sessionTimeLabel(s)") {{ sessionTimeLabel(s) }}
@@ -104,6 +124,9 @@
               //- A resource the export never timed is named, not counted as
               //- zero: an unknown length must not read as "no work".
               p.session-time-unknown(v-if="sessionUnknownLabel(s)") {{ sessionUnknownLabel(s) }}
+        //- Material with no published time cannot be put in a timetable at all.
+        //- It is named rather than dropped in silence (D8).
+        .outline-count-notice(v-if="untimedResourcesLabel") {{ untimedResourcesLabel }}
         //- CB-26: code-detected session-count mismatch — the engine flags it;
         //- the AI is never trusted to confess a deviation itself.
         .outline-count-notice(v-if="courseState.sessionCountNotice")
@@ -496,6 +519,10 @@ export default {
       designStreamingText: '',
       courseState: {},
       pendingOutline: null,
+      // Which of the two session-length options is showing in the drop-tab.
+      // Empty until the advisor picks: nothing is preselected, because a
+      // preselected answer is the app choosing for them.
+      fitChoice: '',
       courseVisibility: 'private',
       activeCourse: null,
       // Courses shown in the "Your saved courses" picker — fetched from the
@@ -619,6 +646,36 @@ export default {
         .find(p => p.completedAt)
       if (!last) { return '' }
       return new Date(last.completedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
+    },
+
+    /**
+     * The two session-length options, while that question is open.
+     *
+     * Computed by the engine — each label names a plan it has actually built,
+     * and each carries the session length that rebuilds it. The screen never
+     * works out a figure of its own here.
+     *
+     * @returns {Array<{id: string, label: string}>} empty when nothing is asked
+     */
+    fitChoices () {
+      const fit = this.courseState && this.courseState.pendingFit
+      return (fit && Array.isArray(fit.options)) ? fit.options : []
+    },
+
+    /**
+     * "1 resource has no published time, so it isn't timetabled: Dashboard
+     * Report." Named, because material the export never timed cannot be placed
+     * in a timetable — and silence would read as though it had been included.
+     *
+     * @returns {string} '' when everything chosen could be timetabled
+     */
+    untimedResourcesLabel () {
+      const names = (this.pendingOutline && this.pendingOutline.unknownResources) || []
+      if (!names.length) { return '' }
+      const subject = names.length === 1
+        ? "1 resource has no published time, so it isn't timetabled"
+        : `${names.length} resources have no published time, so they aren't timetabled`
+      return `${subject}: ${names.join(', ')}.`
     },
 
     /**
@@ -757,6 +814,9 @@ export default {
       const effort = session && session.sessionEffort
       const total = this.formatMinutes(effort && effort.minutes)
       if (!total) { return null }
+      // A sliced session IS one activity, and its title already says which —
+      // "20m — 20m reading" would say it a second time.
+      if (session.slice) { return total }
       const parts = []
       if (effort.video) { parts.push(`${effort.video}m video`) }
       if (effort.reading) { parts.push(`${effort.reading}m reading`) }
@@ -777,6 +837,28 @@ export default {
       return unknown.length === 1
         ? '1 resource has no published time'
         : `${unknown.length} resources have no published time`
+    },
+
+    /**
+     * The template's authored objective, on the FIRST session that uses that
+     * template and nowhere else.
+     *
+     * Six sessions of the same template repeating the same sentence is noise;
+     * omitting it entirely loses the only statement of what the material is
+     * for. A course the AI grouped itself is left alone — its objectives are
+     * per session, not per template, and are not shown on this card today.
+     *
+     * @param {number} index - position in the outline's session list
+     * @returns {string|null} null when this is not that session
+     */
+    sliceObjective (index) {
+      const sessions = (this.pendingOutline && this.pendingOutline.sessions) || []
+      const session = sessions[index]
+      if (!session || !session.slice) { return null }
+      const objective = (session.objectives || [])[0]
+      if (!objective) { return null }
+      const first = sessions.findIndex(s => s.slice && s.slice.resource === session.slice.resource)
+      return first === index ? objective : null
     },
 
     /**
@@ -1007,8 +1089,33 @@ export default {
 
     // ── Design phase ─────────────────────────────────────────────────────
 
-    async sendDesignMessage () {
-      const query = this.designInput.trim()
+    sendDesignMessage () {
+      return this._sendDesign(this.designInput.trim(), null)
+    },
+
+    /**
+     * Answer the session-length question by PICKING one of the two options.
+     *
+     * The option's own label becomes the message in the transcript, so the
+     * conversation records what the advisor chose in the same words they were
+     * offered — and the engine is sent the option's id, so nothing has to be
+     * parsed back out of that sentence.
+     */
+    sendFitChoice () {
+      const chosen = this.fitChoices.find(o => o.id === this.fitChoice)
+      if (!chosen || this.isDesignStreaming) { return }
+      this.fitChoice = ''
+      return this._sendDesign(chosen.label, chosen.id)
+    },
+
+    /**
+     * Send one design-phase message and stream the reply.
+     *
+     * @param {string} query - the advisor's message (or the option they picked)
+     * @param {string|null} fitChoice - the session-length option id, when this
+     *   message is an answer to that question rather than free text
+     */
+    async _sendDesign (query, fitChoice) {
       if (!query || this.isDesignStreaming) { return }
       if (this.isListening) { this.recognition.stop(); this.isListening = false }
 
@@ -1016,6 +1123,11 @@ export default {
       this.designInput = ''
       this.isDesignStreaming = true
       this.designStreamingText = ''
+      // Held, not discarded: if this request fails, or the reply carries no
+      // replacement, the outline the advisor already had is put back (see the
+      // note on requestOutlineChanges). The card is hidden while streaming by
+      // its own `!isDesignStreaming` guard, so nothing flickers.
+      const previousOutline = this.pendingOutline
       this.pendingOutline = null
 
       if (this._designCtrl) { try { this._designCtrl.abort() } catch (e) { /* already settled */ } }
@@ -1033,6 +1145,7 @@ export default {
           body: JSON.stringify({
             type: 'design',
             query,
+            fitChoice: fitChoice || undefined,
             advisorProfile: this.advisorProfile,
             orgTemplateIds: this.orgTemplateIds,
             courseState: this.courseState
@@ -1095,6 +1208,18 @@ export default {
         this.isDesignStreaming = false
         this.designStreamingText = ''
       }
+
+      // Commit-only-on-success, on this side of the wire too. The engine
+      // restores the previous outline when a revision fails to validate, but a
+      // network drop or a reply carrying no course at all never reaches it —
+      // and the advisor would be left with an empty screen and nothing to
+      // recover. Not restored when the engine is asking the session-length
+      // question: no outline on screen is the point of that state.
+      if (!this.pendingOutline && previousOutline &&
+          !(this.courseState && this.courseState.pendingFit)) {
+        this.pendingOutline = previousOutline
+      }
+
       if (this._designCtrl === ctrl) { this._designCtrl = null }
 
       await this.$nextTick()
@@ -1133,8 +1258,20 @@ export default {
       this.isSavingCourse = false
     },
 
+    /**
+     * 'Request changes' — put the cursor in the box, and NOTHING ELSE.
+     *
+     * It used to clear `pendingOutline`, which deleted the course from the
+     * screen the instant it was clicked. Nothing brought it back: an outline is
+     * not saved anywhere until 'Start this course', and the chat transcript has
+     * the outline JSON stripped out of it, so there was no copy left to recover
+     * from — one click, and the advisor's course was gone. Mike lost one this
+     * way on 2026-08-03.
+     *
+     * The card now stays up while they type. It is replaced when a new outline
+     * actually arrives, and only then.
+     */
     requestOutlineChanges () {
-      this.pendingOutline = null
       this.$nextTick(() => {
         const ta = this.$el.querySelector('.message-input')
         if (ta) { ta.focus() }
@@ -1912,6 +2049,44 @@ export default {
 .session-info { flex: 1; }
 .session-info strong.session-title { font-size: 14px; color: #111827; display: block; margin-bottom: 2px; }
 .session-info p.session-focus { font-size: 12px; color: #6b7280; margin: 0 0 6px; line-height: 1.4; }
+/* The master export's own words for what this template is for — quoted, so it
+   reads as content rather than as something the app wrote. */
+.session-objective {
+  font-size: 12px;
+  color: #4b5563;
+  margin: 0 0 6px;
+  border-left: 3px solid #99dff5;
+  padding-left: 10px;
+  line-height: 1.45;
+}
+
+/* The session-length question: one drop-tab, one button, nothing else — the
+   question itself is the message above it. */
+.fit-card {
+  background: #ffffff;
+  border: 2px solid #00b1e0;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin: 4px 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 16px rgba(0,177,224,0.12);
+}
+.fit-select { flex: 1; min-width: 240px; }
+.btn-build-course {
+  background: #00b1e0;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-build-course:disabled { background: #d1d5db; cursor: not-allowed; }
 .session-resources { display: flex; flex-wrap: wrap; gap: 4px; }
 .resource-tag {
   font-size: 11px;

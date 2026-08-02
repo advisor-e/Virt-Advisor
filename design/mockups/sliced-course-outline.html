@@ -123,6 +123,33 @@
   .opt .row { font-size: 13px; color: #111827; font-weight: 600; margin-bottom: 5px; }
   .opt .why { font-size: 12px; color: #6b7280; margin: 10px 0 0; line-height: 1.45; }
 
+  /* The drop-tab, exactly as the screen draws it */
+  .fit-card {
+    background: #ffffff;
+    border: 2px solid #00b1e0;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 16px rgba(0,177,224,0.12);
+  }
+  .fit-select {
+    flex: 1;
+    min-width: 240px;
+    font-size: 14px;
+    padding: 9px 12px;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    background: #fff;
+    color: #363636;
+  }
+  .btn-build-course {
+    background: #00b1e0; color: #fff; border: none; border-radius: 10px;
+    padding: 12px 18px; font-size: 14px; font-weight: 700; cursor: default;
+  }
+
   .callout {
     background: #fef2f2; border: 1px solid #fecaca; border-left: 5px solid #ef4444;
     border-radius: 10px; padding: 14px 18px; font-size: 13px; color: #7f1d1d;
@@ -143,10 +170,11 @@
 <div class="wrap">
 
   <div class="banner">
-    <h1>Sliced course sessions — proposed screen</h1>
-    <p><strong>Nothing here is built and nothing here is approved.</strong> This is the screen
-      Mike is being asked to rule on, saved before the asking so the finished build can be put
-      beside it afterwards.</p>
+    <h1>Sliced course sessions — the screen as built</h1>
+    <p><strong>Built 2026-08-03 on Mike's instruction to finish the slicer.</strong> Everything
+      below is what the app now does; this file is kept so the screen can be checked against it.
+      The two options are a <strong>drop-tab</strong> — the first version of this file showed
+      them as text the advisor had to type an answer to, which was wrong.</p>
     <p>The model: <code>design/COURSE-SESSION-PLANNING.md</code> (approved 2026-08-03).
       The decisions behind each row: <code>design/COURSE-SLICED-SESSION-WORDING.md</code>.</p>
     <p>Every minute figure below is produced by the code that already exists
@@ -175,31 +203,43 @@
   </div>
 
   <!-- ── 2. THE FIT QUESTION ───────────────────────────────────────────── -->
-  <h2 class="sec">2 · The question, corrected</h2>
+  <h2 class="sec">2 · The question — corrected, and picked from a drop-tab</h2>
   <p class="sec-note"><span class="decision-chip">D6</span> The first option is
     <strong>exactly the wording Mike approved</strong>. Only the second is changed, plus one
-    sentence saying why 4 is not offered. “Cover less material” is still not an option.</p>
+    sentence saying why 4 is not offered. “Cover less material” is still not an option.
+    <strong>The advisor picks — they never type the answer</strong>, which is this app's own
+    rule for a choice between defined options, and means there is nothing to parse and nothing
+    to guess.</p>
 
   <div class="chat">
     <div class="bubble bubble-user">15 to 20 minutes per session and say four sessions please</div>
-    <div class="bubble bubble-ai">The material I've picked for this comes to 2h 53m of work in total — watching, reading and rehearsing.
+    <div class="bubble bubble-ai">The material I've picked for this comes to 2 hours 53 minutes of work in total — watching, reading and rehearsing.
 
 That doesn't fit 4 sessions of 15–20 minutes. Each piece of work has to finish before the next one starts, so the fewest this material can be is 6 sessions.
 
-• Keep your session length — 15–20 minutes each, and the course becomes 11 sessions
-• Keep the course as short as possible — 6 sessions, the longest about 1 hour
-
 Which would you rather?</div>
-    <div class="bubble bubble-user">keep the session length</div>
+
+    <div class="fit-card">
+      <select class="fit-select">
+        <option>Choose one…</option>
+        <option>Keep your session length — 15–20 minutes each, and the course becomes 11 sessions</option>
+        <option>Keep the course as short as possible — 6 sessions, the longest 1 hour</option>
+      </select>
+      <button class="btn-build-course">Build my course →</button>
+    </div>
+
+    <div class="bubble bubble-user" style="margin-top:12px">Keep your session length — 15–20 minutes each, and the course becomes 11 sessions</div>
+    <div class="bubble bubble-ai">Right — 11 sessions of up to 20 minutes. Here's the course.</div>
   </div>
 
-  <p class="sec-note" style="margin-top:14px"><span class="decision-chip">D7</span> If the
-    reply is not clear either way, it is asked once more in plainer words — and if it is still
-    unclear, the app says which way it is going rather than picking in silence.</p>
+  <p class="sec-note" style="margin-top:14px"><span class="decision-chip">D7</span> An advisor
+    can still type instead of picking. A clear answer is honoured; an unclear one is asked
+    again once in plainer words, and if it is still unclear the app says which way it is going
+    rather than choosing in silence.</p>
 
   <div class="chat">
     <div class="bubble bubble-user">whatever you think is best</div>
-    <div class="bubble bubble-ai">Sorry — which would you prefer: shorter sessions and more of them, or fewer sessions that each run longer?</div>
+    <div class="bubble bubble-ai">Sorry — I couldn't tell which of those you'd prefer. Pick one from the list above and I'll build it.</div>
     <div class="bubble bubble-user">not fussed really</div>
     <div class="bubble bubble-ai">I'll go with keeping your sessions at 15–20 minutes — that makes it 11 sessions. Use 'Request changes' if you'd rather have fewer, longer ones.</div>
   </div>
@@ -339,7 +379,7 @@ Which would you rather?</div>
 
     <div class="outline-count-notice">
       <span style="font-weight:700">D8 · </span>1 resource has no published time, so it isn't
-      timetabled: Dashboard Report. You can still open it from the course.
+      timetabled: Dashboard Report.
     </div>
 
     <div class="outline-visibility">
@@ -416,10 +456,16 @@ Which would you rather?</div>
     </div>
   </div>
 
+  <h2 class="sec">6 · One more thing this build fixed</h2>
+  <p class="sec-note">Mike clicked <strong>Request changes</strong> on a course and it vanished
+    on the spot, with no way to get it back. The button now only puts the cursor in the message
+    box: the card stays until a replacement course actually arrives, and if the reply fails or
+    carries no course, the one he had is put straight back.</p>
+
   <div class="foot">
-    Saved 2026-08-03 · laptop · branch <code>feat/advisor-progress</code> · proposed, not built.
-    Ruling to be recorded in <code>design/COURSE-SLICED-SESSION-WORDING.md</code> and this file
-    put beside the finished screen before it ships.
+    Saved 2026-08-03 · laptop · branch <code>feat/advisor-progress</code> · updated the same day
+    to match what was built. Reasoning and the numbered decisions:
+    <code>design/COURSE-SLICED-SESSION-WORDING.md</code>.
   </div>
 
 </div>

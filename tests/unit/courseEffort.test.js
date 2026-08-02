@@ -436,28 +436,111 @@ describe('planSessions — Mike\'s live EOY material', () => {
   })
 })
 
-describe('fitOptions — the two choices the advisor is offered', () => {
-  test("Mike's case: 4 sessions asked, 11 needed, ~45 minutes if he keeps 4", () => {
-    const opts = effort.fitOptions(173, { min: 15, max: 20 }, 4, 11)
-    expect(opts).toEqual({
-      totalMinutes: 173,
-      keepLength: { sessions: 11 },
-      keepCount: { sessions: 4, minutes: 45 }
-    })
+describe('planForCount — the plan is FOUND by slicing, never by dividing', () => {
+  const eoyLibrary = () => library([
+    record({ page: 'p1', title: 'E.O.Y Meeting', cpd: { isHidden: false, watchedVideo: 9, reviewTemplate: 60, reheasedTemplate: 30 } }),
+    record({ page: 'p2', title: 'Working Capital Cycle', cpd: { isHidden: false, watchedVideo: 24, reviewTemplate: 20, reheasedTemplate: 30 } })
+  ])
+  const outline = { sessions: [{ resources: ['E.O.Y Meeting'] }, { resources: ['Working Capital Cycle'] }] }
+
+  test('an exactly reachable count is found, with the length that builds it', () => {
+    const found = effort.planForCount(outline, 7, eoyLibrary())
+    expect(found.sessions.length).toBe(7)
+    expect(found.max).toBe(30)
+    expect(found.longestMinutes).toBe(30)
+    expect(found.totalMinutes).toBe(173) // the work never changes
   })
 
-  test('the per-session figure is rounded to the nearest 5 — it is offered as "about"', () => {
-    expect(effort.fitOptions(100, { min: 15, max: 20 }, 3, 6).keepCount.minutes).toBe(35) // 33.3
-    expect(effort.fitOptions(120, { min: 15, max: 20 }, 5, 8).keepCount.minutes).toBe(25) // 24
+  test('below the floor it returns the fewest the material allows, not a fiction', () => {
+    // THE DEFECT THIS FUNCTION EXISTS FOR. The old fitOptions divided 173 by 4
+    // and offered "4 sessions of about 45 minutes". Six activities cannot be
+    // cut into four sessions at any length, because activities are never mixed.
+    const found = effort.planForCount(outline, 4, eoyLibrary())
+    expect(found.sessions.length).toBe(6)
+    expect(found.longestMinutes).toBe(60)
+    // And the plan it names is one that can actually be built.
+    const built = effort.planSessions(outline, { min: found.max, max: found.max }, eoyLibrary())
+    expect(built.sessions.length).toBe(found.sessions.length)
+  })
+
+  test('slicing at the figure the OLD code offered gives 7 sessions, not 4', () => {
+    const plan = effort.planSessions(outline, { min: 45, max: 45 }, eoyLibrary())
+    expect(plan.sessions.length).toBe(7)
+    expect(plan.sessions.map(s => s.minutes)).toEqual([9, 30, 30, 30, 24, 20, 30])
+  })
+
+  test('material with no published time can be planned to nothing at all', () => {
+    const lib = library([record({ title: 'Dashboard Report', cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 0, reheasedTemplate: 0 } })])
+    const found = effort.planForCount({ sessions: [{ resources: ['Dashboard Report'] }] }, 4, lib)
+    expect(found.sessions).toEqual([])
+    expect(found.max).toBe(0)
+  })
+})
+
+describe('fitOptions — the two choices the advisor is offered', () => {
+  const eoyLibrary = () => library([
+    record({ page: 'p1', title: 'E.O.Y Meeting', cpd: { isHidden: false, watchedVideo: 9, reviewTemplate: 60, reheasedTemplate: 30 } }),
+    record({ page: 'p2', title: 'Working Capital Cycle', cpd: { isHidden: false, watchedVideo: 24, reviewTemplate: 20, reheasedTemplate: 30 } })
+  ])
+  const outline = { sessions: [{ resources: ['E.O.Y Meeting'] }, { resources: ['Working Capital Cycle'] }] }
+
+  test("Mike's case: 4 asked, 11 at his length, and 6 is the fewest possible", () => {
+    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, 4, eoyLibrary())
+    expect(opts.totalMinutes).toBe(173)
+    expect(opts.keepLength).toEqual({ sessions: 11, max: 20, longestMinutes: 20 })
+    expect(opts.keepCount).toEqual({ sessions: 6, max: 60, longestMinutes: 60, reachable: false })
+  })
+
+  test('the count they asked for is never offered when it cannot be built', () => {
+    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, 4, eoyLibrary())
+    // 4 appears only as the record of what they asked — never as a plan.
+    expect(opts.requestedCount).toBe(4)
+    expect(opts.keepLength.sessions).not.toBe(4)
+    expect(opts.keepCount.sessions).not.toBe(4)
+    expect(opts.keepCount.reachable).toBe(false)
+  })
+
+  test('a reachable count is offered as their own number', () => {
+    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, 7, eoyLibrary())
+    expect(opts.keepCount).toEqual({ sessions: 7, max: 30, longestMinutes: 30, reachable: true })
+  })
+
+  test('every figure offered comes out of a plan that was actually built', () => {
+    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, 4, eoyLibrary())
+    for (const option of [opts.keepLength, opts.keepCount]) {
+      const built = effort.planSessions(outline, { min: option.max, max: option.max }, eoyLibrary())
+      expect(built.sessions.length).toBe(option.sessions)
+      expect(built.sessions.reduce((n, s) => Math.max(n, s.minutes), 0)).toBe(option.longestMinutes)
+    }
   })
 
   test('no question is asked when the plan already matches the request', () => {
-    expect(effort.fitOptions(80, { min: 15, max: 20 }, 4, 4)).toBeNull()
+    expect(effort.fitOptions(outline, { min: 15, max: 20 }, 11, eoyLibrary())).toBeNull()
+  })
+
+  test('no question is asked when the alternative is the same course', () => {
+    // One 40-minute reading: every length either gives the same plan or a
+    // longer one, so there is no second course to offer.
+    const lib = library([record({ title: 'Solo', cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 40, reheasedTemplate: 0 } })])
+    const single = { sessions: [{ resources: ['Solo'] }] }
+    expect(effort.fitOptions(single, { min: 40, max: 40 }, 1, lib)).toBeNull()
   })
 
   test('a missing figure asks nothing rather than inventing one', () => {
-    expect(effort.fitOptions(0, { min: 15, max: 20 }, 4, 11)).toBeNull()
-    expect(effort.fitOptions(173, null, 4, 11)).toBeNull()
-    expect(effort.fitOptions(173, { min: 15, max: 20 }, 0, 11)).toBeNull()
+    expect(effort.fitOptions(null, { min: 15, max: 20 }, 4, eoyLibrary())).toBeNull()
+    expect(effort.fitOptions(outline, null, 4, eoyLibrary())).toBeNull()
+    expect(effort.fitOptions(outline, { min: 15, max: 20 }, 0, eoyLibrary())).toBeNull()
+  })
+})
+
+describe('the authored objective travels with the template', () => {
+  test("the export's own line is read, never generated", () => {
+    const lib = library([record({ cpd: { isHidden: false, watchedVideo: 9, reviewTemplate: 60, reheasedTemplate: 30, objective: 'How to frame the EOY meeting.' } })])
+    expect(effort.templateEffort('E.O.Y Meeting', lib).objective).toBe('How to frame the EOY meeting.')
+  })
+
+  test('a template with no authored objective reports none — nothing is invented', () => {
+    const lib = library([record()])
+    expect(effort.templateEffort('E.O.Y Meeting', lib).objective).toBe('')
   })
 })

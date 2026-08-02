@@ -23,7 +23,11 @@ const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
 const { loadBlendedQuizBanks, isFirmAuthored } = require('../server/utils/quizConfig')
 const { isClarificationRequest, prefillDesignState, requestedSessionCount, requestedSessionLength } = require('../server/utils/designInterview')
-const { applyOutlineEffort, lengthNotice } = require('../server/utils/courseEffort')
+const { applyOutlineEffort, lengthNotice, planSessions, fitOptions } = require('../server/utils/courseEffort')
+const {
+  buildSlicedOutline, fitQuestionText, fitConfirmationText, fitDefaultText, fitReaskText,
+  readFitReply, pendingFitState
+} = require('../server/utils/courseSliceCopy')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -111,7 +115,7 @@ const COURSE_DESIGN_QUESTIONS = [
 ]
 
 function handleDesign (req, body, res) {
-  const { query, advisorProfile, orgTemplateIds, courseState = {} } = body
+  const { query, advisorProfile, orgTemplateIds, courseState = {}, fitChoice } = body
   if (!query) { return sendError(res, 400, 'QUERY_REQUIRED', 'query is required') }
 
   const openai = getOpenAI()
@@ -122,7 +126,12 @@ function handleDesign (req, body, res) {
     currentLevel: null,
     intensity: null,
     sessionDetails: null,
-    pendingOutline: null
+    pendingOutline: null,
+    // The session-length question, while it is open. Round-trips through the
+    // browser like pendingOutline, and carries the outline it is about so the
+    // answer is honoured by re-slicing the same material rather than by asking
+    // the AI for a different course.
+    pendingFit: null
   }, courseState)
   // Code-owned per-generation flags — never trusted from the round-trip
   // (CB-26, and the session-length figures computed alongside it).
@@ -256,6 +265,79 @@ function handleDesign (req, body, res) {
           // 2026-08-03). The AI's own `estimatedMinutes` was never a
           // measurement — the design prompt instructs it to copy the
           // advisor's requested number back — so it is replaced, not trusted.
+          const budget = requestedSessionLength(countText)
+          const askedFor = requestedSessionCount(countText)
+
+          // ── The slicer (design/COURSE-SESSION-PLANNING.md, Mike 2026-08-03) ──
+          // When the advisor named a session length, CODE writes the timetable:
+          // the AI's grouping is discarded and the material is cut into
+          // time-boxed slices of ONE activity each. Where the plan cannot match
+          // the number of sessions they also asked for, the app ASKS rather than
+          // deciding — both figures cannot hold, and the choice is theirs.
+          //
+          // With no length named there is nothing to slice to, so the original
+          // path below runs unchanged: the AI's grouping, timed and checked.
+          if (budget) {
+            const choices = fitOptions(grounded.outline, budget, askedFor, templates)
+            if (choices) {
+              console.warn('[course:design] Session plan does not fit the request: ' +
+                `asked ${askedFor} × ${budget.min}-${budget.max} min; offering ` +
+                `${choices.keepLength.sessions} sessions at that length, or ` +
+                `${choices.keepCount.sessions} at up to ${choices.keepCount.max} min`)
+              // No card until they answer — an outline shown here would be one
+              // of the two courses, chosen for them by the app.
+              finalState.pendingOutline = null
+              finalState.pendingFit = pendingFitState(choices, grounded.outline)
+              sseWrite(res, { type: 'delta', text: '\n\n' + fitQuestionText(choices) })
+              sseWrite(res, { type: 'state', state: finalState })
+              sseWrite(res, { type: 'done' })
+              res.end()
+              return
+            }
+
+            const plan = planSessions(grounded.outline, budget, templates)
+            if (plan.sessions.length) {
+              console.warn(`[course:design] Sliced into ${plan.sessions.length} sessions ` +
+                `(${plan.totalMinutes} min) at ${budget.min}-${budget.max} min` +
+                (plan.unknown.length ? `; not timetabled (no published time): ${plan.unknown.join(' | ')}` : ''))
+              finalState.pendingOutline = buildSlicedOutline(grounded.outline, plan, templates, budget)
+              finalState.courseMinutes = plan.totalMinutes
+              finalState.courseUnknownCount = plan.unknown.length
+              // CB-26 still applies: no question was asked because no different
+              // plan exists, so a count they asked for and did not get is
+              // flagged exactly as before. The LENGTH check is not run — the
+              // slicer honours the budget by construction, and a short session
+              // at a natural boundary is the approved behaviour, not a miss.
+              if (askedFor && plan.sessions.length !== askedFor) {
+                console.warn(`[course:design] Session-count mismatch: requested ${askedFor}, delivered ${plan.sessions.length}`)
+                finalState.sessionCountNotice = { requested: askedFor, delivered: plan.sessions.length }
+              }
+
+              // INVARIANT GUARD, not a feature. The slicer cannot produce a
+              // session longer than the budget — that is its whole job — so
+              // this should never fire. It is kept because the check already
+              // exists and the failure it would catch is precisely the one this
+              // work was done to end: an advisor shown a session far longer
+              // than the one they asked for. Only OVER-long sessions count; a
+              // short session at a natural boundary is the approved behaviour.
+              const overrun = lengthNotice(finalState.pendingOutline, budget)
+              const tooLong = overrun && overrun.sessions.filter(s => s.minutes > budget.max)
+              if (tooLong && tooLong.length) {
+                console.error('[course:design] SLICER INVARIANT BROKEN — session longer than the budget:',
+                  tooLong.map(s => `session ${s.id} is ${s.minutes} min`).join(', '))
+                finalState.sessionLengthNotice = { requested: overrun.requested, sessions: tooLong }
+              }
+              sseWrite(res, { type: 'state', state: finalState })
+              sseWrite(res, { type: 'done' })
+              res.end()
+              return
+            }
+            // Nothing in the course carries a published time, so there is no
+            // timetable to build. Fall through to the AI's own grouping, which
+            // reports the unknowns rather than showing an empty course.
+            console.warn('[course:design] Nothing could be timetabled; falling back to the AI grouping')
+          }
+
           const aiMinutes = (grounded.outline.sessions || []).map(s => s.estimatedMinutes)
           const timed = applyOutlineEffort(grounded.outline, templates)
           // AI-transformation audit (Original → Final), per the house rule.
@@ -268,25 +350,20 @@ function handleDesign (req, body, res) {
           // CB-26: the advisor asked for a specific session count — if the
           // delivered outline differs, code flags it (the outline card shows
           // the notice); the AI is never trusted to confess the deviation.
-          const requested = requestedSessionCount(countText)
-          if (requested && timed.outline.totalSessions !== requested) {
-            console.warn(`[course:design] Session-count mismatch: requested ${requested}, delivered ${timed.outline.totalSessions}`)
-            finalState.sessionCountNotice = { requested, delivered: timed.outline.totalSessions }
+          if (askedFor && timed.outline.totalSessions !== askedFor) {
+            console.warn(`[course:design] Session-count mismatch: requested ${askedFor}, delivered ${timed.outline.totalSessions}`)
+            finalState.sessionCountNotice = { requested: askedFor, delivered: timed.outline.totalSessions }
           }
 
-          // The same check for the OTHER half of that one answer: sessions
-          // whose real length misses what the advisor asked for. Flagged, not
-          // corrected — the advisor already has 'Request changes', and a
-          // silent re-plan would hide the mismatch rather than surface it.
-          const notice = lengthNotice(timed.outline, requestedSessionLength(countText))
-          if (notice) {
-            const asked = notice.requested.min === notice.requested.max
-              ? `${notice.requested.min} min`
-              : `${notice.requested.min}–${notice.requested.max} min`
-            console.warn(`[course:design] Session-length mismatch: requested ${asked} — ` +
-              notice.sessions.map(s => `session ${s.id} is ${s.minutes} min`).join(', '))
-            finalState.sessionLengthNotice = notice
-          }
+          // NO LENGTH CHECK HERE, AND IT IS NOT AN OVERSIGHT. This path runs
+          // only when the advisor named no session length at all — or named one
+          // that nothing in the course could be timetabled against — so there
+          // is no figure to check the sessions against. The check that used to
+          // sit here compared them to `budget`, which on this path is always
+          // null; it could not fire, and code that cannot fire reads as a
+          // safeguard while protecting nothing. The real guarantee moved up
+          // into the sliced path, where a session longer than the budget cannot
+          // be built and the invariant guard says so if one ever were.
         } else {
           console.warn('[course:design] Course outline failed shape validation:', result.errors.join('; '))
         }
@@ -298,6 +375,78 @@ function handleDesign (req, body, res) {
     sseWrite(res, { type: 'state', state: finalState })
     sseWrite(res, { type: 'done' })
     res.end()
+  }
+
+  // ── Case 0: the advisor is answering the session-length question ──────────
+  //
+  // THIS MUST STAY ABOVE THE REVISION CASE. While the question is open there is
+  // no outline on screen, and a reply arriving here is an answer to it — not a
+  // request to rewrite a course the advisor has not been shown. Routing it into
+  // Case 1 would send their choice to the AI as an instruction and quietly
+  // regenerate the material they were told about.
+  //
+  // No AI call is made in this branch at all: the answer is honoured by
+  // re-slicing the SAME material at a length already proven to produce the plan
+  // named on the option they picked, so the course they get is the course they
+  // were offered.
+  if (state.pendingFit) {
+    const fit = state.pendingFit
+    const options = Array.isArray(fit.options) ? fit.options : []
+    // The whole block round-trips through the browser, so nothing in it is
+    // trusted: the choice must name an option this server actually offered, and
+    // the outline is re-validated and re-grounded below before it is sliced.
+    const picked = options.find(o => o && o.id === fitChoice) ||
+      options.find(o => o && o.id === readFitReply(query)) || null
+
+    if (!picked && !state.fitReasked) {
+      // Unclear, and not yet re-asked — CB-06's one plainer re-ask. The
+      // question stays open and the drop-tab stays on screen.
+      state.fitReasked = true
+      return sendQuestion(fitReaskText(), state)
+    }
+
+    // Still unclear after the re-ask: keep their session length (the option
+    // that honours what they typed most literally) and SAY SO — never a silent
+    // pick. Mike's ruling 2026-08-03.
+    const chosen = picked || options[0] || null
+    const templates = getOrgTemplates(orgTemplateIds || null)
+    const revalidated = chosen ? validateCourseOutline(fit.outline) : { valid: false, errors: ['no option'], data: null }
+
+    if (!revalidated.valid) {
+      console.warn('[course:design] Fit answer could not be honoured:', revalidated.errors.join('; '))
+      const lost = { ...state, pendingFit: null }
+      delete lost.fitReasked
+      return sendQuestion("Sorry — I lost the course I'd picked for you. Tell me what you'd like to learn and I'll build it again.", lost)
+    }
+
+    const grounded = groundOutlineResources(revalidated.data, templates)
+    const plan = planSessions(grounded.outline, chosen.budget, templates)
+    if (!plan.sessions.length) {
+      console.warn('[course:design] Fit answer produced an empty plan')
+      const empty = { ...state, pendingFit: null }
+      delete empty.fitReasked
+      return sendQuestion("Sorry — none of that material has a published length, so I can't build a timetable from it. Tell me what you'd like to learn and I'll try again.", empty)
+    }
+
+    console.warn(`[course:design] Fit answer '${chosen.id}': ${plan.sessions.length} sessions ` +
+      `at up to ${chosen.budget.max} min (${plan.totalMinutes} min total)` +
+      (picked ? '' : ' — defaulted after an unclear reply'))
+
+    const answered = {
+      ...state,
+      pendingFit: null,
+      pendingOutline: buildSlicedOutline(grounded.outline, plan, templates, chosen.budget),
+      courseMinutes: plan.totalMinutes,
+      courseUnknownCount: plan.unknown.length
+    }
+    delete answered.fitReasked
+    // Both sentences quote the plan that was BUILT, not the label that was
+    // offered — the two agree, and saying the built one keeps them that way.
+    const built = { sessions: plan.sessions.length, budget: chosen.budget }
+    return sendQuestion(
+      picked ? fitConfirmationText(built, chosen.budget) : fitDefaultText(built),
+      answered
+    )
   }
 
   // ── Case 1: Outline revision — advisor wants changes to an existing outline ──
@@ -358,6 +507,43 @@ function handleDesign (req, body, res) {
 
 // ── Session delivery ───────────────────────────────────────────────────────
 
+/** How each sliced activity is described to the tutor. */
+const SLICE_BRIEFING = {
+  video: 'watching the tutorial video for this template',
+  reading: 'reading this template',
+  rehearsal: 'rehearsing this template with a colleague',
+  model: 'working through this model with their own figures'
+}
+
+/**
+ * The one line that tells the tutor a session is a SLICE, not a whole template.
+ *
+ * Without it the tutor is handed "Session 3: Read: E.O.Y Meeting (part 2 of 3)"
+ * and teaches the entire template into a twenty-minute slot — the opposite of
+ * what the slicing is for. A part after the first also says the advisor is not
+ * expected to finish, so the session does not close with a summary of material
+ * they have not reached yet.
+ *
+ * `sessionContext` round-trips through the browser, so the activity is read
+ * from a fixed list and the part numbers are coerced — nothing from the client
+ * reaches the prompt as free text.
+ *
+ * @param {object} sessionContext - the session the advisor is sitting in.
+ * @returns {string} '' when the course was not sliced (every saved course from
+ *   before the slicer, and any course built without a session length).
+ */
+function sliceBriefing (sessionContext) {
+  const slice = sessionContext && sessionContext.slice
+  const activity = slice && SLICE_BRIEFING[slice.activity]
+  if (!activity) { return '' }
+  const parts = Number(slice.parts) || 1
+  const part = Number(slice.part) || 1
+  if (parts <= 1) { return `\nThis session is ${activity}.` }
+  return `\nThis session is ${activity} — part ${part} of ${parts}. ` +
+    'The advisor is not expected to finish the whole thing in this session; ' +
+    'they pick up where they left off.'
+}
+
 async function handleSession (req, body, res) {
   const { query, sessionHistory = [], sessionContext, advisorProfile, orgTemplateIds } = body
   if (!query) { return sendError(res, 400, 'QUERY_REQUIRED', 'query is required') }
@@ -380,7 +566,8 @@ async function handleSession (req, body, res) {
         `Focus: ${sessionContext.focus}\n` +
         `Objectives:\n${sessionObjectives.map(o => '- ' + o).join('\n')}\n` +
         `Resources: ${sessionResources.join(', ')}\n` +
-        `Estimated duration: ${sessionContext.estimatedMinutes || sessionContext.estimatedHours * 60 || 30} minutes`
+        `Estimated duration: ${sessionContext.estimatedMinutes || sessionContext.estimatedHours * 60 || 30} minutes` +
+        sliceBriefing(sessionContext)
       )
     : ''
 

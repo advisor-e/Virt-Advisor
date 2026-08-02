@@ -82,10 +82,16 @@ function isRevenueModel (template) {
  * Index the org's templates by the same normalised title cpdCatalogue uses, so
  * a name that resolves in one resolves in the other.
  *
- * @param {Array<object>} templates - the firm's template set (getOrgTemplates).
+ * An index passed back in is returned as-is, so a caller that slices the same
+ * library many times (the `planForCount` sweep) walks it once rather than once
+ * per candidate length.
+ *
+ * @param {Array<object>|Map<string, object>} templates - the firm's template
+ *   set (getOrgTemplates), or an index already built from one.
  * @returns {Map<string, object>}
  */
 function indexByTitle (templates) {
+  if (templates instanceof Map) { return templates }
   const byTitle = new Map()
   for (const t of (templates || [])) {
     if (!t || typeof t.title !== 'string') { continue }
@@ -98,6 +104,25 @@ function indexByTitle (templates) {
 }
 
 /**
+ * The template's own authored objective, as written in the master export.
+ *
+ * WHY IT IS READ HERE. Once code cuts a course into activity-slices, the AI's
+ * session objectives go with its grouping — they described a grouping that no
+ * longer exists. The obvious replacement is to have the AI write new ones,
+ * which is a fabrication risk for no gain: every one of the 93 timed visible
+ * templates already carries a line written by the master app saying what it is
+ * for. Read the authored one, never generate a substitute. Never edited or
+ * paraphrased here either — it is master-app content passing through.
+ *
+ * @param {object|null} record - a template record from the export.
+ * @returns {string} the authored objective, or '' when there is none.
+ */
+function authoredObjective (record) {
+  const text = record && record.cpd && record.cpd.objective
+  return typeof text === 'string' ? text.trim() : ''
+}
+
+/**
  * The advisor work one named template represents.
  *
  * Resolution order — authored time, then the model allowance, then unknown.
@@ -107,16 +132,19 @@ function indexByTitle (templates) {
  *   or a prebuilt index from `indexByTitle` (the per-session caller passes the
  *   index so the library is walked once per outline, not once per resource).
  * @returns {{title: string, minutes: number, source: string, video: number,
- *   reading: number, rehearsal: number}} `minutes` is 0 only when `source` is
- *   'unknown' — which means "not published", never "no work".
+ *   reading: number, rehearsal: number, objective: string}} `minutes` is 0 only
+ *   when `source` is 'unknown' — which means "not published", never "no work".
+ *   `objective` is the master export's own authored line for this template
+ *   ('' when it has none) — see the note above on why it is carried here.
  */
 function templateEffort (name, templates) {
   const index = templates instanceof Map ? templates : indexByTitle(templates)
   const key = cpdCatalogue.normaliseTitle(name)
   const record = index.get(key) || null
   const title = (record && record.title) || String(name || '').trim()
+  const objective = authoredObjective(record)
 
-  const base = { title, minutes: 0, source: SOURCE_UNKNOWN, video: 0, reading: 0, rehearsal: 0 }
+  const base = { title, minutes: 0, source: SOURCE_UNKNOWN, video: 0, reading: 0, rehearsal: 0, objective }
 
   // 1. Authored time, straight from the CPD catalogue — one source, one answer.
   const entry = cpdCatalogue.lookupTemplate(key)
@@ -129,7 +157,8 @@ function templateEffort (name, templates) {
       source: SOURCE_AUTHORED,
       video: byActivity.video,
       reading: byActivity.reading,
-      rehearsal: byActivity.rehearsal
+      rehearsal: byActivity.rehearsal,
+      objective
     }
   }
 
@@ -328,7 +357,8 @@ function splitEvenly (minutes, max) {
  *
  * @param {object} outline - a grounded outline (the AI's curriculum).
  * @param {{min: number, max: number}} budget - the advisor's session length.
- * @param {Array<object>} templates - the firm's template set.
+ * @param {Array<object>|Map<string, object>} templates - the firm's template
+ *   set, or an index from `indexByTitle`.
  * @returns {{sessions: Array<{resource: string, activity: string, part: number,
  *   parts: number, minutes: number}>, totalMinutes: number, unknown: string[]}}
  *   `unknown` names chosen material carrying no published time — it can never be
@@ -371,38 +401,124 @@ function planSessions (outline, budget, templates) {
 }
 
 /**
+ * The session lengths considered when looking for a plan of a given size.
+ * Five-minute steps from five minutes to four hours: fine enough that the
+ * search never skips a materially different plan, coarse enough that the whole
+ * sweep is 48 slices of a handful of templates.
+ */
+const SEARCH_STEP_MINUTES = 5
+const SEARCH_MAX_MINUTES = 240
+
+/**
+ * The plan that comes closest to a target number of sessions, found by ACTUALLY
+ * SLICING at each candidate length rather than by dividing.
+ *
+ * WHY THIS EXISTS — the defect it fixes. The first version of `fitOptions`
+ * offered "keep your 4 sessions and each runs about 45 minutes", a figure
+ * reached by dividing the total by four. Run against Mike's own EOY material
+ * (proved 2026-08-03, real export), slicing at 45 minutes produces SEVEN
+ * sessions: 9, 30, 30, 30, 24, 20, 30. Four is unreachable at any length,
+ * because that material is six activities and the approved model forbids
+ * mixing two activities in one session — six is the floor. The app was offering
+ * an advisor a course that could not be built, which is the exact failure the
+ * whole session-length exercise exists to stop: a number shown to an advisor
+ * that nothing checked. Every figure offered now comes out of a plan that has
+ * been built.
+ *
+ * Ties go to the SHORTER session length: where two candidates give the same
+ * number of sessions, the one that keeps sessions closer to the advisor's own
+ * request is the honest one to name.
+ *
+ * @param {object} outline - a grounded outline.
+ * @param {number} targetCount - the number of sessions to aim for.
+ * @param {Array<object>} templates - the firm's template set.
+ * @returns {{sessions: Array<object>, totalMinutes: number, unknown: string[],
+ *   max: number, longestMinutes: number}} the closest plan, plus the session
+ *   length that produced it. `sessions` is empty when nothing can be timetabled.
+ */
+function planForCount (outline, targetCount, templates) {
+  const index = indexByTitle(templates)
+  let best = null
+  for (let max = SEARCH_STEP_MINUTES; max <= SEARCH_MAX_MINUTES; max += SEARCH_STEP_MINUTES) {
+    const plan = planSessions(outline, { min: max, max }, index)
+    if (!plan.sessions.length) { continue }
+    const distance = Math.abs(plan.sessions.length - targetCount)
+    // Strictly better only: the first (shortest) length wins a tie, so the
+    // sweep never drifts upward through equally-good plans.
+    if (!best || distance < best.distance) {
+      best = { plan, max, distance }
+    }
+  }
+  if (!best) { return { sessions: [], totalMinutes: 0, unknown: [], max: 0, longestMinutes: 0 } }
+  return {
+    ...best.plan,
+    max: best.max,
+    longestMinutes: best.plan.sessions.reduce((n, s) => Math.max(n, s.minutes), 0)
+  }
+}
+
+/**
  * The two choices offered when the material will not fit what the advisor asked
- * for — the exact figures behind design/COURSE-SESSION-PLANNING.md's approved
- * question.
+ * for — the question in design/COURSE-SESSION-PLANNING.md.
  *
  * Mike's ruling 2026-08-03: the app ASKS, it never decides. "Cover less
  * material" was proposed and rejected, and is deliberately not a third option.
+ * BOTH choices are always returned together or not at all: an advisor offered
+ * one option has not been asked anything.
  *
- * @param {number} totalMinutes - the material's real total.
+ * Each option carries the session length that builds it (`max`), so the answer
+ * is honoured by re-slicing at a length already proven to produce the plan the
+ * advisor was shown — the figures on screen and the course they get cannot
+ * disagree.
+ *
+ * @param {object} outline - a grounded outline (the AI's curriculum).
  * @param {{min: number, max: number}} budget - the length they asked for.
  * @param {number} requestedCount - the number of sessions they asked for.
- * @param {number} plannedCount - sessions the slicer actually produced.
- * @returns {{totalMinutes: number, keepLength: {sessions: number},
- *   keepCount: {sessions: number, minutes: number}}|null} null when it already
- *   fits, or when either figure is missing (no question to ask).
+ * @param {Array<object>} templates - the firm's template set.
+ * @returns {{totalMinutes: number, requestedCount: number, budget: object,
+ *   keepLength: {sessions: number, max: number, longestMinutes: number},
+ *   keepCount: {sessions: number, max: number, longestMinutes: number,
+ *   reachable: boolean}}|null} null when the plan already matches the request,
+ *   when no alternative plan differs from it, or when a figure is missing —
+ *   all three mean there is no question to ask.
  */
-function fitOptions (totalMinutes, budget, requestedCount, plannedCount) {
-  if (!totalMinutes || !budget || !requestedCount) { return null }
-  if (!Number.isFinite(requestedCount) || requestedCount <= 0) { return null }
-  if (plannedCount === requestedCount) { return null }
-  // Rounded to the nearest 5 because it is offered as "about N minutes" — a
-  // figure like 43 reads as a precision the material does not have.
-  const perSession = Math.max(5, Math.round(totalMinutes / requestedCount / 5) * 5)
+function fitOptions (outline, budget, requestedCount, templates) {
+  if (!outline || !budget || !Number.isFinite(requestedCount) || requestedCount <= 0) { return null }
+  const index = indexByTitle(templates)
+  const keep = planSessions(outline, budget, index)
+  if (!keep.sessions.length) { return null }
+  if (keep.sessions.length === requestedCount) { return null }
+
+  const alternative = planForCount(outline, requestedCount, index)
+  // The search found nothing the advisor is not already looking at — offering
+  // the same course twice is not a choice.
+  if (!alternative.sessions.length || alternative.sessions.length === keep.sessions.length) { return null }
+
   return {
-    totalMinutes,
-    keepLength: { sessions: plannedCount },
-    keepCount: { sessions: requestedCount, minutes: perSession }
+    totalMinutes: keep.totalMinutes,
+    requestedCount,
+    budget: { min: budget.min, max: budget.max },
+    keepLength: {
+      sessions: keep.sessions.length,
+      max: budget.max,
+      longestMinutes: keep.sessions.reduce((n, s) => Math.max(n, s.minutes), 0)
+    },
+    keepCount: {
+      sessions: alternative.sessions.length,
+      max: alternative.max,
+      longestMinutes: alternative.longestMinutes,
+      // False when the material simply cannot be cut into the number they
+      // asked for — the screen says so rather than quietly offering a
+      // different number under their own heading.
+      reachable: alternative.sessions.length === requestedCount
+    }
   }
 }
 
 module.exports = {
   isRevenueModel,
   indexByTitle,
+  authoredObjective,
   templateEffort,
   sessionEffort,
   applyOutlineEffort,
@@ -410,6 +526,7 @@ module.exports = {
   orderedResources,
   splitEvenly,
   planSessions,
+  planForCount,
   fitOptions,
   ACTIVITY_ORDER,
   MODEL_SUBSECTION,

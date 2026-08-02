@@ -152,10 +152,39 @@ beforeEach(() => {
 })
 afterEach(() => warn.mockRestore())
 
+// ⚠ WHAT CHANGED HERE, AND WHY (2026-08-03, later the same day).
+//
+// When these tests were written, a named session length produced the AI's own
+// grouping with a computed length attached, and a session that missed the
+// request was FLAGGED. The slicer replaced that: a named length now means code
+// writes the timetable, so a 99-minute session against a 30-minute request can
+// no longer be built at all — the material is cut into 30-minute slices, or the
+// advisor is asked which of length and count should give.
+//
+// The guarantee these tests exist for is unchanged and stronger: THE ADVISOR IS
+// NEVER SHOWN A SESSION LENGTH THAT NOTHING CHECKED. Each test below now pins
+// it in whichever form applies to its path — sliced, or the AI grouping that
+// still runs when no length is named. Nothing here was relaxed to make the
+// slicer pass; where a rule was superseded, the replacement is asserted.
+
 describe('session length is computed, not accepted from the AI', () => {
-  test("the AI's claimed 30 minutes is replaced by the real 99", async () => {
+  test("the AI's claimed 30 minutes never reaches the advisor — 99 of work is stated instead", async () => {
     const state = await design(
       '30 minutes per session, 1 session',
+      outlineReply([{ resources: ['E.O.Y Meeting'], claimed: 30 }])
+    )
+    // 99 minutes cannot be one 30-minute session, so the app asks rather than
+    // showing either number as though it were settled.
+    expect(state.pendingFit.totalMinutes).toBe(99)
+    expect(state.pendingOutline).toBeNull()
+    // And neither option offers the AI's figure as a session length.
+    expect(state.pendingFit.options.every(o => o.sessions >= 3)).toBe(true)
+  })
+
+  test('with no length named, the AI grouping is timed and its claim replaced', async () => {
+    // The path that still runs the original behaviour: nothing to slice to.
+    const state = await design(
+      'as long as it takes, 1 session',
       outlineReply([{ resources: ['E.O.Y Meeting'], claimed: 30 }])
     )
     expect(state.pendingOutline.sessions[0].estimatedMinutes).toBe(99)
@@ -164,7 +193,7 @@ describe('session length is computed, not accepted from the AI', () => {
 
   test('the breakdown reaches the state, so a screen can show where the time goes', async () => {
     const state = await design(
-      '30 minutes per session, 1 session',
+      'as long as it takes, 1 session',
       outlineReply([{ resources: ['E.O.Y Meeting'], claimed: 30 }])
     )
     expect(state.pendingOutline.sessions[0].sessionEffort)
@@ -193,7 +222,7 @@ describe('session length is computed, not accepted from the AI', () => {
 
   test('the course total is the sum across sessions', async () => {
     const state = await design(
-      '30 minutes per session, 2 sessions',
+      'as long as it takes, 2 sessions',
       outlineReply([
         { resources: ['E.O.Y Meeting'], claimed: 30 },
         { resources: ['Sales Psychology'], claimed: 30 }
@@ -201,25 +230,61 @@ describe('session length is computed, not accepted from the AI', () => {
     )
     expect(state.courseMinutes).toBe(129)
   })
+
+  test('the same total is stated when the course is sliced instead', async () => {
+    const state = await design(
+      '30 minutes per session, 2 sessions',
+      outlineReply([
+        { resources: ['E.O.Y Meeting'], claimed: 30 },
+        { resources: ['Sales Psychology'], claimed: 30 }
+      ])
+    )
+    // Cutting the material differently never changes how much of it there is.
+    expect(state.pendingFit.totalMinutes).toBe(129)
+  })
 })
 
-describe('the length mismatch is flagged by code', () => {
-  test('99 minutes of work against a 30-minute request raises the notice', async () => {
+describe('an over-long session can no longer be built at all', () => {
+  // SUPERSEDED, NOT DROPPED. This block used to prove the app FLAGGED a session
+  // that missed the request. The slicer prevents it instead, so each test now
+  // proves the stronger thing: the session the notice would have warned about
+  // does not exist.
+
+  test('99 minutes of work against a 30-minute request is never shown as one session', async () => {
     const state = await design(
       '30 minutes per session, 1 session',
       outlineReply([{ resources: ['E.O.Y Meeting'], claimed: 30 }])
     )
-    expect(state.sessionLengthNotice).toEqual({
-      requested: { min: 30, max: 30 },
-      sessions: [{ id: 1, title: 'S1', minutes: 99 }]
-    })
+    // Nothing to flag, because nothing over-long was built: the app asked.
+    expect(state.sessionLengthNotice).toBeUndefined()
+    expect(state.pendingOutline).toBeNull()
+    expect(state.pendingFit.options[0].label).toContain('30 minutes each')
+  })
+
+  test('after the advisor picks, every session honours the length they asked for', async () => {
+    const asked = await design(
+      '30 minutes per session, 1 session',
+      outlineReply([{ resources: ['E.O.Y Meeting'], claimed: 30 }])
+    )
+    mockCreate = jest.fn(() => makeStream('THE AI SHOULD NOT BE CALLED'))
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'design',
+      query: 'that one',
+      fitChoice: 'keep-length',
+      courseState: { ...FULL_STATE, sessionDetails: '30 minutes per session, 1 session', pendingFit: asked.pendingFit }
+    }), res)
+
+    const outline = stateOf(res).pendingOutline
+    expect(outline.sessions.every(s => s.estimatedMinutes <= 30)).toBe(true)
+    expect(outline.sessions.reduce((n, s) => n + s.estimatedMinutes, 0)).toBe(99)
+    expect(mockCreate).not.toHaveBeenCalled()
   })
 
   // 🔴 THE LIVE FAILURE, 2026-08-03. Mike answered "15 to 20 minutes per session
-  // and say four sessions please", drew sessions of 70/63/30 minutes, and was
-  // told nothing: a range disabled the check outright. This drives his exact
-  // words through the real handler.
-  test("MIKE'S LIVE ANSWER — a range is a budget, and an over-long session is flagged", async () => {
+  // and say four sessions please" and was drawn sessions of 70/63/30 minutes in
+  // silence. This drives his exact words through the real handler.
+  test("MIKE'S LIVE ANSWER — his words now produce a question, never a 70-minute session", async () => {
     const state = await design(
       '15 to 20 minutes per session and say four sessions please',
       outlineReply([
@@ -227,8 +292,12 @@ describe('the length mismatch is flagged by code', () => {
         { resources: ['Sales Psychology'], claimed: 20 } // 30 min
       ])
     )
-    expect(state.sessionLengthNotice.requested).toEqual({ min: 15, max: 20 })
-    expect(state.sessionLengthNotice.sessions.map(s => s.minutes)).toEqual([99, 30])
+    expect(state.pendingFit.budget).toEqual({ min: 15, max: 20 })
+    expect(state.pendingFit.requestedCount).toBe(4)
+    expect(state.pendingFit.totalMinutes).toBe(129)
+    // Both numbers he gave are quoted back; neither is silently overridden.
+    expect(state.pendingFit.options[0].label).toContain('15–20 minutes each')
+    expect(state.pendingFit.options[1].label).toContain('as short as possible')
   })
 
   test('a session inside the requested band raises nothing', async () => {
@@ -247,15 +316,38 @@ describe('the length mismatch is flagged by code', () => {
     expect(state.sessionLengthNotice).toBeUndefined()
   })
 
-  test('only the offending session is named when the rest of the course fits', async () => {
-    const state = await design(
+  test('the long template is cut down rather than named in a warning', async () => {
+    const asked = await design(
       '30 minutes per session, 2 sessions',
       outlineReply([
         { resources: ['Sales Psychology'], claimed: 30 },
         { resources: ['E.O.Y Meeting'], claimed: 30 }
       ])
     )
-    expect(state.sessionLengthNotice.sessions).toEqual([{ id: 2, title: 'S2', minutes: 99 }])
+    mockCreate = jest.fn(() => makeStream('THE AI SHOULD NOT BE CALLED'))
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'design',
+      query: 'that one',
+      fitChoice: 'keep-length',
+      courseState: { ...FULL_STATE, sessionDetails: '30 minutes per session, 2 sessions', pendingFit: asked.pendingFit }
+    }), res)
+
+    const outline = stateOf(res).pendingOutline
+    // The 99-minute template becomes its own sessions; nothing is over-long, so
+    // there is no offending session left to name.
+    expect(stateOf(res).sessionLengthNotice).toBeUndefined()
+    expect(outline.sessions.every(s => s.estimatedMinutes <= 30)).toBe(true)
+    expect(outline.sessions.filter(s => s.slice.resource === 'E.O.Y Meeting').length).toBeGreaterThan(1)
+  })
+
+  test('the slicer never breaks its own budget — the invariant guard stays quiet', async () => {
+    const state = await design(
+      'about 20 minutes a session',
+      outlineReply([{ resources: ['E.O.Y Meeting'], claimed: 20 }])
+    )
+    expect(state.sessionLengthNotice).toBeUndefined()
+    expect(state.pendingOutline.sessions.every(s => s.estimatedMinutes <= 20)).toBe(true)
   })
 
   test('an unparseable length disables the check rather than guessing', async () => {
