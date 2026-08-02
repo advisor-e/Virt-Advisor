@@ -181,6 +181,66 @@ describe('requestedSessionCount (CB-26)', () => {
   })
 })
 
+// ── Requested session LENGTH — parser ────────────────────────────────────────
+//
+// The other half of the same interview answer. It was read as prose and never
+// as a number, so the length an advisor asked for was never checked against
+// what they got. Same conservative contract as the count: when in doubt, null.
+
+const { requestedSessionMinutes } = require('../../server/utils/designInterview')
+
+describe('requestedSessionMinutes', () => {
+  test('the ordinary forms', () => {
+    expect(requestedSessionMinutes('30 minutes, 4 sessions')).toBe(30)
+    expect(requestedSessionMinutes('4 sessions of 45 mins')).toBe(45)
+    expect(requestedSessionMinutes('90 minute sessions')).toBe(90)
+    expect(requestedSessionMinutes('thirty minutes each')).toBe(30)
+    expect(requestedSessionMinutes('forty-five minutes per session')).toBe(45)
+  })
+
+  test('hours are converted, because an advisor states a long session in hours', () => {
+    expect(requestedSessionMinutes('1 hour sessions')).toBe(60)
+    expect(requestedSessionMinutes('2 hrs each')).toBe(120)
+    expect(requestedSessionMinutes('1.5 hours per session')).toBe(90)
+  })
+
+  test("a compound duration reads as one figure — Mike's own phrasing", () => {
+    expect(requestedSessionMinutes('1 hour 17 minutes')).toBe(77)
+    expect(requestedSessionMinutes('1 hour and 30 minutes per session')).toBe(90)
+    expect(requestedSessionMinutes('2 hours 15 mins')).toBe(135)
+  })
+
+  test('a range is not a specific request → null, and the check stands down', () => {
+    expect(requestedSessionMinutes('20 to 30 minutes per session')).toBeNull()
+    expect(requestedSessionMinutes('30-45 minutes')).toBeNull()
+    expect(requestedSessionMinutes('30 or 45 mins')).toBeNull()
+    expect(requestedSessionMinutes('thirty to sixty minutes')).toBeNull()
+  })
+
+  test('conflicting lengths → null; a repeated identical length still parses', () => {
+    expect(requestedSessionMinutes('30 minutes... actually 45 minutes')).toBeNull()
+    expect(requestedSessionMinutes('30 minutes — yes, 30 minutes')).toBe(30)
+  })
+
+  test('the session COUNT is never mistaken for a length', () => {
+    expect(requestedSessionMinutes('4 sessions')).toBeNull()
+    expect(requestedSessionMinutes('6 modules')).toBeNull()
+  })
+
+  test('implausible, absent and junk values → null', () => {
+    expect(requestedSessionMinutes('2 minutes')).toBeNull() // not a session
+    expect(requestedSessionMinutes('12 hours')).toBeNull() // not one sitting
+    expect(requestedSessionMinutes('as long as it takes')).toBeNull()
+    expect(requestedSessionMinutes('')).toBeNull()
+    expect(requestedSessionMinutes(null)).toBeNull()
+    expect(requestedSessionMinutes(undefined)).toBeNull()
+  })
+
+  test('the live CB-26 answer parses as no length at all — it named a range', () => {
+    expect(requestedSessionMinutes('say 20 to 30 minutes per session and six sessions in total please')).toBeNull()
+  })
+})
+
 // ── CB-26: session-count mismatch — code-owned flag through the handler ──────
 
 function outlineJSON (n) {

@@ -309,17 +309,25 @@ describe('validateCourseOutline', () => {
       expect(result.data.sessions[1].objectives).toEqual([])
     })
 
-    test('defaults estimatedMinutes to 30 on junk, keeps a genuine number', () => {
-      const withMinutes = m => validateCourseOutline({
+    // This used to default a missing length to 30 minutes. Once the engine
+    // began computing the real figure, that default started RE-INVENTING on
+    // save the exact number the engine had removed — a session whose resources
+    // carry no published time has no length, and saying "30" is a fabrication
+    // the advisor would read as fact. An absent length now stays absent.
+    test('keeps a genuine estimatedMinutes and REMOVES anything that is not one', () => {
+      const session = m => validateCourseOutline({
         title: 'A course',
         sessions: [{ ...bareSession('A'), estimatedMinutes: m }]
-      }).data.sessions[0].estimatedMinutes
-      expect(withMinutes(45)).toBe(45)
-      expect(withMinutes('45')).toBe(30)
-      expect(withMinutes(0)).toBe(30)
-      expect(withMinutes(-10)).toBe(30)
-      expect(withMinutes(NaN)).toBe(30)
-      expect(withMinutes(undefined)).toBe(30)
+      }).data.sessions[0]
+      expect(session(45).estimatedMinutes).toBe(45)
+      for (const junk of ['45', 0, -10, NaN, undefined, null, {}]) {
+        expect('estimatedMinutes' in session(junk)).toBe(false)
+      }
+    })
+
+    test('a session that never carried a length does not acquire one', () => {
+      const result = validateCourseOutline({ title: 'A course', sessions: [bareSession('A')] })
+      expect('estimatedMinutes' in result.data.sessions[0]).toBe(false)
     })
 
     test('normalises a non-string topic to an empty string', () => {

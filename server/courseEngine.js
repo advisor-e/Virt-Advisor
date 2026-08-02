@@ -22,7 +22,8 @@ const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('.
 const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
 const { loadBlendedQuizBanks, isFirmAuthored } = require('../server/utils/quizConfig')
-const { isClarificationRequest, prefillDesignState, requestedSessionCount } = require('../server/utils/designInterview')
+const { isClarificationRequest, prefillDesignState, requestedSessionCount, requestedSessionMinutes } = require('../server/utils/designInterview')
+const { applyOutlineEffort, lengthNotice } = require('../server/utils/courseEffort')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -123,8 +124,12 @@ function handleDesign (req, body, res) {
     sessionDetails: null,
     pendingOutline: null
   }, courseState)
-  // Code-owned per-generation flag (CB-26) — never trusted from the round-trip.
+  // Code-owned per-generation flags — never trusted from the round-trip
+  // (CB-26, and the session-length figures computed alongside it).
   delete state.sessionCountNotice
+  delete state.sessionLengthNotice
+  delete state.courseMinutes
+  delete state.courseUnknownCount
 
   // Helper: send a hardcoded question as instant SSE (no OpenAI call)
   function sendQuestion (text, newState) {
@@ -246,14 +251,38 @@ function handleDesign (req, body, res) {
           if (grounded.snapped.length) {
             console.warn('[course:design] Snapped near-miss resource names:', grounded.snapped.map(x => `'${x.from}' → '${x.to}'`).join(' | '))
           }
-          finalState.pendingOutline = grounded.outline
+          // The real length of each session, computed from the resources the
+          // AI just chose (video + reading + rehearsal per Mike's ruling
+          // 2026-08-03). The AI's own `estimatedMinutes` was never a
+          // measurement — the design prompt instructs it to copy the
+          // advisor's requested number back — so it is replaced, not trusted.
+          const aiMinutes = (grounded.outline.sessions || []).map(s => s.estimatedMinutes)
+          const timed = applyOutlineEffort(grounded.outline, templates)
+          // AI-transformation audit (Original → Final), per the house rule.
+          console.warn('[course:design] Session minutes AI → computed:',
+            timed.outline.sessions.map((s, i) => `${aiMinutes[i]}→${s.estimatedMinutes === undefined ? 'unpublished' : s.estimatedMinutes}`).join(', '))
+          finalState.pendingOutline = timed.outline
+          finalState.courseMinutes = timed.totalMinutes
+          finalState.courseUnknownCount = timed.unknownCount
+
           // CB-26: the advisor asked for a specific session count — if the
           // delivered outline differs, code flags it (the outline card shows
           // the notice); the AI is never trusted to confess the deviation.
           const requested = requestedSessionCount(countText)
-          if (requested && grounded.outline.totalSessions !== requested) {
-            console.warn(`[course:design] Session-count mismatch: requested ${requested}, delivered ${grounded.outline.totalSessions}`)
-            finalState.sessionCountNotice = { requested, delivered: grounded.outline.totalSessions }
+          if (requested && timed.outline.totalSessions !== requested) {
+            console.warn(`[course:design] Session-count mismatch: requested ${requested}, delivered ${timed.outline.totalSessions}`)
+            finalState.sessionCountNotice = { requested, delivered: timed.outline.totalSessions }
+          }
+
+          // The same check for the OTHER half of that one answer: sessions
+          // whose real length misses what the advisor asked for. Flagged, not
+          // corrected — the advisor already has 'Request changes', and a
+          // silent re-plan would hide the mismatch rather than surface it.
+          const notice = lengthNotice(timed.outline, requestedSessionMinutes(countText))
+          if (notice) {
+            console.warn(`[course:design] Session-length mismatch: requested ${notice.requested} min — ` +
+              notice.sessions.map(s => `session ${s.id} is ${s.minutes} min`).join(', '))
+            finalState.sessionLengthNotice = notice
           }
         } else {
           console.warn('[course:design] Course outline failed shape validation:', result.errors.join('; '))

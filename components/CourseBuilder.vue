@@ -81,12 +81,18 @@
           .outline-meta
             span.outline-tag {{ pendingOutline.totalSessions }} sessions
             span.outline-tag {{ pendingOutline.intensity === 'progressive' ? 'Progressive difficulty' : 'Consistent depth' }}
+            //- The real length of the whole course, added up from the
+            //- resources rather than restated from the request.
+            span.outline-tag(v-if="outlineTotalLabel(pendingOutline)") {{ outlineTotalLabel(pendingOutline) }}
         .outline-sessions
           .outline-session(v-for="s in pendingOutline.sessions" :key="s.id")
             .session-num {{ s.id }}
             .session-info
               strong.session-title {{ s.title }}
               p.session-focus {{ s.focus }}
+              //- Watching, reading and rehearsing, added up (Mike 2026-08-03).
+              //- Absent rather than zero when nothing has been published.
+              p.session-time(v-if="sessionTimeLabel(s)") {{ sessionTimeLabel(s) }}
               .session-resources(v-if="s.resources && s.resources.length")
                 //- CB-25: a grounded resource with a real Advisor-e page link is
                 //- clickable — new tab always, so the live course chat survives.
@@ -95,10 +101,17 @@
                   span.resource-tag(v-else :key="r") {{ r }}
               //- CB-27: an empty slot says so plainly — never a silent blank.
               p.session-resources-empty(v-else) No library resource matched this session — it runs from the session focus instead.
+              //- A resource the export never timed is named, not counted as
+              //- zero: an unknown length must not read as "no work".
+              p.session-time-unknown(v-if="sessionUnknownLabel(s)") {{ sessionUnknownLabel(s) }}
         //- CB-26: code-detected session-count mismatch — the engine flags it;
         //- the AI is never trusted to confess a deviation itself.
         .outline-count-notice(v-if="courseState.sessionCountNotice")
           | You asked for {{ courseState.sessionCountNotice.requested }} sessions — this outline has {{ courseState.sessionCountNotice.delivered }}. Use 'Request changes' if you want {{ courseState.sessionCountNotice.requested }}.
+        //- The same check on the other half of that one answer: sessions whose
+        //- real length misses what the advisor asked for.
+        .outline-count-notice(v-if="courseState.sessionLengthNotice")
+          | You asked for {{ courseState.sessionLengthNotice.requested }}-minute sessions — {{ lengthNoticeText }}. {{ lengthNoticeAdvice }}
         .outline-visibility
           p.visibility-label Who can access this course?
           .visibility-opts
@@ -242,7 +255,9 @@
         .overview-progress-row
           .overview-progress-track
             .overview-progress-fill(:style="{ width: progressPercent + '%' }")
-          span.overview-progress-text {{ completedSessionCount }} of {{ activeCourse.outline.sessions.length }} sessions complete
+          span.overview-progress-text
+            | {{ completedSessionCount }} of {{ activeCourse.outline.sessions.length }} sessions complete
+            span(v-if="outlineTotalLabel(activeCourse.outline)")  · {{ outlineTotalLabel(activeCourse.outline) }}
       .overview-sessions
         //- CB-32 (Mike 2026-07-16): any session opens from here, and ▲▼
         //- re-orders them — each session's progress record travels with it.
@@ -259,6 +274,7 @@
           .ov-session-info
             strong.ov-session-title {{ s.title }}
             p.ov-session-focus {{ s.focus }}
+            p.ov-session-time(v-if="sessionTimeLabel(s)") {{ sessionTimeLabel(s) }}
           .ov-session-status
             template(v-if="activeCourse.progress[i].status === 'complete'")
               span.ov-badge.ov-badge-done
@@ -603,6 +619,37 @@ export default {
         .find(p => p.completedAt)
       if (!last) { return '' }
       return new Date(last.completedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
+    },
+
+    /**
+     * The sessions named in the length notice: "session 2 works out at 1h 39m".
+     * The engine decides WHICH sessions miss the request; this only reads them
+     * out.
+     * @returns {string} '' when there is no notice to show
+     */
+    lengthNoticeText () {
+      const notice = this.courseState && this.courseState.sessionLengthNotice
+      if (!notice || !notice.sessions || !notice.sessions.length) { return '' }
+      const list = notice.sessions.map(s => `session ${s.id} works out at ${this.formatMinutes(s.minutes)}`)
+      if (list.length === 1) { return list[0] }
+      return list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1]
+    },
+
+    /**
+     * The closing sentence of the length notice. A session can miss the
+     * request in either direction, so the advice follows the direction it
+     * actually missed rather than assuming "too long".
+     * @returns {string} '' when there is no notice to show
+     */
+    lengthNoticeAdvice () {
+      const notice = this.courseState && this.courseState.sessionLengthNotice
+      if (!notice || !notice.sessions || !notice.sessions.length) { return '' }
+      const over = notice.sessions.some(s => s.minutes > notice.requested)
+      const under = notice.sessions.some(s => s.minutes < notice.requested)
+      const subject = notice.sessions.length > 1 ? 'them' : 'it'
+      if (over && !under) { return `Use 'Request changes' if you want ${subject} shorter.` }
+      if (under && !over) { return `Use 'Request changes' if you want ${subject} longer.` }
+      return `Use 'Request changes' if you want ${subject} changed.`
     }
   },
 
@@ -659,6 +706,81 @@ export default {
   },
 
   methods: {
+    // ── Session length ──────────────────────────────────────────────────────
+    // Every figure below comes from `sessionEffort`, which the engine computes
+    // from the master export. Nothing here recalculates a duration, and
+    // nothing falls back to `estimatedMinutes` — that field was only ever the
+    // AI echoing the advisor's own request back at them.
+
+    /**
+     * A minute count as "30m" or "1h 39m".
+     * @param {number} mins - whole minutes
+     * @returns {string|null} null when there is nothing published to show —
+     *   an unknown length must never render as "0m"
+     */
+    formatMinutes (mins) {
+      if (!mins || !Number.isFinite(mins) || mins <= 0) { return null }
+      const hours = Math.floor(mins / 60)
+      const rest = Math.round(mins % 60)
+      if (!hours) { return `${rest}m` }
+      return rest ? `${hours}h ${rest}m` : `${hours}h`
+    },
+
+    /**
+     * One session's length and where it goes:
+     * "1h 39m — 9m video · 60m reading · 30m rehearsal".
+     *
+     * An activity carrying no time is left out rather than shown as zero. A
+     * session costed by the revenue-model allowance has no breakdown to give,
+     * so it shows the total alone.
+     *
+     * @param {object} session - a session carrying `sessionEffort`
+     * @returns {string|null} null when nothing has been published
+     */
+    sessionTimeLabel (session) {
+      const effort = session && session.sessionEffort
+      const total = this.formatMinutes(effort && effort.minutes)
+      if (!total) { return null }
+      const parts = []
+      if (effort.video) { parts.push(`${effort.video}m video`) }
+      if (effort.reading) { parts.push(`${effort.reading}m reading`) }
+      if (effort.rehearsal) { parts.push(`${effort.rehearsal}m rehearsal`) }
+      return parts.length ? `${total} — ${parts.join(' · ')}` : total
+    },
+
+    /**
+     * "1 resource has no published time" — said out loud, because counting it
+     * as zero would tell the advisor the work is free.
+     *
+     * @param {object} session - a session carrying `sessionEffort`
+     * @returns {string|null} null when every resource is timed
+     */
+    sessionUnknownLabel (session) {
+      const unknown = session && session.sessionEffort && session.sessionEffort.unknown
+      if (!unknown || !unknown.length) { return null }
+      return unknown.length === 1
+        ? '1 resource has no published time'
+        : `${unknown.length} resources have no published time`
+    },
+
+    /**
+     * The whole course as "5h 8m", summed from its sessions.
+     *
+     * Summed here rather than read from the design state so a SAVED course
+     * shows its length too — the state exists only while the outline is being
+     * designed.
+     *
+     * @param {object} outline - a course outline
+     * @returns {string|null} null when no session has a published length
+     */
+    outlineTotalLabel (outline) {
+      const sessions = (outline && outline.sessions) || []
+      const total = sessions.reduce(
+        (sum, s) => sum + ((s.sessionEffort && s.sessionEffort.minutes) || 0), 0
+      )
+      return this.formatMinutes(total)
+    },
+
     toggleListening () {
       if (!this.recognition) { return }
       if (this.isListening) {
@@ -1798,6 +1920,25 @@ export default {
   font-size: 11px;
   font-style: italic;
   color: #9ca3af;
+  margin: 4px 0 0;
+}
+.session-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4b5563;
+  margin: 0 0 6px;
+}
+/* Deliberately quieter than the time itself: it qualifies the figure above. */
+.session-time-unknown {
+  font-size: 11px;
+  font-style: italic;
+  color: #9ca3af;
+  margin: 4px 0 0;
+}
+.ov-session-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4b5563;
   margin: 4px 0 0;
 }
 .resource-tag-link:hover {

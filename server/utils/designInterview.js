@@ -5,7 +5,7 @@
  * Phase 4). Code-only pattern matching, mirroring the intake's frustration
  * detector: narrow on purpose, capped by the caller so it can never loop.
  *
- * Three jobs:
+ * Four jobs:
  *  - isClarificationRequest: is this reply a question about the question
  *    (re-ask it in plainer words) rather than an answer to store?
  *  - prefillDesignState: pre-fill interview fields the advisor's OPENING
@@ -15,6 +15,11 @@
  *    (CB-26), so code — not the AI — can notice a delivered outline that
  *    ignores it. Conservative: ambiguity (ranges, conflicting counts) parses
  *    as null, which simply disables the check.
+ *  - requestedSessionMinutes: the same idea for the OTHER half of the same
+ *    answer. The interview asks for length and count in one question, but only
+ *    the count was ever read back out; the length went to the AI as prose and
+ *    came back as an unchecked echo. Same conservative contract — a range or
+ *    two conflicting figures parse as null and stand the check down.
  */
 
 // A question about the question. A miss is safe: the reply is stored and the
@@ -150,4 +155,120 @@ function requestedSessionCount (text) {
   return (n >= 1 && n <= 30) ? n : null
 }
 
-module.exports = { isClarificationRequest, prefillDesignState, requestedSessionCount }
+// ── Requested session LENGTH ────────────────────────────────────────────────
+
+/**
+ * Word forms for a duration. Longest-first in the alternation below, or
+ * "forty" would match before "forty-five" and read 45 minutes as 40.
+ */
+const MINUTE_WORDS = Object.assign({}, COUNT_WORDS, {
+  fifteen: 15,
+  thirty: 30,
+  forty: 40,
+  'forty-five': 45,
+  'forty five': 45,
+  fifty: 50,
+  sixty: 60,
+  ninety: 90
+})
+const MINUTE_WORD_TOKEN = Object.keys(MINUTE_WORDS)
+  .sort((a, b) => b.length - a.length)
+  .join('|')
+
+const MINUTE_NOUN = '(?:minutes?|mins?)'
+const HOUR_NOUN = '(?:hours?|hrs?)'
+const NUM = '(\\d{1,3}(?:\\.\\d+)?)'
+
+// "1 hour 30", "2 hrs and 15 minutes" — read as one duration, not two figures.
+const COMPOUND_RE = new RegExp(NUM + '\\s*' + HOUR_NOUN + '\\s*(?:and\\s*)?(\\d{1,2})\\s*' + MINUTE_NOUN + '?', 'gi')
+const HOUR_RE = new RegExp('\\b' + NUM + '\\s*' + HOUR_NOUN, 'gi')
+const MINUTE_DIGIT_RE = new RegExp('\\b' + NUM + '\\s*' + MINUTE_NOUN, 'gi')
+const MINUTE_WORD_RE = new RegExp('\\b(' + MINUTE_WORD_TOKEN + ')\\s*' + MINUTE_NOUN, 'gi')
+
+// "30-45 minutes", "30 to 45 mins", "an hour or two" — a range is not a
+// request for a specific length; the check stands down exactly as it does for
+// a range of session counts.
+const MINUTE_RANGE_RE = new RegExp(
+  '(?:\\d{1,3}|' + MINUTE_WORD_TOKEN + ')\\s*(?:-|–|—|\\bto\\b|\\bor\\b)\\s*' +
+  '(?:\\d{1,3}|' + MINUTE_WORD_TOKEN + ')\\s*(?:' + MINUTE_NOUN + '|' + HOUR_NOUN + ')', 'i'
+)
+
+/** Below this a "session" is not a session; above it, not one sitting. */
+const MIN_SESSION_MINUTES = 5
+const MAX_SESSION_MINUTES = 480
+
+const HYPHENATED_WORDS_RE = /\b([a-z]+)-([a-z]+)\b/gi
+
+/**
+ * "forty-five" is one number, not a range from forty to five. Only hyphenated
+ * pairs that are a KNOWN compound are joined; "thirty-forty" is left alone and
+ * still reads as the range it is.
+ *
+ * @param {string} text @returns {string}
+ */
+function normaliseCompoundWords (text) {
+  return text.replace(HYPHENATED_WORDS_RE, (whole, a, b) => (
+    Object.prototype.hasOwnProperty.call(MINUTE_WORDS, `${a.toLowerCase()}-${b.toLowerCase()}`)
+      ? `${a} ${b}`
+      : whole
+  ))
+}
+
+/**
+ * Extract the per-session length the advisor asked for, in whole minutes.
+ *
+ * Hours are converted ("1 hour" → 60, "1 hour 30" → 90) because advisors state
+ * a long session in hours and the comparison downstream is in minutes. As with
+ * the session count, anything ambiguous returns null and simply disables the
+ * check — a wrong figure here would raise a false warning on a correct course,
+ * which is worse than no warning at all.
+ *
+ * @param {string} text - the advisor's session-format answer (raw typing)
+ * @returns {number|null} 5–480 whole minutes, or null to disable the check
+ */
+function requestedSessionMinutes (text) {
+  let t = normaliseCompoundWords(String(text || ''))
+  if (MINUTE_RANGE_RE.test(t)) { return null }
+
+  const found = new Set()
+  const blank = m => ' '.repeat(m.length)
+
+  // Compounds first, and blanked out, so "1 hour 30 minutes" is not also read
+  // as a 1 and a 30.
+  COMPOUND_RE.lastIndex = 0
+  t = t.replace(COMPOUND_RE, (m, h, mins) => {
+    found.add(Math.round(Number(h) * 60 + Number(mins)))
+    return blank(m)
+  })
+
+  HOUR_RE.lastIndex = 0
+  t = t.replace(HOUR_RE, (m, h) => {
+    found.add(Math.round(Number(h) * 60))
+    return blank(m)
+  })
+
+  MINUTE_DIGIT_RE.lastIndex = 0
+  t = t.replace(MINUTE_DIGIT_RE, (m, mins) => {
+    found.add(Math.round(Number(mins)))
+    return blank(m)
+  })
+
+  MINUTE_WORD_RE.lastIndex = 0
+  t.replace(MINUTE_WORD_RE, (m, word) => {
+    found.add(MINUTE_WORDS[word.toLowerCase()])
+    return m
+  })
+
+  if (found.size !== 1) { return null }
+  const n = found.values().next().value
+  return (n >= MIN_SESSION_MINUTES && n <= MAX_SESSION_MINUTES) ? n : null
+}
+
+module.exports = {
+  isClarificationRequest,
+  prefillDesignState,
+  requestedSessionCount,
+  requestedSessionMinutes,
+  MIN_SESSION_MINUTES,
+  MAX_SESSION_MINUTES
+}
