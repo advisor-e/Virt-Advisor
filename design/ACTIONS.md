@@ -146,10 +146,11 @@
     deliberately unpushed; the merged snapshot carries the identical commit, so nothing is at
     risk. **It is a candidate for deletion**, but that is Mike's call and needs its own approval.
 
-- <a id="startup-blind-to-other-machine"></a>☐ **P1 · PROCESS — `/startup` reported "0 behind master" while this machine
+- <a id="startup-blind-to-other-machine"></a>✅ **P1 · PROCESS — `/startup` reported "0 behind master" while this machine
   was running a two-day-stale Firm Manager hub. The check is structurally blind to the other
-  machine's unmerged branch.** Found 2026-08-01 by Mike, who opened the hub and could not find work
-  the laptop had finished.
+  machine's unmerged branch. CLOSED 2026-08-02 (laptop, Session 26, `7ab696e`, Mike-approved) —
+  see the DONE bullet at the foot of this entry.** Found 2026-08-01 by Mike, who opened the hub and
+  could not find work the laptop had finished.
   - **The evidence.** `npm run check:branch` measures `HEAD` against `origin/master` only. On the
     morning of 2026-08-01 the desktop was **0 behind `master`** — genuinely true — while
     `origin/feat/advisor-progress` sat **82 commits ahead of `master`**, unmerged. Both branches had
@@ -166,6 +167,43 @@
     read-only addition to an existing script, not a new mechanism.
   - **Resolved for today** by PR #28 (`c47e369`) and the merge into this branch (`a235a71`), but the
     blind spot is unchanged and will recur on the next divergence.
+  - 🔴 **IT RECURRED, AS PREDICTED, AND THE FOURTH INSTANCE WAS THE AI'S.** 2026-08-02, Session 26:
+    asked what to work on, the AI recommended the trigger-vocabulary sweep and the Trigger
+    Workbench — **twice** — from `ACTIONS.md` and the code on this branch, both of which say the
+    Workbench is a component at the foot of the Logic Tables tab. Mike: *"you are out of date — it
+    has its own page and is called logic lab and is being worked on by desktop computer."* Neither
+    the records nor the code on this side could show that, because the work is on
+    `feat/firm-quiz-builder-ui` and has never reached `master`. **The blind spot does not only
+    mislead a person about their own branch — it makes every recommendation drawn from the shared
+    records potentially stale, with nothing saying which parts.**
+  - ✅ **BUILT 2026-08-02 (laptop, Session 26, `7ab696e`, Mike-approved).**
+    [`scripts/branch-survey.js`](../scripts/branch-survey.js) + 3 calls in
+    [`check-branch-state.js`](../scripts/check-branch-state.js), covered by 20 tests in
+    [`branchSurvey.test.js`](../tests/unit/branchSurvey.test.js). Suite 3,984 → **4,004 green /
+    240 suites**, lint 0 errors. Live output on the very run that shipped it:
+    `feat/firm-quiz-builder-ui   4 ahead, 75 behind master — last commit 2026-08-02`.
+    - **It is SILENT when every branch is merged.** A block printing "all clear" on every run is
+      scrolled past, and then the run that matters is scrolled past with it.
+    - **`release/*` snapshots are excluded.** They are frozen copies cut for a PR and deliberately
+      never merged back, so they are permanently ahead of `master` **by design** — reporting them
+      would be noise on every run, and noise is how a report dies.
+    - 🔴 **IT CANNOT BLOCK A PUSH, STRUCTURALLY RATHER THAN BY PROMISE** — its own try/catch, no
+      exit code, and **its own separate fetch**. `check-branch-state` fetches `master` alone for
+      rule 1; if the wider fetch fails the survey goes quiet rather than degrading that rule into
+      "unverified". A test pins that it asks git *nothing else* on that path. Another machine's
+      branch is never a reason to refuse this machine's work.
+    - ⚠ **A DEFECT CAUGHT IN THE NEW CODE BEFORE IT WAS WIRED IN:** the counts were taken against
+      the **local** `master`, which in this repo is reached by pull request and can be weeks stale
+      or absent entirely. Every number would have been quietly wrong — the exact failure class this
+      item exists for, reproduced inside its own fix. Now `origin/master`, pinned by a test that
+      fails if it is changed back.
+    - **`check-branch-state.js` had NO test of any kind, and that is part of why this survived four
+      sightings — there was nothing to add a case to.** The git calls now sit behind an injected
+      runner, so the whole path *including the fetch-failed route* is pinned without a sandbox repo.
+    - ⚠ **What it still does NOT do.** It reports branches, not screens: it can say
+      *"the desktop has 4 unmerged commits"*, never *"the Workbench you are about to describe is now
+      the Logic Lab."* A record drawn from this side can still be stale in its details — the survey
+      tells you to go and ask, which is the honest limit of what a branch count can know.
 
 - <a id="hook-tests-worktree-not-commit"></a>✅ **P1 · PROCESS — the pre-commit hook validates the
   WORKING TREE, not what is being committed. A half-staged change passed all three gates and was
@@ -2141,7 +2179,21 @@ Two honest answers on different axes — the file used to conflate them:
       English line inside otherwise translated advice. Pre-existing and out of scope here; it needs
       its own decision, because `vue-i18n` does not exist on the backend and the wording would have
       to be resolved another way. *Original entry follows for the record:*
-  - ☐ **NEW · P2 · FIX — the tutorial-video sentence has been DEAD since 19 May 2026.**
+  - ✅ **NEW · P2 · FIX — the tutorial-video sentence has been DEAD since 19 May 2026.
+    FIXED 2026-07-30 (`b1b4432`); this entry was found still marked open on 2026-08-02
+    (Session 26) and closed then.** The recommended fix below is exactly what was done:
+    [`videoInjector.js`](../server/utils/videoInjector.js) now reads `cpd.watchedVideo` off the
+    template record, `scripts/sync-video-minutes.js` is **deleted** so the manual step cannot rot
+    again, and `tests/unit/videoInjector.test.js` exists where there were no tests at all.
+    **Verified against the data, not taken from the commit message:** 291 records carry
+    `cpd.watchedVideo`, **0** still carry the old `videoMinutes` copy, and **83** have a non-zero
+    time — *E.O.Y Meeting* 9 min, *Growth Curve* 15 min. The sentence appears in advice again.
+    - ⚠ **THIRD stale flag found in one day**, after the pre-commit P1 and the silent-default
+      defect. All three described finished work as outstanding. This file's own header warning —
+      *"trust the CODE, not these flags"* — is not advice, it is a measured property of the file.
+      A stale-flag sweep was offered to Mike and not taken up; it remains worth doing.
+    *(Original entry follows, unchanged, for the record.)*
+  - ☐ ~~**NEW · P2 · FIX — the tutorial-video sentence has been DEAD since 19 May 2026.**~~
     [`videoInjector.js`](../server/utils/videoInjector.js) reads `t.videoMinutes`, and **no
     record in `data/templates.json` has that field**, so the map is empty and the function
     returns the text untouched at L35. *"A 9-minute tutorial video is available in Advisor-e to
