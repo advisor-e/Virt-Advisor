@@ -672,6 +672,11 @@ export default {
   body.cpd-printing * { visibility: hidden !important; }
   body.cpd-printing .cpd-record,
   body.cpd-printing .cpd-record * { visibility: visible !important; }
+  /* A visibility:hidden element still occupies its space, so the My Progress screen
+     above this section would otherwise push out pages of blank paper behind the
+     statement. Its own siblings are collapsed outright — they are not ancestors of
+     this section, so removing them cannot take the statement with them. */
+  body.cpd-printing .advisor-progression > *:not(.cpd-record) { display: none !important; }
   body.cpd-printing .cpd-record {
     position: absolute;
     left: 0;
