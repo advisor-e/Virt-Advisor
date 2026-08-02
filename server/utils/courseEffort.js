@@ -254,6 +254,152 @@ function lengthNotice (outline, requested) {
   return off.length ? { requested: { min: requested.min, max: requested.max }, sessions: off } : null
 }
 
+// ── Slicing a course into time-boxed sessions ───────────────────────────────
+// design/COURSE-SESSION-PLANNING.md is the spec; read it before changing any
+// rule here. Mike's model, 2026-08-03: a session is a time-boxed slice of ONE
+// activity, and an activity may span several sessions — it is NOT one template.
+// One template = one session cannot honour a short request: only 10 of the 93
+// timed visible templates fit inside 20 minutes whole, against 148 of 242
+// activities.
+//
+// Nothing here is fabricated. Splitting a 60-minute reading over three sessions
+// does not claim to know the document's structure — the advisor reads for their
+// twenty minutes and picks up where they left off.
+
+/** The order an advisor works through one template. */
+const ACTIVITY_ORDER = ['video', 'reading', 'rehearsal']
+
+/**
+ * The distinct templates a generated outline chose, in the order it chose them.
+ *
+ * The AI's own session grouping is discarded — it decided the curriculum, not
+ * the timetable. A template named in two of its sessions is one piece of
+ * material, counted once.
+ *
+ * @param {object} outline - a grounded outline.
+ * @returns {string[]} template titles, first appearance order, deduplicated.
+ */
+function orderedResources (outline) {
+  const seen = new Set()
+  const out = []
+  for (const s of ((outline && outline.sessions) || [])) {
+    for (const name of ((s && s.resources) || [])) {
+      const key = cpdCatalogue.normaliseTitle(name)
+      if (!key || seen.has(key)) { continue }
+      seen.add(key)
+      out.push(name)
+    }
+  }
+  return out
+}
+
+/**
+ * Split one activity into whole-minute parts that fit the session budget.
+ *
+ * EVEN parts, never fill-then-stub: `parts = ceil(minutes / max)` and the time
+ * is shared between them. A 60-minute reading at 20 is 3 x 20; a 30-minute
+ * rehearsal at 20 is 2 x 15, NOT 20 + 10 — a 10-minute tail-end session is the
+ * kind of thing an advisor skips.
+ *
+ * @param {number} minutes - the activity's whole minutes.
+ * @param {number} max - the longest a session may run.
+ * @returns {number[]} one entry per part, summing exactly to `minutes`.
+ */
+function splitEvenly (minutes, max) {
+  if (!minutes || minutes <= 0) { return [] }
+  if (!max || max <= 0) { return [minutes] }
+  const parts = Math.ceil(minutes / max)
+  const each = Math.round(minutes / parts)
+  const out = []
+  for (let i = 0; i < parts - 1; i++) { out.push(each) }
+  out.push(minutes - each * (parts - 1))
+  return out
+}
+
+/**
+ * Lay a course's chosen material out as time-boxed sessions.
+ *
+ * A natural boundary is allowed to run short: a 12-minute video is a 12-minute
+ * session, never padded to reach the floor and never merged with the next
+ * activity. Activities are not mixed within a session.
+ *
+ * Returns STRUCTURE, not wording — `activity`, `part`, `parts` — so the screen
+ * decides how to phrase it and no user-facing copy is settled in here.
+ *
+ * @param {object} outline - a grounded outline (the AI's curriculum).
+ * @param {{min: number, max: number}} budget - the advisor's session length.
+ * @param {Array<object>} templates - the firm's template set.
+ * @returns {{sessions: Array<{resource: string, activity: string, part: number,
+ *   parts: number, minutes: number}>, totalMinutes: number, unknown: string[]}}
+ *   `unknown` names chosen material carrying no published time — it can never be
+ *   timetabled, and is reported rather than silently dropped or counted as zero.
+ */
+function planSessions (outline, budget, templates) {
+  const index = indexByTitle(templates)
+  const max = (budget && Number.isFinite(budget.max) && budget.max > 0) ? budget.max : 0
+  const sessions = []
+  const unknown = []
+  let totalMinutes = 0
+
+  for (const resource of orderedResources(outline)) {
+    const effort = templateEffort(resource, index)
+    if (effort.source === SOURCE_UNKNOWN) { unknown.push(effort.title); continue }
+
+    // A model priced by the flat allowance has no authored split to walk, so it
+    // is one indivisible block of work rather than three activities.
+    const activities = effort.source === SOURCE_MODEL
+      ? [{ activity: 'model', minutes: effort.minutes }]
+      : ACTIVITY_ORDER
+        .map(activity => ({ activity, minutes: effort[activity] }))
+        .filter(a => a.minutes > 0)
+
+    for (const { activity, minutes } of activities) {
+      const parts = splitEvenly(minutes, max)
+      parts.forEach((mins, i) => {
+        sessions.push({
+          resource: effort.title,
+          activity,
+          part: i + 1,
+          parts: parts.length,
+          minutes: mins
+        })
+        totalMinutes += mins
+      })
+    }
+  }
+  return { sessions, totalMinutes, unknown }
+}
+
+/**
+ * The two choices offered when the material will not fit what the advisor asked
+ * for — the exact figures behind design/COURSE-SESSION-PLANNING.md's approved
+ * question.
+ *
+ * Mike's ruling 2026-08-03: the app ASKS, it never decides. "Cover less
+ * material" was proposed and rejected, and is deliberately not a third option.
+ *
+ * @param {number} totalMinutes - the material's real total.
+ * @param {{min: number, max: number}} budget - the length they asked for.
+ * @param {number} requestedCount - the number of sessions they asked for.
+ * @param {number} plannedCount - sessions the slicer actually produced.
+ * @returns {{totalMinutes: number, keepLength: {sessions: number},
+ *   keepCount: {sessions: number, minutes: number}}|null} null when it already
+ *   fits, or when either figure is missing (no question to ask).
+ */
+function fitOptions (totalMinutes, budget, requestedCount, plannedCount) {
+  if (!totalMinutes || !budget || !requestedCount) { return null }
+  if (!Number.isFinite(requestedCount) || requestedCount <= 0) { return null }
+  if (plannedCount === requestedCount) { return null }
+  // Rounded to the nearest 5 because it is offered as "about N minutes" — a
+  // figure like 43 reads as a precision the material does not have.
+  const perSession = Math.max(5, Math.round(totalMinutes / requestedCount / 5) * 5)
+  return {
+    totalMinutes,
+    keepLength: { sessions: plannedCount },
+    keepCount: { sessions: requestedCount, minutes: perSession }
+  }
+}
+
 module.exports = {
   isRevenueModel,
   indexByTitle,
@@ -261,6 +407,11 @@ module.exports = {
   sessionEffort,
   applyOutlineEffort,
   lengthNotice,
+  orderedResources,
+  splitEvenly,
+  planSessions,
+  fitOptions,
+  ACTIVITY_ORDER,
   MODEL_SUBSECTION,
   MODEL_ALLOWANCE_MINUTES,
   LENGTH_TOLERANCE,

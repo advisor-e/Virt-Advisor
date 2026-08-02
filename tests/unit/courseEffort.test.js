@@ -319,3 +319,145 @@ describe('lengthNotice — code notices, the AI is not asked to confess', () => 
     expect(n.sessions.map(s => s.minutes)).toEqual([11, 25])
   })
 })
+
+// ── Slicing a course into sessions (design/COURSE-SESSION-PLANNING.md) ───────
+//
+// Mike's model, 2026-08-03: a session is a time-boxed slice of ONE activity, and
+// an activity may span several sessions. The worked example below is his live EOY
+// course, and the numbers are the ones he was shown and approved.
+
+describe('splitEvenly — no stub sessions', () => {
+  test('a 60-minute reading at 20 is three equal parts', () => {
+    expect(effort.splitEvenly(60, 20)).toEqual([20, 20, 20])
+  })
+
+  test('a 30-minute rehearsal at 20 is 15+15, never 20+10', () => {
+    expect(effort.splitEvenly(30, 20)).toEqual([15, 15])
+  })
+
+  test('an activity already inside the budget is one part, not padded', () => {
+    expect(effort.splitEvenly(9, 20)).toEqual([9])
+    expect(effort.splitEvenly(20, 20)).toEqual([20])
+  })
+
+  test('the parts always sum back to the original minutes', () => {
+    for (const mins of [7, 13, 24, 37, 59, 61, 99, 165, 360]) {
+      for (const max of [10, 15, 20, 30, 45, 60]) {
+        const parts = effort.splitEvenly(mins, max)
+        expect(parts.reduce((a, b) => a + b, 0)).toBe(mins)
+        expect(Math.max(...parts)).toBeLessThanOrEqual(Math.max(max, mins))
+      }
+    }
+  })
+
+  test('nothing to split, and a missing budget, are handled', () => {
+    expect(effort.splitEvenly(0, 20)).toEqual([])
+    expect(effort.splitEvenly(30, 0)).toEqual([30])
+  })
+})
+
+describe('orderedResources — the AI chose the curriculum, not the timetable', () => {
+  test('its session grouping is discarded and duplicates collapse to one', () => {
+    const outline = {
+      sessions: [
+        { resources: ['Alpha', 'Beta'] },
+        { resources: ['beta', 'Gamma'] } // same material, different casing
+      ]
+    }
+    expect(effort.orderedResources(outline)).toEqual(['Alpha', 'Beta', 'Gamma'])
+  })
+
+  test('an outline with no resources yields none', () => {
+    expect(effort.orderedResources({ sessions: [{}] })).toEqual([])
+    expect(effort.orderedResources({})).toEqual([])
+  })
+})
+
+describe('planSessions — Mike\'s live EOY material', () => {
+  /** The two timed templates from his 2026-08-03 course. */
+  const eoyLibrary = () => library([
+    record({ page: 'p1', title: 'E.O.Y Meeting', cpd: { isHidden: false, watchedVideo: 9, reviewTemplate: 60, reheasedTemplate: 30 } }),
+    record({ page: 'p2', title: 'Working Capital Cycle', cpd: { isHidden: false, watchedVideo: 24, reviewTemplate: 20, reheasedTemplate: 30 } })
+  ])
+  const outline = { sessions: [{ resources: ['E.O.Y Meeting'] }, { resources: ['Working Capital Cycle'] }] }
+
+  test('11 sessions at 15-20 minutes — the plan Mike approved', () => {
+    const plan = effort.planSessions(outline, { min: 15, max: 20 }, eoyLibrary())
+    expect(plan.sessions.length).toBe(11)
+    expect(plan.totalMinutes).toBe(173) // 2h 53m
+    expect(plan.sessions.map(s => s.minutes)).toEqual([9, 20, 20, 20, 15, 15, 12, 12, 20, 15, 15])
+    expect(plan.sessions.map(s => s.activity)).toEqual(
+      ['video', 'reading', 'reading', 'reading', 'rehearsal', 'rehearsal',
+        'video', 'video', 'reading', 'rehearsal', 'rehearsal']
+    )
+  })
+
+  test('the same material re-slices at other lengths — the work never changes', () => {
+    for (const [max, count] of [[20, 11], [30, 7], [60, 6]]) {
+      const plan = effort.planSessions(outline, { min: max - 5, max }, eoyLibrary())
+      expect(plan.sessions.length).toBe(count)
+      expect(plan.totalMinutes).toBe(173)
+    }
+  })
+
+  test('parts are numbered so the screen can say "part 2 of 3"', () => {
+    const plan = effort.planSessions(outline, { min: 15, max: 20 }, eoyLibrary())
+    const reading = plan.sessions.filter(s => s.resource === 'E.O.Y Meeting' && s.activity === 'reading')
+    expect(reading.map(s => `${s.part} of ${s.parts}`)).toEqual(['1 of 3', '2 of 3', '3 of 3'])
+  })
+
+  test('a natural boundary runs short rather than being padded or merged', () => {
+    const plan = effort.planSessions(outline, { min: 15, max: 20 }, eoyLibrary())
+    expect(plan.sessions[0]).toMatchObject({ activity: 'video', minutes: 9, parts: 1 })
+    // ...and the 20-minute reading that follows is a session of its own.
+    expect(plan.sessions[1]).toMatchObject({ activity: 'reading', minutes: 20 })
+  })
+
+  test('an activity carrying no time never becomes a session', () => {
+    const lib = library([record({ cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 40, reheasedTemplate: 0 } })])
+    const plan = effort.planSessions({ sessions: [{ resources: ['E.O.Y Meeting'] }] }, { min: 15, max: 20 }, lib)
+    expect(plan.sessions.every(s => s.activity === 'reading')).toBe(true)
+    expect(plan.sessions.length).toBe(2)
+  })
+
+  test('an untimed resource cannot be timetabled — it is named, not dropped silently', () => {
+    const lib = library([record({ title: 'Dashboard Report', cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 0, reheasedTemplate: 0 } })])
+    const plan = effort.planSessions({ sessions: [{ resources: ['Dashboard Report'] }] }, { min: 15, max: 20 }, lib)
+    expect(plan.sessions).toEqual([])
+    expect(plan.unknown).toEqual(['Dashboard Report'])
+  })
+
+  test('a revenue model is one indivisible block, not three activities', () => {
+    const lib = library([model()])
+    const plan = effort.planSessions({ sessions: [{ resources: ['Cafe'] }] }, { min: 15, max: 20 }, lib)
+    expect(plan.sessions.length).toBe(2) // 30 min at a 20-min budget -> 15 + 15
+    expect(plan.sessions.every(s => s.activity === 'model')).toBe(true)
+    expect(plan.totalMinutes).toBe(30)
+  })
+})
+
+describe('fitOptions — the two choices the advisor is offered', () => {
+  test("Mike's case: 4 sessions asked, 11 needed, ~45 minutes if he keeps 4", () => {
+    const opts = effort.fitOptions(173, { min: 15, max: 20 }, 4, 11)
+    expect(opts).toEqual({
+      totalMinutes: 173,
+      keepLength: { sessions: 11 },
+      keepCount: { sessions: 4, minutes: 45 }
+    })
+  })
+
+  test('the per-session figure is rounded to the nearest 5 — it is offered as "about"', () => {
+    expect(effort.fitOptions(100, { min: 15, max: 20 }, 3, 6).keepCount.minutes).toBe(35) // 33.3
+    expect(effort.fitOptions(120, { min: 15, max: 20 }, 5, 8).keepCount.minutes).toBe(25) // 24
+  })
+
+  test('no question is asked when the plan already matches the request', () => {
+    expect(effort.fitOptions(80, { min: 15, max: 20 }, 4, 4)).toBeNull()
+  })
+
+  test('a missing figure asks nothing rather than inventing one', () => {
+    expect(effort.fitOptions(0, { min: 15, max: 20 }, 4, 11)).toBeNull()
+    expect(effort.fitOptions(173, null, 4, 11)).toBeNull()
+    expect(effort.fitOptions(173, { min: 15, max: 20 }, 0, 11)).toBeNull()
+  })
+})
