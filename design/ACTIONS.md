@@ -23,7 +23,86 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
-- <a id="decision-logic-page"></a>☐ **P1 · BUILD — the DECISION LOGIC page: a read-only screen where a firm
+- <a id="logic-lab-decision-logic-build"></a>☐ **P1 · BUILD — TOMORROW'S FIRST TASK. The DECISION LOGIC page,
+  approved by Mike 2026-08-02 from a working mockup, goes into Firm Manager Hub as the tab named
+  "Logic-Lab". THE MOCKUP IS THE SPEC — do not design from this entry.**
+  - **THE ARTEFACT:** [`design/mockups/decision-logic-map-mockup.html`](mockups/decision-logic-map-mockup.html).
+    Open it in a browser (or serve it: copy to `static/` and hit `/decision-logic-map-mockup.html`).
+    It is interactive — the diagnostic calls the real probe route. **Per CLAUDE.md → "Save the
+    Artefact", this entry LINKS the file and does not replace it. When the build is done, put the two
+    side by side and name every difference.**
+  - **Mike's ruling, verbatim (2026-08-02):** *"I want the logic lab page as it is currently sitting in
+    firm manager hub … to be deleted. I don't wanna see it anymore. It's shit. I want the decision
+    logic mock up that you've got in future inserted into fair manager hub and renamed logic lab."*
+    And on the old work: *"all of the work that's been done around that phrase testing needs to be
+    saved somewhere. I just don't wanna see it in this manager hub. We may find down the road we
+    choose to use it, so don't delete it entirely."*
+  - **What the page contains, in the order it was approved (section 1 and 2 signed off explicitly —
+    *"I'm really happy with section one and two … let's save them"*):**
+    1. **"Here are the three things that affect client recommendation"** — three columns, order fixed
+       by Mike: **domain support · logic tables · Advisory Distinctions**. Each carries what it holds,
+       what it does, and what to edit it for. **Descriptions are code-verified, not paraphrased** —
+       Mike rejected the first version as invented: domain support is the how-to content
+       (`name` / `summary` / `who_when` / `steps`, [`domainSupport.js`](../server/utils/domainSupport.js)
+       L102-113) read by **Learn mode** ([`advisorEngine.js`](../server/advisorEngine.js) L3192) and
+       **Course Builder** ([`courseEngine.js`](../server/courseEngine.js) L170, L364), and template
+       selection never reads it ([`contentRouting.js`](../server/utils/contentRouting.js) L107-112);
+       logic tables contribute `TREE_HINT_BOOST = 3`
+       ([`templateResolver.js`](../server/utils/templateResolver.js) L184); distinctions contribute
+       `+5` and are judged **only inside the detected domain**. Quiz banks sit in a footnote —
+       named, and stated to affect nothing.
+    2. **"What do you want to change?"** — a symptom→lever router, five rows. This replaced two
+       sections of statistics that Mike ruled useless for deciding anything (*"they just confuse the
+       shit out of me"*): the aggregate 59%/80% block was **cut**, and the margin insight was folded
+       into the distinctions column where it means something.
+    3. **The near-miss answer** — opens in place behind router row 5, not a section of its own. Each
+       line is a decision with **Move / Copy / Leave**, not an observation. Source:
+       `findNearMissDistinctions`, already computed every session and never surfaced.
+    4. **The diagnostic** — sentence + "what went wrong" dropdown + **the template you expected**.
+       The expected template is what turns "here is what happened" into "here is how far short you
+       were". Shows the live probe result, then the score sheet with the gap.
+    5. **"Give me ideas of what to change"** — a separate opt-in button below the diagnosis. Numbered
+       strongest-first with what each is worth, and it adapts to the dropdown. **It never drafts the
+       firm's content**: the suggested distinction is the advisor's own sentence quoted back.
+  - **🔴 THE ONE BLOCKER, and it is small.** The score sheet and the gap arithmetic need a template's
+    real `matchReasons`. The engine computes them on **every** session
+    ([`advisorEngine.js`](../server/advisorEngine.js) L2867, stored in `_decisionTrace.templateScores`
+    with `_scoreGap` alongside) and **no route exposes them**. That route is the first thing to build.
+    Everything else on the page reads data that is already reachable.
+  - **Already live and reused as-is:** the sentence probe (`POST /api/firm-manager/logic-trees/probe`),
+    which now measures Advisory Distinctions for real via one gpt-4o-mini call — verified live
+    (`[openai] logic-lab-probe … status=ok latency=2044ms`).
+  - **Not yet decided:** where the page is reached from beyond the hub tab, and whether the
+    Move/Copy/Leave buttons write immediately or stage a change. Both are Mike's calls.
+
+- <a id="logic-lab-phrase-testing-parked"></a>🔒 **PARKED (not deleted) — the phrase-testing screen and its
+  470-sentence comparison. Removed from Firm Manager Hub 2026-08-02 by owner instruction; every file
+  kept.** Logged under the no-silent-parking rule so it is revived deliberately, never rediscovered.
+  - **What is still in the repo and works:**
+    [`components/firm/FirmLogicLab.vue`](../components/firm/FirmLogicLab.vue) (22 passing tests in
+    [`firmLogicLab.component.test.js`](../tests/unit/firmLogicLab.component.test.js)), the two
+    read-only routes, and the **approved** green/red mockup
+    [`design/mockups/logic-lab-wording-mockup.html`](mockups/logic-lab-wording-mockup.html).
+    The hub no longer imports or renders the component — see the comment block in
+    [`FirmManagerHub.vue`](../components/FirmManagerHub.vue).
+  - **Why it was rejected, in one line:** its comparison runs against a corpus of **419 branch
+    conditions + 51 Scenario Lab cases**, which are instructions to the AI and test fixtures, not
+    advisor speech. Mike deleted six real trigger phrases (39 → 33) and it reported **0 gained, 0
+    lost, 470 unchanged** — *"nothing would change"* is not an answer, it is the tool being unable to
+    tell, and it reads as reassurance. Reproduced independently: adding `org chart`, `turnover` or
+    `nobody knows who reports to whom` to `staff_performance` each moved **0 of 470**; `org chart`
+    appears in **0** of the corpus sentences.
+  - **What would make it worth reviving:** a corpus of sentences that sound like advisors talking —
+    real session text or transcribed openings — instead of branch conditions. Until then the
+    comparison must not report "nothing moves" as a finding; it should say it cannot tell.
+  - **What was genuinely good in it, and has already moved on:** the sentence probe. It is section 4
+    of the Decision Logic page above, and it is the half Mike found useful — it showed that only
+    `"decision making"` landed out of a three-part sentence, while *"no clear direction"* and *"not on
+    the same page"* reached nothing.
+
+- <a id="decision-logic-page"></a>☑ **SUPERSEDED by the two entries above (2026-08-02). Kept for the
+  design reasoning and the IP-boundary ruling, which still bind.**
+  ☐ **P1 · BUILD — the DECISION LOGIC page: a read-only screen where a firm
   manager sees the parts they can edit, what each one actually changes, and what difference a change
   makes. RULED 2026-08-02 (Mike). Not started — no code written, no spec document yet.**
   - **What Mike asked for, in his words (2026-08-02):** *"a separate page that showed all the mechanics /
