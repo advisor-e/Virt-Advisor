@@ -209,21 +209,13 @@ section.firm-logic-tables
               | {{ formatDate(row.created_at) }}
           p.has-text-grey.is-size-7(v-else) {{ $t('firmLogicTables.historyEmpty') }}
 
-      //- ── Trigger workbench (read-only; saves nothing) ────────────────────
-      //- Sits INSIDE this tab rather than becoming a third one — §0.6 rules the
-      //- hub to two tabs, and this is about these tables' trigger phrases.
-      //- Rendered outside the v-if/v-else above so the "Try a sentence" half is
-      //- usable with no table open: it asks a question about the whole engine,
-      //- not about one table.
-      firm-trigger-workbench(
-        :api-token="apiToken"
-        :table="current"
-        :table-names="tableNames"
-      )
+      //- The sentence/wording checker used to render here, at the foot of this
+      //- column. Detached 2026-08-02 (owner instruction) — it is moving to a page
+      //- of its own. The component file is untouched and still tested; only this
+      //- placement is gone, so this tab is back to one job: the branch tables.
 </template>
 
 <script>
-import FirmTriggerWorkbench from '~/components/firm/FirmTriggerWorkbench'
 import { autogrow, resizePersist } from '~/utils/textareaDirectives'
 
 /** Where this browser remembers whether the table list is hidden. */
@@ -256,8 +248,6 @@ const RAIL_STATE_KEY = 'lt:railHidden'
  */
 export default {
   name: 'FirmLogicTables',
-
-  components: { FirmTriggerWorkbench },
 
   directives: { autogrow, resizePersist },
 
