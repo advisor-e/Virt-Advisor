@@ -15,7 +15,7 @@ const { DB } = require('../../config/integration')
 
 describe('db pool', () => {
   test('creates a single mysql2 pool from the integration DB config', () => {
-    const pool = require('../../server/collaborate/utils/db')
+    const pool = require('../../server/utils/db')
 
     expect(mysql.createPool).toHaveBeenCalledTimes(1)
     expect(mysql.createPool).toHaveBeenCalledWith(expect.objectContaining({

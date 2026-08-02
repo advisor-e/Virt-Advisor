@@ -709,3 +709,170 @@ describe('a write in flight cannot be started twice', () => {
     expect(writes().length).toBe(0)
   })
 })
+
+// ── The printed statement ─────────────────────────────────────────────────────
+//
+// This half of the screen exists to leave the building. The advisor sends it to their
+// professional body, so the tests care about what a stranger reading the paper would
+// see: whose record it is, when it was produced, and which entries are on it. The
+// assertions stay on keys and structure like the rest of the file — except where a
+// value IS the point (a name, a date, an id), because that is the whole content.
+
+/** Three standing claims plus one already withdrawn, deliberately out of date order. */
+function mixedClaims () {
+  return record({
+    advisorName: 'Jordan Reeve',
+    totalMinutes: 22,
+    templates: [template({
+      activities: [activity({
+        claimedCount: 2,
+        claimedMinutes: 22,
+        claims: [
+          { id: 3, minutes: 11, claimedAt: '2026-07-29T09:00:00Z', withdrawnAt: null },
+          { id: 2, minutes: 11, claimedAt: '2026-07-14T09:00:00Z', withdrawnAt: '2026-07-20T09:00:00Z' },
+          { id: 1, minutes: 11, claimedAt: '2026-07-12T09:00:00Z', withdrawnAt: null }
+        ]
+      })]
+    })]
+  })
+}
+
+describe('the Download button is offered only when there is something to declare', () => {
+  test('nothing recorded yet — no button', async () => {
+    const wrapper = await mountSection()
+    expect(wrapper.find('.btn-cpd-pdf').exists()).toBe(false)
+  })
+
+  test('one standing claim — the button appears', async () => {
+    const wrapper = await mountSection({ body: mixedClaims() })
+    expect(wrapper.find('.btn-cpd-pdf').exists()).toBe(true)
+  })
+
+  test('a record that failed to load offers no statement', async () => {
+    // Printing here would produce a page with a heading, a name and a total of zero —
+    // which reads as "I have done no CPD" rather than "this did not load".
+    const wrapper = await mountSection({ ok: false })
+    expect(wrapper.find('.btn-cpd-pdf').exists()).toBe(false)
+  })
+
+  test('claims that have all been withdrawn are not something to declare', async () => {
+    const wrapper = await mountSection({
+      body: record({
+        templates: [template({
+          activities: [activity({
+            claimedCount: 0,
+            claims: [{ id: 1, minutes: 11, claimedAt: '2026-07-12T09:00:00Z', withdrawnAt: '2026-07-20T09:00:00Z' }]
+          })]
+        })]
+      })
+    })
+    expect(wrapper.find('.btn-cpd-pdf').exists()).toBe(false)
+  })
+})
+
+describe('the statement names the advisor, from the verified pass', () => {
+  test('prints the display name the server reported', async () => {
+    const wrapper = await mountSection({ body: mixedClaims() })
+    expect(wrapper.find('.cpd-statement-who').text()).toContain('"name":"Jordan Reeve"')
+  })
+
+  test('falls back to the advisor id when the token carries no name', async () => {
+    // Never invented, never assembled from anything else. An id on a submitted
+    // document is poor; a guessed name on one is worse.
+    const wrapper = await mountSection({
+      body: Object.assign(mixedClaims(), { advisorName: null })
+    })
+    expect(wrapper.find('.cpd-statement-who').text()).toContain('"name":"dev-advisor-001"')
+  })
+
+  test('carries the statement heading, not the on-screen section title', async () => {
+    const wrapper = await mountSection({ body: mixedClaims() })
+    expect(wrapper.find('.cpd-statement-title').text()).toBe('cpd.statementTitle')
+  })
+})
+
+describe('the statement lists standing claims, dated, oldest first', () => {
+  test('one dated line per standing claim', async () => {
+    const wrapper = await mountSection({ body: mixedClaims() })
+    const lines = wrapper.findAll('.cpd-claim-date')
+    // Three claims arrived; the withdrawn one is not on a submission.
+    expect(lines.length).toBe(2)
+  })
+
+  test('oldest first, whatever order they arrived in', async () => {
+    const wrapper = await mountSection({ body: mixedClaims() })
+    const lines = wrapper.findAll('.cpd-claim-date')
+    expect(lines.at(0).text()).toContain('12 Jul 2026')
+    expect(lines.at(1).text()).toContain('29 Jul 2026')
+  })
+
+  test('a withdrawn claim never reaches the paper', async () => {
+    const wrapper = await mountSection({ body: mixedClaims() })
+    expect(wrapper.find('.cpd-record').text()).not.toContain('14 Jul 2026')
+  })
+
+  test('an unreadable date prints as nothing, never "Invalid Date"', async () => {
+    const wrapper = await mountSection({
+      body: record({
+        advisorName: 'Jordan Reeve',
+        templates: [template({
+          activities: [activity({
+            claimedCount: 1,
+            claims: [{ id: 1, minutes: 11, claimedAt: 'not-a-date', withdrawnAt: null }]
+          })]
+        })]
+      })
+    })
+    expect(wrapper.find('.cpd-claim-date').text()).toContain('"date":""')
+  })
+})
+
+describe('pressing Download prints, and leaves the page as it found it', () => {
+  let printed
+
+  beforeEach(() => {
+    printed = []
+    window.print = jest.fn(() => {
+      // Captured DURING the print, which is the only moment the class should exist.
+      printed.push(document.body.classList.contains('cpd-printing'))
+    })
+  })
+
+  afterEach(() => {
+    delete window.print
+    document.body.classList.remove('cpd-printing')
+  })
+
+  test('presses through to the browser print dialog', async () => {
+    const wrapper = await mountSection({ body: mixedClaims() })
+    await wrapper.vm.downloadPdf()
+    expect(window.print).toHaveBeenCalledTimes(1)
+  })
+
+  test('the section is isolated while printing and released afterwards', async () => {
+    const wrapper = await mountSection({ body: mixedClaims() })
+    await wrapper.vm.downloadPdf()
+    expect(printed).toEqual([true])
+    // A page left in printing mode renders blank to the advisor still looking at it.
+    expect(document.body.classList.contains('cpd-printing')).toBe(false)
+  })
+
+  test('a print that throws still releases the page', async () => {
+    window.print = jest.fn(() => { throw new Error('no printer') })
+    const wrapper = await mountSection({ body: mixedClaims() })
+    await expect(wrapper.vm.downloadPdf()).rejects.toThrow('no printer')
+    expect(document.body.classList.contains('cpd-printing')).toBe(false)
+  })
+
+  test('the produced date is stamped at the press, and reaches the page before printing', async () => {
+    const wrapper = await mountSection({ body: mixedClaims() })
+    // Before the press there is no produced date — the statement is not a document yet.
+    expect(wrapper.find('.cpd-statement-who').text()).toContain('"date":""')
+
+    await wrapper.vm.downloadPdf()
+
+    const expected = wrapper.vm.formatDate(new Date())
+    expect(wrapper.find('.cpd-statement-who').text()).toContain(`"date":"${expected}"`)
+    expect(expected).not.toBe('')
+  })
+})

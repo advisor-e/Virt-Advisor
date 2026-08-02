@@ -4,6 +4,12 @@
 # nvm-windows: NVM_SYMLINK holds the active node path as a Windows path — convert it for bash
 [ -n "$NVM_SYMLINK" ] && export PATH="$(cygpath -u "$NVM_SYMLINK"):$PATH"
 
+# Gate 0, and it runs FIRST for a reason: the three gates below all read the working
+# tree, not the index. If those differ, their green ticks describe code that is not
+# being committed (see `hook-tests-worktree-not-commit` in design/ACTIONS.md). Failing
+# here costs a second; failing after the suite costs two minutes.
+node scripts/check-staged-tree.js
+
 # Run via node directly — bypasses .bin shims which can break on Windows after partial npm installs.
 # Lint RE-ENABLED 2026-06-12 (eslint restored by the full stack-reconciliation install;
 # the 44 dormant errors were cleared the same day). Errors block; warnings (no-console

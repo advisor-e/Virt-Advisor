@@ -99,5 +99,10 @@ data/dev-courses.json
 # (created locally when MySQL is unavailable)
 data/dev-activity.json
 
+# Dev-only Collaborate people store — advisers, groups, threads, postures
+# (created locally so the Adviser Network tab survives a restart; NEVER written
+# in production, where MySQL is the store — see server/collaborate/data/devStore.js)
+data/dev-collaborate-people.json
+
 # Local CA cert bundle (machine-specific export from Windows cert store)
 certs/

@@ -1407,8 +1407,8 @@
     }
   },
   "firmAdviserNetwork": {
-    "tab": "Adviser Network",
-    "lede": "Everyone advising under your firm: who they are, the specialty groups they have asked to join, and whether they may work with advisers outside the firm."
+    "tab": "Advisor Network",
+    "lede": "Everyone advising under your firm: who they are, the specialty groups they have asked to join, and whether they may work with advisors outside the firm."
   },
   "firmTeamProgress": {
     "tab": "Team Progress",
@@ -1475,6 +1475,10 @@
     },
     "loadFailed": "Could not load your CPD record",
     "recordFailed": "Could not record your CPD claim",
-    "withdrawFailed": "Could not withdraw your CPD claim"
+    "withdrawFailed": "Could not withdraw your CPD claim",
+    "downloadPdf": "Download PDF",
+    "statementTitle": "Continuing Professional Development Record",
+    "statementWho": "{name} · Produced {date}",
+    "recordedOn": "Recorded {date}"
   }
 }

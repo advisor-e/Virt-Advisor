@@ -194,6 +194,40 @@ describe('getCpd', () => {
     expect(res._body.totalMinutes).toBe(0)
   })
 
+  // The name is here for ONE reason: the record is printed and submitted to a
+  // professional body, and a statement with no name on it is not a document. It comes
+  // from the verified pass like every other piece of identity on this route.
+  test('carries the display name from the verified pass', async () => {
+    const res = makeMockRes()
+
+    await getCpd(makeReq(), res)
+
+    expect(res._body.advisorName).toBe('Jordan Reeve')
+    expect(res._body.advisorId).toBe('advisor-from-jwt')
+  })
+
+  test('reports a missing display name as null rather than inventing one', async () => {
+    const res = makeMockRes()
+
+    await getCpd(makeReq({ advisorName: undefined }), res)
+
+    expect(res._body.advisorName).toBeNull()
+    // The id is still there, which is what the screen falls back to printing.
+    expect(res._body.advisorId).toBe('advisor-from-jwt')
+  })
+
+  test('never takes the display name from the request', async () => {
+    const res = makeMockRes()
+
+    await getCpd(makeReq({
+      advisorName: null,
+      query: { advisorName: 'Someone Else' },
+      body: { advisorName: 'Someone Else' }
+    }), res)
+
+    expect(res._body.advisorName).toBeNull()
+  })
+
   test('an advisor who has done nothing gets an empty record, not an error', async () => {
     const res = makeMockRes()
 

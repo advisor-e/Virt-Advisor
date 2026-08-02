@@ -546,9 +546,12 @@ function groupClaims (rows) {
  * @route GET /api/activity/cpd
  * @param {string} req.advisorId - advisor identity from the verified JWT (firmAuth)
  * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
- * @returns {200} { success: true, advisorId, totalMinutes, claimedCount, templates }
+ * @param {?string} [req.advisorName] - display name from the same verified token
+ * @returns {200} { success: true, advisorId, advisorName, totalMinutes, claimedCount, templates }
  *   — `totalMinutes` and `claimedCount` count STANDING claims only; withdrawn ones
- *   remain visible on their activity as history.
+ *   remain visible on their activity as history. `advisorName` is null when the token
+ *   carries no name; the screen falls back to the id rather than inventing one, which
+ *   matters here because this record is printed and submitted to a professional body.
  * @returns {403} NO_ADVISOR_IDENTITY · {500} DB_ERROR (standard error envelope)
  */
 async function getCpd (req, res) {
@@ -643,7 +646,16 @@ async function getCpd (req, res) {
       return a.title.localeCompare(b.title)
     })
 
-    res.send(200, { success: true, advisorId, totalMinutes, claimedCount, templates })
+    res.send(200, {
+      success: true,
+      advisorId,
+      // From the verified pass, never the request — the name printed on a CPD
+      // statement must come from the same place the record itself is scoped by.
+      advisorName: req.advisorName || null,
+      totalMinutes,
+      claimedCount,
+      templates
+    })
   } catch (err) {
     console.error('[activity] getCpd error:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load your CPD record')

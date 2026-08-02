@@ -20,7 +20,10 @@
  * industries, topics).
  */
 
-// const pool = require('../utils/db')   // <-- uncomment when wiring SQL
+// const pool = require('../../utils/db')   // <-- uncomment when wiring SQL
+// (There is ONE pool for the whole app: server/utils/db.js. Collaborate's
+//  identical copy was deleted 2026-08-02 — two pools onto the same database was
+//  a latent bug waiting for whoever uncommented this line.)
 
 const { CROSS_ORG, ADVISOR_E } = require('../../../config/integration')
 const roles = require('./roles') // role/tier resolver (Q-ROLES) — the RBAC seam
@@ -48,7 +51,7 @@ const advisors = [
     firmManager: true
   },
   {
-    id: 'priya-nair', name: 'Priya Nair', title: 'Senior Adviser',
+    id: 'priya-nair', name: 'Priya Nair', title: 'Senior Advisor',
     globalGroup: 'Advisor-e', country: 'DE', firm: 'Advisor-e Munich',
     city: 'Munich', timezone: 'CET', linkedin: '',
     available: true, strengths: ['restructuring', 'cashflow'], industries: ['retail', 'manufacturing'],
@@ -65,7 +68,7 @@ const advisors = [
     blockFirmManagerView: true, lastActive: '1 week ago'
   },
   {
-    id: 'tom-fischer', name: 'Tom Fischer', title: 'Adviser',
+    id: 'tom-fischer', name: 'Tom Fischer', title: 'Advisor',
     globalGroup: 'Advisor-e', country: 'DE', firm: 'Advisor-e Berlin',
     city: 'Berlin', timezone: 'CET', linkedin: '',
     available: false, strengths: ['tax', 'compliance'], industries: ['professional services'],
@@ -73,7 +76,7 @@ const advisors = [
     blockFirmManagerView: false, lastActive: '2 days ago'
   },
   {
-    id: 'lena-vogel', name: 'Lena Vogel', title: 'Adviser',
+    id: 'lena-vogel', name: 'Lena Vogel', title: 'Advisor',
     globalGroup: 'Advisor-e', country: 'DE', firm: 'Advisor-e Hamburg',
     city: 'Hamburg', timezone: 'CET', linkedin: '',
     available: true, strengths: ['forecasting', 'reporting'], industries: ['seafood', 'logistics'],
@@ -81,7 +84,7 @@ const advisors = [
     blockFirmManagerView: false, lastActive: 'Yesterday'
   },
   {
-    id: 'sofia-marchetti', name: 'Sofia Marchetti', title: 'Adviser',
+    id: 'sofia-marchetti', name: 'Sofia Marchetti', title: 'Advisor',
     globalGroup: 'Advisor-e', country: 'IT', firm: 'Advisor-e Milan',
     city: 'Milan', timezone: 'CET', linkedin: '',
     available: true, strengths: ['valuation', 'M&A'], industries: ['food production', 'hospitality'],
@@ -89,7 +92,7 @@ const advisors = [
     blockFirmManagerView: false, lastActive: 'Today'
   },
   {
-    id: 'sara-okafor', name: 'Sara Okafor', title: 'Senior Adviser',
+    id: 'sara-okafor', name: 'Sara Okafor', title: 'Senior Advisor',
     globalGroup: 'Advisor-e', country: 'IE', firm: 'Advisor-e Dublin',
     city: 'Dublin', timezone: 'GMT', linkedin: '',
     available: true, strengths: ['business coaching', 'succession'], industries: ['hospitality', 'retail'],
@@ -1219,7 +1222,102 @@ async function markNotificationsRead (userId) {
   return { success: true, marked: marked }
 }
 
-module.exports = {
+// ── Dev-only persistence (see ./devStore) ────────────────────────────────────
+// The store above is seeded demo data held in memory, so a restart forgets both
+// the people and any decision a manager made about them. In DEVELOPMENT ONLY the
+// whole store is snapshotted to a gitignored JSON file after each change and read
+// back on boot. Production reads and writes nothing — durable storage is MySQL,
+// via the "SQL SEAM" notes above. devStore's docblock carries the full reasoning.
+
+const devStore = require('./devStore')
+
+/**
+ * The whole store as one plain object. The `seq` counters travel WITH the
+ * collections and are not an afterthought: restore the rows without them and the
+ * next created row reuses an id that is already taken.
+ * @returns {Object}
+ */
+function _snapshot () {
+  return {
+    advisors: advisors,
+    groups: groups,
+    threads: threads,
+    connections: connections,
+    groupJoinRequests: groupJoinRequests,
+    listings: listings,
+    purchases: purchases,
+    notifications: notifications,
+    postures: postures,
+    seq: { threadSeq: threadSeq, connSeq: connSeq, gjrSeq: gjrSeq, listingSeq: listingSeq, notifSeq: notifSeq }
+  }
+}
+
+/** Replace an array's contents in place — the collections are `const`. */
+function _replaceArray (target, next) {
+  if (!Array.isArray(next)) { return }
+  target.splice(0, target.length, ...next)
+}
+
+/**
+ * Load a saved snapshot over the seeded store. Absent, unreadable or malformed
+ * leaves the seed exactly as it is.
+ *
+ * Postures MERGE per level rather than replacing the level wholesale, so a brand
+ * or branch added to the seed after a snapshot was written is not silently lost
+ * from a developer's network.
+ * @returns {boolean} whether a snapshot was applied
+ */
+function _hydrate () {
+  const saved = devStore.load()
+  if (!saved) { return false }
+  _replaceArray(advisors, saved.advisors)
+  _replaceArray(groups, saved.groups)
+  _replaceArray(threads, saved.threads)
+  _replaceArray(connections, saved.connections)
+  _replaceArray(groupJoinRequests, saved.groupJoinRequests)
+  _replaceArray(listings, saved.listings)
+  _replaceArray(purchases, saved.purchases)
+  _replaceArray(notifications, saved.notifications)
+  if (saved.postures && typeof saved.postures === 'object') {
+    Object.keys(postures).forEach((level) => {
+      const next = saved.postures[level]
+      if (next && typeof next === 'object' && !Array.isArray(next)) { Object.assign(postures[level], next) }
+    })
+  }
+  const seq = saved.seq || {}
+  if (Number.isInteger(seq.threadSeq)) { threadSeq = seq.threadSeq }
+  if (Number.isInteger(seq.connSeq)) { connSeq = seq.connSeq }
+  if (Number.isInteger(seq.gjrSeq)) { gjrSeq = seq.gjrSeq }
+  if (Number.isInteger(seq.listingSeq)) { listingSeq = seq.listingSeq }
+  if (Number.isInteger(seq.notifSeq)) { notifSeq = seq.notifSeq }
+  return true
+}
+
+/**
+ * Every export that CHANGES the store. Each is wrapped below so the snapshot is
+ * written after it returns — one list to keep right, instead of a save call
+ * sprinkled through 21 mutation sites where a missed one is silent data loss.
+ *
+ * NAMING RULE, enforced by tests/collaborate/devStore.test.js: a function that
+ * changes the store is named with one of the verbs in MUTATING_VERBS. Add a
+ * mutator without adding it here and that test fails.
+ */
+const MUTATING_VERBS = ['create', 'update', 'set', 'add', 'remove', 'respond', 'request', 'append', 'record', 'mark', 'invite', 'findOrCreate']
+
+const MUTATORS = [
+  'updateAdvisorInterest',
+  'createGroup', 'requestJoinGroup', 'respondJoinRequest',
+  'addGroupSharedPage', 'removeGroupSharedPage',
+  'inviteToGroup', 'inviteManyToGroup', 'respondInvitation',
+  'appendMessage', 'createOutreachThread', 'findOrCreateGroupThread', 'findOrCreateDirectThread',
+  'addThreadSharedPage', 'removeThreadSharedPage',
+  'requestConnection', 'respondConnection',
+  'createListing', 'recordPurchase',
+  'markNotificationsRead',
+  'setOrgPosture', 'setFirmPosture'
+]
+
+const api = {
   getAdvisorById, listAdvisors, updateAdvisorInterest,
   listGroups, getGroupById, createGroup, requestJoinGroup, groupJoinStatus,
   listGroupJoinRequests, respondJoinRequest, addGroupSharedPage, removeGroupSharedPage,
@@ -1233,3 +1331,25 @@ module.exports = {
   isFirmManager, isManager, isAdmin, advisorLabel, canManage, getFirmConsole, getConsolePreview, setFirmPosture,
   listConsoleAdvisers, listConsoleAdvisersPreview, actorInScope
 }
+
+// Wrap the mutators. Every one is async, so the wrapper awaits and returns the
+// SAME value — the routes and their tests cannot tell the difference. The save
+// happens after the change lands, never before, so a rejected call writes nothing.
+MUTATORS.forEach((name) => {
+  const fn = api[name]
+  api[name] = async function (...args) {
+    const result = await fn.apply(this, args)
+    if (devStore.isEnabled()) { devStore.save(_snapshot()) }
+    return result
+  }
+})
+
+_hydrate()
+
+module.exports = api
+
+// Internals, exported for the tests that prove the snapshot round-trips.
+module.exports._snapshot = _snapshot
+module.exports._hydrate = _hydrate
+module.exports._MUTATORS = MUTATORS
+module.exports._MUTATING_VERBS = MUTATING_VERBS

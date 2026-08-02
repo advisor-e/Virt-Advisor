@@ -221,10 +221,134 @@
   - **Open if ever revisited:** whether a machine-specific AV root belongs in the repo at all. It probably
     does not — a per-machine env var is the cleaner answer, and that is what `HANDOFF.md` now instructs.
 
-- <a id="startup-blind-to-other-machine"></a>☐ **P1 · PROCESS — `/startup` reported "0 behind master" while this machine
+- <a id="stranded-report-programme"></a>◐ **P1 · RESCUE — THREE FINISHED FEATURES AND THE MODEL
+  VISUAL STANDARD WERE STRANDED ON `feat/business-performance-report`, ABSENT FROM `master`.
+  ✅ CLOSED 2026-08-02 — [PR #30](https://github.com/advisor-e/Virt-Advisor/pull/30) IS MERGED
+  TO `master` (`02c22ca`) and merged back into `feat/advisor-progress` (`dfff97e`), pushed.
+  Suite **3,968 green / 238 suites**, lint 0 errors, audit gate PASS.**
+  Found 2026-08-02 (laptop, Session 23) while measuring branch drift for the item below — which
+  is the point: **the blind spot found its own second instance.** Mike, told what was there:
+  *"yes, cost of capital is definately supposed to be there — bring it back."*
+  - ✅ **DONE 2026-08-02 — `master` merged INTO the stale branch (`033657d`, 185 commits), PR
+    raised from the frozen snapshot `release/report-programme-2026-08-02`, never from the live
+    branch (the PR #23 → #24 lesson).** The trial measurement held exactly: **one conflicted file,
+    `design/ACTIONS.md`, one marker, both sides kept in full; no code file conflicted.** Final
+    state **237/237 suites, 3,955 tests, lint 0 errors, audit gate PASS**. 80 files, +11,675/−457.
+  - **What is missing from `master`** (~30 files, verified by comparing the two trees, not assumed):
+    - **Cost of Capital (WACC)** — `components/CostOfCapital.vue`, `pages/cost-of-capital.vue`,
+      `server/report/costOfCapitalModel.js`, 3 tests. Its commits describe a *finished* feature:
+      the screen live in the Model Library, a hurdle-rate test, adopt-a-beta, and a correction
+      to standard practice (CAPM without the two extra adjustments).
+    - **Lease vs Buy** — screen, maths model, route, 3 tests.
+    - **Loan Estimator** — 4 components, model, page, 6 tests, `data/loan-criteria.json`,
+      `data/tax-bands.json`, `design/LOAN-ESTIMATOR-PLAN.md`.
+    - **`components/base/ReportShell.vue` — the single source of the model visual standard** —
+      plus `design/REPORT-VISUAL-STANDARD.md`, `design/REPORT-LAYOUT-REFERENCE.html`, and the
+      refactor putting **all eight existing model screens** onto it.
+    - Also an `add-a-report` skill and 12 session notes.
+    - ⚠ **CORRECTED 2026-08-02 — this line also listed `components/FirmDashboard.vue`,
+      `server/routes/firm.js` and `scripts/sync-video-minutes.js`, and that was WRONG.** They are
+      absent from `master` because `master` **deleted them on purpose** (`d3c4e5c` "delete the
+      FirmDashboard mock and its whole cluster"; `b1b4432`, the stale video-minutes copy) — not
+      because they were stranded. The merge honours those deletions. **Measuring absence and
+      reading it as loss** is the trap: a file missing from `master` is either work that never
+      arrived or work deliberately removed, and only the deleting commit can tell you which.
+      Checked before committing precisely because a merge that silently resurrects deleted code
+      is worse than one that drops it.
+  - 🔴 **THE DETAIL THAT PROVES IT IS LOAD-BEARING: `design/REPORT-LAYOUT-REFERENCE.html` exists
+    ONLY on that branch.** The project's binding visual rule — every model copies that layout
+    skeleton — has had **no source in the shared code**. Any model built from `master` alone has
+    been working to a standard it cannot read.
+  - ✅ **MEASURED BEFORE ANY APPROACH WAS PROPOSED, and the measurement overturned the
+    expectation.** 185 behind / 73 ahead read like a reconstruction; a trial merge in a throwaway
+    worktree says otherwise:
+    - **Exactly ONE conflicted file — `design/ACTIONS.md`, one marker.** *No code file conflicted.*
+      295 files merge cleanly.
+    - **235/237 suites, 3,944/3,947 tests green** on the merged result.
+    - **Failure 1 — the routing map goes stale**: the Loan Estimator adds two data files, so the
+      generated count moves 30 → 32. Fix is `npm run routing` + commit. **This is
+      [`cross-branch-rule-collision`](#cross-branch-rule-collision) again** — a rule made on one
+      machine meeting rows added on the other.
+    - **Failure 2 — `ReportShell.vue`'s style block fails `componentStyles.test.js`**
+      (`CssSyntaxError: Unknown word` at 1:1). That guard did not exist when ReportShell was
+      written. **Undiagnosed: either a genuinely malformed style block the branch could never have
+      caught, or the guard misreading a valid file.** Diagnose before merging — do not assume which.
+      - ✅ **DIAGNOSED AND FIXED 2026-08-02 — it was THE GUARD, and the stylesheet was always
+        fine.** `ReportShell.vue` **quotes** `` `<style scoped>` `` inside its own documentation
+        (L17 — it is the component whose entire purpose is to stop each screen hand-writing one).
+        The extractor's unanchored `/<style…>/` matched that **sentence**, then ran on to the real
+        `</style>` 98 lines below, so postcss was handed a paragraph of English. **The real
+        stylesheet was never parsed at all** — a false failure concealing a genuine blind spot,
+        which is the worse half. Fixed by anchoring both tags to the start of a line (`^…^`, `m`
+        flag): a Vue block always opens at column 0, a mention in a comment never does.
+        **Verified it does not blind the guard** — across all 82 `.vue` files both versions find
+        blocks in the same **60** files, disagreeing on exactly the one file intended. Two
+        permanent tests added in the file's own "the check itself works" block, per its stated
+        design that the proof lives in the suite rather than in a session someone must remember.
+    - **Failure 3, NOT predicted — `server/report/` fell ONE branch under its 85% coverage gate**
+      (790/930 = 84.94%) the moment three models joined the folder. **Third instance of
+      [`cross-branch-rule-collision`](#cross-branch-rule-collision) in a single merge.**
+      🔴 **Closed with tests, NOT by moving the gate** — lowering a threshold to fit the code is
+      the "ratify the drift" move this project does not make, and it would have been over a single
+      branch. Six real tests on genuinely unexercised guards in `leaseVsBuyModel.js`, all of them
+      route-facing input the model already has a guard for and nothing ran: a number arriving as
+      **text** (the code's own comment names this), as **NaN/Infinity**, a **zero servicing
+      interval** (`div()` exists so an unknown interval cannot yield Infinity), a **zero-month
+      loan**, and **0% finance** (real for interest-free dealer deals — it takes a different
+      formula branch entirely).
+      - ✅ **A REAL DEFECT FOUND WHILE WRITING THEM, PINNED AND REPORTED, NOT FIXED — RULED ON AND
+        FIXED 2026-08-02 (Session 25, `a76b3e2`).** A numeric
+        field that is **absent** is named in `defaultedInputs` (the R8 ruling). A field that is
+        **present but unusable** — `deposit: 'eight thousand'` — is silently replaced by the
+        sample and named **nowhere**, so the caller is told the figure is theirs when it is ours.
+        Same family as every other silent-default finding here. Pinned as a `⚠ CURRENT BEHAVIOUR`
+        test so a future fix **fails that test rather than passing quietly**. Needs a Mike ruling;
+        the model reaches a public route that takes raw browser JSON.
+        - ✅ **Mike's ruling: R8 extends to unusable figures.** A present-but-unusable figure is
+          now treated exactly as an absent one — it falls back to the sample **and** is named in
+          `defaultedInputs`.
+        - 🔴 **THE REPORTED DEFECT WAS THE SMALLER HALF.** `loanEstimatorModel.js` — not the model
+          that raised the flag — was **worse**: its `take()` fed `num()` with no fallback, so an
+          unusable figure became **ZERO, not the sample**. A deposit typed in words silently became
+          *no deposit*, and the loan amount moved with it. **Finding a defect in one model is a
+          reason to check its siblings, not a reason to fix one file.** `quickPositionModel`,
+          `ebitdaDcfModel` and `costOfCapitalModel` were already correct; the two outliers now
+          share the same `usable()` test.
+        - **The tests pin the opposite error too**: a numeric string (`'8500'`) and a genuine zero
+          are the client's own figures and must **not** be declared — a flag that cries wolf is its
+          own defect.
+  - **So the route is ONE MERGE, not a file-by-file port** — and porting Cost of Capital alone was
+    considered and rejected: its CSS reads ReportShell's tokens, so it would land working but
+    looking wrong. The features do not separate cleanly; the visual standard is the floor they
+    all stand on.
+  - ⚠ **The branch is 185 behind and last touched 2026-07-29.** Whatever is done, it is done by
+    merging `master` INTO it (measured above) and raising a PR from a frozen snapshot — never by
+    merging a two-week-stale tree into `master`.
+  - ~~**NOT STARTED. Nothing has been merged, cut or pushed.**~~ *(Superseded 2026-08-02 — see the
+    DONE bullet at the top of this entry. Left visible rather than deleted so the gap between
+    "measured" and "merged" stays legible: it was one session.)*
+  - ✅ **BOTH REMAINING STEPS DONE THE SAME DAY (Mike instructed the merge).** `master` =
+    `02c22ca`; back-merged into `feat/advisor-progress` as `dfff97e`, pushed, **9 ahead / 0
+    behind**. **The predicted `ACTIONS.md` conflict did NOT recur** — both sides had already
+    been reconciled inside PR #30, so git had nothing left to disagree about. **Worth carrying:
+    the append-vs-append conflict is paid ONCE PER DIVERGENCE, not once per merge.**
+  - 🔴 **CONSEQUENCE THE DESKTOP MUST ACT ON: `feat/firm-quiz-builder-ui` went from 0 behind to
+    75 BEHIND `master`** the instant #30 landed, with 4 unmerged commits of its own. Merge
+    `master` in before touching anything there. **This is a third worked example of
+    [`startup-blind-to-other-machine`](#startup-blind-to-other-machine)** — the branch read
+    green right up to the moment the ground moved under it, and nothing on either machine said
+    so. The pattern is no longer arguable: it has now happened on 2026-08-01, on this rescue,
+    and again within an hour of merging it.
+  - ⚠ **`feat/business-performance-report` is 187 behind / 0 ahead and now fully superseded** —
+    everything it held is in `master`. Its local copy is 186 ahead of its own remote and
+    deliberately unpushed; the merged snapshot carries the identical commit, so nothing is at
+    risk. **It is a candidate for deletion**, but that is Mike's call and needs its own approval.
+
+- <a id="startup-blind-to-other-machine"></a>✅ **P1 · PROCESS — `/startup` reported "0 behind master" while this machine
   was running a two-day-stale Firm Manager hub. The check is structurally blind to the other
-  machine's unmerged branch.** Found 2026-08-01 by Mike, who opened the hub and could not find work
-  the laptop had finished.
+  machine's unmerged branch. CLOSED 2026-08-02 (laptop, Session 26, `7ab696e`, Mike-approved) —
+  see the DONE bullet at the foot of this entry.** Found 2026-08-01 by Mike, who opened the hub and
+  could not find work the laptop had finished.
   - **The evidence.** `npm run check:branch` measures `HEAD` against `origin/master` only. On the
     morning of 2026-08-01 the desktop was **0 behind `master`** — genuinely true — while
     `origin/feat/advisor-progress` sat **82 commits ahead of `master`**, unmerged. Both branches had
@@ -241,10 +365,95 @@
     read-only addition to an existing script, not a new mechanism.
   - **Resolved for today** by PR #28 (`c47e369`) and the merge into this branch (`a235a71`), but the
     blind spot is unchanged and will recur on the next divergence.
+  - 🔴 **IT RECURRED, AS PREDICTED, AND THE FOURTH INSTANCE WAS THE AI'S.** 2026-08-02, Session 26:
+    asked what to work on, the AI recommended the trigger-vocabulary sweep and the Trigger
+    Workbench — **twice** — from `ACTIONS.md` and the code on this branch, both of which say the
+    Workbench is a component at the foot of the Logic Tables tab. Mike: *"you are out of date — it
+    has its own page and is called logic lab and is being worked on by desktop computer."* Neither
+    the records nor the code on this side could show that, because the work is on
+    `feat/firm-quiz-builder-ui` and has never reached `master`. **The blind spot does not only
+    mislead a person about their own branch — it makes every recommendation drawn from the shared
+    records potentially stale, with nothing saying which parts.**
+  - ✅ **BUILT 2026-08-02 (laptop, Session 26, `7ab696e`, Mike-approved).**
+    [`scripts/branch-survey.js`](../scripts/branch-survey.js) + 3 calls in
+    [`check-branch-state.js`](../scripts/check-branch-state.js), covered by 20 tests in
+    [`branchSurvey.test.js`](../tests/unit/branchSurvey.test.js). Suite 3,984 → **4,004 green /
+    240 suites**, lint 0 errors. Live output on the very run that shipped it:
+    `feat/firm-quiz-builder-ui   4 ahead, 75 behind master — last commit 2026-08-02`.
+    - **It is SILENT when every branch is merged.** A block printing "all clear" on every run is
+      scrolled past, and then the run that matters is scrolled past with it.
+    - **`release/*` snapshots are excluded.** They are frozen copies cut for a PR and deliberately
+      never merged back, so they are permanently ahead of `master` **by design** — reporting them
+      would be noise on every run, and noise is how a report dies.
+    - 🔴 **IT CANNOT BLOCK A PUSH, STRUCTURALLY RATHER THAN BY PROMISE** — its own try/catch, no
+      exit code, and **its own separate fetch**. `check-branch-state` fetches `master` alone for
+      rule 1; if the wider fetch fails the survey goes quiet rather than degrading that rule into
+      "unverified". A test pins that it asks git *nothing else* on that path. Another machine's
+      branch is never a reason to refuse this machine's work.
+    - ⚠ **A DEFECT CAUGHT IN THE NEW CODE BEFORE IT WAS WIRED IN:** the counts were taken against
+      the **local** `master`, which in this repo is reached by pull request and can be weeks stale
+      or absent entirely. Every number would have been quietly wrong — the exact failure class this
+      item exists for, reproduced inside its own fix. Now `origin/master`, pinned by a test that
+      fails if it is changed back.
+    - **`check-branch-state.js` had NO test of any kind, and that is part of why this survived four
+      sightings — there was nothing to add a case to.** The git calls now sit behind an injected
+      runner, so the whole path *including the fetch-failed route* is pinned without a sandbox repo.
+    - ⚠ **What it still does NOT do.** It reports branches, not screens: it can say
+      *"the desktop has 4 unmerged commits"*, never *"the Workbench you are about to describe is now
+      the Logic Lab."* A record drawn from this side can still be stale in its details — the survey
+      tells you to go and ask, which is the honest limit of what a branch count can know.
+
+- <a id="hook-tests-worktree-not-commit"></a>✅ **P1 · PROCESS — the pre-commit hook validates the
+  WORKING TREE, not what is being committed. A half-staged change passed all three gates and was
+  committed red. CLOSED 2026-08-02 (laptop, Session 25, `a76b3e2`) — see the DONE bullet at the
+  foot of this entry.** Found 2026-08-02 (laptop, Session 24) by the AI, on its own mistake, while
+  verifying the report-programme merge commit.
+  - **What happened.** `design/CONTENT-ROUTING.md` and `tests/unit/componentStyles.test.js` were
+    already staged **by the merge** (as files arriving from `master`). Both were then edited to fix
+    the merge's failures, and only a third file was `git add`-ed. `.husky/pre-commit` ran ESLint,
+    the full 3,955-test suite and the audit gate — **all genuinely green, none of them testing the
+    commit.** Commit `741eb5c` therefore shipped with the OLD regex and the STALE routing map while
+    reporting a clean run. Caught by diffing the committed blob against the working tree; fixed by
+    amending (nothing had been pushed) to `033657d`.
+  - **Why this is the project's own recurring shape, one level down.** It is the same defect as the
+    CSS guard found the same hour, and as the 2026-07-31 `nuxt build` failure that "shipped green":
+    **a check that reports on something adjacent to the thing you care about.** Three gates, all
+    honest, all pointed one inch to the left of the artefact.
+  - **Not fixed by being more careful.** The hook is silent about the gap and there is no signal at
+    the moment of commit. **The proposed control (needs its own approval, NOT built):** have
+    `pre-commit` refuse when a tracked file has unstaged modifications — that does not test the
+    commit either, but it *forces* working tree ≡ commit contents, which makes the three gates it
+    already runs actually mean what they claim. Cheap, read-only, no stashing (a stash that fails
+    mid-hook can lose work, which is a worse trade).
+  - ~~⚠ **Until it exists, the rule is manual: `git status` before committing, and after any commit
+    that fixes a merge, diff the COMMITTED blob — not the working tree — for each file you changed.**~~
+    *(Superseded 2026-08-02 — the control exists; the manual rule is no longer the only defence.)*
+  - ✅ **BUILT 2026-08-02 (laptop, Session 25, `a76b3e2`, Mike-approved).**
+    [`scripts/check-staged-tree.js`](../scripts/check-staged-tree.js) refuses a commit while a
+    tracked file has unstaged edits, wired into [`.husky/pre-commit`](../.husky/pre-commit) as
+    **gate 0**. Tests in [`checkStagedTree.test.js`](../tests/unit/checkStagedTree.test.js). Suite
+    3,984 green / 239 suites, lint 0 errors.
+    - **It does not test the commit either, and says so rather than overclaiming.** It forces
+      *working tree ≡ commit contents*, which is what makes the three gates already running mean
+      what they claim.
+    - **Runs FIRST** — a refusal costs a second rather than a full 3,984-test suite.
+    - **No stashing inside the hook**, as proposed: a stash that fails mid-hook can lose work.
+    - ⚠ **The closure itself went unrecorded for a session.** This entry read ☐ open while the fix
+      ran on every commit, until Session 26's `/startup` caught it. **A commit closes a task in the
+      code, not in this file, and nothing in the toolchain notices the difference** — the same
+      "record pointing one inch to the left of the artefact" shape as the defect above. See
+      [`SESSION-2026-08-02-B-NOTES.md`](SESSION-2026-08-02-B-NOTES.md).
 
 - <a id="cross-branch-rule-collision"></a>☐ **P2 · DOC — a rule introduced on one machine collides with
   rows added on the other, and only surfaces at merge.** Found 2026-08-01 while merging PR #28; fixed
   in the same commit (`a235a71`).
+  - 🔴 **THREE MORE INSTANCES 2026-08-02, all in ONE merge — this is now a pattern, not an
+    anecdote.** The report-programme merge hit the routing-map count, the CSS style-block guard, and
+    the `server/report/` coverage threshold ([`stranded-report-programme`](#stranded-report-programme)).
+    Every one was a rule written on `master` meeting files written on the stale branch; every one was
+    green on both branches alone and failed only once merged. **The cost scales with how long the
+    branches stay apart** — this branch had been separated for two weeks and produced three; the
+    2026-08-01 merge had been separated two days and produced one.
   - **What happened.** The laptop's `79de6d9` gave all 181 domain-support material rows a permanent
     `id` and locked the list in [`domainSupportRowIds.test.js`](../tests/unit/domainSupportRowIds.test.js) —
     correctly, because firm overrides key off the id, and keying off a title means a rename silently
@@ -1133,7 +1342,26 @@
     auth/storage surfaces that slices 2–3 rewrite anyway. **Do not merge them ad hoc**; fold
     into slice 2 (identity/scope) and slice 3 (storage) where each pair is being rewritten with
     tests around it. Plan §6 risk 2.
-- <a id="cpd-pdf-export"></a>☐ **NEW (Mike, 2026-07-30) — the CPD record must be exportable as a
+- <a id="cpd-pdf-export"></a>✅ **DONE 2026-08-02 (laptop, `773809e`) — the CPD record exports as a
+  PDF, as a full statement rather than a screen print.** Mike chose the fuller of two options:
+  not "print what is on screen" but a document a professional body can accept.
+  - **The screen was missing both things such a body needs, and both were already in the system.**
+    `GET /api/activity/cpd` never returned the advisor's name (`req.advisorName` has existed on
+    the verified pass all along, and two other routes in that same file already returned it), and
+    the screen never displayed the claim dates it was already being sent. One line of backend.
+  - **Standing claims only, dated, oldest first.** A withdrawn claim stays on screen as history
+    but is off the statement — the printed total counts standing claims only, so listing it would
+    contradict the figure above it.
+  - **The name is never invented.** Null name → the advisor id is printed, per the house rule in
+    `firmAuth.js`. ⚠ **An id where a name should be is poor on a submitted document — whether the
+    real Advisor-e token carries a name claim is a question for the master team**, not fixable here.
+  - **The Download button is withheld until something stands.** A statement listing nothing still
+    carries a heading, a name and a total of zero, which reads as a claim of no CPD rather than
+    the blank page it is.
+  - The date is stamped **at the press**, not at load — a record left open overnight must not
+    print yesterday's date on a document submitted today.
+  - 18 tests (3 route, 15 component). ⚠ **Layout unverified by eye** — see the print item below.
+  - *Original entry follows for the record:* **the CPD record must be exportable as a
   PDF**, because the adviser sends it to their accounting society. **Its own task, NOT part of
   the Collaborate merge.** Groundwork already checked: this app needs **no PDF dependency** —
   six screens (Business Performance, Debtor Drag, Margin Breakeven, EBITDA-DCF, Quick Position,
@@ -1144,6 +1372,35 @@
   don't invent a new look. ⚠ **Honest limit:** the browser makes the PDF and the adviser saves it, so
   there is no server-side copy of what was sent and layout depends on their browser. If the
   society ever needs a document the firm can vouch for independently, that is a much bigger job.
+
+- <a id="scoped-print-rules-inert"></a>✅ **FOUND AND FIXED 2026-08-02 (laptop, `e30ac33`) — the course
+  certificate's print rule had NEVER run, and printing one produced the entire Course Builder
+  screen.** Found while looking for a pattern to copy for the CPD statement above — the precedent
+  turned out to be broken, which is the only reason it was caught.
+  - **The mechanism.** The rules sat in `<style scoped>`, so Vue rewrote `body > *` to
+    `body > *[data-v-hash]`. Nuxt's own page wrapper carries no such attribute, so the rule matched
+    nothing and hid nothing. **Verified by compiling it** with `@vue/component-compiler-utils`, not
+    by reading it — the output selector is the proof.
+  - **Why nothing failed.** The damage is in what the CSS *compiles to*, not in what the component
+    renders, and jsdom has no print pipeline. **No mount test could have caught it** — the same
+    class as the report-header geometry bug that `reportHeaderFullWidth` exists for.
+  - **The fix is a second, deliberately unscoped block** gated behind a body class added for the
+    duration of the press only, so an ordinary Ctrl+P elsewhere is untouched. `visibility` rather
+    than `display`, because display:none on an ancestor cannot be undone further down and the
+    certificate is nested several levels deep.
+  - 🔴 **The control, not the note: [`tests/unit/scopedStylesCannotReachOutside.test.js`](../tests/unit/scopedStylesCannotReachOutside.test.js)
+    fails the build if any component puts a `body`/`html`-reaching rule in a scoped block again.**
+    It is fed the exact rule that shipped broken and required to catch it — a guard that cannot
+    fail is decoration — and pinned against false alarms, which a naive version raises 19 times on
+    names like `.cert-body`. Repo swept: **CourseBuilder was the only instance.**
+  - **The same weakness was then found in the CPD statement committed an hour earlier** and fixed in
+    both: a `visibility: hidden` element still occupies its space, so the screen above would have
+    pushed out pages of blank paper behind the printed page.
+  - ⚠ **NEITHER PRINTED PAGE HAS BEEN SEEN BY A HUMAN.** The tests prove what is on the page and
+    that the isolation is applied and released; they cannot see a layout or count sheets of paper.
+    **Two print previews are outstanding** — My Progress → Download PDF, and Course Builder →
+    Download certificate → Print. Per the Working Agreement, verification only a human can perform
+    is named as such and the work is not described as verified until someone has looked.
 
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
@@ -2189,7 +2446,21 @@ Two honest answers on different axes — the file used to conflate them:
       English line inside otherwise translated advice. Pre-existing and out of scope here; it needs
       its own decision, because `vue-i18n` does not exist on the backend and the wording would have
       to be resolved another way. *Original entry follows for the record:*
-  - ☐ **NEW · P2 · FIX — the tutorial-video sentence has been DEAD since 19 May 2026.**
+  - ✅ **NEW · P2 · FIX — the tutorial-video sentence has been DEAD since 19 May 2026.
+    FIXED 2026-07-30 (`b1b4432`); this entry was found still marked open on 2026-08-02
+    (Session 26) and closed then.** The recommended fix below is exactly what was done:
+    [`videoInjector.js`](../server/utils/videoInjector.js) now reads `cpd.watchedVideo` off the
+    template record, `scripts/sync-video-minutes.js` is **deleted** so the manual step cannot rot
+    again, and `tests/unit/videoInjector.test.js` exists where there were no tests at all.
+    **Verified against the data, not taken from the commit message:** 291 records carry
+    `cpd.watchedVideo`, **0** still carry the old `videoMinutes` copy, and **83** have a non-zero
+    time — *E.O.Y Meeting* 9 min, *Growth Curve* 15 min. The sentence appears in advice again.
+    - ⚠ **THIRD stale flag found in one day**, after the pre-commit P1 and the silent-default
+      defect. All three described finished work as outstanding. This file's own header warning —
+      *"trust the CODE, not these flags"* — is not advice, it is a measured property of the file.
+      A stale-flag sweep was offered to Mike and not taken up; it remains worth doing.
+    *(Original entry follows, unchanged, for the record.)*
+  - ☐ ~~**NEW · P2 · FIX — the tutorial-video sentence has been DEAD since 19 May 2026.**~~
     [`videoInjector.js`](../server/utils/videoInjector.js) reads `t.videoMinutes`, and **no
     record in `data/templates.json` has that field**, so the map is empty and the function
     returns the text untouched at L35. *"A 9-minute tutorial video is available in Advisor-e to
@@ -3186,8 +3457,9 @@ Two honest answers on different axes — the file used to conflate them:
   mutants killed, both components restored **byte-identical (SHA-256)**. Built straight after
   slice 2, same session.
 
-  **The Firm Manager Hub has a seventh tab: "Adviser Network"** — label ruled by Mike from three
-  offered. It is Collaborate's manager console: every adviser in scope with availability and
+  **The Firm Manager Hub has a seventh tab: "Advisor Network"** — label ruled by Mike from three
+  offered (as *"Adviser Network"*; **respelled to "Advisor" on 2026-08-02**, see the wording bullet
+  below). It is Collaborate's manager console: every adviser in scope with availability and
   group count, group-join approvals, bulk invite, the cross-firm Open/Closed control, and the
   activity feed. Higher tiers get the roll-up tree, unchanged.
 
@@ -3245,11 +3517,163 @@ Two honest answers on different axes — the file used to conflate them:
     whether they may work with advisers outside the firm."* On screen when Mike approved the tab;
     every other label is Collaborate's existing approved wording. Tab NAME (**Adviser Network**)
     was ruled explicitly from three offered.
+    - ✅ **SUPERSEDED 2026-08-02 — the tab is "Advisor Network", and the whole page spells it
+      "Advisor"** (Session 25, `a76b3e2`; re-confirmed by Mike 2026-08-02 when this record was found
+      to contradict the shipped app). 25 strings plus 5 demo job titles, scoped from
+      [`utils/i18nMessages.js`](../utils/i18nMessages.js) — only the `common` / `console` / `firm`
+      sections are surfaced by this app, so the rest of Collaborate's wording file was correctly
+      left alone. **Internal key names are unchanged** (`firmAdviserNetwork.*`, and the `lede` text
+      above is otherwise as approved): they are not user-facing.
+    - ⚠ **The line above is kept, not overwritten.** It is the true record of the original ruling,
+      and a superseded ruling that quietly disappears leaves the next person unable to tell a
+      decision from a drift.
   - ⚠ **HONEST LIMITS THAT REMAIN.** The advisers shown come from Collaborate's **in-memory
     store, which resets on restart** (slice 5) — dev-firm-001 shows "Advisor-e Munich" with 3
     advisers and 2 pending approvals, and none of it is real data. The `firm-manager` page chunk
     grew 186 → 213 KiB uncompressed; it is an async route chunk, not first-load, so the 300 KB
     gzipped budget is not engaged — but it has not been measured gzipped either way.
+    - ◐ **UPDATED 2026-08-02 (slice 5 phase B) — the reset is fixed IN DEVELOPMENT ONLY, and the
+      distinction is the point.** On a developer machine the store now snapshots to a gitignored
+      `data/dev-collaborate-people.json` after each change and hydrates on boot, so the tab keeps
+      its advisers *and* the manager's own decisions across a restart. **In production nothing is
+      read or written** — deliberately: the store holds names, emails and phone numbers, and that
+      file on a live server would be personal data at rest outside the database. **So a UAT or
+      production instance still resets on restart**; only MySQL fixes that (phase C, blocked on
+      provisioning). Do not read this row as "persistence is done". The data is still mock, and
+      the chunk size above is unchanged and still unmeasured gzipped.
+
+  ### Session 23 (2026-08-02, laptop) — THE TWO DIVISIONS JOINED, AND A THIRD ONE FOUND ADRIFT
+
+  Suite **3,499 → 3,665 / 222 suites**, lint 0 errors, audit gate clean. Commits `cade62e`
+  (laptop), `6b9d4d2` (on the release snapshot), **PR #29** (`9661b0b`), merge `10d9a37`.
+  **Every step was approved by Mike individually; nothing unapproved is in the tree.**
+
+  - **The db-pool test left the Collaborate folder** (`cade62e`). Session 22 logged it as a small
+    follow-up: `tests/collaborate/db.test.js` had been repointed at OUR pool, so a future "remove
+    Collaborate" sweep would have deleted the app's **only** test of its database connection.
+    Moved to `tests/unit/db.test.js` — a pure `git mv`, no content change, because both folders sit
+    two levels under the root and its `require('../../…')` paths resolve identically. Counts
+    unchanged (3,499 / 213), which is the proof rather than a coincidence.
+  - 🔴 **THE DESKTOP'S 26 COMMITS REACHED `master` (PR #29) — and one defect was found and fixed
+    on the way.** Verified **before** proposing the merge, in a detached throwaway worktree with
+    the gitignored master export copied in first (the 2026-07-29 near-miss: without it
+    `ghostReferenceValidator` reports no ghosts and two tests fail for the wrong reason).
+    - **220/221 suites on a clean checkout — one failure the desktop could not have seen.**
+      `CONTENT-ROUTING.md` carried a **count of the gitignored `data/dev-*.json` stores**, so the
+      document was reproducible only on a machine where the app had been run: `11` on the desktop,
+      `0` in a fresh clone, worktree or CI — while `contentRoutingReport.test.js` exists precisely
+      to assert it matches its generator. **Green on its author's machine, red everywhere else.**
+    - Fixed by naming the files instead of counting them, with a comment saying why a count must
+      not return — *the failure is invisible from any machine that has run the app*. **Proven by
+      regenerating with 0 dev files, then 3 planted, then 0 again: identical SHA-256 all three
+      times**, and the old code confirmed machine-dependent the same way. A measured fix, not a
+      plausible one. Then confirmed from the other direction when the merge landed here, on a
+      machine that HAS all 11.
+    - **Cut as a frozen `release/firm-quiz-builder-2026-08-02` snapshot at `2caee06`**, never
+      pointed at the live branch — the PR #23 → #24 lesson, so anything the desktop committed that
+      day could not silently join the release.
+    - ⚠ **The pre-commit hook REFUSED to run in the worktree** (`.husky/_/husky.sh` is generated by
+      `npm install` and does not travel). The helper was copied in so all three gates ran for real
+      — **not** `--no-verify`. Worth knowing before anyone reaches for the flag: **verifying in a
+      worktree needs three things carried in by hand — the gitignored master export, a
+      `node_modules` junction, and `.husky/_/husky.sh`.**
+  - **`master` merged into this branch (`10d9a37`) — clean, and the arithmetic is the proof.**
+    `master`'s 3,652 + this branch's 13 = **3,665**. Not one test dropped or duplicated, which is
+    the specific thing that fails when two branches meet (Session 21's 13 missing row ids).
+  - 🔴 **THEN THE REAL FINDING — see [`stranded-report-programme`](#stranded-report-programme) in
+    the ★ block.** Measuring which branches sit ahead of `master`, to design the fix for
+    [`startup-blind-to-other-machine`](#startup-blind-to-other-machine), surfaced
+    `feat/business-performance-report` at **73 ahead, last touched 2026-07-29**: Cost of Capital,
+    Lease vs Buy, the Loan Estimator and **ReportShell — the model visual standard** — none of it
+    in `master`. **The blind spot found its own second instance before its fix was even written.**
+    Full detail and the trial-merge measurement are in that item.
+  - **SLICE 3 HELD, deliberately, on Mike's call.** Counted rather than recalled: `loadFirmConfig`
+    has **26 call sites across 10 files**, and the desktop's last 26 commits touched **three of
+    those ten** — `server/routes/firmManager.js` (17 of the 26 calls), `advisorEngine.js`,
+    `courseEngine.js`. The danger is not the loud conflict git shows you; it is the desktop
+    **adding a new call** while the function's meaning changes — that merges green and is wrong,
+    and it has already happened three times on this exact function.
+    - **The control to build when it does start:** make a call in the old shape **throw**, so
+      anything added meanwhile fails loudly in the suite instead of merging silently. That turns
+      the dangerous class into the visible one and depends on nobody remembering anything.
+  - ⚠ **`startup-blind-to-other-machine` is PLANNED, NOT BUILT.** The design: a **report-only**
+    section in `scripts/check-branch-state.js` listing other branches ahead of `master` with how
+    far and when last touched; never blocks a push (another machine being ahead is not your fault);
+    fetches all of `origin` rather than just `master`, since stale local refs would defeat it;
+    excludes your own branch and the frozen `release/*` snapshots. Today that yields **two lines,
+    not a wall of noise**. ⚠ **The script has NO test at all** — one comes with the change.
+
+  ### Session 22 (2026-08-02, laptop) — COLLABORATE SLICE 5 phases A and B: one pool, and a store that remembers
+
+  Suite **3,486 → 3,499 / 213 suites** (one new suite), lint 0 errors, audit gate clean.
+  Commits `e3d701c` (phase A) and `285b0eb` (phase B). **Slice 5 was taken ahead of slice 3 on
+  Mike's call**, knowing phase B may need revisiting after the storage re-key — the trade was
+  made explicitly, not by accident.
+
+  - 🔴 **THE DUPLICATE POOL WAS NOT MERELY UNTIDY — THE FILE ARGUED WITH ITSELF.**
+    `server/collaborate/utils/db.js` was byte-identical to `server/utils/db.js` bar the require
+    depth, and **after slice 2 merged the two `config/integration.js` files it read the SAME
+    settings** — so uncommenting `repository.js`'s SQL seam would have opened **two connection
+    pools onto one database**. The trap was sharper than that: `repository.js`'s docblock already
+    told the master team to use `server/utils/db.js` and `config/db-schema.sql`, while **the line
+    of code directly beneath it required Collaborate's copy**. Anyone wiring SQL follows the code,
+    not the prose. Deleted; seam repointed; the pool test (then `tests/collaborate/db.test.js`,
+    since moved — see below) repointed to our pool — which **had no test at all until then**, so
+    the merge gained coverage rather than losing it.
+    (Its docblock had said `server/utils/db.js` all along while requiring the other file.)
+    - ✅ **Small follow-up, DONE 2026-08-02 (session 23).** That test covered OUR pool while
+      living in `tests/collaborate/`, so a future "remove Collaborate" sweep would have deleted
+      the only test of the app's database connection. Moved to **`tests/unit/db.test.js`**.
+      A pure `git mv` with **no content change**: both folders sit two levels under the repo
+      root, so its two `require('../../…')` paths resolve to the same files as before.
+  - **The 15 Collaborate tables moved into `config/db-schema.sql`** under their own section, with
+    **table-name collisions checked before merging rather than assumed** (there were none; 26
+    tables, no duplicates). They also inherit the `CREATE DATABASE` / `USE` that their standalone
+    file never had — it had relied on the operator selecting a database first. One comment carried
+    a path that changed when the app landed here (`server/data/ipClassification.js` →
+    `server/collaborate/data/ipClassification.js`) and was corrected in passing.
+  - 🔴 **"PERSIST THE ADVISERS" WOULD HAVE BEEN THE WRONG SCOPE, and reading the tab proved it.**
+    The Adviser Network tab is not read-only: it writes **cross-firm posture**, **approve/decline
+    on a join request** and **group invitations** — four different collections. Persisting the
+    adviser list alone would still have lost the manager's own decisions on restart.
+  - **The 22 mutating exports are wrapped from ONE list**, not a save call added at each of the 21
+    mutation sites — a missed site there is silent data loss. A naming-convention test
+    (`MUTATING_VERBS`) fails if someone adds `createSomething()` and does not list it.
+  - 🔴 **THE LIMIT THAT MUST NOT BE MISREAD: this is DEV-ONLY, and production still resets.**
+    `NODE_ENV=production` reads nothing and writes nothing, whatever else is configured, because
+    the store holds names, emails and phone numbers — that file on a live server is personal data
+    at rest outside the database. Durable storage is MySQL (phase C, blocked on provisioning).
+    **Phase C was offered and refused on honesty grounds:** 42 untestable SQL bodies with no
+    database to run them against is the fake-finished work CLAUDE.md forbids.
+  - **Two failure modes designed out rather than discovered.** (1) **The id counters travel inside
+    the snapshot** — restore the rows without them and the next created row reuses an id that is
+    already taken. (2) **The suite is sealed off from the developer's file** — hydrating from
+    whatever sits on a machine would make the 431 Collaborate tests depend on local state, the
+    trap that bit the firm-distinctions dev fallback before it was hardened. Every test names its
+    own temp file, and the full run was checked to leave `data/` untouched.
+  - ✅ **MUTATION-VERIFIED OUTSIDE THE REPO, and each mutation confirmed to have APPLIED first** —
+    the Session 21 lesson earning its place: a mutant that never ran reads exactly like a mutant
+    that was killed. Remove the production guard → production writes a file; remove the Jest guard
+    → it enables under test; remove the shape guard → a JSON array is accepted. Each kills its own
+    test and no other; the original passes all three.
+  - ✅ **THEN PROVEN IN A REAL NODE PROCESS, NOT JEST** (env-pointed at a scratchpad file, so
+    nothing was written into the repo): first run read the seeded `open` and changed it; **second
+    run booted reading `closed`**, with 9 advisers, 4 groups, postures and all five counters
+    restored. ⚠ **Not seen in a browser after a restart** — the mechanism is proven end to end,
+    the on-screen experience is not. Worth one click-through when the app is next running.
+  - ⚠ **CROSS-MACHINE — slice 3 is now MORE entangled with the desktop, not less.** Checked, not
+    assumed: the desktop's `feat/firm-quiz-builder-ui` (26 ahead, 0 behind) touches **none** of the
+    slice-3 storage files, but it has added **two new callers of `overlay.loadFirmConfig(firmId,…)`**
+    at `firmManager.js` ~L3109 and ~L3152 — the exact function slice 3 re-keys. That merges
+    **green and silently wrong**. With `staircaseConfig.js` that is three such callers added since
+    the collision list was written. **Recommendation on record: land the desktop's branch into
+    `master` BEFORE starting slice 3**, so every caller is visible in one tree.
+  - ⚠ **A STALE CLAIM OF MINE, CAUGHT THE SAME DAY.** I reported "16 blank Step-by-step rows in
+    `sales-marketing` waiting for Mike" from a prior session's note. Counted against the desktop's
+    branch: **it has already filled 9 and added 2 materials — 7 remain** (Customer Type Table,
+    Sparketing, Branding Review, Customer Loyalty Programme, Pricing, Packaging/Bundling, Sales
+    Process Review). The inherited-claim rule again: a note from the other machine is a claim to
+    check.
 
   ### Session 21 (2026-08-01, laptop) — COLLABORATE SLICE 2: the two back-ends became one
 
@@ -3314,6 +3738,12 @@ Two honest answers on different axes — the file used to conflate them:
     the suites and the build, exactly as plan §6 risk 4 said. **Collaborate's data layer is still
     its own in-memory store that resets on restart** (slice 5), and **`config/collaborate/db-schema.sql`
     is still a second schema file** (slice 3). Neither was touched.
+    - ✅ **The second schema file is GONE as of 2026-08-02** (slice 5 phase A): its 15 tables were
+      merged into `config/db-schema.sql` under a "COLLABORATE — people layer" section, verified
+      free of table-name collisions before merging, and the file deleted. The master team now
+      applies **one** schema. ◐ **The in-memory-store half was then addressed the same day by
+      phase B — but in DEVELOPMENT ONLY, and production still resets.** See the phase-B note under
+      Session 22 below before quoting this as done.
   - ⚠ **KNOWN DUPLICATES LEFT STANDING, deliberately, and where each one dies:** the two
     `sendError` modules (firmAuth requires Collaborate's for its envelope — one cross-namespace
     require, commented), `server/collaborate/utils/db.js` (a second MySQL pool, now orphaned) and
@@ -3321,6 +3751,20 @@ Two honest answers on different axes — the file used to conflate them:
     it also aborts the upstream request when the client disconnects). All three are storage/data
     surfaces that slices 3 and 5 rewrite with tests around them; merging them ad hoc now was the
     thing the P3 row above explicitly warned against.
+    - ✅ **The duplicate MySQL pool DIED 2026-08-02** (slice 5 phase A). `server/collaborate/utils/db.js`
+      was byte-identical to `server/utils/db.js` bar the require depth, and after slice 2 merged the
+      two `config/integration.js` files it read the **same** DB settings — so uncommenting
+      `repository.js`'s seam would have opened **two pools onto one database**. Worse, that file was
+      **internally contradictory**: its docblock already named `server/utils/db.js` and
+      `config/db-schema.sql` while the code beneath required Collaborate's copy, so anyone wiring SQL
+      would have followed the code and got the wrong pool. Deleted; the seam repointed;
+      the pool test (then `tests/collaborate/db.test.js`) repointed to our pool — which until then
+      had **no test at all**, so this gained coverage rather than losing it. The other two
+      duplicates still stand as written.
+      - ✅ **Follow-up DONE 2026-08-02 (session 23):** that test covered OUR pool while living in
+        `tests/collaborate/`, so a future "remove Collaborate" sweep would have deleted the only
+        test of the app's database connection. Moved to **`tests/unit/db.test.js`** — a pure
+        `git mv`, no content change (same folder depth, so its relative requires still resolve).
   - ⚠ **CROSS-MACHINE: THIS IS THE COLLISION THE SLICE-1 NOTE PREDICTED.** `server/restify-server.js`
     and `config/integration.js` were both edited here. The desktop must merge `master` before
     touching either.
@@ -3797,7 +4241,7 @@ Two honest answers on different axes — the file used to conflate them:
 - ✅ **P3 · TEST — dev-fallback tests no longer depend on local `data/dev-*.json` files. FIXED 2026-06-29.** `platformDistinctions.test.js` uses a surgical `fs` mock (seed-fallback assertions never read a developer's local `dev-platform-distinctions.json`); `caseStore.js` dev path is now `CASE_DEV_FILE`-overridable and `caseStore.devfallback.test.js` points at an isolated per-PID temp file (no shared real file, immune to a concurrent live backend). A clean `npm test` is now deterministic regardless of local dev state. *Source:* Stage D/E session 2026-06-29.
 - ☐ **P3 · TEST — `jest.config.js` `collectCoverageFrom` excludes the decision engine + routes** (`advisorEngine.js`, `courseEngine.js`, `server/routes/**`, `mixins/**`), so the Constitution's ≥90% route / ≥80% mixin targets are **not enforced**. The audit's highest-leverage / lowest-risk item — but removing the exclusions may surface coverage below threshold and fail CI, so it needs a measured pass (raise coverage, or stage thresholds), not a blind flip. *Source:* handover audit #3, 2026-06-21. **Measured 2026-07-14** (client-knowledge-base branch): new `routes/clients.js` at **100% stmts/funcs/lines** (route standard met where built); the pre-existing frontend fetch wrappers (`utils/cases.js` 15%, `utils/clients.js` network half) drag the utils numbers — untestable without fetch mocks, predates the branch. **Measured 2026-07-15** (course-builder Phase 5): a full `jest --coverage` run FAILS the config's own thresholds today — global lines **51.3% vs the configured 80** (`signals.js` ~1%, `templateRegistry.js` 12%, `videoInjector.js` 10%, `tierLookup.js` 33%, `summaries.js` 59%) and `sanitiseInput.js` branches 83.82 vs 85 — confirming thresholds are unenforced (pre-commit runs plain `npm test`, no coverage). Partial progress: `server/courseEngine.js` is now IN `collectCoverageFrom` at **92% lines with a per-file `lines: 90` lock** (`5153419`) — one of the two named engine exclusions closed; `advisorEngine.js`, `server/routes/**`, `mixins/**` remain excluded.
 
-- ☐ **P3 · TEST — No component-test infrastructure and no Playwright, anywhere in the repo.** The Constitution names `@vue/test-utils` v1 (mixins/components ≥80%) and **Playwright for critical journeys**; neither has ever been set up — `tests/` is unit-only. Consequence (honest, measured 2026-07-14): all Vue-layer glue is untested repo-wide (today's client-knowledge-base work followed house practice — logic extracted into tested pure functions, thin Vue handlers untested like every other component). The new intake journey (client step → session → save → catch-up card) is exactly the critical path Playwright exists for. Needs: (a) decide + set up the harness(es), (b) first journeys: advisor intake end-to-end, case save/review. *Source:* testing-standards audit vs CLAUDE.md, 2026-07-14 (client-knowledge-base branch).
+- ☐ **P3 · TEST — ~~No component-test infrastructure and no Playwright, anywhere in the repo.~~ HALF OF THIS IS NO LONGER TRUE — corrected 2026-08-02.** ⚠ **FOURTH stale flag in three days**, after the three found on 2026-08-02 (`hook-tests-worktree-not-commit`, the `leaseVsBuyModel` silent default, the tutorial-video sentence). Same shape every time: **a record describing finished work as outstanding.** Measured, not assumed: **`@vue/test-utils` 1.3.6 is installed**, `tests/helpers/mountComponent.js` is a shared mount helper wiring real Buefy plus a key-returning `$t` stand-in, and **39 `*.component.test.js` files** exist. The component half is not only built, it is in routine use — today's CPD statement work added 15 component tests to it. **What REMAINS open is the Playwright half only:** no browser-journey harness exists, so the critical paths (advisor intake end-to-end, case save/review) are still unexercised, and no test in this repo can see a rendered layout — which is exactly the gap the CPD and certificate print work has just had to declare by hand. **Rescope accordingly: this is a Playwright task, not a component-testing task.** *Original wording follows for the record:* The Constitution names `@vue/test-utils` v1 (mixins/components ≥80%) and **Playwright for critical journeys**; neither has ever been set up — `tests/` is unit-only. Consequence (honest, measured 2026-07-14): all Vue-layer glue is untested repo-wide (today's client-knowledge-base work followed house practice — logic extracted into tested pure functions, thin Vue handlers untested like every other component). The new intake journey (client step → session → save → catch-up card) is exactly the critical path Playwright exists for. Needs: (a) decide + set up the harness(es), (b) first journeys: advisor intake end-to-end, case save/review. *Source:* testing-standards audit vs CLAUDE.md, 2026-07-14 (client-knowledge-base branch).
 
 - ☐ **P3 · STRUCT — Monolithic components, no base/shared split.** `VirtualAdvisor.vue` 2708, `CourseBuilder.vue` 2152, `FirmManagerHub.vue` 1295, `FirmDashboard.vue` 665 — over the "decompose when complex and >200 lines" rule; no `components/base/` or `components/shared/`. *Source:* code-gov audit 2026-06-15.
 
